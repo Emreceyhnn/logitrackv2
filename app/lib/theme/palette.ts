@@ -6,7 +6,7 @@ export const palettes = {
     mode: "dark" as PaletteMode,
 
     primary: {
-      main: "#BEDBB0",
+      main: "#1ec1f2",
       contrastText: "#161616",
     },
 
@@ -111,61 +111,6 @@ export const palettes = {
       color: "rgba(22, 22, 22, 0.1)",
       hover: "rgba(22, 22, 22, 0.2)",
       background: "rgba(232, 232, 232, 1)",
-    },
-  },
-  violet: {
-    mode: "dark" as PaletteMode,
-
-    primary: {
-      main: "#7B7EDE",
-      contrastText: "#FFFFFF",
-    },
-
-    background: {
-      default: "#FFFFFF",
-      dashboardBg: "#ECEDFD",
-      paper: "#FFFFFF",
-      sidebar: "#5255BC",
-      header: "#FFFFFF",
-      hoverBg: "rgba(236, 237, 253, 0.4)",
-    },
-
-    text: {
-      primary: "#161616",
-      secondary: "#161616b3",
-      greenText: "#5255BC",
-      sideBarText: "#FFFFFF",
-    },
-
-    divider: "rgba(255,255,255,0.3)",
-
-    icon: {
-      primary: "#5255BC",
-      secondary: "#b9bbe4",
-    },
-    buttonPrimary: {
-      buttonBg: "#5255BC",
-      buttonBgHover: "#7B7EDE",
-      iconColor: "#161616",
-      iconBgColor: "#FFFFFF",
-      primaryText: "#FFFFFF",
-    },
-    buttonSecondary: {
-      buttonBg: "#FFFFFF",
-      buttonBgHover: "#ffffff93",
-      iconColor: "#FFFFFF",
-      iconBg: "#5057b6",
-      primaryText: "#161616",
-    },
-    logo: {
-      color1: "#ECEDFD",
-      color2: "#5255bc",
-      text: "#ECEDFD",
-    },
-    scroll: {
-      color: "rgba(184, 188, 253, 1)",
-      hover: "rgba(184, 188, 253, 0.5)",
-      background: "rgba(255, 255, 255, 1)",
     },
   },
 };
