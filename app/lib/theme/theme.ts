@@ -1,5 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 import { palettes } from "./palette";
+import { getScrollbarStyles } from "@/app/components/scrollbar";
 
 export type ThemeMode = "light" | "dark" | "violet";
 
@@ -31,4 +32,17 @@ export const getTheme = (mode: ThemeMode) =>
         textTransform: "none",
       },
     },
+    components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            ...getScrollbarStyles({ palette: palettes[mode] }),
+          },
+
+          "*": {
+            ...getScrollbarStyles({ palette: palettes[mode] }),
+          },
+        },
+      },
+    }
   });
