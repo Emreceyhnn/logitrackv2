@@ -1,4 +1,4 @@
-import { LinearProgress, Stack, Typography } from "@mui/material"
+import { Divider, LinearProgress, Stack, Typography } from "@mui/material"
 import CustomCard from "./card"
 import mockData from "@/app/lib/data.json";
 
@@ -12,8 +12,12 @@ const WarehouseCapacityCard = () => {
 
 
     return (
-        <CustomCard>
-            <Stack spacing={1}>
+        <CustomCard sx={{ padding: "0 0 6px 0" }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+                Warehouse
+            </Typography>
+            <Divider />
+            <Stack spacing={1} p={2}>
                 {
                     values.map((i, index) => (
                         <Stack key={index} spacing={1}>

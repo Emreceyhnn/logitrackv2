@@ -1,4 +1,5 @@
-import { Stack } from "@mui/material";
+"use client"
+import { Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "./card";
 import { PieChart } from "@mui/x-charts";
 import mockData from "@/app/lib/data.json";
@@ -25,8 +26,12 @@ const ShipmentOnStatusCard = () => {
     }));
 
     return (
-        <CustomCard>
-            <Stack alignItems="center" sx={{ position: "relative" }}>
+        <CustomCard sx={{ padding: "0 0 6px 0" }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+                Shipment Status
+            </Typography>
+            <Divider />
+            <Stack alignItems="center" sx={{ position: "relative" }} p={2}>
                 <PieChart
 
                     series={[

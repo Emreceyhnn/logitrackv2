@@ -1,6 +1,8 @@
+"use client"
+
 import mockData from "@/app/lib/data.json";
 import CustomCard from "./card";
-import { Stack } from "@mui/material";
+import { Divider, Stack, Typography } from "@mui/material";
 import { LineChart } from "@mui/x-charts";
 
 
@@ -11,8 +13,12 @@ const OnTimeTrendsCard = () => {
 
 
     return (
-        <CustomCard>
-            <Stack>
+        <CustomCard sx={{ padding: "0 0 6px 0", minWidth: 400 }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+                Time Trends
+            </Typography>
+            <Divider />
+            <Stack p={2}>
                 <LineChart
                     xAxis={[{ scaleType: "band", data: values.map(i => i.date) }]}
                     series={[

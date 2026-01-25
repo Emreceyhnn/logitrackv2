@@ -1,4 +1,5 @@
-import { Stack } from "@mui/material"
+"use client"
+import { Divider, Stack, Typography } from "@mui/material"
 import CustomCard from "./card"
 import { BarChart } from "@mui/x-charts"
 import mockData from "@/app/lib/data.json";
@@ -10,15 +11,18 @@ const FuelByVehicleCard = () => {
 
     return (
 
-        <CustomCard>
-            <Stack>
+        <CustomCard sx={{ padding: "0 0 6px 0", minWidth: 400 }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+                Fuel By Vehicle
+            </Typography>
+            <Divider />
+            <Stack p={2}>
                 <BarChart
                     xAxis={[{ data: values.map(i => i.plate) }]}
                     series={[{ data: values.map(i => i.value) }]}
-                    height={300}
+                    height={250}
 
                 />
-
             </Stack>
         </CustomCard>
     )

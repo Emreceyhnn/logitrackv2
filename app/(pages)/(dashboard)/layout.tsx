@@ -1,5 +1,6 @@
 "use client"
 
+import Footer from "@/app/components/footer";
 import SideBar from "@/app/components/sidebar";
 import { Box, Stack, useTheme } from "@mui/material";
 
@@ -14,7 +15,7 @@ export default function DashboardLayout({
   const theme = useTheme()
 
   return (
-    <Box display="flex" minHeight={"200dvh"} sx={{ backgroundColor: theme.palette.background.dashboardBg }} >
+    <Box display="flex" sx={{ backgroundColor: theme.palette.background.dashboardBg, }} >
       <Stack sx={{
         position: "relative",
         top: 0,
@@ -24,7 +25,11 @@ export default function DashboardLayout({
       }}>
         <SideBar />
       </Stack>
-      {children}
+      <Stack flexGrow={1}>
+        {children}
+        <Footer />
+      </Stack>
+
     </Box>
   )
 }
