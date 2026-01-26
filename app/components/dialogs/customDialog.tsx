@@ -5,22 +5,23 @@ interface CustomDialogParams {
   open: boolean;
   onClose: () => void;
   children?: React.ReactNode;
+  maxWidthData?: "xs" | "sm" | "md" | "lg" | "xl" | false;
 }
 
 const CustomDialog = (params: CustomDialogParams) => {
-  const { open, onClose, children } = params;
+  const { open, onClose, children, maxWidthData = "xs" } = params;
 
   return (
     <Dialog
       onClose={onClose}
       open={open}
       fullWidth
-      maxWidth="xs"
+      maxWidth={maxWidthData}
       PaperProps={{
         sx: {
           borderRadius: "8px",
           position: "relative",
-          p: 3,
+          // p: 3,
         },
       }}
     >

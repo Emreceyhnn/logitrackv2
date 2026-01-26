@@ -13,7 +13,14 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
 
-const RowActions = () => {
+
+interface DetailsMenuParams {
+    handleOpenDetails: (id: string) => void;
+    id: string;
+}
+
+
+const RowActions = (params: DetailsMenuParams) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -35,7 +42,7 @@ const RowActions = () => {
                     },
                 }}
             >
-                <MenuItem onClick={() => setAnchorEl(null)}>
+                <MenuItem onClick={() => { setAnchorEl(null); params.handleOpenDetails(params.id); }}>
                     <ListItemIcon>
                         <ContentPasteIcon fontSize="small" />
                     </ListItemIcon>

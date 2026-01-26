@@ -1,3 +1,5 @@
+
+
 import DocumentCalenderCard from "@/app/components/cards/documentCalenderCard";
 import VehicleCapacityChart from "@/app/components/cards/fuelUsageChartCard";
 import VehicleKpiCard from "@/app/components/cards/kpi/vehicleKpiCard";
@@ -5,7 +7,10 @@ import VehicleTable from "@/app/components/cards/table";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 
 
+
 export default function VehiclePage() {
+
+
 
     return (
         <Box position={"relative"} p={4} width={"100%"}>
