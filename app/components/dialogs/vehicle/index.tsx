@@ -6,6 +6,7 @@ import { Vehicle } from "@/app/lib/type/VehicleType";
 import { useState } from "react";
 import OverviewTab from "./overviewTab";
 import { text } from "stream/consumers";
+import DocumentsTab from "./documentsTab";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -117,7 +118,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
             onChange={handleChange}
             aria-label="basic tabs example"
           >
-            <Tab label="Item One" {...a11yProps(0)} />
+            <Tab label="Overview" {...a11yProps(0)} />
             <Tab label="Item Two" {...a11yProps(1)} />
             <Tab label="Item Three" {...a11yProps(2)} />
           </Tabs>
@@ -126,7 +127,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           <OverviewTab vehicle={vehicleData} />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          Item Two
+          <DocumentsTab vehicle={vehicleData} />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
           Item Three

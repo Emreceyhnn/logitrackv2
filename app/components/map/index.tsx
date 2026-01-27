@@ -25,7 +25,7 @@ interface GoogleMapViewProps {
     zoom?: number
 }
 
-const containerStyle = { width: "100%", height: "100%" }
+const containerStyle = { width: "100%", height: "100%", borderRadius: 8 };
 
 const GoogleMapView = ({
     isRoute = false,

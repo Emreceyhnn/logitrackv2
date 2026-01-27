@@ -253,7 +253,8 @@
       },
       "documents": [
         { "type": "INSURANCE", "expiresOn": "2026-07-12", "status": "VALID" },
-        { "type": "INSPECTION", "expiresOn": "2026-02-01", "status": "DUE_SOON" }
+        { "type": "INSPECTION", "expiresOn": "2026-02-01", "status": "DUE_SOON" },
+        { "type": "LICENSE", "expiresOn": "none", "status": "VALID" }
       ],
       "assigned": { "driverId": null, "routeId": null, "shipmentIds": [] }
     },
