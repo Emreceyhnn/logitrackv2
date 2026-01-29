@@ -7,6 +7,7 @@ import { useState } from "react";
 import OverviewTab from "./overviewTab";
 import { text } from "stream/consumers";
 import DocumentsTab from "./documentsTab";
+import MaintenanceTab from "./maintenance";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -119,8 +120,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
             aria-label="basic tabs example"
           >
             <Tab label="Overview" {...a11yProps(0)} />
-            <Tab label="Item Two" {...a11yProps(1)} />
-            <Tab label="Item Three" {...a11yProps(2)} />
+            <Tab label="Documents" {...a11yProps(1)} />
+            <Tab label="Maintenance" {...a11yProps(2)} />
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
@@ -130,7 +131,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           <DocumentsTab vehicle={vehicleData} />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
-          Item Three
+          <MaintenanceTab vehicle={vehicleData} />
         </CustomTabPanel>
       </Stack>
     </CustomDialog>

@@ -20,7 +20,7 @@ const OverviewTab = ({ vehicle }: OverviewTabProps) => {
   }
 
   return (
-    <Stack spacing={2} direction={"row"} minHeight={350} justifyContent={"space-between"}>
+    <Stack spacing={2} direction={"row"} maxHeight={450} height={"100%"} justifyContent={"space-between"}>
 
       <Stack spacing={2} width={"45%"}>
         <Stack direction={"row"} spacing={1}>

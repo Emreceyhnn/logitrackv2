@@ -2,10 +2,9 @@ import {
     Box, Button, Card, Stack, Typography, Table,
     TableBody,
     TableCell,
-    TableContainer,
     TableHead,
     TableRow,
-    Paper,
+    IconButton,
 } from "@mui/material"
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
@@ -22,8 +21,10 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
         return <Typography color="text.secondary">No vehicle selected</Typography>;
     }
 
+
+
     return (
-        <Stack spacing={2} direction={"row"} minHeight={350} justifyContent={"space-between"}>
+        <Stack spacing={2} direction={"row"} maxHeight={450} height={"100%"} justifyContent={"space-center"}>
             <Stack spacing={2}>
                 <Stack spacing={2} direction={"row"}>
                     <Card sx={{ p: 2, borderRadius: "8px", maxWidth: 300, width: "100%", gap: 2 }}>
@@ -59,8 +60,8 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
                 </Stack>
                 <Button variant="contained" sx={{ borderRadius: "8px" }}>Upload New Document</Button>
             </Stack>
-            <Stack>
-                <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
+            <Stack >
+                <Card sx={{ p: 2, borderRadius: "8px", gap: 2 }}>
                     <Table size="small">
                         <TableHead>
                             <TableRow>
@@ -74,17 +75,17 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
                         <TableBody>
                             {vehicle.documents.map((v, index) => (
                                 <TableRow key={index}>
-                                    <TableCell>{v.type}</TableCell>
-                                    <TableCell >{v.status}</TableCell>
+                                    <TableCell ><Typography sx={{ fontSize: 12 }}>{v.type}</Typography></TableCell>
+                                    <TableCell><Typography sx={{ fontSize: 12 }}>{v.status}</Typography></TableCell>
                                     <TableCell>{v.expiresOn}</TableCell>
-                                    <TableCell></TableCell>
+                                    <TableCell align="center"><IconButton sx={{ bgcolor: "success.main" }}><FileUploadIcon sx={{ width: 15, height: 15 }} /></IconButton></TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
-                </TableContainer>
+                </Card>
             </Stack>
-        </Stack>
+        </Stack >
 
 
 

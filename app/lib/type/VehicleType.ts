@@ -44,10 +44,23 @@ export interface MaintenanceIssue {
     createdAt: string; // ISO string
 }
 
+export interface MaintenanceHistoryEntry {
+    id: string;
+    serviceType: string;
+    serviceLabel: string;
+    date: string; // ISO date
+    technician: string;
+    cost: number;
+    currency: string;
+    status: string;
+    odometerKm: number;
+}
+
 export interface VehicleMaintenance {
     nextServiceKm: number;
     nextServiceDate: string; // ISO date
     openIssues: MaintenanceIssue[];
+    history: MaintenanceHistoryEntry[];
 }
 
 export interface VehicleDocument {

@@ -218,8 +218,56 @@
         "nextServiceKm": 190000,
         "nextServiceDate": "2026-02-10",
         "openIssues": [
-          { "id": "iss_1001", "type": "TIRE_PRESSURE", "severity": "MEDIUM", "createdAt": "2026-01-21T08:55:03+03:00" }
-        ]
+          { "id": "iss_1001", "type": "TIRE_PRESSURE", "severity": "MEDIUM", "createdAt": "2026-01-21T08:55:03+03:00" },
+          { "id": "iss_1002", "type": "TIRE_PRESSURE", "severity": "MEDIUM", "createdAt": "2026-01-21T08:55:03+03:00" },
+          { "id": "iss_1003", "type": "TIRE_PRESSURE", "severity": "MEDIUM", "createdAt": "2026-01-21T08:55:03+03:00" }
+        ],
+        "history": [
+    {
+      "id": "mnt_3004",
+      "serviceType": "OIL_CHANGE_FILTER",
+      "serviceLabel": "Oil Change & Filter",
+      "date": "2024-09-15",
+      "technician": "Mike Ross",
+      "cost": 240,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 186450
+    },
+    {
+      "id": "mnt_3003",
+      "serviceType": "TIRE_ROTATION",
+      "serviceLabel": "Tire Rotation",
+      "date": "2024-06-02",
+      "technician": "Alex T.",
+      "cost": 85,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 172300
+    },
+    {
+      "id": "mnt_3002",
+      "serviceType": "BRAKE_INSPECTION",
+      "serviceLabel": "Brake Inspection",
+      "date": "2024-03-10",
+      "technician": "Sarah J.",
+      "cost": 120,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 160800
+    },
+    {
+      "id": "mnt_3001",
+      "serviceType": "GENERAL_TUNE_UP",
+      "serviceLabel": "General Tune-up",
+      "date": "2024-01-15",
+      "technician": "Mike Ross",
+      "cost": 450,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 150200
+    }
+  ]
       },
       "documents": [
         { "type": "INSURANCE", "expiresOn": "2026-11-30", "status": "VALID" },
@@ -282,7 +330,53 @@
         "nextServiceDate": "2026-01-22",
         "openIssues": [
           { "id": "iss_1009", "type": "BRAKE_CHECK", "severity": "HIGH", "createdAt": "2026-01-20T16:10:00+03:00" }
-        ]
+        ],
+       "history": [
+    {
+      "id": "mnt_3004",
+      "serviceType": "OIL_CHANGE_FILTER",
+      "serviceLabel": "Oil Change & Filter",
+      "date": "2024-09-15",
+      "technician": "Mike Ross",
+      "cost": 240,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 186450
+    },
+    {
+      "id": "mnt_3003",
+      "serviceType": "TIRE_ROTATION",
+      "serviceLabel": "Tire Rotation",
+      "date": "2024-06-02",
+      "technician": "Alex T.",
+      "cost": 85,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 172300
+    },
+    {
+      "id": "mnt_3002",
+      "serviceType": "BRAKE_INSPECTION",
+      "serviceLabel": "Brake Inspection",
+      "date": "2024-03-10",
+      "technician": "Sarah J.",
+      "cost": 120,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 160800
+    },
+    {
+      "id": "mnt_3001",
+      "serviceType": "GENERAL_TUNE_UP",
+      "serviceLabel": "General Tune-up",
+      "date": "2024-01-15",
+      "technician": "Mike Ross",
+      "cost": 450,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 150200
+    }
+  ]
       },
       "documents": [
         { "type": "INSURANCE", "expiresOn": "2026-04-10", "status": "DUE_SOON" },
@@ -314,7 +408,53 @@
         "nextServiceDate": "2026-04-01",
         "openIssues": [
           { "id": "iss_1012", "type": "TIRE_PRESSURE", "severity": "LOW", "createdAt": "2026-01-21T08:55:03+03:00" }
-        ]
+        ],
+       "history": [
+    {
+      "id": "mnt_3004",
+      "serviceType": "OIL_CHANGE_FILTER",
+      "serviceLabel": "Oil Change & Filter",
+      "date": "2024-09-15",
+      "technician": "Mike Ross",
+      "cost": 240,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 186450
+    },
+    {
+      "id": "mnt_3003",
+      "serviceType": "TIRE_ROTATION",
+      "serviceLabel": "Tire Rotation",
+      "date": "2024-06-02",
+      "technician": "Alex T.",
+      "cost": 85,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 172300
+    },
+    {
+      "id": "mnt_3002",
+      "serviceType": "BRAKE_INSPECTION",
+      "serviceLabel": "Brake Inspection",
+      "date": "2024-03-10",
+      "technician": "Sarah J.",
+      "cost": 120,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 160800
+    },
+    {
+      "id": "mnt_3001",
+      "serviceType": "GENERAL_TUNE_UP",
+      "serviceLabel": "General Tune-up",
+      "date": "2024-01-15",
+      "technician": "Mike Ross",
+      "cost": 450,
+      "currency": "USD",
+      "status": "COMPLETED",
+      "odometerKm": 150200
+    }
+  ]
       },
       "documents": [
         { "type": "INSURANCE", "expiresOn": "2027-01-10", "status": "VALID" },
