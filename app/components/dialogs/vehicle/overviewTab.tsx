@@ -59,7 +59,7 @@ const OverviewTab = ({ vehicle }: OverviewTabProps) => {
         </Stack>
       </Stack>
       <Stack width={"50%"}>
-        <MapVehicleOverviewCard />
+        <MapVehicleOverviewCard id={vehicle.id} />
       </Stack>
 
     </Stack>

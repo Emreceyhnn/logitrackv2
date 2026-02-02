@@ -8,6 +8,7 @@ import {
 } from "@mui/material"
 import { Vehicle } from "@/app/lib/type/VehicleType";
 import BuildIcon from '@mui/icons-material/Build';
+import { PriorityChip } from "../../chips/priorityChips";
 
 interface OverviewTabProps {
     vehicle?: Vehicle;
@@ -56,7 +57,7 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
                                         <Typography sx={{ fontSize: 16, fontWeight: 400 }}>Brake Pads Wear</Typography>
                                         <Typography sx={{ fontSize: 12, fontWeight: 200, color: "text.secondary" }}>Reported on {i.createdAt}</Typography>
                                     </Stack>
-                                    <Box sx={{ bgcolor: "warning.main", padding: "4px 16px", borderRadius: "8px", marginLeft: "auto" }}><Typography sx={{ color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{i.severity}</Typography></Box>
+                                    <PriorityChip status={i.severity} />
                                 </Card>
                             ))
                         }

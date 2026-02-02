@@ -1,9 +1,9 @@
 
 
-import DocumentCalenderCard from "@/app/components/cards/documentCalenderCard";
-import VehicleCapacityChart from "@/app/components/cards/fuelUsageChartCard";
-import VehicleKpiCard from "@/app/components/cards/kpi/vehicleKpiCard";
-import VehicleTable from "@/app/components/cards/table";
+import DocumentCalenderCard from "@/app/components/dashboard/vehicle/documentCalenderCard";
+import VehicleCapacityChart from "@/app/components/dashboard/vehicle/fuelUsageChartCard";
+import VehicleKpiCard from "@/app/components/dashboard/vehicle/vehicleKpiCard";
+import VehicleTable from "@/app/components/dashboard/vehicle/vehicleTable";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 
 
@@ -28,7 +28,6 @@ export default function VehiclePage() {
                 <DocumentCalenderCard />
                 <VehicleCapacityChart />
             </Stack>
-
         </Box>
     )
 }

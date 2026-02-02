@@ -11,6 +11,7 @@ import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
 import WarningIcon from '@mui/icons-material/Warning';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { Vehicle } from "@/app/lib/type/VehicleType";
+import { StatusChip } from "../../chips/statusChips";
 
 interface OverviewTabProps {
     vehicle?: Vehicle;
@@ -76,7 +77,7 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
                             {vehicle.documents.map((v, index) => (
                                 <TableRow key={index}>
                                     <TableCell ><Typography sx={{ fontSize: 12 }}>{v.type}</Typography></TableCell>
-                                    <TableCell><Typography sx={{ fontSize: 12 }}>{v.status}</Typography></TableCell>
+                                    <TableCell><StatusChip status={v.status} /></TableCell>
                                     <TableCell>{v.expiresOn}</TableCell>
                                     <TableCell align="center"><IconButton sx={{ bgcolor: "success.main" }}><FileUploadIcon sx={{ width: 15, height: 15 }} /></IconButton></TableCell>
                                 </TableRow>

@@ -1,15 +1,15 @@
 
-import ActionRequiredCard from "@/app/components/cards/actionRequiredCard";
+import ActionRequiredCard from "@/app/components/dashboard/overview/actionRequiredCard";
 import { Box, Divider, Stack, Typography } from "@mui/material";
-import DailyOperationsCard from "../../../components/cards/dailyOperations";
-import FuelByVehicleCard from "@/app/components/cards/fuelByVehicleCard";
-import WarehouseCapacityCard from "@/app/components/cards/warehouseCapacityCard";
-import AlertInventoryCard from "@/app/components/cards/inventoryCard";
-import ShipmentOnStatusCard from "@/app/components/cards/shipmentsByStatusCard";
-import PicksPacksDailyCard from "@/app/components/cards/picsPacksDailyCard";
-import MapCard from "@/app/components/cards/mapCard";
-import OnTimeTrendsCard from "@/app/components/cards/onTimeTrends";
-import OverviewKpiCard from "@/app/components/cards/kpi/overviewKpiCard";
+import DailyOperationsCard from "../../../components/dashboard/overview/dailyOperations";
+import FuelByVehicleCard from "@/app/components/dashboard/overview/fuelByVehicleCard";
+import WarehouseCapacityCard from "@/app/components/dashboard/overview/warehouseCapacityCard";
+import AlertInventoryCard from "@/app/components/dashboard/overview/inventoryCard";
+import ShipmentOnStatusCard from "@/app/components/dashboard/overview/shipmentsByStatusCard";
+import PicksPacksDailyCard from "@/app/components/dashboard/overview/picsPacksDailyCard";
+import OnTimeTrendsCard from "@/app/components/dashboard/overview/onTimeTrends";
+import OverviewKpiCard from "@/app/components/dashboard/overview/overviewKpiCard";
+import OverviewMapCard from "@/app/components/dashboard/overview/overViewMapCard";
 
 
 
@@ -46,7 +46,7 @@ export default function OverviewPage() {
                     <ShipmentOnStatusCard />
                     <PicksPacksDailyCard />
                 </Stack>
-                <MapCard />
+                <OverviewMapCard />
 
             </Stack>
             <Stack mt={2}>

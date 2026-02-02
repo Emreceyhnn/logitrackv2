@@ -6,6 +6,7 @@ import { AdvancedMarker } from "./advancedMarker"
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import PersonIcon from '@mui/icons-material/Person';
+import StoreIcon from '@mui/icons-material/Store';
 import { Stack, Typography } from "@mui/material";
 
 type LatLng = { lat: number; lng: number }
@@ -92,11 +93,15 @@ const GoogleMapView = ({
     /* ------------------------------- components ------------------------------- */
     const IconSetter = (type: string) => {
 
+
         if (type === "W") {
             return (<WarehouseIcon sx={{ color: "orange", fontSize: 30 }} />)
         }
         else if (type === "V") {
             return (<DirectionsCarIcon sx={{ color: "blue", fontSize: 30 }} />)
+        }
+        else if (type === "C") {
+            return (<StoreIcon sx={{ color: "#7b1fa2", fontSize: 30 }} />) // Purple for customers
         }
         else {
             return (<PersonIcon sx={{ color: "blue", fontSize: 30 }} />)

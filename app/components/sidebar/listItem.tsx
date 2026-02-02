@@ -7,7 +7,7 @@ import {
     Collapse,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
+import { useRouter, usePathname } from "next/navigation";
 
 export type SidebarItem = {
     title: string;
@@ -23,10 +23,37 @@ export type Params = {
 export function SidebarList(params: Params) {
     const { items } = params
     const [openKey, setOpenKey] = useState<string | null>(null);
+    const router = useRouter();
+
 
     const handleToggle = (title: string) => {
         setOpenKey(prev => (prev === title ? null : title));
     };
+
+    const handleNavigate = (path: string) => {
+        router.push(path);
+    }
+
+    const getRoute = (title: string) => {
+        const routes: Record<string, string> = {
+            "Overview": "/overview",
+            "Vehicles": "/vehicle",
+            "Drivers": "/drivers",
+            "Routes": "/routes",
+            "Shipments": "/shipments",
+            "Management": "/management",
+            "Warehouses": "/warehouses",
+            "Inventory": "/inventory",
+            "Customers": "/customers",
+            "Reports": "/reports",
+            "Analytics": "/analytics",
+            "Users": "/users",
+            "Roles": "/roles",
+            "Settings": "/settings"
+
+        }
+        return routes[title] || "#";
+    }
 
     return (
         <List disablePadding sx={{
@@ -43,7 +70,7 @@ export function SidebarList(params: Params) {
                     <div key={item.title} >
                         {/* Parent */}
                         <ListItemButton
-                            onClick={() => hasChildren && handleToggle(item.title)}
+                            onClick={() => hasChildren ? handleToggle(item.title) : handleNavigate(getRoute(item.title))}
                             sx={{ px: 3 }}
 
                         >
@@ -71,7 +98,7 @@ export function SidebarList(params: Params) {
                                     {item?.subTitles?.map(sub => (
                                         <ListItemButton
                                             key={sub}
-
+                                            onClick={() => handleNavigate(getRoute(sub))}
 
                                         >
                                             <ListItemText
