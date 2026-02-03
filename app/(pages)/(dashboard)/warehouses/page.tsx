@@ -1,10 +1,10 @@
 "use client"
 
 import { Box, Divider, Grid, Stack, Typography } from "@mui/material";
-import WarehouseKpiCard from "@/app/components/dashboard/warehousee/warehouseKpiCard";
-import WarehouseListTable from "@/app/components/dashboard/warehousee/warehouseList";
-import CapacityUtilization from "@/app/components/dashboard/warehousee/capacityUtilization";
-import RecentStockMovements from "@/app/components/dashboard/warehousee/recentStockMovements";
+import WarehouseKpiCard from "@/app/components/dashboard/warehouse/warehouseKpiCard";
+import WarehouseListTable from "@/app/components/dashboard/warehouse/warehouseList";
+import CapacityUtilization from "@/app/components/dashboard/warehouse/capacityUtilization";
+import RecentStockMovements from "@/app/components/dashboard/warehouse/recentStockMovements";
 
 export default function WarehousePage() {
     return (

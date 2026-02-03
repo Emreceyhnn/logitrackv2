@@ -10,7 +10,7 @@ import {
     Typography,
     Divider,
 } from "@mui/material";
-import CustomCard from "../../card";
+import CustomCard from "../../../cards/card";
 import mockData from "@/app/lib/data.json";
 import RowActions from "./menu";
 import ShipmentDetailDialog from "../../../dialogs/shipment/shipmentDetailDialog";

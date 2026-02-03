@@ -1,6 +1,11 @@
 "use client"
-import { Card, Stack, Typography, useTheme } from "@mui/material"
+import { Stack, useTheme } from "@mui/material"
 import mockData from "@/app/lib/data.json";
+import StatCard from "../../cards/StatCard";
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
+import InventoryIcon from '@mui/icons-material/Inventory';
 
 const ShipmentKpiCard = () => {
     const theme = useTheme()
@@ -8,85 +13,47 @@ const ShipmentKpiCard = () => {
     const totalShipments = mockData.shipments.length;
     const activeShipments = mockData.overview.kpis.activeShipments;
     const delayedShipments = mockData.overview.kpis.delayedShipments;
-
-    const deliveredShipments = mockData.shipments.filter(s => s.status === 'DELIVERED').length;
-
     const inTransit = mockData.shipments.filter(s => s.status === 'IN_TRANSIT').length;
 
     const kpiItems = [
-        { label: "Active Shipments", value: activeShipments },
-        { label: "Delayed Shipments", value: delayedShipments },
-        { label: "In Transit", value: inTransit },
-
+        {
+            label: "Total Shipments",
+            value: totalShipments,
+            icon: <InventoryIcon />,
+            color: theme.palette.primary.main
+        },
+        {
+            label: "Active Shipments",
+            value: activeShipments,
+            icon: <LocalShippingIcon />,
+            color: theme.palette.info.main
+        },
+        {
+            label: "Delayed Shipments",
+            value: delayedShipments,
+            icon: <AccessTimeIcon />,
+            color: theme.palette.error.main
+        },
+        {
+            label: "In Transit",
+            value: inTransit,
+            icon: <DirectionsBoatIcon />,
+            color: theme.palette.warning.main
+        }
     ];
 
     return (
-        <Stack direction={"row"} spacing={2} mt={2} justifyContent={"space-between"} >
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(25% - 16px)",
-                    flexGrow: 0,
-                    boxShadow: 3
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Total Shipments</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{totalShipments}</Typography>
+        <Stack direction={"row"} flexWrap="wrap" gap={2} mt={2} justifyContent={"center"} >
+            {kpiItems.map((item, index) => (
+                <Stack key={index} flexBasis={{ xs: "100%", sm: "48%", md: "23%" }} flexGrow={1}>
+                    <StatCard
+                        title={item.label}
+                        value={item.value}
+                        icon={item.icon}
+                        color={item.color}
+                    />
                 </Stack>
-            </Card>
-
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(25% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Active Shipments</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{activeShipments}</Typography>
-                </Stack>
-            </Card>
-
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(25% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Delayed Shipments</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{delayedShipments}</Typography>
-                </Stack>
-            </Card>
-
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(25% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>In Transit</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{inTransit}</Typography>
-                </Stack>
-            </Card>
-
+            ))}
         </Stack>
     )
 }

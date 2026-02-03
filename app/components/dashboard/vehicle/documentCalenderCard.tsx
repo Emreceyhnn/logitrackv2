@@ -8,30 +8,10 @@ import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import type { PickersDayProps } from "@mui/x-date-pickers/PickersDay";
 import { Badge, Divider, Tooltip, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
-import mockData from "@/app/lib/data.json";
+import { getExpiringDocuments } from "@/app/lib/analyticsUtils";
 
 /* -------------------- DATA -------------------- */
-const documents = mockData.vehicles.flatMap(v =>
-    v.documents
-        .filter(d => d.status === "DUE_SOON")
-        .map(d => ({
-            vehicleId: v.id,
-            plate: v.plate,
-            ...d,
-        }))
-);
-
-const maintenance = mockData.vehicles.flatMap(v => {
-    return ({
-        type: "Service",
-        vehicleId: v.id,
-        plate: v.plate,
-        expiresOn: v.maintenance.nextServiceDate
-    })
-}
-)
-
-const values = [...documents, ...maintenance]
+const values = getExpiringDocuments();
 
 
 /* -------------------- DAY SLOT -------------------- */

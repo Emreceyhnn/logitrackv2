@@ -1,7 +1,7 @@
 "use client"
 
 import ShipmentKpiCard from "@/app/components/dashboard/shipments/shipmentKpiCard";
-import ShipmentTable from "@/app/components/cards/table/shipmentTable";
+import ShipmentTable from "@/app/components/dashboard/shipments/shipmentTable";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 
 

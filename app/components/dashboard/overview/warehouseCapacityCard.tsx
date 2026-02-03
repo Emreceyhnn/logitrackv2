@@ -1,12 +1,12 @@
 import { Divider, LinearProgress, Stack, Typography } from "@mui/material"
 import CustomCard from "../../cards/card"
-import mockData from "@/app/lib/data.json";
+import { getWarehouseCapacityData } from "@/app/lib/analyticsUtils";
 
 const WarehouseCapacityCard = () => {
 
 
 
-    const values = mockData.warehouses.map(i => { return { warehouseName: i.name, warehouseId: i.id, capacity: (i.capacity.usedPallets / i.capacity.maxPallets) * 100, volume: (i.capacity.usedVolumeM3 / i.capacity.maxVolumeM3) * 100 } })
+    const values = getWarehouseCapacityData()
 
 
 

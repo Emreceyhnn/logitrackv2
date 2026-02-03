@@ -20,7 +20,6 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import BusinessIcon from '@mui/icons-material/Business';
 import VerifiedIcon from '@mui/icons-material/Verified';
-import LanguageIcon from '@mui/icons-material/Language';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AssignmentIcon from '@mui/icons-material/Assignment';
@@ -41,7 +40,6 @@ const CustomerDetailDialog = ({ open, onClose, customerId }: CustomerDetailDialo
 
     if (!customer) return null;
 
-    // Mock aggregate data for visualization since it's not in the simple customer object
     const totalOrders = Math.floor(Math.random() * 500) + 50;
     const activeOrders = Math.floor(Math.random() * 20) + 2;
 
@@ -58,7 +56,7 @@ const CustomerDetailDialog = ({ open, onClose, customerId }: CustomerDetailDialo
                 }
             }}
         >
-            {/* Header Section */}
+
             <Box sx={{
                 p: 3,
                 background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,

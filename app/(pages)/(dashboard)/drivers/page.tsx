@@ -18,10 +18,10 @@ export default function DriverPage() {
             }}>Drivers</Typography>
             <Divider />
             <DriverKpiCard />
-            <DriverPerformanceCharts />
             <Stack mt={2}>
                 <DriverTable />
             </Stack>
+            <DriverPerformanceCharts />
         </Box>
     )
 }

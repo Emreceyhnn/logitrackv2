@@ -11,7 +11,7 @@ import {
     Divider,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
-import mockData from "@/app/lib/data.json";
+import { getVehicleList } from "@/app/lib/analyticsUtils";
 import RowActions from "./menu";
 import VehicleDialog from "../../../dialogs/vehicle";
 import { useState } from "react";
@@ -23,23 +23,24 @@ const VehicleTable = () => {
     const [open, setOpen] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | undefined>(undefined);
 
+    const vehicles = getVehicleList();
 
     const handleClose = () => {
         setOpen(false);
     }
 
     const handleOpen = (id: string) => {
-        const vehicle = mockData.vehicles.find(v => v.id === id);
+        const vehicle = vehicles.find(v => v.id === id);
         if (!vehicle) return;
 
         setSelectedVehicle(vehicle);
         setOpen(true);
     };
 
-
     return (
         <>
             <CustomCard sx={{ padding: "0 0 6px 0" }}>
+                {/* ... header ... */}
                 <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
                     Vehicle List
                 </Typography>
@@ -48,6 +49,7 @@ const VehicleTable = () => {
 
                 <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
                     <Table size="small">
+                        {/* ... TableHead ... */}
                         <TableHead>
                             <TableRow>
                                 <TableCell></TableCell>
@@ -63,7 +65,7 @@ const VehicleTable = () => {
                         </TableHead>
 
                         <TableBody>
-                            {mockData.vehicles.map((v, index) => (
+                            {vehicles.map((v, index) => (
                                 <TableRow key={v.id}>
                                     <TableCell>{index + 1}</TableCell>
                                     <TableCell>{v.plate}</TableCell>

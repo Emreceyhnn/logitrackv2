@@ -1,6 +1,7 @@
 "use client"
-import { Card, Grid, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Stack, Typography, useTheme, Divider } from "@mui/material";
 import { BarChart } from '@mui/x-charts/BarChart';
+import CustomCard from "../../cards/card";
 import mockData from "@/app/lib/data.json";
 
 const DriverPerformanceCharts = () => {
@@ -13,59 +14,83 @@ const DriverPerformanceCharts = () => {
     const workingHours = drivers.map(d => Math.round(d.compliance.workingHours.weekMinutes / 60)); // Convert to hours
 
     return (
-        <Grid container spacing={2} mt={2}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mt={2}>
             {/* Chart 1: Driver Ratings */}
-            <Grid item xs={12} md={6}>
-                <Card sx={{ p: 3, borderRadius: "12px", boxShadow: 3 }}>
+            <Box flex={1}>
+                <CustomCard sx={{ height: "100%", p: 2 }}>
                     <Stack spacing={2}>
-                        <Typography variant="h6" fontWeight={600}>
+                        <Typography variant="h6" fontWeight={600} sx={{ p: 1 }}>
                             Driver Ratings
                         </Typography>
+                        <Divider />
                         <BarChart
                             xAxis={[{
                                 scaleType: 'band',
                                 data: driverNames,
-                                label: 'Driver'
+                                label: 'Driver',
+                                tickLabelStyle: { fill: theme.palette.text.secondary }
+                            }]}
+                            yAxis={[{
+                                label: 'Rating (0-5)',
+                                labelStyle: { fill: theme.palette.text.secondary }
                             }]}
                             series={[{
                                 data: ratings,
                                 color: theme.palette.primary.main,
-                                label: 'Rating (0-5)'
+                                label: 'Rating (0-5)',
+                                highlightScope: { highlight: 'item', fade: 'global' },
                             }]}
                             height={300}
-                            margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
-                            borderRadius={4}
+                            margin={{ top: 10, bottom: 40, left: 40, right: 10 }}
+                            borderRadius={8}
+                            slotProps={{
+                                legend: {
+
+                                }
+                            }}
                         />
                     </Stack>
-                </Card>
-            </Grid>
+                </CustomCard>
+            </Box>
 
             {/* Chart 2: Weekly Working Hours */}
-            <Grid item xs={12} md={6}>
-                <Card sx={{ p: 3, borderRadius: "12px", boxShadow: 3 }}>
+            <Box flex={1}>
+                <CustomCard sx={{ height: "100%", p: 2 }}>
                     <Stack spacing={2}>
-                        <Typography variant="h6" fontWeight={600}>
+                        <Typography variant="h6" fontWeight={600} sx={{ p: 1 }}>
                             Weekly Working Hours
                         </Typography>
+                        <Divider />
                         <BarChart
                             xAxis={[{
                                 scaleType: 'band',
                                 data: driverNames,
-                                label: 'Driver'
+                                label: 'Driver',
+                                tickLabelStyle: { fill: theme.palette.text.secondary }
+                            }]}
+                            yAxis={[{
+                                label: 'Hours',
+                                labelStyle: { fill: theme.palette.text.secondary }
                             }]}
                             series={[{
                                 data: workingHours,
                                 color: theme.palette.secondary.main,
-                                label: 'Hours this week'
+                                label: 'Hours this week',
+                                highlightScope: { highlight: 'item', fade: 'global' },
                             }]}
                             height={300}
-                            margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
-                            borderRadius={4}
+                            margin={{ top: 10, bottom: 40, left: 40, right: 10 }}
+                            borderRadius={8}
+                            slotProps={{
+                                legend: {
+
+                                }
+                            }}
                         />
                     </Stack>
-                </Card>
-            </Grid>
-        </Grid>
+                </CustomCard>
+            </Box>
+        </Stack>
     );
 };
 

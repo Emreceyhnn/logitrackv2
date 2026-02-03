@@ -1,89 +1,63 @@
 "use client"
-import { Card, Stack, Typography, useTheme } from "@mui/material"
+
+import { Stack, useTheme } from "@mui/material"
 import mockData from "@/app/lib/data.json";
+import StatCard from "../../cards/StatCard";
+import AltRouteIcon from '@mui/icons-material/AltRoute';
+import LoopIcon from '@mui/icons-material/Loop';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WarningIcon from '@mui/icons-material/Warning';
 
 const RoutesKpiCard = () => {
     const theme = useTheme()
 
     const today = new Date().toISOString().slice(0, 10);
 
-    const activeRoutes = mockData.routes.map(i => i.status === "ACTIVE").length
-    const inProgress = mockData.routes.map(i => i.status === "IN_PROGRESS").length
-    const completedToday = mockData.routes.map(i => i.status === "COMPLETED" && i.completedDate === today).length
-    const delayedRoutes = mockData.routes.map(i => i.status === "DELAYED").length
+    const activeRoutes = mockData.routes.filter(i => i.status === "ACTIVE").length
+    const inProgress = mockData.routes.filter(i => i.status === "IN_PROGRESS").length
+    const completedToday = mockData.routes.filter(i => i.status === "COMPLETED" && i.completedDate === today).length
+    const delayedRoutes = mockData.routes.filter(i => i.status === "DELAYED").length
+
+    const kpiItems = [
+        {
+            label: "Active Routes",
+            value: activeRoutes,
+            icon: <AltRouteIcon />,
+            color: theme.palette.primary.main
+        },
+        {
+            label: "In Progress",
+            value: inProgress,
+            icon: <LoopIcon />,
+            color: theme.palette.info.main
+        },
+        {
+            label: "Completed Today",
+            value: completedToday,
+            icon: <CheckCircleIcon />,
+            color: theme.palette.success.main
+        },
+        {
+            label: "Delayed Routes",
+            value: delayedRoutes,
+            icon: <WarningIcon />,
+            color: theme.palette.error.main
+        }
+    ];
 
     return (
-        <Stack direction={"row"} spacing={2} mt={2} justifyContent={"space-between"} >
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(25% - 16px)",
-                    flexGrow: 0,
-                    boxShadow: 3
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>ACTIVE ROUTES</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{activeRoutes}</Typography>
+        <Stack direction={"row"} flexWrap="wrap" gap={2} mt={2} justifyContent={"center"} >
+            {kpiItems.map((item, index) => (
+                <Stack key={index} flexBasis={{ xs: "100%", sm: "48%", md: "23%" }} flexGrow={1}>
+                    <StatCard
+                        title={item.label}
+                        value={item.value}
+                        icon={item.icon}
+                        color={item.color}
+                    />
                 </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(25% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>IN PROGRESS</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{inProgress}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(25% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Completed Today</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{completedToday}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(25% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Delayed Routes</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{delayedRoutes}</Typography>
-                </Stack>
-
-            </Card>
-
-
-
+            ))}
         </Stack>
-
     )
 }
 

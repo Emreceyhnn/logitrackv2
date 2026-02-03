@@ -6,7 +6,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import { ReactNode } from "react";
-import mockData from "@/app/lib/data.json";
+import { getOpenAlerts } from "@/app/lib/analyticsUtils";
 
 export interface ActionRequiredItems {
     type: "vehicle" | "driver" | "SHIPMENT_DELAY" | "DOCUMENT_DUE" | "warehouse";
@@ -27,11 +27,7 @@ const setType: Record<ActionType, ReactNode> = {
 
 const ActionRequiredCard = () => {
 
-    const alerts: ActionRequiredItems[] = mockData.alerts.map(i => ({
-        type: i.type as ActionType,
-        title: i.title,
-        message: i.message,
-    }));
+    const alerts: ActionRequiredItems[] = getOpenAlerts() as ActionRequiredItems[];
 
     return (
         <CustomCard sx={{ padding: "0 0 6px 0" }}>

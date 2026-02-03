@@ -1,147 +1,85 @@
 "use client"
-import { Card, Stack, Typography, useTheme } from "@mui/material"
-import mockData from "@/app/lib/data.json";
 
-
-
+import { Stack, useTheme } from "@mui/material";
+import { getOverviewKpis } from "@/app/lib/analyticsUtils";
+import StatCard from "../../cards/StatCard";
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import BuildIcon from '@mui/icons-material/Build';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PersonIcon from '@mui/icons-material/Person';
+import WarehouseIcon from '@mui/icons-material/Warehouse';
+import InventoryIcon from '@mui/icons-material/Inventory';
 
 const OverviewKpiCard = () => {
     const theme = useTheme()
 
-    const values = mockData.overview.kpis
+    const values = getOverviewKpis()
+
+    const kpiItems = [
+        {
+            label: "Active Shipments",
+            value: values.activeShipments,
+            icon: <LocalShippingIcon />,
+            color: theme.palette.primary.main
+        },
+        {
+            label: "Delayed Shipments",
+            value: values.delayedShipments,
+            icon: <AccessTimeIcon />,
+            color: theme.palette.error.main
+        },
+        {
+            label: "Vehicles On Trip",
+            value: values.vehiclesOnTrip,
+            icon: <DirectionsCarIcon />,
+            color: theme.palette.info.main
+        },
+        {
+            label: "Vehicles In Service",
+            value: values.vehiclesInService,
+            icon: <BuildIcon />,
+            color: theme.palette.warning.main
+        },
+        {
+            label: "Available Vehicles",
+            value: values.availableVehicles,
+            icon: <CheckCircleIcon />,
+            color: theme.palette.success.main
+        },
+        {
+            label: "Active Drivers",
+            value: values.activeDrivers,
+            icon: <PersonIcon />,
+            color: theme.palette.secondary.main
+        },
+        {
+            label: "Warehouses",
+            value: values.warehouses,
+            icon: <WarehouseIcon />,
+            color: theme.palette.grey[700]
+        },
+        {
+            label: "Inventory Skus",
+            value: values.inventorySkus,
+            icon: <InventoryIcon />,
+            color: theme.palette.info.dark
+        }
+    ];
 
     return (
-        <Stack direction={"row"} spacing={2} mt={2} justifyContent={"center"} >
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                    boxShadow: 3
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Active Shipments</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{values.activeShipments}</Typography>
+        <Stack direction={"row"} flexWrap="wrap" gap={2} mt={2} justifyContent={"center"} >
+            {kpiItems.map((item, index) => (
+                <Stack key={index} flexBasis={{ xs: "100%", sm: "48%", md: "23%" }} flexGrow={1}>
+                    <StatCard
+                        title={item.label}
+                        value={item.value}
+                        icon={item.icon}
+                        color={item.color}
+                    />
                 </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Delayed Shipments</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{values.delayedShipments}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Vehicles On Trip</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{values.vehiclesOnTrip}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Vehicles In Service</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{values.vehiclesInService}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Available Vehicles</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{values.availableVehicles}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Active Drivers</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{values.activeDrivers}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Warehouses</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{values.warehouses}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Inventory Skus</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{values.inventorySkus}</Typography>
-                </Stack>
-
-            </Card>
-
+            ))}
         </Stack>
 
     )

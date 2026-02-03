@@ -1,4 +1,4 @@
-import mockData from "@/app/lib/data.json";
+import { getLowStockItems } from "@/app/lib/analyticsUtils";
 import CustomCard from "../../cards/card";
 import { Divider, Stack, Typography } from "@mui/material";
 import React from "react";
@@ -6,15 +6,7 @@ import React from "react";
 const AlertInventoryCard = () => {
 
 
-    const inventory = mockData.inventory.stockByWarehouse.flatMap(i =>
-        i.lines
-            .filter(y => y.onHand < 200)
-            .map(y => ({
-                item: y.skuId,
-                warehouseId: i.warehouseId,
-                onHand: y.onHand
-            }))
-    );
+    const inventory = getLowStockItems()
 
     return (
         <CustomCard sx={{ padding: "0 0 6px 0", }}>

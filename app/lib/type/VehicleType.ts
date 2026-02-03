@@ -61,6 +61,7 @@ export interface VehicleMaintenance {
     nextServiceDate: string; // ISO date
     openIssues: MaintenanceIssue[];
     history: MaintenanceHistoryEntry[];
+    status?: string;
 }
 
 export interface VehicleDocument {

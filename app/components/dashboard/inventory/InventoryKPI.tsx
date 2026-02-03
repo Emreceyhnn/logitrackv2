@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, Stack, Typography, useTheme, Box, alpha } from "@mui/material";
+import StatCard from "../../cards/StatCard";
 import InventoryIcon from '@mui/icons-material/Inventory';
 import WarningIcon from '@mui/icons-material/Warning';
 import ErrorIcon from '@mui/icons-material/Error';
@@ -35,76 +36,39 @@ const InventoryKPI = ({ items }: InventoryKPIProps) => {
         {
             label: "TOTAL ITEMS",
             value: totalItems.toLocaleString(),
-            icon: <InventoryIcon color="inherit" />,
+            icon: <InventoryIcon fontSize="medium" />,
             color: theme.palette.primary.main,
-            bgColor: alpha(theme.palette.primary.main, 0.1),
         },
         {
             label: "LOW STOCK",
             value: lowStockItems.toLocaleString(),
-            icon: <WarningIcon color="inherit" />,
+            icon: <WarningIcon fontSize="medium" />,
             color: theme.palette.warning.main,
-            bgColor: alpha(theme.palette.warning.main, 0.1),
         },
         {
             label: "OUT OF STOCK",
             value: outOfStockItems.toLocaleString(),
-            icon: <ErrorIcon color="inherit" />,
+            icon: <ErrorIcon fontSize="medium" />,
             color: theme.palette.error.main,
-            bgColor: alpha(theme.palette.error.main, 0.1),
         },
         {
             label: "TOTAL VALUE",
             value: new Intl.NumberFormat('en-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(totalValue),
-            icon: <AttachMoneyIcon color="inherit" />,
-            color: theme.palette.success.main, // Using Success color for consistency
-            bgColor: alpha(theme.palette.success.main, 0.1),
+            icon: <AttachMoneyIcon fontSize="medium" />,
+            color: theme.palette.success.main,
         },
     ];
 
     return (
         <Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ width: "100%", mb: 3 }}>
             {kpiItems.map((item, index) => (
-                <Card
+                <StatCard
                     key={index}
-                    sx={{
-                        flex: 1,
-                        p: 2,
-                        borderRadius: "16px",
-                        boxShadow: 2,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        borderLeft: `4px solid ${item.color}`,
-                        transition: 'transform 0.2s, box-shadow 0.2s',
-                        '&:hover': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: 4
-                        }
-                    }}
-                >
-                    <Stack spacing={0.5}>
-                        <Typography variant="overline" color="text.secondary" fontWeight={700} sx={{ letterSpacing: 0.5 }}>
-                            {item.label}
-                        </Typography>
-                        <Typography variant="h4" fontWeight={800} sx={{ color: theme.palette.text.primary }}>
-                            {item.value}
-                        </Typography>
-                    </Stack>
-                    <Box
-                        sx={{
-                            p: 2,
-                            borderRadius: "12px",
-                            backgroundColor: item.bgColor,
-                            color: item.color,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                    >
-                        {item.icon}
-                    </Box>
-                </Card>
+                    title={item.label}
+                    value={item.value}
+                    icon={item.icon}
+                    color={item.color}
+                />
             ))}
         </Stack>
     );

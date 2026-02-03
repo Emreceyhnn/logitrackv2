@@ -1,121 +1,72 @@
-"use client"
-import { Card, Stack, Typography, useTheme } from "@mui/material"
-import mockData from "@/app/lib/data.json";
+"use client";
+
+import { Stack, useTheme } from "@mui/material";
+import { getVehicleKpis } from "@/app/lib/analyticsUtils";
+import StatCard from "../../cards/StatCard";
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import BuildIcon from '@mui/icons-material/Build';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import DescriptionIcon from '@mui/icons-material/Description';
+
 
 const VehicleKpiCard = () => {
     const theme = useTheme()
 
-    const totalvehicle = mockData.vehicles.length
-    const openIssues = mockData.vehicles.flatMap(i => i.maintenance.openIssues).length
-    const docsDueSoon = mockData.vehicles.flatMap(i => i.documents.filter(y => y.status === "DUE_SOON")).length
-    const onTrip = mockData.vehicles.map(i => i.status === "ON_TRIP").length
-    const avaiLable = mockData.vehicles.map(i => i.status === "AVAILABLE").length
-    const inService = mockData.vehicles.map(i => i.status === "IN_SERVICE").length
+    const { totalVehicles, openIssues, docsDueSoon, onTrip, available, inService } = getVehicleKpis();
 
-
-    const values = mockData.overview.kpis
+    const kpiItems = [
+        {
+            label: "Total Vehicle",
+            value: totalVehicles,
+            icon: <LocalShippingIcon />,
+            color: theme.palette.primary.main
+        },
+        {
+            label: "Available Vehicle",
+            value: available,
+            icon: <CheckCircleIcon />,
+            color: theme.palette.success.main
+        },
+        {
+            label: "Vehicle in Service",
+            value: inService,
+            icon: <BuildIcon />,
+            color: theme.palette.warning.main
+        },
+        {
+            label: "Vehicles On Trip",
+            value: onTrip,
+            icon: <DirectionsCarIcon />,
+            color: theme.palette.info.main
+        },
+        {
+            label: "Open Issues",
+            value: openIssues,
+            icon: <ReportProblemIcon />,
+            color: theme.palette.error.main
+        },
+        {
+            label: "Docs Due Soon",
+            value: docsDueSoon,
+            icon: <DescriptionIcon />,
+            color: theme.palette.secondary.main
+        }
+    ];
 
     return (
-        <Stack direction={"row"} spacing={2} mt={2} justifyContent={"center"} >
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                    boxShadow: 3
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Total Vehicle</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{totalvehicle}</Typography>
+        <Stack direction={"row"} flexWrap="wrap" gap={2} mt={2} justifyContent={"center"} >
+            {kpiItems.map((item, index) => (
+                <Stack key={index} flexBasis={{ xs: "100%", sm: "48%", md: "30%" }} flexGrow={1}>
+                    <StatCard
+                        title={item.label}
+                        value={item.value}
+                        icon={item.icon}
+                        color={item.color}
+                    />
                 </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Available Vehicle</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{avaiLable}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Vehicle in Service</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{inService}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Vehicles On Trip</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{onTrip}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Open Issues</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{openIssues}</Typography>
-                </Stack>
-
-            </Card>
-            <Card
-                sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    backgroundImage: "none",
-                    borderRadius: "8px",
-                    p: "6px 12px",
-                    flexBasis: "calc(20% - 16px)",
-                    flexGrow: 0,
-                }}
-            >
-                <Stack justifyContent={"space-between"} height={"100%"}>
-                    <Typography sx={{ fontSize: 18, fontWeight: 300 }}>Docs Due Soon</Typography>
-                    <Typography sx={{ fontSize: 24, fontWeight: 600 }}>{docsDueSoon}</Typography>
-                </Stack>
-
-            </Card>
-
-
+            ))}
         </Stack>
 
     )

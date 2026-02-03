@@ -8,7 +8,7 @@ import ForecastingWidget from "@/app/components/dashboard/analytics/ForecastingW
 
 export default function AnalyticsPage() {
     return (
-        <Box sx={{ p: 3, maxWidth: '1600px', mx: 'auto' }}>
+        <Box sx={{ p: 3 }}>
             <AnalyticsHeader />
 
             <Box sx={{ mb: 3 }}>

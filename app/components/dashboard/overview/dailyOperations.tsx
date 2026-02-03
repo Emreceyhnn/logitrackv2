@@ -4,11 +4,11 @@ import DirectionsIcon from '@mui/icons-material/Directions';
 import PlaceIcon from '@mui/icons-material/Place';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
-import mockData from "@/app/lib/data.json";
+import { getDailyOperations } from "@/app/lib/analyticsUtils";
 
 const DailyOperationsCard = () => {
 
-    const values = mockData.overview.today
+    const values = getDailyOperations()
 
 
     return (

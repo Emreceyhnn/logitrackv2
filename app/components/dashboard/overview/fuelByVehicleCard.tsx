@@ -2,12 +2,12 @@
 import { Divider, Stack, Typography } from "@mui/material"
 import CustomCard from "../../cards/card"
 import { BarChart } from "@mui/x-charts"
-import mockData from "@/app/lib/data.json";
+import { getFuelByVehicleData } from "@/app/lib/analyticsUtils";
 
 
 const FuelByVehicleCard = () => {
 
-    const values = mockData.vehicles.map(i => { return { value: i.fuel.consumptionLPer100Km, plate: i.plate, id: i.id } })
+    const values = getFuelByVehicleData()
 
     return (
 

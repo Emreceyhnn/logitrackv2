@@ -66,7 +66,7 @@ export default function InventoryPage() {
     }, [inventoryData, searchTerm]);
 
     return (
-        <Box sx={{ p: 3, maxWidth: '1600px', mx: 'auto' }}>
+        <Box sx={{ p: 3 }}>
             <InventoryHeader
                 onSearch={setSearchTerm}
                 onFilterClick={() => console.log('Filter clicked')}

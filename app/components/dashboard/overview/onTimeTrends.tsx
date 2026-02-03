@@ -1,6 +1,6 @@
 "use client"
 
-import mockData from "@/app/lib/data.json";
+import { getOnTimeTrendsData } from "@/app/lib/analyticsUtils";
 import CustomCard from "../../cards/card";
 import { Divider, Stack, Typography } from "@mui/material";
 import { LineChart } from "@mui/x-charts";
@@ -8,7 +8,7 @@ import { LineChart } from "@mui/x-charts";
 
 const OnTimeTrendsCard = () => {
 
-    const values = mockData.analytics.charts.onTimeTrend
+    const values = getOnTimeTrendsData()
 
 
 

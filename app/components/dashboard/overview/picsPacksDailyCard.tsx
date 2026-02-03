@@ -1,12 +1,11 @@
 
 import { Divider, Stack, Typography } from "@mui/material"
 import CustomCard from "../../cards/card"
-import mockData from "@/app/lib/data.json";
+import { getPicksAndPacks } from "@/app/lib/analyticsUtils";
 
 const PicksPacksDailyCard = () => {
 
-    const picks = mockData.inventory.movements.map(i => i.type === "PICK").length
-    const packs = mockData.inventory.movements.map(i => i.type === "PACKS").length
+    const { picks, packs } = getPicksAndPacks()
 
 
 

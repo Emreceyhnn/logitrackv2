@@ -3,18 +3,19 @@
 import { PieChart } from '@mui/x-charts/PieChart';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { Stack, Typography, Grid, Paper, useTheme, Box } from "@mui/material";
-import mockData from "@/app/lib/data.json";
+
 
 export default function CostAnalysisCharts() {
+
+    /* ------------------------------- variables ------------------------------- */
     const theme = useTheme();
 
-    // Mock Trend Data
+
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
     const fuelCosts = [4200, 4100, 4350, 4220, 4500, 4400];
     const maintenanceCosts = [1200, 800, 1500, 950, 2100, 1100];
     const overheadCosts = [3000, 3000, 3100, 3100, 3200, 3200];
 
-    // Mock Distribution Data
     const costDistribution = [
         { id: 0, value: 35, label: 'Fuel', color: theme.palette.error.main },
         { id: 1, value: 25, label: 'Maintenance', color: theme.palette.warning.main },
@@ -77,13 +78,13 @@ export default function CostAnalysisCharts() {
                                     outerRadius: 100,
                                     paddingAngle: 2,
                                     cornerRadius: 4,
-                                    highlightScope: { fade: 'global', highlighted: 'item' },
+                                    highlightScope: { fade: 'global', highlight: 'item' },
                                     faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
                                 },
                             ]}
                             height={260}
                             width={300}
-                            legend={{ position: { vertical: 'bottom', horizontal: 'middle' }, direction: 'row', }}
+                            slotProps={{ legend: { position: { vertical: 'bottom', horizontal: 'center' } } }}
                         />
                     </Box>
                 </Paper>

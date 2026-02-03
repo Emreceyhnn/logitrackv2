@@ -2,15 +2,17 @@
 import { Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { PieChart } from "@mui/x-charts";
-import mockData from "@/app/lib/data.json";
+import { getShipmentStatusData } from "@/app/lib/analyticsUtils";
 
 const ShipmentOnStatusCard = () => {
-    const values = mockData.shipments.map(i => i.status);
+    const values = getShipmentStatusData();
 
-    const config = {
+    const config: Record<string, { label: string, color: string }> = {
         IN_TRANSIT: { label: "In Transit", color: "#0088FE" },
-        DELAYED: { label: "Delayed", color: "#00C49F" },
-        PLANNED: { label: "Planned", color: "#FFBB28" },
+        DELAYED: { label: "Delayed", color: "#FFBB28" },
+        PLANNED: { label: "Planned", color: "#A020F0" },
+        DELIVERED: { label: "Delivered", color: "#00C49F" },
+        PROCESSING: { label: "Processing", color: "#FF8042" },
     };
 
     const data = Object.entries(
@@ -20,9 +22,9 @@ const ShipmentOnStatusCard = () => {
         }, {})
     ).map(([key, value]) => ({
         id: key,
-        label: config[key].label,
+        label: config[key]?.label || key,
         value,
-        color: config[key].color,
+        color: config[key]?.color || "#cccccc",
     }));
 
     return (

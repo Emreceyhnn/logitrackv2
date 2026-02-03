@@ -5,6 +5,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 export default function AnalyticsHeader() {
+    /* -------------------------------- variables ------------------------------- */
     const theme = useTheme();
 
     return (

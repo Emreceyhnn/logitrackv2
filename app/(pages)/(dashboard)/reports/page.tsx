@@ -45,7 +45,7 @@ export default function ReportsPage() {
     };
 
     return (
-        <Box sx={{ p: 3, maxWidth: '1600px', mx: 'auto' }}>
+        <Box sx={{ p: 3 }}>
             <Box sx={{ mb: 5 }}>
                 <Typography variant="h3" fontWeight={800} sx={{ mb: 1, letterSpacing: '-0.02em' }}>
                     Operational Reports
