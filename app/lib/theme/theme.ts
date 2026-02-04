@@ -6,6 +6,16 @@ declare module "@mui/material/styles" {
   interface TypeBackground {
     dashboardBg: string; // Add custom property
   }
+
+  interface BreakpointOverrides {
+    xs: true;
+    sm: true;
+    md: true;
+    lg: true;
+    xl: true;
+    mobile: true; // custom
+    xxl: true;   // custom
+  }
 }
 
 export type ThemeMode = "light" | "dark";
