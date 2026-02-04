@@ -1,79 +1,65 @@
-export type VehicleStatus =
-    string;
-
+export type VehicleStatus = string;
 export type FuelType = string;
 
-export type IssueType =
-    string;
-
-export type IssueSeverity = string;
-
-export type DocumentType =
-    string
-
-export type DocumentStatus = string;
-
-export interface VehicleFuel {
-    type: FuelType;
-    levelPct: number;
-    consumptionLPer100Km: number;
-}
-
-export interface VehicleCapacity {
-    maxWeightKg: number;
-    maxVolumeM3: number;
-    pallets: number;
+export interface VehicleSpecs {
+    maxLoadKg: number;
+    heightM: number;
+    fuelType: FuelType;
+    mpg?: number;
+    rangeKm?: number;
 }
 
 export interface VehicleLocation {
     lat: number;
     lng: number;
+    address?: string;
 }
 
-export interface VehicleTelemetry {
-    lastPingAt: string; // ISO string
+export interface VehicleCurrentStatus {
     location: VehicleLocation;
     speedKph: number;
-    ignitionOn: boolean;
+    fuelLevelPct: number;
+    odometerKm: number;
+    engineStatus: string;
+    lastPing: string;
+}
+
+export interface VehicleDocument {
+    type: string;
+    status: string;
+    expiresOn: string;
 }
 
 export interface MaintenanceIssue {
     id: string;
-    type: IssueType;
-    severity: IssueSeverity;
-    createdAt: string; // ISO string
+    type: string;
+    severity: string;
+    createdAt: string;
+    description: string;
 }
 
-export interface MaintenanceHistoryEntry {
+export interface MaintenanceRecord {
     id: string;
+    date: string;
     serviceType: string;
-    serviceLabel: string;
-    date: string; // ISO date
     technician: string;
     cost: number;
     currency: string;
     status: string;
-    odometerKm: number;
 }
 
-export interface VehicleMaintenance {
+export interface MaintenanceStatus {
     nextServiceKm: number;
-    nextServiceDate: string; // ISO date
-    openIssues: MaintenanceIssue[];
-    history: MaintenanceHistoryEntry[];
-    status?: string;
-}
-
-export interface VehicleDocument {
-    type: DocumentType;
-    expiresOn: string; // ISO date
-    status: DocumentStatus;
+    nextServiceDate: string;
+    status: string;
+    currentTicketId?: string;
+    openIssues?: MaintenanceIssue[];
+    history?: MaintenanceRecord[];
 }
 
 export interface VehicleAssignment {
-    driverId: string | null;
-    routeId: string | null;
-    shipmentIds: string[];
+    driverId?: string;
+    routeId?: string;
 }
 
 export interface Vehicle {
@@ -84,13 +70,10 @@ export interface Vehicle {
     brand: string;
     model: string;
     year: number;
-    vin: string;
-    status: string;
-    odometerKm: number;
-    fuel: VehicleFuel;
-    capacity: VehicleCapacity;
-    telemetry: VehicleTelemetry;
-    maintenance: VehicleMaintenance;
-    documents: VehicleDocument[];
-    assigned: VehicleAssignment;
+    status: VehicleStatus;
+    specs: VehicleSpecs;
+    currentStatus: VehicleCurrentStatus;
+    maintenance: MaintenanceStatus;
+    assignedTo: VehicleAssignment | null;
+    documents?: VehicleDocument[];
 }

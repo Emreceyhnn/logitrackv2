@@ -1,6 +1,6 @@
 "use client"
 import { Stack, useTheme } from "@mui/material"
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 import StatCard from "../../cards/StatCard";
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -11,8 +11,8 @@ const ShipmentKpiCard = () => {
     const theme = useTheme()
 
     const totalShipments = mockData.shipments.length;
-    const activeShipments = mockData.overview.kpis.activeShipments;
-    const delayedShipments = mockData.overview.kpis.delayedShipments;
+    const activeShipments = mockData.shipments.filter(s => ['PROCESSING', 'IN_TRANSIT'].includes(s.status)).length;
+    const delayedShipments = mockData.shipments.filter(s => s.status === 'DELAYED').length;
     const inTransit = mockData.shipments.filter(s => s.status === 'IN_TRANSIT').length;
 
     const kpiItems = [

@@ -11,7 +11,7 @@ import {
     Divider,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 import { useState } from "react";
 import RowActions from "../../vehicle/vehicleTable/menu";
 
@@ -68,9 +68,9 @@ const RouteTable = () => {
                                 <TableRow key={r.id} >
                                     <TableCell sx={{ paddingBlock: 2 }}>{r.id}</TableCell>
                                     <TableCell sx={{ paddingBlock: 2 }}>{r.vehicleId}</TableCell>
-                                    <TableCell sx={{ paddingBlock: 2 }}>{r.stops[0].ref.warehouseId}</TableCell>
-                                    <TableCell sx={{ paddingBlock: 2 }}>{r.stops[r.stops.length - 1].ref.customerId}</TableCell>
-                                    <TableCell sx={{ paddingBlock: 2 }}>{r.stops[r.stops.length - 1].eta}</TableCell>
+                                    <TableCell sx={{ paddingBlock: 2 }}>{r.stops[0]?.locationName || 'N/A'}</TableCell>
+                                    <TableCell sx={{ paddingBlock: 2 }}>{r.stops[r.stops.length - 1]?.locationName || 'N/A'}</TableCell>
+                                    <TableCell sx={{ paddingBlock: 2 }}>{r.stops[r.stops.length - 1]?.eta || 'N/A'}</TableCell>
                                     <TableCell sx={{ paddingBlock: 2 }}><StatusChip status={r.status} /></TableCell>
                                     <TableCell align="right">
                                         <RowActions id={r.id} handleOpenDetails={handleOpen} />

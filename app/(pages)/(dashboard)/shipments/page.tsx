@@ -2,6 +2,7 @@
 
 import ShipmentKpiCard from "@/app/components/dashboard/shipments/shipmentKpiCard";
 import ShipmentTable from "@/app/components/dashboard/shipments/shipmentTable";
+import ShipmentAnalytics from "@/app/components/dashboard/shipments/ShipmentAnalytics";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 
 
@@ -19,6 +20,7 @@ export default function ShipmentPage() {
             }}>Shipments</Typography>
             <Divider />
             <ShipmentKpiCard />
+            <ShipmentAnalytics />
             <Stack mt={2}>
                 <ShipmentTable />
             </Stack>

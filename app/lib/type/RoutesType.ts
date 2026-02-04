@@ -1,43 +1,36 @@
-export type RouteStatus = string;
-
-export type StopType = string;
-
-export interface TimeWindow {
-    from: string; // ISO datetime
-    to: string;   // ISO datetime
+export interface RouteSchedule {
+    plannedStart: string;
+    actualStart: string | null;
+    plannedEnd: string;
+    estimatedEnd: string | null;
 }
 
-export interface StopRef {
-    warehouseId?: string;
-    customerId?: string;
-    siteId?: string;
+export interface RouteMetrics {
+    totalDistanceKm: number;
+    completedDistanceKm: number;
+    progressPct: number;
 }
 
 export interface RouteStop {
-    seq: number;
-    type: StopType;
-    ref: StopRef;
-    eta: string; // ISO datetime
-    window: TimeWindow;
+    id: string;
+    sequence: number;
+    type: string; // PICKUP, DELIVERY, RETURN
+    locationName: string;
+    status: string;
+    eta: string;
+    ata?: string;
+    shipmentIds?: string[];
 }
 
 export interface Route {
     id: string;
     code: string;
-    name: string;
-    status: RouteStatus;
-
-    plannedStartAt: string; // ISO datetime
-    plannedEndAt: string;   // ISO datetime
-    actualStartAt: string | null;
-
+    name?: string; 
+    status: string;
     vehicleId: string;
     driverId: string | null;
-
-    distanceKm: number;
-
+    schedule: RouteSchedule;
+    metrics: RouteMetrics;
     stops: RouteStop[];
-
-    completedDate: string; // empty string allowed per data
-    shipmentIds: string[];
+    shipments?: { length: number } | string[];
 }

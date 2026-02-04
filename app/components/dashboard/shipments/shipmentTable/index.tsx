@@ -11,7 +11,7 @@ import {
     Divider,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 import RowActions from "./menu";
 import ShipmentDetailDialog from "../../../dialogs/shipment/shipmentDetailDialog";
 import { useState } from "react";
@@ -67,15 +67,15 @@ const ShipmentTable = () => {
                         <TableBody>
                             {mockData.shipments.map((s) => (
                                 <TableRow key={s.id}>
-                                    <TableCell>{s.code}</TableCell>
+                                    <TableCell>{s.orderNumber}</TableCell>
                                     <TableCell><StatusChip status={s.status} /></TableCell>
                                     <TableCell><PriorityChip status={s.priority} /></TableCell>
-                                    <TableCell>{new Date(s.pickup.plannedAt)?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</TableCell>
-                                    <TableCell>{new Date(s.dropoff.plannedAt)?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</TableCell>
-                                    <TableCell>{s.driverId}</TableCell>
-                                    <TableCell>{s.routeId}</TableCell>
+                                    <TableCell>{new Date(s.dates.created)?.toLocaleDateString()}</TableCell>
+                                    <TableCell>{new Date(s.dates.requestedDelivery)?.toLocaleDateString()}</TableCell>
+                                    <TableCell>{s.assignedTo?.routeId || '-'}</TableCell>
+                                    <TableCell>{s.assignedTo?.routeId || '-'}</TableCell>
                                     <TableCell align="right">
-                                        {s.cargo.totalWeightKg}
+                                        {s.cargoDetails.totalWeightKg}
                                     </TableCell>
                                     <TableCell align="right">
                                         <RowActions id={s.id} handleOpenDetails={handleOpen} />

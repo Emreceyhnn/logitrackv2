@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { Box } from '@mui/material';
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 import InventoryHeader from '@/app/components/dashboard/inventory/InventoryHeader';
 import InventoryKPI from '@/app/components/dashboard/inventory/InventoryKPI';
 import InventoryTable from '@/app/components/dashboard/inventory/InventoryTable';
@@ -12,35 +12,39 @@ export default function InventoryPage() {
 
     // Process data centrally
     const inventoryData = useMemo(() => {
-        return mockData.inventory.items.map(item => {
+        return mockData.inventory.catalog.map(item => {
             // Aggregate stock
             let onHand = 0;
             let lastUpdated = "";
             const warehouseCodes: string[] = [];
 
-            mockData.inventory.stockByWarehouse.forEach(wh => {
-                const line = wh.lines.find(l => l.skuId === item.id);
-                if (line) {
-                    onHand += line.available; // Using available as onHand for simplicity of "sellable" stock
-                    if (line.lastCountAt > lastUpdated) lastUpdated = line.lastCountAt;
+            // Filter stock items for this SKU
+            const stockLines = mockData.inventory.stock.filter(s => s.skuId === item.id);
 
-                    const warehouse = mockData.warehouses.find(w => w.id === wh.warehouseId);
-                    if (warehouse) warehouseCodes.push(warehouse.code);
-                }
+            stockLines.forEach(line => {
+                const available = line.quantity - line.reserved;
+                onHand += available;
+                
+                // Mocking lastUpdated as it's missing in stock items, using meta or fallback
+                const now = new Date().toISOString(); 
+                if (now > lastUpdated) lastUpdated = now;
+
+                const warehouse = mockData.warehouses.find(w => w.id === line.warehouseId);
+                if (warehouse) warehouseCodes.push(warehouse.code);
             });
 
             // Determine Status
             let status = "IN_STOCK";
             if (onHand === 0) status = "OUT_OF_STOCK";
-            else if (onHand <= item.reorderPoint) status = "LOW_STOCK";
+            else if (onHand <= (item.reorderPoint || 0)) status = "LOW_STOCK";
 
-            // Mock Price (consistent per item ID using simple hash or just static random seeded by ID char codes)
+            // Mock Price logic
             const seed = item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-            const unitPrice = (seed % 400) + 20; // Price between 20 and 420
+            const unitPrice = item.unitPrice || ((seed % 400) + 20);
 
             return {
                 id: item.id,
-                sku: item.sku,
+                sku: item.code, // catalog uses 'code' for SKU
                 name: item.name,
                 category: item.category,
                 onHand,
@@ -48,8 +52,7 @@ export default function InventoryPage() {
                 status,
                 warehouseCodes,
                 lastUpdated,
-                reorderPoint: item.reorderPoint // Needed for KPI usage if we moved logic there, but here we passed computed status. 
-                // Actually KPI uses onHand and unitPrice to sum value.
+                reorderPoint: item.reorderPoint || 0
             };
         });
     }, []);

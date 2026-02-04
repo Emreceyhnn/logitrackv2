@@ -26,6 +26,7 @@ interface GoogleMapViewProps {
     zoom?: number
 }
 
+const MAP_LIBRARIES: ("marker")[] = ["marker"];
 const containerStyle = { width: "100%", height: "100%", borderRadius: 8 };
 
 const GoogleMapView = ({
@@ -39,8 +40,6 @@ const GoogleMapView = ({
     /* --------------------------------- states --------------------------------- */
     const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null)
     const [map, setMap] = useState<google.maps.Map | null>(null)
-    const MAP_LIBRARIES = process.env.NEXT_PUBLIC_GOOGLE_MAPS_LIBRARIES
-        ?.split(",") as ("marker")[]
 
 
     const { isLoaded } = useJsApiLoader({

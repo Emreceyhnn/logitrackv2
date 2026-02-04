@@ -2,11 +2,11 @@
 import { Box, Stack, Typography, useTheme, Divider } from "@mui/material";
 import { BarChart } from '@mui/x-charts/BarChart';
 import CustomCard from "../../cards/card";
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 
 const DriverPerformanceCharts = () => {
     const theme = useTheme();
-    const drivers = mockData.drivers;
+    const drivers = mockData.staff.drivers;
 
     // Prepare data for charts
     const driverNames = drivers.map(d => d.fullName.split(' ')[0]); // First names for brevity

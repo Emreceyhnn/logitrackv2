@@ -4,7 +4,6 @@ import {
     Button,
     Dialog,
     DialogContent,
-    Grid,
     IconButton,
     Paper,
     Stack,
@@ -26,7 +25,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 
 interface WarehouseDialogParams {
     open: boolean;
@@ -39,14 +38,26 @@ const WarehouseDialog = ({ open, onClose, warehouseData }: WarehouseDialogParams
     if (!warehouseData) return null;
 
     // Get inventory for this warehouse
-    const warehouseStock = mockData.inventory.stockByWarehouse.find(w => w.warehouseId === warehouseData.id);
-    const inventoryItems = warehouseStock?.lines.map(line => {
-        const itemDetails = mockData.inventory.items.find(i => i.id === line.skuId);
-        return {
-            ...line,
-            details: itemDetails
-        };
-    }) || [];
+    const warehouseStock = mockData.inventory.stock.filter(s => s.warehouseId === warehouseData.id);
+    
+    // Top 5 items by quantity
+    // Top 5 items by quantity
+    const inventoryItems = warehouseStock
+        .sort((a, b) => b.quantity - a.quantity)
+        .slice(0, 5)
+        .map(stockItem => {
+            const catalogItem = mockData.inventory.catalog.find(c => c.id === stockItem.skuId);
+            return {
+                name: catalogItem?.name || stockItem.skuId,
+                qty: stockItem.quantity,
+                code: catalogItem?.code || stockItem.skuId,
+                // Adding missing properties expected by table
+                onHand: stockItem.quantity,
+                reserved: stockItem.reserved,
+                available: stockItem.quantity - stockItem.reserved,
+                details: catalogItem // Pass catalog item as details
+            };
+        });
 
     // Calculate capacity percentages
     const palletPct = Math.round((warehouseData.capacity.usedPallets / warehouseData.capacity.maxPallets) * 100);
@@ -92,9 +103,9 @@ const WarehouseDialog = ({ open, onClose, warehouseData }: WarehouseDialogParams
             </Stack>
 
             <DialogContent sx={{ p: 3 }}>
-                <Grid container spacing={4}>
+                <Stack direction="row" spacing={4} flexWrap="wrap" useFlexGap>
                     {/* General Information */}
-                    <Grid item xs={12} md={6}>
+                    <Box sx={{ width: { xs: '100%', md: 'calc(50% - 16px)' } }}>
                         <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{ textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: 1, mb: 2 }}>
                             General Information
                         </Typography>
@@ -124,10 +135,10 @@ const WarehouseDialog = ({ open, onClose, warehouseData }: WarehouseDialogParams
                                 </Box>
                             </Stack>
                         </Stack>
-                    </Grid>
+                    </Box>
 
                     {/* Live Capacity Utilization */}
-                    <Grid item xs={12} md={6}>
+                    <Box sx={{ width: { xs: '100%', md: 'calc(50% - 16px)' } }}>
                         <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{ textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: 1, mb: 2 }}>
                             Live Capacity Utilization
                         </Typography>
@@ -197,18 +208,18 @@ const WarehouseDialog = ({ open, onClose, warehouseData }: WarehouseDialogParams
                                 </Box>
                             </Stack>
                         </Paper>
-                    </Grid>
+                    </Box>
 
                     {/* Contact Details */}
-                    <Grid item xs={12}>
+                    <Box sx={{ width: '100%' }}>
                         <Typography variant="subtitle2" color="text.secondary" gutterBottom sx={{ textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: 1, mb: 2 }}>
                             Contact Details
                         </Typography>
                         <Paper variant="outlined" sx={{ p: 3, backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: 2 }}>
                             <Stack spacing={2}>
                                 {warehouseData.contacts.map((contact, idx) => (
-                                    <Grid container key={idx} alignItems="center" spacing={2}>
-                                        <Grid item xs={12} sm={4}>
+                                    <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap key={idx}>
+                                        <Box sx={{ width: { xs: '100%', sm: 'calc(33.33% - 11px)' } }}>
                                             <Stack direction="row" spacing={2} alignItems="center">
                                                 <PersonIcon sx={{ color: 'text.secondary' }} />
                                                 <Box>
@@ -216,27 +227,27 @@ const WarehouseDialog = ({ open, onClose, warehouseData }: WarehouseDialogParams
                                                     {contact.role && <Chip label={contact.role} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.65rem', mt: 0.5 }} />}
                                                 </Box>
                                             </Stack>
-                                        </Grid>
-                                        <Grid item xs={12} sm={4}>
+                                        </Box>
+                                        <Box sx={{ width: { xs: '100%', sm: 'calc(33.33% - 11px)' } }}>
                                             <Stack direction="row" spacing={2} alignItems="center">
                                                 <PhoneIcon sx={{ color: 'text.secondary' }} />
                                                 <Typography variant="body2">{contact.phone}</Typography>
                                             </Stack>
-                                        </Grid>
-                                        <Grid item xs={12} sm={4}>
+                                        </Box>
+                                        <Box sx={{ width: { xs: '100%', sm: 'calc(33.33% - 11px)' } }}>
                                             <Stack direction="row" spacing={2} alignItems="center">
                                                 <EmailIcon sx={{ color: 'text.secondary' }} />
                                                 <Typography variant="body2">{contact.email}</Typography>
                                             </Stack>
-                                        </Grid>
-                                    </Grid>
+                                        </Box>
+                                    </Stack>
                                 ))}
                             </Stack>
                         </Paper>
-                    </Grid>
+                    </Box>
 
                     {/* Current Inventory */}
-                    <Grid item xs={12}>
+                    <Box sx={{ width: '100%' }}>
                         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
                             <Typography variant="subtitle2" color="text.secondary" sx={{ textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: 1 }}>
                                 Current Inventory
@@ -259,9 +270,9 @@ const WarehouseDialog = ({ open, onClose, warehouseData }: WarehouseDialogParams
                                 </TableHead>
                                 <TableBody>
                                     {inventoryItems.map((item) => (
-                                        <TableRow key={item.skuId} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                        <TableRow key={item.code} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                             <TableCell component="th" scope="row" sx={{ fontSize: '0.85rem', fontWeight: 500 }}>
-                                                {item.details?.sku}
+                                                {item.details?.code || item.code}
                                             </TableCell>
                                             <TableCell sx={{ fontSize: '0.85rem' }}>{item.details?.name}</TableCell>
                                             <TableCell align="right" sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>{item.onHand}</TableCell>
@@ -279,8 +290,8 @@ const WarehouseDialog = ({ open, onClose, warehouseData }: WarehouseDialogParams
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                    </Grid>
-                </Grid>
+                    </Box>
+                </Stack>
             </DialogContent>
 
             <Divider />

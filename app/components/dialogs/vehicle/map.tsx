@@ -1,6 +1,6 @@
 
 import GoogleMapView from "@/app/components/map"
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 import CustomCard from "../../cards/card";
 
 interface MapVehicleOverviewCardProps {
@@ -8,14 +8,13 @@ interface MapVehicleOverviewCardProps {
 }
 
 const MapVehicleOverviewCard = ({ id }: MapVehicleOverviewCardProps) => {
-    const vehicles = mockData.vehicles
-        .filter(i => i.id === id)
-        .map(i => ({
-            position: i.telemetry.location,
-            name: i.plate,
-            id: i.id,
-            type: "V",
-        }));
+    const vehicles = mockData.fleet.filter(i=>i.id === id).map(i=>({
+        position: i.currentStatus.location,
+        name: i.plate,
+        id: i.id,
+        type: "V",
+    }))
+
 
 
     return (

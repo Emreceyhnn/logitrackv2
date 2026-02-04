@@ -15,8 +15,8 @@ const RouteProgress = ({ routeData }: Params) => {
                 {routeData.stops.map((i, index) => (
                     <Step key={index} active>
                         <StepLabel>
-                            <Typography>{i.ref.siteId ?? `${i.ref.warehouseId} (Origin)`}</Typography>
-                            <Typography sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>Departed: 14.03</Typography>
+                            <Typography>{i.locationName}</Typography>
+                            <Typography sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>ETA: {i.eta}</Typography>
                         </StepLabel>
                     </Step>
                 ))}

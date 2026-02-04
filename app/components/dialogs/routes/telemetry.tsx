@@ -6,7 +6,11 @@ interface Params {
     routeId: string
 }
 
+import mockData from "@/app/lib/mockData.json";
+
 const RoutesTelemetryCards = (params: Params) => {
+    const route = mockData.routes.find(r => r.id === params.routeId);
+    if (!route) return null;
 
     return (
         <Stack spacing={2} px={2}>
@@ -16,7 +20,7 @@ const RoutesTelemetryCards = (params: Params) => {
                     <Stack spacing={1}>
                         <Typography sx={{ fontSize: 14, fontWeight: 600, color: "text.secondary" }}>DIST. TRAVELLED</Typography>
                         <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                            <Typography>142</Typography>
+                            <Typography>{route.metrics.completedDistanceKm}</Typography>
                             <Typography sx={{ fontSize: 12, fontWeight: 300, color: "text.secondary" }}>km</Typography>
                         </Stack>
                     </Stack>
@@ -27,7 +31,7 @@ const RoutesTelemetryCards = (params: Params) => {
                     <Stack spacing={1}>
                         <Typography sx={{ fontSize: 14, fontWeight: 600, color: "text.secondary" }}>Remaining</Typography>
                         <Stack direction={"row"} spacing={1}>
-                            <Typography>118</Typography>
+                            <Typography>{(route.metrics.totalDistanceKm - route.metrics.completedDistanceKm).toFixed(1)}</Typography>
                             <Typography sx={{ fontSize: 12, fontWeight: 300, color: "text.secondary" }}>km</Typography>
                         </Stack>
                     </Stack>

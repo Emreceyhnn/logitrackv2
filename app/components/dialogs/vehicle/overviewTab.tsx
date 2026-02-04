@@ -26,29 +26,29 @@ const OverviewTab = ({ vehicle }: OverviewTabProps) => {
         <Stack direction={"row"} spacing={1}>
           <Card sx={{ p: 2, gap: 1, display: "flex", alignItems: "start", flexDirection: "column", borderRadius: "8px", flexGrow: 1 }}>
             <Typography sx={{ fontSize: 16 }}>Fuel Level</Typography>
-            <Typography sx={{ fontSize: 20 }}>%{vehicle.fuel.levelPct}</Typography>
+            <Typography sx={{ fontSize: 20 }}>%{vehicle.currentStatus.fuelLevelPct}</Typography>
             <LinearProgress
               variant="determinate"
-              value={vehicle.fuel.levelPct}
+              value={vehicle.currentStatus.fuelLevelPct}
               sx={{ width: 100, height: 5 }}
             />
             <LocalGasStationIcon sx={{ fontSize: 24, marginTop: "auto" }} />
           </Card>
           <Card sx={{ p: 2, gap: 1, display: "flex", alignItems: "start", flexDirection: "column", borderRadius: "8px", flexGrow: 1 }}>
             <Typography sx={{ fontSize: 16 }}>Odometer</Typography>
-            <Typography sx={{ fontSize: 20 }}>{vehicle.odometerKm.toLocaleString("en-US")} km</Typography>
+            <Typography sx={{ fontSize: 20 }}>{vehicle.currentStatus.odometerKm.toLocaleString("en-US")} km</Typography>
             <SpeedIcon sx={{ fontSize: 24, marginTop: "auto" }} />
           </Card>
         </Stack>
         <Stack direction={"row"} spacing={1}>
           <Card sx={{ p: 2, gap: 1, display: "flex", alignItems: "start", flexDirection: "column", borderRadius: "8px", flexGrow: 1 }}>
             <Typography sx={{ fontSize: 16 }}>Next Service</Typography>
-            <Typography sx={{ fontSize: 20 }}>{(vehicle.maintenance.nextServiceKm - vehicle.odometerKm).toLocaleString("en-US")} km left</Typography>
+            <Typography sx={{ fontSize: 20 }}>{(vehicle.maintenance.nextServiceKm - vehicle.currentStatus.odometerKm).toLocaleString("en-US")} km left</Typography>
             <ConstructionIcon sx={{ fontSize: 24, marginTop: "auto" }} />
           </Card>
           <Card sx={{ p: 2, gap: 1, display: "flex", alignItems: "start", flexDirection: "column", borderRadius: "8px", flexGrow: 1 }}>
             <Typography sx={{ fontSize: 16 }}>Fuel Consumption</Typography>
-            <Typography sx={{ fontSize: 20 }}>{vehicle.fuel.consumptionLPer100Km}</Typography>
+            <Typography sx={{ fontSize: 20 }}>{vehicle.specs.mpg ? (235.21 / vehicle.specs.mpg).toFixed(1) : "N/A"}</Typography>
             <OilBarrelIcon sx={{ fontSize: 24, marginTop: "auto" }} />
           </Card>
 

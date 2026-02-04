@@ -1,5 +1,5 @@
 "use client"
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 import { Box, Card, CircularProgress, Stack, Typography, useTheme } from "@mui/material";
 import CustomCard from "../../cards/card";
 
@@ -15,7 +15,7 @@ const CapacityUtilization = () => {
 
             <Stack spacing={4} alignItems="center">
                 {warehouses.map((warehouse) => {
-                    const capacityPct = Math.round((warehouse.capacity.usedPallets / warehouse.capacity.maxPallets) * 100);
+                    const capacityPct = Math.round((warehouse.capacity.usedPallets / warehouse.capacity.totalPallets) * 100);
                     const color = warehouse.code.includes("IST") ? '#3b82f6' : '#10b981'; // Blue / Green based on design suggestion or random
 
                     return (

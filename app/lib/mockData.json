@@ -3,7 +3,13 @@
     "generatedAt": "2026-02-03T10:00:00+03:00",
     "version": "2.1.0",
     "timezone": "Europe/Istanbul",
-    "units": { "distance": "km", "weight": "kg", "volume": "m3", "fuel": "L", "currency": "TRY" },
+    "units": {
+      "distance": "km",
+      "weight": "kg",
+      "volume": "m3",
+      "fuel": "L",
+      "currency": "TRY"
+    },
     "systemStatus": "OPERATIONAL"
   },
   "auth": {
@@ -61,9 +67,12 @@
         "name": "Warehouse Manager",
         "description": "Manage warehouse operations, inventory, and local staff",
         "permissions": [
-          "warehouse:read", "warehouse:write",
-          "inventory:read", "inventory:write",
-          "staff:read", "staff:write",
+          "warehouse:read",
+          "warehouse:write",
+          "inventory:read",
+          "inventory:write",
+          "staff:read",
+          "staff:write",
           "reports:read"
         ]
       },
@@ -72,8 +81,10 @@
         "name": "Dispatcher",
         "description": "Manage routes, shipments, and fleet coordination",
         "permissions": [
-          "routes:read", "routes:write",
-          "shipments:read", "shipments:write",
+          "routes:read",
+          "routes:write",
+          "shipments:read",
+          "shipments:write",
           "fleet:read",
           "drivers:read"
         ]
@@ -84,7 +95,8 @@
         "description": "View assigned routes and update shipment status",
         "permissions": [
           "routes:read_own",
-          "shipments:read_own", "shipments:update_status"
+          "shipments:read_own",
+          "shipments:update_status"
         ]
       }
     ]
@@ -194,23 +206,39 @@
         "line1": "Buyukdere Cd. Spine Tower",
         "postalCode": "34485"
       },
-      "sla": { "onTimeTargetPct": 98.0, "maxDelayMinutes": 30, "penaltyPerHourDelay": 500 },
+      "contacts": [{ "name": "Ali Veli", "phone": "+90 212 555 1020", "email": "ali@marmara.test", "role": "Manager" }],
+      "sla": {
+        "onTimeTargetPct": 98.0,
+        "maxDelayMinutes": 30,
+        "penaltyPerHourDelay": 500
+      },
       "deliverySites": [
         {
           "id": "site_1001_01",
           "name": "Kadikoy MegaStore",
           "region": "IST-ANATOLIA",
-          "address": { "city": "Istanbul", "line1": "Bagdat Cd. No:300", "coordinates": { "lat": 40.9632, "lng": 29.0632 } },
+          "address": {
+            "country": "TR",
+            "city": "Istanbul",
+            "line1": "Bagdat Cd. No:300",
+            "coordinates": { "lat": 40.9632, "lng": 29.0632 }
+          },
           "restrictions": ["NIGHT_DELIVERY_ONLY", "MAX_HEIGHT_3M"]
         },
         {
           "id": "site_1001_02",
           "name": "Besiktas Express",
           "region": "IST-EUROPE",
-          "address": { "city": "Istanbul", "line1": "Barbaros Blv. No:55", "coordinates": { "lat": 41.0422, "lng": 29.0067 } },
+          "address": {
+            "country": "TR",
+            "city": "Istanbul",
+            "line1": "Barbaros Blv. No:55",
+            "coordinates": { "lat": 41.0422, "lng": 29.0067 }
+          },
           "restrictions": ["NO_TRAILERS"]
         }
-      ]
+      ],
+      "taxId": "1234567890"
     },
     {
       "id": "cus_1002",
@@ -227,16 +255,27 @@
         "line1": "Ataturk Blv. No:100",
         "postalCode": "06540"
       },
-      "sla": { "onTimeTargetPct": 99.5, "maxDelayMinutes": 15, "penaltyPerHourDelay": 2000 },
+      "contacts": [{ "name": "Ayse Fatma", "phone": "+90 312 444 2030", "email": "ayse@anadolu.test" }],
+      "sla": {
+        "onTimeTargetPct": 99.5,
+        "maxDelayMinutes": 15,
+        "penaltyPerHourDelay": 2000
+      },
       "deliverySites": [
-         {
+        {
           "id": "site_1002_01",
           "name": "Ankara Central Dept",
           "region": "ANKARA",
-          "address": { "city": "Ankara", "line1": "Saglik Sk. No:20", "coordinates": { "lat": 39.9208, "lng": 32.8541 } },
+          "address": {
+            "country": "TR",
+            "city": "Ankara",
+            "line1": "Saglik Sk. No:20",
+            "coordinates": { "lat": 39.9208, "lng": 32.8541 }
+          },
           "restrictions": ["TEMP_CONTROLLED", "SECURITY_CHECK"]
         }
-      ]
+      ],
+      "taxId": "1234567890"
     },
     {
       "id": "cus_1003",
@@ -253,16 +292,27 @@
         "line1": "Cumhuriyet Blv. No:1",
         "postalCode": "35210"
       },
-      "sla": { "onTimeTargetPct": 95.0, "maxDelayMinutes": 60, "penaltyPerHourDelay": 100 },
+      "contacts": [{ "name": "Hasan Huseyin", "phone": "+90 232 333 4050", "email": "hasan@techzone.test" }],
+      "sla": {
+        "onTimeTargetPct": 95.0,
+        "maxDelayMinutes": 60,
+        "penaltyPerHourDelay": 100
+      },
       "deliverySites": [
         {
           "id": "site_1003_01",
           "name": "Izmir Service Center",
           "region": "IZMIR",
-          "address": { "city": "Izmir", "line1": "Gazi Blv. No:10", "coordinates": { "lat": 38.4192, "lng": 27.1287 } },
+          "address": {
+            "country": "TR",
+            "city": "Izmir",
+            "line1": "Gazi Blv. No:10",
+            "coordinates": { "lat": 38.4192, "lng": 27.1287 }
+          },
           "restrictions": []
         }
-      ]
+      ],
+      "taxId": "1234567890"
     }
   ],
   "fleet": [
@@ -275,9 +325,18 @@
       "model": "Actros 1845",
       "year": 2023,
       "status": "ON_TRIP",
-      "specs": { "maxLoadKg": 18000, "heightM": 4.0, "fuelType": "DIESEL", "mpg": 3.4 },
+      "specs": {
+        "maxLoadKg": 18000,
+        "heightM": 4.0,
+        "fuelType": "DIESEL",
+        "mpg": 3.4
+      },
       "currentStatus": {
-        "location": { "lat": 40.8123, "lng": 29.5432, "address": "Gebze, Kocaeli" },
+        "location": {
+          "lat": 40.8123,
+          "lng": 29.5432,
+          "address": "Gebze, Kocaeli"
+        },
         "speedKph": 78,
         "fuelLevelPct": 65,
         "odometerKm": 45200,
@@ -287,8 +346,17 @@
       "maintenance": {
         "nextServiceKm": 60000,
         "nextServiceDate": "2026-05-15",
-        "status": "GOOD"
+        "status": "GOOD",
+        "openIssues": [],
+        "history": [
+            { "id": "hist_01", "date": "2025-11-15", "serviceType": "Routine Maintenance", "technician": "Ahmet Yilmaz", "cost": 1500, "currency": "TRY", "status": "COMPLETED" },
+            { "id": "hist_02", "date": "2025-08-10", "serviceType": "Oil Change", "technician": "Mehmet Demir", "cost": 800, "currency": "TRY", "status": "COMPLETED" }
+        ]
       },
+      "documents": [
+        { "type": "Insurance", "status": "ACTIVE", "expiresOn": "2026-05-20" },
+        { "type": "Inspection", "status": "ACTIVE", "expiresOn": "2026-04-15" }
+      ],
       "assignedTo": { "driverId": "drv_020", "routeId": "rte_5001" }
     },
     {
@@ -300,16 +368,25 @@
       "model": "FH16",
       "year": 2022,
       "status": "IDLE",
-      "specs": { "maxLoadKg": 20000, "heightM": 4.0, "fuelType": "DIESEL", "mpg": 3.2 },
+      "specs": {
+        "maxLoadKg": 20000,
+        "heightM": 4.0,
+        "fuelType": "DIESEL",
+        "mpg": 3.2
+      },
       "currentStatus": {
-        "location": { "lat": 41.0412, "lng": 28.6789, "address": "Istanbul DC" },
+        "location": {
+          "lat": 41.0412,
+          "lng": 28.6789,
+          "address": "Istanbul DC"
+        },
         "speedKph": 0,
         "fuelLevelPct": 90,
         "odometerKm": 89500,
         "engineStatus": "OFF",
         "lastPing": "2026-02-03T15:30:10+03:00"
       },
-       "maintenance": {
+      "maintenance": {
         "nextServiceKm": 90000,
         "nextServiceDate": "2026-02-10",
         "status": "DUE_SOON"
@@ -325,9 +402,18 @@
       "model": "Transit",
       "year": 2024,
       "status": "ON_TRIP",
-      "specs": { "maxLoadKg": 1500, "heightM": 2.4, "fuelType": "ELECTRIC", "rangeKm": 300 },
+      "specs": {
+        "maxLoadKg": 1500,
+        "heightM": 2.4,
+        "fuelType": "ELECTRIC",
+        "rangeKm": 300
+      },
       "currentStatus": {
-        "location": { "lat": 41.0082, "lng": 28.9784, "address": "Sultanahmet, Istanbul" },
+        "location": {
+          "lat": 41.0082,
+          "lng": 28.9784,
+          "address": "Sultanahmet, Istanbul"
+        },
         "speedKph": 35,
         "fuelLevelPct": 42,
         "odometerKm": 12500,
@@ -350,9 +436,18 @@
       "model": "R450",
       "year": 2021,
       "status": "MAINTENANCE",
-      "specs": { "maxLoadKg": 19000, "heightM": 4.1, "fuelType": "DIESEL", "mpg": 3.3 },
+      "specs": {
+        "maxLoadKg": 19000,
+        "heightM": 4.1,
+        "fuelType": "DIESEL",
+        "mpg": 3.3
+      },
       "currentStatus": {
-        "location": { "lat": 40.0812, "lng": 32.6189, "address": "Ankara Service Center" },
+        "location": {
+          "lat": 40.0812,
+          "lng": 32.6189,
+          "address": "Ankara Service Center"
+        },
         "speedKph": 0,
         "fuelLevelPct": 15,
         "odometerKm": 156000,
@@ -374,41 +469,169 @@
         "id": "drv_020",
         "userId": "usr_004",
         "employeeId": "EMP-2020",
+        "code": "DRV-020",
         "fullName": "Emre Kaya",
         "status": "ON_JOB",
-        "contact": { "phone": "+90 532 111 2233", "email": "emre.kaya@logitrack.test" },
-        "metrics": { "safetyScore": 98, "efficiencyScore": 95, "onTimeRate": 99 },
-        "compliance": { "dailyDrivingMinutes": 240, "weeklyDrivingMinutes": 1250, "restDueAt": "2026-02-03T19:00:00+03:00" },
-        "currentVehicleId": "veh_001"
+        "phone": "+90 532 111 2233",
+        "email": "emre.kaya@logitrack.test",
+        "contact": {
+          "phone": "+90 532 111 2233",
+          "email": "emre.kaya@logitrack.test"
+        },
+        "homeBaseWarehouseId": "wh_istanbul_01",
+        "metrics": {
+          "safetyScore": 98,
+          "efficiencyScore": 95,
+          "onTimeRate": 99
+        },
+        "rating": {
+            "avg": 4.9,
+            "count": 45
+        },
+        "licenses": [
+          { "type": "B", "expiresOn": "2026-12-05" },
+          { "type": "SRC4", "expiresOn": "2026-03-15" }
+        ],
+        "compliance": {
+          "lastMedicalCheck": "2025-11-12",
+          "workingHours": { "todayMinutes": 240, "weekMinutes": 1250 },
+          "dailyDrivingMinutes": 240,
+          "weeklyDrivingMinutes": 1250,
+          "minRestMinutes": 660,
+          "met": true,
+          "restRequirement": { "minRestMinutes": 660, "met": true }
+        },
+        "currentVehicleId": "veh_001",
+        "assigned": {
+           "vehicleId": "veh_001",
+           "routeId": "rte_5001",
+           "activeShipmentIds": []
+        }
       },
       {
         "id": "drv_021",
         "userId": null,
         "employeeId": "EMP-2021",
+        "code": "DRV-021",
         "fullName": "Mehmet Demir",
         "status": "OFF_DUTY",
-        "contact": { "phone": "+90 533 222 3344", "email": "mehmet.d@logitrack.test" },
-        "metrics": { "safetyScore": 92, "efficiencyScore": 88, "onTimeRate": 94 },
-        "compliance": { "dailyDrivingMinutes": 0, "weeklyDrivingMinutes": 2100, "restDueAt": "2026-02-04T08:00:00+03:00" },
-        "currentVehicleId": null
+        "phone": "+90 533 222 3344",
+        "email": "mehmet.d@logitrack.test",
+        "contact": {
+          "phone": "+90 533 222 3344",
+          "email": "mehmet.d@logitrack.test"
+        },
+        "homeBaseWarehouseId": "wh_istanbul_01",
+        "metrics": {
+          "safetyScore": 92,
+          "efficiencyScore": 88,
+          "onTimeRate": 94
+        },
+        "rating": {
+            "avg": 4.6,
+            "count": 32
+        },
+        "licenses": [
+          { "type": "B", "expiresOn": "2026-12-05" },
+          { "type": "SRC4", "expiresOn": "2026-03-15" }
+        ],
+        "compliance": {
+          "lastMedicalCheck": "2025-10-05",
+          "workingHours": { "todayMinutes": 0, "weekMinutes": 2100 },
+          "dailyDrivingMinutes": 0,
+          "weeklyDrivingMinutes": 2100,
+          "minRestMinutes": 660,
+          "met": true,
+           "restRequirement": { "minRestMinutes": 660, "met": true }
+        },
+        "currentVehicleId": null,
+        "assigned": {
+            "vehicleId": null,
+            "routeId": null,
+            "activeShipmentIds": []
+         }
       },
       {
         "id": "drv_025",
         "userId": null,
         "employeeId": "EMP-2025",
+        "code": "DRV-025",
         "fullName": "Ayse Yilmaz",
         "status": "ON_JOB",
-        "contact": { "phone": "+90 535 444 5566", "email": "ayse.y@logitrack.test" },
-        "metrics": { "safetyScore": 100, "efficiencyScore": 97, "onTimeRate": 98 },
-        "compliance": { "dailyDrivingMinutes": 180, "weeklyDrivingMinutes": 900, "restDueAt": "2026-02-03T18:00:00+03:00" },
-        "currentVehicleId": "veh_003"
+        "phone": "+90 535 444 5566",
+        "email": "ayse.y@logitrack.test",
+        "contact": {
+          "phone": "+90 535 444 5566",
+          "email": "ayse.y@logitrack.test"
+        },
+        "homeBaseWarehouseId": "wh_ankara_01",
+        "metrics": {
+          "safetyScore": 100,
+          "efficiencyScore": 97,
+          "onTimeRate": 98
+        },
+        "rating": {
+            "avg": 5.0,
+            "count": 12
+        },
+        "compliance": {
+          "lastMedicalCheck": "2026-01-15",
+          "workingHours": { "todayMinutes": 180, "weekMinutes": 900 },
+          "dailyDrivingMinutes": 180,
+          "weeklyDrivingMinutes": 900,
+          "minRestMinutes": 660,
+          "met": true,
+           "restRequirement": { "minRestMinutes": 660, "met": true }
+        },
+        "licenses": [
+          { "type": "B", "expiresOn": "2026-12-05" },
+          { "type": "SRC4", "expiresOn": "2026-03-15" }
+        ],
+        "currentVehicleId": "veh_003",
+        "assigned": {
+            "vehicleId": "veh_003",
+            "routeId": "rte_5003",
+            "activeShipmentIds": []
+         }
       }
     ],
     "warehouse": [
-      { "id": "stf_001", "userId": "usr_002", "fullName": "Kemal Soylu", "role": "MANAGER", "locationId": "wh_istanbul_01" }
+      {
+        "id": "stf_001",
+        "userId": "usr_002",
+        "fullName": "Kemal Soylu",
+        "role": "MANAGER",
+        "locationId": "wh_istanbul_01"
+      }
     ]
   },
   "inventory": {
+    "movements": [
+      {
+        "id": "mov_001",
+        "warehouseId": "wh_istanbul_01",
+        "skuId": "sku_5001",
+        "type": "PICK",
+        "qty": 5,
+        "timestamp": "2026-02-03T14:30:00+03:00"
+      },
+      {
+        "id": "mov_002",
+        "warehouseId": "wh_ankara_01",
+        "skuId": "sku_5004",
+        "type": "RECEIVE",
+        "qty": 50,
+        "timestamp": "2026-02-03T10:00:00+03:00"
+      },
+      {
+        "id": "mov_003",
+        "warehouseId": "wh_izmir_01",
+        "skuId": "sku_5003",
+        "type": "PICK",
+        "qty": 20,
+        "timestamp": "2026-02-03T11:15:00+03:00"
+      }
+    ],
     "catalog": [
       {
         "id": "sku_5001",
@@ -416,6 +639,10 @@
         "name": "Laptop Pro X1",
         "category": "ELECTRONICS",
         "unitPrice": 25000,
+        "reorderPoint": 120,
+        "reorderQty": 300,
+        "hazmat": false,
+        "temperatureControlled": false,
         "uom": "UNIT",
         "dimensions": { "l": 40, "w": 30, "h": 5, "uom": "cm" },
         "weight": { "val": 2.5, "uom": "kg" },
@@ -426,7 +653,10 @@
         "code": "FOD-COF-005",
         "name": "Organic Coffee Beans 1kg",
         "category": "FOOD",
-        "unitPrice": 450,
+        "unitPrice": 450,"reorderPoint": 120,
+        "reorderQty": 300,
+        "hazmat": false,
+        "temperatureControlled": false,
         "uom": "BAG",
         "dimensions": { "l": 15, "w": 10, "h": 25, "uom": "cm" },
         "weight": { "val": 1.0, "uom": "kg" },
@@ -437,7 +667,10 @@
         "code": "PHR-VAC-020",
         "name": "MediVaccine Type-A",
         "category": "PHARMA",
-        "unitPrice": 1200,
+        "unitPrice": 1200,"reorderPoint": 120,
+        "reorderQty": 300,
+        "hazmat": false,
+        "temperatureControlled": false,
         "uom": "VIAL",
         "dimensions": { "l": 5, "w": 5, "h": 10, "uom": "cm" },
         "weight": { "val": 0.1, "uom": "kg" },
@@ -449,6 +682,10 @@
         "name": "All-Season Tire R18",
         "category": "AUTOMOTIVE",
         "unitPrice": 3500,
+        "reorderPoint": 120,
+        "reorderQty": 300,
+        "hazmat": false,
+        "temperatureControlled": false,
         "uom": "UNIT",
         "dimensions": { "l": 70, "w": 70, "h": 25, "uom": "cm" },
         "weight": { "val": 12.0, "uom": "kg" },
@@ -460,6 +697,10 @@
         "name": "ErgoOffice Chair",
         "category": "FURNITURE",
         "unitPrice": 4500,
+        "reorderPoint": 120,
+        "reorderQty": 300,
+        "hazmat": false,
+        "temperatureControlled": false,
         "uom": "BOX",
         "dimensions": { "l": 80, "w": 60, "h": 60, "uom": "cm" },
         "weight": { "val": 15.0, "uom": "kg" },
@@ -467,13 +708,55 @@
       }
     ],
     "stock": [
-      { "warehouseId": "wh_istanbul_01", "skuId": "sku_5001", "quantity": 150, "reserved": 20, "location": "Z1-A-01" },
-      { "warehouseId": "wh_istanbul_01", "skuId": "sku_5002", "quantity": 500, "reserved": 50, "location": "Z2-B-05" },
-      { "warehouseId": "wh_istanbul_01", "skuId": "sku_5003", "quantity": 1000, "reserved": 0, "location": "COLD-01" },
-      { "warehouseId": "wh_istanbul_01", "skuId": "sku_5004", "quantity": 80, "reserved": 8, "location": "Z3-C-10" },
-      { "warehouseId": "wh_ankara_01", "skuId": "sku_5001", "quantity": 40, "reserved": 5, "location": "A-12" },
-      { "warehouseId": "wh_ankara_01", "skuId": "sku_5005", "quantity": 60, "reserved": 10, "location": "B-05" },
-      { "warehouseId": "wh_izmir_01", "skuId": "sku_5004", "quantity": 200, "reserved": 0, "location": "XD-A" }
+      {
+        "warehouseId": "wh_istanbul_01",
+        "skuId": "sku_5001",
+        "quantity": 150,
+        "reserved": 20,
+        "location": "Z1-A-01"
+      },
+      {
+        "warehouseId": "wh_istanbul_01",
+        "skuId": "sku_5002",
+        "quantity": 500,
+        "reserved": 50,
+        "location": "Z2-B-05"
+      },
+      {
+        "warehouseId": "wh_istanbul_01",
+        "skuId": "sku_5003",
+        "quantity": 1000,
+        "reserved": 0,
+        "location": "COLD-01"
+      },
+      {
+        "warehouseId": "wh_istanbul_01",
+        "skuId": "sku_5004",
+        "quantity": 80,
+        "reserved": 8,
+        "location": "Z3-C-10"
+      },
+      {
+        "warehouseId": "wh_ankara_01",
+        "skuId": "sku_5001",
+        "quantity": 40,
+        "reserved": 5,
+        "location": "A-12"
+      },
+      {
+        "warehouseId": "wh_ankara_01",
+        "skuId": "sku_5005",
+        "quantity": 60,
+        "reserved": 10,
+        "location": "B-05"
+      },
+      {
+        "warehouseId": "wh_izmir_01",
+        "skuId": "sku_5004",
+        "quantity": 200,
+        "reserved": 0,
+        "location": "XD-A"
+      }
     ]
   },
   "shipments": [
@@ -484,25 +767,59 @@
       "priority": "HIGH",
       "customerId": "cus_1001",
       "origin": { "warehouseId": "wh_istanbul_01", "type": "WAREHOUSE" },
-      "destination": { "siteId": "site_1001_01", "type": "CUSTOMER_SITE", "address": "Bagdat Cd. No:300, Istanbul" },
+      "destination": {
+        "siteId": "site_1001_01",
+        "type": "CUSTOMER_SITE",
+        "address": "Bagdat Cd. No:300, Istanbul"
+      },
       "dates": {
         "created": "2026-02-02T10:00:00+03:00",
         "requestedDelivery": "2026-02-03T17:00:00+03:00",
         "estimatedDelivery": "2026-02-03T16:30:00+03:00"
       },
       "items": [
-        { "skuId": "sku_5001", "name": "Laptop Pro X1", "qty": 10, "price": 25000 },
-        { "skuId": "sku_5002", "name": "Organic Coffee Beans 1kg", "qty": 50, "price": 450 }
+        {
+          "skuId": "sku_5001",
+          "name": "Laptop Pro X1",
+          "qty": 10,
+          "price": 25000
+        },
+        {
+          "skuId": "sku_5002",
+          "name": "Organic Coffee Beans 1kg",
+          "qty": 50,
+          "price": 450
+        }
       ],
-      "cargoDetails": { "totalWeightKg": 75, "totalVolumeM3": 0.8, "packageCount": 12 },
+      "cargoDetails": {
+        "totalWeightKg": 75,
+        "totalVolumeM3": 0.8,
+        "packageCount": 12
+      },
       "assignedTo": { "routeId": "rte_5001", "loadSequence": 1 },
       "tracking": {
         "currentStage": "LAST_MILE",
         "milestones": [
-          { "status": "ORDER_RECEIVED", "timestamp": "2026-02-02T10:00:00+03:00", "completed": true },
-          { "status": "PICKED_PACKED", "timestamp": "2026-02-02T14:30:00+03:00", "completed": true },
-          { "status": "DISPATCHED", "timestamp": "2026-02-03T08:00:00+03:00", "completed": true },
-          { "status": "OUT_FOR_DELIVERY", "timestamp": "2026-02-03T14:00:00+03:00", "completed": true },
+          {
+            "status": "ORDER_RECEIVED",
+            "timestamp": "2026-02-02T10:00:00+03:00",
+            "completed": true
+          },
+          {
+            "status": "PICKED_PACKED",
+            "timestamp": "2026-02-02T14:30:00+03:00",
+            "completed": true
+          },
+          {
+            "status": "DISPATCHED",
+            "timestamp": "2026-02-03T08:00:00+03:00",
+            "completed": true
+          },
+          {
+            "status": "OUT_FOR_DELIVERY",
+            "timestamp": "2026-02-03T14:00:00+03:00",
+            "completed": true
+          },
           { "status": "DELIVERED", "timestamp": null, "completed": false }
         ]
       }
@@ -514,21 +831,38 @@
       "priority": "NORMAL",
       "customerId": "cus_1003",
       "origin": { "warehouseId": "wh_izmir_01", "type": "WAREHOUSE" },
-      "destination": { "siteId": "site_1003_01", "type": "CUSTOMER_SITE", "address": "Gazi Blv. No:10, Izmir" },
+      "destination": {
+        "siteId": "site_1003_01",
+        "type": "CUSTOMER_SITE",
+        "address": "Gazi Blv. No:10, Izmir"
+      },
       "dates": {
         "created": "2026-02-01T09:00:00+03:00",
         "requestedDelivery": "2026-02-02T18:00:00+03:00",
         "actualDelivery": "2026-02-02T15:45:00+03:00"
       },
       "items": [
-        { "skuId": "sku_5001", "name": "Laptop Pro X1", "qty": 5, "price": 25000 }
+        {
+          "skuId": "sku_5001",
+          "name": "Laptop Pro X1",
+          "qty": 5,
+          "price": 25000
+        }
       ],
-      "cargoDetails": { "totalWeightKg": 12.5, "totalVolumeM3": 0.1, "packageCount": 1 },
+      "cargoDetails": {
+        "totalWeightKg": 12.5,
+        "totalVolumeM3": 0.1,
+        "packageCount": 1
+      },
       "assignedTo": { "routeId": "rte_old_99", "loadSequence": 1 },
       "tracking": {
         "currentStage": "COMPLETED",
         "milestones": [
-           { "status": "DELIVERED", "timestamp": "2026-02-02T15:45:00+03:00", "completed": true }
+          {
+            "status": "DELIVERED",
+            "timestamp": "2026-02-02T15:45:00+03:00",
+            "completed": true
+          }
         ]
       }
     },
@@ -539,21 +873,38 @@
       "priority": "LOW",
       "customerId": "cus_1002",
       "origin": { "warehouseId": "wh_istanbul_01", "type": "WAREHOUSE" },
-      "destination": { "siteId": "site_1002_02", "type": "CUSTOMER_SITE", "address": "ikitelli OSB, Istanbul" },
+      "destination": {
+        "siteId": "site_1002_02",
+        "type": "CUSTOMER_SITE",
+        "address": "ikitelli OSB, Istanbul"
+      },
       "dates": {
         "created": "2026-02-03T11:00:00+03:00",
         "requestedDelivery": "2026-02-05T12:00:00+03:00",
         "estimatedDelivery": "2026-02-05T10:00:00+03:00"
       },
       "items": [
-        { "skuId": "sku_5003", "name": "MediVaccine Type-A", "qty": 200, "price": 1200 }
+        {
+          "skuId": "sku_5003",
+          "name": "MediVaccine Type-A",
+          "qty": 200,
+          "price": 1200
+        }
       ],
-      "cargoDetails": { "totalWeightKg": 20, "totalVolumeM3": 0.5, "packageCount": 4 },
+      "cargoDetails": {
+        "totalWeightKg": 20,
+        "totalVolumeM3": 0.5,
+        "packageCount": 4
+      },
       "assignedTo": null,
       "tracking": {
         "currentStage": "WAREHOUSE_PROCESSING",
         "milestones": [
-          { "status": "ORDER_RECEIVED", "timestamp": "2026-02-03T11:00:00+03:00", "completed": true }
+          {
+            "status": "ORDER_RECEIVED",
+            "timestamp": "2026-02-03T11:00:00+03:00",
+            "completed": true
+          }
         ]
       }
     },
@@ -564,21 +915,33 @@
       "priority": "HIGH",
       "customerId": "cus_1001",
       "origin": { "warehouseId": "wh_istanbul_01", "type": "WAREHOUSE" },
-      "destination": { "siteId": "site_1001_02", "type": "CUSTOMER_SITE", "address": "Besiktas Express" },
+      "destination": {
+        "siteId": "site_1001_02",
+        "type": "CUSTOMER_SITE",
+        "address": "Besiktas Express"
+      },
       "dates": {
         "created": "2026-02-03T08:00:00+03:00",
         "requestedDelivery": "2026-02-03T14:00:00+03:00",
         "estimatedDelivery": "2026-02-03T13:45:00+03:00"
       },
       "items": [
-         { "skuId": "sku_5002", "name": "Coffee Beans", "qty": 10, "price": 450 }
+        { "skuId": "sku_5002", "name": "Coffee Beans", "qty": 10, "price": 450 }
       ],
-      "cargoDetails": { "totalWeightKg": 10, "totalVolumeM3": 0.1, "packageCount": 1 },
+      "cargoDetails": {
+        "totalWeightKg": 10,
+        "totalVolumeM3": 0.1,
+        "packageCount": 1
+      },
       "assignedTo": { "routeId": "rte_5003", "loadSequence": 1 },
       "tracking": {
         "currentStage": "LAST_MILE",
         "milestones": [
-           { "status": "OUT_FOR_DELIVERY", "timestamp": "2026-02-03T13:00:00+03:00", "completed": true }
+          {
+            "status": "OUT_FOR_DELIVERY",
+            "timestamp": "2026-02-03T13:00:00+03:00",
+            "completed": true
+          }
         ]
       }
     }
@@ -602,8 +965,24 @@
         "progressPct": 70
       },
       "stops": [
-        { "id": "stp_1", "sequence": 1, "type": "PICKUP", "locationName": "Istanbul DC", "status": "COMPLETED", "eta": "08:00", "ata": "08:15" },
-        { "id": "stp_2", "sequence": 2, "type": "DELIVERY", "locationName": "Kadikoy MegaStore", "status": "EN_ROUTE", "eta": "16:30", "shipmentIds": ["shp_1045"] }
+        {
+          "id": "stp_1",
+          "sequence": 1,
+          "type": "PICKUP",
+          "locationName": "Istanbul DC",
+          "status": "COMPLETED",
+          "eta": "08:00",
+          "ata": "08:15"
+        },
+        {
+          "id": "stp_2",
+          "sequence": 2,
+          "type": "DELIVERY",
+          "locationName": "Kadikoy MegaStore",
+          "status": "EN_ROUTE",
+          "eta": "16:30",
+          "shipmentIds": ["shp_1045"]
+        }
       ]
     },
     {
@@ -618,7 +997,11 @@
         "plannedEnd": "2026-02-04T15:00:00+03:00",
         "estimatedEnd": null
       },
-      "metrics": { "totalDistanceKm": 45.0, "completedDistanceKm": 0, "progressPct": 0 },
+      "metrics": {
+        "totalDistanceKm": 45.0,
+        "completedDistanceKm": 0,
+        "progressPct": 0
+      },
       "stops": []
     },
     {
@@ -639,8 +1022,24 @@
         "progressPct": 48
       },
       "stops": [
-         { "id": "stp_3", "sequence": 1, "type": "PICKUP", "locationName": "Istanbul DC", "status": "COMPLETED", "eta": "13:00", "ata": "13:10" },
-         { "id": "stp_4", "sequence": 2, "type": "DELIVERY", "locationName": "Besiktas Express", "status": "EN_ROUTE", "eta": "13:45", "shipmentIds": ["shp_1048"] }
+        {
+          "id": "stp_3",
+          "sequence": 1,
+          "type": "PICKUP",
+          "locationName": "Istanbul DC",
+          "status": "COMPLETED",
+          "eta": "13:00",
+          "ata": "13:10"
+        },
+        {
+          "id": "stp_4",
+          "sequence": 2,
+          "type": "DELIVERY",
+          "locationName": "Besiktas Express",
+          "status": "EN_ROUTE",
+          "eta": "13:45",
+          "shipmentIds": ["shp_1048"]
+        }
       ]
     }
   ],
@@ -698,10 +1097,10 @@
       "alertThresholdSeverity": "MEDIUM",
       "notifyOnDelivery": true
     },
-     "tracking": {
-       "gpsIntervalSeconds": 60,
-       "geofenceRadiusMeters": 500
-     }
+    "tracking": {
+      "gpsIntervalSeconds": 60,
+      "geofenceRadiusMeters": 500
+    }
   },
   "financials": {
     "currentMonth": {

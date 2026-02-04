@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
 import { getVehicleList } from "@/app/lib/analyticsUtils";
+import mockData from "@/app/lib/mockData.json";
 import RowActions from "./menu";
 import VehicleDialog from "../../../dialogs/vehicle";
 import { useState } from "react";
@@ -23,7 +24,7 @@ const VehicleTable = () => {
     const [open, setOpen] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | undefined>(undefined);
 
-    const vehicles = getVehicleList();
+    const vehicles = mockData.fleet;
 
     const handleClose = () => {
         setOpen(false);
@@ -71,11 +72,11 @@ const VehicleTable = () => {
                                     <TableCell>{v.plate}</TableCell>
                                     <TableCell>{`${v.brand} - ${v.model} / ${v.year}`}</TableCell>
                                     <TableCell><StatusChip status={v.status} /></TableCell>
-                                    <TableCell>{v.odometerKm}</TableCell>
-                                    <TableCell>{v.assigned.driverId ?? "No Assigned"}</TableCell>
-                                    <TableCell sx={{ color: v.telemetry.ignitionOn ? "success.main" : "error.main" }}>{v.telemetry.ignitionOn.toString()}</TableCell>
+                                    <TableCell>{v.currentStatus.odometerKm}</TableCell>
+                                    <TableCell>{v.assignedTo?.driverId ?? "No Assigned"}</TableCell>
+                                    <TableCell sx={{ color: v.currentStatus.engineStatus === 'RUNNING' ? "success.main" : "error.main" }}>{v.currentStatus.engineStatus}</TableCell>
                                     <TableCell align="right">
-                                        {v.fuel.consumptionLPer100Km}
+                                        {v.specs.mpg ? (235.21 / v.specs.mpg).toFixed(1) : "N/A" }
                                     </TableCell>
                                     <TableCell align="right">
                                         <RowActions id={v.id} handleOpenDetails={handleOpen} />

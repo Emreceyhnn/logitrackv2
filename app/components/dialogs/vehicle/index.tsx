@@ -1,7 +1,6 @@
 "use client";
 
 import { alpha, Avatar, Box, Button, Chip, Dialog, DialogContent, IconButton, Stack, Tab, Tabs, Typography, useTheme } from "@mui/material";
-import CustomDialog from "../customDialog";
 import { Vehicle } from "@/app/lib/type/VehicleType";
 import { useState } from "react";
 import OverviewTab from "./overviewTab";

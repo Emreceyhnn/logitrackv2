@@ -74,7 +74,7 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
                         </TableHead>
 
                         <TableBody>
-                            {vehicle.documents.map((v, index) => (
+                            {(vehicle.documents || []).map((v, index) => (
                                 <TableRow key={index}>
                                     <TableCell ><Typography sx={{ fontSize: 12 }}>{v.type}</Typography></TableCell>
                                     <TableCell><StatusChip status={v.status} /></TableCell>

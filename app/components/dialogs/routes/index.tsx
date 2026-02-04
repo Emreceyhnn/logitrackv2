@@ -4,9 +4,9 @@ import { alpha, Avatar, Box, Button, Chip, Dialog, DialogContent, Divider, IconB
 import CustomDialog from "../customDialog";
 import { Route } from "@/app/lib/type/RoutesType";
 import DriverCard from "../../cards/driverCard";
-import MockData from "@/app/lib/data.json"
+import mockData from '@/app/lib/mockData.json';
 import MapRoutesDialogCard from "./map";
-import RouteProgress from "./proggress";
+import RouteProgress from "./progress";
 import RoutesTelemetryCards from "./telemetry";
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
@@ -42,7 +42,7 @@ const RoutesDialog = (params: RoutesDialogParams) => {
     const { open, onClose, routeData } = params;
     const theme = useTheme();
 
-    const driver = MockData.drivers.find(
+    const driver = mockData.staff.drivers.find(
         i => i.id === routeData?.driverId
     ) ?? null
 
@@ -108,7 +108,7 @@ const RoutesDialog = (params: RoutesDialogParams) => {
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                     <LocalShippingIcon fontSize="small" sx={{ fontSize: '1rem' }} />
-                                    {routeData?.distanceKm} km • {routeData?.stops?.length || 0} Stops
+                                    {routeData?.metrics?.totalDistanceKm} km • {routeData?.stops?.length || 0} Stops
                                 </Typography>
                             </Stack>
                         </Stack>

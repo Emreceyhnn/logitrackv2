@@ -8,7 +8,6 @@ import {
   Chip,
   Container,
   Divider,
-  Grid,
   Stack,
   Toolbar,
   Typography,
@@ -330,8 +329,8 @@ export default function LandingPage() {
             pb: { xs: 10, md: 14 },
           }}
         >
-          <Grid container spacing={8} alignItems="center">
-            <Grid item xs={12} md={6}>
+          <Stack direction="row" spacing={8} alignItems="center" flexWrap="wrap" useFlexGap>
+            <Box sx={{ width: { xs: '100%', md: 'calc(50% - 32px)' } }}>
               <Stack spacing={4.5}>
                 <Stack direction="row" spacing={1.5} alignItems="center">
                   <Chip
@@ -500,9 +499,9 @@ export default function LandingPage() {
                   </Box>
                 </Stack>
               </Stack>
-            </Grid>
+            </Box>
 
-            <Grid item xs={12} md={6}>
+            <Box sx={{ width: { xs: '100%', md: 'calc(50% - 32px)' } }}>
               <Box
                 sx={{
                   position: "relative",
@@ -663,8 +662,8 @@ export default function LandingPage() {
                   </Stack>
                 </Box>
               </Box>
-            </Grid>
-          </Grid>
+            </Box>
+          </Stack>
         </Container>
       </Box>
 
@@ -708,8 +707,8 @@ export default function LandingPage() {
 
       <Box sx={{ bgcolor: "#0f172a", py: 12 }}>
         <Container maxWidth="lg">
-          <Grid container spacing={8}>
-            <Grid item xs={12} md={6}>
+          <Stack direction="row" spacing={8} flexWrap="wrap" useFlexGap>
+            <Box sx={{ width: { xs: '100%', md: 'calc(50% - 32px)' } }}>
               <Stack spacing={3}>
                 <Typography
                   variant="overline"
@@ -729,11 +728,11 @@ export default function LandingPage() {
                   operations.
                 </Typography>
               </Stack>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Grid container spacing={3}>
+            </Box>
+            <Box sx={{ width: { xs: '100%', md: 'calc(50% - 32px)' } }}>
+              <Stack direction="row" spacing={3} flexWrap="wrap" useFlexGap>
                 {featureCards.map((card) => (
-                  <Grid key={card.title} item xs={12} sm={6}>
+                  <Box key={card.title} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)' } }}>
                     <Box
                       sx={{
                         height: "100%",
@@ -758,17 +757,17 @@ export default function LandingPage() {
                         {card.description}
                       </Typography>
                     </Box>
-                  </Grid>
+                  </Box>
                 ))}
-              </Grid>
-            </Grid>
-          </Grid>
+              </Stack>
+            </Box>
+          </Stack>
         </Container>
       </Box>
 
       <Box sx={{ bgcolor: "#0b1120", py: 12 }}>
         <Container maxWidth="lg">
-          <Grid container spacing={6}>
+          <Stack direction="row" spacing={6} flexWrap="wrap" useFlexGap>
             <Box
               sx={{
                 display: "grid",
@@ -813,7 +812,7 @@ export default function LandingPage() {
                 </Box>
               ))}
             </Box>
-          </Grid>
+          </Stack>
         </Container>
       </Box>
 

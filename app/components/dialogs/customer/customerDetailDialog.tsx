@@ -23,7 +23,7 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 
 interface CustomerDetailDialogParams {
     open: boolean;
@@ -155,7 +155,7 @@ const CustomerDetailDialog = ({ open, onClose, customerId }: CustomerDetailDialo
                                                 <Avatar sx={{ width: 32, height: 32, fontSize: '0.875rem' }}>{customer.contacts[0].name.charAt(0)}</Avatar>
                                                 <Box>
                                                     <Typography variant="body2" fontWeight={700}>{customer.contacts[0].name}</Typography>
-                                                    {customer.contacts[0].role && <Typography variant="caption" color="text.secondary">{customer.contacts[0].role}</Typography>}
+                                                    {(customer.contacts[0] as any).role && <Typography variant="caption" color="text.secondary">{(customer.contacts[0] as any).role}</Typography>}
                                                 </Box>
                                             </Stack>
                                             <Divider sx={{ borderStyle: 'dashed' }} />
@@ -199,7 +199,7 @@ const CustomerDetailDialog = ({ open, onClose, customerId }: CustomerDetailDialo
                                     <Stack direction="row" spacing={1.5} alignItems="center" sx={{ pt: 1 }}>
                                         <AssignmentIcon color="action" fontSize="small" />
                                         <Typography variant="caption" fontWeight={600} color="text.secondary">
-                                            TAX ID: <Box component="span" color="text.primary">{customer.taxNo}</Box>
+                                            TAX ID: <Box component="span" color="text.primary">{customer.taxId}</Box>
                                         </Typography>
                                     </Stack>
                                 </Stack>

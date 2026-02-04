@@ -1,25 +1,26 @@
 import { BarChart } from '@mui/x-charts/BarChart';
 import { LineChart } from '@mui/x-charts/LineChart';
-import { Card, Stack, Typography, Grid, Paper, useTheme, Box, alpha } from "@mui/material";
-import mockData from "@/app/lib/data.json";
+import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
+import mockData from "@/app/lib/mockData.json";
 
 export default function FleetCharts() {
     const theme = useTheme();
 
     // 1. Fuel Consumption per Vehicle
-    const vehicleFuel = mockData.vehicles.map(v => ({
+    const vehicleFuel = mockData.fleet.map(v => ({
         plate: v.plate,
-        consumption: v.fuel.consumptionLPer100Km,
+        consumption: v.specs?.mpg ? (235.21 / v.specs.mpg).toFixed(1) : 0, // Convert MPG to L/100km
     }));
 
     // 2. Odometer vs Maintenance Cost (Mocked correlation)
-    const maintenanceAnalysis = mockData.vehicles
+    const maintenanceAnalysis = mockData.fleet
         .map(v => {
-            const totalCost = v.maintenance?.history?.reduce((sum, h) => sum + h.cost, 0) || 0;
+            // Mock synthetic cost based on odometer since historical cost is not in mockData yet
+            const totalCost = (v.currentStatus.odometerKm * 0.05) + (Math.random() * 1000); 
             return {
                 plate: v.plate,
-                odometer: v.odometerKm,
-                cost: totalCost
+                odometer: v.currentStatus.odometerKm,
+                cost: Math.round(totalCost)
             };
         })
         .sort((a, b) => a.odometer - b.odometer);
@@ -28,12 +29,18 @@ export default function FleetCharts() {
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Card sx={{
-                    p: 3,
-                    borderRadius: 4,
+                    flex: 1,
+                    p: 2.5,
+                    borderRadius: "16px",
                     boxShadow: theme.shadows[2],
-                    height: '100%',
                     display: 'flex',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    background: `${theme.palette.background.paper}`,
+                    "&:hover": {
+                        transform: "translateY(-4px)",
+                        boxShadow: theme.shadows[8],
+                    },
                 }}>
                     <Stack spacing={0.5} sx={{ mb: 3 }}>
                         <Typography variant="h6" fontWeight={700}>
@@ -67,12 +74,18 @@ export default function FleetCharts() {
 
             <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Card sx={{
-                    p: 3,
-                    borderRadius: 4,
+                    flex: 1,
+                    p: 2.5,
+                    borderRadius: "16px",
                     boxShadow: theme.shadows[2],
-                    height: '100%',
                     display: 'flex',
-                    flexDirection: 'column'
+                    flexDirection: 'column',
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    background: `${theme.palette.background.paper}`,
+                    "&:hover": {
+                        transform: "translateY(-4px)",
+                        boxShadow: theme.shadows[8],
+                    },
                 }}>
                     <Stack spacing={0.5} sx={{ mb: 3 }}>
                         <Typography variant="h6" fontWeight={700}>

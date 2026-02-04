@@ -1,6 +1,6 @@
 "use client"
 import { Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 import CustomCard from "../../cards/card";
 
 const RecentStockMovements = () => {
@@ -26,7 +26,7 @@ const RecentStockMovements = () => {
                     <TableBody>
                         {movements.map((move) => {
                             const warehouse = mockData.warehouses.find(w => w.id === move.warehouseId);
-                            const sku = mockData.inventory.items.find(s => s.id === move.skuId);
+                            const sku = mockData.inventory.catalog.find(s => s.id === move.skuId);
                             const isPick = move.type === "PICK";
 
 

@@ -12,7 +12,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 const SideBar = () => {
     /* -------------------------------- variables ------------------------------- */
-    const theme = useTheme()
+    const theme = useTheme() as any
 
 
     const sideBarItemsParents = [

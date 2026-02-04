@@ -1,18 +1,18 @@
 "use client"
 import { Card, Stack, Typography, useTheme } from "@mui/material"
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 
 const WarehouseKpiCard = () => {
     const theme = useTheme()
 
     const warehouses = mockData.warehouses;
     const totalWarehouses = warehouses.length;
-    const totalSkus = mockData.inventory.items.length;
+    const totalSkus = mockData.inventory.catalog.length;
 
-    const totalPalletsCapacity = warehouses.reduce((acc, curr) => acc + curr.capacity.maxPallets, 0);
+    const totalPalletsCapacity = warehouses.reduce((acc, curr) => acc + curr.capacity.totalPallets, 0);
 
 
-    const totalVolumeCapacity = warehouses.reduce((acc, curr) => acc + curr.capacity.maxVolumeM3, 0);
+    const totalVolumeCapacity = warehouses.reduce((acc, curr) => acc + curr.capacity.totalVolumeM3, 0);
 
 
     const kpiItems = [

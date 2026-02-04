@@ -23,15 +23,19 @@ const MetricCard = ({ title, value, change, positive, icon, color = 'primary.mai
     return (
         <Card sx={{
             p: 3,
-            borderRadius: 4,
-            boxShadow: theme.shadows[3],
+            borderRadius: "16px",
+            boxShadow: theme.shadows[2],
             height: '100%',
             position: 'relative',
             overflow: 'hidden',
-            transition: 'transform 0.2s, box-shadow 0.2s',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            background: `${theme.palette.background.paper}`,
             '&:hover': {
                 transform: 'translateY(-4px)',
-                boxShadow: theme.shadows[6]
+                boxShadow: theme.shadows[8]
             }
         }}>
             {/* Background Decoration */}

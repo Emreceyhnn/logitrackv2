@@ -26,7 +26,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 
 // Re-using the interface from InventoryTable (or defining a compatible one)
 export interface InventoryItemDisplay {
@@ -53,20 +53,23 @@ const InventoryDetailDialog = ({ open, onClose, item }: InventoryDetailDialogPar
     if (!item) return null;
 
     // Find detailed stock breakdown from mockData
-    const stockDistribution = mockData.inventory.stockByWarehouse.flatMap(wh => {
-        const line = wh.lines.find(l => l.skuId === item.id);
-        if (line) {
-            const whDetails = mockData.warehouses.find(w => w.id === wh.warehouseId);
-            return [{
-                warehouseName: whDetails?.name || wh.warehouseId,
-                warehouseCode: whDetails?.code || "WH",
-                onHand: line.onHand,
+    const stockDistribution = (() => {
+        if (!mockData.inventory.stock) return [];
+        // Filter stock for this SKU
+        const stockLines = mockData.inventory.stock.filter(s => s.skuId === item.id);
+        
+        return stockLines.map(line => {
+            const wh = mockData.warehouses.find(w => w.id === line.warehouseId);
+            return {
+                warehouseName: wh?.name || "Unknown Warehouse",
+                warehouseCode: wh?.code || line.warehouseId,
+                available: line.quantity - line.reserved,
+                onHand: line.quantity,
                 reserved: line.reserved,
-                available: line.available
-            }];
-        }
-        return [];
-    });
+                location: (line as any).location || "N/A"
+            };
+        });
+    })();
 
     const getStatusColor = (status: string) => {
         if (status === 'IN_STOCK') return 'success';

@@ -8,7 +8,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import InfoIcon from '@mui/icons-material/Info';
 import GoogleMapView from "@/app/components/map";
 import CustomerDetailDialog from "@/app/components/dialogs/customer/customerDetailDialog";
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 import { useState, useMemo } from "react";
 
 export default function CustomersPage() {
@@ -28,7 +28,7 @@ export default function CustomersPage() {
             customer.deliverySites.map(site => ({
                 id: site.id,
                 name: `${customer.name} - ${site.name}`,
-                position: site.geo,
+                position: site.address.coordinates,
                 type: "C"
             }))
         );
@@ -111,7 +111,7 @@ export default function CustomersPage() {
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     <PhoneIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                                     <Typography variant="body2" color="text.secondary">
-                                        {customer.contacts[0]?.phone}
+                                        {customer.contacts?.[0]?.phone || "N/A"}
                                     </Typography>
                                 </Stack>
                             </Stack>

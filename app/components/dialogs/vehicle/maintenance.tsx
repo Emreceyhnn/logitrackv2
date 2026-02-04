@@ -19,7 +19,7 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
         return <Typography color="text.secondary">No vehicle selected</Typography>;
     }
 
-    const maintenanceHistory = vehicle.maintenance.history.slice(-4);
+    const maintenanceHistory = (vehicle.maintenance.history || []).slice(-4);
 
     return (
         <Stack spacing={2} maxHeight={750}>
@@ -31,7 +31,7 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
                         </Typography>
                         <BuildIcon sx={{ fontSize: 18, color: "text.secondary" }} />
                     </Stack>
-                    <Typography sx={{ fontSize: 24, fontWeight: 800 }}>{(vehicle.maintenance.nextServiceKm - vehicle.odometerKm)} km</Typography>
+                    <Typography sx={{ fontSize: 24, fontWeight: 800 }}>{(vehicle.maintenance.nextServiceKm - vehicle.currentStatus.odometerKm)} km</Typography>
                     <Typography sx={{ fontSize: 14, fontWeight: 200, color: "text.secondary" }}>left until next scheduled service</Typography>
                     <Divider sx={{ color: "text.disabled" }} />
                     <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
@@ -50,7 +50,7 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
                     </Stack>
                     <Stack maxHeight={190} overflow={"auto"}>
                         {
-                            vehicle.maintenance.openIssues.map((i, index) => (
+                            (vehicle.maintenance.openIssues || []).map((i, index) => (
                                 <Card key={index} sx={{ mt: 2, p: 2, borderRadius: "8px", bgcolor: "background.dashboardBg", alignItems: "center", display: "flex", gap: 2, minHeight: 80 }}>
                                     <Box sx={{ height: 10, width: 10, borderRadius: "50%", bgcolor: "error.main" }} />
                                     <Stack>

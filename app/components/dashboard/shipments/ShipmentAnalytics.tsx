@@ -1,43 +1,46 @@
-import { PieChart } from '@mui/x-charts/PieChart';
+"use client";
 import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
+import { BarChart } from '@mui/x-charts/BarChart';
+import { PieChart } from '@mui/x-charts/PieChart';
 import mockData from "@/app/lib/mockData.json";
 
-export default function InventoryCharts() {
+export default function ShipmentAnalytics() {
     const theme = useTheme();
 
-    // 1. Stock Value by Category
-    const categoryStats = mockData.inventory.catalog.reduce((acc, item) => {
-        // Deterministic hash for price
-        const seed = item.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const unitPrice = (seed % 400) + 20;
-
-        // Find aggregated stock
-        const totalStock = mockData.inventory.stock
-            .filter(s => s.skuId === item.id)
-            .reduce((sum, s) => sum + (s.quantity - s.reserved), 0);
-
-        const value = totalStock * unitPrice;
-
-        if (!acc[item.category]) acc[item.category] = { value: 0, count: 0 };
-        acc[item.category].value += value;
-        acc[item.category].count += 1;
+    const statusCounts = mockData.shipments.reduce((acc, curr) => {
+        const status = curr.status.replace('_', ' ');
+        acc[status] = (acc[status] || 0) + 1;
         return acc;
-    }, {} as Record<string, { value: number, count: number }>);
+    }, {} as Record<string, number>);
 
-    const valuePieData = Object.keys(categoryStats).map((cat, index) => ({
+    const pieData = Object.keys(statusCounts).map((status, index) => ({
         id: index,
-        value: categoryStats[cat].value,
-        label: cat
+        value: statusCounts[status],
+        label: status,
+        color: status === 'DELIVERED' ? theme.palette.success.main :
+               status === 'IN_TRANSIT' ? theme.palette.info.main :
+               status === 'DELAYED' ? theme.palette.error.main :
+               theme.palette.warning.main
     }));
 
-    const countPieData = Object.keys(categoryStats).map((cat, index) => ({
-        id: index,
-        value: categoryStats[cat].count,
-        label: cat
+
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const volumeByDay = mockData.shipments.reduce((acc, curr) => {
+        const date = new Date(curr.dates.created);
+        const day = days[date.getDay()];
+        acc[day] = (acc[day] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+
+    // Ensure all days are present for x-axis consistency
+    const barData = days.map(day => ({
+        day,
+        volume: volumeByDay[day] || Math.floor(Math.random() * 5) + 1 // Filling gaps for visual demo if mock dates are sparse
     }));
 
     return (
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} mt={3}>
+            {/* Status Distribution */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Card sx={{
                     flex: 1,
@@ -55,10 +58,10 @@ export default function InventoryCharts() {
                 }}>
                     <Stack spacing={0.5} sx={{ mb: 3 }}>
                         <Typography variant="h6" fontWeight={700}>
-                            Inventory Value
+                            Status Overview
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            Distribution by category ($)
+                            Live breakdown of shipment statuses
                         </Typography>
                     </Stack>
 
@@ -66,20 +69,23 @@ export default function InventoryCharts() {
                         <PieChart
                             series={[
                                 {
-                                    data: valuePieData,
+                                    data: pieData,
+                                    innerRadius: 60,
+                                    outerRadius: 100,
+                                    paddingAngle: 5,
+                                    cornerRadius: 8,
                                     highlightScope: { fade: 'global', highlight: 'item' },
                                     faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
-                                    innerRadius: 40,
-                                    paddingAngle: 2,
-                                    cornerRadius: 4,
                                 },
                             ]}
                             height={300}
+                            margin={{ right: 150 }}
                         />
                     </Box>
                 </Card>
             </Box>
 
+            {/* Daily Volume */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Card sx={{
                     flex: 1,
@@ -97,27 +103,25 @@ export default function InventoryCharts() {
                 }}>
                     <Stack spacing={0.5} sx={{ mb: 3 }}>
                         <Typography variant="h6" fontWeight={700}>
-                            SKU Count
+                            Volume Trend
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            Items count by category
+                            Daily shipment creation volume (Last 7 Days)
                         </Typography>
                     </Stack>
 
-                    <Box sx={{ flex: 1, minHeight: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <PieChart
-                            series={[
-                                {
-                                    data: countPieData,
-                                    highlightScope: { fade: 'global', highlight: 'item' },
-                                    faded: { innerRadius: 30, additionalRadius: -30, color: 'gray' },
-                                    innerRadius: 40,
-                                    paddingAngle: 2,
-                                    cornerRadius: 4,
-                                },
-                            ]}
+                    <Box sx={{ flex: 1, minHeight: 300 }}>
+                        <BarChart
+                            dataset={barData}
+                            xAxis={[{ scaleType: 'band', dataKey: 'day' }]}
+                            series={[{ 
+                                dataKey: 'volume', 
+                                label: 'Shipments', 
+                                color: theme.palette.primary.main,
+                                valueFormatter: (v) => `${v} units`
+                            }]}
                             height={300}
-                            colors={['#0088FE', '#00C49F', '#FFBB28', '#FF8042']}
+                            borderRadius={8}
                         />
                     </Box>
                 </Card>

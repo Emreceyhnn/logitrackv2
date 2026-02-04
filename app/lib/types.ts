@@ -232,31 +232,42 @@ export interface StopRef {
     siteId?: string;
 }
 
+export interface RouteSchedule {
+    plannedStart: string;
+    actualStart: string | null;
+    plannedEnd: string;
+    estimatedEnd: string | null;
+}
+
+export interface RouteMetrics {
+    totalDistanceKm: number;
+    completedDistanceKm: number;
+    progressPct: number;
+}
+
 export interface RouteStop {
-    seq: number;
+    id: string;
+    sequence: number;
     type: string; // PICKUP, DELIVERY, RETURN
-    ref: StopRef;
+    locationName: string;
+    status: string;
     eta: string;
-    window: {
-        from: string;
-        to: string;
-    };
+    ata?: string;
+    shipmentIds?: string[];
 }
 
 export interface Route {
     id: string;
     code: string;
-    name: string;
+    name?: string; // Optional in mockData
     status: string;
-    plannedStartAt: string;
-    plannedEndAt: string;
-    actualStartAt: string | null;
     vehicleId: string;
     driverId: string | null;
-    distanceKm: number;
+    schedule: RouteSchedule;
+    metrics: RouteMetrics;
     stops: RouteStop[];
-    completedDate: string;
-    shipmentIds: string[];
+    // properties not in mockData but maybe inferred
+    shipments?: { length: number } | string[]; // Adapt for charts usage
 }
 
 export interface Item {
@@ -326,27 +337,51 @@ export interface ShipmentTracking {
     }[];
 }
 
+export interface ShipmentOrigin {
+    warehouseId?: string;
+    customerId?: string; // If return
+    type: string;
+}
+
+export interface ShipmentDestination {
+    siteId?: string;
+    warehouseId?: string; // If return
+    type: string;
+    address: string;
+}
+
+export interface ShipmentDates {
+    created: string;
+    requestedDelivery: string;
+    estimatedDelivery?: string;
+    actualDelivery?: string;
+}
+
 export interface Shipment {
     id: string;
-    code: string;
+    code?: string; // Not in mockData explicitly but used in Table? Actually mockData has orderNumber.
+    orderNumber: string;
     status: string;
     priority: string;
     customerId: string;
-    pickup: {
-        warehouseId: string;
-        plannedAt: string;
+    origin: ShipmentOrigin;
+    destination: ShipmentDestination;
+    dates: ShipmentDates;
+    items: { skuId: string; name: string; qty: number; price: number }[];
+    cargoDetails: {
+        totalWeightKg: number;
+        totalVolumeM3: number;
+        packageCount: number;
     };
-    dropoff: {
-        customerSiteId: string;
-        plannedAt: string;
+    assignedTo: { routeId: string; loadSequence: number } | null;
+    tracking: {
+        currentStage: string;
+        milestones: { status: string; timestamp: string | null; completed: boolean }[];
     };
-    routeId: string;
-    vehicleId: string;
-    driverId: string | null;
-    cargo: Cargo;
-    sla: SLA;
-    tracking: ShipmentTracking;
-    notes: string[];
+    // Adapting for legacy usages if needed, or fixing legacy usages
+    driverId?: string; // Inferred from route?
+    routeId?: string; // Inferred from assignedTo
+    cargo?: Cargo; // Mapping to new cargoDetails
 }
 
 export interface Alert {

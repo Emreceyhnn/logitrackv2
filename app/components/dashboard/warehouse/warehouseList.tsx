@@ -1,6 +1,6 @@
 "use client"
 import { Box, Card, LinearProgress, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, useTheme } from "@mui/material"
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 import CustomCard from "../../cards/card";
 
 const WarehouseListTable = () => {
@@ -26,8 +26,8 @@ const WarehouseListTable = () => {
                     </TableHead>
                     <TableBody>
                         {warehouses.map((warehouse) => {
-                            const palletPct = (warehouse.capacity.usedPallets / warehouse.capacity.maxPallets) * 100;
-                            const volumePct = (warehouse.capacity.usedVolumeM3 / warehouse.capacity.maxVolumeM3) * 100;
+                            const palletPct = (warehouse.capacity.usedPallets / warehouse.capacity.totalPallets) * 100;
+                            const volumePct = (warehouse.capacity.usedVolumeM3 / warehouse.capacity.totalVolumeM3) * 100;
 
                             return (
                                 <TableRow key={warehouse.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
@@ -51,7 +51,7 @@ const WarehouseListTable = () => {
                                                 }}
                                             />
                                             <Typography variant="caption" sx={{ minWidth: 80, fontFamily: 'monospace' }}>
-                                                {warehouse.capacity.usedPallets.toLocaleString()} / {warehouse.capacity.maxPallets.toLocaleString()}
+                                                {warehouse.capacity.usedPallets.toLocaleString()} / {warehouse.capacity.totalPallets.toLocaleString()}
                                             </Typography>
                                         </Stack>
                                     </TableCell>
@@ -72,7 +72,7 @@ const WarehouseListTable = () => {
                                                 }}
                                             />
                                             <Typography variant="caption" sx={{ minWidth: 100, fontFamily: 'monospace' }}>
-                                                {warehouse.capacity.usedVolumeM3.toLocaleString()}k / {warehouse.capacity.maxVolumeM3.toLocaleString()}k m³
+                                                {warehouse.capacity.usedVolumeM3.toLocaleString()}k / {warehouse.capacity.totalVolumeM3.toLocaleString()}k m³
                                             </Typography>
                                         </Stack>
                                     </TableCell>

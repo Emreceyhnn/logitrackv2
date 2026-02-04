@@ -1,7 +1,7 @@
 import { PieChart } from '@mui/x-charts/PieChart';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { Card, Stack, Typography, Grid, Box, useTheme, Paper } from "@mui/material";
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 
 export default function ShipmentCharts() {
     const theme = useTheme();
@@ -25,19 +25,28 @@ export default function ShipmentCharts() {
     // 2. Volume by Route (Bar)
     const routeShipmentCounts = mockData.routes.map(route => ({
         route: route.code,
-        count: route.shipmentIds.length
+        count: mockData.shipments.filter(s => s.assignedTo?.routeId === route.id).length
     }));
 
     return (
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
             <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Card sx={{
-                    p: 3,
-                    borderRadius: 4,
-                    boxShadow: theme.shadows[2],
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column'
+                                   flex: 1,
+                                   p: 2.5,
+                                   flexDirection: "column",
+                                   borderRadius: "16px",
+                                   boxShadow: theme.shadows[2],
+                                   display: "flex",
+                                   alignItems: "center",
+                                   justifyContent: "space-between",
+                                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                   background: `${theme.palette.background.paper}`,
+                                   "&:hover": {
+                                       transform: "translateY(-4px)",
+                                       boxShadow: theme.shadows[8],
+                                       
+                                   },
                 }}>
                     <Stack spacing={0.5} sx={{ mb: 3 }}>
                         <Typography variant="h6" fontWeight={700}>
@@ -73,12 +82,21 @@ export default function ShipmentCharts() {
 
             <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Card sx={{
-                    p: 3,
-                    borderRadius: 4,
-                    boxShadow: theme.shadows[2],
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column'
+                    flex: 1,
+                                   p: 2.5,
+                                   borderRadius: "16px",
+                                   boxShadow: theme.shadows[2],
+                                   display: "flex",
+                                   flexDirection: "column",
+                                   alignItems: "center",
+                                   justifyContent: "space-between",
+                                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                   background: `${theme.palette.background.paper}`,
+                                   "&:hover": {
+                                       transform: "translateY(-4px)",
+                                       boxShadow: theme.shadows[8],
+                                       
+                                   },
                 }}>
                     <Stack spacing={0.5} sx={{ mb: 3 }}>
                         <Typography variant="h6" fontWeight={700}>

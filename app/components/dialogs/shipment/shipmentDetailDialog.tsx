@@ -65,7 +65,7 @@ const ShipmentDetailDialog = (params: ShipmentDialogParams) => {
                     <Stack spacing={1}>
                         <Stack direction="row" spacing={1} alignItems="center">
                             <Typography variant="h5" fontWeight={700} sx={{ color: theme.palette.text.primary }}>
-                                {shipmentData.code}
+                                {shipmentData.orderNumber}
                             </Typography>
                             <StatusChip status={shipmentData.status} />
                             <PriorityChip status={shipmentData.priority} />
@@ -80,7 +80,7 @@ const ShipmentDetailDialog = (params: ShipmentDialogParams) => {
                             <Stack direction="row" spacing={0.5} alignItems="center">
                                 <AccessTimeIcon fontSize="small" color="action" />
                                 <Typography variant="body2" color="text.secondary">
-                                    SLA Target: <strong>{shipmentData.sla.onTimeTargetPct}%</strong>
+                                    Delivery: <strong>{new Date(shipmentData.dates.requestedDelivery).toLocaleDateString()}</strong>
                                 </Typography>
                             </Stack>
                         </Stack>
@@ -127,10 +127,10 @@ const ShipmentDetailDialog = (params: ShipmentDialogParams) => {
                                     <Box>
                                         <Typography variant="subtitle1" fontWeight={600}>Pickup</Typography>
                                         <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                            <LocationOnIcon fontSize="inherit" /> Warehouse: {shipmentData.pickup.warehouseId}
+                                            Origin: {shipmentData.origin.warehouseId || shipmentData.origin.type}
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, bgcolor: alpha(theme.palette.divider, 0.5), px: 1, py: 0.5, borderRadius: 1, width: 'fit-content' }}>
-                                            Planned: {new Date(shipmentData.pickup.plannedAt).toLocaleString()}
+                                            Created: {new Date(shipmentData.dates.created).toLocaleString()}
                                         </Typography>
                                     </Box>
                                 </Stack>
@@ -143,10 +143,10 @@ const ShipmentDetailDialog = (params: ShipmentDialogParams) => {
                                     <Box>
                                         <Typography variant="subtitle1" fontWeight={600}>Dropoff</Typography>
                                         <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                            <BusinessIcon fontSize="inherit" /> Site: {shipmentData.dropoff.customerSiteId}
+                                            Target: {shipmentData.destination.siteId || shipmentData.destination.address}
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, bgcolor: alpha(theme.palette.divider, 0.5), px: 1, py: 0.5, borderRadius: 1, width: 'fit-content' }}>
-                                            Planned: {new Date(shipmentData.dropoff.plannedAt).toLocaleString()}
+                                            Requested: {new Date(shipmentData.dates.requestedDelivery).toLocaleString()}
                                         </Typography>
                                     </Box>
                                 </Stack>
@@ -166,7 +166,7 @@ const ShipmentDetailDialog = (params: ShipmentDialogParams) => {
                                 </Avatar>
                                 <Box>
                                     <Typography variant="caption" color="text.secondary" display="block">Driver</Typography>
-                                    <Typography variant="body2" fontWeight={600}>{shipmentData.driverId}</Typography>
+                                    <Typography variant="body2" fontWeight={600}>{shipmentData.assignedTo?.routeId ? "Assigned" : "Unassigned"}</Typography>
                                 </Box>
                             </Paper>
                             <Paper variant="outlined" sx={{ p: 1.5, flex: 1, display: 'flex', alignItems: 'center', gap: 1.5, borderRadius: 2 }}>
@@ -175,7 +175,7 @@ const ShipmentDetailDialog = (params: ShipmentDialogParams) => {
                                 </Avatar>
                                 <Box>
                                     <Typography variant="caption" color="text.secondary" display="block">Vehicle</Typography>
-                                    <Typography variant="body2" fontWeight={600}>{shipmentData.vehicleId}</Typography>
+                                    <Typography variant="body2" fontWeight={600}>{shipmentData.assignedTo?.routeId ? "Assigned" : "Pending"}</Typography>
                                 </Box>
                             </Paper>
                             <Paper variant="outlined" sx={{ p: 1.5, flex: 1, display: 'flex', alignItems: 'center', gap: 1.5, borderRadius: 2 }}>
@@ -184,7 +184,7 @@ const ShipmentDetailDialog = (params: ShipmentDialogParams) => {
                                 </Avatar>
                                 <Box>
                                     <Typography variant="caption" color="text.secondary" display="block">Route</Typography>
-                                    <Typography variant="body2" fontWeight={600}>{shipmentData.routeId}</Typography>
+                                    <Typography variant="body2" fontWeight={600}>{shipmentData.assignedTo?.routeId || "N/A"}</Typography>
                                 </Box>
                             </Paper>
                         </Stack>
@@ -204,7 +204,7 @@ const ShipmentDetailDialog = (params: ShipmentDialogParams) => {
                                         <ScaleIcon fontSize="small" color="action" />
                                         <Typography variant="caption" color="text.secondary">Weight</Typography>
                                     </Stack>
-                                    <Typography variant="h6" fontWeight={700}>{shipmentData.cargo.totalWeightKg} <Typography component="span" variant="caption" color="text.secondary">kg</Typography></Typography>
+                                    <Typography variant="h6" fontWeight={700}>{shipmentData.cargoDetails.totalWeightKg} <Typography component="span" variant="caption" color="text.secondary">kg</Typography></Typography>
                                 </Paper>
 
                                 <Paper elevation={0} sx={{ p: 1.5, bgcolor: 'background.paper', borderRadius: 2, border: `1px solid ${theme.palette.divider}` }}>
@@ -212,15 +212,15 @@ const ShipmentDetailDialog = (params: ShipmentDialogParams) => {
                                         <AspectRatioIcon fontSize="small" color="action" />
                                         <Typography variant="caption" color="text.secondary">Volume</Typography>
                                     </Stack>
-                                    <Typography variant="h6" fontWeight={700}>{shipmentData.cargo.totalVolumeM3} <Typography component="span" variant="caption" color="text.secondary">m³</Typography></Typography>
+                                    <Typography variant="h6" fontWeight={700}>{shipmentData.cargoDetails.totalVolumeM3} <Typography component="span" variant="caption" color="text.secondary">m³</Typography></Typography>
                                 </Paper>
 
                                 <Paper elevation={0} sx={{ gridColumn: '1 / -1', p: 1.5, bgcolor: 'background.paper', borderRadius: 2, border: `1px solid ${theme.palette.divider}` }}>
                                     <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
                                         <ViewInArIcon fontSize="small" color="action" />
-                                        <Typography variant="caption" color="text.secondary">Pallets</Typography>
+                                        <Typography variant="caption" color="text.secondary">Packages</Typography>
                                     </Stack>
-                                    <Typography variant="h6" fontWeight={700}>{shipmentData.cargo.pallets} <Typography component="span" variant="caption" color="text.secondary">units</Typography></Typography>
+                                    <Typography variant="h6" fontWeight={700}>{shipmentData.cargoDetails.packageCount} <Typography component="span" variant="caption" color="text.secondary">units</Typography></Typography>
                                 </Paper>
                             </Box>
 
@@ -230,7 +230,7 @@ const ShipmentDetailDialog = (params: ShipmentDialogParams) => {
                                 Manifest
                             </Typography>
                             <Stack spacing={1} sx={{ maxHeight: 200, overflowY: 'auto', pr: 0.5 }}>
-                                {shipmentData.cargo.items.map((item, idx) => (
+                                {shipmentData.items.map((item, idx) => (
                                     <Box key={idx} sx={{
                                         p: 1.5,
                                         borderRadius: 2,
@@ -242,10 +242,10 @@ const ShipmentDetailDialog = (params: ShipmentDialogParams) => {
                                     }}>
                                         <Box>
                                             <Typography variant="body2" fontWeight={500}>{item.name}</Typography>
-                                            <Typography variant="caption" color="text.secondary">Item Code: #{1000 + idx}</Typography>
+                                            <Typography variant="caption" color="text.secondary">SKU: {item.skuId}</Typography>
                                         </Box>
                                         <Chip
-                                            label={`${item.qty} ${item.uom}`}
+                                            label={`${item.qty} units`}
                                             size="small"
                                             variant="outlined"
                                             sx={{ borderRadius: 1, fontWeight: 600, height: 24 }}

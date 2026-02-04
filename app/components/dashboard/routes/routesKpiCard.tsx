@@ -1,7 +1,7 @@
 "use client"
 
 import { Stack, useTheme } from "@mui/material"
-import mockData from "@/app/lib/data.json";
+import mockData from "@/app/lib/mockData.json";
 import StatCard from "../../cards/StatCard";
 import AltRouteIcon from '@mui/icons-material/AltRoute';
 import LoopIcon from '@mui/icons-material/Loop';
@@ -15,7 +15,7 @@ const RoutesKpiCard = () => {
 
     const activeRoutes = mockData.routes.filter(i => i.status === "ACTIVE").length
     const inProgress = mockData.routes.filter(i => i.status === "IN_PROGRESS").length
-    const completedToday = mockData.routes.filter(i => i.status === "COMPLETED" && i.completedDate === today).length
+    const completedRoutes = mockData.routes.filter(r => r.status === 'COMPLETED').length;
     const delayedRoutes = mockData.routes.filter(i => i.status === "DELAYED").length
 
     const kpiItems = [
@@ -33,7 +33,7 @@ const RoutesKpiCard = () => {
         },
         {
             label: "Completed Today",
-            value: completedToday,
+            value: completedRoutes,
             icon: <CheckCircleIcon />,
             color: theme.palette.success.main
         },
