@@ -31,7 +31,7 @@ export default function LoginForm() {
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleSubmit = async (
     values: LoginFormValues,
-    actions: FormikHelpers<LoginFormValues>,
+    actions: FormikHelpers<LoginFormValues>
   ) => {
     setLoading(true);
     console.log(values, actions);

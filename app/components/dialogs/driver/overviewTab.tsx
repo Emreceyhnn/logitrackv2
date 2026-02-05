@@ -2,9 +2,6 @@ import { Driver } from "@/app/lib/type/DriverType";
 import {
     Stack, Typography, Card, Button, Box
 } from "@mui/material";
-
-
-import BadgeIcon from '@mui/icons-material/Badge';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import StarIcon from '@mui/icons-material/Star';

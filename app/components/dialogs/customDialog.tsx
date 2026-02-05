@@ -21,7 +21,6 @@ const CustomDialog = (params: CustomDialogParams) => {
         sx: {
           borderRadius: "8px",
           position: "relative",
-          // p: 3,
         },
       }}
     >

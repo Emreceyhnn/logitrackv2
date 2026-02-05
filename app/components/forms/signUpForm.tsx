@@ -35,7 +35,7 @@ export default function RegisterForm() {
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleSubmit = async (
     values: RegisterFormValues,
-    actions: FormikHelpers<RegisterFormValues>,
+    actions: FormikHelpers<RegisterFormValues>
   ) => {
     setLoading(true);
     console.log(values, actions);

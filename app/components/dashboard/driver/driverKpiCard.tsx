@@ -12,8 +12,10 @@ import AccessAlarmsIcon from "@mui/icons-material/AccessAlarms";
 import { getDriverKpiValues } from "@/app/lib/analyticsUtils";
 
 const DriverKpiCard = () => {
+  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
+  /* ---------------------------------- utils --------------------------------- */
   const DriverData = getDriverKpiValues();
   const kpiItems = [
     {

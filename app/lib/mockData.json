@@ -206,7 +206,14 @@
         "line1": "Buyukdere Cd. Spine Tower",
         "postalCode": "34485"
       },
-      "contacts": [{ "name": "Ali Veli", "phone": "+90 212 555 1020", "email": "ali@marmara.test", "role": "Manager" }],
+      "contacts": [
+        {
+          "name": "Ali Veli",
+          "phone": "+90 212 555 1020",
+          "email": "ali@marmara.test",
+          "role": "Manager"
+        }
+      ],
       "sla": {
         "onTimeTargetPct": 98.0,
         "maxDelayMinutes": 30,
@@ -255,7 +262,13 @@
         "line1": "Ataturk Blv. No:100",
         "postalCode": "06540"
       },
-      "contacts": [{ "name": "Ayse Fatma", "phone": "+90 312 444 2030", "email": "ayse@anadolu.test" }],
+      "contacts": [
+        {
+          "name": "Ayse Fatma",
+          "phone": "+90 312 444 2030",
+          "email": "ayse@anadolu.test"
+        }
+      ],
       "sla": {
         "onTimeTargetPct": 99.5,
         "maxDelayMinutes": 15,
@@ -292,7 +305,13 @@
         "line1": "Cumhuriyet Blv. No:1",
         "postalCode": "35210"
       },
-      "contacts": [{ "name": "Hasan Huseyin", "phone": "+90 232 333 4050", "email": "hasan@techzone.test" }],
+      "contacts": [
+        {
+          "name": "Hasan Huseyin",
+          "phone": "+90 232 333 4050",
+          "email": "hasan@techzone.test"
+        }
+      ],
       "sla": {
         "onTimeTargetPct": 95.0,
         "maxDelayMinutes": 60,
@@ -349,8 +368,24 @@
         "status": "GOOD",
         "openIssues": [],
         "history": [
-            { "id": "hist_01", "date": "2025-11-15", "serviceType": "Routine Maintenance", "technician": "Ahmet Yilmaz", "cost": 1500, "currency": "TRY", "status": "COMPLETED" },
-            { "id": "hist_02", "date": "2025-08-10", "serviceType": "Oil Change", "technician": "Mehmet Demir", "cost": 800, "currency": "TRY", "status": "COMPLETED" }
+          {
+            "id": "hist_01",
+            "date": "2025-11-15",
+            "serviceType": "Routine Maintenance",
+            "technician": "Ahmet Yilmaz",
+            "cost": 1500,
+            "currency": "TRY",
+            "status": "COMPLETED"
+          },
+          {
+            "id": "hist_02",
+            "date": "2025-08-10",
+            "serviceType": "Oil Change",
+            "technician": "Mehmet Demir",
+            "cost": 800,
+            "currency": "TRY",
+            "status": "COMPLETED"
+          }
         ]
       },
       "documents": [
@@ -485,8 +520,8 @@
           "onTimeRate": 99
         },
         "rating": {
-            "avg": 4.9,
-            "count": 45
+          "avg": 4.9,
+          "count": 45
         },
         "licenses": [
           { "type": "B", "expiresOn": "2026-12-05" },
@@ -503,9 +538,9 @@
         },
         "currentVehicleId": "veh_001",
         "assigned": {
-           "vehicleId": "veh_001",
-           "routeId": "rte_5001",
-           "activeShipmentIds": []
+          "vehicleId": "veh_001",
+          "routeId": "rte_5001",
+          "activeShipmentIds": []
         }
       },
       {
@@ -528,8 +563,8 @@
           "onTimeRate": 94
         },
         "rating": {
-            "avg": 4.6,
-            "count": 32
+          "avg": 4.6,
+          "count": 32
         },
         "licenses": [
           { "type": "B", "expiresOn": "2026-12-05" },
@@ -542,14 +577,14 @@
           "weeklyDrivingMinutes": 2100,
           "minRestMinutes": 660,
           "met": true,
-           "restRequirement": { "minRestMinutes": 660, "met": true }
+          "restRequirement": { "minRestMinutes": 660, "met": true }
         },
         "currentVehicleId": null,
         "assigned": {
-            "vehicleId": null,
-            "routeId": null,
-            "activeShipmentIds": []
-         }
+          "vehicleId": null,
+          "routeId": null,
+          "activeShipmentIds": []
+        }
       },
       {
         "id": "drv_025",
@@ -571,8 +606,8 @@
           "onTimeRate": 98
         },
         "rating": {
-            "avg": 5.0,
-            "count": 12
+          "avg": 5.0,
+          "count": 12
         },
         "compliance": {
           "lastMedicalCheck": "2026-01-15",
@@ -581,7 +616,7 @@
           "weeklyDrivingMinutes": 900,
           "minRestMinutes": 660,
           "met": true,
-           "restRequirement": { "minRestMinutes": 660, "met": true }
+          "restRequirement": { "minRestMinutes": 660, "met": true }
         },
         "licenses": [
           { "type": "B", "expiresOn": "2026-12-05" },
@@ -589,10 +624,10 @@
         ],
         "currentVehicleId": "veh_003",
         "assigned": {
-            "vehicleId": "veh_003",
-            "routeId": "rte_5003",
-            "activeShipmentIds": []
-         }
+          "vehicleId": "veh_003",
+          "routeId": "rte_5003",
+          "activeShipmentIds": []
+        }
       }
     ],
     "warehouse": [
@@ -653,7 +688,8 @@
         "code": "FOD-COF-005",
         "name": "Organic Coffee Beans 1kg",
         "category": "FOOD",
-        "unitPrice": 450,"reorderPoint": 120,
+        "unitPrice": 450,
+        "reorderPoint": 120,
         "reorderQty": 300,
         "hazmat": false,
         "temperatureControlled": false,
@@ -667,7 +703,8 @@
         "code": "PHR-VAC-020",
         "name": "MediVaccine Type-A",
         "category": "PHARMA",
-        "unitPrice": 1200,"reorderPoint": 120,
+        "unitPrice": 1200,
+        "reorderPoint": 120,
         "reorderQty": 300,
         "hazmat": false,
         "temperatureControlled": false,

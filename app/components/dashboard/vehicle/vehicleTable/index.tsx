@@ -1,14 +1,14 @@
-"use client"
+"use client";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Typography,
-    Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  Divider,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
 import { getVehicleList } from "@/app/lib/analyticsUtils";
@@ -20,76 +20,93 @@ import { Vehicle } from "@/app/lib/type/VehicleType";
 import { StatusChip } from "@/app/components/chips/statusChips";
 
 const VehicleTable = () => {
+  /* --------------------------------- states --------------------------------- */
+  const [open, setOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | undefined>(
+    undefined
+  );
 
-    const [open, setOpen] = useState(false);
-    const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | undefined>(undefined);
+  const vehicles = mockData.fleet;
 
-    const vehicles = mockData.fleet;
+  /* -------------------------------- handlers -------------------------------- */
+  const handleClose = () => {
+    setOpen(false);
+  };
 
-    const handleClose = () => {
-        setOpen(false);
-    }
+  const handleOpen = (id: string) => {
+    const vehicle = vehicles.find((v) => v.id === id);
+    if (!vehicle) return;
 
-    const handleOpen = (id: string) => {
-        const vehicle = vehicles.find(v => v.id === id);
-        if (!vehicle) return;
+    setSelectedVehicle(vehicle);
+    setOpen(true);
+  };
 
-        setSelectedVehicle(vehicle);
-        setOpen(true);
-    };
+  return (
+    <>
+      <CustomCard sx={{ padding: "0 0 6px 0" }}>
+        <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+          Vehicle List
+        </Typography>
+        <Divider />
 
-    return (
-        <>
-            <CustomCard sx={{ padding: "0 0 6px 0" }}>
-                {/* ... header ... */}
-                <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-                    Vehicle List
-                </Typography>
-                <Divider />
+        <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell></TableCell>
+                <TableCell>Plate</TableCell>
+                <TableCell>Brand/Model</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Odometer</TableCell>
+                <TableCell>Driver</TableCell>
+                <TableCell>Ignition</TableCell>
+                <TableCell align="right">Fuel (L/100km)</TableCell>
+                <TableCell align="right"></TableCell>
+              </TableRow>
+            </TableHead>
 
-
-                <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
-                    <Table size="small">
-                        {/* ... TableHead ... */}
-                        <TableHead>
-                            <TableRow>
-                                <TableCell></TableCell>
-                                <TableCell>Plate</TableCell>
-                                <TableCell>Brand/Model</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell>Odometer</TableCell>
-                                <TableCell>Driver</TableCell>
-                                <TableCell>Ignition</TableCell>
-                                <TableCell align="right">Fuel (L/100km)</TableCell>
-                                <TableCell align="right"></TableCell>
-                            </TableRow>
-                        </TableHead>
-
-                        <TableBody>
-                            {vehicles.map((v, index) => (
-                                <TableRow key={v.id}>
-                                    <TableCell>{index + 1}</TableCell>
-                                    <TableCell>{v.plate}</TableCell>
-                                    <TableCell>{`${v.brand} - ${v.model} / ${v.year}`}</TableCell>
-                                    <TableCell><StatusChip status={v.status} /></TableCell>
-                                    <TableCell>{v.currentStatus.odometerKm}</TableCell>
-                                    <TableCell>{v.assignedTo?.driverId ?? "No Assigned"}</TableCell>
-                                    <TableCell sx={{ color: v.currentStatus.engineStatus === 'RUNNING' ? "success.main" : "error.main" }}>{v.currentStatus.engineStatus}</TableCell>
-                                    <TableCell align="right">
-                                        {v.specs.mpg ? (235.21 / v.specs.mpg).toFixed(1) : "N/A" }
-                                    </TableCell>
-                                    <TableCell align="right">
-                                        <RowActions id={v.id} handleOpenDetails={handleOpen} />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </CustomCard>
-            <VehicleDialog open={open} onClose={handleClose} vehicleData={selectedVehicle} />
-        </>
-    );
+            <TableBody>
+              {vehicles.map((v, index) => (
+                <TableRow key={v.id}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{v.plate}</TableCell>
+                  <TableCell>{`${v.brand} - ${v.model} / ${v.year}`}</TableCell>
+                  <TableCell>
+                    <StatusChip status={v.status} />
+                  </TableCell>
+                  <TableCell>{v.currentStatus.odometerKm}</TableCell>
+                  <TableCell>
+                    {v.assignedTo?.driverId ?? "No Assigned"}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color:
+                        v.currentStatus.engineStatus === "RUNNING"
+                          ? "success.main"
+                          : "error.main",
+                    }}
+                  >
+                    {v.currentStatus.engineStatus}
+                  </TableCell>
+                  <TableCell align="right">
+                    {v.specs.mpg ? (235.21 / v.specs.mpg).toFixed(1) : "N/A"}
+                  </TableCell>
+                  <TableCell align="right">
+                    <RowActions id={v.id} handleOpenDetails={handleOpen} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </CustomCard>
+      <VehicleDialog
+        open={open}
+        onClose={handleClose}
+        vehicleData={selectedVehicle}
+      />
+    </>
+  );
 };
 
 export default VehicleTable;

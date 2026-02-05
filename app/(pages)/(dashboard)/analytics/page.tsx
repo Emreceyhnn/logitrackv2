@@ -7,21 +7,21 @@ import CostAnalysisCharts from "@/app/components/dashboard/analytics/CostAnalysi
 import ForecastingWidget from "@/app/components/dashboard/analytics/ForecastingWidget";
 
 export default function AnalyticsPage() {
-    return (
-        <Box sx={{ p: 3 }}>
-            <AnalyticsHeader />
+  return (
+    <Box sx={{ p: 3 }}>
+      <AnalyticsHeader />
 
-            <Box sx={{ mb: 3 }}>
-                <PerformanceGauges />
-            </Box>
+      <Box sx={{ mb: 3 }}>
+        <PerformanceGauges />
+      </Box>
 
-            <Box sx={{ mb: 3 }}>
-                <CostAnalysisCharts />
-            </Box>
+      <Box sx={{ mb: 3 }}>
+        <CostAnalysisCharts />
+      </Box>
 
-            <Box>
-                <ForecastingWidget />
-            </Box>
-        </Box>
-    );
+      <Box>
+        <ForecastingWidget />
+      </Box>
+    </Box>
+  );
 }

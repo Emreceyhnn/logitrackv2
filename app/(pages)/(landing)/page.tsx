@@ -23,7 +23,7 @@ const pulse = keyframes`
     transform: scale(1);
     box-shadow: 0 0 10px ${alpha("#38bdf8", 0.25)}, 0 0 20px ${alpha(
       "#38bdf8",
-      0.15,
+      0.15
     )};
     opacity: 1;
   }
@@ -31,7 +31,7 @@ const pulse = keyframes`
     transform: scale(1.08);
     box-shadow: 0 0 25px ${alpha("#38bdf8", 0.4)}, 0 0 45px ${alpha(
       "#38bdf8",
-      0.25,
+      0.25
     )};
     opacity: 0.95;
   }
@@ -39,7 +39,7 @@ const pulse = keyframes`
     transform: scale(1.15);
     box-shadow: 0 0 40px ${alpha("#38bdf8", 0.6)}, 0 0 70px ${alpha(
       "#38bdf8",
-      0.35,
+      0.35
     )};
     opacity: 1;
   }
@@ -47,14 +47,14 @@ const pulse = keyframes`
     transform: scale(1.08);
     box-shadow: 0 0 25px ${alpha("#38bdf8", 0.4)}, 0 0 45px ${alpha(
       "#38bdf8",
-      0.25,
+      0.25
     )};
   }
   100% {
     transform: scale(1);
     box-shadow: 0 0 10px ${alpha("#38bdf8", 0.25)}, 0 0 20px ${alpha(
       "#38bdf8",
-      0.15,
+      0.15
     )};
     opacity: 1;
   }
@@ -283,7 +283,7 @@ export default function LandingPage() {
                   >
                     {item}
                   </Typography>
-                ),
+                )
               )}
             </Stack>
 
@@ -329,8 +329,14 @@ export default function LandingPage() {
             pb: { xs: 10, md: 14 },
           }}
         >
-          <Stack direction="row" spacing={8} alignItems="center" flexWrap="wrap" useFlexGap>
-            <Box sx={{ width: { xs: '100%', md: 'calc(50% - 32px)' } }}>
+          <Stack
+            direction="row"
+            spacing={8}
+            alignItems="center"
+            flexWrap="wrap"
+            useFlexGap
+          >
+            <Box sx={{ width: { xs: "100%", md: "calc(50% - 32px)" } }}>
               <Stack spacing={4.5}>
                 <Stack direction="row" spacing={1.5} alignItems="center">
                   <Chip
@@ -501,7 +507,7 @@ export default function LandingPage() {
               </Stack>
             </Box>
 
-            <Box sx={{ width: { xs: '100%', md: 'calc(50% - 32px)' } }}>
+            <Box sx={{ width: { xs: "100%", md: "calc(50% - 32px)" } }}>
               <Box
                 sx={{
                   position: "relative",
@@ -708,7 +714,7 @@ export default function LandingPage() {
       <Box sx={{ bgcolor: "#0f172a", py: 12 }}>
         <Container maxWidth="lg">
           <Stack direction="row" spacing={8} flexWrap="wrap" useFlexGap>
-            <Box sx={{ width: { xs: '100%', md: 'calc(50% - 32px)' } }}>
+            <Box sx={{ width: { xs: "100%", md: "calc(50% - 32px)" } }}>
               <Stack spacing={3}>
                 <Typography
                   variant="overline"
@@ -729,10 +735,13 @@ export default function LandingPage() {
                 </Typography>
               </Stack>
             </Box>
-            <Box sx={{ width: { xs: '100%', md: 'calc(50% - 32px)' } }}>
+            <Box sx={{ width: { xs: "100%", md: "calc(50% - 32px)" } }}>
               <Stack direction="row" spacing={3} flexWrap="wrap" useFlexGap>
                 {featureCards.map((card) => (
-                  <Box key={card.title} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)' } }}>
+                  <Box
+                    key={card.title}
+                    sx={{ width: { xs: "100%", sm: "calc(50% - 12px)" } }}
+                  >
                     <Box
                       sx={{
                         height: "100%",

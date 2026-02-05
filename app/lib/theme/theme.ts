@@ -14,7 +14,7 @@ declare module "@mui/material/styles" {
     lg: true;
     xl: true;
     mobile: true; // custom
-    xxl: true;   // custom
+    xxl: true; // custom
   }
 }
 
@@ -60,5 +60,5 @@ export const getTheme = (mode: ThemeMode) =>
           },
         },
       },
-    }
+    },
   });

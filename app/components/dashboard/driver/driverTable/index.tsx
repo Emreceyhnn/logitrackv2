@@ -21,23 +21,24 @@ import { StatusChip } from "@/app/components/chips/statusChips";
 import { getDriverDetailsForTable } from "@/app/lib/analyticsUtils";
 
 const DriverTable = () => {
+  /* --------------------------------- states --------------------------------- */
   const [open, setOpen] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState<Driver | undefined>(
-    undefined,
+    undefined
   );
 
+  /* -------------------------------- handlers -------------------------------- */
   const handleClose = () => {
     setOpen(false);
   };
-
   const handleOpen = (id: string) => {
     const driver = mockData.staff.drivers.find((d) => d.id === id);
     if (!driver) return;
-
     setSelectedDriver(driver as unknown as Driver);
     setOpen(true);
   };
 
+  /* --------------------------------- data --------------------------------- */
   const data = getDriverDetailsForTable();
 
   return (
@@ -78,9 +79,7 @@ const DriverTable = () => {
                   <TableCell>
                     {d.licenses.map((l) => l.type).join(", ")}
                   </TableCell>
-                  <TableCell align="right">
-                    {d.rating.avg} / 5
-                  </TableCell>
+                  <TableCell align="right">{d.rating.avg} / 5</TableCell>
                   <TableCell align="right">
                     <RowActions id={d.id} handleOpenDetails={handleOpen} />
                   </TableCell>

@@ -25,21 +25,21 @@ interface DailyOpsValues {
 export const getOverviewKpis = (): KpiValues => {
   return {
     activeShipments: mockData.shipments.filter(
-      (s) => s.status === "IN_TRANSIT" || s.status === "PROCESSING",
+      (s) => s.status === "IN_TRANSIT" || s.status === "PROCESSING"
     ).length,
     delayedShipments:
       mockData.monitoring?.alerts.filter(
-        (a) => a.type === "SHIPMENT_DELAY" && a.status === "OPEN",
+        (a) => a.type === "SHIPMENT_DELAY" && a.status === "OPEN"
       ).length || 0,
     vehiclesOnTrip: mockData.fleet.filter((v) => v.status === "ON_TRIP").length,
     vehiclesInService: mockData.fleet.filter((v) => v.status === "MAINTENANCE")
       .length,
     availableVehicles: mockData.fleet.filter(
-      (v) => v.status === "IDLE" || v.status === "AVAILABLE",
+      (v) => v.status === "IDLE" || v.status === "AVAILABLE"
     ).length,
     activeDrivers:
       mockData.auth?.users.filter(
-        (u) => u.roleId === "role_driver" && u.status === "ACTIVE",
+        (u) => u.roleId === "role_driver" && u.status === "ACTIVE"
       ).length || 0,
     warehouses: mockData.warehouses.length,
     inventorySkus: mockData.inventory.catalog.length,
@@ -52,14 +52,14 @@ export const getDailyOperations = (): DailyOpsValues => {
 
   return {
     plannedRoutes: mockData.routes.filter((r) =>
-      r.schedule.plannedStart.includes(today),
+      r.schedule.plannedStart.includes(today)
     ).length,
     completedDeliveries: mockData.shipments.filter(
-      (s) => s.status === "DELIVERED",
-    ).length, // Simplified for mock
-    failedDeliveries: 0, // Mock value
-    avgDeliveryTimeMin: 45, // Mock value
-    fuelConsumedLiters: 250, // Mock value
+      (s) => s.status === "DELIVERED"
+    ).length,
+    failedDeliveries: 0,
+    avgDeliveryTimeMin: 45,
+    fuelConsumedLiters: 250,
   };
 };
 
@@ -125,7 +125,7 @@ export const getMapData = () => {
       name: site.name,
       id: site.id,
       type: "C",
-    })),
+    }))
   );
 
   return [...warehouses, ...vehicles, ...customers];
@@ -139,10 +139,10 @@ export const getVehicleList = (): Vehicle[] => {
   return mockData.fleet.map((v) => {
     return {
       ...v,
-      // Ensure compatible types if strict mapping is needed, otherwise spread v is likely sufficient 
+      // Ensure compatible types if strict mapping is needed, otherwise spread v is likely sufficient
       // given VehicleType was adjusted to match mockData.
       // However, we need to explicitly handle optional fields if they are missing in mockData elements
-      documents: (v as any).documents || [], 
+      documents: (v as any).documents || [],
     } as unknown as Vehicle;
   });
 };
@@ -152,18 +152,18 @@ export const getVehicleKpis = () => {
   return {
     totalVehicles: vehicles.length,
     available: vehicles.filter(
-      (v) => v.status === "IDLE" || v.status === "AVAILABLE",
+      (v) => v.status === "IDLE" || v.status === "AVAILABLE"
     ).length,
     inService: vehicles.filter((v) => v.status === "MAINTENANCE").length,
     onTrip: vehicles.filter((v) => v.status === "ON_TRIP").length,
     openIssues: vehicles.reduce(
       (acc, v) => acc + (v.maintenance.openIssues?.length || 0),
-      0,
+      0
     ),
     docsDueSoon: vehicles.reduce(
       (acc, v) =>
         acc + (v.documents || []).filter((d) => d.status === "DUE_SOON").length,
-      0,
+      0
     ),
   };
 };
@@ -190,7 +190,7 @@ export const getExpiringDocuments = () => {
         type: d.type,
         expiresOn: d.expiresOn,
         status: d.status,
-      })),
+      }))
   );
 
   // Also add maintenance as a "document" / event
@@ -198,7 +198,7 @@ export const getExpiringDocuments = () => {
     .filter(
       (v) =>
         (v.maintenance.openIssues?.length || 0) > 0 ||
-        v.maintenance.status === "DUE_SOON",
+        v.maintenance.status === "DUE_SOON"
     )
     .map((v) => ({
       vehicleId: v.id,
@@ -255,23 +255,18 @@ export const getDriverKpiValues = () => {
     complianceIssues: drivers.filter((d) => !d.compliance.restRequirement.met)
       .length,
     safetyScoreRating: (
-      drivers.reduce(
-        (acc, curr) => acc + curr.rating.avg,
-        0
-      ) / drivers.length
+      drivers.reduce((acc, curr) => acc + curr.rating.avg, 0) / drivers.length
     ).toFixed(1),
     efficiencyRating: (
       drivers.reduce(
         (acc, curr) => acc + curr.metrics.efficiencyScore / 20,
-        0,
+        0
       ) / drivers.length
     ).toFixed(1),
 
     onTimeDeliveryRating: (
-      drivers.reduce(
-        (acc, curr) => acc + curr.metrics.onTimeRate / 20,
-        0,
-      ) / drivers.length
+      drivers.reduce((acc, curr) => acc + curr.metrics.onTimeRate / 20, 0) /
+      drivers.length
     ).toFixed(1),
   };
 };

@@ -75,10 +75,13 @@ const getStatusMeta = (status?: string) => {
 const DriverDialog = (params: DriverDialogParams) => {
   const { open, onClose, driverData } = params;
 
+  /* --------------------------------- states --------------------------------- */
   const [value, setValue] = useState(0);
 
+  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
+  /* -------------------------------- handlers -------------------------------- */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
