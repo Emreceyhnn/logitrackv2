@@ -2,6 +2,7 @@
 
 import * as Yup from "yup";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Box,
   Button,
@@ -17,8 +18,10 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import CircularIndeterminate from "../loading";
+import { RegisterUser } from "@/app/lib/controllers/users";
 
 interface RegisterFormValues {
+  username: string;
   name: string;
   surname: string;
   email: string;
@@ -31,6 +34,7 @@ export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleSubmit = async (
@@ -38,8 +42,30 @@ export default function RegisterForm() {
     actions: FormikHelpers<RegisterFormValues>
   ) => {
     setLoading(true);
-    console.log(values, actions);
-    setLoading(false);
+    try {
+      // Use email as username if username field is not added, OR add username field.
+      // Since existing RegisterUser expects username, let's use the provided username.
+      const res = await RegisterUser(
+        values.username, // Added username to values
+        values.name,
+        values.surname,
+        values.password,
+        values.email
+      );
+
+      if (res && res.token) {
+        localStorage.setItem("token", res.token);
+        // Also store user info if needed
+        localStorage.setItem("user", JSON.stringify(res.user));
+        router.push("/create-company"); // Redirect to create company flow
+      }
+    } catch (error: any) {
+      console.error("Registration failed:", error);
+      // You might want to set formik errors here
+      actions.setFieldError("email", error.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleShowPassword = () => {
@@ -51,6 +77,7 @@ export default function RegisterForm() {
   };
 
   const RegisterSchema = Yup.object({
+    username: Yup.string().min(3).max(20).required("Username is required"),
     name: Yup.string().min(2).max(20).required("Name is required"),
     surname: Yup.string().min(2).max(20).required("Surname is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
@@ -104,6 +131,7 @@ export default function RegisterForm() {
 
         <Formik<RegisterFormValues>
           initialValues={{
+            username: "",
             name: "",
             surname: "",
             email: "",
@@ -115,6 +143,18 @@ export default function RegisterForm() {
         >
           <Form>
             <Stack spacing={2} mt={3}>
+              <Field name="username">
+                {({ field, meta }: any) => (
+                  <StyledTextFieldAuth
+                    {...field}
+                    type="text"
+                    placeholder="Enter your username"
+                    fullWidth
+                    error={meta.touched && Boolean(meta.error)}
+                    helperText={meta.touched && meta.error}
+                  />
+                )}
+              </Field>
               <Field name="name">
                 {({ field, meta }: any) => (
                   <StyledTextFieldAuth

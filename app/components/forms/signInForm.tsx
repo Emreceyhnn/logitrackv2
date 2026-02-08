@@ -18,6 +18,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import CircularIndeterminate from "../loading";
 
+import { useRouter } from "next/navigation";
+import { LoginUser } from "@/app/lib/controllers/users";
+
 interface LoginFormValues {
   email: string;
   password: string;
@@ -27,6 +30,7 @@ export default function LoginForm() {
   /* --------------------------------- STATES --------------------------------- */
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleSubmit = async (
@@ -34,8 +38,24 @@ export default function LoginForm() {
     actions: FormikHelpers<LoginFormValues>
   ) => {
     setLoading(true);
-    console.log(values, actions);
-    setLoading(false);
+    try {
+      const res = await LoginUser(values.email, values.password);
+
+      if (res && res.token) {
+        localStorage.setItem("token", res.token);
+        if (res.user.companyId) {
+          router.push("/");
+        } else {
+          router.push("/create-company");
+        }
+      }
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      actions.setFieldError("email", error.message || "Login failed");
+      actions.setFieldError("password", error.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleShowPassword = () => {
