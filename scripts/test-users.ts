@@ -19,7 +19,8 @@ async function main() {
       data: {
         username: `testuser_${timestamp}`,
         email: `test${timestamp}@example.com`,
-        fullName: `Test User ${timestamp}`,
+        name: `Test`,
+        surname: `User ${timestamp}`,
         roleId: role.id,
       },
     });

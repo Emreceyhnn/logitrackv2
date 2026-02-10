@@ -23,13 +23,13 @@ export async function createCompany(userId: string, name: string, avatarUrl?: st
         });
 
 
-        await db.user.update({
+        const updatedUser = await db.user.update({
             where: { id: userId },
             data: { roleId: "role_admin" }
         });
 
 
-        return { company: newCompany };
+        return { company: newCompany, user: updatedUser };
     } catch (error: any) {
         console.error("Failed to create company:", error);
         throw new Error(error.message || "Failed to create company");
