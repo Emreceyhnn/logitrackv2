@@ -137,7 +137,14 @@ const MetricCard = ({
   );
 };
 
-export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
+interface ReportsMetrics {
+  totalShipments: number;
+  onTimeRate: number;
+  activeVehicles: number;
+  totalInventoryValue: number;
+}
+
+export default function ReportSummaryCards({ tabIndex, metrics }: { tabIndex: number, metrics?: ReportsMetrics }) {
   const theme = useTheme();
 
   const getMetrics = () => {
@@ -146,7 +153,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
         return [
           {
             title: "Total Shipments",
-            value: "1,248",
+            value: metrics?.totalShipments.toLocaleString() || "0",
             change: "+12%",
             positive: true,
             icon: <LocalShippingIcon />,
@@ -154,7 +161,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
           },
           {
             title: "On-Time Rate",
-            value: "94.5%",
+            value: `${metrics?.onTimeRate.toFixed(1)}%` || "0%",
             change: "+2.1%",
             positive: true,
             icon: <AccessTimeIcon />,
@@ -162,7 +169,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
           },
           {
             title: "Avg Delivery Time",
-            value: "2.3 Days",
+            value: "2.3 Days", // Mock
             change: "-5%",
             positive: true,
             icon: <TrendingUpIcon />,
@@ -170,7 +177,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
           },
           {
             title: "Pending Orders",
-            value: "42",
+            value: "42", // Mock
             change: "+8%",
             positive: false,
             icon: <WarningAmberIcon />,
@@ -181,7 +188,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
         return [
           {
             title: "Active Vehicles",
-            value: "24",
+            value: metrics?.activeVehicles.toString() || "0",
             change: "0%",
             positive: true,
             icon: <DirectionsCarIcon />,
@@ -189,7 +196,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
           },
           {
             title: "Avg Fuel Cons.",
-            value: "22L/100km",
+            value: "22L/100km", // Mock
             change: "-1.2%",
             positive: true,
             icon: <LocalShippingIcon />,
@@ -197,7 +204,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
           },
           {
             title: "Maintenance Cost",
-            value: "$4,250",
+            value: "$4,250", // Mock
             change: "+15%",
             positive: false,
             icon: <AttachMoneyIcon />,
@@ -205,7 +212,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
           },
           {
             title: "Total Distance",
-            value: "125k km",
+            value: "125k km", // Mock
             change: "+10%",
             positive: true,
             icon: <TrendingUpIcon />,
@@ -216,7 +223,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
         return [
           {
             title: "Total Inventory Value",
-            value: "$1.2M",
+            value: `$${(metrics?.totalInventoryValue || 0).toLocaleString()}`,
             change: "+5.4%",
             positive: true,
             icon: <AttachMoneyIcon />,
@@ -224,7 +231,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
           },
           {
             title: "Stock Turnover",
-            value: "4.2",
+            value: "4.2", // Mock
             change: "+0.3",
             positive: true,
             icon: <TrendingUpIcon />,
@@ -232,7 +239,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
           },
           {
             title: "Dead Stock",
-            value: "$12k",
+            value: "$12k", // Mock
             change: "-2%",
             positive: true,
             icon: <WarningAmberIcon />,
@@ -240,7 +247,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
           },
           {
             title: "Low Stock SKUs",
-            value: "15",
+            value: "15", // Mock
             change: "+3",
             positive: false,
             icon: <Inventory2Icon />,
@@ -252,7 +259,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
     }
   };
 
-  const metrics = getMetrics();
+  const metricsData = getMetrics();
 
   return (
     <Stack
@@ -262,7 +269,7 @@ export default function ReportSummaryCards({ tabIndex }: { tabIndex: number }) {
       useFlexGap
       flexWrap="wrap"
     >
-      {metrics.map((metric, index) => (
+      {metricsData.map((metric, index) => (
         <Box
           key={index}
           sx={{ flex: { xs: "1 1 100%", sm: "1 1 45%", md: "1 1 20%" } }}

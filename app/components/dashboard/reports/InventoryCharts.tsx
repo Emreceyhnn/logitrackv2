@@ -1,31 +1,23 @@
+"use client";
+
 import { PieChart } from "@mui/x-charts/PieChart";
 import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
-import mockData from "@/app/lib/mockData.json";
 
-export default function InventoryCharts() {
+interface InventoryChartData {
+  value: number;
+  count: number;
+}
+
+interface InventoryChartsProps {
+  data?: Record<string, InventoryChartData>;
+}
+
+export default function InventoryCharts({ data }: InventoryChartsProps) {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const categoryStats = mockData.inventory.catalog.reduce(
-    (acc, item) => {
-      const seed = item.id
-        .split("")
-        .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const unitPrice = (seed % 400) + 20;
+  const categoryStats = data || {};
 
-      const totalStock = mockData.inventory.stock
-        .filter((s) => s.skuId === item.id)
-        .reduce((sum, s) => sum + (s.quantity - s.reserved), 0);
-
-      const value = totalStock * unitPrice;
-
-      if (!acc[item.category]) acc[item.category] = { value: 0, count: 0 };
-      acc[item.category].value += value;
-      acc[item.category].count += 1;
-      return acc;
-    },
-    {} as Record<string, { value: number; count: number }>
-  );
   const valuePieData = Object.keys(categoryStats).map((cat, index) => ({
     id: index,
     value: categoryStats[cat].value,
@@ -77,7 +69,7 @@ export default function InventoryCharts() {
             <PieChart
               series={[
                 {
-                  data: valuePieData,
+                  data: valuePieData.length > 0 ? valuePieData : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
                   highlightScope: { fade: "global", highlight: "item" },
                   faded: {
                     innerRadius: 30,
@@ -133,7 +125,7 @@ export default function InventoryCharts() {
             <PieChart
               series={[
                 {
-                  data: countPieData,
+                  data: countPieData.length > 0 ? countPieData : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
                   highlightScope: { fade: "global", highlight: "item" },
                   faded: {
                     innerRadius: 30,

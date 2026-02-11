@@ -2,19 +2,30 @@
 import { Box, Stack, Typography, useTheme, Divider } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import CustomCard from "../../cards/card";
-import mockData from "@/app/lib/mockData.json";
+import { useEffect, useState } from "react";
+import { getDriverPerformanceStats } from "@/app/lib/controllers/driver";
 
 const DriverPerformanceCharts = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const [chartData, setChartData] = useState<{ name: string, fullName: string, rating: number, workingHours: number }[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getDriverPerformanceStats();
+        setChartData(data);
+      } catch (error) {
+        console.error("Failed to fetch driver performance stats:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   /* ---------------------------------- utils --------------------------------- */
-  const drivers = mockData.staff.drivers;
-  const driverNames = drivers.map((d) => d.fullName.split(" ")[0]);
-  const ratings = drivers.map((d) => d.rating.avg);
-  const workingHours = drivers.map((d) =>
-    Math.round(d.compliance.workingHours.weekMinutes / 60)
-  );
+  const driverNames = chartData.map((d) => d.name);
+  const ratings = chartData.map((d) => d.rating);
+  const workingHours = chartData.map((d) => d.workingHours);
 
   return (
     <Stack direction={{ xs: "column", md: "row" }} spacing={2} mt={2}>

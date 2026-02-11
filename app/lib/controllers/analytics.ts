@@ -305,3 +305,60 @@ export async function getMapData(token: string) {
         return [];
     }
 }
+
+export async function getAnalyticsDashboardData(token: string) {
+    try {
+        const requester = await getUserFromToken(token);
+        if (!requester || !requester.companyId) return null;
+        const companyId = requester.companyId;
+
+        const [
+            totalVehicles,
+            activeVehicles, // ON_TRIP
+            totalShipments, // All time
+            delayedShipments // Status DELAYED
+        ] = await Promise.all([
+            db.vehicle.count({ where: { companyId } }),
+            db.vehicle.count({ where: { companyId, status: "ON_TRIP" } }),
+            db.shipment.count({ where: { companyId } }),
+            db.shipment.count({ where: { companyId, status: "DELAYED" } })
+        ]);
+
+        // Utilization: Active / Total
+        const fleetUtilization = totalVehicles > 0 ? Math.round((activeVehicles / totalVehicles) * 100) : 0;
+
+        // On-Time: (Total - Delayed) / Total (Rough estimate as 'DELAYED' is a status, capturing historical delay is harder without history table analysis)
+        // For now, let's assume non-delayed are on-time.
+        const onTimeRate = totalShipments > 0 ? Math.round(((totalShipments - delayedShipments) / totalShipments) * 100) : 100;
+
+        return {
+            performance: {
+                onTimeRate,
+                fleetUtilization,
+                satisfaction: 4.8, // Mock
+                satisfactionCount: 128 // Mock
+            },
+            costs: {
+                months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+                fuel: [4200, 4100, 4350, 4220, 4500, 4400],
+                maintenance: [1200, 800, 1500, 950, 2100, 1100],
+                overhead: [3000, 3000, 3100, 3100, 3200, 3200],
+                distribution: [
+                    { id: 0, value: 35, label: "Fuel" },
+                    { id: 1, value: 25, label: "Maintenance" },
+                    { id: 2, value: 30, label: "Driver Salaries" },
+                    { id: 3, value: 10, label: "Insurance/Ops" }
+                ]
+            },
+            forecast: {
+                weeks: ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12"],
+                actuals: [120, 132, 125, 145, 150, 160, 155, 175, 180, null, null, null],
+                predicted: [null, null, null, null, null, null, null, null, 180, 195, 210, 225]
+            }
+        };
+
+    } catch (error) {
+        console.error("Failed to get analytics dashboard data:", error);
+        return null;
+    }
+}

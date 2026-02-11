@@ -12,13 +12,12 @@ import {
   Chip,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
-import mockData from "@/app/lib/mockData.json";
 import RowActions from "./menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DriverDialog from "../../../dialogs/driver";
 import { Driver } from "@/app/lib/type/DriverType";
 import { StatusChip } from "@/app/components/chips/statusChips";
-import { getDriverDetailsForTable } from "@/app/lib/analyticsUtils";
+import { getDrivers } from "@/app/lib/controllers/driver";
 
 const DriverTable = () => {
   /* --------------------------------- states --------------------------------- */
@@ -26,20 +25,66 @@ const DriverTable = () => {
   const [selectedDriver, setSelectedDriver] = useState<Driver | undefined>(
     undefined
   );
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const data = await getDrivers();
+        const mappedDrivers: Driver[] = data.map((d: any) => ({
+          id: d.id,
+          code: d.employeeId || "N/A",
+          fullName: `${d.user.name} ${d.user.surname}`,
+          phone: d.phone,
+          email: d.user.email,
+          status: d.status,
+          homeBaseWarehouseId: d.homeBaseWarehouseId || "",
+          licenses: d.documents?.map((doc: any) => ({
+            type: "Class A", // Placeholder as doc type is typically just "LICENSE"
+            expiresOn: doc.expiryDate ? doc.expiryDate.toString() : ""
+          })) || [
+              // Fallback if no documents, use fields from driver table if present, or mock
+              { type: d.licenseType || "Class A", expiresOn: d.licenseExpiry ? d.licenseExpiry.toString() : "" }
+            ],
+          compliance: {
+            lastMedicalCheck: "2024-01-01", // Mock
+            workingHours: {
+              todayMinutes: 480,
+              weekMinutes: 2400
+            },
+            restRequirement: {
+              minRestMinutes: 60,
+              met: true
+            }
+          },
+          rating: {
+            avg: d.rating || 5,
+            count: 10
+          },
+          assigned: {
+            vehicleId: d.currentVehicleId,
+            routeId: null,
+            activeShipmentIds: d.shipments?.map((s: any) => s.id) || []
+          }
+        }));
+        setDrivers(mappedDrivers);
+      } catch (error) {
+        console.error("Failed to fetch drivers:", error);
+      }
+    };
+    fetchDrivers();
+  }, []);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleClose = () => {
     setOpen(false);
   };
   const handleOpen = (id: string) => {
-    const driver = mockData.staff.drivers.find((d) => d.id === id);
+    const driver = drivers.find((d) => d.id === id);
     if (!driver) return;
-    setSelectedDriver(driver as unknown as Driver);
+    setSelectedDriver(driver);
     setOpen(true);
   };
-
-  /* --------------------------------- data --------------------------------- */
-  const data = getDriverDetailsForTable();
 
   return (
     <>
@@ -65,7 +110,7 @@ const DriverTable = () => {
             </TableHead>
 
             <TableBody>
-              {data.map((d, index) => (
+              {drivers.map((d, index) => (
                 <TableRow key={d.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{d.fullName}</TableCell>

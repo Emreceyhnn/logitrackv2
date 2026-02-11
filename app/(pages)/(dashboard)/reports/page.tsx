@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Box, Typography, Tabs, Tab, Stack } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Box, Typography, Tabs, Tab, CircularProgress } from "@mui/material";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import InventoryIcon from "@mui/icons-material/Inventory";
@@ -36,11 +36,37 @@ function CustomTabPanel(props: TabPanelProps) {
 export default function ReportsPage() {
   /* --------------------------------- states --------------------------------- */
   const [value, setValue] = useState(0);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
+      const USER_ID = 'usr_001';
+      try {
+        const result = await import("@/app/lib/controllers/reports").then(mod => mod.getReportsData(COMPANY_ID));
+        setData(result);
+      } catch (error) {
+        console.error("Failed to fetch reports:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [])
 
   /* -------------------------------- handlers -------------------------------- */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
+
+  if (loading) {
+    return (
+      <Box sx={{ p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3 }}>
@@ -89,17 +115,17 @@ export default function ReportsPage() {
         </Tabs>
       </Box>
 
-      <ReportSummaryCards tabIndex={value} />
+      <ReportSummaryCards tabIndex={value} metrics={data?.metrics} />
 
       <Box sx={{ mt: 2 }}>
         <CustomTabPanel value={value} index={0}>
-          <ShipmentCharts />
+          <ShipmentCharts data={data?.shipments} />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          <FleetCharts />
+          <FleetCharts data={data?.fleet} />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
-          <InventoryCharts />
+          <InventoryCharts data={data?.inventory?.categoryStats} />
         </CustomTabPanel>
       </Box>
     </Box>

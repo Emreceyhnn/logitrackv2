@@ -14,21 +14,29 @@ async function main() {
     const mockData = JSON.parse(rawData);
 
     // 2. Define Default Company
-    const COMPANY_ID = 'comp_logitrack_01';
+    const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
     const COMPANY_NAME = 'LogiTrack Inc.';
 
     // 3. Clean Database (in reverse dependency order)
     console.log('🧹 Cleaning existing data...');
-    await prisma.shipment.deleteMany();
-    await prisma.inventory.deleteMany();
-    await prisma.maintenanceRecord.deleteMany();
-    await prisma.driver.deleteMany();
-    await prisma.vehicle.deleteMany();
-    await prisma.customer.deleteMany();
-    await prisma.warehouse.deleteMany();
-    await prisma.user.deleteMany();
-    await prisma.role.deleteMany();
-    await prisma.company.deleteMany();
+    try {
+        await prisma.issue.deleteMany();
+        await prisma.document.deleteMany();
+        await prisma.shipmentHistory.deleteMany();
+        await prisma.shipment.deleteMany();
+        await prisma.route.deleteMany();
+        await prisma.inventory.deleteMany();
+        await prisma.maintenanceRecord.deleteMany();
+        await prisma.driver.deleteMany();
+        await prisma.vehicle.deleteMany();
+        await prisma.customer.deleteMany();
+        await prisma.warehouse.deleteMany();
+        await prisma.user.deleteMany();
+        await prisma.role.deleteMany();
+        await prisma.company.deleteMany();
+    } catch (error) {
+        console.warn('⚠️ Error cleaning data (migth be first run):', error);
+    }
 
     // 4. Create Company
     console.log('🏢 Creating default company...');
@@ -81,7 +89,6 @@ async function main() {
     for (const wh of mockData.warehouses) {
         let managerId = wh.managerId;
         if (managerId && !createdUserIds.has(managerId)) {
-            console.warn(`⚠️ Warehouse manager ${managerId} not found in users. Skipping manager assignment.`);
             managerId = undefined;
         }
 
@@ -122,6 +129,7 @@ async function main() {
 
     // 9. Create Vehicles & Maintenance
     console.log(`🚛 Creating ${mockData.fleet.length} vehicles...`);
+    // Pre-create vehicles to be referenced by drivers
     for (const veh of mockData.fleet) {
         await prisma.vehicle.create({
             data: {
@@ -132,7 +140,7 @@ async function main() {
                 brand: veh.brand,
                 model: veh.model,
                 year: veh.year,
-                status: veh.status === 'IDLE' ? 'AVAILABLE' : veh.status, // Map 'IDLE' to 'AVAILABLE' if needed, assuming enum match
+                status: veh.status === 'IDLE' ? 'AVAILABLE' : veh.status,
                 maxLoadKg: veh.specs.maxLoadKg,
                 fuelType: veh.specs.fuelType,
                 currentLat: veh.currentStatus?.location?.lat,
@@ -147,6 +155,15 @@ async function main() {
                         cost: hist.cost,
                         description: `Technician: ${hist.technician}`,
                     })) || []
+                },
+                documents: {
+                    create: veh.documents?.map((doc: any) => ({
+                        type: doc.type,
+                        name: `${doc.type} for ${veh.plate}`,
+                        url: `/documents/${veh.plate}/${doc.type}.pdf`,
+                        expiryDate: doc.expiresOn ? new Date(doc.expiresOn) : null,
+                        companyId: COMPANY_ID
+                    })) || []
                 }
             },
         });
@@ -157,9 +174,7 @@ async function main() {
     for (const drv of mockData.staff.drivers) {
         let userId = drv.userId;
 
-        // Check if userId is valid or needs to be generated
         if (!userId) {
-            // Driver has no assigned user. Since schema requires it, we create one.
             userId = `usr_gen_${drv.id}`;
             const newUserData = {
                 id: userId,
@@ -171,28 +186,21 @@ async function main() {
                 roleId: 'role_driver',
                 status: 'ACTIVE',
                 companyId: COMPANY_ID,
-                // No avatar for generated users?
             };
 
-            // Ensure role exists (it should from step 5)
-            // Ensure email not taken
             const existingUser = await prisma.user.findUnique({ where: { email: drv.email } });
             if (existingUser) {
-                console.log(`⚠️ User with email ${drv.email} already exists (${existingUser.id}). Linking driver ${drv.id} to it.`);
                 userId = existingUser.id;
             } else {
-                console.log(`➕ Generating user ${userId} for driver ${drv.id}...`);
-                await prisma.user.create({ data: newUserData as any }); // Cast to any to avoid strict type issues with large object
+                await prisma.user.create({ data: newUserData as any });
                 createdUserIds.add(userId);
             }
-        } else if (userId && !createdUserIds.has(userId)) {
-            console.warn(`⚠️ Driver linked user ${userId} not found in created users. Driver creation might fail.`);
         }
 
         await prisma.driver.create({
             data: {
                 id: drv.id,
-                userId: userId!, // We ensured it exists or created it
+                userId: userId!,
                 employeeId: drv.employeeId,
                 licenseNumber: drv.licenses?.[0]?.type || 'UNKNOWN',
                 licenseType: drv.licenses?.map((l: any) => l.type).join(','),
@@ -205,15 +213,24 @@ async function main() {
                 safetyScore: drv.metrics?.safetyScore,
                 efficiencyScore: drv.metrics?.efficiencyScore,
                 rating: drv.rating?.avg,
+                documents: {
+                    create: drv.licenses?.map((lic: any) => ({
+                        type: 'LICENSE',
+                        name: `License ${lic.type}`,
+                        url: `/documents/drivers/${drv.id}/${lic.type}.pdf`,
+                        expiryDate: lic.expiresOn ? new Date(lic.expiresOn) : null,
+                        companyId: COMPANY_ID
+                    })) || []
+                }
             },
         });
     }
+
     // 11. Create Inventory
     console.log(`📦 Creating inventory items...`);
     for (const stock of mockData.inventory.stock) {
         const catalogItem = mockData.inventory.catalog.find((c: any) => c.id === stock.skuId);
         if (!catalogItem) {
-            console.warn(`⚠️ Catalog item not found for stock SKU: ${stock.skuId}`);
             continue;
         }
 
@@ -229,10 +246,31 @@ async function main() {
         });
     }
 
-    // 12. Create Shipments
+    // 12. Create Routes
+    console.log(`📍 Creating ${mockData.routes?.length || 0} routes...`);
+    if (mockData.routes) {
+        for (const route of mockData.routes) {
+            await prisma.route.create({
+                data: {
+                    id: route.id,
+                    name: route.code,
+                    status: route.status === 'IN_PROGRESS' ? 'ACTIVE' : (route.status === 'PENDING' ? 'PLANNED' : 'COMPLETED'), // Mapping
+                    date: new Date(route.schedule.plannedStart),
+                    startTime: new Date(route.schedule.plannedStart),
+                    endTime: new Date(route.schedule.plannedEnd),
+                    distanceKm: route.metrics.totalDistanceKm,
+                    durationMin: 0,
+                    driverId: route.driverId,
+                    vehicleId: route.vehicleId,
+                    companyId: COMPANY_ID,
+                }
+            });
+        }
+    }
+
+    // 13. Create Shipments
     console.log(`🚚 Creating ${mockData.shipments.length} shipments...`);
     for (const shp of mockData.shipments) {
-        // Extract origin address string
         let originStr = "Unknown";
         if (shp.origin.type === 'WAREHOUSE') {
             const wh = mockData.warehouses.find((w: any) => w.id === shp.origin.warehouseId);
@@ -241,31 +279,81 @@ async function main() {
             originStr = shp.origin.address || "Unknown Origin";
         }
 
-        // Extract destination address string
         let destStr = shp.destination.address || "Unknown Destination";
-
-        // Resolve driver from route
         let driverId = undefined;
+        let routeId = undefined;
+
         if (shp.assignedTo?.routeId) {
-            const route = mockData.routes?.find((r: any) => r.id === shp.assignedTo.routeId);
-            if (route && route.driverId) {
-                driverId = route.driverId;
+            const potentialRouteId = shp.assignedTo.routeId;
+            const routeExists = mockData.routes?.some((r: any) => r.id === potentialRouteId);
+
+            if (routeExists) {
+                routeId = potentialRouteId;
+                const route = mockData.routes?.find((r: any) => r.id === routeId);
+                if (route && route.driverId) {
+                    driverId = route.driverId;
+                }
+            } else {
+                console.warn(`⚠️ Route ${potentialRouteId} not found for shipment ${shp.id}. Skipping route assignment.`);
             }
         }
 
         await prisma.shipment.create({
             data: {
                 id: shp.id,
-                trackingId: shp.id, // Using ID as tracking ID for now
+                trackingId: shp.id,
                 customerId: shp.customerId,
                 driverId: driverId,
+                routeId: routeId,
                 status: shp.status,
                 origin: originStr,
                 destination: destStr,
+                itemsCount: shp.cargoDetails?.packageCount || 1,
                 companyId: COMPANY_ID,
                 createdAt: shp.dates.created ? new Date(shp.dates.created) : undefined,
+                history: {
+                    create: shp.tracking?.milestones?.map((milestone: any) => ({
+                        status: milestone.status,
+                        location: 'Unknown',
+                        description: milestone.status,
+                        createdAt: milestone.timestamp ? new Date(milestone.timestamp) : new Date(),
+                        createdBy: 'SYSTEM'
+                    })) || []
+                }
             },
         });
+    }
+
+    // 14. Create Issues (Alerts)
+    console.log(`⚠️ Creating queries/issues...`);
+    if (mockData.monitoring?.alerts) {
+        for (const alert of mockData.monitoring.alerts) {
+            let vehicleId = alert.ref?.vehicleId;
+            let driverId = alert.ref?.driverId;
+            let shipmentId = alert.ref?.shipmentId;
+
+            // Simple existence check or validation could go here
+            // Mapping Priority/Severity
+            let priority = "MEDIUM";
+            if (alert.severity === "HIGH") priority = "HIGH";
+            if (alert.severity === "CRITICAL") priority = "CRITICAL";
+            if (alert.severity === "LOW") priority = "LOW";
+
+            await prisma.issue.create({
+                data: {
+                    id: alert.id,
+                    title: alert.type,
+                    description: alert.message,
+                    status: alert.status,
+                    priority: priority,
+                    type: alert.type,
+                    vehicleId: vehicleId,
+                    shipmentId: shipmentId,
+                    driverId: driverId,
+                    companyId: COMPANY_ID
+                }
+            });
+        }
     }
 
     console.log('✅ Seeding completed successfully!');

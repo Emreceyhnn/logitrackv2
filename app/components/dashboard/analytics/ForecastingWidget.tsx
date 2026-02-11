@@ -4,52 +4,23 @@ import { LineChart } from "@mui/x-charts/LineChart";
 import { Stack, Typography, Paper, useTheme, Chip, Box } from "@mui/material";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
-export default function ForecastingWidget() {
+interface ForecastData {
+  weeks: string[];
+  actuals: (number | null)[];
+  predicted: (number | null)[];
+}
+
+interface ForecastingWidgetProps {
+  data?: ForecastData;
+}
+
+export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const weeks = [
-    "W1",
-    "W2",
-    "W3",
-    "W4",
-    "W5",
-    "W6",
-    "W7",
-    "W8",
-    "W9",
-    "W10",
-    "W11",
-    "W12",
-  ];
-  const actualsSeries = [
-    120,
-    132,
-    125,
-    145,
-    150,
-    160,
-    155,
-    175,
-    180,
-    null,
-    null,
-    null,
-  ];
-  const predictedSeries = [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    180,
-    195,
-    210,
-    225,
-  ];
+  const weeks = data?.weeks || ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12"];
+  const actualsSeries = data?.actuals || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  const predictedSeries = data?.predicted || [null, null, null, null, null, null, null, null, null, null, null, null];
 
   return (
     <Paper sx={{ p: 3, borderRadius: 3, mt: 3, bgcolor: "background.paper" }}>

@@ -6,9 +6,25 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import SpeedIcon from "@mui/icons-material/Speed";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
 
-export default function PerformanceGauges() {
+interface PerformanceData {
+  onTimeRate: number;
+  fleetUtilization: number;
+  satisfaction: number;
+  satisfactionCount: number;
+}
+
+interface PerformanceGaugesProps {
+  data?: PerformanceData;
+}
+
+export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+
+  const onTimeRate = data?.onTimeRate ?? 0;
+  const fleetUtilization = data?.fleetUtilization ?? 0;
+  const satisfaction = data?.satisfaction ?? 0;
+  const satisfactionCount = data?.satisfactionCount ?? 0;
 
   return (
     <Grid container spacing={3}>
@@ -36,7 +52,7 @@ export default function PerformanceGauges() {
           </Stack>
           <Box sx={{ width: "100%", height: 200 }}>
             <Gauge
-              value={94.5}
+              value={onTimeRate}
               startAngle={-110}
               endAngle={110}
               sx={{
@@ -54,9 +70,11 @@ export default function PerformanceGauges() {
           </Box>
           <Typography variant="body2" color="text.secondary" align="center">
             Target: 95%{" "}
-            <Typography component="span" color="error.main" fontWeight="bold">
-              (-0.5%)
-            </Typography>
+            {onTimeRate < 95 && (
+              <Typography component="span" color="error.main" fontWeight="bold">
+                ({(onTimeRate - 95).toFixed(1)}%)
+              </Typography>
+            )}
           </Typography>
         </Paper>
       </Grid>
@@ -85,7 +103,7 @@ export default function PerformanceGauges() {
           </Stack>
           <Box sx={{ width: "100%", height: 200 }}>
             <Gauge
-              value={78}
+              value={fleetUtilization}
               startAngle={-110}
               endAngle={110}
               sx={{
@@ -101,7 +119,7 @@ export default function PerformanceGauges() {
             />
           </Box>
           <Typography variant="body2" color="text.secondary" align="center">
-            4 Vehicles Idle (Maintenance)
+            Real-time metric
           </Typography>
         </Paper>
       </Grid>
@@ -130,7 +148,7 @@ export default function PerformanceGauges() {
           </Stack>
           <Box sx={{ width: "100%", height: 200 }}>
             <Gauge
-              value={4.8}
+              value={satisfaction}
               valueMax={5}
               startAngle={-110}
               endAngle={110}
@@ -147,7 +165,7 @@ export default function PerformanceGauges() {
             />
           </Box>
           <Typography variant="body2" color="text.secondary" align="center">
-            Based on 128 Reviews
+            Based on {satisfactionCount} Reviews
           </Typography>
         </Paper>
       </Grid>

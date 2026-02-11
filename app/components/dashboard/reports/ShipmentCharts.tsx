@@ -1,44 +1,44 @@
+"use client";
+
 import { PieChart } from "@mui/x-charts/PieChart";
 import { BarChart } from "@mui/x-charts/BarChart";
-import {
-  Card,
-  Stack,
-  Typography,
-  Grid,
-  Box,
-  useTheme,
-  Paper,
-} from "@mui/material";
-import mockData from "@/app/lib/mockData.json";
+import { Card, Stack, Typography, Box, useTheme } from "@mui/material";
 
-export default function ShipmentCharts() {
+interface ShipmentChartData {
+  statusCounts: { status: string; count: number }[];
+  routeCounts: { route: string; count: number }[];
+}
+
+interface ShipmentChartsProps {
+  data?: ShipmentChartData;
+}
+
+export default function ShipmentCharts({ data }: ShipmentChartsProps) {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const statusCounts = mockData.shipments.reduce(
-    (acc, curr) => {
-      const status = curr.status.replace("_", " ");
-      acc[status] = (acc[status] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
-  const pieData = Object.keys(statusCounts).map((status, index) => ({
+  const statusMap: Record<string, number> = {};
+  if (data?.statusCounts) {
+    data.statusCounts.forEach(item => {
+      statusMap[item.status] = item.count;
+    });
+  } else {
+    // Fallback defaults or empty
+  }
+
+  const pieData = Object.keys(statusMap).map((status, index) => ({
     id: index,
-    value: statusCounts[status],
-    label: status,
+    value: statusMap[status],
+    label: status.replace("_", " "),
     color:
       status === "DELIVERED"
         ? theme.palette.success.main
-        : status === "IN TRANSIT"
+        : status === "IN_TRANSIT"
           ? theme.palette.info.main
           : theme.palette.warning.main,
   }));
-  const routeShipmentCounts = mockData.routes.map((route) => ({
-    route: route.code,
-    count: mockData.shipments.filter((s) => s.assignedTo?.routeId === route.id)
-      .length,
-  }));
+
+  const routeShipmentCounts = data?.routeCounts || [];
 
   return (
     <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
@@ -82,7 +82,7 @@ export default function ShipmentCharts() {
             <PieChart
               series={[
                 {
-                  data: pieData,
+                  data: pieData.length > 0 ? pieData : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
                   innerRadius: 30,
                   outerRadius: 100,
                   paddingAngle: 5,
@@ -133,7 +133,7 @@ export default function ShipmentCharts() {
             </Typography>
           </Stack>
 
-          <Box sx={{ flex: 1, minHeight: 300 }}>
+          <Box sx={{ flex: 1, minHeight: 300, width: '100%' }}>
             <BarChart
               dataset={routeShipmentCounts}
               xAxis={[{ scaleType: "band", dataKey: "route" }]}

@@ -9,54 +9,75 @@ import HomeIcon from "@mui/icons-material/Home";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import AccessAlarmsIcon from "@mui/icons-material/AccessAlarms";
-import { getDriverKpiValues } from "@/app/lib/analyticsUtils";
+import { useEffect, useState } from "react";
+import { getDriverKpiStats } from "@/app/lib/controllers/driver";
 
 const DriverKpiCard = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const [stats, setStats] = useState({
+    totalLength: 0,
+    onDuty: 0,
+    offDuty: 0,
+    complianceIssues: 0,
+    safetyScoreRating: 0,
+    efficiencyRating: 0,
+    onTimeDeliveryRating: 0
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getDriverKpiStats();
+        setStats(data);
+      } catch (error) {
+        console.error("Failed to fetch driver stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
 
   /* ---------------------------------- utils --------------------------------- */
-  const DriverData = getDriverKpiValues();
   const kpiItems = [
     {
       label: "Total Drivers",
-      value: DriverData.totalLength,
+      value: stats.totalLength,
       icon: <GroupsIcon />,
       color: theme.palette.primary.main,
     },
     {
       label: "On Duty",
-      value: DriverData.onDuty,
+      value: stats.onDuty,
       icon: <WorkIcon />,
       color: theme.palette.success.main,
     },
     {
       label: "Off Duty",
-      value: DriverData.offDuty,
+      value: stats.offDuty,
       icon: <HomeIcon />,
       color: theme.palette.info.main,
     },
     {
       label: "Compliance Issues",
-      value: DriverData.complianceIssues,
+      value: stats.complianceIssues,
       icon: <ReportProblemIcon />,
       color: theme.palette.error.main,
     },
     {
       label: "Avg Safety Rating",
-      value: DriverData.safetyScoreRating,
+      value: stats.safetyScoreRating.toFixed(1),
       icon: <ShieldIcon />,
       color: theme.palette.warning.main,
     },
     {
       label: "Efficiency Rating",
-      value: DriverData.efficiencyRating,
+      value: stats.efficiencyRating.toFixed(1),
       icon: <RocketLaunchIcon />,
       color: theme.palette.success.main,
     },
     {
       label: "Avg On-Time Delivery Rating",
-      value: DriverData.onTimeDeliveryRating,
+      value: stats.onTimeDeliveryRating,
       icon: <AccessAlarmsIcon />,
       color: theme.palette.error.main,
     },

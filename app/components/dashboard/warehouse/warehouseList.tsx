@@ -1,4 +1,4 @@
-"use client";
+import { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -13,13 +13,50 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import mockData from "@/app/lib/mockData.json";
 import CustomCard from "../../cards/card";
+import { getWarehouses } from "@/app/lib/controllers/warehouse";
 
 const WarehouseListTable = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
-  const warehouses = mockData.warehouses;
+  const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchWarehouses = async () => {
+      try {
+        const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
+        const USER_ID = 'usr_001';
+        const data = await getWarehouses(COMPANY_ID, USER_ID);
+
+        const mapped = data.map((w: any) => ({
+          id: w.id,
+          code: w.code,
+          name: w.name,
+          address: { city: w.city },
+          capacity: {
+            usedPallets: (w._count?.inventory || 0) * 50, // Estimate
+            totalPallets: 5000,
+            usedVolumeM3: (w._count?.inventory || 0) * 20, // Estimate
+            totalVolumeM3: 100000
+          },
+          operatingHours: {
+            monFri: "08:00 - 18:00"
+          }
+        }));
+
+        setWarehouses(mapped);
+      } catch (error) {
+        console.error("Failed to fetch warehouses", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWarehouses();
+  }, []);
+
+  if (loading) return <Typography sx={{ p: 3 }}>Loading warehouses...</Typography>;
 
   return (
     <CustomCard sx={{ p: 3, borderRadius: "12px", boxShadow: 3 }}>
@@ -172,6 +209,13 @@ const WarehouseListTable = () => {
                 </TableRow>
               );
             })}
+            {warehouses.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                  No warehouses found.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>

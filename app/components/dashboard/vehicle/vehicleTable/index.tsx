@@ -11,7 +11,6 @@ import {
   Divider,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
-import { getVehicleList } from "@/app/lib/analyticsUtils";
 import RowActions from "./menu";
 import VehicleDialog from "../../../dialogs/vehicle";
 import { useEffect, useState } from "react";

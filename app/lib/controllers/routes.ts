@@ -42,6 +42,31 @@ export async function getRoutes(companyId: string, userId: string) {
 
         const routes = await db.route.findMany({
             where: { companyId },
+            include: {
+                vehicle: {
+                    select: {
+                        plate: true,
+                        type: true
+                    }
+                },
+                driver: {
+                    include: {
+                        user: {
+                            select: {
+                                name: true,
+                                surname: true,
+                                avatarUrl: true
+                            }
+                        }
+                    }
+                },
+                shipments: {
+                    select: {
+                        id: true,
+                        status: true
+                    }
+                }
+            },
             orderBy: { date: 'desc' }
         });
         return routes;

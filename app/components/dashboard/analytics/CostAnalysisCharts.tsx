@@ -4,36 +4,38 @@ import { PieChart } from "@mui/x-charts/PieChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { Stack, Typography, Grid, Paper, useTheme, Box } from "@mui/material";
 
-export default function CostAnalysisCharts() {
+interface CostData {
+  months: string[];
+  fuel: number[];
+  maintenance: number[];
+  overhead: number[];
+  distribution: { id: number; value: number; label: string; color?: string }[];
+}
+
+interface CostAnalysisChartsProps {
+  data?: CostData;
+}
+
+export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
   /* ------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-  const fuelCosts = [4200, 4100, 4350, 4220, 4500, 4400];
-  const maintenanceCosts = [1200, 800, 1500, 950, 2100, 1100];
-  const overheadCosts = [3000, 3000, 3100, 3100, 3200, 3200];
+  const months = data?.months || ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+  const fuelCosts = data?.fuel || [0, 0, 0, 0, 0, 0];
+  const maintenanceCosts = data?.maintenance || [0, 0, 0, 0, 0, 0];
+  const overheadCosts = data?.overhead || [0, 0, 0, 0, 0, 0];
 
-  const costDistribution = [
+  const defaultCostDistribution = [
     { id: 0, value: 35, label: "Fuel", color: theme.palette.error.main },
-    {
-      id: 1,
-      value: 25,
-      label: "Maintenance",
-      color: theme.palette.warning.main,
-    },
-    {
-      id: 2,
-      value: 30,
-      label: "Driver Salaries",
-      color: theme.palette.info.main,
-    },
-    {
-      id: 3,
-      value: 10,
-      label: "Insurance/Ops",
-      color: theme.palette.success.main,
-    },
+    { id: 1, value: 25, label: "Maintenance", color: theme.palette.warning.main },
+    { id: 2, value: 30, label: "Driver Salaries", color: theme.palette.info.main },
+    { id: 3, value: 10, label: "Insurance/Ops", color: theme.palette.success.main },
   ];
+
+  const costDistribution = data?.distribution.map((d, i) => ({
+    ...d,
+    color: d.color || defaultCostDistribution[i % 4].color
+  })) || defaultCostDistribution;
 
   return (
     <Grid container spacing={3}>

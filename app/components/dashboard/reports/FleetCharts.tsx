@@ -1,27 +1,35 @@
+"use client";
+
 import { BarChart } from "@mui/x-charts/BarChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
-import mockData from "@/app/lib/mockData.json";
 
-export default function FleetCharts() {
+interface FleetChartData {
+  plate: string;
+  consumption: string;
+  odometer: number;
+  maintenanceCost: number;
+}
+
+interface FleetChartsProps {
+  data?: FleetChartData[];
+}
+
+export default function FleetCharts({ data }: FleetChartsProps) {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const vehicleFuel = mockData.fleet.map((v) => ({
+  const vehicleFuel = (data || []).map((v) => ({
     plate: v.plate,
-    consumption: v.specs?.mpg ? (235.21 / v.specs.mpg).toFixed(1) : 0,
+    consumption: parseFloat(v.consumption),
   }));
 
-  const maintenanceAnalysis = mockData.fleet
-    .map((v) => {
-      const totalCost =
-        v.currentStatus.odometerKm * 0.05 + Math.random() * 1000;
-      return {
-        plate: v.plate,
-        odometer: v.currentStatus.odometerKm,
-        cost: Math.round(totalCost),
-      };
-    })
+  const maintenanceAnalysis = (data || [])
+    .map((v) => ({
+      plate: v.plate,
+      odometer: v.odometer,
+      cost: v.maintenanceCost
+    }))
     .sort((a, b) => a.odometer - b.odometer);
 
   return (
@@ -105,14 +113,14 @@ export default function FleetCharts() {
             <LineChart
               xAxis={[
                 {
-                  data: maintenanceAnalysis.map((m) => m.odometer),
+                  data: maintenanceAnalysis.length > 0 ? maintenanceAnalysis.map((m) => m.odometer) : [0, 1000],
                   label: "Odometer (km)",
                   valueFormatter: (v: number) => `${(v / 1000).toFixed(0)}k`,
                 },
               ]}
               series={[
                 {
-                  data: maintenanceAnalysis.map((m) => m.cost),
+                  data: maintenanceAnalysis.length > 0 ? maintenanceAnalysis.map((m) => m.cost) : [0, 0],
                   label: "Total Maint. Cost ($)",
                   color: theme.palette.warning.main,
                   area: true,
