@@ -1,49 +1,55 @@
 "use client";
 import { Stack, useTheme } from "@mui/material";
-import mockData from "@/app/lib/mockData.json";
 import StatCard from "../../cards/StatCard";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import InventoryIcon from "@mui/icons-material/Inventory";
+import { useEffect, useState } from "react";
+import { getShipmentStats } from "@/app/lib/controllers/shipments";
 
 const ShipmentKpiCard = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const [stats, setStats] = useState({ total: 0, active: 0, delayed: 0, inTransit: 0 });
 
-  const totalShipments = mockData.shipments.length;
-  const activeShipments = mockData.shipments.filter((s) =>
-    ["PROCESSING", "IN_TRANSIT"].includes(s.status)
-  ).length;
-  const delayedShipments = mockData.shipments.filter(
-    (s) => s.status === "DELAYED"
-  ).length;
-  const inTransit = mockData.shipments.filter(
-    (s) => s.status === "IN_TRANSIT"
-  ).length;
+  useEffect(() => {
+    const fetchStats = async () => {
+      // TODO: Use actual auth context
+      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
+      const USER_ID = 'usr_001';
+      try {
+        const data = await getShipmentStats(COMPANY_ID, USER_ID);
+        setStats(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchStats();
+  }, []);
 
   const kpiItems = [
     {
       label: "Total Shipments",
-      value: totalShipments,
+      value: stats.total,
       icon: <InventoryIcon />,
       color: theme.palette.primary.main,
     },
     {
       label: "Active Shipments",
-      value: activeShipments,
+      value: stats.active,
       icon: <LocalShippingIcon />,
       color: theme.palette.info.main,
     },
     {
       label: "Delayed Shipments",
-      value: delayedShipments,
+      value: stats.delayed,
       icon: <AccessTimeIcon />,
       color: theme.palette.error.main,
     },
     {
       label: "In Transit",
-      value: inTransit,
+      value: stats.inTransit,
       icon: <DirectionsBoatIcon />,
       color: theme.palette.warning.main,
     },

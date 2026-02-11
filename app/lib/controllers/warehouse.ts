@@ -308,3 +308,70 @@ export async function getLowStockItems(warehouseId: string, userId: string) {
         throw new Error(error.message || "Failed to get low stock items");
     }
 }
+
+export async function getWarehouseStats(companyId: string, userId: string) {
+    try {
+        await checkPermission(userId, companyId);
+
+        const warehouses = await db.warehouse.findMany({
+            where: { companyId },
+            select: { capacityPallets: true, capacityVolumeM3: true }
+        });
+
+        const totalWarehouses = warehouses.length;
+
+        const inventoryStats = await db.inventory.aggregate({
+            where: { companyId },
+            _count: { sku: true },
+            _sum: { quantity: true }
+        });
+
+        const totalCapacityPallets = warehouses.reduce((acc, w) => acc + w.capacityPallets, 0);
+        const totalCapacityVolume = warehouses.reduce((acc, w) => acc + w.capacityVolumeM3, 0);
+
+        return {
+            totalWarehouses,
+            totalSkus: inventoryStats._count.sku,
+            totalItems: inventoryStats._sum.quantity || 0,
+            totalCapacityPallets,
+            totalCapacityVolume
+        };
+    } catch (error) {
+        console.error("Failed to get warehouse stats:", error);
+        return { totalWarehouses: 0, totalSkus: 0, totalItems: 0, totalCapacityPallets: 0, totalCapacityVolume: 0 };
+    }
+}
+
+export async function getRecentStockMovements(companyId: string, userId: string) {
+    try {
+        await checkPermission(userId, companyId);
+
+        const movements = await db.inventoryMovement.findMany({
+            where: { companyId },
+            include: {
+                warehouse: { select: { code: true, name: true } }
+            },
+            take: 10,
+            orderBy: { date: 'desc' }
+        });
+
+        const enrichedMovements = await Promise.all(movements.map(async (m) => {
+            const inventoryItem = await db.inventory.findFirst({
+                where: {
+                    warehouseId: m.warehouseId,
+                    sku: m.sku
+                },
+                select: { name: true }
+            });
+            return {
+                ...m,
+                itemName: inventoryItem?.name || m.sku
+            };
+        }));
+
+        return enrichedMovements;
+    } catch (error) {
+        console.error("Failed to get stock movements:", error);
+        return [];
+    }
+}

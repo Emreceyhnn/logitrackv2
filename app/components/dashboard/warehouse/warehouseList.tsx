@@ -35,13 +35,13 @@ const WarehouseListTable = () => {
           name: w.name,
           address: { city: w.city },
           capacity: {
-            usedPallets: (w._count?.inventory || 0) * 50, // Estimate
-            totalPallets: 5000,
-            usedVolumeM3: (w._count?.inventory || 0) * 20, // Estimate
-            totalVolumeM3: 100000
+            usedPallets: (w._count?.inventory || 0) * 10, // Still an estimate if we don't track pallet count per item, but getting better
+            totalPallets: w.capacityPallets || 5000,
+            usedVolumeM3: (w._count?.inventory || 0) * 5, // Estimate
+            totalVolumeM3: w.capacityVolumeM3 || 100000
           },
           operatingHours: {
-            monFri: "08:00 - 18:00"
+            monFri: w.operatingHours || "08:00 - 18:00"
           }
         }));
 

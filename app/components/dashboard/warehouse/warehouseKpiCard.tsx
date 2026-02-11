@@ -1,30 +1,40 @@
 "use client";
 import { Card, Stack, Typography, useTheme } from "@mui/material";
-import mockData from "@/app/lib/mockData.json";
+import { useEffect, useState } from "react";
+import { getWarehouseStats } from "@/app/lib/controllers/warehouse";
 
 const WarehouseKpiCard = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const warehouses = mockData.warehouses;
-  const totalWarehouses = warehouses.length;
-  const totalSkus = mockData.inventory.catalog.length;
+  const [stats, setStats] = useState({
+    totalWarehouses: 0,
+    totalSkus: 0,
+    totalItems: 0,
+    totalCapacityPallets: 0,
+    totalCapacityVolume: 0
+  });
 
-  const totalPalletsCapacity = warehouses.reduce(
-    (acc, curr) => acc + curr.capacity.totalPallets,
-    0
-  );
+  useEffect(() => {
+    const fetchStats = async () => {
+      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
+      const USER_ID = 'usr_001';
+      try {
+        const data = await getWarehouseStats(COMPANY_ID, USER_ID);
+        setStats(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchStats();
+  }, []);
 
-  const totalVolumeCapacity = warehouses.reduce(
-    (acc, curr) => acc + curr.capacity.totalVolumeM3,
-    0
-  );
 
   const kpiItems = [
-    { label: "WAREHOUSES", value: totalWarehouses },
-    { label: "INVENTORY SKUS", value: totalSkus.toLocaleString() },
-    { label: "TOTAL PALLETS", value: totalPalletsCapacity.toLocaleString() },
-    { label: "TOTAL VOLUME (M³)", value: totalVolumeCapacity.toLocaleString() },
+    { label: "WAREHOUSES", value: stats.totalWarehouses },
+    { label: "INVENTORY SKUS", value: stats.totalSkus.toLocaleString() },
+    { label: "TOTAL PALLETS", value: stats.totalCapacityPallets.toLocaleString() },
+    { label: "TOTAL VOLUME (M³)", value: stats.totalCapacityVolume.toLocaleString() },
   ];
 
   return (

@@ -2,49 +2,52 @@
 import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { PieChart } from "@mui/x-charts/PieChart";
-import mockData from "@/app/lib/mockData.json";
+import { useEffect, useState } from "react";
+import { getShipmentStatusDistribution, getShipmentVolumeHistory } from "@/app/lib/controllers/shipments";
 
 export default function ShipmentAnalytics() {
   const theme = useTheme();
+  const [pieData, setPieData] = useState<any[]>([]);
+  const [barData, setBarData] = useState<any[]>([]);
 
-  const statusCounts = mockData.shipments.reduce(
-    (acc, curr) => {
-      const status = curr.status.replace("_", " ");
-      acc[status] = (acc[status] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+  useEffect(() => {
+    const fetchData = async () => {
+      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
+      const USER_ID = 'usr_001';
 
-  const pieData = Object.keys(statusCounts).map((status, index) => ({
-    id: index,
-    value: statusCounts[status],
-    label: status,
-    color:
-      status === "DELIVERED"
-        ? theme.palette.success.main
-        : status === "IN_TRANSIT"
-          ? theme.palette.info.main
-          : status === "DELAYED"
-            ? theme.palette.error.main
-            : theme.palette.warning.main,
-  }));
+      try {
+        const [statusDist, volumeHist] = await Promise.all([
+          getShipmentStatusDistribution(COMPANY_ID, USER_ID),
+          getShipmentVolumeHistory(COMPANY_ID, USER_ID)
+        ]);
 
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const volumeByDay = mockData.shipments.reduce(
-    (acc, curr) => {
-      const date = new Date(curr.dates.created);
-      const day = days[date.getDay()];
-      acc[day] = (acc[day] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+        const mappedPie = statusDist.map((item, index) => ({
+          id: index,
+          value: item.count,
+          label: item.status.replace("_", " "),
+          color: item.status === "DELIVERED"
+            ? theme.palette.success.main
+            : item.status === "IN_TRANSIT"
+              ? theme.palette.info.main
+              : item.status === "DELAYED"
+                ? theme.palette.error.main
+                : theme.palette.warning.main,
+        }));
+        setPieData(mappedPie);
 
-  const barData = days.map((day) => ({
-    day,
-    volume: volumeByDay[day] || Math.floor(Math.random() * 5) + 1,
-  }));
+        const mappedBar = volumeHist.map(item => ({
+          day: item.day,
+          volume: item.volume
+        }));
+        setBarData(mappedBar);
+
+      } catch (error) {
+        console.error("Failed to fetch analytics", error);
+      }
+    };
+    fetchData();
+  }, [theme]);
+
 
   return (
     <Stack direction={{ xs: "column", md: "row" }} spacing={3} mt={3}>
@@ -86,7 +89,7 @@ export default function ShipmentAnalytics() {
             <PieChart
               series={[
                 {
-                  data: pieData,
+                  data: pieData.length > 0 ? pieData : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
                   innerRadius: 60,
                   outerRadius: 100,
                   paddingAngle: 5,
@@ -101,6 +104,9 @@ export default function ShipmentAnalytics() {
               ]}
               height={300}
               margin={{ right: 150 }}
+              slotProps={{
+                legend: { hidden: true } as any,
+              }}
             />
           </Box>
         </Card>

@@ -308,3 +308,47 @@ export async function getCompanyRoutes(companyId: string, userId: string) {
 }
 
 
+
+export async function getRouteStats(companyId: string, userId: string) {
+    try {
+        await checkPermission(userId, companyId);
+
+        const now = new Date();
+        const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+
+        const activeRoutes = await db.route.count({
+            where: { companyId, status: "ACTIVE" }
+        });
+
+        // "In Progress" in UI likely maps to 'ACTIVE' partially, but let's assume PLANNED for now or if we added IN_PROGRESS to enum?
+        // Schema says: PLANNED, ACTIVE, COMPLETED, CANCELED.
+        // Let's use 'PLANNED' for "In Progress" or just count 'ACTIVE' as In Progress and 'PLANNED' as Active? 
+        // Actually typically: PLANNED -> ACTIVE -> COMPLETED.
+        // Let's map: 
+        // Active Routes -> PLANNED + ACTIVE
+        // In Progress -> ACTIVE
+        const inProgress = activeRoutes;
+
+        const completedToday = await db.route.count({
+            where: {
+                companyId,
+                status: "COMPLETED",
+                updatedAt: { gte: startOfDay }
+            }
+        });
+
+        const delayedRoutes = await db.route.count({
+            where: {
+                companyId,
+                status: { not: "COMPLETED" },
+                endTime: { lt: new Date() } // Past due
+            }
+        });
+
+        return { active: activeRoutes, inProgress, completedToday, delayed: delayedRoutes };
+
+    } catch (error) {
+        console.error("Failed to get route stats:", error);
+        return { active: 0, inProgress: 0, completedToday: 0, delayed: 0 };
+    }
+}

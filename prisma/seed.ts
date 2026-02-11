@@ -25,6 +25,7 @@ async function main() {
         await prisma.shipmentHistory.deleteMany();
         await prisma.shipment.deleteMany();
         await prisma.route.deleteMany();
+        await prisma.inventoryMovement.deleteMany();
         await prisma.inventory.deleteMany();
         await prisma.maintenanceRecord.deleteMany();
         await prisma.driver.deleteMany();
@@ -244,6 +245,33 @@ async function main() {
                 companyId: COMPANY_ID,
             },
         });
+    }
+
+    // 12. Create Inventory Movements
+    console.log(`🚚 Creating inventory movements...`);
+    if (mockData.inventory.movements) {
+        for (const mov of mockData.inventory.movements) {
+            const catalogItem = mockData.inventory.catalog.find((c: any) => c.id === mov.skuId);
+            if (!catalogItem) {
+                continue;
+            }
+
+            await prisma.inventoryMovement.create({
+                data: {
+                    id: mov.id,
+                    warehouseId: mov.warehouseId,
+                    sku: catalogItem.code,
+                    quantity: mov.qty,
+                    type: mov.type,
+                    date: new Date(mov.timestamp),
+                    companyId: COMPANY_ID,
+                    // Optionally assign a user if available in mock data or pick a random one, 
+                    // but for now leaving it null or assigning a default if needed.
+                    // The mock data doesn't seem to have userId for movements explicitly, 
+                    // but we could assign it to a warehouse manager if we wanted to be fancy.
+                },
+            });
+        }
     }
 
     // 12. Create Routes

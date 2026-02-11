@@ -1,52 +1,56 @@
 "use client";
 
 import { Stack, useTheme } from "@mui/material";
-import mockData from "@/app/lib/mockData.json";
 import StatCard from "../../cards/StatCard";
 import AltRouteIcon from "@mui/icons-material/AltRoute";
 import LoopIcon from "@mui/icons-material/Loop";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningIcon from "@mui/icons-material/Warning";
+import { useEffect, useState } from "react";
+import { getRouteStats } from "@/app/lib/controllers/routes";
 
 const RoutesKpiCard = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const [stats, setStats] = useState({ active: 0, inProgress: 0, completedToday: 0, delayed: 0 });
 
-  const activeRoutes = mockData.routes.filter(
-    (i) => i.status === "ACTIVE"
-  ).length;
-  const inProgress = mockData.routes.filter(
-    (i) => i.status === "IN_PROGRESS"
-  ).length;
-  const completedRoutes = mockData.routes.filter(
-    (r) => r.status === "COMPLETED"
-  ).length;
-  const delayedRoutes = mockData.routes.filter(
-    (i) => i.status === "DELAYED"
-  ).length;
+  useEffect(() => {
+    const fetchStats = async () => {
+      // TODO: Use actual auth context
+      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
+      const USER_ID = 'usr_001';
+      try {
+        const data = await getRouteStats(COMPANY_ID, USER_ID);
+        setStats(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchStats();
+  }, []);
 
   const kpiItems = [
     {
       label: "Active Routes",
-      value: activeRoutes,
+      value: stats.active,
       icon: <AltRouteIcon />,
       color: theme.palette.primary.main,
     },
     {
       label: "In Progress",
-      value: inProgress,
+      value: stats.inProgress,
       icon: <LoopIcon />,
       color: theme.palette.info.main,
     },
     {
       label: "Completed Today",
-      value: completedRoutes,
+      value: stats.completedToday,
       icon: <CheckCircleIcon />,
       color: theme.palette.success.main,
     },
     {
       label: "Delayed Routes",
-      value: delayedRoutes,
+      value: stats.delayed,
       icon: <WarningIcon />,
       color: theme.palette.error.main,
     },

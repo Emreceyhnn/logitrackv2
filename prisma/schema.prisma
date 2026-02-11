@@ -67,6 +67,7 @@ model Company {
   routes     Route[]
   customers  Customer[]
   inventory  Inventory[]
+  inventoryMovements InventoryMovement[]
   documents  Document[]
   issues     Issue[]
   createdAt  DateTime    @default(now())
@@ -104,6 +105,7 @@ model User {
   // Relations
   driver            Driver?
   managedWarehouses Warehouse[] // Managers can manage multiple warehouses
+  inventoryMovements InventoryMovement[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -217,12 +219,18 @@ model Warehouse {
   lat     Float?
   lng     Float?
 
+  // Capacity
+  capacityPallets Int    @default(5000)
+  capacityVolumeM3 Int   @default(100000)
+  operatingHours   String? @default("08:00 - 18:00")
+
   // Management
   managerId String?
   manager   User?   @relation(fields: [managerId], references: [id])
 
   // Relations
   inventory Inventory[]
+  movements InventoryMovement[]
   drivers   Driver[] // Home base for drivers
 
   companyId String?
@@ -274,6 +282,25 @@ model Inventory {
 
   @@unique([warehouseId, sku])
   @@map("inventory")
+}
+
+model InventoryMovement {
+  id          String    @id @default(cuid())
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+
+  sku      String
+  quantity Int
+  type     String // PICK, PUTAWAY, ADJUSTMENT
+  date     DateTime @default(now())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  @@map("inventory_movements")
 }
 
 model Shipment {

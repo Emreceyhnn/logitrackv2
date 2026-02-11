@@ -295,3 +295,87 @@ export async function getShipmentByTrackingId(trackingId: string, userId: string
         throw new Error(error.message || "Failed to get shipment");
     }
 }
+
+export async function getShipmentStats(companyId: string, userId: string) {
+    try {
+        await checkPermission(userId, companyId);
+
+        const total = await db.shipment.count({ where: { companyId } });
+        const active = await db.shipment.count({
+            where: {
+                companyId,
+                status: { in: ["PENDING", "IN_TRANSIT", "PROCESSING"] }
+            }
+        });
+        const delayed = await db.shipment.count({ where: { companyId, status: "DELAYED" } });
+        const inTransit = await db.shipment.count({ where: { companyId, status: "IN_TRANSIT" } });
+
+        return { total, active, delayed, inTransit };
+    } catch (error) {
+        console.error("Failed to get shipment stats:", error);
+        return { total: 0, active: 0, delayed: 0, inTransit: 0 };
+    }
+}
+
+export async function getShipmentVolumeHistory(companyId: string, userId: string) {
+    try {
+        await checkPermission(userId, companyId);
+
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        const shipments = await db.shipment.groupBy({
+            by: ['createdAt'],
+            where: {
+                companyId,
+                createdAt: { gte: sevenDaysAgo }
+            },
+            _count: { id: true },
+        });
+
+        // Group by day properly since groupBy returns full timestamps
+        // Ideally we use raw query for date_trunc, but for now we can process in JS
+        const rawShipments = await db.shipment.findMany({
+            where: {
+                companyId,
+                createdAt: { gte: sevenDaysAgo }
+            },
+            select: { createdAt: true }
+        });
+
+        const volumeByDay: Record<string, number> = {};
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+        rawShipments.forEach(s => {
+            const dayName = days[s.createdAt.getDay()];
+            volumeByDay[dayName] = (volumeByDay[dayName] || 0) + 1;
+        });
+
+        return days.map(day => ({
+            day,
+            volume: volumeByDay[day] || 0
+        }));
+
+    } catch (error) {
+        console.error("Failed to get shipment volume history:", error);
+        return [];
+    }
+}
+
+export async function getShipmentStatusDistribution(companyId: string, userId: string) {
+    try {
+        await checkPermission(userId, companyId);
+
+        const statusCounts = await db.shipment.groupBy({
+            by: ['status'],
+            where: { companyId },
+            _count: { status: true }
+        });
+
+        return statusCounts.map(s => ({ status: s.status, count: s._count.status }));
+
+    } catch (error) {
+        console.error("Failed to get shipment status distribution:", error);
+        return [];
+    }
+}

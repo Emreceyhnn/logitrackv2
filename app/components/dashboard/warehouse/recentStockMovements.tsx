@@ -9,11 +9,37 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import mockData from "@/app/lib/mockData.json";
 import CustomCard from "../../cards/card";
+import { useEffect, useState } from "react";
+import { getRecentStockMovements } from "@/app/lib/controllers/warehouse";
+
+interface Movement {
+  id: string;
+  warehouse: { code: string };
+  itemName: string;
+  type: string;
+  quantity: number;
+  date: Date;
+}
 
 const RecentStockMovements = () => {
-  const movements = mockData.inventory.movements;
+  const [movements, setMovements] = useState<Movement[]>([]);
+
+  useEffect(() => {
+    const fetchMovements = async () => {
+      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
+      const USER_ID = 'usr_001';
+      try {
+        // @ts-ignore - mismatch in return type vs state type, controller returns loose object
+        const data = await getRecentStockMovements(COMPANY_ID, USER_ID);
+        setMovements(data as any);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchMovements();
+  }, []);
+
 
   return (
     <CustomCard sx={{ p: 3, borderRadius: "12px", boxShadow: 3, flex: 7 }}>
@@ -74,15 +100,9 @@ const RecentStockMovements = () => {
           </TableHead>
           <TableBody>
             {movements.map((move) => {
-              const warehouse = mockData.warehouses.find(
-                (w) => w.id === move.warehouseId
-              );
-              const sku = mockData.inventory.catalog.find(
-                (s) => s.id === move.skuId
-              );
               const isPick = move.type === "PICK";
-
-              const timeDisplay = move.timestamp.split("T")[1].substring(0, 5);
+              // @ts-ignore
+              const timeDisplay = new Date(move.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
               return (
                 <TableRow
@@ -90,9 +110,9 @@ const RecentStockMovements = () => {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell sx={{ fontWeight: 600 }}>
-                    {warehouse?.code || move.warehouseId}
+                    {move.warehouse?.code}
                   </TableCell>
-                  <TableCell>{sku?.name || move.skuId}</TableCell>
+                  <TableCell>{move.itemName}</TableCell>
                   <TableCell>
                     <Chip
                       label={move.type}
@@ -110,7 +130,7 @@ const RecentStockMovements = () => {
                   </TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>
                     {isPick ? "-" : "+"}
-                    {move.qty}
+                    {move.quantity}
                   </TableCell>
                   <TableCell align="right" sx={{ color: "text.secondary" }}>
                     {timeDisplay}
@@ -118,34 +138,13 @@ const RecentStockMovements = () => {
                 </TableRow>
               );
             })}
-            {/* Adding some dummy rows to fill the table to look like the design if only 2 exist */}
-            {movements.length < 5 &&
-              [1, 2, 3].map((i) => (
-                <TableRow
-                  key={`dummy-${i}`}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell sx={{ fontWeight: 600 }}>IST-01</TableCell>
-                  <TableCell>Pallet Wrap Stretch</TableCell>
-                  <TableCell>
-                    <Chip
-                      label="PICK"
-                      size="small"
-                      sx={{
-                        bgcolor: "rgba(251, 191, 36, 0.1)",
-                        color: "#fbbf24",
-                        fontWeight: 700,
-                        borderRadius: "6px",
-                        fontSize: "0.7rem",
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>-12</TableCell>
-                  <TableCell align="right" sx={{ color: "text.secondary" }}>
-                    45 mins ago
-                  </TableCell>
-                </TableRow>
-              ))}
+            {movements.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                  No recent movements.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
