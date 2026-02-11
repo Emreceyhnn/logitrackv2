@@ -111,21 +111,30 @@ const GoogleMapView = ({
       }}
     >
       {map &&
-        warehouseLoc.map((w, index) => (
-          <AdvancedMarker
-            key={w.id}
-            map={map}
-            position={w.position}
-            index={index}
-          >
-            <Stack alignItems={"center"}>
-              {IconSetter(w.type)}
-              <Typography sx={{ fontSize: 14, color: "black" }}>
-                {w.name}
-              </Typography>
-            </Stack>
-          </AdvancedMarker>
-        ))}
+        warehouseLoc
+          .filter(
+            (w) =>
+              w.position &&
+              typeof w.position.lat === "number" &&
+              !isNaN(w.position.lat) &&
+              typeof w.position.lng === "number" &&
+              !isNaN(w.position.lng)
+          )
+          .map((w, index) => (
+            <AdvancedMarker
+              key={w.id}
+              map={map}
+              position={w.position}
+              index={index}
+            >
+              <Stack alignItems={"center"}>
+                {IconSetter(w.type)}
+                <Typography sx={{ fontSize: 14, color: "black" }}>
+                  {w.name}
+                </Typography>
+              </Stack>
+            </AdvancedMarker>
+          ))}
 
       {isRoute && directions && (
         <DirectionsRenderer

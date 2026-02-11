@@ -22,35 +22,58 @@ export function AdvancedMarker({
   );
   const contentRef = useRef<HTMLDivElement | null>(null);
 
-  const offsetPosition = useMemo(
-    () => ({
+  const offsetPosition = useMemo(() => {
+    if (
+      !position ||
+      typeof position.lat !== "number" ||
+      typeof position.lng !== "number" ||
+      isNaN(position.lat) ||
+      isNaN(position.lng)
+    ) {
+      return null;
+    }
+    return {
       lat: position.lat + index * OFFSET,
       lng: position.lng,
-    }),
-    [position.lat, position.lng, index]
-  );
+    };
+  }, [position.lat, position.lng, index]);
 
   useEffect(() => {
     if (!contentRef.current) return;
 
-    markerRef.current = new google.maps.marker.AdvancedMarkerElement({
-      map,
-      position: offsetPosition,
-      content: contentRef.current,
-    });
+    if (!markerRef.current) {
+      markerRef.current = new google.maps.marker.AdvancedMarkerElement({
+        map,
+        content: contentRef.current,
+      });
+    }
 
+    // Update properties
+    if (markerRef.current) {
+      if (offsetPosition) {
+        markerRef.current.position = offsetPosition;
+        markerRef.current.map = map;
+      } else {
+        markerRef.current.map = null;
+      }
+    }
+
+    return () => {
+      // Cleanup is tricky if we want to reuse the same marker instance across renders if map doesn't change
+      // But typically we should cleanup if component unmounts.
+      // The dependency array [map, offsetPosition] means we update whenever these change.
+      // If we strictly want creation ONCE, we should separate creation.
+    };
+  }, [map, offsetPosition]);
+
+  useEffect(() => {
     return () => {
       if (markerRef.current) {
         markerRef.current.map = null;
         markerRef.current = null;
       }
     };
-  }, [map]);
-
-  useEffect(() => {
-    if (!markerRef.current) return;
-    markerRef.current.position = offsetPosition;
-  }, [offsetPosition]);
+  }, []);
 
   return <div ref={contentRef}>{children}</div>;
 }
