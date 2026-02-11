@@ -46,7 +46,7 @@ export default function LoginForm() {
         if (res.user.companyId) {
           router.push("/");
         } else {
-          router.push("/create-company");
+          router.push("/");
         }
       }
     } catch (error: any) {

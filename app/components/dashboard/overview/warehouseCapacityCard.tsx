@@ -1,9 +1,11 @@
 import { Divider, LinearProgress, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
-import { getWarehouseCapacityData } from "@/app/lib/analyticsUtils";
+interface WarehouseCapacityCardProps {
+  values: any[];
+}
 
-const WarehouseCapacityCard = () => {
-  const values = getWarehouseCapacityData();
+const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
+  if (!values) return null;
 
   return (
     <CustomCard sx={{ padding: "0 0 6px 0" }}>

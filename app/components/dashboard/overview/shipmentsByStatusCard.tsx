@@ -2,10 +2,12 @@
 import { Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { PieChart } from "@mui/x-charts";
-import { getShipmentStatusData } from "@/app/lib/analyticsUtils";
+interface ShipmentOnStatusCardProps {
+  values: string[];
+}
 
-const ShipmentOnStatusCard = () => {
-  const values = getShipmentStatusData();
+const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
+  if (!values) return null;
 
   const config: Record<string, { label: string; color: string }> = {
     IN_TRANSIT: { label: "In Transit", color: "#0088FE" },

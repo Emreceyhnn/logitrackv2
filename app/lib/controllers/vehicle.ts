@@ -3,14 +3,16 @@
 import { db } from "../db";
 import { VehicleStatus } from "@prisma/client";
 import { checkPermission } from "./utils/checkPermission";
+// import { getUserFromToken } from "./users"; // Deprecated in favor of middleware
+import { authenticatedAction } from "../auth-middleware";
 
-export const createVehicle = async (companyId: string, userId: string, vehicleData: any) => {
+export const createVehicle = authenticatedAction(async (user, vehicleData: any) => {
     try {
-        await checkPermission(userId, companyId, ["role_admin", "role_manager", "role_dispatcher"]);
+        await checkPermission(user.id, user.companyId, ["role_admin", "role_manager", "role_dispatcher"]);
 
         const vehicle = await db.vehicle.create({
             data: {
-                companyId,
+                companyId: user.companyId,
                 ...vehicleData,
             },
         });
@@ -19,14 +21,14 @@ export const createVehicle = async (companyId: string, userId: string, vehicleDa
         console.error("Failed to create vehicle:", error);
         throw error;
     }
-}
+});
 
-export const getVehicles = async (companyId: string, userId: string) => {
+export const getVehicles = authenticatedAction(async (user) => {
     try {
-        await checkPermission(userId, companyId);
+        await checkPermission(user.id, user.companyId);
 
         const vehicles = await db.vehicle.findMany({
-            where: { companyId },
+            where: { companyId: user.companyId },
             include: {
                 driver: {
                     include: {
@@ -34,6 +36,16 @@ export const getVehicles = async (companyId: string, userId: string) => {
                             select: { name: true, surname: true }
                         }
                     }
+                },
+                issues: {
+                    where: {
+                        status: { in: ["OPEN", "IN_PROGRESS"] }
+                    },
+                    orderBy: { createdAt: 'desc' }
+                },
+                documents: true,
+                maintenanceRecords: {
+                    orderBy: { date: 'desc' }
                 }
             },
             orderBy: { createdAt: 'desc' }
@@ -43,9 +55,9 @@ export const getVehicles = async (companyId: string, userId: string) => {
         console.error("Failed to get vehicles:", error);
         throw error;
     }
-}
+});
 
-export const getVehicleById = async (vehicleId: string, userId: string) => {
+export const getVehicleById = authenticatedAction(async (user, vehicleId: string) => {
     try {
 
         const vehicle = await db.vehicle.findUnique({
@@ -58,6 +70,9 @@ export const getVehicleById = async (vehicleId: string, userId: string) => {
                         }
                     }
                 },
+                issues: {
+                    orderBy: { createdAt: 'desc' }
+                },
                 maintenanceRecords: {
                     orderBy: { date: 'desc' },
                     take: 5
@@ -68,7 +83,7 @@ export const getVehicleById = async (vehicleId: string, userId: string) => {
         if (!vehicle) throw new Error("Vehicle not found");
 
         if (vehicle.companyId) {
-            await checkPermission(userId, vehicle.companyId);
+            await checkPermission(user.id, vehicle.companyId);
         }
 
         return vehicle;
@@ -76,9 +91,9 @@ export const getVehicleById = async (vehicleId: string, userId: string) => {
         console.error("Failed to get vehicle:", error);
         throw error;
     }
-}
+});
 
-export const updateVehicle = async (vehicleId: string, userId: string, data: any) => {
+export const updateVehicle = authenticatedAction(async (user, vehicleId: string, data: any) => {
     try {
         const existingVehicle = await db.vehicle.findUnique({
             where: { id: vehicleId },
@@ -87,7 +102,7 @@ export const updateVehicle = async (vehicleId: string, userId: string, data: any
 
         if (!existingVehicle?.companyId) throw new Error("Vehicle not found");
 
-        await checkPermission(userId, existingVehicle.companyId, ["role_admin", "role_manager", "role_dispatcher"]);
+        await checkPermission(user.id, existingVehicle.companyId, ["role_admin", "role_manager", "role_dispatcher"]);
 
         const updatedVehicle = await db.vehicle.update({
             where: { id: vehicleId },
@@ -102,9 +117,9 @@ export const updateVehicle = async (vehicleId: string, userId: string, data: any
         console.error("Failed to update vehicle:", error);
         throw error;
     }
-}
+});
 
-export const deleteVehicle = async (vehicleId: string, userId: string) => {
+export const deleteVehicle = authenticatedAction(async (user, vehicleId: string) => {
     try {
         const existingVehicle = await db.vehicle.findUnique({
             where: { id: vehicleId },
@@ -113,7 +128,7 @@ export const deleteVehicle = async (vehicleId: string, userId: string) => {
 
         if (!existingVehicle?.companyId) throw new Error("Vehicle not found");
 
-        await checkPermission(userId, existingVehicle.companyId, ["role_admin", "role_manager"]);
+        await checkPermission(user.id, existingVehicle.companyId, ["role_admin", "role_manager"]);
 
         await db.vehicle.delete({
             where: { id: vehicleId }
@@ -124,9 +139,9 @@ export const deleteVehicle = async (vehicleId: string, userId: string) => {
         console.error("Failed to delete vehicle:", error);
         throw error;
     }
-}
+});
 
-export const assignDriverToVehicle = async (vehicleId: string, driverId: string | null, userId: string) => {
+export const assignDriverToVehicle = authenticatedAction(async (user, vehicleId: string, driverId: string | null) => {
     try {
         const existingVehicle = await db.vehicle.findUnique({
             where: { id: vehicleId },
@@ -135,7 +150,7 @@ export const assignDriverToVehicle = async (vehicleId: string, driverId: string 
 
         if (!existingVehicle?.companyId) throw new Error("Vehicle not found");
 
-        await checkPermission(userId, existingVehicle.companyId, ["role_admin", "role_manager", "role_dispatcher"]);
+        await checkPermission(user.id, existingVehicle.companyId, ["role_admin", "role_manager", "role_dispatcher"]);
 
 
         if (driverId) {
@@ -190,18 +205,18 @@ export const assignDriverToVehicle = async (vehicleId: string, driverId: string 
         console.error("Failed to assign driver:", error);
         throw error;
     }
-}
+});
 
-export const updateVehicleStatus = async (vehicleId: string, status: VehicleStatus, userId: string) => {
+export const updateVehicleStatus = authenticatedAction(async (user, vehicleId: string, status: VehicleStatus) => {
     try {
-        return await updateVehicle(vehicleId, userId, { status });
+        return await updateVehicle(vehicleId, { status });
     } catch (error) {
         console.error("Failed to update status:", error);
         throw error;
     }
-}
+});
 
-export const addMaintenanceRecord = async (vehicleId: string, userId: string, recordData: { type: string, date: Date, cost: number, description?: string }) => {
+export const addMaintenanceRecord = authenticatedAction(async (user, vehicleId: string, recordData: { type: string, date: Date, cost: number, description?: string }) => {
     try {
         const existingVehicle = await db.vehicle.findUnique({
             where: { id: vehicleId },
@@ -210,7 +225,7 @@ export const addMaintenanceRecord = async (vehicleId: string, userId: string, re
 
         if (!existingVehicle?.companyId) throw new Error("Vehicle not found");
 
-        await checkPermission(userId, existingVehicle.companyId, ["role_admin", "role_manager"]);
+        await checkPermission(user.id, existingVehicle.companyId, ["role_admin", "role_manager"]);
 
         const record = await db.maintenanceRecord.create({
             data: {
@@ -230,4 +245,147 @@ export const addMaintenanceRecord = async (vehicleId: string, userId: string, re
         console.error("Failed to add maintenance record:", error);
         throw error;
     }
-}
+});
+
+export const getOpenIssuesForUser = authenticatedAction(async (user) => {
+    try {
+        if (!user || !user.companyId) { // Should be guaranteed by authenticatedAction but keeping for safety
+            throw new Error("Unauthorized");
+        }
+
+        const vehicles = await db.vehicle.findMany({
+            where: { companyId: user.companyId },
+            include: {
+                issues: {
+                    where: {
+                        status: { in: ["OPEN", "IN_PROGRESS"] }
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    include: {
+                        vehicle: {
+                            select: { plate: true }
+                        }
+                    }
+                }
+            }
+        });
+
+        const issues: any[] = [];
+        vehicles.forEach(v => {
+            if (v.issues && v.issues.length > 0) {
+                issues.push(...v.issues);
+            }
+        });
+
+        return issues.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    } catch (error) {
+        console.error("Failed to get open issues:", error);
+        return [];
+    }
+});
+
+export const getVehicleKpiCards = authenticatedAction(async (user) => {
+    try {
+
+        await checkPermission(user.id, user.companyId, ["role_admin", "role_manager", "role_dispatcher"]);
+
+        const vehicles = await db.vehicle.findMany({
+            where: { companyId: user.companyId },
+            select: {
+                id: true,
+                status: true,
+                _count: {
+                    select: {
+                        issues: {
+                            where: {
+                                status: { in: ["OPEN", "IN_PROGRESS"] }
+                            }
+                        },
+                        documents: {
+                            where: {
+                                expiryDate: {
+                                    lt: new Date()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        console.log(vehicles)
+        return vehicles;
+
+    } catch (error) {
+        console.error("Failed to get vehicle kpi cards:", error);
+        throw error;
+    }
+});
+
+export const getVehicleCapacityStats = authenticatedAction(async (user) => {
+    try {
+
+        await checkPermission(user.id, user.companyId, ["role_admin", "role_manager", "role_dispatcher"]);
+
+        const vehicles = await db.vehicle.findMany({
+            where: { companyId: user.companyId },
+            select: {
+                id: true,
+                plate: true,
+                maxLoadKg: true,
+            }
+        });
+        return vehicles;
+
+    } catch (error) {
+        console.error("Failed to get vehicle capacity stats:", error);
+        throw error;
+    }
+});
+export const getExpiringDocuments = authenticatedAction(async (user) => {
+    try {
+        await checkPermission(user.id, user.companyId, ["role_admin", "role_manager", "role_dispatcher"]);
+
+        // Fetch vehicles that have documents
+        const vehicles = await db.vehicle.findMany({
+            where: {
+                companyId: user.companyId,
+                documents: {
+                    some: {} // Check if vehicle has any documents
+                }
+            },
+            select: {
+                id: true,
+                plate: true,
+                documents: {
+                    select: {
+                        type: true,
+                        expiryDate: true
+                    }
+                }
+            }
+        });
+
+        // Flatten the structure to return a list of documents with vehicle plate
+        const expiringDocs: any[] = [];
+        vehicles.forEach(v => {
+            if (v.documents) {
+                v.documents.forEach((d: any) => {
+                    if (d.expiryDate) {
+                        expiringDocs.push({
+                            plate: v.plate,
+                            type: d.type,
+                            expiresOn: d.expiryDate
+                        });
+                    }
+                });
+            }
+        });
+
+        return expiringDocs;
+
+    } catch (error) {
+        console.error("Failed to fetch expiring documents:", error);
+        throw error;
+    }
+});

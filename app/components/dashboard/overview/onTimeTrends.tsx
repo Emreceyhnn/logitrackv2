@@ -1,12 +1,15 @@
 "use client";
 
-import { getOnTimeTrendsData } from "@/app/lib/analyticsUtils";
-import CustomCard from "../../cards/card";
 import { Divider, Stack, Typography } from "@mui/material";
 import { LineChart } from "@mui/x-charts";
+import CustomCard from "../../cards/card";
 
-const OnTimeTrendsCard = () => {
-  const values = getOnTimeTrendsData();
+interface OnTimeTrendsCardProps {
+  values: any[];
+}
+
+const OnTimeTrendsCard = ({ values }: OnTimeTrendsCardProps) => {
+  if (!values) return null;
 
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", minWidth: 400 }}>

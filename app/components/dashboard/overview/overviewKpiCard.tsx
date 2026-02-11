@@ -1,7 +1,6 @@
 "use client";
 
 import { Stack, useTheme } from "@mui/material";
-import { getOverviewKpis } from "@/app/lib/analyticsUtils";
 import StatCard from "../../cards/StatCard";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -12,11 +11,24 @@ import PersonIcon from "@mui/icons-material/Person";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import InventoryIcon from "@mui/icons-material/Inventory";
 
-const OverviewKpiCard = () => {
+interface OverviewKpiCardProps {
+  values: {
+    activeShipments: number;
+    delayedShipments: number;
+    vehiclesOnTrip: number;
+    vehiclesInService: number;
+    availableVehicles: number;
+    activeDrivers: number;
+    warehouses: number;
+    inventorySkus: number;
+  };
+}
+
+const OverviewKpiCard = ({ values }: OverviewKpiCardProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const values = getOverviewKpis();
+  if (!values) return null;
 
   const kpiItems = [
     {

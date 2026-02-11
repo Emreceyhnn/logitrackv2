@@ -1,10 +1,12 @@
-import { getLowStockItems } from "@/app/lib/analyticsUtils";
-import CustomCard from "../../cards/card";
 import { Divider, Stack, Typography } from "@mui/material";
+import CustomCard from "../../cards/card";
 import React from "react";
 
-const AlertInventoryCard = () => {
-  const inventory = getLowStockItems();
+interface AlertInventoryCardProps {
+  inventory: any[];
+}
+
+const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
 
   return (
     <CustomCard sx={{ padding: "0 0 6px 0" }}>

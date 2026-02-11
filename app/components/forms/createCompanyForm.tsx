@@ -20,7 +20,11 @@ interface CreateCompanyFormValues {
     avatarUrl?: string;
 }
 
-export default function CreateCompanyForm() {
+interface CreateCompanyFormProps {
+    onSuccess?: (company: any) => void;
+}
+
+export default function CreateCompanyForm({ onSuccess }: CreateCompanyFormProps) {
     const [loading, setLoading] = useState<boolean>(false);
     const router = useRouter();
 
@@ -29,13 +33,13 @@ export default function CreateCompanyForm() {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
             const user = JSON.parse(storedUser);
-            if (user.companyId) {
+            if (user.companyId && !onSuccess) {
                 router.push("/");
             }
         } else {
             router.push("/auth/sign-in");
         }
-    }, [router]);
+    }, [router, onSuccess]);
 
     const handleSubmit = async (
         values: CreateCompanyFormValues,
@@ -57,8 +61,12 @@ export default function CreateCompanyForm() {
             // Update local storage user with new company info
             localStorage.setItem("user", JSON.stringify(result.user));
 
-            router.push("/"); // Redirect to dashboard
-            router.refresh(); // Refresh to ensure server components update
+            if (onSuccess) {
+                onSuccess(result.company);
+            } else {
+                router.push("/overview"); // Redirect to dashboard
+                router.refresh(); // Refresh to ensure server components update
+            }
 
         } catch (error: any) {
             console.error("Failed to create company:", error);

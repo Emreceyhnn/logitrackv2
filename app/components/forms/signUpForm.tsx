@@ -57,7 +57,7 @@ export default function RegisterForm() {
         localStorage.setItem("token", res.token);
         // Also store user info if needed
         localStorage.setItem("user", JSON.stringify(res.user));
-        router.push("/create-company"); // Redirect to create company flow
+        router.push("/"); // Redirect to landing page to create company via modal
       }
     } catch (error: any) {
       console.error("Registration failed:", error);

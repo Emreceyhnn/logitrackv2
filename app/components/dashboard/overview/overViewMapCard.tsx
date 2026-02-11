@@ -1,9 +1,11 @@
 import CustomCard from "../../cards/card";
 import GoogleMapView from "@/app/components/map";
-import { getMapData } from "@/app/lib/analyticsUtils";
+interface OverviewMapCardProps {
+  values: any[];
+}
 
-const OverviewMapCard = () => {
-  const values = getMapData();
+const OverviewMapCard = ({ values }: OverviewMapCardProps) => {
+  if (!values) return null;
 
   return (
     <CustomCard sx={{ flexGrow: 10, p: 2 }}>

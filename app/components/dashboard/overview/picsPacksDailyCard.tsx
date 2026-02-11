@@ -1,9 +1,11 @@
 import { Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
-import { getPicksAndPacks } from "@/app/lib/analyticsUtils";
+interface PicksPacksDailyCardProps {
+  values: any;
+}
 
-const PicksPacksDailyCard = () => {
-  const { picks, packs } = getPicksAndPacks();
+const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
+  const { picks, packs } = values || { picks: 0, packs: 0 };
 
   return (
     <CustomCard sx={{ padding: "0 0 6px 0" }}>

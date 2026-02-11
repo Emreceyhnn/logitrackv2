@@ -2,10 +2,12 @@
 import { Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { BarChart } from "@mui/x-charts";
-import { getFuelByVehicleData } from "@/app/lib/analyticsUtils";
+interface FuelByVehicleCardProps {
+  values: any[];
+}
 
-const FuelByVehicleCard = () => {
-  const values = getFuelByVehicleData();
+const FuelByVehicleCard = ({ values }: FuelByVehicleCardProps) => {
+  if (!values) return null;
 
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", minWidth: 400 }}>

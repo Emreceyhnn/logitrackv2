@@ -96,9 +96,11 @@ const setType: Record<ActionType, ReactNode> = {
   ),
 };
 
-const ActionRequiredCard = () => {
-  const alerts: ActionRequiredItems[] =
-    getOpenAlerts() as ActionRequiredItems[];
+interface ActionRequiredCardProps {
+  alerts?: ActionRequiredItems[];
+}
+
+const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
 
   return (
     <CustomCard sx={{ padding: "0 0 6px 0" }}>

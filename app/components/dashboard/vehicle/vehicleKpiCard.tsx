@@ -1,8 +1,6 @@
 "use client";
 
 import { Stack, useTheme } from "@mui/material";
-import mockData from "@/app/lib/mockData.json";
-import { getVehicleKpis } from "@/app/lib/analyticsUtils";
 import StatCard from "../../cards/StatCard";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -10,29 +8,41 @@ import BuildIcon from "@mui/icons-material/Build";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import DescriptionIcon from "@mui/icons-material/Description";
+import { getVehicleKpiCards } from "@/app/lib/controllers/vehicle";
+import { useEffect, useState } from "react";
+
 
 const VehicleKpiCard = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const [fleet, setFleet] = useState<any[]>([]);
 
-  const fleet = mockData.fleet || [];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getVehicleKpiCards();
+        setFleet(data);
+        console.log(data);
+      } catch (error) {
+        console.error("Failed to fetch vehicle kpi data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+
   const totalVehicles = fleet.length;
   const available = fleet.filter((v) => v.status === "AVAILABLE").length;
-  const inService = fleet.filter((v) => v.status === "IN_SERVICE").length;
+  const inService = fleet.filter((v) => v.status === "MAINTENANCE").length;
   const onTrip = fleet.filter((v) => v.status === "ON_TRIP").length;
 
   const openIssues = fleet.reduce(
-    (acc, v) => acc + (v.maintenance?.openIssues?.length || 0),
+    (acc, v) => acc + (v._count?.issues || 0),
     0
   );
+
   const docsDueSoon = fleet.reduce(
-    (acc, v) =>
-      acc +
-      (v.documents?.filter(
-        (d) =>
-          new Date(d.expiresOn) <=
-          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-      ).length || 0),
+    (acc, v) => acc + (v._count?.documents || 0),
     0
   );
 

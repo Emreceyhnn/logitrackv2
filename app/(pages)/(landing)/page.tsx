@@ -17,45 +17,46 @@ import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import { alpha, keyframes } from "@mui/system";
+import LandingHeaderAuth from "@/app/components/landing/LandingHeaderAuth";
 
 const pulse = keyframes`
   0% {
     transform: scale(1);
     box-shadow: 0 0 10px ${alpha("#38bdf8", 0.25)}, 0 0 20px ${alpha(
-      "#38bdf8",
-      0.15
-    )};
+  "#38bdf8",
+  0.15
+)};
     opacity: 1;
   }
   25% {
     transform: scale(1.08);
     box-shadow: 0 0 25px ${alpha("#38bdf8", 0.4)}, 0 0 45px ${alpha(
-      "#38bdf8",
-      0.25
-    )};
+  "#38bdf8",
+  0.25
+)};
     opacity: 0.95;
   }
   50% {
     transform: scale(1.15);
     box-shadow: 0 0 40px ${alpha("#38bdf8", 0.6)}, 0 0 70px ${alpha(
-      "#38bdf8",
-      0.35
-    )};
+  "#38bdf8",
+  0.35
+)};
     opacity: 1;
   }
   75% {
     transform: scale(1.08);
     box-shadow: 0 0 25px ${alpha("#38bdf8", 0.4)}, 0 0 45px ${alpha(
-      "#38bdf8",
-      0.25
-    )};
+  "#38bdf8",
+  0.25
+)};
   }
   100% {
     transform: scale(1);
     box-shadow: 0 0 10px ${alpha("#38bdf8", 0.25)}, 0 0 20px ${alpha(
-      "#38bdf8",
-      0.15
-    )};
+  "#38bdf8",
+  0.15
+)};
     opacity: 1;
   }
 `;
@@ -287,36 +288,7 @@ export default function LandingPage() {
               )}
             </Stack>
 
-            <Stack direction="row" spacing={2}>
-              <Button
-                variant="text"
-                sx={{
-                  color: alpha("#e2e8f0", 0.8),
-                  fontWeight: 600,
-                  textTransform: "none",
-                  "&:hover": { color: "#38bdf8" },
-                }}
-                href="/auth/sign-in"
-              >
-                Login
-              </Button>
-              <Button
-                variant="contained"
-                sx={{
-                  textTransform: "none",
-                  fontWeight: 700,
-                  px: 3,
-                  borderRadius: "999px",
-                  background: "linear-gradient(135deg, #22d3ee, #2563eb)",
-                  boxShadow: "0 12px 30px rgba(37, 99, 235, 0.35)",
-                  "&:hover": {
-                    background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
-                  },
-                }}
-              >
-                Request a Demo
-              </Button>
-            </Stack>
+            <LandingHeaderAuth />
           </Toolbar>
         </AppBar>
 

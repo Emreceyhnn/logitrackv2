@@ -1,22 +1,38 @@
 "use client";
 
-import { getVehicleCapacityStats } from "@/app/lib/analyticsUtils";
+import { getVehicleCapacityStats } from "@/app/lib/controllers/vehicle";
 import CustomCard from "../../cards/card";
 import { Divider, Stack, Typography } from "@mui/material";
-import { LineChart } from "@mui/x-charts";
+import { BarChart } from "@mui/x-charts/BarChart";
+import { useEffect, useState } from "react";
 
 const VehicleCapacityChart = () => {
-  const vehicles = getVehicleCapacityStats();
-  const xAxisData = vehicles.map((v) => `${v.plate}`);
+
+  const [xAxisData, setxAxisData] = useState<any[]>([]);
+  const [yAxisData, setyAxisData] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getVehicleCapacityStats();
+        setxAxisData(data.map((v) => `${v.plate}`))
+        setyAxisData(data.map((v) => v.maxLoadKg))
+        console.log(data);
+      } catch (error) {
+        console.error("Failed to fetch vehicle kpi data:", error);
+      }
+    };
+    fetchData()
+  }, []);
 
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", flexGrow: 1 }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-        Expiring Soon
+        Vehicle Max Load Capacity
       </Typography>
       <Divider />
       <Stack>
-        <LineChart
+        <BarChart
           height={350}
           xAxis={[
             {
@@ -40,32 +56,14 @@ const VehicleCapacityChart = () => {
               label: "Max Weight (kg)",
               position: "right",
               min: 0,
-              max: 15000,
+              max: 25000,
             },
           ]}
           series={[
             {
-              yAxisId: "primary",
-              label: "Pallets",
-              data: vehicles.map((v) => v.capacity.pallets),
-              area: false,
-              showMark: true,
-              color: "#3f51b5",
-            },
-            {
-              yAxisId: "primary",
-              label: "Max Volume (m³)",
-              data: vehicles.map((v) => v.capacity.maxVolumeM3),
-              area: false,
-              showMark: false,
-              color: "#00bcd4",
-            },
-            {
               yAxisId: "secondary",
               label: "Max Weight (kg)",
-              data: vehicles.map((v) => v.capacity.maxWeightKg),
-              area: false,
-              showMark: true,
+              data: yAxisData,
               color: "#ff9800",
             },
           ]}

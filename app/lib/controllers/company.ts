@@ -23,9 +23,14 @@ export async function createCompany(userId: string, name: string, avatarUrl?: st
         });
 
 
+
+        const role = await db.role.findFirst({
+            where: { name: { equals: "Administrator", mode: "insensitive" } }
+        });
+
         const updatedUser = await db.user.update({
             where: { id: userId },
-            data: { roleId: "role_admin" }
+            data: { roleId: role?.id } // Use verified role ID
         });
 
 
