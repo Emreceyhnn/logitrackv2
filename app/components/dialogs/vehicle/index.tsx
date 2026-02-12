@@ -15,7 +15,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { Vehicle } from "@/app/lib/type/VehicleType";
+import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useState } from "react";
 import OverviewTab from "./overviewTab";
 import DocumentsTab from "./documentsTab";
@@ -35,7 +35,7 @@ interface TabPanelProps {
 interface VehicleDialogParams {
   open: boolean;
   onClose: () => void;
-  vehicleData?: Vehicle;
+  vehicleData?: VehicleWithRelations;
 }
 
 function CustomTabPanel(props: TabPanelProps) {

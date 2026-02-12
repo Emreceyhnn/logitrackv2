@@ -1,5 +1,3 @@
-"use client";
-
 import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -8,29 +6,26 @@ import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import type { PickersDayProps } from "@mui/x-date-pickers/PickersDay";
 import { Badge, Divider, Tooltip, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
-import { getExpiringDocuments } from "@/app/lib/controllers/vehicle";
-import { useEffect, useState } from "react";
 
-const DocumentCalenderCard = () => {
-  const [values, setValues] = useState<any[]>([]);
+interface VehicleDocument {
+  id: string;
+  plate: string;
+  documentType: string;
+  expiryDate: Date | null;
+}
 
-  useEffect(() => {
-    const fetchDocs = async () => {
-      try {
-        const docs = await getExpiringDocuments();
-        setValues(docs);
-      } catch (error) {
-        console.error("Failed to fetch documents", error);
-      }
-    };
-    fetchDocs();
-  }, []);
+interface VehicleDocumentCalenderCardProps {
+  data?: VehicleDocument[];
+}
 
+const DocumentCalenderCard = ({
+  data = [],
+}: VehicleDocumentCalenderCardProps) => {
   const DocumentDay = (props: PickersDayProps) => {
     const { day, ...other } = props;
 
-    const docsForDay = values.filter((d) =>
-      dayjs(d.expiresOn).isSame(day, "day")
+    const docsForDay = data.filter((d) =>
+      d.expiryDate ? dayjs(d.expiryDate).isSame(day, "day") : false
     );
 
     if (docsForDay.length === 0) {
@@ -40,9 +35,7 @@ const DocumentCalenderCard = () => {
     return (
       <Tooltip
         title={docsForDay
-          .map((d: any) => {
-            return `${d.type} - ${d.plate}`;
-          })
+          .map((d) => `${d.documentType} - ${d.plate}`)
           .join(", ")}
         arrow
       >

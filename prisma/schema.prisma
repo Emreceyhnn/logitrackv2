@@ -179,6 +179,9 @@ model Vehicle {
   companyId String?
   company   Company? @relation(fields: [companyId], references: [id])
 
+  nextServiceKm    Int?
+  avgFuelConsumption Float?
+
   maintenanceRecords MaintenanceRecord[]
   routes             Route[]
   documents          Document[]
@@ -396,6 +399,7 @@ model Document {
   name       String
   url        String
   expiryDate DateTime?
+  status     String
 
   // Relations - A document can belong to a Driver OR a Vehicle
   driverId String?

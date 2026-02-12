@@ -11,12 +11,12 @@ import {
   TableRow,
   Divider,
 } from "@mui/material";
-import { Vehicle } from "@/app/lib/type/VehicleType";
+import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import BuildIcon from "@mui/icons-material/Build";
 import { PriorityChip } from "../../chips/priorityChips";
 
 interface OverviewTabProps {
-  vehicle?: Vehicle;
+  vehicle?: VehicleWithRelations;
 }
 
 const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
@@ -24,7 +24,11 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
     return <Typography color="text.secondary">No vehicle selected</Typography>;
   }
 
-  const maintenanceHistory = (vehicle.maintenance.history || []).slice(-4);
+  const maintenanceHistory = (vehicle.maintenanceRecords || []).slice(-4);
+  const openIssues =
+    vehicle.issues?.filter(
+      (i) => i.status === "OPEN" || i.status === "IN_PROGRESS"
+    ) || [];
 
   return (
     <Stack spacing={2} maxHeight={750}>
@@ -52,9 +56,9 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
             <BuildIcon sx={{ fontSize: 18, color: "text.secondary" }} />
           </Stack>
           <Typography sx={{ fontSize: 24, fontWeight: 800 }}>
-            {vehicle.maintenance.nextServiceKm -
-              vehicle.currentStatus.odometerKm}{" "}
-            km
+            {vehicle.nextServiceKm && vehicle.odometerKm
+              ? `${vehicle.nextServiceKm - vehicle.odometerKm} km`
+              : "N/A"}
           </Typography>
           <Typography
             sx={{ fontSize: 14, fontWeight: 200, color: "text.secondary" }}
@@ -75,7 +79,7 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
             <Typography
               sx={{ fontSize: 14, fontWeight: 300, color: "info.main" }}
             >
-              {vehicle.maintenance.nextServiceDate}
+              {vehicle.nextServiceKm ? "Calculated based on km" : "N/A"}
             </Typography>
           </Stack>
         </Card>
@@ -93,7 +97,7 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
             </Button>
           </Stack>
           <Stack maxHeight={190} overflow={"auto"}>
-            {(vehicle.maintenance.openIssues || []).map((i, index) => (
+            {openIssues.map((i, index) => (
               <Card
                 key={index}
                 sx={{
@@ -117,7 +121,7 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
                 />
                 <Stack>
                   <Typography sx={{ fontSize: 16, fontWeight: 400 }}>
-                    Brake Pads Wear
+                    {i.title}
                   </Typography>
                   <Typography
                     sx={{
@@ -126,10 +130,10 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
                       color: "text.secondary",
                     }}
                   >
-                    Reported on {i.createdAt}
+                    Reported on {new Date(i.createdAt).toLocaleDateString()}
                   </Typography>
                 </Stack>
-                <PriorityChip status={i.severity} />
+                <PriorityChip status={i.priority} />
               </Card>
             ))}
           </Stack>
@@ -161,12 +165,12 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
                     </Typography>
                   </TableCell>
                   <TableCell align="left">
-                    <Typography sx={{ fontSize: 12 }}>
-                      {v.serviceType}
-                    </Typography>
+                    <Typography sx={{ fontSize: 12 }}>{v.type}</Typography>
                   </TableCell>
-                  <TableCell align="left">{v.technician}</TableCell>
-                  <TableCell align="left">{`${v.cost} ${v.currency}`}</TableCell>
+                  <TableCell align="left">
+                    {v.description?.split(":")[1] || "N/A"}
+                  </TableCell>
+                  <TableCell align="left">{`$${v.cost}`}</TableCell>
                   <TableCell align="left">
                     <Box
                       sx={{
@@ -179,7 +183,7 @@ const MaintenanceTab = ({ vehicle }: OverviewTabProps) => {
                       <Typography
                         sx={{ fontSize: 14, color: "rgba(255,255,255,0.8)" }}
                       >
-                        {v.status}
+                        COMPLETED
                       </Typography>
                     </Box>
                   </TableCell>

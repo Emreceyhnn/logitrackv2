@@ -1,30 +1,16 @@
-"use client";
-
-import { getVehicleCapacityStats } from "@/app/lib/controllers/vehicle";
 import CustomCard from "../../cards/card";
 import { Divider, Stack, Typography } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { useEffect, useState } from "react";
 
-const VehicleCapacityChart = () => {
+interface VehicleCapacityChartProps {
+  data: {
+    id: string;
+    plate: string;
+    maxLoadKg: number;
+  }[];
+}
 
-  const [xAxisData, setxAxisData] = useState<any[]>([]);
-  const [yAxisData, setyAxisData] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getVehicleCapacityStats();
-        setxAxisData(data.map((v) => `${v.plate}`))
-        setyAxisData(data.map((v) => v.maxLoadKg))
-        console.log(data);
-      } catch (error) {
-        console.error("Failed to fetch vehicle kpi data:", error);
-      }
-    };
-    fetchData()
-  }, []);
-
+const VehicleCapacityChart = ({ data }: VehicleCapacityChartProps) => {
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", flexGrow: 1 }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
@@ -37,7 +23,7 @@ const VehicleCapacityChart = () => {
           xAxis={[
             {
               scaleType: "band",
-              data: xAxisData,
+              data: data?.map((v) => v.plate),
               label: "Vehicle Plate",
 
               labelStyle: { fill: "#6b7280" },
@@ -63,7 +49,7 @@ const VehicleCapacityChart = () => {
             {
               yAxisId: "secondary",
               label: "Max Weight (kg)",
-              data: yAxisData,
+              data: data?.map((v) => v.maxLoadKg),
               color: "#ff9800",
             },
           ]}

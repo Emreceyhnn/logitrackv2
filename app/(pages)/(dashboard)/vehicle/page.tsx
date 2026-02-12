@@ -4,27 +4,22 @@ import DocumentCalenderCard from "@/app/components/dashboard/vehicle/documentCal
 import VehicleCapacityChart from "@/app/components/dashboard/vehicle/maxLoad";
 import VehicleKpiCard from "@/app/components/dashboard/vehicle/vehicleKpiCard";
 import VehicleTable from "@/app/components/dashboard/vehicle/vehicleTable";
-import VehicleIssuesCard from "@/app/components/dashboard/vehicle/VehicleIssuesCard";
+import { getVehiclesDashboardData } from "@/app/lib/controllers/vehicle";
+import { VehicleDashboardResponseType } from "@/app/lib/type/vehicle";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getOpenIssuesForUser } from "@/app/lib/controllers/vehicle";
 
 export default function VehiclePage() {
-  const [issues, setIssues] = useState<any[]>([]);
+  const [vehicleData, setVehicleData] =
+    useState<VehicleDashboardResponseType | null>(null);
 
   useEffect(() => {
-    const fetchIssues = async () => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        try {
-          const data = await getOpenIssuesForUser(token);
-          setIssues(data);
-        } catch (error) {
-          console.error("Failed to fetch issues:", error);
-        }
-      }
+    const fetchData = async () => {
+      const data = await getVehiclesDashboardData();
+      setVehicleData(data);
+      console.log(data);
     };
-    fetchIssues();
+    fetchData();
   }, []);
 
   return (
@@ -39,16 +34,15 @@ export default function VehiclePage() {
         Vehicles
       </Typography>
       <Divider />
-      <VehicleKpiCard />
-
-
+      <VehicleKpiCard {...(vehicleData?.vehiclesKpis || {})} />
 
       <Stack mt={2}>
         <VehicleTable />
       </Stack>
-      <Stack mt={2} direction={"row"} spacing={2}>
-        <DocumentCalenderCard />
-        <VehicleCapacityChart />
+      <Stack mt={2} direction={{ xs: "column", md: "row" }} spacing={2}>
+        <DocumentCalenderCard data={vehicleData?.expiringDocs || []} />
+
+        <VehicleCapacityChart data={vehicleData?.vehiclesCapacity || []} />
       </Stack>
     </Box>
   );

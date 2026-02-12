@@ -1,4 +1,4 @@
-import { Vehicle } from "@/app/lib/type/VehicleType";
+import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { Stack, Typography, LinearProgress, Card, Button } from "@mui/material";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import SpeedIcon from "@mui/icons-material/Speed";
@@ -7,7 +7,7 @@ import OilBarrelIcon from "@mui/icons-material/OilBarrel";
 import MapVehicleOverviewCard from "./map";
 
 interface OverviewTabProps {
-  vehicle?: Vehicle;
+  vehicle?: VehicleWithRelations;
 }
 
 const OverviewTab = ({ vehicle }: OverviewTabProps) => {
@@ -37,12 +37,10 @@ const OverviewTab = ({ vehicle }: OverviewTabProps) => {
             }}
           >
             <Typography sx={{ fontSize: 16 }}>Fuel Level</Typography>
-            <Typography sx={{ fontSize: 20 }}>
-              %{vehicle.currentStatus.fuelLevelPct}
-            </Typography>
+            <Typography sx={{ fontSize: 20 }}>%{vehicle.fuelLevel}</Typography>
             <LinearProgress
               variant="determinate"
-              value={vehicle.currentStatus.fuelLevelPct}
+              value={vehicle.fuelLevel ?? 0}
               sx={{ width: 100, height: 5 }}
             />
             <LocalGasStationIcon sx={{ fontSize: 24, marginTop: "auto" }} />
@@ -60,7 +58,7 @@ const OverviewTab = ({ vehicle }: OverviewTabProps) => {
           >
             <Typography sx={{ fontSize: 16 }}>Odometer</Typography>
             <Typography sx={{ fontSize: 20 }}>
-              {vehicle.currentStatus.odometerKm.toLocaleString("en-US")} km
+              {vehicle.odometerKm?.toLocaleString("en-US")} km
             </Typography>
             <SpeedIcon sx={{ fontSize: 24, marginTop: "auto" }} />
           </Card>
@@ -79,10 +77,11 @@ const OverviewTab = ({ vehicle }: OverviewTabProps) => {
           >
             <Typography sx={{ fontSize: 16 }}>Next Service</Typography>
             <Typography sx={{ fontSize: 20 }}>
-              {(
-                vehicle.maintenance.nextServiceKm -
-                vehicle.currentStatus.odometerKm
-              ).toLocaleString("en-US")}{" "}
+              {vehicle?.nextServiceKm && vehicle?.odometerKm
+                ? (vehicle.nextServiceKm - vehicle.odometerKm).toLocaleString(
+                    "en-US"
+                  )
+                : "N/A"}{" "}
               km left
             </Typography>
             <ConstructionIcon sx={{ fontSize: 24, marginTop: "auto" }} />
@@ -100,9 +99,7 @@ const OverviewTab = ({ vehicle }: OverviewTabProps) => {
           >
             <Typography sx={{ fontSize: 16 }}>Fuel Consumption</Typography>
             <Typography sx={{ fontSize: 20 }}>
-              {vehicle.specs.mpg
-                ? (235.21 / vehicle.specs.mpg).toFixed(1)
-                : "N/A"}
+              {vehicle?.avgFuelConsumption?.toLocaleString("en-US")} L/100km
             </Typography>
             <OilBarrelIcon sx={{ fontSize: 24, marginTop: "auto" }} />
           </Card>

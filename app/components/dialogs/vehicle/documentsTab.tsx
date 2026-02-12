@@ -15,11 +15,11 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
 import WarningIcon from "@mui/icons-material/Warning";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import { Vehicle } from "@/app/lib/type/VehicleType";
 import { StatusChip } from "../../chips/statusChips";
+import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 
 interface OverviewTabProps {
-  vehicle?: Vehicle;
+  vehicle?: VehicleWithRelations;
 }
 
 const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
@@ -27,21 +27,52 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
     return <Typography color="text.secondary">No vehicle selected</Typography>;
   }
 
+  const now = new Date();
+  const oneMonthLater = new Date();
+  oneMonthLater.setMonth(now.getMonth() + 1);
+
+  const activeCount = vehicle.documents.filter(
+    (d) => d.expiryDate && d.expiryDate > now
+  ).length;
+
+  const expiringSoonCount = vehicle.documents.filter((d) => {
+    if (!d.expiryDate) return false;
+
+    const expiry = new Date(d.expiryDate);
+
+    return expiry > now && expiry <= oneMonthLater;
+  }).length;
+
+  const missingOrExpiredCount = vehicle.documents.filter((d) => {
+    if (!d.expiryDate) return true;
+
+    const expiry = new Date(d.expiryDate);
+
+    return expiry <= now;
+  }).length;
+
+  const lastUploadDate = vehicle.documents.reduce((latest, d) => {
+    if (!d.expiryDate) return latest;
+
+    const expiry = new Date(d.expiryDate);
+
+    return expiry > latest ? expiry : latest;
+  }, new Date(0));
+
   return (
     <Stack
       spacing={2}
       direction={"row"}
       maxHeight={450}
       height={"100%"}
-      justifyContent={"space-center"}
+      alignItems={"start"}
     >
-      <Stack spacing={2}>
+      <Stack spacing={2} sx={{ flexGrow: 1 }}>
         <Stack spacing={2} direction={"row"}>
           <Card
             sx={{
               p: 2,
               borderRadius: "8px",
-              maxWidth: 300,
               width: "100%",
               gap: 2,
             }}
@@ -60,13 +91,14 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
               <CheckCircleIcon sx={{ width: 18, height: 19 }} />
             </Box>
             <Typography sx={{ fontSize: 22 }}>Active</Typography>
-            <Typography sx={{ fontSize: 18, marginTop: "auto" }}>4</Typography>
+            <Typography sx={{ fontSize: 18, marginTop: "auto" }}>
+              {activeCount}
+            </Typography>
           </Card>
           <Card
             sx={{
               p: 2,
               borderRadius: "8px",
-              maxWidth: 300,
               width: "100%",
               gap: 2,
             }}
@@ -85,7 +117,9 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
               <QueryBuilderIcon sx={{ width: 18, height: 19 }} />
             </Box>
             <Typography sx={{ fontSize: 22 }}>Expiring Soon</Typography>
-            <Typography sx={{ fontSize: 18, marginTop: "auto" }}>4</Typography>
+            <Typography sx={{ fontSize: 18, marginTop: "auto" }}>
+              {expiringSoonCount}
+            </Typography>
           </Card>
         </Stack>
         <Stack spacing={2} direction={"row"}>
@@ -93,7 +127,6 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
             sx={{
               p: 2,
               borderRadius: "8px",
-              maxWidth: 300,
               width: "100%",
               gap: 2,
             }}
@@ -112,13 +145,14 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
               <WarningIcon sx={{ width: 18, height: 19 }} />
             </Box>
             <Typography sx={{ fontSize: 22 }}>Missing / Expired</Typography>
-            <Typography sx={{ fontSize: 18, marginTop: "auto" }}>4</Typography>
+            <Typography sx={{ fontSize: 18, marginTop: "auto" }}>
+              {missingOrExpiredCount}
+            </Typography>
           </Card>
           <Card
             sx={{
               p: 2,
               borderRadius: "8px",
-              maxWidth: 300,
               width: "100%",
               gap: 2,
             }}
@@ -138,7 +172,7 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
             </Box>
             <Typography sx={{ fontSize: 22 }}>Last Upload</Typography>
             <Typography sx={{ fontSize: 18, marginTop: "auto" }}>
-              1 Oct 2025
+              {lastUploadDate.toLocaleDateString()}
             </Typography>
           </Card>
         </Stack>
@@ -167,7 +201,11 @@ const DocumentsTab = ({ vehicle }: OverviewTabProps) => {
                   <TableCell>
                     <StatusChip status={v.status} />
                   </TableCell>
-                  <TableCell>{v.expiresOn}</TableCell>
+                  <TableCell>
+                    {v.expiryDate
+                      ? new Date(v.expiryDate).toLocaleDateString()
+                      : "N/A"}
+                  </TableCell>
                   <TableCell align="center">
                     <IconButton sx={{ bgcolor: "success.main" }}>
                       <FileUploadIcon sx={{ width: 15, height: 15 }} />

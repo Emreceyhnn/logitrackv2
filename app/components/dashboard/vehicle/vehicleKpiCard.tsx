@@ -8,78 +8,61 @@ import BuildIcon from "@mui/icons-material/Build";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import DescriptionIcon from "@mui/icons-material/Description";
-import { getVehicleKpiCards } from "@/app/lib/controllers/vehicle";
-import { useEffect, useState } from "react";
 
+interface Props {
+  totalVehicles?: number;
+  available?: number;
+  inService?: number;
+  onTrip?: number;
+  openIssues?: number;
+  docsDueSoon?: number;
+}
 
-const VehicleKpiCard = () => {
+const VehicleKpiCard = ({
+  totalVehicles,
+  available,
+  inService,
+  onTrip,
+  openIssues,
+  docsDueSoon,
+}: Props) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
-  const [fleet, setFleet] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getVehicleKpiCards();
-        setFleet(data);
-        console.log(data);
-      } catch (error) {
-        console.error("Failed to fetch vehicle kpi data:", error);
-      }
-    };
-    fetchData();
-  }, []);
-
-
-  const totalVehicles = fleet.length;
-  const available = fleet.filter((v) => v.status === "AVAILABLE").length;
-  const inService = fleet.filter((v) => v.status === "MAINTENANCE").length;
-  const onTrip = fleet.filter((v) => v.status === "ON_TRIP").length;
-
-  const openIssues = fleet.reduce(
-    (acc, v) => acc + (v._count?.issues || 0),
-    0
-  );
-
-  const docsDueSoon = fleet.reduce(
-    (acc, v) => acc + (v._count?.documents || 0),
-    0
-  );
 
   const kpiItems = [
     {
       label: "Total Vehicle",
-      value: totalVehicles,
+      value: totalVehicles ?? 0,
       icon: <LocalShippingIcon />,
       color: theme.palette.primary.main,
     },
     {
       label: "Available Vehicle",
-      value: available,
+      value: available ?? 0,
       icon: <CheckCircleIcon />,
       color: theme.palette.success.main,
     },
     {
       label: "Vehicle in Service",
-      value: inService,
+      value: inService ?? 0,
       icon: <BuildIcon />,
       color: theme.palette.warning.main,
     },
     {
       label: "Vehicles On Trip",
-      value: onTrip,
+      value: onTrip ?? 0,
       icon: <DirectionsCarIcon />,
       color: theme.palette.info.main,
     },
     {
       label: "Open Issues",
-      value: openIssues,
+      value: openIssues ?? 0,
       icon: <ReportProblemIcon />,
       color: theme.palette.error.main,
     },
     {
       label: "Docs Due Soon",
-      value: docsDueSoon,
+      value: docsDueSoon ?? 0,
       icon: <DescriptionIcon />,
       color: theme.palette.secondary.main,
     },
