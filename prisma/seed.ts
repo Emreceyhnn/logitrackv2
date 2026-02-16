@@ -141,6 +141,19 @@ async function main() {
       ? 235.21 / veh.specs.mpg
       : Math.random() * 5 + 8; // Random between 8-13 L/100km
 
+    // Generate realistic future dates for registration and inspection
+    // Registration: 6-24 months in the future
+    const registrationMonths = Math.floor(Math.random() * 18) + 6;
+    const registrationExpiry = new Date();
+    registrationExpiry.setMonth(
+      registrationExpiry.getMonth() + registrationMonths
+    );
+
+    // Inspection: 3-12 months in the future
+    const inspectionMonths = Math.floor(Math.random() * 9) + 3;
+    const inspectionExpiry = new Date();
+    inspectionExpiry.setMonth(inspectionExpiry.getMonth() + inspectionMonths);
+
     await prisma.vehicle.create({
       data: {
         id: veh.id,
@@ -159,6 +172,8 @@ async function main() {
         odometerKm: currentOdometer,
         nextServiceKm: nextService,
         avgFuelConsumption: parseFloat(avgConsumption.toFixed(1)),
+        registrationExpiry: registrationExpiry,
+        inspectionExpiry: inspectionExpiry,
         companyId: COMPANY_ID,
         maintenanceRecords: {
           create:

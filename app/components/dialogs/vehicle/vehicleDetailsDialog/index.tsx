@@ -8,6 +8,8 @@ import {
   Chip,
   Dialog,
   DialogContent,
+  DialogActions,
+  DialogTitle,
   IconButton,
   Stack,
   Tab,
@@ -22,9 +24,13 @@ import DocumentsTab from "./documentsTab";
 import MaintenanceTab from "./maintenance";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import WarningIcon from "@mui/icons-material/Warning";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
+import EditVehicleDialog from "../editVehicleDialog";
+import { deleteVehicle } from "@/app/lib/controllers/vehicle";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -36,6 +42,8 @@ interface VehicleDialogParams {
   open: boolean;
   onClose: () => void;
   vehicleData?: VehicleWithRelations;
+  onEditSuccess?: () => void;
+  onDeleteSuccess?: () => void;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -75,14 +83,51 @@ const getStatusMeta = (status?: string) => {
 };
 
 const VehicleDialog = (params: VehicleDialogParams) => {
-  const { open, onClose, vehicleData } = params;
+  const { open, onClose, vehicleData, onEditSuccess, onDeleteSuccess } = params;
 
   const [value, setValue] = useState(0);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const theme = useTheme();
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+  };
+
+  const handleEditClick = () => {
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    setEditDialogOpen(false);
+    onEditSuccess?.();
+  };
+
+  const handleDeleteClick = () => {
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!vehicleData) return;
+
+    try {
+      setIsDeleting(true);
+      await deleteVehicle(vehicleData.id);
+      setDeleteConfirmOpen(false);
+      onClose();
+      onDeleteSuccess?.();
+    } catch (error) {
+      console.error("Failed to delete vehicle:", error);
+      // Could add error toast here
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirmOpen(false);
   };
 
   const statusMeta = getStatusMeta(vehicleData?.status);
@@ -172,6 +217,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
               variant="outlined"
               startIcon={<EditIcon />}
               size="small"
+              onClick={handleEditClick}
               sx={{
                 textTransform: "none",
                 borderColor: theme.palette.divider,
@@ -214,16 +260,138 @@ const VehicleDialog = (params: VehicleDialogParams) => {
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
-            <OverviewTab vehicle={vehicleData} />
+            <OverviewTab vehicle={vehicleData} onUpdate={onEditSuccess} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
-            <DocumentsTab vehicle={vehicleData} />
+            <DocumentsTab vehicle={vehicleData} onUpdate={onEditSuccess} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
-            <MaintenanceTab vehicle={vehicleData} />
+            <MaintenanceTab vehicle={vehicleData} onUpdate={onEditSuccess} />
           </CustomTabPanel>
         </Stack>
+
+        {/* Delete Button Section */}
+        <Box
+          sx={{
+            p: 3,
+            borderTop: `1px solid ${theme.palette.divider}`,
+            bgcolor: alpha(theme.palette.error.main, 0.02),
+          }}
+        >
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Box>
+              <Typography variant="body2" fontWeight={600} color="text.primary">
+                Delete Vehicle
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Permanently remove this vehicle from the system
+              </Typography>
+            </Box>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={handleDeleteClick}
+              sx={{
+                textTransform: "none",
+                borderWidth: 1.5,
+                "&:hover": {
+                  borderWidth: 1.5,
+                  bgcolor: alpha(theme.palette.error.main, 0.05),
+                },
+              }}
+            >
+              Delete Vehicle
+            </Button>
+          </Stack>
+        </Box>
       </DialogContent>
+
+      {vehicleData && (
+        <EditVehicleDialog
+          open={editDialogOpen}
+          onClose={() => setEditDialogOpen(false)}
+          onSuccess={handleEditSuccess}
+          vehicle={vehicleData}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteConfirmOpen}
+        onClose={handleDeleteCancel}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            pb: 2,
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          <Box
+            sx={{
+              bgcolor: alpha(theme.palette.error.main, 0.1),
+              color: theme.palette.error.main,
+              p: 1,
+              borderRadius: 2,
+              display: "flex",
+            }}
+          >
+            <WarningIcon />
+          </Box>
+          <Box>
+            <Typography variant="h6" fontWeight={700}>
+              Delete Vehicle?
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              This action cannot be undone
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            Are you sure you want to delete{" "}
+            <strong>{vehicleData?.plate}</strong>? This will permanently remove
+            the vehicle and all associated data from the system.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, pt: 2 }}>
+          <Button
+            variant="outlined"
+            onClick={handleDeleteCancel}
+            disabled={isDeleting}
+            sx={{
+              textTransform: "none",
+              borderColor: theme.palette.divider,
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDeleteConfirm}
+            disabled={isDeleting}
+            sx={{
+              textTransform: "none",
+            }}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 };

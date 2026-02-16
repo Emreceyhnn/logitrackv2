@@ -1,6 +1,7 @@
 import {
   Issue,
   VehicleStatus,
+  VehicleType,
   Document,
   MaintenanceRecord,
   Route,
@@ -44,17 +45,26 @@ export interface VehicleDashboardResponseType {
   }[];
 }
 
-export interface DriverWithUser extends Driver {
-  user: User;
+export interface DriverWithUser {
+  id: string;
+  rating: number | null;
+  user: {
+    name: string;
+    surname: string;
+    avatarUrl: string | null;
+  };
 }
 
 export interface VehicleWithRelations {
   id: string;
+  fleetNo: string;
   plate: string;
   brand: string;
   model: string;
   year: number;
-  type: string;
+  type: VehicleType;
+  maxLoadKg: number;
+  fuelType: string;
   nextServiceKm: number | null;
   avgFuelConsumption: number | null;
   status: VehicleStatus;
@@ -67,4 +77,50 @@ export interface VehicleWithRelations {
   routes: Route[];
   createdAt: Date;
   updatedAt: Date;
+}
+
+// Filter types
+export interface VehicleFilters {
+  search?: string;
+  status?: VehicleStatus[];
+  type?: VehicleType[];
+  hasIssues?: boolean;
+  hasDriver?: boolean;
+}
+
+// Page state (centralized)
+export interface VehiclePageState {
+  vehicles: VehicleWithRelations[];
+  dashboardData: VehicleDashboardResponseType | null;
+  filters: VehicleFilters;
+  selectedVehicleId: string | null;
+  loading: boolean;
+  error: string | null;
+}
+
+// Page actions
+export interface VehiclePageActions {
+  fetchVehicles: () => Promise<void>;
+  fetchDashboardData: () => Promise<void>;
+  selectVehicle: (id: string | null) => void;
+  updateFilters: (filters: Partial<VehicleFilters>) => void;
+  refreshAll: () => Promise<void>;
+}
+
+// Component props
+export interface VehicleTableProps {
+  vehicles: VehicleWithRelations[];
+  onVehicleSelect: (id: string) => void;
+  loading: boolean;
+  onRefresh: () => void;
+}
+
+export interface VehicleKpiCardProps {
+  totalVehicles?: number;
+  available?: number;
+  inService?: number;
+  onTrip?: number;
+  openIssues?: number;
+  docsDueSoon?: number;
+  onClick?: (filterType: string) => void;
 }

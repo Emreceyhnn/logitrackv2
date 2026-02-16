@@ -1,6 +1,6 @@
 import GoogleMapView from "@/app/components/map";
 import mockData from "@/app/lib/mockData.json";
-import CustomCard from "../../cards/card";
+import CustomCard from "../../../cards/card";
 
 interface MapVehicleOverviewCardProps {
   id: string;

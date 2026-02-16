@@ -56,22 +56,22 @@ enum RouteStatus {
 // Models
 
 model Company {
-  id         String      @id @default(cuid())
-  name       String      @unique
-  avatarUrl  String?
-  users      User[]
-  warehouses Warehouse[]
-  vehicles   Vehicle[]
-  drivers    Driver[]
-  shipments  Shipment[]
-  routes     Route[]
-  customers  Customer[]
-  inventory  Inventory[]
+  id                 String              @id @default(cuid())
+  name               String              @unique
+  avatarUrl          String?
+  users              User[]
+  warehouses         Warehouse[]
+  vehicles           Vehicle[]
+  drivers            Driver[]
+  shipments          Shipment[]
+  routes             Route[]
+  customers          Customer[]
+  inventory          Inventory[]
   inventoryMovements InventoryMovement[]
-  documents  Document[]
-  issues     Issue[]
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  documents          Document[]
+  issues             Issue[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 
   @@map("companies")
 }
@@ -89,22 +89,22 @@ model Role {
 }
 
 model User {
-  id                String      @id @default(cuid())
-  username          String?     @unique
-  email             String      @unique
-  name              String
-  surname           String
-  password          String?
-  avatarUrl         String?
-  roleId            String?
-  role              Role?       @relation(fields: [roleId], references: [id])
-  status            UserStatus  @default(ACTIVE)
-  lastLoginAt       DateTime?
-  companyId         String?
-  company           Company?    @relation(fields: [companyId], references: [id])
+  id                 String              @id @default(cuid())
+  username           String?             @unique
+  email              String              @unique
+  name               String
+  surname            String
+  password           String?
+  avatarUrl          String?
+  roleId             String?
+  role               Role?               @relation(fields: [roleId], references: [id])
+  status             UserStatus          @default(ACTIVE)
+  lastLoginAt        DateTime?
+  companyId          String?
+  company            Company?            @relation(fields: [companyId], references: [id])
   // Relations
-  driver            Driver?
-  managedWarehouses Warehouse[] // Managers can manage multiple warehouses
+  driver             Driver?
+  managedWarehouses  Warehouse[] // Managers can manage multiple warehouses
   inventoryMovements InventoryMovement[]
 
   createdAt DateTime @default(now())
@@ -179,8 +179,10 @@ model Vehicle {
   companyId String?
   company   Company? @relation(fields: [companyId], references: [id])
 
-  nextServiceKm    Int?
+  nextServiceKm      Int?
   avgFuelConsumption Float?
+  registrationExpiry DateTime? // Ruhsat süresi
+  inspectionExpiry   DateTime? // Muayene süresi
 
   maintenanceRecords MaintenanceRecord[]
   routes             Route[]
@@ -223,8 +225,8 @@ model Warehouse {
   lng     Float?
 
   // Capacity
-  capacityPallets Int    @default(5000)
-  capacityVolumeM3 Int   @default(100000)
+  capacityPallets  Int     @default(5000)
+  capacityVolumeM3 Int     @default(100000)
   operatingHours   String? @default("08:00 - 18:00")
 
   // Management
@@ -418,28 +420,28 @@ model Document {
 }
 
 model Issue {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   title       String
   description String?
-  status      String   // OPEN, IN_PROGRESS, RESOLVED, CLOSED
-  priority    String   // LOW, MEDIUM, HIGH, CRITICAL
-  type        String   // VEHICLE, DRIVER, SHIPMENT, OTHER
+  status      String // OPEN, IN_PROGRESS, RESOLVED, CLOSED
+  priority    String // LOW, MEDIUM, HIGH, CRITICAL
+  type        String // VEHICLE, DRIVER, SHIPMENT, OTHER
 
   // Relations
-  vehicleId   String?
-  vehicle     Vehicle? @relation(fields: [vehicleId], references: [id])
-  
-  driverId    String?
-  driver      Driver?  @relation(fields: [driverId], references: [id])
-  
-  shipmentId  String?
-  shipment    Shipment? @relation(fields: [shipmentId], references: [id])
+  vehicleId String?
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
 
-  companyId   String?
-  company     Company?  @relation(fields: [companyId], references: [id])
+  driverId String?
+  driver   Driver? @relation(fields: [driverId], references: [id])
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  shipmentId String?
+  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("issues")
 }
