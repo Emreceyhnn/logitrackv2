@@ -20,6 +20,7 @@ import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import { useState, useEffect } from "react";
 import { createVehicleIssue } from "@/app/lib/controllers/vehicle";
 import * as Yup from "yup";
+import { vehicleReportIssueValidationSchema } from "@/app/lib/validationSchema";
 
 interface ReportIssueDialogProps {
   open: boolean;
@@ -34,17 +35,6 @@ interface IssueFormData {
   priority: string;
   description: string;
 }
-
-// Yup validation schema
-const validationSchema = Yup.object().shape({
-  title: Yup.string()
-    .required("Title is required")
-    .min(3, "Title must be at least 3 characters"),
-  priority: Yup.string()
-    .required("Priority is required")
-    .oneOf(["LOW", "MEDIUM", "HIGH", "CRITICAL"], "Invalid priority"),
-  description: Yup.string(),
-});
 
 const ReportIssueDialog = ({
   open,
@@ -125,8 +115,9 @@ const ReportIssueDialog = ({
 
   const handleSubmit = async () => {
     try {
-      // Validate with Yup
-      await validationSchema.validate(formData, { abortEarly: false });
+      await vehicleReportIssueValidationSchema.validate(formData, {
+        abortEarly: false,
+      });
       setFieldErrors({});
 
       setLoading(true);

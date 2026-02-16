@@ -6,7 +6,6 @@ import PersonIcon from "@mui/icons-material/Person";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import { ReactNode } from "react";
-import { getOpenAlerts } from "@/app/lib/analyticsUtils";
 
 export interface ActionRequiredItems {
   type: "vehicle" | "driver" | "SHIPMENT_DELAY" | "DOCUMENT_DUE" | "warehouse";
@@ -101,7 +100,6 @@ interface ActionRequiredCardProps {
 }
 
 const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
-
   return (
     <CustomCard sx={{ padding: "0 0 6px 0" }}>
       <Stack minWidth={400}>

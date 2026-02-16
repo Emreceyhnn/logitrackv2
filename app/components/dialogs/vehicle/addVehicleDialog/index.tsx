@@ -21,6 +21,7 @@ import { useState } from "react";
 import { createVehicle } from "@/app/lib/controllers/vehicle";
 import { VehicleType } from "@prisma/client";
 import * as Yup from "yup";
+import { addVehicleValidationSchema } from "@/app/lib/validationSchema";
 
 interface AddVehicleDialogProps {
   open: boolean;
@@ -55,46 +56,6 @@ const initialFormData: VehicleFormData = {
   nextServiceKm: "",
   avgFuelConsumption: "",
 };
-
-// Yup validation schema
-const validationSchema = Yup.object().shape({
-  fleetNo: Yup.string()
-    .required("Fleet number is required")
-    .min(3, "Fleet number must be at least 3 characters"),
-  plate: Yup.string()
-    .required("License plate is required")
-    .min(5, "License plate must be at least 5 characters"),
-  type: Yup.string()
-    .required("Vehicle type is required")
-    .oneOf(["TRUCK", "VAN"], "Invalid vehicle type"),
-  brand: Yup.string()
-    .required("Brand is required")
-    .min(2, "Brand must be at least 2 characters"),
-  model: Yup.string().required("Model is required").min(1, "Model is required"),
-  year: Yup.number()
-    .required("Year is required")
-    .min(1900, "Year must be after 1900")
-    .max(2100, "Year must be before 2100")
-    .integer("Year must be a whole number"),
-  maxLoadKg: Yup.number()
-    .required("Max load is required")
-    .min(1, "Max load must be greater than 0")
-    .integer("Max load must be a whole number"),
-  fuelType: Yup.string()
-    .required("Fuel type is required")
-    .oneOf(["DIESEL", "GASOLINE", "ELECTRIC", "HYBRID"], "Invalid fuel type"),
-  odometerKm: Yup.number()
-    .nullable()
-    .min(0, "Odometer cannot be negative")
-    .integer("Odometer must be a whole number"),
-  nextServiceKm: Yup.number()
-    .nullable()
-    .min(0, "Next service cannot be negative")
-    .integer("Next service must be a whole number"),
-  avgFuelConsumption: Yup.number()
-    .nullable()
-    .min(0, "Fuel consumption cannot be negative"),
-});
 
 const AddVehicleDialog = ({
   open,
@@ -156,8 +117,9 @@ const AddVehicleDialog = ({
 
   const handleSubmit = async () => {
     try {
-      // Validate with Yup
-      await validationSchema.validate(formData, { abortEarly: false });
+      await addVehicleValidationSchema.validate(formData, {
+        abortEarly: false,
+      });
       setFieldErrors({});
 
       setLoading(true);

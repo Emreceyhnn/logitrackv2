@@ -21,6 +21,7 @@ import { useState, useEffect } from "react";
 import { updateVehicle } from "@/app/lib/controllers/vehicle";
 import { VehicleType, VehicleStatus } from "@prisma/client";
 import * as Yup from "yup";
+import { editVehicleValidationSchema } from "@/app/lib/validationSchema";
 
 interface EditVehicleDialogProps {
   open: boolean;
@@ -55,43 +56,6 @@ interface VehicleFormData {
   nextServiceKm?: number | "";
   avgFuelConsumption?: number | "";
 }
-
-// Yup validation schema (excluding immutable fields like fleetNo and plate)
-const validationSchema = Yup.object().shape({
-  type: Yup.string()
-    .required("Vehicle type is required")
-    .oneOf(["TRUCK", "VAN"], "Invalid vehicle type"),
-  brand: Yup.string()
-    .required("Brand is required")
-    .min(2, "Brand must be at least 2 characters"),
-  model: Yup.string().required("Model is required").min(1, "Model is required"),
-  year: Yup.number()
-    .required("Year is required")
-    .min(1900, "Year must be after 1900")
-    .max(2100, "Year must be before 2100")
-    .integer("Year must be a whole number"),
-  maxLoadKg: Yup.number()
-    .required("Max load is required")
-    .min(1, "Max load must be greater than 0")
-    .integer("Max load must be a whole number"),
-  fuelType: Yup.string()
-    .required("Fuel type is required")
-    .oneOf(["DIESEL", "GASOLINE", "ELECTRIC", "HYBRID"], "Invalid fuel type"),
-  status: Yup.string()
-    .required("Status is required")
-    .oneOf(["AVAILABLE", "ON_TRIP", "MAINTENANCE"], "Invalid status"),
-  odometerKm: Yup.number()
-    .nullable()
-    .min(0, "Odometer cannot be negative")
-    .integer("Odometer must be a whole number"),
-  nextServiceKm: Yup.number()
-    .nullable()
-    .min(0, "Next service cannot be negative")
-    .integer("Next service must be a whole number"),
-  avgFuelConsumption: Yup.number()
-    .nullable()
-    .min(0, "Fuel consumption cannot be negative"),
-});
 
 const EditVehicleDialog = ({
   open,
@@ -174,7 +138,7 @@ const EditVehicleDialog = ({
   const handleChange = (field: keyof VehicleFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError(null);
-    // Clear field error when user types
+
     if (fieldErrors[field]) {
       setFieldErrors((prev) => {
         const newErrors = { ...prev };
@@ -186,8 +150,9 @@ const EditVehicleDialog = ({
 
   const handleSubmit = async () => {
     try {
-      // Validate with Yup
-      await validationSchema.validate(formData, { abortEarly: false });
+      await editVehicleValidationSchema.validate(formData, {
+        abortEarly: false,
+      });
       setFieldErrors({});
 
       setLoading(true);

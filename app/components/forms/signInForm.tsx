@@ -20,6 +20,7 @@ import CircularIndeterminate from "../loading";
 
 import { useRouter } from "next/navigation";
 import { LoginUser } from "@/app/lib/controllers/users";
+import { loginValidationSchema } from "@/app/lib/validationSchema";
 
 interface LoginFormValues {
   email: string;
@@ -62,11 +63,6 @@ export default function LoginForm() {
     setShowPassword(!showPassword);
   };
 
-  const LoginSchema = Yup.object({
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    password: Yup.string().required("Password is required"),
-  });
-
   return (
     <Box
       maxWidth={{ sm: 450, xs: "95%" }}
@@ -105,7 +101,7 @@ export default function LoginForm() {
         <Formik<LoginFormValues>
           initialValues={{ email: "", password: "" }}
           onSubmit={handleSubmit}
-          validationSchema={LoginSchema}
+          validationSchema={loginValidationSchema}
         >
           <Form>
             <Stack spacing={2} mt={3}>

@@ -19,6 +19,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import CircularIndeterminate from "../loading";
 import { RegisterUser } from "@/app/lib/controllers/users";
+import { registerValidationSchema } from "@/app/lib/validationSchema";
 
 interface RegisterFormValues {
   username: string;
@@ -76,24 +77,6 @@ export default function RegisterForm() {
     setShowRepeatPassword(!showRepeatPassword);
   };
 
-  const RegisterSchema = Yup.object({
-    username: Yup.string().min(3).max(20).required("Username is required"),
-    name: Yup.string().min(2).max(20).required("Name is required"),
-    surname: Yup.string().min(2).max(20).required("Surname is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    password: Yup.string()
-      .min(8, "Password must be at least 8 characters")
-      .max(64, "Password is too long")
-      .matches(/[a-z]/, "Password must contain a lowercase letter")
-      .matches(/[A-Z]/, "Password must contain an uppercase letter")
-      .matches(/[0-9]/, "Password must contain a number")
-      .matches(/[^a-zA-Z0-9]/, "Password must contain a special character")
-      .required("Password is required"),
-    repeatPassword: Yup.string()
-      .oneOf([Yup.ref("password")], "Passwords must match")
-      .required("Repeat password is required"),
-  });
-
   return (
     <Box
       maxWidth={{ sm: 450, xs: "95%" }}
@@ -139,7 +122,7 @@ export default function RegisterForm() {
             repeatPassword: "",
           }}
           onSubmit={handleSubmit}
-          validationSchema={RegisterSchema}
+          validationSchema={registerValidationSchema}
         >
           <Form>
             <Stack spacing={2} mt={3}>
