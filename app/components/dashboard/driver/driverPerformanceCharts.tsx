@@ -1,31 +1,68 @@
 "use client";
-import { Box, Stack, Typography, useTheme, Divider } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Typography,
+  useTheme,
+  Divider,
+  CircularProgress,
+} from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import CustomCard from "../../cards/card";
-import { useEffect, useState } from "react";
-import { getDriverPerformanceStats } from "@/app/lib/controllers/driver";
 
-const DriverPerformanceCharts = () => {
-  /* -------------------------------- variables ------------------------------- */
+interface DriverPerformanceChartsProps {
+  data:
+    | {
+        name: string;
+        rating: number;
+        workingHours: number;
+      }[]
+    | undefined;
+  loading?: boolean;
+}
+
+const DriverPerformanceCharts = ({
+  data,
+  loading,
+}: DriverPerformanceChartsProps) => {
   const theme = useTheme();
-  const [chartData, setChartData] = useState<{ name: string, fullName: string, rating: number, workingHours: number }[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getDriverPerformanceStats();
-        setChartData(data);
-      } catch (error) {
-        console.error("Failed to fetch driver performance stats:", error);
-      }
-    };
-    fetchData();
-  }, []);
+  if (loading) {
+    return (
+      <Stack direction={{ xs: "column", md: "row" }} spacing={2} mt={2}>
+        <Box flex={1}>
+          <CustomCard
+            sx={{
+              height: 300,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <CircularProgress />
+          </CustomCard>
+        </Box>
+        <Box flex={1}>
+          <CustomCard
+            sx={{
+              height: 300,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <CircularProgress />
+          </CustomCard>
+        </Box>
+      </Stack>
+    );
+  }
 
-  /* ---------------------------------- utils --------------------------------- */
-  const driverNames = chartData.map((d) => d.name);
-  const ratings = chartData.map((d) => d.rating);
-  const workingHours = chartData.map((d) => d.workingHours);
+  if (!data || data.length === 0) return null;
+
+  const driverNames = data.map((d) => d.name);
+  const ratings = data.map((d) => d.rating);
+  const workingHours = data.map((d) => d.workingHours);
 
   return (
     <Stack direction={{ xs: "column", md: "row" }} spacing={2} mt={2}>

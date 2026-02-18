@@ -18,7 +18,7 @@ import { uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs, { Dayjs } from "dayjs";
+import { Dayjs } from "dayjs";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 interface UploadDocumentDialogProps {
@@ -34,6 +34,7 @@ export default function UploadDocumentDialog({
   vehicleId,
   onSuccess,
 }: UploadDocumentDialogProps) {
+  /* --------------------------------- states --------------------------------- */
   const [type, setType] = useState("");
   const [name, setName] = useState("");
   const [expiryDate, setExpiryDate] = useState<Dayjs | null>(null);
@@ -41,6 +42,7 @@ export default function UploadDocumentDialog({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /* -------------------------------- handlers -------------------------------- */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
@@ -61,7 +63,6 @@ export default function UploadDocumentDialog({
     setError(null);
 
     try {
-      // Simulate file upload
       const fakeUrl = `https://storage.example.com/vehicles/${vehicleId}/${file.name}`;
 
       await uploadVehicleDocument(vehicleId, {

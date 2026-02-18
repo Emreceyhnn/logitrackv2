@@ -71,10 +71,10 @@ export const StatusChip = ({ status }: { status: string }) => {
         fontWeight: 500,
         lineHeight: 1.5,
         letterSpacing: "0.02857em",
-        textTransform: "none", // Changed from uppercase to allow our formatting
+        textTransform: "none",
         backgroundColor: getStatusColor(status).bgColor,
         color: getStatusColor(status).color,
-        border: "1px solid transparent", // Cleaner look usually, or match bg
+        border: "1px solid transparent",
         borderColor: getStatusColor(status).bgColor,
       }}
     />

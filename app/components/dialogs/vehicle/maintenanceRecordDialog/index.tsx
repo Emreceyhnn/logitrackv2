@@ -18,7 +18,7 @@ import { useState } from "react";
 import { addMaintenanceRecord } from "@/app/lib/controllers/vehicle";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 
 interface MaintenanceRecordDialogProps {
   open: boolean;
@@ -33,6 +33,7 @@ export default function MaintenanceRecordDialog({
   vehicleId,
   onSuccess,
 }: MaintenanceRecordDialogProps) {
+  /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState({
     type: "",
     date: dayjs(),
@@ -42,6 +43,7 @@ export default function MaintenanceRecordDialog({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /* -------------------------------- handlers -------------------------------- */
   const handleSubmit = async () => {
     if (!formData.type || !formData.date || !formData.cost) {
       setError("Please fill in all required fields.");

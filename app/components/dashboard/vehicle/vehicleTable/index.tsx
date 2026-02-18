@@ -57,7 +57,6 @@ const VehicleTable = ({
 
           <TableBody>
             {loading ? (
-              // Skeleton loading state
               Array.from(new Array(5)).map((_, index) => (
                 <TableRow key={index}>
                   <TableCell>

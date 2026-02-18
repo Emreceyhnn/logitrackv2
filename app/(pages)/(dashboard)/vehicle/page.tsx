@@ -11,7 +11,6 @@ import {
   getVehiclesDashboardData,
 } from "@/app/lib/controllers/vehicle";
 import {
-  VehicleDashboardResponseType,
   VehiclePageActions,
   VehiclePageState,
   VehicleWithRelations,
@@ -25,7 +24,7 @@ import { deleteVehicle } from "@/app/lib/controllers/vehicle";
 import VehicleToolbar from "@/app/components/dashboard/vehicle/toolbar";
 
 export default function VehiclePage() {
-  // Page State
+  /* --------------------------------- states --------------------------------- */
   const [state, setState] = useState<VehiclePageState>({
     vehicles: [],
     dashboardData: null,
@@ -34,7 +33,6 @@ export default function VehiclePage() {
     loading: true,
     error: null,
   });
-
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -42,7 +40,7 @@ export default function VehiclePage() {
     useState<VehicleWithRelations | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Data Fetching Actions
+  /* --------------------------------- actions -------------------------------- */
   const actions: VehiclePageActions = {
     fetchVehicles: useCallback(async () => {
       try {
@@ -65,7 +63,6 @@ export default function VehiclePage() {
         setState((prev) => ({ ...prev, dashboardData }));
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
-        // Don't set global error for dashboard data failure, just log it
       }
     }, []),
 
@@ -104,17 +101,16 @@ export default function VehiclePage() {
     }, []),
   };
 
-  // Initial Load & Filter Change
+  /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     actions.fetchVehicles();
-  }, [state.filters]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.filters]);
 
-  // Initial Dashboard Load
   useEffect(() => {
     actions.fetchDashboardData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Handlers
+  /* -------------------------------- handlers -------------------------------- */
   const handleAddSuccess = () => {
     actions.refreshAll();
   };
@@ -154,25 +150,22 @@ export default function VehiclePage() {
       await deleteVehicle(actionVehicle.id);
       setDeleteDialogOpen(false);
       actions.refreshAll();
-      // If we deleted the currently selected vehicle, deselect it
+
       if (state.selectedVehicleId === actionVehicle.id) {
         actions.selectVehicle(null);
       }
     } catch (error) {
       console.error("Failed to delete vehicle:", error);
-      // Could show error toast here
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleDialogEditSuccess = () => {
-    // Called when Edit is successful from VehicleDialog
     actions.refreshAll();
   };
 
   const handleDialogDeleteSuccess = () => {
-    // Called when Delete is successful from VehicleDialog
     actions.refreshAll();
     actions.selectVehicle(null);
   };
@@ -242,7 +235,6 @@ export default function VehiclePage() {
         />
       </Stack>
 
-      {/* Dialogs */}
       <AddVehicleDialog
         open={addDialogOpen}
         onClose={() => setAddDialogOpen(false)}

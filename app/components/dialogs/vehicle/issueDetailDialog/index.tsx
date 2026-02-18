@@ -8,23 +8,19 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  TextField,
   Stack,
   Alert,
   Typography,
-  Chip,
   Box,
   CircularProgress,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { updateIssue } from "@/app/lib/controllers/vehicle";
-import { StatusChip } from "@/app/components/dashboard/chips/statusChips";
-import { PriorityChip } from "@/app/components/dashboard/chips/priorityChips";
 
 interface IssueDetailDialogProps {
   open: boolean;
   onClose: () => void;
-  issue: any; // Using any for now as Issue type might be complex with relations
+  issue: any;
   onUpdate: () => void;
 }
 
@@ -34,11 +30,13 @@ export default function IssueDetailDialog({
   issue,
   onUpdate,
 }: IssueDetailDialogProps) {
+  /* --------------------------------- states --------------------------------- */
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (issue) {
       setStatus(issue.status);
@@ -46,6 +44,7 @@ export default function IssueDetailDialog({
     }
   }, [issue]);
 
+  /* -------------------------------- handlers -------------------------------- */
   const handleUpdate = async () => {
     if (!issue) return;
     setLoading(true);
@@ -63,6 +62,7 @@ export default function IssueDetailDialog({
     }
   };
 
+  /* --------------------------------- render --------------------------------- */
   if (!issue) return null;
 
   return (

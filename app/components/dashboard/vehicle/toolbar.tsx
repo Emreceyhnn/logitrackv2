@@ -9,10 +9,8 @@ import {
   OutlinedInput,
   Checkbox,
   ListItemText,
-  Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import { VehicleFilters } from "@/app/lib/type/vehicle";
 import { VehicleStatus, VehicleType } from "@prisma/client";
 import { useState, useEffect } from "react";
@@ -29,9 +27,10 @@ export default function VehicleToolbar({
   filters,
   onFilterChange,
 }: VehicleToolbarProps) {
+  /* --------------------------------- states --------------------------------- */
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
-  // Debounce search
+  /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchTerm !== filters.search) {
@@ -42,6 +41,7 @@ export default function VehicleToolbar({
     return () => clearTimeout(timer);
   }, [searchTerm, filters.search, onFilterChange]);
 
+  /* -------------------------------- handlers -------------------------------- */
   const handleStatusChange = (event: any) => {
     const {
       target: { value },

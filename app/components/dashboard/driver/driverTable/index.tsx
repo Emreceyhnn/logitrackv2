@@ -9,81 +9,41 @@ import {
   Paper,
   Typography,
   Divider,
-  Chip,
+  CircularProgress,
+  Box,
+  TablePagination,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
 import RowActions from "./menu";
-import { useEffect, useState } from "react";
-import DriverDialog from "../../../dialogs/driver";
-import { Driver } from "@/app/lib/type/DriverType";
 import { StatusChip } from "@/app/components/chips/statusChips";
-import { getDrivers } from "@/app/lib/controllers/driver";
+import { DriverTableProps } from "@/app/lib/type/driver";
 
-const DriverTable = () => {
-  /* --------------------------------- states --------------------------------- */
-  const [open, setOpen] = useState(false);
-  const [selectedDriver, setSelectedDriver] = useState<Driver | undefined>(
-    undefined
-  );
-  const [drivers, setDrivers] = useState<Driver[]>([]);
+const DriverTable = ({
+  drivers,
+  loading,
+  meta,
+  onDriverSelect,
+  onRefresh,
+  onPageChange,
+}: DriverTableProps) => {
+  if (loading) {
+    return (
+      <CustomCard
+        sx={{
+          padding: "0 0 6px 0",
+          minHeight: 200,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress />
+      </CustomCard>
+    );
+  }
 
-  useEffect(() => {
-    const fetchDrivers = async () => {
-      try {
-        const data = await getDrivers();
-        const mappedDrivers: Driver[] = data.map((d: any) => ({
-          id: d.id,
-          code: d.employeeId || "N/A",
-          fullName: `${d.user.name} ${d.user.surname}`,
-          phone: d.phone,
-          email: d.user.email,
-          status: d.status,
-          homeBaseWarehouseId: d.homeBaseWarehouseId || "",
-          licenses: d.documents?.map((doc: any) => ({
-            type: "Class A", // Placeholder as doc type is typically just "LICENSE"
-            expiresOn: doc.expiryDate ? doc.expiryDate.toString() : ""
-          })) || [
-              // Fallback if no documents, use fields from driver table if present, or mock
-              { type: d.licenseType || "Class A", expiresOn: d.licenseExpiry ? d.licenseExpiry.toString() : "" }
-            ],
-          compliance: {
-            lastMedicalCheck: "2024-01-01", // Mock
-            workingHours: {
-              todayMinutes: 480,
-              weekMinutes: 2400
-            },
-            restRequirement: {
-              minRestMinutes: 60,
-              met: true
-            }
-          },
-          rating: {
-            avg: d.rating || 5,
-            count: 10
-          },
-          assigned: {
-            vehicleId: d.currentVehicleId,
-            routeId: null,
-            activeShipmentIds: d.shipments?.map((s: any) => s.id) || []
-          }
-        }));
-        setDrivers(mappedDrivers);
-      } catch (error) {
-        console.error("Failed to fetch drivers:", error);
-      }
-    };
-    fetchDrivers();
-  }, []);
-
-  /* -------------------------------- handlers -------------------------------- */
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleOpen = (id: string) => {
-    const driver = drivers.find((d) => d.id === id);
-    if (!driver) return;
-    setSelectedDriver(driver);
-    setOpen(true);
+  const handleChangePage = (event: unknown, newPage: number) => {
+    onPageChange(newPage + 1); // MUI uses 0-indexed, our API uses 1-indexed
   };
 
   return (
@@ -103,8 +63,8 @@ const DriverTable = () => {
                 <TableCell>Status</TableCell>
                 <TableCell>Phone</TableCell>
                 <TableCell>Vehicle</TableCell>
-                <TableCell>Licenses</TableCell>
-                <TableCell align="right">Safety Rating</TableCell>
+                <TableCell>License</TableCell>
+                <TableCell align="right">Safety Score</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -113,32 +73,47 @@ const DriverTable = () => {
               {drivers.map((d, index) => (
                 <TableRow key={d.id}>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{d.fullName}</TableCell>
+                  <TableCell>
+                    {d.user.name} {d.user.surname}
+                  </TableCell>
                   <TableCell>
                     <StatusChip status={d.status} />
                   </TableCell>
                   <TableCell>{d.phone}</TableCell>
                   <TableCell>
-                    {d.assigned.vehicleId ?? "No assigned vehicle"}
+                    {d.currentVehicle
+                      ? d.currentVehicle.plate
+                      : "No assigned vehicle"}
                   </TableCell>
-                  <TableCell>
-                    {d.licenses.map((l) => l.type).join(", ")}
-                  </TableCell>
-                  <TableCell align="right">{d.rating.avg} / 5</TableCell>
+                  <TableCell>{d.licenseType}</TableCell>
+                  <TableCell align="right">{d.safetyScore}</TableCell>
                   <TableCell align="right">
-                    <RowActions id={d.id} handleOpenDetails={handleOpen} />
+                    <RowActions
+                      id={d.id}
+                      handleOpenDetails={() => onDriverSelect(d.id)}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
+              {drivers.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
+                    No drivers found
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[10]}
+          component="div"
+          count={meta?.total || 0}
+          rowsPerPage={meta?.limit || 10}
+          page={(meta?.page || 1) - 1} // MUI is 0-indexed
+          onPageChange={handleChangePage}
+        />
       </CustomCard>
-      <DriverDialog
-        open={open}
-        onClose={handleClose}
-        driverData={selectedDriver}
-      />
     </>
   );
 };

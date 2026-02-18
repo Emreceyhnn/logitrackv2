@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, useTheme } from "@mui/material";
+import { Stack, useTheme, CircularProgress, Box } from "@mui/material";
 import ShieldIcon from "@mui/icons-material/Shield";
 import StatCard from "../../cards/StatCard";
 import GroupsIcon from "@mui/icons-material/Groups";
@@ -9,77 +9,63 @@ import HomeIcon from "@mui/icons-material/Home";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import AccessAlarmsIcon from "@mui/icons-material/AccessAlarms";
-import { useEffect, useState } from "react";
-import { getDriverKpiStats } from "@/app/lib/controllers/driver";
+import { DriverKpiCardProps } from "@/app/lib/type/driver";
 
-const DriverKpiCard = () => {
-  /* -------------------------------- variables ------------------------------- */
+const DriverKpiCard = ({ data, loading }: DriverKpiCardProps) => {
   const theme = useTheme();
-  const [stats, setStats] = useState({
-    totalLength: 0,
-    onDuty: 0,
-    offDuty: 0,
-    complianceIssues: 0,
-    safetyScoreRating: 0,
-    efficiencyRating: 0,
-    onTimeDeliveryRating: 0
-  });
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const data = await getDriverKpiStats();
-        setStats(data);
-      } catch (error) {
-        console.error("Failed to fetch driver stats:", error);
-      }
-    };
-    fetchStats();
-  }, []);
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-  /* ---------------------------------- utils --------------------------------- */
+  if (!data) return null;
+
   const kpiItems = [
     {
       label: "Total Drivers",
-      value: stats.totalLength,
+      value: data.totalDrivers,
       icon: <GroupsIcon />,
       color: theme.palette.primary.main,
     },
     {
       label: "On Duty",
-      value: stats.onDuty,
+      value: data.onDuty,
       icon: <WorkIcon />,
       color: theme.palette.success.main,
     },
     {
       label: "Off Duty",
-      value: stats.offDuty,
+      value: data.offDuty,
       icon: <HomeIcon />,
       color: theme.palette.info.main,
     },
     {
+      label: "On Leave",
+      value: data.onLeave,
+      icon: <HomeIcon />,
+      color: theme.palette.warning.main,
+    },
+    {
       label: "Compliance Issues",
-      value: stats.complianceIssues,
+      value: data.complianceIssues,
       icon: <ReportProblemIcon />,
       color: theme.palette.error.main,
     },
     {
       label: "Avg Safety Rating",
-      value: stats.safetyScoreRating.toFixed(1),
+      value: data.avgSafetyScore.toFixed(1),
       icon: <ShieldIcon />,
       color: theme.palette.warning.main,
     },
     {
       label: "Efficiency Rating",
-      value: stats.efficiencyRating.toFixed(1),
+      value: data.avgEfficiencyScore.toFixed(1),
       icon: <RocketLaunchIcon />,
       color: theme.palette.success.main,
-    },
-    {
-      label: "Avg On-Time Delivery Rating",
-      value: stats.onTimeDeliveryRating,
-      icon: <AccessAlarmsIcon />,
-      color: theme.palette.error.main,
     },
   ];
 

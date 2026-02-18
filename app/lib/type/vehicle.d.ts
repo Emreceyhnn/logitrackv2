@@ -124,3 +124,37 @@ export interface VehicleKpiCardProps {
   docsDueSoon?: number;
   onClick?: (filterType: string) => void;
 }
+
+export interface EditVehicleDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+  vehicle: {
+    id: string;
+    fleetNo: string;
+    plate: string;
+    type: VehicleType;
+    brand: string;
+    model: string;
+    year: number;
+    maxLoadKg: number;
+    fuelType: string;
+    status: VehicleStatus;
+    odometerKm?: number | null;
+    nextServiceKm?: number | null;
+    avgFuelConsumption?: number | null;
+  };
+}
+
+export interface VehicleFormData {
+  type: VehicleType;
+  brand: string;
+  model: string;
+  year: number | "";
+  maxLoadKg: number | "";
+  fuelType: string;
+  status: VehicleStatus;
+  odometerKm?: number | "";
+  nextServiceKm?: number | "";
+  avgFuelConsumption?: number | "";
+}

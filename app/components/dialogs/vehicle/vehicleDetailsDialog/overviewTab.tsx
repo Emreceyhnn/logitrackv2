@@ -14,12 +14,14 @@ interface OverviewTabProps {
 }
 
 const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
+  /* --------------------------------- states --------------------------------- */
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
   if (!vehicle) {
     return <Typography color="text.secondary">No vehicle selected</Typography>;
   }
 
+  /* -------------------------------- handlers -------------------------------- */
   const handleAssignSuccess = () => {
     if (onUpdate) {
       onUpdate();

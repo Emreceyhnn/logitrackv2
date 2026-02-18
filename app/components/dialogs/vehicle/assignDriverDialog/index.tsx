@@ -40,12 +40,14 @@ export default function AssignDriverDialog({
   currentDriver,
   onSuccess,
 }: AssignDriverDialogProps) {
+  /* --------------------------------- states --------------------------------- */
   const [drivers, setDrivers] = useState<any[]>([]);
   const [selectedDriverId, setSelectedDriverId] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (open) {
       fetchDrivers();
@@ -54,6 +56,7 @@ export default function AssignDriverDialog({
     }
   }, [open]);
 
+  /* --------------------------------- actions -------------------------------- */
   const fetchDrivers = async () => {
     setLoading(true);
     try {
@@ -67,6 +70,7 @@ export default function AssignDriverDialog({
     }
   };
 
+  /* -------------------------------- handlers -------------------------------- */
   const handleAssign = async () => {
     if (!selectedDriverId) return;
     setActionLoading(true);
@@ -107,7 +111,6 @@ export default function AssignDriverDialog({
         )}
 
         <Stack spacing={3} mt={1}>
-          {/* Current Driver Section */}
           <Box
             sx={{
               p: 2,
@@ -151,7 +154,6 @@ export default function AssignDriverDialog({
             )}
           </Box>
 
-          {/* Assign New Driver Section */}
           <Box>
             <Typography variant="subtitle2" color="text.secondary" mb={1}>
               Assign New Driver

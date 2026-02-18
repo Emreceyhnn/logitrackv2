@@ -31,6 +31,7 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
 import EditVehicleDialog from "../editVehicleDialog";
 import { deleteVehicle } from "@/app/lib/controllers/vehicle";
+import { getStatusMeta } from "@/app/lib/priorityColor";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -69,29 +70,16 @@ function a11yProps(index: number) {
   };
 }
 
-const getStatusMeta = (status?: string) => {
-  switch (status) {
-    case "ON_TRIP":
-      return { color: "info.main", text: "On Trip" };
-    case "AVAILABLE":
-      return { color: "success.main", text: "Available" };
-    case "IN_SERVICE":
-      return { color: "warning.main", text: "In Service" };
-    default:
-      return { color: "text.primary", text: status ?? "-" };
-  }
-};
-
 const VehicleDialog = (params: VehicleDialogParams) => {
   const { open, onClose, vehicleData, onEditSuccess, onDeleteSuccess } = params;
 
+  /* --------------------------------- states --------------------------------- */
   const [value, setValue] = useState(0);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const theme = useTheme();
-
+  /* -------------------------------- handlers -------------------------------- */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
@@ -120,7 +108,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
       onDeleteSuccess?.();
     } catch (error) {
       console.error("Failed to delete vehicle:", error);
-      // Could add error toast here
     } finally {
       setIsDeleting(false);
     }
@@ -129,6 +116,9 @@ const VehicleDialog = (params: VehicleDialogParams) => {
   const handleDeleteCancel = () => {
     setDeleteConfirmOpen(false);
   };
+
+  /* -------------------------------- variables ------------------------------- */
+  const theme = useTheme();
 
   const statusMeta = getStatusMeta(vehicleData?.status);
   const [colorKey, colorVariant] = statusMeta.color.split(".");
@@ -270,7 +260,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           </CustomTabPanel>
         </Stack>
 
-        {/* Delete Button Section */}
         <Box
           sx={{
             p: 3,
@@ -320,7 +309,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
         />
       )}
 
-      {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteConfirmOpen}
         onClose={handleDeleteCancel}

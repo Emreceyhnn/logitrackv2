@@ -20,7 +20,6 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import { useState } from "react";
 import { createVehicle } from "@/app/lib/controllers/vehicle";
 import { VehicleType } from "@prisma/client";
-import * as Yup from "yup";
 import { addVehicleValidationSchema } from "@/app/lib/validationSchema";
 
 interface AddVehicleDialogProps {
@@ -62,14 +61,9 @@ const AddVehicleDialog = ({
   onClose,
   onSuccess,
 }: AddVehicleDialogProps) => {
+  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
-  const [formData, setFormData] = useState<VehicleFormData>(initialFormData);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  // Professional input styling
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
       backgroundColor: alpha(theme.palette.background.paper, 0.8),
@@ -102,10 +96,18 @@ const AddVehicleDialog = ({
     },
   };
 
+  /* --------------------------------- states --------------------------------- */
+  const [formData, setFormData] = useState<VehicleFormData>(initialFormData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  /* -------------------------------- handlers -------------------------------- */
   const handleChange = (field: keyof VehicleFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError(null);
-    // Clear field error when user types
+
     if (fieldErrors[field]) {
       setFieldErrors((prev) => {
         const newErrors = { ...prev };
@@ -197,7 +199,6 @@ const AddVehicleDialog = ({
         },
       }}
     >
-      {/* Header */}
       <Box
         sx={{
           p: 3,
@@ -263,7 +264,6 @@ const AddVehicleDialog = ({
         )}
 
         <Stack spacing={3}>
-          {/* Required Fields Section */}
           <Box>
             <Typography
               variant="overline"
@@ -401,7 +401,6 @@ const AddVehicleDialog = ({
             </Box>
           </Box>
 
-          {/* Optional Fields Section */}
           <Box>
             <Typography
               variant="overline"
@@ -467,7 +466,6 @@ const AddVehicleDialog = ({
             </Box>
           </Box>
 
-          {/* Action Buttons */}
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             <Button
               variant="outlined"

@@ -19,43 +19,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState, useEffect } from "react";
 import { updateVehicle } from "@/app/lib/controllers/vehicle";
-import { VehicleType, VehicleStatus } from "@prisma/client";
-import * as Yup from "yup";
 import { editVehicleValidationSchema } from "@/app/lib/validationSchema";
-
-interface EditVehicleDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
-  vehicle: {
-    id: string;
-    fleetNo: string;
-    plate: string;
-    type: VehicleType;
-    brand: string;
-    model: string;
-    year: number;
-    maxLoadKg: number;
-    fuelType: string;
-    status: VehicleStatus;
-    odometerKm?: number | null;
-    nextServiceKm?: number | null;
-    avgFuelConsumption?: number | null;
-  };
-}
-
-interface VehicleFormData {
-  type: VehicleType;
-  brand: string;
-  model: string;
-  year: number | "";
-  maxLoadKg: number | "";
-  fuelType: string;
-  status: VehicleStatus;
-  odometerKm?: number | "";
-  nextServiceKm?: number | "";
-  avgFuelConsumption?: number | "";
-}
+import {
+  EditVehicleDialogProps,
+  VehicleFormData,
+} from "@/app/lib/type/vehicle";
 
 const EditVehicleDialog = ({
   open,
@@ -63,46 +31,8 @@ const EditVehicleDialog = ({
   onSuccess,
   vehicle,
 }: EditVehicleDialogProps) => {
+  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
-  const [formData, setFormData] = useState<VehicleFormData>({
-    type: vehicle.type,
-    brand: vehicle.brand,
-    model: vehicle.model,
-    year: vehicle.year,
-    maxLoadKg: vehicle.maxLoadKg,
-    fuelType: vehicle.fuelType,
-    status: vehicle.status,
-    odometerKm: vehicle.odometerKm || "",
-    nextServiceKm: vehicle.nextServiceKm || "",
-    avgFuelConsumption: vehicle.avgFuelConsumption || "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-
-  // Update form data when vehicle prop changes
-  useEffect(() => {
-    if (open) {
-      setFormData({
-        type: vehicle.type,
-        brand: vehicle.brand,
-        model: vehicle.model,
-        year: vehicle.year,
-        maxLoadKg: vehicle.maxLoadKg,
-        fuelType: vehicle.fuelType,
-        status: vehicle.status,
-        odometerKm: vehicle.odometerKm || "",
-        nextServiceKm: vehicle.nextServiceKm || "",
-        avgFuelConsumption: vehicle.avgFuelConsumption || "",
-      });
-      setError(null);
-      setSuccess(false);
-      setFieldErrors({});
-    }
-  }, [open, vehicle]);
-
-  // Professional input styling
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
       backgroundColor: alpha(theme.palette.background.paper, 0.8),
@@ -135,6 +65,46 @@ const EditVehicleDialog = ({
     },
   };
 
+  /* --------------------------------- states --------------------------------- */
+  const [formData, setFormData] = useState<VehicleFormData>({
+    type: vehicle.type,
+    brand: vehicle.brand,
+    model: vehicle.model,
+    year: vehicle.year,
+    maxLoadKg: vehicle.maxLoadKg,
+    fuelType: vehicle.fuelType,
+    status: vehicle.status,
+    odometerKm: vehicle.odometerKm || "",
+    nextServiceKm: vehicle.nextServiceKm || "",
+    avgFuelConsumption: vehicle.avgFuelConsumption || "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  /* -------------------------------- lifecycle ------------------------------- */
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        type: vehicle.type,
+        brand: vehicle.brand,
+        model: vehicle.model,
+        year: vehicle.year,
+        maxLoadKg: vehicle.maxLoadKg,
+        fuelType: vehicle.fuelType,
+        status: vehicle.status,
+        odometerKm: vehicle.odometerKm || "",
+        nextServiceKm: vehicle.nextServiceKm || "",
+        avgFuelConsumption: vehicle.avgFuelConsumption || "",
+      });
+      setError(null);
+      setSuccess(false);
+      setFieldErrors({});
+    }
+  }, [open, vehicle]);
+
+  /* -------------------------------- handlers -------------------------------- */
   const handleChange = (field: keyof VehicleFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError(null);
@@ -227,7 +197,6 @@ const EditVehicleDialog = ({
         },
       }}
     >
-      {/* Header */}
       <Box
         sx={{
           p: 3,
@@ -293,7 +262,6 @@ const EditVehicleDialog = ({
         )}
 
         <Stack spacing={3}>
-          {/* Vehicle Information Section */}
           <Box>
             <Typography
               variant="overline"
@@ -422,7 +390,6 @@ const EditVehicleDialog = ({
             </Box>
           </Box>
 
-          {/* Optional Fields Section */}
           <Box>
             <Typography
               variant="overline"
@@ -488,7 +455,6 @@ const EditVehicleDialog = ({
             </Box>
           </Box>
 
-          {/* Action Buttons */}
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             <Button
               variant="outlined"

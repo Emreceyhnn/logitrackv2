@@ -16,7 +16,7 @@ import {
   useTheme,
 } from "@mui/material";
 
-import { Driver } from "@/app/lib/type/DriverType";
+import { DriverWithRelations } from "@/app/lib/type/driver";
 import { useState } from "react";
 import OverviewTab from "./overviewTab";
 import DocumentsTab from "./documentsTab";
@@ -35,7 +35,7 @@ interface TabPanelProps {
 interface DriverDialogParams {
   open: boolean;
   onClose: () => void;
-  driverData?: Driver;
+  driverData?: DriverWithRelations | null;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -63,12 +63,14 @@ function a11yProps(index: number) {
 
 const getStatusMeta = (status?: string) => {
   switch (status) {
-    case "ON_DUTY":
-      return { color: "success.main", text: "On Duty" };
+    case "ON_JOB":
+      return { color: "success.main", text: "On Job" };
     case "OFF_DUTY":
-      return { color: "text.primary", text: "Off Duty" };
+      return { color: "text.secondary", text: "Off Duty" };
+    case "ON_LEAVE":
+      return { color: "warning.main", text: "On Leave" };
     default:
-      return { color: "text.primary", text: status ?? "-" };
+      return { color: "text.primary", text: status?.replace("_", " ") ?? "-" };
   }
 };
 
@@ -86,7 +88,9 @@ const DriverDialog = (params: DriverDialogParams) => {
     setValue(newValue);
   };
 
-  const statusMeta = getStatusMeta(driverData?.status);
+  if (!driverData) return null;
+
+  const statusMeta = getStatusMeta(driverData.status);
   const [colorKey, colorVariant] = statusMeta.color.split(".");
   const statusColor =
     (theme.palette as any)[colorKey]?.[colorVariant] ||
@@ -120,6 +124,7 @@ const DriverDialog = (params: DriverDialogParams) => {
           <Stack direction="row" spacing={3} alignItems="center">
             <Avatar
               variant="rounded"
+              src={driverData.user.avatarUrl || undefined}
               sx={{
                 bgcolor: alpha(statusColor, 0.1),
                 color: statusColor,
@@ -130,7 +135,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                 borderRadius: 2,
               }}
             >
-              {driverData?.fullName?.charAt(0)}
+              {driverData.user.name?.charAt(0)}
             </Avatar>
             <Stack spacing={0.5}>
               <Stack direction="row" spacing={1} alignItems="center">
@@ -139,7 +144,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                   fontWeight={700}
                   sx={{ color: theme.palette.text.primary }}
                 >
-                  {driverData?.fullName}
+                  {driverData.user.name} {driverData.user.surname}
                 </Typography>
                 <Chip
                   label={statusMeta.text}
@@ -154,17 +159,19 @@ const DriverDialog = (params: DriverDialogParams) => {
                 />
               </Stack>
               <Stack spacing={1}>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                >
-                  <BadgeIcon fontSize="small" sx={{ fontSize: "1rem" }} />
-                  {driverData?.code}
-                </Typography>
+                {driverData.employeeId && (
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                  >
+                    <BadgeIcon fontSize="small" sx={{ fontSize: "1rem" }} />
+                    {driverData.employeeId}
+                  </Typography>
+                )}
 
                 <Stack direction="row" spacing={2} alignItems="center">
-                  {driverData?.phone && (
+                  {driverData.phone && (
                     <Typography
                       variant="body2"
                       color="text.secondary"
@@ -174,14 +181,14 @@ const DriverDialog = (params: DriverDialogParams) => {
                       {driverData.phone}
                     </Typography>
                   )}
-                  {driverData?.email && (
+                  {driverData.user.email && (
                     <Typography
                       variant="body2"
                       color="text.secondary"
                       sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
                     >
                       <EmailIcon fontSize="small" sx={{ fontSize: "1rem" }} />
-                      {driverData.email}
+                      {driverData.user.email}
                     </Typography>
                   )}
                 </Stack>
@@ -190,7 +197,8 @@ const DriverDialog = (params: DriverDialogParams) => {
           </Stack>
 
           <Stack direction="row" spacing={1}>
-            <Button
+            {/* Edit function to be implemented */}
+            {/* <Button
               variant="outlined"
               startIcon={<EditIcon />}
               size="small"
@@ -205,7 +213,7 @@ const DriverDialog = (params: DriverDialogParams) => {
               }}
             >
               Edit
-            </Button>
+            </Button> */}
             <IconButton
               onClick={onClose}
               size="small"

@@ -27,6 +27,7 @@ interface MaintenanceTabProps {
 }
 
 const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
+  /* --------------------------------- states --------------------------------- */
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
   const [issueDetailOpen, setIssueDetailOpen] = useState(false);
@@ -36,6 +37,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
     return <Typography color="text.secondary">No vehicle selected</Typography>;
   }
 
+  /* -------------------------------- handlers -------------------------------- */
   const handleUpdate = () => {
     onUpdate?.();
   };
@@ -45,6 +47,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
     setIssueDetailOpen(true);
   };
 
+  /* -------------------------------- variables ------------------------------- */
   const maintenanceHistory = (vehicle.maintenanceRecords || []).slice(-4);
   const openIssues =
     vehicle.issues?.filter(

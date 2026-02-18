@@ -19,8 +19,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import { useState, useEffect } from "react";
 import { createVehicleIssue } from "@/app/lib/controllers/vehicle";
-import * as Yup from "yup";
 import { vehicleReportIssueValidationSchema } from "@/app/lib/validationSchema";
+import { getPriorityColor } from "@/app/lib/priorityColor";
 
 interface ReportIssueDialogProps {
   open: boolean;
@@ -43,34 +43,9 @@ const ReportIssueDialog = ({
   vehicleId,
   vehiclePlate,
 }: ReportIssueDialogProps) => {
+  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const [formData, setFormData] = useState<IssueFormData>({
-    title: "",
-    priority: "MEDIUM",
-    description: "",
-  });
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-
-  // Reset form when dialog opens
-  useEffect(() => {
-    if (open) {
-      setFormData({
-        title: "",
-        priority: "MEDIUM",
-        description: "",
-      });
-      setError(null);
-      setSuccess(false);
-      setFieldErrors({});
-    }
-  }, [open]);
-
-  // Professional input styling
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
       backgroundColor: alpha(theme.palette.background.paper, 0.8),
@@ -100,10 +75,37 @@ const ReportIssueDialog = ({
     },
   };
 
+  /* --------------------------------- states --------------------------------- */
+  const [formData, setFormData] = useState<IssueFormData>({
+    title: "",
+    priority: "MEDIUM",
+    description: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  /* -------------------------------- lifecycle ------------------------------- */
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        title: "",
+        priority: "MEDIUM",
+        description: "",
+      });
+      setError(null);
+      setSuccess(false);
+      setFieldErrors({});
+    }
+  }, [open]);
+
+  /* -------------------------------- handlers -------------------------------- */
   const handleChange = (field: keyof IssueFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError(null);
-    // Clear field error when user types
+
     if (fieldErrors[field]) {
       setFieldErrors((prev) => {
         const newErrors = { ...prev };
@@ -123,17 +125,15 @@ const ReportIssueDialog = ({
       setLoading(true);
       setError(null);
 
-      // Call API to create issue
       await createVehicleIssue(vehicleId, {
         title: formData.title,
-        type: "VEHICLE", // Always VEHICLE for vehicle issues
+        type: "VEHICLE",
         priority: formData.priority,
         description: formData.description || undefined,
       });
 
       setSuccess(true);
 
-      // Show success for 1.5 seconds then close
       setTimeout(() => {
         setSuccess(false);
         onClose();
@@ -141,7 +141,6 @@ const ReportIssueDialog = ({
       }, 1500);
     } catch (err: any) {
       if (err.name === "ValidationError") {
-        // Yup validation errors
         const errors: Record<string, string> = {};
         err.inner.forEach((error: any) => {
           if (error.path) {
@@ -151,7 +150,6 @@ const ReportIssueDialog = ({
         setFieldErrors(errors);
         setError("Please fix the validation errors below");
       } else {
-        // Server errors
         console.error("Failed to create issue:", err);
         setError(err?.message || "Failed to create issue. Please try again.");
       }
@@ -169,21 +167,6 @@ const ReportIssueDialog = ({
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "CRITICAL":
-        return theme.palette.error.main;
-      case "HIGH":
-        return theme.palette.warning.main;
-      case "MEDIUM":
-        return theme.palette.info.main;
-      case "LOW":
-        return theme.palette.success.main;
-      default:
-        return theme.palette.text.primary;
-    }
-  };
-
   return (
     <Dialog
       open={open}
@@ -197,7 +180,6 @@ const ReportIssueDialog = ({
         },
       }}
     >
-      {/* Header */}
       <Box
         sx={{
           p: 3,
@@ -263,7 +245,6 @@ const ReportIssueDialog = ({
         )}
 
         <Stack spacing={3}>
-          {/* Title */}
           <TextField
             fullWidth
             label="Issue Title"
@@ -278,7 +259,6 @@ const ReportIssueDialog = ({
             sx={textFieldSx}
           />
 
-          {/* Priority */}
           <TextField
             fullWidth
             select
@@ -367,7 +347,6 @@ const ReportIssueDialog = ({
             </MenuItem>
           </TextField>
 
-          {/* Description */}
           <TextField
             fullWidth
             label="Description"
@@ -382,7 +361,6 @@ const ReportIssueDialog = ({
             sx={textFieldSx}
           />
 
-          {/* Action Buttons */}
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             <Button
               variant="outlined"

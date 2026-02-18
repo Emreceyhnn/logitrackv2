@@ -10,7 +10,6 @@ import {
   TableHead,
   TableRow,
   IconButton,
-  Link,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
@@ -28,18 +27,21 @@ interface DocumentsTabProps {
 }
 
 const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
+  /* --------------------------------- states --------------------------------- */
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   if (!vehicle) {
     return <Typography color="text.secondary">No vehicle selected</Typography>;
   }
 
+  /* -------------------------------- handlers -------------------------------- */
   const handleUploadSuccess = () => {
     if (onUpdate) {
       onUpdate();
     }
   };
 
+  /* -------------------------------- variables ------------------------------- */
   const now = new Date();
   const oneMonthLater = new Date();
   oneMonthLater.setMonth(now.getMonth() + 1);
