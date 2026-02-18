@@ -1,0 +1,5 @@
+﻿app/(pages)/(dashboard)/drivers/page.tsx(375,9): error TS2322: Type '{ open: boolean; onClose: () => void; driverData: DriverWithRelations | null; }' is not assignable to type 'IntrinsicAttributes & DriverDialogParams'.
+  Property 'driverData' does not exist on type 'IntrinsicAttributes & DriverDialogParams'.
+app/components/dialogs/driver/editDriverDialog.tsx(77,9): error TS2345: Argument of type 'Date | null' is not assignable to parameter of type 'null'.
+  Type 'Date' is not assignable to type 'null'.
+app/components/dialogs/driver/index.tsx(79,26): error TS2339: Property 'driverData' does not exist on type 'DriverDialogParams'.

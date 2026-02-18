@@ -20,11 +20,23 @@ export const getPriorityColor = (priority: string) => {
 export const getStatusMeta = (status?: string) => {
   switch (status) {
     case "ON_TRIP":
-      return { color: "info.main", text: "On Trip" };
+    case "OFF_DUTY":
+      return {
+        color: "info.main",
+        text: status === "ON_TRIP" ? "On Trip" : "Off Duty",
+      };
     case "AVAILABLE":
-      return { color: "success.main", text: "Available" };
+    case "ON_JOB":
+      return {
+        color: "success.main",
+        text: status === "AVAILABLE" ? "Available" : "On Job",
+      };
     case "IN_SERVICE":
-      return { color: "warning.main", text: "In Service" };
+    case "ON_LEAVE":
+      return {
+        color: "warning.main",
+        text: status === "IN_SERVICE" ? "In Service" : "On Leave",
+      };
     default:
       return { color: "text.primary", text: status ?? "-" };
   }

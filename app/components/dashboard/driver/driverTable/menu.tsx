@@ -15,6 +15,8 @@ import { useState } from "react";
 
 interface DetailsMenuParams {
   handleOpenDetails: (id: string) => void;
+  handleEdit: () => void;
+  handleDelete: () => void;
   id: string;
 }
 
@@ -53,7 +55,12 @@ const RowActions = (params: DetailsMenuParams) => {
           <ListItemText>Details</ListItemText>
         </MenuItem>
 
-        <MenuItem onClick={() => setAnchorEl(null)}>
+        <MenuItem
+          onClick={() => {
+            setAnchorEl(null);
+            params.handleEdit();
+          }}
+        >
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
@@ -61,7 +68,10 @@ const RowActions = (params: DetailsMenuParams) => {
         </MenuItem>
 
         <MenuItem
-          onClick={() => setAnchorEl(null)}
+          onClick={() => {
+            setAnchorEl(null);
+            params.handleDelete();
+          }}
           sx={{ color: "error.main" }}
         >
           <ListItemIcon sx={{ color: "error.main" }}>

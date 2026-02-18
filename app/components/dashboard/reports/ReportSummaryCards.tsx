@@ -2,7 +2,6 @@ import {
   Card,
   Stack,
   Typography,
-  Grid,
   useTheme,
   Box,
   alpha,
@@ -144,7 +143,13 @@ interface ReportsMetrics {
   totalInventoryValue: number;
 }
 
-export default function ReportSummaryCards({ tabIndex, metrics }: { tabIndex: number, metrics?: ReportsMetrics }) {
+export default function ReportSummaryCards({
+  tabIndex,
+  metrics,
+}: {
+  tabIndex: number;
+  metrics?: ReportsMetrics;
+}) {
   const theme = useTheme();
 
   const getMetrics = () => {

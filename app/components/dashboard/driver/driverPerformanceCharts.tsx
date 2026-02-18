@@ -25,8 +25,10 @@ const DriverPerformanceCharts = ({
   data,
   loading,
 }: DriverPerformanceChartsProps) => {
+  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
+  /* --------------------------------- render --------------------------------- */
   if (loading) {
     return (
       <Stack direction={{ xs: "column", md: "row" }} spacing={2} mt={2}>

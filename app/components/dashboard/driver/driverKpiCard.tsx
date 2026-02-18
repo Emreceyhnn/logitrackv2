@@ -8,12 +8,13 @@ import WorkIcon from "@mui/icons-material/Work";
 import HomeIcon from "@mui/icons-material/Home";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
-import AccessAlarmsIcon from "@mui/icons-material/AccessAlarms";
 import { DriverKpiCardProps } from "@/app/lib/type/driver";
 
 const DriverKpiCard = ({ data, loading }: DriverKpiCardProps) => {
+  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
+  /* --------------------------------- render --------------------------------- */
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>

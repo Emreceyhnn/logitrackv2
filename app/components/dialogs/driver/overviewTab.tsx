@@ -1,5 +1,5 @@
 import { DriverWithRelations } from "@/app/lib/type/driver";
-import { Stack, Typography, Card, Button, Box } from "@mui/material";
+import { Stack, Typography, Card, Button } from "@mui/material";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import StarIcon from "@mui/icons-material/Star";
@@ -79,7 +79,6 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
       </Stack>
 
       <Stack spacing={2} direction={"row"}>
-        {/* Placeholder for future compliance data */}
         <Card
           sx={{
             p: 2,
@@ -114,7 +113,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             sx={{
               fontSize: 20,
               color:
-                driver.status === "ON_JOB" ? "success.main" : "text.secondary",
+                driver.status === "ON_JOB" ? "success.main" : "warning.main",
             }}
           >
             {driver.status.replace("_", " ")}
@@ -123,13 +122,12 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
       </Stack>
 
       <Stack spacing={2}>
-        {/* Placeholder actions */}
-        {/* <Button variant="contained" sx={{ borderRadius: "8px" }}>
+        <Button variant="contained" sx={{ borderRadius: "8px" }}>
           Contact Driver
         </Button>
         <Button variant="outlined" sx={{ borderRadius: "8px" }}>
           View Full History
-        </Button> */}
+        </Button>
       </Stack>
     </Stack>
   );

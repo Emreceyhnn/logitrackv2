@@ -1,13 +1,4 @@
-import {
-  Driver,
-  User,
-  Vehicle,
-  Shipment,
-  Document,
-  Issue,
-  DriverStatus,
-  LicenseType,
-} from "@prisma/client";
+import { DriverStatus } from "@prisma/client";
 
 // Domain Models
 export interface DriverWithRelations {
@@ -106,7 +97,12 @@ export interface DriverPageState {
 
 // Page Actions
 export interface DriverPageActions {
-  fetchDrivers: (page?: number, limit?: number) => Promise<void>;
+  fetchDrivers: (
+    page?: number,
+    limit?: number,
+    filters?: DriverFilters,
+    sort?: { field: string; order: "asc" | "desc" }
+  ) => Promise<void>;
   fetchDashboardData: () => Promise<void>;
   selectDriver: (id: string | null) => void;
   updateFilters: (filters: Partial<DriverFilters>) => void;
@@ -124,9 +120,15 @@ export interface DriverTableProps {
     totalPages: number;
   };
   onDriverSelect: (id: string) => void;
+  onEdit: (driver: DriverWithRelations) => void;
+  onDelete: (id: string) => void;
   loading: boolean;
   onRefresh: () => void;
   onPageChange: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
+  sortField?: string;
+  sortOrder?: "asc" | "desc";
+  onRequestSort?: (property: string) => void;
 }
 
 export interface DriverKpiCardProps {

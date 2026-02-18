@@ -25,6 +25,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import BadgeIcon from "@mui/icons-material/Badge";
+import { getStatusMeta } from "@/app/lib/priorityColor";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -35,7 +36,9 @@ interface TabPanelProps {
 interface DriverDialogParams {
   open: boolean;
   onClose: () => void;
-  driverData?: DriverWithRelations | null;
+  onEdit?: (driver: DriverWithRelations) => void;
+  onDelete?: (id: string) => void;
+  driverData: DriverWithRelations | null;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -61,21 +64,8 @@ function a11yProps(index: number) {
   };
 }
 
-const getStatusMeta = (status?: string) => {
-  switch (status) {
-    case "ON_JOB":
-      return { color: "success.main", text: "On Job" };
-    case "OFF_DUTY":
-      return { color: "text.secondary", text: "Off Duty" };
-    case "ON_LEAVE":
-      return { color: "warning.main", text: "On Leave" };
-    default:
-      return { color: "text.primary", text: status?.replace("_", " ") ?? "-" };
-  }
-};
-
 const DriverDialog = (params: DriverDialogParams) => {
-  const { open, onClose, driverData } = params;
+  const { open, onClose, driverData, onEdit, onDelete } = params;
 
   /* --------------------------------- states --------------------------------- */
   const [value, setValue] = useState(0);
@@ -91,7 +81,7 @@ const DriverDialog = (params: DriverDialogParams) => {
   if (!driverData) return null;
 
   const statusMeta = getStatusMeta(driverData.status);
-  const [colorKey, colorVariant] = statusMeta.color.split(".");
+  const [colorKey, colorVariant] = statusMeta.color;
   const statusColor =
     (theme.palette as any)[colorKey]?.[colorVariant] ||
     theme.palette.text.primary;
@@ -153,7 +143,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                     height: 24,
                     fontWeight: 600,
                     bgcolor: alpha(statusColor, 0.1),
-                    color: statusColor,
+                    color: statusMeta.color,
                     ml: 1,
                   }}
                 />
@@ -197,23 +187,49 @@ const DriverDialog = (params: DriverDialogParams) => {
           </Stack>
 
           <Stack direction="row" spacing={1}>
-            {/* Edit function to be implemented */}
-            {/* <Button
-              variant="outlined"
-              startIcon={<EditIcon />}
-              size="small"
-              sx={{
-                textTransform: "none",
-                borderColor: theme.palette.divider,
-                color: theme.palette.text.secondary,
-                "&:hover": {
-                  borderColor: theme.palette.text.primary,
-                  color: theme.palette.text.primary,
-                },
-              }}
-            >
-              Edit
-            </Button> */}
+            {onEdit && (
+              <Button
+                variant="outlined"
+                startIcon={<EditIcon />}
+                size="small"
+                onClick={() => {
+                  onClose();
+                  onEdit(driverData);
+                }}
+                sx={{
+                  textTransform: "none",
+                  borderColor: theme.palette.divider,
+                  color: theme.palette.text.secondary,
+                  "&:hover": {
+                    borderColor: theme.palette.text.primary,
+                    color: theme.palette.text.primary,
+                  },
+                }}
+              >
+                Edit
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                onClick={() => {
+                  onClose();
+                  onDelete(driverData.id);
+                }}
+                sx={{
+                  textTransform: "none",
+                  borderColor: "error.main",
+                  color: "error.main",
+                  "&:hover": {
+                    bgcolor: alpha(theme.palette.error.main, 0.1),
+                  },
+                }}
+              >
+                Delete
+              </Button>
+            )}
             <IconButton
               onClick={onClose}
               size="small"

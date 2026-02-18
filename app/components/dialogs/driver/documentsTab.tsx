@@ -1,6 +1,5 @@
 import {
   Box,
-  Button,
   Card,
   Stack,
   Typography,
@@ -24,7 +23,6 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
     return <Typography color="text.secondary">No driver selected</Typography>;
   }
 
-  // Check if we have a valid license
   const hasValidLicense =
     driver.licenseNumber &&
     driver.licenseExpiry &&

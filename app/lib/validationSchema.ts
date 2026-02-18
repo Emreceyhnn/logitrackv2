@@ -125,3 +125,22 @@ export const registerValidationSchema = Yup.object({
     .oneOf([Yup.ref("password")], "Passwords must match")
     .required("Repeat password is required"),
 });
+
+export const addDriverValidationSchema = Yup.object({
+  userId: Yup.string().required("Please select an employee"),
+  phone: Yup.string().required("Phone is required"),
+  licenseNumber: Yup.string().required("License Number is required"),
+  licenseType: Yup.string().required("License Type is required"),
+  licenseExpiry: Yup.date().nullable().required("License Expiry is required"),
+  employeeId: Yup.string().required("Employee ID is required"),
+  status: Yup.string().required("Status is required"),
+});
+
+export const editDriverValidationSchema = Yup.object({
+  phone: Yup.string().required("Phone is required"),
+  licenseNumber: Yup.string().required("License Number is required"),
+  licenseType: Yup.string().required("License Type is required"),
+  licenseExpiry: Yup.date().nullable().required("License Expiry is required"),
+  employeeId: Yup.string().required("Employee ID is required"),
+  status: Yup.string().required("Status is required"),
+});

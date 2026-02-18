@@ -10,13 +10,70 @@ import { CreateDriverFormData } from "../type/driver";
 // ... imports ...
 
 export const getDrivers = authenticatedAction(
-  async (user, page: number = 1, limit: number = 10) => {
+  async (
+    user,
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+    status?: DriverStatus[],
+    hasVehicle?: boolean,
+    sortField?: string,
+    sortOrder?: "asc" | "desc"
+  ) => {
     try {
       const skip = (page - 1) * limit;
 
+      const where: any = {
+        companyId: user.companyId,
+      };
+
+      if (search) {
+        where.OR = [
+          {
+            user: {
+              name: { contains: search, mode: "insensitive" },
+            },
+          },
+          {
+            user: {
+              surname: { contains: search, mode: "insensitive" },
+            },
+          },
+          {
+            licenseNumber: { contains: search, mode: "insensitive" },
+          },
+          {
+            phone: { contains: search, mode: "insensitive" },
+          },
+        ];
+      }
+
+      if (status && status.length > 0) {
+        where.status = { in: status };
+      }
+
+      if (hasVehicle !== undefined) {
+        if (hasVehicle) {
+          where.currentVehicleId = { not: null };
+        } else {
+          where.currentVehicleId = null;
+        }
+      }
+
+      let orderBy: any = { createdAt: "desc" };
+      if (sortField && sortOrder) {
+        if (sortField === "name") {
+          orderBy = { user: { name: sortOrder } };
+        } else if (sortField === "vehicle") {
+          orderBy = { currentVehicle: { plate: sortOrder } };
+        } else {
+          orderBy = { [sortField]: sortOrder };
+        }
+      }
+
       const [drivers, total] = await Promise.all([
         db.driver.findMany({
-          where: { companyId: user.companyId },
+          where,
           include: {
             user: {
               select: {
@@ -43,11 +100,11 @@ export const getDrivers = authenticatedAction(
               },
             },
           },
-          orderBy: { createdAt: "desc" },
+          orderBy: orderBy,
           skip,
           take: limit,
         }),
-        db.driver.count({ where: { companyId: user.companyId } }),
+        db.driver.count({ where }),
       ]);
 
       return {
@@ -129,7 +186,6 @@ export const getDriverDashboardData = authenticatedAction(async (user) => {
   }
 });
 
-// ... getDriverById ...
 export async function getDriverById(driverId: string) {
   try {
     const driver = await db.driver.findUnique({
@@ -154,9 +210,93 @@ export async function getDriverById(driverId: string) {
   }
 }
 
-// ... createDriver (unchanged for now) ...
+export const createDriver = authenticatedAction(
+  async (user, data: CreateDriverFormData) => {
+    try {
+      // 1. Check if user exists and is eligible
+      const targetUser = await db.user.findUnique({
+        where: { id: data.userId },
+        include: { driver: true }, // Check if already a driver
+      });
 
-// ... updateDriver (unchanged for now) ...
+      if (!targetUser) {
+        throw new Error("User not found");
+      }
+
+      if (targetUser.companyId !== user.companyId) {
+        throw new Error("User does not belong to your company");
+      }
+
+      if (targetUser.driver) {
+        throw new Error("User is already assigned as a driver");
+      }
+
+      // 2. Find DRIVER role to assign (optional but recommended)
+      // Assuming we want to give them specific permissions
+      // For now, let's skip role update or assume role management is separate
+      // But typically we'd update user.roleId here.
+
+      // 3. Create Driver Profile
+      const newDriver = await db.driver.create({
+        data: {
+          companyId: user.companyId,
+          userId: data.userId,
+          phone: data.phone,
+          employeeId: data.employeeId,
+          licenseNumber: data.licenseNumber,
+          licenseType: data.licenseType, // Assuming string in DB based on earlier types
+          licenseExpiry: data.licenseExpiry,
+          status: data.status,
+          // Initialize scores
+          safetyScore: 100,
+          efficiencyScore: 100,
+          rating: 5.0,
+        },
+      });
+
+      // 4. Update User Role (optional, if we have a 'DRIVER' role)
+      // const driverRole = await db.role.findFirst({ where: { name: 'DRIVER' } });
+      // if (driverRole) { ... }
+
+      revalidatePath("/drivers");
+      return newDriver;
+    } catch (error: any) {
+      console.error("Failed to create driver:", error);
+      throw new Error(error.message || "Failed to create driver");
+    }
+  }
+);
+
+export const updateDriver = authenticatedAction(
+  async (user, driverId: string, data: Partial<CreateDriverFormData>) => {
+    try {
+      const driver = await db.driver.findUnique({
+        where: { id: driverId },
+      });
+
+      if (!driver) throw new Error("Driver not found");
+      if (driver.companyId !== user.companyId) throw new Error("Unauthorized");
+
+      const updatedDriver = await db.driver.update({
+        where: { id: driverId },
+        data: {
+          phone: data.phone,
+          employeeId: data.employeeId,
+          licenseNumber: data.licenseNumber,
+          licenseType: data.licenseType,
+          licenseExpiry: data.licenseExpiry,
+          status: data.status,
+        },
+      });
+
+      revalidatePath("/drivers");
+      return updatedDriver;
+    } catch (error: any) {
+      console.error("Failed to update driver:", error);
+      throw new Error(error.message || "Failed to update driver");
+    }
+  }
+);
 
 export const deleteDriver = authenticatedAction(
   async (user, driverId: string) => {
@@ -289,9 +429,7 @@ export const getEligibleUsersForDriver = authenticatedAction(async (user) => {
     const users = await db.user.findMany({
       where: {
         companyId: user.companyId,
-        driver: {
-          is: null, // Only users who are NOT drivers
-        },
+        roleId: "role_unassigned",
       },
       select: {
         id: true,

@@ -10,8 +10,8 @@ import {
   Typography,
   Divider,
   CircularProgress,
-  Box,
   TablePagination,
+  TableSortLabel,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
 import RowActions from "./menu";
@@ -23,9 +23,16 @@ const DriverTable = ({
   loading,
   meta,
   onDriverSelect,
+  onEdit,
+  onDelete,
   onRefresh,
   onPageChange,
+  onLimitChange,
+  sortField,
+  sortOrder,
+  onRequestSort,
 }: DriverTableProps) => {
+  /* --------------------------------- render --------------------------------- */
   if (loading) {
     return (
       <CustomCard
@@ -42,9 +49,15 @@ const DriverTable = ({
     );
   }
 
+  /* -------------------------------- handlers -------------------------------- */
   const handleChangePage = (event: unknown, newPage: number) => {
     onPageChange(newPage + 1); // MUI uses 0-indexed, our API uses 1-indexed
   };
+
+  const createSortHandler =
+    (property: string) => (event: React.MouseEvent<unknown>) => {
+      if (onRequestSort) onRequestSort(property);
+    };
 
   return (
     <>
@@ -59,12 +72,60 @@ const DriverTable = ({
             <TableHead>
               <TableRow>
                 <TableCell>#</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>Vehicle</TableCell>
-                <TableCell>License</TableCell>
-                <TableCell align="right">Safety Score</TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === "name"}
+                    direction={sortField === "name" ? sortOrder : "asc"}
+                    onClick={createSortHandler("name")}
+                  >
+                    Name
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === "status"}
+                    direction={sortField === "status" ? sortOrder : "asc"}
+                    onClick={createSortHandler("status")}
+                  >
+                    Status
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === "phone"}
+                    direction={sortField === "phone" ? sortOrder : "asc"}
+                    onClick={createSortHandler("phone")}
+                  >
+                    Phone
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === "vehicle"}
+                    direction={sortField === "vehicle" ? sortOrder : "asc"}
+                    onClick={createSortHandler("vehicle")}
+                  >
+                    Vehicle
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={sortField === "licenseType"}
+                    direction={sortField === "licenseType" ? sortOrder : "asc"}
+                    onClick={createSortHandler("licenseType")}
+                  >
+                    License
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell align="right">
+                  <TableSortLabel
+                    active={sortField === "safetyScore"}
+                    direction={sortField === "safetyScore" ? sortOrder : "asc"}
+                    onClick={createSortHandler("safetyScore")}
+                  >
+                    Safety Score
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -72,7 +133,9 @@ const DriverTable = ({
             <TableBody>
               {drivers.map((d, index) => (
                 <TableRow key={d.id}>
-                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>
+                    {index + 1 + (meta.page - 1) * meta.limit}
+                  </TableCell>
                   <TableCell>
                     {d.user.name} {d.user.surname}
                   </TableCell>
@@ -91,6 +154,8 @@ const DriverTable = ({
                     <RowActions
                       id={d.id}
                       handleOpenDetails={() => onDriverSelect(d.id)}
+                      handleEdit={() => onEdit(d)}
+                      handleDelete={() => onDelete(d.id)}
                     />
                   </TableCell>
                 </TableRow>
@@ -106,12 +171,16 @@ const DriverTable = ({
           </Table>
         </TableContainer>
         <TablePagination
-          rowsPerPageOptions={[10]}
+          rowsPerPageOptions={[10, 25, 50]}
           component="div"
           count={meta?.total || 0}
           rowsPerPage={meta?.limit || 10}
           page={(meta?.page || 1) - 1} // MUI is 0-indexed
           onPageChange={handleChangePage}
+          onRowsPerPageChange={(e) => {
+            const newLimit = parseInt(e.target.value, 10);
+            if (onLimitChange) onLimitChange(newLimit);
+          }}
         />
       </CustomCard>
     </>
