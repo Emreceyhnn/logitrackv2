@@ -1,22 +1,37 @@
+"use client";
+
 import { Divider, LinearProgress, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
 import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import mockData from "@/app/lib/mockData.json";
+import { useUser } from "@/app/lib/hooks/useUser";
+import { getRouteEfficiencyStats } from "@/app/lib/controllers/routes";
+import { useEffect, useState } from "react";
 
 const RouteEfficiency = () => {
-  const avgFuelConsumption =
-    mockData.fleet.reduce(
-      (sum, v) => sum + (v.specs?.mpg || 0),
+  const { user, loading } = useUser();
+  const [data, setData] = useState({
+    fuelConsumption: 0,
+    onTimePerformance: 0,
+    vehicleUtilization: 0,
+    recentNotifications: [],
+  });
 
-      0
-    ) / mockData.fleet.length;
-  const vehicleLength = mockData.fleet.length;
-  const utilizationVal =
-    (mockData.fleet.filter((i) => i.status === "ON_TRIP").length /
-      vehicleLength) *
-    100;
-  const vehicleUtilization = utilizationVal.toFixed(1);
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user) return;
+      try {
+        const stats = await getRouteEfficiencyStats(user.companyId, user.id);
+        setData(stats);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (!loading && user) {
+      fetchData();
+    }
+  }, [user, loading]);
 
   return (
     <CustomCard
@@ -35,12 +50,12 @@ const RouteEfficiency = () => {
           <Typography
             sx={{ fontSize: 14, fontWeight: 700, color: "info.main" }}
           >
-            {avgFuelConsumption.toFixed(2)} avg
+            {data.fuelConsumption.toFixed(2)} avg
           </Typography>
         </Stack>
         <LinearProgress
           variant="determinate"
-          value={avgFuelConsumption * 4}
+          value={Math.min(data.fuelConsumption * 4, 100)} // Rough scaling
           sx={{
             bgcolor: "background.dashboardBg",
             borderRadius: "8px",
@@ -57,12 +72,12 @@ const RouteEfficiency = () => {
           <Typography
             sx={{ fontSize: 14, fontWeight: 700, color: "success.main" }}
           >
-            89 %
+            {data.onTimePerformance} %
           </Typography>
         </Stack>
         <LinearProgress
           variant="determinate"
-          value={89}
+          value={data.onTimePerformance}
           sx={{
             bgcolor: "background.dashboardBg",
             borderRadius: "8px",
@@ -79,12 +94,12 @@ const RouteEfficiency = () => {
           <Typography
             sx={{ fontSize: 14, fontWeight: 700, color: "warning.main" }}
           >
-            {vehicleUtilization} %
+            {data.vehicleUtilization.toFixed(1)} %
           </Typography>
         </Stack>
         <LinearProgress
           variant="determinate"
-          value={utilizationVal}
+          value={data.vehicleUtilization}
           sx={{
             bgcolor: "background.dashboardBg",
             borderRadius: "8px",
@@ -103,71 +118,42 @@ const RouteEfficiency = () => {
           RECENT NOTIFICATION
         </Typography>
         <Stack spacing={1} maxHeight={104} overflow={"auto"}>
-          <Stack direction={"row"} alignItems={"center"} spacing={2}>
-            <WarningIcon sx={{ color: "error.main" }} />
-            <Stack>
-              <Typography sx={{ fontSize: 18, fontWeight: 400 }}>
-                Route #RT-4021 Diverted
-              </Typography>
-              <Typography
-                sx={{ fontSize: 14, fontWeight: 200, color: "text.secondary" }}
+          {data.recentNotifications.length > 0 ? (
+            data.recentNotifications.map((notif: any, index: number) => (
+              <Stack
+                key={index}
+                direction={"row"}
+                alignItems={"center"}
+                spacing={2}
               >
-                Arrived at London Depot
-              </Typography>
-            </Stack>
-          </Stack>
-          <Stack direction={"row"} alignItems={"center"} spacing={2}>
-            <CheckCircleIcon sx={{ color: "success.main" }} />
-            <Stack>
-              <Typography sx={{ fontSize: 18, fontWeight: 400 }}>
-                Route #RT-4021 Diverted
-              </Typography>
-              <Typography
-                sx={{ fontSize: 14, fontWeight: 200, color: "text.secondary" }}
-              >
-                Arrived at London Depot
-              </Typography>
-            </Stack>
-          </Stack>
-          <Stack direction={"row"} alignItems={"center"} spacing={2}>
-            <CheckCircleIcon sx={{ color: "success.main" }} />
-            <Stack>
-              <Typography sx={{ fontSize: 18, fontWeight: 400 }}>
-                Route #RT-4021 Diverted
-              </Typography>
-              <Typography
-                sx={{ fontSize: 14, fontWeight: 200, color: "text.secondary" }}
-              >
-                Arrived at London Depot
-              </Typography>
-            </Stack>
-          </Stack>
-          <Stack direction={"row"} alignItems={"center"} spacing={2}>
-            <CheckCircleIcon sx={{ color: "success.main" }} />
-            <Stack>
-              <Typography sx={{ fontSize: 18, fontWeight: 400 }}>
-                Route #RT-4021 Diverted
-              </Typography>
-              <Typography
-                sx={{ fontSize: 14, fontWeight: 200, color: "text.secondary" }}
-              >
-                Arrived at London Depot
-              </Typography>
-            </Stack>
-          </Stack>
-          <Stack direction={"row"} alignItems={"center"} spacing={2}>
-            <CheckCircleIcon sx={{ color: "success.main" }} />
-            <Stack>
-              <Typography sx={{ fontSize: 18, fontWeight: 400 }}>
-                Route #RT-4021 Diverted
-              </Typography>
-              <Typography
-                sx={{ fontSize: 14, fontWeight: 200, color: "text.secondary" }}
-              >
-                Arrived at London Depot
-              </Typography>
-            </Stack>
-          </Stack>
+                <WarningIcon sx={{ color: "error.main" }} />
+                <Stack>
+                  <Typography sx={{ fontSize: 18, fontWeight: 400 }}>
+                    {notif.title || "Notification"}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      fontWeight: 200,
+                      color: "text.secondary",
+                    }}
+                  >
+                    {notif.message || ""}
+                  </Typography>
+                </Stack>
+              </Stack>
+            ))
+          ) : (
+            <Typography
+              sx={{
+                fontSize: 14,
+                color: "text.secondary",
+                fontStyle: "italic",
+              }}
+            >
+              No recent notifications
+            </Typography>
+          )}
         </Stack>
       </Stack>
     </CustomCard>

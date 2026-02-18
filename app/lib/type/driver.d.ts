@@ -1,13 +1,12 @@
 import { DriverStatus } from "@prisma/client";
 
-// Domain Models
 export interface DriverWithRelations {
   id: string;
   status: DriverStatus;
   phone: string;
-  employeeId: string | null; // Added
+  employeeId: string | null;
   licenseNumber: string | null;
-  licenseType: string | null; // Changed from LicenseType enum if it's string in DB, usually string based on schema
+  licenseType: string | null;
   licenseExpiry: Date | null;
   rating: number | null;
   efficiencyScore: number | null;

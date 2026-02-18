@@ -1,5 +1,7 @@
 "use client";
 
+import { useUser } from "@/app/lib/hooks/useUser";
+
 import { Stack, useTheme } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import AltRouteIcon from "@mui/icons-material/AltRoute";
@@ -12,22 +14,30 @@ import { getRouteStats } from "@/app/lib/controllers/routes";
 const RoutesKpiCard = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
-  const [stats, setStats] = useState({ active: 0, inProgress: 0, completedToday: 0, delayed: 0 });
+  const [stats, setStats] = useState({
+    active: 0,
+    inProgress: 0,
+    completedToday: 0,
+    delayed: 0,
+  });
+  const { user, loading } = useUser();
 
   useEffect(() => {
     const fetchStats = async () => {
-      // TODO: Use actual auth context
-      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
-      const USER_ID = 'usr_001';
+      if (!user) return;
+
       try {
-        const data = await getRouteStats(COMPANY_ID, USER_ID);
+        const data = await getRouteStats(user.companyId, user.id);
         setStats(data);
       } catch (err) {
         console.error(err);
       }
+    };
+
+    if (!loading && user) {
+      fetchStats();
     }
-    fetchStats();
-  }, []);
+  }, [user, loading]);
 
   const kpiItems = [
     {

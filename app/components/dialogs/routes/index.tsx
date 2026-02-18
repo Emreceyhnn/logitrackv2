@@ -11,14 +11,12 @@ import {
   Divider,
   IconButton,
   Stack,
-  Tab,
-  Tabs,
   Typography,
   useTheme,
 } from "@mui/material";
 import { Route } from "@/app/lib/type/RoutesType";
 import DriverCard from "../../cards/driverCard";
-import mockData from "@/app/lib/mockData.json";
+import mockData from "@/app/lib/mockData.json"; // TODO: Replace with real fetches or pass as props
 import MapRoutesDialogCard from "./map";
 import RouteProgress from "./progress";
 import RoutesTelemetryCards from "./telemetry";
@@ -28,7 +26,7 @@ import AltRouteIcon from "@mui/icons-material/AltRoute";
 import PlaceIcon from "@mui/icons-material/Place";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 
-interface RoutesDialogParams {
+interface RouteDetailsDialogParams {
   open: boolean;
   onClose: () => void;
   routeData?: Route;
@@ -47,20 +45,35 @@ const getStatusMeta = (status?: string) => {
   }
 };
 
-const RoutesDialog = (params: RoutesDialogParams) => {
+const RouteDetailsDialog = (params: RouteDetailsDialogParams) => {
   const { open, onClose, routeData } = params;
-  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
   const driver =
     mockData.staff.drivers.find((i) => i.id === routeData?.driverId) ?? null;
 
   /* -------------------------------- functions ------------------------------- */
-  const statusMeta = getStatusMeta(routeData?.status);
+  const statusMeta = getStatusMeta(routeData?.status || "PENDING");
   const [colorKey, colorVariant] = statusMeta.color.split(".");
   const statusColor =
     (theme.palette as any)[colorKey]?.[colorVariant] ||
     theme.palette.text.primary;
+
+  // VIEW MODE: Derive from stops if available
+  let mapOrigin = undefined;
+  let mapDestination = undefined;
+
+  mapOrigin = {
+    lat: routeData?.startLat || 0,
+    lng: routeData?.startLng || 0,
+  };
+
+  mapDestination = {
+    lat: routeData?.endLat || 0,
+    lng: routeData?.endLng || 0,
+  };
+
+  console.log(routeData, mapDestination);
 
   return (
     <Dialog
@@ -78,7 +91,10 @@ const RoutesDialog = (params: RoutesDialogParams) => {
       <Box
         sx={{
           p: 3,
-          background: `linear-gradient(135deg, ${alpha(statusColor, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
+          background: `linear-gradient(135deg, ${alpha(
+            statusColor,
+            0.05
+          )} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
           borderBottom: `1px solid ${theme.palette.divider}`,
         }}
       >
@@ -185,7 +201,11 @@ const RoutesDialog = (params: RoutesDialogParams) => {
         <Stack p={2} spacing={2}>
           {driver && <DriverCard {...driver} />}
           <Divider />
-          <MapRoutesDialogCard routeId={routeData?.id ?? ""} />
+          <MapRoutesDialogCard
+            routeId={routeData?.id ?? ""}
+            origin={mapOrigin}
+            destination={mapDestination}
+          />
           {routeData && (
             <Stack direction={"row"} justifyContent={"space-between"}>
               <RouteProgress routeData={routeData} />
@@ -198,4 +218,4 @@ const RoutesDialog = (params: RoutesDialogParams) => {
   );
 };
 
-export default RoutesDialog;
+export default RouteDetailsDialog;

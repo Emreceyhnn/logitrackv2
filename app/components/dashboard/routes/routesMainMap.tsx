@@ -1,18 +1,30 @@
+"use client";
+
 import { Box } from "@mui/material";
 import GoogleMapView from "@/app/components/map";
-import mockData from "@/app/lib/mockData.json";
+import { useEffect, useState } from "react";
+import { useUser } from "@/app/lib/hooks/useUser";
+import { getActiveRoutesLocations } from "@/app/lib/controllers/routes";
 
 const RoutesMainMap = () => {
-  const vehicles = mockData.fleet
-    .filter((v) => v.status === "ON_TRIP")
-    .map((v) => {
-      return {
-        position: v.currentStatus.location,
-        name: v.plate,
-        id: v.id,
-        type: "V",
-      };
-    });
+  const { user, loading } = useUser();
+  const [vehicles, setVehicles] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      if (!user) return;
+      try {
+        const data = await getActiveRoutesLocations(user.companyId, user.id);
+        setVehicles(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    if (!loading && user) {
+      fetchLocations();
+    }
+  }, [user, loading]);
 
   return (
     <Box sx={{ minHeight: 400, flexGrow: 3 }}>

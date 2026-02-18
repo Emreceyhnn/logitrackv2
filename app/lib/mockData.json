@@ -1007,6 +1007,7 @@
           "sequence": 1,
           "type": "PICKUP",
           "locationName": "Istanbul DC",
+          "location": { "lat": 41.0412, "lng": 28.6789 },
           "status": "COMPLETED",
           "eta": "08:00",
           "ata": "08:15"
@@ -1016,6 +1017,7 @@
           "sequence": 2,
           "type": "DELIVERY",
           "locationName": "Kadikoy MegaStore",
+          "location": { "lat": 40.9632, "lng": 29.0632 },
           "status": "EN_ROUTE",
           "eta": "16:30",
           "shipmentIds": ["shp_1045"]
@@ -1064,6 +1066,7 @@
           "sequence": 1,
           "type": "PICKUP",
           "locationName": "Istanbul DC",
+          "location": { "lat": 41.0412, "lng": 28.6789 },
           "status": "COMPLETED",
           "eta": "13:00",
           "ata": "13:10"
@@ -1073,6 +1076,7 @@
           "sequence": 2,
           "type": "DELIVERY",
           "locationName": "Besiktas Express",
+          "location": { "lat": 41.0422, "lng": 29.0067 },
           "status": "EN_ROUTE",
           "eta": "13:45",
           "shipmentIds": ["shp_1048"]

@@ -16,6 +16,7 @@ export interface RouteStop {
   sequence: number;
   type: string; // PICKUP, DELIVERY, RETURN
   locationName: string;
+  location?: { lat: number; lng: number };
   status: string;
   eta: string;
   ata?: string;
@@ -33,4 +34,8 @@ export interface Route {
   metrics: RouteMetrics;
   stops: RouteStop[];
   shipments?: { length: number } | string[];
+  startLat: number;
+  startLng: number;
+  endLat: number;
+  endLng: number;
 }
