@@ -4,8 +4,10 @@ import DirectionsIcon from "@mui/icons-material/Directions";
 import PlaceIcon from "@mui/icons-material/Place";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
+import { DailyOperationsData } from "@/app/lib/type/overview";
+
 interface DailyOperationsCardProps {
-  values: any;
+  values: DailyOperationsData | null;
 }
 
 const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {

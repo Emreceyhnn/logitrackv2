@@ -1,7 +1,9 @@
 import { Divider, LinearProgress, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
+import { WarehouseCapacityStat } from "@/app/lib/type/overview";
+
 interface WarehouseCapacityCardProps {
-  values: any[];
+  values: WarehouseCapacityStat[];
 }
 
 const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {

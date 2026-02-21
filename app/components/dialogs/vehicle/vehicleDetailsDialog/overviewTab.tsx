@@ -132,7 +132,15 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
           </Stack>
         </Stack>
         <Stack width={"50%"}>
-          <MapVehicleOverviewCard id={vehicle.id} />
+          <MapVehicleOverviewCard
+            id={vehicle.id}
+            name={vehicle.plate}
+            location={
+              vehicle.currentLat && vehicle.currentLng
+                ? { lat: vehicle.currentLat, lng: vehicle.currentLng }
+                : null
+            }
+          />
         </Stack>
       </Stack>
 

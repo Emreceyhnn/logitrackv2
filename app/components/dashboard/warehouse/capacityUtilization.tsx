@@ -1,19 +1,26 @@
 "use client";
-import mockData from "@/app/lib/mockData.json";
 import {
   Box,
-  Card,
   CircularProgress,
   Stack,
   Typography,
   useTheme,
 } from "@mui/material";
 import CustomCard from "../../cards/card";
+import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 
-const CapacityUtilization = () => {
-  /* -------------------------------- variables ------------------------------- */
+interface CapacityUtilizationProps {
+  warehouses: WarehouseWithRelations[];
+  loading?: boolean;
+}
+
+const CapacityUtilization = ({
+  warehouses,
+  loading,
+}: CapacityUtilizationProps) => {
   const theme = useTheme();
-  const warehouses = mockData.warehouses;
+
+  if (loading) return <Typography>Loading capacity...</Typography>;
 
   return (
     <CustomCard sx={{ p: 3, borderRadius: "12px", boxShadow: 3, flex: 2 }}>
@@ -23,11 +30,12 @@ const CapacityUtilization = () => {
 
       <Stack spacing={4} alignItems="center">
         {warehouses.map((warehouse) => {
-          const capacityPct = Math.round(
-            (warehouse.capacity.usedPallets / warehouse.capacity.totalPallets) *
-              100
-          );
-          const color = warehouse.code.includes("IST") ? "#3b82f6" : "#10b981";
+          // Derived values calculation matching list table logic
+          const usedPallets = (warehouse._count?.inventory || 0) * 10;
+          const totalPallets = warehouse.capacityPallets || 5000;
+          const capacityPct = Math.round((usedPallets / totalPallets) * 100);
+
+          const color = capacityPct > 80 ? "#ef4444" : "#3b82f6";
 
           return (
             <Stack key={warehouse.id} alignItems="center" spacing={2}>
@@ -80,7 +88,7 @@ const CapacityUtilization = () => {
                     color="text.secondary"
                     sx={{ textTransform: "uppercase" }}
                   >
-                    {warehouse.address.city}
+                    {warehouse.city}
                   </Typography>
                 </Box>
               </Box>

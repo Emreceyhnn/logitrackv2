@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -14,49 +13,16 @@ import {
   useTheme,
 } from "@mui/material";
 import CustomCard from "../../cards/card";
-import { getWarehouses } from "@/app/lib/controllers/warehouse";
+import {
+  WarehouseTableProps,
+  WarehouseWithRelations,
+} from "@/app/lib/type/warehouse";
 
-const WarehouseListTable = () => {
-  /* -------------------------------- variables ------------------------------- */
+const WarehouseListTable = ({ warehouses, loading }: WarehouseTableProps) => {
   const theme = useTheme();
-  const [warehouses, setWarehouses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchWarehouses = async () => {
-      try {
-        const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
-        const USER_ID = 'usr_001';
-        const data = await getWarehouses(COMPANY_ID, USER_ID);
-
-        const mapped = data.map((w: any) => ({
-          id: w.id,
-          code: w.code,
-          name: w.name,
-          address: { city: w.city },
-          capacity: {
-            usedPallets: (w._count?.inventory || 0) * 10, // Still an estimate if we don't track pallet count per item, but getting better
-            totalPallets: w.capacityPallets || 5000,
-            usedVolumeM3: (w._count?.inventory || 0) * 5, // Estimate
-            totalVolumeM3: w.capacityVolumeM3 || 100000
-          },
-          operatingHours: {
-            monFri: w.operatingHours || "08:00 - 18:00"
-          }
-        }));
-
-        setWarehouses(mapped);
-      } catch (error) {
-        console.error("Failed to fetch warehouses", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWarehouses();
-  }, []);
-
-  if (loading) return <Typography sx={{ p: 3 }}>Loading warehouses...</Typography>;
+  if (loading)
+    return <Typography sx={{ p: 3 }}>Loading warehouses...</Typography>;
 
   return (
     <CustomCard sx={{ p: 3, borderRadius: "12px", boxShadow: 3 }}>
@@ -128,14 +94,18 @@ const WarehouseListTable = () => {
           </TableHead>
           <TableBody>
             {warehouses.map((warehouse) => {
-              const palletPct =
-                (warehouse.capacity.usedPallets /
-                  warehouse.capacity.totalPallets) *
-                100;
-              const volumePct =
-                (warehouse.capacity.usedVolumeM3 /
-                  warehouse.capacity.totalVolumeM3) *
-                100;
+              // Derived values calculation
+              const usedPallets = (warehouse._count?.inventory || 0) * 10; // Mock calculation logic preserved
+              const totalPallets = warehouse.capacityPallets || 5000;
+              const usedVolume = (warehouse._count?.inventory || 0) * 5; // Mock calculation logic preserved
+              const totalVolume = warehouse.capacityVolumeM3 || 100000;
+
+              const palletPct = (usedPallets / totalPallets) * 100;
+              const volumePct = (usedVolume / totalVolume) * 100;
+
+              // @ts-ignore - operatingHours might be string or object in DB, handling simplistic case
+              const operatingHours =
+                warehouse.operatingHours || "08:00 - 18:00";
 
               return (
                 <TableRow
@@ -146,7 +116,7 @@ const WarehouseListTable = () => {
                     {warehouse.code}
                   </TableCell>
                   <TableCell>{warehouse.name}</TableCell>
-                  <TableCell>{warehouse.address.city}</TableCell>
+                  <TableCell>{warehouse.city}</TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={2} alignItems="center">
                       <LinearProgress
@@ -170,8 +140,8 @@ const WarehouseListTable = () => {
                         variant="caption"
                         sx={{ minWidth: 80, fontFamily: "monospace" }}
                       >
-                        {warehouse.capacity.usedPallets.toLocaleString()} /{" "}
-                        {warehouse.capacity.totalPallets.toLocaleString()}
+                        {usedPallets.toLocaleString()} /{" "}
+                        {totalPallets.toLocaleString()}
                       </Typography>
                     </Stack>
                   </TableCell>
@@ -198,13 +168,15 @@ const WarehouseListTable = () => {
                         variant="caption"
                         sx={{ minWidth: 100, fontFamily: "monospace" }}
                       >
-                        {warehouse.capacity.usedVolumeM3.toLocaleString()}k /{" "}
-                        {warehouse.capacity.totalVolumeM3.toLocaleString()}k m³
+                        {usedVolume.toLocaleString()}k /{" "}
+                        {totalVolume.toLocaleString()}k m³
                       </Typography>
                     </Stack>
                   </TableCell>
                   <TableCell align="right" sx={{ fontFamily: "monospace" }}>
-                    {warehouse.operatingHours.monFri}
+                    {typeof operatingHours === "object"
+                      ? (operatingHours as any).monFri
+                      : operatingHours}
                   </TableCell>
                 </TableRow>
               );

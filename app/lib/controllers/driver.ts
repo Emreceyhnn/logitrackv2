@@ -178,6 +178,8 @@ export const getDriverDashboardData = authenticatedAction(async (user) => {
         name: d.user.name,
         rating: d.rating || 0,
         workingHours: Math.floor(Math.random() * 20) + 30, // Mock working hours
+        days: [0, 0, 0, 0, 0], // Placeholder
+        values: [0, 0, 0, 0, 0], // Placeholder
       })),
     };
   } catch (error: any) {

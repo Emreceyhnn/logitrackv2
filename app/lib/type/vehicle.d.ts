@@ -70,6 +70,8 @@ export interface VehicleWithRelations {
   status: VehicleStatus;
   odometerKm: number | null;
   fuelLevel: number | null;
+  currentLat: number | null;
+  currentLng: number | null;
   driver: DriverWithUser | null;
   issues: Issue[];
   documents: Document[];

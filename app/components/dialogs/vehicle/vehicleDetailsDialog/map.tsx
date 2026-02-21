@@ -1,24 +1,37 @@
 import GoogleMapView from "@/app/components/map";
-import mockData from "@/app/lib/mockData.json";
 import CustomCard from "../../../cards/card";
 
 interface MapVehicleOverviewCardProps {
   id: string;
+  name: string;
+  location?: { lat: number; lng: number } | null;
 }
 
-const MapVehicleOverviewCard = ({ id }: MapVehicleOverviewCardProps) => {
-  const vehicles = mockData.fleet
-    .filter((i) => i.id === id)
-    .map((i) => ({
-      position: i.currentStatus.location,
-      name: i.plate,
-      id: i.id,
-      type: "V",
-    }));
+const MapVehicleOverviewCard = ({
+  id,
+  name,
+  location,
+}: MapVehicleOverviewCardProps) => {
+  const vehicleMarker = location
+    ? [
+        {
+          position: location,
+          name: name,
+          id: id,
+          type: "V",
+        },
+      ]
+    : [];
 
   return (
     <CustomCard sx={{ flexGrow: 1, padding: 0 }}>
-      <GoogleMapView warehouseLoc={vehicles} />
+      {location ? (
+        <GoogleMapView warehouseLoc={vehicleMarker} />
+      ) : (
+        <div style={{ padding: 20, textAlign: "center" }}>
+          No location data available
+        </div>
+      )}
     </CustomCard>
   );
 };

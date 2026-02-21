@@ -4,8 +4,10 @@ import { Divider, Stack, Typography } from "@mui/material";
 import { LineChart } from "@mui/x-charts";
 import CustomCard from "../../cards/card";
 
+import { TrendData } from "@/app/lib/type/overview";
+
 interface OnTimeTrendsCardProps {
-  values: any[];
+  values: TrendData[];
 }
 
 const OnTimeTrendsCard = ({ values }: OnTimeTrendsCardProps) => {

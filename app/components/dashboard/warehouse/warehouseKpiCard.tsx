@@ -1,40 +1,36 @@
 "use client";
-import { Card, Stack, Typography, useTheme } from "@mui/material";
-import { useEffect, useState } from "react";
-import { getWarehouseStats } from "@/app/lib/controllers/warehouse";
+import { Card, Stack, Typography, useTheme, Skeleton } from "@mui/material";
+import { WarehouseKpiCardProps } from "@/app/lib/type/warehouse";
 
-const WarehouseKpiCard = () => {
-  /* -------------------------------- variables ------------------------------- */
+const WarehouseKpiCard = ({ stats, loading }: WarehouseKpiCardProps) => {
   const theme = useTheme();
 
-  const [stats, setStats] = useState({
-    totalWarehouses: 0,
-    totalSkus: 0,
-    totalItems: 0,
-    totalCapacityPallets: 0,
-    totalCapacityVolume: 0
-  });
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
-      const USER_ID = 'usr_001';
-      try {
-        const data = await getWarehouseStats(COMPANY_ID, USER_ID);
-        setStats(data);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    fetchStats();
-  }, []);
-
+  if (loading || !stats) {
+    return (
+      <Stack direction={"row"} spacing={2} sx={{ width: "100%" }}>
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton
+            key={i}
+            variant="rectangular"
+            height={100}
+            sx={{ flex: 1, borderRadius: "12px" }}
+          />
+        ))}
+      </Stack>
+    );
+  }
 
   const kpiItems = [
     { label: "WAREHOUSES", value: stats.totalWarehouses },
     { label: "INVENTORY SKUS", value: stats.totalSkus.toLocaleString() },
-    { label: "TOTAL PALLETS", value: stats.totalCapacityPallets.toLocaleString() },
-    { label: "TOTAL VOLUME (M³)", value: stats.totalCapacityVolume.toLocaleString() },
+    {
+      label: "TOTAL PALLETS",
+      value: stats.totalCapacityPallets.toLocaleString(),
+    },
+    {
+      label: "TOTAL VOLUME (M³)",
+      value: stats.totalCapacityVolume.toLocaleString(),
+    },
   ];
 
   return (

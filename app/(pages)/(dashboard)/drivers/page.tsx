@@ -21,7 +21,7 @@ import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";
 import DriverDialog from "@/app/components/dialogs/driver";
 import DriverTableToolbar from "@/app/components/dashboard/driver/driverTable/toolbar";
 import EditDriverDialog from "@/app/components/dialogs/driver/editDriverDialog";
-import ConfirmDeleteDialog from "@/app/components/dialogs/confirmDeleteDialog";
+import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 
 export default function DriverPage() {
   /* ---------------------------------- State --------------------------------- */
@@ -343,7 +343,7 @@ export default function DriverPage() {
         }
       />
 
-      <ConfirmDeleteDialog
+      <DeleteConfirmationDialog
         open={isDeleteOpen}
         title="Delete Driver"
         description="Are you sure you want to delete this driver? This action cannot be undone."

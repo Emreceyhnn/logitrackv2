@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import AnalyticsHeader from "@/app/components/dashboard/analytics/AnalyticsHeader";
 import PerformanceGauges from "@/app/components/dashboard/analytics/PerformanceGauges";
 import CostAnalysisCharts from "@/app/components/dashboard/analytics/CostAnalysisCharts";
@@ -14,9 +14,11 @@ export default function AnalyticsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
-        const USER_ID = 'usr_001';
-        const result = await import("@/app/lib/controllers/analytics").then(mod => mod.getAnalyticsDashboardData(COMPANY_ID)); // Passing token/companyID
+        const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
+        const USER_ID = "usr_001";
+        const result = await import("@/app/lib/controllers/analytics").then(
+          (mod) => mod.getAnalyticsDashboardData(COMPANY_ID)
+        ); // Passing token/companyID
         setData(result);
       } catch (error) {
         console.error("Failed to fetch analytics", error);
@@ -26,14 +28,6 @@ export default function AnalyticsPage() {
     };
     fetchData();
   }, []);
-
-  if (loading) {
-    return (
-      <Box sx={{ p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    )
-  }
 
   return (
     <Box sx={{ p: 3 }}>

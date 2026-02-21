@@ -2,8 +2,10 @@
 import { Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { BarChart } from "@mui/x-charts";
+import { FuelStat } from "@/app/lib/type/overview";
+
 interface FuelByVehicleCardProps {
-  values: any[];
+  values: FuelStat[];
 }
 
 const FuelByVehicleCard = ({ values }: FuelByVehicleCardProps) => {

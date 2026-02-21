@@ -50,7 +50,10 @@ const DriverTable = ({
   }
 
   /* -------------------------------- handlers -------------------------------- */
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
     onPageChange(newPage + 1); // MUI uses 0-indexed, our API uses 1-indexed
   };
 

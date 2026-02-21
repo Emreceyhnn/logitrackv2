@@ -13,10 +13,10 @@ import {
   Stack,
   Typography,
   useTheme,
+  Grid,
 } from "@mui/material";
-import { Route } from "@/app/lib/type/RoutesType";
+import { RouteWithRelations } from "@/app/lib/type/routes";
 import DriverCard from "../../cards/driverCard";
-import mockData from "@/app/lib/mockData.json"; // TODO: Replace with real fetches or pass as props
 import MapRoutesDialogCard from "./map";
 import RouteProgress from "./progress";
 import RoutesTelemetryCards from "./telemetry";
@@ -26,10 +26,10 @@ import AltRouteIcon from "@mui/icons-material/AltRoute";
 import PlaceIcon from "@mui/icons-material/Place";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 
-interface RouteDetailsDialogParams {
+interface RouteDialogProps {
   open: boolean;
   onClose: () => void;
-  routeData?: Route;
+  route: RouteWithRelations | null;
 }
 
 const getStatusMeta = (status?: string) => {
@@ -45,35 +45,33 @@ const getStatusMeta = (status?: string) => {
   }
 };
 
-const RouteDetailsDialog = (params: RouteDetailsDialogParams) => {
-  const { open, onClose, routeData } = params;
+export default function RouteDialog({
+  open,
+  onClose,
+  route,
+}: RouteDialogProps) {
   const theme = useTheme();
 
-  const driver =
-    mockData.staff.drivers.find((i) => i.id === routeData?.driverId) ?? null;
+  if (!route) return null;
 
   /* -------------------------------- functions ------------------------------- */
-  const statusMeta = getStatusMeta(routeData?.status || "PENDING");
+  const statusMeta = getStatusMeta(route.status || "PENDING");
   const [colorKey, colorVariant] = statusMeta.color.split(".");
   const statusColor =
     (theme.palette as any)[colorKey]?.[colorVariant] ||
     theme.palette.text.primary;
 
   // VIEW MODE: Derive from stops if available
-  let mapOrigin = undefined;
-  let mapDestination = undefined;
-
-  mapOrigin = {
-    lat: routeData?.startLat || 0,
-    lng: routeData?.startLng || 0,
+  // Using explicit casts or safe access since Route model might have simple Lat/Lng fields
+  const mapOrigin = {
+    lat: (route as any).startLat || 0,
+    lng: (route as any).startLng || 0,
   };
 
-  mapDestination = {
-    lat: routeData?.endLat || 0,
-    lng: routeData?.endLng || 0,
+  const mapDestination = {
+    lat: (route as any).endLat || 0,
+    lng: (route as any).endLng || 0,
   };
-
-  console.log(routeData, mapDestination);
 
   return (
     <Dialog
@@ -125,7 +123,7 @@ const RouteDetailsDialog = (params: RouteDetailsDialogParams) => {
                   fontWeight={700}
                   sx={{ color: theme.palette.text.primary }}
                 >
-                  Route #{routeData?.id}
+                  Route #{route.id}
                 </Typography>
                 <Chip
                   label={statusMeta.text}
@@ -146,7 +144,7 @@ const RouteDetailsDialog = (params: RouteDetailsDialogParams) => {
                   sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
                 >
                   <PlaceIcon fontSize="small" sx={{ fontSize: "1rem" }} />
-                  {routeData?.name || "Route details"}
+                  {route.name || "Route details"}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -157,8 +155,9 @@ const RouteDetailsDialog = (params: RouteDetailsDialogParams) => {
                     fontSize="small"
                     sx={{ fontSize: "1rem" }}
                   />
-                  {routeData?.metrics?.totalDistanceKm} km •{" "}
-                  {routeData?.stops?.length || 0} Stops
+                  {/* Safe access for metrics */}
+                  {(route as any).metrics?.totalDistanceKm || 0} km •{" "}
+                  {(route as any).stops?.length || 0} Stops
                 </Typography>
               </Stack>
             </Stack>
@@ -199,23 +198,64 @@ const RouteDetailsDialog = (params: RouteDetailsDialogParams) => {
 
       <DialogContent sx={{ p: 0 }}>
         <Stack p={2} spacing={2}>
-          {driver && <DriverCard {...driver} />}
+          {route.driver && (
+            // Simplified driver card props passing
+            <DriverCard
+              // Construct a partial object that satisfies the type enough for the card display
+              // TODO: Fetch full driver details or make DriverCard props optional
+              {...({
+                id: route.driver.id,
+                status: "ON_JOB",
+                phone: "",
+                employeeId: "",
+                licenseNumber: "",
+                licenseType: "",
+                licenseExpiry: null,
+                rating: 0,
+                efficiencyScore: 0,
+                safetyScore: 0,
+                user: {
+                  id: route.driver.id,
+                  name: route.driver.user.name,
+                  surname: route.driver.user.surname,
+                  email: "",
+                  avatarUrl: route.driver.user.avatarUrl,
+                  roleId: "",
+                },
+                currentVehicle: null,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              } as any)}
+            />
+          )}
           <Divider />
           <MapRoutesDialogCard
-            routeId={routeData?.id ?? ""}
+            routeId={route.id}
             origin={mapOrigin}
             destination={mapDestination}
+            vehicleLocation={
+              route.vehicle &&
+              route.vehicle.currentLat &&
+              route.vehicle.currentLng
+                ? {
+                    lat: route.vehicle.currentLat,
+                    lng: route.vehicle.currentLng,
+                    name: route.vehicle.plate,
+                    id: route.vehicle.id,
+                  }
+                : null
+            }
           />
-          {routeData && (
-            <Stack direction={"row"} justifyContent={"space-between"}>
-              <RouteProgress routeData={routeData} />
-              <RoutesTelemetryCards routeId={routeData.id} />
-            </Stack>
-          )}
+          <Stack direction={"row"} justifyContent={"space-between"} spacing={2}>
+            <Box flex={1}>
+              <RouteProgress route={route} />
+            </Box>
+            <Box flex={1}>
+              <RoutesTelemetryCards routeId={route.id} route={route} />
+            </Box>
+          </Stack>
         </Stack>
       </DialogContent>
     </Dialog>
   );
-};
-
-export default RouteDetailsDialog;
+}

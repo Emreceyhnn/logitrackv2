@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, Typography, Tabs, Tab, CircularProgress } from "@mui/material";
+import { Box, Typography, Tabs, Tab } from "@mui/material";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import InventoryIcon from "@mui/icons-material/Inventory";
@@ -10,6 +10,8 @@ import ShipmentCharts from "@/app/components/dashboard/reports/ShipmentCharts";
 import FleetCharts from "@/app/components/dashboard/reports/FleetCharts";
 import InventoryCharts from "@/app/components/dashboard/reports/InventoryCharts";
 import ReportSummaryCards from "@/app/components/dashboard/reports/ReportSummaryCards";
+import { getReportsDataAction } from "@/app/lib/controllers/reports";
+import { ReportsPageState } from "@/app/lib/type/reports";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -35,38 +37,30 @@ function CustomTabPanel(props: TabPanelProps) {
 
 export default function ReportsPage() {
   /* --------------------------------- states --------------------------------- */
-  const [value, setValue] = useState(0);
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<ReportsPageState>({
+    data: null,
+    loading: true,
+    error: null,
+    tabIndex: 0,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
-      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
-      const USER_ID = 'usr_001';
       try {
-        const result = await import("@/app/lib/controllers/reports").then(mod => mod.getReportsData(COMPANY_ID));
-        setData(result);
-      } catch (error) {
+        const result = await getReportsDataAction();
+        setState((prev) => ({ ...prev, data: result, loading: false }));
+      } catch (error: any) {
         console.error("Failed to fetch reports:", error);
-      } finally {
-        setLoading(false);
+        setState((prev) => ({ ...prev, loading: false, error: error.message }));
       }
     };
     fetchData();
-  }, [])
+  }, []);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+    setState((prev) => ({ ...prev, tabIndex: newValue }));
   };
-
-  if (loading) {
-    return (
-      <Box sx={{ p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   return (
     <Box sx={{ p: 3 }}>
@@ -85,7 +79,7 @@ export default function ReportsPage() {
 
       <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 4 }}>
         <Tabs
-          value={value}
+          value={state.tabIndex}
           onChange={handleChange}
           aria-label="report tabs"
           sx={{
@@ -115,17 +109,24 @@ export default function ReportsPage() {
         </Tabs>
       </Box>
 
-      <ReportSummaryCards tabIndex={value} metrics={data?.metrics} />
+      {state.data && (
+        <ReportSummaryCards
+          tabIndex={state.tabIndex}
+          metrics={state.data.metrics}
+        />
+      )}
 
       <Box sx={{ mt: 2 }}>
-        <CustomTabPanel value={value} index={0}>
-          <ShipmentCharts data={data?.shipments} />
+        <CustomTabPanel value={state.tabIndex} index={0}>
+          {state.data && <ShipmentCharts data={state.data.shipments} />}
         </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <FleetCharts data={data?.fleet} />
+        <CustomTabPanel value={state.tabIndex} index={1}>
+          {state.data && <FleetCharts data={state.data.fleet} />}
         </CustomTabPanel>
-        <CustomTabPanel value={value} index={2}>
-          <InventoryCharts data={data?.inventory?.categoryStats} />
+        <CustomTabPanel value={state.tabIndex} index={2}>
+          {state.data && (
+            <InventoryCharts data={state.data.inventory.categoryStats} />
+          )}
         </CustomTabPanel>
       </Box>
     </Box>

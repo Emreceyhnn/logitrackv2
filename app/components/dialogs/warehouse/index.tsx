@@ -1,4 +1,4 @@
-import { Warehouse } from "@/app/lib/types";
+import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import {
   Box,
   Button,
@@ -25,12 +25,11 @@ import PersonIcon from "@mui/icons-material/Person";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
-import mockData from "@/app/lib/mockData.json";
 
 interface WarehouseDialogParams {
   open: boolean;
   onClose: () => void;
-  warehouseData?: Warehouse;
+  warehouseData?: WarehouseWithRelations;
 }
 
 const WarehouseDialog = ({
@@ -40,37 +39,22 @@ const WarehouseDialog = ({
 }: WarehouseDialogParams) => {
   if (!warehouseData) return null;
 
-  const warehouseStock = mockData.inventory.stock.filter(
-    (s) => s.warehouseId === warehouseData.id
-  );
+  // Safe defaults if capacity is missing (using Prisma defaults or 0)
+  const capacity = {
+    maxPallets: warehouseData.capacityPallets || 5000,
+    usedPallets: 0, // Not yet tracked in backend
+    maxVolumeM3: warehouseData.capacityVolumeM3 || 100000,
+    usedVolumeM3: 0, // Not yet tracked in backend
+  };
 
-  const inventoryItems = warehouseStock
-    .sort((a, b) => b.quantity - a.quantity)
-    .slice(0, 5)
-    .map((stockItem) => {
-      const catalogItem = mockData.inventory.catalog.find(
-        (c) => c.id === stockItem.skuId
-      );
-      return {
-        name: catalogItem?.name || stockItem.skuId,
-        qty: stockItem.quantity,
-        code: catalogItem?.code || stockItem.skuId,
+  const palletPct =
+    Math.round((capacity.usedPallets / capacity.maxPallets) * 100) || 0;
 
-        onHand: stockItem.quantity,
-        reserved: stockItem.reserved,
-        available: stockItem.quantity - stockItem.reserved,
-        details: catalogItem,
-      };
-    });
+  const volumePct =
+    Math.round((capacity.usedVolumeM3 / capacity.maxVolumeM3) * 100) || 0;
 
-  const palletPct = Math.round(
-    (warehouseData.capacity.usedPallets / warehouseData.capacity.maxPallets) *
-      100
-  );
-  const volumePct = Math.round(
-    (warehouseData.capacity.usedVolumeM3 / warehouseData.capacity.maxVolumeM3) *
-      100
-  );
+  // Use inventory from props or empty
+  const inventoryItems = warehouseData.inventory || [];
 
   return (
     <Dialog
@@ -151,11 +135,8 @@ const WarehouseDialog = ({
                     color="text.secondary"
                     sx={{ mt: 0.5, lineHeight: 1.6 }}
                   >
-                    {warehouseData.address.line1},{" "}
-                    {warehouseData.address.district}
-                    <br />
-                    {warehouseData.address.city},{" "}
-                    {warehouseData.address.country}
+                    {warehouseData.address}, <br />
+                    {warehouseData.city}, {warehouseData.country}
                   </Typography>
                 </Box>
               </Stack>
@@ -175,9 +156,7 @@ const WarehouseDialog = ({
                     color="text.secondary"
                     sx={{ mt: 0.5, lineHeight: 1.6 }}
                   >
-                    Mon - Sat: {warehouseData.operatingHours.monFri}
-                    <br />
-                    Sunday: Closed
+                    {warehouseData.operatingHours || "N/A"}
                   </Typography>
                 </Box>
               </Stack>
@@ -239,8 +218,8 @@ const WarehouseDialog = ({
                     PALLETS
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {warehouseData.capacity.usedPallets.toLocaleString()} /{" "}
-                    {warehouseData.capacity.maxPallets.toLocaleString()}
+                    {capacity.usedPallets.toLocaleString()} /{" "}
+                    {capacity.maxPallets.toLocaleString()}
                   </Typography>
                 </Box>
 
@@ -270,15 +249,15 @@ const WarehouseDialog = ({
                     VOLUME
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {warehouseData.capacity.usedVolumeM3.toLocaleString()} /{" "}
-                    {warehouseData.capacity.maxVolumeM3.toLocaleString()} m³
+                    {capacity.usedVolumeM3.toLocaleString()} /{" "}
+                    {capacity.maxVolumeM3.toLocaleString()} m³
                   </Typography>
                 </Box>
               </Stack>
             </Paper>
           </Box>
 
-          {/* Contact Details */}
+          {/* Manager Details (Replaces Contacts) */}
           <Box sx={{ width: "100%" }}>
             <Typography
               variant="subtitle2"
@@ -291,7 +270,7 @@ const WarehouseDialog = ({
                 mb: 2,
               }}
             >
-              Contact Details
+              Warehouse Manager
             </Typography>
             <Paper
               variant="outlined"
@@ -301,59 +280,28 @@ const WarehouseDialog = ({
                 borderRadius: 2,
               }}
             >
-              <Stack spacing={2}>
-                {warehouseData.contacts.map((contact, idx) => (
-                  <Stack
-                    direction="row"
-                    spacing={2}
-                    alignItems="center"
-                    flexWrap="wrap"
-                    useFlexGap
-                    key={idx}
-                  >
-                    <Box
-                      sx={{ width: { xs: "100%", sm: "calc(33.33% - 11px)" } }}
-                    >
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <PersonIcon sx={{ color: "text.secondary" }} />
-                        <Box>
-                          <Typography variant="body2" fontWeight="bold">
-                            {contact.name}
-                          </Typography>
-                          {contact.role && (
-                            <Chip
-                              label={contact.role}
-                              size="small"
-                              variant="outlined"
-                              sx={{ height: 20, fontSize: "0.65rem", mt: 0.5 }}
-                            />
-                          )}
-                        </Box>
-                      </Stack>
-                    </Box>
-                    <Box
-                      sx={{ width: { xs: "100%", sm: "calc(33.33% - 11px)" } }}
-                    >
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <PhoneIcon sx={{ color: "text.secondary" }} />
-                        <Typography variant="body2">{contact.phone}</Typography>
-                      </Stack>
-                    </Box>
-                    <Box
-                      sx={{ width: { xs: "100%", sm: "calc(33.33% - 11px)" } }}
-                    >
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <EmailIcon sx={{ color: "text.secondary" }} />
-                        <Typography variant="body2">{contact.email}</Typography>
-                      </Stack>
-                    </Box>
-                  </Stack>
-                ))}
-              </Stack>
+              {warehouseData.manager ? (
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <PersonIcon sx={{ color: "text.secondary", fontSize: 40 }} />
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {warehouseData.manager.name}{" "}
+                      {warehouseData.manager.surname}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {warehouseData.manager.email}
+                    </Typography>
+                  </Box>
+                </Stack>
+              ) : (
+                <Typography color="text.secondary">
+                  No manager assigned.
+                </Typography>
+              )}
             </Paper>
           </Box>
 
-          {/* Current Inventory */}
+          {/* Current Inventory - Simplified */}
           <Box sx={{ width: "100%" }}>
             <Stack
               direction="row"
@@ -373,126 +321,19 @@ const WarehouseDialog = ({
                 Current Inventory
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Showing top {inventoryItems.length} items
+                {/* Simplified */}
               </Typography>
             </Stack>
 
-            <TableContainer
-              component={Paper}
+            <Paper
               variant="outlined"
-              sx={{
-                backgroundColor: "rgba(255,255,255,0.02)",
-                borderRadius: 2,
-              }}
+              sx={{ p: 2, bgcolor: "rgba(255,255,255,0.02)" }}
             >
-              <Table size="small">
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
-                    <TableCell
-                      sx={{
-                        color: "text.secondary",
-                        fontSize: "0.75rem",
-                        py: 1.5,
-                      }}
-                    >
-                      SKU
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        color: "text.secondary",
-                        fontSize: "0.75rem",
-                        py: 1.5,
-                      }}
-                    >
-                      NAME
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        color: "text.secondary",
-                        fontSize: "0.75rem",
-                        py: 1.5,
-                      }}
-                    >
-                      ON HAND
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        color: "text.secondary",
-                        fontSize: "0.75rem",
-                        py: 1.5,
-                      }}
-                    >
-                      RESERVED
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        color: "text.secondary",
-                        fontSize: "0.75rem",
-                        py: 1.5,
-                      }}
-                    >
-                      AVAILABLE
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {inventoryItems.map((item) => (
-                    <TableRow
-                      key={item.code}
-                      hover
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{ fontSize: "0.85rem", fontWeight: 500 }}
-                      >
-                        {item.details?.code || item.code}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: "0.85rem" }}>
-                        {item.details?.name}
-                      </TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{ fontSize: "0.85rem", color: "text.secondary" }}
-                      >
-                        {item.onHand}
-                      </TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{ fontSize: "0.85rem", color: "#fbbf24" }}
-                      >
-                        {item.reserved}
-                      </TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{
-                          fontSize: "0.85rem",
-                          color: "#10b981",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {item.available}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {inventoryItems.length === 0 && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={5}
-                        align="center"
-                        sx={{ py: 3, color: "text.secondary" }}
-                      >
-                        No inventory data available
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+              <Typography variant="body2" color="text.secondary" align="center">
+                Detailed inventory view requires SKU relation fetching.
+                (Available in Inventory Module)
+              </Typography>
+            </Paper>
           </Box>
         </Stack>
       </DialogContent>

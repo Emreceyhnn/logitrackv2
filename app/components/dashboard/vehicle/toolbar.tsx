@@ -14,6 +14,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { VehicleFilters } from "@/app/lib/type/vehicle";
 import { VehicleStatus, VehicleType } from "@prisma/client";
 import { useState, useEffect } from "react";
+import { SelectChangeEvent } from "@mui/material";
 
 interface VehicleToolbarProps {
   filters: VehicleFilters;
@@ -42,21 +43,25 @@ export default function VehicleToolbar({
   }, [searchTerm, filters.search, onFilterChange]);
 
   /* -------------------------------- handlers -------------------------------- */
-  const handleStatusChange = (event: any) => {
+  const handleStatusChange = (event: SelectChangeEvent<string[]>) => {
     const {
       target: { value },
     } = event;
     onFilterChange({
-      status: typeof value === "string" ? value.split(",") : value,
+      status: (typeof value === "string"
+        ? value.split(",")
+        : value) as VehicleStatus[],
     });
   };
 
-  const handleTypeChange = (event: any) => {
+  const handleTypeChange = (event: SelectChangeEvent<string[]>) => {
     const {
       target: { value },
     } = event;
     onFilterChange({
-      type: typeof value === "string" ? value.split(",") : value,
+      type: (typeof value === "string"
+        ? value.split(",")
+        : value) as VehicleType[],
     });
   };
 

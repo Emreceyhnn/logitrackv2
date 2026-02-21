@@ -1,55 +1,39 @@
 "use client";
-import { Stack, useTheme } from "@mui/material";
+import { Stack, useTheme, Skeleton } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import InventoryIcon from "@mui/icons-material/Inventory";
-import { useEffect, useState } from "react";
-import { getShipmentStats } from "@/app/lib/controllers/shipments";
+import { ShipmentKpiCardProps } from "@/app/lib/type/shipment";
 
-const ShipmentKpiCard = () => {
-  /* -------------------------------- variables ------------------------------- */
+const ShipmentKpiCard = ({ stats, loading = false }: ShipmentKpiCardProps) => {
   const theme = useTheme();
-  const [stats, setStats] = useState({ total: 0, active: 0, delayed: 0, inTransit: 0 });
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      // TODO: Use actual auth context
-      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
-      const USER_ID = 'usr_001';
-      try {
-        const data = await getShipmentStats(COMPANY_ID, USER_ID);
-        setStats(data);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    fetchStats();
-  }, []);
+  const values = stats || { total: 0, active: 0, delayed: 0, inTransit: 0 };
 
   const kpiItems = [
     {
       label: "Total Shipments",
-      value: stats.total,
+      value: values.total,
       icon: <InventoryIcon />,
       color: theme.palette.primary.main,
     },
     {
       label: "Active Shipments",
-      value: stats.active,
+      value: values.active,
       icon: <LocalShippingIcon />,
       color: theme.palette.info.main,
     },
     {
       label: "Delayed Shipments",
-      value: stats.delayed,
+      value: values.delayed,
       icon: <AccessTimeIcon />,
       color: theme.palette.error.main,
     },
     {
       label: "In Transit",
-      value: stats.inTransit,
+      value: values.inTransit,
       icon: <DirectionsBoatIcon />,
       color: theme.palette.warning.main,
     },
@@ -71,7 +55,7 @@ const ShipmentKpiCard = () => {
         >
           <StatCard
             title={item.label}
-            value={item.value}
+            value={loading ? 0 : item.value}
             icon={item.icon}
             color={item.color}
           />

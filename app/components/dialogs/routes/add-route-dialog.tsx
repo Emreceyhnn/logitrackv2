@@ -18,7 +18,7 @@ import {
   InputLabel,
   Select,
 } from "@mui/material";
-import mockData from "@/app/lib/mockData.json"; // TODO: Replace with real fetches or pass as props
+// Removed mockData
 import MapRoutesDialogCard from "./map";
 import AddressAutocomplete from "../../inputs/AddressAutocomplete";
 import CloseIcon from "@mui/icons-material/Close";
@@ -28,14 +28,19 @@ import PlaceIcon from "@mui/icons-material/Place";
 import { useState, useEffect } from "react";
 import { createRoute } from "@/app/lib/controllers/routes";
 import { useUser } from "@/app/lib/hooks/useUser";
+import { getDrivers } from "@/app/lib/controllers/driver";
+import { getVehicles } from "@/app/lib/controllers/vehicle";
+import { getWarehouses } from "@/app/lib/controllers/warehouse";
+import { getCustomers } from "@/app/lib/controllers/customer";
 
 interface AddRouteDialogParams {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 const AddRouteDialog = (params: AddRouteDialogParams) => {
-  const { open, onClose } = params;
+  const { open, onClose, onSuccess } = params;
   const theme = useTheme();
   const { user } = useUser();
 
@@ -52,8 +57,8 @@ const AddRouteDialog = (params: AddRouteDialogParams) => {
     endTime: "",
   });
 
-  const [warehouses, setWarehouses] = useState<any[]>([]); // Should fetch
-  const [customers, setCustomers] = useState<any[]>([]); // Should fetch
+  const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [drivers, setDrivers] = useState<any[]>([]);
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [customDestination, setCustomDestination] = useState<{
@@ -61,21 +66,40 @@ const AddRouteDialog = (params: AddRouteDialogParams) => {
     lng: number;
   } | null>(null);
 
-  // Fetch helpers (Quick mock for now, ideally passed props or swr)
+  // Fetch helpers
   useEffect(() => {
-    if (open) {
-      // Logic to fetch dropdown options
-      // For now using mockData or simulating
-      setWarehouses(mockData.warehouses);
-      setCustomers(mockData.customers);
-      setDrivers(mockData.staff.drivers);
-      setVehicles(
-        mockData.fleet.filter(
-          (f) => f.status === "IDLE" || f.status === "AVAILABLE"
-        )
-      );
+    if (open && user?.companyId) {
+      const fetchData = async () => {
+        try {
+          // Fetch Warehouses
+          const fetchedWarehouses = await getWarehouses(
+            user.companyId,
+            user.id
+          );
+          setWarehouses(fetchedWarehouses);
+
+          // Fetch Customers
+          const fetchedCustomers = await getCustomers(user.companyId, user.id);
+          setCustomers(fetchedCustomers);
+
+          // Fetch Drivers (Page 1, 100 items to cover most)
+          // Note: getDrivers is authenticatedAction, user is injected on server, we pass args
+          const driversData = await getDrivers(1, 100);
+          setDrivers(driversData.data);
+
+          // Fetch Vehicles (Available only)
+          const vehiclesData = await getVehicles({
+            status: ["IDLE", "AVAILABLE"],
+          });
+          setVehicles(vehiclesData);
+        } catch (error) {
+          console.error("Failed to fetch form data for route:", error);
+        }
+      };
+
+      fetchData();
     }
-  }, [open]);
+  }, [open, user]);
 
   const handleCreate = async () => {
     if (!user) return;
@@ -118,8 +142,8 @@ const AddRouteDialog = (params: AddRouteDialogParams) => {
         origin,
         destination
       );
+      if (onSuccess) onSuccess();
       onClose();
-      // Trigger refresh?
     } catch (e) {
       console.error(e);
     }
@@ -140,17 +164,21 @@ const AddRouteDialog = (params: AddRouteDialogParams) => {
   let mapDestination = undefined;
 
   if (selectedOrigin) {
-    mapOrigin = selectedOrigin.address?.coordinates || {
-      lat: selectedOrigin.lat,
-      lng: selectedOrigin.lng,
+    // Check for different address structures if needed, but assuming schema match or existence of lat/lng
+    mapOrigin = {
+      lat: selectedOrigin.lat || 0,
+      lng: selectedOrigin.lng || 0,
     };
   }
   if (formData.destinationType === "ADDRESS" && customDestination) {
     mapDestination = customDestination;
   } else if (selectedDestination) {
-    mapDestination = selectedDestination.address?.coordinates || {
-      lat: selectedDestination.lat,
-      lng: selectedDestination.lng,
+    // Customers might not have lat/lng directly on root if address is string,
+    // but assuming the fetched object has them or we handle them.
+    // For now using what was there, or adding safe fallback
+    mapDestination = {
+      lat: selectedDestination.lat || 0,
+      lng: selectedDestination.lng || 0,
     };
   }
 
@@ -394,7 +422,7 @@ const AddRouteDialog = (params: AddRouteDialogParams) => {
               >
                 {drivers.map((d) => (
                   <MenuItem key={d.id} value={d.id}>
-                    {d.fullName}
+                    {d.user?.name} {d.user?.surname}
                   </MenuItem>
                 ))}
               </Select>

@@ -1,11 +1,16 @@
 import GoogleMapView from "@/app/components/map";
-import mockData from "@/app/lib/mockData.json";
 import { Stack, Typography } from "@mui/material";
 
 interface MapRoutesDialogCardProps {
   routeId?: string;
   origin?: { lat: number; lng: number };
   destination?: { lat: number; lng: number };
+  vehicleLocation?: {
+    lat: number;
+    lng: number;
+    name: string;
+    id: string;
+  } | null;
   onMapClick?: (e: google.maps.MapMouseEvent) => void;
 }
 
@@ -22,20 +27,19 @@ const MapRoutesDialogCard = ({
   routeId,
   origin,
   destination,
+  vehicleLocation,
   onMapClick,
 }: MapRoutesDialogCardProps) => {
-  const vehicles: MapPoint[] = routeId
-    ? mockData.fleet
-        .filter((v) => v.assignedTo?.routeId === routeId)
-        .map((v) => ({
-          position: v.currentStatus.location,
-          name: v.plate,
-          id: v.id,
+  const vehicles: MapPoint[] = vehicleLocation
+    ? [
+        {
+          position: { lat: vehicleLocation.lat, lng: vehicleLocation.lng },
+          name: vehicleLocation.name,
+          id: vehicleLocation.id,
           type: "V",
-        }))
+        },
+      ]
     : [];
-
-  console.log(origin, destination);
 
   const warehouses: MapPoint[] = [];
   const customers: MapPoint[] = [];
@@ -58,19 +62,13 @@ const MapRoutesDialogCard = ({
   const isRoute = !!(origin && destination);
 
   // Calculate waypoints (Vehicle position)
-  const waypoints = routeId
-    ? mockData.fleet
-        .filter(
-          (v) =>
-            v.assignedTo?.routeId === routeId &&
-            v.currentStatus.location &&
-            v.currentStatus.location.lat &&
-            v.currentStatus.location.lng
-        )
-        .map((v) => ({
-          location: v.currentStatus.location,
+  const waypoints = vehicleLocation
+    ? [
+        {
+          location: { lat: vehicleLocation.lat, lng: vehicleLocation.lng },
           stopover: true,
-        }))
+        },
+      ]
     : [];
 
   return (

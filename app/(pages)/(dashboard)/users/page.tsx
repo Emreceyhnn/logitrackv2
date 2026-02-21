@@ -1,103 +1,93 @@
 "use client";
 
-import { Box, Button, Typography, Stack, CircularProgress, Chip } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { useEffect, useState } from "react";
-import { getUsersForMyCompany } from "@/app/lib/controllers/users";
+import { Box, Button, Typography, Stack } from "@mui/material";
+import { useEffect, useState, useCallback } from "react";
+import { getMyCompanyUsersAction } from "@/app/lib/controllers/users";
+import { UsersPageState, UsersPageActions } from "@/app/lib/type/users";
+import UserList from "@/app/components/dashboard/users/UserList";
 import Link from "next/link";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 
 export default function UsersPage() {
-    const [users, setUsers] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+  /* ---------------------------------- state --------------------------------- */
+  const [state, setState] = useState<UsersPageState>({
+    users: [],
+    selectedUserId: null,
+    filters: {},
+    loading: true,
+    error: null,
+  });
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            const token = localStorage.getItem("token");
-            if (token) {
-                try {
-                    const data = await getUsersForMyCompany(token);
-                    setUsers(data);
-                } catch (error) {
-                    console.error("Failed to fetch users:", error);
-                }
-            }
-            setLoading(false);
-        };
+  /* --------------------------------- actions -------------------------------- */
+  const fetchUsers = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true }));
+    try {
+      const data = await getMyCompanyUsersAction();
+      // Cast to compatible type (UserWithRelations includes role/driver)
+      // The controller returns role/driver, so it should match.
+      setState((prev) => ({
+        ...prev,
+        users: data as any,
+        loading: false,
+        error: null,
+      }));
+    } catch (error: any) {
+      console.error("Failed to fetch users:", error);
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: error.message,
+      }));
+    }
+  }, []);
 
-        fetchUsers();
-    }, []);
+  const actions: UsersPageActions = {
+    fetchUsers,
+    selectUser: (id) => setState((prev) => ({ ...prev, selectedUserId: id })),
+    updateFilters: (filters) =>
+      setState((prev) => ({
+        ...prev,
+        filters: { ...prev.filters, ...filters },
+      })),
+  };
 
-    const columns: GridColDef[] = [
-        { field: "username", headerName: "Username", flex: 1 },
-        { field: "name", headerName: "Name", flex: 1 },
-        { field: "surname", headerName: "Surname", flex: 1 },
-        { field: "email", headerName: "Email", flex: 1.5 },
-        {
-            field: "role",
-            headerName: "Role",
-            flex: 1,
-            renderCell: (params) => {
-                return <Chip label={params.value?.name || "N/A"} size="small" variant="outlined" sx={{ color: "white", borderColor: "rgba(255,255,255,0.2)" }} />
-            }
-        },
-    ];
+  /* --------------------------------- effects -------------------------------- */
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
-    return (
-        <Box sx={{ height: "100%", width: "100%", p: 4 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-                <Typography variant="h4" fontWeight={700} color="white">
-                    Users
-                </Typography>
-                <Button
-                    variant="contained"
-                    startIcon={<AddRoundedIcon />}
-                    component={Link}
-                    href="/users/create"
-                    sx={{
-                        backgroundColor: "#38bdf8",
-                        "&:hover": { backgroundColor: "#0ea5e9" },
-                        textTransform: "none",
-                        fontWeight: 600
-                    }}
-                >
-                    Add User
-                </Button>
-            </Stack>
+  return (
+    <Box sx={{ height: "100%", width: "100%", p: 4 }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+      >
+        <Typography variant="h4" fontWeight={700}>
+          Users
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<AddRoundedIcon />}
+          component={Link}
+          href="/users/create"
+          sx={{
+            backgroundColor: "#38bdf8",
+            "&:hover": { backgroundColor: "#0ea5e9" },
+            textTransform: "none",
+            fontWeight: 600,
+          }}
+        >
+          Add User
+        </Button>
+      </Stack>
 
-            <Box sx={{ height: 600, width: "100%", bgcolor: "#151515", borderRadius: 2 }}>
-                {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
-                        <CircularProgress size={32} sx={{ color: "#38bdf8" }} />
-                    </Box>
-                ) : (
-                    <DataGrid
-                        rows={users}
-                        columns={columns}
-                        getRowId={(row) => row.id}
-                        sx={{
-                            border: "none",
-                            color: "white",
-                            "& .MuiDataGrid-cell": {
-                                borderColor: "rgba(255, 255, 255, 0.1)",
-                            },
-                            "& .MuiDataGrid-columnHeaders": {
-                                bgcolor: "rgba(255, 255, 255, 0.05)",
-                                borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-                            },
-                            "& .MuiDataGrid-row:hover": {
-                                bgcolor: "rgba(255, 255, 255, 0.05)",
-                            },
-                            "& .MuiTablePagination-root": {
-                                color: "white"
-                            },
-                            "& .MuiSvgIcon-root": {
-                                color: "white"
-                            }
-                        }}
-                    />
-                )}
-            </Box>
-        </Box>
-    );
+      <UserList
+        users={state.users}
+        loading={state.loading}
+        onSelect={actions.selectUser}
+      />
+    </Box>
+  );
 }

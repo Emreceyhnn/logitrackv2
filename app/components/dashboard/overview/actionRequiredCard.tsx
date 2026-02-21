@@ -7,11 +7,7 @@ import SummarizeIcon from "@mui/icons-material/Summarize";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import { ReactNode } from "react";
 
-export interface ActionRequiredItems {
-  type: "vehicle" | "driver" | "SHIPMENT_DELAY" | "DOCUMENT_DUE" | "warehouse";
-  title: string;
-  message: string;
-}
+import { ActionRequiredItems } from "@/app/lib/type/overview";
 
 type ActionType = ActionRequiredItems["type"];
 

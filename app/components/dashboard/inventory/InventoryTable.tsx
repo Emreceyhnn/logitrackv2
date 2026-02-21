@@ -18,44 +18,43 @@ import {
   TablePagination,
   Box,
   Button,
+  Skeleton,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import InventoryIcon from "@mui/icons-material/Inventory";
-import InventoryDetailDialog from "@/app/components/dialogs/inventory/inventoryDetailDialog";
+
 import { StatusChip } from "@/app/components/chips/statusChips";
 
-interface InventoryItem {
-  id: string;
-  sku: string;
-  name: string;
-  category: string;
-  onHand: number;
-  unitPrice: number;
-  status: string; // 'IN_STOCK', 'LOW_STOCK', 'OUT_OF_STOCK'
-  warehouseCodes: string[];
-  lastUpdated: string;
-}
-
+import { InventoryWithRelations } from "@/app/lib/type/inventory";
 interface InventoryTableProps {
-  items: InventoryItem[];
+  items: InventoryWithRelations[];
+  loading?: boolean;
+  onSelect: (id: string) => void;
+  onEdit?: (item: InventoryWithRelations) => void;
+  onDelete?: (id: string) => void;
 }
 
-const InventoryTable = ({ items }: InventoryTableProps) => {
+// Helper to derive status for UI
+const getStatus = (quantity: number, minStock: number) => {
+  if (quantity === 0) return "OUT_OF_STOCK";
+  if (quantity <= minStock) return "LOW_STOCK";
+  return "IN_STOCK";
+};
+
+const InventoryTable = ({
+  items,
+  loading,
+  onSelect,
+  onEdit,
+  onDelete,
+}: InventoryTableProps) => {
   /* --------------------------------- states --------------------------------- */
   const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailItem, setDetailItem] = useState<InventoryItem | null>(null);
 
-  /* -------------------------------- handlers -------------------------------- */
-  const handleEditClick = (event: React.MouseEvent, item: InventoryItem) => {
-    event.stopPropagation(); // Prevent row selection
-    setDetailItem(item);
-    setDetailOpen(true);
-  };
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = items.map((n) => n.id);
@@ -155,125 +154,156 @@ const InventoryTable = ({ items }: InventoryTableProps) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {visibleRows.map((row, index) => {
-              const isItemSelected = isSelected(row.id);
-              const labelId = `enhanced-table-checkbox-${index}`;
-
-              return (
-                <TableRow
-                  hover
-                  onClick={(event) => handleClick(event, row.id)}
-                  role="checkbox"
-                  aria-checked={isItemSelected}
-                  tabIndex={-1}
-                  key={row.id}
-                  selected={isItemSelected}
-                  sx={{ cursor: "pointer" }}
-                >
+            {loading ? (
+              Array.from(new Array(5)).map((_, index) => (
+                <TableRow key={index}>
                   <TableCell padding="checkbox">
-                    <Checkbox
-                      color="primary"
-                      checked={isItemSelected}
-                      inputProps={{
-                        "aria-labelledby": labelId,
-                      }}
-                    />
+                    <Skeleton variant="rectangular" width={20} height={20} />
                   </TableCell>
-                  <TableCell component="th" id={labelId} scope="row">
+                  <TableCell>
                     <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar
-                        variant="rounded"
-                        // src={`/images/products/${row.id}.jpg`} // Placeholder
-                        sx={{
-                          bgcolor: "primary.light",
-                          color: "primary.main",
-                          width: 40,
-                          height: 40,
-                          fontSize: "1rem",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {row.name.charAt(0)}
-                      </Avatar>
-                      <Typography variant="body2" fontWeight={600}>
-                        {row.name}
-                      </Typography>
+                      <Skeleton variant="circular" width={40} height={40} />
+                      <Skeleton variant="text" width={140} />
                     </Stack>
                   </TableCell>
-                  <TableCell>{row.sku}</TableCell>
                   <TableCell>
-                    <Chip
-                      label={row.category}
-                      size="small"
-                      variant="outlined"
-                    />
+                    <Skeleton variant="text" width={80} />
                   </TableCell>
                   <TableCell>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <Box
-                        sx={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
-                          bgcolor: `${getStockColor(row.status)}.main`,
+                    <Skeleton variant="text" width={80} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="rounded" width={90} height={24} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="text" width={60} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="text" width={100} />
+                  </TableCell>
+                  <TableCell align="right">
+                    <Skeleton variant="circular" width={28} height={28} />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : visibleRows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    No inventory items found
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ) : (
+              visibleRows.map((row, index) => {
+                const isItemSelected = isSelected(row.id);
+                const labelId = `enhanced-table-checkbox-${index}`;
+                const status = getStatus(row.quantity, row.minStock);
+
+                // Mock fields for UI preservation (until DB has them)
+                const category = "General";
+                const unitPrice = 100; // Placeholder
+
+                return (
+                  <TableRow
+                    hover
+                    onClick={(event) => handleClick(event, row.id)}
+                    role="checkbox"
+                    aria-checked={isItemSelected}
+                    tabIndex={-1}
+                    key={row.id}
+                    selected={isItemSelected}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        color="primary"
+                        checked={isItemSelected}
+                        inputProps={{
+                          "aria-labelledby": labelId,
                         }}
                       />
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: `${getStockColor(row.status)}.main`,
-                          fontWeight: 500,
-                        }}
-                      >
-                        {row.onHand} {row.status === "LOW_STOCK" && "(Low)"}{" "}
-                        {row.status === "OUT_OF_STOCK" && "(Out)"}
-                      </Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell>{formatPrice(row.unitPrice)}</TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={0.5}>
-                      {row.warehouseCodes.map((code) => (
+                    </TableCell>
+                    <TableCell component="th" id={labelId} scope="row">
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Avatar
+                          variant="rounded"
+                          sx={{
+                            bgcolor: "primary.light",
+                            color: "primary.main",
+                            width: 40,
+                            height: 40,
+                            fontSize: "1rem",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {row.name.charAt(0)}
+                        </Avatar>
+                        <Typography variant="body2" fontWeight={600}>
+                          {row.name}
+                        </Typography>
+                      </Stack>
+                    </TableCell>
+                    <TableCell>{row.sku}</TableCell>
+                    <TableCell>
+                      <Chip label={category} size="small" variant="outlined" />
+                    </TableCell>
+                    <TableCell>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <Box
+                          sx={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            bgcolor: `${getStockColor(status)}.main`,
+                          }}
+                        />
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: `${getStockColor(status)}.main`,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {row.quantity} {status === "LOW_STOCK" && "(Low)"}{" "}
+                          {status === "OUT_OF_STOCK" && "(Out)"}
+                        </Typography>
+                      </Stack>
+                    </TableCell>
+                    <TableCell>{formatPrice(unitPrice)}</TableCell>
+                    <TableCell>
+                      <Stack direction="row" spacing={0.5}>
                         <Chip
-                          key={code}
-                          label={code}
+                          key={row.warehouseId}
+                          label={row.warehouse.code}
                           size="small"
                           sx={{ fontSize: "0.7rem", height: 20 }}
                         />
-                      ))}
-                    </Stack>
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      size="small"
-                      onClick={(e) => handleEditClick(e, row)}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small">
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {visibleRows.length === 0 && (
-              <TableRow style={{ height: 53 * 5 }}>
-                <TableCell colSpan={8} align="center">
-                  <Stack alignItems="center" spacing={2} sx={{ py: 5 }}>
-                    <InventoryIcon
-                      sx={{ fontSize: 48, color: "text.disabled" }}
-                    />{" "}
-                    {/* Need to import InventoryIcon here too if using it, or just Typography */}
-                    <Typography color="text.secondary">
-                      No inventory items found
-                    </Typography>
-                    <Button variant="outlined" size="small">
-                      Clear Filters
-                    </Button>
-                  </Stack>
-                </TableCell>
-              </TableRow>
+                      </Stack>
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit?.(row);
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete?.(row.id);
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
@@ -286,11 +316,6 @@ const InventoryTable = ({ items }: InventoryTableProps) => {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-      <InventoryDetailDialog
-        open={detailOpen}
-        onClose={() => setDetailOpen(false)}
-        item={detailItem}
       />
     </Paper>
   );

@@ -1,37 +1,36 @@
 "use client";
 
-import { Divider, LinearProgress, Stack, Typography } from "@mui/material";
+import {
+  Divider,
+  LinearProgress,
+  Stack,
+  Typography,
+  Skeleton,
+} from "@mui/material";
 import CustomCard from "../../cards/card";
 import WarningIcon from "@mui/icons-material/Warning";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { useUser } from "@/app/lib/hooks/useUser";
-import { getRouteEfficiencyStats } from "@/app/lib/controllers/routes";
-import { useEffect, useState } from "react";
+import { RouteNotification, RouteEfficiencyStats } from "@/app/lib/type/routes";
 
-const RouteEfficiency = () => {
-  const { user, loading } = useUser();
-  const [data, setData] = useState({
-    fuelConsumption: 0,
-    onTimePerformance: 0,
-    vehicleUtilization: 0,
-    recentNotifications: [],
-  });
+interface RouteEfficiencyProps {
+  data: RouteEfficiencyStats | null;
+  loading?: boolean;
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user) return;
-      try {
-        const stats = await getRouteEfficiencyStats(user.companyId, user.id);
-        setData(stats);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    if (!loading && user) {
-      fetchData();
-    }
-  }, [user, loading]);
+const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
+  if (loading || !data) {
+    return (
+      <CustomCard
+        sx={{ display: "flex", flexDirection: "column", gap: 3, flexGrow: 1 }}
+      >
+        <Typography
+          sx={{ fontSize: 16, fontWeight: 600, color: "text.secondary" }}
+        >
+          ROUTE EFFICIENCY
+        </Typography>
+        <Skeleton variant="rectangular" height={200} />
+      </CustomCard>
+    );
+  }
 
   return (
     <CustomCard
@@ -119,30 +118,32 @@ const RouteEfficiency = () => {
         </Typography>
         <Stack spacing={1} maxHeight={104} overflow={"auto"}>
           {data.recentNotifications.length > 0 ? (
-            data.recentNotifications.map((notif: any, index: number) => (
-              <Stack
-                key={index}
-                direction={"row"}
-                alignItems={"center"}
-                spacing={2}
-              >
-                <WarningIcon sx={{ color: "error.main" }} />
-                <Stack>
-                  <Typography sx={{ fontSize: 18, fontWeight: 400 }}>
-                    {notif.title || "Notification"}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: 14,
-                      fontWeight: 200,
-                      color: "text.secondary",
-                    }}
-                  >
-                    {notif.message || ""}
-                  </Typography>
+            data.recentNotifications.map(
+              (notif: RouteNotification, index: number) => (
+                <Stack
+                  key={index}
+                  direction={"row"}
+                  alignItems={"center"}
+                  spacing={2}
+                >
+                  <WarningIcon sx={{ color: "error.main" }} />
+                  <Stack>
+                    <Typography sx={{ fontSize: 18, fontWeight: 400 }}>
+                      {notif.title || "Notification"}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 200,
+                        color: "text.secondary",
+                      }}
+                    >
+                      {notif.message || ""}
+                    </Typography>
+                  </Stack>
                 </Stack>
-              </Stack>
-            ))
+              )
+            )
           ) : (
             <Typography
               sx={{

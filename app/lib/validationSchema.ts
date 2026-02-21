@@ -144,3 +144,13 @@ export const editDriverValidationSchema = Yup.object({
   employeeId: Yup.string().required("Employee ID is required"),
   status: Yup.string().required("Status is required"),
 });
+
+export const editCustomerValidationSchema = Yup.object({
+  name: Yup.string().required("Name is required"),
+  code: Yup.string().required("Code is required"),
+  email: Yup.string().email("Invalid email").nullable(),
+  phone: Yup.string().nullable(),
+  address: Yup.string().nullable(),
+  taxId: Yup.string().nullable(),
+  industry: Yup.string().nullable(),
+});

@@ -1,34 +1,33 @@
 "use client";
 
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import GoogleMapView from "@/app/components/map";
-import { useEffect, useState } from "react";
-import { useUser } from "@/app/lib/hooks/useUser";
-import { getActiveRoutesLocations } from "@/app/lib/controllers/routes";
+import { MapRouteData } from "@/app/lib/type/routes";
 
-const RoutesMainMap = () => {
-  const { user, loading } = useUser();
-  const [vehicles, setVehicles] = useState<any[]>([]);
+interface RoutesMainMapProps {
+  mapData: MapRouteData[];
+  loading?: boolean;
+}
 
-  useEffect(() => {
-    const fetchLocations = async () => {
-      if (!user) return;
-      try {
-        const data = await getActiveRoutesLocations(user.companyId, user.id);
-        setVehicles(data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    if (!loading && user) {
-      fetchLocations();
-    }
-  }, [user, loading]);
+const RoutesMainMap = ({ mapData, loading }: RoutesMainMapProps) => {
+  if (loading)
+    return (
+      <Box
+        sx={{
+          minHeight: 400,
+          flexGrow: 3,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Typography>Loading Map...</Typography>
+      </Box>
+    );
 
   return (
     <Box sx={{ minHeight: 400, flexGrow: 3 }}>
-      <GoogleMapView warehouseLoc={vehicles} />
+      <GoogleMapView warehouseLoc={mapData} />
     </Box>
   );
 };

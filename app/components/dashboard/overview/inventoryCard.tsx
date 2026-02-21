@@ -2,12 +2,13 @@ import { Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
 import React from "react";
 
+import { LowStockItemStat } from "@/app/lib/type/overview";
+
 interface AlertInventoryCardProps {
-  inventory: any[];
+  inventory: LowStockItemStat[];
 }
 
 const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
-
   return (
     <CustomCard sx={{ padding: "0 0 6px 0" }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>

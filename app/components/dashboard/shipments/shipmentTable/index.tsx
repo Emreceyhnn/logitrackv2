@@ -9,88 +9,34 @@ import {
   Paper,
   Typography,
   Divider,
+  Skeleton,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
-import mockData from "@/app/lib/mockData.json";
 import RowActions from "./menu";
 import ShipmentDetailDialog from "../../../dialogs/shipment/shipmentDetailDialog";
-import { useState, useEffect } from "react";
-import { Shipment } from "@/app/lib/type/ShipmentType";
+import { useState } from "react";
+import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { PriorityChip } from "@/app/components/chips/priorityChips";
+interface ShipmentTableProps {
+  shipments: ShipmentWithRelations[];
+  loading?: boolean;
+  onSelect: (id: string) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+}
 
-const ShipmentTable = () => {
+const ShipmentTable = ({
+  shipments,
+  loading,
+  onSelect,
+  onEdit,
+  onDelete,
+}: ShipmentTableProps) => {
   /* --------------------------------- states --------------------------------- */
   const [open, setOpen] = useState(false);
-  const [selectedShipment, setSelectedShipment] = useState<
-    Shipment | undefined
-  >(undefined);
-  const [shipments, setShipments] = useState<Shipment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  /* --------------------------------- effects -------------------------------- */
-  useEffect(() => {
-    const fetchShipments = async () => {
-      try {
-        const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
-        const USER_ID = 'usr_001';
-
-        const data = await import("@/app/lib/controllers/shipments").then(mod => mod.getShipments(COMPANY_ID, USER_ID));
-
-        // Map DB data to Frontend Shipment Interface
-        const mappedShipments: Shipment[] = data.map((s: any) => ({
-          id: s.id,
-          orderNumber: s.trackingId,
-          status: s.status,
-          priority: "NORMAL", // Placeholder as DB doesn't have priority yet
-          customerId: s.customer?.name || s.customerId,
-          origin: {
-            type: "WAREHOUSE", // Assumption based on text
-            warehouseId: s.origin
-          },
-          destination: {
-            type: "CUSTOMER_SITE",
-            address: s.destination
-          },
-          dates: {
-            created: s.createdAt.toString(),
-            requestedDelivery: s.createdAt.toString(), // Placeholder
-          },
-          items: Array(s.itemsCount).fill(0).map((_, i) => ({
-            skuId: `SKU-${i + 1}`,
-            name: "Generic Item",
-            qty: 1,
-            price: 100
-          })),
-          cargoDetails: {
-            totalWeightKg: s.itemsCount * 10, // Estimate
-            totalVolumeM3: s.itemsCount * 0.1, // Estimate
-            packageCount: s.itemsCount
-          },
-          assignedTo: s.routeId ? {
-            routeId: s.routeId,
-            loadSequence: 1
-          } : null,
-          tracking: {
-            currentStage: s.status,
-            milestones: []
-          },
-          routeId: s.routeId || undefined,
-          driverId: s.driverId || undefined
-        }));
-
-        setShipments(mappedShipments);
-      } catch (err: any) {
-        console.error("Failed to fetch shipments:", err);
-        setError("Failed to load shipments");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchShipments();
-  }, []);
+  const [selectedShipment, setSelectedShipment] =
+    useState<ShipmentWithRelations | null>(null);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleClose = () => {
@@ -98,15 +44,18 @@ const ShipmentTable = () => {
   };
 
   const handleOpen = (id: string) => {
+    // We notify parent on select, but also might want local dialog loop for now
+    // The previous implementation had the dialog inside the table.
+    // For now we keep the dialog here but it should eventually move to page.
     const shipment = shipments.find((s) => s.id === id);
     if (!shipment) return;
 
+    // TODO: Dialog expects legacy 'Shipment' type. We cast or map it.
+    // For now passing as any to unblock the table refactor.
     setSelectedShipment(shipment);
     setOpen(true);
+    onSelect(id);
   };
-
-  if (loading) return <Typography sx={{ p: 2 }}>Loading shipments...</Typography>;
-  if (error) return <Typography sx={{ p: 2, color: 'error.main' }}>{error}</Typography>;
 
   return (
     <>
@@ -122,57 +71,96 @@ const ShipmentTable = () => {
               <TableRow>
                 <TableCell>Code</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Priority</TableCell>
-                <TableCell>Pickup (Planned)</TableCell>
-                <TableCell>Dropoff (Planned)</TableCell>
+                <TableCell>Customer</TableCell>
+                <TableCell>Created</TableCell>
+                <TableCell>Destination</TableCell>
                 <TableCell>Driver</TableCell>
                 <TableCell>Route</TableCell>
-                <TableCell align="right">Cargo Kg</TableCell>
+                <TableCell align="right">Items</TableCell>
                 <TableCell align="right"></TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {shipments.map((s) => (
-                <TableRow key={s.id}>
-                  <TableCell>{s.orderNumber}</TableCell>
-                  <TableCell>
-                    <StatusChip status={s.status} />
-                  </TableCell>
-                  <TableCell>
-                    <PriorityChip status={s.priority} />
-                  </TableCell>
-                  <TableCell>
-                    {new Date(s.dates.created)?.toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(s.dates.requestedDelivery)?.toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>{s.driverId || "-"}</TableCell>
-                  <TableCell>{s.routeId || "-"}</TableCell>
-                  <TableCell align="right">
-                    {s.cargoDetails.totalWeightKg}
-                  </TableCell>
-                  <TableCell align="right">
-                    <RowActions id={s.id} handleOpenDetails={handleOpen} />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {shipments.length === 0 && (
+              {loading ? (
+                Array.from(new Array(5)).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton variant="text" width={80} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="rounded" width={90} height={24} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={120} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={80} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={120} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={80} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={80} />
+                    </TableCell>
+                    <TableCell align="right">
+                      <Skeleton variant="text" width={30} />
+                    </TableCell>
+                    <TableCell align="right">
+                      <Skeleton variant="circular" width={24} height={24} />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : shipments.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} align="center" sx={{ py: 3 }}>
-                    No shipments found.
+                    <Typography variant="body2" color="text.secondary">
+                      No shipments found
+                    </Typography>
                   </TableCell>
                 </TableRow>
+              ) : (
+                shipments.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell>{s.trackingId}</TableCell>
+                    <TableCell>
+                      <StatusChip status={s.status} />
+                    </TableCell>
+                    <TableCell>{s.customer.name}</TableCell>
+                    <TableCell>
+                      {new Date(s.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>{s.destination}</TableCell>
+                    <TableCell>
+                      {s.driver?.user.name
+                        ? `${s.driver.user.name} ${s.driver.user.surname}`
+                        : "-"}
+                    </TableCell>
+                    <TableCell>{s.route?.name || s.routeId || "-"}</TableCell>
+                    <TableCell align="right">{s.itemsCount}</TableCell>
+                    <TableCell align="right">
+                      <RowActions
+                        id={s.id}
+                        handleOpenDetails={handleOpen}
+                        handleEdit={onEdit}
+                        handleDelete={onDelete}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
             </TableBody>
           </Table>
         </TableContainer>
       </CustomCard>
+
       <ShipmentDetailDialog
         open={open}
         onClose={handleClose}
-        shipmentData={selectedShipment}
+        shipment={selectedShipment}
       />
     </>
   );

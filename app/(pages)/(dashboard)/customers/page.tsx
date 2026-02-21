@@ -2,257 +2,232 @@
 
 import {
   Box,
+  Card,
   Stack,
-  Typography,
-  Paper,
   TextField,
   InputAdornment,
-  Card,
-  Avatar,
-  Chip,
-  IconButton,
+  Paper,
+  Typography,
+  Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import PhoneIcon from "@mui/icons-material/Phone";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import InfoIcon from "@mui/icons-material/Info";
+import AddIcon from "@mui/icons-material/Add";
 import GoogleMapView from "@/app/components/map";
 import CustomerDetailDialog from "@/app/components/dialogs/customer/customerDetailDialog";
-import mockData from "@/app/lib/mockData.json";
-import { useState, useMemo, useEffect } from "react";
+import EditCustomerDialog from "@/app/components/dialogs/customer/editCustomerDialog";
+import AddCustomerDialog from "@/app/components/dialogs/customer/addCustomerDialog";
+import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
+import CustomerList from "@/app/components/dashboard/customer/CustomerList";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import {
+  CustomerPageState,
+  CustomerPageActions,
+  CustomerWithRelations,
+} from "@/app/lib/type/customer";
+import { getCustomers, deleteCustomer } from "@/app/lib/controllers/customer";
+import { useUser } from "@/app/lib/hooks/useUser";
+import { toast } from "sonner";
 
 export default function CustomersPage() {
+  const { user } = useUser();
+
   /* --------------------------------- states --------------------------------- */
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [state, setState] = useState<CustomerPageState>({
+    customers: [],
+    selectedCustomerId: null,
+    filters: {
+      search: "",
+    },
+    loading: true,
+    error: null,
+  });
+
   const [detailOpen, setDetailOpen] = useState(false);
-  const [customers, setCustomers] = useState<any[]>([]);
+  const [editOpen, setEditOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [actionCustomer, setActionCustomer] =
+    useState<CustomerWithRelations | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const handleEdit = (customer: CustomerWithRelations) => {
+    setActionCustomer(customer);
+    setEditOpen(true);
+  };
+
+  const handleDelete = (customer: CustomerWithRelations) => {
+    setActionCustomer(customer);
+    setDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!actionCustomer || !user) return;
+    setDeleteLoading(true);
+    try {
+      await deleteCustomer(actionCustomer.id, user.id);
+      toast.success("Customer deleted successfully");
+      setDeleteOpen(false);
+      setDetailOpen(false);
+      fetchCustomers();
+    } catch (error: any) {
+      console.error("Failed to delete customer:", error);
+      toast.error(error.message || "Failed to delete customer");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  /* --------------------------------- actions -------------------------------- */
+  const fetchCustomers = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true }));
+    try {
+      const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
+      const USER_ID = "usr_001";
+      const data = await getCustomers(COMPANY_ID, USER_ID);
+
+      setState((prev) => ({
+        ...prev,
+        customers: data,
+        loading: false,
+        error: null,
+      }));
+    } catch (error: any) {
+      console.error("Failed to fetch customers", error);
+      setState((prev) => ({ ...prev, loading: false, error: error.message }));
+    }
+  }, []);
+
+  const actions: CustomerPageActions = {
+    fetchCustomers,
+    selectCustomer: (id) => {
+      setState((prev) => ({ ...prev, selectedCustomerId: id }));
+      if (id) setDetailOpen(true);
+    },
+    updateFilters: (filters) =>
+      setState((prev) => ({
+        ...prev,
+        filters: { ...prev.filters, ...filters },
+      })),
+  };
 
   /* --------------------------------- effects -------------------------------- */
   useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
-        const USER_ID = 'usr_001';
-        const data = await import("@/app/lib/controllers/customer").then(mod => mod.getCustomers(COMPANY_ID, USER_ID));
-
-        const mapped = data.map((c: any) => ({
-          id: c.id,
-          code: c.code,
-          name: c.name,
-          industry: c.industry || "General",
-          taxId: c.taxId,
-          billingAddress: {
-            city: c.address ? c.address.split(',')[0] : "Istanbul", // Simple parse
-            country: "Turkey",
-            fullAddress: c.address || "N/A"
-          },
-          contacts: [
-            {
-              name: "Primary Contact", // Placeholder
-              role: "Manager",
-              email: c.email || "N/A",
-              phone: c.phone || "N/A"
-            }
-          ],
-          deliverySites: [
-            {
-              id: `site-${c.id}`,
-              name: "Main Site",
-              address: {
-                fullAddress: c.address || "N/A",
-                coordinates: [41.0082 + (Math.random() * 0.1 - 0.05), 28.9784 + (Math.random() * 0.1 - 0.05)] // Random scatter around Istanbul for demo
-              }
-            }
-          ],
-          sla: {
-            onTimeTargetPct: 95 + (Math.floor(Math.random() * 5)) // Mock SLA
-          },
-          contract: {
-            startDate: c.createdAt,
-            endDate: new Date(new Date(c.createdAt).setFullYear(new Date(c.createdAt).getFullYear() + 1)).toISOString(),
-            status: "ACTIVE"
-          }
-        }));
-
-        setCustomers(mapped);
-      } catch (error) {
-        console.error("Failed to fetch customers", error);
-      }
-    };
-
     fetchCustomers();
-  }, []);
+  }, [fetchCustomers]);
 
-  /* --------------------------------- utils ---------------------------------- */
-  const allLocations = useMemo(() => {
-    return customers.flatMap((customer) =>
-      customer.deliverySites.map((site: any) => ({
-        id: site.id,
-        name: `${customer.name} - ${site.name}`,
-        position: site.address.coordinates,
-        type: "C",
-      }))
-    );
-  }, [customers]);
-
-  /* --------------------------------- filters -------------------------------- */
+  /* --------------------------------filters -------------------------------- */
   const filteredCustomers = useMemo(() => {
-    if (!searchTerm) return customers;
-    const lowerTerm = searchTerm.toLowerCase();
-    return customers.filter(
+    if (!state.filters.search) return state.customers;
+    const lowerTerm = state.filters.search.toLowerCase();
+    return state.customers.filter(
       (c) =>
         c.name.toLowerCase().includes(lowerTerm) ||
         c.code.toLowerCase().includes(lowerTerm)
     );
-  }, [customers, searchTerm]);
+  }, [state.customers, state.filters.search]);
 
-  /* -------------------------------- handlers -------------------------------- */
-  const handleOpenDetail = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    setSelectedCustomerId(id);
-    setDetailOpen(true);
-  };
-  const handleCustomerClick = (id: string) => {
-    setSelectedCustomerId(id);
-  };
+  // Derived locations for map (Mocking coordinates for now as DB doesn't have lat/lng yet)
+  const mapLocations = useMemo(() => {
+    return [];
+  }, []);
 
+  /* --------------------------------- render --------------------------------- */
   return (
     <Box sx={{ height: "calc(100vh - 100px)", p: 3, display: "flex", gap: 3 }}>
-      <Paper
-        sx={{
-          width: 400,
-          display: "flex",
-          flexDirection: "column",
-          borderRadius: 3,
-          overflow: "hidden",
-        }}
-      >
-        <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}>
-          <Typography variant="h6" fontWeight={700} gutterBottom>
-            Customers
-          </Typography>
-          <TextField
-            fullWidth
-            placeholder="Search customers..."
-            size="small"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon color="action" />
-                  </InputAdornment>
-                ),
-              },
-            }}
+      <Stack spacing={2} sx={{ width: 400, height: "100%" }}>
+        <Paper sx={{ p: 2, borderRadius: 3 }}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <TextField
+              fullWidth
+              placeholder="Search customers..."
+              size="small"
+              value={state.filters.search || ""}
+              onChange={(e) =>
+                actions.updateFilters({ search: e.target.value })
+              }
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon color="action" />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={() => setAddOpen(true)}
+              sx={{ whiteSpace: "nowrap", minWidth: "auto" }}
+            >
+              Add
+            </Button>
+          </Stack>
+        </Paper>
+        <Box sx={{ flex: 1, overflow: "hidden" }}>
+          <CustomerList
+            customers={filteredCustomers}
+            selectedId={state.selectedCustomerId}
+            onSelect={actions.selectCustomer} // Just selection
           />
         </Box>
+      </Stack>
 
-        <Box sx={{ flex: 1, overflowY: "auto", p: 0 }}>
-          {filteredCustomers.map((customer) => (
-            <Box
-              key={customer.id}
-              onClick={() => handleCustomerClick(customer.id)}
-              sx={{
-                p: 2,
-                borderBottom: "1px solid",
-                borderColor: "divider",
-                cursor: "pointer",
-                bgcolor:
-                  selectedCustomerId === customer.id
-                    ? "action.selected"
-                    : "transparent",
-                "&:hover": { bgcolor: "action.hover" },
-              }}
-            >
-              <Stack
-                direction="row"
-                spacing={2}
-                alignItems="center"
-                sx={{ mb: 1 }}
-              >
-                <Avatar variant="rounded" sx={{ bgcolor: "secondary.main" }}>
-                  {customer.name.charAt(0)}
-                </Avatar>
-                <Box sx={{ flex: 1 }}>
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="flex-start"
-                  >
-                    <Typography
-                      variant="subtitle1"
-                      fontWeight={600}
-                      lineHeight={1.2}
-                    >
-                      {customer.name}
-                    </Typography>
-                    <IconButton
-                      size="small"
-                      onClick={(e) => handleOpenDetail(e, customer.id)}
-                      sx={{ p: 0.5 }}
-                    >
-                      <InfoIcon fontSize="small" />
-                    </IconButton>
-                  </Stack>
-                  <Typography variant="caption" color="text.secondary">
-                    {customer.code} • {customer.industry}
-                  </Typography>
-                </Box>
-              </Stack>
-
-              <Stack spacing={0.5} sx={{ mt: 1 }}>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <LocationOnIcon
-                    sx={{ fontSize: 16, color: "text.secondary" }}
-                  />
-                  <Typography variant="body2" color="text.secondary" noWrap>
-                    {customer.billingAddress.city},{" "}
-                    {customer.billingAddress.country}
-                  </Typography>
-                </Stack>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <PhoneIcon sx={{ fontSize: 16, color: "text.secondary" }} />
-                  <Typography variant="body2" color="text.secondary">
-                    {customer.contacts?.[0]?.phone || "N/A"}
-                  </Typography>
-                </Stack>
-              </Stack>
-
-              <Stack direction="row" spacing={1} sx={{ mt: 1.5 }}>
-                <Chip
-                  label={`${customer.deliverySites.length} Sites`}
-                  size="small"
-                  sx={{ height: 20, fontSize: "0.7rem" }}
-                />
-                <Chip
-                  label={`SLA: ${customer.sla.onTimeTargetPct}%`}
-                  size="small"
-                  color="primary"
-                  variant="outlined"
-                  sx={{ height: 20, fontSize: "0.7rem" }}
-                />
-              </Stack>
-            </Box>
-          ))}
-        </Box>
-      </Paper>
       <Card
         sx={{
           flex: 1,
           borderRadius: 3,
           overflow: "hidden",
           position: "relative",
+          minHeight: 400,
         }}
       >
-        <GoogleMapView warehouseLoc={allLocations} zoom={7} />
+        <GoogleMapView warehouseLoc={mapLocations} zoom={7} />
+        {mapLocations.length === 0 && (
+          <Box
+            position="absolute"
+            top={16}
+            left={16}
+            bgcolor="background.paper"
+            p={1}
+            borderRadius={1}
+            zIndex={1}
+          >
+            <Typography variant="caption">No geo-data available</Typography>
+          </Box>
+        )}
       </Card>
+
       <CustomerDetailDialog
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
-        customerId={selectedCustomerId}
+        customerId={state.selectedCustomerId}
+        onEdit={(customer) => handleEdit(customer)}
+        onDelete={(customer) => handleDelete(customer)}
+      />
+
+      <EditCustomerDialog
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        onSuccess={fetchCustomers}
+        customer={actionCustomer}
+      />
+
+      <AddCustomerDialog
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onSuccess={fetchCustomers}
+      />
+
+      <DeleteConfirmationDialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Customer?"
+        description={`Are you sure you want to delete ${actionCustomer?.name || "this customer"}? This action cannot be undone.`}
+        loading={deleteLoading}
       />
     </Box>
   );

@@ -2,31 +2,41 @@
 
 import { PieChart } from "@mui/x-charts/PieChart";
 import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
-
-interface InventoryChartData {
-  value: number;
-  count: number;
-}
+import { InventoryCategoryStats } from "@/app/lib/type/reports";
 
 interface InventoryChartsProps {
-  data?: Record<string, InventoryChartData>;
+  data: InventoryCategoryStats;
 }
 
 export default function InventoryCharts({ data }: InventoryChartsProps) {
-  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const categoryStats = data || {};
+  if (!data) return null;
 
-  const valuePieData = Object.keys(categoryStats).map((cat, index) => ({
-    id: index,
-    value: categoryStats[cat].value,
-    label: cat,
+  // Convert Record to Array for charts
+  const categories = Object.keys(data);
+  const chartData = categories.map((cat) => ({
+    category: cat,
+    value: data[cat].value,
+    count: data[cat].count,
   }));
-  const countPieData = Object.keys(categoryStats).map((cat, index) => ({
+
+  const valuePieData = chartData.map((item, index) => ({
     id: index,
-    value: categoryStats[cat].count,
-    label: cat,
+    value: item.value,
+    label: item.category,
+    color: theme.palette.augmentColor({
+      color: { main: theme.palette.secondary.main },
+    }).main,
+  }));
+
+  const countPieData = chartData.map((item, index) => ({
+    id: index,
+    value: item.count,
+    label: item.category,
+    color: theme.palette.augmentColor({
+      color: { main: theme.palette.primary.main },
+    }).main,
   }));
 
   return (
@@ -53,7 +63,7 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
               Inventory Value
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Distribution by category ($)
+              Value distribution by category
             </Typography>
           </Stack>
 
@@ -69,7 +79,10 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
             <PieChart
               series={[
                 {
-                  data: valuePieData.length > 0 ? valuePieData : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
+                  data:
+                    valuePieData.length > 0
+                      ? valuePieData
+                      : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
                   highlightScope: { fade: "global", highlight: "item" },
                   faded: {
                     innerRadius: 30,
@@ -125,7 +138,10 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
             <PieChart
               series={[
                 {
-                  data: countPieData.length > 0 ? countPieData : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
+                  data:
+                    countPieData.length > 0
+                      ? countPieData
+                      : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
                   highlightScope: { fade: "global", highlight: "item" },
                   faded: {
                     innerRadius: 30,

@@ -93,6 +93,8 @@ export const getVehicles = authenticatedAction(
           status: true,
           odometerKm: true,
           fuelLevel: true,
+          currentLat: true,
+          currentLng: true,
           driver: {
             select: {
               id: true,

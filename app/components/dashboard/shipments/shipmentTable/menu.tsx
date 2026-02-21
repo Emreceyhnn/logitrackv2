@@ -15,6 +15,8 @@ import { useState } from "react";
 
 interface DetailsMenuParams {
   handleOpenDetails: (id: string) => void;
+  handleEdit?: (id: string) => void;
+  handleDelete?: (id: string) => void;
   id: string;
 }
 
@@ -53,22 +55,34 @@ const RowActions = (params: DetailsMenuParams) => {
           <ListItemText>Details</ListItemText>
         </MenuItem>
 
-        <MenuItem onClick={() => setAnchorEl(null)}>
-          <ListItemIcon>
-            <EditIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Edit</ListItemText>
-        </MenuItem>
+        {params.handleEdit && (
+          <MenuItem
+            onClick={() => {
+              setAnchorEl(null);
+              params.handleEdit?.(params.id);
+            }}
+          >
+            <ListItemIcon>
+              <EditIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Edit</ListItemText>
+          </MenuItem>
+        )}
 
-        <MenuItem
-          onClick={() => setAnchorEl(null)}
-          sx={{ color: "error.main" }}
-        >
-          <ListItemIcon sx={{ color: "error.main" }}>
-            <DeleteIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Delete</ListItemText>
-        </MenuItem>
+        {params.handleDelete && (
+          <MenuItem
+            onClick={() => {
+              setAnchorEl(null);
+              params.handleDelete?.(params.id);
+            }}
+            sx={{ color: "error.main" }}
+          >
+            <ListItemIcon sx={{ color: "error.main" }}>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Delete</ListItemText>
+          </MenuItem>
+        )}
       </Menu>
     </>
   );

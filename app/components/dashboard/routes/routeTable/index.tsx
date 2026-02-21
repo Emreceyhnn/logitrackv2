@@ -12,66 +12,50 @@ import {
   TablePagination,
   Stack,
   Button,
+  Skeleton,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
-import { useUser } from "@/app/lib/hooks/useUser";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import RowActions from "../../vehicle/vehicleTable/menu";
 
 import RouteDetailsDialog from "@/app/components/dialogs/routes";
 import AddRouteDialog from "@/app/components/dialogs/routes/add-route-dialog";
 import { StatusChip } from "@/app/components/chips/statusChips";
+import { RouteTableProps, RouteWithRelations } from "@/app/lib/type/routes";
 
-const RouteTable = () => {
+// Extend the props interface to include onRefresh if not already
+interface ExtendedRouteTableProps extends RouteTableProps {
+  onRefresh?: () => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+}
+
+const RouteTable = ({
+  routes,
+  loading,
+  pagination,
+  onPageChange,
+  onSelect,
+  onRefresh,
+  onEdit,
+  onDelete,
+}: ExtendedRouteTableProps) => {
   /* --------------------------------- states --------------------------------- */
   const [openDetails, setOpenDetails] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
-  const [selectedRoute, setSelectedRoute] = useState<any | undefined>(
-    undefined
+  const [selectedRoute, setSelectedRoute] = useState<RouteWithRelations | null>(
+    null
   );
-  const [routes, setRoutes] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [totalCount, setTotalCount] = useState(0);
-
-  const { user, loading: userLoading } = useUser();
-
-  /* --------------------------------- effects -------------------------------- */
-  useEffect(() => {
-    const fetchRoutes = async () => {
-      if (!user) return;
-
-      setLoading(true);
-      try {
-        const data = await import("@/app/lib/controllers/routes").then((mod) =>
-          mod.getRoutes(user.companyId, user.id, page + 1, rowsPerPage)
-        );
-        setRoutes(data.routes || []);
-        setTotalCount(data.totalCount || 0);
-        setError(null);
-      } catch (err: any) {
-        console.error("Failed to fetch routes:", err);
-        setError("Failed to load routes");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (!userLoading && user) {
-      fetchRoutes();
-    }
-  }, [user, userLoading, page, rowsPerPage]);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleCloseDetails = () => {
     setOpenDetails(false);
-    setSelectedRoute(undefined);
+    setSelectedRoute(null);
+    if (onSelect) onSelect(""); // deselect
   };
   const handleCloseAdd = () => {
     setOpenAdd(false);
+    if (onRefresh) onRefresh();
   };
 
   const handleOpenDetails = (id: string) => {
@@ -80,6 +64,7 @@ const RouteTable = () => {
 
     setSelectedRoute(route);
     setOpenDetails(true);
+    if (onSelect) onSelect(id);
   };
 
   const handleOpenAdd = () => {
@@ -87,20 +72,87 @@ const RouteTable = () => {
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
+    onPageChange(newPage);
   };
 
+  // We are not handling rowsPerPage change in parent yet strictly, or default to 10.
+  // If we want to support it, we need to update RouteTableProps and RoutesPageState.
+  // For now, let's just keep it simple or assume fixed page size in UI for now as per strict instructions,
+  // or allow it but just trigger page change to 0 if we were to implementing it fully.
+  // But strict adherence shows we only passed onPageChange.
+  // Let's just consume the pagination.pageSize from props.
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    // TODO: Add onPageSizeChange to props if needed.
+    // For now just console log or ignore to stick to interface
+    console.warn("Change rows per page not implemented in parent yet");
   };
 
-  if (loading && routes.length === 0)
-    return <Typography sx={{ p: 2 }}>Loading routes...</Typography>;
-  if (error)
-    return <Typography sx={{ p: 2, color: "error.main" }}>{error}</Typography>;
+  if (loading && routes.length === 0) {
+    return (
+      <>
+        <CustomCard sx={{ padding: "0 0 6px 0" }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            p={2}
+          >
+            <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
+              Detailed ACTIVE ROUTES
+            </Typography>
+            <Button variant="contained" size="small" disabled>
+              Add Route
+            </Button>
+          </Stack>
+          <Divider />
+          <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>ROUTE ID</TableCell>
+                  <TableCell>VEHICLE PLATE</TableCell>
+                  <TableCell>ORIGIN</TableCell>
+                  <TableCell>DESTINATION</TableCell>
+                  <TableCell>ETA</TableCell>
+                  <TableCell>STATUS</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Array.from(new Array(5)).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton variant="text" width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={80} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={80} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="rounded" width={90} height={24} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="circular" width={24} height={24} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CustomCard>
+      </>
+    );
+  }
 
   return (
     <>
@@ -161,6 +213,8 @@ const RouteTable = () => {
                     <RowActions
                       id={r.id}
                       handleOpenDetails={handleOpenDetails}
+                      handleEdit={onEdit}
+                      handleDelete={onDelete}
                     />
                   </TableCell>
                 </TableRow>
@@ -175,11 +229,11 @@ const RouteTable = () => {
             </TableBody>
           </Table>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[10]}
             component="div"
-            count={totalCount}
-            rowsPerPage={rowsPerPage}
-            page={page}
+            count={pagination.total}
+            rowsPerPage={pagination.pageSize}
+            page={pagination.page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
@@ -188,7 +242,7 @@ const RouteTable = () => {
       <RouteDetailsDialog
         open={openDetails}
         onClose={handleCloseDetails}
-        routeData={selectedRoute}
+        route={selectedRoute}
       />
       <AddRouteDialog open={openAdd} onClose={handleCloseAdd} />
     </>

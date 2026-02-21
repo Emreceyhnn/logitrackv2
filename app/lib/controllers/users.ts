@@ -204,11 +204,11 @@ export async function createUserForCompany(token: string, userData: any) {
     // You might need a seed script or helper to find role by name
     // For now, let's assume valid role name is passed or map it
     // The form sends "admin", "manager", etc.
-    // The DB roles might be "ADMIN", "MANAGER" or "role_admin" etc. 
+    // The DB roles might be "ADMIN", "MANAGER" or "role_admin" etc.
     // Let's try to find insensitive or standard
     const roleName = userData.role.toUpperCase();
     const role = await db.role.findFirst({
-      where: { name: { equals: roleName, mode: "insensitive" } }
+      where: { name: { equals: roleName, mode: "insensitive" } },
     });
 
     const newUser = await db.user.create({
@@ -231,6 +231,8 @@ export async function createUserForCompany(token: string, userData: any) {
   }
 }
 
+// ... (existing imports)
+
 export async function getUsersForMyCompany(token: string) {
   try {
     const requester = await getUserFromToken(token);
@@ -240,16 +242,45 @@ export async function getUsersForMyCompany(token: string) {
 
     const users = await db.user.findMany({
       where: { companyId: requester.companyId },
-      include: { role: true }
+      include: { role: true, driver: true },
     });
 
     // Return safe user objects
-    return users.map(u => {
+    return users.map((u) => {
       const { password, ...safe } = u;
       return safe;
     });
   } catch (error: any) {
     console.error("Failed to fetch company users:", error);
     throw new Error(error.message || "Failed to fetch company users");
+  }
+}
+
+export async function getMyCompanyUsersAction() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
+
+    if (!token) {
+      throw new Error("No session token found");
+    }
+
+    const requester = await getUserFromToken(token);
+    if (!requester || !requester.companyId) {
+      throw new Error("Unauthorized or No Company");
+    }
+
+    const users = await db.user.findMany({
+      where: { companyId: requester.companyId },
+      include: { role: true, driver: true },
+    });
+
+    return users.map((u) => {
+      const { password, ...safe } = u;
+      return safe;
+    });
+  } catch (error: any) {
+    console.error("Failed to fetch company users (action):", error);
+    throw new Error(error.message || "Failed to fetch users");
   }
 }

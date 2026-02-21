@@ -1,7 +1,9 @@
 import { Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
+import { PicksAndPacksData } from "@/app/lib/type/overview";
+
 interface PicksPacksDailyCardProps {
-  values: any;
+  values: PicksAndPacksData | null;
 }
 
 const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {

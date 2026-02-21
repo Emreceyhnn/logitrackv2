@@ -10,36 +10,18 @@ import {
   Typography,
 } from "@mui/material";
 import CustomCard from "../../cards/card";
-import { useEffect, useState } from "react";
-import { getRecentStockMovements } from "@/app/lib/controllers/warehouse";
+import { InventoryMovementWithRelations } from "@/app/lib/type/warehouse";
 
-interface Movement {
-  id: string;
-  warehouse: { code: string };
-  itemName: string;
-  type: string;
-  quantity: number;
-  date: Date;
+interface RecentStockMovementsProps {
+  movements: InventoryMovementWithRelations[];
+  loading?: boolean;
 }
 
-const RecentStockMovements = () => {
-  const [movements, setMovements] = useState<Movement[]>([]);
-
-  useEffect(() => {
-    const fetchMovements = async () => {
-      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
-      const USER_ID = 'usr_001';
-      try {
-        // @ts-ignore - mismatch in return type vs state type, controller returns loose object
-        const data = await getRecentStockMovements(COMPANY_ID, USER_ID);
-        setMovements(data as any);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    fetchMovements();
-  }, []);
-
+const RecentStockMovements = ({
+  movements,
+  loading,
+}: RecentStockMovementsProps) => {
+  if (loading) return <Typography>Loading movements...</Typography>;
 
   return (
     <CustomCard sx={{ p: 3, borderRadius: "12px", boxShadow: 3, flex: 7 }}>
@@ -102,7 +84,10 @@ const RecentStockMovements = () => {
             {movements.map((move) => {
               const isPick = move.type === "PICK";
               // @ts-ignore
-              const timeDisplay = new Date(move.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              const timeDisplay = new Date(move.date).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              });
 
               return (
                 <TableRow

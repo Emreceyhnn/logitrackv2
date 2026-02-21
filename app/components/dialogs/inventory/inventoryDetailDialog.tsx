@@ -26,24 +26,13 @@ import CategoryIcon from "@mui/icons-material/Category";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
-import mockData from "@/app/lib/mockData.json";
 
-export interface InventoryItemDisplay {
-  id: string;
-  sku: string;
-  name: string;
-  category: string;
-  onHand: number;
-  unitPrice: number;
-  status: string;
-  warehouseCodes: string[];
-  lastUpdated: string;
-}
+import { InventoryWithRelations } from "@/app/lib/type/inventory";
 
 interface InventoryDetailDialogParams {
   open: boolean;
   onClose: () => void;
-  item?: InventoryItemDisplay | null;
+  item?: InventoryWithRelations | null;
 }
 
 const InventoryDetailDialog = ({
@@ -56,27 +45,21 @@ const InventoryDetailDialog = ({
 
   if (!item) return null;
 
-  const stockDistribution = (() => {
-    if (!mockData.inventory.stock) return [];
+  // Derive display values from real data
+  const onHand = item.quantity;
+  const unitPrice = 0; // Not in schema yet
+  const category = "General"; // Not in schema yet
 
-    const stockLines = mockData.inventory.stock.filter(
-      (s) => s.skuId === item.id
-    );
-
-    return stockLines.map((line) => {
-      const wh = mockData.warehouses.find((w) => w.id === line.warehouseId);
-      return {
-        warehouseName: wh?.name || "Unknown Warehouse",
-        warehouseCode: wh?.code || line.warehouseId,
-        available: line.quantity - line.reserved,
-        onHand: line.quantity,
-        reserved: line.reserved,
-        location: (line as any).location || "N/A",
-      };
-    });
-  })();
+  const stockDistribution = [] as any[];
+  // TODO: Fetch real stock distribution from server action
 
   /* -------------------------------- functions ------------------------------- */
+  const getStatus = (quantity: number, minStock: number) => {
+    if (quantity === 0) return "OUT_OF_STOCK";
+    if (quantity <= minStock) return "LOW_STOCK";
+    return "IN_STOCK";
+  };
+
   const getStatusColor = (status: string) => {
     if (status === "IN_STOCK") return "success";
     if (status === "LOW_STOCK") return "warning";
@@ -133,9 +116,16 @@ const InventoryDetailDialog = ({
                   {item.name}
                 </Typography>
                 <Chip
-                  label={item.status.replace(/_/g, " ")}
+                  label={getStatus(item.quantity, item.minStock).replace(
+                    /_/g,
+                    " "
+                  )}
                   size="small"
-                  color={getStatusColor(item.status) as any}
+                  color={
+                    getStatusColor(
+                      getStatus(item.quantity, item.minStock)
+                    ) as any
+                  }
                   sx={{ fontWeight: 600, height: 24, borderRadius: 1 }}
                 />
               </Stack>
@@ -257,7 +247,7 @@ const InventoryDetailDialog = ({
                       CATEGORY
                     </Typography>
                     <Typography variant="body1" fontWeight={700}>
-                      {item.category}
+                      {category}
                     </Typography>
                   </Box>
                 </Stack>
@@ -285,7 +275,7 @@ const InventoryDetailDialog = ({
                       TOTAL STOCK
                     </Typography>
                     <Typography variant="body1" fontWeight={700}>
-                      {item.onHand.toLocaleString()}{" "}
+                      {onHand.toLocaleString()}{" "}
                       <Typography
                         component="span"
                         variant="body2"
@@ -323,7 +313,7 @@ const InventoryDetailDialog = ({
                       {new Intl.NumberFormat("en-TR", {
                         style: "currency",
                         currency: "TRY",
-                      }).format(item.unitPrice)}
+                      }).format(unitPrice)}
                     </Typography>
                   </Box>
                 </Stack>

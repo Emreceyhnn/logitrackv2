@@ -58,6 +58,8 @@ export interface DriverDashboardResponseType {
     name: string;
     rating: number;
     workingHours: number;
+    days: number[]; // Added for chart compatibility
+    values: number[]; // Added for chart compatibility
   }[];
 }
 
@@ -135,7 +137,6 @@ export interface DriverKpiCardProps {
   loading?: boolean;
 }
 
-// Form Data for Creating Driver
 // Form Data for Creating Driver
 export interface CreateDriverFormData {
   // User Info

@@ -1,82 +1,164 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { Box } from "@mui/material";
-import mockData from "@/app/lib/mockData.json";
 import InventoryHeader from "@/app/components/dashboard/inventory/InventoryHeader";
 import InventoryKPI from "@/app/components/dashboard/inventory/InventoryKPI";
 import InventoryTable from "@/app/components/dashboard/inventory/InventoryTable";
+import {
+  InventoryPageState,
+  InventoryPageActions,
+} from "@/app/lib/type/inventory";
+import {
+  deleteInventoryItem,
+  getInventory,
+} from "@/app/lib/controllers/inventory";
+import EditInventoryDialog from "@/app/components/dialogs/inventory/edit-inventory-dialog";
+import AddInventoryDialog from "@/app/components/dialogs/inventory/add-inventory-dialog";
+import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
+import { useUser } from "@/app/lib/hooks/useUser";
+import { InventoryWithRelations } from "@/app/lib/type/inventory";
 
 export default function InventoryPage() {
+  const { user } = useUser();
+
   /* --------------------------------- states --------------------------------- */
-  const [searchTerm, setSearchTerm] = useState("");
-  const [inventoryData, setInventoryData] = useState<any[]>([]);
+  const [state, setState] = useState<InventoryPageState>({
+    inventory: [],
+    lowStockItems: [],
+    selectedItemId: null,
+    filters: {},
+    loading: true,
+    error: null,
+  });
 
-  /* --------------------------------- effects -------------------------------- */
-  React.useEffect(() => {
-    const fetchInventory = async () => {
-      try {
-        const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
-        const USER_ID = 'usr_001';
-        const data = await import("@/app/lib/controllers/inventory").then(mod => mod.getInventory(COMPANY_ID, USER_ID));
+  // Action states
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [actionItem, setActionItem] = useState<InventoryWithRelations | null>(
+    null
+  );
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
-        const mapped = data.map((item: any) => {
-          let status = "IN_STOCK";
-          if (item.quantity === 0) status = "OUT_OF_STOCK";
-          else if (item.quantity <= (item.minStock || 0)) status = "LOW_STOCK";
+  // ... (existing fetchInventory and actions)
 
-          // Mock Price logic for UI consistency
-          const seed = item.id
-            .split("")
-            .reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
-          const unitPrice = (seed % 400) + 20;
+  /* --------------------------------- actions -------------------------------- */
+  const fetchInventory = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true }));
+    try {
+      const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
+      const USER_ID = "usr_001";
 
-          return {
-            id: item.id,
-            sku: item.sku,
-            name: item.name,
-            category: "General", // Placeholder
-            onHand: item.quantity,
-            unitPrice: unitPrice,
-            status: status,
-            warehouseCodes: item.warehouse ? [item.warehouse.code] : [],
-            lastUpdated: item.updatedAt.toString(),
-            reorderPoint: item.minStock || 0,
-          };
-        });
+      const data = await getInventory(COMPANY_ID, USER_ID);
 
-        setInventoryData(mapped);
-      } catch (error) {
-        console.error("Failed to fetch inventory", error);
-      }
-    };
-
-    fetchInventory();
+      setState((prev) => ({
+        ...prev,
+        inventory: data,
+        loading: false,
+        error: null,
+      }));
+    } catch (error: any) {
+      console.error("Failed to fetch inventory", error);
+      setState((prev) => ({ ...prev, loading: false, error: error.message }));
+    }
   }, []);
 
+  const actions: InventoryPageActions = {
+    fetchInventory,
+    fetchLowStock: async () => {},
+    refreshAll: fetchInventory,
+    selectItem: (id) => setState((prev) => ({ ...prev, selectedItemId: id })),
+    updateFilters: (filters) =>
+      setState((prev) => ({
+        ...prev,
+        filters: { ...prev.filters, ...filters },
+      })),
+  };
+
+  /* --------------------------------- effects -------------------------------- */
+  useEffect(() => {
+    fetchInventory();
+  }, [fetchInventory]);
+
+  /* -------------------------------- handlers -------------------------------- */
+  const handleEdit = (item: InventoryWithRelations) => {
+    setActionItem(item);
+    setEditOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    const item = state.inventory.find((i) => i.id === id);
+    if (item) {
+      setActionItem(item);
+      setDeleteOpen(true);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!actionItem || !user) return;
+    setDeleteLoading(true);
+    try {
+      await deleteInventoryItem(actionItem.id, user.id);
+      setDeleteOpen(false);
+      actions.refreshAll();
+    } catch (error) {
+      console.error("Failed to delete inventory item:", error);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   /* --------------------------------- filter --------------------------------- */
-  const filteredData = useMemo(() => {
-    if (!searchTerm) return inventoryData;
-    const lowerTerm = searchTerm.toLowerCase();
-    return inventoryData.filter(
+  const filteredData = React.useMemo(() => {
+    if (!state.filters.search) return state.inventory;
+    const lowerTerm = state.filters.search.toLowerCase();
+    return state.inventory.filter(
       (item) =>
         item.name.toLowerCase().includes(lowerTerm) ||
-        item.sku.toLowerCase().includes(lowerTerm) ||
-        item.category.toLowerCase().includes(lowerTerm)
+        item.sku.toLowerCase().includes(lowerTerm)
     );
-  }, [inventoryData, searchTerm]);
+  }, [state.inventory, state.filters.search]);
 
   return (
     <Box sx={{ p: 3 }}>
       <InventoryHeader
-        onSearch={setSearchTerm}
+        onSearch={(val) => actions.updateFilters({ search: val })}
         onFilterClick={() => console.log("Filter clicked")}
-        onAddClick={() => console.log("Add clicked")}
+        onAddClick={() => setAddOpen(true)}
       />
 
-      <InventoryKPI items={filteredData} />
+      <InventoryKPI items={filteredData} loading={state.loading} />
 
-      <InventoryTable items={filteredData} />
+      <InventoryTable
+        items={filteredData}
+        loading={state.loading}
+        onSelect={actions.selectItem}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+
+      <EditInventoryDialog
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        item={actionItem}
+        onSuccess={actions.refreshAll}
+      />
+
+      <DeleteConfirmationDialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Inventory Item?"
+        description={`Are you sure you want to delete ${actionItem?.name || "this item"}?`}
+        loading={deleteLoading}
+      />
+
+      <AddInventoryDialog
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onSuccess={actions.refreshAll}
+      />
     </Box>
   );
 }

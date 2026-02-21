@@ -1,7 +1,9 @@
 import CustomCard from "../../cards/card";
 import GoogleMapView from "@/app/components/map";
+import { MapData } from "@/app/lib/type/overview";
+
 interface OverviewMapCardProps {
-  values: any[];
+  values: MapData[];
 }
 
 const OverviewMapCard = ({ values }: OverviewMapCardProps) => {

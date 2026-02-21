@@ -1,45 +1,39 @@
 "use client";
 
-import { Card, Stack, Typography, useTheme, Box, alpha } from "@mui/material";
+import {
+  Card,
+  Stack,
+  Typography,
+  useTheme,
+  Box,
+  alpha,
+  Skeleton,
+} from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import WarningIcon from "@mui/icons-material/Warning";
 import ErrorIcon from "@mui/icons-material/Error";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
-interface InventoryItem {
-  id: string;
-  sku: string;
-  name: string;
-  category: string;
-  onHand: number;
-  unitPrice: number;
-  status: string;
-  warehouseCodes: string[];
-  lastUpdated: string;
-  reorderPoint: number;
-}
+import { InventoryWithRelations } from "@/app/lib/type/inventory";
 
 interface InventoryKPIProps {
-  items: InventoryItem[];
+  items: InventoryWithRelations[];
+  loading?: boolean;
 }
 
-const InventoryKPI = ({ items }: InventoryKPIProps) => {
+const InventoryKPI = ({ items, loading = false }: InventoryKPIProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
   /* ---------------------------------- datas --------------------------------- */
   const totalItems = items.length;
   const lowStockItems = items.filter(
-    (item) => item.status === "LOW_STOCK"
+    (item) => item.quantity > 0 && item.quantity <= item.minStock
   ).length;
-  const outOfStockItems = items.filter(
-    (item) => item.status === "OUT_OF_STOCK"
-  ).length;
-  const totalValue = items.reduce(
-    (acc, item) => acc + item.onHand * item.unitPrice,
-    0
-  );
+  const outOfStockItems = items.filter((item) => item.quantity === 0).length;
+
+  const totalValue = 0;
 
   const kpiItems = [
     {
@@ -71,6 +65,22 @@ const InventoryKPI = ({ items }: InventoryKPIProps) => {
       color: theme.palette.success.main,
     },
   ];
+
+  if (loading) {
+    return (
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={2}
+        sx={{ width: "100%", mb: 3 }}
+      >
+        {Array.from(new Array(4)).map((_, index) => (
+          <Box key={index} sx={{ flex: 1 }}>
+            <Skeleton variant="rounded" height={100} sx={{ borderRadius: 2 }} />
+          </Box>
+        ))}
+      </Stack>
+    );
+  }
 
   return (
     <Stack

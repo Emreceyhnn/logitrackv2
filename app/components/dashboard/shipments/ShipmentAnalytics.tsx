@@ -2,52 +2,49 @@
 import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { PieChart } from "@mui/x-charts/PieChart";
-import { useEffect, useState } from "react";
-import { getShipmentStatusDistribution, getShipmentVolumeHistory } from "@/app/lib/controllers/shipments";
+import { useMemo } from "react";
+import {
+  ShipmentVolumeData,
+  ShipmentStatusData,
+} from "@/app/lib/type/shipment";
 
-export default function ShipmentAnalytics() {
+interface ShipmentAnalyticsProps {
+  volumeHistory: ShipmentVolumeData[];
+  statusDistribution: ShipmentStatusData[];
+  loading?: boolean;
+}
+
+export default function ShipmentAnalytics({
+  volumeHistory,
+  statusDistribution,
+  loading,
+}: ShipmentAnalyticsProps) {
   const theme = useTheme();
-  const [pieData, setPieData] = useState<any[]>([]);
-  const [barData, setBarData] = useState<any[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const COMPANY_ID = 'cmlgt985b0003x0cuhtyxoihd';
-      const USER_ID = 'usr_001';
+  const pieData = useMemo(() => {
+    return statusDistribution.map((item, index) => ({
+      id: index,
+      value: item.count,
+      label: item.status.replace("_", " "),
+      color:
+        item.status === "DELIVERED"
+          ? theme.palette.success.main
+          : item.status === "IN_TRANSIT"
+            ? theme.palette.info.main
+            : item.status === "DELAYED"
+              ? theme.palette.error.main
+              : theme.palette.warning.main,
+    }));
+  }, [statusDistribution, theme]);
 
-      try {
-        const [statusDist, volumeHist] = await Promise.all([
-          getShipmentStatusDistribution(COMPANY_ID, USER_ID),
-          getShipmentVolumeHistory(COMPANY_ID, USER_ID)
-        ]);
+  const barData = useMemo(() => {
+    return volumeHistory.map((item) => ({
+      day: item.day,
+      volume: item.volume,
+    }));
+  }, [volumeHistory]);
 
-        const mappedPie = statusDist.map((item, index) => ({
-          id: index,
-          value: item.count,
-          label: item.status.replace("_", " "),
-          color: item.status === "DELIVERED"
-            ? theme.palette.success.main
-            : item.status === "IN_TRANSIT"
-              ? theme.palette.info.main
-              : item.status === "DELAYED"
-                ? theme.palette.error.main
-                : theme.palette.warning.main,
-        }));
-        setPieData(mappedPie);
-
-        const mappedBar = volumeHist.map(item => ({
-          day: item.day,
-          volume: item.volume
-        }));
-        setBarData(mappedBar);
-
-      } catch (error) {
-        console.error("Failed to fetch analytics", error);
-      }
-    };
-    fetchData();
-  }, [theme]);
-
+  if (loading) return null; // Or skeleton
 
   return (
     <Stack direction={{ xs: "column", md: "row" }} spacing={3} mt={3}>
@@ -89,7 +86,10 @@ export default function ShipmentAnalytics() {
             <PieChart
               series={[
                 {
-                  data: pieData.length > 0 ? pieData : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
+                  data:
+                    pieData.length > 0
+                      ? pieData
+                      : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
                   innerRadius: 60,
                   outerRadius: 100,
                   paddingAngle: 5,

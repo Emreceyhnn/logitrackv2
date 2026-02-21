@@ -1,28 +1,21 @@
-import {
-  Card,
-  Stack,
-  Typography,
-  useTheme,
-  Box,
-  alpha,
-  Avatar,
-} from "@mui/material";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import TrendingDownIcon from "@mui/icons-material/TrendingDown";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import { Card, Stack, Typography, useTheme, Box, alpha } from "@mui/material";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import Inventory2Icon from "@mui/icons-material/Inventory2";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import { ReportsMetrics } from "@/app/lib/type/reports";
 
 interface MetricCardProps {
   title: string;
   value: string;
-  change?: string;
-  positive?: boolean;
-  icon?: React.ReactNode;
-  color?: string;
+  change: string;
+  positive: boolean;
+  icon: React.ReactNode;
+  color: string;
 }
 
 const MetricCard = ({
@@ -31,23 +24,20 @@ const MetricCard = ({
   change,
   positive,
   icon,
-  color = "primary.main",
+  color,
 }: MetricCardProps) => {
-  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
   return (
     <Card
       sx={{
-        p: 3,
+        p: 2.5,
+        height: "100%",
         borderRadius: "16px",
         boxShadow: theme.shadows[2],
-        height: "100%",
-        position: "relative",
-        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
+        justifyContent: "space-between",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         background: `${theme.palette.background.paper}`,
         "&:hover": {
@@ -56,62 +46,45 @@ const MetricCard = ({
         },
       }}
     >
-      <Box
-        sx={{
-          position: "absolute",
-          top: -20,
-          right: -20,
-          width: 100,
-          height: 100,
-          borderRadius: "50%",
-          bgcolor: alpha(color, 0.05),
-          zIndex: 0,
-        }}
-      />
-
-      <Stack spacing={2} sx={{ position: "relative", zIndex: 1 }}>
+      <Stack spacing={2}>
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="flex-start"
         >
-          <Avatar
-            variant="rounded"
+          <Box
             sx={{
+              p: 1.5,
+              borderRadius: "12px",
               bgcolor: alpha(color, 0.1),
               color: color,
-              width: 48,
-              height: 48,
-              borderRadius: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             {icon}
-          </Avatar>
-          {change && (
-            <Stack
-              direction="row"
-              alignItems="center"
-              spacing={0.5}
+          </Box>
+          <Stack direction="row" spacing={0.5} alignItems="center">
+            <Typography
+              variant="caption"
+              fontWeight={700}
               sx={{
                 color: positive ? "success.main" : "error.main",
-                bgcolor: positive
-                  ? alpha(theme.palette.success.main, 0.1)
-                  : alpha(theme.palette.error.main, 0.1),
+                bgcolor: alpha(
+                  positive
+                    ? theme.palette.success.main
+                    : theme.palette.error.main,
+                  0.1
+                ),
                 px: 1,
                 py: 0.5,
-                borderRadius: 2,
+                borderRadius: "6px",
               }}
             >
-              {positive ? (
-                <TrendingUpIcon fontSize="small" sx={{ fontSize: "1rem" }} />
-              ) : (
-                <TrendingDownIcon fontSize="small" sx={{ fontSize: "1rem" }} />
-              )}
-              <Typography variant="caption" fontWeight={700}>
-                {change}
-              </Typography>
-            </Stack>
-          )}
+              {change}
+            </Typography>
+          </Stack>
         </Stack>
 
         <Box>
@@ -135,13 +108,6 @@ const MetricCard = ({
     </Card>
   );
 };
-
-interface ReportsMetrics {
-  totalShipments: number;
-  onTimeRate: number;
-  activeVehicles: number;
-  totalInventoryValue: number;
-}
 
 export default function ReportSummaryCards({
   tabIndex,

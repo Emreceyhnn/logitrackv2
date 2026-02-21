@@ -138,8 +138,12 @@ export async function getRoutes(
         include: {
           vehicle: {
             select: {
+              id: true,
               plate: true,
               type: true,
+              currentLat: true,
+              currentLng: true,
+              fuelLevel: true,
             },
           },
           driver: {
