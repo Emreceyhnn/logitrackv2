@@ -118,5 +118,4 @@ export interface RouteTableProps {
 
 export interface RoutesKpiCardProps {
   stats: RouteStats | null;
-  loading?: boolean;
 }

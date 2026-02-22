@@ -1,69 +1,68 @@
 "use client";
-import { Card, Stack, Typography, useTheme, Skeleton } from "@mui/material";
+import { Stack, useTheme } from "@mui/material";
 import { WarehouseKpiCardProps } from "@/app/lib/type/warehouse";
+import { Warehouse, Inventory } from "@mui/icons-material";
+import StatCard from "../../cards/StatCard";
 
-const WarehouseKpiCard = ({ stats, loading }: WarehouseKpiCardProps) => {
+const WarehouseKpiCard = ({ stats }: WarehouseKpiCardProps) => {
+  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  if (loading || !stats) {
-    return (
-      <Stack direction={"row"} spacing={2} sx={{ width: "100%" }}>
-        {[1, 2, 3, 4].map((i) => (
-          <Skeleton
-            key={i}
-            variant="rectangular"
-            height={100}
-            sx={{ flex: 1, borderRadius: "12px" }}
-          />
-        ))}
-      </Stack>
-    );
-  }
+  const values = stats || {
+    totalWarehouses: 0,
+    totalSkus: 0,
+    totalCapacityPallets: 0,
+    totalCapacityVolume: 0,
+  };
 
   const kpiItems = [
-    { label: "WAREHOUSES", value: stats.totalWarehouses },
-    { label: "INVENTORY SKUS", value: stats.totalSkus.toLocaleString() },
+    {
+      label: "WAREHOUSES",
+      value: values.totalWarehouses,
+      icon: <Warehouse />,
+      color: theme.palette.primary.main,
+    },
+    {
+      label: "INVENTORY SKUS",
+      value: values.totalSkus.toLocaleString(),
+      icon: <Inventory />,
+      color: theme.palette.info.main,
+    },
     {
       label: "TOTAL PALLETS",
-      value: stats.totalCapacityPallets.toLocaleString(),
+      value: values.totalCapacityPallets.toLocaleString(),
+      icon: <Inventory />,
+      color: theme.palette.warning.main,
     },
     {
       label: "TOTAL VOLUME (M³)",
-      value: stats.totalCapacityVolume.toLocaleString(),
+      value: values.totalCapacityVolume.toLocaleString(),
+      icon: <Inventory />,
+      color: theme.palette.success.main,
     },
   ];
 
   return (
-    <Stack direction={"row"} spacing={2} sx={{ width: "100%" }}>
+    <Stack
+      direction={"row"}
+      flexWrap="wrap"
+      gap={2}
+      mt={2}
+      justifyContent={"center"}
+    >
       {kpiItems.map((item, index) => (
-        <Card
+        <Stack
           key={index}
-          sx={{
-            backgroundColor: theme.palette.background.paper,
-            backgroundImage: "none",
-            borderRadius: "12px",
-            p: 3,
-            flex: 1,
-            boxShadow: 3,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-          }}
+          flexBasis={{ xs: "100%", sm: "48%", md: "23%" }}
+          flexGrow={1}
         >
-          <Stack spacing={1}>
-            <Typography
-              variant="overline"
-              color="text.secondary"
-              fontWeight={600}
-              sx={{ letterSpacing: 1 }}
-            >
-              {item.label}
-            </Typography>
-            <Typography variant="h4" fontWeight={600}>
-              {item.value}
-            </Typography>
-          </Stack>
-        </Card>
+          <StatCard
+            title={item.label}
+            value={item.value}
+            icon={item.icon}
+            color={item.color}
+          />
+        </Stack>
       ))}
     </Stack>
   );

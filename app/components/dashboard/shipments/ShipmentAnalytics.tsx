@@ -11,13 +11,11 @@ import {
 interface ShipmentAnalyticsProps {
   volumeHistory: ShipmentVolumeData[];
   statusDistribution: ShipmentStatusData[];
-  loading?: boolean;
 }
 
 export default function ShipmentAnalytics({
   volumeHistory,
   statusDistribution,
-  loading,
 }: ShipmentAnalyticsProps) {
   const theme = useTheme();
 
@@ -44,14 +42,17 @@ export default function ShipmentAnalytics({
     }));
   }, [volumeHistory]);
 
-  if (loading) return null; // Or skeleton
-
   return (
-    <Stack direction={{ xs: "column", md: "row" }} spacing={3} mt={3}>
-      <Box sx={{ flex: 1, minWidth: 0 }}>
+    <Stack
+      direction={{ xs: "column", md: "row" }}
+      spacing={3}
+      mt={2}
+      sx={{ alignItems: "stretch" }}
+    >
+      <Box sx={{ flex: 1, display: "flex" }}>
         <Card
           sx={{
-            flex: 1,
+            width: "100%",
             p: 2.5,
             borderRadius: "16px",
             boxShadow: theme.shadows[2],
@@ -112,10 +113,10 @@ export default function ShipmentAnalytics({
         </Card>
       </Box>
 
-      <Box sx={{ flex: 1, minWidth: 0 }}>
+      <Box sx={{ flex: 1, display: "flex" }}>
         <Card
           sx={{
-            flex: 1,
+            width: "100%",
             p: 2.5,
             borderRadius: "16px",
             boxShadow: theme.shadows[2],
@@ -138,7 +139,15 @@ export default function ShipmentAnalytics({
             </Typography>
           </Stack>
 
-          <Box sx={{ flex: 1, minHeight: 300 }}>
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 300,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <BarChart
               dataset={barData}
               xAxis={[{ scaleType: "band", dataKey: "day" }]}

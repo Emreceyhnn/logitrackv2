@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Box, Divider, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import WarehouseKpiCard from "@/app/components/dashboard/warehouse/warehouseKpiCard";
 import WarehouseListTable from "@/app/components/dashboard/warehouse/warehouseList";
 import CapacityUtilization from "@/app/components/dashboard/warehouse/capacityUtilization";
 import RecentStockMovements from "@/app/components/dashboard/warehouse/recentStockMovements";
+import AddIcon from "@mui/icons-material/Add";
 import {
   getRecentStockMovements,
   getWarehouses,
@@ -17,6 +18,7 @@ import {
 } from "@/app/lib/type/warehouse";
 
 export default function WarehousePage() {
+  /* --------------------------------- states --------------------------------- */
   const [state, setState] = useState<WarehousePageState>({
     warehouses: [],
     stats: null,
@@ -25,12 +27,12 @@ export default function WarehousePage() {
     loading: true,
     error: null,
   });
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
+  /* --------------------------------- actions -------------------------------- */
   const fetchAllData = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true }));
     try {
-      // Mock user/company IDs for now as per previous pattern.
-      // In a real app this comes from context/session.
       const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
       const USER_ID = "usr_001";
 
@@ -42,7 +44,7 @@ export default function WarehousePage() {
 
       setState((prev) => ({
         ...prev,
-        warehouses: warehousesData as any, // Cast due to slight Prisma type mismatches if any
+        warehouses: warehousesData as any,
         stats: statsData,
         recentMovements: movementsData as any,
         loading: false,
@@ -57,18 +59,12 @@ export default function WarehousePage() {
       }));
     }
   }, []);
-
   const actions: WarehousePageActions = {
     fetchWarehouses: async () => {
-      // Re-fetch only warehouses if needed, or just reuse fetchAll for simplicity
       await fetchAllData();
     },
-    fetchStats: async () => {
-      // Implementation if granular fetch needed
-    },
-    fetchRecentMovements: async () => {
-      // Implementation if granular fetch needed
-    },
+    fetchStats: async () => {},
+    fetchRecentMovements: async () => {},
     refreshAll: async () => {
       await fetchAllData();
     },
@@ -77,28 +73,44 @@ export default function WarehousePage() {
     },
   };
 
+  /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     fetchAllData();
   }, [fetchAllData]);
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>
-      <Typography
-        sx={{
-          fontSize: 24,
-          fontWeight: 600,
-          letterSpacing: "-2%",
-        }}
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
       >
-        Warehouses
-      </Typography>
-      <Divider sx={{ my: 2 }} />
+        <Box>
+          <Typography
+            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
+          >
+            Warehouse Management
+          </Typography>
+          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
+            Manage your warehouses, monitor performance and license status.
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setAddDialogOpen(true)}
+          sx={{ textTransform: "none", borderRadius: 2 }}
+        >
+          Add Warehouse
+        </Button>
+      </Stack>
 
-      <Box mb={4}>
+      <Box mb={2}>
         <WarehouseKpiCard stats={state.stats} loading={state.loading} />
       </Box>
 
-      <Box mb={4}>
+      <Box mb={2}>
         <WarehouseListTable
           warehouses={state.warehouses}
           loading={state.loading}

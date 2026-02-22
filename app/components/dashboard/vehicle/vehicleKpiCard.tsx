@@ -10,59 +10,63 @@ import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import DescriptionIcon from "@mui/icons-material/Description";
 
 interface Props {
-  totalVehicles?: number;
-  available?: number;
-  inService?: number;
-  onTrip?: number;
-  openIssues?: number;
-  docsDueSoon?: number;
+  stats: {
+    totalVehicles?: number;
+    available?: number;
+    inService?: number;
+    onTrip?: number;
+    openIssues?: number;
+    docsDueSoon?: number;
+  } | null;
 }
 
-const VehicleKpiCard = ({
-  totalVehicles,
-  available,
-  inService,
-  onTrip,
-  openIssues,
-  docsDueSoon,
-}: Props) => {
+const VehicleKpiCard = ({ stats }: Props) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+
+  const values = stats || {
+    totalVehicles: 0,
+    available: 0,
+    inService: 0,
+    onTrip: 0,
+    openIssues: 0,
+    docsDueSoon: 0,
+  };
 
   const kpiItems = [
     {
       label: "Total Vehicle",
-      value: totalVehicles ?? 0,
+      value: values.totalVehicles ?? 0,
       icon: <LocalShippingIcon />,
       color: theme.palette.primary.main,
     },
     {
       label: "Available Vehicle",
-      value: available ?? 0,
+      value: values.available ?? 0,
       icon: <CheckCircleIcon />,
       color: theme.palette.success.main,
     },
     {
       label: "Vehicle in Service",
-      value: inService ?? 0,
+      value: values.inService ?? 0,
       icon: <BuildIcon />,
       color: theme.palette.warning.main,
     },
     {
       label: "Vehicles On Trip",
-      value: onTrip ?? 0,
+      value: values.onTrip ?? 0,
       icon: <DirectionsCarIcon />,
       color: theme.palette.info.main,
     },
     {
       label: "Open Issues",
-      value: openIssues ?? 0,
+      value: values.openIssues ?? 0,
       icon: <ReportProblemIcon />,
       color: theme.palette.error.main,
     },
     {
       label: "Docs Due Soon",
-      value: docsDueSoon ?? 0,
+      value: values.docsDueSoon ?? 0,
       icon: <DescriptionIcon />,
       color: theme.palette.secondary.main,
     },

@@ -11,19 +11,15 @@ import {
   Divider,
   TablePagination,
   Stack,
-  Button,
   Skeleton,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
 import { useState } from "react";
 import RowActions from "../../vehicle/vehicleTable/menu";
-
 import RouteDetailsDialog from "@/app/components/dialogs/routes";
-import AddRouteDialog from "@/app/components/dialogs/routes/add-route-dialog";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { RouteTableProps, RouteWithRelations } from "@/app/lib/type/routes";
 
-// Extend the props interface to include onRefresh if not already
 interface ExtendedRouteTableProps extends RouteTableProps {
   onRefresh?: () => void;
   onEdit?: (id: string) => void;
@@ -42,7 +38,6 @@ const RouteTable = ({
 }: ExtendedRouteTableProps) => {
   /* --------------------------------- states --------------------------------- */
   const [openDetails, setOpenDetails] = useState(false);
-  const [openAdd, setOpenAdd] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState<RouteWithRelations | null>(
     null
   );
@@ -51,11 +46,7 @@ const RouteTable = ({
   const handleCloseDetails = () => {
     setOpenDetails(false);
     setSelectedRoute(null);
-    if (onSelect) onSelect(""); // deselect
-  };
-  const handleCloseAdd = () => {
-    setOpenAdd(false);
-    if (onRefresh) onRefresh();
+    if (onSelect) onSelect("");
   };
 
   const handleOpenDetails = (id: string) => {
@@ -67,25 +58,13 @@ const RouteTable = ({
     if (onSelect) onSelect(id);
   };
 
-  const handleOpenAdd = () => {
-    setOpenAdd(true);
-  };
-
   const handleChangePage = (event: unknown, newPage: number) => {
     onPageChange(newPage);
   };
 
-  // We are not handling rowsPerPage change in parent yet strictly, or default to 10.
-  // If we want to support it, we need to update RouteTableProps and RoutesPageState.
-  // For now, let's just keep it simple or assume fixed page size in UI for now as per strict instructions,
-  // or allow it but just trigger page change to 0 if we were to implementing it fully.
-  // But strict adherence shows we only passed onPageChange.
-  // Let's just consume the pagination.pageSize from props.
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // TODO: Add onPageSizeChange to props if needed.
-    // For now just console log or ignore to stick to interface
     console.warn("Change rows per page not implemented in parent yet");
   };
 
@@ -102,9 +81,6 @@ const RouteTable = ({
             <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
               Detailed ACTIVE ROUTES
             </Typography>
-            <Button variant="contained" size="small" disabled>
-              Add Route
-            </Button>
           </Stack>
           <Divider />
           <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
@@ -166,9 +142,6 @@ const RouteTable = ({
           <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
             Detailed ACTIVE ROUTES
           </Typography>
-          <Button variant="contained" size="small" onClick={handleOpenAdd}>
-            Add Route
-          </Button>
         </Stack>
         <Divider />
 
@@ -176,12 +149,12 @@ const RouteTable = ({
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>ROUTE ID</TableCell>
-                <TableCell>VEHICLE PLATE</TableCell>
-                <TableCell>ORIGIN</TableCell>
-                <TableCell>DESTINATION</TableCell>
+                <TableCell>Route Id</TableCell>
+                <TableCell>Vehicle Plate</TableCell>
+                <TableCell>Origin</TableCell>
+                <TableCell>Destination</TableCell>
                 <TableCell>ETA</TableCell>
-                <TableCell>STATUS</TableCell>
+                <TableCell>Status</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -244,7 +217,6 @@ const RouteTable = ({
         onClose={handleCloseDetails}
         route={selectedRoute}
       />
-      <AddRouteDialog open={openAdd} onClose={handleCloseAdd} />
     </>
   );
 };

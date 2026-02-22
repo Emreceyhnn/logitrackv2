@@ -12,7 +12,7 @@ import WarehouseIcon from "@mui/icons-material/Warehouse";
 import InventoryIcon from "@mui/icons-material/Inventory";
 
 interface OverviewKpiCardProps {
-  values: {
+  stats: {
     activeShipments: number;
     delayedShipments: number;
     vehiclesOnTrip: number;
@@ -21,14 +21,23 @@ interface OverviewKpiCardProps {
     activeDrivers: number;
     warehouses: number;
     inventorySkus: number;
-  };
+  } | null;
 }
 
-const OverviewKpiCard = ({ values }: OverviewKpiCardProps) => {
+const OverviewKpiCard = ({ stats }: OverviewKpiCardProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  if (!values) return null;
+  const values = stats || {
+    activeShipments: 0,
+    delayedShipments: 0,
+    vehiclesOnTrip: 0,
+    vehiclesInService: 0,
+    availableVehicles: 0,
+    activeDrivers: 0,
+    warehouses: 0,
+    inventorySkus: 0,
+  };
 
   const kpiItems = [
     {

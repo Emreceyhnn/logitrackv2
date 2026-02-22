@@ -81,11 +81,11 @@ export default function VehicleToolbar({
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
-              <SearchIcon color="action" />
+              <SearchIcon fontSize="small" color="action" />
             </InputAdornment>
           ),
         }}
-        sx={{ flexGrow: 1 }}
+        sx={{ minWidth: 250, flexGrow: 1 }}
       />
 
       <FormControl size="small" sx={{ minWidth: 200 }}>

@@ -4,8 +4,9 @@ import RoutesKpiCard from "@/app/components/dashboard/routes/routesKpiCard";
 import RoutesMainMap from "@/app/components/dashboard/routes/routesMainMap";
 import RouteEfficiency from "@/app/components/dashboard/routes/routeEfficiency";
 import RouteTable from "@/app/components/dashboard/routes/routeTable";
-import { Box, Divider, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
+import AddIcon from "@mui/icons-material/Add";
 import {
   RoutesPageActions,
   RoutesPageState,
@@ -21,11 +22,13 @@ import {
 import EditRouteDialog from "@/app/components/dialogs/routes/edit-route-dialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { useUser } from "@/app/lib/hooks/useUser";
+import AddRouteDialog from "@/app/components/dialogs/routes/add-route-dialog";
 
 export default function RoutesPage() {
-  // User hook for delete action
+  /* -------------------------------- variables ------------------------------- */
   const { user } = useUser();
 
+  /* --------------------------------- states --------------------------------- */
   const [state, setState] = useState<RoutesPageState>({
     routes: [],
     stats: null,
@@ -42,8 +45,7 @@ export default function RoutesPage() {
     loading: true,
     error: null,
   });
-
-  // Action states
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [actionRoute, setActionRoute] = useState<RouteWithRelations | null>(
@@ -51,11 +53,12 @@ export default function RoutesPage() {
   );
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  /* --------------------------------- actions -------------------------------- */
   const fetchRoutesData = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true }));
     try {
-      const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd"; // Mock
-      const USER_ID = "usr_001"; // Mock
+      const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
+      const USER_ID = "usr_001";
 
       const [routesData, statsData, efficiencyData, mapDataLocations] =
         await Promise.all([
@@ -95,9 +98,7 @@ export default function RoutesPage() {
   }, [state.pagination.page, state.pagination.pageSize, state.filters.status]);
 
   const actions: RoutesPageActions = {
-    fetchRoutes: async (page, status) => {
-      // Triggered by effect when state changes
-    },
+    fetchRoutes: async (page, status) => {},
     fetchStats: async () => {},
     fetchEfficiency: async () => {},
     fetchMapData: async () => {},
@@ -125,17 +126,15 @@ export default function RoutesPage() {
     },
   };
 
+  /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     fetchRoutesData();
   }, [fetchRoutesData]);
 
-  // Handle page change for table
+  /* -------------------------------- handlers -------------------------------- */
   const handlePageChange = (newPage: number) => {
     actions.changePage(newPage);
   };
-
-  // Handle filter update (if needed in future)
-
   const handleEdit = (id: string) => {
     const route = state.routes.find((r) => r.id === id);
     if (route) {
@@ -143,7 +142,6 @@ export default function RoutesPage() {
       setEditOpen(true);
     }
   };
-
   const handleDelete = (id: string) => {
     const route = state.routes.find((r) => r.id === id);
     if (route) {
@@ -151,7 +149,6 @@ export default function RoutesPage() {
       setDeleteOpen(true);
     }
   };
-
   const handleDeleteConfirm = async () => {
     if (!actionRoute || !user) return;
     setDeleteLoading(true);
@@ -165,20 +162,39 @@ export default function RoutesPage() {
       setDeleteLoading(false);
     }
   };
+  const handleCloseAdd = () => {
+    setAddDialogOpen(false);
+    actions.refreshAll();
+  };
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>
-      <Typography
-        sx={{
-          fontSize: 24,
-          fontWeight: 600,
-          letterSpacing: "-2%",
-        }}
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
       >
-        Routes
-      </Typography>
-      <Divider />
-      <RoutesKpiCard stats={state.stats} loading={state.loading} />
+        <Box>
+          <Typography
+            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
+          >
+            Routes Management
+          </Typography>
+          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
+            Manage your routes, monitor performance and status.
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setAddDialogOpen(true)}
+          sx={{ textTransform: "none", borderRadius: 2 }}
+        >
+          Add Route
+        </Button>
+      </Stack>
+      <RoutesKpiCard stats={state.stats} />
       <Stack mt={2} direction={"row"} spacing={3}>
         <RoutesMainMap mapData={state.mapData} loading={state.loading} />
         <RouteEfficiency data={state.efficiency} loading={state.loading} />
@@ -211,6 +227,7 @@ export default function RoutesPage() {
         description={`Are you sure you want to delete route ${actionRoute?.name || actionRoute?.id}?`}
         loading={deleteLoading}
       />
+      <AddRouteDialog open={addDialogOpen} onClose={handleCloseAdd} />
     </Box>
   );
 }

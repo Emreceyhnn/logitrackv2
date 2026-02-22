@@ -7,7 +7,8 @@ import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import { ShipmentKpiCardProps } from "@/app/lib/type/shipment";
 
-const ShipmentKpiCard = ({ stats, loading = false }: ShipmentKpiCardProps) => {
+const ShipmentKpiCard = ({ stats }: ShipmentKpiCardProps) => {
+  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
   const values = stats || { total: 0, active: 0, delayed: 0, inTransit: 0 };
@@ -55,7 +56,7 @@ const ShipmentKpiCard = ({ stats, loading = false }: ShipmentKpiCardProps) => {
         >
           <StatCard
             title={item.label}
-            value={loading ? 0 : item.value}
+            value={item.value}
             icon={item.icon}
             color={item.color}
           />

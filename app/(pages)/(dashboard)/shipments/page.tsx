@@ -3,7 +3,7 @@
 import ShipmentKpiCard from "@/app/components/dashboard/shipments/shipmentKpiCard";
 import ShipmentTable from "@/app/components/dashboard/shipments/shipmentTable";
 import ShipmentAnalytics from "@/app/components/dashboard/shipments/ShipmentAnalytics";
-import { Box, Divider, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import {
   ShipmentPageState,
@@ -20,8 +20,10 @@ import {
 import EditShipmentDialog from "@/app/components/dialogs/shipment/edit-shipment-dialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { useUser } from "@/app/lib/hooks/useUser";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function ShipmentPage() {
+  /* -------------------------------- variables ------------------------------- */
   const { user } = useUser();
 
   /* ---------------------------------- state --------------------------------- */
@@ -35,20 +37,17 @@ export default function ShipmentPage() {
     loading: true,
     error: null,
   });
-
-  // Action states
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [actionShipment, setActionShipment] =
     useState<ShipmentWithRelations | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   /* --------------------------------- actions -------------------------------- */
   const fetchAllData = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true }));
-    const token = localStorage.getItem("token"); // Auth check if needed
 
-    // Hardcoded for now per controller, fetching dynamic later
     const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
     const USER_ID = "usr_001";
 
@@ -63,7 +62,7 @@ export default function ShipmentPage() {
 
       setState((prev) => ({
         ...prev,
-        shipments: shipmentsData, // Prisma result matches ShipmentWithRelations structure mostly
+        shipments: shipmentsData,
         stats: statsData,
         statusDistribution: statusDist,
         volumeHistory: volumeHist,
@@ -79,14 +78,11 @@ export default function ShipmentPage() {
       }));
     }
   }, []);
-
   const selectShipment = (id: string | null) => {
     setState((prev) => ({ ...prev, selectedShipmentId: id }));
   };
-
-  // Actions object (extensible)
   const actions: ShipmentPageActions = {
-    fetchShipments: async () => {}, // merged into fetchAllData for initial load
+    fetchShipments: async () => {},
     fetchStats: async () => {},
     fetchCharts: async () => {},
     refreshAll: fetchAllData,
@@ -111,7 +107,6 @@ export default function ShipmentPage() {
       setEditOpen(true);
     }
   };
-
   const handleDelete = (id: string) => {
     const shipment = state.shipments.find((s) => s.id === id);
     if (shipment) {
@@ -119,7 +114,6 @@ export default function ShipmentPage() {
       setDeleteOpen(true);
     }
   };
-
   const handleDeleteConfirm = async () => {
     if (!actionShipment || !user) return;
     setDeleteLoading(true);
@@ -136,24 +130,33 @@ export default function ShipmentPage() {
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>
-      <Typography
-        sx={{
-          fontSize: 24,
-          fontWeight: 600,
-          letterSpacing: "-2%",
-        }}
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
       >
-        Shipments
-      </Typography>
-      <Divider />
+        <Box>
+          <Typography
+            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
+          >
+            Shipments Management
+          </Typography>
+          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
+            Manage your shipments, monitor performance and status.
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setAddDialogOpen(true)}
+          sx={{ textTransform: "none", borderRadius: 2 }}
+        >
+          Add Shipment
+        </Button>
+      </Stack>
 
-      <ShipmentKpiCard stats={state.stats} loading={state.loading} />
-
-      <ShipmentAnalytics
-        volumeHistory={state.volumeHistory}
-        statusDistribution={state.statusDistribution}
-        loading={state.loading}
-      />
+      <ShipmentKpiCard stats={state.stats} />
 
       <Stack mt={2}>
         <ShipmentTable
@@ -164,6 +167,11 @@ export default function ShipmentPage() {
           onDelete={handleDelete}
         />
       </Stack>
+
+      <ShipmentAnalytics
+        volumeHistory={state.volumeHistory}
+        statusDistribution={state.statusDistribution}
+      />
 
       <EditShipmentDialog
         open={editOpen}

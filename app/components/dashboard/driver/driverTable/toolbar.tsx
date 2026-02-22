@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Box,
   TextField,
   InputAdornment,
   MenuItem,
@@ -10,6 +9,7 @@ import {
   InputLabel,
   SelectChangeEvent,
   IconButton,
+  Stack,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -55,14 +55,11 @@ export default function DriverTableToolbar({
         : "all";
 
   return (
-    <Box
-      sx={{
-        p: 2,
-        display: "flex",
-        gap: 2,
-        flexWrap: "wrap",
-        alignItems: "center",
-      }}
+    <Stack
+      direction={{ xs: "column", md: "row" }}
+      spacing={2}
+      alignItems="center"
+      sx={{ p: 2, bgcolor: "background.paper", borderRadius: 2 }}
     >
       <TextField
         size="small"
@@ -120,6 +117,6 @@ export default function DriverTableToolbar({
           <MenuItem value="unassigned">Unassigned</MenuItem>
         </Select>
       </FormControl>
-    </Box>
+    </Stack>
   );
 }

@@ -44,14 +44,9 @@ const ShipmentTable = ({
   };
 
   const handleOpen = (id: string) => {
-    // We notify parent on select, but also might want local dialog loop for now
-    // The previous implementation had the dialog inside the table.
-    // For now we keep the dialog here but it should eventually move to page.
     const shipment = shipments.find((s) => s.id === id);
     if (!shipment) return;
 
-    // TODO: Dialog expects legacy 'Shipment' type. We cast or map it.
-    // For now passing as any to unblock the table refactor.
     setSelectedShipment(shipment);
     setOpen(true);
     onSelect(id);

@@ -10,61 +10,50 @@ import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import { DriverKpiCardProps } from "@/app/lib/type/driver";
 
-const DriverKpiCard = ({ data, loading }: DriverKpiCardProps) => {
+const DriverKpiCard = ({ data }: DriverKpiCardProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
-
-  /* --------------------------------- render --------------------------------- */
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!data) return null;
 
   const kpiItems = [
     {
       label: "Total Drivers",
-      value: data.totalDrivers,
+      value: data?.totalDrivers ?? 0,
       icon: <GroupsIcon />,
       color: theme.palette.primary.main,
     },
     {
       label: "On Duty",
-      value: data.onDuty,
+      value: data?.onDuty ?? 0,
       icon: <WorkIcon />,
       color: theme.palette.success.main,
     },
     {
       label: "Off Duty",
-      value: data.offDuty,
+      value: data?.offDuty ?? 0,
       icon: <HomeIcon />,
       color: theme.palette.info.main,
     },
     {
       label: "On Leave",
-      value: data.onLeave,
+      value: data?.onLeave ?? 0,
       icon: <HomeIcon />,
       color: theme.palette.warning.main,
     },
     {
       label: "Compliance Issues",
-      value: data.complianceIssues,
+      value: data?.complianceIssues ?? 0,
       icon: <ReportProblemIcon />,
       color: theme.palette.error.main,
     },
     {
       label: "Avg Safety Rating",
-      value: data.avgSafetyScore.toFixed(1),
+      value: data?.avgSafetyScore?.toFixed(1) ?? 0,
       icon: <ShieldIcon />,
       color: theme.palette.warning.main,
     },
     {
       label: "Efficiency Rating",
-      value: data.avgEfficiencyScore.toFixed(1),
+      value: data?.avgEfficiencyScore?.toFixed(1) ?? 0,
       icon: <RocketLaunchIcon />,
       color: theme.palette.success.main,
     },

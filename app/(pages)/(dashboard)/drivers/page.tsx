@@ -159,7 +159,6 @@ export default function DriverPage() {
 
   /* -------------------------------- Lifecycle --------------------------------- */
   useEffect(() => {
-    // Initial fetch and Refetch on dependency change
     actions.fetchDrivers(
       state.pagination.page,
       state.pagination.limit,
@@ -182,12 +181,10 @@ export default function DriverPage() {
     setDriverToEdit(driver);
     setIsEditOpen(true);
   };
-
   const handleDelete = (id: string) => {
     setDriverToDelete(id);
     setIsDeleteOpen(true);
   };
-
   const confirmDelete = async () => {
     if (!driverToDelete) return;
     setDeleteLoading(true);
@@ -211,25 +208,21 @@ export default function DriverPage() {
       setDeleteLoading(false);
     }
   };
-
   const handleFilterChange = (newFilters: Partial<DriverFilters>) => {
     actions.updateFilters(newFilters);
   };
-
   const handlePageChange = (newPage: number) => {
     setState((prev) => ({
       ...prev,
       pagination: { ...prev.pagination, page: newPage },
     }));
   };
-
   const handleLimitChange = (newLimit: number) => {
     setState((prev) => ({
       ...prev,
       pagination: { ...prev.pagination, limit: newLimit, page: 1 },
     }));
   };
-
   const handleSort = (property: string) => {
     setState((prev) => ({
       ...prev,
@@ -277,10 +270,7 @@ export default function DriverPage() {
         </Typography>
       )}
 
-      <DriverKpiCard
-        data={state.dashboardData?.driversKpis || null}
-        loading={state.loading && !state.dashboardData}
-      />
+      <DriverKpiCard data={state.dashboardData?.driversKpis || null} />
 
       <Stack gap={2} mt={2}>
         <DriverTableToolbar
@@ -317,10 +307,7 @@ export default function DriverPage() {
         />
       </Stack>
 
-      <DriverPerformanceCharts
-        data={state.dashboardData?.performanceCharts}
-        loading={state.loading && !state.dashboardData}
-      />
+      <DriverPerformanceCharts data={state.dashboardData?.performanceCharts} />
 
       <AddDriverDialog
         open={isAddDialogOpen}

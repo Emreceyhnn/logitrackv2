@@ -1,12 +1,5 @@
 "use client";
-import {
-  Box,
-  Stack,
-  Typography,
-  useTheme,
-  Divider,
-  CircularProgress,
-} from "@mui/material";
+import { Box, Stack, Typography, useTheme, Divider } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import CustomCard from "../../cards/card";
 
@@ -18,53 +11,15 @@ interface DriverPerformanceChartsProps {
         workingHours: number;
       }[]
     | undefined;
-  loading?: boolean;
 }
 
-const DriverPerformanceCharts = ({
-  data,
-  loading,
-}: DriverPerformanceChartsProps) => {
+const DriverPerformanceCharts = ({ data }: DriverPerformanceChartsProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  /* --------------------------------- render --------------------------------- */
-  if (loading) {
-    return (
-      <Stack direction={{ xs: "column", md: "row" }} spacing={2} mt={2}>
-        <Box flex={1}>
-          <CustomCard
-            sx={{
-              height: 300,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <CircularProgress />
-          </CustomCard>
-        </Box>
-        <Box flex={1}>
-          <CustomCard
-            sx={{
-              height: 300,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <CircularProgress />
-          </CustomCard>
-        </Box>
-      </Stack>
-    );
-  }
-
-  if (!data || data.length === 0) return null;
-
-  const driverNames = data.map((d) => d.name);
-  const ratings = data.map((d) => d.rating);
-  const workingHours = data.map((d) => d.workingHours);
+  const driverNames = data?.map((d) => d.name) ?? [];
+  const ratings = data?.map((d) => d.rating) ?? [];
+  const workingHours = data?.map((d) => d.workingHours) ?? [];
 
   return (
     <Stack direction={{ xs: "column", md: "row" }} spacing={2} mt={2}>

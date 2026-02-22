@@ -9,9 +9,9 @@ import {
   Paper,
   Typography,
   Divider,
-  CircularProgress,
   TablePagination,
   TableSortLabel,
+  Skeleton,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
 import RowActions from "./menu";
@@ -32,23 +32,6 @@ const DriverTable = ({
   sortOrder,
   onRequestSort,
 }: DriverTableProps) => {
-  /* --------------------------------- render --------------------------------- */
-  if (loading) {
-    return (
-      <CustomCard
-        sx={{
-          padding: "0 0 6px 0",
-          minHeight: 200,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <CircularProgress />
-      </CustomCard>
-    );
-  }
-
   /* -------------------------------- handlers -------------------------------- */
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -56,7 +39,6 @@ const DriverTable = ({
   ) => {
     onPageChange(newPage + 1); // MUI uses 0-indexed, our API uses 1-indexed
   };
-
   const createSortHandler =
     (property: string) => (event: React.MouseEvent<unknown>) => {
       if (onRequestSort) onRequestSort(property);
@@ -134,41 +116,76 @@ const DriverTable = ({
             </TableHead>
 
             <TableBody>
-              {drivers.map((d, index) => (
-                <TableRow key={d.id}>
-                  <TableCell>
-                    {index + 1 + (meta.page - 1) * meta.limit}
-                  </TableCell>
-                  <TableCell>
-                    {d.user.name} {d.user.surname}
-                  </TableCell>
-                  <TableCell>
-                    <StatusChip status={d.status} />
-                  </TableCell>
-                  <TableCell>{d.phone}</TableCell>
-                  <TableCell>
-                    {d.currentVehicle
-                      ? d.currentVehicle.plate
-                      : "No assigned vehicle"}
-                  </TableCell>
-                  <TableCell>{d.licenseType}</TableCell>
-                  <TableCell align="right">{d.safetyScore}</TableCell>
-                  <TableCell align="right">
-                    <RowActions
-                      id={d.id}
-                      handleOpenDetails={() => onDriverSelect(d.id)}
-                      handleEdit={() => onEdit(d)}
-                      handleDelete={() => onDelete(d.id)}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {drivers.length === 0 && (
+              {loading ? (
+                Array.from(new Array(5)).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Skeleton variant="text" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={100} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={150} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="rounded" width={80} height={24} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={80} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="circular" width={32} height={32} />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton variant="text" width={60} />
+                    </TableCell>
+                    <TableCell align="right">
+                      <Skeleton variant="text" width={40} />
+                    </TableCell>
+                    <TableCell align="right">
+                      <Skeleton variant="circular" width={24} height={24} />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : drivers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
-                    No drivers found
+                  <TableCell colSpan={9} align="center" sx={{ py: 3 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      No drivers found
+                    </Typography>
                   </TableCell>
                 </TableRow>
+              ) : (
+                drivers.map((d, index) => (
+                  <TableRow key={d.id}>
+                    <TableCell>
+                      {index + 1 + (meta.page - 1) * meta.limit}
+                    </TableCell>
+                    <TableCell>
+                      {d.user.name} {d.user.surname}
+                    </TableCell>
+                    <TableCell>
+                      <StatusChip status={d.status} />
+                    </TableCell>
+                    <TableCell>{d.phone}</TableCell>
+                    <TableCell>
+                      {d.currentVehicle
+                        ? d.currentVehicle.plate
+                        : "No assigned vehicle"}
+                    </TableCell>
+                    <TableCell>{d.licenseType}</TableCell>
+                    <TableCell align="right">{d.safetyScore}</TableCell>
+                    <TableCell align="right">
+                      <RowActions
+                        id={d.id}
+                        handleOpenDetails={() => onDriverSelect(d.id)}
+                        handleEdit={() => onEdit(d)}
+                        handleDelete={() => onDelete(d.id)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
             </TableBody>
           </Table>
@@ -178,7 +195,7 @@ const DriverTable = ({
           component="div"
           count={meta?.total || 0}
           rowsPerPage={meta?.limit || 10}
-          page={(meta?.page || 1) - 1} // MUI is 0-indexed
+          page={(meta?.page || 1) - 1}
           onPageChange={handleChangePage}
           onRowsPerPageChange={(e) => {
             const newLimit = parseInt(e.target.value, 10);

@@ -84,7 +84,6 @@ export default function OverviewPage() {
         getMapData(token),
       ]);
 
-      // Ensure mapData types are valid
       const validMapData = (mapDataRes || []).map((item: any) => ({
         ...item,
         type: (["W", "V", "C"].includes(item.type) ? item.type : "W") as
@@ -140,7 +139,7 @@ export default function OverviewPage() {
       </Typography>
       <Divider />
 
-      {state.data.stats && <OverviewKpiCard values={state.data.stats} />}
+      <OverviewKpiCard stats={state.data.stats || null} />
 
       <Stack direction={"row"} spacing={2} mt={2}>
         <ActionRequiredCard alerts={state.alerts} />

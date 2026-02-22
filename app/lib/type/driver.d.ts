@@ -134,7 +134,6 @@ export interface DriverTableProps {
 
 export interface DriverKpiCardProps {
   data: DriverDashboardResponseType["driversKpis"] | null;
-  loading?: boolean;
 }
 
 // Form Data for Creating Driver

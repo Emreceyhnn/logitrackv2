@@ -15,7 +15,7 @@ import {
   VehiclePageState,
   VehicleWithRelations,
 } from "@/app/lib/type/vehicle";
-import { Box, Divider, Stack, Typography, Button, Alert } from "@mui/material";
+import { Box, Stack, Typography, Button, Alert } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useCallback, useEffect, useState } from "react";
 import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
@@ -182,25 +182,25 @@ export default function VehiclePage() {
         alignItems="center"
         mb={2}
       >
-        <Typography
-          sx={{
-            fontSize: 24,
-            fontWeight: 600,
-            letterSpacing: "-2%",
-          }}
-        >
-          Vehicles
-        </Typography>
+        <Box>
+          <Typography
+            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
+          >
+            Vehicle Management
+          </Typography>
+          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
+            Manage your fleet vehicles, monitor performance and license status.
+          </Typography>
+        </Box>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setAddDialogOpen(true)}
-          sx={{ textTransform: "none" }}
+          sx={{ textTransform: "none", borderRadius: 2 }}
         >
           Add Vehicle
         </Button>
       </Stack>
-      <Divider />
 
       {state.error && (
         <Alert severity="error" sx={{ mb: 2, mt: 2 }}>
@@ -208,9 +208,9 @@ export default function VehiclePage() {
         </Alert>
       )}
 
-      <VehicleKpiCard {...(state.dashboardData?.vehiclesKpis || {})} />
+      <VehicleKpiCard stats={state.dashboardData?.vehiclesKpis || null} />
 
-      <Stack mt={3}>
+      <Stack mt={2}>
         <VehicleToolbar
           filters={state.filters}
           onFilterChange={actions.updateFilters}
