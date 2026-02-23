@@ -17,7 +17,7 @@ import {
   getDrivers,
   deleteDriver,
 } from "@/app/lib/controllers/driver";
-import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";
+import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog/addDriverDialog";
 import DriverDialog from "@/app/components/dialogs/driver";
 import DriverTableToolbar from "@/app/components/dashboard/driver/driverTable/toolbar";
 import EditDriverDialog from "@/app/components/dialogs/driver/editDriverDialog";

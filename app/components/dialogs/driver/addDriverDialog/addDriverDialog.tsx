@@ -117,7 +117,6 @@ export default function AddDriverDialog({
             </Grid>
 
             <Grid size={{ xs: 12 }}>
-              {/* We will implement Autocomplete here once we have data */}
               <Controller
                 name="userId"
                 control={control}
@@ -148,7 +147,6 @@ export default function AddDriverDialog({
               />
             </Grid>
 
-            {/* Professional Information Section */}
             <Grid size={{ xs: 12 }} sx={{ mt: 2 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
                 Professional Details

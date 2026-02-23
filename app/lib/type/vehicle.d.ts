@@ -160,3 +160,89 @@ export interface VehicleFormData {
   nextServiceKm?: number | "";
   avgFuelConsumption?: number | "";
 }
+
+import { VehicleType } from "@prisma/client";
+import { Dayjs } from "dayjs";
+
+export interface VehicleStep1Data {
+  photo?: string | File;
+  fleetNo: string;
+  plate: string;
+  type: VehicleType | "";
+  brand: string;
+  model: string;
+  year: number | "";
+  odometerKm: number | "";
+  nextServiceKm: number | "";
+}
+
+export interface VehicleStep2Data {
+  maxLoadKg: number | "";
+  fuelType: string;
+  fuelLevel: number | "";
+  avgFuelConsumption: number | "";
+  engineSize: string;
+  transmission: string;
+  techNotes: string;
+}
+
+export interface VehicleStep3Data {
+  registrationExpiry: Dayjs | null;
+  inspectionExpiry: Dayjs | null;
+  nextServiceDueKm: number | "";
+  enableExpiryAlerts: boolean;
+  documents: {
+    id: string;
+    type: string;
+    name: string;
+    size: string;
+    uploadedAt: string;
+    file: File | null;
+  }[];
+}
+
+export interface AddVehiclePageState {
+  currentStep: number;
+  data: {
+    step1: VehicleStep1Data;
+    step2: VehicleStep2Data;
+    step3: VehicleStep3Data;
+  };
+  isLoading: boolean;
+  error: string | null;
+  isSuccess: boolean;
+}
+
+export interface AddVehiclePageActions {
+  updateStep1: (data: Partial<VehicleStep1Data>) => void;
+  updateStep2: (data: Partial<VehicleStep2Data>) => void;
+  updateStep3: (data: Partial<VehicleStep3Data>) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  setStep: (step: number) => void;
+  handleSubmit: () => Promise<void>;
+  closeDialog: () => void;
+  reset: () => void;
+}
+
+export interface AddVehiclePageProps {
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+}
+
+export interface FirstStepProps {
+  state: AddVehiclePageState;
+  actions: AddVehiclePageActions;
+  onFileSelect?: (file: File) => void;
+}
+
+export interface TechSpecsStepProps {
+  state: AddVehiclePageState;
+  actions: AddVehiclePageActions;
+}
+
+export interface DocumentsStepProps {
+  state: AddVehiclePageState;
+  actions: AddVehiclePageActions;
+}

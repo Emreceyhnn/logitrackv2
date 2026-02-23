@@ -1,0 +1,78 @@
+import { Customer, Warehouse, Route } from "@prisma/client";
+
+export type ShipmentPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+export interface InventoryShipmentItem {
+  id: string;
+  sku: string;
+  name: string;
+  quantity: number;
+  maxQuantity?: number; // Added to track warehouse stock limit
+  unit: "Each" | "Box" | "Pallet";
+}
+
+export interface AddShipmentBasicInfo {
+  referenceNumber: string;
+  priority: ShipmentPriority;
+  type: string;
+  slaDeadline: Date | null;
+}
+
+export interface AddShipmentLogistics {
+  originWarehouseId: string;
+  destination: string;
+  customerId: string;
+  contactEmail: string;
+  billingAccount: string;
+}
+
+export interface AddShipmentCargo {
+  weightKg: number;
+  volumeM3: number;
+  palletCount: number;
+  cargoType: string;
+}
+
+export interface AddShipmentInventory {
+  items: InventoryShipmentItem[];
+}
+
+export interface AddShipmentRoute {
+  assignedRouteId: string | null;
+}
+
+export interface AddShipmentPageState {
+  data: {
+    basicInfo: AddShipmentBasicInfo;
+    logistics: AddShipmentLogistics;
+    cargo: AddShipmentCargo;
+    inventory: AddShipmentInventory;
+    route: AddShipmentRoute;
+  };
+  availableInventory: any[]; // Or closer to Inventory
+  currentStep: number;
+  isLoading: boolean;
+  isLoadingInventory: boolean;
+  error: string | null;
+  isSuccess: boolean;
+}
+
+export interface AddShipmentPageActions {
+  updateBasicInfo: (data: Partial<AddShipmentBasicInfo>) => void;
+  updateLogistics: (data: Partial<AddShipmentLogistics>) => void;
+  updateCargo: (data: Partial<AddShipmentCargo>) => void;
+  updateInventory: (data: Partial<AddShipmentInventory>) => void;
+  addInventoryItem: (item: InventoryShipmentItem) => void;
+  removeInventoryItem: (id: string) => void;
+  updateRoute: (data: Partial<AddShipmentRoute>) => void;
+  setStep: (step: number) => void;
+  handleSubmit: () => Promise<void>;
+  closeDialog: () => void;
+  reset: () => void;
+}
+
+export interface AddShipmentDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+}

@@ -63,11 +63,10 @@ export interface DriverDashboardResponseType {
   }[];
 }
 
-// Filter Types
 export interface DriverFilters {
   search?: string;
   status?: DriverStatus[];
-  hasVehicle?: boolean; // Assigned or Unassigned
+  hasVehicle?: boolean;
 }
 
 export interface PaginatedResponse<T> {
@@ -80,7 +79,6 @@ export interface PaginatedResponse<T> {
   };
 }
 
-// Page State
 export interface DriverPageState {
   drivers: DriverWithRelations[];
   dashboardData: DriverDashboardResponseType | null;
@@ -96,7 +94,6 @@ export interface DriverPageState {
   error: string | null;
 }
 
-// Page Actions
 export interface DriverPageActions {
   fetchDrivers: (
     page?: number,
@@ -111,7 +108,6 @@ export interface DriverPageActions {
   refreshAll: () => Promise<void>;
 }
 
-// Component Props
 export interface DriverTableProps {
   drivers: DriverWithRelations[];
   meta: {
@@ -136,16 +132,76 @@ export interface DriverKpiCardProps {
   data: DriverDashboardResponseType["driversKpis"] | null;
 }
 
-// Form Data for Creating Driver
 export interface CreateDriverFormData {
-  // User Info
   userId: string;
-
-  // Driver Info
   phone: string;
   licenseNumber: string;
   licenseType: string;
   licenseExpiry: Date | null;
   employeeId: string;
   status: DriverStatus;
+}
+
+export interface AddDriverStep1 {
+  userId: string;
+  licenseNo: string;
+  licenseExpiry: Date | null;
+  licenseType: string;
+  licenseIssueDate: Date | null;
+  licenseRegion: string;
+  licencePhoto: File | null;
+}
+
+export interface AddDriverDocument {
+  id: string;
+  name: string;
+  type: string;
+  expiryDate: Date | null;
+  file: File | null;
+  size?: string;
+  uploadedAt?: string;
+}
+
+export interface AddDriverStep2 {
+  homeWareHouseId: string;
+  currentVehicleId: string;
+  status: string;
+  documents: AddDriverDocument[];
+}
+
+export interface AddDriverPageState {
+  currentStep: number;
+  data: {
+    step1: AddDriverStep1;
+    step2: AddDriverStep2;
+  };
+  isLoading: boolean;
+  error: string | null;
+  isSuccess: boolean;
+}
+
+export interface AddDriverPageActions {
+  updateStep1: (data: Partial<AddDriverStep1>) => void;
+  updateStep2: (data: Partial<AddDriverStep2>) => void;
+  setStep: (step: number) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  handleSubmit: () => void;
+  closeDialog: () => void;
+  reset: () => void;
+}
+
+export interface AddDriverDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+}
+
+export interface EligibleUser {
+  id: string;
+  name: string;
+  surname: string;
+  email: string;
+  avatarUrl?: string | null;
+  roleId?: string | null;
 }

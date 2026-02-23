@@ -161,6 +161,8 @@ export async function getRoutes(
             select: {
               id: true,
               status: true,
+              origin: true,
+              destination: true,
             },
           },
         },

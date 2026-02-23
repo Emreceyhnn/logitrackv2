@@ -5,245 +5,214 @@ import {
   DialogContent,
   Box,
   Typography,
-  TextField,
-  Button,
-  Stack,
-  MenuItem,
   IconButton,
+  Stack,
+  Divider,
+  Stepper,
+  Step,
+  StepLabel,
   useTheme,
   alpha,
-  CircularProgress,
-  Alert,
+  Button,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import { useState } from "react";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import SaveIcon from "@mui/icons-material/Save";
+import { useState, useMemo } from "react";
+import FirstStep from "./firstStep";
+import TechSpecsStep from "./techSpecsStep";
+import DocumentsStep from "./documentsStep";
+import {
+  AddVehiclePageActions,
+  AddVehiclePageProps,
+  AddVehiclePageState,
+  VehicleStep1Data,
+  VehicleStep2Data,
+  VehicleStep3Data,
+} from "@/app/lib/type/vehicle";
 import { createVehicle } from "@/app/lib/controllers/vehicle";
-import { VehicleType } from "@prisma/client";
-import { addVehicleValidationSchema } from "@/app/lib/validationSchema";
+import { toast } from "sonner";
 
-interface AddVehicleDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
-}
-
-interface VehicleFormData {
-  fleetNo: string;
-  plate: string;
-  type: VehicleType | "";
-  brand: string;
-  model: string;
-  year: number | "";
-  maxLoadKg: number | "";
-  fuelType: string;
-  odometerKm?: number | "";
-  nextServiceKm?: number | "";
-  avgFuelConsumption?: number | "";
-}
-
-const initialFormData: VehicleFormData = {
+const initialStep1: VehicleStep1Data = {
   fleetNo: "",
   plate: "",
   type: "",
   brand: "",
   model: "",
   year: "",
-  maxLoadKg: "",
-  fuelType: "DIESEL",
   odometerKm: "",
   nextServiceKm: "",
+};
+
+const initialStep2: VehicleStep2Data = {
+  maxLoadKg: "",
+  fuelType: "",
+  fuelLevel: 50,
   avgFuelConsumption: "",
+  engineSize: "",
+  transmission: "",
+  techNotes: "",
+};
+
+const initialStep3: VehicleStep3Data = {
+  registrationExpiry: null,
+  inspectionExpiry: null,
+  nextServiceDueKm: "",
+  enableExpiryAlerts: true,
+  documents: [],
 };
 
 const AddVehicleDialog = ({
   open,
   onClose,
   onSuccess,
-}: AddVehicleDialogProps) => {
+}: AddVehiclePageProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const textFieldSx = {
-    "& .MuiOutlinedInput-root": {
-      backgroundColor: alpha(theme.palette.background.paper, 0.8),
-      borderRadius: 1.5,
-      "& fieldset": {
-        borderColor: alpha(theme.palette.divider, 0.8),
-        borderWidth: 1.5,
-      },
-      "&:hover fieldset": {
-        borderColor: alpha(theme.palette.primary.main, 0.5),
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: theme.palette.primary.main,
-        borderWidth: 2,
-      },
-      "&.Mui-disabled": {
-        backgroundColor: alpha(theme.palette.action.disabledBackground, 0.5),
-      },
-    },
-    "& .MuiInputLabel-root": {
-      fontWeight: 500,
-      fontSize: "0.875rem",
-      "&.Mui-focused": {
-        fontWeight: 600,
-      },
-    },
-    "& .MuiOutlinedInput-input": {
-      fontSize: "0.9375rem",
-      padding: "10px 14px",
-    },
-  };
-
   /* --------------------------------- states --------------------------------- */
-  const [formData, setFormData] = useState<VehicleFormData>(initialFormData);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [state, setState] = useState<AddVehiclePageState>({
+    currentStep: 1,
+    data: {
+      step1: initialStep1,
+      step2: initialStep2,
+      step3: initialStep3,
+    },
+    isLoading: false,
+    error: null,
+    isSuccess: false,
+  });
 
-  /* -------------------------------- handlers -------------------------------- */
-  const handleChange = (field: keyof VehicleFormData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    setError(null);
+  /* -------------------------------- actions --------------------------------- */
+  const actions: AddVehiclePageActions = useMemo(
+    () => ({
+      updateStep1: (data) => {
+        setState((prev) => ({
+          ...prev,
+          data: { ...prev.data, step1: { ...prev.data.step1, ...data } },
+        }));
+      },
+      updateStep2: (data) => {
+        setState((prev) => ({
+          ...prev,
+          data: { ...prev.data, step2: { ...prev.data.step2, ...data } },
+        }));
+      },
+      updateStep3: (data) => {
+        setState((prev) => ({
+          ...prev,
+          data: { ...prev.data, step3: { ...prev.data.step3, ...data } },
+        }));
+      },
+      setStep: (step) => {
+        setState((prev) => ({ ...prev, currentStep: step }));
+      },
+      nextStep: () => {
+        setState((prev) => ({ ...prev, currentStep: prev.currentStep + 1 }));
+      },
+      prevStep: () => {
+        setState((prev) => ({ ...prev, currentStep: prev.currentStep - 1 }));
+      },
+      handleSubmit: async () => {
+        try {
+          setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-    if (fieldErrors[field]) {
-      setFieldErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  };
+          const { step1, step2, step3 } = state.data;
 
-  const handleSubmit = async () => {
-    try {
-      await addVehicleValidationSchema.validate(formData, {
-        abortEarly: false,
-      });
-      setFieldErrors({});
+          const payload = {
+            fleetNo: step1.fleetNo,
+            plate: step1.plate,
+            type: step1.type,
+            brand: step1.brand,
+            model: step1.model,
+            year: step1.year,
+            odometerKm: step1.odometerKm,
+            photo: step1.photo,
+            maxLoadKg: step2.maxLoadKg,
+            fuelType: step2.fuelType,
+            avgFuelConsumption: step2.avgFuelConsumption,
+            fuelLevel: step2.fuelLevel,
+            engineSize: step2.engineSize,
+            transmission: step2.transmission,
+            techNotes: step2.techNotes,
+            registrationExpiry: step3.registrationExpiry?.toDate(),
+            inspectionExpiry: step3.inspectionExpiry?.toDate(),
+            nextServiceKm: step1.nextServiceKm || step3.nextServiceDueKm,
+            enableAlerts: step3.enableExpiryAlerts,
+          };
 
-      setLoading(true);
-      setError(null);
+          await createVehicle(payload);
 
-      const vehicleData = {
-        fleetNo: formData.fleetNo,
-        plate: formData.plate,
-        type: formData.type as VehicleType,
-        brand: formData.brand,
-        model: formData.model,
-        year: Number(formData.year),
-        maxLoadKg: Number(formData.maxLoadKg),
-        fuelType: formData.fuelType,
-        ...(formData.odometerKm && { odometerKm: Number(formData.odometerKm) }),
-        ...(formData.nextServiceKm && {
-          nextServiceKm: Number(formData.nextServiceKm),
-        }),
-        ...(formData.avgFuelConsumption && {
-          avgFuelConsumption: Number(formData.avgFuelConsumption),
-        }),
-      };
+          setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
+          toast.success("Vehicle added successfully");
 
-      await createVehicle(vehicleData);
-      setSuccess(true);
-      setFormData(initialFormData);
+          setTimeout(() => {
+            onClose();
+            onSuccess?.();
+            actions.reset();
+          }, 1500);
+        } catch (err: any) {
+          setState((prev) => ({
+            ...prev,
+            isLoading: false,
+            error: err.message || "Failed to create vehicle",
+          }));
+          toast.error(err.message || "Failed to create vehicle");
+        }
+      },
 
-      // Show success for 1.5 seconds then close
-      setTimeout(() => {
-        setSuccess(false);
-        onClose();
-        onSuccess?.();
-      }, 1500);
-    } catch (err: any) {
-      if (err.name === "ValidationError") {
-        // Yup validation errors
-        const errors: Record<string, string> = {};
-        err.inner.forEach((error: any) => {
-          if (error.path) {
-            errors[error.path] = error.message;
-          }
+      closeDialog: () => {
+        if (!state.isLoading) {
+          onClose();
+        }
+      },
+      reset: () => {
+        setState({
+          currentStep: 1,
+          data: {
+            step1: initialStep1,
+            step2: initialStep2,
+            step3: initialStep3,
+          },
+          isLoading: false,
+          error: null,
+          isSuccess: false,
         });
-        setFieldErrors(errors);
-        setError("Please fix the validation errors below");
-      } else {
-        // Server errors
-        console.error("Failed to create vehicle:", err);
-        setError(err?.message || "Failed to create vehicle. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+      },
+    }),
+    [state.data, state.isLoading, onClose, onSuccess]
+  );
 
-  const handleClose = () => {
-    if (!loading) {
-      setFormData(initialFormData);
-      setError(null);
-      setSuccess(false);
-      setFieldErrors({});
-      onClose();
-    }
-  };
+  const steps = ["General Info", "Tech Specs", "Documents"];
 
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
+      onClose={actions.closeDialog}
       maxWidth="md"
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
-          overflow: "hidden",
+          borderRadius: 4,
+          bgcolor: "#0B1019",
+          backgroundImage: "none",
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
         },
       }}
     >
-      <Box
-        sx={{
-          p: 3,
-          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
-          borderBottom: `1px solid ${theme.palette.divider}`,
-        }}
-      >
+      <Box sx={{ p: 3, pb: 0 }}>
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
         >
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Box
-              sx={{
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
-                color: theme.palette.primary.main,
-                p: 1.5,
-                borderRadius: 2,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <DirectionsCarIcon sx={{ fontSize: 28 }} />
-            </Box>
-            <Box>
-              <Typography variant="h5" fontWeight={700}>
-                Add New Vehicle
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Fill in the vehicle details below
-              </Typography>
-            </Box>
-          </Stack>
+          <Typography variant="h6" fontWeight={600} color="white">
+            Add New Vehicle
+          </Typography>
           <IconButton
-            onClick={handleClose}
-            disabled={loading}
+            onClick={actions.closeDialog}
             size="small"
-            sx={{
-              bgcolor: alpha(theme.palette.text.secondary, 0.1),
-              "&:hover": {
-                bgcolor: alpha(theme.palette.text.secondary, 0.2),
-              },
-            }}
+            sx={{ color: "text.secondary" }}
           >
             <CloseIcon fontSize="small" />
           </IconButton>
@@ -251,255 +220,124 @@ const AddVehicleDialog = ({
       </Box>
 
       <DialogContent sx={{ p: 3 }}>
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
+        <Box sx={{ mb: 4, px: 2 }}>
+          <Stepper
+            activeStep={state.currentStep - 1}
+            sx={{
+              "& .MuiStepConnector-line": {
+                borderColor: alpha(theme.palette.divider, 0.1),
+              },
+            }}
+          >
+            {steps.map((label, index) => (
+              <Step key={label}>
+                <StepLabel
+                  StepIconProps={{
+                    sx: {
+                      "&.Mui-active": { color: theme.palette.primary.main },
+                      "&.Mui-completed": { color: theme.palette.primary.main },
+                    },
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    fontWeight={600}
+                    color={
+                      state.currentStep - 1 >= index
+                        ? "text.primary"
+                        : "text.secondary"
+                    }
+                  >
+                    {label}
+                  </Typography>
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Box>
 
-        {success && (
-          <Alert severity="success" sx={{ mb: 3 }}>
-            Vehicle added successfully!
-          </Alert>
-        )}
+        <Divider
+          sx={{ mb: 4, borderColor: alpha(theme.palette.divider, 0.05) }}
+        />
 
-        <Stack spacing={3}>
-          <Box>
-            <Typography
-              variant="overline"
-              color="text.secondary"
-              fontWeight={700}
-              letterSpacing={1.2}
-              display="block"
-              mb={2}
-            >
-              Required Information
-            </Typography>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                gap: 2,
-              }}
-            >
-              <TextField
-                fullWidth
-                label="Fleet Number"
-                placeholder="e.g., FLT-001"
-                value={formData.fleetNo}
-                onChange={(e) => handleChange("fleetNo", e.target.value)}
-                required
-                disabled={loading}
-                size="small"
-                error={!!fieldErrors.fleetNo}
-                helperText={fieldErrors.fleetNo}
-                sx={textFieldSx}
-              />
-              <TextField
-                fullWidth
-                label="License Plate"
-                placeholder="e.g., 34-ABC-123"
-                value={formData.plate}
-                onChange={(e) => handleChange("plate", e.target.value)}
-                required
-                disabled={loading}
-                size="small"
-                error={!!fieldErrors.plate}
-                helperText={fieldErrors.plate}
-                sx={textFieldSx}
-              />
-              <TextField
-                fullWidth
-                select
-                label="Vehicle Type"
-                value={formData.type}
-                onChange={(e) => handleChange("type", e.target.value)}
-                required
-                disabled={loading}
-                size="small"
-                error={!!fieldErrors.type}
-                helperText={fieldErrors.type}
-                sx={textFieldSx}
-              >
-                <MenuItem value="TRUCK">Truck</MenuItem>
-                <MenuItem value="VAN">Van</MenuItem>
-              </TextField>
-              <TextField
-                fullWidth
-                select
-                label="Fuel Type"
-                value={formData.fuelType}
-                onChange={(e) => handleChange("fuelType", e.target.value)}
-                required
-                disabled={loading}
-                size="small"
-                error={!!fieldErrors.fuelType}
-                helperText={fieldErrors.fuelType}
-                sx={textFieldSx}
-              >
-                <MenuItem value="DIESEL">Diesel</MenuItem>
-                <MenuItem value="GASOLINE">Gasoline</MenuItem>
-                <MenuItem value="ELECTRIC">Electric</MenuItem>
-                <MenuItem value="HYBRID">Hybrid</MenuItem>
-              </TextField>
-              <TextField
-                fullWidth
-                label="Brand"
-                placeholder="e.g., Mercedes"
-                value={formData.brand}
-                onChange={(e) => handleChange("brand", e.target.value)}
-                required
-                disabled={loading}
-                size="small"
-                error={!!fieldErrors.brand}
-                helperText={fieldErrors.brand}
-                sx={textFieldSx}
-              />
-              <TextField
-                fullWidth
-                label="Model"
-                placeholder="e.g., Actros"
-                value={formData.model}
-                onChange={(e) => handleChange("model", e.target.value)}
-                required
-                disabled={loading}
-                size="small"
-                error={!!fieldErrors.model}
-                helperText={fieldErrors.model}
-                sx={textFieldSx}
-              />
-              <TextField
-                fullWidth
-                label="Year"
-                type="number"
-                placeholder="e.g., 2023"
-                value={formData.year}
-                onChange={(e) => handleChange("year", e.target.value)}
-                required
-                disabled={loading}
-                size="small"
-                inputProps={{ min: 1900, max: 2100 }}
-                error={!!fieldErrors.year}
-                helperText={fieldErrors.year}
-                sx={textFieldSx}
-              />
-              <TextField
-                fullWidth
-                label="Max Load (kg)"
-                type="number"
-                placeholder="e.g., 15000"
-                value={formData.maxLoadKg}
-                onChange={(e) => handleChange("maxLoadKg", e.target.value)}
-                required
-                disabled={loading}
-                size="small"
-                inputProps={{ min: 0 }}
-                error={!!fieldErrors.maxLoadKg}
-                helperText={fieldErrors.maxLoadKg}
-                sx={textFieldSx}
-              />
-            </Box>
-          </Box>
+        <Box sx={{ minHeight: 400 }}>
+          {state.currentStep === 1 && (
+            <FirstStep state={state} actions={actions} />
+          )}
+          {state.currentStep === 2 && (
+            <TechSpecsStep state={state} actions={actions} />
+          )}
 
-          <Box>
-            <Typography
-              variant="overline"
-              color="text.secondary"
-              fontWeight={700}
-              letterSpacing={1.2}
-              display="block"
-              mb={2}
-            >
-              Optional Information
-            </Typography>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                gap: 2,
-              }}
-            >
-              <TextField
-                fullWidth
-                label="Odometer (km)"
-                type="number"
-                placeholder="e.g., 50000"
-                value={formData.odometerKm}
-                onChange={(e) => handleChange("odometerKm", e.target.value)}
-                disabled={loading}
-                size="small"
-                inputProps={{ min: 0 }}
-                error={!!fieldErrors.odometerKm}
-                helperText={fieldErrors.odometerKm}
-                sx={textFieldSx}
-              />
-              <TextField
-                fullWidth
-                label="Next Service (km)"
-                type="number"
-                placeholder="e.g., 60000"
-                value={formData.nextServiceKm}
-                onChange={(e) => handleChange("nextServiceKm", e.target.value)}
-                disabled={loading}
-                size="small"
-                inputProps={{ min: 0 }}
-                error={!!fieldErrors.nextServiceKm}
-                helperText={fieldErrors.nextServiceKm}
-                sx={textFieldSx}
-              />
-              <TextField
-                fullWidth
-                label="Avg. Fuel Consumption (L/100km)"
-                type="number"
-                placeholder="e.g., 25.5"
-                value={formData.avgFuelConsumption}
-                onChange={(e) =>
-                  handleChange("avgFuelConsumption", e.target.value)
-                }
-                disabled={loading}
-                size="small"
-                inputProps={{ min: 0, step: 0.1 }}
-                error={!!fieldErrors.avgFuelConsumption}
-                helperText={fieldErrors.avgFuelConsumption}
-                sx={textFieldSx}
-              />
-            </Box>
-          </Box>
+          {state.currentStep === 3 && (
+            <DocumentsStep state={state} actions={actions} />
+          )}
+        </Box>
 
+        <Box
+          sx={{
+            mt: 4,
+            pt: 3,
+            borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+          }}
+        >
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             <Button
-              variant="outlined"
-              onClick={handleClose}
-              disabled={loading}
-              sx={{
-                textTransform: "none",
-                borderColor: theme.palette.divider,
-                color: theme.palette.text.secondary,
-                "&:hover": {
-                  borderColor: theme.palette.text.primary,
-                  color: theme.palette.text.primary,
-                },
-              }}
+              variant="text"
+              onClick={actions.closeDialog}
+              sx={{ color: "text.secondary", textTransform: "none" }}
             >
               Cancel
             </Button>
+            {state.currentStep > 1 && (
+              <Button
+                variant="outlined"
+                onClick={actions.prevStep}
+                startIcon={
+                  state.currentStep === 1 ? null : (
+                    <ArrowBackIcon sx={{ fontSize: 16 }} />
+                  )
+                }
+                sx={{
+                  textTransform: "none",
+                  borderRadius: 2,
+                  borderColor: alpha(theme.palette.divider, 0.2),
+                  color: "white",
+                }}
+              >
+                Back
+              </Button>
+            )}
             <Button
               variant="contained"
-              onClick={handleSubmit}
-              disabled={loading}
+              onClick={
+                state.currentStep === 3
+                  ? actions.handleSubmit
+                  : actions.nextStep
+              }
+              disabled={state.isLoading}
+              startIcon={
+                state.currentStep === 3 ? (
+                  <SaveIcon sx={{ fontSize: 18 }} />
+                ) : null
+              }
               sx={{
                 textTransform: "none",
-                px: 4,
+                px: state.currentStep === 3 ? 3 : 4,
+                borderRadius: 2,
+                boxShadow: "none",
+                bgcolor: "#246BFD",
+                "&:hover": {
+                  bgcolor: alpha("#246BFD", 0.9),
+                  boxShadow: "none",
+                },
               }}
             >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Add Vehicle"
-              )}
+              {state.currentStep === 3
+                ? "Complete & Save Vehicle"
+                : "Next Step →"}
             </Button>
           </Stack>
-        </Stack>
+        </Box>
       </DialogContent>
     </Dialog>
   );

@@ -18,6 +18,7 @@ import {
   deleteShipment,
 } from "@/app/lib/controllers/shipments";
 import EditShipmentDialog from "@/app/components/dialogs/shipment/edit-shipment-dialog";
+import AddShipmentDialog from "@/app/components/dialogs/shipment/addShipmentDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { useUser } from "@/app/lib/hooks/useUser";
 import AddIcon from "@mui/icons-material/Add";
@@ -46,18 +47,16 @@ export default function ShipmentPage() {
 
   /* --------------------------------- actions -------------------------------- */
   const fetchAllData = useCallback(async () => {
+    if (!user) return;
     setState((prev) => ({ ...prev, loading: true }));
-
-    const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
-    const USER_ID = "usr_001";
 
     try {
       const [shipmentsData, statsData, statusDist, volumeHist] =
         await Promise.all([
-          getShipments(COMPANY_ID, USER_ID),
-          getShipmentStats(COMPANY_ID, USER_ID),
-          getShipmentStatusDistribution(COMPANY_ID, USER_ID),
-          getShipmentVolumeHistory(COMPANY_ID, USER_ID),
+          getShipments(user.companyId, user.id),
+          getShipmentStats(user.companyId, user.id),
+          getShipmentStatusDistribution(user.companyId, user.id),
+          getShipmentVolumeHistory(user.companyId, user.id),
         ]);
 
       setState((prev) => ({
@@ -177,6 +176,12 @@ export default function ShipmentPage() {
         open={editOpen}
         onClose={() => setEditOpen(false)}
         shipment={actionShipment}
+        onSuccess={actions.refreshAll}
+      />
+
+      <AddShipmentDialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
         onSuccess={actions.refreshAll}
       />
 

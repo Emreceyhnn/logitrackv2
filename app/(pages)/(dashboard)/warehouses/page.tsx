@@ -16,6 +16,7 @@ import {
   WarehousePageActions,
   WarehousePageState,
 } from "@/app/lib/type/warehouse";
+import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseDialog";
 
 export default function WarehousePage() {
   /* --------------------------------- states --------------------------------- */
@@ -128,6 +129,12 @@ export default function WarehousePage() {
           loading={state.loading}
         />
       </Stack>
+
+      <AddWarehouseDialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        onSuccess={actions.refreshAll}
+      />
     </Box>
   );
 }
