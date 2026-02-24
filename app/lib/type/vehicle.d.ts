@@ -111,20 +111,16 @@ export interface VehiclePageActions {
 
 // Component props
 export interface VehicleTableProps {
-  vehicles: VehicleWithRelations[];
-  onVehicleSelect: (id: string) => void;
-  loading: boolean;
-  onRefresh: () => void;
+  state: VehiclePageState;
+  actions: VehiclePageActions & {
+    onEdit: (id: string) => void;
+    onDelete: (id: string) => void;
+  };
 }
 
 export interface VehicleKpiCardProps {
-  totalVehicles?: number;
-  available?: number;
-  inService?: number;
-  onTrip?: number;
-  openIssues?: number;
-  docsDueSoon?: number;
-  onClick?: (filterType: string) => void;
+  state: VehiclePageState;
+  actions: VehiclePageActions;
 }
 
 export interface EditVehicleDialogProps {
@@ -211,6 +207,11 @@ export interface AddVehiclePageState {
   isLoading: boolean;
   error: string | null;
   isSuccess: boolean;
+}
+
+export interface VehicleToolbarProps {
+  state: VehiclePageState;
+  actions: VehiclePageActions;
 }
 
 export interface AddVehiclePageActions {

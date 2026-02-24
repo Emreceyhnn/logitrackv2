@@ -71,12 +71,19 @@ export interface ShipmentPageActions {
 
 // Component Props
 export interface ShipmentTableProps {
-  shipments: ShipmentWithRelations[];
-  loading: boolean;
-  onSelect: (id: string) => void;
+  state: ShipmentPageState;
+  actions: ShipmentPageActions & {
+    onEdit: (id: string) => void;
+    onDelete: (id: string) => void;
+  };
 }
 
 export interface ShipmentKpiCardProps {
-  stats: ShipmentStats | null;
-  loading?: boolean;
+  state: ShipmentPageState;
+  actions: ShipmentPageActions;
+}
+
+export interface ShipmentAnalyticsProps {
+  state: ShipmentPageState;
+  actions: ShipmentPageActions;
 }

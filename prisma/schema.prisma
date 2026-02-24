@@ -70,6 +70,7 @@ model Company {
   inventoryMovements InventoryMovement[]
   documents          Document[]
   issues             Issue[]
+  fuelLogs           FuelLog[]
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 
@@ -142,6 +143,7 @@ model Driver {
   homeBaseWarehouse   Warehouse? @relation(fields: [homeBaseWarehouseId], references: [id])
 
   shipments Shipment[]
+  fuelLogs  FuelLog[]
   routes    Route[]
   documents Document[]
   issues    Issue[]
@@ -185,6 +187,7 @@ model Vehicle {
   inspectionExpiry   DateTime? // Muayene süresi
 
   maintenanceRecords MaintenanceRecord[]
+  fuelLogs           FuelLog[]
   routes             Route[]
   documents          Document[]
   issues             Issue[]
@@ -417,6 +420,30 @@ model Document {
   updatedAt DateTime @updatedAt
 
   @@map("documents")
+}
+
+model FuelLog {
+  id        String   @id @default(cuid())
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+  driverId  String
+  driver    Driver   @relation(fields: [driverId], references: [id])
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+
+  date       DateTime @default(now())
+  volumeLiter Float
+  cost        Float
+  odometerKm  Int
+  location    String?
+  fuelType    String // DIESEL, ELECTRIC_KWH, etc.
+  
+  receiptUrl  String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("fuel_logs")
 }
 
 model Issue {

@@ -155,22 +155,20 @@ export default function ShipmentPage() {
         </Button>
       </Stack>
 
-      <ShipmentKpiCard stats={state.stats} />
+      <ShipmentKpiCard state={state} actions={actions} />
 
       <Stack mt={2}>
         <ShipmentTable
-          shipments={state.shipments}
-          loading={state.loading}
-          onSelect={selectShipment}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          state={state}
+          actions={{
+            ...actions,
+            onEdit: handleEdit,
+            onDelete: handleDelete,
+          }}
         />
       </Stack>
 
-      <ShipmentAnalytics
-        volumeHistory={state.volumeHistory}
-        statusDistribution={state.statusDistribution}
-      />
+      <ShipmentAnalytics state={state} actions={actions} />
 
       <EditShipmentDialog
         open={editOpen}

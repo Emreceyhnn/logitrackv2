@@ -36,7 +36,7 @@ const SideBar = () => {
           sx={{ fontSize: 18, color: theme.palette.icon.secondary }}
         />
       ),
-      subTitles: ["Vehicles", "Drivers", "Routes", "Shipments"],
+      subTitles: ["Vehicles", "Drivers", "Routes", "Shipments", "Fuel"],
     },
     {
       title: "Management",

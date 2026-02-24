@@ -7,7 +7,8 @@ import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import { ShipmentKpiCardProps } from "@/app/lib/type/shipment";
 
-const ShipmentKpiCard = ({ stats }: ShipmentKpiCardProps) => {
+const ShipmentKpiCard = ({ state, actions }: ShipmentKpiCardProps) => {
+  const { stats } = state;
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 

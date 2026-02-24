@@ -11,23 +11,20 @@ import {
   ListItemText,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { VehicleFilters } from "@/app/lib/type/vehicle";
 import { VehicleStatus, VehicleType } from "@prisma/client";
 import { useState, useEffect } from "react";
 import { SelectChangeEvent } from "@mui/material";
-
-interface VehicleToolbarProps {
-  filters: VehicleFilters;
-  onFilterChange: (newFilters: Partial<VehicleFilters>) => void;
-}
+import { VehicleToolbarProps } from "@/app/lib/type/vehicle";
 
 const STATUS_OPTIONS = Object.values(VehicleStatus);
 const TYPE_OPTIONS = Object.values(VehicleType);
 
 export default function VehicleToolbar({
-  filters,
-  onFilterChange,
+  state,
+  actions,
 }: VehicleToolbarProps) {
+  const { filters } = state;
+  const { updateFilters: onFilterChange } = actions;
   /* --------------------------------- states --------------------------------- */
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 

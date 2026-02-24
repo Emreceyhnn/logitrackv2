@@ -42,6 +42,7 @@ export function SidebarList(params: Params) {
       Drivers: "/drivers",
       Routes: "/routes",
       Shipments: "/shipments",
+      Fuel: "/fuel",
       Management: "/management",
       Warehouses: "/warehouses",
       Inventory: "/inventory",

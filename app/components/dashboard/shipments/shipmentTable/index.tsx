@@ -15,24 +15,15 @@ import CustomCard from "../../../cards/card";
 import RowActions from "./menu";
 import ShipmentDetailDialog from "../../../dialogs/shipment/shipmentDetailDialog";
 import { useState } from "react";
-import { ShipmentWithRelations } from "@/app/lib/type/shipment";
+import {
+  ShipmentTableProps,
+  ShipmentWithRelations,
+} from "@/app/lib/type/shipment";
 import { StatusChip } from "@/app/components/chips/statusChips";
-import { PriorityChip } from "@/app/components/chips/priorityChips";
-interface ShipmentTableProps {
-  shipments: ShipmentWithRelations[];
-  loading?: boolean;
-  onSelect: (id: string) => void;
-  onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
-}
 
-const ShipmentTable = ({
-  shipments,
-  loading,
-  onSelect,
-  onEdit,
-  onDelete,
-}: ShipmentTableProps) => {
+const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
+  const { shipments, loading = false } = state;
+  const { selectShipment: onSelect, onEdit, onDelete } = actions;
   /* --------------------------------- states --------------------------------- */
   const [open, setOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] =

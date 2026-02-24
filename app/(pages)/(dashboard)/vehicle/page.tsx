@@ -208,22 +208,20 @@ export default function VehiclePage() {
         </Alert>
       )}
 
-      <VehicleKpiCard stats={state.dashboardData?.vehiclesKpis || null} />
+      <VehicleKpiCard state={state} actions={actions} />
 
       <Stack mt={2}>
-        <VehicleToolbar
-          filters={state.filters}
-          onFilterChange={actions.updateFilters}
-        />
+        <VehicleToolbar state={state} actions={actions} />
       </Stack>
 
       <Stack mt={2}>
         <VehicleTable
-          vehicles={state.vehicles}
-          onVehicleSelect={actions.selectVehicle}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          loading={state.loading}
+          state={state}
+          actions={{
+            ...actions,
+            onEdit: handleEdit,
+            onDelete: handleDelete,
+          }}
         />
       </Stack>
 

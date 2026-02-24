@@ -14,24 +14,12 @@ import {
 import CustomCard from "../../../cards/card";
 import RowActions from "./menu";
 import { StatusChip } from "@/app/components/chips/statusChips";
-import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import DriverAvatar from "@/app/components/avatar";
+import { VehicleTableProps } from "@/app/lib/type/vehicle";
 
-interface VehicleTableProps {
-  vehicles: VehicleWithRelations[];
-  onVehicleSelect: (id: string) => void;
-  onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
-  loading?: boolean;
-}
-
-const VehicleTable = ({
-  vehicles,
-  onVehicleSelect,
-  onEdit,
-  onDelete,
-  loading = false,
-}: VehicleTableProps) => {
+const VehicleTable = ({ state, actions }: VehicleTableProps) => {
+  const { vehicles, loading = false } = state;
+  const { selectVehicle: onVehicleSelect, onEdit, onDelete } = actions;
   return (
     <CustomCard sx={{ padding: "0 0 6px 0" }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>

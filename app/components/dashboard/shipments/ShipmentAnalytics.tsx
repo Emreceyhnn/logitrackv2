@@ -3,20 +3,13 @@ import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { useMemo } from "react";
-import {
-  ShipmentVolumeData,
-  ShipmentStatusData,
-} from "@/app/lib/type/shipment";
-
-interface ShipmentAnalyticsProps {
-  volumeHistory: ShipmentVolumeData[];
-  statusDistribution: ShipmentStatusData[];
-}
+import { ShipmentAnalyticsProps } from "@/app/lib/type/shipment";
 
 export default function ShipmentAnalytics({
-  volumeHistory,
-  statusDistribution,
+  state,
+  actions,
 }: ShipmentAnalyticsProps) {
+  const { volumeHistory, statusDistribution } = state;
   const theme = useTheme();
 
   const pieData = useMemo(() => {

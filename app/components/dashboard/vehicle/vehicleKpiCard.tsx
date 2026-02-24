@@ -9,18 +9,10 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import DescriptionIcon from "@mui/icons-material/Description";
 
-interface Props {
-  stats: {
-    totalVehicles?: number;
-    available?: number;
-    inService?: number;
-    onTrip?: number;
-    openIssues?: number;
-    docsDueSoon?: number;
-  } | null;
-}
+import { VehicleKpiCardProps } from "@/app/lib/type/vehicle";
 
-const VehicleKpiCard = ({ stats }: Props) => {
+const VehicleKpiCard = ({ state, actions }: VehicleKpiCardProps) => {
+  const stats = state.dashboardData?.vehiclesKpis || null;
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
