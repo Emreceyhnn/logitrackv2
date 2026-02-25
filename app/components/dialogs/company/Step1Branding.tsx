@@ -28,6 +28,22 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        actions.updateFormData({ logo: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleClickUpload = () => {
+    const input = document.getElementById("logo-upload-input");
+    input?.click();
+  };
+
   return (
     <Box>
       <Box sx={{ mb: 4 }}>
@@ -72,28 +88,57 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
             Company Logo
           </Typography>
           <Box
+            onClick={handleClickUpload}
             sx={{
-              border: `2px dashed ${alpha(theme.palette.divider, 0.2)}`,
+              border: `2px dashed ${alpha(
+                theme.palette.divider,
+                formData.logo ? 0.5 : 0.2
+              )}`,
               borderRadius: 3,
-              p: 4,
+              p: formData.logo ? 2 : 4,
               textAlign: "center",
               cursor: "pointer",
               transition: "all 0.2s ease",
+              position: "relative",
+              overflow: "hidden",
               "&:hover": {
                 borderColor: "primary.main",
                 bgcolor: alpha(theme.palette.primary.main, 0.02),
               },
             }}
           >
-            <CloudUploadIcon
-              sx={{ fontSize: 40, color: "text.secondary", mb: 2 }}
+            <input
+              type="file"
+              id="logo-upload-input"
+              hidden
+              accept="image/*"
+              onChange={handleFileChange}
             />
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              Click to upload or drag and drop
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              SVG, PNG, JPG (max. 800x400px)
-            </Typography>
+            {formData.logo ? (
+              <Box
+                component="img"
+                src={formData.logo}
+                sx={{
+                  maxHeight: 120,
+                  maxWidth: "100%",
+                  borderRadius: 1,
+                  display: "block",
+                  mx: "auto",
+                }}
+              />
+            ) : (
+              <>
+                <CloudUploadIcon
+                  sx={{ fontSize: 40, color: "text.secondary", mb: 2 }}
+                />
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  Click to upload or drag and drop
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  SVG, PNG, JPG (max. 800x400px)
+                </Typography>
+              </>
+            )}
           </Box>
         </Box>
 

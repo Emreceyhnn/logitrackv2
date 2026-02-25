@@ -2,22 +2,60 @@
 
 import { db } from "../../db";
 
-export async function checkPermission(userId: string, companyId: string, requiredRoles: string[] = []) {
-    const user = await db.user.findUnique({
-        where: { id: userId },
-        select: { roleId: true, companyId: true }
+/**
+ * Verifies that a user belongs to the given company and optionally
+ * has one of the required role NAMES (e.g. "Admin", "Manager").
+ *
+ * NOTE: `requiredRoles` are matched against the Role.name field
+ * (case-insensitive), NOT against the roleId CUID.
+ * If a user has no role assigned AND requiredRoles is empty, they pass.
+ */
+export async function checkPermission(
+  userId: string,
+  companyId: string | null,
+  requiredRoles: string[] = []
+) {
+  if (!companyId) {
+    throw new Error("No company assigned to this user");
+  }
+
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      roleId: true,
+      companyId: true,
+      role: { select: { name: true } },
+    },
+  });
+
+  if (!user || user.companyId !== companyId) {
+    throw new Error("User is not authorized to access this company");
+  }
+
+  if (requiredRoles.length > 0) {
+    const userRoleName = user.role?.name ?? "";
+
+    // Map internal role identifiers to potential DB names
+    const roleMapping: Record<string, string[]> = {
+      role_admin: ["Administrator", "admin"],
+      role_manager: ["manager"],
+      role_dispatcher: ["Dispatcher"],
+      role_driver: ["driver"],
+      role_warehouse: ["warehouse", "warehouse manager"],
+    };
+
+    const normalizedRequired = requiredRoles.flatMap((r) => {
+      const roleKey = r.toLowerCase();
+      const mapped = roleMapping[roleKey] || [];
+      return [roleKey, ...mapped];
     });
 
-    if (!user || user.companyId !== companyId) {
-        throw new Error("User is not authorized to access this company");
+    if (!normalizedRequired.includes(userRoleName)) {
+      throw new Error(
+        `Insufficient permissions. Required roles: ${requiredRoles.join(", ")}`
+      );
     }
+  }
 
-    if (requiredRoles.length > 0) {
-        const userRoleId = user.roleId || "";
-
-        if (!requiredRoles.includes(userRoleId)) {
-            throw new Error(`Insufficient permissions. Required roles: ${requiredRoles.join(", ")}`);
-        }
-    }
-    return user;
+  return user;
 }

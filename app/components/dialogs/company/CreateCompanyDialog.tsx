@@ -7,11 +7,9 @@ import {
   Dialog,
   DialogContent,
   Stack,
-  Typography,
   IconButton,
   useTheme,
   alpha,
-  Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -26,6 +24,8 @@ import Sidebar from "./Sidebar";
 import Step1Branding from "./Step1Branding";
 import Step2Regional from "./Step2Regional";
 import { toast } from "sonner";
+import { uploadImageAction } from "@/app/lib/actions/upload";
+import { createCompany } from "@/app/lib/controllers/company";
 
 const initialFormData: CompanyFormData = {
   name: "",
@@ -53,47 +53,68 @@ export default function CreateCompanyDialog({
   });
 
   /* --------------------------------- Actions -------------------------------- */
-  const actions: CreateCompanyActions = {
-    handleNext: useCallback(() => {
-      setState((prev) => ({ ...prev, activeStep: prev.activeStep + 1 }));
-    }, []),
+  const handleNext = useCallback(() => {
+    setState((prev) => ({ ...prev, activeStep: prev.activeStep + 1 }));
+  }, []);
 
-    handleBack: useCallback(() => {
-      setState((prev) => ({ ...prev, activeStep: prev.activeStep - 1 }));
-    }, []),
+  const handleBack = useCallback(() => {
+    setState((prev) => ({ ...prev, activeStep: prev.activeStep - 1 }));
+  }, []);
 
-    updateFormData: useCallback((data: Partial<CompanyFormData>) => {
+  const updateFormData = useCallback((data: Partial<CompanyFormData>) => {
+    setState((prev) => ({
+      ...prev,
+      formData: { ...prev.formData, ...data },
+    }));
+  }, []);
+
+  const reset = useCallback(() => {
+    setState({
+      activeStep: 0,
+      formData: initialFormData,
+      loading: false,
+      error: null,
+    });
+  }, []);
+
+  const submit = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+    try {
+      let logoUrl = state.formData.logo;
+
+      // 1. Upload logo to Cloudinary if it's a base64 string
+      if (logoUrl && logoUrl.startsWith("data:image")) {
+        const uploadResult = await uploadImageAction(logoUrl, "companies");
+        logoUrl = uploadResult.url;
+      }
+
+      // 2. Create the company using the controller
+      await createCompany(state.formData.name, logoUrl || "");
+
+      toast.success("Company created successfully!");
+      onSuccess?.();
+      onClose();
+      reset();
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to create company";
       setState((prev) => ({
         ...prev,
-        formData: { ...prev.formData, ...data },
+        loading: false, // Corrected from isLoading to loading
+        error: message,
       }));
-    }, []),
+      toast.error(message);
+    } finally {
+      setState((prev) => ({ ...prev, loading: false }));
+    }
+  }, [state.formData, onSuccess, onClose, reset]);
 
-    submit: useCallback(async () => {
-      setState((prev) => ({ ...prev, loading: true, error: null }));
-      try {
-        // Mocking API call
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        toast.success("Company created successfully!");
-        onSuccess?.();
-        onClose();
-        actions.reset();
-      } catch (err) {
-        setState((prev) => ({ ...prev, error: "Failed to create company" }));
-        toast.error("An error occurred during company creation");
-      } finally {
-        setState((prev) => ({ ...prev, loading: false }));
-      }
-    }, [onSuccess, onClose]),
-
-    reset: useCallback(() => {
-      setState({
-        activeStep: 0,
-        formData: initialFormData,
-        loading: false,
-        error: null,
-      });
-    }, []),
+  const actions: CreateCompanyActions = {
+    handleNext,
+    handleBack,
+    updateFormData,
+    submit,
+    reset,
   };
 
   /* -------------------------------- Render ---------------------------------- */

@@ -1,4 +1,5 @@
 import {
+  Box,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -12,6 +13,7 @@ import {
   Stack,
   Alert,
   CircularProgress,
+  alpha,
 } from "@mui/material";
 import { useState } from "react";
 import { uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
@@ -20,6 +22,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Dayjs } from "dayjs";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { uploadImageAction } from "@/app/lib/actions/upload";
 
 interface UploadDocumentDialogProps {
   open: boolean;
@@ -39,6 +42,7 @@ export default function UploadDocumentDialog({
   const [name, setName] = useState("");
   const [expiryDate, setExpiryDate] = useState<Dayjs | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,6 +53,17 @@ export default function UploadDocumentDialog({
       setFile(selectedFile);
       if (!name) {
         setName(selectedFile.name);
+      }
+
+      // Generate preview
+      if (selectedFile.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFilePreview(reader.result as string);
+        };
+        reader.readAsDataURL(selectedFile);
+      } else {
+        setFilePreview(null);
       }
     }
   };
@@ -63,21 +78,34 @@ export default function UploadDocumentDialog({
     setError(null);
 
     try {
-      const fakeUrl = `https://storage.example.com/vehicles/${vehicleId}/${file.name}`;
+      // 1. Read file as base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
+      // 2. Upload to Cloudinary
+      const uploadResult = await uploadImageAction(
+        base64,
+        `vehicles/${vehicleId}`
+      );
+
+      // 3. Save to DB
       await uploadVehicleDocument(vehicleId, {
         type,
         name,
-        url: fakeUrl,
+        url: uploadResult.url,
         expiryDate: expiryDate?.toDate(),
         status: "ACTIVE",
       });
 
       onSuccess();
       handleClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Failed to upload document");
+      setError(err.message || "Failed to upload document");
     } finally {
       setLoading(false);
     }
@@ -88,6 +116,7 @@ export default function UploadDocumentDialog({
     setName("");
     setExpiryDate(null);
     setFile(null);
+    setFilePreview(null);
     setError(null);
     onClose();
   };
@@ -149,6 +178,33 @@ export default function UploadDocumentDialog({
                 accept=".pdf,.jpg,.jpeg,.png"
               />
             </Button>
+
+            {filePreview && (
+              <Box
+                sx={{
+                  mt: 2,
+                  width: "100%",
+                  height: 200,
+                  borderRadius: 1,
+                  overflow: "hidden",
+                  border: `1px solid ${alpha("#fff", 0.1)}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: alpha("#fff", 0.02),
+                }}
+              >
+                <img
+                  src={filePreview}
+                  alt="File preview"
+                  style={{
+                    maxHeight: "100%",
+                    maxWidth: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </Box>
+            )}
           </Stack>
         </LocalizationProvider>
       </DialogContent>

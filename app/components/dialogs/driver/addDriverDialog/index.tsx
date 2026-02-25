@@ -26,6 +26,7 @@ import {
 } from "@/app/lib/type/driver";
 import { toast } from "sonner";
 import { createDriver } from "@/app/lib/controllers/driver";
+import { uploadImageAction } from "@/app/lib/actions/upload";
 import FirstDriverDialogStep from "./firstStep";
 import SecondDriverDialogStep from "./secondStep";
 
@@ -97,17 +98,56 @@ const AddDriverDialog = ({
 
           const { step1, step2 } = state.data;
 
+          const fileToBase64 = (file: File): Promise<string> => {
+            return new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.readAsDataURL(file);
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = (error) => reject(error);
+            });
+          };
+
+          // 1. Upload Licence Photo if exists
+          let licensePhotoUrl = "";
+          if (step1.licencePhoto) {
+            const base64 = await fileToBase64(step1.licencePhoto);
+            const uploadResult = await uploadImageAction(
+              base64,
+              `drivers/${step1.userId}/license`
+            );
+            licensePhotoUrl = uploadResult.url;
+          }
+
+          // 2. Upload additional documents if exist
+          const uploadedDocs = await Promise.all(
+            step2.documents.map(async (doc) => {
+              if (doc.file) {
+                const base64 = await fileToBase64(doc.file);
+                const uploadResult = await uploadImageAction(
+                  base64,
+                  `drivers/${step1.userId}/docs`
+                );
+                return {
+                  name: doc.name,
+                  type: doc.type,
+                  url: uploadResult.url,
+                  expiryDate: doc.expiryDate || undefined,
+                };
+              }
+              return null;
+            })
+          );
+
           const payload = {
             userId: step1.userId,
-            licenseNo: step1.licenseNo,
+            phone: "", // Need to add phone to step1 if required, or use placeholder
+            employeeId: "", // Need to add employeeId to step1 if required
+            licenseNumber: step1.licenseNo,
             licenseExpiry: step1.licenseExpiry,
             licenseType: step1.licenseType,
-            licenseIssueDate: step1.licenseIssueDate,
-            licencePhoto: step1.licencePhoto,
-            homeWareHouseId: step2.homeWareHouseId,
-            currentVehicleId: step2.currentVehicleId,
-            status: step2.status,
-            documents: step2.documents,
+            status: step2.status as any,
+            licensePhotoUrl,
+            documents: uploadedDocs.filter((d) => d !== null) as any[],
           };
 
           await createDriver(payload);

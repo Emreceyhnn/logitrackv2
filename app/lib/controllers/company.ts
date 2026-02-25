@@ -1,46 +1,52 @@
 "use server";
 
 import { db } from "../db";
+import { authenticatedAction } from "../auth-middleware";
+import { createSession, revokeSession } from "./session";
 
-export async function createCompany(
-  userId: string,
-  name: string,
-  avatarUrl?: string
-) {
-  try {
-    const existingCompany = await db.company.findUnique({
-      where: { name },
-    });
-
-    if (existingCompany) {
-      throw new Error("Company name already exists");
-    }
+/**
+ * Creates a new company for the authenticated user.
+ * After creation the session is re-issued so the JWT immediately
+ * carries the new companyId (required by middleware for routing).
+ */
+export const createCompany = authenticatedAction(
+  async (user, name: string, avatarUrl?: string) => {
+    const existingCompany = await db.company.findUnique({ where: { name } });
+    if (existingCompany) throw new Error("Company name already exists");
 
     const newCompany = await db.company.create({
       data: {
         name,
         avatarUrl,
-        users: {
-          connect: { id: userId },
-        },
+        users: { connect: { id: user.id } },
       },
     });
 
+    // Assign Administrator role
     const role = await db.role.findFirst({
       where: { name: { equals: "Administrator", mode: "insensitive" } },
     });
 
     const updatedUser = await db.user.update({
-      where: { id: userId },
-      data: { roleId: role?.id }, // Use verified role ID
+      where: { id: user.id },
+      data: {
+        companyId: newCompany.id,
+        roleId: role?.id ?? null,
+      },
+    });
+
+    // Re-issue session so the new JWT carries the companyId
+    await revokeSession(user.sessionId);
+    await createSession({
+      id: user.id,
+      username: updatedUser.email,
+      roleId: updatedUser.roleId,
+      companyId: newCompany.id,
     });
 
     return { company: newCompany, user: updatedUser };
-  } catch (error: any) {
-    console.error("Failed to create company:", error);
-    throw new Error(error.message || "Failed to create company");
   }
-}
+);
 
 export async function getCompanyById(companyId: string, userId: string) {
   try {

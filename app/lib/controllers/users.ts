@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { db } from "../db";
+import { authenticatedAction } from "../auth-middleware";
 import {
   createSession,
   revokeSession,
@@ -18,13 +19,13 @@ const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only";
 
 export async function getUserFromToken(token: string) {
   try {
-    const decoded: any = jwt.verify(token, JWT_SECRET);
-    if (!decoded || !decoded.id) {
+    const decoded: unknown = jwt.verify(token, JWT_SECRET);
+    if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
       throw new Error("Invalid token");
     }
 
     const user = await db.user.findUnique({
-      where: { id: decoded.id },
+      where: { id: (decoded as { id: string }).id },
       include: { company: true },
     });
 
@@ -96,11 +97,7 @@ export async function RegisterUser(
     });
 
     // Create server-side session (sets httpOnly cookies automatically)
-    const { accessToken, sessionId } = await createSession(
-      newUser,
-      deviceInfo,
-      ipAddress
-    );
+    await createSession(newUser, deviceInfo, ipAddress);
 
     // Audit log
     await logAuditEvent({
@@ -111,7 +108,6 @@ export async function RegisterUser(
       metadata: { email },
     });
 
-    // Return serializable object (token is in the cookie, but also returned for client redirect flow)
     return {
       user: {
         id: newUser.id,
@@ -121,11 +117,12 @@ export async function RegisterUser(
         username: newUser.username,
         companyId: newUser.companyId,
       },
-      token: accessToken,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMsg =
+      error instanceof Error ? error.message : "Failed to create user";
     console.error("Failed to create user:", error);
-    throw new Error(error.message || "Failed to create user");
+    throw new Error(errorMsg);
   }
 }
 
@@ -173,11 +170,7 @@ export async function LoginUser(
     });
 
     // Create server-side session
-    const { accessToken, sessionId } = await createSession(
-      user,
-      deviceInfo,
-      ipAddress
-    );
+    await createSession(user, deviceInfo, ipAddress);
 
     // Log successful login
     await logAuditEvent({
@@ -196,11 +189,12 @@ export async function LoginUser(
         username: user.username,
         companyId: user.companyId,
       },
-      token: accessToken,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMsg =
+      error instanceof Error ? error.message : "Failed to login user";
     console.error("Failed to login user:", error);
-    throw new Error(error.message || "Failed to login user");
+    throw new Error(errorMsg);
   }
 }
 
@@ -266,11 +260,21 @@ export async function updateUser(
   }
 }
 
-export async function createUserForCompany(token: string, userData: any) {
-  try {
-    const requester = await getUserFromToken(token);
-    if (!requester || !requester.companyId) {
-      throw new Error("Unauthorized");
+export const createUserForCompany = authenticatedAction(
+  async (
+    requester,
+    userData: {
+      username: string;
+      name: string;
+      surname: string;
+      email: string;
+      password: string;
+      role: string;
+      avatarUrl?: string;
+    }
+  ) => {
+    if (!requester.companyId) {
+      throw new Error("You must belong to a company to add users");
     }
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -300,17 +304,15 @@ export async function createUserForCompany(token: string, userData: any) {
         surname: userData.surname,
         email: userData.email,
         password: hashedPassword,
+        avatarUrl: userData.avatarUrl,
         companyId: requester.companyId,
         roleId: role ? role.id : undefined,
       },
     });
 
     return newUser;
-  } catch (error: any) {
-    console.error("Failed to create company user:", error);
-    throw new Error(error.message || "Failed to create company user");
   }
-}
+);
 
 export async function getUsersForMyCompany(token: string) {
   try {
@@ -326,12 +328,15 @@ export async function getUsersForMyCompany(token: string) {
 
     // Return safe user objects
     return users.map((u) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...safe } = u;
       return safe;
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMsg =
+      error instanceof Error ? error.message : "Failed to fetch company users";
     console.error("Failed to fetch company users:", error);
-    throw new Error(error.message || "Failed to fetch company users");
+    throw new Error(errorMsg);
   }
 }
 
@@ -355,11 +360,14 @@ export async function getMyCompanyUsersAction() {
     });
 
     return users.map((u) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...safe } = u;
       return safe;
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMsg =
+      error instanceof Error ? error.message : "Failed to fetch users";
     console.error("Failed to fetch company users (action):", error);
-    throw new Error(error.message || "Failed to fetch users");
+    throw new Error(errorMsg);
   }
 }

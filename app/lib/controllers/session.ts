@@ -38,9 +38,15 @@ function generateAccessToken(user: {
   id: string;
   username?: string | null;
   roleId?: string | null;
+  companyId?: string | null;
 }): string {
   return jwt.sign(
-    { id: user.id, username: user.username, role: user.roleId },
+    {
+      id: user.id,
+      username: user.username,
+      role: user.roleId,
+      companyId: user.companyId ?? null,
+    },
     JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXPIRY }
   );
@@ -70,7 +76,9 @@ export async function createSession(
     id: string;
     username?: string | null;
     roleId?: string | null;
+    companyId?: string | null;
   },
+
   deviceInfo?: string,
   ipAddress?: string
 ): Promise<{ accessToken: string; sessionId: string }> {
@@ -125,12 +133,21 @@ export async function validateSession(): Promise<SessionUser | null> {
     const accessToken = cookieStore.get("token")?.value;
 
     if (!accessToken) {
+      console.log("[validateSession] ❌ No 'token' cookie found");
       return null;
     }
 
     // Verify JWT signature & expiry
-    const decoded: any = jwt.verify(accessToken, JWT_SECRET);
+    let decoded: any;
+    try {
+      decoded = jwt.verify(accessToken, JWT_SECRET);
+    } catch (jwtErr) {
+      console.log("[validateSession] ❌ JWT verify failed:", jwtErr);
+      return null;
+    }
+
     if (!decoded?.id) {
+      console.log("[validateSession] ❌ decoded JWT has no id");
       return null;
     }
 
@@ -146,37 +163,45 @@ export async function validateSession(): Promise<SessionUser | null> {
     });
 
     if (!session) {
+      console.log("[validateSession] ❌ No session found in DB for token hash");
       return null;
     }
 
     // Check session validity
     if (session.isRevoked) {
+      console.log("[validateSession] ❌ Session is revoked");
       return null;
     }
 
     if (session.expiresAt < new Date()) {
+      console.log("[validateSession] ❌ Session is expired");
       return null;
     }
 
     // Check user is still active
     if (session.user.status !== "ACTIVE") {
+      console.log(
+        "[validateSession] ❌ User status is not ACTIVE:",
+        session.user.status
+      );
       return null;
     }
 
     // Throttled update of lastActivityAt
     const timeSinceLastActivity = Date.now() - session.lastActivityAt.getTime();
     if (timeSinceLastActivity > ACTIVITY_THROTTLE_MS) {
-      // Fire-and-forget update — don't block the request
       db.session
         .update({
           where: { id: session.id },
           data: { lastActivityAt: new Date() },
         })
-        .catch(() => {
-          // Silently fail — this is non-critical
-        });
+        .catch(() => {});
     }
 
+    console.log(
+      "[validateSession] ✅ Valid session for user:",
+      session.user.id
+    );
     return {
       id: session.user.id,
       companyId: session.user.companyId,
@@ -184,7 +209,7 @@ export async function validateSession(): Promise<SessionUser | null> {
       sessionId: session.id,
     };
   } catch (error) {
-    // JWT verification failed or DB error
+    console.error("[validateSession] ❌ Unexpected error:", error);
     return null;
   }
 }

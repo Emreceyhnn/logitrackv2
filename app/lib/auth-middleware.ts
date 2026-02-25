@@ -2,7 +2,7 @@ import { validateSession, refreshSession } from "./controllers/session";
 
 export type AuthenticatedUser = {
   id: string;
-  companyId: string;
+  companyId: string | null; // null = user registered but has no company yet
   roleId: string | null;
   sessionId: string;
 };
@@ -15,12 +15,16 @@ export type AuthenticatedUser = {
  * 2. If the access token is expired but a refresh token exists, attempt refresh
  * 3. If refresh succeeds, re-validate the new access token
  * 4. Returns null if all strategies fail
+ *
+ * NOTE: A user with a null companyId is still authenticated — they just
+ * haven't created/joined a company yet. Individual controllers must enforce
+ * companyId requirements themselves.
  */
 export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
   // Try validating the current access token
   let sessionUser = await validateSession();
 
-  if (sessionUser && sessionUser.companyId) {
+  if (sessionUser) {
     return {
       id: sessionUser.id,
       companyId: sessionUser.companyId,
@@ -30,19 +34,17 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
   }
 
   // If access token failed, try refreshing
-  if (!sessionUser) {
-    const refreshed = await refreshSession();
-    if (refreshed) {
-      // Re-validate with the new access token
-      sessionUser = await validateSession();
-      if (sessionUser && sessionUser.companyId) {
-        return {
-          id: sessionUser.id,
-          companyId: sessionUser.companyId,
-          roleId: sessionUser.roleId,
-          sessionId: sessionUser.sessionId,
-        };
-      }
+  const refreshed = await refreshSession();
+  if (refreshed) {
+    // Re-validate with the new access token
+    sessionUser = await validateSession();
+    if (sessionUser) {
+      return {
+        id: sessionUser.id,
+        companyId: sessionUser.companyId,
+        roleId: sessionUser.roleId,
+        sessionId: sessionUser.sessionId,
+      };
     }
   }
 

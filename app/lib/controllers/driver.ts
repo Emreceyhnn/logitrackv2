@@ -1,10 +1,9 @@
 "use server";
 
 import { db } from "../db";
-import { DriverStatus } from "@prisma/client";
+import { DriverStatus, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
-import bcrypt from "bcryptjs";
 import { CreateDriverFormData } from "../type/driver";
 
 // ... imports ...
@@ -23,7 +22,7 @@ export const getDrivers = authenticatedAction(
     try {
       const skip = (page - 1) * limit;
 
-      const where: any = {
+      const where: Prisma.DriverWhereInput = {
         companyId: user.companyId,
       };
 
@@ -60,14 +59,18 @@ export const getDrivers = authenticatedAction(
         }
       }
 
-      let orderBy: any = { createdAt: "desc" };
+      let orderBy: Prisma.DriverOrderByWithRelationInput = {
+        createdAt: "desc",
+      };
       if (sortField && sortOrder) {
         if (sortField === "name") {
           orderBy = { user: { name: sortOrder } };
         } else if (sortField === "vehicle") {
           orderBy = { currentVehicle: { plate: sortOrder } };
         } else {
-          orderBy = { [sortField]: sortOrder };
+          orderBy = {
+            [sortField]: sortOrder,
+          } as Prisma.DriverOrderByWithRelationInput;
         }
       }
 
@@ -116,9 +119,11 @@ export const getDrivers = authenticatedAction(
           totalPages: Math.ceil(total / limit),
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to get drivers:", error);
-      throw new Error(error.message || "Failed to get drivers");
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to get drivers"
+      );
     }
   }
 );
@@ -182,9 +187,13 @@ export const getDriverDashboardData = authenticatedAction(async (user) => {
         values: [0, 0, 0, 0, 0], // Placeholder
       })),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to get driver dashboard data:", error);
-    throw new Error(error.message || "Failed to get driver dashboard data");
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Failed to get driver dashboard data"
+    );
   }
 });
 
@@ -206,9 +215,11 @@ export async function getDriverById(driverId: string) {
     }
 
     return driver;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to get driver:", error);
-    throw new Error(error.message || "Failed to get driver");
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to get driver"
+    );
   }
 }
 
@@ -246,13 +257,37 @@ export const createDriver = authenticatedAction(
           phone: data.phone,
           employeeId: data.employeeId,
           licenseNumber: data.licenseNumber,
-          licenseType: data.licenseType, // Assuming string in DB based on earlier types
+          licenseType: data.licenseType,
           licenseExpiry: data.licenseExpiry,
           status: data.status,
           // Initialize scores
           safetyScore: 100,
           efficiencyScore: 100,
           rating: 5.0,
+          // Add documents if provided
+          documents: {
+            create: [
+              ...(data.licensePhotoUrl
+                ? [
+                    {
+                      type: "LICENSE",
+                      name: "License Scan",
+                      url: data.licensePhotoUrl,
+                      companyId: user.companyId,
+                      status: "ACTIVE",
+                    },
+                  ]
+                : []),
+              ...(data.documents?.map((doc) => ({
+                type: doc.type,
+                name: doc.name,
+                url: doc.url,
+                expiryDate: doc.expiryDate,
+                companyId: user.companyId,
+                status: "ACTIVE",
+              })) || []),
+            ],
+          },
         },
       });
 
@@ -262,9 +297,11 @@ export const createDriver = authenticatedAction(
 
       revalidatePath("/drivers");
       return newDriver;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to create driver:", error);
-      throw new Error(error.message || "Failed to create driver");
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to create driver"
+      );
     }
   }
 );
@@ -293,9 +330,11 @@ export const updateDriver = authenticatedAction(
 
       revalidatePath("/drivers");
       return updatedDriver;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to update driver:", error);
-      throw new Error(error.message || "Failed to update driver");
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to update driver"
+      );
     }
   }
 );
@@ -355,9 +394,11 @@ export const deleteDriver = authenticatedAction(
 
       revalidatePath("/drivers");
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to delete driver:", error);
-      throw new Error(error.message || "Failed to delete driver");
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to delete driver"
+      );
     }
   }
 );
@@ -372,9 +413,11 @@ export async function updateDriverStatus(
       data: { status },
     });
     return updatedDriver;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to update driver status:", error);
-    throw new Error(error.message || "Failed to update driver status");
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to update driver status"
+    );
   }
 }
 
@@ -404,9 +447,13 @@ export async function assignVehicleToDriver(
     });
 
     return updatedDriver;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to assign vehicle to driver:", error);
-    throw new Error(error.message || "Failed to assign vehicle to driver");
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Failed to assign vehicle to driver"
+    );
   }
 }
 
@@ -420,9 +467,13 @@ export async function unassignVehicleFromDriver(driverId: string) {
     });
 
     return updatedDriver;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to unassign vehicle from driver:", error);
-    throw new Error(error.message || "Failed to unassign vehicle from driver");
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Failed to unassign vehicle from driver"
+    );
   }
 }
 

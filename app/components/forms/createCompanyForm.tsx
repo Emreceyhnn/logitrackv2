@@ -1,15 +1,18 @@
 "use client";
 
-import * as Yup from "yup";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { Field, Form, Formik } from "formik";
 import type { FormikHelpers } from "formik";
-import { useState, useEffect } from "react";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import CircularIndeterminate from "../loading";
-import { createCompany } from "@/app/lib/controllers/company"; // You'll need to export this from your controller
+import { createCompany } from "@/app/lib/controllers/company";
 import { createCompanyValidationSchema } from "@/app/lib/validationSchema";
+import { uploadImageAction } from "@/app/lib/actions/upload";
+import { Avatar, IconButton } from "@mui/material";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import { toast } from "sonner";
 
 interface CreateCompanyFormValues {
   companyName: string;
@@ -17,27 +20,30 @@ interface CreateCompanyFormValues {
 }
 
 interface CreateCompanyFormProps {
-  onSuccess?: (company: any) => void;
+  onSuccess?: (company: unknown) => void;
 }
 
 export default function CreateCompanyForm({
   onSuccess,
 }: CreateCompanyFormProps) {
   const [loading, setLoading] = useState<boolean>(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const router = useRouter();
 
-  // Redirect if user already has a company
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      if (user.companyId && !onSuccess) {
-        router.push("/");
-      }
-    } else {
-      router.push("/auth/sign-in");
+  const handleFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    setFieldValue: (field: string, value: any) => void
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+        setFieldValue("avatarUrl", reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }, [router, onSuccess]);
+  };
 
   const handleSubmit = async (
     values: CreateCompanyFormValues,
@@ -45,34 +51,32 @@ export default function CreateCompanyForm({
   ) => {
     setLoading(true);
     try {
-      const storedUser = localStorage.getItem("user");
-      if (!storedUser) {
-        throw new Error("User not found. Please log in again.");
+      let finalLogoUrl = "";
+      if (values.avatarUrl && values.avatarUrl.startsWith("data:")) {
+        const uploadResult = await uploadImageAction(values.avatarUrl, "logos");
+        finalLogoUrl = uploadResult.url;
       }
 
-      const user = JSON.parse(storedUser);
-
+      // createCompany reads the session from httpOnly cookie internally
       const result = await createCompany(
-        user.id,
         values.companyName,
-        values.avatarUrl
+        finalLogoUrl || undefined
       );
 
-      // Update local storage user with new company info
-      localStorage.setItem("user", JSON.stringify(result.user));
-
+      toast.success("Company created successfully");
       if (onSuccess) {
         onSuccess(result.company);
       } else {
-        router.push("/overview"); // Redirect to dashboard
-        router.refresh(); // Refresh to ensure server components update
+        // Refresh so the new session JWT (with companyId) is picked up
+        router.refresh();
+        router.push("/overview");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg =
+        error instanceof Error ? error.message : "Failed to create company";
       console.error("Failed to create company:", error);
-      actions.setFieldError(
-        "companyName",
-        error.message || "Failed to create company"
-      );
+      toast.error(msg);
+      actions.setFieldError("companyName", msg);
     } finally {
       setLoading(false);
     }
@@ -113,60 +117,93 @@ export default function CreateCompanyForm({
           onSubmit={handleSubmit}
           validationSchema={createCompanyValidationSchema}
         >
-          <Form>
-            <Stack spacing={2}>
-              <Field name="companyName">
-                {({ field, meta }: any) => (
-                  <StyledTextFieldAuth
-                    {...field}
-                    type="text"
-                    placeholder="Company Name"
-                    fullWidth
-                    error={meta.touched && Boolean(meta.error)}
-                    helperText={meta.touched && meta.error}
+          {({ setFieldValue }) => (
+            <Form>
+              <Stack spacing={3} alignItems="center" mb={3}>
+                <Box position="relative">
+                  <Avatar
+                    src={logoPreview || undefined}
+                    sx={{
+                      width: 100,
+                      height: 100,
+                      border: "2px solid #38bdf8",
+                    }}
                   />
-                )}
-              </Field>
-
-              <Field name="avatarUrl">
-                {({ field, meta }: any) => (
-                  <StyledTextFieldAuth
-                    {...field}
-                    type="text"
-                    placeholder="Avatar URL (Optional)"
-                    fullWidth
-                    error={meta.touched && Boolean(meta.error)}
-                    helperText={meta.touched && meta.error}
+                  <input
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    id="logo-upload"
+                    type="file"
+                    onChange={(e) => handleFileChange(e, setFieldValue)}
                   />
-                )}
-              </Field>
+                  <label htmlFor="logo-upload">
+                    <IconButton
+                      component="span"
+                      sx={{
+                        position: "absolute",
+                        bottom: 0,
+                        right: 0,
+                        backgroundColor: "#38bdf8",
+                        "&:hover": { backgroundColor: "#0ea5e9" },
+                      }}
+                      size="small"
+                    >
+                      <PhotoCameraIcon sx={{ color: "white", fontSize: 18 }} />
+                    </IconButton>
+                  </label>
+                </Box>
+                <Typography variant="caption" color="rgba(255,255,255,0.5)">
+                  Upload Company Logo
+                </Typography>
+              </Stack>
 
-              {loading ? (
-                <CircularIndeterminate />
-              ) : (
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{
-                    mt: 2,
-                    width: "100%",
-                    backgroundColor: "#38bdf8",
-                    fontWeight: 500,
-                    fontSize: "14px",
-                    padding: "12px",
-                    borderRadius: 8,
-                    "&:hover": {
-                      backgroundColor: "transparent",
-                      border: "1px solid #38bdf8",
-                      color: "#fff",
-                    },
-                  }}
-                >
-                  Create Company
-                </Button>
-              )}
-            </Stack>
-          </Form>
+              <Stack spacing={2}>
+                <Field name="companyName">
+                  {({
+                    field,
+                    meta,
+                  }: {
+                    field: any;
+                    meta: { touched: boolean; error?: string };
+                  }) => (
+                    <StyledTextFieldAuth
+                      {...field}
+                      type="text"
+                      placeholder="Company Name"
+                      fullWidth
+                      error={meta.touched && Boolean(meta.error)}
+                      helperText={meta.touched && meta.error}
+                    />
+                  )}
+                </Field>
+
+                {loading ? (
+                  <CircularIndeterminate />
+                ) : (
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      mt: 2,
+                      width: "100%",
+                      backgroundColor: "#38bdf8",
+                      fontWeight: 500,
+                      fontSize: "14px",
+                      padding: "12px",
+                      borderRadius: 8,
+                      "&:hover": {
+                        backgroundColor: "transparent",
+                        border: "1px solid #38bdf8",
+                        color: "#fff",
+                      },
+                    }}
+                  >
+                    Create Company
+                  </Button>
+                )}
+              </Stack>
+            </Form>
+          )}
         </Formik>
       </Box>
     </Box>

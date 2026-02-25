@@ -8,6 +8,9 @@ import { CompanyPageState } from "@/app/lib/type/company";
 import CompanyKpiCard from "@/app/components/dashboard/company/companyKpiCard";
 import CompanyInfoCard from "@/app/components/dashboard/company/companyInfoCard";
 import CompanyMembersTable from "@/app/components/dashboard/company/companyMembersTable";
+import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyDialog";
+import AddIcon from "@mui/icons-material/Add";
+import { Button } from "@mui/material";
 
 export default function CompanyPage() {
   const [state, setState] = useState<CompanyPageState>({
@@ -15,9 +18,9 @@ export default function CompanyPage() {
     loading: true,
     error: null,
   });
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       const user = await getAuthenticatedUser();
       if (!user) {
@@ -25,6 +28,15 @@ export default function CompanyPage() {
           data: null,
           loading: false,
           error: "Unauthorized. Please log in.",
+        });
+        return;
+      }
+      if (!user.companyId) {
+        setState({
+          data: null,
+          loading: false,
+          error:
+            "No company associated with this account. Please create or join a company.",
         });
         return;
       }
@@ -46,8 +58,16 @@ export default function CompanyPage() {
   }, []);
 
   useEffect(() => {
+    // fetchData is async, and we already initialized state with loading: true.
+    // The initial fetch is safe.
+
     fetchData();
   }, [fetchData]);
+
+  const handleManualRefresh = async () => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+    await fetchData();
+  };
 
   return (
     <Box position="relative" p={4} width="100%">
@@ -67,6 +87,20 @@ export default function CompanyPage() {
             Overview of your organisation, resources, and team members.
           </Typography>
         </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setIsCreateDialogOpen(true)}
+          sx={{
+            borderRadius: 2,
+            textTransform: "none",
+            fontWeight: 600,
+            px: 3,
+            boxShadow: (theme) => `0 8px 20px ${theme.palette.primary.main}33`,
+          }}
+        >
+          Add Company
+        </Button>
       </Stack>
 
       {state.error && (
@@ -85,6 +119,12 @@ export default function CompanyPage() {
           loading={state.loading}
         />
       </Stack>
+
+      <CreateCompanyDialog
+        open={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onSuccess={handleManualRefresh}
+      />
     </Box>
   );
 }

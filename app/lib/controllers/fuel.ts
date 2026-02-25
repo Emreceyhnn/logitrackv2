@@ -60,6 +60,7 @@ export const createFuelLog = authenticatedAction(
       location?: string;
       fuelType: string;
       date?: Date;
+      receiptUrl?: string;
     }
   ) => {
     return db.fuelLog.create({

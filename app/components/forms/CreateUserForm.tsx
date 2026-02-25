@@ -1,6 +1,6 @@
 "use client";
 
-import * as Yup from "yup";
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -11,15 +11,19 @@ import {
   FormControl,
   InputLabel,
   FormHelperText,
+  Avatar,
+  IconButton,
 } from "@mui/material";
 import { Field, Form, Formik } from "formik";
 import type { FormikHelpers } from "formik";
-import { useState } from "react";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import CircularIndeterminate from "../loading";
 import { useRouter } from "next/navigation";
 import { createUserForCompany } from "@/app/lib/controllers/users";
 import { createUserValidationSchema } from "@/app/lib/validationSchema";
+import { uploadImageAction } from "@/app/lib/actions/upload";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import { toast } from "sonner";
 
 interface CreateUserFormValues {
   username: string;
@@ -28,11 +32,30 @@ interface CreateUserFormValues {
   email: string;
   password: string;
   role: string;
+  avatarUrl?: string;
 }
 
 export default function CreateUserForm() {
   const [loading, setLoading] = useState<boolean>(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  // const [avatarFile, setAvatarFile] = useState<File | null>(null); // Removed unused variable
   const router = useRouter();
+
+  const handleFileChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    setFieldValue: (field: string, value: any) => void // Fixed type
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // setAvatarFile(file); // Removed unused variable assignment
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+        setFieldValue("avatarUrl", reader.result as string); // Temporarily store base64 for preview and later upload
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (
     values: CreateUserFormValues,
@@ -40,21 +63,29 @@ export default function CreateUserForm() {
   ) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Not authenticated");
+      let finalAvatarUrl = "";
+      if (values.avatarUrl && values.avatarUrl.startsWith("data:")) {
+        const uploadResult = await uploadImageAction(
+          values.avatarUrl,
+          "avatars"
+        );
+        finalAvatarUrl = uploadResult.url;
       }
 
-      // We need to pass the token to the server action so it can verify the requester's company and permissions
-      // Ideally server actions can access cookies, but here we are using a manual token.
-      // We'll pass it as an argument.
-      await createUserForCompany(token, values);
+      await createUserForCompany({
+        ...values,
+        avatarUrl: finalAvatarUrl || undefined,
+      });
 
-      router.push("/users"); // Redirect to users list (to be created or existing?)
+      toast.success("User created successfully");
+      router.push("/users");
       router.refresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg =
+        error instanceof Error ? error.message : "Failed to create user";
       console.error("Failed to create user:", error);
-      actions.setFieldError("email", error.message || "Failed to create user");
+      toast.error(msg);
+      actions.setFieldError("email", msg);
     } finally {
       setLoading(false);
     }
@@ -79,16 +110,51 @@ export default function CreateUserForm() {
           surname: "",
           email: "",
           password: "",
-          role: "worker", // Default
+          role: "worker",
+          avatarUrl: "",
         }}
         onSubmit={handleSubmit}
         validationSchema={createUserValidationSchema}
       >
         {({ errors, touched, setFieldValue, values }) => (
           <Form>
+            <Stack spacing={3} alignItems="center" mb={3}>
+              <Box position="relative">
+                <Avatar
+                  src={avatarPreview || undefined}
+                  sx={{ width: 100, height: 100, border: "2px solid #38bdf8" }}
+                />
+                <input
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  id="avatar-upload"
+                  type="file"
+                  onChange={(e) => handleFileChange(e, setFieldValue)}
+                />
+                <label htmlFor="avatar-upload">
+                  <IconButton
+                    component="span"
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                      backgroundColor: "#38bdf8",
+                      "&:hover": { backgroundColor: "#0ea5e9" },
+                    }}
+                    size="small"
+                  >
+                    <PhotoCameraIcon sx={{ color: "white", fontSize: 18 }} />
+                  </IconButton>
+                </label>
+              </Box>
+              <Typography variant="caption" color="rgba(255,255,255,0.5)">
+                Upload Profile Picture
+              </Typography>
+            </Stack>
+
             <Stack spacing={2}>
               <Field name="username">
-                {({ field, meta }: any) => (
+                {({ field, meta }: { field: any; meta: any }) => (
                   <StyledTextFieldAuth
                     {...field}
                     placeholder="Username"
@@ -100,7 +166,7 @@ export default function CreateUserForm() {
               </Field>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                 <Field name="name">
-                  {({ field, meta }: any) => (
+                  {({ field, meta }: { field: any; meta: any }) => (
                     <StyledTextFieldAuth
                       {...field}
                       placeholder="Name"
@@ -111,7 +177,7 @@ export default function CreateUserForm() {
                   )}
                 </Field>
                 <Field name="surname">
-                  {({ field, meta }: any) => (
+                  {({ field, meta }: { field: any; meta: any }) => (
                     <StyledTextFieldAuth
                       {...field}
                       placeholder="Surname"
@@ -124,7 +190,7 @@ export default function CreateUserForm() {
               </Stack>
 
               <Field name="email">
-                {({ field, meta }: any) => (
+                {({ field, meta }: { field: any; meta: any }) => (
                   <StyledTextFieldAuth
                     {...field}
                     type="email"
@@ -137,7 +203,7 @@ export default function CreateUserForm() {
               </Field>
 
               <Field name="password">
-                {({ field, meta }: any) => (
+                {({ field, meta }: { field: any; meta: any }) => (
                   <StyledTextFieldAuth
                     {...field}
                     type="password"

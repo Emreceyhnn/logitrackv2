@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Box,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -24,6 +25,8 @@ import { createFuelLog } from "@/app/lib/controllers/fuel";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { toast } from "sonner";
 
+import { uploadImageAction } from "@/app/lib/actions/upload";
+
 const FUEL_TYPES = ["DIESEL", "GASOLINE", "ELECTRIC_KWH", "ADBLUE"];
 
 const AddFuelLogDialog = ({
@@ -36,6 +39,7 @@ const AddFuelLogDialog = ({
   const [loading, setLoading] = useState(false);
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [drivers, setDrivers] = useState<any[]>([]);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     vehicleId: "",
@@ -52,10 +56,7 @@ const AddFuelLogDialog = ({
     if (open && user) {
       const fetchData = async () => {
         try {
-          const [vRes, dRes] = await Promise.all([
-            getVehicles(), // Note: Check if needs companyId
-            getDrivers(),
-          ]);
+          const [vRes, dRes] = await Promise.all([getVehicles(), getDrivers()]);
           setVehicles(vRes || []);
           setDrivers(dRes.data || []);
         } catch (error) {
@@ -66,10 +67,30 @@ const AddFuelLogDialog = ({
     }
   }, [open, user]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setReceiptPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!user) return;
     setLoading(true);
     try {
+      let receiptUrl = "";
+      if (receiptPreview) {
+        const uploadResult = await uploadImageAction(
+          receiptPreview,
+          "receipts"
+        );
+        receiptUrl = uploadResult.url;
+      }
+
       await createFuelLog({
         ...formData,
         volumeLiter: parseFloat(formData.volumeLiter),
@@ -77,10 +98,12 @@ const AddFuelLogDialog = ({
         odometerKm: parseInt(formData.odometerKm),
         companyId: user.companyId,
         date: new Date(formData.date),
+        receiptUrl,
       });
       toast.success("Fuel log created successfully");
       onSuccess?.();
       onClose();
+      // Reset form
       setFormData({
         vehicleId: "",
         driverId: "",
@@ -91,6 +114,7 @@ const AddFuelLogDialog = ({
         location: "",
         date: new Date().toISOString().split("T")[0],
       });
+      setReceiptPreview(null);
     } catch (error: any) {
       toast.error(error.message || "Failed to create fuel log");
     } finally {
@@ -233,6 +257,58 @@ const AddFuelLogDialog = ({
             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
             InputLabelProps={{ shrink: true }}
           />
+
+          <Box>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 1, fontWeight: 600 }}
+            >
+              Fuel Receipt (Optional)
+            </Typography>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Button
+                component="label"
+                variant="outlined"
+                sx={{
+                  textTransform: "none",
+                  borderRadius: 2,
+                  borderColor: alpha(theme.palette.divider, 0.2),
+                  color: "white",
+                  px: 3,
+                }}
+              >
+                {receiptPreview ? "Change Receipt" : "Upload Receipt"}
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </Button>
+              {receiptPreview && (
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 1,
+                    overflow: "hidden",
+                    border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                  }}
+                >
+                  <img
+                    src={receiptPreview}
+                    alt="Receipt preview"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                </Box>
+              )}
+            </Stack>
+          </Box>
         </Stack>
       </DialogContent>
 

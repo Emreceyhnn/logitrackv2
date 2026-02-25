@@ -44,10 +44,12 @@ export default function LoginForm() {
 
       if (res && res.user) {
         // Token is already set as httpOnly cookie by the server
+        // Refresh the router so Next.js picks up the new cookie state
+        router.refresh();
         if (res.user.companyId) {
-          router.push("/");
+          router.push("/overview");
         } else {
-          router.push("/");
+          router.push("/overview");
         }
       }
     } catch (error: any) {

@@ -198,6 +198,13 @@ model Vehicle {
   registrationExpiry DateTime? // Ruhsat süresi
   inspectionExpiry   DateTime? // Muayene süresi
 
+  engineSize         String?
+  transmission       String?
+  techNotes          String?
+
+  photo              String?
+  enableAlerts       Boolean?    @default(true)
+
   maintenanceRecords MaintenanceRecord[]
   fuelLogs           FuelLog[]
   routes             Route[]

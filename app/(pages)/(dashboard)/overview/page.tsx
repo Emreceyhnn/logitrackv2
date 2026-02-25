@@ -49,15 +49,6 @@ export default function OverviewPage() {
 
   const fetchDashboardData = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true }));
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: "No token found",
-      }));
-      return;
-    }
 
     try {
       const [
@@ -72,16 +63,16 @@ export default function OverviewPage() {
         trendsData,
         mapDataRes,
       ] = await Promise.all([
-        getOverviewStats(token),
-        getActionRequired(token),
-        getDailyOperations(token),
-        getFuelStats(token),
-        getWarehouseCapacity(token),
-        getLowStockItems(token),
-        getShipmentStatusStats(token),
-        getPicksAndPacks(token),
-        getOnTimeTrends(token),
-        getMapData(token),
+        getOverviewStats(),
+        getActionRequired(),
+        getDailyOperations(),
+        getFuelStats(),
+        getWarehouseCapacity(),
+        getLowStockItems(),
+        getShipmentStatusStats(),
+        getPicksAndPacks(),
+        getOnTimeTrends(),
+        getMapData(),
       ]);
 
       const validMapData = (mapDataRes || []).map((item: any) => ({

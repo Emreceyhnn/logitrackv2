@@ -140,6 +140,8 @@ export interface CreateDriverFormData {
   licenseExpiry: Date | null;
   employeeId: string;
   status: DriverStatus;
+  licensePhotoUrl?: string;
+  documents?: { name: string; type: string; url: string; expiryDate?: Date }[];
 }
 
 export interface AddDriverStep1 {
@@ -158,6 +160,7 @@ export interface AddDriverDocument {
   type: string;
   expiryDate: Date | null;
   file: File | null;
+  url?: string;
   size?: string;
   uploadedAt?: string;
 }

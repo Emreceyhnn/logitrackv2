@@ -21,8 +21,8 @@ export const createVehicle = authenticatedAction(
 
       const vehicle = await db.vehicle.create({
         data: {
-          companyId: user.companyId,
           ...vehicleData,
+          company: { connect: { id: user.companyId as string } },
         },
       });
       return vehicle;
