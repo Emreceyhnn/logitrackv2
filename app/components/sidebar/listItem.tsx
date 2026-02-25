@@ -52,6 +52,7 @@ export function SidebarList(params: Params) {
       Users: "/users",
       Roles: "/roles",
       Settings: "/settings",
+      Company: "/company",
     };
     return routes[title] || "#";
   };

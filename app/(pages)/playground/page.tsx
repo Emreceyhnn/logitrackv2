@@ -4,12 +4,12 @@ import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";
 import AddRouteDialog from "@/app/components/dialogs/routes/addRouteDialog";
 import AddShipmentDialog from "@/app/components/dialogs/shipment/addShipmentDialog";
 import AddVehicleDialog from "@/app/components/dialogs/vehicle/addVehicleDialog";
-import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseDialog";
 import AddInventoryDialog from "@/app/components/dialogs/inventory/addInventoryDialog";
 
 import { Box, Button, Stack } from "@mui/material";
 import { useState } from "react";
 import AddCustomerDialog from "../../components/dialogs/customer/addCustomerDialog";
+import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseDialog";
 
 export default function Playground() {
   const [openDriver, setOpenDriver] = useState(false);

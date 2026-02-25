@@ -17,11 +17,12 @@ import {
   getDrivers,
   deleteDriver,
 } from "@/app/lib/controllers/driver";
-import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog/addDriverDialog";
+
 import DriverDialog from "@/app/components/dialogs/driver";
 import DriverTableToolbar from "@/app/components/dashboard/driver/driverTable/toolbar";
 import EditDriverDialog from "@/app/components/dialogs/driver/editDriverDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
+import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";
 
 export default function DriverPage() {
   /* ---------------------------------- State --------------------------------- */
@@ -197,7 +198,6 @@ export default function DriverPage() {
         state.pagination.limit,
         state.filters
       );
-      // Refresh Kpi data too
       actions.fetchDashboardData();
     } catch (error: any) {
       setSnackbar({

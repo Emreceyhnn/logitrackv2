@@ -42,8 +42,8 @@ export default function LoginForm() {
     try {
       const res = await LoginUser(values.email, values.password);
 
-      if (res && res.token) {
-        localStorage.setItem("token", res.token);
+      if (res && res.user) {
+        // Token is already set as httpOnly cookie by the server
         if (res.user.companyId) {
           router.push("/");
         } else {

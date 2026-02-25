@@ -14,10 +14,10 @@ import {
   getInventory,
 } from "@/app/lib/controllers/inventory";
 import EditInventoryDialog from "@/app/components/dialogs/inventory/edit-inventory-dialog";
-import AddInventoryDialog from "@/app/components/dialogs/inventory/add-inventory-dialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
+import AddInventoryDialog from "@/app/components/dialogs/inventory/addInventoryDialog";
 
 export default function InventoryPage() {
   const { user } = useUser();

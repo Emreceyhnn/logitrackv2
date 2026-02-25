@@ -22,7 +22,7 @@ import {
 import EditRouteDialog from "@/app/components/dialogs/routes/edit-route-dialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { useUser } from "@/app/lib/hooks/useUser";
-import AddRouteDialog from "@/app/components/dialogs/routes/add-route-dialog";
+import AddRouteDialog from "@/app/components/dialogs/routes/addRouteDialog";
 
 export default function RoutesPage() {
   /* -------------------------------- variables ------------------------------- */

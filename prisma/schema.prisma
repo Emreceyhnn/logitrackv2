@@ -53,6 +53,16 @@ enum RouteStatus {
   CANCELED
 }
 
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  REGISTER
+  TOKEN_REFRESH
+  SESSION_REVOKE
+  PASSWORD_CHANGE
+  LOGIN_FAILED
+}
+
 // Models
 
 model Company {
@@ -107,6 +117,8 @@ model User {
   driver             Driver?
   managedWarehouses  Warehouse[] // Managers can manage multiple warehouses
   inventoryMovements InventoryMovement[]
+  sessions           Session[]
+  auditLogs          AuditLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -471,4 +483,43 @@ model Issue {
   updatedAt DateTime @updatedAt
 
   @@map("issues")
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token          String   @unique
+  refreshToken   String   @unique
+  deviceInfo     String?
+  ipAddress      String?
+  lastActivityAt DateTime @default(now())
+  expiresAt      DateTime
+  isRevoked      Boolean  @default(false)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([token])
+  @@index([refreshToken])
+  @@map("sessions")
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  userId     String?
+  user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  action     AuditAction
+  ipAddress  String?
+  deviceInfo String?
+  metadata   String?
+
+  createdAt  DateTime    @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@map("audit_logs")
 }

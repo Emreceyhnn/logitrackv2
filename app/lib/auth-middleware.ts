@@ -1,61 +1,64 @@
-
-
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-import { db } from "./db";
-
-const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only";
+import { validateSession, refreshSession } from "./controllers/session";
 
 export type AuthenticatedUser = {
-    id: string;
-    companyId: string;
-    roleId: string | null;
+  id: string;
+  companyId: string;
+  roleId: string | null;
+  sessionId: string;
 };
 
+/**
+ * Gets the authenticated user from the current session.
+ *
+ * Strategy:
+ * 1. Attempt to validate the current access token via DB session lookup
+ * 2. If the access token is expired but a refresh token exists, attempt refresh
+ * 3. If refresh succeeds, re-validate the new access token
+ * 4. Returns null if all strategies fail
+ */
 export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+  // Try validating the current access token
+  let sessionUser = await validateSession();
 
-    if (!token) {
-        return null;
-    }
+  if (sessionUser && sessionUser.companyId) {
+    return {
+      id: sessionUser.id,
+      companyId: sessionUser.companyId,
+      roleId: sessionUser.roleId,
+      sessionId: sessionUser.sessionId,
+    };
+  }
 
-    try {
-        const decoded: any = jwt.verify(token, JWT_SECRET);
-        if (!decoded || !decoded.id) {
-            return null;
-        }
-
-        const user = await db.user.findUnique({
-            where: { id: decoded.id },
-            select: { id: true, companyId: true, roleId: true },
-        });
-
-        if (!user || !user.companyId) {
-            return null;
-        }
-
+  // If access token failed, try refreshing
+  if (!sessionUser) {
+    const refreshed = await refreshSession();
+    if (refreshed) {
+      // Re-validate with the new access token
+      sessionUser = await validateSession();
+      if (sessionUser && sessionUser.companyId) {
         return {
-            id: user.id,
-            companyId: user.companyId,
-            roleId: user.roleId,
+          id: sessionUser.id,
+          companyId: sessionUser.companyId,
+          roleId: sessionUser.roleId,
+          sessionId: sessionUser.sessionId,
         };
-    } catch (error) {
-        console.error("Auth middleware error:", error);
-        return null;
+      }
     }
+  }
+
+  return null;
 }
 
 export function authenticatedAction<T>(
-    action: (user: AuthenticatedUser, ...args: any[]) => Promise<T>
+  action: (user: AuthenticatedUser, ...args: any[]) => Promise<T>
 ) {
-    return async (...args: any[]): Promise<T> => {
-        const user = await getAuthenticatedUser();
+  return async (...args: any[]): Promise<T> => {
+    const user = await getAuthenticatedUser();
 
-        if (!user) {
-            throw new Error("Unauthorized");
-        }
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
 
-        return action(user, ...args);
-    };
+    return action(user, ...args);
+  };
 }

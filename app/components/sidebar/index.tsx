@@ -63,7 +63,7 @@ const SideBar = () => {
           sx={{ fontSize: 18, color: theme.palette.icon.secondary }}
         />
       ),
-      subTitles: ["Users", "Roles", "Settings"],
+      subTitles: ["Users", "Roles", "Settings", "Company"],
     },
   ];
 

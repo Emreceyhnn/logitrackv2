@@ -4,16 +4,17 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { db } from "../db";
+import {
+  createSession,
+  revokeSession,
+  clearAuthCookies,
+  logAuditEvent,
+  validateSession,
+} from "./session";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only";
 
-function generateToken(user: any) {
-  return jwt.sign(
-    { id: user.id, username: user.username, role: user.roleId },
-    JWT_SECRET,
-    { expiresIn: "7d" }
-  );
-}
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
 export async function getUserFromToken(token: string) {
   try {
@@ -40,6 +41,8 @@ export async function getUserFromToken(token: string) {
   }
 }
 
+// ─── User Queries ───────────────────────────────────────────────────────────
+
 export async function getUsers() {
   try {
     const allUsers = await db.user.findMany({
@@ -55,12 +58,16 @@ export async function getUsers() {
   }
 }
 
+// ─── Registration ───────────────────────────────────────────────────────────
+
 export async function RegisterUser(
   username: string,
   name: string,
   surname: string,
   password: string,
-  email: string
+  email: string,
+  deviceInfo?: string,
+  ipAddress?: string
 ) {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -88,20 +95,33 @@ export async function RegisterUser(
       },
     });
 
-    const token = generateToken(newUser);
+    // Create server-side session (sets httpOnly cookies automatically)
+    const { accessToken, sessionId } = await createSession(
+      newUser,
+      deviceInfo,
+      ipAddress
+    );
 
-    // Set cookie
-    (await cookies()).set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: "/",
+    // Audit log
+    await logAuditEvent({
+      userId: newUser.id,
+      action: "REGISTER",
+      ipAddress,
+      deviceInfo,
+      metadata: { email },
     });
 
-    // Return serializable object
+    // Return serializable object (token is in the cookie, but also returned for client redirect flow)
     return {
-      user: newUser,
-      token,
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        surname: newUser.surname,
+        email: newUser.email,
+        username: newUser.username,
+        companyId: newUser.companyId,
+      },
+      token: accessToken,
     };
   } catch (error: any) {
     console.error("Failed to create user:", error);
@@ -109,39 +129,112 @@ export async function RegisterUser(
   }
 }
 
-export async function LoginUser(email: string, password: string) {
+// ─── Login ──────────────────────────────────────────────────────────────────
+
+export async function LoginUser(
+  email: string,
+  password: string,
+  deviceInfo?: string,
+  ipAddress?: string
+) {
   try {
     const user = await db.user.findUnique({
       where: { email },
     });
+
     if (!user) {
-      throw new Error("User not found");
+      // Log failed attempt (no userId since user not found)
+      await logAuditEvent({
+        action: "LOGIN_FAILED",
+        ipAddress,
+        deviceInfo,
+        metadata: { email, reason: "User not found" },
+      });
+      throw new Error("Invalid credentials");
     }
+
     const isPasswordValid = await bcrypt.compare(password, user.password || "");
     if (!isPasswordValid) {
-      throw new Error("Invalid password");
+      // Log failed attempt
+      await logAuditEvent({
+        userId: user.id,
+        action: "LOGIN_FAILED",
+        ipAddress,
+        deviceInfo,
+        metadata: { email, reason: "Invalid password" },
+      });
+      throw new Error("Invalid credentials");
     }
 
-    const token = generateToken(user);
+    // Update lastLoginAt
+    await db.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
 
-    // Set cookie
-    (await cookies()).set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: "/",
+    // Create server-side session
+    const { accessToken, sessionId } = await createSession(
+      user,
+      deviceInfo,
+      ipAddress
+    );
+
+    // Log successful login
+    await logAuditEvent({
+      userId: user.id,
+      action: "LOGIN",
+      ipAddress,
+      deviceInfo,
     });
 
     return {
-      user,
-      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        surname: user.surname,
+        email: user.email,
+        username: user.username,
+        companyId: user.companyId,
+      },
+      token: accessToken,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to login user:", error);
-    // Be careful not to expose too much info in prod, but for now keeping error message consistent
-    throw new Error("Failed to login user");
+    throw new Error(error.message || "Failed to login user");
   }
 }
+
+// ─── Logout ─────────────────────────────────────────────────────────────────
+
+export async function LogoutUser() {
+  try {
+    // Get current session
+    const sessionUser = await validateSession();
+
+    if (sessionUser?.sessionId) {
+      // Revoke the session in DB
+      await revokeSession(sessionUser.sessionId);
+
+      // Log logout
+      await logAuditEvent({
+        userId: sessionUser.id,
+        action: "LOGOUT",
+      });
+    }
+
+    // Clear cookies regardless
+    await clearAuthCookies();
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to logout:", error);
+    // Even if something fails, clear cookies
+    await clearAuthCookies();
+    return { success: true };
+  }
+}
+
+// ─── User Management ────────────────────────────────────────────────────────
 
 export async function updateUser(
   username: string,
@@ -180,11 +273,6 @@ export async function createUserForCompany(token: string, userData: any) {
       throw new Error("Unauthorized");
     }
 
-    // specific role checks if needed, e.g. only ADMIN can add users
-    // For now assuming any user in company can add (or limit to admin/manager)
-    // const role = await db.role.findUnique({ where: { id: requester.roleId } });
-    // if (role?.name !== 'ADMIN' && role?.name !== 'MANAGER') ...
-
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
     const isExist = await db.user.findFirst({
@@ -200,12 +288,6 @@ export async function createUserForCompany(token: string, userData: any) {
       throw new Error("Email already exists");
     }
 
-    // Find the role ID by name (assuming roles are seeded)
-    // You might need a seed script or helper to find role by name
-    // For now, let's assume valid role name is passed or map it
-    // The form sends "admin", "manager", etc.
-    // The DB roles might be "ADMIN", "MANAGER" or "role_admin" etc.
-    // Let's try to find insensitive or standard
     const roleName = userData.role.toUpperCase();
     const role = await db.role.findFirst({
       where: { name: { equals: roleName, mode: "insensitive" } },
@@ -220,7 +302,6 @@ export async function createUserForCompany(token: string, userData: any) {
         password: hashedPassword,
         companyId: requester.companyId,
         roleId: role ? role.id : undefined,
-        // If role not found, it will be null (or default based on Schema)
       },
     });
 
@@ -230,8 +311,6 @@ export async function createUserForCompany(token: string, userData: any) {
     throw new Error(error.message || "Failed to create company user");
   }
 }
-
-// ... (existing imports)
 
 export async function getUsersForMyCompany(token: string) {
   try {

@@ -54,10 +54,8 @@ export default function RegisterForm() {
         values.email
       );
 
-      if (res && res.token) {
-        localStorage.setItem("token", res.token);
-        // Also store user info if needed
-        localStorage.setItem("user", JSON.stringify(res.user));
+      if (res && res.user) {
+        // Token is already set as httpOnly cookie by the server
         router.push("/"); // Redirect to landing page to create company via modal
       }
     } catch (error: any) {
