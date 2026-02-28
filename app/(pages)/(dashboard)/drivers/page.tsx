@@ -111,7 +111,18 @@ export default function DriverPage() {
     fetchDashboardData: useCallback(async () => {
       try {
         const data = await getDriverDashboardData();
-        setState((prev) => ({ ...prev, dashboardData: data }));
+        setState((prev) => ({
+          ...prev,
+          dashboardData: data
+            ? {
+                ...data,
+                performanceCharts: data.performanceCharts.map((chart) => ({
+                  ...chart,
+                  days: chart.days.map((d) => Number(d)),
+                })),
+              }
+            : null,
+        }));
       } catch (error: any) {
         console.error("Failed dashboard data", error);
       }

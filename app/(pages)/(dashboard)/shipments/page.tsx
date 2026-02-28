@@ -47,16 +47,19 @@ export default function ShipmentPage() {
 
   /* --------------------------------- actions -------------------------------- */
   const fetchAllData = useCallback(async () => {
-    if (!user) return;
+    if (!user || !user.companyId || !user.id) return;
     setState((prev) => ({ ...prev, loading: true }));
 
     try {
+      const companyId = user.companyId;
+      const userId = user.id;
+
       const [shipmentsData, statsData, statusDist, volumeHist] =
         await Promise.all([
-          getShipments(user.companyId, user.id),
-          getShipmentStats(user.companyId, user.id),
-          getShipmentStatusDistribution(user.companyId, user.id),
-          getShipmentVolumeHistory(user.companyId, user.id),
+          getShipments(companyId, userId),
+          getShipmentStats(companyId, userId),
+          getShipmentStatusDistribution(companyId, userId),
+          getShipmentVolumeHistory(companyId, userId),
         ]);
 
       setState((prev) => ({

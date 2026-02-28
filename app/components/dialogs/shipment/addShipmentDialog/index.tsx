@@ -112,9 +112,9 @@ const AddShipmentDialog = ({
       const fetchData = async () => {
         try {
           const [wRes, cRes, rRes] = await Promise.all([
-            getWarehouses(user.companyId, user.id),
-            getCustomers(user.companyId, user.id),
-            getRoutes(user.companyId, user.id),
+            getWarehouses(user.companyId!, user.id!),
+            getCustomers(user.companyId!, user.id!),
+            getRoutes(user.companyId!, user.id!),
           ]);
           setWarehouses(wRes);
           setCustomers(cRes);
@@ -133,7 +133,11 @@ const AddShipmentDialog = ({
       const fetchInventory = async () => {
         setState((prev) => ({ ...prev, isLoadingInventory: true }));
         try {
-          const inv = await getInventory(user.companyId, user.id, warehouseId);
+          const inv = await getInventory(
+            user.companyId!,
+            user.id!,
+            warehouseId
+          );
           setState((prev) => ({
             ...prev,
             availableInventory: inv,
@@ -228,7 +232,7 @@ const AddShipmentDialog = ({
           // Note: Tracking ID generation is handled by controller if not provided
           await createShipment(
             user.id,
-            user.companyId,
+            user.companyId!,
             logistics.customerId,
             logistics.originWarehouseId, // Or address if we support both
             logistics.destination,

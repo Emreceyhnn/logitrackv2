@@ -5,8 +5,9 @@ import { getUserSession } from "../actions/auth";
 
 export type UserSession = {
   id: string;
-  companyId: string;
+  companyId: string | null;
   roleId: string | null;
+  sessionId?: string;
 } | null;
 
 export function useUser() {

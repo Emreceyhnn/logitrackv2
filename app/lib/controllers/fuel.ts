@@ -7,6 +7,9 @@ import { authenticatedAction } from "../auth-middleware";
 
 export const getFuelLogs = authenticatedAction(
   async (user, filters: any): Promise<FuelLogWithRelations[]> => {
+    if (!user.companyId) {
+      throw new Error("User has no company assigned");
+    }
     const { vehicleId, driverId, startDate, endDate } = filters;
 
     return db.fuelLog.findMany({
@@ -66,13 +69,17 @@ export const createFuelLog = authenticatedAction(
     return db.fuelLog.create({
       data: {
         ...data,
-        companyId: user.companyId,
+        companyId: user.companyId!,
       },
     });
   }
 );
 
 export const getFuelStats = authenticatedAction(async (user) => {
+  if (!user.companyId) {
+    throw new Error("User has no company assigned");
+  }
+
   const logs = await db.fuelLog.findMany({
     where: { companyId: user.companyId },
     orderBy: { date: "desc" },

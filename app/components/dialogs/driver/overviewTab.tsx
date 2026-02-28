@@ -108,7 +108,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
       }}
     >
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <KPICard
             title="Driver Rating"
             value={`${driver.rating != null ? driver.rating : "-"} / 5`}
@@ -117,7 +117,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             theme={theme}
           />
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <KPICard
             title="Efficiency Score"
             value={
@@ -130,7 +130,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             theme={theme}
           />
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <KPICard
             title="Safety Score"
             value={driver.safetyScore != null ? `${driver.safetyScore}%` : "-"}
@@ -142,7 +142,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
       </Grid>
 
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <Card
             sx={{
               p: 2.5,
@@ -178,7 +178,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             </Typography>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <Card
             sx={{
               p: 2.5,

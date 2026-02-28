@@ -65,7 +65,7 @@ const SecondDriverDialogStep = ({
       if (!user) return;
       try {
         const [wData, vData, uData] = await Promise.all([
-          getWarehouses(user.companyId, user.id),
+          getWarehouses(user.companyId!, user.id!),
           getVehicles({ status: ["AVAILABLE", "IDLE"] }),
           getEligibleUsersForDriver(),
         ]);

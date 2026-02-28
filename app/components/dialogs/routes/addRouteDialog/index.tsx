@@ -122,7 +122,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
             step2.durationMin,
             step3.driverId,
             step3.vehicleId,
-            user.companyId,
+            user.companyId!,
             {
               type: step2.startType,
               id: step2.startId,

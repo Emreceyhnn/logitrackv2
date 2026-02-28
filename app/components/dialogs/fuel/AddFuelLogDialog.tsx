@@ -56,7 +56,10 @@ const AddFuelLogDialog = ({
     if (open && user) {
       const fetchData = async () => {
         try {
-          const [vRes, dRes] = await Promise.all([getVehicles(), getDrivers()]);
+          const [vRes, dRes] = await Promise.all([
+            getVehicles({ status: ["AVAILABLE", "IDLE"] }),
+            getDrivers(1, 100),
+          ]);
           setVehicles(vRes || []);
           setDrivers(dRes.data || []);
         } catch (error) {
@@ -96,7 +99,7 @@ const AddFuelLogDialog = ({
         volumeLiter: parseFloat(formData.volumeLiter),
         cost: parseFloat(formData.cost),
         odometerKm: parseInt(formData.odometerKm),
-        companyId: user.companyId,
+        companyId: user.companyId!,
         date: new Date(formData.date),
         receiptUrl,
       });

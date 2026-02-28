@@ -50,7 +50,7 @@ export const createVehicle = authenticatedAction(
           inspectionExpiry: inspectionExpiry
             ? new Date(inspectionExpiry)
             : undefined,
-          company: { connect: { id: user.companyId as string } },
+          company: { connect: { id: user.companyId! } },
         },
       });
       return vehicle;

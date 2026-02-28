@@ -14,10 +14,8 @@ export default function AnalyticsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
-        const USER_ID = "usr_001";
         const result = await import("@/app/lib/controllers/analytics").then(
-          (mod) => mod.getAnalyticsDashboardData(COMPANY_ID)
+          (mod) => mod.getAnalyticsDashboardData()
         ); // Passing token/companyID
         setData(result);
       } catch (error) {

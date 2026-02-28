@@ -45,7 +45,7 @@ export const getSignedUrlAction = authenticatedAction(
 
       // Check if it's a PDF to determine resource type
       const isPdf = fileUrl.toLowerCase().includes(".pdf");
-      const signedUrl = getSignedUrl(publicId, isPdf ? "image" : "image");
+      const signedUrl = getSignedUrl(publicId, "raw");
 
       return {
         success: true,

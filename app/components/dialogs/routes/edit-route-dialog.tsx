@@ -74,13 +74,16 @@ const EditRouteDialog = (params: EditRouteDialogParams) => {
         try {
           // Fetch Warehouses
           const fetchedWarehouses = await getWarehouses(
-            user.companyId,
-            user.id
+            user.companyId!,
+            user.id!
           );
           setWarehouses(fetchedWarehouses);
 
           // Fetch Customers
-          const fetchedCustomers = await getCustomers(user.companyId, user.id);
+          const fetchedCustomers = await getCustomers(
+            user.companyId!,
+            user.id!
+          );
           setCustomers(fetchedCustomers);
 
           // Fetch Drivers

@@ -19,7 +19,7 @@ export default function LandingHeaderAuth() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
     id: string;
-    companyId: string;
+    companyId: string | null;
     roleId: string | null;
     sessionId: string;
   } | null>(null);
