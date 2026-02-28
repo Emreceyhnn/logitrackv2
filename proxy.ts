@@ -38,7 +38,7 @@ const COMPANY_REQUIRED_ROUTES = [
   "/company",
 ];
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const tokenCookie = request.cookies.get("token")?.value;
   const refreshTokenCookie = request.cookies.get("refreshToken")?.value;
