@@ -386,3 +386,106 @@ export async function getCompanyStats(companyId: string, userId: string) {
     throw new Error(error.message || "Failed to get company stats");
   }
 }
+
+export const addMemberToMyCompany = authenticatedAction(
+  async (
+    requester,
+    targetUserId: string,
+    roleName: string,
+    driverData?: {
+      employeeId: string;
+      phone: string;
+      licenseNumber?: string;
+      licenseType?: string;
+      licenseExpiry?: string;
+    }
+  ) => {
+    if (!requester.companyId) {
+      throw new Error("You must belong to a company to add users.");
+    }
+
+    try {
+      const targetUser = await db.user.findUnique({
+        where: { id: targetUserId },
+      });
+
+      if (!targetUser) {
+        throw new Error("Target user not found.");
+      }
+
+      if (targetUser.companyId === requester.companyId) {
+        throw new Error("User is already a member of this company.");
+      }
+
+      let roleIdToAssign = undefined;
+      if (roleName) {
+        // The frontend passes role IDs directly (e.g. "role_admin", "role_driver")
+        const role = await db.role.findUnique({
+          where: { id: roleName },
+        });
+
+        if (role) {
+          roleIdToAssign = role.id;
+        } else {
+          // Fallback just in case a name was passed
+          const roleByName = await db.role.findFirst({
+            where: { name: { equals: roleName, mode: "insensitive" } },
+          });
+          if (roleByName) {
+            roleIdToAssign = roleByName.id;
+          } else {
+            // Create the role dynamically if it does not exist
+            let newRoleName = roleName;
+            if (roleName.startsWith("role_")) {
+              newRoleName = roleName.replace("role_", "").toUpperCase();
+            }
+            const newRole = await db.role.create({
+              data: {
+                id: roleName,
+                name: newRoleName,
+                permissions: [],
+              },
+            });
+            roleIdToAssign = newRole.id;
+          }
+        }
+      }
+
+      const updatedUser = await db.user.update({
+        where: { id: targetUserId },
+        data: {
+          companyId: requester.companyId,
+          // Assign the looked up role ID, which is likely the same as the input string
+          ...(roleIdToAssign ? { roleId: roleIdToAssign } : {}),
+        },
+      });
+
+      // If user is a driver (checked by the role id), create driver record.
+      if (roleName === "role_driver" && driverData) {
+        // Prepare optional date safely
+        const expiryDate = driverData.licenseExpiry
+          ? new Date(driverData.licenseExpiry)
+          : null;
+
+        await db.driver.create({
+          data: {
+            userId: targetUserId,
+            companyId: requester.companyId,
+            employeeId: driverData.employeeId,
+            phone: driverData.phone,
+            licenseNumber: driverData.licenseNumber || null,
+            licenseType: driverData.licenseType || null,
+            licenseExpiry: isNaN(expiryDate?.getTime() || NaN)
+              ? null
+              : expiryDate,
+          },
+        });
+      }
+
+      return { success: true, user: updatedUser };
+    } catch (error: any) {
+      console.error("Failed to add member to company:", error);
+      throw new Error(error.message || "Failed to add member.");
+    }
+  }
+);

@@ -1,17 +1,19 @@
 import {
+  alpha,
   Box,
   Card,
   Stack,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   IconButton,
+  useTheme,
+  Grid,
 } from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import FileUploadIcon from "@mui/icons-material/FileUpload";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+
 import { DriverWithRelations } from "@/app/lib/type/driver";
 
 interface DocumentsTabProps {
@@ -19,6 +21,8 @@ interface DocumentsTabProps {
 }
 
 const DocumentsTab = ({ driver }: DocumentsTabProps) => {
+  const theme = useTheme();
+
   if (!driver) {
     return <Typography color="text.secondary">No driver selected</Typography>;
   }
@@ -30,98 +34,203 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
 
   return (
     <Stack
-      spacing={2}
-      direction={"row"}
-      maxHeight={450}
-      height={"100%"}
-      justifyContent={"space-center"}
+      spacing={3}
+      sx={{
+        overflowY: "auto",
+        maxHeight: 450,
+        pr: 1,
+        "&::-webkit-scrollbar": {
+          width: 6,
+        },
+        "&::-webkit-scrollbar-track": {
+          backgroundColor: alpha(theme.palette.background.paper, 0.1),
+          borderRadius: 4,
+        },
+        "&::-webkit-scrollbar-thumb": {
+          backgroundColor: alpha(theme.palette.text.secondary, 0.2),
+          borderRadius: 4,
+          "&:hover": {
+            backgroundColor: alpha(theme.palette.text.secondary, 0.4),
+          },
+        },
+      }}
     >
-      <Stack spacing={2} minWidth={300}>
-        <Stack spacing={2} direction={"row"}>
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <Card
             sx={{
-              p: 2,
-              borderRadius: "8px",
-              width: "100%",
-              gap: 2,
+              p: 2.5,
+              borderRadius: 3,
+              bgcolor: alpha(
+                hasValidLicense
+                  ? theme.palette.success.main
+                  : theme.palette.error.main,
+                0.05
+              ),
+              border: `1px solid ${alpha(
+                hasValidLicense
+                  ? theme.palette.success.main
+                  : theme.palette.error.main,
+                0.2
+              )}`,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              justifyContent: "center",
+              gap: 1.5,
+              height: "100%",
             }}
           >
             <Box
               sx={{
-                borderRadius: "8px",
-                bgcolor: hasValidLicense ? "success.main" : "error.main",
-                width: 32,
-                height: 32,
+                width: 48,
+                height: 48,
+                borderRadius: "50%",
+                bgcolor: alpha(
+                  hasValidLicense
+                    ? theme.palette.success.main
+                    : theme.palette.error.main,
+                  0.1
+                ),
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                color: hasValidLicense ? "success.main" : "error.main",
               }}
             >
-              <CheckCircleIcon sx={{ width: 18, height: 19, color: "white" }} />
-            </Box>
-            <Typography sx={{ fontSize: 22 }}>License Status</Typography>
-            <Typography sx={{ fontSize: 18, marginTop: "auto" }}>
-              {hasValidLicense ? "Valid" : "Expired / Missing"}
-            </Typography>
-          </Card>
-        </Stack>
-        {/* Upload functionality coming soon */}
-        {/* <Button variant="contained" sx={{ borderRadius: "8px" }}>
-          Upload New Document
-        </Button> */}
-      </Stack>
-      <Stack flexGrow={1}>
-        <Card sx={{ p: 2, borderRadius: "8px", gap: 2 }}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>License Type</TableCell>
-                <TableCell>Number</TableCell>
-                <TableCell>Expiry Date</TableCell>
-                <TableCell>Download</TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {driver.licenseNumber ? (
-                <TableRow>
-                  <TableCell>
-                    <Typography sx={{ fontSize: 12 }}>
-                      {driver.licenseType}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{driver.licenseNumber}</TableCell>
-                  <TableCell>
-                    {driver.licenseExpiry
-                      ? new Date(driver.licenseExpiry).toLocaleDateString()
-                      : "N/A"}
-                  </TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      sx={{
-                        bgcolor: "success.main",
-                        color: "white",
-                        "&:hover": { bgcolor: "success.dark" },
-                      }}
-                    >
-                      <FileUploadIcon sx={{ width: 15, height: 15 }} />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
+              {hasValidLicense ? (
+                <CheckCircleOutlineIcon fontSize="medium" />
               ) : (
-                <TableRow>
-                  <TableCell colSpan={4} align="center">
-                    No license information available
-                  </TableCell>
-                </TableRow>
+                <ErrorOutlineIcon fontSize="medium" />
               )}
-            </TableBody>
-          </Table>
-        </Card>
-      </Stack>
+            </Box>
+            <Stack alignItems="center" spacing={0.5}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                fontWeight={600}
+              >
+                License Status
+              </Typography>
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                color={hasValidLicense ? "success.main" : "error.main"}
+              >
+                {hasValidLicense ? "Compliant" : "Action Required"}
+              </Typography>
+            </Stack>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 8 }}>
+          <Stack spacing={2}>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Box
+                sx={{
+                  p: 0.8,
+                  borderRadius: 1,
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: theme.palette.primary.main,
+                  display: "flex",
+                }}
+              >
+                <InsertDriveFileOutlinedIcon fontSize="small" />
+              </Box>
+              <Typography variant="subtitle1" fontWeight={700} color="white">
+                Official Documents
+              </Typography>
+            </Stack>
+
+            <Stack spacing={1.5}>
+              {driver.licenseNumber ? (
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  alignItems="center"
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: alpha(theme.palette.background.paper, 0.3),
+                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      borderColor: alpha(theme.palette.primary.main, 0.3),
+                      bgcolor: alpha(theme.palette.primary.main, 0.05),
+                    },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      p: 1.5,
+                      borderRadius: 1.5,
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      color: theme.palette.primary.main,
+                      display: "flex",
+                    }}
+                  >
+                    <InsertDriveFileOutlinedIcon />
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography
+                      variant="body1"
+                      fontWeight={600}
+                      color="white"
+                      noWrap
+                    >
+                      Driver&apos;s License - {driver.licenseType || "Standard"}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      No: {driver.licenseNumber} • Expiry:{" "}
+                      {driver.licenseExpiry
+                        ? new Date(driver.licenseExpiry).toLocaleDateString()
+                        : "N/A"}
+                    </Typography>
+                  </Box>
+                  <IconButton
+                    size="small"
+                    sx={{
+                      color: theme.palette.primary.main,
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      "&:hover": {
+                        bgcolor: alpha(theme.palette.primary.main, 0.2),
+                      },
+                    }}
+                  >
+                    <FileDownloadOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              ) : (
+                <Box
+                  sx={{
+                    p: 3,
+                    borderRadius: 2,
+                    bgcolor: alpha(theme.palette.error.main, 0.05),
+                    border: `1px dashed ${alpha(theme.palette.error.main, 0.2)}`,
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 1.5,
+                  }}
+                >
+                  <InfoOutlinedIcon
+                    fontSize="small"
+                    color="error"
+                    sx={{ mt: 0.2 }}
+                  />
+                  <Box>
+                    <Typography variant="body2" color="white" fontWeight={600}>
+                      Missing License Record
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      This driver does not have a license registered in the
+                      system. Please update their profile to ensure compliance.
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+            </Stack>
+          </Stack>
+        </Grid>
+      </Grid>
     </Stack>
   );
 };

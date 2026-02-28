@@ -29,37 +29,30 @@ import {
   AddMemberState,
   AddMemberActions,
   AddMemberDialogProps,
-  PlatformUser,
+  DriverStateData,
 } from "@/app/lib/type/add-company-member";
 import { toast } from "sonner";
+import { searchPlatformUsers } from "@/app/lib/controllers/users";
+import { addMemberToMyCompany } from "@/app/lib/controllers/company";
 
-// Mock data for demonstration
-const mockUsers: PlatformUser[] = [
-  {
-    id: "1",
-    name: "Marcus Thorne",
-    email: "m.thorne@global-logistics.com",
-    avatar: null,
-  },
-  {
-    id: "2",
-    name: "Sarah Jenkins",
-    email: "s.jenkins@freight-sys.io",
-    avatar: null,
-  },
-  {
-    id: "3",
-    name: "David Chen",
-    email: "d.chen@rapid-dispatch.net",
-    avatar: null,
-  },
-];
+// Removed mock data
 
 const roles = [
-  { id: "DISPATCHER", label: "DISPATCHER - Manage routes and fleet" },
-  { id: "ADMIN", label: "ADMIN - Full organizational access" },
-  { id: "OPERATOR", label: "OPERATOR - Daily shipment management" },
+  { id: "role_admin", label: "ADMIN - Full organizational access" },
+  { id: "role_manager", label: "MANAGER - Manage department operations" },
+  { id: "role_dispatcher", label: "DISPATCHER - Manage routes and fleet" },
+  { id: "role_driver", label: "DRIVER - Execute shipments and trips" },
+  { id: "role_warehouse", label: "WAREHOUSE - Manage inventory" },
+  { id: "role_default", label: "DEFAULT - Standard user access" },
 ];
+
+const initialDriverData: DriverStateData = {
+  employeeId: "",
+  phone: "",
+  licenseNumber: "",
+  licenseType: "",
+  licenseExpiry: "",
+};
 
 export default function AddCompanyMemberDialog({
   open,
@@ -71,9 +64,10 @@ export default function AddCompanyMemberDialog({
   /* ---------------------------------- State --------------------------------- */
   const [state, setState] = useState<AddMemberState>({
     searchQuery: "",
-    results: mockUsers,
+    results: [],
     selectedUserId: null,
-    selectedRole: "DISPATCHER",
+    selectedRole: "role_dispatcher",
+    driverData: initialDriverData,
     loading: false,
     error: null,
   });
@@ -84,11 +78,6 @@ export default function AddCompanyMemberDialog({
       setState((prev) => ({
         ...prev,
         searchQuery: query,
-        results: mockUsers.filter(
-          (u) =>
-            u.name.toLowerCase().includes(query.toLowerCase()) ||
-            u.email.toLowerCase().includes(query.toLowerCase())
-        ),
       }));
     }, []),
 
@@ -100,35 +89,89 @@ export default function AddCompanyMemberDialog({
       setState((prev) => ({ ...prev, selectedRole: role }));
     }, []),
 
+    setDriverData: useCallback(
+      (field: keyof DriverStateData, value: string) => {
+        setState((prev) => ({
+          ...prev,
+          driverData: {
+            ...prev.driverData,
+            [field]: value,
+          },
+        }));
+      },
+      []
+    ),
+
     submit: useCallback(async () => {
       if (!state.selectedUserId) return;
 
       setState((prev) => ({ ...prev, loading: true, error: null }));
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        // Note: we'll update the `addMemberToMyCompany` action later to accept driverData
+        await addMemberToMyCompany(
+          state.selectedUserId,
+          state.selectedRole,
+          state.selectedRole === "role_driver" ? state.driverData : undefined
+        );
         toast.success("Member added successfully!");
         onSuccess?.();
         onClose();
-        actions.reset();
-      } catch (err) {
+        setState({
+          searchQuery: "",
+          results: [],
+          selectedUserId: null,
+          selectedRole: "role_dispatcher",
+          driverData: initialDriverData,
+          loading: false,
+          error: null,
+        });
+      } catch (err: unknown) {
         setState((prev) => ({ ...prev, error: "Failed to add member" }));
-        toast.error("An error occurred");
+        const message =
+          err instanceof Error ? err.message : "An error occurred";
+        toast.error(message);
       } finally {
         setState((prev) => ({ ...prev, loading: false }));
       }
-    }, [state.selectedUserId, state.selectedRole, onClose, onSuccess]),
+    }, [
+      state.selectedUserId,
+      state.selectedRole,
+      state.driverData,
+      onClose,
+      onSuccess,
+    ]),
 
     reset: useCallback(() => {
       setState({
         searchQuery: "",
-        results: mockUsers,
+        results: [],
         selectedUserId: null,
-        selectedRole: "DISPATCHER",
+        selectedRole: "role_dispatcher",
+        driverData: initialDriverData,
         loading: false,
         error: null,
       });
     }, []),
   };
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (state.searchQuery.length >= 2) {
+        setState((prev) => ({ ...prev, loading: true }));
+        try {
+          const results = await searchPlatformUsers(state.searchQuery);
+          setState((prev) => ({ ...prev, results, loading: false }));
+        } catch (error) {
+          console.error("Search error:", error);
+          setState((prev) => ({ ...prev, results: [], loading: false }));
+        }
+      } else if (state.searchQuery.length === 0) {
+        setState((prev) => ({ ...prev, results: [], loading: false }));
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [state.searchQuery]);
 
   return (
     <Dialog
@@ -324,6 +367,82 @@ export default function AddCompanyMemberDialog({
               Selected user will receive an invitation to join your company.
             </Typography>
           </Box>
+
+          {/* Conditional Driver Data Section */}
+          {state.selectedRole === "role_driver" && (
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 3,
+                bgcolor: alpha(theme.palette.warning.main, 0.05),
+                border: `1px solid ${alpha(theme.palette.warning.main, 0.2)}`,
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "warning.main",
+                  fontWeight: 700,
+                  mb: 2,
+                  display: "block",
+                }}
+              >
+                Driver Details Required
+              </Typography>
+              <Stack spacing={2}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Employee ID *"
+                  value={state.driverData.employeeId}
+                  onChange={(e) =>
+                    actions.setDriverData("employeeId", e.target.value)
+                  }
+                  required
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Phone Number *"
+                  value={state.driverData.phone}
+                  onChange={(e) =>
+                    actions.setDriverData("phone", e.target.value)
+                  }
+                  required
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="License Type"
+                  placeholder="e.g. CDL-A"
+                  value={state.driverData.licenseType}
+                  onChange={(e) =>
+                    actions.setDriverData("licenseType", e.target.value)
+                  }
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="License Number"
+                  value={state.driverData.licenseNumber}
+                  onChange={(e) =>
+                    actions.setDriverData("licenseNumber", e.target.value)
+                  }
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="License Expiry"
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={state.driverData.licenseExpiry}
+                  onChange={(e) =>
+                    actions.setDriverData("licenseExpiry", e.target.value)
+                  }
+                />
+              </Stack>
+            </Box>
+          )}
         </Stack>
       </DialogContent>
 
@@ -341,7 +460,12 @@ export default function AddCompanyMemberDialog({
         <Button
           variant="contained"
           onClick={actions.submit}
-          disabled={!state.selectedUserId || state.loading}
+          disabled={
+            !state.selectedUserId ||
+            state.loading ||
+            (state.selectedRole === "role_driver" &&
+              (!state.driverData.employeeId || !state.driverData.phone))
+          }
           startIcon={<GroupAddIcon />}
           sx={{
             borderRadius: 2.5,

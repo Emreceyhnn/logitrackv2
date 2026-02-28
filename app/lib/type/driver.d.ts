@@ -140,12 +140,18 @@ export interface CreateDriverFormData {
   licenseExpiry: Date | null;
   employeeId: string;
   status: DriverStatus;
+  currentVehicleId?: string | null;
+  homeBaseWarehouseId?: string | null;
+  languages?: string[];
+  hazmatCertified?: boolean;
   licensePhotoUrl?: string;
   documents?: { name: string; type: string; url: string; expiryDate?: Date }[];
 }
 
 export interface AddDriverStep1 {
   userId: string;
+  phone: string;
+  employeeId: string;
   licenseNo: string;
   licenseExpiry: Date | null;
   licenseType: string;
@@ -169,6 +175,8 @@ export interface AddDriverStep2 {
   homeWareHouseId: string;
   currentVehicleId: string;
   status: string;
+  languages: string[];
+  hazmatCertified: boolean;
   documents: AddDriverDocument[];
 }
 
@@ -198,6 +206,55 @@ export interface AddDriverDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+}
+
+export interface EditDriverStep1 {
+  phone: string;
+  licenseNo: string;
+  licenseExpiry: Date | null;
+  licenseType: string;
+  licenseIssueDate: Date | null;
+  licenseRegion: string;
+  licencePhoto: File | null;
+  employeeId: string;
+}
+
+export interface EditDriverStep2 {
+  homeWareHouseId: string;
+  currentVehicleId: string;
+  status: string;
+  languages: string[];
+  hazmatCertified: boolean;
+  documents: AddDriverDocument[];
+}
+
+export interface EditDriverPageState {
+  currentStep: number;
+  data: {
+    step1: EditDriverStep1;
+    step2: EditDriverStep2;
+  };
+  isLoading: boolean;
+  error: string | null;
+  isSuccess: boolean;
+}
+
+export interface EditDriverPageActions {
+  updateStep1: (data: Partial<EditDriverStep1>) => void;
+  updateStep2: (data: Partial<EditDriverStep2>) => void;
+  setStep: (step: number) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  handleSubmit: () => void;
+  closeDialog: () => void;
+  reset: () => void;
+}
+
+export interface EditDriverDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+  driver: DriverWithRelations | null;
 }
 
 export interface EligibleUser {

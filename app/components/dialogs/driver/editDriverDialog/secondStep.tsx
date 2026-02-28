@@ -17,12 +17,11 @@ import {
 import { useEffect, useState, useRef, ChangeEvent } from "react";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import {
-  AddDriverPageActions,
-  AddDriverStep1,
-  AddDriverStep2,
-  EligibleUser,
+  EditDriverPageActions,
+  EditDriverStep1,
+  EditDriverStep2,
+  DriverWithRelations,
 } from "@/app/lib/type/driver";
-import { getEligibleUsersForDriver } from "@/app/lib/controllers/driver";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { useUser } from "@/app/lib/hooks/useUser";
@@ -36,18 +35,21 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import BadgeIcon from "@mui/icons-material/Badge";
+import HotelIcon from "@mui/icons-material/Hotel";
 
-interface SecondDriverDialogStepProps {
-  state: AddDriverStep2;
-  actions: AddDriverPageActions;
-  step1Data: AddDriverStep1;
+interface SecondEditDriverDialogStepProps {
+  state: EditDriverStep2;
+  actions: EditDriverPageActions;
+  step1Data: EditDriverStep1;
+  driver: DriverWithRelations | null;
 }
 
-const SecondDriverDialogStep = ({
+const SecondEditDriverDialogStep = ({
   state,
   actions,
   step1Data,
-}: SecondDriverDialogStepProps) => {
+  driver,
+}: SecondEditDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
@@ -56,7 +58,6 @@ const SecondDriverDialogStep = ({
   /* --------------------------------- states --------------------------------- */
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [vehicles, setVehicles] = useState<any[]>([]);
-  const [users, setUsers] = useState<EligibleUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   /* ------------------------------- lifecycles ------------------------------- */
@@ -64,14 +65,12 @@ const SecondDriverDialogStep = ({
     const fetchData = async () => {
       if (!user) return;
       try {
-        const [wData, vData, uData] = await Promise.all([
+        const [wData, vData] = await Promise.all([
           getWarehouses(user.companyId, user.id),
           getVehicles({ status: ["AVAILABLE", "IDLE"] }),
-          getEligibleUsersForDriver(),
         ]);
         setWarehouses(wData);
         setVehicles(vData);
-        setUsers(uData);
       } catch (error) {
         console.error("Failed to fetch Step 2 data:", error);
       } finally {
@@ -104,8 +103,6 @@ const SecondDriverDialogStep = ({
       documents: state.documents.filter((doc) => doc.id !== id),
     });
   };
-
-  const selectedUser = users.find((u) => u.id === step1Data.userId);
 
   return (
     <Grid container spacing={3}>
@@ -146,6 +143,7 @@ const SecondDriverDialogStep = ({
                     actions.updateStep2({ homeWareHouseId: e.target.value })
                   }
                   select
+                  disabled // Editing driver warehouse assignment not currently supported in updateDriver api
                 >
                   {warehouses.map((w) => (
                     <MenuItem key={w.id} value={w.id}>
@@ -170,6 +168,7 @@ const SecondDriverDialogStep = ({
                     actions.updateStep2({ currentVehicleId: e.target.value })
                   }
                   select
+                  disabled // Editing vehicle assignment should be done via vehicle assignment actions
                 >
                   <MenuItem value="">No vehicle assigned (Floating)</MenuItem>
                   {vehicles.map((v) => (
@@ -177,6 +176,16 @@ const SecondDriverDialogStep = ({
                       {v.plate} ({v.brand} {v.model})
                     </MenuItem>
                   ))}
+                  {driver?.currentVehicle &&
+                    !vehicles.find(
+                      (v) => v.id === driver.currentVehicle?.id
+                    ) && (
+                      <MenuItem value={driver.currentVehicle.id}>
+                        {driver.currentVehicle.plate} (
+                        {driver.currentVehicle.brand}{" "}
+                        {driver.currentVehicle.model})
+                      </MenuItem>
+                    )}
                 </CustomTextArea>
               </Grid>
             </Grid>
@@ -205,7 +214,7 @@ const SecondDriverDialogStep = ({
               color="text.secondary"
               sx={{ mb: 1, display: "block", fontWeight: 500 }}
             >
-              Initial Operational Status
+              Operational Status
             </Typography>
 
             <Stack direction="row" spacing={2}>
@@ -216,6 +225,7 @@ const SecondDriverDialogStep = ({
                   icon: <PowerSettingsNewIcon />,
                 },
                 { id: "ON_JOB", label: "On Duty", icon: <FlashOnIcon /> },
+                { id: "ON_LEAVE", label: "On Leave", icon: <HotelIcon /> },
               ].map((status) => (
                 <Box
                   key={status.id}
@@ -236,7 +246,8 @@ const SecondDriverDialogStep = ({
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
-                    gap: 2,
+                    gap: 1.5,
+                    px: 1,
                     transition: "all 0.2s ease",
                     "&:hover": {
                       borderColor: theme.palette.primary.main,
@@ -266,27 +277,12 @@ const SecondDriverDialogStep = ({
               ))}
             </Stack>
 
-            <Box
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                bgcolor: alpha(theme.palette.primary.main, 0.05),
-                display: "flex",
-                gap: 2,
-              }}
+            <Stack
+              direction="row"
+              spacing={2}
+              alignItems="center"
+              sx={{ pt: 1 }}
             >
-              <InfoOutlinedIcon
-                fontSize="small"
-                sx={{ color: theme.palette.primary.main, mt: 0.3 }}
-              />
-              <Typography variant="caption" color="text.secondary">
-                By setting the status to <strong>Off Duty</strong>, the driver
-                will not receive new route assignments until they manually check
-                in via the mobile app.
-              </Typography>
-            </Box>
-
-            <Stack direction="row" spacing={2} alignItems="center">
               <Typography
                 variant="body2"
                 fontWeight={500}
@@ -314,7 +310,7 @@ const SecondDriverDialogStep = ({
               <CustomTextArea
                 name="languages"
                 placeholder="e.g. EN, ES"
-                value={state.languages.join(", ")}
+                value={state.languages ? state.languages.join(", ") : ""}
                 onChange={(e) =>
                   actions.updateStep2({
                     languages: e.target.value
@@ -479,15 +475,15 @@ const SecondDriverDialogStep = ({
                   fontWeight: 800,
                 }}
               >
-                {selectedUser
-                  ? `${selectedUser.name[0]}${selectedUser.surname[0]}`
+                {driver?.user
+                  ? `${driver.user.name[0]}${driver.user.surname[0]}`
                   : "??"}
               </Box>
               <Stack spacing={0.5}>
                 <Typography variant="body1" fontWeight={700} color="white">
-                  {selectedUser
-                    ? `${selectedUser.name} ${selectedUser.surname}`
-                    : "No user selected"}
+                  {driver?.user
+                    ? `${driver.user.name} ${driver.user.surname}`
+                    : "Unknown User"}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {step1Data.licenseType || "No license class set"}
@@ -522,7 +518,7 @@ const SecondDriverDialogStep = ({
                     Email
                   </Typography>
                   <Typography variant="body2" color="white" noWrap>
-                    {selectedUser?.email || "No email info"}
+                    {driver?.user?.email || "No email info"}
                   </Typography>
                 </Box>
               </Stack>
@@ -556,7 +552,7 @@ const SecondDriverDialogStep = ({
                   Language Proficiency
                 </Typography>
                 <Typography variant="caption" color="white" fontWeight={600}>
-                  {state.languages.length > 0
+                  {state.languages && state.languages.length > 0
                     ? state.languages.join(", ")
                     : "None"}
                 </Typography>
@@ -576,33 +572,6 @@ const SecondDriverDialogStep = ({
                 </Typography>
               </Stack>
             </Stack>
-
-            <Box
-              sx={{
-                mt: 2,
-                p: 2,
-                borderRadius: 2,
-                bgcolor: alpha(theme.palette.info.main, 0.05),
-                border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
-              }}
-            >
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ fontWeight: 600, display: "block", mb: 0.5 }}
-              >
-                Next Steps
-              </Typography>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ lineHeight: 1.4, display: "block" }}
-              >
-                Upon saving, {selectedUser?.name || "the driver"} will receive
-                an invitation email with login credentials for the FleetManager
-                Mobile app.
-              </Typography>
-            </Box>
           </Stack>
         </Card>
       </Grid>
@@ -610,4 +579,4 @@ const SecondDriverDialogStep = ({
   );
 };
 
-export default SecondDriverDialogStep;
+export default SecondEditDriverDialogStep;

@@ -361,7 +361,7 @@ export async function getMyCompanyUsersAction() {
 
     return users.map((u) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...safe } = u;
+      const { password: _, ...safe } = u;
       return safe;
     });
   } catch (error: unknown) {
@@ -371,3 +371,35 @@ export async function getMyCompanyUsersAction() {
     throw new Error(errorMsg);
   }
 }
+
+export const searchPlatformUsers = authenticatedAction(
+  async (requester, query: string) => {
+    if (!query || query.length < 2) {
+      return [];
+    }
+
+    try {
+      const users = await db.user.findMany({
+        where: {
+          OR: [
+            { name: { contains: query, mode: "insensitive" } },
+            { surname: { contains: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
+            { username: { contains: query, mode: "insensitive" } },
+          ],
+        },
+        take: 10,
+      });
+
+      return users.map((u) => ({
+        id: u.id,
+        name: `${u.name} ${u.surname}`.trim(),
+        email: u.email,
+        avatar: u.avatarUrl || null,
+      }));
+    } catch (error: unknown) {
+      console.error("Failed to search platform users:", error);
+      throw new Error("Failed to search users");
+    }
+  }
+);

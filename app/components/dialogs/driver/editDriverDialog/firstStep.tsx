@@ -3,13 +3,12 @@ import {
   Box,
   Divider,
   Grid,
-  MenuItem,
   Stack,
   Typography,
   useTheme,
+  IconButton,
 } from "@mui/material";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
-import UserIcon from "@mui/icons-material/Person";
 import BadgeIcon from "@mui/icons-material/Badge";
 import CategoryIcon from "@mui/icons-material/Category";
 import EventIcon from "@mui/icons-material/Event";
@@ -20,39 +19,21 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import PhoneIcon from "@mui/icons-material/Phone";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
-import { IconButton } from "@mui/material";
-import {
-  AddDriverPageActions,
-  AddDriverStep1,
-  EligibleUser,
-} from "@/app/lib/type/driver";
-import { useEffect, useState, useRef, ChangeEvent } from "react";
-import { getEligibleUsersForDriver } from "@/app/lib/controllers/driver";
+import { EditDriverPageActions, EditDriverStep1 } from "@/app/lib/type/driver";
+import { useRef, ChangeEvent } from "react";
 
-interface FirstDriverDialogStepProps {
-  state: AddDriverStep1;
-  actions: AddDriverPageActions;
+interface FirstEditDriverDialogStepProps {
+  state: EditDriverStep1;
+  actions: EditDriverPageActions;
 }
 
-const FirstDriverDialogStep = ({
+const FirstEditDriverDialogStep = ({
   state,
   actions,
-}: FirstDriverDialogStepProps) => {
+}: FirstEditDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  /* --------------------------------- states --------------------------------- */
-  const [users, setUsers] = useState<EligibleUser[]>([]);
-
-  /* ------------------------------- lifecycles ------------------------------- */
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await getEligibleUsersForDriver();
-      setUsers(response);
-    };
-    fetchUsers();
-  }, []);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -70,41 +51,6 @@ const FirstDriverDialogStep = ({
   return (
     <Box>
       <Stack spacing={3}>
-        <Stack spacing={1}>
-          <Stack direction={"row"} spacing={1} alignItems="center">
-            <UserIcon fontSize="small" sx={{ color: "text.secondary" }} />
-            <Typography variant="body2" fontWeight={500} color="text.secondary">
-              Select Company Member
-            </Typography>
-          </Stack>
-          <CustomTextArea
-            name="userId"
-            placeholder={
-              users.length === 0 ? "No users found" : "Select Company Member"
-            }
-            value={state.userId}
-            onChange={(e) => actions.updateStep1({ userId: e.target.value })}
-            select={users.length > 0}
-            disabled={users.length === 0}
-          >
-            {users.map((user) => (
-              <MenuItem key={user.id} value={user.id}>
-                {user.name} {user.surname} ({user.email})
-              </MenuItem>
-            ))}
-          </CustomTextArea>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ opacity: 0.7 }}
-          >
-            Only users currently in your organization who aren&apos;t already
-            drivers appear here
-          </Typography>
-        </Stack>
-
-        <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1) }} />
-
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1.5}>
@@ -317,7 +263,7 @@ const FirstDriverDialogStep = ({
                   <CloudUploadIcon color="primary" />
                 </Box>
                 <Typography variant="body2" fontWeight={600} color="white">
-                  Click to upload or drag and drop
+                  Click to upload new license scan or drag and drop
                 </Typography>
                 <Typography
                   variant="caption"
@@ -390,8 +336,8 @@ const FirstDriverDialogStep = ({
             color="text.secondary"
             sx={{ lineHeight: 1.5 }}
           >
-            Please ensure all text and the driver&apos;s photo are clearly
-            visible. Compliance checks are automated.
+            Please ensure all text and the driver's photo are clearly visible.
+            Compliance checks are automated.
           </Typography>
         </Stack>
       </Stack>
@@ -399,4 +345,4 @@ const FirstDriverDialogStep = ({
   );
 };
 
-export default FirstDriverDialogStep;
+export default FirstEditDriverDialogStep;

@@ -12,6 +12,7 @@ import {
   TableHead,
   TableRow,
   IconButton,
+  alpha,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
@@ -121,6 +122,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
+                bgcolor: alpha("#1A202C", 0.5),
+                backgroundImage: "none",
+                boxShadow: "none",
+                border: `1px solid ${alpha("#ffffff", 0.05)}`,
               }}
             >
               <Box
@@ -132,12 +137,17 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  color: "white",
                 }}
               >
                 <CheckCircleIcon sx={{ width: 18, height: 19 }} />
               </Box>
-              <Typography sx={{ fontSize: 22 }}>Active</Typography>
-              <Typography sx={{ fontSize: 18, marginTop: "auto" }}>
+              <Typography sx={{ fontSize: 22, color: "text.secondary" }}>
+                Active
+              </Typography>
+              <Typography
+                sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
+              >
                 {activeCount}
               </Typography>
             </Card>
@@ -147,6 +157,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
+                bgcolor: alpha("#1A202C", 0.5),
+                backgroundImage: "none",
+                boxShadow: "none",
+                border: `1px solid ${alpha("#ffffff", 0.05)}`,
               }}
             >
               <Box
@@ -158,12 +172,17 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  color: "white",
                 }}
               >
                 <QueryBuilderIcon sx={{ width: 18, height: 19 }} />
               </Box>
-              <Typography sx={{ fontSize: 22 }}>Expiring Soon</Typography>
-              <Typography sx={{ fontSize: 18, marginTop: "auto" }}>
+              <Typography sx={{ fontSize: 22, color: "text.secondary" }}>
+                Expiring
+              </Typography>
+              <Typography
+                sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
+              >
                 {expiringSoonCount}
               </Typography>
             </Card>
@@ -175,6 +194,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
+                bgcolor: alpha("#1A202C", 0.5),
+                backgroundImage: "none",
+                boxShadow: "none",
+                border: `1px solid ${alpha("#ffffff", 0.05)}`,
               }}
             >
               <Box
@@ -186,12 +209,17 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  color: "white",
                 }}
               >
                 <WarningIcon sx={{ width: 18, height: 19 }} />
               </Box>
-              <Typography sx={{ fontSize: 22 }}>Missing / Expired</Typography>
-              <Typography sx={{ fontSize: 18, marginTop: "auto" }}>
+              <Typography sx={{ fontSize: 22, color: "text.secondary" }}>
+                Missing
+              </Typography>
+              <Typography
+                sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
+              >
                 {missingOrExpiredCount}
               </Typography>
             </Card>
@@ -201,6 +229,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
+                bgcolor: alpha("#1A202C", 0.5),
+                backgroundImage: "none",
+                boxShadow: "none",
+                border: `1px solid ${alpha("#ffffff", 0.05)}`,
               }}
             >
               <Box
@@ -212,12 +244,17 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  color: "white",
                 }}
               >
                 <FileUploadIcon sx={{ width: 18, height: 19 }} />
               </Box>
-              <Typography sx={{ fontSize: 22 }}>Last Upload</Typography>
-              <Typography sx={{ fontSize: 18, marginTop: "auto" }}>
+              <Typography sx={{ fontSize: 22, color: "text.secondary" }}>
+                Upload
+              </Typography>
+              <Typography
+                sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
+              >
                 {lastUploadDate.getTime() > 0
                   ? lastUploadDate.toLocaleDateString()
                   : "N/A"}
@@ -226,7 +263,12 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
           </Stack>
           <Button
             variant="contained"
-            sx={{ borderRadius: "8px" }}
+            sx={{
+              borderRadius: "8px",
+              bgcolor: "#246BFD",
+              textTransform: "none",
+              "&:hover": { bgcolor: alpha("#246BFD", 0.9) },
+            }}
             onClick={() => setUploadDialogOpen(true)}
             startIcon={<FileUploadIcon />}
           >
@@ -234,21 +276,64 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
           </Button>
         </Stack>
         <Stack sx={{ flexGrow: 2 }}>
-          <Card sx={{ p: 2, borderRadius: "8px", gap: 2 }}>
+          <Card
+            sx={{
+              p: 2,
+              borderRadius: "8px",
+              gap: 2,
+              bgcolor: alpha("#1A202C", 0.5),
+              backgroundImage: "none",
+              boxShadow: "none",
+              border: `1px solid ${alpha("#ffffff", 0.05)}`,
+            }}
+          >
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Document Type</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Expiry Date</TableCell>
-                  <TableCell align="center">Actions</TableCell>
+                  <TableCell
+                    sx={{
+                      color: "text.secondary",
+                      borderBottomColor: alpha("#ffffff", 0.05),
+                    }}
+                  >
+                    Document Type
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "text.secondary",
+                      borderBottomColor: alpha("#ffffff", 0.05),
+                    }}
+                  >
+                    Status
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "text.secondary",
+                      borderBottomColor: alpha("#ffffff", 0.05),
+                    }}
+                  >
+                    Expiry Date
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: "text.secondary",
+                      borderBottomColor: alpha("#ffffff", 0.05),
+                    }}
+                  >
+                    Actions
+                  </TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
                 {vehicle.documents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} align="center">
+                    <TableCell
+                      colSpan={4}
+                      align="center"
+                      sx={{ borderBottom: "none" }}
+                    >
                       <Typography variant="body2" color="text.secondary">
                         No documents found
                       </Typography>
@@ -259,12 +344,23 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                     <TableRow
                       key={index}
                       hover
-                      sx={{ cursor: "pointer" }}
+                      sx={{
+                        cursor: "pointer",
+                        "&:hover": { bgcolor: alpha("#ffffff", 0.02) },
+                      }}
                       onClick={() => handleViewDoc(v.url, v.name)}
                     >
-                      <TableCell>
+                      <TableCell
+                        sx={{ borderBottomColor: alpha("#ffffff", 0.05) }}
+                      >
                         <Stack>
-                          <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
+                          <Typography
+                            sx={{
+                              fontSize: 14,
+                              fontWeight: 500,
+                              color: "white",
+                            }}
+                          >
                             {v.type}
                           </Typography>
                           <Typography
@@ -277,15 +373,25 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                           </Typography>
                         </Stack>
                       </TableCell>
-                      <TableCell>
+                      <TableCell
+                        sx={{ borderBottomColor: alpha("#ffffff", 0.05) }}
+                      >
                         <StatusChip status={v.status} />
                       </TableCell>
-                      <TableCell>
+                      <TableCell
+                        sx={{
+                          color: "white",
+                          borderBottomColor: alpha("#ffffff", 0.05),
+                        }}
+                      >
                         {v.expiryDate
                           ? new Date(v.expiryDate).toLocaleDateString()
                           : "N/A"}
                       </TableCell>
-                      <TableCell align="center">
+                      <TableCell
+                        align="center"
+                        sx={{ borderBottomColor: alpha("#ffffff", 0.05) }}
+                      >
                         <Stack
                           direction="row"
                           spacing={1}

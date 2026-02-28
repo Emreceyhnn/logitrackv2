@@ -143,6 +143,8 @@ model Driver {
   safetyScore     Int?
   efficiencyScore Int?
   rating          Float?
+  hazmatCertified Boolean   @default(false)
+  languages       String[]
 
   // Relations
   currentVehicleId String?  @unique

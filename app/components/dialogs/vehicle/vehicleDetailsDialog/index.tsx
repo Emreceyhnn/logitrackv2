@@ -134,7 +134,10 @@ const VehicleDialog = (params: VehicleDialogParams) => {
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: 4,
+          bgcolor: "#0B1019",
+          backgroundImage: "none",
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           overflow: "hidden",
         },
       }}
@@ -142,8 +145,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
       <Box
         sx={{
           p: 3,
-          background: `linear-gradient(135deg, ${alpha(statusColor, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
-          borderBottom: `1px solid ${theme.palette.divider}`,
+          bgcolor: "#0B1019",
+          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
         }}
       >
         <Stack
@@ -173,7 +176,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                 <Typography
                   variant="h4"
                   fontWeight={700}
-                  sx={{ color: theme.palette.text.primary }}
+                  sx={{ color: "white" }}
                 >
                   {vehicleData?.plate}
                 </Typography>
@@ -224,10 +227,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
               onClick={onClose}
               size="small"
               sx={{
-                bgcolor: alpha(theme.palette.text.secondary, 0.1),
-                "&:hover": {
-                  bgcolor: alpha(theme.palette.text.secondary, 0.2),
-                },
+                color: "text.secondary",
               }}
             >
               <CloseIcon fontSize="small" />
@@ -238,7 +238,12 @@ const VehicleDialog = (params: VehicleDialogParams) => {
 
       <DialogContent sx={{ p: 0 }}>
         <Stack>
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Box
+            sx={{
+              borderBottom: 1,
+              borderColor: alpha(theme.palette.divider, 0.1),
+            }}
+          >
             <Tabs
               value={value}
               onChange={handleChange}
@@ -263,8 +268,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
         <Box
           sx={{
             p: 3,
-            borderTop: `1px solid ${theme.palette.divider}`,
-            bgcolor: alpha(theme.palette.error.main, 0.02),
+            borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            bgcolor: alpha(theme.palette.error.main, 0.05),
           }}
         >
           <Stack

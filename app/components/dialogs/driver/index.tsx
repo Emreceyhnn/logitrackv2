@@ -94,16 +94,22 @@ const DriverDialog = (params: DriverDialogParams) => {
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: 4,
+          bgcolor: "#0B1019",
+          backgroundImage: "none",
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           overflow: "hidden",
         },
       }}
     >
       <Box
         sx={{
-          p: 3,
-          background: `linear-gradient(135deg, ${alpha(statusColor, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
-          borderBottom: `1px solid ${theme.palette.divider}`,
+          p: 4,
+          background: `linear-gradient(135deg, ${alpha(
+            statusColor,
+            0.15
+          )} 0%, ${alpha(theme.palette.background.paper, 0)} 100%)`,
+          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
         }}
       >
         <Stack
@@ -118,21 +124,23 @@ const DriverDialog = (params: DriverDialogParams) => {
               sx={{
                 bgcolor: alpha(statusColor, 0.1),
                 color: statusColor,
-                width: 72,
-                height: 72,
-                fontSize: "2rem",
+                width: 80,
+                height: 80,
+                fontSize: "2.5rem",
                 fontWeight: 800,
-                borderRadius: 2,
+                borderRadius: 3,
+                boxShadow: `0 8px 24px ${alpha(statusColor, 0.2)}`,
+                border: `1px solid ${alpha(statusColor, 0.2)}`,
               }}
             >
               {driverData.user.name?.charAt(0)}
             </Avatar>
-            <Stack spacing={0.5}>
-              <Stack direction="row" spacing={1} alignItems="center">
+            <Stack spacing={1}>
+              <Stack direction="row" spacing={1.5} alignItems="center">
                 <Typography
                   variant="h4"
-                  fontWeight={700}
-                  sx={{ color: theme.palette.text.primary }}
+                  fontWeight={800}
+                  sx={{ color: "white" }}
                 >
                   {driverData.user.name} {driverData.user.surname}
                 </Typography>
@@ -141,10 +149,10 @@ const DriverDialog = (params: DriverDialogParams) => {
                   size="small"
                   sx={{
                     height: 24,
-                    fontWeight: 600,
+                    fontWeight: 700,
                     bgcolor: alpha(statusColor, 0.1),
                     color: statusMeta.color,
-                    ml: 1,
+                    border: `1px solid ${alpha(statusColor, 0.2)}`,
                   }}
                 />
               </Stack>
@@ -246,24 +254,55 @@ const DriverDialog = (params: DriverDialogParams) => {
         </Stack>
       </Box>
 
-      <DialogContent sx={{ p: 0 }}>
+      <DialogContent sx={{ p: 0, bgcolor: "#0B1019" }}>
         <Stack>
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Box
+            sx={{
+              px: 4,
+              pt: 2,
+              borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+              bgcolor: alpha(theme.palette.background.paper, 0.2),
+            }}
+          >
             <Tabs
               value={value}
               onChange={handleChange}
-              aria-label="basic tabs example"
+              aria-label="driver details tabs"
+              TabIndicatorProps={{
+                sx: {
+                  height: 3,
+                  borderTopLeftRadius: 3,
+                  borderTopRightRadius: 3,
+                  bgcolor: theme.palette.primary.main,
+                },
+              }}
+              sx={{
+                minHeight: 48,
+                "& .MuiTab-root": {
+                  color: "text.secondary",
+                  fontWeight: 600,
+                  fontSize: 14,
+                  textTransform: "none",
+                  minHeight: 48,
+                  px: 3,
+                  "&.Mui-selected": {
+                    color: "white",
+                  },
+                },
+              }}
             >
               <Tab label="Overview" {...a11yProps(0)} />
               <Tab label="Documents" {...a11yProps(1)} />
             </Tabs>
           </Box>
-          <CustomTabPanel value={value} index={0}>
-            <OverviewTab driver={driverData} />
-          </CustomTabPanel>
-          <CustomTabPanel value={value} index={1}>
-            <DocumentsTab driver={driverData} />
-          </CustomTabPanel>
+          <Box sx={{ p: 4, minHeight: 400 }}>
+            <CustomTabPanel value={value} index={0}>
+              <OverviewTab driver={driverData} />
+            </CustomTabPanel>
+            <CustomTabPanel value={value} index={1}>
+              <DocumentsTab driver={driverData} />
+            </CustomTabPanel>
+          </Box>
         </Stack>
       </DialogContent>
     </Dialog>

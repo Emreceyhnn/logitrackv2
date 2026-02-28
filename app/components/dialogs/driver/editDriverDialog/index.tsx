@@ -16,33 +16,32 @@ import {
   useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  AddDriverDialogProps,
-  AddDriverPageActions,
-  AddDriverPageState,
-  AddDriverStep1,
-  AddDriverStep2,
+  EditDriverDialogProps,
+  EditDriverPageActions,
+  EditDriverPageState,
+  EditDriverStep1,
+  EditDriverStep2,
 } from "@/app/lib/type/driver";
 import { toast } from "sonner";
-import { createDriver } from "@/app/lib/controllers/driver";
+import { updateDriver } from "@/app/lib/controllers/driver";
 import { uploadImageAction } from "@/app/lib/actions/upload";
-import FirstDriverDialogStep from "./firstStep";
-import SecondDriverDialogStep from "./secondStep";
+import FirstEditDriverDialogStep from "./firstStep";
+import SecondEditDriverDialogStep from "./secondStep";
 
-const initialStep1: AddDriverStep1 = {
-  userId: "",
+const initialStep1: EditDriverStep1 = {
   phone: "",
-  employeeId: "",
   licenseNo: "",
   licenseExpiry: null,
   licenseType: "",
   licenseIssueDate: null,
   licenseRegion: "",
   licencePhoto: null,
+  employeeId: "",
 };
 
-const initialStep2: AddDriverStep2 = {
+const initialStep2: EditDriverStep2 = {
   homeWareHouseId: "",
   currentVehicleId: "",
   status: "OFF_DUTY",
@@ -51,16 +50,17 @@ const initialStep2: AddDriverStep2 = {
   documents: [],
 };
 
-const AddDriverDialog = ({
+const EditDriverDialog = ({
   open,
   onClose,
   onSuccess,
-}: AddDriverDialogProps) => {
+  driver,
+}: EditDriverDialogProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
   /* --------------------------------- states --------------------------------- */
-  const [state, setState] = useState<AddDriverPageState>({
+  const [state, setState] = useState<EditDriverPageState>({
     currentStep: 1,
     data: {
       step1: initialStep1,
@@ -71,8 +71,39 @@ const AddDriverDialog = ({
     isSuccess: false,
   });
 
+  /* -------------------------------- lifecycle ------------------------------- */
+  useEffect(() => {
+    if (driver && open) {
+      setState((prev) => ({
+        ...prev,
+        data: {
+          step1: {
+            phone: driver.phone || "",
+            employeeId: driver.employeeId || "",
+            licenseNo: driver.licenseNumber || "",
+            licenseType: driver.licenseType || "",
+            licenseExpiry: driver.licenseExpiry
+              ? new Date(driver.licenseExpiry)
+              : null,
+            licenseIssueDate: null,
+            licenseRegion: "",
+            licencePhoto: null,
+          },
+          step2: {
+            homeWareHouseId: (driver as any).homeBaseWarehouseId || "",
+            currentVehicleId: driver.currentVehicle?.id || "",
+            status: driver.status,
+            languages: (driver as any).languages || [],
+            hazmatCertified: (driver as any).hazmatCertified || false,
+            documents: [], // existing docs could be loaded here but update API mostly appends currently
+          },
+        },
+      }));
+    }
+  }, [driver, open]);
+
   /* -------------------------------- actions --------------------------------- */
-  const actions: AddDriverPageActions = useMemo(
+  const actions: EditDriverPageActions = useMemo(
     () => ({
       updateStep1: (data) => {
         setState((prev) => ({
@@ -97,6 +128,8 @@ const AddDriverDialog = ({
         setState((prev) => ({ ...prev, currentStep: prev.currentStep - 1 }));
       },
       handleSubmit: async () => {
+        if (!driver) return;
+
         try {
           setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
@@ -117,7 +150,7 @@ const AddDriverDialog = ({
             const base64 = await fileToBase64(step1.licencePhoto);
             const uploadResult = await uploadImageAction(
               base64,
-              `drivers/${step1.userId}/license`
+              `drivers/${driver.user.id}/license`
             );
             licensePhotoUrl = uploadResult.url;
           }
@@ -129,7 +162,7 @@ const AddDriverDialog = ({
                 const base64 = await fileToBase64(doc.file);
                 const uploadResult = await uploadImageAction(
                   base64,
-                  `drivers/${step1.userId}/docs`
+                  `drivers/${driver.user.id}/docs`
                 );
                 return {
                   name: doc.name,
@@ -143,7 +176,6 @@ const AddDriverDialog = ({
           );
 
           const payload = {
-            userId: step1.userId,
             phone: step1.phone,
             employeeId: step1.employeeId,
             licenseNumber: step1.licenseNo,
@@ -154,14 +186,16 @@ const AddDriverDialog = ({
             homeBaseWarehouseId: step2.homeWareHouseId || null,
             languages: step2.languages,
             hazmatCertified: step2.hazmatCertified,
-            licensePhotoUrl,
-            documents: uploadedDocs.filter((d) => d !== null) as any[],
+            ...(licensePhotoUrl && { licensePhotoUrl }),
+            ...(uploadedDocs.length > 0 && {
+              documents: uploadedDocs.filter((d) => d !== null) as any[],
+            }),
           };
 
-          await createDriver(payload);
+          await updateDriver(driver.id, payload);
 
           setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
-          toast.success("Driver added successfully");
+          toast.success("Driver updated successfully");
 
           setTimeout(() => {
             onClose();
@@ -172,9 +206,9 @@ const AddDriverDialog = ({
           setState((prev) => ({
             ...prev,
             isLoading: false,
-            error: err.message || "Failed to create driver",
+            error: err.message || "Failed to update driver",
           }));
-          toast.error(err.message || "Failed to create driver");
+          toast.error(err.message || "Failed to update driver");
         }
       },
 
@@ -196,10 +230,12 @@ const AddDriverDialog = ({
         });
       },
     }),
-    [state.data, state.isLoading, onClose, onSuccess]
+    [state.data, state.isLoading, onClose, onSuccess, driver]
   );
 
   const steps = ["DRIVER CREDENTIALS", "ASSIGNMENT & SETTINGS"];
+
+  if (!driver) return null;
 
   return (
     <Dialog
@@ -224,10 +260,10 @@ const AddDriverDialog = ({
         >
           <Stack spacing={0.5}>
             <Typography variant="h6" fontWeight={600} color="white">
-              Add New Driver
+              Edit Driver: {driver.user.name} {driver.user.surname}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Onboard a new operator to your fleet management system
+              Update operator details and settings
             </Typography>
           </Stack>
           <IconButton
@@ -281,13 +317,17 @@ const AddDriverDialog = ({
 
         <Box sx={{ minHeight: 400 }}>
           {state.currentStep === 1 && (
-            <FirstDriverDialogStep state={state.data.step1} actions={actions} />
+            <FirstEditDriverDialogStep
+              state={state.data.step1}
+              actions={actions}
+            />
           )}
           {state.currentStep === 2 && (
-            <SecondDriverDialogStep
+            <SecondEditDriverDialogStep
               state={state.data.step2}
               actions={actions}
               step1Data={state.data.step1}
+              driver={driver}
             />
           )}
         </Box>
@@ -308,13 +348,7 @@ const AddDriverDialog = ({
           onClick={
             state.currentStep === 1 ? actions.nextStep : actions.handleSubmit
           }
-          disabled={
-            state.isLoading ||
-            (state.currentStep === 1 &&
-              (!state.data.step1.userId ||
-                !state.data.step1.employeeId ||
-                !state.data.step1.phone))
-          }
+          disabled={state.isLoading}
           startIcon={
             state.isLoading && <CircularProgress size={16} color="inherit" />
           }
@@ -329,11 +363,11 @@ const AddDriverDialog = ({
             ? "Saving..."
             : state.currentStep === 1
               ? "Next: Assignment"
-              : "Complete Onboarding"}
+              : "Save Changes"}
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default AddDriverDialog;
+export default EditDriverDialog;

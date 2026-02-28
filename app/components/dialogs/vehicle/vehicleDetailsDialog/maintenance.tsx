@@ -11,6 +11,7 @@ import {
   TableRow,
   Divider,
   CardActionArea,
+  alpha,
 } from "@mui/material";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import BuildIcon from "@mui/icons-material/Build";
@@ -59,7 +60,6 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
       <Stack spacing={2} direction={"row"} justifyContent={"space-between"}>
         <Card
           sx={{
-            boxShadow: 3,
             p: 2,
             flex: 1,
             gap: 1,
@@ -67,6 +67,10 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             flexDirection: "column",
             borderRadius: "8px",
             justifyContent: "space-evenly",
+            bgcolor: alpha("#1A202C", 0.5),
+            backgroundImage: "none",
+            boxShadow: "none",
+            border: `1px solid ${alpha("#ffffff", 0.05)}`,
           }}
         >
           <Stack
@@ -74,12 +78,14 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <Typography sx={{ fontSize: 16, fontWeight: 300 }}>
+            <Typography
+              sx={{ fontSize: 16, fontWeight: 300, color: "text.secondary" }}
+            >
               Next Service
             </Typography>
             <BuildIcon sx={{ fontSize: 18, color: "text.secondary" }} />
           </Stack>
-          <Typography sx={{ fontSize: 24, fontWeight: 800 }}>
+          <Typography sx={{ fontSize: 24, fontWeight: 800, color: "white" }}>
             {vehicle.nextServiceKm && vehicle.odometerKm
               ? `${(vehicle.nextServiceKm - vehicle.odometerKm).toLocaleString()} km`
               : "N/A"}
@@ -107,18 +113,34 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             </Typography>
           </Stack>
         </Card>
-        <Card sx={{ boxShadow: 3, p: 2, flex: 2, borderRadius: "8px" }}>
+        <Card
+          sx={{
+            p: 2,
+            flex: 2,
+            borderRadius: "8px",
+            bgcolor: alpha("#1A202C", 0.5),
+            backgroundImage: "none",
+            boxShadow: "none",
+            border: `1px solid ${alpha("#ffffff", 0.05)}`,
+          }}
+        >
           <Stack
             direction={"row"}
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 600, color: "white" }}>
               Open Issues
             </Typography>
             <Button
               variant="contained"
-              sx={{ color: "#fff", boxShadow: 3 }}
+              sx={{
+                color: "#fff",
+                boxShadow: "none",
+                bgcolor: "#246BFD",
+                textTransform: "none",
+                "&:hover": { bgcolor: alpha("#246BFD", 0.9) },
+              }}
               onClick={() => setReportDialogOpen(true)}
             >
               + Report Issue
@@ -135,13 +157,18 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                   key={index}
                   sx={{
                     borderRadius: "8px",
-                    bgcolor: "background.dashboardBg",
+                    bgcolor: alpha("#ffffff", 0.03),
                     overflow: "hidden",
+                    backgroundImage: "none",
+                    boxShadow: "none",
                   }}
                 >
                   <CardActionArea
                     onClick={() => handleIssueClick(i)}
-                    sx={{ p: 2 }}
+                    sx={{
+                      p: 2,
+                      "&:hover": { bgcolor: alpha("#ffffff", 0.05) },
+                    }}
                   >
                     <Stack direction="row" alignItems="center" gap={2}>
                       <Box
@@ -153,7 +180,9 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                         }}
                       />
                       <Stack flexGrow={1}>
-                        <Typography sx={{ fontSize: 16, fontWeight: 400 }}>
+                        <Typography
+                          sx={{ fontSize: 16, fontWeight: 400, color: "white" }}
+                        >
                           {i.title}
                         </Typography>
                         <Typography
@@ -177,14 +206,24 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
         </Card>
       </Stack>
       <Stack>
-        <Card sx={{ boxShadow: 3, p: 2, flex: 1, borderRadius: "8px" }}>
+        <Card
+          sx={{
+            p: 2,
+            flex: 1,
+            borderRadius: "8px",
+            bgcolor: alpha("#1A202C", 0.5),
+            backgroundImage: "none",
+            boxShadow: "none",
+            border: `1px solid ${alpha("#ffffff", 0.05)}`,
+          }}
+        >
           <Stack
             direction="row"
             justifyContent="space-between"
             alignItems="center"
             mb={2}
           >
-            <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 600, color: "white" }}>
               Recent Maintenance
             </Typography>
             <Button
@@ -192,6 +231,15 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
               size="small"
               startIcon={<AddIcon />}
               onClick={() => setMaintenanceDialogOpen(true)}
+              sx={{
+                color: "white",
+                borderColor: alpha("#ffffff", 0.1),
+                textTransform: "none",
+                "&:hover": {
+                  borderColor: alpha("#ffffff", 0.3),
+                  bgcolor: alpha("#ffffff", 0.05),
+                },
+              }}
             >
               Add Record
             </Button>
@@ -199,11 +247,51 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell align="left">DATE</TableCell>
-                <TableCell align="left">SERVICE TYPE</TableCell>
-                <TableCell align="left">TECHNICIAN</TableCell>
-                <TableCell align="left">COST</TableCell>
-                <TableCell align="left">STATUS</TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    color: "text.secondary",
+                    borderBottomColor: alpha("#ffffff", 0.05),
+                  }}
+                >
+                  DATE
+                </TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    color: "text.secondary",
+                    borderBottomColor: alpha("#ffffff", 0.05),
+                  }}
+                >
+                  SERVICE TYPE
+                </TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    color: "text.secondary",
+                    borderBottomColor: alpha("#ffffff", 0.05),
+                  }}
+                >
+                  TECHNICIAN
+                </TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    color: "text.secondary",
+                    borderBottomColor: alpha("#ffffff", 0.05),
+                  }}
+                >
+                  COST
+                </TableCell>
+                <TableCell
+                  align="left"
+                  sx={{
+                    color: "text.secondary",
+                    borderBottomColor: alpha("#ffffff", 0.05),
+                  }}
+                >
+                  STATUS
+                </TableCell>
               </TableRow>
             </TableHead>
 
@@ -218,8 +306,17 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                 </TableRow>
               ) : (
                 maintenanceHistory.map((v, index) => (
-                  <TableRow key={index}>
-                    <TableCell align="left">
+                  <TableRow
+                    key={index}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell
+                      align="left"
+                      sx={{
+                        color: "white",
+                        borderBottomColor: alpha("#ffffff", 0.05),
+                      }}
+                    >
                       <Typography sx={{ fontSize: 12 }}>
                         {new Date(v.date).toLocaleDateString("en-US", {
                           month: "short",
@@ -228,14 +325,35 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                         })}
                       </Typography>
                     </TableCell>
-                    <TableCell align="left">
+                    <TableCell
+                      align="left"
+                      sx={{
+                        color: "white",
+                        borderBottomColor: alpha("#ffffff", 0.05),
+                      }}
+                    >
                       <Typography sx={{ fontSize: 12 }}>{v.type}</Typography>
                     </TableCell>
-                    <TableCell align="left">
+                    <TableCell
+                      align="left"
+                      sx={{
+                        color: "white",
+                        borderBottomColor: alpha("#ffffff", 0.05),
+                      }}
+                    >
                       {v.description?.split(":")[1] || "N/A"}
                     </TableCell>
-                    <TableCell align="left">{`$${v.cost}`}</TableCell>
-                    <TableCell align="left">
+                    <TableCell
+                      align="left"
+                      sx={{
+                        color: "white",
+                        borderBottomColor: alpha("#ffffff", 0.05),
+                      }}
+                    >{`$${v.cost}`}</TableCell>
+                    <TableCell
+                      align="left"
+                      sx={{ borderBottomColor: alpha("#ffffff", 0.05) }}
+                    >
                       <Box
                         sx={{
                           padding: "6px 1px",
