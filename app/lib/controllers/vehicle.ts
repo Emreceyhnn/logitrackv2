@@ -61,10 +61,10 @@ export const createVehicle = authenticatedAction(
   }
 );
 
-import { VehicleFilters } from "../type/vehicle";
+import { VehicleFilters, VehicleWithRelations } from "../type/vehicle";
 
 export const getVehicles = authenticatedAction(
-  async (user, filters?: VehicleFilters) => {
+  async (user, filters?: VehicleFilters): Promise<VehicleWithRelations[]> => {
     try {
       await checkPermission(user.id, user.companyId);
 
@@ -106,23 +106,7 @@ export const getVehicles = authenticatedAction(
 
       const vehicles = await db.vehicle.findMany({
         where: whereClause,
-        select: {
-          id: true,
-          fleetNo: true,
-          plate: true,
-          brand: true,
-          model: true,
-          year: true,
-          type: true,
-          maxLoadKg: true,
-          fuelType: true,
-          nextServiceKm: true,
-          avgFuelConsumption: true,
-          status: true,
-          odometerKm: true,
-          fuelLevel: true,
-          currentLat: true,
-          currentLng: true,
+        include: {
           driver: {
             select: {
               id: true,
@@ -136,12 +120,10 @@ export const getVehicles = authenticatedAction(
           documents: true,
           maintenanceRecords: true,
           routes: true,
-          createdAt: true,
-          updatedAt: true,
         },
         orderBy: { createdAt: "desc" },
       });
-      return vehicles;
+      return vehicles as unknown as VehicleWithRelations[];
     } catch (error) {
       console.error("Failed to get vehicles:", error);
       throw error;
