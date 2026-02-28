@@ -19,9 +19,37 @@ export const createVehicle = authenticatedAction(
         "role_dispatcher",
       ]);
 
+      const {
+        year,
+        odometerKm,
+        maxLoadKg,
+        fuelLevel,
+        avgFuelConsumption,
+        nextServiceKm,
+        registrationExpiry,
+        inspectionExpiry,
+        ...rest
+      } = vehicleData;
+
       const vehicle = await db.vehicle.create({
         data: {
-          ...vehicleData,
+          ...rest,
+          year: year ? parseInt(year.toString()) : undefined,
+          odometerKm: odometerKm ? parseInt(odometerKm.toString()) : undefined,
+          maxLoadKg: maxLoadKg ? parseInt(maxLoadKg.toString()) : undefined,
+          fuelLevel: fuelLevel ? parseInt(fuelLevel.toString()) : undefined,
+          avgFuelConsumption: avgFuelConsumption
+            ? parseFloat(avgFuelConsumption.toString())
+            : undefined,
+          nextServiceKm: nextServiceKm
+            ? parseInt(nextServiceKm.toString())
+            : undefined,
+          registrationExpiry: registrationExpiry
+            ? new Date(registrationExpiry)
+            : undefined,
+          inspectionExpiry: inspectionExpiry
+            ? new Date(inspectionExpiry)
+            : undefined,
           company: { connect: { id: user.companyId as string } },
         },
       });
@@ -440,11 +468,6 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
         },
 
         documents: {
-          where: {
-            expiryDate: {
-              lt: new Date(),
-            },
-          },
           select: {
             type: true,
             expiryDate: true,

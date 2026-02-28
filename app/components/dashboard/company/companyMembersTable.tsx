@@ -3,6 +3,7 @@
 import {
   Avatar,
   Box,
+  Button,
   Card,
   Chip,
   Skeleton,
@@ -17,6 +18,8 @@ import {
 } from "@mui/material";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import { CompanyMember } from "@/app/lib/type/company";
+import AddCompanyMemberDialog from "../../dialogs/company/AddCompanyMemberDialog";
+import { useState } from "react";
 
 interface CompanyMembersTableProps {
   members: CompanyMember[];
@@ -47,16 +50,39 @@ export default function CompanyMembersTable({
   members,
   loading,
 }: CompanyMembersTableProps) {
+  const [dialog, setDialogOpen] = useState(false);
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
   return (
     <Card variant="outlined" sx={{ borderRadius: 3 }}>
-      <Box px={3} pt={2.5} pb={1.5}>
-        <Typography fontWeight={700} fontSize={16}>
-          Team Members
-        </Typography>
-        <Typography fontSize={13} color="text.secondary">
-          All users belonging to this company
-        </Typography>
-      </Box>
+      <Stack
+        px={3}
+        pt={2.5}
+        pb={1.5}
+        direction={"row"}
+        justifyContent={"space-between"}
+      >
+        <Stack>
+          <Typography fontWeight={700} fontSize={16}>
+            Team Members
+          </Typography>
+          <Typography fontSize={13} color="text.secondary">
+            All users belonging to this company
+          </Typography>
+        </Stack>
+        <Button
+          variant="contained"
+          sx={{ borderRadius: "8px" }}
+          onClick={() => {
+            setDialogOpen(true);
+          }}
+        >
+          Add Member
+        </Button>
+      </Stack>
 
       <TableContainer>
         <Table size="small">
@@ -166,6 +192,7 @@ export default function CompanyMembersTable({
           </TableBody>
         </Table>
       </TableContainer>
+      <AddCompanyMemberDialog open={dialog} onClose={handleDialogClose} />
     </Card>
   );
 }

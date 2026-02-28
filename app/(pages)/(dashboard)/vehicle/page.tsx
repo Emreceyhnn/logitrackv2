@@ -60,6 +60,7 @@ export default function VehiclePage() {
     fetchDashboardData: useCallback(async () => {
       try {
         const dashboardData = await getVehiclesDashboardData();
+        console.log(dashboardData);
         setState((prev) => ({ ...prev, dashboardData }));
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);

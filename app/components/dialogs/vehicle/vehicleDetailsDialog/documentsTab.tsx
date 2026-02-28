@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Box,
   Button,
@@ -16,10 +18,16 @@ import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
 import WarningIcon from "@mui/icons-material/Warning";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import DownloadIcon from "@mui/icons-material/Download";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { toast } from "sonner";
+import { getSignedUrlAction } from "@/app/lib/actions/upload";
 import { StatusChip } from "../../../chips/statusChips";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useState } from "react";
 import UploadDocumentDialog from "../uploadDocumentDialog";
+import DocumentViewerDialog from "./DocumentViewerDialog";
+import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
 
 interface DocumentsTabProps {
   vehicle?: VehicleWithRelations;
@@ -29,6 +37,12 @@ interface DocumentsTabProps {
 const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
   /* --------------------------------- states --------------------------------- */
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [loadingDoc, setLoadingDoc] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState<{
+    url: string;
+    title: string;
+  } | null>(null);
 
   if (!vehicle) {
     return <Typography color="text.secondary">No vehicle selected</Typography>;
@@ -38,6 +52,29 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
   const handleUploadSuccess = () => {
     if (onUpdate) {
       onUpdate();
+    }
+  };
+
+  const handleViewDoc = async (url: string, title: string) => {
+    if (!url) {
+      toast.error("Döküman bağlantısı bulunamadı");
+      return;
+    }
+
+    try {
+      setLoadingDoc(true);
+      const result = await getSignedUrlAction(url);
+      if (result.success && result.url) {
+        setSelectedDoc({ url: result.url, title });
+        setViewerOpen(true);
+      } else {
+        toast.error("Dosya erişim yetkisi alınamadı");
+      }
+    } catch (error) {
+      console.error("View doc error:", error);
+      toast.error("Dosya yüklenirken bir hata oluştu");
+    } finally {
+      setLoadingDoc(false);
     }
   };
 
@@ -204,7 +241,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   <TableCell>Document Type</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Expiry Date</TableCell>
-                  <TableCell>Download</TableCell>
+                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
 
@@ -219,7 +256,12 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   </TableRow>
                 ) : (
                   vehicle.documents.map((v, index) => (
-                    <TableRow key={index}>
+                    <TableRow
+                      key={index}
+                      hover
+                      sx={{ cursor: "pointer" }}
+                      onClick={() => handleViewDoc(v.url, v.name)}
+                    >
                       <TableCell>
                         <Stack>
                           <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
@@ -244,15 +286,33 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                           : "N/A"}
                       </TableCell>
                       <TableCell align="center">
-                        <IconButton
-                          color="primary"
-                          href={v.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          disabled={!v.url}
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          justifyContent="center"
                         >
-                          <DownloadIcon sx={{ width: 20, height: 20 }} />
-                        </IconButton>
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewDoc(v.url, v.name);
+                            }}
+                          >
+                            <VisibilityIcon sx={{ width: 20, height: 20 }} />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            color="secondary"
+                            href={v.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            disabled={!v.url}
+                          >
+                            <DownloadIcon sx={{ width: 20, height: 20 }} />
+                          </IconButton>
+                        </Stack>
                       </TableCell>
                     </TableRow>
                   ))
@@ -263,12 +323,28 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
         </Stack>
       </Stack>
 
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loadingDoc}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
       <UploadDocumentDialog
         open={uploadDialogOpen}
         onClose={() => setUploadDialogOpen(false)}
         vehicleId={vehicle.id}
         onSuccess={handleUploadSuccess}
       />
+
+      {selectedDoc && (
+        <DocumentViewerDialog
+          open={viewerOpen}
+          onClose={() => setViewerOpen(false)}
+          url={selectedDoc.url}
+          title={selectedDoc.title}
+        />
+      )}
     </>
   );
 };
