@@ -85,7 +85,7 @@ export default function DriverPage() {
           );
           setState((prev) => ({
             ...prev,
-            drivers: result.data as DriverWithRelations[],
+            drivers: result.data as unknown as DriverWithRelations[],
             pagination: {
               page: result.meta.page,
               limit: result.meta.limit,

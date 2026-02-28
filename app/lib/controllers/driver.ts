@@ -4,7 +4,11 @@ import { db } from "../db";
 import { DriverStatus, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
-import { CreateDriverFormData } from "../type/driver";
+import {
+  CreateDriverFormData,
+  DriverWithRelations,
+  PaginatedResponse,
+} from "../type/driver";
 
 // ... imports ...
 
@@ -18,7 +22,7 @@ export const getDrivers = authenticatedAction(
     hasVehicle?: boolean,
     sortField?: string,
     sortOrder?: "asc" | "desc"
-  ) => {
+  ): Promise<PaginatedResponse<DriverWithRelations>> => {
     try {
       const skip = (page - 1) * limit;
 
