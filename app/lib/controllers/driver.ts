@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "../db";
+import { checkPermission } from "./utils/checkPermission";
 import { DriverStatus, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
@@ -9,8 +10,6 @@ import {
   DriverWithRelations,
   PaginatedResponse,
 } from "../type/driver";
-
-// ... imports ...
 
 export const getDrivers = authenticatedAction(
   async (
@@ -23,11 +22,19 @@ export const getDrivers = authenticatedAction(
     sortField?: string,
     sortOrder?: "asc" | "desc"
   ): Promise<PaginatedResponse<DriverWithRelations>> => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
       const skip = (page - 1) * limit;
 
       const where: Prisma.DriverWhereInput = {
-        companyId: user.companyId,
+        companyId,
       };
 
       if (search) {
@@ -115,7 +122,7 @@ export const getDrivers = authenticatedAction(
       ]);
 
       return {
-        data: drivers,
+        data: drivers as unknown as DriverWithRelations[],
         meta: {
           total,
           page,
@@ -123,35 +130,41 @@ export const getDrivers = authenticatedAction(
           totalPages: Math.ceil(total / limit),
         },
       };
-    } catch (error: unknown) {
+    } catch (error) {
       console.error("Failed to get drivers:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to get drivers"
-      );
+      throw error;
     }
   }
 );
 
 export const getDriverDashboardData = authenticatedAction(async (user) => {
+  const companyId = user?.companyId || "";
+  const userId = user?.id || "";
   try {
+    await checkPermission(userId, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_dispatcher",
+    ]);
+
     const [totalDrivers, onDuty, offDuty, onLeave, safetyScoreAgg, topDrivers] =
       await Promise.all([
-        db.driver.count({ where: { companyId: user.companyId } }),
+        db.driver.count({ where: { companyId } }),
         db.driver.count({
-          where: { companyId: user.companyId, status: "ON_JOB" },
+          where: { companyId, status: "ON_JOB" },
         }),
         db.driver.count({
-          where: { companyId: user.companyId, status: "OFF_DUTY" },
+          where: { companyId, status: "OFF_DUTY" },
         }),
         db.driver.count({
-          where: { companyId: user.companyId, status: "ON_LEAVE" },
+          where: { companyId, status: "ON_LEAVE" },
         }),
         db.driver.aggregate({
-          where: { companyId: user.companyId },
+          where: { companyId },
           _avg: { safetyScore: true, efficiencyScore: true },
         }),
         db.driver.findMany({
-          where: { companyId: user.companyId },
+          where: { companyId },
           select: {
             id: true,
             user: { select: { name: true, surname: true } },
@@ -163,10 +176,9 @@ export const getDriverDashboardData = authenticatedAction(async (user) => {
         }),
       ]);
 
-    // Actual compliance calculations (expired licenses or low safety score)
     const complianceIssuesCount = await db.driver.count({
       where: {
-        companyId: user.companyId,
+        companyId,
         OR: [
           { licenseExpiry: { lt: new Date() } },
           { safetyScore: { lt: 75 } },
@@ -194,7 +206,6 @@ export const getDriverDashboardData = authenticatedAction(async (user) => {
       performanceCharts: topDrivers.map((d) => ({
         name: d.user.name,
         rating: d.rating || 0,
-        // Deterministic working hours based on shipments instead of Math.random to avoid hydration mismatch and flickering
         workingHours: d._count.shipments * 5 + 30,
         days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
         values: [
@@ -206,45 +217,57 @@ export const getDriverDashboardData = authenticatedAction(async (user) => {
         ],
       })),
     };
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("Failed to get driver dashboard data:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Failed to get driver dashboard data"
-    );
+    throw error;
   }
 });
 
-export async function getDriverById(driverId: string) {
-  try {
-    const driver = await db.driver.findUnique({
-      where: { id: driverId },
-      include: {
-        user: true,
-        currentVehicle: true,
-        company: true,
-        homeBaseWarehouse: true,
-        shipments: true,
-      },
-    });
+export const getDriverById = authenticatedAction(
+  async (user, driverId: string) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
 
-    if (!driver) {
-      throw new Error("Driver not found");
+      const foundDriver = await db.driver.findUnique({
+        where: { id: driverId },
+        include: {
+          user: true,
+          currentVehicle: true,
+          company: true,
+          homeBaseWarehouse: true,
+          shipments: true,
+        },
+      });
+
+      if (!foundDriver) {
+        throw new Error("Driver not found");
+      }
+
+      if (foundDriver.companyId !== companyId) {
+        throw new Error("Unauthorized");
+      }
+
+      return foundDriver;
+    } catch (error) {
+      console.error("Failed to get driver:", error);
+      throw error;
     }
-
-    return driver;
-  } catch (error: unknown) {
-    console.error("Failed to get driver:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get driver"
-    );
   }
-}
+);
 
 export const createDriver = authenticatedAction(
   async (user, data: CreateDriverFormData) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
     try {
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+
       const targetUser = await db.user.findUnique({
         where: { id: data.userId },
         include: { driver: true },
@@ -254,7 +277,7 @@ export const createDriver = authenticatedAction(
         throw new Error("User not found");
       }
 
-      if (targetUser.companyId !== user.companyId) {
+      if (targetUser.companyId !== companyId) {
         throw new Error("User does not belong to your company");
       }
 
@@ -287,7 +310,7 @@ export const createDriver = authenticatedAction(
       await db.$transaction(async (tx) => {
         await tx.driver.create({
           data: {
-            companyId: user.companyId,
+            companyId: user.companyId!,
             userId: data.userId,
             phone: data.phone,
             employeeId: data.employeeId,
@@ -310,7 +333,7 @@ export const createDriver = authenticatedAction(
                         type: "LICENSE",
                         name: "License Scan",
                         url: data.licensePhotoUrl,
-                        companyId: user.companyId,
+                        companyId,
                         status: "ACTIVE",
                       },
                     ]
@@ -320,7 +343,7 @@ export const createDriver = authenticatedAction(
                   name: doc.name,
                   url: doc.url,
                   expiryDate: doc.expiryDate,
-                  companyId: user.companyId,
+                  companyId: user.companyId!,
                   status: "ACTIVE",
                 })) ?? []),
               ],
@@ -335,24 +358,27 @@ export const createDriver = authenticatedAction(
       });
 
       revalidatePath("/drivers");
-    } catch (error: unknown) {
+      return { success: true };
+    } catch (error) {
       console.error("Failed to create driver:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to create driver"
-      );
+      throw error;
     }
   }
 );
 
 export const updateDriver = authenticatedAction(
   async (user, driverId: string, data: Partial<CreateDriverFormData>) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
     try {
-      const driver = await db.driver.findUnique({
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+
+      const foundDriver = await db.driver.findUnique({
         where: { id: driverId },
       });
 
-      if (!driver) throw new Error("Driver not found");
-      if (driver.companyId !== user.companyId) throw new Error("Unauthorized");
+      if (!foundDriver) throw new Error("Driver not found");
+      if (foundDriver.companyId !== companyId) throw new Error("Unauthorized");
 
       if (data.currentVehicleId) {
         const vehicle = await db.vehicle.findUnique({
@@ -362,7 +388,7 @@ export const updateDriver = authenticatedAction(
         if (!vehicle) {
           throw new Error("Selected vehicle not found");
         }
-        if (vehicle.driver && vehicle.driver.userId !== driver.userId) {
+        if (vehicle.driver && vehicle.driver.userId !== foundDriver.userId) {
           throw new Error("Vehicle is already assigned to another driver");
         }
       }
@@ -396,7 +422,7 @@ export const updateDriver = authenticatedAction(
                       type: "LICENSE",
                       name: "License Scan",
                       url: data.licensePhotoUrl,
-                      companyId: user.companyId,
+                      companyId: user.companyId!,
                       status: "ACTIVE",
                     },
                   ],
@@ -411,7 +437,7 @@ export const updateDriver = authenticatedAction(
                     name: doc.name,
                     url: doc.url,
                     expiryDate: doc.expiryDate,
-                    companyId: user.companyId,
+                    companyId: user.companyId!,
                     status: "ACTIVE",
                   })),
                 },
@@ -420,154 +446,179 @@ export const updateDriver = authenticatedAction(
         },
       });
 
-      // If document updates happen, they are just added to the driver for now without deleting old ones.
-      // Might need a more complex sync if deleting is required.
-
       revalidatePath("/drivers");
       return updatedDriver;
-    } catch (error: unknown) {
+    } catch (error) {
       console.error("Failed to update driver:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to update driver"
-      );
+      throw error;
     }
   }
 );
 
 export const deleteDriver = authenticatedAction(
   async (user, driverId: string) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
     try {
-      // 1. Fetch driver to check existence and get userId
-      const driver = await db.driver.findUnique({
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+
+      const foundDriver = await db.driver.findUnique({
         where: { id: driverId },
         select: { userId: true, companyId: true },
       });
 
-      if (!driver) {
+      if (!foundDriver) {
         throw new Error("Driver not found");
       }
 
-      // Security check: ensure driver belongs to user's company
-      if (driver.companyId !== user.companyId) {
+      if (foundDriver.companyId !== companyId) {
         throw new Error("Unauthorized to delete this driver");
       }
 
       await db.$transaction(async (tx) => {
         const defaultRole = await tx.role.findFirst({
-          where: { name: "DEFAULT" },
+          where: { name: { contains: "DEFAULT", mode: "insensitive" } },
         });
 
         await tx.driver.delete({
           where: { id: driverId },
         });
 
-        if (defaultRole) {
-          await tx.user.update({
-            where: { id: driver.userId },
-            data: { roleId: defaultRole.id },
-          });
-        } else {
-          // Fallback: If no default role found, maybe just leave them?
-          // Or set to null if logic permits.
-          // Let's set to null to be safe (they lose permissions but exist).
-          await tx.user.update({
-            where: { id: driver.userId },
-            data: { roleId: null },
-          });
-        }
+        await tx.user.update({
+          where: { id: foundDriver.userId },
+          data: { roleId: defaultRole?.id ?? null },
+        });
       });
 
       revalidatePath("/drivers");
       return { success: true };
-    } catch (error: unknown) {
+    } catch (error) {
       console.error("Failed to delete driver:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to delete driver"
-      );
+      throw error;
     }
   }
 );
 
-export async function updateDriverStatus(
-  driverId: string,
-  status: DriverStatus
-) {
-  try {
-    const updatedDriver = await db.driver.update({
-      where: { id: driverId },
-      data: { status },
-    });
-    return updatedDriver;
-  } catch (error: unknown) {
-    console.error("Failed to update driver status:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to update driver status"
-    );
-  }
-}
+export const updateDriverStatus = authenticatedAction(
+  async (user, driverId: string, status: DriverStatus) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
 
-export async function assignVehicleToDriver(
-  driverId: string,
-  vehicleId: string
-) {
-  try {
-    const vehicle = await db.vehicle.findUnique({
-      where: { id: vehicleId },
-      include: { driver: true },
-    });
+      const foundDriver = await db.driver.findUnique({
+        where: { id: driverId },
+        select: { companyId: true },
+      });
 
-    if (!vehicle) {
-      throw new Error("Vehicle not found");
+      if (!foundDriver || foundDriver.companyId !== companyId) {
+        throw new Error("Unauthorized");
+      }
+
+      const updatedDriver = await db.driver.update({
+        where: { id: driverId },
+        data: { status },
+      });
+      return updatedDriver;
+    } catch (error) {
+      console.error("Failed to update driver status:", error);
+      throw error;
     }
+  }
+);
 
-    if (vehicle.driver && vehicle.driver.id !== driverId) {
-      throw new Error("Vehicle is already assigned to another driver");
+export const assignVehicleToDriver = authenticatedAction(
+  async (user, driverId: string, vehicleId: string) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const vehicle = await db.vehicle.findUnique({
+        where: { id: vehicleId },
+        include: { driver: true },
+      });
+
+      if (!vehicle || vehicle.companyId !== companyId) {
+        throw new Error("Vehicle not found or unauthorized");
+      }
+
+      if (vehicle.driver && vehicle.driver.id !== driverId) {
+        throw new Error("Vehicle is already assigned to another driver");
+      }
+
+      const updatedDriver = await db.driver.update({
+        where: { id: driverId },
+        data: {
+          currentVehicleId: vehicleId,
+        },
+      });
+
+      return updatedDriver;
+    } catch (error) {
+      console.error("Failed to assign vehicle to driver:", error);
+      throw error;
     }
-
-    const updatedDriver = await db.driver.update({
-      where: { id: driverId },
-      data: {
-        currentVehicleId: vehicleId,
-      },
-    });
-
-    return updatedDriver;
-  } catch (error: unknown) {
-    console.error("Failed to assign vehicle to driver:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Failed to assign vehicle to driver"
-    );
   }
-}
+);
 
-export async function unassignVehicleFromDriver(driverId: string) {
-  try {
-    const updatedDriver = await db.driver.update({
-      where: { id: driverId },
-      data: {
-        currentVehicleId: null,
-      },
-    });
+export const unassignVehicleFromDriver = authenticatedAction(
+  async (user, driverId: string) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
 
-    return updatedDriver;
-  } catch (error: unknown) {
-    console.error("Failed to unassign vehicle from driver:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Failed to unassign vehicle from driver"
-    );
+      const foundDriver = await db.driver.findUnique({
+        where: { id: driverId },
+        select: { companyId: true },
+      });
+
+      if (!foundDriver || foundDriver.companyId !== companyId) {
+        throw new Error("Unauthorized");
+      }
+
+      const updatedDriver = await db.driver.update({
+        where: { id: driverId },
+        data: {
+          currentVehicleId: null,
+        },
+      });
+
+      return updatedDriver;
+    } catch (error) {
+      console.error("Failed to unassign vehicle from driver:", error);
+      throw error;
+    }
   }
-}
+);
 
 export const getEligibleUsersForDriver = authenticatedAction(async (user) => {
+  const companyId = user?.companyId || "";
+  const userId = user?.id || "";
   try {
+    await checkPermission(userId, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_dispatcher",
+    ]);
+
     const users = await db.user.findMany({
       where: {
-        companyId: user.companyId,
-        roleId: "role_default",
+        companyId,
+        roleId: { contains: "default", mode: "insensitive" },
       },
       select: {
         id: true,
@@ -578,7 +629,7 @@ export const getEligibleUsersForDriver = authenticatedAction(async (user) => {
     });
 
     return users;
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("Failed to fetch eligible users:", error);
     return [];
   }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { Field, Form, Formik } from "formik";
-import type { FormikHelpers } from "formik";
+import type { FormikHelpers, FormikErrors, FieldProps } from "formik";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import CircularIndeterminate from "../loading";
 import { createCompany } from "@/app/lib/controllers/company";
@@ -32,7 +32,11 @@ export default function CreateCompanyForm({
 
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-    setFieldValue: (field: string, value: any) => void
+    setFieldValue: (
+      field: string,
+      value: unknown,
+      shouldValidate?: boolean
+    ) => Promise<void | FormikErrors<CreateCompanyFormValues>>
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -57,7 +61,6 @@ export default function CreateCompanyForm({
         finalLogoUrl = uploadResult.url;
       }
 
-      // createCompany reads the session from httpOnly cookie internally
       const result = await createCompany(
         values.companyName,
         finalLogoUrl || undefined
@@ -67,7 +70,6 @@ export default function CreateCompanyForm({
       if (onSuccess) {
         onSuccess(result.company);
       } else {
-        // Refresh so the new session JWT (with companyId) is picked up
         router.refresh();
         router.push("/overview");
       }
@@ -159,13 +161,7 @@ export default function CreateCompanyForm({
 
               <Stack spacing={2}>
                 <Field name="companyName">
-                  {({
-                    field,
-                    meta,
-                  }: {
-                    field: any;
-                    meta: { touched: boolean; error?: string };
-                  }) => (
+                  {({ field, meta }: FieldProps<CreateCompanyFormValues>) => (
                     <StyledTextFieldAuth
                       {...field}
                       type="text"

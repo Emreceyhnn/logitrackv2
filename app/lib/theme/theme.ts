@@ -2,21 +2,7 @@ import { createTheme } from "@mui/material/styles";
 import { palettes } from "./palette";
 import { getScrollbarStyles } from "@/app/components/scrollbar";
 
-declare module "@mui/material/styles" {
-  interface TypeBackground {
-    dashboardBg: string; // Add custom property
-  }
-
-  interface BreakpointOverrides {
-    xs: true;
-    sm: true;
-    md: true;
-    lg: true;
-    xl: true;
-    mobile: true; // custom
-    xxl: true; // custom
-  }
-}
+import "./types.d.ts";
 
 export type ThemeMode = "light" | "dark";
 
@@ -54,7 +40,6 @@ export const getTheme = (mode: ThemeMode) =>
           body: {
             ...getScrollbarStyles({ palette: palettes[mode] }),
           },
-
           "*": {
             ...getScrollbarStyles({ palette: palettes[mode] }),
           },

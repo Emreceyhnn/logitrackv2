@@ -32,6 +32,13 @@ export type SessionUser = {
   sessionId: string;
 };
 
+export interface SessionJWTPayload extends jwt.JwtPayload {
+  id: string;
+  username?: string | null;
+  role?: string | null;
+  companyId?: string | null;
+}
+
 // ─── Token Generation ───────────────────────────────────────────────────────
 
 function generateAccessToken(user: {
@@ -138,9 +145,9 @@ export async function validateSession(): Promise<SessionUser | null> {
     }
 
     // Verify JWT signature & expiry
-    let decoded: any;
+    let decoded: SessionJWTPayload;
     try {
-      decoded = jwt.verify(accessToken, JWT_SECRET);
+      decoded = jwt.verify(accessToken, JWT_SECRET) as SessionJWTPayload;
     } catch (jwtErr) {
       console.log("[validateSession] ❌ JWT verify failed:", jwtErr);
       return null;

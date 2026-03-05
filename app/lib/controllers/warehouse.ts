@@ -1,11 +1,13 @@
 "use server";
 
 import { db } from "../db";
+import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma, WarehouseType } from "@prisma/client";
 
-export async function createWarehouse(
-    userId: string,
+export const createWarehouse = authenticatedAction(
+  async (
+    user,
     companyId: string,
     name: string,
     code: string,
@@ -16,362 +18,460 @@ export async function createWarehouse(
     lat?: number,
     lng?: number,
     managerId?: string
-) {
+  ) => {
     try {
-        await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user.id, user.companyId, [
+        "role_admin",
+        "role_manager",
+      ]);
 
+      if (!user.companyId || (companyId && companyId !== user.companyId)) {
+        throw new Error("Unauthorized or invalid company provided");
+      }
 
-        const existingWarehouse = await db.warehouse.findUnique({
-            where: { code },
-        });
+      const existingWarehouse = await db.warehouse.findUnique({
+        where: { code },
+      });
 
-        if (existingWarehouse) {
-            throw new Error("Warehouse code already exists");
-        }
+      if (existingWarehouse) {
+        throw new Error("Warehouse code already exists");
+      }
 
-        const newWarehouse = await db.warehouse.create({
-            data: {
-                name,
-                code,
-                type,
-                address,
-                city,
-                country,
-                lat,
-                lng,
-                companyId,
-                managerId,
+      const newWarehouse = await db.warehouse.create({
+        data: {
+          name,
+          code,
+          type,
+          address,
+          city,
+          country,
+          lat,
+          lng,
+          companyId: user.companyId,
+          managerId,
+        },
+      });
+
+      return { warehouse: newWarehouse };
+    } catch (error) {
+      console.error("Failed to create warehouse:", error);
+      throw error;
+    }
+  }
+);
+
+export const getWarehouses = authenticatedAction(async (user) => {
+  try {
+    await checkPermission(user.id, user.companyId);
+
+    if (!user.companyId) throw new Error("User has no company");
+
+    const warehouses = await db.warehouse.findMany({
+      where: { companyId: user.companyId },
+      include: {
+        manager: {
+          select: {
+            id: true,
+            name: true,
+            surname: true,
+            email: true,
+            avatarUrl: true,
+          },
+        },
+        _count: {
+          select: {
+            inventory: true,
+            drivers: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return warehouses;
+  } catch (error) {
+    console.error("Failed to get warehouses:", error);
+    throw error;
+  }
+});
+
+export const getWarehouseById = authenticatedAction(
+  async (user, warehouseId: string) => {
+    try {
+      await checkPermission(user.id, user.companyId);
+
+      const warehouse = await db.warehouse.findUnique({
+        where: { id: warehouseId },
+        include: {
+          manager: {
+            select: {
+              id: true,
+              name: true,
+              surname: true,
+              email: true,
+              avatarUrl: true,
             },
-        });
-
-        return { warehouse: newWarehouse };
-    } catch (error: any) {
-        console.error("Failed to create warehouse:", error);
-        throw new Error(error.message || "Failed to create warehouse");
-    }
-}
-
-export async function getWarehouses(companyId: string, userId: string) {
-    try {
-        await checkPermission(userId, companyId);
-
-        const warehouses = await db.warehouse.findMany({
-            where: { companyId },
+          },
+          inventory: true,
+          drivers: {
             include: {
-                manager: {
-                    select: {
-                        id: true,
-                        name: true,
-                        surname: true,
-                        email: true,
-                        avatarUrl: true
-                    }
-                },
-                _count: {
-                    select: {
-                        inventory: true,
-                        drivers: true
-                    }
-                }
+              user: {
+                select: { name: true, surname: true, avatarUrl: true },
+              },
             },
-            orderBy: { createdAt: 'desc' }
-        });
-        return warehouses;
-    } catch (error: any) {
-        console.error("Failed to get warehouses:", error);
-        throw new Error(error.message || "Failed to get warehouses");
+          },
+        },
+      });
+
+      if (!warehouse || warehouse.companyId !== user.companyId) {
+        throw new Error("Warehouse not found or unauthorized");
+      }
+
+      return warehouse;
+    } catch (error) {
+      console.error("Failed to get warehouse:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function getWarehouseById(warehouseId: string, userId: string) {
+export const updateWarehouse = authenticatedAction(
+  async (user, warehouseId: string, data: Prisma.WarehouseUpdateInput) => {
     try {
-        const warehouse = await db.warehouse.findUnique({
-            where: { id: warehouseId },
-            include: {
-                manager: {
-                    select: {
-                        id: true,
-                        name: true,
-                        surname: true,
-                        email: true,
-                        avatarUrl: true
-                    }
-                },
-                inventory: true,
-                drivers: {
-                    include: {
-                        user: {
-                            select: { name: true, surname: true, avatarUrl: true }
-                        }
-                    }
-                }
-            }
-        });
+      await checkPermission(user.id, user.companyId, [
+        "role_admin",
+        "role_manager",
+      ]);
 
-        if (!warehouse) throw new Error("Warehouse not found");
+      const existingWarehouse = await db.warehouse.findUnique({
+        where: { id: warehouseId },
+        select: { companyId: true },
+      });
 
-        if (warehouse.companyId) {
-            await checkPermission(userId, warehouse.companyId);
-        }
+      if (
+        !existingWarehouse ||
+        existingWarehouse.companyId !== user.companyId
+      ) {
+        throw new Error("Warehouse not found or unauthorized");
+      }
 
-        return warehouse;
-    } catch (error: any) {
-        console.error("Failed to get warehouse:", error);
-        throw new Error(error.message || "Failed to get warehouse");
+      const updatedWarehouse = await db.warehouse.update({
+        where: { id: warehouseId },
+        data: {
+          ...data,
+        },
+      });
+
+      return updatedWarehouse;
+    } catch (error) {
+      console.error("Failed to update warehouse:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function updateWarehouse(warehouseId: string, userId: string, data: Prisma.WarehouseUpdateInput) {
+export const deleteWarehouse = authenticatedAction(
+  async (user, warehouseId: string) => {
     try {
-        const existingWarehouse = await db.warehouse.findUnique({
-            where: { id: warehouseId },
-            select: { companyId: true }
-        });
+      await checkPermission(user.id, user.companyId, ["role_admin"]);
 
-        if (!existingWarehouse?.companyId) throw new Error("Warehouse not found");
+      const existingWarehouse = await db.warehouse.findUnique({
+        where: { id: warehouseId },
+        select: { companyId: true },
+      });
 
-        await checkPermission(userId, existingWarehouse.companyId, ["role_admin", "role_manager"]);
+      if (
+        !existingWarehouse ||
+        existingWarehouse.companyId !== user.companyId
+      ) {
+        throw new Error("Warehouse not found or unauthorized");
+      }
 
-        const updatedWarehouse = await db.warehouse.update({
-            where: { id: warehouseId },
-            data: {
-                ...data,
-            }
-        });
+      await db.warehouse.delete({
+        where: { id: warehouseId },
+      });
 
-        return updatedWarehouse;
-    } catch (error: any) {
-        console.error("Failed to update warehouse:", error);
-        throw new Error(error.message || "Failed to update warehouse");
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete warehouse:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function deleteWarehouse(warehouseId: string, userId: string) {
+export const assignManagerToWarehouse = authenticatedAction(
+  async (user, warehouseId: string, managerId: string) => {
     try {
-        const existingWarehouse = await db.warehouse.findUnique({
-            where: { id: warehouseId },
-            select: { companyId: true }
-        });
+      await checkPermission(user.id, user.companyId, ["role_admin"]);
 
-        if (!existingWarehouse?.companyId) throw new Error("Warehouse not found");
+      const existingWarehouse = await db.warehouse.findUnique({
+        where: { id: warehouseId },
+        select: { companyId: true },
+      });
 
-        await checkPermission(userId, existingWarehouse.companyId, ["role_admin"]);
+      if (
+        !existingWarehouse ||
+        existingWarehouse.companyId !== user.companyId
+      ) {
+        throw new Error("Warehouse not found or unauthorized");
+      }
 
-        await db.warehouse.delete({
-            where: { id: warehouseId }
-        });
+      const updatedWarehouse = await db.warehouse.update({
+        where: { id: warehouseId },
+        data: {
+          managerId,
+        },
+      });
 
-        return { success: true };
-    } catch (error: any) {
-        console.error("Failed to delete warehouse:", error);
-        throw new Error(error.message || "Failed to delete warehouse");
+      return updatedWarehouse;
+    } catch (error) {
+      console.error("Failed to assign manager to warehouse:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function assignManagerToWarehouse(warehouseId: string, managerId: string, userId: string) {
+export const addInventoryItem = authenticatedAction(
+  async (
+    user,
+    warehouseId: string,
+    sku: string,
+    name: string,
+    quantity: number,
+    minStock: number = 0
+  ) => {
     try {
-        const existingWarehouse = await db.warehouse.findUnique({
-            where: { id: warehouseId },
-            select: { companyId: true }
-        });
+      await checkPermission(user.id, user.companyId, [
+        "role_admin",
+        "role_manager",
+        "role_warehouse",
+      ]);
 
-        if (!existingWarehouse?.companyId) throw new Error("Warehouse not found");
+      const existingWarehouse = await db.warehouse.findUnique({
+        where: { id: warehouseId },
+        select: { companyId: true },
+      });
 
-        await checkPermission(userId, existingWarehouse.companyId, ["role_admin"]);
+      if (
+        !existingWarehouse ||
+        existingWarehouse.companyId !== user.companyId
+      ) {
+        throw new Error("Warehouse not found or unauthorized");
+      }
 
-        const updatedWarehouse = await db.warehouse.update({
-            where: { id: warehouseId },
-            data: {
-                managerId,
-            }
-        });
+      const existingItem = await db.inventory.findUnique({
+        where: {
+          warehouseId_sku: {
+            warehouseId,
+            sku,
+          },
+        },
+      });
 
-        return updatedWarehouse;
-    } catch (error: any) {
-        console.error("Failed to assign manager to warehouse:", error);
-        throw new Error(error.message || "Failed to assign manager to warehouse");
+      if (existingItem) {
+        throw new Error("Item with this SKU already exists in this warehouse");
+      }
+
+      const newItem = await db.inventory.create({
+        data: {
+          warehouseId,
+          sku,
+          name,
+          quantity,
+          minStock,
+          companyId: user.companyId!,
+        },
+      });
+
+      return newItem;
+    } catch (error) {
+      console.error("Failed to add inventory item:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function addInventoryItem(warehouseId: string, sku: string, name: string, quantity: number, userId: string, minStock: number = 0) {
+export const updateInventoryItem = authenticatedAction(
+  async (user, inventoryId: string, data: Prisma.InventoryUpdateInput) => {
     try {
-        const existingWarehouse = await db.warehouse.findUnique({
-            where: { id: warehouseId },
-            select: { companyId: true }
-        });
+      await checkPermission(user.id, user.companyId, [
+        "role_admin",
+        "role_manager",
+        "role_warehouse",
+      ]);
 
-        if (!existingWarehouse?.companyId) throw new Error("Warehouse not found");
+      const existingItem = await db.inventory.findUnique({
+        where: { id: inventoryId },
+        select: { companyId: true },
+      });
 
-        await checkPermission(userId, existingWarehouse.companyId, ["role_admin", "role_manager", "role_warehouse"]);
+      if (!existingItem || existingItem.companyId !== user.companyId) {
+        throw new Error("Inventory item not found or unauthorized");
+      }
 
-        const existingItem = await db.inventory.findUnique({
-            where: {
-                warehouseId_sku: {
-                    warehouseId,
-                    sku
-                }
-            }
-        });
+      const updatedItem = await db.inventory.update({
+        where: { id: inventoryId },
+        data: {
+          ...data,
+        },
+      });
 
-        if (existingItem) {
-            throw new Error("Item with this SKU already exists in this warehouse");
-        }
-
-        const newItem = await db.inventory.create({
-            data: {
-                warehouseId,
-                sku,
-                name,
-                quantity,
-                minStock,
-                companyId: existingWarehouse.companyId
-            }
-        });
-
-        return newItem;
-    } catch (error: any) {
-        console.error("Failed to add inventory item:", error);
-        throw new Error(error.message || "Failed to add inventory item");
+      return updatedItem;
+    } catch (error) {
+      console.error("Failed to update inventory item:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function updateInventoryItem(inventoryId: string, userId: string, data: Prisma.InventoryUpdateInput) {
+export const deleteInventoryItem = authenticatedAction(
+  async (user, inventoryId: string) => {
     try {
-        const existingItem = await db.inventory.findUnique({
-            where: { id: inventoryId },
-            select: { companyId: true }
-        });
+      await checkPermission(user.id, user.companyId, [
+        "role_admin",
+        "role_manager",
+        "role_warehouse",
+      ]);
 
-        if (!existingItem?.companyId) throw new Error("Inventory item not found");
+      const existingItem = await db.inventory.findUnique({
+        where: { id: inventoryId },
+        select: { companyId: true },
+      });
 
-        await checkPermission(userId, existingItem.companyId, ["role_admin", "role_manager", "role_warehouse"]);
+      if (!existingItem || existingItem.companyId !== user.companyId) {
+        throw new Error("Inventory item not found or unauthorized");
+      }
 
-        const updatedItem = await db.inventory.update({
-            where: { id: inventoryId },
-            data: {
-                ...data
-            }
-        });
+      await db.inventory.delete({
+        where: { id: inventoryId },
+      });
 
-        return updatedItem;
-    } catch (error: any) {
-        console.error("Failed to update inventory item:", error);
-        throw new Error(error.message || "Failed to update inventory item");
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete inventory item:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function deleteInventoryItem(inventoryId: string, userId: string) {
+export const getLowStockItems = authenticatedAction(
+  async (user, warehouseId: string) => {
     try {
-        const existingItem = await db.inventory.findUnique({
-            where: { id: inventoryId },
-            select: { companyId: true }
-        });
+      await checkPermission(user.id, user.companyId, [
+        "role_admin",
+        "role_manager",
+        "role_warehouse",
+      ]);
 
-        if (!existingItem?.companyId) throw new Error("Inventory item not found");
+      const existingWarehouse = await db.warehouse.findUnique({
+        where: { id: warehouseId },
+        select: { companyId: true },
+      });
 
-        await checkPermission(userId, existingItem.companyId, ["role_admin", "role_manager", "role_warehouse"]);
+      if (
+        !existingWarehouse ||
+        existingWarehouse.companyId !== user.companyId
+      ) {
+        throw new Error("Warehouse not found or unauthorized");
+      }
 
-        await db.inventory.delete({
-            where: { id: inventoryId }
-        });
+      const lowStockItems = await db.inventory.findMany({
+        where: {
+          warehouseId,
+          quantity: {
+            lte: db.inventory.fields.minStock,
+          },
+        },
+      });
 
-        return { success: true };
-    } catch (error: any) {
-        console.error("Failed to delete inventory item:", error);
-        throw new Error(error.message || "Failed to delete inventory item");
+      return lowStockItems;
+    } catch (error) {
+      console.error("Failed to get low stock items:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function getLowStockItems(warehouseId: string, userId: string) {
-    try {
-        const existingWarehouse = await db.warehouse.findUnique({
-            where: { id: warehouseId },
-            select: { companyId: true }
+export const getWarehouseStats = authenticatedAction(async (user) => {
+  try {
+    await checkPermission(user.id, user.companyId);
+
+    if (!user.companyId) throw new Error("User has no company");
+
+    const warehouses = await db.warehouse.findMany({
+      where: { companyId: user.companyId },
+      select: { capacityPallets: true, capacityVolumeM3: true },
+    });
+
+    const totalWarehouses = warehouses.length;
+
+    const inventoryStats = await db.inventory.aggregate({
+      where: { companyId: user.companyId },
+      _count: { sku: true },
+      _sum: { quantity: true },
+    });
+
+    const totalCapacityPallets = warehouses.reduce(
+      (acc, w) => acc + (w.capacityPallets || 0),
+      0
+    );
+    const totalCapacityVolume = warehouses.reduce(
+      (acc, w) => acc + (w.capacityVolumeM3 || 0),
+      0
+    );
+
+    return {
+      totalWarehouses,
+      totalSkus: inventoryStats._count.sku,
+      totalItems: inventoryStats._sum.quantity || 0,
+      totalCapacityPallets,
+      totalCapacityVolume,
+    };
+  } catch (error) {
+    console.error("Failed to get warehouse stats:", error);
+    return {
+      totalWarehouses: 0,
+      totalSkus: 0,
+      totalItems: 0,
+      totalCapacityPallets: 0,
+      totalCapacityVolume: 0,
+    };
+  }
+});
+
+export const getRecentStockMovements = authenticatedAction(async (user) => {
+  try {
+    await checkPermission(user.id, user.companyId);
+
+    if (!user.companyId) throw new Error("User has no company");
+
+    const movements = await db.inventoryMovement.findMany({
+      where: { companyId: user.companyId },
+      include: {
+        warehouse: { select: { code: true, name: true } },
+      },
+      take: 10,
+      orderBy: { date: "desc" },
+    });
+
+    const enrichedMovements = await Promise.all(
+      movements.map(async (m) => {
+        const inventoryItem = await db.inventory.findFirst({
+          where: {
+            warehouseId: m.warehouseId,
+            sku: m.sku,
+          },
+          select: { name: true },
         });
-
-        if (!existingWarehouse?.companyId) throw new Error("Warehouse not found");
-
-        await checkPermission(userId, existingWarehouse.companyId, ["role_admin", "role_manager", "role_warehouse"]);
-
-        const lowStockItems = await db.inventory.findMany({
-            where: {
-                warehouseId,
-                quantity: {
-                    lte: db.inventory.fields.minStock
-                }
-            }
-        });
-
-        return lowStockItems;
-    } catch (error: any) {
-        console.error("Failed to get low stock items:", error);
-        throw new Error(error.message || "Failed to get low stock items");
-    }
-}
-
-export async function getWarehouseStats(companyId: string, userId: string) {
-    try {
-        await checkPermission(userId, companyId);
-
-        const warehouses = await db.warehouse.findMany({
-            where: { companyId },
-            select: { capacityPallets: true, capacityVolumeM3: true }
-        });
-
-        const totalWarehouses = warehouses.length;
-
-        const inventoryStats = await db.inventory.aggregate({
-            where: { companyId },
-            _count: { sku: true },
-            _sum: { quantity: true }
-        });
-
-        const totalCapacityPallets = warehouses.reduce((acc, w) => acc + w.capacityPallets, 0);
-        const totalCapacityVolume = warehouses.reduce((acc, w) => acc + w.capacityVolumeM3, 0);
-
         return {
-            totalWarehouses,
-            totalSkus: inventoryStats._count.sku,
-            totalItems: inventoryStats._sum.quantity || 0,
-            totalCapacityPallets,
-            totalCapacityVolume
+          ...m,
+          itemName: inventoryItem?.name || m.sku,
         };
-    } catch (error) {
-        console.error("Failed to get warehouse stats:", error);
-        return { totalWarehouses: 0, totalSkus: 0, totalItems: 0, totalCapacityPallets: 0, totalCapacityVolume: 0 };
-    }
-}
+      })
+    );
 
-export async function getRecentStockMovements(companyId: string, userId: string) {
-    try {
-        await checkPermission(userId, companyId);
-
-        const movements = await db.inventoryMovement.findMany({
-            where: { companyId },
-            include: {
-                warehouse: { select: { code: true, name: true } }
-            },
-            take: 10,
-            orderBy: { date: 'desc' }
-        });
-
-        const enrichedMovements = await Promise.all(movements.map(async (m) => {
-            const inventoryItem = await db.inventory.findFirst({
-                where: {
-                    warehouseId: m.warehouseId,
-                    sku: m.sku
-                },
-                select: { name: true }
-            });
-            return {
-                ...m,
-                itemName: inventoryItem?.name || m.sku
-            };
-        }));
-
-        return enrichedMovements;
-    } catch (error) {
-        console.error("Failed to get stock movements:", error);
-        return [];
-    }
-}
+    return enrichedMovements;
+  } catch (error) {
+    console.error("Failed to get stock movements:", error);
+    return [];
+  }
+});

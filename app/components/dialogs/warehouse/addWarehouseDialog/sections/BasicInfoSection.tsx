@@ -130,7 +130,15 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
               </Typography>
             </Stack>
             <FormControlLabel
-              control={<Switch defaultChecked size="small" />}
+              control={
+                <Switch
+                  defaultChecked
+                  onClick={() =>
+                    actions.updateBasicInfo({ is247: !state.is247 })
+                  }
+                  size="small"
+                />
+              }
               label={
                 <Typography
                   variant="caption"
@@ -144,46 +152,48 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
             />
           </Stack>
 
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Stack spacing={1}>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  fontWeight={600}
-                >
-                  OPENING TIME
-                </Typography>
-                <CustomTextArea
-                  name="openingTime"
-                  type="time"
-                  value={state.openingTime}
-                  onChange={(e) =>
-                    actions.updateBasicInfo({ openingTime: e.target.value })
-                  }
-                />
-              </Stack>
+          {state.is247 && (
+            <Grid container spacing={3}>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Stack spacing={1}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    fontWeight={600}
+                  >
+                    OPENING TIME
+                  </Typography>
+                  <CustomTextArea
+                    name="openingTime"
+                    type="time"
+                    value={state.openingTime}
+                    onChange={(e) =>
+                      actions.updateBasicInfo({ openingTime: e.target.value })
+                    }
+                  />
+                </Stack>
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Stack spacing={1}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    fontWeight={600}
+                  >
+                    CLOSING TIME
+                  </Typography>
+                  <CustomTextArea
+                    name="closingTime"
+                    type="time"
+                    value={state.closingTime}
+                    onChange={(e) =>
+                      actions.updateBasicInfo({ closingTime: e.target.value })
+                    }
+                  />
+                </Stack>
+              </Grid>
             </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Stack spacing={1}>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  fontWeight={600}
-                >
-                  CLOSING TIME
-                </Typography>
-                <CustomTextArea
-                  name="closingTime"
-                  type="time"
-                  value={state.closingTime}
-                  onChange={(e) =>
-                    actions.updateBasicInfo({ closingTime: e.target.value })
-                  }
-                />
-              </Stack>
-            </Grid>
-          </Grid>
+          )}
         </Stack>
       </Stack>
     </Box>

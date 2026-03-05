@@ -51,7 +51,7 @@ export default function RouteProgress({
 
   return (
     <Box>
-      <Typography variant="subtitle2" fontWeight={700} mb={2}>
+      <Typography variant="subtitle2" fontWeight={700} mb={2} color="white">
         Live Progress
       </Typography>
       <Stepper activeStep={currentStep} orientation="vertical">
@@ -76,9 +76,7 @@ export default function RouteProgress({
                 <Typography
                   variant="body2"
                   fontWeight={500}
-                  color={
-                    index <= currentStep ? "text.primary" : "text.secondary"
-                  }
+                  color={index <= currentStep ? "white" : "text.secondary"}
                 >
                   {step.locationName}
                 </Typography>

@@ -81,7 +81,10 @@ export default function RouteDialog({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: 4,
+          bgcolor: "#0B1019",
+          backgroundImage: "none",
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           overflow: "hidden",
         },
       }}
@@ -92,8 +95,8 @@ export default function RouteDialog({
           background: `linear-gradient(135deg, ${alpha(
             statusColor,
             0.05
-          )} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
-          borderBottom: `1px solid ${theme.palette.divider}`,
+          )} 0%, transparent 100%)`,
+          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
         }}
       >
         <Stack
@@ -121,7 +124,7 @@ export default function RouteDialog({
                 <Typography
                   variant="h4"
                   fontWeight={700}
-                  sx={{ color: theme.palette.text.primary }}
+                  sx={{ color: "white" }}
                 >
                   Route #{route.id}
                 </Typography>
@@ -164,22 +167,6 @@ export default function RouteDialog({
           </Stack>
 
           <Stack direction="row" spacing={1}>
-            <Button
-              variant="outlined"
-              startIcon={<EditIcon />}
-              size="small"
-              sx={{
-                textTransform: "none",
-                borderColor: theme.palette.divider,
-                color: theme.palette.text.secondary,
-                "&:hover": {
-                  borderColor: theme.palette.text.primary,
-                  color: theme.palette.text.primary,
-                },
-              }}
-            >
-              Edit
-            </Button>
             <IconButton
               onClick={onClose}
               size="small"
@@ -228,7 +215,7 @@ export default function RouteDialog({
               } as any)}
             />
           )}
-          <Divider />
+          <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
           <MapRoutesDialogCard
             routeId={route.id}
             origin={mapOrigin}

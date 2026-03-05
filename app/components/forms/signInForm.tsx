@@ -1,6 +1,5 @@
 "use client";
 
-import * as Yup from "yup";
 import Link from "next/link";
 import {
   Box,
@@ -11,7 +10,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { Field, Form, Formik } from "formik";
-import type { FormikHelpers } from "formik";
+import type { FormikHelpers, FieldProps } from "formik";
 import { useState } from "react";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -43,8 +42,6 @@ export default function LoginForm() {
       const res = await LoginUser(values.email, values.password);
 
       if (res && res.user) {
-        // Token is already set as httpOnly cookie by the server
-        // Refresh the router so Next.js picks up the new cookie state
         router.refresh();
         if (res.user.companyId) {
           router.push("/overview");
@@ -52,10 +49,11 @@ export default function LoginForm() {
           router.push("/overview");
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login failed:", error);
-      actions.setFieldError("email", error.message || "Login failed");
-      actions.setFieldError("password", error.message || "Login failed");
+      const message = error instanceof Error ? error.message : "Login failed";
+      actions.setFieldError("email", message);
+      actions.setFieldError("password", message);
     } finally {
       setLoading(false);
     }
@@ -108,7 +106,7 @@ export default function LoginForm() {
           <Form>
             <Stack spacing={2} mt={3}>
               <Field name="email">
-                {({ field, meta }: any) => (
+                {({ field, meta }: FieldProps<LoginFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     type="email"
@@ -121,7 +119,7 @@ export default function LoginForm() {
               </Field>
 
               <Field name="password">
-                {({ field, meta }: any) => (
+                {({ field, meta }: FieldProps<LoginFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     type={showPassword ? "text" : "password"}

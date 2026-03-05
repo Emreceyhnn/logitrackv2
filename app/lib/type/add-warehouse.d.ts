@@ -4,8 +4,9 @@ export interface AddWarehouseBasicInfo {
   name: string;
   code: string;
   type: WarehouseType;
-  openingTime: string;
-  closingTime: string;
+  openingTime?: string;
+  closingTime?: string;
+  is247: boolean;
 }
 
 export interface AddWarehouseLocation {

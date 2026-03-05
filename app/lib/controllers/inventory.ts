@@ -1,177 +1,225 @@
 "use server";
 
 import { db } from "../db";
+import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
 
-export async function createInventoryItem(
-    userId: string,
-    companyId: string,
+export const createInventoryItem = authenticatedAction(
+  async (
+    user,
     warehouseId: string,
     sku: string,
     name: string,
     quantity: number,
     minStock: number = 0
-) {
+  ) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
     try {
-        await checkPermission(userId, companyId, ["role_admin", "role_manager", "role_warehouse"]);
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_warehouse",
+      ]);
 
+      if (!companyId) throw new Error("User has no company");
 
-        const warehouse = await db.warehouse.findUnique({
-            where: { id: warehouseId },
-        });
+      const warehouse = await db.warehouse.findUnique({
+        where: { id: warehouseId },
+      });
 
-        if (!warehouse || warehouse.companyId !== companyId) {
-            throw new Error("Invalid warehouse");
-        }
+      if (!warehouse || warehouse.companyId !== companyId) {
+        throw new Error("Invalid warehouse or unauthorized");
+      }
 
+      const existingItem = await db.inventory.findUnique({
+        where: {
+          warehouseId_sku: {
+            warehouseId,
+            sku,
+          },
+        },
+      });
 
-        const existingItem = await db.inventory.findUnique({
-            where: {
-                warehouseId_sku: {
-                    warehouseId,
-                    sku
-                }
-            }
-        });
+      if (existingItem) {
+        throw new Error("Item with this SKU already exists in this warehouse");
+      }
 
-        if (existingItem) {
-            throw new Error("Item with this SKU already exists in this warehouse");
-        }
+      const newItem = await db.inventory.create({
+        data: {
+          warehouseId,
+          sku,
+          name,
+          quantity,
+          minStock,
+          companyId,
+        },
+      });
 
-        const newItem = await db.inventory.create({
-            data: {
-                warehouseId,
-                sku,
-                name,
-                quantity,
-                minStock,
-                companyId
-            }
-        });
-
-        return { inventory: newItem };
-    } catch (error: any) {
-        console.error("Failed to create inventory item:", error);
-        throw new Error(error.message || "Failed to create inventory item");
+      return { inventory: newItem };
+    } catch (error) {
+      console.error("Failed to create inventory item:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function getInventory(companyId: string, userId: string, warehouseId?: string) {
+export const getInventory = authenticatedAction(
+  async (user, warehouseId?: string) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
     try {
-        await checkPermission(userId, companyId);
+      await checkPermission(userId, companyId);
 
-        const whereClause: Prisma.InventoryWhereInput = { companyId };
-        if (warehouseId) {
-            whereClause.warehouseId = warehouseId;
-        }
+      if (!companyId) throw new Error("User has no company");
 
-        const inventory = await db.inventory.findMany({
-            where: whereClause,
-            include: {
-                warehouse: {
-                    select: { name: true, code: true }
-                }
-            },
-            orderBy: { name: 'asc' }
-        });
-        return inventory;
-    } catch (error: any) {
-        console.error("Failed to get inventory:", error);
-        throw new Error(error.message || "Failed to get inventory");
+      const whereClause: Prisma.InventoryWhereInput = {
+        companyId,
+      };
+      if (warehouseId) {
+        whereClause.warehouseId = warehouseId;
+      }
+
+      const inventory = await db.inventory.findMany({
+        where: whereClause,
+        include: {
+          warehouse: {
+            select: { name: true, code: true },
+          },
+        },
+        orderBy: { name: "asc" },
+      });
+      return inventory;
+    } catch (error) {
+      console.error("Failed to get inventory:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function getInventoryItemById(inventoryId: string, userId: string) {
+export const getInventoryItemById = authenticatedAction(
+  async (user, inventoryId: string) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
     try {
-        const item = await db.inventory.findUnique({
-            where: { id: inventoryId },
-            include: {
-                warehouse: true
-            }
-        });
+      await checkPermission(userId, companyId);
 
-        if (!item) throw new Error("Inventory item not found");
+      const item = await db.inventory.findUnique({
+        where: { id: inventoryId },
+        include: {
+          warehouse: true,
+        },
+      });
 
-        if (item.companyId) {
-            await checkPermission(userId, item.companyId);
-        }
+      if (!item || item.companyId !== companyId) {
+        throw new Error("Inventory item not found or unauthorized");
+      }
 
-        return item;
-    } catch (error: any) {
-        console.error("Failed to get inventory item:", error);
-        throw new Error(error.message || "Failed to get inventory item");
+      return item;
+    } catch (error) {
+      console.error("Failed to get inventory item:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function updateInventoryItem(inventoryId: string, userId: string, data: Prisma.InventoryUpdateInput) {
+export const updateInventoryItem = authenticatedAction(
+  async (user, inventoryId: string, data: Prisma.InventoryUpdateInput) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
     try {
-        const existingItem = await db.inventory.findUnique({
-            where: { id: inventoryId },
-            select: { companyId: true }
-        });
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_warehouse",
+      ]);
 
-        if (!existingItem?.companyId) throw new Error("Inventory item not found");
+      const existingItem = await db.inventory.findUnique({
+        where: { id: inventoryId },
+        select: { companyId: true },
+      });
 
-        await checkPermission(userId, existingItem.companyId, ["role_admin", "role_manager", "role_warehouse"]);
+      if (!existingItem || existingItem.companyId !== companyId) {
+        throw new Error("Inventory item not found or unauthorized");
+      }
 
-        const updatedItem = await db.inventory.update({
-            where: { id: inventoryId },
-            data: {
-                ...data,
-            }
-        });
+      const updatedItem = await db.inventory.update({
+        where: { id: inventoryId },
+        data: {
+          ...data,
+        },
+      });
 
-        return updatedItem;
-    } catch (error: any) {
-        console.error("Failed to update inventory item:", error);
-        throw new Error(error.message || "Failed to update inventory item");
+      return updatedItem;
+    } catch (error) {
+      console.error("Failed to update inventory item:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function deleteInventoryItem(inventoryId: string, userId: string) {
+export const deleteInventoryItem = authenticatedAction(
+  async (user, inventoryId: string) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
     try {
-        const existingItem = await db.inventory.findUnique({
-            where: { id: inventoryId },
-            select: { companyId: true }
-        });
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_warehouse",
+      ]);
 
-        if (!existingItem?.companyId) throw new Error("Inventory item not found");
+      const existingItem = await db.inventory.findUnique({
+        where: { id: inventoryId },
+        select: { companyId: true },
+      });
 
-        await checkPermission(userId, existingItem.companyId, ["role_admin", "role_manager", "role_warehouse"]);
+      if (!existingItem || existingItem.companyId !== companyId) {
+        throw new Error("Inventory item not found or unauthorized");
+      }
 
-        await db.inventory.delete({
-            where: { id: inventoryId }
-        });
+      await db.inventory.delete({
+        where: { id: inventoryId },
+      });
 
-        return { success: true };
-    } catch (error: any) {
-        console.error("Failed to delete inventory item:", error);
-        throw new Error(error.message || "Failed to delete inventory item");
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete inventory item:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function getLowStockItems(companyId: string, userId: string) {
-    try {
-        await checkPermission(userId, companyId, ["role_admin", "role_manager", "role_warehouse"]);
+export const getLowStockItems = authenticatedAction(async (user) => {
+  const companyId = user?.companyId || "";
+  const userId = user?.id || "";
+  try {
+    await checkPermission(userId, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_warehouse",
+    ]);
 
-        const lowStockItems = await db.inventory.findMany({
-            where: {
-                companyId,
-                quantity: {
-                    lte: db.inventory.fields.minStock
-                }
-            },
-            include: {
-                warehouse: {
-                    select: { name: true }
-                }
-            }
-        });
+    if (!companyId) throw new Error("User has no company");
 
-        return lowStockItems;
-    } catch (error: any) {
-        console.error("Failed to get low stock items:", error);
-        throw new Error(error.message || "Failed to get low stock items");
-    }
-}
+    const lowStockItems = await db.inventory.findMany({
+      where: {
+        companyId,
+        quantity: {
+          lte: db.inventory.fields.minStock,
+        },
+      },
+      include: {
+        warehouse: {
+          select: { name: true },
+        },
+      },
+    });
+
+    return lowStockItems;
+  } catch (error) {
+    console.error("Failed to get low stock items:", error);
+    throw error;
+  }
+});

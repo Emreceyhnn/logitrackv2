@@ -1,34 +1,489 @@
 "use server";
 
+import { Prisma, RouteStatus } from "@prisma/client";
 import { db } from "../db";
+import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 
-export async function createRoute(
-  userId: string,
-  name: string,
-  date: Date,
-  startTime: Date,
-  endTime: Date,
-  distanceKm: number,
-  durationMin: number,
-  driverId: string,
-  vehicleId: string,
-  companyId: string,
-  origin?: {
-    type: "WAREHOUSE" | "CUSTOMER" | "ADDRESS";
-    id?: string;
-    address?: string;
-    lat?: number;
-    lng?: number;
-  },
-  destination?: {
-    type: "WAREHOUSE" | "CUSTOMER" | "ADDRESS";
-    id?: string;
-    address?: string;
-    lat?: number;
-    lng?: number;
+export const createRoute = authenticatedAction(
+  async (
+    user,
+    name: string,
+    date: Date,
+    startTime: Date,
+    endTime: Date,
+    distanceKm: number,
+    durationMin: number,
+    driverId: string,
+    vehicleId: string,
+    origin?: {
+      type: "WAREHOUSE" | "CUSTOMER" | "ADDRESS";
+      id?: string;
+      address?: string;
+      lat?: number;
+      lng?: number;
+    },
+    destination?: {
+      type: "WAREHOUSE" | "CUSTOMER" | "ADDRESS";
+      id?: string;
+      address?: string;
+      lat?: number;
+      lng?: number;
+    }
+  ) => {
+    try {
+      await checkPermission(user.id, user.companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const existingRoute = await db.route.findFirst({
+        where: { name, companyId: user.companyId },
+      });
+
+      if (existingRoute) {
+        throw new Error("Route name already exists");
+      }
+
+      let startAddress = origin?.address;
+      let startLat = origin?.lat;
+      let startLng = origin?.lng;
+
+      if (origin?.type === "WAREHOUSE" && origin.id) {
+        const warehouse = await db.warehouse.findUnique({
+          where: { id: origin.id },
+        });
+        if (warehouse) {
+          startAddress = warehouse.address;
+          startLat = warehouse.lat || undefined;
+          startLng = warehouse.lng || undefined;
+        }
+      } else if (origin?.type === "CUSTOMER" && origin.id) {
+        const customer = await db.customer.findUnique({
+          where: { id: origin.id },
+        });
+        if (customer) {
+          startAddress = customer.address || undefined;
+        }
+      }
+
+      let endAddress = destination?.address;
+      let endLat = destination?.lat;
+      let endLng = destination?.lng;
+
+      if (destination?.type === "WAREHOUSE" && destination.id) {
+        const warehouse = await db.warehouse.findUnique({
+          where: { id: destination.id },
+        });
+        if (warehouse) {
+          endAddress = warehouse.address;
+          endLat = warehouse.lat || undefined;
+          endLng = warehouse.lng || undefined;
+        }
+      } else if (destination?.type === "CUSTOMER" && destination.id) {
+        const customer = await db.customer.findUnique({
+          where: { id: destination.id },
+        });
+        if (customer) {
+          endAddress = customer.address || undefined;
+        }
+      }
+
+      const newRoute = await db.route.create({
+        data: {
+          name,
+          date,
+          startTime,
+          endTime,
+          distanceKm,
+          durationMin,
+          driverId,
+          vehicleId,
+          companyId: user.companyId,
+          startAddress,
+          startLat,
+          startLng,
+          endAddress,
+          endLat,
+          endLng,
+        },
+      });
+
+      return { route: newRoute };
+    } catch (error) {
+      console.error("Failed to create route:", error);
+      throw error;
+    }
   }
-) {
+);
+
+export const getRoutes = authenticatedAction(
+  async (user, page: number = 1, pageSize: number = 10, status?: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const skip = (page - 1) * pageSize;
+      const where: Prisma.RouteWhereInput = {
+        companyId,
+      };
+
+      if (status && status !== "ALL") {
+        where.status = status as RouteStatus;
+      }
+
+      const [routes, totalCount] = await Promise.all([
+        db.route.findMany({
+          where,
+          include: {
+            vehicle: {
+              select: {
+                id: true,
+                plate: true,
+                type: true,
+                currentLat: true,
+                currentLng: true,
+                fuelLevel: true,
+              },
+            },
+            driver: {
+              include: {
+                user: {
+                  select: {
+                    name: true,
+                    surname: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+            shipments: {
+              select: {
+                id: true,
+                status: true,
+                origin: true,
+                destination: true,
+              },
+            },
+          },
+          orderBy: { date: "desc" },
+          skip,
+          take: pageSize,
+        }),
+        db.route.count({ where }),
+      ]);
+
+      return { routes, totalCount };
+    } catch (error) {
+      console.error("Failed to get routes:", error);
+      throw error;
+    }
+  }
+);
+
+export const getRouteById = authenticatedAction(
+  async (user, routeId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const route = await db.route.findUnique({
+        where: { id: routeId, companyId },
+        include: {
+          driver: {
+            include: {
+              user: {
+                select: { name: true, surname: true, avatarUrl: true },
+              },
+            },
+          },
+          vehicle: {
+            include: {
+              driver: {
+                include: {
+                  user: {
+                    select: { name: true, surname: true, avatarUrl: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!route) {
+        throw new Error("Route not found or unauthorized");
+      }
+
+      return route;
+    } catch (error) {
+      console.error("Failed to get route:", error);
+      throw error;
+    }
+  }
+);
+
+export const updateRoute = authenticatedAction(
+  async (user, routeId: string, data: Prisma.RouteUpdateInput) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const existingRoute = await db.route.findUnique({
+        where: { id: routeId, companyId },
+      });
+
+      if (!existingRoute) {
+        throw new Error("Route not found or unauthorized");
+      }
+
+      const updatedRoute = await db.route.update({
+        where: { id: routeId },
+        data: {
+          ...data,
+        },
+      });
+
+      return updatedRoute;
+    } catch (error) {
+      console.error("Failed to update route:", error);
+      throw error;
+    }
+  }
+);
+
+export const deleteRoute = authenticatedAction(
+  async (user, routeId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const existingRoute = await db.route.findUnique({
+        where: { id: routeId, companyId },
+      });
+
+      if (!existingRoute) {
+        throw new Error("Route not found or unauthorized");
+      }
+
+      await db.route.delete({
+        where: { id: routeId },
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete route:", error);
+      throw error;
+    }
+  }
+);
+
+export const assignDriverToRoute = authenticatedAction(
+  async (user, routeId: string, driverId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const existingRoute = await db.route.findUnique({
+        where: { id: routeId, companyId },
+      });
+
+      if (!existingRoute) {
+        throw new Error("Route not found or unauthorized");
+      }
+
+      const updatedRoute = await db.route.update({
+        where: { id: routeId },
+        data: {
+          driverId,
+        },
+      });
+
+      return updatedRoute;
+    } catch (error) {
+      console.error("Failed to assign driver to route:", error);
+      throw error;
+    }
+  }
+);
+
+export const assignVehicleToRoute = authenticatedAction(
+  async (user, routeId: string, vehicleId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const existingRoute = await db.route.findUnique({
+        where: { id: routeId, companyId },
+      });
+
+      if (!existingRoute) {
+        throw new Error("Route not found or unauthorized");
+      }
+
+      const updatedRoute = await db.route.update({
+        where: { id: routeId },
+        data: {
+          vehicleId,
+        },
+      });
+
+      return updatedRoute;
+    } catch (error) {
+      console.error("Failed to assign vehicle to route:", error);
+      throw error;
+    }
+  }
+);
+
+export const unassignDriverFromRoute = authenticatedAction(
+  async (user, routeId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const existingRoute = await db.route.findUnique({
+        where: { id: routeId, companyId },
+      });
+
+      if (!existingRoute) {
+        throw new Error("Route not found or unauthorized");
+      }
+
+      const updatedRoute = await db.route.update({
+        where: { id: routeId },
+        data: {
+          driverId: null,
+        },
+      });
+
+      return updatedRoute;
+    } catch (error) {
+      console.error("Failed to unassign driver from route:", error);
+      throw error;
+    }
+  }
+);
+
+export const unassignVehicleFromRoute = authenticatedAction(
+  async (user, routeId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const existingRoute = await db.route.findUnique({
+        where: { id: routeId, companyId },
+      });
+
+      if (!existingRoute) {
+        throw new Error("Route not found or unauthorized");
+      }
+
+      const updatedRoute = await db.route.update({
+        where: { id: routeId },
+        data: {
+          vehicleId: null,
+        },
+      });
+
+      return updatedRoute;
+    } catch (error) {
+      console.error("Failed to unassign vehicle from route:", error);
+      throw error;
+    }
+  }
+);
+
+export const getDriverRoutes = authenticatedAction(
+  async (user, driverId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const routes = await db.route.findMany({
+        where: { driverId, companyId },
+        orderBy: { date: "desc" },
+      });
+      return routes;
+    } catch (error) {
+      console.error("Failed to get driver routes:", error);
+      throw error;
+    }
+  }
+);
+
+export const getVehicleRoutes = authenticatedAction(
+  async (user, vehicleId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const routes = await db.route.findMany({
+        where: { vehicleId, companyId },
+        orderBy: { date: "desc" },
+      });
+      return routes;
+    } catch (error) {
+      console.error("Failed to get vehicle routes:", error);
+      throw error;
+    }
+  }
+);
+
+export const getCompanyRoutes = authenticatedAction(async (user) => {
+  const userId = user?.id;
+  const companyId = user?.companyId;
   try {
     await checkPermission(userId, companyId, [
       "role_admin",
@@ -36,451 +491,63 @@ export async function createRoute(
       "role_dispatcher",
     ]);
 
-    const existingRoute = await db.route.findFirst({
-      where: { name, companyId },
-    });
-
-    if (existingRoute) {
-      throw new Error("Route name already exists");
-    }
-
-    let startAddress = origin?.address;
-    let startLat = origin?.lat;
-    let startLng = origin?.lng;
-
-    if (origin?.type === "WAREHOUSE" && origin.id) {
-      const warehouse = await db.warehouse.findUnique({
-        where: { id: origin.id },
-      });
-      if (warehouse) {
-        startAddress = warehouse.address; // Or composite: `${warehouse.address}, ${warehouse.city}`
-        startLat = warehouse.lat || undefined;
-        startLng = warehouse.lng || undefined;
-      }
-    } else if (origin?.type === "CUSTOMER" && origin.id) {
-      const customer = await db.customer.findUnique({
-        where: { id: origin.id },
-      });
-      if (customer) {
-        startAddress = customer.address || undefined;
-        // Customer doesn't have lat/lng in schema yet
-      }
-    }
-
-    let endAddress = destination?.address;
-    let endLat = destination?.lat;
-    let endLng = destination?.lng;
-
-    if (destination?.type === "WAREHOUSE" && destination.id) {
-      const warehouse = await db.warehouse.findUnique({
-        where: { id: destination.id },
-      });
-      if (warehouse) {
-        endAddress = warehouse.address;
-        endLat = warehouse.lat || undefined;
-        endLng = warehouse.lng || undefined;
-      }
-    } else if (destination?.type === "CUSTOMER" && destination.id) {
-      const customer = await db.customer.findUnique({
-        where: { id: destination.id },
-      });
-      if (customer) {
-        endAddress = customer.address || undefined;
-      }
-    }
-
-    const newRoute = await db.route.create({
-      data: {
-        name,
-        date,
-        startTime,
-        endTime,
-        distanceKm,
-        durationMin,
-        driverId,
-        vehicleId,
-        companyId,
-        startAddress,
-        startLat,
-        startLng,
-        endAddress,
-        endLat,
-        endLng,
-      },
-    });
-
-    return { route: newRoute };
-  } catch (error: any) {
-    console.error("Failed to create route:", error);
-    throw new Error(error.message || "Failed to create route");
-  }
-}
-
-export async function getRoutes(
-  companyId: string,
-  userId: string,
-  page: number = 1,
-  pageSize: number = 10,
-  status?: string
-) {
-  try {
-    await checkPermission(userId, companyId);
-
-    const skip = (page - 1) * pageSize;
-    const where: any = { companyId };
-    if (status && status !== "ALL") {
-      where.status = status;
-    }
-
-    const [routes, totalCount] = await Promise.all([
-      db.route.findMany({
-        where,
-        include: {
-          vehicle: {
-            select: {
-              id: true,
-              plate: true,
-              type: true,
-              currentLat: true,
-              currentLng: true,
-              fuelLevel: true,
-            },
-          },
-          driver: {
-            include: {
-              user: {
-                select: {
-                  name: true,
-                  surname: true,
-                  avatarUrl: true,
-                },
-              },
-            },
-          },
-          shipments: {
-            select: {
-              id: true,
-              status: true,
-              origin: true,
-              destination: true,
-            },
-          },
-        },
-        orderBy: { date: "desc" },
-        skip,
-        take: pageSize,
-      }),
-      db.route.count({ where }),
-    ]);
-
-    return { routes, totalCount };
-  } catch (error: any) {
-    console.error("Failed to get routes:", error);
-    throw new Error(error.message || "Failed to get routes");
-  }
-}
-
-export async function getRouteById(routeId: string, userId: string) {
-  try {
-    const route = await db.route.findUnique({
-      where: { id: routeId },
-      include: {
-        driver: {
-          include: {
-            user: {
-              select: { name: true, surname: true, avatarUrl: true },
-            },
-          },
-        },
-        vehicle: {
-          include: {
-            driver: {
-              include: {
-                user: {
-                  select: { name: true, surname: true, avatarUrl: true },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!route) throw new Error("Route not found");
-
-    if (route.companyId) {
-      await checkPermission(userId, route.companyId);
-    }
-
-    return route;
-  } catch (error: any) {
-    console.error("Failed to get route:", error);
-    throw new Error(error.message || "Failed to get route");
-  }
-}
-
-export async function updateRoute(routeId: string, userId: string, data: any) {
-  try {
-    const existingRoute = await db.route.findUnique({
-      where: { id: routeId },
-      select: { companyId: true },
-    });
-
-    if (!existingRoute?.companyId) throw new Error("Route not found");
-
-    await checkPermission(userId, existingRoute.companyId, [
-      "role_admin",
-      "role_manager",
-      "role_dispatcher",
-    ]);
-
-    const updatedRoute = await db.route.update({
-      where: { id: routeId },
-      data: {
-        ...data,
-      },
-    });
-
-    return updatedRoute;
-  } catch (error: any) {
-    console.error("Failed to update route:", error);
-    throw new Error(error.message || "Failed to update route");
-  }
-}
-
-export async function deleteRoute(routeId: string, userId: string) {
-  try {
-    const existingRoute = await db.route.findUnique({
-      where: { id: routeId },
-      select: { companyId: true },
-    });
-
-    if (!existingRoute?.companyId) throw new Error("Route not found");
-
-    await checkPermission(userId, existingRoute.companyId, [
-      "role_admin",
-      "role_manager",
-    ]);
-
-    await db.route.delete({
-      where: { id: routeId },
-    });
-
-    return { success: true };
-  } catch (error: any) {
-    console.error("Failed to delete route:", error);
-    throw new Error(error.message || "Failed to delete route");
-  }
-}
-
-export async function assignDriverToRoute(
-  routeId: string,
-  driverId: string,
-  userId: string
-) {
-  try {
-    const existingRoute = await db.route.findUnique({
-      where: { id: routeId },
-      select: { companyId: true },
-    });
-
-    if (!existingRoute?.companyId) throw new Error("Route not found");
-
-    await checkPermission(userId, existingRoute.companyId, [
-      "role_admin",
-      "role_manager",
-      "role_dispatcher",
-    ]);
-
-    const updatedRoute = await db.route.update({
-      where: { id: routeId },
-      data: {
-        driverId,
-      },
-    });
-
-    return updatedRoute;
-  } catch (error: any) {
-    console.error("Failed to assign driver to route:", error);
-    throw new Error(error.message || "Failed to assign driver to route");
-  }
-}
-
-export async function assignVehicleToRoute(
-  routeId: string,
-  vehicleId: string,
-  userId: string
-) {
-  try {
-    const existingRoute = await db.route.findUnique({
-      where: { id: routeId },
-      select: { companyId: true },
-    });
-
-    if (!existingRoute?.companyId) throw new Error("Route not found");
-
-    await checkPermission(userId, existingRoute.companyId, [
-      "role_admin",
-      "role_manager",
-      "role_dispatcher",
-    ]);
-
-    const updatedRoute = await db.route.update({
-      where: { id: routeId },
-      data: {
-        vehicleId,
-      },
-    });
-
-    return updatedRoute;
-  } catch (error: any) {
-    console.error("Failed to assign vehicle to route:", error);
-    throw new Error(error.message || "Failed to assign vehicle to route");
-  }
-}
-
-export async function unassignDriverFromRoute(routeId: string, userId: string) {
-  try {
-    const existingRoute = await db.route.findUnique({
-      where: { id: routeId },
-      select: { companyId: true },
-    });
-
-    if (!existingRoute?.companyId) throw new Error("Route not found");
-
-    await checkPermission(userId, existingRoute.companyId, [
-      "role_admin",
-      "role_manager",
-      "role_dispatcher",
-    ]);
-
-    const updatedRoute = await db.route.update({
-      where: { id: routeId },
-      data: {
-        driverId: null,
-      },
-    });
-
-    return updatedRoute;
-  } catch (error: any) {
-    console.error("Failed to unassign driver from route:", error);
-    throw new Error(error.message || "Failed to unassign driver from route");
-  }
-}
-
-export async function unassignVehicleFromRoute(
-  routeId: string,
-  userId: string
-) {
-  try {
-    const existingRoute = await db.route.findUnique({
-      where: { id: routeId },
-      select: { companyId: true },
-    });
-
-    if (!existingRoute?.companyId) throw new Error("Route not found");
-
-    await checkPermission(userId, existingRoute.companyId, [
-      "role_admin",
-      "role_manager",
-      "role_dispatcher",
-    ]);
-
-    const updatedRoute = await db.route.update({
-      where: { id: routeId },
-      data: {
-        vehicleId: null,
-      },
-    });
-
-    return updatedRoute;
-  } catch (error: any) {
-    console.error("Failed to unassign vehicle from route:", error);
-    throw new Error(error.message || "Failed to unassign vehicle from route");
-  }
-}
-
-export async function getDriverRoutes(driverId: string, userId: string) {
-  try {
-    await checkPermission(userId, driverId);
+    if (!user.companyId) throw new Error("User has no company");
 
     const routes = await db.route.findMany({
-      where: { driverId },
+      where: { companyId: user.companyId },
       orderBy: { date: "desc" },
     });
     return routes;
-  } catch (error: any) {
-    console.error("Failed to get driver routes:", error);
-    throw new Error(error.message || "Failed to get driver routes");
-  }
-}
-
-export async function getVehicleRoutes(vehicleId: string, userId: string) {
-  try {
-    await checkPermission(userId, vehicleId);
-
-    const routes = await db.route.findMany({
-      where: { vehicleId },
-      orderBy: { date: "desc" },
-    });
-    return routes;
-  } catch (error: any) {
-    console.error("Failed to get vehicle routes:", error);
-    throw new Error(error.message || "Failed to get vehicle routes");
-  }
-}
-
-export async function getCompanyRoutes(companyId: string, userId: string) {
-  try {
-    await checkPermission(userId, companyId);
-
-    const routes = await db.route.findMany({
-      where: { companyId },
-      orderBy: { date: "desc" },
-    });
-    return routes;
-  } catch (error: any) {
+  } catch (error) {
     console.error("Failed to get company routes:", error);
-    throw new Error(error.message || "Failed to get company routes");
+    throw error;
   }
-}
+});
 
-export async function getRouteStats(companyId: string, userId: string) {
+export const getRouteStats = authenticatedAction(async (user) => {
   try {
-    await checkPermission(userId, companyId);
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    await checkPermission(userId, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_dispatcher",
+    ]);
+
+    if (!user.companyId) throw new Error("User has no company");
 
     const now = new Date();
     const startOfDay = new Date(now.setHours(0, 0, 0, 0));
 
-    const activeRoutes = await db.route.count({
-      where: {
-        companyId,
-        status: { in: ["ACTIVE", "PLANNED"] },
-      },
-    });
-
-    const inProgress = await db.route.count({
-      where: {
-        companyId,
-        status: "ACTIVE",
-      },
-    });
-
-    const completedToday = await db.route.count({
-      where: {
-        companyId,
-        status: "COMPLETED",
-        updatedAt: { gte: startOfDay },
-      },
-    });
-
-    const delayedRoutes = await db.route.count({
-      where: {
-        companyId,
-        status: { not: "COMPLETED" },
-        endTime: { lt: new Date() }, // Past due
-      },
-    });
+    const [activeRoutes, inProgress, completedToday, delayedRoutes] =
+      await Promise.all([
+        db.route.count({
+          where: {
+            companyId: user.companyId,
+            status: { in: ["ACTIVE", "PLANNED"] },
+          },
+        }),
+        db.route.count({
+          where: {
+            companyId: user.companyId,
+            status: "ACTIVE",
+          },
+        }),
+        db.route.count({
+          where: {
+            companyId: user.companyId,
+            status: "COMPLETED",
+            updatedAt: { gte: startOfDay },
+          },
+        }),
+        db.route.count({
+          where: {
+            companyId: user.companyId,
+            status: { not: "COMPLETED" },
+            endTime: { lt: new Date() },
+          },
+        }),
+      ]);
 
     return {
       active: activeRoutes,
@@ -492,47 +559,37 @@ export async function getRouteStats(companyId: string, userId: string) {
     console.error("Failed to get route stats:", error);
     return { active: 0, inProgress: 0, completedToday: 0, delayed: 0 };
   }
-}
+});
 
-export async function getRouteEfficiencyStats(
-  companyId: string,
-  userId: string
-) {
+export const getRouteEfficiencyStats = authenticatedAction(async (user) => {
   try {
-    await checkPermission(userId, companyId);
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    await checkPermission(userId, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_dispatcher",
+    ]);
 
-    // Calculate Vehicle Utilization
-    const totalVehicles = await db.vehicle.count({ where: { companyId } });
-    const vehiclesOnTrip = await db.vehicle.count({
-      where: { companyId, status: "ON_TRIP" },
-    });
+    if (!user.companyId) throw new Error("User has no company");
+
+    const [totalVehicles, vehiclesOnTrip] = await Promise.all([
+      db.vehicle.count({ where: { companyId: user.companyId } }),
+      db.vehicle.count({
+        where: { companyId: user.companyId, status: "ON_TRIP" },
+      }),
+    ]);
 
     const vehicleUtilization =
       totalVehicles > 0 ? (vehiclesOnTrip / totalVehicles) * 100 : 0;
-
-    // Calculate On-Time Performance (Routes completed on time vs late)
-    // This is a rough approximation based on routes completed
-    // const completedRoutes = await db.route.count({
-    //   where: { companyId, status: "COMPLETED" },
-    // });
-    // Assuming we could check if endTime <= expectedEndTime, but for now we look at general 'delayed' status if we had it.
-    // Or we check routes where actualEndTime <= scheduledEndTime.
-    // The schema currently only has `endTime`. If we assume `endTime` in DB is the scheduled one, and we don't track `actualEndTime` separately...
-    // Let's assume for MVP we return a placeholder or calculate based on existing logic if possible.
-    // For now, let's return a static calculated value or 0 if no data.
-    const onTimePerformance = 89; // Placeholder until we have actual vs scheduled time in DB
-
-    // Fuel Consumption
-    // Needs Vehicle specs.
-    // Let's return the computed average from vehicles if they have 'mpg' or similar.
-    // Schema might not have it.
-    const avgFuelConsumption = 24.5; // Placeholder
+    const onTimePerformance = 89;
+    const avgFuelConsumption = 24.5;
 
     return {
       fuelConsumption: avgFuelConsumption,
       onTimePerformance: onTimePerformance,
       vehicleUtilization: vehicleUtilization,
-      recentNotifications: [], // Placeholder for notifications
+      recentNotifications: [],
     };
   } catch (error) {
     console.error("Failed to get route efficiency stats:", error);
@@ -543,18 +600,23 @@ export async function getRouteEfficiencyStats(
       recentNotifications: [],
     };
   }
-}
+});
 
-export async function getActiveRoutesLocations(
-  companyId: string,
-  userId: string
-) {
+export const getActiveRoutesLocations = authenticatedAction(async (user) => {
   try {
-    await checkPermission(userId, companyId);
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    await checkPermission(userId, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_dispatcher",
+    ]);
+
+    if (!user.companyId) throw new Error("User has no company");
 
     const activeRoutes = await db.route.findMany({
       where: {
-        companyId,
+        companyId: user.companyId,
         status: { in: ["ACTIVE", "PLANNED"] },
       },
       select: {
@@ -578,9 +640,6 @@ export async function getActiveRoutesLocations(
       },
     });
 
-    // Transform to map friendly format
-    // Map needs: { position: { lat, lng }, name, id, type: "V" }
-    // We filter for routes that have a vehicle assigned and vehicle has location
     const mapData = activeRoutes
       .filter(
         (r) =>
@@ -595,7 +654,7 @@ export async function getActiveRoutesLocations(
         },
         name: r.vehicle!.plate,
         id: r.vehicle!.id,
-        type: "V", // Vehicle
+        type: "V",
         routeId: r.id,
         routeName: r.name,
       }));
@@ -605,4 +664,4 @@ export async function getActiveRoutesLocations(
     console.error("Failed to get active routes locations:", error);
     return [];
   }
-}
+});

@@ -15,7 +15,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { Field, Form, Formik } from "formik";
-import type { FormikHelpers } from "formik";
+import type { FormikHelpers, FieldProps, FormikErrors } from "formik";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import CircularIndeterminate from "../loading";
 import { useRouter } from "next/navigation";
@@ -38,20 +38,23 @@ interface CreateUserFormValues {
 export default function CreateUserForm() {
   const [loading, setLoading] = useState<boolean>(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  // const [avatarFile, setAvatarFile] = useState<File | null>(null); // Removed unused variable
+
   const router = useRouter();
 
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
-    setFieldValue: (field: string, value: any) => void // Fixed type
+    setFieldValue: (
+      field: string,
+      value: unknown,
+      shouldValidate?: boolean
+    ) => Promise<void | FormikErrors<CreateUserFormValues>>
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      // setAvatarFile(file); // Removed unused variable assignment
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result as string);
-        setFieldValue("avatarUrl", reader.result as string); // Temporarily store base64 for preview and later upload
+        setFieldValue("avatarUrl", reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -154,7 +157,7 @@ export default function CreateUserForm() {
 
             <Stack spacing={2}>
               <Field name="username">
-                {({ field, meta }: { field: any; meta: any }) => (
+                {({ field, meta }: FieldProps<CreateUserFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     placeholder="Username"
@@ -166,7 +169,7 @@ export default function CreateUserForm() {
               </Field>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                 <Field name="name">
-                  {({ field, meta }: { field: any; meta: any }) => (
+                  {({ field, meta }: FieldProps<CreateUserFormValues>) => (
                     <StyledTextFieldAuth
                       {...field}
                       placeholder="Name"
@@ -177,7 +180,7 @@ export default function CreateUserForm() {
                   )}
                 </Field>
                 <Field name="surname">
-                  {({ field, meta }: { field: any; meta: any }) => (
+                  {({ field, meta }: FieldProps<CreateUserFormValues>) => (
                     <StyledTextFieldAuth
                       {...field}
                       placeholder="Surname"
@@ -190,7 +193,7 @@ export default function CreateUserForm() {
               </Stack>
 
               <Field name="email">
-                {({ field, meta }: { field: any; meta: any }) => (
+                {({ field, meta }: FieldProps<CreateUserFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     type="email"
@@ -203,7 +206,7 @@ export default function CreateUserForm() {
               </Field>
 
               <Field name="password">
-                {({ field, meta }: { field: any; meta: any }) => (
+                {({ field, meta }: FieldProps<CreateUserFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     type="password"

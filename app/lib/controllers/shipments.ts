@@ -1,381 +1,465 @@
 "use server";
 
 import { db } from "../db";
+import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
 
-export async function createShipment(
-    userId: string,
-    companyId: string,
+export const createShipment = authenticatedAction(
+  async (
+    user,
     customerId: string,
     origin: string,
     destination: string,
     status: string = "PENDING",
     itemsCount: number = 1,
     trackingId?: string
-) {
+  ) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
     try {
-        await checkPermission(userId, companyId, ["role_admin", "role_manager", "role_dispatcher"]);
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
 
+      if (!companyId) throw new Error("User has no company");
 
-        const finalTrackingId = trackingId || `TRK-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+      const finalTrackingId =
+        trackingId ||
+        `TRK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
 
+      const existingShipment = await db.shipment.findUnique({
+        where: { trackingId: finalTrackingId },
+      });
 
-        const existingShipment = await db.shipment.findUnique({
-            where: { trackingId: finalTrackingId },
-        });
+      if (existingShipment) {
+        throw new Error("Tracking ID already exists");
+      }
 
-        if (existingShipment) {
-            throw new Error("Tracking ID already exists");
-        }
-
-        const newShipment = await db.shipment.create({
-            data: {
-                trackingId: finalTrackingId,
-                customerId,
-                origin,
-                destination,
-                status,
-                itemsCount,
-                companyId,
-                history: {
-                    create: {
-                        status,
-                        description: "Shipment created",
-                        createdBy: userId
-                    }
-                }
+      const newShipment = await db.shipment.create({
+        data: {
+          trackingId: finalTrackingId,
+          customerId,
+          origin,
+          destination,
+          status,
+          itemsCount,
+          companyId,
+          history: {
+            create: {
+              status: status,
+              description: "Shipment created",
+              createdBy: userId,
             },
-        });
+          },
+        },
+      });
 
-        return { shipment: newShipment };
-    } catch (error: any) {
-        console.error("Failed to create shipment:", error);
-        throw new Error(error.message || "Failed to create shipment");
-    }
-}
-
-// ... (getShipments and getShipmentById omitted for brevity, they don't change logic, just maybe return type if include changes, but that's handled by Prisma types)
-
-export async function assignDriverToShipment(shipmentId: string, driverId: string, userId: string) {
-    try {
-        const existingShipment = await db.shipment.findUnique({
-            where: { id: shipmentId },
-            select: { companyId: true, status: true }
-        });
-
-        if (!existingShipment?.companyId) throw new Error("Shipment not found");
-
-        await checkPermission(userId, existingShipment.companyId, ["role_admin", "role_manager", "role_dispatcher"]);
-
-        const updatedShipment = await db.shipment.update({
-            where: { id: shipmentId },
-            data: {
-                driverId,
-                status: "assigned",
-                history: {
-                    create: {
-                        status: "assigned",
-                        description: `Driver assigned`,
-                        createdBy: userId
-                    }
-                }
-            }
-        });
-
-        return updatedShipment;
-    } catch (error: any) {
-        console.error("Failed to assign driver to shipment:", error);
-        throw new Error(error.message || "Failed to assign driver to shipment");
-    }
-}
-
-export async function assignRouteToShipment(shipmentId: string, routeId: string, userId: string) {
-    try {
-        const existingShipment = await db.shipment.findUnique({
-            where: { id: shipmentId },
-            select: { companyId: true, status: true }
-        });
-
-        if (!existingShipment?.companyId) throw new Error("Shipment not found");
-
-        await checkPermission(userId, existingShipment.companyId, ["role_admin", "role_manager", "role_dispatcher"]);
-
-        const updatedShipment = await db.shipment.update({
-            where: { id: shipmentId },
-            data: {
-                routeId,
-                status: "planned",
-                history: {
-                    create: {
-                        status: "planned",
-                        description: `Route assigned`,
-                        createdBy: userId
-                    }
-                }
-            }
-        });
-
-        return updatedShipment;
-    } catch (error: any) {
-        console.error("Failed to assign route to shipment:", error);
-        throw new Error(error.message || "Failed to assign route to shipment");
-    }
-}
-
-export async function updateShipmentStatus(shipmentId: string, status: string, userId: string, location?: string, description?: string) {
-    try {
-        const existingShipment = await db.shipment.findUnique({
-            where: { id: shipmentId },
-            select: { companyId: true }
-        });
-
-        if (!existingShipment?.companyId) throw new Error("Shipment not found");
-
-        await checkPermission(userId, existingShipment.companyId, ["role_admin", "role_manager", "role_dispatcher", "role_driver"]);
-
-        const updatedShipment = await db.shipment.update({
-            where: { id: shipmentId },
-            data: {
-                status,
-                history: {
-                    create: {
-                        status,
-                        location,
-                        description: description || `Status updated to ${status}`,
-                        createdBy: userId
-                    }
-                }
-            }
-        });
-
-        return updatedShipment;
-    } catch (error: any) {
-        console.error("Failed to update shipment status:", error);
-        throw new Error(error.message || "Failed to update shipment status");
-    }
-}
-
-export async function getShipments(companyId: string, userId: string) {
-    try {
-        await checkPermission(userId, companyId);
-
-        const shipments = await db.shipment.findMany({
-            where: { companyId },
-            include: {
-                customer: true,
-                driver: {
-                    include: {
-                        user: {
-                            select: { name: true, surname: true, avatarUrl: true }
-                        }
-                    }
-                },
-                route: true
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-        return shipments;
-    } catch (error: any) {
-        console.error("Failed to get shipments:", error);
-        throw new Error(error.message || "Failed to get shipments");
-    }
-}
-
-export async function getShipmentById(shipmentId: string, userId: string) {
-    try {
-        const shipment = await db.shipment.findUnique({
-            where: { id: shipmentId },
-            include: {
-                customer: true,
-                driver: {
-                    include: {
-                        user: {
-                            select: { name: true, surname: true, avatarUrl: true }
-                        }
-                    }
-                },
-                route: true,
-                company: true,
-                history: {
-                    orderBy: {
-                        createdAt: 'desc'
-                    }
-                }
-            }
-        });
-
-        if (!shipment) throw new Error("Shipment not found");
-
-        if (shipment.companyId) {
-            await checkPermission(userId, shipment.companyId);
-        }
-
-        return shipment;
-    } catch (error: any) {
-        console.error("Failed to get shipment:", error);
-        throw new Error(error.message || "Failed to get shipment");
-    }
-}
-
-export async function updateShipment(shipmentId: string, userId: string, data: Prisma.ShipmentUpdateInput) {
-    try {
-        const existingShipment = await db.shipment.findUnique({
-            where: { id: shipmentId },
-            select: { companyId: true }
-        });
-
-        if (!existingShipment?.companyId) throw new Error("Shipment not found");
-
-        await checkPermission(userId, existingShipment.companyId, ["role_admin", "role_manager", "role_dispatcher"]);
-
-        const updatedShipment = await db.shipment.update({
-            where: { id: shipmentId },
-            data: {
-                ...data,
-            }
-        });
-
-        return updatedShipment;
-    } catch (error: any) {
-        console.error("Failed to update shipment:", error);
-        throw new Error(error.message || "Failed to update shipment");
-    }
-}
-
-export async function deleteShipment(shipmentId: string, userId: string) {
-    try {
-        const existingShipment = await db.shipment.findUnique({
-            where: { id: shipmentId },
-            select: { companyId: true }
-        });
-
-        if (!existingShipment?.companyId) throw new Error("Shipment not found");
-
-        await checkPermission(userId, existingShipment.companyId, ["role_admin", "role_manager"]);
-
-        await db.shipment.delete({
-            where: { id: shipmentId }
-        });
-
-        return { success: true };
-    } catch (error: any) {
-        console.error("Failed to delete shipment:", error);
-        throw new Error(error.message || "Failed to delete shipment");
-    }
-}
-
-
-
-export async function getShipmentByTrackingId(trackingId: string, userId: string) {
-    try {
-        const shipment = await db.shipment.findUnique({
-            where: { trackingId },
-            include: {
-                customer: true,
-                driver: true,
-                route: true,
-                history: {
-                    orderBy: {
-                        createdAt: 'desc'
-                    }
-                }
-            }
-        });
-
-        if (!shipment) throw new Error("Shipment not found");
-
-        if (shipment.companyId) {
-            await checkPermission(userId, shipment.companyId);
-        }
-
-        return shipment;
-    } catch (error: any) {
-        console.error("Failed to get shipment by tracking ID:", error);
-        throw new Error(error.message || "Failed to get shipment");
-    }
-}
-
-export async function getShipmentStats(companyId: string, userId: string) {
-    try {
-        await checkPermission(userId, companyId);
-
-        const total = await db.shipment.count({ where: { companyId } });
-        const active = await db.shipment.count({
-            where: {
-                companyId,
-                status: { in: ["PENDING", "IN_TRANSIT", "PROCESSING"] }
-            }
-        });
-        const delayed = await db.shipment.count({ where: { companyId, status: "DELAYED" } });
-        const inTransit = await db.shipment.count({ where: { companyId, status: "IN_TRANSIT" } });
-
-        return { total, active, delayed, inTransit };
+      return { shipment: newShipment };
     } catch (error) {
-        console.error("Failed to get shipment stats:", error);
-        return { total: 0, active: 0, delayed: 0, inTransit: 0 };
+      console.error("Failed to create shipment:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function getShipmentVolumeHistory(companyId: string, userId: string) {
+export const assignDriverToShipment = authenticatedAction(
+  async (user, shipmentId: string, driverId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
     try {
-        await checkPermission(userId, companyId);
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
 
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const existingShipment = await db.shipment.findUnique({
+        where: { id: shipmentId },
+        select: { companyId: true },
+      });
 
-        const shipments = await db.shipment.groupBy({
-            by: ['createdAt'],
-            where: {
-                companyId,
-                createdAt: { gte: sevenDaysAgo }
+      if (!existingShipment || existingShipment.companyId !== companyId) {
+        throw new Error("Shipment not found or unauthorized");
+      }
+
+      const updatedShipment = await db.shipment.update({
+        where: { id: shipmentId },
+        data: {
+          driverId,
+          status: "assigned",
+          history: {
+            create: {
+              status: "assigned",
+              description: `Driver assigned`,
+              createdBy: userId,
             },
-            _count: { id: true },
-        });
+          },
+        },
+      });
 
-        // Group by day properly since groupBy returns full timestamps
-        // Ideally we use raw query for date_trunc, but for now we can process in JS
-        const rawShipments = await db.shipment.findMany({
-            where: {
-                companyId,
-                createdAt: { gte: sevenDaysAgo }
-            },
-            select: { createdAt: true }
-        });
-
-        const volumeByDay: Record<string, number> = {};
-        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-        rawShipments.forEach(s => {
-            const dayName = days[s.createdAt.getDay()];
-            volumeByDay[dayName] = (volumeByDay[dayName] || 0) + 1;
-        });
-
-        return days.map(day => ({
-            day,
-            volume: volumeByDay[day] || 0
-        }));
-
+      return updatedShipment;
     } catch (error) {
-        console.error("Failed to get shipment volume history:", error);
-        return [];
+      console.error("Failed to assign driver to shipment:", error);
+      throw error;
     }
-}
+  }
+);
 
-export async function getShipmentStatusDistribution(companyId: string, userId: string) {
+export const assignRouteToShipment = authenticatedAction(
+  async (user, shipmentId: string, routeId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
     try {
-        await checkPermission(userId, companyId);
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
 
-        const statusCounts = await db.shipment.groupBy({
-            by: ['status'],
-            where: { companyId },
-            _count: { status: true }
-        });
+      const existingShipment = await db.shipment.findUnique({
+        where: { id: shipmentId },
+        select: { companyId: true },
+      });
 
-        return statusCounts.map(s => ({ status: s.status, count: s._count.status }));
+      if (!existingShipment || existingShipment.companyId !== companyId) {
+        throw new Error("Shipment not found or unauthorized");
+      }
 
+      const updatedShipment = await db.shipment.update({
+        where: { id: shipmentId },
+        data: {
+          routeId,
+          status: "planned",
+          history: {
+            create: {
+              status: "planned",
+              description: `Route assigned`,
+              createdBy: userId,
+            },
+          },
+        },
+      });
+
+      return updatedShipment;
     } catch (error) {
-        console.error("Failed to get shipment status distribution:", error);
-        return [];
+      console.error("Failed to assign route to shipment:", error);
+      throw error;
     }
-}
+  }
+);
+
+export const updateShipmentStatus = authenticatedAction(
+  async (
+    user,
+    shipmentId: string,
+    status: string,
+    location?: string,
+    description?: string
+  ) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId);
+
+      const existingShipment = await db.shipment.findUnique({
+        where: { id: shipmentId },
+        select: { companyId: true },
+      });
+
+      if (!existingShipment || existingShipment.companyId !== companyId) {
+        throw new Error("Shipment not found or unauthorized");
+      }
+
+      const updatedShipment = await db.shipment.update({
+        where: { id: shipmentId },
+        data: {
+          status,
+          history: {
+            create: {
+              status,
+              location,
+              description: description || `Status updated to ${status}`,
+              createdBy: userId,
+            },
+          },
+        },
+      });
+
+      return updatedShipment;
+    } catch (error) {
+      console.error("Failed to update shipment status:", error);
+      throw error;
+    }
+  }
+);
+
+export const getShipments = authenticatedAction(async (user) => {
+  const userId = user?.id;
+  const companyId = user?.companyId;
+  try {
+    await checkPermission(userId, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_dispatcher",
+    ]);
+
+    if (!companyId) throw new Error("User has no company");
+
+    const shipments = await db.shipment.findMany({
+      where: { companyId },
+      include: {
+        customer: true,
+        driver: {
+          include: {
+            user: {
+              select: { name: true, surname: true, avatarUrl: true },
+            },
+          },
+        },
+        route: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return shipments;
+  } catch (error) {
+    console.error("Failed to get shipments:", error);
+    throw error;
+  }
+});
+
+export const getShipmentById = authenticatedAction(
+  async (user, shipmentId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const shipment = await db.shipment.findUnique({
+        where: { id: shipmentId },
+        include: {
+          customer: true,
+          driver: {
+            include: {
+              user: {
+                select: { name: true, surname: true, avatarUrl: true },
+              },
+            },
+          },
+          route: true,
+          company: true,
+          history: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
+      });
+
+      if (!shipment || shipment.companyId !== user.companyId) {
+        throw new Error("Shipment not found or unauthorized");
+      }
+
+      return shipment;
+    } catch (error) {
+      console.error("Failed to get shipment:", error);
+      throw error;
+    }
+  }
+);
+
+export const updateShipment = authenticatedAction(
+  async (user, shipmentId: string, data: Prisma.ShipmentUpdateInput) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const existingShipment = await db.shipment.findUnique({
+        where: { id: shipmentId },
+        select: { companyId: true },
+      });
+
+      if (!existingShipment || existingShipment.companyId !== companyId) {
+        throw new Error("Shipment not found or unauthorized");
+      }
+
+      const updatedShipment = await db.shipment.update({
+        where: { id: shipmentId },
+        data: {
+          ...data,
+        },
+      });
+
+      return updatedShipment;
+    } catch (error) {
+      console.error("Failed to update shipment:", error);
+      throw error;
+    }
+  }
+);
+
+export const deleteShipment = authenticatedAction(
+  async (user, shipmentId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+
+      const existingShipment = await db.shipment.findUnique({
+        where: { id: shipmentId },
+        select: { companyId: true },
+      });
+
+      if (!existingShipment || existingShipment.companyId !== companyId) {
+        throw new Error("Shipment not found or unauthorized");
+      }
+
+      await db.shipment.delete({
+        where: { id: shipmentId },
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete shipment:", error);
+      throw error;
+    }
+  }
+);
+
+export const getShipmentByTrackingId = authenticatedAction(
+  async (user, trackingId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId);
+
+      const shipment = await db.shipment.findUnique({
+        where: { trackingId },
+        include: {
+          customer: true,
+          driver: true,
+          route: true,
+          history: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
+      });
+
+      if (!shipment || shipment.companyId !== companyId) {
+        throw new Error("Shipment not found or unauthorized");
+      }
+
+      return shipment;
+    } catch (error) {
+      console.error("Failed to get shipment by tracking ID:", error);
+      throw error;
+    }
+  }
+);
+
+export const getShipmentStats = authenticatedAction(async (user) => {
+  const userId = user?.id;
+  const companyId = user?.companyId;
+  try {
+    await checkPermission(userId, companyId);
+
+    if (!companyId) throw new Error("User has no company");
+
+    const [total, active, delayed, inTransit] = await Promise.all([
+      db.shipment.count({ where: { companyId } }),
+      db.shipment.count({
+        where: {
+          companyId,
+          status: { in: ["PENDING", "IN_TRANSIT", "PROCESSING"] },
+        },
+      }),
+      db.shipment.count({
+        where: { companyId, status: "DELAYED" },
+      }),
+      db.shipment.count({
+        where: { companyId, status: "IN_TRANSIT" },
+      }),
+    ]);
+
+    return { total, active, delayed, inTransit };
+  } catch (error) {
+    console.error("Failed to get shipment stats:", error);
+    return { total: 0, active: 0, delayed: 0, inTransit: 0 };
+  }
+});
+
+export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
+  const userId = user?.id;
+  const companyId = user?.companyId;
+  try {
+    await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+
+    if (!companyId) throw new Error("User has no company");
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const rawShipments = await db.shipment.findMany({
+      where: {
+        companyId,
+        createdAt: { gte: sevenDaysAgo },
+      },
+      select: { createdAt: true },
+    });
+
+    const volumeByDay: Record<string, number> = {};
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    rawShipments.forEach((s) => {
+      const dayName = days[s.createdAt.getDay()];
+      volumeByDay[dayName] = (volumeByDay[dayName] || 0) + 1;
+    });
+
+    return days.map((day) => ({
+      day,
+      volume: volumeByDay[day] || 0,
+    }));
+  } catch (error) {
+    console.error("Failed to get shipment volume history:", error);
+    return [];
+  }
+});
+
+export const getShipmentStatusDistribution = authenticatedAction(
+  async (user) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+
+      if (!companyId) throw new Error("User has no company");
+
+      const statusCounts = await db.shipment.groupBy({
+        by: ["status"],
+        where: { companyId },
+        _count: { status: true },
+      });
+
+      return statusCounts.map((s) => ({
+        status: s.status,
+        count: s._count.status,
+      }));
+    } catch (error) {
+      console.error("Failed to get shipment status distribution:", error);
+      return [];
+    }
+  }
+);

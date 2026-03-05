@@ -7,6 +7,14 @@ interface AddressAutocompleteProps {
   label?: string;
 }
 
+interface PlaceAutocompleteElement extends HTMLElement {
+  placeholder: string;
+}
+
+interface PlaceSelectEvent extends Event {
+  place: google.maps.places.Place;
+}
+
 export default function AddressAutocomplete({
   onPlaceSelect,
   label = "Search Address",
@@ -21,26 +29,21 @@ export default function AddressAutocomplete({
     if (isLoaded && containerRef.current) {
       const initAutocomplete = async () => {
         try {
-          // Check if the new API is available
           if (google.maps.places?.PlaceAutocompleteElement) {
-            // Clean up previous instances if any
             containerRef.current!.innerHTML = "";
 
-            // Create the web component
-            // Create the web component
-            const autocomplete = new (google.maps.places
-              .PlaceAutocompleteElement as any)();
+            const AutocompleteConstructor = google.maps.places
+              .PlaceAutocompleteElement as unknown as {
+              new (): PlaceAutocompleteElement;
+            };
+            const autocomplete = new AutocompleteConstructor();
 
-            // Set styles to match MUI somewhat or be decent
-            (autocomplete as any).style.width = "100%";
-            (autocomplete as any).placeholder = label;
+            autocomplete.style.width = "100%";
+            autocomplete.placeholder = label;
 
-            // Add listener
-            autocomplete.addEventListener("gmp-placeselect", (event: any) => {
-              const place = event.place;
+            const handlePlaceSelect = (event: Event) => {
+              const place = (event as PlaceSelectEvent).place;
               if (place) {
-                // The new API returns a simplified place object, might need to fetch details
-                // verify what 'place' contains. It usually contains a 'fetchFields' method.
                 if (place.fetchFields) {
                   place
                     .fetchFields({
@@ -48,26 +51,32 @@ export default function AddressAutocomplete({
                         "location",
                         "displayName",
                         "formattedAddress",
-                        "geometry",
+                        "viewport",
                       ],
                     })
                     .then(() => {
-                      // Adapt to google.maps.places.PlaceResult structure if needed by parent
-                      // The parent expects PlaceResult.
                       const placeResult: google.maps.places.PlaceResult = {
-                        geometry: place.geometry,
-                        formatted_address: place.formattedAddress,
-                        name: place.displayName,
-                        // Add other fields as necessary
+                        geometry: {
+                          location:
+                            (place.location as google.maps.LatLng) || undefined,
+                          viewport:
+                            (place.viewport as google.maps.LatLngBounds) ||
+                            undefined,
+                        },
+                        formatted_address: place.formattedAddress || undefined,
+                        name: place.displayName || undefined,
                       };
                       onPlaceSelect(placeResult);
                     });
                 } else {
-                  // Fallback if already populated
-                  onPlaceSelect(place);
+                  onPlaceSelect(
+                    place as unknown as google.maps.places.PlaceResult
+                  );
                 }
               }
-            });
+            };
+
+            autocomplete.addEventListener("gmp-placeselect", handlePlaceSelect);
 
             containerRef.current?.appendChild(autocomplete);
           } else {
@@ -84,13 +93,8 @@ export default function AddressAutocomplete({
     }
   }, [isLoaded, label, onPlaceSelect]);
 
-  /* --------------------------------- render --------------------------------- */
-  // We use a div container for the web component.
-  // We can wrap it in a Box or similar to give it some structure.
   return (
     <div style={{ width: "100%", marginBottom: "1rem" }}>
-      {/* Render a label if needed, or rely on the placeholder */}
-      {/* Using a container for the web component */}
       <div ref={containerRef} style={{ width: "100%" }} />
     </div>
   );

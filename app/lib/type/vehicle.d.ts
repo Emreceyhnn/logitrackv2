@@ -157,7 +157,6 @@ export interface VehicleFormData {
   avgFuelConsumption?: number | "";
 }
 
-import { VehicleType } from "@prisma/client";
 import { Dayjs } from "dayjs";
 
 export interface VehicleStep1Data {

@@ -1,17 +1,14 @@
 "use server";
 
 import { db } from "../db";
-import { getAuthenticatedUser } from "../auth-middleware";
+import { authenticatedAction } from "../auth-middleware";
+import { checkPermission } from "./utils/checkPermission";
 
-async function getCompanyId(): Promise<string | null> {
-  const user = await getAuthenticatedUser();
-  return user?.companyId ?? null;
-}
-
-export async function getOverviewStats() {
+export const getOverviewStats = authenticatedAction(async (user) => {
   try {
-    const companyId = await getCompanyId();
-    if (!companyId) return null;
+    await checkPermission(user.id, user.companyId);
+
+    if (!user.companyId) return null;
 
     const [
       activeShipments,
@@ -25,17 +22,27 @@ export async function getOverviewStats() {
     ] = await Promise.all([
       db.shipment.count({
         where: {
-          companyId,
+          companyId: user.companyId,
           status: { notIn: ["DELIVERED", "CANCELLED", "COMPLETED"] },
         },
       }),
-      db.shipment.count({ where: { companyId, status: "DELAYED" } }),
-      db.vehicle.count({ where: { companyId, status: "ON_TRIP" } }),
-      db.vehicle.count({ where: { companyId, status: "MAINTENANCE" } }),
-      db.vehicle.count({ where: { companyId, status: "AVAILABLE" } }),
-      db.driver.count({ where: { companyId, status: "ON_JOB" } }),
-      db.warehouse.count({ where: { companyId } }),
-      db.inventory.count({ where: { companyId } }),
+      db.shipment.count({
+        where: { companyId: user.companyId, status: "DELAYED" },
+      }),
+      db.vehicle.count({
+        where: { companyId: user.companyId, status: "ON_TRIP" },
+      }),
+      db.vehicle.count({
+        where: { companyId: user.companyId, status: "MAINTENANCE" },
+      }),
+      db.vehicle.count({
+        where: { companyId: user.companyId, status: "AVAILABLE" },
+      }),
+      db.driver.count({
+        where: { companyId: user.companyId, status: "ON_JOB" },
+      }),
+      db.warehouse.count({ where: { companyId: user.companyId } }),
+      db.inventory.count({ where: { companyId: user.companyId } }),
     ]);
 
     return {
@@ -50,26 +57,39 @@ export async function getOverviewStats() {
     };
   } catch (error) {
     console.error("Failed to get overview stats:", error);
-    throw new Error("Failed to get overview stats");
+    throw error;
   }
-}
+});
 
-export async function getActionRequired() {
-  return [];
-}
-
-export async function getDailyOperations() {
+export const getActionRequired = authenticatedAction(async (user) => {
   try {
-    const companyId = await getCompanyId();
-    if (!companyId) return null;
+    await checkPermission(user.id, user.companyId);
+    return [];
+  } catch (error) {
+    console.error("Failed to get action required:", error);
+    return [];
+  }
+});
+
+export const getDailyOperations = authenticatedAction(async (user) => {
+  try {
+    await checkPermission(user.id, user.companyId);
+
+    if (!user.companyId) return null;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const [plannedRoutes, completedDeliveries] = await Promise.all([
-      db.route.count({ where: { companyId, status: "PLANNED" } }),
+      db.route.count({
+        where: { companyId: user.companyId, status: "PLANNED" },
+      }),
       db.shipment.count({
-        where: { companyId, status: "DELIVERED", updatedAt: { gte: today } },
+        where: {
+          companyId: user.companyId,
+          status: "DELIVERED",
+          updatedAt: { gte: today },
+        },
       }),
     ]);
 
@@ -90,15 +110,16 @@ export async function getDailyOperations() {
       fuelConsumedLiters: 0,
     };
   }
-}
+});
 
-export async function getFuelStats() {
+export const getFuelStats = authenticatedAction(async (user) => {
   try {
-    const companyId = await getCompanyId();
-    if (!companyId) return [];
+    await checkPermission(user.id, user.companyId);
+
+    if (!user.companyId) return [];
 
     const vehicles = await db.vehicle.findMany({
-      where: { companyId },
+      where: { companyId: user.companyId },
       take: 5,
     });
 
@@ -111,15 +132,16 @@ export async function getFuelStats() {
     console.error("Failed to get fuel stats:", error);
     return [];
   }
-}
+});
 
-export async function getWarehouseCapacity() {
+export const getWarehouseCapacity = authenticatedAction(async (user) => {
   try {
-    const companyId = await getCompanyId();
-    if (!companyId) return [];
+    await checkPermission(user.id, user.companyId);
+
+    if (!user.companyId) return [];
 
     const warehouses = await db.warehouse.findMany({
-      where: { companyId },
+      where: { companyId: user.companyId },
       include: { inventory: true },
     });
 
@@ -133,15 +155,16 @@ export async function getWarehouseCapacity() {
     console.error("Failed to get warehouse capacity:", error);
     return [];
   }
-}
+});
 
-export async function getLowStockItems() {
+export const getLowStockItems = authenticatedAction(async (user) => {
   try {
-    const companyId = await getCompanyId();
-    if (!companyId) return [];
+    await checkPermission(user.id, user.companyId);
+
+    if (!user.companyId) return [];
 
     const lowStock = await db.inventory.findMany({
-      where: { companyId, quantity: { lt: 50 } },
+      where: { companyId: user.companyId, quantity: { lt: 50 } },
       take: 5,
       include: { warehouse: true },
     });
@@ -155,15 +178,16 @@ export async function getLowStockItems() {
     console.error("Failed to get low stock items:", error);
     return [];
   }
-}
+});
 
-export async function getShipmentStatusStats() {
+export const getShipmentStatusStats = authenticatedAction(async (user) => {
   try {
-    const companyId = await getCompanyId();
-    if (!companyId) return [];
+    await checkPermission(user.id, user.companyId);
+
+    if (!user.companyId) return [];
 
     const allShipments = await db.shipment.findMany({
-      where: { companyId },
+      where: { companyId: user.companyId },
       select: { status: true },
     });
 
@@ -172,31 +196,44 @@ export async function getShipmentStatusStats() {
     console.error("Failed to get shipment status stats:", error);
     return [];
   }
-}
+});
 
-export async function getPicksAndPacks() {
-  return { picks: 145, packs: 120 };
-}
-
-export async function getOnTimeTrends() {
-  return [
-    { date: "2026-01-28", value: 92 },
-    { date: "2026-01-29", value: 94 },
-    { date: "2026-01-30", value: 91 },
-    { date: "2026-01-31", value: 95 },
-    { date: "2026-02-02", value: 94 },
-  ];
-}
-
-export async function getMapData() {
+export const getPicksAndPacks = authenticatedAction(async (user) => {
   try {
-    const companyId = await getCompanyId();
-    if (!companyId) return [];
+    await checkPermission(user.id, user.companyId);
+    return { picks: 145, packs: 120 };
+  } catch (error) {
+    console.error("Failed to get picks and packs:", error);
+    return { picks: 0, packs: 0 };
+  }
+});
+
+export const getOnTimeTrends = authenticatedAction(async (user) => {
+  try {
+    await checkPermission(user.id, user.companyId);
+    return [
+      { date: "2026-01-28", value: 92 },
+      { date: "2026-01-29", value: 94 },
+      { date: "2026-01-30", value: 91 },
+      { date: "2026-01-31", value: 95 },
+      { date: "2026-02-02", value: 94 },
+    ];
+  } catch (error) {
+    console.error("Failed to get on time trends:", error);
+    return [];
+  }
+});
+
+export const getMapData = authenticatedAction(async (user) => {
+  try {
+    await checkPermission(user.id, user.companyId);
+
+    if (!user.companyId) return [];
 
     const [warehouses, vehicles, customers] = await Promise.all([
-      db.warehouse.findMany({ where: { companyId } }),
-      db.vehicle.findMany({ where: { companyId } }),
-      db.customer.findMany({ where: { companyId } }),
+      db.warehouse.findMany({ where: { companyId: user.companyId } }),
+      db.vehicle.findMany({ where: { companyId: user.companyId } }),
+      db.customer.findMany({ where: { companyId: user.companyId } }),
     ]);
 
     return [
@@ -226,19 +263,24 @@ export async function getMapData() {
     console.error("Failed to get map data:", error);
     return [];
   }
-}
+});
 
-export async function getAnalyticsDashboardData() {
+export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
   try {
-    const companyId = await getCompanyId();
-    if (!companyId) return null;
+    await checkPermission(user.id, user.companyId);
+
+    if (!user.companyId) return null;
 
     const [totalVehicles, activeVehicles, totalShipments, delayedShipments] =
       await Promise.all([
-        db.vehicle.count({ where: { companyId } }),
-        db.vehicle.count({ where: { companyId, status: "ON_TRIP" } }),
-        db.shipment.count({ where: { companyId } }),
-        db.shipment.count({ where: { companyId, status: "DELAYED" } }),
+        db.vehicle.count({ where: { companyId: user.companyId } }),
+        db.vehicle.count({
+          where: { companyId: user.companyId, status: "ON_TRIP" },
+        }),
+        db.shipment.count({ where: { companyId: user.companyId } }),
+        db.shipment.count({
+          where: { companyId: user.companyId, status: "DELAYED" },
+        }),
       ]);
 
     const fleetUtilization =
@@ -285,6 +327,7 @@ export async function getAnalyticsDashboardData() {
           "W10",
           "W11",
           "W12",
+          "W13",
         ],
         actuals: [
           120,
@@ -296,6 +339,7 @@ export async function getAnalyticsDashboardData() {
           155,
           175,
           180,
+          null,
           null,
           null,
           null,
@@ -313,6 +357,7 @@ export async function getAnalyticsDashboardData() {
           195,
           210,
           225,
+          240,
         ],
       },
     };
@@ -320,4 +365,4 @@ export async function getAnalyticsDashboardData() {
     console.error("Failed to get analytics dashboard data:", error);
     return null;
   }
-}
+});

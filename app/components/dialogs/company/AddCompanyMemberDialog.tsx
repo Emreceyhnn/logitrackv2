@@ -41,7 +41,6 @@ const roles = [
   { id: "role_admin", label: "ADMIN - Full organizational access" },
   { id: "role_manager", label: "MANAGER - Manage department operations" },
   { id: "role_dispatcher", label: "DISPATCHER - Manage routes and fleet" },
-  { id: "role_driver", label: "DRIVER - Execute shipments and trips" },
   { id: "role_warehouse", label: "WAREHOUSE - Manage inventory" },
   { id: "role_default", label: "DEFAULT - Standard user access" },
 ];

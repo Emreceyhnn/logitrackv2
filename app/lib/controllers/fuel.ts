@@ -1,53 +1,63 @@
 "use server";
 
 import { db } from "../db";
-import { FuelLogWithRelations } from "../type/fuel";
-
+import { checkPermission } from "./utils/checkPermission";
+import { FuelLog, FuelLogWithRelations, FuelPageState } from "../type/fuel";
 import { authenticatedAction } from "../auth-middleware";
 
 export const getFuelLogs = authenticatedAction(
-  async (user, filters: any): Promise<FuelLogWithRelations[]> => {
-    if (!user.companyId) {
-      throw new Error("User has no company assigned");
-    }
-    const { vehicleId, driverId, startDate, endDate } = filters;
+  async (user, filters: FuelPageState["filters"]) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
+    try {
+      await checkPermission(userId, companyId);
+      if (!companyId) {
+        throw new Error("User has no company assigned");
+      }
+      const { vehicleId, driverId, startDate, endDate } = filters;
 
-    return db.fuelLog.findMany({
-      where: {
-        companyId: user.companyId,
-        ...(vehicleId && { vehicleId }),
-        ...(driverId && { driverId }),
-        ...(startDate &&
-          endDate && {
-            date: {
-              gte: startDate,
-              lte: endDate,
-            },
-          }),
-      },
-      include: {
-        vehicle: {
-          select: {
-            id: true,
-            plate: true,
-            fleetNo: true,
-          },
+      const logs = await db.fuelLog.findMany({
+        where: {
+          companyId,
+          ...(vehicleId && { vehicleId }),
+          ...(driverId && { driverId }),
+          ...(startDate &&
+            endDate && {
+              date: {
+                gte: startDate,
+                lte: endDate,
+              },
+            }),
         },
-        driver: {
-          include: {
-            user: {
-              select: {
-                name: true,
-                surname: true,
+        include: {
+          vehicle: {
+            select: {
+              id: true,
+              plate: true,
+              fleetNo: true,
+            },
+          },
+          driver: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  surname: true,
+                },
               },
             },
           },
         },
-      },
-      orderBy: {
-        date: "desc",
-      },
-    }) as unknown as FuelLogWithRelations[];
+        orderBy: {
+          date: "desc",
+        },
+      });
+
+      return logs as unknown as FuelLogWithRelations[];
+    } catch (error) {
+      console.error("Failed to get fuel logs:", error);
+      throw error;
+    }
   }
 );
 
@@ -66,53 +76,74 @@ export const createFuelLog = authenticatedAction(
       receiptUrl?: string;
     }
   ) => {
-    return db.fuelLog.create({
-      data: {
-        ...data,
-        companyId: user.companyId!,
-      },
-    });
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
+    try {
+      await checkPermission(userId, companyId);
+      if (!companyId) throw new Error("User has no company assigned");
+
+      return db.fuelLog.create({
+        data: {
+          ...data,
+          companyId,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to create fuel log:", error);
+      throw error;
+    }
   }
 );
 
 export const getFuelStats = authenticatedAction(async (user) => {
-  if (!user.companyId) {
-    throw new Error("User has no company assigned");
-  }
+  const userId = user?.id || "";
+  const companyId = user?.companyId || "";
+  try {
+    await checkPermission(userId, companyId);
+    if (!companyId) {
+      throw new Error("User has no company assigned");
+    }
 
-  const logs = await db.fuelLog.findMany({
-    where: { companyId: user.companyId },
-    orderBy: { date: "desc" },
-  });
+    const logs = await db.fuelLog.findMany({
+      where: { companyId },
+      orderBy: { date: "desc" },
+    });
 
-  if (logs.length === 0) {
+    if (logs.length === 0) {
+      return {
+        totalCost: 0,
+        totalVolume: 0,
+        avgFuelPrice: 0,
+        efficiencyKml: 0,
+      };
+    }
+
+    const totalCost = logs.reduce(
+      (sum: number, log: FuelLog) => sum + log.cost,
+      0
+    );
+    const totalVolume = logs.reduce(
+      (sum: number, log: FuelLog) => sum + log.volumeLiter,
+      0
+    );
+
+    // Basic efficiency calculation if we have at least 2 logs with odometer readings
+    let efficiencyKml = 0;
+    if (logs.length >= 2) {
+      const sortedLogs = [...logs].sort((a, b) => b.odometerKm - a.odometerKm);
+      const totalDist =
+        sortedLogs[0].odometerKm - sortedLogs[sortedLogs.length - 1].odometerKm;
+      efficiencyKml = totalDist / totalVolume;
+    }
+
     return {
-      totalCost: 0,
-      totalVolume: 0,
-      avgFuelPrice: 0,
-      efficiencyKml: 0,
+      totalCost,
+      totalVolume,
+      avgFuelPrice: totalCost / totalVolume,
+      efficiencyKml,
     };
+  } catch (error) {
+    console.error("Failed to get fuel stats:", error);
+    throw error;
   }
-
-  const totalCost = logs.reduce((sum: number, log: any) => sum + log.cost, 0);
-  const totalVolume = logs.reduce(
-    (sum: number, log: any) => sum + log.volumeLiter,
-    0
-  );
-
-  // Basic efficiency calculation if we have at least 2 logs with odometer readings
-  let efficiencyKml = 0;
-  if (logs.length >= 2) {
-    const sortedLogs = [...logs].sort((a, b) => b.odometerKm - a.odometerKm);
-    const totalDist =
-      sortedLogs[0].odometerKm - sortedLogs[sortedLogs.length - 1].odometerKm;
-    efficiencyKml = totalDist / totalVolume;
-  }
-
-  return {
-    totalCost,
-    totalVolume,
-    avgFuelPrice: totalCost / totalVolume,
-    efficiencyKml,
-  };
 });

@@ -1,181 +1,220 @@
 "use server";
 
 import { db } from "../db";
+import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
 
-export async function createMaintenanceRecord(
-  userId: string,
-  companyId: string,
-  vehicleId: string,
-  type: string,
-  date: Date,
-  cost: number,
-  description?: string
-) {
+export const createMaintenanceRecord = authenticatedAction(
+  async (
+    user,
+    vehicleId: string,
+    type: string,
+    date: Date,
+    cost: number,
+    description?: string
+  ) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const vehicle = await db.vehicle.findUnique({
+        where: { id: vehicleId },
+        select: { companyId: true },
+      });
+
+      if (!vehicle || vehicle.companyId !== companyId) {
+        throw new Error(
+          "Invalid vehicle or vehicle does not belong to this company"
+        );
+      }
+
+      const newRecord = await db.maintenanceRecord.create({
+        data: {
+          vehicleId,
+          type,
+          date,
+          cost,
+          description,
+        },
+      });
+
+      return { maintenanceRecord: newRecord };
+    } catch (error) {
+      console.error("Failed to create maintenance record:", error);
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to create maintenance record"
+      );
+    }
+  }
+);
+
+export const getMaintenanceRecords = authenticatedAction(
+  async (user, vehicleId?: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId || "";
+    try {
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+
+      const whereClause: Prisma.MaintenanceRecordWhereInput = {
+        vehicle: {
+          companyId: companyId!,
+        },
+      };
+
+      if (vehicleId) {
+        whereClause.vehicleId = vehicleId;
+      }
+
+      const records = await db.maintenanceRecord.findMany({
+        where: whereClause,
+        include: {
+          vehicle: {
+            select: {
+              plate: true,
+              brand: true,
+              model: true,
+            },
+          },
+        },
+        orderBy: { date: "desc" },
+      });
+      return records;
+    } catch (error) {
+      console.error("Failed to get maintenance records:", error);
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to get maintenance records"
+      );
+    }
+  }
+);
+
+export const getMaintenanceRecordById = authenticatedAction(
+  async (user, recordId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId || "";
+    try {
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      const record = await db.maintenanceRecord.findUnique({
+        where: { id: recordId },
+        include: {
+          vehicle: true,
+        },
+      });
+
+      if (!record) throw new Error("Maintenance record not found");
+
+      if (record.vehicle?.companyId) {
+        await checkPermission(userId, record.vehicle.companyId, [
+          "role_admin",
+          "role_manager",
+        ]);
+      }
+
+      return record;
+    } catch (error) {
+      console.error("Failed to get maintenance record:", error);
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to get maintenance record"
+      );
+    }
+  }
+);
+
+export const updateMaintenanceRecord = authenticatedAction(
+  async (user, recordId: string, data: Prisma.MaintenanceRecordUpdateInput) => {
+    const userId = user?.id;
+    const companyId = user?.companyId || "";
+    try {
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      const existingRecord = await db.maintenanceRecord.findUnique({
+        where: { id: recordId },
+        include: { vehicle: { select: { companyId: true } } },
+      });
+
+      if (!existingRecord?.vehicle?.companyId)
+        throw new Error("Maintenance record not found");
+
+      await checkPermission(userId, existingRecord.vehicle.companyId, [
+        "role_admin",
+        "role_manager",
+      ]);
+
+      const updatedRecord = await db.maintenanceRecord.update({
+        where: { id: recordId },
+        data: {
+          ...data,
+        },
+      });
+
+      return updatedRecord;
+    } catch (error) {
+      console.error("Failed to update maintenance record:", error);
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to update maintenance record"
+      );
+    }
+  }
+);
+
+export const deleteMaintenanceRecord = authenticatedAction(
+  async (user, recordId: string) => {
+    const userId = user?.id;
+    const companyId = user?.companyId || "";
+    try {
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      const existingRecord = await db.maintenanceRecord.findUnique({
+        where: { id: recordId },
+        include: { vehicle: { select: { companyId: true } } },
+      });
+
+      if (!existingRecord?.vehicle?.companyId)
+        throw new Error("Maintenance record not found");
+
+      await checkPermission(userId, existingRecord.vehicle.companyId, [
+        "role_admin",
+        "role_manager",
+      ]);
+
+      await db.maintenanceRecord.delete({
+        where: { id: recordId },
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete maintenance record:", error);
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to delete maintenance record"
+      );
+    }
+  }
+);
+
+export const getMaintenanceStats = authenticatedAction(async (user) => {
+  const userId = user?.id;
+  const companyId = user?.companyId || "";
   try {
     await checkPermission(userId, companyId, [
       "role_admin",
       "role_manager",
-      "role_dispatcher",
+      "role_driver",
+      "role_warehouse",
     ]);
-
-    const vehicle = await db.vehicle.findUnique({
-      where: { id: vehicleId },
-      select: { companyId: true },
-    });
-
-    if (!vehicle || vehicle.companyId !== companyId) {
-      throw new Error(
-        "Invalid vehicle or vehicle does not belong to this company"
-      );
-    }
-
-    const newRecord = await db.maintenanceRecord.create({
-      data: {
-        vehicleId,
-        type,
-        date,
-        cost,
-        description,
-      },
-    });
-
-    return { maintenanceRecord: newRecord };
-  } catch (error: any) {
-    console.error("Failed to create maintenance record:", error);
-    throw new Error(error.message || "Failed to create maintenance record");
-  }
-}
-
-export async function getMaintenanceRecords(
-  companyId: string,
-  userId: string,
-  vehicleId?: string
-) {
-  try {
-    await checkPermission(userId, companyId);
-
-    const whereClause: Prisma.MaintenanceRecordWhereInput = {
-      vehicle: {
-        companyId: companyId!,
-      },
-    };
-
-    if (vehicleId) {
-      whereClause.vehicleId = vehicleId;
-    }
-
-    const records = await db.maintenanceRecord.findMany({
-      where: whereClause,
-      include: {
-        vehicle: {
-          select: {
-            plate: true,
-            brand: true,
-            model: true,
-          },
-        },
-      },
-      orderBy: { date: "desc" },
-    });
-    return records;
-  } catch (error: any) {
-    console.error("Failed to get maintenance records:", error);
-    throw new Error(error.message || "Failed to get maintenance records");
-  }
-}
-
-export async function getMaintenanceRecordById(
-  recordId: string,
-  userId: string
-) {
-  try {
-    const record = await db.maintenanceRecord.findUnique({
-      where: { id: recordId },
-      include: {
-        vehicle: true,
-      },
-    });
-
-    if (!record) throw new Error("Maintenance record not found");
-
-    if (record.vehicle?.companyId) {
-      await checkPermission(userId, record.vehicle.companyId);
-    }
-
-    return record;
-  } catch (error: any) {
-    console.error("Failed to get maintenance record:", error);
-    throw new Error(error.message || "Failed to get maintenance record");
-  }
-}
-
-export async function updateMaintenanceRecord(
-  recordId: string,
-  userId: string,
-  data: Prisma.MaintenanceRecordUpdateInput
-) {
-  try {
-    const existingRecord = await db.maintenanceRecord.findUnique({
-      where: { id: recordId },
-      include: { vehicle: { select: { companyId: true } } },
-    });
-
-    if (!existingRecord?.vehicle?.companyId)
-      throw new Error("Maintenance record not found");
-
-    await checkPermission(userId, existingRecord.vehicle.companyId, [
-      "role_admin",
-      "role_manager",
-    ]);
-
-    const updatedRecord = await db.maintenanceRecord.update({
-      where: { id: recordId },
-      data: {
-        ...data,
-      },
-    });
-
-    return updatedRecord;
-  } catch (error: any) {
-    console.error("Failed to update maintenance record:", error);
-    throw new Error(error.message || "Failed to update maintenance record");
-  }
-}
-
-export async function deleteMaintenanceRecord(
-  recordId: string,
-  userId: string
-) {
-  try {
-    const existingRecord = await db.maintenanceRecord.findUnique({
-      where: { id: recordId },
-      include: { vehicle: { select: { companyId: true } } },
-    });
-
-    if (!existingRecord?.vehicle?.companyId)
-      throw new Error("Maintenance record not found");
-
-    await checkPermission(userId, existingRecord.vehicle.companyId, [
-      "role_admin",
-      "role_manager",
-    ]);
-
-    await db.maintenanceRecord.delete({
-      where: { id: recordId },
-    });
-
-    return { success: true };
-  } catch (error: any) {
-    console.error("Failed to delete maintenance record:", error);
-    throw new Error(error.message || "Failed to delete maintenance record");
-  }
-}
-
-export async function getMaintenanceStats(companyId: string, userId: string) {
-  try {
-    await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
 
     const currentYear = new Date().getFullYear();
     const startOfYear = new Date(currentYear, 0, 1);
@@ -198,7 +237,6 @@ export async function getMaintenanceStats(companyId: string, userId: string) {
 
     const totalCost = records.reduce((sum, record) => sum + record.cost, 0);
 
-    // Group by type
     const costByType: Record<string, number> = {};
     records.forEach((record) => {
       costByType[record.type] = (costByType[record.type] || 0) + record.cost;
@@ -209,8 +247,10 @@ export async function getMaintenanceStats(companyId: string, userId: string) {
       costByType,
       recordCount: records.length,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Failed to get maintenance stats:", error);
-    throw new Error(error.message || "Failed to get maintenance stats");
+    throw new Error(
+      error instanceof Error ? error.message : "Failed to get maintenance stats"
+    );
   }
-}
+});

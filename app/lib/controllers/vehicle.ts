@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "../db";
-import { VehicleStatus } from "@prisma/client";
+import { Issue, Prisma, VehicleStatus, VehicleType } from "@prisma/client";
 import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";
 import {
@@ -9,15 +9,42 @@ import {
   VehicleDocumentConverter,
   VehicleKpiConverter,
 } from "./utils/vehicleUtils";
+import { VehicleFilters, VehicleWithRelations } from "../type/vehicle";
 
 export const createVehicle = authenticatedAction(
-  async (user, vehicleData: any) => {
+  async (user, vehicleData: Record<string, unknown>) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      await checkPermission(user.id, user.companyId, [
+      await checkPermission(userId, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
       ]);
+
+      if (!companyId) throw new Error("User has no company");
+
+      interface VehicleInput {
+        year?: number | string;
+        odometerKm?: number | string;
+        maxLoadKg?: number | string;
+        fuelLevel?: number | string;
+        avgFuelConsumption?: number | string;
+        nextServiceKm?: number | string;
+        registrationExpiry?: string | Date;
+        inspectionExpiry?: string | Date;
+        plate?: string;
+        fleetNo?: string;
+        brand?: string;
+        model?: string;
+        type?: VehicleType; // The enum type
+        fuelType?: string;
+        engineSize?: string;
+        transmission?: string;
+        techNotes?: string;
+        photo?: string;
+        enableAlerts?: boolean;
+      }
 
       const {
         year,
@@ -28,32 +55,60 @@ export const createVehicle = authenticatedAction(
         nextServiceKm,
         registrationExpiry,
         inspectionExpiry,
-        ...rest
-      } = vehicleData;
+        plate,
+        fleetNo,
+        brand,
+        model,
+        type,
+        fuelType,
+        engineSize,
+        transmission,
+        techNotes,
+        photo,
+        enableAlerts,
+      } = vehicleData as unknown as VehicleInput;
 
-      const vehicle = await db.vehicle.create({
+      if (year === undefined || year === null)
+        throw new Error("Year is required");
+      if (maxLoadKg === undefined || maxLoadKg === null)
+        throw new Error("Max load capacity is required");
+      if (!plate) throw new Error("Plate is required");
+      if (!fleetNo) throw new Error("Fleet No is required");
+      if (!type) throw new Error("Vehicle type is required");
+
+      const newVehicle = await db.vehicle.create({
         data: {
-          ...rest,
-          year: year ? parseInt(year.toString()) : undefined,
-          odometerKm: odometerKm ? parseInt(odometerKm.toString()) : undefined,
-          maxLoadKg: maxLoadKg ? parseInt(maxLoadKg.toString()) : undefined,
-          fuelLevel: fuelLevel ? parseInt(fuelLevel.toString()) : undefined,
+          plate: plate.toString(),
+          fleetNo: fleetNo.toString(),
+          brand: brand?.toString() || "",
+          model: model?.toString() || "",
+          type: type as VehicleType,
+          fuelType: fuelType?.toString() || "DIESEL",
+          year: parseInt(year.toString()),
+          maxLoadKg: parseInt(maxLoadKg.toString()),
+          odometerKm: odometerKm ? parseInt(odometerKm.toString()) : null,
+          fuelLevel: fuelLevel ? parseInt(fuelLevel.toString()) : null,
           avgFuelConsumption: avgFuelConsumption
             ? parseFloat(avgFuelConsumption.toString())
-            : undefined,
+            : null,
           nextServiceKm: nextServiceKm
             ? parseInt(nextServiceKm.toString())
-            : undefined,
+            : null,
           registrationExpiry: registrationExpiry
-            ? new Date(registrationExpiry)
-            : undefined,
+            ? new Date(registrationExpiry as string)
+            : null,
           inspectionExpiry: inspectionExpiry
-            ? new Date(inspectionExpiry)
-            : undefined,
-          company: { connect: { id: user.companyId! } },
+            ? new Date(inspectionExpiry as string)
+            : null,
+          engineSize: engineSize?.toString() || null,
+          transmission: transmission?.toString() || null,
+          techNotes: techNotes?.toString() || null,
+          photo: photo?.toString() || null,
+          enableAlerts: enableAlerts === true,
+          company: { connect: { id: companyId } },
         },
       });
-      return vehicle;
+      return newVehicle;
     } catch (error) {
       console.error("Failed to create vehicle:", error);
       throw error;
@@ -61,15 +116,21 @@ export const createVehicle = authenticatedAction(
   }
 );
 
-import { VehicleFilters, VehicleWithRelations } from "../type/vehicle";
-
 export const getVehicles = authenticatedAction(
   async (user, filters?: VehicleFilters): Promise<VehicleWithRelations[]> => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      await checkPermission(user.id, user.companyId);
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
 
-      const whereClause: any = {
-        companyId: user.companyId,
+      if (!companyId) throw new Error("User has no company");
+
+      const whereClause: Prisma.VehicleWhereInput = {
+        companyId,
       };
 
       if (filters) {
@@ -133,8 +194,16 @@ export const getVehicles = authenticatedAction(
 
 export const getVehicleById = authenticatedAction(
   async (user, vehicleId: string) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      const vehicle = await db.vehicle.findUnique({
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const foundVehicle = await db.vehicle.findUnique({
         where: { id: vehicleId },
         include: {
           driver: {
@@ -154,13 +223,11 @@ export const getVehicleById = authenticatedAction(
         },
       });
 
-      if (!vehicle) throw new Error("Vehicle not found");
-
-      if (vehicle.companyId) {
-        await checkPermission(user.id, vehicle.companyId);
+      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+        throw new Error("Vehicle not found or unauthorized");
       }
 
-      return vehicle;
+      return foundVehicle;
     } catch (error) {
       console.error("Failed to get vehicle:", error);
       throw error;
@@ -169,20 +236,24 @@ export const getVehicleById = authenticatedAction(
 );
 
 export const updateVehicle = authenticatedAction(
-  async (user, vehicleId: string, data: any) => {
+  async (user, vehicleId: string, data: Partial<Prisma.VehicleUpdateInput>) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      const existingVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
-        select: { companyId: true },
-      });
-
-      if (!existingVehicle?.companyId) throw new Error("Vehicle not found");
-
-      await checkPermission(user.id, existingVehicle.companyId, [
+      await checkPermission(userId, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
       ]);
+
+      const foundVehicle = await db.vehicle.findUnique({
+        where: { id: vehicleId },
+        select: { companyId: true },
+      });
+
+      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+        throw new Error("Vehicle not found or unauthorized");
+      }
 
       const updatedVehicle = await db.vehicle.update({
         where: { id: vehicleId },
@@ -201,18 +272,19 @@ export const updateVehicle = authenticatedAction(
 
 export const deleteVehicle = authenticatedAction(
   async (user, vehicleId: string) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      const existingVehicle = await db.vehicle.findUnique({
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+
+      const foundVehicle = await db.vehicle.findUnique({
         where: { id: vehicleId },
         select: { companyId: true },
       });
 
-      if (!existingVehicle?.companyId) throw new Error("Vehicle not found");
-
-      await checkPermission(user.id, existingVehicle.companyId, [
-        "role_admin",
-        "role_manager",
-      ]);
+      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+        throw new Error("Vehicle not found or unauthorized");
+      }
 
       await db.vehicle.delete({
         where: { id: vehicleId },
@@ -237,15 +309,23 @@ export const createVehicleIssue = authenticatedAction(
       description?: string;
     }
   ) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      const existingVehicle = await db.vehicle.findUnique({
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const foundVehicle = await db.vehicle.findUnique({
         where: { id: vehicleId },
         select: { companyId: true },
       });
 
-      if (!existingVehicle?.companyId) throw new Error("Vehicle not found");
-
-      await checkPermission(user.id, existingVehicle.companyId);
+      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+        throw new Error("Vehicle not found or unauthorized");
+      }
 
       const issue = await db.issue.create({
         data: {
@@ -255,7 +335,7 @@ export const createVehicleIssue = authenticatedAction(
           description: issueData.description || null,
           status: "OPEN",
           vehicleId,
-          companyId: existingVehicle.companyId,
+          companyId,
         },
       });
 
@@ -269,26 +349,30 @@ export const createVehicleIssue = authenticatedAction(
 
 export const assignDriverToVehicle = authenticatedAction(
   async (user, vehicleId: string, driverId: string | null) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      const existingVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
-        select: { companyId: true },
-      });
-
-      if (!existingVehicle?.companyId) throw new Error("Vehicle not found");
-
-      await checkPermission(user.id, existingVehicle.companyId, [
+      await checkPermission(userId, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
       ]);
 
+      const foundVehicle = await db.vehicle.findUnique({
+        where: { id: vehicleId },
+        select: { companyId: true },
+      });
+
+      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+        throw new Error("Vehicle not found or unauthorized");
+      }
+
       if (driverId) {
-        const driver = await db.driver.findUnique({
+        const foundDriver = await db.driver.findUnique({
           where: { id: driverId },
           select: { companyId: true },
         });
-        if (!driver || driver.companyId !== existingVehicle.companyId) {
+        if (!foundDriver || foundDriver.companyId !== companyId) {
           throw new Error("Driver not found or belongs to another company");
         }
       }
@@ -333,8 +417,30 @@ export const assignDriverToVehicle = authenticatedAction(
 
 export const updateVehicleStatus = authenticatedAction(
   async (user, vehicleId: string, status: VehicleStatus) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      return await updateVehicle(vehicleId, { status });
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const foundVehicle = await db.vehicle.findUnique({
+        where: { id: vehicleId },
+        select: { companyId: true },
+      });
+
+      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+        throw new Error("Vehicle not found or unauthorized");
+      }
+
+      const updatedVehicle = await db.vehicle.update({
+        where: { id: vehicleId },
+        data: { status },
+      });
+
+      return updatedVehicle;
     } catch (error) {
       console.error("Failed to update status:", error);
       throw error;
@@ -348,18 +454,23 @@ export const addMaintenanceRecord = authenticatedAction(
     vehicleId: string,
     recordData: { type: string; date: Date; cost: number; description?: string }
   ) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      const existingVehicle = await db.vehicle.findUnique({
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const foundVehicle = await db.vehicle.findUnique({
         where: { id: vehicleId },
         select: { companyId: true },
       });
 
-      if (!existingVehicle?.companyId) throw new Error("Vehicle not found");
-
-      await checkPermission(user.id, existingVehicle.companyId, [
-        "role_admin",
-        "role_manager",
-      ]);
+      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+        throw new Error("Vehicle not found or unauthorized");
+      }
 
       const record = await db.maintenanceRecord.create({
         data: {
@@ -382,14 +493,20 @@ export const addMaintenanceRecord = authenticatedAction(
 );
 
 export const getOpenIssuesForUser = authenticatedAction(async (user) => {
+  const userId = user?.id || "";
+  const companyId = user?.companyId || "";
   try {
-    if (!user || !user.companyId) {
-      // Should be guaranteed by authenticatedAction but keeping for safety
-      throw new Error("Unauthorized");
-    }
+    await checkPermission(userId, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_dispatcher",
+      "role_driver",
+    ]);
 
-    const vehicles = await db.vehicle.findMany({
-      where: { companyId: user.companyId },
+    if (!companyId) throw new Error("User has no company");
+
+    const vehiclesWithIssues = await db.vehicle.findMany({
+      where: { companyId },
       include: {
         issues: {
           where: {
@@ -405,8 +522,8 @@ export const getOpenIssuesForUser = authenticatedAction(async (user) => {
       },
     });
 
-    const issues: any[] = [];
-    vehicles.forEach((v) => {
+    const issues: Issue[] = [];
+    vehiclesWithIssues.forEach((v) => {
       if (v.issues && v.issues.length > 0) {
         issues.push(...v.issues);
       }
@@ -422,18 +539,20 @@ export const getOpenIssuesForUser = authenticatedAction(async (user) => {
   }
 });
 
-/* ------------------------------- INDICATORS ------------------------------- */
-
 export const getVehiclesDashboardData = authenticatedAction(async (user) => {
+  const userId = user?.id || "";
+  const companyId = user?.companyId || "";
   try {
-    await checkPermission(user.id, user.companyId, [
+    await checkPermission(userId, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
     ]);
 
+    if (!companyId) throw new Error("User has no company");
+
     const vehicles = await db.vehicle.findMany({
-      where: { companyId: user.companyId },
+      where: { companyId },
       select: {
         id: true,
         plate: true,
@@ -459,9 +578,7 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
     });
 
     const vehiclesKpis = VehicleKpiConverter(vehicles);
-
     const vehiclesCapacity = VehicleCapacityConverter(vehicles);
-
     const expiringDocs = VehicleDocumentConverter(vehicles);
 
     return { vehiclesKpis, vehiclesCapacity, expiringDocs };
@@ -471,32 +588,33 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
   }
 });
 
-/* ----------------------------- MISSING ACTIONS ---------------------------- */
-
 export const unassignDriverFromVehicle = authenticatedAction(
   async (user, vehicleId: string) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      const existingVehicle = await db.vehicle.findUnique({
-        where: { id: vehicleId },
-        select: { companyId: true },
-      });
-
-      if (!existingVehicle?.companyId) throw new Error("Vehicle not found");
-
-      await checkPermission(user.id, existingVehicle.companyId, [
+      await checkPermission(userId, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
       ]);
 
-      // Find the driver currently assigned to this vehicle
-      const driver = await db.driver.findUnique({
+      const foundVehicle = await db.vehicle.findUnique({
+        where: { id: vehicleId },
+        select: { companyId: true },
+      });
+
+      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+        throw new Error("Vehicle not found or unauthorized");
+      }
+
+      const foundDriver = await db.driver.findUnique({
         where: { currentVehicleId: vehicleId },
       });
 
-      if (driver) {
+      if (foundDriver) {
         await db.driver.update({
-          where: { id: driver.id },
+          where: { id: foundDriver.id },
           data: { currentVehicleId: null },
         });
       }
@@ -510,18 +628,22 @@ export const unassignDriverFromVehicle = authenticatedAction(
 );
 
 export const getAvailableDrivers = authenticatedAction(async (user) => {
+  const userId = user?.id || "";
+  const companyId = user?.companyId || "";
   try {
-    await checkPermission(user.id, user.companyId, [
+    await checkPermission(userId, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
     ]);
 
-    const drivers = await db.driver.findMany({
+    if (!companyId) throw new Error("User has no company");
+
+    const availableDrivers = await db.driver.findMany({
       where: {
-        companyId: user.companyId,
-        currentVehicleId: null, // Only fetch drivers not currently assigned
-        status: { not: "OFF_DUTY" }, // Optional: only show active drivers
+        companyId,
+        currentVehicleId: null,
+        status: { not: "OFF_DUTY" },
       },
       select: {
         id: true,
@@ -537,7 +659,7 @@ export const getAvailableDrivers = authenticatedAction(async (user) => {
       },
     });
 
-    return drivers;
+    return availableDrivers;
   } catch (error) {
     console.error("Failed to get available drivers:", error);
     throw error;
@@ -556,23 +678,24 @@ export const uploadVehicleDocument = authenticatedAction(
       status: string;
     }
   ) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      const existingVehicle = await db.vehicle.findUnique({
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+
+      const foundVehicle = await db.vehicle.findUnique({
         where: { id: vehicleId },
         select: { companyId: true },
       });
 
-      if (!existingVehicle?.companyId) throw new Error("Vehicle not found");
-
-      await checkPermission(user.id, existingVehicle.companyId, [
-        "role_admin",
-        "role_manager",
-      ]);
+      if (!foundVehicle || foundVehicle.companyId !== companyId) {
+        throw new Error("Vehicle not found or unauthorized");
+      }
 
       const doc = await db.document.create({
         data: {
           vehicleId,
-          companyId: existingVehicle.companyId,
+          companyId,
           ...documentData,
         },
       });
@@ -595,19 +718,23 @@ export const updateIssue = authenticatedAction(
       description?: string;
     }
   ) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
     try {
-      const issue = await db.issue.findUnique({
-        where: { id: issueId },
-        select: { companyId: true },
-      });
-
-      if (!issue?.companyId) throw new Error("Issue not found");
-
-      await checkPermission(user.id, issue.companyId, [
+      await checkPermission(userId, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
       ]);
+
+      const foundIssue = await db.issue.findUnique({
+        where: { id: issueId },
+        select: { companyId: true },
+      });
+
+      if (!foundIssue || foundIssue.companyId !== companyId) {
+        throw new Error("Issue not found or unauthorized");
+      }
 
       const updatedIssue = await db.issue.update({
         where: { id: issueId },

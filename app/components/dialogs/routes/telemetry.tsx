@@ -1,5 +1,11 @@
-import { LinearProgress, Stack, Typography } from "@mui/material";
-import CustomCard from "../../cards/card";
+import {
+  alpha,
+  LinearProgress,
+  Stack,
+  Typography,
+  useTheme,
+  Box,
+} from "@mui/material";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 
 interface Params {
@@ -8,6 +14,7 @@ interface Params {
 }
 
 const RoutesTelemetryCards = (params: Params) => {
+  const theme = useTheme();
   const { route } = params;
   if (!route) return null;
 
@@ -22,9 +29,19 @@ const RoutesTelemetryCards = (params: Params) => {
 
   return (
     <Stack spacing={2} px={2}>
-      <Typography>LIVE TELEMETRY</Typography>
+      <Typography variant="subtitle2" fontWeight={700} color="white">
+        LIVE TELEMETRY
+      </Typography>
       <Stack direction={"row"} spacing={2}>
-        <CustomCard sx={{ padding: 4 }}>
+        <Box
+          sx={{
+            p: 3,
+            borderRadius: 3,
+            bgcolor: alpha(theme.palette.divider, 0.05),
+            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            flex: 1,
+          }}
+        >
           <Stack spacing={1}>
             <Typography
               sx={{ fontSize: 14, fontWeight: 600, color: "text.secondary" }}
@@ -32,7 +49,9 @@ const RoutesTelemetryCards = (params: Params) => {
               DIST. TRAVELLED
             </Typography>
             <Stack direction={"row"} spacing={1} alignItems={"center"}>
-              <Typography>{completedDistance}</Typography>
+              <Typography variant="h5" fontWeight={600} color="white">
+                {completedDistance}
+              </Typography>
               <Typography
                 sx={{ fontSize: 12, fontWeight: 300, color: "text.secondary" }}
               >
@@ -40,16 +59,26 @@ const RoutesTelemetryCards = (params: Params) => {
               </Typography>
             </Stack>
           </Stack>
-        </CustomCard>
-        <CustomCard sx={{ padding: 4 }}>
+        </Box>
+        <Box
+          sx={{
+            p: 3,
+            borderRadius: 3,
+            bgcolor: alpha(theme.palette.divider, 0.05),
+            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            flex: 1,
+          }}
+        >
           <Stack spacing={1}>
             <Typography
               sx={{ fontSize: 14, fontWeight: 600, color: "text.secondary" }}
             >
               Remaining
             </Typography>
-            <Stack direction={"row"} spacing={1}>
-              <Typography>{remainingDistance.toFixed(1)}</Typography>
+            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+              <Typography variant="h5" fontWeight={600} color="white">
+                {remainingDistance.toFixed(1)}
+              </Typography>
               <Typography
                 sx={{ fontSize: 12, fontWeight: 300, color: "text.secondary" }}
               >
@@ -57,9 +86,16 @@ const RoutesTelemetryCards = (params: Params) => {
               </Typography>
             </Stack>
           </Stack>
-        </CustomCard>
+        </Box>
       </Stack>
-      <CustomCard sx={{ padding: 4 }}>
+      <Box
+        sx={{
+          p: 3,
+          borderRadius: 3,
+          bgcolor: alpha(theme.palette.divider, 0.05),
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        }}
+      >
         <Stack spacing={1}>
           <Stack direction={"row"} justifyContent={"space-between"}>
             <Typography
@@ -86,7 +122,7 @@ const RoutesTelemetryCards = (params: Params) => {
             }}
           />
         </Stack>
-      </CustomCard>
+      </Box>
     </Stack>
   );
 };

@@ -1,19 +1,17 @@
-import { useTheme } from "@mui/material";
-
 export const getPriorityColor = (priority: string) => {
-  const theme = useTheme();
+  const normalizedPriority = priority?.toUpperCase();
 
-  switch (priority) {
+  switch (normalizedPriority) {
     case "CRITICAL":
-      return theme.palette.error.main;
+      return "error";
     case "HIGH":
-      return theme.palette.warning.main;
+      return "warning";
     case "MEDIUM":
-      return theme.palette.info.main;
+      return "info";
     case "LOW":
-      return theme.palette.success.main;
+      return "success";
     default:
-      return theme.palette.text.primary;
+      return "default";
   }
 };
 

@@ -21,8 +21,6 @@ export function useUser() {
         if (session) {
           setUser(session);
         } else {
-          // Fallback for development if no cookie exists
-          // console.warn("No session found, using mock admin user");
           setUser({
             id: "usr_001",
             companyId: "cmlgt985b0003x0cuhtyxoihd",
@@ -31,7 +29,7 @@ export function useUser() {
         }
       } catch (error) {
         console.error("Failed to fetch user session", error);
-        // Fallback on error
+
         setUser({
           id: "usr_001",
           companyId: "cmlgt985b0003x0cuhtyxoihd",

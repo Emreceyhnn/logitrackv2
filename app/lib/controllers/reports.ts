@@ -1,6 +1,8 @@
 "use server";
 
 import { db } from "../db";
+import { authenticatedAction } from "../auth-middleware";
+import { checkPermission } from "./utils/checkPermission";
 import { getUserFromToken } from "./users";
 import { ReportsData } from "../type/reports";
 import { cookies } from "next/headers";
@@ -15,7 +17,6 @@ export async function getReportsDataAction(): Promise<ReportsData | null> {
     if (!requester || !requester.companyId) return null;
     const companyId = requester.companyId;
 
-    // --- Shipments ---
     const shipmentStatusCounts = await db.shipment.groupBy({
       by: ["status"],
       where: { companyId },
@@ -37,7 +38,6 @@ export async function getReportsDataAction(): Promise<ReportsData | null> {
       take: 10,
     });
 
-    // Resolve route names
     const routeNames = await Promise.all(
       shipmentRouteCounts.map(
         async (item: {
@@ -58,7 +58,6 @@ export async function getReportsDataAction(): Promise<ReportsData | null> {
       )
     );
 
-    // --- Fleet ---
     const vehicles = await db.vehicle.findMany({
       where: { companyId },
       select: { plate: true, currentLat: true, currentLng: true, status: true },
@@ -66,18 +65,16 @@ export async function getReportsDataAction(): Promise<ReportsData | null> {
 
     const fleetData = vehicles.map((v) => ({
       plate: v.plate,
-      consumption: (15 + Math.random() * 10).toFixed(1), // Mock L/100km
-      odometer: Math.floor(Math.random() * 200000), // Mock Odometer
-      maintenanceCost: Math.floor(Math.random() * 5000), // Mock cost
+      consumption: (15 + Math.random() * 10).toFixed(1),
+      odometer: Math.floor(Math.random() * 200000),
+      maintenanceCost: Math.floor(Math.random() * 5000),
     }));
 
-    // --- Inventory ---
     const inventory = await db.inventory.findMany({
       where: { companyId },
       select: { name: true, quantity: true, warehouseId: true },
     });
 
-    // Mock categories based on name hash or random
     const enrichedInventory = inventory.map((i) => {
       const categories = ["Electronics", "Furniture", "Apparel", "Industrial"];
       const catIndex = i.name.length % categories.length;
@@ -98,11 +95,10 @@ export async function getReportsDataAction(): Promise<ReportsData | null> {
       {} as Record<string, { value: number; count: number }>
     );
 
-    // --- Metrics for Cards ---
     const totalShipments = await db.shipment.count({ where: { companyId } });
     const onTimeShipments = await db.shipment.count({
       where: { companyId, status: "DELIVERED" },
-    }); // Rough approx
+    });
     const onTimeRate =
       totalShipments > 0 ? (onTimeShipments / totalShipments) * 100 : 0;
 

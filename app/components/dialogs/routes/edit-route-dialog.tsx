@@ -181,7 +181,10 @@ const EditRouteDialog = (params: EditRouteDialogParams) => {
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: 4,
+          bgcolor: "#0B1019",
+          backgroundImage: "none",
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           overflow: "hidden",
         },
       }}
@@ -192,8 +195,8 @@ const EditRouteDialog = (params: EditRouteDialogParams) => {
           background: `linear-gradient(135deg, ${alpha(
             statusColor,
             0.05
-          )} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
-          borderBottom: `1px solid ${theme.palette.divider}`,
+          )} 0%, transparent 100%)`,
+          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
         }}
       >
         <Stack
@@ -221,7 +224,7 @@ const EditRouteDialog = (params: EditRouteDialogParams) => {
                 <Typography
                   variant="h4"
                   fontWeight={700}
-                  sx={{ color: theme.palette.text.primary }}
+                  sx={{ color: "white" }}
                 >
                   Edit Route
                 </Typography>
@@ -333,7 +336,7 @@ const EditRouteDialog = (params: EditRouteDialogParams) => {
             </FormControl>
           </Stack>
 
-          <Divider />
+          <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
 
           <Button
             variant="contained"

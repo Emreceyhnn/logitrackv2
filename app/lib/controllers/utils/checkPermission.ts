@@ -2,14 +2,6 @@
 
 import { db } from "../../db";
 
-/**
- * Verifies that a user belongs to the given company and optionally
- * has one of the required role NAMES (e.g. "Admin", "Manager").
- *
- * NOTE: `requiredRoles` are matched against the Role.name field
- * (case-insensitive), NOT against the roleId CUID.
- * If a user has no role assigned AND requiredRoles is empty, they pass.
- */
 export async function checkPermission(
   userId: string,
   companyId: string | null,

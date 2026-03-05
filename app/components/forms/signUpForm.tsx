@@ -1,6 +1,5 @@
 "use client";
 
-import * as Yup from "yup";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -12,7 +11,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { Field, Form, Formik } from "formik";
-import type { FormikHelpers } from "formik";
+import type { FormikHelpers, FieldProps } from "formik";
 import { useState } from "react";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -44,10 +43,8 @@ export default function RegisterForm() {
   ) => {
     setLoading(true);
     try {
-      // Use email as username if username field is not added, OR add username field.
-      // Since existing RegisterUser expects username, let's use the provided username.
       const res = await RegisterUser(
-        values.username, // Added username to values
+        values.username,
         values.name,
         values.surname,
         values.password,
@@ -55,13 +52,13 @@ export default function RegisterForm() {
       );
 
       if (res && res.user) {
-        // Token is already set as httpOnly cookie by the server
-        router.push("/"); // Redirect to landing page to create company via modal
+        router.push("/");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Registration failed:", error);
-      // You might want to set formik errors here
-      actions.setFieldError("email", error.message || "Registration failed");
+      const message =
+        error instanceof Error ? error.message : "Registration failed";
+      actions.setFieldError("email", message);
     } finally {
       setLoading(false);
     }
@@ -125,7 +122,7 @@ export default function RegisterForm() {
           <Form>
             <Stack spacing={2} mt={3}>
               <Field name="username">
-                {({ field, meta }: any) => (
+                {({ field, meta }: FieldProps<RegisterFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     type="text"
@@ -137,7 +134,7 @@ export default function RegisterForm() {
                 )}
               </Field>
               <Field name="name">
-                {({ field, meta }: any) => (
+                {({ field, meta }: FieldProps<RegisterFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     type="text"
@@ -149,7 +146,7 @@ export default function RegisterForm() {
                 )}
               </Field>
               <Field name="surname">
-                {({ field, meta }: any) => (
+                {({ field, meta }: FieldProps<RegisterFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     type="text"
@@ -161,7 +158,7 @@ export default function RegisterForm() {
                 )}
               </Field>
               <Field name="email">
-                {({ field, meta }: any) => (
+                {({ field, meta }: FieldProps<RegisterFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     type="email"
@@ -173,7 +170,7 @@ export default function RegisterForm() {
                 )}
               </Field>
               <Field name="password">
-                {({ field, meta }: any) => (
+                {({ field, meta }: FieldProps<RegisterFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     type={showPassword ? "text" : "password"}
@@ -198,7 +195,7 @@ export default function RegisterForm() {
                 )}
               </Field>
               <Field name="repeatPassword">
-                {({ field, meta }: any) => (
+                {({ field, meta }: FieldProps<RegisterFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     type={showRepeatPassword ? "text" : "password"}

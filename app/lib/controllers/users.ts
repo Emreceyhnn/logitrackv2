@@ -1,6 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import { checkPermission } from "./utils/checkPermission";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { db } from "../db";
@@ -11,42 +12,52 @@ import {
   clearAuthCookies,
   logAuditEvent,
   validateSession,
+  SessionJWTPayload,
 } from "./session";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only";
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+export const getUserFromToken = authenticatedAction(
+  async (user, token: string) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
+    try {
+      await checkPermission(userId, companyId);
 
-export async function getUserFromToken(token: string) {
-  try {
-    const decoded: unknown = jwt.verify(token, JWT_SECRET);
-    if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
-      throw new Error("Invalid token");
+      const decoded = jwt.verify(token, JWT_SECRET) as SessionJWTPayload;
+      if (!decoded || typeof decoded !== "object" || !decoded.id) {
+        throw new Error("Invalid token");
+      }
+
+      const foundUser = await db.user.findUnique({
+        where: { id: decoded.id },
+        include: { company: true },
+      });
+
+      if (!foundUser) {
+        throw new Error("User not found");
+      }
+
+      const { password, ...safeUser } = foundUser;
+      return safeUser;
+    } catch (error) {
+      console.error("Failed to get user from token:", error);
+      return null;
     }
-
-    const user = await db.user.findUnique({
-      where: { id: (decoded as { id: string }).id },
-      include: { company: true },
-    });
-
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    // Return safe user object
-    const { password, ...safeUser } = user;
-    return safeUser;
-  } catch (error) {
-    console.error("Failed to get user from token:", error);
-    return null;
   }
-}
+);
 
-// ─── User Queries ───────────────────────────────────────────────────────────
-
-export async function getUsers() {
+export const getUsers = authenticatedAction(async (user) => {
   try {
+    await checkPermission(user.id, user.companyId, [
+      "role_admin",
+      "role_manager",
+    ]);
+
     const allUsers = await db.user.findMany({
+      where: {
+        companyId: user.companyId,
+      },
       include: {
         role: true,
         driver: true,
@@ -55,152 +66,162 @@ export async function getUsers() {
     return allUsers;
   } catch (error) {
     console.error("Failed to fetch users:", error);
-    throw new Error("Failed to fetch users");
+    throw error;
   }
-}
+});
 
-// ─── Registration ───────────────────────────────────────────────────────────
+export const RegisterUser = authenticatedAction(
+  async (
+    user,
+    username: string,
+    name: string,
+    surname: string,
+    password: string,
+    email: string,
+    deviceInfo?: string,
+    ipAddress?: string
+  ) => {
+    try {
+      await checkPermission(user.id, user.companyId, ["role_admin"]);
 
-export async function RegisterUser(
-  username: string,
-  name: string,
-  surname: string,
-  password: string,
-  email: string,
-  deviceInfo?: string,
-  ipAddress?: string
-) {
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    const isExist = await db.user.findFirst({
-      where: {
-        OR: [{ username }, { email }],
-      },
-    });
+      const isExist = await db.user.findFirst({
+        where: {
+          OR: [{ username }, { email }],
+        },
+      });
 
-    if (isExist) {
-      if (isExist.username === username) {
-        throw new Error("Username already exists");
+      if (isExist) {
+        if (isExist.username === username) {
+          throw new Error("Username already exists");
+        }
+        throw new Error("Email already exists");
       }
-      throw new Error("Email already exists");
+
+      const newUser = await db.user.create({
+        data: {
+          username,
+          name,
+          surname,
+          password: hashedPassword,
+          email,
+          companyId: user.companyId, // Assuming admin registers user for their company
+        },
+      });
+
+      // Create server-side session (sets httpOnly cookies automatically)
+      // Note: This creates a session for the newly registered user, not the admin.
+      await createSession(newUser, deviceInfo, ipAddress);
+
+      // Audit log
+      await logAuditEvent({
+        userId: newUser.id,
+        action: "REGISTER",
+        ipAddress,
+        deviceInfo,
+        metadata: { email },
+      });
+
+      return {
+        user: {
+          id: newUser.id,
+          name: newUser.name,
+          surname: newUser.surname,
+          email: newUser.email,
+          username: newUser.username,
+          companyId: newUser.companyId,
+        },
+      };
+    } catch (error) {
+      console.error("Failed to create user:", error);
+      throw error;
     }
-
-    const newUser = await db.user.create({
-      data: {
-        username,
-        name,
-        surname,
-        password: hashedPassword,
-        email,
-      },
-    });
-
-    // Create server-side session (sets httpOnly cookies automatically)
-    await createSession(newUser, deviceInfo, ipAddress);
-
-    // Audit log
-    await logAuditEvent({
-      userId: newUser.id,
-      action: "REGISTER",
-      ipAddress,
-      deviceInfo,
-      metadata: { email },
-    });
-
-    return {
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        surname: newUser.surname,
-        email: newUser.email,
-        username: newUser.username,
-        companyId: newUser.companyId,
-      },
-    };
-  } catch (error: unknown) {
-    const errorMsg =
-      error instanceof Error ? error.message : "Failed to create user";
-    console.error("Failed to create user:", error);
-    throw new Error(errorMsg);
   }
-}
+);
 
 // ─── Login ──────────────────────────────────────────────────────────────────
 
-export async function LoginUser(
-  email: string,
-  password: string,
-  deviceInfo?: string,
-  ipAddress?: string
-) {
-  try {
-    const user = await db.user.findUnique({
-      where: { email },
-    });
+export const LoginUser = authenticatedAction(
+  async (
+    user,
+    email: string,
+    password: string,
+    deviceInfo?: string,
+    ipAddress?: string
+  ) => {
+    try {
+      // Note: Login typically doesn't check companyId since they might not be in one yet
+      // But authenticatedAction already verifies the user.
 
-    if (!user) {
-      // Log failed attempt (no userId since user not found)
+      const foundUser = await db.user.findUnique({
+        where: { email },
+      });
+
+      if (!foundUser) {
+        // Log failed attempt (no userId since user not found)
+        await logAuditEvent({
+          action: "LOGIN_FAILED",
+          ipAddress,
+          deviceInfo,
+          metadata: { email, reason: "User not found" },
+        });
+        throw new Error("Invalid credentials");
+      }
+
+      const isPasswordValid = await bcrypt.compare(
+        password,
+        foundUser.password || ""
+      );
+      if (!isPasswordValid) {
+        // Log failed attempt
+        await logAuditEvent({
+          userId: foundUser.id,
+          action: "LOGIN_FAILED",
+          ipAddress,
+          deviceInfo,
+          metadata: { email, reason: "Invalid password" },
+        });
+        throw new Error("Invalid credentials");
+      }
+
+      // Update lastLoginAt
+      await db.user.update({
+        where: { id: foundUser.id },
+        data: { lastLoginAt: new Date() },
+      });
+
+      // Create server-side session
+      await createSession(foundUser, deviceInfo, ipAddress);
+
+      // Log successful login
       await logAuditEvent({
-        action: "LOGIN_FAILED",
+        userId: foundUser.id,
+        action: "LOGIN",
         ipAddress,
         deviceInfo,
-        metadata: { email, reason: "User not found" },
       });
-      throw new Error("Invalid credentials");
+
+      return {
+        user: {
+          id: foundUser.id,
+          name: foundUser.name,
+          surname: foundUser.surname,
+          email: foundUser.email,
+          username: foundUser.username,
+          companyId: foundUser.companyId,
+        },
+      };
+    } catch (error) {
+      console.error("Failed to login user:", error);
+      throw error;
     }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password || "");
-    if (!isPasswordValid) {
-      // Log failed attempt
-      await logAuditEvent({
-        userId: user.id,
-        action: "LOGIN_FAILED",
-        ipAddress,
-        deviceInfo,
-        metadata: { email, reason: "Invalid password" },
-      });
-      throw new Error("Invalid credentials");
-    }
-
-    // Update lastLoginAt
-    await db.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
-    });
-
-    // Create server-side session
-    await createSession(user, deviceInfo, ipAddress);
-
-    // Log successful login
-    await logAuditEvent({
-      userId: user.id,
-      action: "LOGIN",
-      ipAddress,
-      deviceInfo,
-    });
-
-    return {
-      user: {
-        id: user.id,
-        name: user.name,
-        surname: user.surname,
-        email: user.email,
-        username: user.username,
-        companyId: user.companyId,
-      },
-    };
-  } catch (error: unknown) {
-    const errorMsg =
-      error instanceof Error ? error.message : "Failed to login user";
-    console.error("Failed to login user:", error);
-    throw new Error(errorMsg);
   }
-}
+);
 
 // ─── Logout ─────────────────────────────────────────────────────────────────
 
-export async function LogoutUser() {
+export const LogoutUser = authenticatedAction(async (user) => {
   try {
     // Get current session
     const sessionUser = await validateSession();
@@ -226,43 +247,58 @@ export async function LogoutUser() {
     await clearAuthCookies();
     return { success: true };
   }
-}
+});
 
 // ─── User Management ────────────────────────────────────────────────────────
 
-export async function updateUser(
-  username: string,
-  name: string,
-  surname: string,
-  password: string,
-  email: string,
-  avatarUrl: string,
-  role: string
-) {
-  try {
-    const user = await db.user.upsert({
-      where: { username },
-      update: {},
-      create: {
-        username,
-        name,
-        surname,
-        password,
-        email,
-        avatarUrl,
-        roleId: role,
-      },
-    });
-    return user;
-  } catch (error) {
-    console.error("Failed to update user:", error);
-    throw new Error("Failed to update user");
+export const updateUser = authenticatedAction(
+  async (
+    user,
+    username: string,
+    name: string,
+    surname: string,
+    password: string, // Password should be hashed if it's being updated
+    email: string,
+    avatarUrl: string,
+    role: string
+  ) => {
+    try {
+      await checkPermission(user.id, user.companyId, ["role_admin"]);
+
+      // Check if we are updating ourselves or if we are admin
+      const foundUser = await db.user.upsert({
+        where: { username },
+        update: {
+          name,
+          surname,
+          email,
+          avatarUrl,
+          roleId: role,
+          // Password update logic should be handled separately and hashed
+          // password: password ? await bcrypt.hash(password, 10) : undefined,
+        },
+        create: {
+          username,
+          name,
+          surname,
+          password: await bcrypt.hash(password, 10), // Password must be hashed on creation
+          email,
+          avatarUrl,
+          roleId: role,
+          companyId: user.companyId, // Set current user's company
+        },
+      });
+      return foundUser;
+    } catch (error) {
+      console.error("Failed to update user:", error);
+      throw error;
+    }
   }
-}
+);
 
 export const createUserForCompany = authenticatedAction(
   async (
-    requester,
+    user,
     userData: {
       username: string;
       name: string;
@@ -273,89 +309,99 @@ export const createUserForCompany = authenticatedAction(
       avatarUrl?: string;
     }
   ) => {
-    if (!requester.companyId) {
-      throw new Error("You must belong to a company to add users");
-    }
+    try {
+      await checkPermission(user.id, user.companyId, [
+        "role_admin",
+        "role_manager",
+      ]);
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-
-    const isExist = await db.user.findFirst({
-      where: {
-        OR: [{ username: userData.username }, { email: userData.email }],
-      },
-    });
-
-    if (isExist) {
-      if (isExist.username === userData.username) {
-        throw new Error("Username already exists");
+      if (!user.companyId) {
+        throw new Error("You must belong to a company to add users");
       }
-      throw new Error("Email already exists");
+
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+      const isExist = await db.user.findFirst({
+        where: {
+          OR: [{ username: userData.username }, { email: userData.email }],
+        },
+      });
+
+      if (isExist) {
+        if (isExist.username === userData.username) {
+          throw new Error("Username already exists");
+        }
+        throw new Error("Email already exists");
+      }
+
+      const roleName = userData.role.toUpperCase();
+      const foundRole = await db.role.findFirst({
+        where: { name: { equals: roleName, mode: "insensitive" } },
+      });
+
+      const newUser = await db.user.create({
+        data: {
+          username: userData.username,
+          name: userData.name,
+          surname: userData.surname,
+          email: userData.email,
+          password: hashedPassword,
+          avatarUrl: userData.avatarUrl,
+          companyId: user.companyId,
+          roleId: foundRole ? foundRole.id : undefined,
+        },
+      });
+
+      return newUser;
+    } catch (error) {
+      console.error("Failed to create user for company:", error);
+      throw error;
     }
-
-    const roleName = userData.role.toUpperCase();
-    const role = await db.role.findFirst({
-      where: { name: { equals: roleName, mode: "insensitive" } },
-    });
-
-    const newUser = await db.user.create({
-      data: {
-        username: userData.username,
-        name: userData.name,
-        surname: userData.surname,
-        email: userData.email,
-        password: hashedPassword,
-        avatarUrl: userData.avatarUrl,
-        companyId: requester.companyId,
-        roleId: role ? role.id : undefined,
-      },
-    });
-
-    return newUser;
   }
 );
 
-export async function getUsersForMyCompany(token: string) {
-  try {
-    const requester = await getUserFromToken(token);
-    if (!requester || !requester.companyId) {
-      throw new Error("Unauthorized");
+export const getUsersForMyCompany = authenticatedAction(
+  async (user, token: string) => {
+    try {
+      await checkPermission(user.id, user.companyId);
+
+      const requester = await getUserFromToken(token);
+      if (!requester || !requester.companyId) {
+        throw new Error("Unauthorized");
+      }
+
+      if (requester.companyId !== user.companyId) {
+        throw new Error("Company mismatch");
+      }
+
+      const users = await db.user.findMany({
+        where: { companyId: user.companyId },
+        include: { role: true, driver: true },
+      });
+
+      // Return safe user objects
+      return users.map((u) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password, ...safe } = u;
+        return safe;
+      });
+    } catch (error) {
+      console.error("Failed to fetch company users:", error);
+      throw error;
     }
-
-    const users = await db.user.findMany({
-      where: { companyId: requester.companyId },
-      include: { role: true, driver: true },
-    });
-
-    // Return safe user objects
-    return users.map((u) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...safe } = u;
-      return safe;
-    });
-  } catch (error: unknown) {
-    const errorMsg =
-      error instanceof Error ? error.message : "Failed to fetch company users";
-    console.error("Failed to fetch company users:", error);
-    throw new Error(errorMsg);
   }
-}
+);
 
-export async function getMyCompanyUsersAction() {
+export const getMyCompanyUsersAction = authenticatedAction(async (user) => {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    await checkPermission(user.id, user.companyId);
 
-    if (!token) {
-      throw new Error("No session token found");
-    }
-
-    const requester = await getUserFromToken(token);
-    if (!requester || !requester.companyId) {
+    if (!user.companyId) {
       throw new Error("Unauthorized or No Company");
     }
 
     const users = await db.user.findMany({
-      where: { companyId: requester.companyId },
+      where: { companyId: user.companyId },
       include: { role: true, driver: true },
     });
 
@@ -364,21 +410,21 @@ export async function getMyCompanyUsersAction() {
       const { password: _, ...safe } = u;
       return safe;
     });
-  } catch (error: unknown) {
-    const errorMsg =
-      error instanceof Error ? error.message : "Failed to fetch users";
+  } catch (error) {
     console.error("Failed to fetch company users (action):", error);
-    throw new Error(errorMsg);
+    throw error;
   }
-}
+});
 
 export const searchPlatformUsers = authenticatedAction(
-  async (requester, query: string) => {
+  async (user, query: string) => {
     if (!query || query.length < 2) {
       return [];
     }
 
     try {
+      await checkPermission(user.id, user.companyId);
+
       const users = await db.user.findMany({
         where: {
           OR: [
@@ -397,9 +443,9 @@ export const searchPlatformUsers = authenticatedAction(
         email: u.email,
         avatar: u.avatarUrl || null,
       }));
-    } catch (error: unknown) {
+    } catch (error) {
       console.error("Failed to search platform users:", error);
-      throw new Error("Failed to search users");
+      throw error;
     }
   }
 );

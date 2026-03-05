@@ -23,13 +23,13 @@ import OverviewTab from "./overviewTab";
 import DocumentsTab from "./documentsTab";
 import MaintenanceTab from "./maintenance";
 import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from "@mui/icons-material/Edit";
+
 import DeleteIcon from "@mui/icons-material/Delete";
 import WarningIcon from "@mui/icons-material/Warning";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
-import EditVehicleDialog from "../editVehicleDialog";
+
 import { deleteVehicle } from "@/app/lib/controllers/vehicle";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
@@ -43,7 +43,6 @@ interface VehicleDialogParams {
   open: boolean;
   onClose: () => void;
   vehicleData?: VehicleWithRelations;
-  onEditSuccess?: () => void;
   onDeleteSuccess?: () => void;
 }
 
@@ -71,26 +70,16 @@ function a11yProps(index: number) {
 }
 
 const VehicleDialog = (params: VehicleDialogParams) => {
-  const { open, onClose, vehicleData, onEditSuccess, onDeleteSuccess } = params;
+  const { open, onClose, vehicleData, onDeleteSuccess } = params;
 
   /* --------------------------------- states --------------------------------- */
   const [value, setValue] = useState(0);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
-  };
-
-  const handleEditClick = () => {
-    setEditDialogOpen(true);
-  };
-
-  const handleEditSuccess = () => {
-    setEditDialogOpen(false);
-    onEditSuccess?.();
   };
 
   const handleDeleteClick = () => {
@@ -103,7 +92,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
     try {
       setIsDeleting(true);
       await deleteVehicle(vehicleData.id);
-      setDeleteConfirmOpen(false);
       onClose();
       onDeleteSuccess?.();
     } catch (error) {
@@ -206,23 +194,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           </Stack>
 
           <Stack direction="row" spacing={1}>
-            <Button
-              variant="outlined"
-              startIcon={<EditIcon />}
-              size="small"
-              onClick={handleEditClick}
-              sx={{
-                textTransform: "none",
-                borderColor: theme.palette.divider,
-                color: theme.palette.text.secondary,
-                "&:hover": {
-                  borderColor: theme.palette.text.primary,
-                  color: theme.palette.text.primary,
-                },
-              }}
-            >
-              Edit
-            </Button>
             <IconButton
               onClick={onClose}
               size="small"
@@ -255,13 +226,13 @@ const VehicleDialog = (params: VehicleDialogParams) => {
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
-            <OverviewTab vehicle={vehicleData} onUpdate={onEditSuccess} />
+            <OverviewTab vehicle={vehicleData} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
-            <DocumentsTab vehicle={vehicleData} onUpdate={onEditSuccess} />
+            <DocumentsTab vehicle={vehicleData} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
-            <MaintenanceTab vehicle={vehicleData} onUpdate={onEditSuccess} />
+            <MaintenanceTab vehicle={vehicleData} />
           </CustomTabPanel>
         </Stack>
 
@@ -304,15 +275,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           </Stack>
         </Box>
       </DialogContent>
-
-      {vehicleData && (
-        <EditVehicleDialog
-          open={editDialogOpen}
-          onClose={() => setEditDialogOpen(false)}
-          onSuccess={handleEditSuccess}
-          vehicle={vehicleData}
-        />
-      )}
 
       <Dialog
         open={deleteConfirmOpen}

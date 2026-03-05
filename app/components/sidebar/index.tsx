@@ -16,16 +16,18 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { SidebarList } from "./listItem";
 import LogoutIcon from "@mui/icons-material/Logout";
 
+import "@/app/lib/theme/types.d.ts";
+
 const SideBar = () => {
   /* -------------------------------- variables ------------------------------- */
-  const theme = useTheme() as any;
+  const theme = useTheme();
 
   const sideBarItemsParents = [
     {
       title: "Overview",
       icon: (
         <MonitorIcon
-          sx={{ fontSize: 18, color: theme.palette.icon.secondary }}
+          sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
         />
       ),
     },
@@ -33,7 +35,7 @@ const SideBar = () => {
       title: "Operation",
       icon: (
         <PrecisionManufacturingIcon
-          sx={{ fontSize: 18, color: theme.palette.icon.secondary }}
+          sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
         />
       ),
       subTitles: ["Vehicles", "Drivers", "Routes", "Shipments", "Fuel"],
@@ -42,7 +44,7 @@ const SideBar = () => {
       title: "Management",
       icon: (
         <KeyboardCommandKeyIcon
-          sx={{ fontSize: 18, color: theme.palette.icon.secondary }}
+          sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
         />
       ),
       subTitles: ["Warehouses", "Inventory", "Customers"],
@@ -51,7 +53,7 @@ const SideBar = () => {
       title: "Analytics",
       icon: (
         <AnalyticsIcon
-          sx={{ fontSize: 18, color: theme.palette.icon.secondary }}
+          sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
         />
       ),
       subTitles: ["Reports", "Analytics"],
@@ -60,7 +62,7 @@ const SideBar = () => {
       title: "Settings",
       icon: (
         <SettingsIcon
-          sx={{ fontSize: 18, color: theme.palette.icon.secondary }}
+          sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
         />
       ),
       subTitles: ["Users", "Roles", "Settings", "Company"],
@@ -119,7 +121,11 @@ const SideBar = () => {
               }}
             >
               <HelpOutlineIcon
-                sx={{ fontSize: 24, p: 0, color: theme.palette.icon.secondary }}
+                sx={{
+                  fontSize: 24,
+                  p: 0,
+                  color: theme?.palette?.icon?.secondary,
+                }}
               />
               <Typography>Need Help</Typography>
             </IconButton>
@@ -143,7 +149,11 @@ const SideBar = () => {
               }}
             >
               <LogoutIcon
-                sx={{ fontSize: 24, p: 0, color: theme.palette.icon.secondary }}
+                sx={{
+                  fontSize: 24,
+                  p: 0,
+                  color: theme?.palette?.icon?.secondary,
+                }}
               />
               <Typography>Log Out</Typography>
             </IconButton>

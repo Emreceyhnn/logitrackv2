@@ -36,6 +36,7 @@ const initialBasicInfo = {
   type: "WAREHOUSE" as const,
   openingTime: "08:00",
   closingTime: "18:00",
+  is247: false,
 };
 
 const initialLocation = {
@@ -68,7 +69,7 @@ const AddWarehouseDialog = ({
       location: initialLocation,
       capacity: initialCapacity,
     },
-    currentStep: 3,
+    currentStep: 1,
     isLoading: false,
     error: null,
     isSuccess: false,

@@ -73,9 +73,7 @@ const MapRoutesDialogCard = ({
 
   return (
     <Stack spacing={1}>
-      <Typography
-        sx={{ fontSize: 12, fontWeight: 600, color: "text.secondary" }}
-      >
+      <Typography variant="subtitle2" fontWeight={700} color="white">
         {isRoute ? "ROUTE PREVIEW" : "LIVE LOCATION"}
       </Typography>
       <Stack sx={{ width: "100%", height: 300 }}>
