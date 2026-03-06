@@ -5,6 +5,8 @@ import {
   ListItemIcon,
   ListItemText,
   Collapse,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useRouter, usePathname } from "next/navigation";
@@ -25,6 +27,8 @@ export function SidebarList(params: Params) {
   /* --------------------------------- states --------------------------------- */
   const [openKey, setOpenKey] = useState<string | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
+  const theme = useTheme();
 
   /* --------------------------------- handlers --------------------------------- */
   const handleToggle = (title: string) => {
@@ -57,33 +61,60 @@ export function SidebarList(params: Params) {
     return routes[title] || "#";
   };
 
+  const isActive = (title: string) => {
+    const route = getRoute(title);
+    return pathname === route;
+  };
+
   return (
     <List
       disablePadding
       sx={{
         display: "flex",
-        gap: 1,
+        gap: 0.5,
         flexDirection: "column",
         padding: 0,
+        width: "100%",
       }}
     >
       {items.map((item) => {
         const hasChildren = Boolean(item.subTitles?.length);
         const isOpen = openKey === item.title;
+        const activeItem = isActive(item.title) || item.subTitles?.some(sub => isActive(sub));
 
         return (
-          <div key={item.title}>
+          <div key={item.title} style={{ width: "100%" }}>
             <ListItemButton
               onClick={() =>
                 hasChildren
                   ? handleToggle(item.title)
                   : handleNavigate(getRoute(item.title))
               }
-              sx={{ px: 3 }}
+              sx={{
+                px: 3,
+                py: 1,
+                bgcolor: activeItem ? alpha(theme.palette.primary.main, 0.08) : "transparent",
+                color: activeItem ? theme.palette.primary.main : "text.secondary",
+                "&:hover": {
+                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                },
+                borderRight: activeItem ? `3px solid ${theme.palette.primary.main}` : "none",
+              }}
             >
-              <ListItemIcon sx={{ minWidth: 32 }}>{item.icon}</ListItemIcon>
+              <ListItemIcon sx={{
+                minWidth: 32,
+                color: activeItem ? theme.palette.primary.main : "inherit"
+              }}>
+                {item.icon}
+              </ListItemIcon>
 
-              <ListItemText primary={item.title} />
+              <ListItemText
+                primary={item.title}
+                primaryTypographyProps={{
+                  fontWeight: activeItem ? 700 : 500,
+                  fontSize: 14
+                }}
+              />
 
               {hasChildren && (
                 <ExpandMoreIcon
@@ -98,18 +129,33 @@ export function SidebarList(params: Params) {
 
             {hasChildren && (
               <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                <List disablePadding sx={{ px: 2 }}>
-                  {item?.subTitles?.map((sub) => (
-                    <ListItemButton
-                      key={sub}
-                      onClick={() => handleNavigate(getRoute(sub))}
-                    >
-                      <ListItemText
-                        primary={sub}
-                        primaryTypographyProps={{ fontSize: 13 }}
-                      />
-                    </ListItemButton>
-                  ))}
+                <List disablePadding sx={{ width: "100%" }}>
+                  {item?.subTitles?.map((sub) => {
+                    const subActive = isActive(sub);
+                    return (
+                      <ListItemButton
+                        key={sub}
+                        onClick={() => handleNavigate(getRoute(sub))}
+                        sx={{
+                          pl: 7,
+                          py: 0.75,
+                          color: subActive ? theme.palette.primary.main : "text.secondary",
+                          bgcolor: subActive ? alpha(theme.palette.primary.main, 0.05) : "transparent",
+                          "&:hover": {
+                            color: theme.palette.primary.main,
+                          }
+                        }}
+                      >
+                        <ListItemText
+                          primary={sub}
+                          primaryTypographyProps={{
+                            fontSize: 13,
+                            fontWeight: subActive ? 700 : 500
+                          }}
+                        />
+                      </ListItemButton>
+                    );
+                  })}
                 </List>
               </Collapse>
             )}

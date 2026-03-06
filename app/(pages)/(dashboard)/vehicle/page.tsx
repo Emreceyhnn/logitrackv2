@@ -240,13 +240,15 @@ export default function VehiclePage() {
         onSuccess={handleAddSuccess}
       />
 
-      <VehicleDialog
-        open={!!selectedVehicle}
-        onClose={() => actions.selectVehicle(null)}
-        vehicleData={selectedVehicle}
-        onEditSuccess={handleDialogEditSuccess}
-        onDeleteSuccess={handleDialogDeleteSuccess}
-      />
+      {selectedVehicle && (
+        <VehicleDialog
+          open={!!selectedVehicle}
+          onClose={() => actions.selectVehicle(null)}
+          vehicleData={selectedVehicle as any}
+          onEditSuccess={handleDialogEditSuccess}
+          onDeleteSuccess={handleDialogDeleteSuccess}
+        />
+      )}
 
       {actionVehicle && (
         <EditVehicleDialog

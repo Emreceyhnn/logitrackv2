@@ -14,10 +14,12 @@ import {
   useTheme,
   alpha,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import SaveIcon from "@mui/icons-material/Save";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import CheckIcon from "@mui/icons-material/Check";
 import { useState, useMemo } from "react";
 import FirstStep from "./firstStep";
 import TechSpecsStep from "./techSpecsStep";
@@ -284,7 +286,7 @@ const AddVehicleDialog = ({
             <Button
               variant="text"
               onClick={actions.closeDialog}
-              sx={{ color: "text.secondary", textTransform: "none" }}
+              sx={{ color: "text.secondary", textTransform: "none", fontWeight: 600 }}
             >
               Cancel
             </Button>
@@ -292,16 +294,12 @@ const AddVehicleDialog = ({
               <Button
                 variant="outlined"
                 onClick={actions.prevStep}
-                startIcon={
-                  state.currentStep === 1 ? null : (
-                    <ArrowBackIcon sx={{ fontSize: 16 }} />
-                  )
-                }
                 sx={{
                   textTransform: "none",
                   borderRadius: 2,
                   borderColor: alpha(theme.palette.divider, 0.2),
                   color: "white",
+                  fontWeight: 600,
                 }}
               >
                 Back
@@ -315,26 +313,25 @@ const AddVehicleDialog = ({
                   : actions.nextStep
               }
               disabled={state.isLoading}
-              startIcon={
-                state.currentStep === 3 ? (
-                  <SaveIcon sx={{ fontSize: 18 }} />
+              endIcon={
+                state.isLoading ? (
+                  <CircularProgress size={16} color="inherit" />
                 ) : null
               }
               sx={{
                 textTransform: "none",
                 px: state.currentStep === 3 ? 3 : 4,
                 borderRadius: 2,
-                boxShadow: "none",
-                bgcolor: "#246BFD",
-                "&:hover": {
-                  bgcolor: alpha("#246BFD", 0.9),
-                  boxShadow: "none",
-                },
+                boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
+                fontWeight: 600,
+                minWidth: 140,
               }}
             >
-              {state.currentStep === 3
-                ? "Complete & Save Vehicle"
-                : "Next Step →"}
+              {state.isLoading
+                ? "Saving..."
+                : state.currentStep === 3
+                  ? "Complete & Save Vehicle"
+                  : "Next Step"}
             </Button>
           </Stack>
         </Box>

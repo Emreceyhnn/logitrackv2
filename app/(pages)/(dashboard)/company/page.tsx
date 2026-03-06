@@ -4,7 +4,10 @@ import { Box, Stack, Typography, Alert } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { getCompanyProfile } from "@/app/lib/controllers/company";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
-import { CompanyPageState } from "@/app/lib/type/company";
+import {
+  CompanyPageState,
+  CompanyPageActions,
+} from "@/app/lib/type/company";
 import CompanyKpiCard from "@/app/components/dashboard/company/companyKpiCard";
 import CompanyInfoCard from "@/app/components/dashboard/company/companyInfoCard";
 import CompanyMembersTable from "@/app/components/dashboard/company/companyMembersTable";
@@ -20,54 +23,70 @@ export default function CompanyPage() {
   });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const user = await getAuthenticatedUser();
-      if (!user) {
+  const actions: CompanyPageActions = {
+    fetchData: useCallback(async () => {
+      try {
+        const user = await getAuthenticatedUser();
+        if (!user) {
+          setState((prev) => ({
+            ...prev,
+            data: null,
+            loading: false,
+            error: "Unauthorized. Please log in.",
+          }));
+          return;
+        }
+        if (!user.companyId) {
+          setState((prev) => ({
+            ...prev,
+            data: null,
+            loading: false,
+            error: "No company associated with this account. Please create or join a company.",
+          }));
+          return;
+        }
+        const result = await getCompanyProfile();
         setState({
-          data: null,
+          data: {
+            profile: result.profile as any,
+            stats: result.stats as any,
+            members: result.members as any,
+          },
           loading: false,
-          error: "Unauthorized. Please log in.",
+          error: null,
         });
-        return;
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Failed to load company data.";
+        setState((prev) => ({ ...prev, data: null, loading: false, error: message }));
       }
-      if (!user.companyId) {
+    }, []),
+
+    refreshAll: useCallback(async () => {
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+      // We can use actions.fetchData here but for clarity calling the same logic
+      try {
+        const result = await getCompanyProfile();
         setState({
-          data: null,
+          data: {
+            profile: result.profile as any,
+            stats: result.stats as any,
+            members: result.members as any,
+          },
           loading: false,
-          error:
-            "No company associated with this account. Please create or join a company.",
+          error: null,
         });
-        return;
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Failed to refresh company data.";
+        setState((prev) => ({ ...prev, loading: false, error: message }));
       }
-      const result = await getCompanyProfile(user.companyId, user.id);
-      setState({
-        data: {
-          profile: result.profile,
-          stats: result.stats,
-          members: result.members,
-        },
-        loading: false,
-        error: null,
-      });
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to load company data.";
-      setState({ data: null, loading: false, error: message });
-    }
-  }, []);
+    }, []),
+  };
 
   useEffect(() => {
-    // fetchData is async, and we already initialized state with loading: true.
-    // The initial fetch is safe.
-
-    fetchData();
-  }, [fetchData]);
-
-  const handleManualRefresh = async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-    await fetchData();
-  };
+    actions.fetchData();
+  }, [actions.fetchData]);
 
   return (
     <Box position="relative" p={4} width="100%">
@@ -110,20 +129,15 @@ export default function CompanyPage() {
       )}
 
       <Stack spacing={3}>
-        <CompanyKpiCard data={state.data?.stats ?? null} />
-
-        <CompanyInfoCard profile={state.data?.profile ?? null} />
-
-        <CompanyMembersTable
-          members={state.data?.members ?? []}
-          loading={state.loading}
-        />
+        <CompanyKpiCard props={{ state, actions }} />
+        <CompanyInfoCard props={{ state, actions }} />
+        <CompanyMembersTable props={{ state, actions }} />
       </Stack>
 
       <CreateCompanyDialog
         open={isCreateDialogOpen}
         onClose={() => setIsCreateDialogOpen(false)}
-        onSuccess={handleManualRefresh}
+        onSuccess={actions.refreshAll}
       />
     </Box>
   );

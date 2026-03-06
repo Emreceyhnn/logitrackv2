@@ -51,15 +51,12 @@ export default function ShipmentPage() {
     setState((prev) => ({ ...prev, loading: true }));
 
     try {
-      const companyId = user.companyId;
-      const userId = user.id;
-
       const [shipmentsData, statsData, statusDist, volumeHist] =
         await Promise.all([
-          getShipments(companyId, userId),
-          getShipmentStats(companyId, userId),
-          getShipmentStatusDistribution(companyId, userId),
-          getShipmentVolumeHistory(companyId, userId),
+          getShipments(),
+          getShipmentStats(),
+          getShipmentStatusDistribution(),
+          getShipmentVolumeHistory(),
         ]);
 
       setState((prev) => ({
@@ -79,7 +76,7 @@ export default function ShipmentPage() {
         error: "Failed to load data",
       }));
     }
-  }, []);
+  }, [user]);
   const selectShipment = (id: string | null) => {
     setState((prev) => ({ ...prev, selectedShipmentId: id }));
   };

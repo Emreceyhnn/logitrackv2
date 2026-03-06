@@ -6,21 +6,27 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogActions,
   Stack,
   IconButton,
   useTheme,
   alpha,
+  Typography,
+  Stepper,
+  Step,
+  StepLabel,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CheckIcon from "@mui/icons-material/Check";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import {
   CreateCompanyState,
   CreateCompanyActions,
   CompanyFormData,
   CreateCompanyDialogProps,
 } from "@/app/lib/type/create-company";
-import Sidebar from "./Sidebar";
 import Step1Branding from "./Step1Branding";
 import Step2Regional from "./Step2Regional";
 import { toast } from "sonner";
@@ -100,7 +106,7 @@ export default function CreateCompanyDialog({
         err instanceof Error ? err.message : "Failed to create company";
       setState((prev) => ({
         ...prev,
-        loading: false, // Corrected from isLoading to loading
+        loading: false,
         error: message,
       }));
       toast.error(message);
@@ -133,42 +139,35 @@ export default function CreateCompanyDialog({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="lg"
+      maxWidth="md"
       fullWidth
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: alpha(theme.palette.background.default, 0.95),
-          backdropFilter: "blur(20px)",
+          bgcolor: "#0B1019",
           backgroundImage: "none",
           border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-          boxShadow: theme.shadows[24],
-          overflow: "hidden",
-          height: { xs: "auto", md: 700 },
         },
       }}
     >
-      <DialogContent sx={{ p: 0, display: "flex", height: "100%" }}>
-        {/* Sidebar */}
-        <Sidebar activeStep={state.activeStep} />
-
-        {/* Main Content Area */}
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            p: { xs: 3, md: 6 },
-            position: "relative",
-          }}
+      <Box sx={{ p: 4, pb: 0 }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ mb: 3 }}
         >
-          {/* Close Button */}
+          <Stack spacing={0.5}>
+            <Typography variant="h6" fontWeight={700} color="white">
+              {state.activeStep === 0 ? "Create Company Portfolio" : "Regional Settings"}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Configure your organization's core profile and presence
+            </Typography>
+          </Stack>
           <IconButton
             onClick={onClose}
             sx={{
-              position: "absolute",
-              top: 24,
-              right: 24,
               color: "text.secondary",
               bgcolor: alpha(theme.palette.text.secondary, 0.05),
               "&:hover": { bgcolor: alpha(theme.palette.text.secondary, 0.1) },
@@ -176,91 +175,88 @@ export default function CreateCompanyDialog({
           >
             <CloseIcon fontSize="small" />
           </IconButton>
+        </Stack>
 
-          {/* Scrollable Form Content */}
-          <Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}>{renderStep()}</Box>
+        <Stepper
+          activeStep={state.activeStep}
+          sx={{
+            "& .MuiStepLabel-label": {
+              color: alpha("#fff", 0.5),
+              fontWeight: 600,
+            },
+            "& .MuiStepLabel-label.Mui-active": {
+              color: theme.palette.primary.main,
+            },
+            "& .MuiStepLabel-label.Mui-completed": {
+              color: alpha("#fff", 0.7),
+            },
+            "& .MuiStepIcon-root": { color: alpha(theme.palette.divider, 0.1) },
+            "& .MuiStepIcon-root.Mui-active": {
+              color: theme.palette.primary.main,
+            },
+            "& .MuiStepIcon-root.Mui-completed": {
+              color: theme.palette.primary.main,
+            },
+          }}
+        >
+          <Step>
+            <StepLabel>Branding & Legal</StepLabel>
+          </Step>
+          <Step>
+            <StepLabel>Localization & Scope</StepLabel>
+          </Step>
+        </Stepper>
+      </Box>
 
-          {/* Footer Actions */}
-          <Box
-            sx={{
-              mt: 4,
-              pt: 4,
-              borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
-            }}
-          >
-            <Stack
-              direction="row"
-              spacing={2}
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Button
-                onClick={onClose}
-                sx={{
-                  color: "text.secondary",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  "&:hover": { bgcolor: "transparent", color: "text.primary" },
-                }}
-              >
-                Cancel
-              </Button>
-
-              <Stack direction="row" spacing={2}>
-                {state.activeStep > 0 && (
-                  <Button
-                    onClick={actions.handleBack}
-                    disabled={state.loading}
-                    variant="outlined"
-                    sx={{
-                      borderRadius: 2,
-                      textTransform: "none",
-                      px: 3,
-                      borderColor: alpha(theme.palette.divider, 0.2),
-                      color: "text.primary",
-                    }}
-                  >
-                    Back
-                  </Button>
-                )}
-
-                {state.activeStep === 1 ? (
-                  <Button
-                    variant="contained"
-                    onClick={actions.submit}
-                    disabled={state.loading}
-                    endIcon={state.loading ? null : <CheckIcon />}
-                    sx={{
-                      borderRadius: 2,
-                      textTransform: "none",
-                      px: 4,
-                      minWidth: 140,
-                      boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.35)}`,
-                    }}
-                  >
-                    {state.loading ? "Creating..." : "Complete Setup"}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="contained"
-                    onClick={actions.handleNext}
-                    endIcon={<ArrowForwardIcon />}
-                    sx={{
-                      borderRadius: 2,
-                      textTransform: "none",
-                      px: 4,
-                      minWidth: 140,
-                      boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.35)}`,
-                    }}
-                  >
-                    Continue
-                  </Button>
-                )}
-              </Stack>
-            </Stack>
-          </Box>
-        </Box>
+      <DialogContent sx={{ mt: 2, pb: 4, minHeight: 300 }}>
+        {renderStep()}
       </DialogContent>
+
+      <DialogActions
+        sx={{
+          p: 4,
+          pt: 1,
+          borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+          justifyContent: "space-between",
+        }}
+      >
+        <Button
+          onClick={state.activeStep === 0 ? onClose : actions.handleBack}
+          sx={{ color: "text.secondary", textTransform: "none", fontWeight: 600 }}
+          startIcon={state.activeStep > 0 ? <NavigateBeforeIcon /> : null}
+        >
+          {state.activeStep === 0 ? "Cancel" : "Back"}
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={state.activeStep === 1 ? actions.submit : actions.handleNext}
+          disabled={state.loading || (state.activeStep === 0 && !state.formData.name)}
+          endIcon={
+            state.loading ? (
+              <CircularProgress size={16} color="inherit" />
+            ) : state.activeStep === 1 ? (
+              <CheckIcon />
+            ) : (
+              <NavigateNextIcon />
+            )
+          }
+          sx={{
+            borderRadius: 2,
+            textTransform: "none",
+            px: 4,
+            minWidth: 140,
+            fontWeight: 600,
+            boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
+          }}
+        >
+          {state.loading
+            ? "Creating..."
+            : state.activeStep === 1
+              ? "Complete Setup"
+              : "Next Step"}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 }

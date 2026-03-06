@@ -16,7 +16,6 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { SidebarList } from "./listItem";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-import "@/app/lib/theme/types.d.ts";
 
 const SideBar = () => {
   /* -------------------------------- variables ------------------------------- */

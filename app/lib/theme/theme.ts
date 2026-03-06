@@ -2,7 +2,7 @@ import { createTheme } from "@mui/material/styles";
 import { palettes } from "./palette";
 import { getScrollbarStyles } from "@/app/components/scrollbar";
 
-import "./types.d.ts";
+// import types from types.d.ts if needed, but .d.ts should be global or referenced via triple-slash if not in include path
 
 export type ThemeMode = "light" | "dark";
 

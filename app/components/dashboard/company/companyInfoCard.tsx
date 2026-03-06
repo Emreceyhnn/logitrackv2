@@ -12,19 +12,21 @@ import {
 } from "@mui/material";
 import BusinessIcon from "@mui/icons-material/Business";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import { CompanyProfile } from "@/app/lib/type/company";
+import { CompanyPageProps } from "@/app/lib/type/company";
 
 interface CompanyInfoCardProps {
-  profile: CompanyProfile | null;
+  props: CompanyPageProps;
 }
 
-export default function CompanyInfoCard({ profile }: CompanyInfoCardProps) {
+export default function CompanyInfoCard({ props }: CompanyInfoCardProps) {
+  const { state, actions } = props;
+  const profile = state.data?.profile ?? null;
   const formattedDate = profile?.createdAt
     ? new Date(profile.createdAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
     : null;
 
   return (

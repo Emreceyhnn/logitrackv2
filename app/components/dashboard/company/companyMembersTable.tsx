@@ -17,23 +17,18 @@ import {
   Typography,
 } from "@mui/material";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
-import { CompanyMember } from "@/app/lib/type/company";
-import AddCompanyMemberDialog from "../../dialogs/company/AddCompanyMemberDialog";
+import { CompanyPageProps } from "@/app/lib/type/company";
 import { useState } from "react";
-
-interface CompanyMembersTableProps {
-  members: CompanyMember[];
-  loading: boolean;
-}
+import AddCompanyMemberDialog from "../../dialogs/company/AddCompanyMemberDialog";
 
 function StatusChip({ status }: { status: string }) {
   const normalized = status.toUpperCase();
   const colorMap: Record<string, "success" | "error" | "warning" | "default"> =
-    {
-      ACTIVE: "success",
-      INACTIVE: "error",
-      SUSPENDED: "warning",
-    };
+  {
+    ACTIVE: "success",
+    INACTIVE: "error",
+    SUSPENDED: "warning",
+  };
   return (
     <Chip
       label={normalized}
@@ -46,10 +41,16 @@ function StatusChip({ status }: { status: string }) {
 
 const SKELETON_ROWS = 4;
 
+interface CompanyMembersTableProps {
+  props: CompanyPageProps;
+}
+
 export default function CompanyMembersTable({
-  members,
-  loading,
+  props,
 }: CompanyMembersTableProps) {
+  const { state, actions } = props;
+  const members = state.data?.members ?? [];
+  const loading = state.loading;
   const [dialog, setDialogOpen] = useState(false);
 
   const handleDialogClose = () => {

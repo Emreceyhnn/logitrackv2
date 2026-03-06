@@ -438,7 +438,7 @@ const AddShipmentDialog = ({
           {state.isLoading
             ? "Creating..."
             : state.currentStep === 1
-              ? "Next: Cargo & Inventory"
+              ? "Next Step"
               : "Create Shipment"}
         </Button>
       </DialogActions>

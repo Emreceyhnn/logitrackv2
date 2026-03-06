@@ -64,3 +64,12 @@ export function authenticatedAction<T>(
     return action(user, ...args);
   };
 }
+
+export function maybeAuthenticatedAction<T>(
+  action: (user: AuthenticatedUser | null, ...args: any[]) => Promise<T>
+) {
+  return async (...args: any[]): Promise<T> => {
+    const user = await getAuthenticatedUser();
+    return action(user, ...args);
+  }
+}

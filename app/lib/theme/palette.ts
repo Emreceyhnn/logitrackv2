@@ -58,7 +58,7 @@ export const palettes = {
     },
   },
   light: {
-    mode: "dark" as PaletteMode,
+    mode: "light" as PaletteMode,
 
     primary: {
       main: "#BEDBB0",

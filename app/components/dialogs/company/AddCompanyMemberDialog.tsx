@@ -33,7 +33,7 @@ import {
 } from "@/app/lib/type/add-company-member";
 import { toast } from "sonner";
 import { searchPlatformUsers } from "@/app/lib/controllers/users";
-import { addMemberToMyCompany } from "@/app/lib/controllers/company";
+import { addCompanyUser } from "@/app/lib/controllers/company";
 
 // Removed mock data
 
@@ -107,10 +107,9 @@ export default function AddCompanyMemberDialog({
       setState((prev) => ({ ...prev, loading: true, error: null }));
       try {
         // Note: we'll update the `addMemberToMyCompany` action later to accept driverData
-        await addMemberToMyCompany(
+        await addCompanyUser(
           state.selectedUserId,
-          state.selectedRole,
-          state.selectedRole === "role_driver" ? state.driverData : undefined
+          state.selectedRole
         );
         toast.success("Member added successfully!");
         onSuccess?.();

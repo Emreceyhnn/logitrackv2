@@ -5,7 +5,11 @@ import { checkPermission } from "./utils/checkPermission";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { db } from "../db";
-import { authenticatedAction } from "../auth-middleware";
+import {
+  authenticatedAction,
+  maybeAuthenticatedAction,
+  AuthenticatedUser,
+} from "../auth-middleware";
 import {
   createSession,
   revokeSession,
@@ -70,9 +74,9 @@ export const getUsers = authenticatedAction(async (user) => {
   }
 });
 
-export const RegisterUser = authenticatedAction(
+export const RegisterUser = maybeAuthenticatedAction(
   async (
-    user,
+    user: AuthenticatedUser | null,
     username: string,
     name: string,
     surname: string,
@@ -82,7 +86,10 @@ export const RegisterUser = authenticatedAction(
     ipAddress?: string
   ) => {
     try {
-      await checkPermission(user.id, user.companyId, ["role_admin"]);
+      // If user exists, they must be an admin to register others
+      if (user) {
+        await checkPermission(user.id, user.companyId, ["role_admin"]);
+      }
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -106,7 +113,7 @@ export const RegisterUser = authenticatedAction(
           surname,
           password: hashedPassword,
           email,
-          companyId: user.companyId, // Assuming admin registers user for their company
+          companyId: user?.companyId || null, // Guest registration has no company initially
         },
       });
 
@@ -142,9 +149,9 @@ export const RegisterUser = authenticatedAction(
 
 // ─── Login ──────────────────────────────────────────────────────────────────
 
-export const LoginUser = authenticatedAction(
+export const LoginUser = maybeAuthenticatedAction(
   async (
-    user,
+    user: AuthenticatedUser | null,
     email: string,
     password: string,
     deviceInfo?: string,

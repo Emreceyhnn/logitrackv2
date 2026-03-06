@@ -37,3 +37,13 @@ export interface CompanyPageState {
   loading: boolean;
   error: string | null;
 }
+
+export interface CompanyPageActions {
+  fetchData: () => Promise<void>;
+  refreshAll: () => Promise<void>;
+}
+
+export interface CompanyPageProps {
+  state: CompanyPageState;
+  actions: CompanyPageActions;
+}
