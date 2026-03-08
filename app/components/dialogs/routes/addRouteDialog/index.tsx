@@ -18,17 +18,20 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useMemo, useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AddRouteDialogProps,
-  AddRoutePageActions,
   AddRoutePageState,
+  AddRoutePageActions,
   AddRouteStep1,
   AddRouteStep2,
   AddRouteStep3,
 } from "@/app/lib/type/add-route";
+import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { toast } from "sonner";
 import { createRoute } from "@/app/lib/controllers/routes";
+import { getShipments } from "@/app/lib/controllers/shipments";
+import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/lib/hooks/useUser";
 import FirstRouteDialogStep from "./firstStep";
 import SecondRouteDialogStep from "./secondStep";
@@ -36,7 +39,6 @@ import ThirdRouteDialogStep from "./thirdStep";
 
 const initialStep1: AddRouteStep1 = {
   name: "",
-  date: null,
   startTime: null,
   endTime: null,
 };
@@ -74,110 +76,149 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
     isSuccess: false,
   });
 
-  /* -------------------------------- actions --------------------------------- */
-  const actions: AddRoutePageActions = useMemo(
-    () => ({
-      updateStep1: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: { ...prev.data, step1: { ...prev.data.step1, ...data } },
-        }));
-      },
-      updateStep2: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: { ...prev.data, step2: { ...prev.data.step2, ...data } },
-        }));
-      },
-      updateStep3: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: { ...prev.data, step3: { ...prev.data.step3, ...data } },
-        }));
-      },
+  const [shipments, setShipments] = useState<ShipmentWithRelations[]>([]);
+  const [warehouses, setWarehouses] = useState<any[]>([]);
 
-      setStep: (step) => {
-        setState((prev) => ({ ...prev, currentStep: step }));
-      },
-      nextStep: () => {
-        setState((prev) => ({ ...prev, currentStep: prev.currentStep + 1 }));
-      },
-      prevStep: () => {
-        setState((prev) => ({ ...prev, currentStep: prev.currentStep - 1 }));
-      },
-      handleSubmit: async () => {
-        if (!user) return;
+  /* ------------------------------- lifecycle ------------------------------- */
+  useEffect(() => {
+    if (open && user) {
+      const fetchData = async () => {
         try {
-          setState((prev) => ({ ...prev, isLoading: true, error: null }));
-
-          const { step1, step2, step3 } = state.data;
-
-          const response = await createRoute(
-            user.id,
-            step1.name,
-            step1.date || new Date(),
-            step1.startTime || new Date(),
-            step1.endTime || new Date(),
-            step2.distanceKm,
-            step2.durationMin,
-            step3.driverId,
-            step3.vehicleId,
-            user.companyId!,
-            {
-              type: step2.startType,
-              id: step2.startId,
-              address: step2.startAddress,
-              lat: step2.startLat,
-              lng: step2.startLng,
-            },
-            {
-              type: step2.endType,
-              id: step2.endId,
-              address: step2.endAddress,
-              lat: step2.endLat,
-              lng: step2.endLng,
-            }
+          const [shipmentsData, warehousesData] = await Promise.all([
+            getShipments(),
+            getWarehouses(),
+          ]);
+          setShipments(
+            shipmentsData.filter((s: ShipmentWithRelations) => !s.routeId)
           );
-
-          setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
-          toast.success("Route created successfully");
-
-          setTimeout(() => {
-            onClose();
-            onSuccess?.();
-            actions.reset();
-          }, 1500);
-        } catch (err: any) {
-          setState((prev) => ({
-            ...prev,
-            isLoading: false,
-            error: err.message || "Failed to create route",
-          }));
-          toast.error(err.message || "Failed to create route");
+          setWarehouses(warehousesData);
+        } catch (error) {
+          console.error("Failed to fetch available data for route", error);
         }
-      },
+      };
+      fetchData();
+    }
+  }, [open, user]);
 
-      closeDialog: () => {
-        if (!state.isLoading) {
-          onClose();
-        }
-      },
-      reset: () => {
-        setState({
-          currentStep: 1,
-          data: {
-            step1: initialStep1,
-            step2: initialStep2,
-            step3: initialStep3,
+  /* -------------------------------- handlers --------------------------------- */
+  const actions: AddRoutePageActions = {
+    updateStep1: (data) =>
+      setState((prev) => ({
+        ...prev,
+        data: { ...prev.data, step1: { ...prev.data.step1, ...data } },
+      })),
+    updateStep2: (data) =>
+      setState((prev) => ({
+        ...prev,
+        data: { ...prev.data, step2: { ...prev.data.step2, ...data } },
+      })),
+    updateStep3: (data) =>
+      setState((prev) => ({
+        ...prev,
+        data: { ...prev.data, step3: { ...prev.data.step3, ...data } },
+      })),
+    setStep: (step) => setState((prev) => ({ ...prev, currentStep: step })),
+    nextStep: () =>
+      setState((prev) => ({ ...prev, currentStep: prev.currentStep + 1 })),
+    prevStep: () =>
+      setState((prev) => ({ ...prev, currentStep: prev.currentStep - 1 })),
+    reset: () =>
+      setState({
+        currentStep: 1,
+        data: {
+          step1: initialStep1,
+          step2: initialStep2,
+          step3: initialStep3,
+        },
+        isLoading: false,
+        error: null,
+        isSuccess: false,
+      }),
+    closeDialog: () => {
+      if (!state.isLoading) {
+        onClose();
+        setTimeout(actions.reset, 300);
+      }
+    },
+    handleSubmit: async () => {
+      if (!user) return;
+      try {
+        setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+        const routeDate = state.data.step1.startTime || new Date();
+
+        await createRoute(
+          user.id,
+          state.data.step1.name,
+          routeDate,
+          state.data.step1.startTime || new Date(),
+          state.data.step1.endTime || new Date(),
+          state.data.step2.distanceKm,
+          state.data.step2.durationMin,
+          state.data.step3.driverId,
+          state.data.step3.vehicleId,
+          user.companyId!,
+          {
+            type: state.data.step2.startType,
+            id: state.data.step2.startId,
+            address: state.data.step2.startAddress,
+            lat: state.data.step2.startLat,
+            lng: state.data.step2.startLng,
           },
-          isLoading: false,
-          error: null,
-          isSuccess: false,
-        });
-      },
-    }),
-    [state.data, state.isLoading, onClose, onSuccess, user]
-  );
+          {
+            type: state.data.step2.endType,
+            id: state.data.step2.endId,
+            address: state.data.step2.endAddress,
+            lat: state.data.step2.endLat,
+            lng: state.data.step2.endLng,
+          }
+        );
+
+        toast.success("Route created successfully");
+
+        setTimeout(() => {
+          onClose();
+          onSuccess?.();
+          actions.reset();
+        }, 1500);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Failed to create route";
+        setState((prev) => ({ ...prev, isLoading: false, error: message }));
+        toast.error(message);
+      }
+    },
+  };
+
+  const handleShipmentSelect = (shipmentId: string) => {
+    const shipment = shipments.find((s) => s.id === shipmentId);
+    if (shipment) {
+      // Find the origin warehouse from the warehouses list
+      const warehouse = warehouses.find((w) => w.id === shipment.origin);
+
+      const updateData: Partial<AddRouteStep2> = {
+        endAddress: shipment.destination,
+        endLat: shipment.destinationLat ?? undefined,
+        endLng: shipment.destinationLng ?? undefined,
+      };
+
+      if (warehouse) {
+        updateData.startAddress = warehouse.address;
+        updateData.startLat = warehouse.lat;
+        updateData.startLng = warehouse.lng;
+        updateData.startId = warehouse.id;
+        updateData.startType = "WAREHOUSE";
+      }
+
+      // Pre-fill Step 1: Name
+      actions.updateStep1({
+        name: `Delivery: ${shipment.customer?.name || "Shipment"} - ${shipment.trackingId}`,
+      });
+      // Pre-fill Step 2
+      actions.updateStep2(updateData);
+      toast.info(`Pre-filled from shipment ${shipment.trackingId}`);
+    }
+  };
 
   const steps = ["Schedule", "Locations", "Assignments"];
 
@@ -260,20 +301,47 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
         />
 
         <Box sx={{ minHeight: 400 }}>
+          {state.error && (
+            <Box
+              mb={2}
+              p={2}
+              sx={{
+                bgcolor: alpha(theme.palette.error.main, 0.1),
+                borderRadius: 1,
+              }}
+            >
+              <Typography color="error" variant="caption">
+                {state.error}
+              </Typography>
+            </Box>
+          )}
           {state.currentStep === 1 && (
-            <FirstRouteDialogStep state={state.data.step1} actions={actions} />
+            <FirstRouteDialogStep
+              state={state.data.step1}
+              updateStep1={actions.updateStep1}
+              shipments={shipments}
+              onShipmentSelect={handleShipmentSelect}
+            />
           )}
           {state.currentStep === 2 && (
-            <SecondRouteDialogStep state={state.data.step2} actions={actions} />
+            <SecondRouteDialogStep
+              state={state.data.step2}
+              updateStep2={actions.updateStep2}
+            />
           )}
           {state.currentStep === 3 && (
-            <ThirdRouteDialogStep state={state.data.step3} actions={actions} />
+            <ThirdRouteDialogStep
+              state={state.data.step3}
+              updateStep3={actions.updateStep3}
+            />
           )}
         </Box>
       </DialogContent>
       <DialogActions sx={{ p: 3, pt: 0, justifyContent: "space-between" }}>
         <Button
-          onClick={state.currentStep === 1 ? onClose : actions.prevStep}
+          onClick={
+            state.currentStep === 1 ? actions.closeDialog : actions.prevStep
+          }
           disabled={state.isLoading}
           sx={{
             color: "text.secondary",

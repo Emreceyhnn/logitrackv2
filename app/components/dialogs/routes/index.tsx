@@ -4,7 +4,6 @@ import {
   alpha,
   Avatar,
   Box,
-  Button,
   Chip,
   Dialog,
   DialogContent,
@@ -13,7 +12,6 @@ import {
   Stack,
   Typography,
   useTheme,
-  Grid,
 } from "@mui/material";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import DriverCard from "../../cards/driverCard";
@@ -21,7 +19,6 @@ import MapRoutesDialogCard from "./map";
 import RouteProgress from "./progress";
 import RoutesTelemetryCards from "./telemetry";
 import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from "@mui/icons-material/Edit";
 import AltRouteIcon from "@mui/icons-material/AltRoute";
 import PlaceIcon from "@mui/icons-material/Place";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -61,8 +58,6 @@ export default function RouteDialog({
     (theme.palette as any)[colorKey]?.[colorVariant] ||
     theme.palette.text.primary;
 
-  // VIEW MODE: Derive from stops if available
-  // Using explicit casts or safe access since Route model might have simple Lat/Lng fields
   const mapOrigin = {
     lat: (route as any).startLat || 0,
     lng: (route as any).startLng || 0,

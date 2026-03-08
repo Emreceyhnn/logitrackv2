@@ -8,7 +8,6 @@ import {
   Stack,
   Typography,
   useTheme,
-  IconButton,
   MenuItem,
   CircularProgress,
   Dialog,
@@ -20,11 +19,12 @@ import {
   ListItemText,
   ListItemButton,
   Tooltip,
+  IconButton,
 } from "@mui/material";
 import {
   AddShipmentInventory,
-  AddShipmentPageActions,
   InventoryShipmentItem,
+  AddShipmentCargo,
 } from "@/app/lib/type/add-shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import AddIcon from "@mui/icons-material/Add";
@@ -35,14 +35,20 @@ import { useState } from "react";
 
 interface InventorySectionProps {
   state: AddShipmentInventory;
-  actions: AddShipmentPageActions;
+  addInventoryItem: (item: InventoryShipmentItem) => void;
+  removeInventoryItem: (id: string) => void;
+  updateInventory: (data: Partial<AddShipmentInventory>) => void;
+  updateCargo: (data: Partial<AddShipmentCargo>) => void;
   availableInventory: any[];
   isLoadingInventory: boolean;
 }
 
 const InventorySection = ({
   state,
-  actions,
+  addInventoryItem,
+  removeInventoryItem,
+  updateInventory,
+  updateCargo,
   availableInventory,
   isLoadingInventory,
 }: InventorySectionProps) => {
@@ -55,25 +61,50 @@ const InventorySection = ({
   /* -------------------------------- handlers -------------------------------- */
   const handleAddItem = () => {
     const newItem: InventoryShipmentItem = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: crypto.randomUUID(),
       sku: "",
       name: "",
       quantity: 1,
       unit: "Each",
     };
-    actions.addInventoryItem(newItem);
+    addInventoryItem(newItem);
+  };
+
+  const calculateTotals = (items: InventoryShipmentItem[]) => {
+    return items.reduce(
+      (acc, item) => ({
+        weightKg: acc.weightKg + (item.weightKg || 0) * item.quantity,
+        volumeM3: acc.volumeM3 + (item.volumeM3 || 0) * item.quantity,
+        palletCount: acc.palletCount + (item.palletCount || 0) * item.quantity,
+      }),
+      { weightKg: 0, volumeM3: 0, palletCount: 0 }
+    );
   };
 
   const selectProduct = (product: any) => {
     const newItem: InventoryShipmentItem = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: crypto.randomUUID(),
       sku: product.sku,
       name: product.name,
       quantity: 1,
-      maxQuantity: product.quantity, // Set the stock limit
-      unit: "Each",
+      maxQuantity: product.quantity,
+      unit: product.unit || "Each",
+      weightKg: product.weightKg || 0,
+      volumeM3: product.volumeM3 || 0,
+      palletCount: product.palletCount || 0,
+      cargoType: product.cargoType || "General Cargo",
     };
-    actions.addInventoryItem(newItem);
+
+    const newItems = [...state.items, newItem];
+    addInventoryItem(newItem);
+
+    // Auto-fill cargo details
+    const totals = calculateTotals(newItems);
+    updateCargo({
+      ...totals,
+      cargoType: newItem.cargoType || "General Cargo",
+    });
+
     setIsPickerOpen(false);
   };
 
@@ -81,7 +112,20 @@ const InventorySection = ({
     const updatedItems = state.items.map((item) =>
       item.id === id ? { ...item, ...updates } : item
     );
-    actions.updateInventory({ items: updatedItems });
+    updateInventory({ items: updatedItems });
+
+    // Recalculate cargo
+    const totals = calculateTotals(updatedItems);
+    updateCargo(totals);
+  };
+
+  const handleRemove = (id: string) => {
+    const updatedItems = state.items.filter((item) => item.id !== id);
+    removeInventoryItem(id);
+
+    // Recalculate cargo
+    const totals = calculateTotals(updatedItems);
+    updateCargo(totals);
   };
 
   return (
@@ -292,7 +336,7 @@ const InventorySection = ({
                   <Grid size={{ xs: 0.5 }}>
                     <IconButton
                       size="small"
-                      onClick={() => actions.removeInventoryItem(item.id)}
+                      onClick={() => handleRemove(item.id)}
                       sx={{
                         mt: 1,
                         color: "text.secondary",
@@ -309,7 +353,6 @@ const InventorySection = ({
         </Stack>
       </Stack>
 
-      {/* Product Picker Dialog */}
       <Dialog
         open={isPickerOpen}
         onClose={() => setIsPickerOpen(false)}

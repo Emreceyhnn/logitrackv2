@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -26,8 +26,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
-  AddMemberState,
-  AddMemberActions,
   AddMemberDialogProps,
   DriverStateData,
 } from "@/app/lib/type/add-company-member";
@@ -35,7 +33,12 @@ import { toast } from "sonner";
 import { searchPlatformUsers } from "@/app/lib/controllers/users";
 import { addCompanyUser } from "@/app/lib/controllers/company";
 
-// Removed mock data
+interface SearchedUser {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string | null;
+}
 
 const roles = [
   { id: "role_admin", label: "ADMIN - Full organizational access" },
@@ -61,115 +64,74 @@ export default function AddCompanyMemberDialog({
   const theme = useTheme();
 
   /* ---------------------------------- State --------------------------------- */
-  const [state, setState] = useState<AddMemberState>({
-    searchQuery: "",
-    results: [],
-    selectedUserId: null,
-    selectedRole: "role_dispatcher",
-    driverData: initialDriverData,
-    loading: false,
-    error: null,
-  });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [results, setResults] = useState<SearchedUser[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState("role_dispatcher");
+  const [driverData, setDriverData] =
+    useState<DriverStateData>(initialDriverData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  /* --------------------------------- Actions -------------------------------- */
-  const actions: AddMemberActions = {
-    setSearchQuery: useCallback((query: string) => {
-      setState((prev) => ({
-        ...prev,
-        searchQuery: query,
-      }));
-    }, []),
-
-    selectUser: useCallback((id: string | null) => {
-      setState((prev) => ({ ...prev, selectedUserId: id }));
-    }, []),
-
-    setRole: useCallback((role: string) => {
-      setState((prev) => ({ ...prev, selectedRole: role }));
-    }, []),
-
-    setDriverData: useCallback(
-      (field: keyof DriverStateData, value: string) => {
-        setState((prev) => ({
-          ...prev,
-          driverData: {
-            ...prev.driverData,
-            [field]: value,
-          },
-        }));
-      },
-      []
-    ),
-
-    submit: useCallback(async () => {
-      if (!state.selectedUserId) return;
-
-      setState((prev) => ({ ...prev, loading: true, error: null }));
-      try {
-        // Note: we'll update the `addMemberToMyCompany` action later to accept driverData
-        await addCompanyUser(
-          state.selectedUserId,
-          state.selectedRole
-        );
-        toast.success("Member added successfully!");
-        onSuccess?.();
-        onClose();
-        setState({
-          searchQuery: "",
-          results: [],
-          selectedUserId: null,
-          selectedRole: "role_dispatcher",
-          driverData: initialDriverData,
-          loading: false,
-          error: null,
-        });
-      } catch (err: unknown) {
-        setState((prev) => ({ ...prev, error: "Failed to add member" }));
-        const message =
-          err instanceof Error ? err.message : "An error occurred";
-        toast.error(message);
-      } finally {
-        setState((prev) => ({ ...prev, loading: false }));
-      }
-    }, [
-      state.selectedUserId,
-      state.selectedRole,
-      state.driverData,
-      onClose,
-      onSuccess,
-    ]),
-
-    reset: useCallback(() => {
-      setState({
-        searchQuery: "",
-        results: [],
-        selectedUserId: null,
-        selectedRole: "role_dispatcher",
-        driverData: initialDriverData,
-        loading: false,
-        error: null,
-      });
-    }, []),
+  /* ---------------------------------- Handlers ------------------------------- */
+  const handleDriverDataChange = (
+    field: keyof DriverStateData,
+    value: string
+  ) => {
+    setDriverData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const resetDialog = () => {
+    setSearchQuery("");
+    setResults([]);
+    setSelectedUserId(null);
+    setSelectedRole("role_dispatcher");
+    setDriverData(initialDriverData);
+    setLoading(false);
+    setError(null);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedUserId) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      await addCompanyUser(selectedUserId, selectedRole);
+      toast.success("Member added successfully!");
+      onSuccess?.();
+      onClose();
+      resetDialog();
+    } catch (err: unknown) {
+      setError("Failed to add member");
+      const message = err instanceof Error ? err.message : "An error occurred";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ---------------------------------- Effects -------------------------------- */
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if (state.searchQuery.length >= 2) {
-        setState((prev) => ({ ...prev, loading: true }));
+      if (searchQuery.length >= 2) {
+        setLoading(true);
         try {
-          const results = await searchPlatformUsers(state.searchQuery);
-          setState((prev) => ({ ...prev, results, loading: false }));
-        } catch (error) {
-          console.error("Search error:", error);
-          setState((prev) => ({ ...prev, results: [], loading: false }));
+          const searchResults = await searchPlatformUsers(searchQuery);
+          setResults(searchResults);
+        } catch (err) {
+          console.error("Search error:", err);
+          setResults([]);
+        } finally {
+          setLoading(false);
         }
-      } else if (state.searchQuery.length === 0) {
-        setState((prev) => ({ ...prev, results: [], loading: false }));
+      } else if (searchQuery.length === 0) {
+        setResults([]);
       }
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [state.searchQuery]);
+  }, [searchQuery]);
 
   return (
     <Dialog
@@ -222,8 +184,8 @@ export default function AddCompanyMemberDialog({
           <TextField
             fullWidth
             placeholder="Search users by name or email..."
-            value={state.searchQuery}
-            onChange={(e) => actions.setSearchQuery(e.target.value)}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -239,6 +201,22 @@ export default function AddCompanyMemberDialog({
 
           {/* Results List */}
           <Box>
+            {error && (
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "error.main",
+                  bgcolor: alpha(theme.palette.error.main, 0.05),
+                  p: 1.5,
+                  borderRadius: 2,
+                  mb: 2,
+                  display: "block",
+                  border: `1px solid ${alpha(theme.palette.error.main, 0.1)}`,
+                }}
+              >
+                {error}
+              </Typography>
+            )}
             <Typography
               variant="caption"
               sx={{
@@ -253,13 +231,13 @@ export default function AddCompanyMemberDialog({
               Search Results
             </Typography>
             <Stack spacing={1}>
-              {state.results.map((user) => {
-                const isSelected = state.selectedUserId === user.id;
+              {results.map((user) => {
+                const isSelected = selectedUserId === user.id;
                 return (
                   <Box
                     key={user.id}
                     onClick={() =>
-                      actions.selectUser(isSelected ? null : user.id)
+                      setSelectedUserId(isSelected ? null : user.id)
                     }
                     sx={{
                       p: 1.5,
@@ -314,7 +292,6 @@ export default function AddCompanyMemberDialog({
             </Stack>
           </Box>
 
-          {/* Role Selection */}
           <Box
             sx={{
               p: 2,
@@ -336,8 +313,8 @@ export default function AddCompanyMemberDialog({
             </Typography>
             <FormControl fullWidth>
               <Select
-                value={state.selectedRole}
-                onChange={(e) => actions.setRole(e.target.value)}
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
                 IconComponent={KeyboardArrowDownIcon}
                 sx={{
                   bgcolor: alpha(theme.palette.background.paper, 0.4),
@@ -367,7 +344,7 @@ export default function AddCompanyMemberDialog({
           </Box>
 
           {/* Conditional Driver Data Section */}
-          {state.selectedRole === "role_driver" && (
+          {selectedRole === "role_driver" && (
             <Box
               sx={{
                 p: 2,
@@ -392,9 +369,9 @@ export default function AddCompanyMemberDialog({
                   fullWidth
                   size="small"
                   label="Employee ID *"
-                  value={state.driverData.employeeId}
+                  value={driverData.employeeId}
                   onChange={(e) =>
-                    actions.setDriverData("employeeId", e.target.value)
+                    handleDriverDataChange("employeeId", e.target.value)
                   }
                   required
                 />
@@ -402,9 +379,9 @@ export default function AddCompanyMemberDialog({
                   fullWidth
                   size="small"
                   label="Phone Number *"
-                  value={state.driverData.phone}
+                  value={driverData.phone}
                   onChange={(e) =>
-                    actions.setDriverData("phone", e.target.value)
+                    handleDriverDataChange("phone", e.target.value)
                   }
                   required
                 />
@@ -413,18 +390,18 @@ export default function AddCompanyMemberDialog({
                   size="small"
                   label="License Type"
                   placeholder="e.g. CDL-A"
-                  value={state.driverData.licenseType}
+                  value={driverData.licenseType}
                   onChange={(e) =>
-                    actions.setDriverData("licenseType", e.target.value)
+                    handleDriverDataChange("licenseType", e.target.value)
                   }
                 />
                 <TextField
                   fullWidth
                   size="small"
                   label="License Number"
-                  value={state.driverData.licenseNumber}
+                  value={driverData.licenseNumber}
                   onChange={(e) =>
-                    actions.setDriverData("licenseNumber", e.target.value)
+                    handleDriverDataChange("licenseNumber", e.target.value)
                   }
                 />
                 <TextField
@@ -433,9 +410,9 @@ export default function AddCompanyMemberDialog({
                   label="License Expiry"
                   type="date"
                   InputLabelProps={{ shrink: true }}
-                  value={state.driverData.licenseExpiry}
+                  value={driverData.licenseExpiry}
                   onChange={(e) =>
-                    actions.setDriverData("licenseExpiry", e.target.value)
+                    handleDriverDataChange("licenseExpiry", e.target.value)
                   }
                 />
               </Stack>
@@ -457,12 +434,12 @@ export default function AddCompanyMemberDialog({
         </Button>
         <Button
           variant="contained"
-          onClick={actions.submit}
+          onClick={handleSubmit}
           disabled={
-            !state.selectedUserId ||
-            state.loading ||
-            (state.selectedRole === "role_driver" &&
-              (!state.driverData.employeeId || !state.driverData.phone))
+            !selectedUserId ||
+            loading ||
+            (selectedRole === "role_driver" &&
+              (!driverData.employeeId || !driverData.phone))
           }
           startIcon={<GroupAddIcon />}
           sx={{
@@ -473,7 +450,7 @@ export default function AddCompanyMemberDialog({
             boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
           }}
         >
-          {state.loading ? "Adding..." : "Add to Company"}
+          {loading ? "Adding..." : "Add to Company"}
         </Button>
       </DialogActions>
     </Dialog>

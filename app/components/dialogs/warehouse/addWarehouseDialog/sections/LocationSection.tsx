@@ -14,8 +14,18 @@ import {
   AddWarehousePageActions,
 } from "@/app/lib/type/add-warehouse";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
+import AddressTextArea from "@/app/components/inputs/AddressTextArea";
 import { useEffect, useState } from "react";
 import { getMyCompanyUsersAction } from "@/app/lib/controllers/users";
+
+interface Manager {
+  id: string;
+  name: string;
+  surname: string;
+  role?: {
+    name: string;
+  };
+}
 
 interface LocationSectionProps {
   state: AddWarehouseLocation;
@@ -27,7 +37,7 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
   const theme = useTheme();
 
   /* --------------------------------- states --------------------------------- */
-  const [managers, setManagers] = useState<any[]>([]);
+  const [managers, setManagers] = useState<Manager[]>([]);
 
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
@@ -77,13 +87,31 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
               >
                 STREET ADDRESS
               </Typography>
-              <CustomTextArea
+              <AddressTextArea
                 name="address"
                 placeholder="e.g. 123 Logistics Way, Industrial District"
                 value={state.address}
                 onChange={(e) =>
                   actions.updateLocation({ address: e.target.value })
                 }
+                onPlaceSelect={(place) => {
+                  const addressComponents = place.address_components || [];
+                  const getComponent = (types: string[]) =>
+                    addressComponents.find((c) =>
+                      types.every((t) => c.types.includes(t))
+                    )?.long_name || "";
+
+                  actions.updateLocation({
+                    address: place.formatted_address || "",
+                    city:
+                      getComponent(["locality"]) ||
+                      getComponent(["administrative_area_level_1"]),
+                    country: getComponent(["country"]),
+                    postalCode: getComponent(["postal_code"]),
+                    lat: place.geometry?.location?.lat(),
+                    lng: place.geometry?.location?.lng(),
+                  });
+                }}
               />
             </Stack>
           </Grid>

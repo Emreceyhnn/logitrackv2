@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -22,8 +22,6 @@ import CheckIcon from "@mui/icons-material/Check";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import {
-  CreateCompanyState,
-  CreateCompanyActions,
   CompanyFormData,
   CreateCompanyDialogProps,
 } from "@/app/lib/type/create-company";
@@ -51,85 +49,75 @@ export default function CreateCompanyDialog({
   const theme = useTheme();
 
   /* ---------------------------------- State --------------------------------- */
-  const [state, setState] = useState<CreateCompanyState>({
-    activeStep: 0,
-    formData: initialFormData,
-    loading: false,
-    error: null,
-  });
+  const [activeStep, setActiveStep] = useState(0);
+  const [formData, setFormData] = useState<CompanyFormData>(initialFormData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  /* --------------------------------- Actions -------------------------------- */
-  const handleNext = useCallback(() => {
-    setState((prev) => ({ ...prev, activeStep: prev.activeStep + 1 }));
-  }, []);
+  /* -------------------------------- Handlers -------------------------------- */
+  const handleNext = () => setActiveStep((prev) => prev + 1);
+  const handleBack = () => setActiveStep((prev) => prev - 1);
 
-  const handleBack = useCallback(() => {
-    setState((prev) => ({ ...prev, activeStep: prev.activeStep - 1 }));
-  }, []);
+  const updateFormData = (data: Partial<CompanyFormData>) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+  };
 
-  const updateFormData = useCallback((data: Partial<CompanyFormData>) => {
-    setState((prev) => ({
-      ...prev,
-      formData: { ...prev.formData, ...data },
-    }));
-  }, []);
+  const resetDialog = () => {
+    setActiveStep(0);
+    setFormData(initialFormData);
+    setLoading(false);
+    setError(null);
+  };
 
-  const reset = useCallback(() => {
-    setState({
-      activeStep: 0,
-      formData: initialFormData,
-      loading: false,
-      error: null,
-    });
-  }, []);
-
-  const submit = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      let logoUrl = state.formData.logo;
+      let logoUrl = formData.logo;
 
-      // 1. Upload logo to Cloudinary if it's a base64 string
       if (logoUrl && logoUrl.startsWith("data:image")) {
         const uploadResult = await uploadImageAction(logoUrl, "companies");
         logoUrl = uploadResult.url;
       }
 
-      // 2. Create the company using the controller
-      await createCompany(state.formData.name, logoUrl || "");
+      await createCompany(formData.name, logoUrl || "");
 
       toast.success("Company created successfully!");
       onSuccess?.();
       onClose();
-      reset();
+      resetDialog();
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Failed to create company";
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: message,
-      }));
+      setError(message);
       toast.error(message);
     } finally {
-      setState((prev) => ({ ...prev, loading: false }));
+      setLoading(false);
     }
-  }, [state.formData, onSuccess, onClose, reset]);
+  };
 
-  const actions: CreateCompanyActions = {
+  const legacyState: any = {
+    activeStep,
+    formData,
+    loading,
+    error,
+  };
+
+  const legacyActions: any = {
     handleNext,
     handleBack,
     updateFormData,
-    submit,
-    reset,
+    submit: handleSubmit,
+    reset: resetDialog,
   };
 
   /* -------------------------------- Render ---------------------------------- */
   const renderStep = () => {
-    switch (state.activeStep) {
+    switch (activeStep) {
       case 0:
-        return <Step1Branding state={state} actions={actions} />;
+        return <Step1Branding state={legacyState} actions={legacyActions} />;
       case 1:
-        return <Step2Regional state={state} actions={actions} />;
+        return <Step2Regional state={legacyState} actions={legacyActions} />;
       default:
         return null;
     }
@@ -159,7 +147,9 @@ export default function CreateCompanyDialog({
         >
           <Stack spacing={0.5}>
             <Typography variant="h6" fontWeight={700} color="white">
-              {state.activeStep === 0 ? "Create Company Portfolio" : "Regional Settings"}
+              {activeStep === 0
+                ? "Create Company Portfolio"
+                : "Regional Settings"}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Configure your organization's core profile and presence
@@ -178,7 +168,7 @@ export default function CreateCompanyDialog({
         </Stack>
 
         <Stepper
-          activeStep={state.activeStep}
+          activeStep={activeStep}
           sx={{
             "& .MuiStepLabel-label": {
               color: alpha("#fff", 0.5),
@@ -221,21 +211,25 @@ export default function CreateCompanyDialog({
         }}
       >
         <Button
-          onClick={state.activeStep === 0 ? onClose : actions.handleBack}
-          sx={{ color: "text.secondary", textTransform: "none", fontWeight: 600 }}
-          startIcon={state.activeStep > 0 ? <NavigateBeforeIcon /> : null}
+          onClick={activeStep === 0 ? onClose : handleBack}
+          sx={{
+            color: "text.secondary",
+            textTransform: "none",
+            fontWeight: 600,
+          }}
+          startIcon={activeStep > 0 ? <NavigateBeforeIcon /> : null}
         >
-          {state.activeStep === 0 ? "Cancel" : "Back"}
+          {activeStep === 0 ? "Cancel" : "Back"}
         </Button>
 
         <Button
           variant="contained"
-          onClick={state.activeStep === 1 ? actions.submit : actions.handleNext}
-          disabled={state.loading || (state.activeStep === 0 && !state.formData.name)}
+          onClick={activeStep === 1 ? handleSubmit : handleNext}
+          disabled={loading || (activeStep === 0 && !formData.name)}
           endIcon={
-            state.loading ? (
+            loading ? (
               <CircularProgress size={16} color="inherit" />
-            ) : state.activeStep === 1 ? (
+            ) : activeStep === 1 ? (
               <CheckIcon />
             ) : (
               <NavigateNextIcon />
@@ -250,9 +244,9 @@ export default function CreateCompanyDialog({
             boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
           }}
         >
-          {state.loading
+          {loading
             ? "Creating..."
-            : state.activeStep === 1
+            : activeStep === 1
               ? "Complete Setup"
               : "Next Step"}
         </Button>

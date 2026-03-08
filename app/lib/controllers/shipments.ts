@@ -13,6 +13,12 @@ export const createShipment = authenticatedAction(
     destination: string,
     status: string = "PENDING",
     itemsCount: number = 1,
+    weightKg: number = 0,
+    volumeM3: number = 0,
+    palletCount: number = 0,
+    cargoType: string = "General Cargo",
+    destinationLat?: number,
+    destinationLng?: number,
     trackingId?: string
   ) => {
     const userId = user?.id;
@@ -44,8 +50,14 @@ export const createShipment = authenticatedAction(
           customerId,
           origin,
           destination,
+          destinationLat,
+          destinationLng,
           status,
           itemsCount,
+          weightKg,
+          volumeM3,
+          palletCount,
+          cargoType,
           companyId,
           history: {
             create: {

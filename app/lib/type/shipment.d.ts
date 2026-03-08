@@ -9,6 +9,8 @@ import {
 
 // Domain Models
 export interface ShipmentWithRelations extends Shipment {
+  destinationLat?: number | null;
+  destinationLng?: number | null;
   customer: Customer;
   driver?: {
     id: string;

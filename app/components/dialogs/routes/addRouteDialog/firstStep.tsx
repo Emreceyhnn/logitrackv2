@@ -3,30 +3,29 @@
 import {
   alpha,
   Box,
-  Divider,
   Grid,
   Stack,
   Typography,
   useTheme,
-  Alert,
+  MenuItem,
 } from "@mui/material";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
-import { AddRoutePageActions, AddRouteStep1 } from "@/app/lib/type/add-route";
+import { AddRouteStep1 } from "@/app/lib/type/add-route";
 import RouteIcon from "@mui/icons-material/Route";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import BoltIcon from "@mui/icons-material/Bolt";
+import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 
 interface FirstRouteDialogStepProps {
   state: AddRouteStep1;
-  actions: AddRoutePageActions;
+  updateStep1: (data: Partial<AddRouteStep1>) => void;
+  shipments?: ShipmentWithRelations[];
+  onShipmentSelect?: (id: string) => void;
 }
 
-const FirstRouteDialogStep = ({
-  state,
-  actions,
-}: FirstRouteDialogStepProps) => {
-  /* -------------------------------- variables ------------------------------- */
+const FirstRouteDialogStep = (props: FirstRouteDialogStepProps) => {
+  const { state, updateStep1, shipments = [], onShipmentSelect } = props;
   const theme = useTheme();
 
   return (
@@ -57,6 +56,43 @@ const FirstRouteDialogStep = ({
         </Stack>
 
         <Stack spacing={3}>
+          {shipments.length > 0 && onShipmentSelect && (
+            <Stack spacing={1.5}>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <BoltIcon
+                  sx={{ color: theme.palette.warning.main, fontSize: 18 }}
+                />
+                <Typography
+                  variant="body2"
+                  fontWeight={600}
+                  color="warning.main"
+                >
+                  Quick Start: Select Shipment
+                </Typography>
+              </Stack>
+              <CustomTextArea
+                name="shipmentSelect"
+                select
+                placeholder="Choose a shipment to pre-fill locations..."
+                value=""
+                onChange={(e) => onShipmentSelect(e.target.value)}
+              >
+                <MenuItem value="" disabled>
+                  Select an unassigned shipment
+                </MenuItem>
+                {shipments.map((s) => (
+                  <MenuItem key={s.id} value={s.id}>
+                    {s.trackingId} - {s.customer?.name} ({s.destination})
+                  </MenuItem>
+                ))}
+              </CustomTextArea>
+              <Typography variant="caption" color="text.secondary">
+                Selecting a shipment will automatically fill the Route Name and
+                Destination.
+              </Typography>
+            </Stack>
+          )}
+
           <Stack spacing={1.5}>
             <Typography variant="body2" fontWeight={600} color="text.secondary">
               Route Name
@@ -65,27 +101,8 @@ const FirstRouteDialogStep = ({
               name="name"
               placeholder="e.g. Morning Delivery - North"
               value={state.name}
-              onChange={(e) => actions.updateStep1({ name: e.target.value })}
+              onChange={(e) => updateStep1({ name: e.target.value })}
             />
-          </Stack>
-
-          <Stack spacing={1.5}>
-            <Typography variant="body2" fontWeight={600} color="text.secondary">
-              Route Date
-            </Typography>
-            <CustomTextArea
-              name="date"
-              type="date"
-              placeholder="mm/dd/yyyy"
-              value={state.date ? state.date.toISOString().split("T")[0] : ""}
-              onChange={(e) =>
-                actions.updateStep1({
-                  date: e.target.value ? new Date(e.target.value) : null,
-                })
-              }
-            >
-              <CalendarTodayIcon fontSize="small" />
-            </CustomTextArea>
           </Stack>
 
           <Grid container spacing={3}>
@@ -100,19 +117,23 @@ const FirstRouteDialogStep = ({
                 </Typography>
                 <CustomTextArea
                   name="startTime"
-                  type="time"
+                  type="datetime-local"
                   value={
                     state.startTime
-                      ? state.startTime.toTimeString().slice(0, 5)
+                      ? new Date(
+                          state.startTime.getTime() -
+                            state.startTime.getTimezoneOffset() * 60000
+                        )
+                          .toISOString()
+                          .slice(0, 16)
                       : ""
                   }
                   onChange={(e) => {
-                    if (e.target.value && state.date) {
-                      const [hours, minutes] = e.target.value.split(":");
-                      const newTime = new Date(state.date);
-                      newTime.setHours(parseInt(hours), parseInt(minutes));
-                      actions.updateStep1({ startTime: newTime });
-                    }
+                    updateStep1({
+                      startTime: e.target.value
+                        ? new Date(e.target.value)
+                        : null,
+                    });
                   }}
                 >
                   <AccessTimeIcon fontSize="small" />
@@ -130,19 +151,21 @@ const FirstRouteDialogStep = ({
                 </Typography>
                 <CustomTextArea
                   name="endTime"
-                  type="time"
+                  type="datetime-local"
                   value={
                     state.endTime
-                      ? state.endTime.toTimeString().slice(0, 5)
+                      ? new Date(
+                          state.endTime.getTime() -
+                            state.endTime.getTimezoneOffset() * 60000
+                        )
+                          .toISOString()
+                          .slice(0, 16)
                       : ""
                   }
                   onChange={(e) => {
-                    if (e.target.value && state.date) {
-                      const [hours, minutes] = e.target.value.split(":");
-                      const newTime = new Date(state.date);
-                      newTime.setHours(parseInt(hours), parseInt(minutes));
-                      actions.updateStep1({ endTime: newTime });
-                    }
+                    updateStep1({
+                      endTime: e.target.value ? new Date(e.target.value) : null,
+                    });
                   }}
                 >
                   <AccessTimeIcon fontSize="small" />

@@ -13,17 +13,19 @@ import {
 } from "@mui/material";
 import {
   AddShipmentBasicInfo,
-  AddShipmentPageActions,
   ShipmentPriority,
 } from "@/app/lib/type/add-shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 
 interface BasicInfoSectionProps {
   state: AddShipmentBasicInfo;
-  actions: AddShipmentPageActions;
+  updateBasicInfo: (data: Partial<AddShipmentBasicInfo>) => void;
 }
 
-const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
+const BasicInfoSection = ({
+  state,
+  updateBasicInfo,
+}: BasicInfoSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
@@ -69,7 +71,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 placeholder="e.g. SHP-8752-XP"
                 value={state.referenceNumber}
                 onChange={(e) =>
-                  actions.updateBasicInfo({ referenceNumber: e.target.value })
+                  updateBasicInfo({ referenceNumber: e.target.value })
                 }
               />
             </Stack>
@@ -89,7 +91,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 placeholder="PO-9821"
                 value={state.referenceNumber}
                 onChange={(e) =>
-                  actions.updateBasicInfo({ referenceNumber: e.target.value })
+                  updateBasicInfo({ referenceNumber: e.target.value })
                 }
               />
             </Stack>
@@ -111,9 +113,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 {priorities.map((p) => (
                   <Button
                     key={p.value}
-                    onClick={() =>
-                      actions.updateBasicInfo({ priority: p.value })
-                    }
+                    onClick={() => updateBasicInfo({ priority: p.value })}
                     sx={{
                       py: 1.5,
                       bgcolor:
@@ -150,9 +150,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 name="type"
                 select
                 value={state.type}
-                onChange={(e) =>
-                  actions.updateBasicInfo({ type: e.target.value })
-                }
+                onChange={(e) => updateBasicInfo({ type: e.target.value })}
               >
                 <MenuItem value="Standard Freight">Standard Freight</MenuItem>
                 <MenuItem value="Express">Express</MenuItem>
@@ -180,7 +178,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                     : ""
                 }
                 onChange={(e) =>
-                  actions.updateBasicInfo({
+                  updateBasicInfo({
                     slaDeadline: e.target.value
                       ? new Date(e.target.value)
                       : null,

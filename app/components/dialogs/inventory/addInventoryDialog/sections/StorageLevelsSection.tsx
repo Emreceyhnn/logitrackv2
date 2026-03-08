@@ -9,10 +9,7 @@ import {
   useTheme,
   MenuItem,
 } from "@mui/material";
-import {
-  AddInventoryStorageLevels,
-  AddInventoryPageActions,
-} from "@/app/lib/type/add-inventory";
+import { AddInventoryStorageLevels } from "@/app/lib/type/add-inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { useEffect, useState } from "react";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
@@ -21,12 +18,12 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 interface StorageLevelsSectionProps {
   state: AddInventoryStorageLevels;
-  actions: AddInventoryPageActions;
+  updateStorageLevels: (data: Partial<AddInventoryStorageLevels>) => void;
 }
 
 const StorageLevelsSection = ({
   state,
-  actions,
+  updateStorageLevels,
 }: StorageLevelsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
@@ -84,7 +81,7 @@ const StorageLevelsSection = ({
                 select
                 value={state.warehouseId}
                 onChange={(e) =>
-                  actions.updateStorageLevels({ warehouseId: e.target.value })
+                  updateStorageLevels({ warehouseId: e.target.value })
                 }
               >
                 <MenuItem value="" disabled>
@@ -124,7 +121,7 @@ const StorageLevelsSection = ({
                     placeholder="0"
                     value={state.initialQuantity.toString()}
                     onChange={(e) =>
-                      actions.updateStorageLevels({
+                      updateStorageLevels({
                         initialQuantity: parseInt(e.target.value) || 0,
                       })
                     }
@@ -146,7 +143,7 @@ const StorageLevelsSection = ({
                     placeholder="10"
                     value={state.minStockLevel.toString()}
                     onChange={(e) =>
-                      actions.updateStorageLevels({
+                      updateStorageLevels({
                         minStockLevel: parseInt(e.target.value) || 0,
                       })
                     }

@@ -6,6 +6,10 @@ export interface InventoryWithRelations extends Inventory {
     code: string;
     name: string;
   };
+  weightKg: number | null;
+  volumeM3: number | null;
+  palletCount: number | null;
+  cargoType: string | null;
 }
 
 export interface LowStockItem extends Inventory {

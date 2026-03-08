@@ -5,8 +5,13 @@ import { LogoutUser } from "../controllers/users";
 import { refreshSession } from "../controllers/session";
 
 export async function getUserSession() {
-  const user = await getAuthenticatedUser();
-  return user;
+  try {
+    const user = await getAuthenticatedUser();
+    return user;
+  } catch (error) {
+    console.error("CRITICAL ERROR in getUserSession:", error);
+    throw error;
+  }
 }
 
 export async function logoutAction() {

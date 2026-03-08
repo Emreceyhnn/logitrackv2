@@ -2,6 +2,10 @@ export interface AddInventoryItemDetails {
   sku: string;
   name: string;
   category: string;
+  weightKg?: number;
+  volumeM3?: number;
+  palletCount?: number;
+  cargoType?: string;
 }
 
 export interface AddInventoryStorageLevels {

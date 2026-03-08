@@ -58,12 +58,7 @@ export function AdvancedMarker({
       }
     }
 
-    return () => {
-      // Cleanup is tricky if we want to reuse the same marker instance across renders if map doesn't change
-      // But typically we should cleanup if component unmounts.
-      // The dependency array [map, offsetPosition] means we update whenever these change.
-      // If we strictly want creation ONCE, we should separate creation.
-    };
+    return () => {};
   }, [map, offsetPosition]);
 
   useEffect(() => {

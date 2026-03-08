@@ -18,11 +18,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
-import {
-  AddCustomerDialogProps,
-  AddCustomerPageActions,
-  AddCustomerPageState,
-} from "@/app/lib/type/add-customer";
+import { AddCustomerDialogProps } from "@/app/lib/type/add-customer";
 import { toast } from "sonner";
 import { createCustomer } from "@/app/lib/controllers/customer";
 import { useUser } from "@/app/lib/hooks/useUser";
@@ -47,80 +43,65 @@ const AddCustomerDialog = ({
   onClose,
   onSuccess,
 }: AddCustomerDialogProps) => {
-  /* -------------------------------- variables ------------------------------- */
+  /* ---------------------------------- State --------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
 
-  /* --------------------------------- states --------------------------------- */
-  const [state, setState] = useState<AddCustomerPageState>({
-    data: {
-      identity: initialIdentity,
-      contact: initialContact,
-    },
-    currentStep: 1,
-    isLoading: false,
-    error: null,
-    isSuccess: false,
-  });
+  const [identityData, setIdentityData] = useState(initialIdentity);
+  const [contactData, setContactData] = useState(initialContact);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  /* ---------------------------------- actions --------------------------------- */
-  const actions: AddCustomerPageActions = {
-    updateIdentity: (data) =>
-      setState((prev) => ({
-        ...prev,
-        data: { ...prev.data, identity: { ...prev.data.identity, ...data } },
-      })),
-    updateContact: (data) =>
-      setState((prev) => ({
-        ...prev,
-        data: { ...prev.data, contact: { ...prev.data.contact, ...data } },
-      })),
-    setStep: (step) => setState((prev) => ({ ...prev, currentStep: step })),
-    handleSubmit: async () => {
-      if (!user || !user.companyId) return;
+  /* -------------------------------- Handlers -------------------------------- */
+  const updateIdentity = (data: Partial<typeof initialIdentity>) => {
+    setIdentityData((prev) => ({ ...prev, ...data }));
+  };
 
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
-      try {
-        await createCustomer(
-          user.id,
-          user.companyId,
-          state.data.identity.name,
-          state.data.identity.code,
-          state.data.identity.industry || undefined,
-          state.data.identity.taxId || undefined,
-          state.data.contact.email || undefined,
-          state.data.contact.phone || undefined,
-          state.data.contact.address || undefined
-        );
+  const updateContact = (data: Partial<typeof initialContact>) => {
+    setContactData((prev) => ({ ...prev, ...data }));
+  };
 
-        toast.success("Customer created successfully");
-        onSuccess?.();
-        actions.closeDialog();
-      } catch (err: any) {
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          error: err.message || "Failed to create customer",
-        }));
-        toast.error(err.message || "Failed to create customer");
-      }
-    },
-    closeDialog: () => {
-      onClose();
-      setTimeout(() => actions.reset(), 300);
-    },
-    reset: () => {
-      setState({
-        data: {
-          identity: initialIdentity,
-          contact: initialContact,
-        },
-        currentStep: 1,
-        isLoading: false,
-        error: null,
-        isSuccess: false,
-      });
-    },
+  const resetDialog = () => {
+    setIdentityData(initialIdentity);
+    setContactData(initialContact);
+    setCurrentStep(1);
+    setIsLoading(false);
+    setError(null);
+  };
+
+  const closeDialog = () => {
+    onClose();
+    setTimeout(resetDialog, 300);
+  };
+
+  const handleSubmit = async () => {
+    if (!user) return;
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      await createCustomer(
+        identityData.name,
+        identityData.code,
+        identityData.industry || undefined,
+        identityData.taxId || undefined,
+        contactData.email || undefined,
+        contactData.phone || undefined,
+        contactData.address || undefined
+      );
+
+      toast.success("Customer created successfully");
+      onSuccess?.();
+      closeDialog();
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to create customer";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const steps = ["Company Identity", "Contact Details"];
@@ -128,7 +109,7 @@ const AddCustomerDialog = ({
   return (
     <Dialog
       open={open}
-      onClose={actions.closeDialog}
+      onClose={closeDialog}
       maxWidth="sm"
       fullWidth
       PaperProps={{
@@ -169,16 +150,13 @@ const AddCustomerDialog = ({
               Add New Customer
             </Typography>
           </Stack>
-          <IconButton
-            onClick={actions.closeDialog}
-            sx={{ color: "text.secondary" }}
-          >
+          <IconButton onClick={closeDialog} sx={{ color: "text.secondary" }}>
             <CloseIcon />
           </IconButton>
         </Stack>
 
         <Stepper
-          activeStep={state.currentStep - 1}
+          activeStep={currentStep - 1}
           sx={{
             mb: 4,
             "& .MuiStepLabel-label": {
@@ -220,11 +198,29 @@ const AddCustomerDialog = ({
       </Box>
 
       <DialogContent sx={{ pb: 4, minHeight: 350 }}>
-        {state.currentStep === 1 && (
-          <IdentitySection state={state.data.identity} actions={actions} />
+        {error && (
+          <Box
+            sx={{
+              p: 2,
+              mb: 3,
+              borderRadius: 2,
+              bgcolor: alpha(theme.palette.error.main, 0.05),
+              border: `1px solid ${alpha(theme.palette.error.main, 0.1)}`,
+            }}
+          >
+            <Typography variant="caption" color="error" fontWeight={600}>
+              {error}
+            </Typography>
+          </Box>
         )}
-        {state.currentStep === 2 && (
-          <ContactSection state={state.data.contact} actions={actions} />
+        {currentStep === 1 && (
+          <IdentitySection
+            state={identityData}
+            updateIdentity={updateIdentity}
+          />
+        )}
+        {currentStep === 2 && (
+          <ContactSection state={contactData} updateContact={updateContact} />
         )}
       </DialogContent>
 
@@ -238,9 +234,9 @@ const AddCustomerDialog = ({
       >
         <Button
           onClick={
-            state.currentStep === 1
-              ? actions.closeDialog
-              : () => actions.setStep(state.currentStep - 1)
+            currentStep === 1
+              ? closeDialog
+              : () => setCurrentStep(currentStep - 1)
           }
           sx={{
             color: "text.secondary",
@@ -248,21 +244,16 @@ const AddCustomerDialog = ({
             fontWeight: 600,
           }}
         >
-          {state.currentStep === 1 ? "Cancel" : "Back"}
+          {currentStep === 1 ? "Cancel" : "Back"}
         </Button>
 
         <Button
           variant="contained"
           disabled={
-            state.isLoading ||
-            (state.currentStep === 1 &&
-              (!state.data.identity.name || !state.data.identity.code))
+            isLoading ||
+            (currentStep === 1 && (!identityData.name || !identityData.code))
           }
-          onClick={
-            state.currentStep < 2
-              ? () => actions.setStep(2)
-              : actions.handleSubmit
-          }
+          onClick={currentStep < 2 ? () => setCurrentStep(2) : handleSubmit}
           sx={{
             minWidth: 160,
             borderRadius: 2,
@@ -272,12 +263,12 @@ const AddCustomerDialog = ({
             py: 1.2,
           }}
           startIcon={
-            state.isLoading && <CircularProgress size={16} color="inherit" />
+            isLoading && <CircularProgress size={16} color="inherit" />
           }
         >
-          {state.isLoading
+          {isLoading
             ? "Creating..."
-            : state.currentStep < 2
+            : currentStep < 2
               ? "Next Step →"
               : "Register Customer"}
         </Button>

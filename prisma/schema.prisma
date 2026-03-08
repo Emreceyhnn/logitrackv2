@@ -143,7 +143,7 @@ model Driver {
   safetyScore     Int?
   efficiencyScore Int?
   rating          Float?
-  hazmatCertified Boolean   @default(false)
+  hazmatCertified Boolean  @default(false)
   languages       String[]
 
   // Relations
@@ -200,12 +200,12 @@ model Vehicle {
   registrationExpiry DateTime? // Ruhsat süresi
   inspectionExpiry   DateTime? // Muayene süresi
 
-  engineSize         String?
-  transmission       String?
-  techNotes          String?
+  engineSize   String?
+  transmission String?
+  techNotes    String?
 
-  photo              String?
-  enableAlerts       Boolean?    @default(true)
+  photo        String?
+  enableAlerts Boolean? @default(true)
 
   maintenanceRecords MaintenanceRecord[]
   fuelLogs           FuelLog[]
@@ -304,6 +304,12 @@ model Inventory {
   quantity Int
   minStock Int    @default(0)
 
+  // Physical Properties for Shipping
+  weightKg    Float?  @default(0)
+  volumeM3    Float?  @default(0)
+  palletCount Float?  @default(0)
+  cargoType   String? @default("General Cargo")
+
   updatedAt DateTime @updatedAt
 
   companyId String?
@@ -345,8 +351,16 @@ model Shipment {
   status      String // PENDING, IN_TRANSIT, DELIVERED, etc.
   origin      String
   destination String
+  destinationLat Float?
+  destinationLng Float?
 
   itemsCount Int @default(1)
+
+  // Physical Properties (Total for the shipment)
+  weightKg    Float?  @default(0)
+  volumeM3    Float?  @default(0)
+  palletCount Float?  @default(0)
+  cargoType   String? @default("General Cargo")
 
   routeId String?
   route   Route?  @relation(fields: [routeId], references: [id])
@@ -444,25 +458,25 @@ model Document {
 }
 
 model FuelLog {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   vehicleId String
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
   driverId  String
-  driver    Driver   @relation(fields: [driverId], references: [id])
+  driver    Driver  @relation(fields: [driverId], references: [id])
   companyId String
-  company   Company  @relation(fields: [companyId], references: [id])
+  company   Company @relation(fields: [companyId], references: [id])
 
-  date       DateTime @default(now())
+  date        DateTime @default(now())
   volumeLiter Float
   cost        Float
   odometerKm  Int
   location    String?
   fuelType    String // DIESEL, ELECTRIC_KWH, etc.
-  
-  receiptUrl  String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  receiptUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("fuel_logs")
 }
@@ -495,9 +509,9 @@ model Issue {
 }
 
 model Session {
-  id             String   @id @default(cuid())
-  userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   token          String   @unique
   refreshToken   String   @unique
@@ -507,8 +521,8 @@ model Session {
   expiresAt      DateTime
   isRevoked      Boolean  @default(false)
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([token])
@@ -517,16 +531,16 @@ model Session {
 }
 
 model AuditLog {
-  id         String      @id @default(cuid())
-  userId     String?
-  user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  id     String  @id @default(cuid())
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   action     AuditAction
   ipAddress  String?
   deviceInfo String?
   metadata   String?
 
-  createdAt  DateTime    @default(now())
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([action])

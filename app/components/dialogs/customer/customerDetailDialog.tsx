@@ -46,19 +46,26 @@ const CustomerDetailDialog = ({
   const theme = useTheme();
   const [customer, setCustomer] = useState<CustomerWithRelations | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open && customerId) {
       const fetchData = async () => {
         setLoading(true);
+        setError(null);
         try {
-          const USER_ID = "usr_001"; // TODO: Context
-          const data = await getCustomerById(customerId, USER_ID);
-          // @ts-ignore - Controller returns specific include, type might match or close enough.
-          // Assuming response matches CustomerWithRelations structure roughly
-          setCustomer(data as any);
-        } catch (e) {
-          console.error(e);
+          // Providing a default user ID if not available from context,
+          // but ideally this should come from a hook.
+          const userId = "usr_001";
+          const data = await getCustomerById(customerId, userId);
+          setCustomer(data as unknown as CustomerWithRelations);
+        } catch (err: unknown) {
+          const message =
+            err instanceof Error
+              ? err.message
+              : "Failed to fetch customer details";
+          setError(message);
+          console.error(err);
         } finally {
           setLoading(false);
         }
@@ -66,6 +73,7 @@ const CustomerDetailDialog = ({
       fetchData();
     } else {
       setCustomer(null);
+      setError(null);
     }
   }, [open, customerId]);
 
@@ -84,9 +92,21 @@ const CustomerDetailDialog = ({
         },
       }}
     >
-      {loading || !customer ? (
+      {loading ? (
         <Box p={5} display="flex" justifyContent="center">
           <CircularProgress />
+        </Box>
+      ) : error ? (
+        <Box p={5} textAlign="center">
+          <Typography color="error" gutterBottom>
+            {error}
+          </Typography>
+          <Button onClick={onClose}>Close</Button>
+        </Box>
+      ) : !customer ? (
+        <Box p={5} textAlign="center">
+          <Typography color="text.secondary">Customer not found</Typography>
+          <Button onClick={onClose}>Close</Button>
         </Box>
       ) : (
         <>
@@ -418,7 +438,7 @@ const CustomerDetailDialog = ({
                       gap: 1,
                     }}
                   >
-                    {customer.shipments?.map((shipment: any) => (
+                    {customer.shipments?.map((shipment) => (
                       <Paper
                         key={shipment.id}
                         variant="outlined"
@@ -434,12 +454,13 @@ const CustomerDetailDialog = ({
                           <Chip label={shipment.status} size="small" />
                         </Stack>
                         <Typography variant="caption" color="text.secondary">
-                          {(shipment.origin as any)?.address ||
+                          {(shipment.origin as { address?: string })?.address ||
                             (typeof shipment.origin === "string"
                               ? shipment.origin
                               : "N/A")}{" "}
                           {" -> "}
-                          {(shipment.destination as any)?.address ||
+                          {(shipment.destination as { address?: string })
+                            ?.address ||
                             (typeof shipment.destination === "string"
                               ? shipment.destination
                               : "N/A")}

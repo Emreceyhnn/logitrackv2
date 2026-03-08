@@ -1,23 +1,12 @@
 "use client";
 
-import {
-  alpha,
-  Box,
-  Grid,
-  Stack,
-  Typography,
-  useTheme,
-  MenuItem,
-} from "@mui/material";
-import {
-  AddCustomerIdentity,
-  AddCustomerPageActions,
-} from "@/app/lib/type/add-customer";
+import { Box, Grid, Stack, Typography, MenuItem } from "@mui/material";
+import { AddCustomerIdentity } from "@/app/lib/type/add-customer";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 
 interface IdentitySectionProps {
   state: AddCustomerIdentity;
-  actions: AddCustomerPageActions;
+  updateIdentity: (data: Partial<AddCustomerIdentity>) => void;
 }
 
 const INDUSTRIES = [
@@ -31,10 +20,7 @@ const INDUSTRIES = [
   "Other",
 ];
 
-const IdentitySection = ({ state, actions }: IdentitySectionProps) => {
-  /* -------------------------------- variables ------------------------------- */
-  const theme = useTheme();
-
+const IdentitySection = ({ state, updateIdentity }: IdentitySectionProps) => {
   return (
     <Box>
       <Stack spacing={4}>
@@ -61,8 +47,8 @@ const IdentitySection = ({ state, actions }: IdentitySectionProps) => {
                 name="name"
                 placeholder="e.g. Global Logistics Solutions Ltd."
                 value={state.name}
-                onChange={(e) =>
-                  actions.updateIdentity({ name: e.target.value })
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  updateIdentity({ name: e.target.value })
                 }
               />
             </Stack>
@@ -80,8 +66,8 @@ const IdentitySection = ({ state, actions }: IdentitySectionProps) => {
                 name="code"
                 placeholder="e.g. CUST-001"
                 value={state.code}
-                onChange={(e) =>
-                  actions.updateIdentity({ code: e.target.value })
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  updateIdentity({ code: e.target.value })
                 }
               />
             </Stack>
@@ -100,8 +86,8 @@ const IdentitySection = ({ state, actions }: IdentitySectionProps) => {
                 name="industry"
                 select
                 value={state.industry}
-                onChange={(e) =>
-                  actions.updateIdentity({ industry: e.target.value })
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  updateIdentity({ industry: e.target.value })
                 }
               >
                 <MenuItem value="" disabled>
@@ -128,8 +114,8 @@ const IdentitySection = ({ state, actions }: IdentitySectionProps) => {
                 name="taxId"
                 placeholder="e.g. GB123456789"
                 value={state.taxId}
-                onChange={(e) =>
-                  actions.updateIdentity({ taxId: e.target.value })
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  updateIdentity({ taxId: e.target.value })
                 }
               />
             </Stack>

@@ -3,7 +3,6 @@
 import {
   alpha,
   Box,
-  Divider,
   Grid,
   Stack,
   Typography,
@@ -13,7 +12,7 @@ import {
   Card,
   CircularProgress,
 } from "@mui/material";
-import { AddRoutePageActions, AddRouteStep3 } from "@/app/lib/type/add-route";
+import { AddRouteStep3 } from "@/app/lib/type/add-route";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -26,12 +25,12 @@ import { getVehicles } from "@/app/lib/controllers/vehicle";
 
 interface ThirdRouteDialogStepProps {
   state: AddRouteStep3;
-  actions: AddRoutePageActions;
+  updateStep3: (data: Partial<AddRouteStep3>) => void;
 }
 
 const ThirdRouteDialogStep = ({
   state,
-  actions,
+  updateStep3,
 }: ThirdRouteDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
@@ -105,9 +104,7 @@ const ThirdRouteDialogStep = ({
                 name="driverId"
                 select
                 value={state.driverId}
-                onChange={(e) =>
-                  actions.updateStep3({ driverId: e.target.value })
-                }
+                onChange={(e) => updateStep3({ driverId: e.target.value })}
                 sx={{
                   "& .MuiSelect-select": {
                     display: "flex",
@@ -151,9 +148,7 @@ const ThirdRouteDialogStep = ({
                 name="vehicleId"
                 select
                 value={state.vehicleId}
-                onChange={(e) =>
-                  actions.updateStep3({ vehicleId: e.target.value })
-                }
+                onChange={(e) => updateStep3({ vehicleId: e.target.value })}
                 sx={{
                   "& .MuiSelect-select": {
                     display: "flex",

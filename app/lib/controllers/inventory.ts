@@ -12,7 +12,11 @@ export const createInventoryItem = authenticatedAction(
     sku: string,
     name: string,
     quantity: number,
-    minStock: number = 0
+    minStock: number = 0,
+    weightKg: number = 0,
+    volumeM3: number = 0,
+    palletCount: number = 0,
+    cargoType: string = "General Cargo"
   ) => {
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
@@ -53,6 +57,10 @@ export const createInventoryItem = authenticatedAction(
           name,
           quantity,
           minStock,
+          weightKg,
+          volumeM3,
+          palletCount,
+          cargoType,
           companyId,
         },
       });

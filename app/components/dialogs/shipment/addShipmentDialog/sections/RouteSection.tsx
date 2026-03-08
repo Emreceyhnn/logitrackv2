@@ -11,10 +11,7 @@ import {
   MenuItem,
   Card,
 } from "@mui/material";
-import {
-  AddShipmentRoute,
-  AddShipmentPageActions,
-} from "@/app/lib/type/add-shipment";
+import { AddShipmentRoute } from "@/app/lib/type/add-shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import RouteIcon from "@mui/icons-material/Route";
@@ -23,11 +20,11 @@ import EventIcon from "@mui/icons-material/Event";
 
 interface RouteSectionProps {
   state: AddShipmentRoute;
-  actions: AddShipmentPageActions;
+  updateRoute: (data: Partial<AddShipmentRoute>) => void;
   routes: RouteWithRelations[];
 }
 
-const RouteSection = ({ state, actions, routes }: RouteSectionProps) => {
+const RouteSection = ({ state, updateRoute, routes }: RouteSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
@@ -86,7 +83,7 @@ const RouteSection = ({ state, actions, routes }: RouteSectionProps) => {
                 placeholder="Select route..."
                 value={state.assignedRouteId || ""}
                 onChange={(e) =>
-                  actions.updateRoute({ assignedRouteId: e.target.value })
+                  updateRoute({ assignedRouteId: e.target.value })
                 }
               >
                 <MenuItem value="">Unassigned</MenuItem>

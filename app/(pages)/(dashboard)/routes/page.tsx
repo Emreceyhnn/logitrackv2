@@ -57,26 +57,21 @@ export default function RoutesPage() {
   const fetchRoutesData = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true }));
     try {
-      const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
-      const USER_ID = "usr_001";
-
       const [routesData, statsData, efficiencyData, mapDataLocations] =
         await Promise.all([
           getRoutes(
-            COMPANY_ID,
-            USER_ID,
             state.pagination.page + 1,
             state.pagination.pageSize,
             state.filters.status
           ),
-          getRouteStats(COMPANY_ID, USER_ID),
-          getRouteEfficiencyStats(COMPANY_ID, USER_ID),
-          getActiveRoutesLocations(COMPANY_ID, USER_ID),
+          getRouteStats(),
+          getRouteEfficiencyStats(),
+          getActiveRoutesLocations(),
         ]);
 
       setState((prev) => ({
         ...prev,
-        routes: routesData.routes as any,
+        routes: routesData.routes as RouteWithRelations[],
         stats: statsData,
         efficiency: efficiencyData as any,
         mapData: mapDataLocations as any,

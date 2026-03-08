@@ -16,18 +16,13 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
+import { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import CheckIcon from "@mui/icons-material/Check";
-import { useState, useMemo } from "react";
 import FirstStep from "./firstStep";
 import TechSpecsStep from "./techSpecsStep";
 import DocumentsStep from "./documentsStep";
 import {
-  AddVehiclePageActions,
   AddVehiclePageProps,
-  AddVehiclePageState,
   VehicleStep1Data,
   VehicleStep2Data,
   VehicleStep3Data,
@@ -69,10 +64,8 @@ const AddVehicleDialog = ({
   onClose,
   onSuccess,
 }: AddVehiclePageProps) => {
-  /* -------------------------------- variables ------------------------------- */
+  /* ---------------------------------- State --------------------------------- */
   const theme = useTheme();
-
-  /* --------------------------------- states --------------------------------- */
   const [state, setState] = useState<AddVehiclePageState>({
     currentStep: 1,
     data: {
@@ -85,112 +78,101 @@ const AddVehicleDialog = ({
     isSuccess: false,
   });
 
-  /* -------------------------------- actions --------------------------------- */
-  const actions: AddVehiclePageActions = useMemo(
-    () => ({
-      updateStep1: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: { ...prev.data, step1: { ...prev.data.step1, ...data } },
-        }));
-      },
-      updateStep2: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: { ...prev.data, step2: { ...prev.data.step2, ...data } },
-        }));
-      },
-      updateStep3: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: { ...prev.data, step3: { ...prev.data.step3, ...data } },
-        }));
-      },
-      setStep: (step) => {
-        setState((prev) => ({ ...prev, currentStep: step }));
-      },
-      nextStep: () => {
-        setState((prev) => ({ ...prev, currentStep: prev.currentStep + 1 }));
-      },
-      prevStep: () => {
-        setState((prev) => ({ ...prev, currentStep: prev.currentStep - 1 }));
-      },
-      handleSubmit: async () => {
-        try {
-          setState((prev) => ({ ...prev, isLoading: true, error: null }));
+  /* -------------------------------- Handlers -------------------------------- */
+  const actions: AddVehiclePageActions = {
+    updateStep1: (data) =>
+      setState((prev) => ({
+        ...prev,
+        data: { ...prev.data, step1: { ...prev.data.step1, ...data } },
+      })),
+    updateStep2: (data) =>
+      setState((prev) => ({
+        ...prev,
+        data: { ...prev.data, step2: { ...prev.data.step2, ...data } },
+      })),
+    updateStep3: (data) =>
+      setState((prev) => ({
+        ...prev,
+        data: { ...prev.data, step3: { ...prev.data.step3, ...data } },
+      })),
+    setStep: (step) => setState((prev) => ({ ...prev, currentStep: step })),
+    nextStep: () =>
+      setState((prev) => ({ ...prev, currentStep: prev.currentStep + 1 })),
+    prevStep: () =>
+      setState((prev) => ({ ...prev, currentStep: prev.currentStep - 1 })),
+    reset: () =>
+      setState({
+        currentStep: 1,
+        data: {
+          step1: initialStep1,
+          step2: initialStep2,
+          step3: initialStep3,
+        },
+        isLoading: false,
+        error: null,
+        isSuccess: false,
+      }),
+    closeDialog: () => {
+      if (!state.isLoading) {
+        onClose();
+        setTimeout(actions.reset, 300);
+      }
+    },
+    handleSubmit: async () => {
+      try {
+        setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-          const { step1, step2, step3 } = state.data;
+        const payload = {
+          fleetNo: state.data.step1.fleetNo,
+          plate: state.data.step1.plate,
+          type: state.data.step1.type,
+          brand: state.data.step1.brand,
+          model: state.data.step1.model,
+          year: state.data.step1.year,
+          odometerKm: state.data.step1.odometerKm,
+          photo:
+            state.data.step1.photo instanceof File
+              ? undefined
+              : state.data.step1.photo,
+          maxLoadKg: state.data.step2.maxLoadKg,
+          fuelType: state.data.step2.fuelType,
+          avgFuelConsumption: state.data.step2.avgFuelConsumption,
+          fuelLevel: state.data.step2.fuelLevel,
+          engineSize: state.data.step2.engineSize,
+          transmission: state.data.step2.transmission,
+          techNotes: state.data.step2.techNotes,
+          registrationExpiry: state.data.step3.registrationExpiry?.toDate(),
+          inspectionExpiry: state.data.step3.inspectionExpiry?.toDate(),
+          nextServiceKm:
+            state.data.step1.nextServiceKm || state.data.step3.nextServiceDueKm,
+          enableAlerts: state.data.step3.enableExpiryAlerts,
+        };
 
-          const payload = {
-            fleetNo: step1.fleetNo,
-            plate: step1.plate,
-            type: step1.type,
-            brand: step1.brand,
-            model: step1.model,
-            year: step1.year,
-            odometerKm: step1.odometerKm,
-            photo: step1.photo,
-            maxLoadKg: step2.maxLoadKg,
-            fuelType: step2.fuelType,
-            avgFuelConsumption: step2.avgFuelConsumption,
-            fuelLevel: step2.fuelLevel,
-            engineSize: step2.engineSize,
-            transmission: step2.transmission,
-            techNotes: step2.techNotes,
-            registrationExpiry: step3.registrationExpiry?.toDate(),
-            inspectionExpiry: step3.inspectionExpiry?.toDate(),
-            nextServiceKm: step1.nextServiceKm || step3.nextServiceDueKm,
-            enableAlerts: step3.enableExpiryAlerts,
-          };
+        await createVehicle(payload);
 
-          await createVehicle(payload);
+        setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
+        toast.success("Vehicle added successfully");
 
-          setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
-          toast.success("Vehicle added successfully");
-
-          setTimeout(() => {
-            onClose();
-            onSuccess?.();
-            actions.reset();
-          }, 1500);
-        } catch (err: any) {
-          setState((prev) => ({
-            ...prev,
-            isLoading: false,
-            error: err.message || "Failed to create vehicle",
-          }));
-          toast.error(err.message || "Failed to create vehicle");
-        }
-      },
-
-      closeDialog: () => {
-        if (!state.isLoading) {
+        setTimeout(() => {
           onClose();
-        }
-      },
-      reset: () => {
-        setState({
-          currentStep: 1,
-          data: {
-            step1: initialStep1,
-            step2: initialStep2,
-            step3: initialStep3,
-          },
-          isLoading: false,
-          error: null,
-          isSuccess: false,
-        });
-      },
-    }),
-    [state.data, state.isLoading, onClose, onSuccess]
-  );
+          onSuccess?.();
+          actions.reset();
+        }, 1500);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Failed to create vehicle";
+        setState((prev) => ({ ...prev, isLoading: false, error: message }));
+        toast.error(message);
+      }
+    },
+  };
 
   const steps = ["General Info", "Tech Specs", "Documents"];
 
   return (
     <Dialog
       open={open}
-      onClose={actions.closeDialog}
+      onClose={closeDialog}
       maxWidth="md"
       fullWidth
       PaperProps={{
@@ -208,7 +190,7 @@ const AddVehicleDialog = ({
           justifyContent="space-between"
           alignItems="center"
         >
-          <Typography variant="h6" fontWeight={600} color="white">
+          <Typography variant="h6" fontWeight={700} color="white">
             Add New Vehicle
           </Typography>
           <IconButton
@@ -246,7 +228,7 @@ const AddVehicleDialog = ({
                     fontWeight={600}
                     color={
                       state.currentStep - 1 >= index
-                        ? "text.primary"
+                        ? "white"
                         : "text.secondary"
                     }
                   >
@@ -286,7 +268,11 @@ const AddVehicleDialog = ({
             <Button
               variant="text"
               onClick={actions.closeDialog}
-              sx={{ color: "text.secondary", textTransform: "none", fontWeight: 600 }}
+              sx={{
+                color: "text.secondary",
+                textTransform: "none",
+                fontWeight: 600,
+              }}
             >
               Cancel
             </Button>
@@ -322,8 +308,8 @@ const AddVehicleDialog = ({
                 textTransform: "none",
                 px: state.currentStep === 3 ? 3 : 4,
                 borderRadius: 2,
-                boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
-                fontWeight: 600,
+                boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+                fontWeight: 700,
                 minWidth: 140,
               }}
             >

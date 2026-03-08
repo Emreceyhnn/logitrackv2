@@ -99,16 +99,14 @@ const AddWarehouseDialog = ({
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
         await createWarehouse(
-          user.id,
-          user.companyId,
           state.data.basicInfo.name,
           state.data.basicInfo.code,
           state.data.basicInfo.type,
           state.data.location.address,
           state.data.location.city,
           state.data.location.country,
-          undefined, // lat
-          undefined, // lng
+          state.data.location.lat,
+          state.data.location.lng,
           state.data.location.managerId || undefined
         );
 

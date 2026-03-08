@@ -8,10 +8,7 @@ import {
   useTheme,
   MenuItem,
 } from "@mui/material";
-import {
-  AddShipmentCargo,
-  AddShipmentPageActions,
-} from "@/app/lib/type/add-shipment";
+import { AddShipmentCargo } from "@/app/lib/type/add-shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import MonitorWeightIcon from "@mui/icons-material/MonitorWeight";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
@@ -19,10 +16,10 @@ import InventoryIcon from "@mui/icons-material/Inventory";
 
 interface CargoSectionProps {
   state: AddShipmentCargo;
-  actions: AddShipmentPageActions;
+  updateCargo: (data: Partial<AddShipmentCargo>) => void;
 }
 
-const CargoSection = ({ state, actions }: CargoSectionProps) => {
+const CargoSection = ({ state, updateCargo }: CargoSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
@@ -59,7 +56,7 @@ const CargoSection = ({ state, actions }: CargoSectionProps) => {
                 placeholder="0.00"
                 value={state.weightKg.toString()}
                 onChange={(e) =>
-                  actions.updateCargo({
+                  updateCargo({
                     weightKg: parseFloat(e.target.value) || 0,
                   })
                 }
@@ -86,7 +83,7 @@ const CargoSection = ({ state, actions }: CargoSectionProps) => {
                 placeholder="0.00"
                 value={state.volumeM3.toString()}
                 onChange={(e) =>
-                  actions.updateCargo({
+                  updateCargo({
                     volumeM3: parseFloat(e.target.value) || 0,
                   })
                 }
@@ -111,7 +108,7 @@ const CargoSection = ({ state, actions }: CargoSectionProps) => {
                 placeholder="Qty"
                 value={state.palletCount.toString()}
                 onChange={(e) =>
-                  actions.updateCargo({
+                  updateCargo({
                     palletCount: parseInt(e.target.value) || 0,
                   })
                 }
@@ -134,9 +131,7 @@ const CargoSection = ({ state, actions }: CargoSectionProps) => {
                 name="cargoType"
                 select
                 value={state.cargoType}
-                onChange={(e) =>
-                  actions.updateCargo({ cargoType: e.target.value })
-                }
+                onChange={(e) => updateCargo({ cargoType: e.target.value })}
               >
                 <MenuItem value="General Cargo">General Cargo</MenuItem>
                 <MenuItem value="Perishable">Perishable</MenuItem>

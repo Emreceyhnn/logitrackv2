@@ -1,20 +1,16 @@
 "use client";
 
 import {
-  alpha,
   Box,
   Grid,
   Stack,
   Typography,
   useTheme,
   MenuItem,
-  Avatar,
 } from "@mui/material";
-import {
-  AddShipmentLogistics,
-  AddShipmentPageActions,
-} from "@/app/lib/type/add-shipment";
+import { AddShipmentLogistics } from "@/app/lib/type/add-shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
+import AddressTextArea from "@/app/components/inputs/AddressTextArea";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
@@ -22,14 +18,14 @@ import PersonIcon from "@mui/icons-material/Person";
 
 interface LogisticsSectionProps {
   state: AddShipmentLogistics;
-  actions: AddShipmentPageActions;
+  updateLogistics: (data: Partial<AddShipmentLogistics>) => void;
   warehouses: WarehouseWithRelations[];
   customers: CustomerWithRelations[];
 }
 
 const LogisticsSection = ({
   state,
-  actions,
+  updateLogistics,
   warehouses,
   customers,
 }: LogisticsSectionProps) => {
@@ -69,7 +65,7 @@ const LogisticsSection = ({
                 placeholder="Search origin warehouse..."
                 value={state.originWarehouseId}
                 onChange={(e) =>
-                  actions.updateLogistics({ originWarehouseId: e.target.value })
+                  updateLogistics({ originWarehouseId: e.target.value })
                 }
               >
                 {warehouses.map((w) => (
@@ -95,13 +91,28 @@ const LogisticsSection = ({
               >
                 DESTINATION
               </Typography>
-              <CustomTextArea
+              <AddressTextArea
+                label="Search destination..."
                 name="destination"
-                placeholder="Search destination..."
                 value={state.destination}
                 onChange={(e) =>
-                  actions.updateLogistics({ destination: e.target.value })
+                  updateLogistics({ destination: e.target.value })
                 }
+                onPlaceSelect={(place: google.maps.places.PlaceResult) => {
+                  const lat = place.geometry?.location?.lat;
+                  const lng = place.geometry?.location?.lng;
+                  updateLogistics({
+                    destination: place.formatted_address || place.name || "",
+                    destinationLat:
+                      typeof lat === "function"
+                        ? (lat as () => number)()
+                        : (lat as unknown as number),
+                    destinationLng:
+                      typeof lng === "function"
+                        ? (lng as () => number)()
+                        : (lng as unknown as number),
+                  });
+                }}
               />
             </Stack>
           </Grid>
@@ -120,9 +131,23 @@ const LogisticsSection = ({
                 select
                 placeholder="Select customer"
                 value={state.customerId}
-                onChange={(e) =>
-                  actions.updateLogistics({ customerId: e.target.value })
-                }
+                onChange={(e) => {
+                  const customerId = e.target.value;
+                  updateLogistics({ customerId });
+
+                  // Auto-fill logic
+                  const selectedCustomer = customers.find(
+                    (c) => c.id === customerId
+                  );
+                  if (selectedCustomer) {
+                    updateLogistics({
+                      destination:
+                        selectedCustomer.address || state.destination,
+                      contactEmail:
+                        selectedCustomer.email || state.contactEmail,
+                    });
+                  }
+                }}
               >
                 {customers.map((c) => (
                   <MenuItem key={c.id} value={c.id}>
@@ -152,7 +177,7 @@ const LogisticsSection = ({
                 placeholder="client@example.com"
                 value={state.contactEmail}
                 onChange={(e) =>
-                  actions.updateLogistics({ contactEmail: e.target.value })
+                  updateLogistics({ contactEmail: e.target.value })
                 }
               />
             </Stack>
@@ -172,7 +197,7 @@ const LogisticsSection = ({
                 select
                 value={state.billingAccount}
                 onChange={(e) =>
-                  actions.updateLogistics({ billingAccount: e.target.value })
+                  updateLogistics({ billingAccount: e.target.value })
                 }
               >
                 <MenuItem value="Standard Billing (Net 30)">

@@ -8,7 +8,6 @@ import { Prisma, WarehouseType } from "@prisma/client";
 export const createWarehouse = authenticatedAction(
   async (
     user,
-    companyId: string,
     name: string,
     code: string,
     type: WarehouseType,
@@ -20,14 +19,9 @@ export const createWarehouse = authenticatedAction(
     managerId?: string
   ) => {
     try {
-      await checkPermission(user.id, user.companyId, [
-        "role_admin",
-        "role_manager",
-      ]);
+      const companyId = user.companyId;
 
-      if (!user.companyId || (companyId && companyId !== user.companyId)) {
-        throw new Error("Unauthorized or invalid company provided");
-      }
+      await checkPermission(user.id, companyId, ["role_admin", "role_manager"]);
 
       const existingWarehouse = await db.warehouse.findUnique({
         where: { code },
@@ -47,7 +41,7 @@ export const createWarehouse = authenticatedAction(
           country,
           lat,
           lng,
-          companyId: user.companyId,
+          companyId: companyId,
           managerId,
         },
       });
@@ -278,6 +272,10 @@ export const addInventoryItem = authenticatedAction(
           name,
           quantity,
           minStock,
+          weightKg,
+          volumeM3,
+          palletCount,
+          cargoType,
           companyId: user.companyId!,
         },
       });

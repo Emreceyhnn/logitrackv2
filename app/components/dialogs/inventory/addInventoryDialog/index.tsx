@@ -20,8 +20,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
 import {
   AddInventoryDialogProps,
-  AddInventoryPageActions,
-  AddInventoryPageState,
+  AddInventoryItemDetails,
+  AddInventoryStorageLevels,
 } from "@/app/lib/type/add-inventory";
 import { toast } from "sonner";
 import { addInventoryItem } from "@/app/lib/controllers/warehouse";
@@ -29,13 +29,13 @@ import { useUser } from "@/app/lib/hooks/useUser";
 import ItemDetailsSection from "./sections/ItemDetailsSection";
 import StorageLevelsSection from "./sections/StorageLevelsSection";
 
-const initialItemDetails = {
+const initialItemDetails: AddInventoryItemDetails = {
   sku: "",
   name: "",
   category: "",
 };
 
-const initialStorageLevels = {
+const initialStorageLevels: AddInventoryStorageLevels = {
   warehouseId: "",
   initialQuantity: 0,
   minStockLevel: 10,
@@ -50,78 +50,62 @@ const AddInventoryDialog = ({
   const { user } = useUser();
 
   /* --------------------------------- states --------------------------------- */
-  const [state, setState] = useState<AddInventoryPageState>({
-    data: {
-      itemDetails: initialItemDetails,
-      storageLevels: initialStorageLevels,
-    },
-    currentStep: 1,
-    isLoading: false,
-    error: null,
-    isSuccess: false,
-  });
+  const [itemDetails, setItemDetails] =
+    useState<AddInventoryItemDetails>(initialItemDetails);
+  const [storageLevels, setStorageLevels] =
+    useState<AddInventoryStorageLevels>(initialStorageLevels);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  /* ---------------------------------- actions --------------------------------- */
-  const actions: AddInventoryPageActions = {
-    updateItemDetails: (data) =>
-      setState((prev) => ({
-        ...prev,
-        data: {
-          ...prev.data,
-          itemDetails: { ...prev.data.itemDetails, ...data },
-        },
-      })),
-    updateStorageLevels: (data) =>
-      setState((prev) => ({
-        ...prev,
-        data: {
-          ...prev.data,
-          storageLevels: { ...prev.data.storageLevels, ...data },
-        },
-      })),
-    setStep: (step) => setState((prev) => ({ ...prev, currentStep: step })),
-    handleSubmit: async () => {
-      if (!user) return;
+  /* ---------------------------------- handlers --------------------------------- */
+  const updateItemDetails = (data: Partial<AddInventoryItemDetails>) =>
+    setItemDetails((prev) => ({ ...prev, ...data }));
 
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
-      try {
-        await addInventoryItem(
-          state.data.storageLevels.warehouseId,
-          state.data.itemDetails.sku,
-          state.data.itemDetails.name,
-          state.data.storageLevels.initialQuantity,
-          user.id,
-          state.data.storageLevels.minStockLevel
-        );
+  const updateStorageLevels = (data: Partial<AddInventoryStorageLevels>) =>
+    setStorageLevels((prev) => ({ ...prev, ...data }));
 
-        toast.success("Item added to inventory successfully");
-        onSuccess?.();
-        actions.closeDialog();
-      } catch (err: any) {
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          error: err.message || "Failed to add inventory item",
-        }));
-        toast.error(err.message || "Failed to add inventory item");
-      }
-    },
-    closeDialog: () => {
-      onClose();
-      setTimeout(() => actions.reset(), 300);
-    },
-    reset: () => {
-      setState({
-        data: {
-          itemDetails: initialItemDetails,
-          storageLevels: initialStorageLevels,
-        },
-        currentStep: 1,
-        isLoading: false,
-        error: null,
-        isSuccess: false,
-      });
-    },
+  const handleSubmit = async () => {
+    if (!user) return;
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      await addInventoryItem(
+        storageLevels.warehouseId,
+        itemDetails.sku,
+        itemDetails.name,
+        storageLevels.initialQuantity,
+        user.id,
+        storageLevels.minStockLevel,
+        itemDetails.weightKg || 0,
+        itemDetails.volumeM3 || 0,
+        itemDetails.palletCount || 0,
+        itemDetails.cargoType || "General Cargo"
+      );
+
+      toast.success("Item added to inventory successfully");
+      onSuccess?.();
+      closeDialog();
+    } catch (err: any) {
+      const message = err.message || "Failed to add inventory item";
+      setError(message);
+      setIsLoading(false);
+      toast.error(message);
+    }
+  };
+
+  const resetForm = () => {
+    setItemDetails(initialItemDetails);
+    setStorageLevels(initialStorageLevels);
+    setCurrentStep(1);
+    setIsLoading(false);
+    setError(null);
+  };
+
+  const closeDialog = () => {
+    onClose();
+    setTimeout(() => resetForm(), 300);
   };
 
   const steps = ["Item Details", "Warehouse Info", "Review"];
@@ -129,7 +113,7 @@ const AddInventoryDialog = ({
   return (
     <Dialog
       open={open}
-      onClose={actions.closeDialog}
+      onClose={closeDialog}
       maxWidth="sm"
       fullWidth
       PaperProps={{
@@ -170,16 +154,13 @@ const AddInventoryDialog = ({
               Add Inventory
             </Typography>
           </Stack>
-          <IconButton
-            onClick={actions.closeDialog}
-            sx={{ color: "text.secondary" }}
-          >
+          <IconButton onClick={closeDialog} sx={{ color: "text.secondary" }}>
             <CloseIcon />
           </IconButton>
         </Stack>
 
         <Stepper
-          activeStep={state.currentStep - 1}
+          activeStep={currentStep - 1}
           sx={{
             mb: 4,
             "& .MuiStepLabel-label": {
@@ -221,24 +202,38 @@ const AddInventoryDialog = ({
       </Box>
 
       <DialogContent sx={{ pb: 4, minHeight: 450 }}>
-        {state.currentStep === 1 && (
+        {error && (
+          <Box
+            mb={2}
+            p={2}
+            sx={{
+              bgcolor: alpha(theme.palette.error.main, 0.1),
+              borderRadius: 1,
+            }}
+          >
+            <Typography color="error" variant="caption">
+              {error}
+            </Typography>
+          </Box>
+        )}
+        {currentStep === 1 && (
           <ItemDetailsSection
-            state={state.data.itemDetails}
-            actions={actions}
+            state={itemDetails}
+            updateItemDetails={updateItemDetails}
           />
         )}
-        {state.currentStep === 2 && (
+        {currentStep === 2 && (
           <StorageLevelsSection
-            state={state.data.storageLevels}
-            actions={actions}
+            state={storageLevels}
+            updateStorageLevels={updateStorageLevels}
           />
         )}
-        {state.currentStep === 3 && (
+        {currentStep === 3 && (
           <Box sx={{ textAlign: "center", py: 4 }}>
             <Typography color="text.secondary">
               Review step placeholder
             </Typography>
-            <Button onClick={() => actions.setStep(1)}>Go back and edit</Button>
+            <Button onClick={() => setCurrentStep(1)}>Go back and edit</Button>
           </Box>
         )}
       </DialogContent>
@@ -253,9 +248,9 @@ const AddInventoryDialog = ({
       >
         <Button
           onClick={
-            state.currentStep === 1
-              ? actions.closeDialog
-              : () => actions.setStep(state.currentStep - 1)
+            currentStep === 1
+              ? closeDialog
+              : () => setCurrentStep(currentStep - 1)
           }
           sx={{
             color: "text.secondary",
@@ -263,24 +258,20 @@ const AddInventoryDialog = ({
             fontWeight: 600,
           }}
         >
-          {state.currentStep === 1 ? "Cancel" : "Back"}
+          {currentStep === 1 ? "Cancel" : "Back"}
         </Button>
 
         <Button
           variant="contained"
           disabled={
-            state.isLoading ||
-            (state.currentStep === 1 &&
-              (!state.data.itemDetails.sku ||
-                !state.data.itemDetails.name ||
-                !state.data.itemDetails.category)) ||
-            (state.currentStep === 2 && !state.data.storageLevels.warehouseId)
+            isLoading ||
+            (currentStep === 1 &&
+              (!itemDetails.sku ||
+                !itemDetails.name ||
+                !itemDetails.category)) ||
+            (currentStep === 2 && !storageLevels.warehouseId)
           }
-          onClick={
-            state.currentStep < 2
-              ? () => actions.setStep(2)
-              : actions.handleSubmit
-          }
+          onClick={currentStep < 2 ? () => setCurrentStep(2) : handleSubmit}
           sx={{
             minWidth: 160,
             borderRadius: 2,
@@ -290,12 +281,12 @@ const AddInventoryDialog = ({
             py: 1.2,
           }}
           startIcon={
-            state.isLoading && <CircularProgress size={16} color="inherit" />
+            isLoading && <CircularProgress size={16} color="inherit" />
           }
         >
-          {state.isLoading
+          {isLoading
             ? "Adding..."
-            : state.currentStep < 2
+            : currentStep < 2
               ? "Next Step →"
               : "Add to Inventory"}
         </Button>

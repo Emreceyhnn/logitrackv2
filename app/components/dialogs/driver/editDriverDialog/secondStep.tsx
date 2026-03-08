@@ -66,7 +66,7 @@ const SecondEditDriverDialogStep = ({
       if (!user) return;
       try {
         const [wData, vData] = await Promise.all([
-          getWarehouses(user.companyId!, user.id!),
+          getWarehouses(),
           getVehicles({ status: ["AVAILABLE", "IDLE"] }),
         ]);
         setWarehouses(wData);

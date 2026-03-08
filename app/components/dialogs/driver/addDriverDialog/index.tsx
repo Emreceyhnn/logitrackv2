@@ -1,3 +1,5 @@
+"use client";
+
 import {
   alpha,
   Box,
@@ -16,11 +18,9 @@ import {
   useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   AddDriverDialogProps,
-  AddDriverPageActions,
-  AddDriverPageState,
   AddDriverStep1,
   AddDriverStep2,
 } from "@/app/lib/type/driver";
@@ -60,151 +60,117 @@ const AddDriverDialog = ({
   const theme = useTheme();
 
   /* --------------------------------- states --------------------------------- */
-  const [state, setState] = useState<AddDriverPageState>({
-    currentStep: 1,
-    data: {
-      step1: initialStep1,
-      step2: initialStep2,
-    },
-    isLoading: false,
-    error: null,
-    isSuccess: false,
-  });
+  const [step1, setStep1] = useState<AddDriverStep1>(initialStep1);
+  const [step2, setStep2] = useState<AddDriverStep2>(initialStep2);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  /* -------------------------------- actions --------------------------------- */
-  const actions: AddDriverPageActions = useMemo(
-    () => ({
-      updateStep1: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: { ...prev.data, step1: { ...prev.data.step1, ...data } },
-        }));
-      },
-      updateStep2: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: { ...prev.data, step2: { ...prev.data.step2, ...data } },
-        }));
-      },
+  /* -------------------------------- handlers --------------------------------- */
+  const updateStep1 = (data: Partial<AddDriverStep1>) =>
+    setStep1((prev) => ({ ...prev, ...data }));
+  const updateStep2 = (data: Partial<AddDriverStep2>) =>
+    setStep2((prev) => ({ ...prev, ...data }));
 
-      setStep: (step) => {
-        setState((prev) => ({ ...prev, currentStep: step }));
-      },
-      nextStep: () => {
-        setState((prev) => ({ ...prev, currentStep: prev.currentStep + 1 }));
-      },
-      prevStep: () => {
-        setState((prev) => ({ ...prev, currentStep: prev.currentStep - 1 }));
-      },
-      handleSubmit: async () => {
-        try {
-          setState((prev) => ({ ...prev, isLoading: true, error: null }));
+  const handleSubmit = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-          const { step1, step2 } = state.data;
+      const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+        });
+      };
 
-          const fileToBase64 = (file: File): Promise<string> => {
-            return new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.readAsDataURL(file);
-              reader.onload = () => resolve(reader.result as string);
-              reader.onerror = (error) => reject(error);
-            });
-          };
+      // 1. Upload Licence Photo if exists
+      let licensePhotoUrl = "";
+      if (step1.licencePhoto) {
+        const base64 = await fileToBase64(step1.licencePhoto);
+        const uploadResult = await uploadImageAction(
+          base64,
+          `drivers/${step1.userId}/license`
+        );
+        licensePhotoUrl = uploadResult.url;
+      }
 
-          // 1. Upload Licence Photo if exists
-          let licensePhotoUrl = "";
-          if (step1.licencePhoto) {
-            const base64 = await fileToBase64(step1.licencePhoto);
+      // 2. Upload additional documents if exist
+      const uploadedDocs = await Promise.all(
+        step2.documents.map(async (doc) => {
+          if (doc.file) {
+            const base64 = await fileToBase64(doc.file);
             const uploadResult = await uploadImageAction(
               base64,
-              `drivers/${step1.userId}/license`
+              `drivers/${step1.userId}/docs`
             );
-            licensePhotoUrl = uploadResult.url;
+            return {
+              name: doc.name,
+              type: doc.type,
+              url: uploadResult.url,
+              expiryDate: doc.expiryDate || undefined,
+            };
           }
+          return null;
+        })
+      );
 
-          // 2. Upload additional documents if exist
-          const uploadedDocs = await Promise.all(
-            step2.documents.map(async (doc) => {
-              if (doc.file) {
-                const base64 = await fileToBase64(doc.file);
-                const uploadResult = await uploadImageAction(
-                  base64,
-                  `drivers/${step1.userId}/docs`
-                );
-                return {
-                  name: doc.name,
-                  type: doc.type,
-                  url: uploadResult.url,
-                  expiryDate: doc.expiryDate || undefined,
-                };
-              }
-              return null;
-            })
-          );
+      const payload = {
+        userId: step1.userId,
+        phone: step1.phone,
+        employeeId: step1.employeeId,
+        licenseNumber: step1.licenseNo,
+        licenseExpiry: step1.licenseExpiry,
+        licenseType: step1.licenseType,
+        status: step2.status as any,
+        currentVehicleId: step2.currentVehicleId || null,
+        homeBaseWarehouseId: step2.homeWareHouseId || null,
+        languages: step2.languages,
+        hazmatCertified: step2.hazmatCertified,
+        licensePhotoUrl,
+        documents: uploadedDocs.filter((d) => d !== null) as any[],
+      };
 
-          const payload = {
-            userId: step1.userId,
-            phone: step1.phone,
-            employeeId: step1.employeeId,
-            licenseNumber: step1.licenseNo,
-            licenseExpiry: step1.licenseExpiry,
-            licenseType: step1.licenseType,
-            status: step2.status as any,
-            currentVehicleId: step2.currentVehicleId || null,
-            homeBaseWarehouseId: step2.homeWareHouseId || null,
-            languages: step2.languages,
-            hazmatCertified: step2.hazmatCertified,
-            licensePhotoUrl,
-            documents: uploadedDocs.filter((d) => d !== null) as any[],
-          };
+      await createDriver(payload);
 
-          await createDriver(payload);
+      toast.success("Driver added successfully");
 
-          setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
-          toast.success("Driver added successfully");
+      setTimeout(() => {
+        onClose();
+        onSuccess?.();
+        resetForm();
+      }, 1500);
+    } catch (err: any) {
+      const message = err.message || "Failed to create driver";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-          setTimeout(() => {
-            onClose();
-            onSuccess?.();
-            actions.reset();
-          }, 1500);
-        } catch (err: any) {
-          setState((prev) => ({
-            ...prev,
-            isLoading: false,
-            error: err.message || "Failed to create driver",
-          }));
-          toast.error(err.message || "Failed to create driver");
-        }
-      },
+  const resetForm = () => {
+    setStep1(initialStep1);
+    setStep2(initialStep2);
+    setCurrentStep(1);
+    setIsLoading(false);
+    setError(null);
+  };
 
-      closeDialog: () => {
-        if (!state.isLoading) {
-          onClose();
-        }
-      },
-      reset: () => {
-        setState({
-          currentStep: 1,
-          data: {
-            step1: initialStep1,
-            step2: initialStep2,
-          },
-          isLoading: false,
-          error: null,
-          isSuccess: false,
-        });
-      },
-    }),
-    [state.data, state.isLoading, onClose, onSuccess]
-  );
+  const closeDialog = () => {
+    if (!isLoading) {
+      onClose();
+    }
+  };
 
   const steps = ["DRIVER CREDENTIALS", "ASSIGNMENT & SETTINGS"];
 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={closeDialog}
       maxWidth="md"
       fullWidth
       PaperProps={{
@@ -231,7 +197,7 @@ const AddDriverDialog = ({
             </Typography>
           </Stack>
           <IconButton
-            onClick={onClose}
+            onClick={closeDialog}
             size="small"
             sx={{ color: "text.secondary" }}
           >
@@ -242,7 +208,7 @@ const AddDriverDialog = ({
       <DialogContent>
         <Box sx={{ mb: 4, px: 2 }}>
           <Stepper
-            activeStep={state.currentStep - 1}
+            activeStep={currentStep - 1}
             sx={{
               "& .MuiStepConnector-line": {
                 borderColor: alpha(theme.palette.divider, 0.1),
@@ -263,7 +229,7 @@ const AddDriverDialog = ({
                     variant="caption"
                     fontWeight={600}
                     color={
-                      state.currentStep - 1 >= index
+                      currentStep - 1 >= index
                         ? "text.primary"
                         : "text.secondary"
                     }
@@ -280,43 +246,54 @@ const AddDriverDialog = ({
         />
 
         <Box sx={{ minHeight: 400 }}>
-          {state.currentStep === 1 && (
-            <FirstDriverDialogStep state={state.data.step1} actions={actions} />
+          {error && (
+            <Box
+              mb={3}
+              p={2}
+              sx={{
+                bgcolor: alpha(theme.palette.error.main, 0.1),
+                borderRadius: 2,
+              }}
+            >
+              <Typography variant="caption" color="error">
+                {error}
+              </Typography>
+            </Box>
           )}
-          {state.currentStep === 2 && (
+          {currentStep === 1 && (
+            <FirstDriverDialogStep state={step1} updateStep1={updateStep1} />
+          )}
+          {currentStep === 2 && (
             <SecondDriverDialogStep
-              state={state.data.step2}
-              actions={actions}
-              step1Data={state.data.step1}
+              state={step2}
+              updateStep2={updateStep2}
+              step1Data={step1}
+              setStep={setCurrentStep}
             />
           )}
         </Box>
       </DialogContent>
       <DialogActions sx={{ p: 3, pt: 0, justifyContent: "space-between" }}>
         <Button
-          onClick={state.currentStep === 1 ? onClose : actions.prevStep}
-          disabled={state.isLoading}
+          onClick={currentStep === 1 ? closeDialog : () => setCurrentStep(1)}
+          disabled={isLoading}
           sx={{
             color: "text.secondary",
             "&:hover": { bgcolor: alpha(theme.palette.divider, 0.05) },
           }}
         >
-          {state.currentStep === 1 ? "Cancel" : "Back to Credentials"}
+          {currentStep === 1 ? "Cancel" : "Back to Credentials"}
         </Button>
         <Button
           variant="contained"
-          onClick={
-            state.currentStep === 1 ? actions.nextStep : actions.handleSubmit
-          }
+          onClick={currentStep === 1 ? () => setCurrentStep(2) : handleSubmit}
           disabled={
-            state.isLoading ||
-            (state.currentStep === 1 &&
-              (!state.data.step1.userId ||
-                !state.data.step1.employeeId ||
-                !state.data.step1.phone))
+            isLoading ||
+            (currentStep === 1 &&
+              (!step1.userId || !step1.employeeId || !step1.phone))
           }
           startIcon={
-            state.isLoading && <CircularProgress size={16} color="inherit" />
+            isLoading && <CircularProgress size={16} color="inherit" />
           }
           sx={{
             borderRadius: 2,
@@ -325,9 +302,9 @@ const AddDriverDialog = ({
             boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
           }}
         >
-          {state.isLoading
+          {isLoading
             ? "Saving..."
-            : state.currentStep === 1
+            : currentStep === 1
               ? "Next: Assignment"
               : "Complete Onboarding"}
         </Button>

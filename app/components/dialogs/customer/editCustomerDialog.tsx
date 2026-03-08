@@ -15,7 +15,7 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { updateCustomer } from "@/app/lib/controllers/customer";
-import { useTransition, useEffect, useMemo } from "react";
+import { useTransition, useEffect } from "react";
 import { toast } from "sonner";
 import { editCustomerValidationSchema } from "@/app/lib/validationSchema";
 import { useUser } from "@/app/lib/hooks/useUser";
@@ -27,6 +27,16 @@ interface EditCustomerDialogProps {
   customer: CustomerWithRelations | null;
 }
 
+const defaultValues = {
+  name: "",
+  code: "",
+  email: "",
+  phone: "",
+  address: "",
+  taxId: "",
+  industry: "",
+};
+
 export default function EditCustomerDialog({
   open,
   onClose,
@@ -36,19 +46,6 @@ export default function EditCustomerDialog({
   const { user } = useUser();
   const [isPending, startTransition] = useTransition();
 
-  const defaultValues = useMemo(
-    () => ({
-      name: "",
-      code: "",
-      email: "",
-      phone: "",
-      address: "",
-      taxId: "",
-      industry: "",
-    }),
-    []
-  );
-
   const {
     control,
     handleSubmit,
@@ -56,7 +53,7 @@ export default function EditCustomerDialog({
     reset,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(editCustomerValidationSchema) as any,
+    resolver: yupResolver(editCustomerValidationSchema),
     defaultValues,
   });
 
@@ -72,7 +69,7 @@ export default function EditCustomerDialog({
     } else {
       reset(defaultValues);
     }
-  }, [customer, open, setValue, reset, defaultValues]);
+  }, [customer, open, setValue, reset]);
 
   const onSubmit = (data: any) => {
     if (!customer || !user) return;
@@ -83,9 +80,11 @@ export default function EditCustomerDialog({
         toast.success("Customer updated successfully");
         onSuccess();
         onClose();
-      } catch (error: any) {
-        console.error(error);
-        toast.error(error.message || "Failed to update customer");
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Failed to update customer";
+        console.error(err);
+        toast.error(message);
       }
     });
   };

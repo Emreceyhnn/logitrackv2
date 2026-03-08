@@ -17,7 +17,6 @@ import {
 import { useEffect, useState, useRef, ChangeEvent } from "react";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import {
-  AddDriverPageActions,
   AddDriverStep1,
   AddDriverStep2,
   EligibleUser,
@@ -39,25 +38,25 @@ import BadgeIcon from "@mui/icons-material/Badge";
 
 interface SecondDriverDialogStepProps {
   state: AddDriverStep2;
-  actions: AddDriverPageActions;
+  updateStep2: (data: Partial<AddDriverStep2>) => void;
   step1Data: AddDriverStep1;
+  setStep: (step: number) => void;
 }
 
 const SecondDriverDialogStep = ({
   state,
-  actions,
+  updateStep2,
   step1Data,
+  setStep,
 }: SecondDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   /* --------------------------------- states --------------------------------- */
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [users, setUsers] = useState<EligibleUser[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   /* ------------------------------- lifecycles ------------------------------- */
   useEffect(() => {
@@ -65,7 +64,7 @@ const SecondDriverDialogStep = ({
       if (!user) return;
       try {
         const [wData, vData, uData] = await Promise.all([
-          getWarehouses(user.companyId!, user.id!),
+          getWarehouses(),
           getVehicles({ status: ["AVAILABLE", "IDLE"] }),
           getEligibleUsersForDriver(),
         ]);
@@ -74,8 +73,6 @@ const SecondDriverDialogStep = ({
         setUsers(uData);
       } catch (error) {
         console.error("Failed to fetch Step 2 data:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchData();
@@ -85,7 +82,7 @@ const SecondDriverDialogStep = ({
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const newDocs = Array.from(e.target.files).map((file) => ({
-        id: Math.random().toString(36).substr(2, 9),
+        id: crypto.randomUUID(),
         name: file.name,
         type: "OTHER",
         expiryDate: null,
@@ -93,14 +90,14 @@ const SecondDriverDialogStep = ({
         size: (file.size / (1024 * 1024)).toFixed(2) + " MB",
         uploadedAt: new Date().toLocaleDateString(),
       }));
-      actions.updateStep2({
+      updateStep2({
         documents: [...state.documents, ...newDocs],
       });
     }
   };
 
   const removeDoc = (id: string) => {
-    actions.updateStep2({
+    updateStep2({
       documents: state.documents.filter((doc) => doc.id !== id),
     });
   };
@@ -143,7 +140,7 @@ const SecondDriverDialogStep = ({
                   placeholder="Select warehouse"
                   value={state.homeWareHouseId}
                   onChange={(e) =>
-                    actions.updateStep2({ homeWareHouseId: e.target.value })
+                    updateStep2({ homeWareHouseId: e.target.value })
                   }
                   select
                 >
@@ -167,7 +164,7 @@ const SecondDriverDialogStep = ({
                   placeholder="No vehicle assigned (Floating)"
                   value={state.currentVehicleId}
                   onChange={(e) =>
-                    actions.updateStep2({ currentVehicleId: e.target.value })
+                    updateStep2({ currentVehicleId: e.target.value })
                   }
                   select
                 >
@@ -219,7 +216,7 @@ const SecondDriverDialogStep = ({
               ].map((status) => (
                 <Box
                   key={status.id}
-                  onClick={() => actions.updateStep2({ status: status.id })}
+                  onClick={() => updateStep2({ status: status.id })}
                   sx={{
                     flex: 1,
                     p: 2,
@@ -297,7 +294,7 @@ const SecondDriverDialogStep = ({
               <Switch
                 checked={state.hazmatCertified}
                 onChange={(e) =>
-                  actions.updateStep2({ hazmatCertified: e.target.checked })
+                  updateStep2({ hazmatCertified: e.target.checked })
                 }
                 color="primary"
               />
@@ -316,7 +313,7 @@ const SecondDriverDialogStep = ({
                 placeholder="e.g. EN, ES"
                 value={state.languages.join(", ")}
                 onChange={(e) =>
-                  actions.updateStep2({
+                  updateStep2({
                     languages: e.target.value
                       .split(",")
                       .map((lang) => lang.trim())
@@ -457,7 +454,7 @@ const SecondDriverDialogStep = ({
               </Typography>
               <Button
                 size="small"
-                onClick={() => actions.setStep(1)}
+                onClick={() => setStep(1)}
                 sx={{ opacity: 0.7, textTransform: "none" }}
               >
                 Edit Info

@@ -1,8 +1,5 @@
-import { RouteStatus } from "@prisma/client";
-
 export interface AddRouteStep1 {
   name: string;
-  date: Date | null;
   startTime: Date | null;
   endTime: Date | null;
 }

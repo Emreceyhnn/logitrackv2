@@ -19,16 +19,15 @@ import {
   StepLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   AddShipmentDialogProps,
-  AddShipmentPageActions,
-  AddShipmentPageState,
   AddShipmentBasicInfo,
   AddShipmentLogistics,
   AddShipmentCargo,
   AddShipmentInventory,
   AddShipmentRoute,
+  InventoryShipmentItem,
 } from "@/app/lib/type/add-shipment";
 import { toast } from "sonner";
 import { createShipment } from "@/app/lib/controllers/shipments";
@@ -86,21 +85,20 @@ const AddShipmentDialog = ({
   const { user } = useUser();
 
   /* --------------------------------- states --------------------------------- */
-  const [state, setState] = useState<AddShipmentPageState>({
-    data: {
-      basicInfo: initialBasicInfo,
-      logistics: initialLogistics,
-      cargo: initialCargo,
-      inventory: initialInventory,
-      route: initialRoute,
-    },
-    availableInventory: [],
-    currentStep: 1,
-    isLoading: false,
-    isLoadingInventory: false,
-    error: null,
-    isSuccess: false,
-  });
+  const [basicInfo, setBasicInfo] =
+    useState<AddShipmentBasicInfo>(initialBasicInfo);
+  const [logistics, setLogistics] =
+    useState<AddShipmentLogistics>(initialLogistics);
+  const [cargo, setCargo] = useState<AddShipmentCargo>(initialCargo);
+  const [inventory, setInventory] =
+    useState<AddShipmentInventory>(initialInventory);
+  const [route, setRoute] = useState<AddShipmentRoute>(initialRoute);
+
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingInventory, setIsLoadingInventory] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [availableInventory, setAvailableInventory] = useState<any[]>([]);
 
   const [warehouses, setWarehouses] = useState<WarehouseWithRelations[]>([]);
   const [customers, setCustomers] = useState<CustomerWithRelations[]>([]);
@@ -112,9 +110,9 @@ const AddShipmentDialog = ({
       const fetchData = async () => {
         try {
           const [wRes, cRes, rRes] = await Promise.all([
-            getWarehouses(user.companyId!, user.id!),
-            getCustomers(user.companyId!, user.id!),
-            getRoutes(user.companyId!, user.id!),
+            getWarehouses(),
+            getCustomers(),
+            getRoutes(),
           ]);
           setWarehouses(wRes);
           setCustomers(cRes);
@@ -128,166 +126,105 @@ const AddShipmentDialog = ({
   }, [open, user]);
 
   useEffect(() => {
-    const warehouseId = state.data.logistics.originWarehouseId;
+    const warehouseId = logistics.originWarehouseId;
     if (warehouseId && user) {
       const fetchInventory = async () => {
-        setState((prev) => ({ ...prev, isLoadingInventory: true }));
+        setIsLoadingInventory(true);
         try {
-          const inv = await getInventory(
-            user.companyId!,
-            user.id!,
-            warehouseId
-          );
-          setState((prev) => ({
-            ...prev,
-            availableInventory: inv,
-            isLoadingInventory: false,
-          }));
+          const inv = await getInventory(warehouseId);
+          setAvailableInventory(inv);
         } catch (error) {
           console.error("Failed to fetch warehouse inventory", error);
-          setState((prev) => ({ ...prev, isLoadingInventory: false }));
+        } finally {
+          setIsLoadingInventory(false);
         }
       };
       fetchInventory();
     } else {
-      setState((prev) => ({ ...prev, availableInventory: [] }));
+      setAvailableInventory([]);
     }
-  }, [state.data.logistics.originWarehouseId, user]);
+  }, [logistics.originWarehouseId, user]);
 
   /* -------------------------------- actions --------------------------------- */
-  const actions: AddShipmentPageActions = useMemo(
-    () => ({
-      updateBasicInfo: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: {
-            ...prev.data,
-            basicInfo: { ...prev.data.basicInfo, ...data },
-          },
-        }));
-      },
-      updateLogistics: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: {
-            ...prev.data,
-            logistics: { ...prev.data.logistics, ...data },
-          },
-        }));
-      },
-      updateCargo: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: { ...prev.data, cargo: { ...prev.data.cargo, ...data } },
-        }));
-      },
-      updateInventory: (data) => {
-        setState((prev) => ({
-          ...prev,
-          data: {
-            ...prev.data,
-            inventory: { ...prev.data.inventory, ...data },
-          },
-        }));
-      },
-      addInventoryItem: (item) => {
-        setState((prev) => ({
-          ...prev,
-          data: {
-            ...prev.data,
-            inventory: {
-              ...prev.data.inventory,
-              items: [...prev.data.inventory.items, item],
-            },
-          },
-        }));
-      },
-      removeInventoryItem: (id) => {
-        setState((prev) => ({
-          ...prev,
-          data: {
-            ...prev.data,
-            inventory: {
-              ...prev.data.inventory,
-              items: prev.data.inventory.items.filter((i) => i.id !== id),
-            },
-          },
-        }));
-      },
-      updateRoute: (data) =>
-        setState((prev) => ({
-          ...prev,
-          data: { ...prev.data, route: { ...prev.data.route, ...data } },
-        })),
+  /* -------------------------------- handlers --------------------------------- */
+  const updateBasicInfo = (data: Partial<AddShipmentBasicInfo>) =>
+    setBasicInfo((prev) => ({ ...prev, ...data }));
+  const updateLogistics = (data: Partial<AddShipmentLogistics>) =>
+    setLogistics((prev) => ({ ...prev, ...data }));
+  const updateCargo = (data: Partial<AddShipmentCargo>) =>
+    setCargo((prev) => ({ ...prev, ...data }));
+  const updateInventory = (data: Partial<AddShipmentInventory>) =>
+    setInventory((prev) => ({ ...prev, ...data }));
+  const addInventoryItem = (item: InventoryShipmentItem) =>
+    setInventory((prev) => ({ ...prev, items: [...prev.items, item] }));
+  const removeInventoryItem = (id: string) =>
+    setInventory((prev) => ({
+      ...prev,
+      items: prev.items.filter((i) => i.id !== id),
+    }));
+  const updateRoute = (data: Partial<AddShipmentRoute>) =>
+    setRoute((prev) => ({ ...prev, ...data }));
 
-      setStep: (step) => setState((prev) => ({ ...prev, currentStep: step })),
+  const handleSubmit = async () => {
+    if (!user) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      await createShipment(
+        logistics.customerId,
+        logistics.originWarehouseId,
+        logistics.destination,
+        "PENDING",
+        inventory.items.length || 1,
+        cargo.weightKg,
+        cargo.volumeM3,
+        cargo.palletCount,
+        cargo.cargoType,
+        logistics.destinationLat,
+        logistics.destinationLng,
+        basicInfo.referenceNumber
+      );
 
-      handleSubmit: async () => {
-        if (!user) return;
-        try {
-          setState((prev) => ({ ...prev, isLoading: true, error: null }));
+      toast.success("Shipment created successfully");
 
-          const { basicInfo, logistics, cargo } = state.data;
+      setTimeout(() => {
+        onClose();
+        onSuccess?.();
+        resetForm();
+      }, 1500);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to create shipment";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-          // Note: Tracking ID generation is handled by controller if not provided
-          await createShipment(
-            user.id,
-            user.companyId!,
-            logistics.customerId,
-            logistics.originWarehouseId, // Or address if we support both
-            logistics.destination,
-            "PENDING",
-            state.data.inventory.items.length || 1,
-            basicInfo.referenceNumber
-          );
+  const resetForm = () => {
+    setBasicInfo(initialBasicInfo);
+    setLogistics(initialLogistics);
+    setCargo(initialCargo);
+    setInventory(initialInventory);
+    setRoute(initialRoute);
+    setCurrentStep(1);
+    setIsLoading(false);
+    setIsLoadingInventory(false);
+    setError(null);
+    setAvailableInventory([]);
+  };
 
-          setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
-          toast.success("Shipment created successfully");
-
-          setTimeout(() => {
-            onClose();
-            onSuccess?.();
-            actions.reset();
-          }, 1500);
-        } catch (err: any) {
-          setState((prev) => ({
-            ...prev,
-            isLoading: false,
-            error: err.message || "Failed to create shipment",
-          }));
-          toast.error(err.message || "Failed to create shipment");
-        }
-      },
-      closeDialog: () => {
-        if (!state.isLoading) {
-          onClose();
-        }
-      },
-      reset: () => {
-        setState({
-          data: {
-            basicInfo: initialBasicInfo,
-            logistics: initialLogistics,
-            cargo: initialCargo,
-            inventory: initialInventory,
-            route: initialRoute,
-          },
-          availableInventory: [],
-          currentStep: 1,
-          isLoading: false,
-          isLoadingInventory: false,
-          error: null,
-          isSuccess: false,
-        });
-      },
-    }),
-    [state.data, state.isLoading, onClose, onSuccess, user]
-  );
+  const closeDialog = () => {
+    if (!isLoading) {
+      onClose();
+    }
+  };
 
   return (
     <Dialog
       open={open}
-      onClose={actions.closeDialog}
+      onClose={closeDialog}
       maxWidth="lg"
       fullWidth
       PaperProps={{
@@ -308,7 +245,7 @@ const AddShipmentDialog = ({
         >
           <Stack spacing={0.5}>
             <Typography variant="h6" fontWeight={700} color="white">
-              {state.currentStep === 1
+              {currentStep === 1
                 ? "Create Shipment"
                 : "Cargo & Inventory Details"}
             </Typography>
@@ -316,16 +253,13 @@ const AddShipmentDialog = ({
               Initialize transport record and logistics data
             </Typography>
           </Stack>
-          <IconButton
-            onClick={actions.closeDialog}
-            sx={{ color: "text.secondary" }}
-          >
+          <IconButton onClick={closeDialog} sx={{ color: "text.secondary" }}>
             <CloseIcon />
           </IconButton>
         </Stack>
 
         <Stepper
-          activeStep={state.currentStep - 1}
+          activeStep={currentStep - 1}
           sx={{
             "& .MuiStepLabel-label": {
               color: alpha("#fff", 0.5),
@@ -356,13 +290,30 @@ const AddShipmentDialog = ({
       </Box>
 
       <DialogContent sx={{ mt: 2, pb: 4, minHeight: 400 }}>
-        {state.currentStep === 1 ? (
+        {error && (
+          <Box
+            mb={2}
+            p={2}
+            sx={{
+              bgcolor: alpha(theme.palette.error.main, 0.1),
+              borderRadius: 1,
+            }}
+          >
+            <Typography color="error" variant="caption">
+              {error}
+            </Typography>
+          </Box>
+        )}
+        {currentStep === 1 ? (
           <Stack spacing={6}>
-            <BasicInfoSection state={state.data.basicInfo} actions={actions} />
+            <BasicInfoSection
+              state={basicInfo}
+              updateBasicInfo={updateBasicInfo}
+            />
             <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
             <LogisticsSection
-              state={state.data.logistics}
-              actions={actions}
+              state={logistics}
+              updateLogistics={updateLogistics}
               warehouses={warehouses}
               customers={customers}
             />
@@ -371,22 +322,25 @@ const AddShipmentDialog = ({
           <Stack spacing={6}>
             <Grid container spacing={6}>
               <Grid size={{ xs: 12, lg: 6 }}>
-                <CargoSection state={state.data.cargo} actions={actions} />
+                <CargoSection state={cargo} updateCargo={updateCargo} />
               </Grid>
               <Grid size={{ xs: 12, lg: 6 }}>
                 <RouteSection
-                  state={state.data.route}
-                  actions={actions}
+                  state={route}
+                  updateRoute={updateRoute}
                   routes={routes}
                 />
               </Grid>
             </Grid>
             <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
             <InventorySection
-              state={state.data.inventory}
-              actions={actions}
-              availableInventory={state.availableInventory}
-              isLoadingInventory={state.isLoadingInventory}
+              state={inventory}
+              addInventoryItem={addInventoryItem}
+              removeInventoryItem={removeInventoryItem}
+              updateInventory={updateInventory}
+              updateCargo={updateCargo}
+              availableInventory={availableInventory}
+              isLoadingInventory={isLoadingInventory}
             />
           </Stack>
         )}
@@ -401,29 +355,20 @@ const AddShipmentDialog = ({
         }}
       >
         <Button
-          onClick={
-            state.currentStep === 1
-              ? actions.closeDialog
-              : () => actions.setStep(1)
-          }
+          onClick={currentStep === 1 ? closeDialog : () => setCurrentStep(1)}
           sx={{ color: "text.secondary", textTransform: "none" }}
         >
-          {state.currentStep === 1 ? "Cancel" : "Back"}
+          {currentStep === 1 ? "Cancel" : "Back"}
         </Button>
 
         <Button
           variant="contained"
           disabled={
-            state.isLoading ||
-            (state.currentStep === 1 &&
-              (!state.data.logistics.customerId ||
-                !state.data.logistics.destination))
+            isLoading ||
+            (currentStep === 1 &&
+              (!logistics.customerId || !logistics.destination))
           }
-          onClick={
-            state.currentStep === 1
-              ? () => actions.setStep(2)
-              : actions.handleSubmit
-          }
+          onClick={currentStep === 1 ? () => setCurrentStep(2) : handleSubmit}
           sx={{
             minWidth: 140,
             borderRadius: 2,
@@ -432,12 +377,12 @@ const AddShipmentDialog = ({
             boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
           }}
           startIcon={
-            state.isLoading && <CircularProgress size={16} color="inherit" />
+            isLoading && <CircularProgress size={16} color="inherit" />
           }
         >
-          {state.isLoading
+          {isLoading
             ? "Creating..."
-            : state.currentStep === 1
+            : currentStep === 1
               ? "Next Step"
               : "Create Shipment"}
         </Button>

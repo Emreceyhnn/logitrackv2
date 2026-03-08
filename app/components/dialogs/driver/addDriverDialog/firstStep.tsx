@@ -21,22 +21,18 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import PhoneIcon from "@mui/icons-material/Phone";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import { IconButton } from "@mui/material";
-import {
-  AddDriverPageActions,
-  AddDriverStep1,
-  EligibleUser,
-} from "@/app/lib/type/driver";
+import { AddDriverStep1, EligibleUser } from "@/app/lib/type/driver";
 import { useEffect, useState, useRef, ChangeEvent } from "react";
 import { getEligibleUsersForDriver } from "@/app/lib/controllers/driver";
 
 interface FirstDriverDialogStepProps {
   state: AddDriverStep1;
-  actions: AddDriverPageActions;
+  updateStep1: (data: Partial<AddDriverStep1>) => void;
 }
 
 const FirstDriverDialogStep = ({
   state,
-  actions,
+  updateStep1,
 }: FirstDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
@@ -57,13 +53,13 @@ const FirstDriverDialogStep = ({
   /* -------------------------------- handlers -------------------------------- */
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      actions.updateStep1({ licencePhoto: e.target.files[0] });
+      updateStep1({ licencePhoto: e.target.files[0] });
     }
   };
 
   const removeFile = (e: React.MouseEvent) => {
     e.stopPropagation();
-    actions.updateStep1({ licencePhoto: null });
+    updateStep1({ licencePhoto: null });
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -83,7 +79,7 @@ const FirstDriverDialogStep = ({
               users.length === 0 ? "No users found" : "Select Company Member"
             }
             value={state.userId}
-            onChange={(e) => actions.updateStep1({ userId: e.target.value })}
+            onChange={(e) => updateStep1({ userId: e.target.value })}
             select={users.length > 0}
             disabled={users.length === 0}
           >
@@ -119,9 +115,7 @@ const FirstDriverDialogStep = ({
                 name="employeeId"
                 placeholder="e.g. EMP-1234"
                 value={state.employeeId}
-                onChange={(e) =>
-                  actions.updateStep1({ employeeId: e.target.value })
-                }
+                onChange={(e) => updateStep1({ employeeId: e.target.value })}
               >
                 <BadgeOutlinedIcon fontSize="small" />
               </CustomTextArea>
@@ -140,7 +134,7 @@ const FirstDriverDialogStep = ({
                 name="phone"
                 placeholder="e.g. +1 555 123 4567"
                 value={state.phone}
-                onChange={(e) => actions.updateStep1({ phone: e.target.value })}
+                onChange={(e) => updateStep1({ phone: e.target.value })}
               >
                 <PhoneIcon fontSize="small" />
               </CustomTextArea>
@@ -164,9 +158,7 @@ const FirstDriverDialogStep = ({
                 name="licenseNo"
                 placeholder="e.g. DL-485920394"
                 value={state.licenseNo}
-                onChange={(e) =>
-                  actions.updateStep1({ licenseNo: e.target.value })
-                }
+                onChange={(e) => updateStep1({ licenseNo: e.target.value })}
               >
                 <BadgeIcon fontSize="small" />
               </CustomTextArea>
@@ -186,9 +178,7 @@ const FirstDriverDialogStep = ({
                 name="licenseType"
                 placeholder="Select class"
                 value={state.licenseType}
-                onChange={(e) =>
-                  actions.updateStep1({ licenseType: e.target.value })
-                }
+                onChange={(e) => updateStep1({ licenseType: e.target.value })}
               >
                 <CategoryIcon fontSize="small" />
               </CustomTextArea>
@@ -214,7 +204,7 @@ const FirstDriverDialogStep = ({
                     : ""
                 }
                 onChange={(e) =>
-                  actions.updateStep1({
+                  updateStep1({
                     licenseExpiry: e.target.value
                       ? new Date(e.target.value)
                       : null,
@@ -239,9 +229,7 @@ const FirstDriverDialogStep = ({
                 name="licenseRegion"
                 placeholder="e.g. California"
                 value={state.licenseRegion}
-                onChange={(e) =>
-                  actions.updateStep1({ licenseRegion: e.target.value })
-                }
+                onChange={(e) => updateStep1({ licenseRegion: e.target.value })}
               >
                 <PublicIcon fontSize="small" />
               </CustomTextArea>
@@ -280,7 +268,7 @@ const FirstDriverDialogStep = ({
                 0.2
               );
               if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                actions.updateStep1({ licencePhoto: e.dataTransfer.files[0] });
+                updateStep1({ licencePhoto: e.dataTransfer.files[0] });
               }
             }}
             sx={{

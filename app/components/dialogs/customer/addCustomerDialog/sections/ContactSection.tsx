@@ -1,21 +1,16 @@
 "use client";
 
-import { Box, Grid, Stack, Typography, useTheme } from "@mui/material";
-import {
-  AddCustomerContact,
-  AddCustomerPageActions,
-} from "@/app/lib/type/add-customer";
+import { Box, Grid, Stack, Typography } from "@mui/material";
+import { AddCustomerContact } from "@/app/lib/type/add-customer";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
+import AddressTextArea from "@/app/components/inputs/AddressTextArea";
 
 interface ContactSectionProps {
   state: AddCustomerContact;
-  actions: AddCustomerPageActions;
+  updateContact: (data: Partial<AddCustomerContact>) => void;
 }
 
-const ContactSection = ({ state, actions }: ContactSectionProps) => {
-  /* -------------------------------- variables ------------------------------- */
-  const theme = useTheme();
-
+const ContactSection = ({ state, updateContact }: ContactSectionProps) => {
   return (
     <Box>
       <Stack spacing={4}>
@@ -39,12 +34,13 @@ const ContactSection = ({ state, actions }: ContactSectionProps) => {
               >
                 OFFICE / BILLING ADDRESS
               </Typography>
-              <CustomTextArea
+              <AddressTextArea
                 name="address"
                 placeholder="e.g. 100 Business Park, Suite 500, London"
                 value={state.address}
-                onChange={(e) =>
-                  actions.updateContact({ address: e.target.value })
+                onChange={(e) => updateContact({ address: e.target.value })}
+                onPlaceSelect={(place) =>
+                  updateContact({ address: place.formatted_address || "" })
                 }
               />
             </Stack>
@@ -62,9 +58,7 @@ const ContactSection = ({ state, actions }: ContactSectionProps) => {
                 name="email"
                 placeholder="e.g. logistics@client.com"
                 value={state.email}
-                onChange={(e) =>
-                  actions.updateContact({ email: e.target.value })
-                }
+                onChange={(e) => updateContact({ email: e.target.value })}
               />
             </Stack>
           </Grid>
@@ -81,9 +75,7 @@ const ContactSection = ({ state, actions }: ContactSectionProps) => {
                 name="phone"
                 placeholder="e.g. +44 20 7123 4567"
                 value={state.phone}
-                onChange={(e) =>
-                  actions.updateContact({ phone: e.target.value })
-                }
+                onChange={(e) => updateContact({ phone: e.target.value })}
               />
             </Stack>
           </Grid>

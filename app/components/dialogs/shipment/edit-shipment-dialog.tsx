@@ -41,31 +41,37 @@ const EditShipmentDialog = ({
   const theme = useTheme();
   const { user } = useUser();
 
-  const [formData, setFormData] = useState({
-    status: "",
-    itemsCount: 1,
-  });
+  const [status, setStatus] = useState<string>("PENDING");
+  const [itemsCount, setItemsCount] = useState<number>(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (shipment && open) {
-      setFormData({
-        status: shipment.status || "PENDING",
-        itemsCount: shipment.itemsCount || 1,
-      });
+      setStatus(shipment.status || "PENDING");
+      setItemsCount(shipment.itemsCount || 1);
+      setError(null);
     }
   }, [shipment, open]);
 
   const handleUpdate = async () => {
     if (!user || !shipment) return;
+    setLoading(true);
+    setError(null);
     try {
       await updateShipment(shipment.id, user.id, {
-        status: formData.status,
-        itemsCount: Number(formData.itemsCount),
+        status,
+        itemsCount: Number(itemsCount),
       });
       if (onSuccess) onSuccess();
       onClose();
-    } catch (e) {
-      console.error(e);
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to update shipment";
+      setError(message);
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,14 +126,18 @@ const EditShipmentDialog = ({
 
       <DialogContent sx={{ p: 3 }}>
         <Stack spacing={3}>
+          {error && (
+            <Typography variant="caption" color="error" fontWeight={600}>
+              {error}
+            </Typography>
+          )}
+
           <FormControl fullWidth>
             <InputLabel>Status</InputLabel>
             <Select
-              value={formData.status}
+              value={status}
               label="Status"
-              onChange={(e) =>
-                setFormData({ ...formData, status: e.target.value })
-              }
+              onChange={(e) => setStatus(e.target.value)}
             >
               <MenuItem value="PENDING">Pending</MenuItem>
               <MenuItem value="IN_TRANSIT">In Transit</MenuItem>
@@ -141,21 +151,23 @@ const EditShipmentDialog = ({
             label="Items Count"
             type="number"
             fullWidth
-            value={formData.itemsCount}
-            onChange={(e) =>
-              setFormData({ ...formData, itemsCount: Number(e.target.value) })
-            }
+            value={itemsCount}
+            onChange={(e) => setItemsCount(Number(e.target.value))}
             InputProps={{ inputProps: { min: 1 } }}
           />
 
           <Box
             sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}
           >
-            <Button variant="outlined" onClick={onClose}>
+            <Button variant="outlined" onClick={onClose} disabled={loading}>
               Cancel
             </Button>
-            <Button variant="contained" onClick={handleUpdate}>
-              Save Changes
+            <Button
+              variant="contained"
+              onClick={handleUpdate}
+              disabled={loading}
+            >
+              {loading ? "Saving..." : "Save Changes"}
             </Button>
           </Box>
         </Stack>

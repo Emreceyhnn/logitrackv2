@@ -24,10 +24,31 @@ import { getDrivers } from "@/app/lib/controllers/driver";
 import { createFuelLog } from "@/app/lib/controllers/fuel";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { toast } from "sonner";
-
 import { uploadImageAction } from "@/app/lib/actions/upload";
 
 const FUEL_TYPES = ["DIESEL", "GASOLINE", "ELECTRIC_KWH", "ADBLUE"];
+
+interface FormData {
+  vehicleId: string;
+  driverId: string;
+  volumeLiter: string;
+  cost: string;
+  odometerKm: string;
+  fuelType: string;
+  location: string;
+  date: string;
+}
+
+const initialForm: FormData = {
+  vehicleId: "",
+  driverId: "",
+  volumeLiter: "",
+  cost: "",
+  odometerKm: "",
+  fuelType: "DIESEL",
+  location: "",
+  date: new Date().toISOString().split("T")[0],
+};
 
 const AddFuelLogDialog = ({
   open,
@@ -40,17 +61,7 @@ const AddFuelLogDialog = ({
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [drivers, setDrivers] = useState<any[]>([]);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
-
-  const [formData, setFormData] = useState({
-    vehicleId: "",
-    driverId: "",
-    volumeLiter: "",
-    cost: "",
-    odometerKm: "",
-    fuelType: "DIESEL",
-    location: "",
-    date: new Date().toISOString().split("T")[0],
-  });
+  const [formData, setFormData] = useState<FormData>(initialForm);
 
   useEffect(() => {
     if (open && user) {
@@ -81,6 +92,18 @@ const AddFuelLogDialog = ({
     }
   };
 
+  const updateForm = (updates: Partial<FormData>) => {
+    setFormData((prev) => ({ ...prev, ...updates }));
+  };
+
+  const handleClose = () => {
+    onClose();
+    setTimeout(() => {
+      setFormData(initialForm);
+      setReceiptPreview(null);
+    }, 300);
+  };
+
   const handleSubmit = async () => {
     if (!user) return;
     setLoading(true);
@@ -95,29 +118,20 @@ const AddFuelLogDialog = ({
       }
 
       await createFuelLog({
-        ...formData,
-        volumeLiter: parseFloat(formData.volumeLiter),
-        cost: parseFloat(formData.cost),
-        odometerKm: parseInt(formData.odometerKm),
-        companyId: user.companyId!,
+        vehicleId: formData.vehicleId,
+        driverId: formData.driverId,
+        volumeLiter: parseFloat(formData.volumeLiter) || 0,
+        cost: parseFloat(formData.cost) || 0,
+        odometerKm: parseInt(formData.odometerKm) || 0,
+        fuelType: formData.fuelType,
+        location: formData.location || undefined,
         date: new Date(formData.date),
-        receiptUrl,
+        receiptUrl: receiptUrl || undefined,
       });
+
       toast.success("Fuel log created successfully");
       onSuccess?.();
-      onClose();
-      // Reset form
-      setFormData({
-        vehicleId: "",
-        driverId: "",
-        volumeLiter: "",
-        cost: "",
-        odometerKm: "",
-        fuelType: "DIESEL",
-        location: "",
-        date: new Date().toISOString().split("T")[0],
-      });
-      setReceiptPreview(null);
+      handleClose();
     } catch (error: any) {
       toast.error(error.message || "Failed to create fuel log");
     } finally {
@@ -128,7 +142,7 @@ const AddFuelLogDialog = ({
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       maxWidth="sm"
       fullWidth
       PaperProps={{
@@ -146,11 +160,11 @@ const AddFuelLogDialog = ({
           justifyContent="space-between"
           alignItems="center"
         >
-          <Typography variant="h6" fontWeight={700}>
+          <Typography variant="h6" fontWeight={700} color="white">
             Log Fuel Purchase
           </Typography>
           <IconButton
-            onClick={onClose}
+            onClick={handleClose}
             size="small"
             sx={{ color: "text.secondary" }}
           >
@@ -167,9 +181,13 @@ const AddFuelLogDialog = ({
               fullWidth
               label="Vehicle"
               value={formData.vehicleId}
-              onChange={(e) =>
-                setFormData({ ...formData, vehicleId: e.target.value })
-              }
+              onChange={(e) => updateForm({ vehicleId: e.target.value })}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  bgcolor: alpha("#1A202C", 0.5),
+                  borderRadius: 1.5,
+                },
+              }}
             >
               {vehicles.map((v) => (
                 <MenuItem key={v.id} value={v.id}>
@@ -182,13 +200,17 @@ const AddFuelLogDialog = ({
               fullWidth
               label="Driver"
               value={formData.driverId}
-              onChange={(e) =>
-                setFormData({ ...formData, driverId: e.target.value })
-              }
+              onChange={(e) => updateForm({ driverId: e.target.value })}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  bgcolor: alpha("#1A202C", 0.5),
+                  borderRadius: 1.5,
+                },
+              }}
             >
               {drivers.map((d) => (
                 <MenuItem key={d.id} value={d.id}>
-                  {d.user.name} {d.user.surname}
+                  {d.user?.name} {d.user?.surname}
                 </MenuItem>
               ))}
             </TextField>
@@ -200,18 +222,26 @@ const AddFuelLogDialog = ({
               label="Volume (L)"
               type="number"
               value={formData.volumeLiter}
-              onChange={(e) =>
-                setFormData({ ...formData, volumeLiter: e.target.value })
-              }
+              onChange={(e) => updateForm({ volumeLiter: e.target.value })}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  bgcolor: alpha("#1A202C", 0.5),
+                  borderRadius: 1.5,
+                },
+              }}
             />
             <TextField
               fullWidth
               label="Total Cost ($)"
               type="number"
               value={formData.cost}
-              onChange={(e) =>
-                setFormData({ ...formData, cost: e.target.value })
-              }
+              onChange={(e) => updateForm({ cost: e.target.value })}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  bgcolor: alpha("#1A202C", 0.5),
+                  borderRadius: 1.5,
+                },
+              }}
             />
           </Stack>
 
@@ -221,18 +251,26 @@ const AddFuelLogDialog = ({
               label="Odometer (KM)"
               type="number"
               value={formData.odometerKm}
-              onChange={(e) =>
-                setFormData({ ...formData, odometerKm: e.target.value })
-              }
+              onChange={(e) => updateForm({ odometerKm: e.target.value })}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  bgcolor: alpha("#1A202C", 0.5),
+                  borderRadius: 1.5,
+                },
+              }}
             />
             <TextField
               select
               fullWidth
               label="Fuel Type"
               value={formData.fuelType}
-              onChange={(e) =>
-                setFormData({ ...formData, fuelType: e.target.value })
-              }
+              onChange={(e) => updateForm({ fuelType: e.target.value })}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  bgcolor: alpha("#1A202C", 0.5),
+                  borderRadius: 1.5,
+                },
+              }}
             >
               {FUEL_TYPES.map((t) => (
                 <MenuItem key={t} value={t}>
@@ -246,10 +284,14 @@ const AddFuelLogDialog = ({
             fullWidth
             label="Location / Station"
             value={formData.location}
-            onChange={(e) =>
-              setFormData({ ...formData, location: e.target.value })
-            }
+            onChange={(e) => updateForm({ location: e.target.value })}
             placeholder="Shell, Station #123, etc."
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                bgcolor: alpha("#1A202C", 0.5),
+                borderRadius: 1.5,
+              },
+            }}
           />
 
           <TextField
@@ -257,8 +299,14 @@ const AddFuelLogDialog = ({
             label="Date"
             type="date"
             value={formData.date}
-            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+            onChange={(e) => updateForm({ date: e.target.value })}
             InputLabelProps={{ shrink: true }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                bgcolor: alpha("#1A202C", 0.5),
+                borderRadius: 1.5,
+              },
+            }}
           />
 
           <Box>
@@ -316,7 +364,7 @@ const AddFuelLogDialog = ({
       </DialogContent>
 
       <DialogActions sx={{ p: 3, pt: 0 }}>
-        <Button onClick={onClose} sx={{ color: "text.secondary" }}>
+        <Button onClick={handleClose} sx={{ color: "text.secondary" }}>
           Cancel
         </Button>
         <Button
@@ -329,8 +377,14 @@ const AddFuelLogDialog = ({
             !formData.volumeLiter ||
             !formData.cost
           }
+          sx={{
+            borderRadius: 2,
+            minWidth: 120,
+            textTransform: "none",
+            fontWeight: 700,
+            boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+          }}
           startIcon={loading && <CircularProgress size={16} color="inherit" />}
-          sx={{ borderRadius: 2, minWidth: 120, textTransform: "none" }}
         >
           {loading ? "Saving..." : "Save Log"}
         </Button>

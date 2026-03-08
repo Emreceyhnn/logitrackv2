@@ -19,7 +19,7 @@ export const getDirections = authenticatedAction(
     await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
     if (!origin || !destination) return null;
 
-    const apiKey = process.env.NEXT_PUBLIC_DIRECTIONS_API_KEY;
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
       console.error("Missing NEXT_PUBLIC_DIRECTIONS_API_KEY");
       return null;

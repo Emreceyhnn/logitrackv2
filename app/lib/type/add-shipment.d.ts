@@ -7,8 +7,12 @@ export interface InventoryShipmentItem {
   sku: string;
   name: string;
   quantity: number;
-  maxQuantity?: number; // Added to track warehouse stock limit
+  maxQuantity?: number;
   unit: "Each" | "Box" | "Pallet";
+  weightKg?: number;
+  volumeM3?: number;
+  palletCount?: number;
+  cargoType?: string;
 }
 
 export interface AddShipmentBasicInfo {
@@ -21,6 +25,8 @@ export interface AddShipmentBasicInfo {
 export interface AddShipmentLogistics {
   originWarehouseId: string;
   destination: string;
+  destinationLat?: number;
+  destinationLng?: number;
   customerId: string;
   contactEmail: string;
   billingAccount: string;

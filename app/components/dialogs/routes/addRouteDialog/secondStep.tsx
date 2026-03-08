@@ -1,9 +1,9 @@
 "use client";
 
 import { alpha, Box, Grid, Stack, Typography, useTheme } from "@mui/material";
-import { AddRoutePageActions, AddRouteStep2 } from "@/app/lib/type/add-route";
+import { AddRouteStep2 } from "@/app/lib/type/add-route";
 import MapRoutesDialogCard from "../map";
-import AddressAutocomplete from "../../../inputs/AddressAutocomplete";
+import AddressTextArea from "../../../inputs/AddressTextArea";
 import ExploreIcon from "@mui/icons-material/Explore";
 import ElectricBoltIcon from "@mui/icons-material/ElectricBolt";
 import { useEffect, useState } from "react";
@@ -11,12 +11,12 @@ import { getDirections } from "@/app/lib/controllers/map";
 
 interface SecondRouteDialogStepProps {
   state: AddRouteStep2;
-  actions: AddRoutePageActions;
+  updateStep2: (data: Partial<AddRouteStep2>) => void;
 }
 
 const SecondRouteDialogStep = ({
   state,
-  actions,
+  updateStep2,
 }: SecondRouteDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
@@ -36,7 +36,7 @@ const SecondRouteDialogStep = ({
 
           if (data && data.routes && data.routes.length > 0) {
             const leg = data.routes[0].legs[0];
-            actions.updateStep2({
+            updateStep2({
               distanceKm: parseFloat((leg.distance.value / 1000).toFixed(1)),
               durationMin: Math.ceil(leg.duration.value / 60),
             });
@@ -85,6 +85,7 @@ const SecondRouteDialogStep = ({
               <Stack spacing={1}>
                 <Typography
                   variant="body2"
+                  component="div"
                   fontWeight={600}
                   color="text.secondary"
                   sx={{ display: "flex", alignItems: "center", gap: 1 }}
@@ -99,17 +100,26 @@ const SecondRouteDialogStep = ({
                   />
                   Start Address
                 </Typography>
-                <AddressAutocomplete
+                <AddressTextArea
                   label="Enter origin location"
+                  name="startAddress"
+                  value={state.startAddress}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    updateStep2({ startAddress: e.target.value })
+                  }
                   onPlaceSelect={(place: google.maps.places.PlaceResult) => {
                     const lat = place.geometry?.location?.lat;
                     const lng = place.geometry?.location?.lng;
-                    actions.updateStep2({
+                    updateStep2({
                       startAddress: place.formatted_address || place.name || "",
                       startLat:
-                        typeof lat === "function" ? (lat as any)() : lat,
+                        typeof lat === "function"
+                          ? (lat as () => number)()
+                          : (lat as unknown as number),
                       startLng:
-                        typeof lng === "function" ? (lng as any)() : lng,
+                        typeof lng === "function"
+                          ? (lng as () => number)()
+                          : (lng as unknown as number),
                     });
                   }}
                 />
@@ -118,6 +128,7 @@ const SecondRouteDialogStep = ({
               <Stack spacing={1}>
                 <Typography
                   variant="body2"
+                  component="div"
                   fontWeight={600}
                   color="text.secondary"
                   sx={{ display: "flex", alignItems: "center", gap: 1 }}
@@ -132,15 +143,26 @@ const SecondRouteDialogStep = ({
                   />
                   End Address
                 </Typography>
-                <AddressAutocomplete
+                <AddressTextArea
                   label="Enter destination location"
+                  name="endAddress"
+                  value={state.endAddress}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    updateStep2({ endAddress: e.target.value })
+                  }
                   onPlaceSelect={(place: google.maps.places.PlaceResult) => {
                     const lat = place.geometry?.location?.lat;
                     const lng = place.geometry?.location?.lng;
-                    actions.updateStep2({
+                    updateStep2({
                       endAddress: place.formatted_address || place.name || "",
-                      endLat: typeof lat === "function" ? (lat as any)() : lat,
-                      endLng: typeof lng === "function" ? (lng as any)() : lng,
+                      endLat:
+                        typeof lat === "function"
+                          ? (lat as () => number)()
+                          : (lat as unknown as number),
+                      endLng:
+                        typeof lng === "function"
+                          ? (lng as () => number)()
+                          : (lng as unknown as number),
                     });
                   }}
                 />
