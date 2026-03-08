@@ -2,7 +2,6 @@
 
 import {
   alpha,
-  Avatar,
   Box,
   Chip,
   Dialog,
@@ -21,7 +20,6 @@ import RoutesTelemetryCards from "./telemetry";
 import CloseIcon from "@mui/icons-material/Close";
 import AltRouteIcon from "@mui/icons-material/AltRoute";
 import PlaceIcon from "@mui/icons-material/Place";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 
 interface RouteDialogProps {
   open: boolean;
@@ -72,15 +70,16 @@ export default function RouteDialog({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="md"
+      maxWidth="lg"
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 4,
+          borderRadius: "24px",
           bgcolor: "#0B1019",
           backgroundImage: "none",
           border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           overflow: "hidden",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
         },
       }}
     >
@@ -89,153 +88,239 @@ export default function RouteDialog({
           p: 3,
           background: `linear-gradient(135deg, ${alpha(
             statusColor,
-            0.05
+            0.1
           )} 0%, transparent 100%)`,
           borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+          position: "relative",
         }}
       >
         <Stack
           direction="row"
           justifyContent="space-between"
-          alignItems="flex-start"
+          alignItems="center"
         >
           <Stack direction="row" spacing={3} alignItems="center">
-            <Avatar
-              variant="rounded"
+            <Box
               sx={{
-                bgcolor: alpha(statusColor, 0.1),
-                color: statusColor,
-                width: 72,
-                height: 72,
-                fontSize: "2rem",
-                fontWeight: 800,
-                borderRadius: 2,
+                p: 2,
+                borderRadius: "16px",
+                background: `linear-gradient(135deg, ${alpha(
+                  statusColor,
+                  0.2
+                )}, ${alpha(statusColor, 0.05)})`,
+                border: `1px solid ${alpha(statusColor, 0.2)}`,
+                display: "flex",
               }}
             >
-              <AltRouteIcon fontSize="large" />
-            </Avatar>
+              <AltRouteIcon sx={{ color: statusColor, fontSize: 32 }} />
+            </Box>
             <Stack spacing={0.5}>
-              <Stack direction="row" spacing={1} alignItems="center">
+              <Stack direction="row" spacing={1.5} alignItems="center">
                 <Typography
-                  variant="h4"
-                  fontWeight={700}
-                  sx={{ color: "white" }}
+                  variant="h5"
+                  fontWeight={800}
+                  sx={{ color: "white", letterSpacing: "-0.02em" }}
                 >
-                  Route #{route.id}
+                  Route #{route.id.slice(-6).toUpperCase()}
                 </Typography>
                 <Chip
                   label={statusMeta.text}
-                  size="small"
                   sx={{
                     height: 24,
-                    fontWeight: 600,
+                    fontWeight: 700,
+                    fontSize: "0.75rem",
                     bgcolor: alpha(statusColor, 0.1),
                     color: statusColor,
-                    ml: 1,
+                    border: `1px solid ${alpha(statusColor, 0.2)}`,
+                    borderRadius: "6px",
+                    textTransform: "uppercase",
                   }}
                 />
               </Stack>
-              <Stack spacing={1}>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                >
-                  <PlaceIcon fontSize="small" sx={{ fontSize: "1rem" }} />
-                  {route.name || "Route details"}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                >
-                  <LocalShippingIcon
-                    fontSize="small"
-                    sx={{ fontSize: "1rem" }}
-                  />
-                  {/* Safe access for metrics */}
-                  {(route as any).metrics?.totalDistanceKm || 0} km •{" "}
-                  {(route as any).stops?.length || 0} Stops
-                </Typography>
-              </Stack>
+              <Typography
+                variant="body2"
+                color="rgba(255,255,255,0.5)"
+                sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+              >
+                <PlaceIcon sx={{ fontSize: 16 }} />
+                {route.name || "Freight Delivery Mission"}
+              </Typography>
             </Stack>
           </Stack>
 
-          <Stack direction="row" spacing={1}>
-            <IconButton
-              onClick={onClose}
-              size="small"
-              sx={{
-                bgcolor: alpha(theme.palette.text.secondary, 0.1),
-                "&:hover": {
-                  bgcolor: alpha(theme.palette.text.secondary, 0.2),
-                },
-              }}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </Stack>
+          <IconButton
+            onClick={onClose}
+            sx={{
+              color: "rgba(255,255,255,0.4)",
+              "&:hover": { color: "white", bgcolor: alpha("#fff", 0.05) },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
         </Stack>
       </Box>
 
-      <DialogContent sx={{ p: 0 }}>
-        <Stack p={2} spacing={2}>
-          {route.driver && (
-            // Simplified driver card props passing
-            <DriverCard
-              // Construct a partial object that satisfies the type enough for the card display
-              // TODO: Fetch full driver details or make DriverCard props optional
-              {...({
-                id: route.driver.id,
-                status: "ON_JOB",
-                phone: "",
-                employeeId: "",
-                licenseNumber: "",
-                licenseType: "",
-                licenseExpiry: null,
-                rating: 0,
-                efficiencyScore: 0,
-                safetyScore: 0,
-                user: {
-                  id: route.driver.id,
-                  name: route.driver.user.name,
-                  surname: route.driver.user.surname,
-                  email: "",
-                  avatarUrl: route.driver.user.avatarUrl,
-                  roleId: "",
-                },
-                currentVehicle: null,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              } as any)}
-            />
-          )}
-          <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
-          <MapRoutesDialogCard
-            routeId={route.id}
-            origin={mapOrigin}
-            destination={mapDestination}
-            vehicleLocation={
-              route.vehicle &&
-              route.vehicle.currentLat &&
-              route.vehicle.currentLng
-                ? {
-                    lat: route.vehicle.currentLat,
-                    lng: route.vehicle.currentLng,
-                    name: route.vehicle.plate,
-                    id: route.vehicle.id,
-                  }
-                : null
-            }
-          />
-          <Stack direction={"row"} justifyContent={"space-between"} spacing={2}>
-            <Box flex={1}>
+      <DialogContent sx={{ p: 0, scrollbarWidth: "none" }}>
+        <Stack direction={{ xs: "column", md: "row" }} sx={{ minHeight: 600 }}>
+          {/* Left Column: Information & Progress */}
+          <Box
+            sx={{
+              width: { xs: "100%", md: "400px" },
+              borderRight: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+              p: 3,
+              bgcolor: alpha("#fff", 0.01),
+              overflowY: "auto",
+            }}
+          >
+            <Stack spacing={4}>
+              {/* Driver Section */}
+              <Stack spacing={2}>
+                <Typography
+                  variant="overline"
+                  color="rgba(255,255,255,0.3)"
+                  fontWeight={700}
+                >
+                  Assigned Driver
+                </Typography>
+                {route.driver ? (
+                  <DriverCard
+                    {...({
+                      id: route.driver.id,
+                      status: "ON_JOB",
+                      phone: "",
+                      employeeId: "",
+                      licenseNumber: "",
+                      licenseType: "",
+                      licenseExpiry: null,
+                      rating: 0,
+                      efficiencyScore: 0,
+                      safetyScore: 0,
+                      user: {
+                        id: route.driver.id,
+                        name: route.driver.user.name,
+                        surname: route.driver.user.surname,
+                        email: "",
+                        avatarUrl: route.driver.user.avatarUrl,
+                        roleId: "",
+                      },
+                      currentVehicle: null,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                    } as any)}
+                  />
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    Unassigned
+                  </Typography>
+                )}
+              </Stack>
+
+              <Divider sx={{ borderColor: alpha("#fff", 0.05) }} />
+
+              {/* Progress Section */}
               <RouteProgress route={route} />
+
+              <Divider sx={{ borderColor: alpha("#fff", 0.05) }} />
+
+              {/* Stats Grid */}
+              <Stack direction="row" spacing={2}>
+                <Box
+                  sx={{
+                    flex: 1,
+                    p: 2,
+                    borderRadius: "16px",
+                    bgcolor: alpha("#fff", 0.03),
+                    border: `1px solid ${alpha("#fff", 0.05)}`,
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    color="rgba(255,255,255,0.4)"
+                    display="block"
+                    mb={0.5}
+                  >
+                    DISTANCE
+                  </Typography>
+                  <Typography variant="h6" fontWeight={700} color="white">
+                    {(route as any).metrics?.totalDistanceKm ||
+                      route.distanceKm ||
+                      0}{" "}
+                    km
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    flex: 1,
+                    p: 2,
+                    borderRadius: "16px",
+                    bgcolor: alpha("#fff", 0.03),
+                    border: `1px solid ${alpha("#fff", 0.05)}`,
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    color="rgba(255,255,255,0.4)"
+                    display="block"
+                    mb={0.5}
+                  >
+                    STOPS
+                  </Typography>
+                  <Typography variant="h6" fontWeight={700} color="white">
+                    {(route as any).stops?.length || route.shipments?.length
+                      ? (route.shipments?.length || 0) + 2
+                      : 0}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Stack>
+          </Box>
+
+          {/* Right Column: Map & Telemetry */}
+          <Box
+            sx={{
+              flex: 1,
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Box
+              sx={{
+                flex: 1,
+                width: "100%",
+                minHeight: { xs: 400, md: "auto" },
+              }}
+            >
+              <MapRoutesDialogCard
+                origin={mapOrigin}
+                destination={mapDestination}
+                vehicleLocation={
+                  route.vehicle &&
+                  route.vehicle.currentLat &&
+                  route.vehicle.currentLng
+                    ? {
+                        lat: route.vehicle.currentLat,
+                        lng: route.vehicle.currentLng,
+                        name: route.vehicle.plate,
+                        id: route.vehicle.id,
+                      }
+                    : null
+                }
+              />
             </Box>
-            <Box flex={1}>
+
+            {/* Overlay Telemetry */}
+            <Box
+              sx={{
+                p: 2,
+                background: `linear-gradient(to top, #0B1019 0%, ${alpha("#0B1019", 0.8)} 100%)`,
+                backdropFilter: "blur(8px)",
+                borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              }}
+            >
               <RoutesTelemetryCards routeId={route.id} route={route} />
             </Box>
-          </Stack>
+          </Box>
         </Stack>
       </DialogContent>
     </Dialog>

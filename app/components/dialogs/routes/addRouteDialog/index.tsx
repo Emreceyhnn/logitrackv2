@@ -32,7 +32,9 @@ import { toast } from "sonner";
 import { createRoute } from "@/app/lib/controllers/routes";
 import { getShipments } from "@/app/lib/controllers/shipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
+import { Warehouse } from "@prisma/client";
 import { useUser } from "@/app/lib/hooks/useUser";
+import { getDirections } from "@/app/lib/controllers/map";
 import FirstRouteDialogStep from "./firstStep";
 import SecondRouteDialogStep from "./secondStep";
 import ThirdRouteDialogStep from "./thirdStep";
@@ -77,7 +79,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
   });
 
   const [shipments, setShipments] = useState<ShipmentWithRelations[]>([]);
-  const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
 
   /* ------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
@@ -190,33 +192,88 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
     },
   };
 
-  const handleShipmentSelect = (shipmentId: string) => {
+  const handleShipmentSelect = async (shipmentId: string) => {
     const shipment = shipments.find((s) => s.id === shipmentId);
     if (shipment) {
       // Find the origin warehouse from the warehouses list
       const warehouse = warehouses.find((w) => w.id === shipment.origin);
 
       const updateData: Partial<AddRouteStep2> = {
-        endAddress: shipment.destination,
-        endLat: shipment.destinationLat ?? undefined,
-        endLng: shipment.destinationLng ?? undefined,
+        endAddress: shipment.destination || shipment.customer?.address || "",
+        endLat:
+          typeof shipment.destinationLat === "number"
+            ? shipment.destinationLat
+            : typeof shipment.customer?.lat === "number"
+              ? (shipment.customer?.lat as number)
+              : undefined,
+        endLng:
+          typeof shipment.destinationLng === "number"
+            ? shipment.destinationLng
+            : typeof shipment.customer?.lng === "number"
+              ? (shipment.customer?.lng as number)
+              : undefined,
       };
 
       if (warehouse) {
         updateData.startAddress = warehouse.address;
-        updateData.startLat = warehouse.lat;
-        updateData.startLng = warehouse.lng;
+        updateData.startLat = warehouse.lat ?? undefined;
+        updateData.startLng = warehouse.lng ?? undefined;
         updateData.startId = warehouse.id;
         updateData.startType = "WAREHOUSE";
+      } else {
+        // Fallback for start address if warehouse not found
+        updateData.startAddress = shipment.origin;
+        updateData.startType = "WAREHOUSE"; // Assuming it's still a warehouse even if not in list
       }
 
       // Pre-fill Step 1: Name
       actions.updateStep1({
         name: `Delivery: ${shipment.customer?.name || "Shipment"} - ${shipment.trackingId}`,
       });
-      // Pre-fill Step 2
+
+      // Pre-fill Step 2 & Calculate Metrics
+      try {
+        const origin =
+          typeof updateData.startLat === "number" &&
+          typeof updateData.startLng === "number"
+            ? { lat: updateData.startLat, lng: updateData.startLng }
+            : updateData.startAddress;
+
+        const dest =
+          typeof updateData.endLat === "number" &&
+          typeof updateData.endLng === "number"
+            ? { lat: updateData.endLat, lng: updateData.endLng }
+            : updateData.endAddress;
+
+        if (origin && dest) {
+          const data = await getDirections(origin, dest);
+
+          if (data && data.routes && data.routes.length > 0) {
+            const leg = data.routes[0].legs[0];
+            updateData.distanceKm = parseFloat(
+              (leg.distance.value / 1000).toFixed(1)
+            );
+            updateData.durationMin = Math.ceil(leg.duration.value / 60);
+
+            // If we didn't have coordinates, let's capture them from the leg
+            if (typeof updateData.startLat !== "number" && leg.start_location) {
+              updateData.startLat = leg.start_location.lat;
+              updateData.startLng = leg.start_location.lng;
+            }
+            if (typeof updateData.endLat !== "number" && leg.end_location) {
+              updateData.endLat = leg.end_location.lat;
+              updateData.endLng = leg.end_location.lng;
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to auto-calculate metrics", error);
+      }
+
       actions.updateStep2(updateData);
-      toast.info(`Pre-filled from shipment ${shipment.trackingId}`);
+      toast.info(
+        `Pre-filled and calculated from shipment ${shipment.trackingId}`
+      );
     }
   };
 

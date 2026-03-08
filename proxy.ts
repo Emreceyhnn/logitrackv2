@@ -72,23 +72,26 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
-  // ─── Logged in but no company → send to create-company ──────────────────────
+  // ─── Logged in but no company → send to onboarding ─────────────────────────
   if (
     isCompanyRequired &&
     tokenCookie &&
     !companyId &&
-    pathname !== "/create-company"
+    pathname !== "/" &&
+    pathname !== "/onboarding"
   ) {
-    return NextResponse.redirect(new URL("/create-company", request.url));
+    return NextResponse.redirect(new URL("/onboarding", request.url));
   }
 
   // ─── Already logged in → redirect away from auth pages ──────────────────────
-  if (isAuthRoute && (tokenCookie || refreshTokenCookie)) {
-    if (!companyId) {
-      return NextResponse.redirect(new URL("/create-company", request.url));
-    }
+  if (isAuthRoute && companyId) {
     return NextResponse.redirect(new URL("/overview", request.url));
   }
+
+  // If they are logged in but have no company, and trying to access an auth route,
+  // we might want to let them in or send them to onboarding.
+  // For now, if we have a token but no companyId, we should NOT redirect back to landing
+  // because that's where the loop happens if the token is stale.
 
   return NextResponse.next();
 }

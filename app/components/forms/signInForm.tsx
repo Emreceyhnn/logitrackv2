@@ -46,7 +46,7 @@ export default function LoginForm() {
         if (res.user.companyId) {
           router.push("/overview");
         } else {
-          router.push("/overview");
+          router.push("/onboarding");
         }
       }
     } catch (error: unknown) {

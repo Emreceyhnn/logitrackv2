@@ -52,7 +52,8 @@ export default function RegisterForm() {
       );
 
       if (res && res.user) {
-        router.push("/");
+        router.refresh();
+        router.push("/onboarding");
       }
     } catch (error: unknown) {
       console.error("Registration failed:", error);
@@ -261,7 +262,7 @@ export default function RegisterForm() {
                     },
                   }}
                 >
-                  Log In Now
+                  Create Account Now
                 </Button>
               )}
             </Stack>

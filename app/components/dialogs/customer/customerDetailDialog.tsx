@@ -87,7 +87,10 @@ const CustomerDetailDialog = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          bgcolor: "#0B0F19",
+          backgroundImage: "none",
+          borderRadius: 4,
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           overflow: "hidden",
         },
       }}
@@ -113,8 +116,8 @@ const CustomerDetailDialog = ({
           <Box
             sx={{
               p: 3,
-              background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
-              borderBottom: `1px solid ${theme.palette.divider}`,
+              background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha("#0B0F19", 1)} 100%)`,
+              borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
             }}
           >
             <Stack
@@ -142,7 +145,7 @@ const CustomerDetailDialog = ({
                     <Typography
                       variant="h4"
                       fontWeight={700}
-                      sx={{ color: theme.palette.text.primary }}
+                      sx={{ color: "white" }}
                     >
                       {customer.name}
                     </Typography>
@@ -182,11 +185,12 @@ const CustomerDetailDialog = ({
                   onClick={() => onEdit?.(customer)}
                   sx={{
                     textTransform: "none",
-                    borderColor: theme.palette.divider,
-                    color: theme.palette.text.secondary,
+                    borderColor: alpha(theme.palette.divider, 0.1),
+                    color: "text.secondary",
                     "&:hover": {
-                      borderColor: theme.palette.text.primary,
-                      color: theme.palette.text.primary,
+                      borderColor: theme.palette.primary.main,
+                      color: "white",
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
                     },
                   }}
                 >
@@ -207,9 +211,11 @@ const CustomerDetailDialog = ({
                   onClick={onClose}
                   size="small"
                   sx={{
-                    bgcolor: alpha(theme.palette.text.secondary, 0.1),
+                    color: "text.secondary",
+                    bgcolor: alpha(theme.palette.divider, 0.05),
                     "&:hover": {
-                      bgcolor: alpha(theme.palette.text.secondary, 0.2),
+                      bgcolor: alpha(theme.palette.divider, 0.1),
+                      color: "white",
                     },
                   }}
                 >
@@ -232,12 +238,14 @@ const CustomerDetailDialog = ({
                 sx={{
                   width: { xs: "100%", md: "35%" },
                   p: 3,
-                  borderRight: { md: `1px solid ${theme.palette.divider}` },
+                  borderRight: {
+                    md: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+                  },
                   borderBottom: {
-                    xs: `1px solid ${theme.palette.divider}`,
+                    xs: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
                     md: "none",
                   },
-                  bgcolor: alpha(theme.palette.background.default, 0.4),
+                  bgcolor: alpha(theme.palette.common.black, 0.2),
                 }}
               >
                 <Stack spacing={4}>
@@ -259,7 +267,8 @@ const CustomerDetailDialog = ({
                       sx={{
                         p: 2,
                         borderRadius: 2,
-                        bgcolor: "background.paper",
+                        bgcolor: alpha(theme.palette.background.paper, 0.02),
+                        borderColor: alpha(theme.palette.divider, 0.1),
                       }}
                     >
                       <Stack spacing={1.5}>
@@ -274,7 +283,11 @@ const CustomerDetailDialog = ({
                             {customer.name?.charAt(0)}
                           </Avatar>
                           <Box>
-                            <Typography variant="body2" fontWeight={700}>
+                            <Typography
+                              variant="body2"
+                              fontWeight={700}
+                              color="white"
+                            >
                               {customer.email || "No Email"}
                             </Typography>
                             <Typography
@@ -313,7 +326,10 @@ const CustomerDetailDialog = ({
                             />
                             <Typography
                               variant="body2"
-                              sx={{ wordBreak: "break-all" }}
+                              sx={{
+                                wordBreak: "break-all",
+                                color: alpha("#fff", 0.7),
+                              }}
                             >
                               {customer.email || "N/A"}
                             </Typography>
@@ -365,7 +381,7 @@ const CustomerDetailDialog = ({
                           color="text.secondary"
                         >
                           TAX ID:{" "}
-                          <Box component="span" color="text.primary">
+                          <Box component="span" color="white">
                             {customer.taxId || "N/A"}
                           </Box>
                         </Typography>
@@ -384,7 +400,15 @@ const CustomerDetailDialog = ({
                   sx={{ mb: 4 }}
                 >
                   <Box sx={{ flex: 1 }}>
-                    <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: alpha(theme.palette.primary.main, 0.02),
+                        borderColor: alpha(theme.palette.primary.main, 0.1),
+                      }}
+                    >
                       <Stack spacing={1}>
                         <Stack direction="row" justifyContent="space-between">
                           <Typography
@@ -445,6 +469,12 @@ const CustomerDetailDialog = ({
                         sx={{
                           p: 2,
                           borderRadius: 2,
+                          bgcolor: alpha(theme.palette.background.paper, 0.02),
+                          borderColor: alpha(theme.palette.divider, 0.05),
+                          "&:hover": {
+                            borderColor: alpha(theme.palette.primary.main, 0.2),
+                            bgcolor: alpha(theme.palette.primary.main, 0.02),
+                          },
                         }}
                       >
                         <Stack direction="row" justifyContent="space-between">

@@ -282,6 +282,8 @@ model Customer {
   email   String?
   phone   String?
   address String?
+  lat     Float?
+  lng     Float?
 
   shipments Shipment[]
 

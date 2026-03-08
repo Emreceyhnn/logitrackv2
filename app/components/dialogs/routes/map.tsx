@@ -1,10 +1,12 @@
 import GoogleMapView from "@/app/components/map";
-import { Stack, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { alpha } from "@mui/system";
 
 interface MapRoutesDialogCardProps {
-  routeId?: string;
   origin?: { lat: number; lng: number };
   destination?: { lat: number; lng: number };
+  addrA?: string;
+  addrB?: string;
   vehicleLocation?: {
     lat: number;
     lng: number;
@@ -24,44 +26,48 @@ interface MapPoint {
 }
 
 const MapRoutesDialogCard = ({
-  routeId,
   origin,
   destination,
+  addrA,
+  addrB,
   vehicleLocation,
   onMapClick,
 }: MapRoutesDialogCardProps) => {
-  const vehicles: MapPoint[] = vehicleLocation
-    ? [
-        {
-          position: { lat: vehicleLocation.lat, lng: vehicleLocation.lng },
-          name: vehicleLocation.name,
-          id: vehicleLocation.id,
-          type: "V",
-        },
-      ]
-    : [];
+  const values: MapPoint[] = [];
 
-  const warehouses: MapPoint[] = [];
-  const customers: MapPoint[] = [];
-
-  const values: MapPoint[] = [...vehicles, ...warehouses, ...customers];
-
-  // If origin/destination provided, we add them to values as well for markers
+  // Add Origin (Warehouse style)
   if (origin) {
-    values.push({ position: origin, name: "Origin", id: "origin", type: "W" });
+    values.push({
+      position: origin,
+      name: "Origin Point",
+      id: "origin",
+      type: "W",
+    });
   }
+
+  // Add Destination (Customer style)
   if (destination) {
     values.push({
       position: destination,
-      name: "Destination",
+      name: "Final Destination",
       id: "dest",
       type: "C",
     });
   }
 
-  const isRoute = !!(origin && destination);
+  // Add Vehicle Location if active
+  if (vehicleLocation) {
+    values.push({
+      position: { lat: vehicleLocation.lat, lng: vehicleLocation.lng },
+      name: `Vehicle: ${vehicleLocation.name}`,
+      id: vehicleLocation.id,
+      type: "V",
+    });
+  }
 
-  // Calculate waypoints (Vehicle position)
+  const isRoute = !!((origin || addrA) && (destination || addrB));
+
+  // If vehicle is live, it's a waypoint on the route to show current progress path
   const waypoints = vehicleLocation
     ? [
         {
@@ -72,21 +78,43 @@ const MapRoutesDialogCard = ({
     : [];
 
   return (
-    <Stack spacing={1}>
-      <Typography variant="subtitle2" fontWeight={700} color="white">
-        {isRoute ? "ROUTE PREVIEW" : "LIVE LOCATION"}
-      </Typography>
-      <Stack sx={{ width: "100%", height: 300 }}>
-        <GoogleMapView
-          warehouseLoc={values}
-          isRoute={isRoute}
-          locA={origin}
-          locB={destination}
-          waypoints={waypoints}
-          onClick={onMapClick}
-        />
-      </Stack>
-    </Stack>
+    <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+      <GoogleMapView
+        warehouseLoc={values}
+        isRoute={isRoute}
+        locA={origin}
+        locB={destination}
+        addrA={addrA}
+        addrB={addrB}
+        waypoints={waypoints}
+        onClick={onMapClick}
+      />
+
+      {/* Premium overlay for Map Label */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 16,
+          left: 16,
+          bgcolor: alpha("#0B1019", 0.8),
+          backdropFilter: "blur(8px)",
+          px: 1.5,
+          py: 0.75,
+          borderRadius: "8px",
+          border: `1px solid ${alpha("#fff", 0.1)}`,
+          zIndex: 1,
+        }}
+      >
+        <Typography
+          variant="caption"
+          fontWeight={700}
+          color="white"
+          sx={{ letterSpacing: "0.05em" }}
+        >
+          {isRoute ? "MISSION ROUTE" : "LIVE TELEMETRY MAP"}
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 

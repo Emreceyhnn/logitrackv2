@@ -6,10 +6,10 @@ import { checkPermission } from "./utils/checkPermission";
 export const getDirections = authenticatedAction(
   async (
     user,
-    origin: { lat: number; lng: number },
-    destination: { lat: number; lng: number },
+    origin: string | { lat: number; lng: number },
+    destination: string | { lat: number; lng: number },
     waypoints: {
-      location: { lat: number; lng: number };
+      location: string | { lat: number; lng: number };
       stopover: boolean;
     }[] = []
   ) => {
@@ -21,18 +21,21 @@ export const getDirections = authenticatedAction(
 
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
-      console.error("Missing NEXT_PUBLIC_DIRECTIONS_API_KEY");
+      console.error("Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY");
       return null;
     }
 
-    const originStr = `${origin.lat},${origin.lng}`;
-    const destStr = `${destination.lat},${destination.lng}`;
+    const formatPoint = (p: string | { lat: number; lng: number }) => {
+      if (typeof p === "string") return encodeURIComponent(p);
+      return `${p.lat},${p.lng}`;
+    };
+
+    const originStr = formatPoint(origin);
+    const destStr = formatPoint(destination);
 
     let waypointsStr = "";
     if (waypoints.length > 0) {
-      const points = waypoints
-        .map((w) => `${w.location.lat},${w.location.lng}`)
-        .join("|");
+      const points = waypoints.map((w) => formatPoint(w.location)).join("|");
       waypointsStr = `&waypoints=${points}`;
     }
 

@@ -47,44 +47,66 @@ const AddressTextArea = ({
             containerRef.current!.innerHTML = "";
             const autocomplete = new PlaceAutocompleteElement();
 
-            // @ts-ignore
+            // @ts-expect-error - Custom element property
             autocomplete.placeholder = placeholder;
 
-            autocomplete.addEventListener("gmp-placeselect", (event: any) => {
-              const place = event.place;
-              if (place) {
-                place
-                  .fetchFields({
-                    fields: [
-                      "location",
-                      "displayName",
-                      "formattedAddress",
-                      "viewport",
-                    ],
-                  })
-                  .then(() => {
-                    const placeResult: google.maps.places.PlaceResult = {
-                      geometry: {
-                        location: place.location as google.maps.LatLng,
-                        viewport: place.viewport as google.maps.LatLngBounds,
-                      },
-                      formatted_address: place.formattedAddress,
-                      name: place.displayName,
-                    };
-                    onPlaceSelect(placeResult);
+            // Add input listener for manual typing
+            const inputElement = autocomplete.querySelector("input");
+            if (inputElement) {
+              inputElement.addEventListener("input", (event: Event) => {
+                const target = event.target as HTMLInputElement;
+                const newValue = target.value;
+                // Update parent state with manual text, clear coordinates
+                onChange({
+                  target: {
+                    name,
+                    value: newValue,
+                  },
+                } as React.ChangeEvent<HTMLInputElement>);
 
-                    // Trigger onChange for parent state
-                    const syntheticEvent = {
-                      target: {
-                        name,
-                        value:
-                          place.formattedAddress || place.displayName || "",
-                      },
-                    } as unknown as React.ChangeEvent<HTMLInputElement>;
-                    onChange(syntheticEvent);
-                  });
+                // Also trigger onPlaceSelect with null/empty to signal coordinate clearing if needed
+                // or just rely on the fact that lat/lng aren't in this manual update.
+              });
+            }
+
+            autocomplete.addEventListener(
+              "gmp-placeselect",
+              (event: { place: any }) => {
+                const place = event.place;
+                if (place) {
+                  place
+                    .fetchFields({
+                      fields: [
+                        "location",
+                        "displayName",
+                        "formattedAddress",
+                        "viewport",
+                      ],
+                    })
+                    .then(() => {
+                      const placeResult: google.maps.places.PlaceResult = {
+                        geometry: {
+                          location: place.location as google.maps.LatLng,
+                          viewport: place.viewport as google.maps.LatLngBounds,
+                        },
+                        formatted_address: place.formattedAddress,
+                        name: place.displayName,
+                      };
+                      onPlaceSelect(placeResult);
+
+                      // Trigger onChange for parent state
+                      const syntheticEvent = {
+                        target: {
+                          name,
+                          value:
+                            place.formattedAddress || place.displayName || "",
+                        },
+                      } as unknown as React.ChangeEvent<HTMLInputElement>;
+                      onChange(syntheticEvent);
+                    });
+                }
               }
-            });
+            );
 
             containerRef.current?.appendChild(autocomplete);
           }

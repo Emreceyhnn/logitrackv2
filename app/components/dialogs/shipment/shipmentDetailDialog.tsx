@@ -1,33 +1,23 @@
-"use client";
 import {
+  alpha,
+  Avatar,
+  Box,
   Dialog,
   DialogContent,
   Divider,
   IconButton,
   Stack,
   Typography,
-  Chip,
-  Box,
-  Paper,
   useTheme,
-  alpha,
-  Avatar,
+  Paper,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import PersonIcon from "@mui/icons-material/Person";
-import Inventory2Icon from "@mui/icons-material/Inventory2";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import ScaleIcon from "@mui/icons-material/Scale";
-import AspectRatioIcon from "@mui/icons-material/AspectRatio";
-import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import BusinessIcon from "@mui/icons-material/Business";
-import MapIcon from "@mui/icons-material/Map";
-
-import { ShipmentWithRelations } from "@/app/lib/type/shipment"; // Changed import
+import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { StatusChip } from "@/app/components/chips/statusChips";
-import { PriorityChip } from "@/app/components/chips/priorityChips";
+import DriverCard from "../../cards/driverCard";
+import MapRoutesDialogCard from "../routes/map";
+import { DriverWithRelations } from "@/app/lib/type/driver";
 
 interface ShipmentDetailDialogProps {
   // Renamed interface
@@ -41,77 +31,74 @@ export default function ShipmentDetailDialog({
   onClose,
   shipment,
 }: ShipmentDetailDialogProps) {
-  // Changed function signature
-  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  if (!shipment) return null; // Changed shipment to shipment
+  if (!shipment) return null;
+
+  const mapOrigin =
+    shipment.route?.startLat && shipment.route?.startLng
+      ? {
+          lat: Number(shipment.route.startLat),
+          lng: Number(shipment.route.startLng),
+        }
+      : undefined;
+
+  const mapDestination =
+    shipment.destinationLat && shipment.destinationLng
+      ? {
+          lat: Number(shipment.destinationLat),
+          lng: Number(shipment.destinationLng),
+        }
+      : undefined;
 
   return (
     <Dialog
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth="md"
+      maxWidth="lg"
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: 4,
+          bgcolor: "#0B1019",
+          backgroundImage: "none",
           overflow: "hidden",
+          border: `1px solid ${alpha("#fff", 0.05)}`,
+          maxHeight: "90vh",
         },
       }}
     >
+      {/* Header Section */}
       <Box
         sx={{
           p: 3,
-          background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
-          borderBottom: `1px solid ${theme.palette.divider}`,
+          background: `linear-gradient(to right, ${alpha(theme.palette.primary.main, 0.15)}, transparent)`,
+          borderBottom: `1px solid ${alpha("#fff", 0.05)}`,
+          position: "relative",
         }}
       >
         <Stack
           direction="row"
           justifyContent="space-between"
-          alignItems="flex-start"
+          alignItems="center"
         >
-          <Stack spacing={1}>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography
-                variant="h5"
-                fontWeight={700}
-                sx={{ color: theme.palette.text.primary }}
-              >
+          <Stack spacing={0.5}>
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Typography variant="h5" fontWeight={800} color="white">
                 {shipment.trackingId}
               </Typography>
               <StatusChip status={shipment.status} />
-              {/* Priority not in schema yet */}
-              {/* <PriorityChip status={shipment.priority} /> */}
             </Stack>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Stack direction="row" spacing={0.5} alignItems="center">
-                <BusinessIcon fontSize="small" color="action" />
-                <Typography variant="body2" color="text.secondary">
-                  Customer:{" "}
-                  <strong>
-                    {shipment.customer?.name || shipment.customerId}
-                  </strong>
-                </Typography>
-              </Stack>
-              <Stack direction="row" spacing={0.5} alignItems="center">
-                <AccessTimeIcon fontSize="small" color="action" />
-                <Typography variant="body2" color="text.secondary">
-                  Created:{" "}
-                  <strong>
-                    {new Date(shipment.createdAt).toLocaleDateString()}
-                  </strong>
-                </Typography>
-              </Stack>
-            </Stack>
+            <Typography variant="caption" color="text.secondary">
+              SYSTEM CONSIGNMENT ID: {shipment.id.substring(0, 8).toUpperCase()}
+            </Typography>
           </Stack>
           <IconButton
             onClick={onClose}
-            size="small"
             sx={{
-              bgcolor: alpha(theme.palette.text.secondary, 0.1),
-              "&:hover": { bgcolor: alpha(theme.palette.text.secondary, 0.2) },
+              color: "text.secondary",
+              bgcolor: alpha("#fff", 0.05),
+              "&:hover": { bgcolor: alpha("#fff", 0.1) },
             }}
           >
             <CloseIcon fontSize="small" />
@@ -119,263 +106,309 @@ export default function ShipmentDetailDialog({
         </Stack>
       </Box>
 
-      <DialogContent sx={{ p: 0 }}>
-        <Stack direction={{ xs: "column", md: "row" }} sx={{ height: "100%" }}>
+      <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column" }}>
+        <Stack direction={{ xs: "column", md: "row" }} sx={{ flex: 1 }}>
+          {/* Left Column - Information */}
           <Box
             sx={{
-              flex: { xs: "auto", md: 7 },
+              width: { xs: "100%", md: "400px" },
+              borderRight: `1px solid ${alpha("#fff", 0.05)}`,
+              bgcolor: alpha("#0B1019", 0.4),
+              overflowY: "auto",
               p: 3,
-              borderRight: { md: `1px solid ${theme.palette.divider}` },
-              borderBottom: {
-                xs: `1px solid ${theme.palette.divider}`,
-                md: "none",
-              },
             }}
           >
-            <Box mb={4} sx={{ position: "relative", pl: 1 }}>
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-                sx={{
-                  mb: 2,
-                  textTransform: "uppercase",
-                  letterSpacing: 0.5,
-                  color: "text.secondary",
-                }}
-              >
-                Journey
-              </Typography>
-
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 56,
-                  bottom: 16,
-                  left: 28,
-                  width: 2,
-                  bgcolor: "divider",
-                  zIndex: 0,
-                }}
-              />
-
-              <Stack spacing={4}>
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  alignItems="flex-start"
-                  sx={{ position: "relative", zIndex: 1 }}
+            <Stack spacing={4}>
+              {/* Assignment Section */}
+              <Box>
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                  sx={{ textTransform: "uppercase", mb: 2, display: "block" }}
                 >
-                  <Avatar
+                  Assignment Details
+                </Typography>
+                {shipment.driver ? (
+                  <DriverCard
+                    {...(shipment.driver as unknown as DriverWithRelations)}
+                  />
+                ) : (
+                  <Paper
                     sx={{
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                      color: theme.palette.primary.main,
+                      p: 2,
+                      bgcolor: alpha("#fff", 0.02),
+                      border: `1px dashed ${alpha("#fff", 0.1)}`,
+                      borderRadius: 2,
+                      textAlign: "center",
                     }}
                   >
-                    <Inventory2Icon fontSize="small" />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight={600}>
-                      Origin
+                    <Typography variant="body2" color="text.secondary">
+                      No Driver Assigned
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                    >
-                      {shipment.origin}
-                    </Typography>
-                  </Box>
-                </Stack>
+                  </Paper>
+                )}
+              </Box>
 
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  alignItems="flex-start"
-                  sx={{ position: "relative", zIndex: 1 }}
+              {/* Journey Timeline Section */}
+              <Box>
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                  sx={{ textTransform: "uppercase", mb: 2, display: "block" }}
                 >
-                  <Avatar
+                  Mission Path
+                </Typography>
+                <Box sx={{ position: "relative", pl: 4 }}>
+                  {/* Vertical Line */}
+                  <Box
                     sx={{
-                      bgcolor: alpha(theme.palette.success.main, 0.1),
-                      color: theme.palette.success.main,
+                      position: "absolute",
+                      left: 11,
+                      top: 10,
+                      bottom: 10,
+                      width: 2,
+                      bgcolor: alpha(theme.palette.primary.main, 0.2),
+                      "&::after": {
+                        content: '""',
+                        position: "absolute",
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        backgroundImage: `linear-gradient(to bottom, ${theme.palette.primary.main} 50%, transparent 50%)`,
+                        backgroundSize: "1px 8px",
+                      },
                     }}
-                  >
-                    <LocationOnIcon fontSize="small" />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight={600}>
-                      Destination
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                    >
-                      {shipment.destination}
-                    </Typography>
-                  </Box>
-                </Stack>
-              </Stack>
-            </Box>
+                  />
 
-            <Divider sx={{ mb: 3 }} />
+                  <Stack spacing={4}>
+                    <Box sx={{ position: "relative" }}>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          left: -33,
+                          top: 4,
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          bgcolor: theme.palette.primary.main,
+                          boxShadow: `0 0 10px ${theme.palette.primary.main}`,
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        fontWeight={700}
+                        color="white"
+                      >
+                        Pickup Origin
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {shipment.origin || "Not specified"}
+                      </Typography>
+                    </Box>
 
-            <Typography
-              variant="subtitle2"
-              fontWeight={700}
-              sx={{
-                mb: 2,
-                textTransform: "uppercase",
-                letterSpacing: 0.5,
-                color: "text.secondary",
-              }}
-            >
-              Assignment
-            </Typography>
-            <Stack direction="row" spacing={2}>
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 1.5,
-                  flex: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                  borderRadius: 2,
-                }}
-              >
-                <Avatar
-                  variant="rounded"
+                    <Box sx={{ position: "relative" }}>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          left: -33,
+                          top: 4,
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          bgcolor: theme.palette.error.main,
+                          boxShadow: `0 0 10px ${theme.palette.error.main}`,
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        fontWeight={700}
+                        color="white"
+                      >
+                        Final Delivery
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {shipment.destination || "Not specified"}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Box>
+              </Box>
+
+              {/* Shipment Specs Section */}
+              <Box>
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                  sx={{ textTransform: "uppercase", mb: 2, display: "block" }}
+                >
+                  Consignment Specs
+                </Typography>
+                <Box
                   sx={{
-                    bgcolor: alpha(theme.palette.info.main, 0.1),
-                    color: theme.palette.info.main,
-                    width: 40,
-                    height: 40,
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 2,
                   }}
                 >
-                  <PersonIcon fontSize="small" />
-                </Avatar>
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: alpha("#fff", 0.03),
+                      border: `1px solid ${alpha("#fff", 0.05)}`,
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      Quantity
+                    </Typography>
+                    <Typography variant="h6" fontWeight={800} color="white">
+                      {shipment.itemsCount || 0}
+                      <Typography component="span" variant="caption" ml={0.5}>
+                        units
+                      </Typography>
+                    </Typography>
+                  </Box>
+                  {shipment.weightKg && (
+                    <Box
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: alpha("#fff", 0.03),
+                        border: `1px solid ${alpha("#fff", 0.05)}`,
+                      }}
+                    >
+                      <Typography variant="caption" color="text.secondary">
+                        Gross Weight
+                      </Typography>
+                      <Typography variant="h6" fontWeight={800} color="white">
+                        {shipment.weightKg}
+                        <Typography component="span" variant="caption" ml={0.5}>
+                          kg
+                        </Typography>
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+
+              {/* Customer Info Card */}
+              {shipment.customer && (
                 <Box>
                   <Typography
                     variant="caption"
+                    fontWeight={700}
                     color="text.secondary"
-                    display="block"
+                    sx={{ textTransform: "uppercase", mb: 1, display: "block" }}
                   >
-                    Driver
+                    Customer Entity
                   </Typography>
-                  <Typography variant="body2" fontWeight={600}>
-                    {shipment.driver?.user.name
-                      ? `${shipment.driver.user.name} ${shipment.driver.user.surname}`
-                      : "Unassigned"}
-                  </Typography>
-                </Box>
-              </Paper>
-
-              <Paper
-                variant="outlined"
-                sx={{
-                  p: 1.5,
-                  flex: 1,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.5,
-                  borderRadius: 2,
-                }}
-              >
-                <Avatar
-                  variant="rounded"
-                  sx={{
-                    bgcolor: alpha(theme.palette.secondary.main, 0.1),
-                    color: theme.palette.secondary.main,
-                    width: 40,
-                    height: 40,
-                  }}
-                >
-                  <MapIcon fontSize="small" />
-                </Avatar>
-                <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    display="block"
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: alpha(theme.palette.primary.main, 0.05),
+                      border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                    }}
                   >
-                    Route
-                  </Typography>
-                  <Typography variant="body2" fontWeight={600}>
-                    {shipment.routeId || "N/A"}
-                  </Typography>
+                    <Avatar
+                      variant="rounded"
+                      sx={{
+                        bgcolor: theme.palette.primary.main,
+                        color: "white",
+                        width: 40,
+                        height: 40,
+                      }}
+                    >
+                      <BusinessIcon />
+                    </Avatar>
+                    <Box>
+                      <Typography
+                        variant="subtitle2"
+                        fontWeight={700}
+                        color="white"
+                      >
+                        {shipment.customer.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Client Partner
+                      </Typography>
+                    </Box>
+                  </Stack>
                 </Box>
-              </Paper>
+              )}
             </Stack>
           </Box>
 
-          <Box
-            sx={{
-              flex: { xs: "auto", md: 5 },
-              bgcolor: alpha(theme.palette.background.default, 0.5),
-            }}
-          >
-            <Box sx={{ p: 3, height: "100%" }}>
-              <Typography
-                variant="subtitle2"
-                fontWeight={700}
-                sx={{
-                  mb: 2,
-                  textTransform: "uppercase",
-                  letterSpacing: 0.5,
-                  color: "text.secondary",
-                }}
-              >
-                Details
-              </Typography>
+          {/* Right Column - Map Visualization */}
+          <Box sx={{ flex: 1, position: "relative", minHeight: 400 }}>
+            <MapRoutesDialogCard
+              origin={mapOrigin}
+              destination={mapDestination}
+            />
 
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr",
-                  gap: 2,
-                  mb: 3,
-                }}
-              >
-                <Paper
-                  elevation={0}
-                  sx={{
-                    gridColumn: "1 / -1",
-                    p: 1.5,
-                    bgcolor: "background.paper",
-                    borderRadius: 2,
-                    border: `1px solid ${theme.palette.divider}`,
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    alignItems="center"
-                    mb={0.5}
-                  >
-                    <ViewInArIcon fontSize="small" color="action" />
-                    <Typography variant="caption" color="text.secondary">
-                      Items Count
-                    </Typography>
-                  </Stack>
-                  <Typography variant="h6" fontWeight={700}>
-                    {shipment.itemsCount}{" "}
-                    <Typography
-                      component="span"
-                      variant="caption"
-                      color="text.secondary"
-                    >
-                      units
-                    </Typography>
-                  </Typography>
-                </Paper>
-              </Box>
-
-              <Divider sx={{ mb: 2 }} />
-
-              {/* Manifest removed as we don't have item details in schema */}
-              <Typography variant="body2" color="text.secondary" align="center">
-                Manifest details not available
-              </Typography>
+            {/* Overlay Stats (Optional / Integrated into map styles usually) */}
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 24,
+                left: 24,
+                right: 24,
+                bgcolor: alpha("#0B1019", 0.8),
+                backdropFilter: "blur(12px)",
+                borderRadius: 3,
+                p: 2,
+                border: `1px solid ${alpha("#fff", 0.1)}`,
+                display: "flex",
+                justifyContent: "space-around",
+                zIndex: 1,
+              }}
+            >
+              <Stack alignItems="center">
+                <Typography variant="caption" color="text.secondary">
+                  MILEAGE
+                </Typography>
+                <Typography variant="subtitle1" fontWeight={800} color="white">
+                  {shipment.route?.distanceKm
+                    ? `${shipment.route.distanceKm} km`
+                    : "TBD"}
+                </Typography>
+              </Stack>
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{ borderColor: alpha("#fff", 0.1) }}
+              />
+              <Stack alignItems="center">
+                <Typography variant="caption" color="text.secondary">
+                  DURATION
+                </Typography>
+                <Typography variant="subtitle1" fontWeight={800} color="white">
+                  {shipment.route?.durationMin
+                    ? `${shipment.route.durationMin} min`
+                    : "TBD"}
+                </Typography>
+              </Stack>
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{ borderColor: alpha("#fff", 0.1) }}
+              />
+              <Stack alignItems="center">
+                <Typography variant="caption" color="text.secondary">
+                  FLEET ID
+                </Typography>
+                <Typography variant="subtitle1" fontWeight={800} color="white">
+                  {shipment.route?.id
+                    ? `RT-${shipment.route.id.substring(0, 4).toUpperCase()}`
+                    : "NO UNIT"}
+                </Typography>
+              </Stack>
             </Box>
           </Box>
         </Stack>

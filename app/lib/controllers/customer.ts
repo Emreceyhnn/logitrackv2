@@ -14,7 +14,9 @@ export const createCustomer = authenticatedAction(
     taxId?: string,
     email?: string,
     phone?: string,
-    address?: string
+    address?: string,
+    lat?: number,
+    lng?: number
   ) => {
     try {
       await checkPermission(user.id, user.companyId, [
@@ -40,6 +42,8 @@ export const createCustomer = authenticatedAction(
           email,
           phone,
           address,
+          lat,
+          lng,
           companyId: user.companyId,
         },
       });

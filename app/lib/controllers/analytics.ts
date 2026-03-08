@@ -6,7 +6,9 @@ import { checkPermission } from "./utils/checkPermission";
 
 export const getOverviewStats = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
 
     if (!user.companyId) return null;
 
@@ -63,7 +65,9 @@ export const getOverviewStats = authenticatedAction(async (user) => {
 
 export const getActionRequired = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
     return [];
   } catch (error) {
     console.error("Failed to get action required:", error);
@@ -73,7 +77,9 @@ export const getActionRequired = authenticatedAction(async (user) => {
 
 export const getDailyOperations = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
 
     if (!user.companyId) return null;
 
@@ -114,7 +120,9 @@ export const getDailyOperations = authenticatedAction(async (user) => {
 
 export const getFuelStats = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
 
     if (!user.companyId) return [];
 
@@ -136,7 +144,9 @@ export const getFuelStats = authenticatedAction(async (user) => {
 
 export const getWarehouseCapacity = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
 
     if (!user.companyId) return [];
 
@@ -159,7 +169,9 @@ export const getWarehouseCapacity = authenticatedAction(async (user) => {
 
 export const getLowStockItems = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
 
     if (!user.companyId) return [];
 
@@ -182,7 +194,9 @@ export const getLowStockItems = authenticatedAction(async (user) => {
 
 export const getShipmentStatusStats = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
 
     if (!user.companyId) return [];
 
@@ -200,7 +214,9 @@ export const getShipmentStatusStats = authenticatedAction(async (user) => {
 
 export const getPicksAndPacks = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
     return { picks: 145, packs: 120 };
   } catch (error) {
     console.error("Failed to get picks and packs:", error);
@@ -210,7 +226,9 @@ export const getPicksAndPacks = authenticatedAction(async (user) => {
 
 export const getOnTimeTrends = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
     return [
       { date: "2026-01-28", value: 92 },
       { date: "2026-01-29", value: 94 },
@@ -226,7 +244,9 @@ export const getOnTimeTrends = authenticatedAction(async (user) => {
 
 export const getMapData = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
 
     if (!user.companyId) return [];
 
@@ -267,7 +287,9 @@ export const getMapData = authenticatedAction(async (user) => {
 
 export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
 
     if (!user.companyId) return null;
 

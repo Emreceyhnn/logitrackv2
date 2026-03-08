@@ -9,6 +9,8 @@ export interface AddCustomerContact {
   email: string;
   phone: string;
   address: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface AddCustomerPageState {

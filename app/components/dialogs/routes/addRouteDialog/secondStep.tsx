@@ -26,20 +26,42 @@ const SecondRouteDialogStep = ({
 
   /* ------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
-    if (state.startLat && state.startLng && state.endLat && state.endLng) {
+    const hasStart = (state.startLat && state.startLng) || state.startAddress;
+    const hasEnd = (state.endLat && state.endLng) || state.endAddress;
+
+    if (hasStart && hasEnd) {
       const fetchMetrics = async () => {
         setLoadingMetrics(true);
         try {
-          const origin = { lat: state.startLat!, lng: state.startLng! };
-          const dest = { lat: state.endLat!, lng: state.endLng! };
+          const origin =
+            state.startLat && state.startLng
+              ? { lat: state.startLat, lng: state.startLng }
+              : state.startAddress;
+          const dest =
+            state.endLat && state.endLng
+              ? { lat: state.endLat, lng: state.endLng }
+              : state.endAddress;
+
           const data = await getDirections(origin, dest);
 
           if (data && data.routes && data.routes.length > 0) {
             const leg = data.routes[0].legs[0];
-            updateStep2({
+            const update: Partial<AddRouteStep2> = {
               distanceKm: parseFloat((leg.distance.value / 1000).toFixed(1)),
               durationMin: Math.ceil(leg.duration.value / 60),
-            });
+            };
+
+            // Capture coordinates if we didn't have them
+            if (!state.startLat && leg.start_location) {
+              update.startLat = leg.start_location.lat;
+              update.startLng = leg.start_location.lng;
+            }
+            if (!state.endLat && leg.end_location) {
+              update.endLat = leg.end_location.lat;
+              update.endLng = leg.end_location.lng;
+            }
+
+            updateStep2(update);
           }
         } catch (error) {
           console.error("Failed to fetch route metrics", error);
@@ -47,9 +69,22 @@ const SecondRouteDialogStep = ({
           setLoadingMetrics(false);
         }
       };
-      fetchMetrics();
+
+      // Debounce slightly or only run if names are reasonably long
+      if (state.startAddress.length > 3 && state.endAddress.length > 3) {
+        const timer = setTimeout(fetchMetrics, 500);
+        return () => clearTimeout(timer);
+      }
     }
-  }, [state.startLat, state.startLng, state.endLat, state.endLng]);
+  }, [
+    state.startLat,
+    state.startLng,
+    state.endLat,
+    state.endLng,
+    state.startAddress,
+    state.endAddress,
+    updateStep2,
+  ]);
 
   return (
     <Box>
@@ -266,15 +301,19 @@ const SecondRouteDialogStep = ({
             >
               <MapRoutesDialogCard
                 origin={
-                  state.startLat && state.startLng
+                  typeof state.startLat === "number" &&
+                  typeof state.startLng === "number"
                     ? { lat: state.startLat, lng: state.startLng }
                     : undefined
                 }
                 destination={
-                  state.endLat && state.endLng
+                  typeof state.endLat === "number" &&
+                  typeof state.endLng === "number"
                     ? { lat: state.endLat, lng: state.endLng }
                     : undefined
                 }
+                addrA={state.startAddress}
+                addrB={state.endAddress}
               />
             </Box>
           </Grid>

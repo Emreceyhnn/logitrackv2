@@ -5,9 +5,10 @@ import { db } from "../../db";
 export async function checkPermission(
   userId: string,
   companyId: string | null,
-  requiredRoles: string[] = []
+  requiredRoles: string[] = [],
+  options: { allowNoCompany?: boolean } = {}
 ) {
-  if (!companyId) {
+  if (!companyId && !options.allowNoCompany) {
     throw new Error("No company assigned to this user");
   }
 

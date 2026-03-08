@@ -3,11 +3,9 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { GoogleMap, useJsApiLoader, Polyline } from "@react-google-maps/api";
 import { AdvancedMarker } from "./advancedMarker";
-import WarehouseIcon from "@mui/icons-material/Warehouse";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import PersonIcon from "@mui/icons-material/Person";
-import StoreIcon from "@mui/icons-material/Store";
-import { Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { GOOGLE_MAPS_LIBRARIES } from "@/app/lib/constants";
 
 type LatLng = { lat: number; lng: number };
@@ -23,6 +21,8 @@ interface GoogleMapViewProps {
   isRoute?: boolean;
   locA?: LatLng;
   locB?: LatLng;
+  addrA?: string;
+  addrB?: string;
   waypoints?: google.maps.DirectionsWaypoint[];
   warehouseLoc?: LocationItem[];
   zoom?: number;
@@ -35,6 +35,8 @@ const GoogleMapView = ({
   isRoute = false,
   locA,
   locB,
+  addrA,
+  addrB,
   waypoints = [],
   warehouseLoc = [],
   zoom = 12,
@@ -43,6 +45,8 @@ const GoogleMapView = ({
   /* --------------------------------- states --------------------------------- */
   const [routePath, setRoutePath] = useState<LatLng[]>([]);
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [localLocA, setLocalLocA] = useState<LatLng | undefined>(undefined);
+  const [localLocB, setLocalLocB] = useState<LatLng | undefined>(undefined);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
@@ -50,8 +54,12 @@ const GoogleMapView = ({
   });
 
   const mapCenter: LatLng = useMemo(() => {
-    return locA ?? warehouseLoc?.[0]?.position ?? { lat: 40.195, lng: 29.06 };
-  }, [locA, warehouseLoc]);
+    return (
+      locA ??
+      localLocA ??
+      warehouseLoc?.[0]?.position ?? { lat: 40.195, lng: 29.06 }
+    );
+  }, [locA, localLocA, warehouseLoc]);
 
   /* --------------------------------- handler -------------------------------- */
   const handleLoad = useCallback(
@@ -63,13 +71,20 @@ const GoogleMapView = ({
   );
 
   /* -------------------------------- lifecycle ------------------------------- */
+  const locAStr = JSON.stringify(locA);
+  const locBStr = JSON.stringify(locB);
+  const waypointsStr = JSON.stringify(waypoints);
+
   useEffect(() => {
     if (!isLoaded) return;
     if (!isRoute) {
       setRoutePath([]);
+      setLocalLocA(undefined);
+      setLocalLocB(undefined);
       return;
     }
-    if (!locA || !locB) return;
+
+    if (!(locA || addrA) || !(locB || addrB)) return;
 
     const fetchRoute = async () => {
       try {
@@ -77,37 +92,61 @@ const GoogleMapView = ({
 
         // Safely extract lat/lng from waypoints
         const formattedWaypoints = waypoints.map((w) => {
-          let lat = 0;
-          let lng = 0;
-          // Check if location is a LatLng object (has functions)
-          if (
-            w.location &&
-            typeof w.location === "object" &&
-            "lat" in w.location &&
-            typeof (w.location as google.maps.LatLng).lat === "function"
-          ) {
-            lat = (w.location as google.maps.LatLng).lat();
-            lng = (w.location as google.maps.LatLng).lng();
+          let location: string | LatLng = "";
+          if (typeof w.location === "string") {
+            location = w.location;
+          } else {
+            let lat = 0;
+            let lng = 0;
+            if (
+              w.location &&
+              typeof w.location === "object" &&
+              "lat" in w.location &&
+              typeof (w.location as google.maps.LatLng).lat === "function"
+            ) {
+              lat = (w.location as google.maps.LatLng).lat();
+              lng = (w.location as google.maps.LatLng).lng();
+            } else if (
+              w.location &&
+              typeof w.location === "object" &&
+              "lat" in w.location &&
+              typeof (w.location as google.maps.LatLngLiteral).lat === "number"
+            ) {
+              lat = (w.location as google.maps.LatLngLiteral).lat;
+              lng = (w.location as google.maps.LatLngLiteral).lng;
+            }
+            location = { lat, lng };
           }
-          // Check if location is a LatLngLiteral (has properties)
-          else if (
-            w.location &&
-            typeof w.location === "object" &&
-            "lat" in w.location &&
-            typeof (w.location as google.maps.LatLngLiteral).lat === "number"
-          ) {
-            lat = (w.location as google.maps.LatLngLiteral).lat;
-            lng = (w.location as google.maps.LatLngLiteral).lng;
-          }
+
           return {
-            location: { lat, lng },
+            location,
             stopover: !!w.stopover,
           };
         });
 
-        const data = await getDirections(locA, locB, formattedWaypoints);
+        const data = await getDirections(
+          locA || addrA!,
+          locB || addrB!,
+          formattedWaypoints
+        );
 
         if (data && data.routes && data.routes.length > 0) {
+          const leg = data.routes[0].legs[0];
+
+          // If coordinates were missing, extract them from the Directions result
+          if (!locA && leg.start_location) {
+            setLocalLocA({
+              lat: leg.start_location.lat,
+              lng: leg.start_location.lng,
+            });
+          }
+          if (!locB && leg.end_location) {
+            setLocalLocB({
+              lat: leg.end_location.lat,
+              lng: leg.end_location.lng,
+            });
+          }
+
           const points = google.maps.geometry.encoding.decodePath(
             data.routes[0].overview_polyline.points
           );
@@ -115,9 +154,8 @@ const GoogleMapView = ({
 
           // Fit bounds
           if (map) {
-            const pointsLatLng = points;
             const bounds = new google.maps.LatLngBounds();
-            pointsLatLng.forEach((p) => bounds.extend(p));
+            points.forEach((p) => bounds.extend(p));
             map.fitBounds(bounds);
           }
         }
@@ -128,27 +166,67 @@ const GoogleMapView = ({
 
     fetchRoute();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    isLoaded,
-    isRoute,
-    map,
-    JSON.stringify(locA),
-    JSON.stringify(locB),
-    JSON.stringify(waypoints),
-  ]);
+  }, [isLoaded, isRoute, map, locAStr, locBStr, addrA, addrB, waypointsStr]);
 
   if (!isLoaded) return null;
 
   /* ------------------------------- components ------------------------------- */
   const IconSetter = (type: string) => {
-    if (type === "W") {
-      return <WarehouseIcon sx={{ color: "orange", fontSize: 30 }} />;
+    const PinWrapper = ({
+      color,
+      label,
+    }: {
+      color: string;
+      label?: string;
+    }) => (
+      <Stack alignItems="center" sx={{ position: "relative" }}>
+        <Box
+          sx={{
+            width: 32,
+            height: 32,
+            bgcolor: color,
+            borderRadius: "50% 50% 50% 0",
+            transform: "rotate(-45deg)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: "2px solid white",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
+          }}
+        >
+          {label && (
+            <Typography
+              sx={{
+                color: "white",
+                fontWeight: 900,
+                fontSize: 14,
+                transform: "rotate(45deg)",
+                lineHeight: 1,
+              }}
+            >
+              {label}
+            </Typography>
+          )}
+        </Box>
+      </Stack>
+    );
+
+    if (type === "W" || type === "ORIGIN") {
+      return <PinWrapper color="#4285F4" label="A" />; // Google Blue
     } else if (type === "V") {
-      return <DirectionsCarIcon sx={{ color: "blue", fontSize: 30 }} />;
-    } else if (type === "C") {
-      return <StoreIcon sx={{ color: "#7b1fa2", fontSize: 30 }} />;
+      return (
+        <DirectionsCarIcon
+          sx={{
+            color: "#34A853",
+            fontSize: 32,
+            filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+          }}
+        />
+      );
+    } else if (type === "C" || type === "DEST") {
+      return <PinWrapper color="#EA4335" label="B" />; // Google Red
     } else {
-      return <PersonIcon sx={{ color: "blue", fontSize: 30 }} />;
+      return <PersonIcon sx={{ color: "#FBBC05", fontSize: 30 }} />;
     }
   };
 
@@ -189,24 +267,24 @@ const GoogleMapView = ({
           ))}
 
       {/* Markers for Route Origin/Dest if not in warehouseLoc */}
-      {map && isRoute && locA && (
-        <AdvancedMarker map={map!} position={locA} index={100} key="origin">
-          <Stack alignItems="center">
-            <WarehouseIcon sx={{ color: "green", fontSize: 30 }} />
-            <Typography sx={{ fontSize: 12, fontWeight: "bold" }}>
-              Start
-            </Typography>
-          </Stack>
+      {map && isRoute && (locA || localLocA) && (
+        <AdvancedMarker
+          map={map!}
+          position={locA || localLocA!}
+          index={100}
+          key="origin"
+        >
+          {IconSetter("ORIGIN")}
         </AdvancedMarker>
       )}
-      {map && isRoute && locB && (
-        <AdvancedMarker map={map!} position={locB} index={101} key="dest">
-          <Stack alignItems="center">
-            <StoreIcon sx={{ color: "red", fontSize: 30 }} />
-            <Typography sx={{ fontSize: 12, fontWeight: "bold" }}>
-              End
-            </Typography>
-          </Stack>
+      {map && isRoute && (locB || localLocB) && (
+        <AdvancedMarker
+          map={map!}
+          position={locB || localLocB!}
+          index={101}
+          key="dest"
+        >
+          {IconSetter("DEST")}
         </AdvancedMarker>
       )}
 

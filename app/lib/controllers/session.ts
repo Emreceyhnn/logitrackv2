@@ -170,18 +170,23 @@ export async function validateSession(): Promise<SessionUser | null> {
     });
 
     if (!session) {
-      console.log("[validateSession] ❌ No session found in DB for token hash");
+      console.log(
+        "[validateSession] ❌ No session found in DB for token hash. Clearing cookies."
+      );
+      await clearAuthCookies();
       return null;
     }
 
     // Check session validity
     if (session.isRevoked) {
-      console.log("[validateSession] ❌ Session is revoked");
+      console.log("[validateSession] ❌ Session is revoked. Clearing cookies.");
+      await clearAuthCookies();
       return null;
     }
 
     if (session.expiresAt < new Date()) {
-      console.log("[validateSession] ❌ Session is expired");
+      console.log("[validateSession] ❌ Session is expired. Clearing cookies.");
+      await clearAuthCookies();
       return null;
     }
 

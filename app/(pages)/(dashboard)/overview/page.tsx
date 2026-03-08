@@ -11,6 +11,7 @@ import PicksPacksDailyCard from "@/app/components/dashboard/overview/picsPacksDa
 import OnTimeTrendsCard from "@/app/components/dashboard/overview/onTimeTrends";
 import OverviewKpiCard from "@/app/components/dashboard/overview/overviewKpiCard";
 import OverviewMapCard from "@/app/components/dashboard/overview/overViewMapCard";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import {
   getOverviewStats,
@@ -24,12 +25,10 @@ import {
   getOnTimeTrends,
   getMapData,
 } from "@/app/lib/controllers/analytics";
-import {
-  OverviewPageActions,
-  OverviewPageState,
-} from "@/app/lib/type/overview";
+import { OverviewPageState } from "@/app/lib/type/overview";
 
 export default function OverviewPage() {
+  const router = useRouter();
   const [state, setState] = useState<OverviewPageState>({
     data: {
       stats: null,
@@ -51,6 +50,16 @@ export default function OverviewPage() {
     setState((prev) => ({ ...prev, loading: true }));
 
     try {
+      // Check auth & company
+      const session = await getOverviewStats();
+      // Note: getOverviewStats returns null if !companyId (see analytics.ts)
+
+      if (!session) {
+        // Redirect to onboarding if no companyId exists
+        router.push("/onboarding");
+        return;
+      }
+
       const [
         statsData,
         alertsData,
@@ -63,7 +72,7 @@ export default function OverviewPage() {
         trendsData,
         mapDataRes,
       ] = await Promise.all([
-        getOverviewStats(),
+        Promise.resolve(session), // Already fetched
         getActionRequired(),
         getDailyOperations(),
         getFuelStats(),
@@ -107,15 +116,13 @@ export default function OverviewPage() {
         error: "Failed to fetch data",
       }));
     }
-  }, []);
-
-  const actions: OverviewPageActions = {
-    fetchDashboardData,
-  };
+  }, [router]);
 
   useEffect(() => {
     fetchDashboardData();
   }, [fetchDashboardData]);
+
+  // Handle unused 'actions' warning by removing it if not used in JSX
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>

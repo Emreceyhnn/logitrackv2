@@ -143,6 +143,10 @@ const LogisticsSection = ({
                     updateLogistics({
                       destination:
                         selectedCustomer.address || state.destination,
+                      destinationLat:
+                        selectedCustomer.lat ?? state.destinationLat,
+                      destinationLng:
+                        selectedCustomer.lng ?? state.destinationLng,
                       contactEmail:
                         selectedCustomer.email || state.contactEmail,
                     });

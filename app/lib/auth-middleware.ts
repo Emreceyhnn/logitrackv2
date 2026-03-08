@@ -8,20 +8,9 @@ export type AuthenticatedUser = {
 };
 
 export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
-  let sessionUser = await validateSession();
+  try {
+    let sessionUser = await validateSession();
 
-  if (sessionUser) {
-    return {
-      id: sessionUser.id,
-      companyId: sessionUser.companyId,
-      roleId: sessionUser.roleId,
-      sessionId: sessionUser.sessionId,
-    };
-  }
-
-  const refreshed = await refreshSession();
-  if (refreshed) {
-    sessionUser = await validateSession();
     if (sessionUser) {
       return {
         id: sessionUser.id,
@@ -30,6 +19,21 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
         sessionId: sessionUser.sessionId,
       };
     }
+
+    const refreshed = await refreshSession();
+    if (refreshed) {
+      sessionUser = await validateSession();
+      if (sessionUser) {
+        return {
+          id: sessionUser.id,
+          companyId: sessionUser.companyId,
+          roleId: sessionUser.roleId,
+          sessionId: sessionUser.sessionId,
+        };
+      }
+    }
+  } catch (error) {
+    console.error("[getAuthenticatedUser] ❌ Session check failed:", error);
   }
 
   return null;

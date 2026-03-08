@@ -36,6 +36,8 @@ const initialContact = {
   email: "",
   phone: "",
   address: "",
+  lat: undefined as number | undefined,
+  lng: undefined as number | undefined,
 };
 
 const AddCustomerDialog = ({
@@ -88,7 +90,9 @@ const AddCustomerDialog = ({
         identityData.taxId || undefined,
         contactData.email || undefined,
         contactData.phone || undefined,
-        contactData.address || undefined
+        contactData.address || undefined,
+        contactData.lat,
+        contactData.lng
       );
 
       toast.success("Customer created successfully");

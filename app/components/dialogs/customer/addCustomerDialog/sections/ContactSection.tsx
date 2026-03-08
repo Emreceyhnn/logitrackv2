@@ -39,9 +39,21 @@ const ContactSection = ({ state, updateContact }: ContactSectionProps) => {
                 placeholder="e.g. 100 Business Park, Suite 500, London"
                 value={state.address}
                 onChange={(e) => updateContact({ address: e.target.value })}
-                onPlaceSelect={(place) =>
-                  updateContact({ address: place.formatted_address || "" })
-                }
+                onPlaceSelect={(place) => {
+                  const lat = place.geometry?.location?.lat;
+                  const lng = place.geometry?.location?.lng;
+                  updateContact({
+                    address: place.formatted_address || "",
+                    lat:
+                      typeof lat === "function"
+                        ? (lat as () => number)()
+                        : (lat as unknown as number),
+                    lng:
+                      typeof lng === "function"
+                        ? (lng as () => number)()
+                        : (lng as unknown as number),
+                  });
+                }}
               />
             </Stack>
           </Grid>
