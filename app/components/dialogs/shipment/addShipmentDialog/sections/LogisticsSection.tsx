@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { AddShipmentLogistics } from "@/app/lib/type/add-shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
-import AddressTextArea from "@/app/components/inputs/AddressTextArea";
+import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
@@ -91,26 +91,22 @@ const LogisticsSection = ({
               >
                 DESTINATION
               </Typography>
-              <AddressTextArea
-                label="Search destination..."
+              <AddressAutocomplete
+                placeholder="Search destination..."
                 name="destination"
                 value={state.destination}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   updateLogistics({ destination: e.target.value })
                 }
-                onPlaceSelect={(place: google.maps.places.PlaceResult) => {
-                  const lat = place.geometry?.location?.lat;
-                  const lng = place.geometry?.location?.lng;
+                onAddressSelect={(data: {
+                  formattedAddress: string;
+                  lat: number;
+                  lng: number;
+                }) => {
                   updateLogistics({
-                    destination: place.formatted_address || place.name || "",
-                    destinationLat:
-                      typeof lat === "function"
-                        ? (lat as () => number)()
-                        : (lat as unknown as number),
-                    destinationLng:
-                      typeof lng === "function"
-                        ? (lng as () => number)()
-                        : (lng as unknown as number),
+                    destination: data.formattedAddress,
+                    destinationLat: data.lat,
+                    destinationLng: data.lng,
                   });
                 }}
               />

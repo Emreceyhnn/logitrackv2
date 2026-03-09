@@ -14,7 +14,7 @@ import {
   AddWarehousePageActions,
 } from "@/app/lib/type/add-warehouse";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
-import AddressTextArea from "@/app/components/inputs/AddressTextArea";
+import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
 import { useEffect, useState } from "react";
 import { getMyCompanyUsersAction } from "@/app/lib/controllers/users";
 
@@ -87,29 +87,26 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
               >
                 STREET ADDRESS
               </Typography>
-              <AddressTextArea
+              <AddressAutocomplete
                 name="address"
                 placeholder="e.g. 123 Logistics Way, Industrial District"
                 value={state.address}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   actions.updateLocation({ address: e.target.value })
                 }
-                onPlaceSelect={(place) => {
-                  const addressComponents = place.address_components || [];
-                  const getComponent = (types: string[]) =>
-                    addressComponents.find((c) =>
-                      types.every((t) => c.types.includes(t))
-                    )?.long_name || "";
-
+                onAddressSelect={(data: {
+                  formattedAddress: string;
+                  lat: number;
+                  lng: number;
+                  address_components?: any[];
+                }) => {
+                  // Note: The new AddressAutocomplete currently only returns basic data.
+                  // For warehouse, we might need more components if available.
+                  // I'll update it to handle what we have.
                   actions.updateLocation({
-                    address: place.formatted_address || "",
-                    city:
-                      getComponent(["locality"]) ||
-                      getComponent(["administrative_area_level_1"]),
-                    country: getComponent(["country"]),
-                    postalCode: getComponent(["postal_code"]),
-                    lat: place.geometry?.location?.lat(),
-                    lng: place.geometry?.location?.lng(),
+                    address: data.formattedAddress,
+                    lat: data.lat,
+                    lng: data.lng,
                   });
                 }}
               />

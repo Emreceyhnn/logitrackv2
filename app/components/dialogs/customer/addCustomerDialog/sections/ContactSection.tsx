@@ -3,7 +3,7 @@
 import { Box, Grid, Stack, Typography } from "@mui/material";
 import { AddCustomerContact } from "@/app/lib/type/add-customer";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
-import AddressTextArea from "@/app/components/inputs/AddressTextArea";
+import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
 
 interface ContactSectionProps {
   state: AddCustomerContact;
@@ -34,24 +34,22 @@ const ContactSection = ({ state, updateContact }: ContactSectionProps) => {
               >
                 OFFICE / BILLING ADDRESS
               </Typography>
-              <AddressTextArea
+              <AddressAutocomplete
                 name="address"
                 placeholder="e.g. 100 Business Park, Suite 500, London"
                 value={state.address}
-                onChange={(e) => updateContact({ address: e.target.value })}
-                onPlaceSelect={(place) => {
-                  const lat = place.geometry?.location?.lat;
-                  const lng = place.geometry?.location?.lng;
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  updateContact({ address: e.target.value })
+                }
+                onAddressSelect={(data: {
+                  formattedAddress: string;
+                  lat: number;
+                  lng: number;
+                }) => {
                   updateContact({
-                    address: place.formatted_address || "",
-                    lat:
-                      typeof lat === "function"
-                        ? (lat as () => number)()
-                        : (lat as unknown as number),
-                    lng:
-                      typeof lng === "function"
-                        ? (lng as () => number)()
-                        : (lng as unknown as number),
+                    address: data.formattedAddress,
+                    lat: data.lat,
+                    lng: data.lng,
                   });
                 }}
               />
