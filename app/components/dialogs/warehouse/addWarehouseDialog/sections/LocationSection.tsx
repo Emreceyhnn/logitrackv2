@@ -98,13 +98,21 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
                   formattedAddress: string;
                   lat: number;
                   lng: number;
-                  address_components?: any[];
+                  address_components?: google.maps.GeocoderAddressComponent[];
                 }) => {
-                  // Note: The new AddressAutocomplete currently only returns basic data.
-                  // For warehouse, we might need more components if available.
-                  // I'll update it to handle what we have.
+                  const addressComponents = data.address_components || [];
+                  const getComponent = (types: string[]) =>
+                    addressComponents.find((c) =>
+                      types.every((t) => c.types.includes(t))
+                    )?.long_name || "";
+
                   actions.updateLocation({
                     address: data.formattedAddress,
+                    city:
+                      getComponent(["locality"]) ||
+                      getComponent(["administrative_area_level_1"]),
+                    country: getComponent(["country"]),
+                    postalCode: getComponent(["postal_code"]),
                     lat: data.lat,
                     lng: data.lng,
                   });
