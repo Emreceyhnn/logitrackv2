@@ -24,7 +24,7 @@ interface Manager {
   surname: string;
   role?: {
     name: string;
-  };
+  } | null;
 }
 
 interface LocationSectionProps {
