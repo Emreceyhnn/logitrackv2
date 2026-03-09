@@ -1,4 +1,5 @@
-import GoogleMapView from "@/app/components/map";
+import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
+import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import CustomCard from "../../../cards/card";
 
 interface MapVehicleOverviewCardProps {
@@ -12,13 +13,11 @@ const MapVehicleOverviewCard = ({
   name,
   location,
 }: MapVehicleOverviewCardProps) => {
-  const vehicleMarker = location
+  const markers = location
     ? [
         {
           position: location,
-          name: name,
-          id: id,
-          type: "V",
+          label: name,
         },
       ]
     : [];
@@ -26,7 +25,9 @@ const MapVehicleOverviewCard = ({
   return (
     <CustomCard sx={{ flexGrow: 1, padding: 0 }}>
       {location ? (
-        <GoogleMapView warehouseLoc={vehicleMarker} />
+        <GoogleMapsProvider>
+          <MapWithMarker markers={markers} />
+        </GoogleMapsProvider>
       ) : (
         <div style={{ padding: 20, textAlign: "center" }}>
           No location data available

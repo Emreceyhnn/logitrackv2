@@ -11,11 +11,12 @@ import { RouteWithRelations } from "@/app/lib/type/routes";
 interface Params {
   routeId: string;
   route?: RouteWithRelations;
+  liveDistanceKm?: number;
 }
 
 const RoutesTelemetryCards = (params: Params) => {
   const theme = useTheme();
-  const { route } = params;
+  const { route, liveDistanceKm } = params;
   if (!route) return null;
 
   // Derive metrics safely
@@ -23,7 +24,7 @@ const RoutesTelemetryCards = (params: Params) => {
   // Or maybe use duration?
   // Let's assume 0 for completed if not tracking live yet.
   const completedDistance = 0;
-  const totalDistance = route.distanceKm || 0;
+  const totalDistance = liveDistanceKm || route.distanceKm || 0;
   const remainingDistance = Math.max(0, totalDistance - completedDistance);
   const fuelLevel = route.vehicle?.fuelLevel || 0;
 

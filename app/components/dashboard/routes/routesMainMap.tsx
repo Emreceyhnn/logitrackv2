@@ -1,7 +1,8 @@
 "use client";
 
 import { Box, Typography } from "@mui/material";
-import GoogleMapView from "@/app/components/map";
+import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
+import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { MapRouteData } from "@/app/lib/type/routes";
 
 interface RoutesMainMapProps {
@@ -25,9 +26,17 @@ const RoutesMainMap = ({ mapData, loading }: RoutesMainMapProps) => {
       </Box>
     );
 
+  // Map Routes to Markers
+  const markers = mapData.map((d) => ({
+    position: d.position,
+    label: d.name,
+  }));
+
   return (
     <Box sx={{ minHeight: 400, flexGrow: 3 }}>
-      <GoogleMapView warehouseLoc={mapData} />
+      <GoogleMapsProvider>
+        <MapWithMarker markers={markers} />
+      </GoogleMapsProvider>
     </Box>
   );
 };

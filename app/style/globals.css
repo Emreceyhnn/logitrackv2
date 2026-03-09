@@ -41,3 +41,7 @@ textarea,
 select {
   font: inherit;
 }
+
+.pac-container {
+  z-index: 9999 !important;
+}

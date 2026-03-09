@@ -3,13 +3,15 @@
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 
+export type DirectionPoint = string | { lat: number; lng: number };
+
 export const getDirections = authenticatedAction(
   async (
     user,
-    origin: string | { lat: number; lng: number },
-    destination: string | { lat: number; lng: number },
+    origin: DirectionPoint,
+    destination: DirectionPoint,
     waypoints: {
-      location: string | { lat: number; lng: number };
+      location: DirectionPoint;
       stopover: boolean;
     }[] = []
   ) => {

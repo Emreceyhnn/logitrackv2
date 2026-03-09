@@ -20,6 +20,7 @@ import RoutesTelemetryCards from "./telemetry";
 import CloseIcon from "@mui/icons-material/Close";
 import AltRouteIcon from "@mui/icons-material/AltRoute";
 import PlaceIcon from "@mui/icons-material/Place";
+import { useState } from "react";
 
 interface RouteDialogProps {
   open: boolean;
@@ -46,6 +47,13 @@ export default function RouteDialog({
   route,
 }: RouteDialogProps) {
   const theme = useTheme();
+
+  /* --------------------------------- states --------------------------------- */
+  const [data, setData] = useState(null);
+  const [liveMetrics, setLiveMetrics] = useState<{
+    distanceKm: number;
+    durationMin: number;
+  } | null>(null);
 
   if (!route) return null;
 
@@ -242,7 +250,8 @@ export default function RouteDialog({
                     DISTANCE
                   </Typography>
                   <Typography variant="h6" fontWeight={700} color="white">
-                    {(route as any).metrics?.totalDistanceKm ||
+                    {liveMetrics?.distanceKm ||
+                      (route as any).metrics?.totalDistanceKm ||
                       route.distanceKm ||
                       0}{" "}
                     km
@@ -294,6 +303,7 @@ export default function RouteDialog({
               <MapRoutesDialogCard
                 origin={mapOrigin}
                 destination={mapDestination}
+                onRouteInfoUpdate={setLiveMetrics}
                 vehicleLocation={
                   route.vehicle &&
                   route.vehicle.currentLat &&
@@ -318,7 +328,11 @@ export default function RouteDialog({
                 borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
               }}
             >
-              <RoutesTelemetryCards routeId={route.id} route={route} />
+              <RoutesTelemetryCards
+                routeId={route.id}
+                route={route}
+                liveDistanceKm={liveMetrics?.distanceKm}
+              />
             </Box>
           </Box>
         </Stack>

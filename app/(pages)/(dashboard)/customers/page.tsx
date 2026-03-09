@@ -12,7 +12,8 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import GoogleMapView from "@/app/components/map";
+import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
+import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import CustomerDetailDialog from "@/app/components/dialogs/customer/customerDetailDialog";
 import EditCustomerDialog from "@/app/components/dialogs/customer/editCustomerDialog";
 import AddCustomerDialog from "@/app/components/dialogs/customer/addCustomerDialog";
@@ -184,7 +185,9 @@ export default function CustomersPage() {
           minHeight: 400,
         }}
       >
-        <GoogleMapView warehouseLoc={mapLocations} zoom={7} />
+        <GoogleMapsProvider>
+          <MapWithMarker markers={mapLocations} zoom={7} />
+        </GoogleMapsProvider>
         {mapLocations.length === 0 && (
           <Box
             position="absolute"

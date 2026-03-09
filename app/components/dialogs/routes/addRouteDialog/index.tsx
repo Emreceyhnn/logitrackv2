@@ -35,6 +35,7 @@ import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { Warehouse } from "@prisma/client";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { getDirections } from "@/app/lib/controllers/map";
+import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import FirstRouteDialogStep from "./firstStep";
 import SecondRouteDialogStep from "./secondStep";
 import ThirdRouteDialogStep from "./thirdStep";
@@ -49,6 +50,8 @@ const initialStep2: AddRouteStep2 = {
   startType: "WAREHOUSE",
   startId: "",
   startAddress: "",
+  startLat: 0,
+  startLng: 0,
   endType: "CUSTOMER",
   endId: "",
   endAddress: "",
@@ -333,7 +336,9 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   StepIconProps={{
                     sx: {
                       "&.Mui-active": { color: theme.palette.primary.main },
-                      "&.Mui-completed": { color: theme.palette.primary.main },
+                      "&.Mui-completed": {
+                        color: theme.palette.primary.main,
+                      },
                     },
                   }}
                 >

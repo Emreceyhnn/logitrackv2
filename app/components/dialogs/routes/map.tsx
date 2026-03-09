@@ -1,6 +1,7 @@
-import GoogleMapView from "@/app/components/map";
+import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { Box, Typography } from "@mui/material";
 import { alpha } from "@mui/system";
+import { DirectionsMap } from "../../googleMaps/DirectionsMap";
 
 interface MapRoutesDialogCardProps {
   origin?: { lat: number; lng: number };
@@ -14,15 +15,10 @@ interface MapRoutesDialogCardProps {
     id: string;
   } | null;
   onMapClick?: (e: google.maps.MapMouseEvent) => void;
-}
-
-type MapPointType = "V" | "W" | "C";
-
-interface MapPoint {
-  position: { lat: number; lng: number };
-  name: string;
-  id: string;
-  type: MapPointType;
+  onRouteInfoUpdate?: (data: {
+    distanceKm: number;
+    durationMin: number;
+  }) => void;
 }
 
 const MapRoutesDialogCard = ({
@@ -31,66 +27,20 @@ const MapRoutesDialogCard = ({
   addrA,
   addrB,
   vehicleLocation,
-  onMapClick,
+  onRouteInfoUpdate,
 }: MapRoutesDialogCardProps) => {
-  const values: MapPoint[] = [];
-
-  // Add Origin (Warehouse style)
-  if (origin) {
-    values.push({
-      position: origin,
-      name: "Origin Point",
-      id: "origin",
-      type: "W",
-    });
-  }
-
-  // Add Destination (Customer style)
-  if (destination) {
-    values.push({
-      position: destination,
-      name: "Final Destination",
-      id: "dest",
-      type: "C",
-    });
-  }
-
-  // Add Vehicle Location if active
-  if (vehicleLocation) {
-    values.push({
-      position: { lat: vehicleLocation.lat, lng: vehicleLocation.lng },
-      name: `Vehicle: ${vehicleLocation.name}`,
-      id: vehicleLocation.id,
-      type: "V",
-    });
-  }
-
   const isRoute = !!((origin || addrA) && (destination || addrB));
-
-  // If vehicle is live, it's a waypoint on the route to show current progress path
-  const waypoints = vehicleLocation
-    ? [
-        {
-          location: { lat: vehicleLocation.lat, lng: vehicleLocation.lng },
-          stopover: true,
-        },
-      ]
-    : [];
 
   return (
     <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
-      <GoogleMapView
-        warehouseLoc={values}
-        isRoute={isRoute}
-        locA={origin}
-        locB={destination}
-        addrA={addrA}
-        addrB={addrB}
-        waypoints={waypoints}
-        onClick={onMapClick}
-      />
+      <GoogleMapsProvider>
+        <DirectionsMap
+          origin={origin}
+          destination={destination}
+          onRouteInfoUpdate={onRouteInfoUpdate}
+        />
+      </GoogleMapsProvider>
 
-      {/* Premium overlay for Map Label */}
       <Box
         sx={{
           position: "absolute",

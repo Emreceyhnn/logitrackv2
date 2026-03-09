@@ -19,7 +19,8 @@ import {
   Select,
 } from "@mui/material";
 import MapRoutesDialogCard from "./map";
-import AddressAutocomplete from "../../inputs/AddressAutocomplete";
+import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
+import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -189,165 +190,167 @@ const EditRouteDialog = (params: EditRouteDialogParams) => {
         },
       }}
     >
-      <Box
-        sx={{
-          p: 3,
-          background: `linear-gradient(135deg, ${alpha(
-            statusColor,
-            0.05
-          )} 0%, transparent 100%)`,
-          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
-        }}
-      >
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="flex-start"
+      <GoogleMapsProvider>
+        <Box
+          sx={{
+            p: 3,
+            background: `linear-gradient(135deg, ${alpha(
+              statusColor,
+              0.05
+            )} 0%, transparent 100%)`,
+            borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+          }}
         >
-          <Stack direction="row" spacing={3} alignItems="center">
-            <Avatar
-              variant="rounded"
-              sx={{
-                bgcolor: alpha(statusColor, 0.1),
-                color: statusColor,
-                width: 72,
-                height: 72,
-                fontSize: "2rem",
-                fontWeight: 800,
-                borderRadius: 2,
-              }}
-            >
-              <EditIcon fontSize="large" />
-            </Avatar>
-            <Stack spacing={0.5}>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Typography
-                  variant="h4"
-                  fontWeight={700}
-                  sx={{ color: "white" }}
-                >
-                  Edit Route
-                </Typography>
-              </Stack>
-              <Stack spacing={1}>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                >
-                  <PlaceIcon fontSize="small" sx={{ fontSize: "1rem" }} />
-                  Update route details and assignment
-                </Typography>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="flex-start"
+          >
+            <Stack direction="row" spacing={3} alignItems="center">
+              <Avatar
+                variant="rounded"
+                sx={{
+                  bgcolor: alpha(statusColor, 0.1),
+                  color: statusColor,
+                  width: 72,
+                  height: 72,
+                  fontSize: "2rem",
+                  fontWeight: 800,
+                  borderRadius: 2,
+                }}
+              >
+                <EditIcon fontSize="large" />
+              </Avatar>
+              <Stack spacing={0.5}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography
+                    variant="h4"
+                    fontWeight={700}
+                    sx={{ color: "white" }}
+                  >
+                    Edit Route
+                  </Typography>
+                </Stack>
+                <Stack spacing={1}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                  >
+                    <PlaceIcon fontSize="small" sx={{ fontSize: "1rem" }} />
+                    Update route details and assignment
+                  </Typography>
+                </Stack>
               </Stack>
             </Stack>
-          </Stack>
 
-          <Stack direction="row" spacing={1}>
-            <IconButton
-              onClick={onClose}
-              size="small"
-              sx={{
-                bgcolor: alpha(theme.palette.text.secondary, 0.1),
-                "&:hover": {
-                  bgcolor: alpha(theme.palette.text.secondary, 0.2),
-                },
-              }}
+            <Stack direction="row" spacing={1}>
+              <IconButton
+                onClick={onClose}
+                size="small"
+                sx={{
+                  bgcolor: alpha(theme.palette.text.secondary, 0.1),
+                  "&:hover": {
+                    bgcolor: alpha(theme.palette.text.secondary, 0.2),
+                  },
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Stack>
+          </Stack>
+        </Box>
+
+        <DialogContent sx={{ p: 0 }}>
+          <Stack p={2} spacing={2}>
+            <Stack direction="row" spacing={2}>
+              <TextField
+                label="Route Name"
+                fullWidth
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+              />
+              <TextField
+                label="Start Time"
+                type="datetime-local"
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                value={formData.startTime}
+                onChange={(e) =>
+                  setFormData({ ...formData, startTime: e.target.value })
+                }
+              />
+              <TextField
+                label="End Time"
+                type="datetime-local"
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                value={formData.endTime}
+                onChange={(e) =>
+                  setFormData({ ...formData, endTime: e.target.value })
+                }
+              />
+            </Stack>
+
+            {/* 
+              Origin/Dest editing disabled for now as resolving types 
+              from flat address strings is complex without ID persistence 
+           */}
+            <Typography variant="caption" color="text.secondary">
+              * Origin and Destination cannot be changed in this view. Please
+              recreate the route if location changes are needed.
+            </Typography>
+
+            <Stack direction="row" spacing={2}>
+              <FormControl fullWidth>
+                <InputLabel>Driver</InputLabel>
+                <Select
+                  value={formData.driverId}
+                  label="Driver"
+                  onChange={(e) =>
+                    setFormData({ ...formData, driverId: e.target.value })
+                  }
+                >
+                  {drivers.map((d) => (
+                    <MenuItem key={d.id} value={d.id}>
+                      {d.user?.name} {d.user?.surname}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel>Vehicle</InputLabel>
+                <Select
+                  value={formData.vehicleId}
+                  label="Vehicle"
+                  onChange={(e) =>
+                    setFormData({ ...formData, vehicleId: e.target.value })
+                  }
+                >
+                  {vehicles.map((v) => (
+                    <MenuItem key={v.id} value={v.id}>
+                      {v.plate} ({v.model})
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+
+            <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
+
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={handleUpdate}
+              disabled={!formData.name || !formData.startTime}
             >
-              <CloseIcon fontSize="small" />
-            </IconButton>
+              Save Changes
+            </Button>
           </Stack>
-        </Stack>
-      </Box>
-
-      <DialogContent sx={{ p: 0 }}>
-        <Stack p={2} spacing={2}>
-          <Stack direction="row" spacing={2}>
-            <TextField
-              label="Route Name"
-              fullWidth
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-            />
-            <TextField
-              label="Start Time"
-              type="datetime-local"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              value={formData.startTime}
-              onChange={(e) =>
-                setFormData({ ...formData, startTime: e.target.value })
-              }
-            />
-            <TextField
-              label="End Time"
-              type="datetime-local"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              value={formData.endTime}
-              onChange={(e) =>
-                setFormData({ ...formData, endTime: e.target.value })
-              }
-            />
-          </Stack>
-
-          {/* 
-            Origin/Dest editing disabled for now as resolving types 
-            from flat address strings is complex without ID persistence 
-         */}
-          <Typography variant="caption" color="text.secondary">
-            * Origin and Destination cannot be changed in this view. Please
-            recreate the route if location changes are needed.
-          </Typography>
-
-          <Stack direction="row" spacing={2}>
-            <FormControl fullWidth>
-              <InputLabel>Driver</InputLabel>
-              <Select
-                value={formData.driverId}
-                label="Driver"
-                onChange={(e) =>
-                  setFormData({ ...formData, driverId: e.target.value })
-                }
-              >
-                {drivers.map((d) => (
-                  <MenuItem key={d.id} value={d.id}>
-                    {d.user?.name} {d.user?.surname}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel>Vehicle</InputLabel>
-              <Select
-                value={formData.vehicleId}
-                label="Vehicle"
-                onChange={(e) =>
-                  setFormData({ ...formData, vehicleId: e.target.value })
-                }
-              >
-                {vehicles.map((v) => (
-                  <MenuItem key={v.id} value={v.id}>
-                    {v.plate} ({v.model})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Stack>
-
-          <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
-
-          <Button
-            variant="contained"
-            color="warning"
-            onClick={handleUpdate}
-            disabled={!formData.name || !formData.startTime}
-          >
-            Save Changes
-          </Button>
-        </Stack>
-      </DialogContent>
+        </DialogContent>
+      </GoogleMapsProvider>
     </Dialog>
   );
 };
