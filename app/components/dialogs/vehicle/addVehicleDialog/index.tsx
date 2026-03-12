@@ -23,6 +23,8 @@ import TechSpecsStep from "./techSpecsStep";
 import DocumentsStep from "./documentsStep";
 import {
   AddVehiclePageProps,
+  AddVehiclePageState,
+  AddVehiclePageActions,
   VehicleStep1Data,
   VehicleStep2Data,
   VehicleStep3Data,
@@ -172,7 +174,7 @@ const AddVehicleDialog = ({
   return (
     <Dialog
       open={open}
-      onClose={closeDialog}
+      onClose={actions.closeDialog}
       maxWidth="md"
       fullWidth
       PaperProps={{

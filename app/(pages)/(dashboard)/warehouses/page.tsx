@@ -11,12 +11,18 @@ import {
   getRecentStockMovements,
   getWarehouses,
   getWarehouseStats,
+  deleteWarehouse,
 } from "@/app/lib/controllers/warehouse";
+import { toast } from "sonner";
 import {
   WarehousePageActions,
   WarehousePageState,
+  WarehouseWithRelations,
+  InventoryMovementWithRelations,
 } from "@/app/lib/type/warehouse";
 import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseDialog";
+import WarehouseDetailsDialog from "@/app/components/dialogs/warehouse/warehouseDetailsDialog";
+import EditWarehouseDialog from "@/app/components/dialogs/warehouse/editWarehouseDialog";
 
 export default function WarehousePage() {
   /* --------------------------------- states --------------------------------- */
@@ -29,10 +35,13 @@ export default function WarehousePage() {
     error: null,
   });
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [warehouseToEditId, setWarehouseToEditId] = useState<string | null>(null);
 
   /* --------------------------------- actions -------------------------------- */
-  const fetchAllData = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true }));
+  const fetchAllData = useCallback(async (isInitial = false) => {
+    if (isInitial) setState((prev) => ({ ...prev, loading: true }));
     try {
       const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
       const USER_ID = "usr_001";
@@ -45,9 +54,9 @@ export default function WarehousePage() {
 
       setState((prev) => ({
         ...prev,
-        warehouses: warehousesData as any,
+        warehouses: warehousesData as WarehouseWithRelations[],
         stats: statsData,
-        recentMovements: movementsData as any,
+        recentMovements: movementsData as InventoryMovementWithRelations[],
         loading: false,
         error: null,
       }));
@@ -67,16 +76,39 @@ export default function WarehousePage() {
     fetchStats: async () => {},
     fetchRecentMovements: async () => {},
     refreshAll: async () => {
-      await fetchAllData();
+      await fetchAllData(false);
     },
     selectWarehouse: (id: string | null) => {
       setState((prev) => ({ ...prev, selectedWarehouseId: id }));
+      if (id) {
+        setDetailsDialogOpen(true);
+      }
+    },
+    editWarehouse: (id: string) => {
+      setWarehouseToEditId(id);
+      setEditDialogOpen(true);
+    },
+    deleteWarehouse: async (id: string) => {
+      if (!window.confirm("Are you sure you want to delete this warehouse? This action cannot be undone.")) return;
+      try {
+        await deleteWarehouse(id);
+        toast.success("Warehouse deleted successfully");
+        actions.refreshAll();
+      } catch (error) {
+        toast.error("Failed to delete warehouse");
+        console.error(error);
+      }
     },
   };
 
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
-    fetchAllData();
+    let mounted = true;
+    const loadInit = async () => {
+      if (mounted) await fetchAllData(true);
+    };
+    loadInit();
+    return () => { mounted = false; };
   }, [fetchAllData]);
 
   return (
@@ -116,6 +148,9 @@ export default function WarehousePage() {
           warehouses={state.warehouses}
           loading={state.loading}
           onSelect={actions.selectWarehouse}
+          onEdit={actions.editWarehouse}
+          onDelete={actions.deleteWarehouse}
+          onDetails={actions.selectWarehouse}
         />
       </Box>
 
@@ -134,6 +169,38 @@ export default function WarehousePage() {
         open={addDialogOpen}
         onClose={() => setAddDialogOpen(false)}
         onSuccess={actions.refreshAll}
+      />
+
+      <WarehouseDetailsDialog
+        open={detailsDialogOpen}
+        onClose={() => {
+          setDetailsDialogOpen(false);
+          actions.selectWarehouse(null);
+        }}
+        onEditSuccess={actions.refreshAll}
+        warehouseData={
+          state.warehouses.find(
+            (w) => w.id === state.selectedWarehouseId
+          ) || undefined
+        }
+      />
+
+      <EditWarehouseDialog
+        open={editDialogOpen}
+        onClose={() => {
+          setEditDialogOpen(false);
+          setWarehouseToEditId(null);
+        }}
+        onSuccess={() => {
+          setEditDialogOpen(false);
+          setWarehouseToEditId(null);
+          actions.refreshAll();
+        }}
+        warehouseData={
+          state.warehouses.find(
+            (w) => w.id === warehouseToEditId
+          ) || undefined
+        }
       />
     </Box>
   );

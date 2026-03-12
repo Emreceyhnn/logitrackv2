@@ -11,15 +11,68 @@ import {
   TableRow,
   Typography,
   useTheme,
+  IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { useState } from "react";
 import CustomCard from "../../cards/card";
 import {
   WarehouseTableProps,
   WarehouseWithRelations,
 } from "@/app/lib/type/warehouse";
 
-const WarehouseListTable = ({ warehouses, loading }: WarehouseTableProps) => {
+const WarehouseListTable = ({
+  warehouses,
+  loading,
+  onSelect,
+  onEdit,
+  onDelete,
+  onDetails,
+}: WarehouseTableProps) => {
   const theme = useTheme();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [menuRowId, setMenuRowId] = useState<string | null>(null);
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, id: string) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+    setMenuRowId(id);
+  };
+
+  const handleMenuClose = (event?: React.MouseEvent) => {
+    event?.stopPropagation();
+    setAnchorEl(null);
+    setMenuRowId(null);
+  };
+
+  const handleEditClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (onEdit && menuRowId) {
+      onEdit(menuRowId);
+    }
+    handleMenuClose();
+  };
+
+  const handleDetailsClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (onDetails && menuRowId) {
+      onDetails(menuRowId);
+    }
+    handleMenuClose();
+  };
+
+  const handleDeleteClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (onDelete && menuRowId) {
+      onDelete(menuRowId);
+    }
+    handleMenuClose();
+  };
 
   if (loading)
     return <Typography sx={{ p: 3 }}>Loading warehouses...</Typography>;
@@ -90,6 +143,17 @@ const WarehouseListTable = ({ warehouses, loading }: WarehouseTableProps) => {
               >
                 OPERATING HOURS
               </TableCell>
+              <TableCell
+                sx={{
+                  color: "text.secondary",
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                  textAlign: "right",
+                  width: 60,
+                }}
+              >
+                ACTIONS
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -110,7 +174,12 @@ const WarehouseListTable = ({ warehouses, loading }: WarehouseTableProps) => {
               return (
                 <TableRow
                   key={warehouse.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  hover
+                  onClick={() => onSelect(warehouse.id)}
+                  sx={{ 
+                    cursor: "pointer",
+                    "&:last-child td, &:last-child th": { border: 0 } 
+                  }}
                 >
                   <TableCell sx={{ fontWeight: 600 }}>
                     {warehouse.code}
@@ -178,12 +247,20 @@ const WarehouseListTable = ({ warehouses, loading }: WarehouseTableProps) => {
                       ? (operatingHours as any).monFri
                       : operatingHours}
                   </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => handleMenuClick(e, warehouse.id)}
+                    >
+                      <MoreVertIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               );
             })}
             {warehouses.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 3 }}>
+                <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
                   No warehouses found.
                 </TableCell>
               </TableRow>
@@ -191,6 +268,31 @@ const WarehouseListTable = ({ warehouses, loading }: WarehouseTableProps) => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => handleMenuClose()}
+        PaperProps={{
+          elevation: 3,
+          sx: { minWidth: 150, borderRadius: 2, mt: 1 },
+        }}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      >
+        <MenuItem onClick={handleEditClick}>
+          <EditIcon fontSize="small" sx={{ mr: 1.5, color: "text.secondary" }} />
+          <Typography variant="body2">Edit Warehouse</Typography>
+        </MenuItem>
+        <MenuItem onClick={handleDetailsClick}>
+          <VisibilityIcon fontSize="small" sx={{ mr: 1.5, color: "text.secondary" }} />
+          <Typography variant="body2">View Details</Typography>
+        </MenuItem>
+        <MenuItem onClick={handleDeleteClick} sx={{ color: "error.main" }}>
+          <DeleteIcon fontSize="small" sx={{ mr: 1.5, color: "inherit" }} />
+          <Typography variant="body2">Delete Warehouse</Typography>
+        </MenuItem>
+      </Menu>
     </CustomCard>
   );
 };

@@ -66,6 +66,8 @@ export interface WarehousePageActions {
   fetchRecentMovements: () => Promise<void>;
   refreshAll: () => Promise<void>;
   selectWarehouse: (id: string | null) => void;
+  editWarehouse: (id: string) => void;
+  deleteWarehouse: (id: string) => Promise<void>;
 }
 
 // Component Props
@@ -77,5 +79,8 @@ export interface WarehouseKpiCardProps {
 export interface WarehouseTableProps {
   warehouses: WarehouseWithRelations[];
   loading: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (id: string | null) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  onDetails?: (id: string) => void;
 }
