@@ -12,7 +12,6 @@ import CustomTextArea from "@/app/components/inputs/customTextArea";
 import BadgeIcon from "@mui/icons-material/Badge";
 import CategoryIcon from "@mui/icons-material/Category";
 import EventIcon from "@mui/icons-material/Event";
-import PublicIcon from "@mui/icons-material/Public";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
@@ -59,11 +58,11 @@ const FirstEditDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                Employee ID
+                Employee ID (Optional)
               </Typography>
               <CustomTextArea
                 name="employeeId"
-                placeholder="e.g. EMP-1234"
+                placeholder="Leave blank to auto-generate (e.g. EMP-1234)"
                 value={state.employeeId}
                 onChange={(e) =>
                   actions.updateStep1({ employeeId: e.target.value })
@@ -141,7 +140,7 @@ const FirstEditDriverDialogStep = ({
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 12 }}>
             <Stack spacing={1.5}>
               <Typography
                 variant="body2"
@@ -172,27 +171,7 @@ const FirstEditDriverDialogStep = ({
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Stack spacing={1.5}>
-              <Typography
-                variant="body2"
-                fontWeight={500}
-                color="text.secondary"
-              >
-                Issuing State/Region
-              </Typography>
-              <CustomTextArea
-                name="licenseRegion"
-                placeholder="e.g. California"
-                value={state.licenseRegion}
-                onChange={(e) =>
-                  actions.updateStep1({ licenseRegion: e.target.value })
-                }
-              >
-                <PublicIcon fontSize="small" />
-              </CustomTextArea>
-            </Stack>
-          </Grid>
+
         </Grid>
 
         <Stack spacing={1.5}>

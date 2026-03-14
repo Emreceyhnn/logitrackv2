@@ -76,7 +76,6 @@ const AddInventoryDialog = ({
         itemDetails.sku,
         itemDetails.name,
         storageLevels.initialQuantity,
-        user.id,
         storageLevels.minStockLevel,
         itemDetails.weightKg || 0,
         itemDetails.volumeM3 || 0,
@@ -266,8 +265,7 @@ const AddInventoryDialog = ({
           disabled={
             isLoading ||
             (currentStep === 1 &&
-              (!itemDetails.sku ||
-                !itemDetails.name ||
+              (!itemDetails.name ||
                 !itemDetails.category)) ||
             (currentStep === 2 && !storageLevels.warehouseId)
           }

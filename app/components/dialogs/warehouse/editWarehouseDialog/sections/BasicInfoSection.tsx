@@ -69,11 +69,11 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                WAREHOUSE CODE *
+                WAREHOUSE CODE (OPTIONAL)
               </Typography>
               <CustomTextArea
                 name="code"
-                placeholder="WH-NE-01"
+                placeholder="e.g. WH-001 (Leave blank to auto-generate)"
                 value={state.code}
                 onChange={(e) =>
                   actions.updateBasicInfo({ code: e.target.value })

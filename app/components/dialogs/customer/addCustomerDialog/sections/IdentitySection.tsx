@@ -60,11 +60,11 @@ const IdentitySection = ({ state, updateIdentity }: IdentitySectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                CUSTOMER CODE *
+                CUSTOMER CODE (OPTIONAL)
               </Typography>
               <CustomTextArea
                 name="code"
-                placeholder="e.g. CUST-001"
+                placeholder="e.g. CUST-001 (Leave blank to auto-generate)"
                 value={state.code}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   updateIdentity({ code: e.target.value })

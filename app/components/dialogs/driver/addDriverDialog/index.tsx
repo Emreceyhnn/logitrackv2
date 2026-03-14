@@ -37,8 +37,6 @@ const initialStep1: AddDriverStep1 = {
   licenseNo: "",
   licenseExpiry: null,
   licenseType: "",
-  licenseIssueDate: null,
-  licenseRegion: "",
   licencePhoto: null,
 };
 
@@ -290,7 +288,7 @@ const AddDriverDialog = ({
           disabled={
             isLoading ||
             (currentStep === 1 &&
-              (!step1.userId || !step1.employeeId || !step1.phone))
+              (!step1.userId || !step1.phone))
           }
           startIcon={
             isLoading && <CircularProgress size={16} color="inherit" />

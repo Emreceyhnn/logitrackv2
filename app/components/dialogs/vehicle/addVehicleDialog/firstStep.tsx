@@ -148,8 +148,8 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
         <Stack direction="row" spacing={2}>
           <TextField
             fullWidth
-            label="Fleet Number"
-            placeholder="e.g. V-001"
+            label="Fleet Number (Optional)"
+            placeholder="e.g. V-001 (Leave blank to auto-generate)"
             value={data.fleetNo}
             onChange={(e) => actions.updateStep1({ fleetNo: e.target.value })}
             sx={textFieldSx}

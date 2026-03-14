@@ -265,7 +265,8 @@ const EditRouteDialog = (params: EditRouteDialogParams) => {
           <Stack p={2} spacing={2}>
             <Stack direction="row" spacing={2}>
               <TextField
-                label="Route Name"
+                label="Route Name (Optional)"
+                placeholder="Leave blank to auto-generate"
                 fullWidth
                 value={formData.name}
                 onChange={(e) =>
@@ -344,7 +345,7 @@ const EditRouteDialog = (params: EditRouteDialogParams) => {
               variant="contained"
               color="warning"
               onClick={handleUpdate}
-              disabled={!formData.name || !formData.startTime}
+              disabled={!formData.startTime}
             >
               Save Changes
             </Button>

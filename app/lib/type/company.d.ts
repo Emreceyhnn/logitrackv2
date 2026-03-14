@@ -41,6 +41,7 @@ export interface CompanyPageState {
 export interface CompanyPageActions {
   fetchData: () => Promise<void>;
   refreshAll: () => Promise<void>;
+  deleteMember: (memberId: string) => Promise<void>;
 }
 
 export interface CompanyPageProps {

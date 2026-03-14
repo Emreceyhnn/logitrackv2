@@ -38,11 +38,15 @@ export const createRoute = authenticatedAction(
         "role_dispatcher",
       ]);
 
+      const finalName = name && name.trim() !== "" 
+        ? name 
+        : `ROUTE-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
       const existingRoute = await db.route.findFirst({
-        where: { name, companyId: user.companyId },
+        where: { name: finalName, companyId: user.companyId },
       });
 
-      if (existingRoute) {
+      if (existingRoute && name && name.trim() !== "") {
         throw new Error("Route name already exists");
       }
 
@@ -60,11 +64,15 @@ export const createRoute = authenticatedAction(
           startLng = warehouse.lng || undefined;
         }
       } else if (origin?.type === "CUSTOMER" && origin.id) {
-        const customer = await db.customer.findUnique({
+        const customer = (await db.customer.findUnique({
           where: { id: origin.id },
-        });
-        if (customer) {
-          startAddress = customer.address || undefined;
+          include: { locations: true } as any
+        })) as any;
+        if (customer && customer.locations.length > 0) {
+          const defaultLoc = customer.locations.find((l: any) => l.isDefault) || customer.locations[0];
+          startAddress = defaultLoc.address || undefined;
+          startLat = defaultLoc.lat || undefined;
+          startLng = defaultLoc.lng || undefined;
         }
       }
 
@@ -82,17 +90,21 @@ export const createRoute = authenticatedAction(
           endLng = warehouse.lng || undefined;
         }
       } else if (destination?.type === "CUSTOMER" && destination.id) {
-        const customer = await db.customer.findUnique({
+        const customer = (await db.customer.findUnique({
           where: { id: destination.id },
-        });
-        if (customer) {
-          endAddress = customer.address || undefined;
+          include: { locations: true } as any
+        })) as any;
+        if (customer && customer.locations.length > 0) {
+          const defaultLoc = customer.locations.find((l: any) => l.isDefault) || customer.locations[0];
+          endAddress = defaultLoc.address || undefined;
+          endLat = defaultLoc.lat || undefined;
+          endLng = defaultLoc.lng || undefined;
         }
       }
 
       const newRoute = await db.route.create({
         data: {
-          name,
+          name: finalName,
           date,
           startTime,
           endTime,
@@ -253,11 +265,14 @@ export const updateRoute = authenticatedAction(
         throw new Error("Route not found or unauthorized");
       }
 
+      const updateData = { ...data };
+      if (updateData.name === "") {
+        updateData.name = `ROUTE-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      }
+
       const updatedRoute = await db.route.update({
         where: { id: routeId },
-        data: {
-          ...data,
-        },
+        data: updateData,
       });
 
       return updatedRoute;

@@ -339,7 +339,7 @@ const CustomerDetailDialog = ({
                     </Paper>
                   </Box>
 
-                  {/* Billing Address */}
+                  {/* Address Details (Locations) */}
                   <Box>
                     <Typography
                       variant="overline"
@@ -349,43 +349,71 @@ const CustomerDetailDialog = ({
                       display="block"
                       mb={2}
                     >
-                      Address Details
+                      Registered Locations
                     </Typography>
-                    <Stack spacing={1}>
-                      <Stack
-                        direction="row"
-                        spacing={1.5}
-                        alignItems="flex-start"
-                      >
-                        <LocationOnIcon
-                          color="action"
-                          fontSize="small"
-                          sx={{ mt: 0.2 }}
-                        />
-                        <Box>
-                          <Typography variant="body2" fontWeight={500}>
-                            {customer.address || "No address provided"}
-                          </Typography>
-                        </Box>
-                      </Stack>
-                      <Stack
-                        direction="row"
-                        spacing={1.5}
-                        alignItems="center"
-                        sx={{ pt: 1 }}
-                      >
-                        <AssignmentIcon color="action" fontSize="small" />
-                        <Typography
-                          variant="caption"
-                          fontWeight={600}
-                          color="text.secondary"
-                        >
-                          TAX ID:{" "}
-                          <Box component="span" color="white">
-                            {customer.taxId || "N/A"}
-                          </Box>
+                    <Stack spacing={2}>
+                      {customer.locations && customer.locations.length > 0 ? (
+                        customer.locations.map((loc, idx) => (
+                          <Stack
+                            key={loc.id || idx}
+                            direction="row"
+                            spacing={1.5}
+                            alignItems="flex-start"
+                            sx={{
+                              p: 1.5,
+                              borderRadius: 2,
+                              bgcolor: alpha(theme.palette.background.paper, 0.02),
+                              border: `1px solid ${alpha(theme.palette.divider, 0.05)}`
+                            }}
+                          >
+                            <LocationOnIcon
+                              color={loc.isDefault ? "primary" : "action"}
+                              fontSize="small"
+                              sx={{ mt: 0.2 }}
+                            />
+                            <Box>
+                              <Stack direction="row" spacing={1} alignItems="center">
+                                <Typography variant="caption" fontWeight={600} color="text.secondary">
+                                  {loc.name}
+                                </Typography>
+                                {loc.isDefault && (
+                                  <Chip
+                                    label="Primary"
+                                    size="small"
+                                    sx={{ height: 16, fontSize: '0.6rem', bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main }}
+                                  />
+                                )}
+                              </Stack>
+                              <Typography variant="body2" fontWeight={500} mt={0.5}>
+                                {loc.address || "No address provided"}
+                              </Typography>
+                            </Box>
+                          </Stack>
+                        ))
+                      ) : (
+                        <Typography variant="body2" color="text.secondary" fontStyle="italic">
+                          No locations recorded
                         </Typography>
-                      </Stack>
+                      )}
+                    </Stack>
+                    
+                    <Stack
+                      direction="row"
+                      spacing={1.5}
+                      alignItems="center"
+                      sx={{ pt: 3 }}
+                    >
+                      <AssignmentIcon color="action" fontSize="small" />
+                      <Typography
+                        variant="caption"
+                        fontWeight={600}
+                        color="text.secondary"
+                      >
+                        TAX ID:{" "}
+                        <Box component="span" color="white">
+                          {customer.taxId || "N/A"}
+                        </Box>
+                      </Typography>
                     </Stack>
                   </Box>
                 </Stack>

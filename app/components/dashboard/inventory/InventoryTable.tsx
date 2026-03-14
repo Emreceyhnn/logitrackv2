@@ -23,6 +23,8 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import InfoIcon from "@mui/icons-material/Info";
+import { Menu, MenuItem, ListItemIcon, ListItemText, alpha, useTheme } from "@mui/material";
 import InventoryIcon from "@mui/icons-material/Inventory";
 
 import { StatusChip } from "@/app/components/chips/statusChips";
@@ -54,6 +56,29 @@ const InventoryTable = ({
   const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const theme = useTheme();
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedItem, setSelectedItem] = useState<InventoryWithRelations | null>(null);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, item: InventoryWithRelations) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+    setSelectedItem(item);
+  };
+
+  const handleMenuClose = (event?: React.MouseEvent) => {
+    if (event) event.stopPropagation();
+    setAnchorEl(null);
+  };
+
+  const handleAction = (action: "details" | "edit" | "delete") => {
+    if (!selectedItem) return;
+    if (action === "details") onSelect(selectedItem.id);
+    if (action === "edit") onEdit?.(selectedItem);
+    if (action === "delete") onDelete?.(selectedItem.id);
+    handleMenuClose();
+  };
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -284,21 +309,9 @@ const InventoryTable = ({
                     <TableCell align="right">
                       <IconButton
                         size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEdit?.(row);
-                        }}
+                        onClick={(e) => handleMenuOpen(e, row)}
                       >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDelete?.(row.id);
-                        }}
-                      >
-                        <DeleteIcon fontSize="small" />
+                        <MoreVertIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
                   </TableRow>
@@ -308,6 +321,37 @@ const InventoryTable = ({
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Action Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => handleMenuClose()}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        PaperProps={{
+          sx: {
+            minWidth: 150,
+            borderRadius: 2,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            bgcolor: "#0B0F19",
+          },
+        }}
+      >
+        <MenuItem onClick={() => handleAction("details")}>
+          <ListItemIcon><InfoIcon fontSize="small" color="info" /></ListItemIcon>
+          <ListItemText primary="Details" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
+        </MenuItem>
+        <MenuItem onClick={() => handleAction("edit")}>
+          <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
+          <ListItemText primary="Edit" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
+        </MenuItem>
+        <MenuItem onClick={() => handleAction("delete")} sx={{ color: "error.main" }}>
+          <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
+          <ListItemText primary="Delete" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
+        </MenuItem>
+      </Menu>
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"

@@ -18,11 +18,27 @@ export interface LowStockItem extends Inventory {
   };
 }
 
+export interface InventoryMovement {
+  id: string;
+  sku: string;
+  quantity: number;
+  type: string;
+  date: Date;
+  user?: {
+    name: string;
+    surname: string;
+  };
+}
+
 // Page State
 export interface InventoryPageState {
   inventory: InventoryWithRelations[];
   lowStockItems: LowStockItem[];
   selectedItemId: string | null;
+  selectedItem: InventoryWithRelations | null;
+  recentMovements: InventoryMovement[]; // New field
+  isDetailsOpen: boolean;
+  isEditOpen: boolean;
   filters: {
     warehouseId?: string;
     search?: string;
@@ -36,7 +52,11 @@ export interface InventoryPageActions {
   fetchInventory: (warehouseId?: string) => Promise<void>;
   fetchLowStock: () => Promise<void>;
   refreshAll: () => Promise<void>;
-  selectItem: (id: string | null) => void;
+  openDetails: (id: string) => void;
+  closeDetails: () => void;
+  openEdit: (id: string) => void;
+  closeEdit: () => void;
+  updateItem: (id: string, data: Partial<Inventory>) => Promise<void>;
   updateFilters: (filters: Partial<InventoryPageState["filters"]>) => void;
 }
 
@@ -44,5 +64,20 @@ export interface InventoryPageActions {
 export interface InventoryTableProps {
   items: InventoryWithRelations[];
   loading: boolean;
-  onSelect: (id: string) => void;
+  onView: (id: string) => void;
+  onEdit: (id: string) => void;
+}
+
+export interface InventoryDetailsProps {
+  isOpen: boolean;
+  onClose: () => void;
+  item: InventoryWithRelations | null;
+  onEdit: (id: string) => void;
+}
+
+export interface InventoryEditProps {
+  isOpen: boolean;
+  onClose: () => void;
+  item: InventoryWithRelations | null;
+  onUpdate: (id: string, data: Partial<Inventory>) => Promise<void>;
 }

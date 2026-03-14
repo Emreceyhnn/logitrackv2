@@ -54,11 +54,11 @@ const ItemDetailsSection = ({
               color="text.secondary"
               fontWeight={600}
             >
-              SKU (Stock Keeping Unit) *
+              SKU (Stock Keeping Unit)
             </Typography>
             <CustomTextArea
               name="sku"
-              placeholder="e.g. PJ-2024-X100"
+              placeholder="e.g. PJ-2024-X100 (Leave blank to auto-generate)"
               value={state.sku}
               onChange={(e) => updateItemDetails({ sku: e.target.value })}
             />

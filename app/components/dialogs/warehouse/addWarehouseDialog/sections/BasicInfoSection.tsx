@@ -70,11 +70,11 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                WAREHOUSE CODE *
+                WAREHOUSE CODE
               </Typography>
               <CustomTextArea
                 name="code"
-                placeholder="WH-NE-01"
+                placeholder="e.g. WH-001 (Leave blank to auto-generate)"
                 value={state.code}
                 onChange={(e) =>
                   actions.updateBasicInfo({ code: e.target.value })
@@ -166,7 +166,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                   <CustomTextArea
                     name="openingTime"
                     type="time"
-                    value={state.openingTime}
+                    value={state.openingTime || ""}
                     onChange={(e) =>
                       actions.updateBasicInfo({ openingTime: e.target.value })
                     }
@@ -185,7 +185,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                   <CustomTextArea
                     name="closingTime"
                     type="time"
-                    value={state.closingTime}
+                    value={state.closingTime || ""}
                     onChange={(e) =>
                       actions.updateBasicInfo({ closingTime: e.target.value })
                     }

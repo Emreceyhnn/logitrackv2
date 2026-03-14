@@ -127,10 +127,24 @@ export default function CustomersPage() {
     );
   }, [state.customers, state.filters.search]);
 
-  // Derived locations for map (Mocking coordinates for now as DB doesn't have lat/lng yet)
-  const mapLocations = useMemo(() => {
-    return [];
-  }, []);
+  // Extract valid locations for all customers
+  const mapLocations = useMemo<any[]>(() => {
+    return filteredCustomers.flatMap((c) => {
+      if (!c.locations) return [];
+      
+      return c.locations
+        .filter((loc) => loc.lat && loc.lng)
+        .map((loc) => ({
+          position: {
+            lat: loc.lat as number,
+            lng: loc.lng as number,
+          },
+          label: c.name.charAt(0).toUpperCase(),
+          title: `${c.name} - ${loc.name}`,
+          description: loc.address,
+        }));
+    });
+  }, [filteredCustomers]);
 
   /* --------------------------------- render --------------------------------- */
   return (
@@ -171,7 +185,9 @@ export default function CustomersPage() {
           <CustomerList
             customers={filteredCustomers}
             selectedId={state.selectedCustomerId}
-            onSelect={actions.selectCustomer} // Just selection
+            onSelect={actions.selectCustomer}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         </Box>
       </Stack>
@@ -186,7 +202,11 @@ export default function CustomersPage() {
         }}
       >
         <GoogleMapsProvider>
-          <MapWithMarker markers={mapLocations} zoom={7} />
+          <MapWithMarker 
+            center={{ lat: 39.9334, lng: 32.8597 }} // Turkey Central
+            markers={mapLocations as any} 
+            zoom={6} 
+          />
         </GoogleMapsProvider>
         {mapLocations.length === 0 && (
           <Box

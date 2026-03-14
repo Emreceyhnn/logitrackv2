@@ -13,7 +13,6 @@ import UserIcon from "@mui/icons-material/Person";
 import BadgeIcon from "@mui/icons-material/Badge";
 import CategoryIcon from "@mui/icons-material/Category";
 import EventIcon from "@mui/icons-material/Event";
-import PublicIcon from "@mui/icons-material/Public";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
@@ -185,7 +184,7 @@ const FirstDriverDialogStep = ({
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 12 }}>
             <Stack spacing={1.5}>
               <Typography
                 variant="body2"
@@ -216,25 +215,7 @@ const FirstDriverDialogStep = ({
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Stack spacing={1.5}>
-              <Typography
-                variant="body2"
-                fontWeight={500}
-                color="text.secondary"
-              >
-                Issuing State/Region
-              </Typography>
-              <CustomTextArea
-                name="licenseRegion"
-                placeholder="e.g. California"
-                value={state.licenseRegion}
-                onChange={(e) => updateStep1({ licenseRegion: e.target.value })}
-              >
-                <PublicIcon fontSize="small" />
-              </CustomTextArea>
-            </Stack>
-          </Grid>
+
         </Grid>
 
         <Stack spacing={1.5}>

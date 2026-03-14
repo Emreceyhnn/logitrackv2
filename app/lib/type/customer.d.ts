@@ -1,11 +1,12 @@
 import { Customer, Shipment } from "@prisma/client";
 
 // Domain Models
-export interface CustomerWithRelations extends Customer {
+export interface CustomerWithRelations extends Omit<Customer, 'address' | 'lat' | 'lng'> {
   _count?: {
     shipments: number;
   };
   shipments?: Shipment[];
+  locations?: import("@prisma/client").CustomerLocation[];
 }
 
 // Page State
@@ -32,4 +33,5 @@ export interface CustomerListProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onEdit?: (customer: CustomerWithRelations) => void;
+  onDelete?: (customer: CustomerWithRelations) => void;
 }

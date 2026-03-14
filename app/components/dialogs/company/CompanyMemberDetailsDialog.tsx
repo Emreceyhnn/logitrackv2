@@ -1,0 +1,182 @@
+"use client";
+
+import React from "react";
+import {
+  Dialog,
+  DialogContent,
+  IconButton,
+  Stack,
+  Typography,
+  Box,
+  Avatar,
+  Chip,
+  Divider,
+  Grid,
+  alpha,
+  useTheme,
+  Button,
+} from "@mui/material";
+import {
+  Close as CloseIcon,
+  Email as EmailIcon,
+  Shield as ShieldIcon,
+  Event as EventIcon,
+  Phone as PhoneIcon,
+  LocationOn as LocationIcon,
+} from "@mui/icons-material";
+import { CompanyMember } from "@/app/lib/type/company";
+
+interface CompanyMemberDetailsDialogProps {
+  open: boolean;
+  onClose: () => void;
+  member: CompanyMember | null;
+}
+
+export default function CompanyMemberDetailsDialog({
+  open,
+  onClose,
+  member,
+}: CompanyMemberDetailsDialogProps) {
+  const theme = useTheme();
+
+  if (!member) return null;
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          bgcolor: "#0B0F19",
+          backgroundImage: "none",
+          borderRadius: 4,
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          overflow: "hidden",
+        },
+      }}
+    >
+      <Box sx={{ p: 3, pb: 0 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+          <Stack direction="row" spacing={3} alignItems="center">
+            <Avatar
+              src={member.avatarUrl || undefined}
+              sx={{
+                width: 80,
+                height: 80,
+                fontSize: "2rem",
+                fontWeight: 700,
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
+                borderRadius: 3,
+              }}
+            >
+              {!member.avatarUrl && `${member.name[0]}${member.surname[0]}`}
+            </Avatar>
+            <Stack spacing={0.5}>
+              <Typography variant="h5" fontWeight={800} color="white">
+                {member.name} {member.surname}
+              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Chip
+                  label={member.roleName || "No Role"}
+                  size="small"
+                  sx={{
+                    bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                    color: theme.palette.secondary.light,
+                    fontWeight: 700,
+                    fontSize: "0.7rem",
+                    border: `1px solid ${alpha(theme.palette.secondary.main, 0.2)}`,
+                  }}
+                />
+                <Chip
+                  label={member.status}
+                  size="small"
+                  color={member.status === "ACTIVE" ? "success" : "warning"}
+                  variant="outlined"
+                  sx={{ fontWeight: 700, fontSize: "0.7rem" }}
+                />
+              </Stack>
+            </Stack>
+          </Stack>
+          <IconButton onClick={onClose} sx={{ color: "text.secondary" }}>
+            <CloseIcon />
+          </IconButton>
+        </Stack>
+      </Box>
+
+      <DialogContent sx={{ mt: 4, p: 4, pt: 0 }}>
+        <Grid container spacing={4}>
+          <Grid size={12}>
+            <Box sx={{ p: 3, borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.03), border: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
+              <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ letterSpacing: 1, textTransform: "uppercase", mb: 2, display: "block" }}>
+                Contact Information
+              </Typography>
+              <Stack spacing={2}>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Avatar sx={{ width: 32, height: 32, bgcolor: alpha(theme.palette.info.main, 0.1), color: theme.palette.info.main }}>
+                    <EmailIcon sx={{ fontSize: 18 }} />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Email Address</Typography>
+                    <Typography variant="body2" color="white" fontWeight={500}>{member.email}</Typography>
+                  </Box>
+                </Stack>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Avatar sx={{ width: 32, height: 32, bgcolor: alpha(theme.palette.success.main, 0.1), color: theme.palette.success.main }}>
+                    <EventIcon sx={{ fontSize: 18 }} />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Joined Since</Typography>
+                    <Typography variant="body2" color="white" fontWeight={500}>
+                      {new Date(member.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Stack>
+            </Box>
+          </Grid>
+
+          <Grid size={12}>
+             <Box sx={{ p: 3, borderRadius: 3, bgcolor: alpha(theme.palette.warning.main, 0.03), border: `1px solid ${alpha(theme.palette.warning.main, 0.05)}` }}>
+              <Typography variant="caption" fontWeight={800} color="warning.light" sx={{ letterSpacing: 1, textTransform: "uppercase", mb: 1.5, display: "block" }}>
+                Administrative Data
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem", lineHeight: 1.6 }}>
+                User access is managed by the organization administrator. This member currently has <strong>{member.roleName || "read-only"}</strong> permissions within the <strong>LogiTrack</strong> platform.
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+
+        <Box sx={{ mt: 4, pt: 3, borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
+           <Button
+            fullWidth
+            variant="outlined"
+            onClick={onClose}
+            sx={{
+              borderRadius: 2,
+              py: 1.2,
+              fontWeight: 700,
+              textTransform: "none",
+              color: "text.secondary",
+              borderColor: alpha(theme.palette.divider, 0.2),
+              "&:hover": {
+                borderColor: "white",
+                color: "white",
+                bgcolor: alpha("#fff", 0.02)
+              }
+            }}
+          >
+            Close View
+          </Button>
+        </Box>
+      </DialogContent>
+    </Dialog>
+  );
+}

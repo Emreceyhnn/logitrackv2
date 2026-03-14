@@ -130,8 +130,9 @@ const EditInventoryDialog = ({
           />
 
           <TextField
-            label="SKU"
+            label="SKU (Optional)"
             fullWidth
+            placeholder="e.g. SKU-123 (Leave blank to auto-generate)"
             value={formData.sku}
             onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
           />

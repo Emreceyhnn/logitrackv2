@@ -155,8 +155,6 @@ export interface AddDriverStep1 {
   licenseNo: string;
   licenseExpiry: Date | null;
   licenseType: string;
-  licenseIssueDate: Date | null;
-  licenseRegion: string;
   licencePhoto: File | null;
 }
 
@@ -213,8 +211,6 @@ export interface EditDriverStep1 {
   licenseNo: string;
   licenseExpiry: Date | null;
   licenseType: string;
-  licenseIssueDate: Date | null;
-  licenseRegion: string;
   licencePhoto: File | null;
   employeeId: string;
 }

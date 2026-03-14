@@ -14,9 +14,7 @@ export const createCustomer = authenticatedAction(
     taxId?: string,
     email?: string,
     phone?: string,
-    address?: string,
-    lat?: number,
-    lng?: number
+    locations?: { name: string; address: string; lat?: number; lng?: number; isDefault?: boolean }[]
   ) => {
     try {
       await checkPermission(user.id, user.companyId, [
@@ -25,26 +23,38 @@ export const createCustomer = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const existingCustomer = await db.customer.findUnique({
-        where: { code },
+      const existingCode = await db.customer.findFirst({
+        where: { code: code, companyId: user.companyId },
       });
 
-      if (existingCustomer) {
-        throw new Error("Customer code already exists");
+      if (code && existingCode) {
+        throw new Error("Customer with this code already exists");
       }
 
-      const newCustomer = await db.customer.create({
+      // Auto-generate code if not provided
+      const customerCode = code || `CUST-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
+      const newCustomer = await (db.customer as any).create({
         data: {
           name,
-          code,
+          code: customerCode,
           industry,
           taxId,
           email,
           phone,
-          address,
-          lat,
-          lng,
           companyId: user.companyId,
+          locations: {
+            create: locations?.map((loc) => ({
+              name: loc.name,
+              address: loc.address,
+              lat: loc.lat,
+              lng: loc.lng,
+              isDefault: loc.isDefault ?? false,
+            })) || [],
+          },
+        },
+        include: {
+          locations: true,
         },
       });
 
@@ -70,6 +80,7 @@ export const getCustomers = authenticatedAction(async (user) => {
     const customers = await db.customer.findMany({
       where: { companyId },
       include: {
+        locations: true,
         _count: {
           select: { shipments: true },
         },
@@ -98,6 +109,7 @@ export const getCustomerById = authenticatedAction(
       const foundCustomer = await db.customer.findUnique({
         where: { id: customerId },
         include: {
+          locations: true,
           shipments: {
             orderBy: { createdAt: "desc" },
             take: 5,
@@ -114,7 +126,26 @@ export const getCustomerById = authenticatedAction(
 );
 
 export const updateCustomer = authenticatedAction(
-  async (user, customerId: string, data: Prisma.CustomerUpdateInput) => {
+  async (
+    user,
+    customerId: string,
+    data: {
+      name?: string;
+      code?: string;
+      industry?: string;
+      taxId?: string;
+      email?: string;
+      phone?: string;
+      locations?: {
+        id?: string;
+        name: string;
+        address: string;
+        lat?: number;
+        lng?: number;
+        isDefault?: boolean;
+      }[];
+    }
+  ) => {
     const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
@@ -133,12 +164,60 @@ export const updateCustomer = authenticatedAction(
       if (!existingCustomer || existingCustomer.companyId !== companyId) {
         throw new Error("Customer not found or unauthorized");
       }
+      
+      let finalCode = data.code;
+      if (finalCode === "") {
+        finalCode = `CUST-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      }
+
+      const updateData: any = {
+        name: data.name,
+        code: finalCode,
+        industry: data.industry,
+        taxId: data.taxId,
+        email: data.email,
+        phone: data.phone,
+      };
+
+      if (data.locations) {
+        // Find existing locations to determine what to delete, update, or create
+        const currentLocations = await (db as any).customerLocation.findMany({
+          where: { customerId }
+        });
+        
+        const incomingIds = data.locations.map(l => l.id).filter(Boolean);
+        const locationsToDelete = currentLocations.filter((cl: any) => !incomingIds.includes(cl.id));
+        const locationsToCreate = data.locations.filter(l => !l.id);
+        const locationsToUpdate = data.locations.filter(l => l.id);
+
+        updateData.locations = {
+          deleteMany: {
+            id: { in: locationsToDelete.map((l: any) => l.id) }
+          },
+          create: locationsToCreate.map(loc => ({
+            name: loc.name,
+            address: loc.address,
+            lat: loc.lat,
+            lng: loc.lng,
+            isDefault: loc.isDefault ?? false,
+          })),
+          update: locationsToUpdate.map(loc => ({
+            where: { id: loc.id },
+            data: {
+              name: loc.name,
+              address: loc.address,
+              lat: loc.lat,
+              lng: loc.lng,
+              isDefault: loc.isDefault ?? false,
+            }
+          }))
+        };
+      }
 
       const updatedCustomer = await db.customer.update({
         where: { id: customerId },
-        data: {
-          ...data,
-        },
+        data: updateData,
+        include: { locations: true }
       });
 
       return updatedCustomer;
@@ -148,6 +227,8 @@ export const updateCustomer = authenticatedAction(
     }
   }
 );
+
+
 
 export const deleteCustomer = authenticatedAction(
   async (user, customerId: string) => {

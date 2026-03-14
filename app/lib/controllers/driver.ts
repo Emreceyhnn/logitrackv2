@@ -308,12 +308,16 @@ export const createDriver = authenticatedAction(
       }
 
       await db.$transaction(async (tx) => {
+        const finalEmployeeId = data.employeeId && data.employeeId.trim() !== "" 
+          ? data.employeeId 
+          : `EMP-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
         await tx.driver.create({
           data: {
             companyId: user.companyId!,
             userId: data.userId,
             phone: data.phone,
-            employeeId: data.employeeId,
+            employeeId: finalEmployeeId,
             licenseNumber: data.licenseNumber,
             licenseType: data.licenseType,
             licenseExpiry: data.licenseExpiry,
@@ -397,7 +401,9 @@ export const updateDriver = authenticatedAction(
         where: { id: driverId },
         data: {
           phone: data.phone,
-          employeeId: data.employeeId,
+          employeeId: (data.employeeId && data.employeeId.trim() !== "") 
+            ? data.employeeId 
+            : (data.employeeId === "" ? `EMP-${Math.random().toString(36).substring(2, 7).toUpperCase()}` : foundDriver.employeeId),
           licenseNumber: data.licenseNumber,
           licenseType: data.licenseType,
           licenseExpiry: data.licenseExpiry,

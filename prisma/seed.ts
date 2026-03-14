@@ -122,10 +122,16 @@ async function main() {
         taxId: cust.taxId,
         email: cust.contacts[0]?.email,
         phone: cust.contacts[0]?.phone,
-        address: cust.billingAddress
-          ? `${cust.billingAddress.line1}, ${cust.billingAddress.district}, ${cust.billingAddress.city}`
-          : undefined,
         companyId: COMPANY_ID,
+        locations: cust.billingAddress ? {
+          create: [{
+            name: "Main Office",
+            address: `${cust.billingAddress.line1}, ${cust.billingAddress.district}, ${cust.billingAddress.city}`,
+            lat: cust.billingAddress.coordinates?.lat || null,
+            lng: cust.billingAddress.coordinates?.lng || null,
+            isDefault: true,
+          }]
+        } : undefined,
       },
     });
   }

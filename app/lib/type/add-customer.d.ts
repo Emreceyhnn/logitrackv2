@@ -8,9 +8,14 @@ export interface AddCustomerIdentity {
 export interface AddCustomerContact {
   email: string;
   phone: string;
-  address: string;
-  lat?: number;
-  lng?: number;
+  locations: {
+    id?: string;
+    name: string;
+    address: string;
+    lat?: number;
+    lng?: number;
+    isDefault: boolean;
+  }[];
 }
 
 export interface AddCustomerPageState {

@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
-import { AddCustomerDialogProps } from "@/app/lib/type/add-customer";
+import { AddCustomerDialogProps, AddCustomerContact } from "@/app/lib/type/add-customer";
 import { toast } from "sonner";
 import { createCustomer } from "@/app/lib/controllers/customer";
 import { useUser } from "@/app/lib/hooks/useUser";
@@ -35,9 +35,9 @@ const initialIdentity = {
 const initialContact = {
   email: "",
   phone: "",
-  address: "",
-  lat: undefined as number | undefined,
-  lng: undefined as number | undefined,
+  locations: [
+    { name: "Main Office", address: "", lat: undefined as number | undefined, lng: undefined as number | undefined, isDefault: true }
+  ]
 };
 
 const AddCustomerDialog = ({
@@ -60,8 +60,8 @@ const AddCustomerDialog = ({
     setIdentityData((prev) => ({ ...prev, ...data }));
   };
 
-  const updateContact = (data: Partial<typeof initialContact>) => {
-    setContactData((prev) => ({ ...prev, ...data }));
+  const updateContact = (data: Partial<AddCustomerContact>) => {
+    setContactData((prev) => ({ ...prev, ...data } as typeof initialContact));
   };
 
   const resetDialog = () => {
@@ -90,9 +90,7 @@ const AddCustomerDialog = ({
         identityData.taxId || undefined,
         contactData.email || undefined,
         contactData.phone || undefined,
-        contactData.address || undefined,
-        contactData.lat,
-        contactData.lng
+        contactData.locations.filter(l => l.address.trim() !== '')
       );
 
       toast.success("Customer created successfully");
@@ -255,7 +253,7 @@ const AddCustomerDialog = ({
           variant="contained"
           disabled={
             isLoading ||
-            (currentStep === 1 && (!identityData.name || !identityData.code))
+            (currentStep === 1 && !identityData.name)
           }
           onClick={currentStep < 2 ? () => setCurrentStep(2) : handleSubmit}
           sx={{

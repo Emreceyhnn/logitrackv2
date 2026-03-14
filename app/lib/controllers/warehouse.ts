@@ -23,8 +23,11 @@ export const createWarehouse = authenticatedAction(
 
       await checkPermission(user.id, companyId, ["role_admin", "role_manager"]);
 
+      // Auto-generate code if missing
+      const warehouseCode = code || `WH-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
       const existingWarehouse = await db.warehouse.findUnique({
-        where: { code },
+        where: { code: warehouseCode },
       });
 
       if (existingWarehouse) {
@@ -34,7 +37,7 @@ export const createWarehouse = authenticatedAction(
       const newWarehouse = await db.warehouse.create({
         data: {
           name,
-          code,
+          code: warehouseCode,
           type,
           address,
           city,
@@ -148,11 +151,14 @@ export const updateWarehouse = authenticatedAction(
         throw new Error("Warehouse not found or unauthorized");
       }
 
+      const updateData = { ...data };
+      if (updateData.code === "") {
+        updateData.code = `WH-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      }
+
       const updatedWarehouse = await db.warehouse.update({
         where: { id: warehouseId },
-        data: {
-          ...data,
-        },
+        data: updateData,
       });
 
       return updatedWarehouse;
@@ -231,7 +237,11 @@ export const addInventoryItem = authenticatedAction(
     sku: string,
     name: string,
     quantity: number,
-    minStock: number = 0
+    minStock: number = 0,
+    weightKg: number = 0,
+    volumeM3: number = 0,
+    palletCount: number = 0,
+    cargoType: string = "General Cargo"
   ) => {
     try {
       await checkPermission(user.id, user.companyId, [
@@ -252,11 +262,14 @@ export const addInventoryItem = authenticatedAction(
         throw new Error("Warehouse not found or unauthorized");
       }
 
+      // Auto-generate SKU if not provided
+      const itemSku = sku || `SKU-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
       const existingItem = await db.inventory.findUnique({
         where: {
           warehouseId_sku: {
             warehouseId,
-            sku,
+            sku: itemSku,
           },
         },
       });
@@ -268,7 +281,7 @@ export const addInventoryItem = authenticatedAction(
       const newItem = await db.inventory.create({
         data: {
           warehouseId,
-          sku,
+          sku: itemSku,
           name,
           quantity,
           minStock,
@@ -306,11 +319,14 @@ export const updateInventoryItem = authenticatedAction(
         throw new Error("Inventory item not found or unauthorized");
       }
 
+      const updateData = { ...data };
+      if (updateData.sku === "") {
+        updateData.sku = `SKU-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      }
+
       const updatedItem = await db.inventory.update({
         where: { id: inventoryId },
-        data: {
-          ...data,
-        },
+        data: updateData,
       });
 
       return updatedItem;

@@ -37,11 +37,14 @@ export const createInventoryItem = authenticatedAction(
         throw new Error("Invalid warehouse or unauthorized");
       }
 
+      // Auto-generate SKU if not provided
+      const itemSku = sku || `SKU-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
       const existingItem = await db.inventory.findUnique({
         where: {
           warehouseId_sku: {
             warehouseId,
-            sku,
+            sku: itemSku,
           },
         },
       });
@@ -53,7 +56,7 @@ export const createInventoryItem = authenticatedAction(
       const newItem = await db.inventory.create({
         data: {
           warehouseId,
-          sku,
+          sku: itemSku,
           name,
           quantity,
           minStock,
@@ -231,3 +234,34 @@ export const getLowStockItems = authenticatedAction(async (user) => {
     throw error;
   }
 });
+
+export const getInventoryMovements = authenticatedAction(
+  async (user, sku: string, warehouseId: string) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
+    try {
+      await checkPermission(userId, companyId);
+
+      const movements = await db.inventoryMovement.findMany({
+        where: {
+          sku,
+          warehouseId,
+          companyId,
+        },
+        include: {
+          user: {
+            select: { name: true, surname: true },
+          },
+        },
+        orderBy: { date: "desc" },
+        take: 20,
+      });
+
+      return movements;
+    } catch (error) {
+      console.error("Failed to get inventory movements:", error);
+      throw error;
+    }
+  }
+);
+

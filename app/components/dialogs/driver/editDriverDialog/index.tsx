@@ -35,8 +35,6 @@ const initialStep1: EditDriverStep1 = {
   licenseNo: "",
   licenseExpiry: null,
   licenseType: "",
-  licenseIssueDate: null,
-  licenseRegion: "",
   licencePhoto: null,
   employeeId: "",
 };
@@ -85,8 +83,6 @@ const EditDriverDialog = ({
             licenseExpiry: driver.licenseExpiry
               ? new Date(driver.licenseExpiry)
               : null,
-            licenseIssueDate: null,
-            licenseRegion: "",
             licencePhoto: null,
           },
           step2: {

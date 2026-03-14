@@ -73,13 +73,14 @@ export const createVehicle = authenticatedAction(
       if (maxLoadKg === undefined || maxLoadKg === null)
         throw new Error("Max load capacity is required");
       if (!plate) throw new Error("Plate is required");
-      if (!fleetNo) throw new Error("Fleet No is required");
       if (!type) throw new Error("Vehicle type is required");
+
+      const vehicleFleetNo = fleetNo?.toString() || `FLEET-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
       const newVehicle = await db.vehicle.create({
         data: {
           plate: plate.toString(),
-          fleetNo: fleetNo.toString(),
+          fleetNo: vehicleFleetNo,
           brand: brand?.toString() || "",
           model: model?.toString() || "",
           type: type as VehicleType,
@@ -255,11 +256,14 @@ export const updateVehicle = authenticatedAction(
         throw new Error("Vehicle not found or unauthorized");
       }
 
+      const updateData = { ...data };
+      if (updateData.fleetNo === "") {
+        updateData.fleetNo = `FLEET-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      }
+
       const updatedVehicle = await db.vehicle.update({
         where: { id: vehicleId },
-        data: {
-          ...data,
-        },
+        data: updateData,
       });
 
       return updatedVehicle;

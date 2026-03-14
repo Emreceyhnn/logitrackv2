@@ -64,11 +64,11 @@ const BasicInfoSection = ({
                 color="text.secondary"
                 fontWeight={600}
               >
-                SHIPMENT ID / REF
+                SHIPMENT ID / REF (Optional)
               </Typography>
               <CustomTextArea
                 name="referenceNumber"
-                placeholder="e.g. SHP-8752-XP"
+                placeholder="e.g. SHP-8752-XP (Leave blank to auto-generate)"
                 value={state.referenceNumber}
                 onChange={(e) =>
                   updateBasicInfo({ referenceNumber: e.target.value })

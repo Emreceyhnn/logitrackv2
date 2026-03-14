@@ -44,14 +44,41 @@ export const createShipment = authenticatedAction(
         throw new Error("Tracking ID already exists");
       }
 
+      // Fetch customer details to potentially get default location if destination is not provided
+      const customer = (await db.customer.findUnique({
+        where: { id: customerId },
+        include: { locations: true } as any,
+      })) as any;
+
+      const defaultCustomerLocation = customer?.locations?.find((l) => l.isDefault);
+      const firstCustomerLocation = customer?.locations?.[0];
+
+      const finalDestination = destination || defaultCustomerLocation?.address || firstCustomerLocation?.address || "";
+      const finalDestinationLat =
+        typeof destinationLat === "number"
+          ? destinationLat
+          : typeof defaultCustomerLocation?.lat === "number"
+            ? defaultCustomerLocation.lat
+            : typeof firstCustomerLocation?.lat === "number"
+              ? firstCustomerLocation.lat
+              : undefined;
+      const finalDestinationLng =
+        typeof destinationLng === "number"
+          ? destinationLng
+          : typeof defaultCustomerLocation?.lng === "number"
+            ? defaultCustomerLocation.lng
+            : typeof firstCustomerLocation?.lng === "number"
+              ? firstCustomerLocation.lng
+              : undefined;
+
       const newShipment = await db.shipment.create({
         data: {
           trackingId: finalTrackingId,
           customerId,
           origin,
-          destination,
-          destinationLat,
-          destinationLng,
+          destination: finalDestination, // Use the resolved destination
+          destinationLat: finalDestinationLat, // Use the resolved destinationLat
+          destinationLng: finalDestinationLng, // Use the resolved destinationLng
           status,
           itemsCount,
           weightKg,
@@ -223,7 +250,9 @@ export const getShipments = authenticatedAction(async (user) => {
     const shipments = await db.shipment.findMany({
       where: { companyId },
       include: {
-        customer: true,
+        customer: {
+          include: { locations: true } as any
+        },
         driver: {
           include: {
             user: {
@@ -306,11 +335,14 @@ export const updateShipment = authenticatedAction(
         throw new Error("Shipment not found or unauthorized");
       }
 
+      const updateData = { ...data };
+      if (updateData.trackingId === "") {
+        updateData.trackingId = `TRK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+      }
+
       const updatedShipment = await db.shipment.update({
         where: { id: shipmentId },
-        data: {
-          ...data,
-        },
+        data: updateData,
       });
 
       return updatedShipment;

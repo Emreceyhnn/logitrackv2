@@ -25,6 +25,8 @@ import { useUser } from "@/app/lib/hooks/useUser";
 import IdentitySection from "./addCustomerDialog/sections/IdentitySection";
 import ContactSection from "./addCustomerDialog/sections/ContactSection";
 
+import { AddCustomerContact } from "@/app/lib/type/add-customer";
+
 interface EditCustomerDialogProps {
   open: boolean;
   onClose: () => void;
@@ -39,12 +41,10 @@ const initialIdentity = {
   taxId: "",
 };
 
-const initialContact = {
+const initialContact: AddCustomerContact = {
   email: "",
   phone: "",
-  address: "",
-  lat: undefined as number | undefined,
-  lng: undefined as number | undefined,
+  locations: [],
 };
 
 export default function EditCustomerDialog({
@@ -59,7 +59,7 @@ export default function EditCustomerDialog({
 
   /* ---------------------------------- State --------------------------------- */
   const [identityData, setIdentityData] = useState(initialIdentity);
-  const [contactData, setContactData] = useState(initialContact);
+  const [contactData, setContactData] = useState<AddCustomerContact>(initialContact);
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,12 +77,21 @@ export default function EditCustomerDialog({
         return newData;
       });
       setContactData((prev) => {
+        const mappedLocations = customer.locations && customer.locations.length > 0 
+          ? customer.locations.map(loc => ({
+              id: loc.id,
+              name: loc.name,
+              address: loc.address,
+              lat: loc.lat ?? undefined,
+              lng: loc.lng ?? undefined,
+              isDefault: loc.isDefault
+            }))
+          : [{ name: "Main Office", address: "", lat: undefined, lng: undefined, isDefault: true }];
+
         const newData = {
           email: customer.email || "",
           phone: customer.phone || "",
-          address: customer.address || "",
-          lat: customer.lat ?? undefined,
-          lng: customer.lng ?? undefined,
+          locations: mappedLocations,
         };
         if (JSON.stringify(prev) === JSON.stringify(newData)) return prev;
         return newData;
@@ -97,8 +106,8 @@ export default function EditCustomerDialog({
     setIdentityData((prev) => ({ ...prev, ...data }));
   };
 
-  const updateContact = (data: Partial<typeof initialContact>) => {
-    setContactData((prev) => ({ ...prev, ...data }));
+  const updateContact = (data: Partial<AddCustomerContact>) => {
+    setContactData((prev) => ({ ...prev, ...data } as AddCustomerContact));
   };
 
   const closeDialog = () => {
@@ -114,6 +123,7 @@ export default function EditCustomerDialog({
         await updateCustomer(customer.id, {
           ...identityData,
           ...contactData,
+          locations: contactData.locations.filter(l => l.address.trim() !== "")
         });
         toast.success("Customer updated successfully");
         onSuccess();
@@ -282,7 +292,7 @@ export default function EditCustomerDialog({
           variant="contained"
           disabled={
             isPending ||
-            (currentStep === 1 && (!identityData.name || !identityData.code))
+            (currentStep === 1 && !identityData.name)
           }
           onClick={currentStep < 2 ? () => setCurrentStep(2) : handleSubmit}
           sx={{

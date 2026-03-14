@@ -202,19 +202,23 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
       const warehouse = warehouses.find((w) => w.id === shipment.origin);
 
       const updateData: Partial<AddRouteStep2> = {
-        endAddress: shipment.destination || shipment.customer?.address || "",
+        endAddress: shipment.destination || (shipment.customer as any)?.locations?.find((l: any) => l.isDefault)?.address || (shipment.customer as any)?.locations?.[0]?.address || "",
         endLat:
           typeof shipment.destinationLat === "number"
             ? shipment.destinationLat
-            : typeof shipment.customer?.lat === "number"
-              ? (shipment.customer?.lat as number)
-              : undefined,
+            : typeof (shipment.customer as any)?.locations?.find((l: any) => l.isDefault)?.lat === "number"
+              ? ((shipment.customer as any)?.locations?.find((l: any) => l.isDefault)?.lat as number)
+              : typeof (shipment.customer as any)?.locations?.[0]?.lat === "number"
+                ? ((shipment.customer as any)?.locations?.[0]?.lat as number)
+                : undefined,
         endLng:
           typeof shipment.destinationLng === "number"
             ? shipment.destinationLng
-            : typeof shipment.customer?.lng === "number"
-              ? (shipment.customer?.lng as number)
-              : undefined,
+            : typeof (shipment.customer as any)?.locations?.find((l: any) => l.isDefault)?.lng === "number"
+              ? ((shipment.customer as any)?.locations?.find((l: any) => l.isDefault)?.lng as number)
+              : typeof (shipment.customer as any)?.locations?.[0]?.lng === "number"
+                ? ((shipment.customer as any)?.locations?.[0]?.lng as number)
+                : undefined,
       };
 
       if (warehouse) {
@@ -421,7 +425,6 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
           }
           disabled={
             state.isLoading ||
-            (state.currentStep === 1 && !state.data.step1.name) ||
             (state.currentStep === 2 &&
               (!state.data.step2.startAddress ||
                 !state.data.step2.endAddress)) ||

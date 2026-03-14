@@ -64,7 +64,6 @@ export default function CompanyPage() {
 
     refreshAll: useCallback(async () => {
       setState((prev) => ({ ...prev, loading: true, error: null }));
-      // We can use actions.fetchData here but for clarity calling the same logic
       try {
         const result = await getCompanyProfile();
         setState({
@@ -77,11 +76,31 @@ export default function CompanyPage() {
           error: null,
         });
       } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : "Failed to refresh company data.";
+        const message = err instanceof Error ? err.message : "Failed to refresh company data.";
         setState((prev) => ({ ...prev, loading: false, error: message }));
       }
     }, []),
+
+    deleteMember: async (memberId: string) => {
+      try {
+        const { removeCompanyUser } = await import("@/app/lib/controllers/company");
+        await removeCompanyUser(memberId);
+        setState((prev) => {
+          if (!prev.data) return prev;
+          return {
+            ...prev,
+            data: {
+              ...prev.data,
+              members: prev.data.members.filter(m => m.id !== memberId)
+            }
+          };
+        });
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Failed to delete member.";
+        setState((prev) => ({ ...prev, error: message }));
+        throw err;
+      }
+    },
   };
 
   useEffect(() => {

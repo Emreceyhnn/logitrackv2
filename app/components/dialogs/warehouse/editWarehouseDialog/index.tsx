@@ -304,7 +304,7 @@ const EditWarehouseDialog = ({
           disabled={
             state.isLoading ||
             (state.currentStep === 1 &&
-              (!state.data.basicInfo.name || !state.data.basicInfo.code)) ||
+              !state.data.basicInfo.name) ||
             (state.currentStep === 2 &&
               (!state.data.location.address || !state.data.location.city))
           }

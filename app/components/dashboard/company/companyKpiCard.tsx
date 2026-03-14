@@ -15,7 +15,7 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import GroupsIcon from "@mui/icons-material/Groups";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import { CompanyStats } from "@/app/lib/type/company";
+import { CompanyStats, CompanyPageProps } from "@/app/lib/type/company";
 
 interface KpiItem {
   label: string;
@@ -25,10 +25,12 @@ interface KpiItem {
 }
 
 interface CompanyKpiCardProps {
-  data: CompanyStats | null;
+  props: CompanyPageProps;
 }
 
-export default function CompanyKpiCard({ data }: CompanyKpiCardProps) {
+export default function CompanyKpiCard({ props }: CompanyKpiCardProps) {
+  const { state } = props;
+  const data = state.data?.stats ?? null;
   const theme = useTheme();
 
   const kpis: KpiItem[] = [
@@ -103,7 +105,7 @@ export default function CompanyKpiCard({ data }: CompanyKpiCardProps) {
               >
                 {kpi.icon}
               </Box>
-              {data === null ? (
+              {state.loading ? (
                 <>
                   <Skeleton width={48} height={32} />
                   <Skeleton width={72} height={16} />
