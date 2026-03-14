@@ -15,13 +15,14 @@ import {
   VehiclePageState,
   VehicleWithRelations,
 } from "@/app/lib/type/vehicle";
-import { Box, Stack, Typography, Button, Alert } from "@mui/material";
+import { Box, Stack, Typography, Button, Alert, Divider } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useCallback, useEffect, useState } from "react";
 import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { deleteVehicle } from "@/app/lib/controllers/vehicle";
 import VehicleToolbar from "@/app/components/dashboard/vehicle/toolbar";
+import CustomCard from "@/app/components/cards/card";
 
 export default function VehiclePage() {
   /* --------------------------------- states --------------------------------- */
@@ -212,18 +213,22 @@ export default function VehiclePage() {
       <VehicleKpiCard state={state} actions={actions} />
 
       <Stack mt={2}>
-        <VehicleToolbar state={state} actions={actions} />
-      </Stack>
+        <CustomCard sx={{ padding: "0 0 6px 0" }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+            Vehicle List
+          </Typography>
 
-      <Stack mt={2}>
-        <VehicleTable
-          state={state}
-          actions={{
-            ...actions,
-            onEdit: handleEdit,
-            onDelete: handleDelete,
-          }}
-        />
+          <VehicleToolbar state={state} actions={actions} />
+          <Divider />
+          <VehicleTable
+            state={state}
+            actions={{
+              ...actions,
+              onEdit: handleEdit,
+              onDelete: handleDelete,
+            }}
+          />
+        </CustomCard>
       </Stack>
 
       <Stack mt={2} direction={{ xs: "column", md: "row" }} spacing={2}>

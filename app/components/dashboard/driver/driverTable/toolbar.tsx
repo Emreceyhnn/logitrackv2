@@ -59,7 +59,7 @@ export default function DriverTableToolbar({
       direction={{ xs: "column", md: "row" }}
       spacing={2}
       alignItems="center"
-      sx={{ p: 2, bgcolor: "background.paper", borderRadius: 2 }}
+      sx={{ p: 2, bgcolor: "background.paper", borderRadius: 2, mb: 2 }}
     >
       <TextField
         size="small"

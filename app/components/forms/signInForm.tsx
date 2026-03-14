@@ -65,22 +65,31 @@ export default function LoginForm() {
 
   return (
     <Box
-      maxWidth={{ sm: 450, xs: "95%" }}
+      maxWidth={{ sm: 600, xs: "95%" }}
       width={"100%"}
-      bgcolor={"#151515"}
-      borderRadius={"8px"}
+      bgcolor={"rgba(8, 12, 24, 0.75)"}
+      sx={{
+        backdropFilter: "blur(25px)",
+        border: "1px solid rgba(56, 189, 248, 0.15)",
+        boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.8)",
+      }}
+      borderRadius={"24px"}
     >
-      <Box p="40px">
-        <Stack direction="row" spacing={2} mb={5}>
+      <Box p={{ xs: "30px", sm: "50px" }}>
+        <Stack direction="row" spacing={3} mb={6} alignItems="center" justifyContent="center">
           <Typography
             component={Link}
             href={"/auth/sign-up"}
             sx={{
               fontWeight: 500,
-              fontSize: "18px",
+              fontSize: "24px",
               letterSpacing: "-0.02em",
-              color: "rgba(255, 255, 255, 0.5)",
+              color: "rgba(255, 255, 255, 0.3)",
               textDecoration: "none",
+              transition: "color 0.2s ease",
+              "&:hover": {
+                color: "rgba(255, 255, 255, 0.6)",
+              }
             }}
           >
             Register
@@ -88,10 +97,21 @@ export default function LoginForm() {
 
           <Typography
             sx={{
-              fontWeight: 500,
-              fontSize: "18px",
+              fontWeight: 600,
+              fontSize: "24px",
               letterSpacing: "-0.02em",
               color: "#FFFFFF",
+              position: "relative",
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                bottom: -8,
+                left: 0,
+                width: "100%",
+                height: 2,
+                bgcolor: "#38bdf8",
+                borderRadius: 2,
+              }
             }}
           >
             Login
@@ -104,13 +124,22 @@ export default function LoginForm() {
           validationSchema={loginValidationSchema}
         >
           <Form>
-            <Stack spacing={2} mt={3}>
+            <Stack spacing={3}>
+              <Box mb={2}>
+                <Typography variant="h5" sx={{ color: "#fff", fontWeight: 600, mb: 1 }}>
+                  Welcome Back
+                </Typography>
+                <Typography sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}>
+                  Please enter your details to access your account.
+                </Typography>
+              </Box>
+
               <Field name="email">
                 {({ field, meta }: FieldProps<LoginFormValues>) => (
                   <StyledTextFieldAuth
                     {...field}
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Email Address"
                     fullWidth
                     error={meta.touched && Boolean(meta.error)}
                     helperText={meta.touched && meta.error}
@@ -123,14 +152,14 @@ export default function LoginForm() {
                   <StyledTextFieldAuth
                     {...field}
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder="Password"
                     fullWidth
                     error={meta.touched && Boolean(meta.error)}
                     helperText={meta.touched && meta.error}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton onClick={handleShowPassword}>
+                          <IconButton onClick={handleShowPassword} sx={{ color: "rgba(255, 255, 255, 0.5)" }}>
                             {showPassword ? (
                               <VisibilityIcon />
                             ) : (
@@ -143,51 +172,35 @@ export default function LoginForm() {
                   />
                 )}
               </Field>
-              {loading ? (
-                <CircularIndeterminate />
-              ) : (
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{
-                    mt: "4px",
-                    width: "100%",
-                    backgroundColor: "#38bdf8",
-                    fontWeight: 500,
-                    fontSize: "14px",
-                    letterSpacing: "-0.02em",
-                    padding: "12px",
-                    borderRadius: 8,
-                    border: "1px solid transparent",
-                    boxShadow: "none",
-                    transition:
-                      "background-color 300ms ease, border-color 300ms ease color 300ms ease",
 
-                    "&:hover": {
-                      backgroundColor: "transparent",
-                      border: "1px solid #38bdf8",
-                      color: "#fff",
-                      boxShadow: "none",
-                    },
+              <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                disabled={loading}
+                sx={{
+                  mt: 2,
+                  bgcolor: "#38bdf8",
+                  color: "#000",
+                  fontWeight: 600,
+                  borderRadius: "12px",
+                  py: 1.5,
+                  fontSize: "16px",
+                  "&:hover": {
+                    bgcolor: "#0ea5e9",
+                  }
+                }}
+              >
+                {loading ? <CircularIndeterminate /> : "Log In Now"}
+              </Button>
 
-                    "&:active": {
-                      boxShadow: "none",
-                      outline: "none",
-                    },
-
-                    "&:focus": {
-                      outline: "none",
-                    },
-
-                    "&:focus-visible": {
-                      outline: "none",
-                      boxShadow: "none",
-                    },
-                  }}
-                >
-                  Log In Now
-                </Button>
-              )}
+              <Typography
+                variant="body2"
+                align="center"
+                sx={{ color: "rgba(255, 255, 255, 0.4)", mt: 2 }}
+              >
+                Forgot your password? <Link href="#" style={{ color: "#38bdf8", textDecoration: "none" }}>Reset it</Link>
+              </Typography>
             </Stack>
           </Form>
         </Formik>

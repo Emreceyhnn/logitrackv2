@@ -46,163 +46,156 @@ const DriverTable = ({
 
   return (
     <>
-      <CustomCard sx={{ padding: "0 0 6px 0" }}>
-        <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-          Driver List
-        </Typography>
-        <Divider />
+      <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>#</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === "name"}
+                  direction={sortField === "name" ? sortOrder : "asc"}
+                  onClick={createSortHandler("name")}
+                >
+                  Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === "status"}
+                  direction={sortField === "status" ? sortOrder : "asc"}
+                  onClick={createSortHandler("status")}
+                >
+                  Status
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === "phone"}
+                  direction={sortField === "phone" ? sortOrder : "asc"}
+                  onClick={createSortHandler("phone")}
+                >
+                  Phone
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === "vehicle"}
+                  direction={sortField === "vehicle" ? sortOrder : "asc"}
+                  onClick={createSortHandler("vehicle")}
+                >
+                  Vehicle
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === "licenseType"}
+                  direction={sortField === "licenseType" ? sortOrder : "asc"}
+                  onClick={createSortHandler("licenseType")}
+                >
+                  License
+                </TableSortLabel>
+              </TableCell>
+              <TableCell align="right">
+                <TableSortLabel
+                  active={sortField === "safetyScore"}
+                  direction={sortField === "safetyScore" ? sortOrder : "asc"}
+                  onClick={createSortHandler("safetyScore")}
+                >
+                  Safety Score
+                </TableSortLabel>
+              </TableCell>
+              <TableCell align="right">Actions</TableCell>
+            </TableRow>
+          </TableHead>
 
-        <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>#</TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={sortField === "name"}
-                    direction={sortField === "name" ? sortOrder : "asc"}
-                    onClick={createSortHandler("name")}
-                  >
-                    Name
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={sortField === "status"}
-                    direction={sortField === "status" ? sortOrder : "asc"}
-                    onClick={createSortHandler("status")}
-                  >
-                    Status
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={sortField === "phone"}
-                    direction={sortField === "phone" ? sortOrder : "asc"}
-                    onClick={createSortHandler("phone")}
-                  >
-                    Phone
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={sortField === "vehicle"}
-                    direction={sortField === "vehicle" ? sortOrder : "asc"}
-                    onClick={createSortHandler("vehicle")}
-                  >
-                    Vehicle
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={sortField === "licenseType"}
-                    direction={sortField === "licenseType" ? sortOrder : "asc"}
-                    onClick={createSortHandler("licenseType")}
-                  >
-                    License
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="right">
-                  <TableSortLabel
-                    active={sortField === "safetyScore"}
-                    direction={sortField === "safetyScore" ? sortOrder : "asc"}
-                    onClick={createSortHandler("safetyScore")}
-                  >
-                    Safety Score
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {loading ? (
-                Array.from(new Array(5)).map((_, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Skeleton variant="text" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={100} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={150} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="rounded" width={80} height={24} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={80} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="circular" width={32} height={32} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={60} />
-                    </TableCell>
-                    <TableCell align="right">
-                      <Skeleton variant="text" width={40} />
-                    </TableCell>
-                    <TableCell align="right">
-                      <Skeleton variant="circular" width={24} height={24} />
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : drivers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 3 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      No drivers found
-                    </Typography>
+          <TableBody>
+            {loading ? (
+              Array.from(new Array(5)).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <Skeleton variant="text" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="text" width={100} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="text" width={150} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="rounded" width={80} height={24} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="text" width={80} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="circular" width={32} height={32} />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton variant="text" width={60} />
+                  </TableCell>
+                  <TableCell align="right">
+                    <Skeleton variant="text" width={40} />
+                  </TableCell>
+                  <TableCell align="right">
+                    <Skeleton variant="circular" width={24} height={24} />
                   </TableCell>
                 </TableRow>
-              ) : (
-                drivers.map((d, index) => (
-                  <TableRow key={d.id}>
-                    <TableCell>
-                      {index + 1 + (meta.page - 1) * meta.limit}
-                    </TableCell>
-                    <TableCell>
-                      {d.user.name} {d.user.surname}
-                    </TableCell>
-                    <TableCell>
-                      <StatusChip status={d.status} />
-                    </TableCell>
-                    <TableCell>{d.phone}</TableCell>
-                    <TableCell>
-                      {d.currentVehicle
-                        ? d.currentVehicle.plate
-                        : "No assigned vehicle"}
-                    </TableCell>
-                    <TableCell>{d.licenseType}</TableCell>
-                    <TableCell align="right">{d.safetyScore}</TableCell>
-                    <TableCell align="right">
-                      <RowActions
-                        id={d.id}
-                        handleOpenDetails={() => onDriverSelect(d.id)}
-                        handleEdit={() => onEdit(d)}
-                        handleDelete={() => onDelete(d.id)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 50]}
-          component="div"
-          count={meta?.total || 0}
-          rowsPerPage={meta?.limit || 10}
-          page={(meta?.page || 1) - 1}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={(e) => {
-            const newLimit = parseInt(e.target.value, 10);
-            if (onLimitChange) onLimitChange(newLimit);
-          }}
-        />
-      </CustomCard>
+              ))
+            ) : drivers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={9} align="center" sx={{ py: 3 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    No drivers found
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ) : (
+              drivers.map((d, index) => (
+                <TableRow key={d.id}>
+                  <TableCell>
+                    {index + 1 + (meta.page - 1) * meta.limit}
+                  </TableCell>
+                  <TableCell>
+                    {d.user.name} {d.user.surname}
+                  </TableCell>
+                  <TableCell>
+                    <StatusChip status={d.status} />
+                  </TableCell>
+                  <TableCell>{d.phone}</TableCell>
+                  <TableCell>
+                    {d.currentVehicle
+                      ? d.currentVehicle.plate
+                      : "No assigned vehicle"}
+                  </TableCell>
+                  <TableCell>{d.licenseType}</TableCell>
+                  <TableCell align="right">{d.safetyScore}</TableCell>
+                  <TableCell align="right">
+                    <RowActions
+                      id={d.id}
+                      handleOpenDetails={() => onDriverSelect(d.id)}
+                      handleEdit={() => onEdit(d)}
+                      handleDelete={() => onDelete(d.id)}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50]}
+        component="div"
+        count={meta?.total || 0}
+        rowsPerPage={meta?.limit || 10}
+        page={(meta?.page || 1) - 1}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={(e) => {
+          const newLimit = parseInt(e.target.value, 10);
+          if (onLimitChange) onLimitChange(newLimit);
+        }}
+      />
     </>
   );
 };

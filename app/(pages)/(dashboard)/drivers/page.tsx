@@ -3,7 +3,7 @@
 import DriverKpiCard from "@/app/components/dashboard/driver/driverKpiCard";
 import DriverTable from "@/app/components/dashboard/driver/driverTable";
 import DriverPerformanceCharts from "@/app/components/dashboard/driver/driverPerformanceCharts";
-import { Box, Stack, Typography, Button } from "@mui/material";
+import { Box, Stack, Typography, Button, Divider } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -23,6 +23,7 @@ import DriverTableToolbar from "@/app/components/dashboard/driver/driverTable/to
 import EditDriverDialog from "@/app/components/dialogs/driver/editDriverDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";
+import CustomCard from "@/app/components/cards/card";
 
 export default function DriverPage() {
   /* ---------------------------------- State --------------------------------- */
@@ -284,38 +285,43 @@ export default function DriverPage() {
       <DriverKpiCard data={state.dashboardData?.driversKpis || null} />
 
       <Stack gap={2} mt={2}>
-        <DriverTableToolbar
-          filters={state.filters}
-          onFilterChange={handleFilterChange}
-        />
-
-        <DriverTable
-          drivers={state.drivers}
-          loading={state.loading}
-          meta={{
-            total: state.pagination.total,
-            page: state.pagination.page,
-            limit: state.pagination.limit,
-            totalPages: Math.ceil(
-              state.pagination.total / state.pagination.limit
-            ),
-          }}
-          onDriverSelect={actions.selectDriver}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onRefresh={() =>
-            actions.fetchDrivers(
-              state.pagination.page,
-              state.pagination.limit,
-              state.filters
-            )
-          }
-          onPageChange={handlePageChange}
-          onLimitChange={handleLimitChange}
-          sortField={state.sort.field}
-          sortOrder={state.sort.order}
-          onRequestSort={handleSort}
-        />
+        <CustomCard sx={{ padding: "0 0 6px 0" }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+            Driver List
+          </Typography>
+          <DriverTableToolbar
+            filters={state.filters}
+            onFilterChange={handleFilterChange}
+          />
+          <Divider />
+          <DriverTable
+            drivers={state.drivers}
+            loading={state.loading}
+            meta={{
+              total: state.pagination.total,
+              page: state.pagination.page,
+              limit: state.pagination.limit,
+              totalPages: Math.ceil(
+                state.pagination.total / state.pagination.limit
+              ),
+            }}
+            onDriverSelect={actions.selectDriver}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onRefresh={() =>
+              actions.fetchDrivers(
+                state.pagination.page,
+                state.pagination.limit,
+                state.filters
+              )
+            }
+            onPageChange={handlePageChange}
+            onLimitChange={handleLimitChange}
+            sortField={state.sort.field}
+            sortOrder={state.sort.order}
+            onRequestSort={handleSort}
+          />
+        </CustomCard>
       </Stack>
 
       <DriverPerformanceCharts data={state.dashboardData?.performanceCharts} />
