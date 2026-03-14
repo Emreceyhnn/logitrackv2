@@ -41,7 +41,14 @@ export default function LoginForm() {
     try {
       const res = await LoginUser(values.email, values.password);
 
-      if (res && res.user) {
+      if (res && "error" in res && res.error) {
+        actions.setFieldError("email", res.error);
+        actions.setFieldError("password", res.error);
+        setLoading(false);
+        return;
+      }
+
+      if (res && "user" in res && res.user) {
         router.refresh();
         if (res.user.companyId) {
           router.push("/overview");

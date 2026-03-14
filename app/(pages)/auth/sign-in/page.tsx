@@ -1,7 +1,28 @@
+"use client";
+
 import LoginForm from "@/app/components/forms/signInForm";
 import { Box } from "@mui/material";
+import { useEffect, useState } from "react";
 
 export default function SignInPage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Box
+        sx={{
+          width: "100dvw",
+          minHeight: "100dvh",
+          background: "linear-gradient(135deg, #020617 0%, #070b14 100%)",
+        }}
+      />
+    );
+  }
+
   return (
     <Box
       sx={{

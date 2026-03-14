@@ -166,14 +166,13 @@ export const LoginUser = maybeAuthenticatedAction(
       });
 
       if (!foundUser) {
-        // Log failed attempt (no userId since user not found)
         await logAuditEvent({
           action: "LOGIN_FAILED",
           ipAddress,
           deviceInfo,
           metadata: { email, reason: "User not found" },
         });
-        throw new Error("Invalid credentials");
+        return { error: "Invalid credentials" };
       }
 
       const isPasswordValid = await bcrypt.compare(
@@ -181,7 +180,6 @@ export const LoginUser = maybeAuthenticatedAction(
         foundUser.password || ""
       );
       if (!isPasswordValid) {
-        // Log failed attempt
         await logAuditEvent({
           userId: foundUser.id,
           action: "LOGIN_FAILED",
@@ -189,7 +187,7 @@ export const LoginUser = maybeAuthenticatedAction(
           deviceInfo,
           metadata: { email, reason: "Invalid password" },
         });
-        throw new Error("Invalid credentials");
+        return { error: "Invalid credentials" };
       }
 
       // Update lastLoginAt
@@ -220,8 +218,9 @@ export const LoginUser = maybeAuthenticatedAction(
         },
       };
     } catch (error) {
-      console.error("Failed to login user:", error);
-      throw error;
+      console.error("Critical Login Error:", error);
+      const message = error instanceof Error ? error.message : "Internal server error";
+      return { error: message };
     }
   }
 );

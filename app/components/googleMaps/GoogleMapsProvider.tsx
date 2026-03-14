@@ -1,5 +1,7 @@
 import { useJsApiLoader, Libraries } from "@react-google-maps/api";
 import React from "react";
+import { Box, CircularProgress, Typography, alpha, useTheme } from "@mui/material";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 const libraries: Libraries = ["places"];
 
@@ -8,6 +10,7 @@ interface GoogleMapsProviderProps {
 }
 
 export const GoogleMapsProvider = ({ children }: GoogleMapsProviderProps) => {
+  const theme = useTheme();
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries,
@@ -15,18 +18,47 @@ export const GoogleMapsProvider = ({ children }: GoogleMapsProviderProps) => {
 
   if (loadError) {
     return (
-      <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg">
-        Error loading Google Maps. Please check your API key.
-      </div>
+      <Box
+        sx={{
+          p: 3,
+          bgcolor: alpha(theme.palette.error.main, 0.05),
+          border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
+          borderRadius: 2,
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+        }}
+      >
+        <WarningAmberIcon color="error" />
+        <Box>
+          <Typography variant="subtitle2" color="error" fontWeight={700}>
+            Maps API Configuration Error
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            The Google Maps service could not be loaded. This may be due to an invalid API key or network restricted access.
+          </Typography>
+        </Box>
+      </Box>
     );
   }
 
   if (!isLoaded) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading Maps...</span>
-      </div>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 8,
+          gap: 2,
+        }}
+      >
+        <CircularProgress size={32} thickness={5} sx={{ color: theme.palette.primary.main }} />
+        <Typography variant="caption" color="text.secondary" fontWeight={600}>
+          INITIALIZING MAP SERVICES...
+        </Typography>
+      </Box>
     );
   }
 
