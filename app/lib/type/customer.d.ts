@@ -31,6 +31,7 @@ export interface CustomerPageActions {
 export interface CustomerListProps {
   customers: CustomerWithRelations[];
   selectedId: string | null;
+  loading?: boolean;
   onSelect: (id: string) => void;
   onEdit?: (customer: CustomerWithRelations) => void;
   onDelete?: (customer: CustomerWithRelations) => void;

@@ -57,7 +57,7 @@ export default function UsersPage() {
   }, [fetchUsers]);
 
   return (
-    <Box sx={{ height: "100%", width: "100%", p: 4 }}>
+    <Box sx={{ height: "100%", width: "100%", p: { xs: 2, md: 4 } }}>
       <Stack
         direction="row"
         justifyContent="space-between"

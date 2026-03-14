@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, useTheme, CircularProgress, Box } from "@mui/material";
+import { Stack, useTheme, Box } from "@mui/material";
 import ShieldIcon from "@mui/icons-material/Shield";
 import StatCard from "../../cards/StatCard";
 import GroupsIcon from "@mui/icons-material/Groups";
@@ -9,79 +9,78 @@ import HomeIcon from "@mui/icons-material/Home";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import { DriverKpiCardProps } from "@/app/lib/type/driver";
+import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 
-const DriverKpiCard = ({ data }: DriverKpiCardProps) => {
+const DriverKpiCard = ({ data, loading = false }: DriverKpiCardProps & { loading?: boolean }) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+
+  if (loading || !data) {
+    return <KpiSkeleton count={7} />;
+  }
 
   const kpiItems = [
     {
       label: "Total Drivers",
-      value: data?.totalDrivers ?? 0,
+      value: data.totalDrivers ?? 0,
       icon: <GroupsIcon />,
       color: theme.palette.primary.main,
     },
     {
       label: "On Duty",
-      value: data?.onDuty ?? 0,
+      value: data.onDuty ?? 0,
       icon: <WorkIcon />,
       color: theme.palette.success.main,
     },
     {
       label: "Off Duty",
-      value: data?.offDuty ?? 0,
+      value: data.offDuty ?? 0,
       icon: <HomeIcon />,
       color: theme.palette.info.main,
     },
     {
       label: "On Leave",
-      value: data?.onLeave ?? 0,
+      value: data.onLeave ?? 0,
       icon: <HomeIcon />,
       color: theme.palette.warning.main,
     },
     {
       label: "Compliance Issues",
-      value: data?.complianceIssues ?? 0,
+      value: data.complianceIssues ?? 0,
       icon: <ReportProblemIcon />,
       color: theme.palette.error.main,
     },
     {
       label: "Avg Safety Rating",
-      value: data?.avgSafetyScore?.toFixed(1) ?? 0,
+      value: data.avgSafetyScore?.toFixed(1) ?? 0,
       icon: <ShieldIcon />,
       color: theme.palette.warning.main,
     },
     {
       label: "Efficiency Rating",
-      value: data?.avgEfficiencyScore?.toFixed(1) ?? 0,
+      value: data.avgEfficiencyScore?.toFixed(1) ?? 0,
       icon: <RocketLaunchIcon />,
       color: theme.palette.success.main,
     },
   ];
 
   return (
-    <Stack
-      direction={"row"}
-      flexWrap="wrap"
+    <Box
+      display="grid"
+      gridTemplateColumns="repeat(auto-fill, minmax(180px, 1fr))"
       gap={2}
       mt={2}
-      justifyContent={"center"}
     >
       {kpiItems.map((item, index) => (
-        <Stack
+        <StatCard
           key={index}
-          flexBasis={{ xs: "100%", sm: "48%", md: "18%" }}
-          flexGrow={1}
-        >
-          <StatCard
-            title={item.label}
-            value={item.value}
-            icon={item.icon}
-            color={item.color}
-          />
-        </Stack>
+          title={item.label}
+          value={item.value}
+          icon={item.icon}
+          color={item.color}
+        />
       ))}
-    </Stack>
+    </Box>
   );
 };
 

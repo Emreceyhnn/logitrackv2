@@ -9,7 +9,6 @@ import {
   Paper,
   Typography,
   Divider,
-  Skeleton,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
 import RowActions from "./menu";
@@ -20,14 +19,20 @@ import {
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
 import { StatusChip } from "@/app/components/chips/statusChips";
+import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
   const { shipments, loading = false } = state;
   const { selectShipment: onSelect, onEdit, onDelete } = actions;
+
   /* --------------------------------- states --------------------------------- */
   const [open, setOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] =
     useState<ShipmentWithRelations | null>(null);
+
+  if (loading) {
+    return <TableSkeleton title="Shipment List" rows={5} columns={9} />;
+  }
 
   /* -------------------------------- handlers -------------------------------- */
   const handleClose = () => {
@@ -68,39 +73,7 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
             </TableHead>
 
             <TableBody>
-              {loading ? (
-                Array.from(new Array(5)).map((_, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Skeleton variant="text" width={80} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="rounded" width={90} height={24} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={120} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={80} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={120} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={80} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={80} />
-                    </TableCell>
-                    <TableCell align="right">
-                      <Skeleton variant="text" width={30} />
-                    </TableCell>
-                    <TableCell align="right">
-                      <Skeleton variant="circular" width={24} height={24} />
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : shipments.length === 0 ? (
+              {shipments.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} align="center" sx={{ py: 3 }}>
                     <Typography variant="body2" color="text.secondary">

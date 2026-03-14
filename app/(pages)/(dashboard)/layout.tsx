@@ -1,8 +1,7 @@
 "use client";
 
-import Footer from "@/app/components/footer";
 import SideBar from "@/app/components/sidebar";
-import { Box, Stack, useTheme } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 
 export default function DashboardLayout({
   children,
@@ -14,23 +13,33 @@ export default function DashboardLayout({
   return (
     <Box
       display="flex"
-      sx={{ backgroundColor: theme.palette.background.dashboardBg }}
+      sx={{ 
+        backgroundColor: theme.palette.background.dashboardBg,
+        minHeight: "100vh"
+      }}
     >
-      <Stack
+      <Box
+        component="nav"
         sx={{
-          position: "relative",
-          top: 0,
-          left: 0,
-          minWidth: 200,
-          height: "100dvh",
+          display: { xs: "none", md: "block" },
+          width: 200,
+          flexShrink: 0,
         }}
       >
         <SideBar />
-      </Stack>
-      <Stack flexGrow={1}>
+      </Box>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          width: { xs: "100%", md: "calc(100% - 200px)" },
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         {children}
-        <Footer />
-      </Stack>
+      </Box>
     </Box>
   );
 }

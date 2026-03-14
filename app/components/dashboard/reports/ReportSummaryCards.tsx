@@ -1,5 +1,6 @@
+"use client";
+
 import { Card, Stack, Typography, useTheme, Box, alpha } from "@mui/material";
-import AssessmentIcon from "@mui/icons-material/Assessment";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
@@ -8,6 +9,7 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import { ReportsMetrics } from "@/app/lib/type/reports";
+import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 
 interface MetricCardProps {
   title: string;
@@ -112,11 +114,21 @@ const MetricCard = ({
 export default function ReportSummaryCards({
   tabIndex,
   metrics,
+  loading = false,
 }: {
   tabIndex: number;
   metrics?: ReportsMetrics;
+  loading?: boolean;
 }) {
   const theme = useTheme();
+
+  if (loading || !metrics) {
+    return (
+      <Box sx={{ mb: 4 }}>
+        <KpiSkeleton count={4} />
+      </Box>
+    );
+  }
 
   const getMetrics = () => {
     switch (tabIndex) {
@@ -233,21 +245,15 @@ export default function ReportSummaryCards({
   const metricsData = getMetrics();
 
   return (
-    <Stack
-      direction={{ xs: "column", sm: "row" }}
-      spacing={3}
-      sx={{ mb: 4 }}
-      useFlexGap
-      flexWrap="wrap"
+    <Box
+      display="grid"
+      gridTemplateColumns="repeat(auto-fill, minmax(240px, 1fr))"
+      gap={3}
+      mb={4}
     >
       {metricsData.map((metric, index) => (
-        <Box
-          key={index}
-          sx={{ flex: { xs: "1 1 100%", sm: "1 1 45%", md: "1 1 20%" } }}
-        >
-          <MetricCard {...metric} />
-        </Box>
+        <MetricCard key={index} {...metric} />
       ))}
-    </Stack>
+    </Box>
   );
 }

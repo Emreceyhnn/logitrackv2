@@ -6,6 +6,7 @@ import {
   Stack,
   Typography,
   Skeleton,
+  Box,
 } from "@mui/material";
 import CustomCard from "../../cards/card";
 import WarningIcon from "@mui/icons-material/Warning";
@@ -27,7 +28,30 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
         >
           ROUTE EFFICIENCY
         </Typography>
-        <Skeleton variant="rectangular" height={200} />
+        <Stack spacing={3}>
+          {[1, 2, 3].map((i) => (
+            <Stack key={i} spacing={1}>
+              <Stack direction="row" justifyContent="space-between">
+                <Skeleton width="40%" />
+                <Skeleton width="20%" />
+              </Stack>
+              <Skeleton variant="rounded" height={8} />
+            </Stack>
+          ))}
+          <Divider />
+          <Skeleton width="50%" height={24} />
+          <Stack spacing={2}>
+            {[1, 2].map((i) => (
+              <Stack key={i} direction="row" spacing={2} alignItems="center">
+                <Skeleton variant="circular" width={24} height={24} />
+                <Stack flexGrow={1}>
+                  <Skeleton width="60%" />
+                  <Skeleton width="40%" height={14} />
+                </Stack>
+              </Stack>
+            ))}
+          </Stack>
+        </Stack>
       </CustomCard>
     );
   }

@@ -17,19 +17,21 @@ import {
   Chip,
   TablePagination,
   Box,
-  Button,
-  Skeleton,
+  useTheme,
+  alpha,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import InfoIcon from "@mui/icons-material/Info";
-import { Menu, MenuItem, ListItemIcon, ListItemText, alpha, useTheme } from "@mui/material";
-import InventoryIcon from "@mui/icons-material/Inventory";
-
-import { StatusChip } from "@/app/components/chips/statusChips";
 
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
+import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
+
 interface InventoryTableProps {
   items: InventoryWithRelations[];
   loading?: boolean;
@@ -47,7 +49,7 @@ const getStatus = (quantity: number, minStock: number) => {
 
 const InventoryTable = ({
   items,
-  loading,
+  loading = false,
   onSelect,
   onEdit,
   onDelete,
@@ -60,6 +62,10 @@ const InventoryTable = ({
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedItem, setSelectedItem] = useState<InventoryWithRelations | null>(null);
+
+  if (loading) {
+    return <TableSkeleton title="Inventory List" rows={5} columns={8} />;
+  }
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, item: InventoryWithRelations) => {
     event.stopPropagation();
@@ -130,7 +136,6 @@ const InventoryTable = ({
     return "error";
   };
   const formatPrice = (price: number) => {
-    // Check if Intl is supported or fallback
     try {
       return new Intl.NumberFormat("en-TR", {
         style: "currency",
@@ -179,39 +184,7 @@ const InventoryTable = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {loading ? (
-              Array.from(new Array(5)).map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell padding="checkbox">
-                    <Skeleton variant="rectangular" width={20} height={20} />
-                  </TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Skeleton variant="circular" width={40} height={40} />
-                      <Skeleton variant="text" width={140} />
-                    </Stack>
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={80} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={80} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="rounded" width={90} height={24} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={60} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={100} />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Skeleton variant="circular" width={28} height={28} />
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : visibleRows.length === 0 ? (
+            {visibleRows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
                   <Typography variant="body2" color="text.secondary">
@@ -224,10 +197,8 @@ const InventoryTable = ({
                 const isItemSelected = isSelected(row.id);
                 const labelId = `enhanced-table-checkbox-${index}`;
                 const status = getStatus(row.quantity, row.minStock);
-
-                // Mock fields for UI preservation (until DB has them)
                 const category = "General";
-                const unitPrice = 100; // Placeholder
+                const unitPrice = 100;
 
                 return (
                   <TableRow
@@ -322,7 +293,6 @@ const InventoryTable = ({
         </Table>
       </TableContainer>
 
-      {/* Action Menu */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}

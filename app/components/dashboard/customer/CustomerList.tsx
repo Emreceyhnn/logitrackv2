@@ -14,8 +14,8 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Skeleton,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import InfoIcon from "@mui/icons-material/Info";
@@ -30,6 +30,7 @@ import {
 const CustomerList = ({
   customers,
   selectedId,
+  loading = false,
   onSelect,
   onEdit,
   onDelete,
@@ -64,6 +65,47 @@ const CustomerList = ({
     }
     handleMenuClose();
   };
+
+  if (loading) {
+    return (
+      <Paper
+        sx={{
+          width: 400,
+          display: "flex",
+          flexDirection: "column",
+          borderRadius: 3,
+          overflow: "hidden",
+          height: "100%",
+          bgcolor: "background.paper",
+        }}
+      >
+        <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}>
+          <Skeleton width={120} height={32} />
+          <Skeleton width={80} height={20} />
+        </Box>
+        <Box sx={{ flex: 1, overflowY: "auto", p: 0 }}>
+          {Array.from(new Array(5)).map((_, index) => (
+            <Box
+              key={index}
+              sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}
+            >
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Skeleton variant="rounded" width={40} height={40} />
+                <Box sx={{ flex: 1 }}>
+                  <Skeleton width="60%" height={24} />
+                  <Skeleton width="40%" height={16} />
+                </Box>
+              </Stack>
+              <Stack spacing={1} sx={{ mt: 2 }}>
+                <Skeleton width="80%" height={16} />
+                <Skeleton width="50%" height={16} />
+              </Stack>
+            </Box>
+          ))}
+        </Box>
+      </Paper>
+    );
+  }
 
   return (
     <Paper
@@ -160,7 +202,8 @@ const CustomerList = ({
                 />
                 <Typography variant="body2" color="text.secondary" noWrap>
                   {customer.locations && customer.locations.length > 0
-                    ? customer.locations.find(l => l.isDefault)?.address || customer.locations[0].address
+                    ? customer.locations.find((l) => l.isDefault)?.address ||
+                      customer.locations[0].address
                     : "No address provided"}
                 </Typography>
               </Stack>
@@ -216,20 +259,32 @@ const CustomerList = ({
           <ListItemIcon>
             <InfoIcon fontSize="small" color="info" />
           </ListItemIcon>
-          <ListItemText primary="Details" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
+          <ListItemText
+            primary="Details"
+            primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
+          />
         </MenuItem>
         <MenuItem onClick={() => handleAction("edit")}>
           <ListItemIcon>
             <EditIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Edit" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
+          <ListItemText
+            primary="Edit"
+            primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
+          />
         </MenuItem>
         <Divider sx={{ my: 0.5, borderColor: "divider" }} />
-        <MenuItem onClick={() => handleAction("delete")} sx={{ color: "error.main" }}>
+        <MenuItem
+          onClick={() => handleAction("delete")}
+          sx={{ color: "error.main" }}
+        >
           <ListItemIcon>
             <DeleteIcon fontSize="small" color="error" />
           </ListItemIcon>
-          <ListItemText primary="Delete" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
+          <ListItemText
+            primary="Delete"
+            primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
+          />
         </MenuItem>
       </Menu>
     </Paper>

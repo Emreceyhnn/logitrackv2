@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   Chip,
-  Skeleton,
   Stack,
   Table,
   TableBody,
@@ -28,6 +27,7 @@ import CompanyMemberDetailsDialog from "../../dialogs/company/CompanyMemberDetai
 import EditCompanyMemberDialog from "../../dialogs/company/EditCompanyMemberDialog";
 import DeleteConfirmationDialog from "../../dialogs/deleteConfirmationDialog";
 import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Divider as MuiDivider, alpha, useTheme } from "@mui/material";
+import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 function StatusChip({ status }: { status: string }) {
   const normalized = status.toUpperCase();
@@ -46,8 +46,6 @@ function StatusChip({ status }: { status: string }) {
     />
   );
 }
-
-const SKELETON_ROWS = 4;
 
 interface CompanyMembersTableProps {
   props: CompanyPageProps;
@@ -69,6 +67,10 @@ export default function CompanyMembersTable({
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  if (loading) {
+     return <TableSkeleton title="Team Members" rows={5} columns={6} />;
+  }
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, member: CompanyMember) => {
     setAnchorEl(event.currentTarget);
@@ -107,6 +109,7 @@ export default function CompanyMembersTable({
         pb={1.5}
         direction={"row"}
         justifyContent={"space-between"}
+        alignItems="center"
       >
         <Stack>
           <Typography fontWeight={700} fontSize={16}>
@@ -138,34 +141,7 @@ export default function CompanyMembersTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            {loading &&
-              Array.from({ length: SKELETON_ROWS }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Skeleton variant="circular" width={32} height={32} />
-                      <Skeleton width={100} height={16} />
-                    </Stack>
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton width={140} height={16} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton width={70} height={22} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton width={60} height={22} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton width={90} height={16} />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Skeleton variant="circular" width={24} height={24} sx={{ ml: "auto" }} />
-                  </TableCell>
-                </TableRow>
-              ))}
-
-            {!loading && members.length === 0 && (
+            {members.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6}>
                   <Stack py={4} alignItems="center" spacing={1}>
@@ -178,9 +154,7 @@ export default function CompanyMembersTable({
                   </Stack>
                 </TableCell>
               </TableRow>
-            )}
-
-            {!loading &&
+            ) : (
               members.map((member) => (
                 <TableRow
                   key={member.id}
@@ -238,7 +212,8 @@ export default function CompanyMembersTable({
                     </IconButton>
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>

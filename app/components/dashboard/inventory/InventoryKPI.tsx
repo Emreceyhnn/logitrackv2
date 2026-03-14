@@ -1,13 +1,8 @@
 "use client";
 
 import {
-  Card,
   Stack,
-  Typography,
   useTheme,
-  Box,
-  alpha,
-  Skeleton,
 } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import InventoryIcon from "@mui/icons-material/Inventory";
@@ -16,6 +11,7 @@ import ErrorIcon from "@mui/icons-material/Error";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
+import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 
 interface InventoryKPIProps {
   items: InventoryWithRelations[];
@@ -25,6 +21,10 @@ interface InventoryKPIProps {
 const InventoryKPI = ({ items, loading = false }: InventoryKPIProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+
+  if (loading) {
+    return <KpiSkeleton count={4} />;
+  }
 
   /* ---------------------------------- datas --------------------------------- */
   const totalItems = items.length;
@@ -65,22 +65,6 @@ const InventoryKPI = ({ items, loading = false }: InventoryKPIProps) => {
       color: theme.palette.success.main,
     },
   ];
-
-  if (loading) {
-    return (
-      <Stack
-        direction={{ xs: "column", md: "row" }}
-        spacing={2}
-        sx={{ width: "100%", mb: 3 }}
-      >
-        {Array.from(new Array(4)).map((_, index) => (
-          <Box key={index} sx={{ flex: 1 }}>
-            <Skeleton variant="rounded" height={100} sx={{ borderRadius: 2 }} />
-          </Box>
-        ))}
-      </Stack>
-    );
-  }
 
   return (
     <Stack

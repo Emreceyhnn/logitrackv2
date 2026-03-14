@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, useTheme } from "@mui/material";
+import { Stack, useTheme, Box } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -10,11 +10,16 @@ import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import DescriptionIcon from "@mui/icons-material/Description";
 
 import { VehicleKpiCardProps } from "@/app/lib/type/vehicle";
+import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 
-const VehicleKpiCard = ({ state, actions }: VehicleKpiCardProps) => {
+const VehicleKpiCard = ({ state }: VehicleKpiCardProps) => {
   const stats = state.dashboardData?.vehiclesKpis || null;
-  /* -------------------------------- variables ------------------------------- */
+  const { loading } = state;
   const theme = useTheme();
+
+  if (loading) {
+    return <KpiSkeleton count={6} />;
+  }
 
   const values = stats || {
     totalVehicles: 0,
@@ -65,28 +70,22 @@ const VehicleKpiCard = ({ state, actions }: VehicleKpiCardProps) => {
   ];
 
   return (
-    <Stack
-      direction={"row"}
-      flexWrap="wrap"
-      gap={2}
-      mt={2}
-      justifyContent={"center"}
+    <Box
+       display="grid"
+       gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
+       gap={2}
+       mt={2}
     >
       {kpiItems.map((item, index) => (
-        <Stack
+        <StatCard
           key={index}
-          flexBasis={{ xs: "100%", sm: "48%", md: "30%" }}
-          flexGrow={1}
-        >
-          <StatCard
-            title={item.label}
-            value={item.value}
-            icon={item.icon}
-            color={item.color}
-          />
-        </Stack>
+          title={item.label}
+          value={item.value}
+          icon={item.icon}
+          color={item.color}
+        />
       ))}
-    </Stack>
+    </Box>
   );
 };
 

@@ -1,8 +1,4 @@
 import {
-  Box,
-  Card,
-  LinearProgress,
-  Stack,
   Table,
   TableBody,
   TableCell,
@@ -10,10 +6,11 @@ import {
   TableHead,
   TableRow,
   Typography,
-  useTheme,
   IconButton,
   Menu,
   MenuItem,
+  Stack,
+  LinearProgress,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
@@ -23,8 +20,8 @@ import { useState } from "react";
 import CustomCard from "../../cards/card";
 import {
   WarehouseTableProps,
-  WarehouseWithRelations,
 } from "@/app/lib/type/warehouse";
+import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 const WarehouseListTable = ({
   warehouses,
@@ -34,7 +31,6 @@ const WarehouseListTable = ({
   onDelete,
   onDetails,
 }: WarehouseTableProps) => {
-  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [menuRowId, setMenuRowId] = useState<string | null>(null);
 
@@ -74,8 +70,9 @@ const WarehouseListTable = ({
     handleMenuClose();
   };
 
-  if (loading)
-    return <Typography sx={{ p: 3 }}>Loading warehouses...</Typography>;
+  if (loading) {
+    return <TableSkeleton title="Warehouse List" rows={5} columns={7} />;
+  }
 
   return (
     <CustomCard sx={{ p: 3, borderRadius: "12px", boxShadow: 3 }}>
@@ -158,16 +155,14 @@ const WarehouseListTable = ({
           </TableHead>
           <TableBody>
             {warehouses.map((warehouse) => {
-              // Derived values calculation
-              const usedPallets = (warehouse._count?.inventory || 0) * 10; // Mock calculation logic preserved
+              const usedPallets = (warehouse._count?.inventory || 0) * 10;
               const totalPallets = warehouse.capacityPallets || 5000;
-              const usedVolume = (warehouse._count?.inventory || 0) * 5; // Mock calculation logic preserved
+              const usedVolume = (warehouse._count?.inventory || 0) * 5;
               const totalVolume = warehouse.capacityVolumeM3 || 100000;
 
               const palletPct = (usedPallets / totalPallets) * 100;
               const volumePct = (usedVolume / totalVolume) * 100;
 
-              // @ts-ignore - operatingHours might be string or object in DB, handling simplistic case
               const operatingHours =
                 warehouse.operatingHours || "08:00 - 18:00";
 
@@ -195,12 +190,9 @@ const WarehouseListTable = ({
                           flex: 1,
                           height: 6,
                           borderRadius: 3,
-                          bgcolor:
-                            theme.palette.mode === "dark"
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.1)",
+                          bgcolor: "rgba(255,255,255,0.05)",
                           "& .MuiLinearProgress-bar": {
-                            bgcolor: "#3b82f6", // Blue like design
+                            bgcolor: "#3b82f6",
                             borderRadius: 3,
                           },
                         }}
@@ -223,12 +215,9 @@ const WarehouseListTable = ({
                           flex: 1,
                           height: 6,
                           borderRadius: 3,
-                          bgcolor:
-                            theme.palette.mode === "dark"
-                              ? "rgba(255,255,255,0.1)"
-                              : "rgba(0,0,0,0.1)",
+                          bgcolor: "rgba(255,255,255,0.05)",
                           "& .MuiLinearProgress-bar": {
-                            bgcolor: "#10b981", // Green like design
+                            bgcolor: "#10b981",
                             borderRadius: 3,
                           },
                         }}

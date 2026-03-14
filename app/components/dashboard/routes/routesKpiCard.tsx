@@ -7,10 +7,15 @@ import LoopIcon from "@mui/icons-material/Loop";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningIcon from "@mui/icons-material/Warning";
 import { RoutesKpiCardProps } from "@/app/lib/type/routes";
+import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 
-const RoutesKpiCard = ({ stats }: RoutesKpiCardProps) => {
+const RoutesKpiCard = ({ stats, loading = false }: { stats: any; loading?: boolean }) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+
+  if (loading) {
+    return <KpiSkeleton count={4} />;
+  }
 
   const values = stats || {
     active: 0,
@@ -61,6 +66,7 @@ const RoutesKpiCard = ({ stats }: RoutesKpiCardProps) => {
           flexGrow={1}
         >
           <StatCard
+            key={index}
             title={item.label}
             value={item.value}
             icon={item.icon}

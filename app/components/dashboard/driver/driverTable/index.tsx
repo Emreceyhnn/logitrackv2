@@ -8,19 +8,17 @@ import {
   TableRow,
   Paper,
   Typography,
-  Divider,
   TablePagination,
   TableSortLabel,
-  Skeleton,
 } from "@mui/material";
-import CustomCard from "../../../cards/card";
 import RowActions from "./menu";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { DriverTableProps } from "@/app/lib/type/driver";
+import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 const DriverTable = ({
   drivers,
-  loading,
+  loading = false,
   meta,
   onDriverSelect,
   onEdit,
@@ -43,6 +41,10 @@ const DriverTable = ({
     (property: string) => (event: React.MouseEvent<unknown>) => {
       if (onRequestSort) onRequestSort(property);
     };
+
+  if (loading) {
+    return <TableSkeleton title="Driver List" rows={10} columns={8} />;
+  }
 
   return (
     <>
@@ -110,39 +112,7 @@ const DriverTable = ({
           </TableHead>
 
           <TableBody>
-            {loading ? (
-              Array.from(new Array(5)).map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Skeleton variant="text" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={100} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={150} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="rounded" width={80} height={24} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={80} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="circular" width={32} height={32} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={60} />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Skeleton variant="text" width={40} />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Skeleton variant="circular" width={24} height={24} />
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : drivers.length === 0 ? (
+            {drivers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} align="center" sx={{ py: 3 }}>
                   <Typography variant="body2" color="text.secondary">

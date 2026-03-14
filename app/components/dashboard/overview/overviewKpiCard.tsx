@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, useTheme } from "@mui/material";
+import { Stack, useTheme, Box } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -10,6 +10,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PersonIcon from "@mui/icons-material/Person";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import InventoryIcon from "@mui/icons-material/Inventory";
+import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 
 interface OverviewKpiCardProps {
   stats: {
@@ -22,22 +23,18 @@ interface OverviewKpiCardProps {
     warehouses: number;
     inventorySkus: number;
   } | null;
+  loading?: boolean;
 }
 
-const OverviewKpiCard = ({ stats }: OverviewKpiCardProps) => {
+const OverviewKpiCard = ({ stats, loading = false }: OverviewKpiCardProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const values = stats || {
-    activeShipments: 0,
-    delayedShipments: 0,
-    vehiclesOnTrip: 0,
-    vehiclesInService: 0,
-    availableVehicles: 0,
-    activeDrivers: 0,
-    warehouses: 0,
-    inventorySkus: 0,
-  };
+  if (loading || !stats) {
+    return <KpiSkeleton count={8} />;
+  }
+
+  const values = stats;
 
   const kpiItems = [
     {
@@ -91,28 +88,22 @@ const OverviewKpiCard = ({ stats }: OverviewKpiCardProps) => {
   ];
 
   return (
-    <Stack
-      direction={"row"}
-      flexWrap="wrap"
+    <Box
+      display="grid"
+      gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
       gap={2}
       mt={2}
-      justifyContent={"center"}
     >
       {kpiItems.map((item, index) => (
-        <Stack
+        <StatCard
           key={index}
-          flexBasis={{ xs: "100%", sm: "48%", md: "23%" }}
-          flexGrow={1}
-        >
-          <StatCard
-            title={item.label}
-            value={item.value}
-            icon={item.icon}
-            color={item.color}
-          />
-        </Stack>
+          title={item.label}
+          value={item.value}
+          icon={item.icon}
+          color={item.color}
+        />
       ))}
-    </Stack>
+    </Box>
   );
 };
 

@@ -4,12 +4,12 @@ import { BarChart } from "@mui/x-charts/BarChart";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { useMemo } from "react";
 import { ShipmentAnalyticsProps } from "@/app/lib/type/shipment";
+import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
 
 export default function ShipmentAnalytics({
   state,
-  actions,
 }: ShipmentAnalyticsProps) {
-  const { volumeHistory, statusDistribution } = state;
+  const { volumeHistory, statusDistribution, loading } = state;
   const theme = useTheme();
 
   const pieData = useMemo(() => {
@@ -34,6 +34,19 @@ export default function ShipmentAnalytics({
       volume: item.volume,
     }));
   }, [volumeHistory]);
+
+  if (loading) {
+    return (
+      <Stack direction={{ xs: "column", md: "row" }} spacing={3} mt={2}>
+        <Box sx={{ flex: 1 }}>
+          <AnalyticsSkeleton title="Status Overview" />
+        </Box>
+        <Box sx={{ flex: 1 }}>
+          <AnalyticsSkeleton title="Volume Trend" />
+        </Box>
+      </Stack>
+    );
+  }
 
   return (
     <Stack

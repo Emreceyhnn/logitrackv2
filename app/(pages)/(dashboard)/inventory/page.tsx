@@ -131,7 +131,7 @@ export default function InventoryPage() {
   }, [state.inventory, state.filters.search]);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 2, md: 4 } }}>
       <InventoryHeader
         onSearch={(val) => actions.updateFilters({ search: val })}
         onFilterClick={() => {}}

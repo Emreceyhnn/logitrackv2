@@ -2,6 +2,7 @@
 import { Box, Stack, Typography, useTheme, Divider } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import CustomCard from "../../cards/card";
+import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
 
 interface DriverPerformanceChartsProps {
   data:
@@ -11,11 +12,25 @@ interface DriverPerformanceChartsProps {
         workingHours: number;
       }[]
     | undefined;
+  loading?: boolean;
 }
 
-const DriverPerformanceCharts = ({ data }: DriverPerformanceChartsProps) => {
+const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceChartsProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+
+  if (loading || !data) {
+    return (
+      <Stack direction={{ xs: "column", md: "row" }} spacing={2} mt={2}>
+        <Box flex={1}>
+          <AnalyticsSkeleton title="Driver Ratings" />
+        </Box>
+        <Box flex={1}>
+          <AnalyticsSkeleton title="Weekly Working Hours" />
+        </Box>
+      </Stack>
+    );
+  }
 
   const driverNames = data?.map((d) => d.name) ?? [];
   const ratings = data?.map((d) => d.rating) ?? [];

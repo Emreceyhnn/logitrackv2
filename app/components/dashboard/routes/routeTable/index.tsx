@@ -11,7 +11,6 @@ import {
   Divider,
   TablePagination,
   Stack,
-  Skeleton,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
 import { useState } from "react";
@@ -19,6 +18,7 @@ import RowActions from "../../vehicle/vehicleTable/menu";
 import RouteDetailsDialog from "@/app/components/dialogs/routes";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { RouteTableProps, RouteWithRelations } from "@/app/lib/type/routes";
+import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 interface ExtendedRouteTableProps extends RouteTableProps {
   onRefresh?: () => void;
@@ -28,7 +28,7 @@ interface ExtendedRouteTableProps extends RouteTableProps {
 
 const RouteTable = ({
   routes,
-  loading,
+  loading = false,
   pagination,
   onPageChange,
   onSelect,
@@ -41,6 +41,10 @@ const RouteTable = ({
   const [selectedRoute, setSelectedRoute] = useState<RouteWithRelations | null>(
     null
   );
+
+  if (loading) {
+    return <TableSkeleton title="Detailed ACTIVE ROUTES" rows={10} columns={7} />;
+  }
 
   /* -------------------------------- handlers -------------------------------- */
   const handleCloseDetails = () => {
@@ -67,68 +71,6 @@ const RouteTable = ({
   ) => {
     console.warn("Change rows per page not implemented in parent yet");
   };
-
-  if (loading && routes.length === 0) {
-    return (
-      <>
-        <CustomCard sx={{ padding: "0 0 6px 0" }}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            p={2}
-          >
-            <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
-              Detailed ACTIVE ROUTES
-            </Typography>
-          </Stack>
-          <Divider />
-          <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>ROUTE ID</TableCell>
-                  <TableCell>VEHICLE PLATE</TableCell>
-                  <TableCell>ORIGIN</TableCell>
-                  <TableCell>DESTINATION</TableCell>
-                  <TableCell>ETA</TableCell>
-                  <TableCell>STATUS</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {Array.from(new Array(5)).map((_, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Skeleton variant="text" width={100} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={80} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={100} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={100} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={80} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="rounded" width={90} height={24} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="circular" width={24} height={24} />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CustomCard>
-      </>
-    );
-  }
 
   return (
     <>

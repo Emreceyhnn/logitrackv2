@@ -4,10 +4,10 @@ import {
   CircularProgress,
   Stack,
   Typography,
-  useTheme,
 } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
+import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
 
 interface CapacityUtilizationProps {
   warehouses: WarehouseWithRelations[];
@@ -16,11 +16,12 @@ interface CapacityUtilizationProps {
 
 const CapacityUtilization = ({
   warehouses,
-  loading,
+  loading = false,
 }: CapacityUtilizationProps) => {
-  const theme = useTheme();
 
-  if (loading) return <Typography>Loading capacity...</Typography>;
+  if (loading) {
+    return <AnalyticsSkeleton title="Capacity Utilization" height={300} />;
+  }
 
   return (
     <CustomCard sx={{ p: 3, borderRadius: "12px", boxShadow: 3, flex: 2 }}>
@@ -30,7 +31,6 @@ const CapacityUtilization = ({
 
       <Stack spacing={4} alignItems="center">
         {warehouses.map((warehouse) => {
-          // Derived values calculation matching list table logic
           const usedPallets = (warehouse._count?.inventory || 0) * 10;
           const totalPallets = warehouse.capacityPallets || 5000;
           const capacityPct = Math.round((usedPallets / totalPallets) * 100);
@@ -46,10 +46,7 @@ const CapacityUtilization = ({
                   size={160}
                   thickness={4}
                   sx={{
-                    color:
-                      theme.palette.mode === "dark"
-                        ? "rgba(255,255,255,0.05)"
-                        : "rgba(0,0,0,0.05)",
+                    color: "rgba(255,255,255,0.05)",
                   }}
                 />
                 <CircularProgress

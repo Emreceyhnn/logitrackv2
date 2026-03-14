@@ -236,6 +236,7 @@ export default function VehiclePage() {
 
         <VehicleCapacityChart
           data={state.dashboardData?.vehiclesCapacity || []}
+          loading={state.loading}
         />
       </Stack>
 

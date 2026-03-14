@@ -28,7 +28,7 @@ export default function AnalyticsPage() {
   }, []);
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
       <AnalyticsHeader />
 
       <Box sx={{ mb: 3 }}>

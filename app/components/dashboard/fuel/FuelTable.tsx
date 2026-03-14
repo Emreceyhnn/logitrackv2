@@ -10,13 +10,17 @@ import {
   Paper,
   Typography,
   Divider,
-  Skeleton,
 } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { FuelTableProps } from "@/app/lib/type/fuel";
+import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
-const FuelTable = ({ state, actions }: FuelTableProps) => {
+const FuelTable = ({ state }: FuelTableProps) => {
   const { logs, loading } = state;
+
+  if (loading) {
+    return <TableSkeleton title="Fuel Logs History" rows={5} columns={8} />;
+  }
 
   return (
     <CustomCard sx={{ padding: "0 0 6px 0" }}>
@@ -41,36 +45,7 @@ const FuelTable = ({ state, actions }: FuelTableProps) => {
           </TableHead>
 
           <TableBody>
-            {loading ? (
-              Array.from(new Array(5)).map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Skeleton variant="text" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={100} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={120} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={60} />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Skeleton variant="text" width={40} />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Skeleton variant="text" width={40} />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Skeleton variant="text" width={60} />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton variant="text" width={100} />
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : logs.length === 0 ? (
+            {logs.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
                   <Typography variant="body2" color="text.secondary">

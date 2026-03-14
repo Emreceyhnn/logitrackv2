@@ -2,12 +2,6 @@
 
 import {
   Box,
-  Card,
-  CardContent,
-  Skeleton,
-  Stack,
-  Typography,
-  useTheme,
 } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
@@ -15,7 +9,9 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import GroupsIcon from "@mui/icons-material/Groups";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import { CompanyStats, CompanyPageProps } from "@/app/lib/type/company";
+import { CompanyPageProps } from "@/app/lib/type/company";
+import StatCard from "../../cards/StatCard";
+import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 
 interface KpiItem {
   label: string;
@@ -31,7 +27,10 @@ interface CompanyKpiCardProps {
 export default function CompanyKpiCard({ props }: CompanyKpiCardProps) {
   const { state } = props;
   const data = state.data?.stats ?? null;
-  const theme = useTheme();
+
+  if (state.loading) {
+    return <KpiSkeleton count={6} />;
+  }
 
   const kpis: KpiItem[] = [
     {
@@ -75,54 +74,17 @@ export default function CompanyKpiCard({ props }: CompanyKpiCardProps) {
   return (
     <Box
       display="grid"
-      gridTemplateColumns="repeat(auto-fill, minmax(160px, 1fr))"
+      gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
       gap={2}
     >
-      {kpis.map((kpi) => (
-        <Card
-          key={kpi.label}
-          variant="outlined"
-          sx={{
-            borderRadius: 3,
-            border: `1px solid ${theme.palette.divider}`,
-            transition: "box-shadow 0.2s",
-            "&:hover": { boxShadow: 3 },
-          }}
-        >
-          <CardContent>
-            <Stack spacing={1}>
-              <Box
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 2,
-                  backgroundColor: `${kpi.color}18`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: kpi.color,
-                }}
-              >
-                {kpi.icon}
-              </Box>
-              {state.loading ? (
-                <>
-                  <Skeleton width={48} height={32} />
-                  <Skeleton width={72} height={16} />
-                </>
-              ) : (
-                <>
-                  <Typography fontWeight={700} fontSize={24} lineHeight={1}>
-                    {kpi.value.toLocaleString()}
-                  </Typography>
-                  <Typography fontSize={12} color="text.secondary">
-                    {kpi.label}
-                  </Typography>
-                </>
-              )}
-            </Stack>
-          </CardContent>
-        </Card>
+      {kpis.map((kpi, index) => (
+        <StatCard
+          key={index}
+          title={kpi.label}
+          value={kpi.value.toLocaleString()}
+          icon={kpi.icon}
+          color={kpi.color}
+        />
       ))}
     </Box>
   );

@@ -185,6 +185,7 @@ export default function CustomersPage() {
           <CustomerList
             customers={filteredCustomers}
             selectedId={state.selectedCustomerId}
+            loading={state.loading}
             onSelect={actions.selectCustomer}
             onEdit={handleEdit}
             onDelete={handleDelete}

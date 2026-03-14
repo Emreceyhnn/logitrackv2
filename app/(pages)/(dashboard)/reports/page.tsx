@@ -109,24 +109,21 @@ export default function ReportsPage() {
         </Tabs>
       </Box>
 
-      {state.data && (
-        <ReportSummaryCards
-          tabIndex={state.tabIndex}
-          metrics={state.data.metrics}
-        />
-      )}
+      <ReportSummaryCards
+        tabIndex={state.tabIndex}
+        metrics={state.data?.metrics}
+        loading={state.loading}
+      />
 
       <Box sx={{ mt: 2 }}>
         <CustomTabPanel value={state.tabIndex} index={0}>
-          {state.data && <ShipmentCharts data={state.data.shipments} />}
+          <ShipmentCharts data={state.data?.shipments} loading={state.loading} />
         </CustomTabPanel>
         <CustomTabPanel value={state.tabIndex} index={1}>
-          {state.data && <FleetCharts data={state.data.fleet} />}
+          <FleetCharts data={state.data?.fleet} loading={state.loading} />
         </CustomTabPanel>
         <CustomTabPanel value={state.tabIndex} index={2}>
-          {state.data && (
-            <InventoryCharts data={state.data.inventory.categoryStats} />
-          )}
+          <InventoryCharts data={state.data?.inventory.categoryStats} loading={state.loading} />
         </CustomTabPanel>
       </Box>
     </Box>

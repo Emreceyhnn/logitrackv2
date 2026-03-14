@@ -137,7 +137,7 @@ export default function OverviewPage() {
       </Typography>
       <Divider />
 
-      <OverviewKpiCard stats={state.data.stats || null} />
+      <OverviewKpiCard stats={state.data.stats || null} loading={state.loading} />
 
       <Stack direction={"row"} spacing={2} mt={2}>
         <ActionRequiredCard alerts={state.alerts} />

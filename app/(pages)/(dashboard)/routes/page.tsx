@@ -163,7 +163,7 @@ export default function RoutesPage() {
   };
 
   return (
-    <Box position={"relative"} p={4} width={"100%"}>
+    <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -189,7 +189,7 @@ export default function RoutesPage() {
           Add Route
         </Button>
       </Stack>
-      <RoutesKpiCard stats={state.stats} />
+      <RoutesKpiCard stats={state.stats} loading={state.loading} />
       <Stack mt={2} direction={"row"} spacing={3}>
         <RoutesMainMap mapData={state.mapData} loading={state.loading} />
         <RouteEfficiency data={state.efficiency} loading={state.loading} />

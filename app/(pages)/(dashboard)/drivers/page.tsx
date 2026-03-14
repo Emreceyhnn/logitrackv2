@@ -282,7 +282,7 @@ export default function DriverPage() {
         </Typography>
       )}
 
-      <DriverKpiCard data={state.dashboardData?.driversKpis || null} />
+      <DriverKpiCard data={state.dashboardData?.driversKpis || null} loading={state.loading} />
 
       <Stack gap={2} mt={2}>
         <CustomCard sx={{ padding: "0 0 6px 0" }}>
@@ -324,7 +324,7 @@ export default function DriverPage() {
         </CustomCard>
       </Stack>
 
-      <DriverPerformanceCharts data={state.dashboardData?.performanceCharts} />
+      <DriverPerformanceCharts data={state.dashboardData?.performanceCharts} loading={state.loading} />
 
       <AddDriverDialog
         open={isAddDialogOpen}

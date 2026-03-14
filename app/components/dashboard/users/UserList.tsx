@@ -1,16 +1,13 @@
 "use client";
 
 import {
-  Box,
-  Chip,
-  CircularProgress,
-  IconButton,
   Paper,
-  Typography,
 } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { UserWithRelations, UserListProps } from "@/app/lib/type/users";
+import { UserListProps } from "@/app/lib/type/users";
 import EditIcon from "@mui/icons-material/Edit";
+import { IconButton, Chip } from "@mui/material";
+import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 const UserList = ({ users, loading, onSelect }: UserListProps) => {
   const columns: GridColDef[] = [
@@ -84,39 +81,30 @@ const UserList = ({ users, loading, onSelect }: UserListProps) => {
     },
   ];
 
+  if (loading) {
+    return <TableSkeleton title="Users List" rows={10} columns={5} />;
+  }
+
   return (
     <Paper
       sx={{ height: 600, width: "100%", borderRadius: 2, overflow: "hidden" }}
     >
-      {loading ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-          }}
-        >
-          <CircularProgress size={32} />
-        </Box>
-      ) : (
-        <DataGrid
-          rows={users}
-          columns={columns}
-          getRowId={(row) => row.id}
-          sx={{
-            border: "none",
-            "& .MuiDataGrid-columnHeaders": {
-              bgcolor: "background.default",
-            },
-            "& .MuiDataGrid-row:hover": {
-              bgcolor: "action.hover",
-              cursor: "pointer",
-            },
-          }}
-          onRowClick={(params) => onSelect(params.row.id)}
-        />
-      )}
+      <DataGrid
+        rows={users}
+        columns={columns}
+        getRowId={(row) => row.id}
+        sx={{
+          border: "none",
+          "& .MuiDataGrid-columnHeaders": {
+            bgcolor: "background.default",
+          },
+          "& .MuiDataGrid-row:hover": {
+            bgcolor: "action.hover",
+            cursor: "pointer",
+          },
+        }}
+        onRowClick={(params) => onSelect(params.row.id)}
+      />
     </Paper>
   );
 };

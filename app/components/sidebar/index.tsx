@@ -15,11 +15,23 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { SidebarList } from "./listItem";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { useRouter } from "next/navigation";
+import { clearAuthCookies } from "@/app/lib/controllers/session";
 
 
 const SideBar = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await clearAuthCookies();
+      router.push("/auth/sign-in");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   const sideBarItemsParents = [
     {
@@ -129,6 +141,7 @@ const SideBar = () => {
               <Typography>Need Help</Typography>
             </IconButton>
             <IconButton
+              onClick={handleLogout}
               sx={{
                 display: "flex",
                 justifyContent: "start",

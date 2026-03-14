@@ -1,8 +1,8 @@
 "use client";
 
-import { PieChart } from "@mui/x-charts/PieChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { Card, Stack, Typography, Box, useTheme } from "@mui/material";
+import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
 
 interface ShipmentChartData {
   statusCounts: { status: string; count: number }[];
@@ -11,32 +11,23 @@ interface ShipmentChartData {
 
 interface ShipmentChartsProps {
   data?: ShipmentChartData;
+  loading?: boolean;
 }
 
-export default function ShipmentCharts({ data }: ShipmentChartsProps) {
+export default function ShipmentCharts({ data, loading = false }: ShipmentChartsProps) {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+
+  if (loading || !data) {
+    return <AnalyticsSkeleton title="Shipment Analytics" />;
+  }
 
   const statusMap: Record<string, number> = {};
   if (data?.statusCounts) {
     data.statusCounts.forEach((item) => {
       statusMap[item.status] = item.count;
     });
-  } else {
-    // Fallback defaults or empty
   }
-
-  const pieData = Object.keys(statusMap).map((status, index) => ({
-    id: index,
-    value: statusMap[status],
-    label: status.replace("_", " "),
-    color:
-      status === "DELIVERED"
-        ? theme.palette.success.main
-        : status === "IN_TRANSIT"
-          ? theme.palette.info.main
-          : theme.palette.warning.main,
-  }));
 
   const routeShipmentCounts = data?.routeCounts || [];
 
@@ -61,7 +52,7 @@ export default function ShipmentCharts({ data }: ShipmentChartsProps) {
             },
           }}
         >
-          <Stack spacing={0.5} sx={{ mb: 3 }}>
+          <Stack spacing={0.5} sx={{ mb: 3, width: "100%" }}>
             <Typography variant="h6" fontWeight={700}>
               Volume by Route
             </Typography>

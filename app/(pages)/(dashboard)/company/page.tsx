@@ -108,7 +108,7 @@ export default function CompanyPage() {
   }, [actions.fetchData]);
 
   return (
-    <Box position="relative" p={4} width="100%">
+    <Box position="relative" p={{ xs: 2, md: 4 }} width="100%">
       <Stack
         direction="row"
         justifyContent="space-between"

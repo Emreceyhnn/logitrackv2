@@ -1,6 +1,9 @@
+"use client";
+
 import CustomCard from "../../cards/card";
 import { Divider, Stack, Typography } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
+import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
 
 interface VehicleCapacityChartProps {
   data: {
@@ -8,9 +11,14 @@ interface VehicleCapacityChartProps {
     plate: string;
     maxLoadKg: number;
   }[];
+  loading?: boolean;
 }
 
-const VehicleCapacityChart = ({ data }: VehicleCapacityChartProps) => {
+const VehicleCapacityChart = ({ data, loading = false }: VehicleCapacityChartProps) => {
+  if (loading || !data) {
+     return <AnalyticsSkeleton title="Vehicle Max Load Capacity" />;
+  }
+
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", flexGrow: 1 }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
