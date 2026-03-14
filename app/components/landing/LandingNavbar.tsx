@@ -87,7 +87,6 @@ export default function LandingNavbar() {
               { label: "Pricing", href: "/pricing" },
               { label: "About", href: "/about" },
               { label: "How It Works", href: "/how-it-works" },
-              { label: "Blog", href: "/blog" },
             ].map((item) => (
               <Typography
                 key={item.label}
