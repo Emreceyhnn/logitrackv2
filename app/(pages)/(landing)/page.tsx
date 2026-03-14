@@ -2,14 +2,12 @@
 
 import Image from "next/image";
 import {
-  AppBar,
   Box,
   Button,
   Chip,
   Container,
   Divider,
   Stack,
-  Toolbar,
   Typography,
 } from "@mui/material";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
@@ -17,7 +15,6 @@ import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import { alpha, keyframes } from "@mui/system";
-import LandingHeaderAuth from "@/app/components/landing/LandingHeaderAuth";
 
 const pulse = keyframes`
   0% {
@@ -231,66 +228,6 @@ export default function LandingPage() {
             priority
           />
         </Box>
-
-        <AppBar
-          position="static"
-          elevation={0}
-          color="transparent"
-          sx={{
-            backdropFilter: "blur(16px)",
-            backgroundColor: alpha("#0f172a", 0.6),
-            borderBottom: `1px solid ${alpha("#cbd5f5", 0.08)}`,
-          }}
-        >
-          <Toolbar sx={{ justifyContent: "space-between", py: 3 }}>
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Box
-                sx={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "12px",
-                  background: "linear-gradient(135deg, #38bdf8, #6366f1)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  src="/logo-beyaz-vector.png"
-                  alt="LogiTrack Logo"
-                  width={28}
-                  height={28}
-                  priority
-                />
-              </Box>
-              <Typography variant="h6" fontWeight={700} letterSpacing={1.5}>
-                LOGI-TRACK
-              </Typography>
-            </Stack>
-
-            <Stack direction="row" spacing={4} alignItems="center">
-              {["Features", "Testimonials", "Pricing", "About", "Blog"].map(
-                (item) => (
-                  <Typography
-                    key={item}
-                    variant="body2"
-                    sx={{
-                      fontWeight: 500,
-                      cursor: "pointer",
-                      color: alpha("#e2e8f0", 0.88),
-                      transition: "color 0.2s ease",
-                      "&:hover": { color: "#38bdf8" },
-                    }}
-                  >
-                    {item}
-                  </Typography>
-                )
-              )}
-            </Stack>
-
-            <LandingHeaderAuth />
-          </Toolbar>
-        </AppBar>
 
         <Container
           maxWidth="lg"

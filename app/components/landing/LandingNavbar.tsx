@@ -1,16 +1,4 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import {
-  AppBar,
-  Box,
-  Container,
-  Stack,
-  Toolbar,
-  Typography,
-  alpha,
-  useScrollTrigger,
-} from "@mui/material";
+import { AppBar, Box, Container, Stack, Toolbar, Typography, alpha, useScrollTrigger } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import LandingHeaderAuth from "./LandingHeaderAuth";
@@ -95,10 +83,11 @@ export default function LandingNavbar() {
             sx={{ display: { xs: "none", md: "flex" } }}
           >
             {[
-              { label: "Features", href: "/#features" },
+              { label: "Features", href: "/features" },
+              { label: "Pricing", href: "/pricing" },
+              { label: "About", href: "/about" },
               { label: "How It Works", href: "/how-it-works" },
-              { label: "Pricing", href: "/#pricing" },
-              { label: "About", href: "/#about" },
+              { label: "Blog", href: "/blog" },
             ].map((item) => (
               <Typography
                 key={item.label}
