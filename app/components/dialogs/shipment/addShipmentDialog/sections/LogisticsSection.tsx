@@ -136,13 +136,14 @@ const LogisticsSection = ({
                     (c) => c.id === customerId
                   );
                   if (selectedCustomer) {
+                    const defaultLoc = selectedCustomer.locations?.find((l) => l.isDefault) || selectedCustomer.locations?.[0];
                     updateLogistics({
                       destination:
-                        selectedCustomer.address || state.destination,
+                        defaultLoc?.address || state.destination,
                       destinationLat:
-                        selectedCustomer.lat ?? state.destinationLat,
+                        defaultLoc?.lat ?? state.destinationLat,
                       destinationLng:
-                        selectedCustomer.lng ?? state.destinationLng,
+                        defaultLoc?.lng ?? state.destinationLng,
                       contactEmail:
                         selectedCustomer.email || state.contactEmail,
                     });

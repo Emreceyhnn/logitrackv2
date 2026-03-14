@@ -1,8 +1,13 @@
-import { useJsApiLoader } from "@react-google-maps/api";
+import { useJsApiLoader, Libraries } from "@react-google-maps/api";
+import React from "react";
 
-const libraries = ["places"];
+const libraries: Libraries = ["places"];
 
-export const GoogleMapsProvider = ({ children }) => {
+interface GoogleMapsProviderProps {
+  children: React.ReactNode;
+}
+
+export const GoogleMapsProvider = ({ children }: GoogleMapsProviderProps) => {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries,

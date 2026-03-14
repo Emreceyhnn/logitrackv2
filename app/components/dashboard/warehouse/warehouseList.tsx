@@ -232,8 +232,8 @@ const WarehouseListTable = ({
                     </Stack>
                   </TableCell>
                   <TableCell align="right" sx={{ fontFamily: "monospace" }}>
-                    {typeof operatingHours === "object"
-                      ? (operatingHours as any).monFri
+                    {typeof operatingHours === "object" && operatingHours !== null && "monFri" in operatingHours
+                      ? (operatingHours as { monFri: string }).monFri
                       : operatingHours}
                   </TableCell>
                   <TableCell align="right">

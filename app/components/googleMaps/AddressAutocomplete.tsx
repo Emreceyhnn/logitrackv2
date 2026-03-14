@@ -4,6 +4,22 @@ import { useState, useRef, useEffect } from "react";
 import { Autocomplete } from "@react-google-maps/api";
 import { TextField, alpha, useTheme } from "@mui/material";
 
+interface AddressData {
+  formattedAddress: string;
+  lat: number;
+  lng: number;
+  address_components?: google.maps.GeocoderAddressComponent[];
+}
+
+interface AddressAutocompleteProps {
+  onAddressSelect?: (data: AddressData) => void;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  name?: string;
+  disabled?: boolean;
+}
+
 export const AddressAutocomplete = ({
   onAddressSelect,
   value = "",
@@ -11,24 +27,24 @@ export const AddressAutocomplete = ({
   placeholder = "Search for an address...",
   name = "address",
   disabled = false,
-}) => {
+}: AddressAutocompleteProps) => {
   const [address, setAddress] = useState(value);
-  const autocompleteRef = useRef(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const theme = useTheme();
 
   useEffect(() => {
     setAddress(value);
   }, [value]);
 
-  const onLoad = (autocomplete) => {
+  const onLoad = (autocomplete: google.maps.places.Autocomplete) => {
     autocompleteRef.current = autocomplete;
   };
 
   const onPlaceChanged = () => {
     if (autocompleteRef.current !== null) {
       const place = autocompleteRef.current.getPlace();
-      if (place.geometry) {
-        const addressData = {
+      if (place.geometry && place.geometry.location) {
+        const addressData: AddressData = {
           formattedAddress: place.formatted_address || place.name || "",
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng(),
@@ -66,7 +82,7 @@ export const AddressAutocomplete = ({
     },
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddress(e.target.value);
     if (onChange) onChange(e);
   };

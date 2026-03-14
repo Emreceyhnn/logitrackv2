@@ -1,4 +1,4 @@
-import { Inventory, Warehouse } from "@prisma/client";
+import { Inventory } from "@prisma/client";
 
 // Domain Models
 export interface InventoryWithRelations extends Inventory {
@@ -6,10 +6,6 @@ export interface InventoryWithRelations extends Inventory {
     code: string;
     name: string;
   };
-  weightKg: number | null;
-  volumeM3: number | null;
-  palletCount: number | null;
-  cargoType: string | null;
 }
 
 export interface LowStockItem extends Inventory {
@@ -64,8 +60,9 @@ export interface InventoryPageActions {
 export interface InventoryTableProps {
   items: InventoryWithRelations[];
   loading: boolean;
-  onView: (id: string) => void;
-  onEdit: (id: string) => void;
+  onSelect: (id: string) => void;
+  onEdit: (item: InventoryWithRelations) => void;
+  onDelete: (id: string) => void;
 }
 
 export interface InventoryDetailsProps {

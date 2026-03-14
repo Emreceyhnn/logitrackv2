@@ -22,7 +22,7 @@ import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmatio
 import AddInventoryDialog from "@/app/components/dialogs/inventory/addInventoryDialog";
 
 export default function InventoryPage() {
-  const { user } = useUser();
+  useUser();
 
   /* --------------------------------- single root state --------------------------------- */
   const [state, setState] = useState<InventoryPageState>({
@@ -32,6 +32,7 @@ export default function InventoryPage() {
     selectedItem: null,
     isDetailsOpen: false,
     isEditOpen: false,
+    recentMovements: [],
     filters: {},
     loading: true,
     error: null,
@@ -52,9 +53,10 @@ export default function InventoryPage() {
         loading: false,
         error: null,
       }));
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to fetch inventory", error);
-      setState((prev) => ({ ...prev, loading: false, error: error.message }));
+      const message = error instanceof Error ? error.message : "An unknown error occurred";
+      setState((prev) => ({ ...prev, loading: false, error: message }));
     }
   }, []);
 

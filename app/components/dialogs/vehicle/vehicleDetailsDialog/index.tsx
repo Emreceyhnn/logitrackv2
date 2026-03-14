@@ -44,6 +44,7 @@ interface VehicleDialogParams {
   onClose: () => void;
   vehicleData?: VehicleWithRelations;
   onDeleteSuccess?: () => void;
+  onEditSuccess?: () => void;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -110,9 +111,10 @@ const VehicleDialog = (params: VehicleDialogParams) => {
 
   const statusMeta = getStatusMeta(vehicleData?.status);
   const [colorKey, colorVariant] = statusMeta.color.split(".");
-  const statusColor =
-    (theme.palette as any)[colorKey]?.[colorVariant] ||
-    theme.palette.text.primary;
+  const palette = theme.palette as any;
+  const statusColor = (palette[colorKey] && typeof palette[colorKey] === 'object' && colorVariant in palette[colorKey])
+    ? palette[colorKey][colorVariant]
+    : theme.palette.text.primary;
 
   return (
     <Dialog

@@ -7,7 +7,18 @@ const containerStyle = {
   borderRadius: "12px",
 };
 
-export const MapWithMarker = ({ center, zoom = 14, markers = [] }) => {
+interface MarkerData {
+  position: { lat: number; lng: number };
+  label?: string;
+}
+
+interface MapWithMarkerProps {
+  center?: { lat: number; lng: number };
+  zoom?: number;
+  markers?: MarkerData[];
+}
+
+export const MapWithMarker = ({ center, zoom = 14, markers = [] }: MapWithMarkerProps) => {
   const mapCenter = center || { lat: 41.0082, lng: 28.9784 }; // Istanbul default
 
   return (

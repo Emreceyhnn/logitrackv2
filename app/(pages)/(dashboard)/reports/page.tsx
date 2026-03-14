@@ -49,9 +49,10 @@ export default function ReportsPage() {
       try {
         const result = await getReportsDataAction();
         setState((prev) => ({ ...prev, data: result, loading: false }));
-      } catch (error: any) {
+      } catch (error) {
         console.error("Failed to fetch reports:", error);
-        setState((prev) => ({ ...prev, loading: false, error: error.message }));
+        const message = error instanceof Error ? error.message : "An unknown error occurred";
+        setState((prev) => ({ ...prev, loading: false, error: message }));
       }
     };
     fetchData();
@@ -120,10 +121,10 @@ export default function ReportsPage() {
           <ShipmentCharts data={state.data?.shipments} loading={state.loading} />
         </CustomTabPanel>
         <CustomTabPanel value={state.tabIndex} index={1}>
-          <FleetCharts data={state.data?.fleet} loading={state.loading} />
+          <FleetCharts data={state.data?.fleet || []} />
         </CustomTabPanel>
         <CustomTabPanel value={state.tabIndex} index={2}>
-          <InventoryCharts data={state.data?.inventory.categoryStats} loading={state.loading} />
+          <InventoryCharts data={state.data?.inventory.categoryStats || {}} />
         </CustomTabPanel>
       </Box>
     </Box>

@@ -3,7 +3,11 @@
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
-import { Prisma } from "@prisma/client";
+import { Prisma, Customer, CustomerLocation } from "@prisma/client";
+
+interface CustomerWithLocations extends Customer {
+  locations: CustomerLocation[];
+}
 
 export const createShipment = authenticatedAction(
   async (
@@ -47,8 +51,8 @@ export const createShipment = authenticatedAction(
       // Fetch customer details to potentially get default location if destination is not provided
       const customer = (await db.customer.findUnique({
         where: { id: customerId },
-        include: { locations: true } as any,
-      })) as any;
+        include: { locations: true },
+      })) as CustomerWithLocations | null;
 
       const defaultCustomerLocation = customer?.locations?.find((l) => l.isDefault);
       const firstCustomerLocation = customer?.locations?.[0];
@@ -251,7 +255,7 @@ export const getShipments = authenticatedAction(async (user) => {
       where: { companyId },
       include: {
         customer: {
-          include: { locations: true } as any
+          include: { locations: true }
         },
         driver: {
           include: {
