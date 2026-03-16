@@ -76,7 +76,7 @@ export default function CreateCompanyDialog({
       let logoUrl = formData.logo;
 
       if (logoUrl && logoUrl.startsWith("data:image")) {
-        const uploadResult = await uploadImageAction(logoUrl, "companies");
+        const uploadResult = await uploadImageAction(logoUrl, "general", "logos");
         logoUrl = uploadResult.url;
       }
 

@@ -174,7 +174,11 @@ const AddVehicleDialog = ({
           .filter(doc => doc.file)
           .map(async (doc) => {
             const base64 = await fileToBase64(doc.file!);
-            const uploadResult = await uploadImageAction(base64, "documents");
+            const uploadResult = await uploadImageAction(
+              base64, 
+              "documents", 
+              `vehicles/${createdVehicle.id}`
+            );
             
             return uploadVehicleDocument(createdVehicle.id, {
               type: doc.type || "OTHER",

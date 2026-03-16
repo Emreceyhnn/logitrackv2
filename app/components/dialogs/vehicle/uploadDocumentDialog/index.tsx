@@ -94,7 +94,11 @@ export default function UploadDocumentDialog({
       });
 
       // 2. Upload to Supabase (using 'documents' bucket)
-      const uploadResult = await uploadImageAction(base64, "documents");
+      const uploadResult = await uploadImageAction(
+        base64, 
+        "documents", 
+        `vehicles/${vehicleId}`
+      );
 
       // 3. Save to DB
       await uploadVehicleDocument(vehicleId, {

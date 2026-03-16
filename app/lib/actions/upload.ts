@@ -70,7 +70,8 @@ export const uploadImageAction = authenticatedAction(
   async (
     _user,
     fileData: string,
-    bucket: UploadBucket = "general"
+    bucket: UploadBucket = "general",
+    folder?: string
   ): Promise<UploadImageResult> => {
     validateBase64Image(fileData);
 
@@ -80,7 +81,8 @@ export const uploadImageAction = authenticatedAction(
     const buffer = Buffer.from(base64Part, "base64");
 
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    const filePath = `${fileName}.${mimeType.split("/")[1]}`;
+    const ext = mimeType.split("/")[1];
+    const filePath = folder ? `${folder}/${fileName}.${ext}` : `${fileName}.${ext}`;
 
     const { data, error } = await supabase.storage
       .from(bucket)
@@ -91,7 +93,7 @@ export const uploadImageAction = authenticatedAction(
 
     if (error) {
       console.error("[uploadImageAction] Supabase upload failed:", error);
-      throw new Error(`Failed to upload image to Supabase: ${error.message}`);
+      throw new Error(`Failed to upload to Supabase: ${error.message}`);
     }
 
     const { data: { publicUrl } } = supabase.storage

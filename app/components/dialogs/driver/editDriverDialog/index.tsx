@@ -146,6 +146,7 @@ const EditDriverDialog = ({
             const base64 = await fileToBase64(step1.licencePhoto);
             const uploadResult = await uploadImageAction(
               base64,
+              "documents",
               `drivers/${driver.user.id}/license`
             );
             licensePhotoUrl = uploadResult.url;
@@ -158,6 +159,7 @@ const EditDriverDialog = ({
                 const base64 = await fileToBase64(doc.file);
                 const uploadResult = await uploadImageAction(
                   base64,
+                  "documents",
                   `drivers/${driver.user.id}/docs`
                 );
                 return {

@@ -142,63 +142,68 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
             </Stack>
 
             <Stack spacing={1.5}>
-              {driver.licenseNumber ? (
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  alignItems="center"
-                  sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    bgcolor: alpha(theme.palette.background.paper, 0.3),
-                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      borderColor: alpha(theme.palette.primary.main, 0.3),
-                      bgcolor: alpha(theme.palette.primary.main, 0.05),
-                    },
-                  }}
-                >
-                  <Box
+              {driver.documents && driver.documents.length > 0 ? (
+                driver.documents.map((doc) => (
+                  <Stack
+                    key={doc.id}
+                    direction="row"
+                    spacing={2}
+                    alignItems="center"
                     sx={{
-                      p: 1.5,
-                      borderRadius: 1.5,
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                      color: theme.palette.primary.main,
-                      display: "flex",
-                    }}
-                  >
-                    <InsertDriveFileOutlinedIcon />
-                  </Box>
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography
-                      variant="body1"
-                      fontWeight={600}
-                      color="white"
-                      noWrap
-                    >
-                      Driver&apos;s License - {driver.licenseType || "Standard"}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      No: {driver.licenseNumber} • Expiry:{" "}
-                      {driver.licenseExpiry
-                        ? new Date(driver.licenseExpiry).toLocaleDateString()
-                        : "N/A"}
-                    </Typography>
-                  </Box>
-                  <IconButton
-                    size="small"
-                    sx={{
-                      color: theme.palette.primary.main,
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: alpha(theme.palette.background.paper, 0.3),
+                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                      transition: "all 0.2s ease",
                       "&:hover": {
-                        bgcolor: alpha(theme.palette.primary.main, 0.2),
+                        borderColor: alpha(theme.palette.primary.main, 0.3),
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
                       },
                     }}
                   >
-                    <FileDownloadOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Stack>
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 1.5,
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        color: theme.palette.primary.main,
+                        display: "flex",
+                      }}
+                    >
+                      <InsertDriveFileOutlinedIcon />
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography
+                        variant="body1"
+                        fontWeight={600}
+                        color="white"
+                        noWrap
+                      >
+                        {doc.name} - {doc.type}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {doc.expiryDate
+                          ? `Expiry: ${new Date(doc.expiryDate).toLocaleDateString()}`
+                          : "No expiry date"}
+                      </Typography>
+                    </Box>
+                    <IconButton
+                      size="small"
+                      component="a"
+                      href={doc.url}
+                      target="_blank"
+                      sx={{
+                        color: theme.palette.primary.main,
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        "&:hover": {
+                          bgcolor: alpha(theme.palette.primary.main, 0.2),
+                        },
+                      }}
+                    >
+                      <FileDownloadOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                ))
               ) : (
                 <Box
                   sx={{
@@ -218,11 +223,10 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                   />
                   <Box>
                     <Typography variant="body2" color="white" fontWeight={600}>
-                      Missing License Record
+                      No Documents Uploaded
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      This driver does not have a license registered in the
-                      system. Please update their profile to ensure compliance.
+                      This driver does not have any official documents registered in the system.
                     </Typography>
                   </Box>
                 </Box>

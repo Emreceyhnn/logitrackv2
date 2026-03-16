@@ -120,6 +120,7 @@ export const getDrivers = authenticatedAction(
                 issues: true,
               },
             },
+            documents: true,
           },
           orderBy: orderBy,
           skip,
@@ -249,6 +250,7 @@ export const getDriverById = authenticatedAction(
           company: true,
           homeBaseWarehouse: true,
           shipments: true,
+          documents: true,
         },
       });
 

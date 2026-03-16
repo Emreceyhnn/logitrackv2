@@ -112,6 +112,7 @@ const AddFuelLogDialog = ({
       if (receiptPreview) {
         const uploadResult = await uploadImageAction(
           receiptPreview,
+          "documents",
           "receipts"
         );
         receiptUrl = uploadResult.url;

@@ -39,6 +39,15 @@ export interface DriverWithRelations {
     issues: number;
   };
 
+  documents: {
+    id: string;
+    type: string;
+    name: string;
+    url: string;
+    expiryDate: Date | null;
+    status: string;
+  }[];
+
   createdAt: Date;
   updatedAt: Date;
 }

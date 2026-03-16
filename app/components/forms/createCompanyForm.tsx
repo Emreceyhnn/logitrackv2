@@ -57,7 +57,7 @@ export default function CreateCompanyForm({
     try {
       let finalLogoUrl = "";
       if (values.avatarUrl && values.avatarUrl.startsWith("data:")) {
-        const uploadResult = await uploadImageAction(values.avatarUrl, "logos");
+        const uploadResult = await uploadImageAction(values.avatarUrl, "general", "logos");
         finalLogoUrl = uploadResult.url;
       }
 
