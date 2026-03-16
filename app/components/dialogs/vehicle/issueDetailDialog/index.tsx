@@ -1,8 +1,6 @@
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
   Button,
   FormControl,
   InputLabel,
@@ -13,9 +11,16 @@ import {
   Typography,
   Box,
   CircularProgress,
+  IconButton,
+  useTheme,
+  alpha,
+  Divider,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useState, useEffect } from "react";
 import { updateIssue } from "@/app/lib/controllers/vehicle";
+import { getPriorityColor } from "@/app/lib/priorityColor";
 
 interface IssueDetailDialogProps {
   open: boolean;
@@ -30,6 +35,9 @@ export default function IssueDetailDialog({
   issue,
   onUpdate,
 }: IssueDetailDialogProps) {
+  /* ---------------------------------- theme --------------------------------- */
+  const theme = useTheme();
+
   /* --------------------------------- states --------------------------------- */
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState("");
@@ -62,85 +70,250 @@ export default function IssueDetailDialog({
     }
   };
 
+  /* --------------------------------- styles --------------------------------- */
+  const selectSx = {
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: alpha("#1A202C", 0.5),
+      borderRadius: 2,
+      "& fieldset": {
+        borderColor: alpha(theme.palette.divider, 0.1),
+      },
+      "&:hover fieldset": {
+        borderColor: alpha(theme.palette.primary.main, 0.3),
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: theme.palette.primary.main,
+      },
+    },
+    "& .MuiInputLabel-root": {
+      fontSize: "0.85rem",
+      color: "text.secondary",
+    },
+    "& .MuiOutlinedInput-input": {
+      color: "white",
+      fontSize: "0.9rem",
+    },
+  };
+
   /* --------------------------------- render --------------------------------- */
   if (!issue) return null;
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Issue Details</DialogTitle>
-      <DialogContent>
-        <Stack spacing={3} mt={1}>
-          {error && <Alert severity="error">{error}</Alert>}
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      PaperProps={{
+        sx: {
+          borderRadius: 4,
+          bgcolor: "#0B1019",
+          backgroundImage: "none",
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        },
+      }}
+    >
+      <Box sx={{ p: 3, pb: 2 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Box
+              sx={{
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
+                p: 1.25,
+                borderRadius: 2,
+                display: "flex",
+              }}
+            >
+              <AssignmentIcon />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={700} color="white">
+                Issue Details
+              </Typography>
+              <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
+                Reference ID: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>#{issue.id.slice(-6).toUpperCase()}</span>
+              </Typography>
+            </Box>
+          </Stack>
+          <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+      </Box>
 
-          <Box>
-            <Typography variant="subtitle2" color="text.secondary">
-              Issue Title
-            </Typography>
-            <Typography variant="h6">{issue.title}</Typography>
-          </Box>
+      <DialogContent sx={{ p: 3, pt: 1 }}>
+        <Stack spacing={4}>
+          {error && (
+            <Alert 
+              severity="error" 
+              variant="filled"
+              sx={{ 
+                borderRadius: 2,
+                bgcolor: alpha(theme.palette.error.main, 0.1),
+                color: theme.palette.error.light,
+                border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
+              }}
+            >
+              {error}
+            </Alert>
+          )}
 
-          <Box>
-            <Typography variant="subtitle2" color="text.secondary">
-              Description
-            </Typography>
-            <Typography variant="body1">
-              {issue.description || "No description provided."}
-            </Typography>
-          </Box>
+          <Stack spacing={3}>
+            <Box>
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+                Incident Title
+              </Typography>
+              <Typography variant="h5" color="white" fontWeight={700}>
+                {issue.title}
+              </Typography>
+            </Box>
 
-          <Box>
-            <Typography variant="subtitle2" color="text.secondary">
-              Reported Date
-            </Typography>
-            <Typography variant="body2">
-              {new Date(issue.createdAt).toLocaleDateString()}
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={status}
-                label="Status"
-                onChange={(e) => setStatus(e.target.value)}
+            <Box>
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+                Problem Description
+              </Typography>
+              <Box 
+                sx={{ 
+                  p: 2, 
+                  borderRadius: 2, 
+                  bgcolor: alpha("#1A202C", 0.3),
+                  border: `1px solid ${alpha(theme.palette.divider, 0.05)}`
+                }}
               >
-                <MenuItem value="OPEN">Open</MenuItem>
-                <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-                <MenuItem value="RESOLVED">Resolved</MenuItem>
-                <MenuItem value="CLOSED">Closed</MenuItem>
-              </Select>
-            </FormControl>
+                <Typography variant="body2" color="rgba(255,255,255,0.7)" sx={{ lineHeight: 1.6 }}>
+                  {issue.description || "No supplemental details provided for this issue."}
+                </Typography>
+              </Box>
+            </Box>
 
-            <FormControl fullWidth>
-              <InputLabel>Priority</InputLabel>
-              <Select
-                value={priority}
-                label="Priority"
-                onChange={(e) => setPriority(e.target.value)}
-              >
-                <MenuItem value="LOW">Low</MenuItem>
-                <MenuItem value="MEDIUM">Medium</MenuItem>
-                <MenuItem value="HIGH">High</MenuItem>
-                <MenuItem value="CRITICAL">Critical</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Box>
+                <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 0.5, display: "block", textTransform: "uppercase" }}>
+                  Reported On
+                </Typography>
+                <Typography variant="body2" color="white">
+                  {new Date(issue.createdAt).toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric"
+                  })}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
+
+            <Box>
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 2, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+                Configuration & Status
+              </Typography>
+              <Stack direction="row" spacing={2.5}>
+                <FormControl fullWidth sx={selectSx}>
+                  <InputLabel shrink sx={{ color: alpha("#fff", 0.4) }}>Status</InputLabel>
+                  <Select
+                    value={status}
+                    label="Status"
+                    notched
+                    onChange={(e) => setStatus(e.target.value)}
+                    sx={{ height: 48 }}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          bgcolor: "#1A202C",
+                          backgroundImage: "none",
+                          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                        }
+                      }
+                    }}
+                  >
+                    <MenuItem value="OPEN">Open</MenuItem>
+                    <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
+                    <MenuItem value="RESOLVED">Resolved</MenuItem>
+                    <MenuItem value="CLOSED">Closed</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <FormControl fullWidth sx={selectSx}>
+                  <InputLabel shrink sx={{ color: alpha("#fff", 0.4) }}>Priority</InputLabel>
+                  <Select
+                    value={priority}
+                    label="Priority"
+                    notched
+                    onChange={(e) => setPriority(e.target.value)}
+                    sx={{ height: 48 }}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          bgcolor: "#1A202C",
+                          backgroundImage: "none",
+                          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                        }
+                      }
+                    }}
+                    renderValue={(value) => {
+                      const colorKey = getPriorityColor(value as string) as "error" | "warning" | "info" | "success";
+                      const mainColor = theme.palette[colorKey]?.main || theme.palette.text.primary;
+                      return (
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                          <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: mainColor, boxShadow: `0 0 10px ${alpha(mainColor, 0.5)}` }} />
+                          <Typography variant="body2" color="white">{value as string}</Typography>
+                        </Box>
+                      );
+                    }}
+                  >
+                    {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((p) => (
+                      <MenuItem key={p} value={p} sx={{ py: 1.5 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                          <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: getPriorityColor(p) }} />
+                          <Typography variant="body2">{p}</Typography>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Stack>
+            </Box>
+          </Stack>
         </Stack>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} disabled={loading}>
-          Close
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleUpdate}
-          disabled={loading}
-          startIcon={loading && <CircularProgress size={20} color="inherit" />}
-        >
-          {loading ? "Updating..." : "Update Issue"}
-        </Button>
-      </DialogActions>
+
+      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
+          <Button 
+            onClick={onClose} 
+            disabled={loading}
+            sx={{ 
+              color: "text.secondary", 
+              textTransform: "none", 
+              fontWeight: 600,
+              px: 3
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleUpdate}
+            disabled={loading}
+            sx={{
+              textTransform: "none",
+              borderRadius: 2,
+              px: 4,
+              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+              fontWeight: 700,
+              minWidth: 160,
+            }}
+          >
+            {loading ? (
+              <Stack direction="row" spacing={1} alignItems="center">
+                <CircularProgress size={16} color="inherit" />
+                <span>Saving Changes...</span>
+              </Stack>
+            ) : "Update Issue"}
+          </Button>
+        </Stack>
+      </Box>
     </Dialog>
   );
 }

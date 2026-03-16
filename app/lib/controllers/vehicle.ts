@@ -320,6 +320,7 @@ export const createVehicleIssue = authenticatedAction(
         "role_admin",
         "role_manager",
         "role_dispatcher",
+        "role_driver",
       ]);
 
       const foundVehicle = await db.vehicle.findUnique({
@@ -465,6 +466,7 @@ export const addMaintenanceRecord = authenticatedAction(
         "role_admin",
         "role_manager",
         "role_dispatcher",
+        "role_driver",
       ]);
 
       const foundVehicle = await db.vehicle.findUnique({

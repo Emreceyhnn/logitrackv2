@@ -375,7 +375,7 @@ const SecondEditDriverDialogStep = ({
                 Add medical records, training certificates, or other docs
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                PDF, PNG, JPG (MAX 10MB)
+                PNG, JPG (MAX 10MB)
               </Typography>
             </Box>
 

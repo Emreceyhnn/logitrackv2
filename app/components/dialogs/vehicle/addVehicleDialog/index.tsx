@@ -177,7 +177,7 @@ const AddVehicleDialog = ({
             const uploadResult = await uploadImageAction(base64, "documents");
             
             return uploadVehicleDocument(createdVehicle.id, {
-              type: doc.type,
+              type: doc.type || "OTHER",
               name: doc.name,
               url: uploadResult.url,
               status: "ACTIVE",

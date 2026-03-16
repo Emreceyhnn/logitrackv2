@@ -8,8 +8,6 @@ import {
   Chip,
   Dialog,
   DialogContent,
-  DialogActions,
-  DialogTitle,
   IconButton,
   Stack,
   Tab,
@@ -112,8 +110,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
 
   const statusMeta = getStatusMeta(vehicleData?.status);
   const [colorKey, colorVariant] = statusMeta.color.split(".");
-  const palette = theme.palette as any;
-  const statusColor = (palette[colorKey] && typeof palette[colorKey] === 'object' && colorVariant in palette[colorKey])
+  const palette = theme.palette as any; // Still using any as MUI palette access by string is tricky with type safety
+  const statusColor = (palette[colorKey] && typeof palette[colorKey] === "object" && colorVariant in palette[colorKey])
     ? palette[colorKey][colorVariant]
     : theme.palette.text.primary;
 
@@ -231,13 +229,13 @@ const VehicleDialog = (params: VehicleDialogParams) => {
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
-            <OverviewTab vehicle={vehicleData} />
+            <OverviewTab vehicle={vehicleData} onUpdate={onUpdateSuccess} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
             <DocumentsTab vehicle={vehicleData} onUpdate={onUpdateSuccess} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
-            <MaintenanceTab vehicle={vehicleData} />
+            <MaintenanceTab vehicle={vehicleData} onUpdate={onUpdateSuccess} />
           </CustomTabPanel>
         </Stack>
 
@@ -288,69 +286,75 @@ const VehicleDialog = (params: VehicleDialogParams) => {
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: 3,
+            borderRadius: 4,
+            bgcolor: "#0B1019",
+            backgroundImage: "none",
+            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           },
         }}
       >
-        <DialogTitle
-          sx={{
-            pb: 2,
-            display: "flex",
-            alignItems: "center",
-            gap: 2,
-          }}
-        >
-          <Box
-            sx={{
-              bgcolor: alpha(theme.palette.error.main, 0.1),
-              color: theme.palette.error.main,
-              p: 1,
-              borderRadius: 2,
-              display: "flex",
-            }}
-          >
-            <WarningIcon />
-          </Box>
-          <Box>
-            <Typography variant="h6" fontWeight={700}>
-              Delete Vehicle?
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              This action cannot be undone
-            </Typography>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary">
-            Are you sure you want to delete{" "}
-            <strong>{vehicleData?.plate}</strong>? This will permanently remove
-            the vehicle and all associated data from the system.
+        <Box sx={{ p: 3, pb: 2 }}>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Box
+              sx={{
+                bgcolor: alpha(theme.palette.error.main, 0.1),
+                color: theme.palette.error.main,
+                p: 1.25,
+                borderRadius: 2,
+                display: "flex",
+              }}
+            >
+              <WarningIcon />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={700} color="white">
+                Delete Vehicle?
+              </Typography>
+              <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
+                This action is permanent and cannot be undone.
+              </Typography>
+            </Box>
+          </Stack>
+        </Box>
+
+        <DialogContent sx={{ p: 3, pt: 1 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+            Are you sure you want to delete <strong>{vehicleData?.plate}</strong>? 
+            This will permanently remove all associated telemetry, documents, and maintenance records from the system.
           </Typography>
         </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={handleDeleteCancel}
-            disabled={isDeleting}
-            sx={{
-              textTransform: "none",
-              borderColor: theme.palette.divider,
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleDeleteConfirm}
-            disabled={isDeleting}
-            sx={{
-              textTransform: "none",
-            }}
-          >
-            {isDeleting ? "Deleting..." : "Delete"}
-          </Button>
-        </DialogActions>
+
+        <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Button
+              onClick={handleDeleteCancel}
+              disabled={isDeleting}
+              sx={{
+                color: "text.secondary",
+                textTransform: "none",
+                fontWeight: 600,
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              sx={{
+                textTransform: "none",
+                borderRadius: 2,
+                px: 3,
+                boxShadow: `0 8px 24px ${alpha(theme.palette.error.main, 0.2)}`,
+                fontWeight: 700,
+                minWidth: 100,
+              }}
+            >
+              {isDeleting ? "Deleting..." : "Confirm Delete"}
+            </Button>
+          </Stack>
+        </Box>
       </Dialog>
     </Dialog>
   );

@@ -170,8 +170,6 @@ const FirstEditDriverDialogStep = ({
               </CustomTextArea>
             </Stack>
           </Grid>
-
-
         </Grid>
 
         <Stack spacing={1.5}>
@@ -183,7 +181,7 @@ const FirstEditDriverDialogStep = ({
             hidden
             ref={fileInputRef}
             onChange={handleFileChange}
-            accept="image/*,.pdf"
+            accept="image/*"
           />
           <Box
             onClick={() => fileInputRef.current?.click()}
@@ -249,7 +247,7 @@ const FirstEditDriverDialogStep = ({
                   color="text.secondary"
                   sx={{ mt: 0.5 }}
                 >
-                  PDF, PNG, JPG OR HEIC (MAX 10MB)
+                  PNG, JPG OR HEIC (MAX 10MB)
                 </Typography>
               </>
             ) : (

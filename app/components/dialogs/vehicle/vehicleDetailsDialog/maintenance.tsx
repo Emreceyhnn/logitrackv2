@@ -32,7 +32,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
   const [issueDetailOpen, setIssueDetailOpen] = useState(false);
-  const [selectedIssue, setSelectedIssue] = useState<any>(null);
+  const [selectedIssue, setSelectedIssue] = useState<any | null>(null); // Keeping any for now as issue type is complex with relations
 
   if (!vehicle) {
     return <Typography color="text.secondary">No vehicle selected</Typography>;
@@ -205,16 +205,18 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
           </Stack>
         </Card>
       </Stack>
-      <Stack>
+      <Stack sx={{ flex: 1, minHeight: 0 }}>
         <Card
           sx={{
             p: 2,
-            flex: 1,
+            display: "flex",
+            flexDirection: "column",
             borderRadius: "8px",
             bgcolor: alpha("#1A202C", 0.5),
             backgroundImage: "none",
             boxShadow: "none",
             border: `1px solid ${alpha("#ffffff", 0.05)}`,
+            maxHeight: 350,
           }}
         >
           <Stack
@@ -244,136 +246,143 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
               Add Record
             </Button>
           </Stack>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  align="left"
-                  sx={{
-                    color: "text.secondary",
-                    borderBottomColor: alpha("#ffffff", 0.05),
-                  }}
-                >
-                  DATE
-                </TableCell>
-                <TableCell
-                  align="left"
-                  sx={{
-                    color: "text.secondary",
-                    borderBottomColor: alpha("#ffffff", 0.05),
-                  }}
-                >
-                  SERVICE TYPE
-                </TableCell>
-                <TableCell
-                  align="left"
-                  sx={{
-                    color: "text.secondary",
-                    borderBottomColor: alpha("#ffffff", 0.05),
-                  }}
-                >
-                  TECHNICIAN
-                </TableCell>
-                <TableCell
-                  align="left"
-                  sx={{
-                    color: "text.secondary",
-                    borderBottomColor: alpha("#ffffff", 0.05),
-                  }}
-                >
-                  COST
-                </TableCell>
-                <TableCell
-                  align="left"
-                  sx={{
-                    color: "text.secondary",
-                    borderBottomColor: alpha("#ffffff", 0.05),
-                  }}
-                >
-                  STATUS
-                </TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {maintenanceHistory.length === 0 ? (
+          <Box sx={{ overflowX: "auto", overflowY: "auto", flex: 1 }}>
+            <Table size="small" stickyHeader>
+              <TableHead>
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    <Typography variant="body2" color="text.secondary">
-                      No maintenance records found.
-                    </Typography>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      color: "text.secondary",
+                      borderBottomColor: alpha("#ffffff", 0.05),
+                      bgcolor: "#1A202C", // Match card bg for sticky header
+                    }}
+                  >
+                    DATE
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      color: "text.secondary",
+                      borderBottomColor: alpha("#ffffff", 0.05),
+                      bgcolor: "#1A202C",
+                    }}
+                  >
+                    SERVICE TYPE
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      color: "text.secondary",
+                      borderBottomColor: alpha("#ffffff", 0.05),
+                      bgcolor: "#1A202C",
+                    }}
+                  >
+                    TECHNICIAN
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      color: "text.secondary",
+                      borderBottomColor: alpha("#ffffff", 0.05),
+                      bgcolor: "#1A202C",
+                    }}
+                  >
+                    COST
+                  </TableCell>
+                  <TableCell
+                    align="left"
+                    sx={{
+                      color: "text.secondary",
+                      borderBottomColor: alpha("#ffffff", 0.05),
+                      bgcolor: "#1A202C",
+                    }}
+                  >
+                    STATUS
                   </TableCell>
                 </TableRow>
-              ) : (
-                maintenanceHistory.map((v, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell
-                      align="left"
-                      sx={{
-                        color: "white",
-                        borderBottomColor: alpha("#ffffff", 0.05),
-                      }}
-                    >
-                      <Typography sx={{ fontSize: 12 }}>
-                        {new Date(v.date).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "2-digit",
-                          year: "numeric",
-                        })}
+              </TableHead>
+
+              <TableBody>
+                {maintenanceHistory.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center">
+                      <Typography variant="body2" color="text.secondary">
+                        No maintenance records found.
                       </Typography>
                     </TableCell>
-                    <TableCell
-                      align="left"
-                      sx={{
-                        color: "white",
-                        borderBottomColor: alpha("#ffffff", 0.05),
-                      }}
+                  </TableRow>
+                ) : (
+                  maintenanceHistory.map((v, index) => (
+                    <TableRow
+                      key={index}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
-                      <Typography sx={{ fontSize: 12 }}>{v.type}</Typography>
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      sx={{
-                        color: "white",
-                        borderBottomColor: alpha("#ffffff", 0.05),
-                      }}
-                    >
-                      {v.description?.split(":")[1] || "N/A"}
-                    </TableCell>
-                    <TableCell
-                      align="left"
-                      sx={{
-                        color: "white",
-                        borderBottomColor: alpha("#ffffff", 0.05),
-                      }}
-                    >{`$${v.cost}`}</TableCell>
-                    <TableCell
-                      align="left"
-                      sx={{ borderBottomColor: alpha("#ffffff", 0.05) }}
-                    >
-                      <Box
+                      <TableCell
+                        align="left"
                         sx={{
-                          padding: "6px 1px",
-                          borderRadius: "35px",
-                          bgcolor: "success.main",
-                          textAlign: "center",
+                          color: "white",
+                          borderBottomColor: alpha("#ffffff", 0.05),
                         }}
                       >
-                        <Typography
-                          sx={{ fontSize: 14, color: "rgba(255,255,255,0.8)" }}
-                        >
-                          COMPLETED
+                        <Typography sx={{ fontSize: 12 }}>
+                          {new Date(v.date).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "2-digit",
+                            year: "numeric",
+                          })}
                         </Typography>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        sx={{
+                          color: "white",
+                          borderBottomColor: alpha("#ffffff", 0.05),
+                        }}
+                      >
+                        <Typography sx={{ fontSize: 12 }}>{v.type}</Typography>
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        sx={{
+                          color: "white",
+                          borderBottomColor: alpha("#ffffff", 0.05),
+                        }}
+                      >
+                        {v.description?.split(":")[1] || "N/A"}
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        sx={{
+                          color: "white",
+                          borderBottomColor: alpha("#ffffff", 0.05),
+                        }}
+                      >{`$${v.cost}`}</TableCell>
+                      <TableCell
+                        align="left"
+                        sx={{ borderBottomColor: alpha("#ffffff", 0.05) }}
+                      >
+                        <Box
+                          sx={{
+                            padding: "6px 1px",
+                            borderRadius: "35px",
+                            bgcolor: "success.main",
+                            textAlign: "center",
+                          }}
+                        >
+                          <Typography
+                            sx={{ fontSize: 14, color: "rgba(255,255,255,0.8)" }}
+                          >
+                            COMPLETED
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </Box>
         </Card>
       </Stack>
 

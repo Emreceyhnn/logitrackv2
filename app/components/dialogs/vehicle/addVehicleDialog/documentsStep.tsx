@@ -20,8 +20,21 @@ import SecurityIcon from "@mui/icons-material/Security";
 import BuildIcon from "@mui/icons-material/Build";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import BadgeIcon from "@mui/icons-material/Badge";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
+import { MenuItem, Select, FormControl } from "@mui/material";
 import { DocumentsStepProps } from "@/app/lib/type/vehicle";
+
+const DOCUMENT_TYPES = [
+  { value: "REGISTRATION", label: "Registration", icon: <BadgeIcon /> },
+  { value: "INSURANCE", label: "Insurance", icon: <VerifiedUserIcon /> },
+  { value: "LICENSE", label: "License/Permit", icon: <LocalLibraryIcon /> },
+  { value: "INSPECTION", label: "Inspection", icon: <SecurityIcon /> },
+  { value: "MAINTENANCE", label: "Maintenance", icon: <BuildIcon /> },
+  { value: "OTHER", label: "Other", icon: <AssignmentIcon /> },
+];
 
 const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
   /* -------------------------------- variables ------------------------------- */
@@ -73,13 +86,19 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
         type: "OTHER",
         name: file.name,
         size: (file.size / 1024 / 1024).toFixed(1) + " MB",
-        uploadedAt: "Uploaded just now",
+        uploadedAt: new Date().toLocaleDateString(),
         file: file,
       }));
       actions.updateStep3({
         documents: [...data.documents, ...newFiles],
       });
     }
+  };
+
+  const updateFileType = (id: string, type: string) => {
+    actions.updateStep3({
+      documents: data.documents.map((d) => (d.id === id ? { ...d, type } : d)),
+    });
   };
 
   const removeFile = (id: string) => {
@@ -291,72 +310,127 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
                 or drag and drop
               </Typography>
               <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                PDF, DOCX, JPG or PNG (MAX. 10MB)
+                DOCX, JPG or PNG (MAX. 10MB)
               </Typography>
             </Box>
 
             <Stack spacing={2} sx={{ mt: 3 }}>
-              {data.documents.map((doc) => (
-                <Box
-                  key={doc.id}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    bgcolor: alpha("#1A202C", 0.5),
-                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                  }}
-                >
+              {data.documents.map((doc) => {
+                const typeInfo =
+                  DOCUMENT_TYPES.find((t) => t.value === doc.type) ||
+                  DOCUMENT_TYPES[5];
+                return (
                   <Box
+                    key={doc.id}
                     sx={{
-                      p: 1,
-                      borderRadius: 1.5,
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                      color: theme.palette.primary.main,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <InsertDriveFileIcon sx={{ fontSize: 20 }} />
-                  </Box>
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "white",
-                        fontWeight: 600,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {doc.name}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "text.secondary" }}
-                    >
-                      {doc.size} • {doc.uploadedAt}
-                    </Typography>
-                  </Box>
-                  <IconButton
-                    size="small"
-                    onClick={() => removeFile(doc.id)}
-                    sx={{
-                      color: alpha("#fff", 0.3),
+                      p: 2,
+                      borderRadius: 3,
+                      bgcolor: alpha("#1A202C", 0.6),
+                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                      transition: "all 0.2s",
                       "&:hover": {
-                        color: theme.palette.error.main,
-                        bgcolor: alpha(theme.palette.error.main, 0.1),
+                        borderColor: alpha(theme.palette.primary.main, 0.4),
+                        bgcolor: alpha("#1A202C", 0.8),
                       },
                     }}
                   >
-                    <DeleteOutlineIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              ))}
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Box
+                        sx={{
+                          p: 1.2,
+                          borderRadius: 2,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          color: theme.palette.primary.main,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {typeInfo.icon}
+                      </Box>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "white",
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {doc.name}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          {doc.size} • {doc.uploadedAt}
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        size="small"
+                        onClick={() => removeFile(doc.id)}
+                        sx={{
+                          color: alpha("#fff", 0.3),
+                          "&:hover": {
+                            color: theme.palette.error.main,
+                            bgcolor: alpha(theme.palette.error.main, 0.1),
+                          },
+                        }}
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </Stack>
+
+                    <Box sx={{ mt: 2 }}>
+                      <FormControl fullWidth size="small">
+                        <Select
+                          value={doc.type}
+                          onChange={(e) =>
+                            updateFileType(doc.id, e.target.value)
+                          }
+                          sx={{
+                            height: 36,
+                            borderRadius: 1.5,
+                            bgcolor: alpha(theme.palette.common.black, 0.2),
+                            color: "white",
+                            fontSize: "0.8rem",
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              borderColor: alpha(theme.palette.divider, 0.1),
+                            },
+                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                              borderColor: alpha(
+                                theme.palette.primary.main,
+                                0.3
+                              ),
+                            },
+                          }}
+                        >
+                          {DOCUMENT_TYPES.map((type) => (
+                            <MenuItem
+                              key={type.value}
+                              value={type.value}
+                              sx={{ fontSize: "0.85rem" }}
+                            >
+                              <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                              >
+                                <Box sx={{ display: "flex", opacity: 0.8 }}>
+                                  {type.icon}
+                                </Box>
+                                <span>{type.label}</span>
+                              </Stack>
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Box>
+                  </Box>
+                );
+              })}
             </Stack>
           </Box>
         </Box>

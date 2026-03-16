@@ -43,37 +43,8 @@ const ReportIssueDialog = ({
   vehicleId,
   vehiclePlate,
 }: ReportIssueDialogProps) => {
-  /* -------------------------------- variables ------------------------------- */
+  /* ---------------------------------- theme --------------------------------- */
   const theme = useTheme();
-
-  const textFieldSx = {
-    "& .MuiOutlinedInput-root": {
-      backgroundColor: alpha(theme.palette.background.paper, 0.8),
-      borderRadius: 1.5,
-      "& fieldset": {
-        borderColor: alpha(theme.palette.divider, 0.8),
-        borderWidth: 1.5,
-      },
-      "&:hover fieldset": {
-        borderColor: alpha(theme.palette.primary.main, 0.5),
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: theme.palette.primary.main,
-        borderWidth: 2,
-      },
-    },
-    "& .MuiInputLabel-root": {
-      fontWeight: 500,
-      fontSize: "0.875rem",
-      "&.Mui-focused": {
-        fontWeight: 600,
-      },
-    },
-    "& .MuiOutlinedInput-input": {
-      fontSize: "0.9375rem",
-      padding: "10px 14px",
-    },
-  };
 
   /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState<IssueFormData>({
@@ -115,6 +86,15 @@ const ReportIssueDialog = ({
     }
   };
 
+  const handleClose = () => {
+    if (!loading) {
+      setError(null);
+      setSuccess(false);
+      setFieldErrors({});
+      onClose();
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       await vehicleReportIssueValidationSchema.validate(formData, {
@@ -139,10 +119,11 @@ const ReportIssueDialog = ({
         onClose();
         onSuccess?.();
       }, 1500);
-    } catch (err: any) {
-      if (err.name === "ValidationError") {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === "ValidationError") {
+        const validationError = err as any; // Still need some casting for Yup inner errors if not using full types
         const errors: Record<string, string> = {};
-        err.inner.forEach((error: any) => {
+        validationError.inner.forEach((error: any) => {
           if (error.path) {
             errors[error.path] = error.message;
           }
@@ -151,20 +132,37 @@ const ReportIssueDialog = ({
         setError("Please fix the validation errors below");
       } else {
         console.error("Failed to create issue:", err);
-        setError(err?.message || "Failed to create issue. Please try again.");
+        const errorMessage = err instanceof Error ? err.message : "Failed to create issue. Please try again.";
+        setError(errorMessage);
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleClose = () => {
-    if (!loading) {
-      setError(null);
-      setSuccess(false);
-      setFieldErrors({});
-      onClose();
-    }
+  /* ---------------------------------- styles --------------------------------- */
+  const textFieldSx = {
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: alpha("#1A202C", 0.5),
+      borderRadius: 2,
+      "& fieldset": {
+        borderColor: alpha(theme.palette.divider, 0.1),
+      },
+      "&:hover fieldset": {
+        borderColor: alpha(theme.palette.primary.main, 0.3),
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: theme.palette.primary.main,
+      },
+    },
+    "& .MuiInputLabel-root": {
+      fontSize: "0.85rem",
+      color: "text.secondary",
+    },
+    "& .MuiOutlinedInput-input": {
+      color: "white",
+      fontSize: "0.9rem",
+    },
   };
 
   return (
@@ -175,227 +173,207 @@ const ReportIssueDialog = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3,
-          overflow: "hidden",
+          borderRadius: 4,
+          bgcolor: "#0B1019",
+          backgroundImage: "none",
+          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
         },
       }}
     >
-      <Box
-        sx={{
-          p: 3,
-          background: `linear-gradient(135deg, ${alpha(theme.palette.warning.main, 0.05)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
-          borderBottom: `1px solid ${theme.palette.divider}`,
-        }}
-      >
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
+      <Box sx={{ p: 3, pb: 2 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Stack direction="row" spacing={2} alignItems="center">
             <Box
               sx={{
                 bgcolor: alpha(theme.palette.warning.main, 0.1),
                 color: theme.palette.warning.main,
-                p: 1.5,
+                p: 1.25,
                 borderRadius: 2,
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
               }}
             >
-              <ReportProblemIcon sx={{ fontSize: 28 }} />
+              <ReportProblemIcon />
             </Box>
             <Box>
-              <Typography variant="h5" fontWeight={700}>
+              <Typography variant="h6" fontWeight={700} color="white">
                 Report Issue
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {vehiclePlate}
+              <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
+                Vehicle: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>{vehiclePlate}</span>
               </Typography>
             </Box>
           </Stack>
-          <IconButton
-            onClick={handleClose}
-            disabled={loading}
-            size="small"
-            sx={{
-              bgcolor: alpha(theme.palette.text.secondary, 0.1),
-              "&:hover": {
-                bgcolor: alpha(theme.palette.text.secondary, 0.2),
-              },
-            }}
-          >
+          <IconButton onClick={handleClose} size="small" sx={{ color: "text.secondary" }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
       </Box>
 
-      <DialogContent sx={{ p: 3 }}>
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
-
-        {success && (
-          <Alert severity="success" sx={{ mb: 3 }}>
-            Issue reported successfully!
-          </Alert>
-        )}
-
-        <Stack spacing={3}>
-          <TextField
-            fullWidth
-            label="Issue Title"
-            placeholder="Brief description of the issue"
-            value={formData.title}
-            onChange={(e) => handleChange("title", e.target.value)}
-            required
-            disabled={loading}
-            size="small"
-            error={!!fieldErrors.title}
-            helperText={fieldErrors.title}
-            sx={textFieldSx}
-          />
-
-          <TextField
-            fullWidth
-            select
-            label="Priority"
-            value={formData.priority}
-            onChange={(e) => handleChange("priority", e.target.value)}
-            required
-            disabled={loading}
-            size="small"
-            error={!!fieldErrors.priority}
-            helperText={fieldErrors.priority}
-            sx={textFieldSx}
-            SelectProps={{
-              renderValue: (value) => (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      bgcolor: getPriorityColor(value as string),
-                    }}
-                  />
-                  {value as string}
-                </Box>
-              ),
-            }}
-          >
-            <MenuItem value="LOW">
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    bgcolor: theme.palette.success.main,
-                  }}
-                />
-                Low
-              </Box>
-            </MenuItem>
-            <MenuItem value="MEDIUM">
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    bgcolor: theme.palette.info.main,
-                  }}
-                />
-                Medium
-              </Box>
-            </MenuItem>
-            <MenuItem value="HIGH">
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    bgcolor: theme.palette.warning.main,
-                  }}
-                />
-                High
-              </Box>
-            </MenuItem>
-            <MenuItem value="CRITICAL">
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    bgcolor: theme.palette.error.main,
-                  }}
-                />
-                Critical
-              </Box>
-            </MenuItem>
-          </TextField>
-
-          <TextField
-            fullWidth
-            label="Description"
-            placeholder="Provide additional details about the issue..."
-            value={formData.description}
-            onChange={(e) => handleChange("description", e.target.value)}
-            disabled={loading}
-            multiline
-            rows={4}
-            error={!!fieldErrors.description}
-            helperText={fieldErrors.description}
-            sx={textFieldSx}
-          />
-
-          <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button
-              variant="outlined"
-              onClick={handleClose}
-              disabled={loading}
-              sx={{
-                textTransform: "none",
-                borderColor: theme.palette.divider,
-                color: theme.palette.text.secondary,
-                "&:hover": {
-                  borderColor: theme.palette.text.primary,
-                  color: theme.palette.text.primary,
-                },
+      <DialogContent sx={{ p: 3, pt: 1 }}>
+        <Stack spacing={4}>
+          {(error || success) && (
+            <Alert 
+              severity={success ? "success" : "error"} 
+              variant="filled"
+              sx={{ 
+                borderRadius: 2,
+                bgcolor: alpha(success ? theme.palette.success.main : theme.palette.error.main, 0.1),
+                color: success ? theme.palette.success.light : theme.palette.error.light,
+                border: `1px solid ${alpha(success ? theme.palette.success.main : theme.palette.error.main, 0.2)}`,
               }}
             >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={handleSubmit}
+              {success ? "Issue reported successfully!" : error}
+            </Alert>
+          )}
+
+          <Box>
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+              Core Details
+            </Typography>
+            <Stack spacing={2.5}>
+              <TextField
+                fullWidth
+                label="Issue Title"
+                placeholder="Brief description of the problem"
+                value={formData.title}
+                onChange={(e) => handleChange("title", e.target.value)}
+                required
+                disabled={loading}
+                error={!!fieldErrors.title}
+                helperText={fieldErrors.title}
+                sx={textFieldSx}
+                InputLabelProps={{ shrink: true }}
+              />
+
+              <TextField
+                fullWidth
+                select
+                label="Priority Level"
+                value={formData.priority}
+                onChange={(e) => handleChange("priority", e.target.value)}
+                required
+                disabled={loading}
+                error={!!fieldErrors.priority}
+                helperText={fieldErrors.priority}
+                sx={textFieldSx}
+                InputLabelProps={{ shrink: true }}
+                SelectProps={{
+                  renderValue: (value) => {
+                    const colorKey = getPriorityColor(value as string) as "error" | "warning" | "info" | "success";
+                    const mainColor = theme.palette[colorKey]?.main || theme.palette.text.primary;
+                    
+                    return (
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                        <Box
+                          sx={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: "50%",
+                            bgcolor: mainColor,
+                            boxShadow: `0 0 10px ${alpha(mainColor, 0.5)}`,
+                          }}
+                        />
+                        <Typography variant="body2" color="white" fontWeight={500}>
+                          {value as string}
+                        </Typography>
+                      </Box>
+                    );
+                  },
+                  MenuProps: {
+                    PaperProps: {
+                      sx: {
+                        bgcolor: "#1A202C",
+                        backgroundImage: "none",
+                        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                        mt: 1,
+                      }
+                    }
+                  }
+                }}
+              >
+                {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((p) => (
+                  <MenuItem key={p} value={p} sx={{ py: 1.5 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          bgcolor: getPriorityColor(p),
+                        }}
+                      />
+                      <Typography variant="body2">{p}</Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
+          </Box>
+
+          <Box>
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+              Extended Description
+            </Typography>
+            <TextField
+              fullWidth
+              label="Details"
+              placeholder="Provide context, symptoms, or location of the issue..."
+              value={formData.description}
+              onChange={(e) => handleChange("description", e.target.value)}
               disabled={loading}
+              multiline
+              rows={4}
+              error={!!fieldErrors.description}
+              helperText={fieldErrors.description}
               sx={{
-                textTransform: "none",
-                px: 4,
+                ...textFieldSx,
+                "& .MuiOutlinedInput-root": {
+                  ...textFieldSx["& .MuiOutlinedInput-root"],
+                  height: "auto",
+                  padding: "12px 14px",
+                }
               }}
-            >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Submit Issue"
-              )}
-            </Button>
-          </Stack>
+              InputLabelProps={{ shrink: true }}
+            />
+          </Box>
         </Stack>
       </DialogContent>
+
+      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
+        <Stack direction="row" spacing={2} justifyContent="flex-end">
+          <Button 
+            onClick={handleClose} 
+            disabled={loading}
+            sx={{ 
+              color: "text.secondary", 
+              textTransform: "none", 
+              fontWeight: 600 
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            disabled={loading}
+            sx={{
+              textTransform: "none",
+              borderRadius: 2,
+              px: 4,
+              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+              fontWeight: 700,
+              minWidth: 140,
+            }}
+          >
+            {loading ? (
+              <Stack direction="row" spacing={1} alignItems="center">
+                <CircularProgress size={16} color="inherit" />
+                <span>Submitting...</span>
+              </Stack>
+            ) : "Submit Issue"}
+          </Button>
+        </Stack>
+      </Box>
     </Dialog>
   );
 };
