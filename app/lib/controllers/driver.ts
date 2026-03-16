@@ -107,6 +107,13 @@ export const getDrivers = authenticatedAction(
                 model: true,
               },
             },
+            homeBaseWarehouse: {
+              select: {
+                id: true,
+                name: true,
+                code: true,
+              },
+            },
             _count: {
               select: {
                 shipments: true,

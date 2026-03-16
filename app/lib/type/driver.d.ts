@@ -28,6 +28,12 @@ export interface DriverWithRelations {
     model: string;
   } | null;
 
+  homeBaseWarehouse: {
+    id: string;
+    name: string;
+    code: string;
+  } | null;
+
   _count?: {
     shipments: number;
     issues: number;

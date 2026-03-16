@@ -21,33 +21,23 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import { IconButton } from "@mui/material";
 import { AddDriverStep1, EligibleUser } from "@/app/lib/type/driver";
-import { useEffect, useState, useRef, ChangeEvent } from "react";
-import { getEligibleUsersForDriver } from "@/app/lib/controllers/driver";
+import { useRef, ChangeEvent } from "react";
 
 interface FirstDriverDialogStepProps {
   state: AddDriverStep1;
   updateStep1: (data: Partial<AddDriverStep1>) => void;
+  eligibleUsers: EligibleUser[];
 }
 
 const FirstDriverDialogStep = ({
   state,
   updateStep1,
+  eligibleUsers,
 }: FirstDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  /* --------------------------------- states --------------------------------- */
-  const [users, setUsers] = useState<EligibleUser[]>([]);
-
-  /* ------------------------------- lifecycles ------------------------------- */
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await getEligibleUsersForDriver();
-      setUsers(response);
-    };
-    fetchUsers();
-  }, []);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -75,14 +65,14 @@ const FirstDriverDialogStep = ({
           <CustomTextArea
             name="userId"
             placeholder={
-              users.length === 0 ? "No users found" : "Select Company Member"
+              eligibleUsers.length === 0 ? "No users found" : "Select Company Member"
             }
             value={state.userId}
             onChange={(e) => updateStep1({ userId: e.target.value })}
-            select={users.length > 0}
-            disabled={users.length === 0}
+            select={eligibleUsers.length > 0}
+            disabled={eligibleUsers.length === 0}
           >
-            {users.map((user) => (
+            {eligibleUsers.map((user) => (
               <MenuItem key={user.id} value={user.id}>
                 {user.name} {user.surname} ({user.email})
               </MenuItem>

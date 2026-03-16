@@ -67,7 +67,7 @@ const SecondEditDriverDialogStep = ({
       try {
         const [wData, vData] = await Promise.all([
           getWarehouses(),
-          getVehicles({ status: ["AVAILABLE", "IDLE"] }),
+          getVehicles({ status: ["AVAILABLE"] }),
         ]);
         setWarehouses(wData);
         setVehicles(vData);

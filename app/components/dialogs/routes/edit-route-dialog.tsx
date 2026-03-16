@@ -93,7 +93,7 @@ const EditRouteDialog = (params: EditRouteDialogParams) => {
 
           // Fetch Vehicles
           const vehiclesData = await getVehicles({
-            status: ["IDLE", "AVAILABLE", "ON_TRIP"], // Allow current vehicle too
+            status: ["AVAILABLE", "ON_TRIP"], // Allow current vehicle too
           });
           setVehicles(vehiclesData);
         } catch (error) {

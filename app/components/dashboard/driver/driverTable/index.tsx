@@ -23,7 +23,6 @@ const DriverTable = ({
   onDriverSelect,
   onEdit,
   onDelete,
-  onRefresh,
   onPageChange,
   onLimitChange,
   sortField,
@@ -38,7 +37,7 @@ const DriverTable = ({
     onPageChange(newPage + 1); // MUI uses 0-indexed, our API uses 1-indexed
   };
   const createSortHandler =
-    (property: string) => (event: React.MouseEvent<unknown>) => {
+    (property: string) => () => {
       if (onRequestSort) onRequestSort(property);
     };
 
@@ -91,6 +90,15 @@ const DriverTable = ({
               </TableCell>
               <TableCell>
                 <TableSortLabel
+                  active={sortField === "homeBaseWarehouse"}
+                  direction={sortField === "homeBaseWarehouse" ? sortOrder : "asc"}
+                  onClick={createSortHandler("homeBaseWarehouse")}
+                >
+                  Homebase
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
                   active={sortField === "licenseType"}
                   direction={sortField === "licenseType" ? sortOrder : "asc"}
                   onClick={createSortHandler("licenseType")}
@@ -137,6 +145,11 @@ const DriverTable = ({
                     {d.currentVehicle
                       ? d.currentVehicle.plate
                       : "No assigned vehicle"}
+                  </TableCell>
+                  <TableCell>
+                    {d.homeBaseWarehouse
+                      ? d.homeBaseWarehouse.name
+                      : "Not assigned"}
                   </TableCell>
                   <TableCell>{d.licenseType}</TableCell>
                   <TableCell align="right">{d.safetyScore}</TableCell>

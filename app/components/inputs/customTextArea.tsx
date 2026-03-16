@@ -6,6 +6,7 @@ import {
   Theme,
   useTheme,
 } from "@mui/material";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 interface Props {
   label?: string;
@@ -79,6 +80,43 @@ const CustomTextArea = ({
       error={error}
       helperText={helperText}
       sx={[baseStyles, ...(Array.isArray(sx) ? sx : [sx])]}
+      SelectProps={
+        select
+          ? {
+              IconComponent: KeyboardArrowDownIcon,
+              MenuProps: {
+                PaperProps: {
+                  sx: {
+                    mt: 1,
+                    bgcolor: "#1A202C",
+                    backgroundImage: "none",
+                    borderRadius: 2,
+                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                    boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.8)",
+                    "& .MuiMenuItem-root": {
+                      fontSize: "0.875rem",
+                      py: 1,
+                      px: 2,
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        bgcolor: alpha(theme.palette.primary.main, 0.08),
+                        color: theme.palette.primary.main,
+                      },
+                      "&.Mui-selected": {
+                        bgcolor: alpha(theme.palette.primary.main, 0.12),
+                        color: theme.palette.primary.main,
+                        fontWeight: 600,
+                        "&:hover": {
+                          bgcolor: alpha(theme.palette.primary.main, 0.18),
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }
+          : undefined
+      }
       InputProps={
         !select
           ? {

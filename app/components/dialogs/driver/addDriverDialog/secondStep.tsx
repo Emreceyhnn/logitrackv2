@@ -14,14 +14,14 @@ import {
   Button,
   Switch,
 } from "@mui/material";
-import { useEffect, useState, useRef, ChangeEvent } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import {
+  AddDriverDocument,
   AddDriverStep1,
   AddDriverStep2,
   EligibleUser,
 } from "@/app/lib/type/driver";
-import { getEligibleUsersForDriver } from "@/app/lib/controllers/driver";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { useUser } from "@/app/lib/hooks/useUser";
@@ -41,6 +41,7 @@ interface SecondDriverDialogStepProps {
   updateStep2: (data: Partial<AddDriverStep2>) => void;
   step1Data: AddDriverStep1;
   setStep: (step: number) => void;
+  eligibleUsers: EligibleUser[];
 }
 
 const SecondDriverDialogStep = ({
@@ -48,6 +49,7 @@ const SecondDriverDialogStep = ({
   updateStep2,
   step1Data,
   setStep,
+  eligibleUsers,
 }: SecondDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
@@ -56,21 +58,18 @@ const SecondDriverDialogStep = ({
   /* --------------------------------- states --------------------------------- */
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [vehicles, setVehicles] = useState<any[]>([]);
-  const [users, setUsers] = useState<EligibleUser[]>([]);
 
   /* ------------------------------- lifecycles ------------------------------- */
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
       try {
-        const [wData, vData, uData] = await Promise.all([
+        const [wData, vData] = await Promise.all([
           getWarehouses(),
-          getVehicles({ status: ["AVAILABLE", "IDLE"] }),
-          getEligibleUsersForDriver(),
+          getVehicles({ status: ["AVAILABLE"] }),
         ]);
         setWarehouses(wData);
         setVehicles(vData);
-        setUsers(uData);
       } catch (error) {
         console.error("Failed to fetch Step 2 data:", error);
       }
@@ -81,7 +80,7 @@ const SecondDriverDialogStep = ({
   /* -------------------------------- handlers -------------------------------- */
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newDocs = Array.from(e.target.files).map((file) => ({
+      const newDocs: AddDriverDocument[] = Array.from(e.target.files).map((file: File) => ({
         id: crypto.randomUUID(),
         name: file.name,
         type: "OTHER",
@@ -102,7 +101,7 @@ const SecondDriverDialogStep = ({
     });
   };
 
-  const selectedUser = users.find((u) => u.id === step1Data.userId);
+  const selectedUser = eligibleUsers.find((u) => u.id === step1Data.userId);
 
   return (
     <Grid container spacing={3}>

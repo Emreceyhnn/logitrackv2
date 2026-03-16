@@ -68,7 +68,7 @@ const AddFuelLogDialog = ({
       const fetchData = async () => {
         try {
           const [vRes, dRes] = await Promise.all([
-            getVehicles({ status: ["AVAILABLE", "IDLE"] }),
+            getVehicles({ status: ["AVAILABLE"] }),
             getDrivers(1, 100),
           ]);
           setVehicles(vRes || []);

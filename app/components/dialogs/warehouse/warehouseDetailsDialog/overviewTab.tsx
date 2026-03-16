@@ -128,6 +128,28 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
             <Stack spacing={1.5}>
               <Box>
                 <Typography variant="caption" color="text.secondary">
+                  Facility Type
+                </Typography>
+                <Box sx={{ mt: 0.5 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      px: 1,
+                      py: 0.3,
+                      borderRadius: 1,
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      color: theme.palette.primary.main,
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      fontSize: "0.65rem",
+                    }}
+                  >
+                    {warehouse.type.replace("_", " ")}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box>
+                <Typography variant="caption" color="text.secondary">
                   Operating Hours
                 </Typography>
                 <Typography variant="body2" color="white" fontWeight={500}>

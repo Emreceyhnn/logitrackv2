@@ -11,6 +11,8 @@ import {
   MenuItem,
   Stack,
   LinearProgress,
+  alpha,
+  useTheme,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
@@ -31,6 +33,7 @@ const WarehouseListTable = ({
   onDelete,
   onDetails,
 }: WarehouseTableProps) => {
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [menuRowId, setMenuRowId] = useState<string | null>(null);
 
@@ -100,6 +103,15 @@ const WarehouseListTable = ({
                 }}
               >
                 NAME
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: "text.secondary",
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                }}
+              >
+                TYPE
               </TableCell>
               <TableCell
                 sx={{
@@ -180,6 +192,20 @@ const WarehouseListTable = ({
                     {warehouse.code}
                   </TableCell>
                   <TableCell>{warehouse.name}</TableCell>
+                  <TableCell>
+                    <Typography variant="caption" sx={{ 
+                      px: 1, 
+                      py: 0.5, 
+                      borderRadius: 1, 
+                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      color: theme.palette.primary.main,
+                      fontWeight: 700,
+                      fontSize: '0.65rem',
+                      textTransform: 'uppercase'
+                    }}>
+                      {warehouse.type.replace('_', ' ')}
+                    </Typography>
+                  </TableCell>
                   <TableCell>{warehouse.city}</TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={2} alignItems="center">

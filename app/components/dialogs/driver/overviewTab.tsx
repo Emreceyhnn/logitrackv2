@@ -8,6 +8,7 @@ import {
   Box,
   useTheme,
   Grid,
+  Theme,
 } from "@mui/material";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
@@ -15,6 +16,7 @@ import StarIcon from "@mui/icons-material/Star";
 import EmailIcon from "@mui/icons-material/Email";
 import HistoryIcon from "@mui/icons-material/History";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import HomeWorkIcon from "@mui/icons-material/HomeWork";
 
 interface OverviewTabProps {
   driver?: DriverWithRelations;
@@ -31,7 +33,7 @@ const KPICard = ({
   value: string | number;
   icon: React.ReactNode;
   color: string;
-  theme: any;
+  theme: Theme;
 }) => (
   <Card
     sx={{
@@ -142,7 +144,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
       </Grid>
 
       <Grid container spacing={2}>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <Card
             sx={{
               p: 2.5,
@@ -152,6 +154,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
+              height: '100%'
             }}
           >
             <Stack direction="row" spacing={1} alignItems="center">
@@ -159,26 +162,18 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                 fontSize="small"
                 sx={{ color: "text.secondary" }}
               />
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                fontWeight={600}
-              >
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>
                 License Expiry
               </Typography>
             </Stack>
-            <Typography variant="h5" fontWeight={700} color="white">
+            <Typography variant="h6" fontWeight={700} color="white">
               {driver.licenseExpiry
-                ? new Date(driver.licenseExpiry).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
+                ? new Date(driver.licenseExpiry).toLocaleDateString()
                 : "N/A"}
             </Typography>
           </Card>
         </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ xs: 12, sm: 4 }}>
           <Card
             sx={{
               p: 2.5,
@@ -188,35 +183,56 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
+              height: '100%'
             }}
           >
             <Typography variant="body2" color="text.secondary" fontWeight={600}>
-              Current Status
+              Status
             </Typography>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography
-                variant="h5"
-                fontWeight={800}
-                sx={{
-                  color:
-                    driver.status === "ON_JOB"
-                      ? "success.main"
-                      : driver.status === "OFF_DUTY"
-                        ? "text.secondary"
-                        : "warning.main",
-                  textShadow: `0 0 20px ${alpha(
-                    driver.status === "ON_JOB"
-                      ? theme.palette.success.main
-                      : driver.status === "OFF_DUTY"
-                        ? theme.palette.text.secondary
-                        : theme.palette.warning.main,
-                    0.3
-                  )}`,
-                }}
-              >
-                {driver.status.replace("_", " ")}
+            <Typography
+              variant="h6"
+              fontWeight={800}
+              sx={{
+                color:
+                  driver.status === "ON_JOB"
+                    ? "success.main"
+                    : driver.status === "OFF_DUTY"
+                      ? "text.secondary"
+                      : "warning.main",
+              }}
+            >
+              {driver.status.replace("_", " ")}
+            </Typography>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <Card
+            sx={{
+              p: 2.5,
+              borderRadius: 3,
+              bgcolor: alpha(theme.palette.background.paper, 0.3),
+              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              display: "flex",
+              flexDirection: "column",
+              gap: 1.5,
+              height: '100%'
+            }}
+          >
+            <Stack direction="row" spacing={1} alignItems="center">
+              <HomeWorkIcon
+                fontSize="small"
+                sx={{ color: "text.secondary" }}
+              />
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                Base
               </Typography>
-            </Box>
+            </Stack>
+            <Typography variant="h6" fontWeight={700} color="white" noWrap>
+              {driver.homeBaseWarehouse?.name || "Not Set"}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              ID: {driver.homeBaseWarehouse?.code || "N/A"}
+            </Typography>
           </Card>
         </Grid>
       </Grid>

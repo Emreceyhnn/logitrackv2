@@ -23,12 +23,15 @@ import {
   AddDriverDialogProps,
   AddDriverStep1,
   AddDriverStep2,
+  EligibleUser,
 } from "@/app/lib/type/driver";
+import { DriverStatus } from "@prisma/client";
 import { toast } from "sonner";
-import { createDriver } from "@/app/lib/controllers/driver";
+import { createDriver, getEligibleUsersForDriver } from "@/app/lib/controllers/driver";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import FirstDriverDialogStep from "./firstStep";
 import SecondDriverDialogStep from "./secondStep";
+import { useEffect } from "react";
 
 const initialStep1: AddDriverStep1 = {
   userId: "",
@@ -63,6 +66,22 @@ const AddDriverDialog = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [eligibleUsers, setEligibleUsers] = useState<EligibleUser[]>([]);
+
+  /* ------------------------------- lifecycles ------------------------------- */
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const users = await getEligibleUsersForDriver();
+        setEligibleUsers(users);
+      } catch (error) {
+        console.error("Failed to fetch eligible users:", error);
+      }
+    };
+    if (open) {
+      fetchUsers();
+    }
+  }, [open]);
 
   /* -------------------------------- handlers --------------------------------- */
   const updateStep1 = (data: Partial<AddDriverStep1>) =>
@@ -122,13 +141,13 @@ const AddDriverDialog = ({
         licenseNumber: step1.licenseNo,
         licenseExpiry: step1.licenseExpiry,
         licenseType: step1.licenseType,
-        status: step2.status as any,
+        status: step2.status as DriverStatus,
         currentVehicleId: step2.currentVehicleId || null,
         homeBaseWarehouseId: step2.homeWareHouseId || null,
         languages: step2.languages,
         hazmatCertified: step2.hazmatCertified,
         licensePhotoUrl,
-        documents: uploadedDocs.filter((d) => d !== null) as any[],
+        documents: (uploadedDocs.filter((d) => d !== null) as { name: string; type: string; url: string; expiryDate?: Date }[]),
       };
 
       await createDriver(payload);
@@ -140,8 +159,8 @@ const AddDriverDialog = ({
         onSuccess?.();
         resetForm();
       }, 1500);
-    } catch (err: any) {
-      const message = err.message || "Failed to create driver";
+    } catch (err: unknown) {
+      const message = (err as Error).message || "Failed to create driver";
       setError(message);
       toast.error(message);
     } finally {
@@ -259,7 +278,7 @@ const AddDriverDialog = ({
             </Box>
           )}
           {currentStep === 1 && (
-            <FirstDriverDialogStep state={step1} updateStep1={updateStep1} />
+            <FirstDriverDialogStep state={step1} updateStep1={updateStep1} eligibleUsers={eligibleUsers} />
           )}
           {currentStep === 2 && (
             <SecondDriverDialogStep
@@ -267,6 +286,7 @@ const AddDriverDialog = ({
               updateStep2={updateStep2}
               step1Data={step1}
               setStep={setCurrentStep}
+              eligibleUsers={eligibleUsers}
             />
           )}
         </Box>
