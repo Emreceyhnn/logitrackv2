@@ -6,6 +6,7 @@ import {
   Card,
   Button,
   alpha,
+  Box,
 } from "@mui/material";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import SpeedIcon from "@mui/icons-material/Speed";
@@ -44,7 +45,46 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
         height={"100%"}
         justifyContent={"space-between"}
       >
-        <Stack spacing={2} width={"45%"}>
+        <Stack spacing={2} width={"45%"} sx={{ overflowY: 'auto', pr: 1 }}>
+          {vehicle.photo && (
+            <Card
+              sx={{
+                borderRadius: "12px",
+                overflow: "hidden",
+                bgcolor: alpha("#1A202C", 0.5),
+                backgroundImage: "none",
+                boxShadow: "none",
+                border: `1px solid ${alpha("#ffffff", 0.05)}`,
+                position: "relative",
+              }}
+            >
+              <Box
+                component="img"
+                src={vehicle.photo}
+                alt={`${vehicle.brand} ${vehicle.model}`}
+                sx={{
+                  width: "100%",
+                  height: 160,
+                  objectFit: "cover",
+                  display: "block",
+                }}
+              />
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  p: 1.5,
+                  background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)",
+                }}
+              >
+                <Typography variant="caption" sx={{ color: "white", fontWeight: 600, opacity: 0.8 }}>
+                  VEHICLE PREVIEW
+                </Typography>
+              </Box>
+            </Card>
+          )}
           <Stack direction={"row"} spacing={1}>
             <Card
               sx={{

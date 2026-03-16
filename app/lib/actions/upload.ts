@@ -1,18 +1,13 @@
 "use server";
 
-import {
-  uploadToCloudinary,
-  getSignedUrl,
-  extractPublicIdFromUrl,
-} from "../cloudinary";
+import { supabase } from "../supabase";
 import { authenticatedAction } from "../auth-middleware";
 
-type UploadFolder =
-  | "general"
-  | "avatars"
-  | "products"
+type UploadBucket =
+  | "vehicles"
   | "documents"
-  | (string & {});
+  | "avatars"
+  | "general";
 
 interface UploadImageResult {
   success: true;
@@ -75,49 +70,64 @@ export const uploadImageAction = authenticatedAction(
   async (
     _user,
     fileData: string,
-    folder: UploadFolder = "general"
+    bucket: UploadBucket = "general"
   ): Promise<UploadImageResult> => {
     validateBase64Image(fileData);
 
-    const response = await uploadToCloudinary(fileData, {
-      folder: `logitrack/${folder}`,
-      resourceType: "image",
-    }).catch((err: unknown) => {
-      console.error("[uploadImageAction] Cloudinary upload failed:", err);
-      throw new Error("Failed to upload image. Please try again.");
-    });
+    // Convert base64 to buffer for Supabase upload
+    const base64Part = fileData.split(",")[1];
+    const mimeType = fileData.split(";")[0].split(":")[1];
+    const buffer = Buffer.from(base64Part, "base64");
+
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    const filePath = `${fileName}.${mimeType.split("/")[1]}`;
+
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(filePath, buffer, {
+        contentType: mimeType,
+        upsert: false,
+      });
+
+    if (error) {
+      console.error("[uploadImageAction] Supabase upload failed:", error);
+      throw new Error(`Failed to upload image to Supabase: ${error.message}`);
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(data.path);
 
     return {
       success: true,
-      url: response.secure_url,
-      publicId: response.public_id,
+      url: publicUrl,
+      publicId: data.path,
     };
   }
 );
 
 export const getSignedUrlAction = authenticatedAction(
-  async (_user, fileUrl: string): Promise<SignedUrlResult> => {
+  async (_user, fileUrl: string, bucket: string = "documents"): Promise<SignedUrlResult> => {
     validateFileUrl(fileUrl);
 
-    const publicId = extractPublicIdFromUrl(fileUrl);
+    // Extract path from URL
+    // Standard Supabase public URL: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
+    const urlParts = fileUrl.split("/");
+    const path = urlParts.slice(urlParts.indexOf(bucket) + 1).join("/");
 
-    if (!publicId) {
-      console.warn(
-        "[getSignedUrlAction] Could not extract public ID from URL, returning original.",
-        fileUrl
-      );
+    if (!path) {
       return { success: true, url: fileUrl, signed: false };
     }
 
-    const signedUrl = await Promise.resolve(
-      getSignedUrl(publicId, "raw")
-    ).catch((err: unknown) => {
-      console.error("[getSignedUrlAction] Failed to generate signed URL:", err);
-      throw new Error(
-        "Failed to generate a secure viewing link. Please try again."
-      );
-    });
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(path, 3600); // 1 hour
 
-    return { success: true, url: signedUrl, signed: true };
+    if (error) {
+      console.error("[getSignedUrlAction] Failed to generate signed URL:", error);
+      throw new Error("Failed to generate a secure viewing link.");
+    }
+
+    return { success: true, url: data.signedUrl, signed: true };
   }
 );

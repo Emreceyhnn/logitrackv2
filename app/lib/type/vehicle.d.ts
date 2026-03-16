@@ -77,6 +77,7 @@ export interface VehicleWithRelations {
   documents: Document[];
   maintenanceRecords: MaintenanceRecord[];
   routes: Route[];
+  photo: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

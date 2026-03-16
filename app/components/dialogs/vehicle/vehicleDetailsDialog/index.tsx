@@ -45,6 +45,7 @@ interface VehicleDialogParams {
   vehicleData?: VehicleWithRelations;
   onDeleteSuccess?: () => void;
   onEditSuccess?: () => void;
+  onUpdateSuccess?: () => void;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -71,7 +72,7 @@ function a11yProps(index: number) {
 }
 
 const VehicleDialog = (params: VehicleDialogParams) => {
-  const { open, onClose, vehicleData, onDeleteSuccess } = params;
+  const { open, onClose, vehicleData, onDeleteSuccess, onUpdateSuccess } = params;
 
   /* --------------------------------- states --------------------------------- */
   const [value, setValue] = useState(0);
@@ -147,19 +148,21 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           <Stack direction="row" spacing={3} alignItems="center">
             <Avatar
               variant="rounded"
+              src={vehicleData?.photo || undefined}
               sx={{
-                bgcolor: alpha(statusColor, 0.1),
+                bgcolor: vehicleData?.photo ? 'transparent' : alpha(statusColor, 0.1),
                 color: statusColor,
                 width: 72,
                 height: 72,
                 fontSize: "2rem",
                 fontWeight: 800,
                 borderRadius: 2,
+                border: vehicleData?.photo ? `2px solid ${alpha(statusColor, 0.5)}` : `1px solid ${alpha(statusColor, 0.2)}`,
               }}
             >
-              {vehicleData?.brand?.charAt(0) || (
+              {!vehicleData?.photo && (vehicleData?.model?.charAt(0) || (
                 <LocalShippingIcon fontSize="large" />
-              )}
+              ))}
             </Avatar>
             <Stack spacing={0.5}>
               <Stack direction="row" spacing={1} alignItems="center">
@@ -231,7 +234,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
             <OverviewTab vehicle={vehicleData} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={1}>
-            <DocumentsTab vehicle={vehicleData} />
+            <DocumentsTab vehicle={vehicleData} onUpdate={onUpdateSuccess} />
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             <MaintenanceTab vehicle={vehicleData} />

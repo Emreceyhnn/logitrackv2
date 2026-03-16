@@ -53,6 +53,7 @@ function generateAccessToken(user: {
       username: user.username,
       role: user.roleId,
       companyId: user.companyId ?? null,
+      jti: crypto.randomUUID(), // Ensure every token is uniquely hashable
     },
     JWT_SECRET,
     { expiresIn: ACCESS_TOKEN_EXPIRY }
@@ -98,31 +99,36 @@ export async function createSession(
   );
 
   // Create session in DB
-  const session = await db.session.create({
-    data: {
-      userId: user.id,
-      token: tokenHash,
-      refreshToken: refreshToken,
-      deviceInfo: deviceInfo || null,
-      ipAddress: ipAddress || null,
-      expiresAt,
-    },
-  });
+  try {
+    const session = await db.session.create({
+      data: {
+        userId: user.id,
+        token: tokenHash,
+        refreshToken: refreshToken,
+        deviceInfo: deviceInfo || null,
+        ipAddress: ipAddress || null,
+        expiresAt,
+      },
+    });
 
-  // Set cookies
-  const cookieStore = await cookies();
+    // Set cookies
+    const cookieStore = await cookies();
 
-  cookieStore.set("token", accessToken, {
-    ...COOKIE_OPTIONS,
-    maxAge: 15 * 60, // 15 minutes in seconds
-  });
+    cookieStore.set("token", accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: 15 * 60, // 15 minutes in seconds
+    });
 
-  cookieStore.set("refreshToken", refreshToken, {
-    ...COOKIE_OPTIONS,
-    maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60, // 7 days in seconds
-  });
+    cookieStore.set("refreshToken", refreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60, // 7 days in seconds
+    });
 
-  return { accessToken, sessionId: session.id };
+    return { accessToken, sessionId: session.id };
+  } catch (error) {
+    console.error("Failed to create session in DB:", error);
+    throw new Error("Authentication session failed to initialize properly. Please try again.");
+  }
 }
 
 /**

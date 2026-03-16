@@ -26,6 +26,7 @@ import {
   AddVehiclePageState,
 } from "@/app/lib/type/vehicle";
 import { updateVehicle } from "@/app/lib/controllers/vehicle";
+import { uploadImageAction } from "@/app/lib/actions/upload";
 import { toast } from "sonner";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -59,6 +60,7 @@ const EditVehicleDialog = ({
         year: vehicle?.year || "",
         odometerKm: vehicle?.odometerKm || "",
         nextServiceKm: vehicle?.nextServiceKm || "",
+        photo: vehicle?.photo || "",
       },
       step2: {
         maxLoadKg: vehicle?.maxLoadKg || "",
@@ -97,6 +99,7 @@ const EditVehicleDialog = ({
             year: vehicle.year || "",
             odometerKm: vehicle.odometerKm || "",
             nextServiceKm: vehicle.nextServiceKm || "",
+            photo: vehicle.photo || "",
           },
           step2: {
             maxLoadKg: vehicle.maxLoadKg || "",
@@ -156,7 +159,26 @@ const EditVehicleDialog = ({
         try {
           setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
+          const fileToBase64 = (file: File): Promise<string> => {
+            return new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.readAsDataURL(file);
+              reader.onload = () => resolve(reader.result as string);
+              reader.onerror = (error) => reject(error);
+            });
+          };
+
           const { step1, step2 } = state.data;
+
+          let photoUrl = step1.photo;
+          if (step1.photo instanceof File) {
+            const base64 = await fileToBase64(step1.photo);
+            const uploadResult = await uploadImageAction(
+              base64,
+              "vehicles"
+            );
+            photoUrl = uploadResult.url;
+          }
 
           const updateData = {
             fleetNo: step1.fleetNo,
@@ -175,6 +197,7 @@ const EditVehicleDialog = ({
             nextServiceKm: step1.nextServiceKm
               ? Number(step1.nextServiceKm)
               : null,
+            photo: (photoUrl as string) || null,
           };
 
           await updateVehicle(vehicle.id, updateData);
@@ -289,7 +312,11 @@ const EditVehicleDialog = ({
 
         <Box sx={{ minHeight: 400 }}>
           {state.currentStep === 1 && (
-            <FirstStep state={state} actions={actions} />
+            <FirstStep 
+              state={state} 
+              actions={actions} 
+              onFileSelect={(file) => actions.updateStep1({ photo: file })} 
+            />
           )}
           {state.currentStep === 2 && (
             <TechSpecsStep state={state} actions={actions} />

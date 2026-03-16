@@ -86,10 +86,10 @@ export default function UploadDocumentDialog({
         reader.readAsDataURL(file);
       });
 
-      // 2. Upload to Cloudinary
+      // 2. Upload to Supabase (using 'documents' bucket)
       const uploadResult = await uploadImageAction(
         base64,
-        `vehicles/${vehicleId}`
+        "documents"
       );
 
       // 3. Save to DB

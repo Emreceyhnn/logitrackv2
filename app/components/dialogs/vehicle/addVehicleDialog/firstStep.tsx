@@ -10,8 +10,10 @@ import {
   alpha,
   useTheme,
   InputAdornment,
+  IconButton,
 } from "@mui/material";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
+import CloseIcon from "@mui/icons-material/Close";
 import TagIcon from "@mui/icons-material/Tag";
 import PinIcon from "@mui/icons-material/Pin";
 import { FirstStepProps } from "@/app/lib/type/vehicle";
@@ -56,6 +58,14 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
     onFileSelect?.(file);
   };
 
+  const handleRemove = () => {
+    actions.updateStep1({ photo: undefined });
+  };
+
+  const photoPreview = data.photo instanceof File 
+    ? URL.createObjectURL(data.photo) 
+    : data.photo;
+
   return (
     <Box sx={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 4 }}>
       <Stack spacing={2}>
@@ -63,49 +73,93 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
           Vehicle Photo
         </Typography>
         <Box
-          component="label"
           sx={(theme) => ({
             width: "100%",
             aspectRatio: "1/1",
-            border: `2px dashed ${alpha(theme.palette.divider, 0.1)}`,
+            border: `2px dashed ${alpha(theme.palette.divider, photoPreview ? 0 : 0.1)}`,
             borderRadius: 3,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            cursor: "pointer",
+            cursor: photoPreview ? "default" : "pointer",
             transition: "all 0.2s",
+            position: "relative",
+            overflow: "hidden",
             "&:hover": {
-              borderColor: alpha(theme.palette.primary.main, 0.3),
-              bgcolor: alpha(theme.palette.primary.main, 0.02),
+              borderColor: photoPreview ? "none" : alpha(theme.palette.primary.main, 0.3),
+              bgcolor: photoPreview ? "none" : alpha(theme.palette.primary.main, 0.02),
             },
           })}
         >
-          <input
-            type="file"
-            hidden
-            accept="image/svg+xml,image/png,image/jpeg,image/gif"
-            onChange={handleChange}
-          />
+          {photoPreview ? (
+            <>
+              <Box
+                component="img"
+                src={photoPreview}
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+              <IconButton
+                size="small"
+                onClick={handleRemove}
+                sx={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  bgcolor: alpha(theme.palette.error.main, 0.8),
+                  color: "white",
+                  "&:hover": {
+                    bgcolor: theme.palette.error.main,
+                  },
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </>
+          ) : (
+            <Box
+              component="label"
+              sx={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="file"
+                hidden
+                accept="image/svg+xml,image/png,image/jpeg,image/gif"
+                onChange={handleChange}
+              />
 
-          <Box
-            sx={(theme) => ({
-              p: 2,
-              borderRadius: "50%",
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
-              color: theme.palette.primary.main,
-              mb: 1.5,
-            })}
-          >
-            <AddAPhotoIcon fontSize="large" />
-          </Box>
+              <Box
+                sx={(theme) => ({
+                  p: 2,
+                  borderRadius: "50%",
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: theme.palette.primary.main,
+                  mb: 1.5,
+                })}
+              >
+                <AddAPhotoIcon fontSize="large" />
+              </Box>
 
-          <Typography variant="body2" fontWeight={500} color="white">
-            Click to upload
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            SVG, PNG, JPG or GIF
-          </Typography>
+              <Typography variant="body2" fontWeight={500} color="white">
+                Click to upload
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                SVG, PNG, JPG or GIF
+              </Typography>
+            </Box>
+          )}
         </Box>
 
         <Stack direction="row" spacing={1}>
@@ -116,30 +170,35 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
               borderRadius: 1,
               bgcolor: alpha(theme.palette.divider, 0.1),
               overflow: "hidden",
-              border: `1px solid ${alpha(theme.palette.primary.main, 0.5)}`,
+              border: photoPreview 
+                ? `2px solid ${theme.palette.primary.main}` 
+                : `1px solid ${alpha(theme.palette.divider, 0.1)}`,
             }}
           >
-            <Box
-              sx={{
-                width: "100%",
-                height: "100%",
-                bgcolor: alpha(theme.palette.primary.main, 0.2),
-              }}
-            />
-          </Box>
-          <Box
-            sx={{
-              width: 56,
-              height: 56,
-              borderRadius: 1,
-              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "text.secondary",
-            }}
-          >
-            <AddAPhotoIcon fontSize="small" />
+            {photoPreview ? (
+              <Box
+                component="img"
+                src={photoPreview}
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              <Box
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "text.secondary",
+                }}
+              >
+                <AddAPhotoIcon fontSize="small" />
+              </Box>
+            )}
           </Box>
         </Stack>
       </Stack>

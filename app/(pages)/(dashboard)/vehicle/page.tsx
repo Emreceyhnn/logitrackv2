@@ -253,6 +253,7 @@ export default function VehiclePage() {
           vehicleData={selectedVehicle as any}
           onEditSuccess={handleDialogEditSuccess}
           onDeleteSuccess={handleDialogDeleteSuccess}
+          onUpdateSuccess={actions.refreshAll}
         />
       )}
 

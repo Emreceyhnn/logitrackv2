@@ -29,8 +29,9 @@ import {
   VehicleStep2Data,
   VehicleStep3Data,
 } from "@/app/lib/type/vehicle";
-import { createVehicle } from "@/app/lib/controllers/vehicle";
+import { createVehicle, uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
 import { toast } from "sonner";
+import { uploadImageAction } from "@/app/lib/actions/upload";
 
 const initialStep1: VehicleStep1Data = {
   fleetNo: "",
@@ -124,6 +125,25 @@ const AddVehicleDialog = ({
       try {
         setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
+        const fileToBase64 = (file: File): Promise<string> => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = (error) => reject(error);
+          });
+        };
+
+        let photoUrl = state.data.step1.photo;
+        if (state.data.step1.photo instanceof File) {
+          const base64 = await fileToBase64(state.data.step1.photo);
+          const uploadResult = await uploadImageAction(
+            base64,
+            "vehicles"
+          );
+          photoUrl = uploadResult.url;
+        }
+
         const payload = {
           fleetNo: state.data.step1.fleetNo,
           plate: state.data.step1.plate,
@@ -132,10 +152,7 @@ const AddVehicleDialog = ({
           model: state.data.step1.model,
           year: state.data.step1.year,
           odometerKm: state.data.step1.odometerKm,
-          photo:
-            state.data.step1.photo instanceof File
-              ? undefined
-              : state.data.step1.photo,
+          photo: (photoUrl as string) || undefined,
           maxLoadKg: state.data.step2.maxLoadKg,
           fuelType: state.data.step2.fuelType,
           avgFuelConsumption: state.data.step2.avgFuelConsumption,
@@ -150,7 +167,27 @@ const AddVehicleDialog = ({
           enableAlerts: state.data.step3.enableExpiryAlerts,
         };
 
-        await createVehicle(payload);
+        const createdVehicle = await createVehicle(payload);
+
+        // 4. Upload and Save Documents (Step 3)
+        const docPromises = state.data.step3.documents
+          .filter(doc => doc.file)
+          .map(async (doc) => {
+            const base64 = await fileToBase64(doc.file!);
+            const uploadResult = await uploadImageAction(base64, "documents");
+            
+            return uploadVehicleDocument(createdVehicle.id, {
+              type: doc.type,
+              name: doc.name,
+              url: uploadResult.url,
+              status: "ACTIVE",
+              expiryDate: state.data.step3.registrationExpiry?.toDate(), // Fallback or logic if needed
+            });
+          });
+
+        if (docPromises.length > 0) {
+          await Promise.all(docPromises);
+        }
 
         setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
         toast.success("Vehicle added successfully");
@@ -248,7 +285,11 @@ const AddVehicleDialog = ({
 
         <Box sx={{ minHeight: 400 }}>
           {state.currentStep === 1 && (
-            <FirstStep state={state} actions={actions} />
+            <FirstStep 
+              state={state} 
+              actions={actions} 
+              onFileSelect={(file) => actions.updateStep1({ photo: file })} 
+            />
           )}
           {state.currentStep === 2 && (
             <TechSpecsStep state={state} actions={actions} />
