@@ -29,7 +29,7 @@ import { StatusChip } from "../../../chips/statusChips";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useState } from "react";
 import UploadDocumentDialog from "../uploadDocumentDialog";
-import DocumentViewerDialog from "./DocumentViewerDialog";
+import DocumentViewerDialog from "../../shared/DocumentViewerDialog";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
 import {

@@ -276,3 +276,28 @@ export interface EligibleUser {
   avatarUrl?: string | null;
   roleId?: string | null;
 }
+
+export type DriverActivityType = 
+  | "SHIFT_START"
+  | "SHIFT_END"
+  | "JOB_COMPLETED"
+  | "ROUTE_STARTED"
+  | "ROUTE_COMPLETED"
+  | "DOCUMENT_EXPIRY"
+  | "INCIDENT";
+
+export interface DriverActivity {
+  id: string;
+  type: DriverActivityType;
+  title: string;
+  description: string;
+  timestamp: Date;
+  metadata?: Record<string, unknown>;
+}
+
+export interface DriverHistory {
+  activities: DriverActivity[];
+  completedRoutes: number;
+  completedShipments: number;
+  activePermissions: number;
+}

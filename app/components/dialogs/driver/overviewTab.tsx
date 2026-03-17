@@ -17,6 +17,8 @@ import EmailIcon from "@mui/icons-material/Email";
 import HistoryIcon from "@mui/icons-material/History";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
+import { useState } from "react";
+import DriverHistoryDialog from "./DriverHistoryDialog";
 
 interface OverviewTabProps {
   driver?: DriverWithRelations;
@@ -81,6 +83,7 @@ const KPICard = ({
 
 const OverviewTab = ({ driver }: OverviewTabProps) => {
   const theme = useTheme();
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   if (!driver) {
     return <Typography color="text.secondary">No driver selected</Typography>;
@@ -255,6 +258,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
         <Button
           variant="outlined"
           startIcon={<HistoryIcon />}
+          onClick={() => setHistoryOpen(true)}
           sx={{
             flex: 1,
             borderRadius: 2,
@@ -272,6 +276,13 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
           View Full History
         </Button>
       </Stack>
+
+      <DriverHistoryDialog
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        driverId={driver.id}
+        driverName={`${driver.user.name} ${driver.user.surname}`}
+      />
     </Stack>
   );
 };

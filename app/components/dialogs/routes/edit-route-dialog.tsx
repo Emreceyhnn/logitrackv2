@@ -2,182 +2,211 @@
 
 import {
   alpha,
-  Avatar,
   Box,
-  Button,
   Dialog,
   DialogContent,
+  DialogActions,
   Divider,
   IconButton,
   Stack,
+  Step,
+  StepLabel,
+  Stepper,
   Typography,
   useTheme,
-  TextField,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
+  Button,
+  CircularProgress,
 } from "@mui/material";
-import MapRoutesDialogCard from "./map";
-import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from "@mui/icons-material/Edit";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import PlaceIcon from "@mui/icons-material/Place";
 import { useState, useEffect } from "react";
+import {
+  AddRoutePageState,
+  AddRoutePageActions,
+  AddRouteStep1,
+  AddRouteStep2,
+  AddRouteStep3,
+} from "@/app/lib/type/add-route";
+import { toast } from "sonner";
 import { updateRoute } from "@/app/lib/controllers/routes";
 import { useUser } from "@/app/lib/hooks/useUser";
-import { getDrivers } from "@/app/lib/controllers/driver";
-import { getVehicles } from "@/app/lib/controllers/vehicle";
-import { getWarehouses } from "@/app/lib/controllers/warehouse";
-import { getCustomers } from "@/app/lib/controllers/customer";
+import FirstRouteDialogStep from "./addRouteDialog/firstStep";
+import SecondRouteDialogStep from "./addRouteDialog/secondStep";
+import ThirdRouteDialogStep from "./addRouteDialog/thirdStep";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 
-interface EditRouteDialogParams {
+interface EditRouteDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
   route: RouteWithRelations | null;
 }
 
-const EditRouteDialog = (params: EditRouteDialogParams) => {
-  const { open, onClose, onSuccess, route } = params;
+const initialStep1: AddRouteStep1 = {
+  name: "",
+  startTime: null,
+  endTime: null,
+};
+
+const initialStep2: AddRouteStep2 = {
+  startType: "WAREHOUSE",
+  startId: "",
+  startAddress: "",
+  startLat: 0,
+  startLng: 0,
+  endType: "CUSTOMER",
+  endId: "",
+  endAddress: "",
+  endLat: 0,
+  endLng: 0,
+  distanceKm: 0,
+  durationMin: 0,
+};
+
+const initialStep3: AddRouteStep3 = {
+  driverId: "",
+  vehicleId: "",
+};
+
+const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
 
-  // Mode States
-  const [formData, setFormData] = useState({
-    name: "",
-    driverId: "",
-    vehicleId: "",
-    originType: "WAREHOUSE",
-    originId: "",
-    destinationType: "CUSTOMER",
-    destinationId: "",
-    startTime: "",
-    endTime: "",
+  /* --------------------------------- states --------------------------------- */
+  const [state, setState] = useState<AddRoutePageState>({
+    currentStep: 1,
+    data: {
+      step1: initialStep1,
+      step2: initialStep2,
+      step3: initialStep3,
+    },
+    isLoading: false,
+    error: null,
+    isSuccess: false,
   });
 
-  const [warehouses, setWarehouses] = useState<any[]>([]);
-  const [customers, setCustomers] = useState<any[]>([]);
-  const [drivers, setDrivers] = useState<any[]>([]);
-  const [vehicles, setVehicles] = useState<any[]>([]);
-  const [customDestination, setCustomDestination] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
-
-  // Fetch helpers
+  /* ------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
-    if (open && user?.companyId) {
-      const fetchData = async () => {
-        try {
-          // Fetch Warehouses
-          const fetchedWarehouses = await getWarehouses(
-            user.companyId!,
-            user.id!
-          );
-          setWarehouses(fetchedWarehouses);
-
-          // Fetch Customers
-          const fetchedCustomers = await getCustomers(
-            user.companyId!,
-            user.id!
-          );
-          setCustomers(fetchedCustomers);
-
-          // Fetch Drivers
-          const driversData = await getDrivers(1, 100);
-          setDrivers(driversData.data);
-
-          // Fetch Vehicles
-          const vehiclesData = await getVehicles({
-            status: ["AVAILABLE", "ON_TRIP"], // Allow current vehicle too
-          });
-          setVehicles(vehiclesData);
-        } catch (error) {
-          console.error("Failed to fetch form data for route:", error);
-        }
-      };
-
-      fetchData();
+    if (open && route) {
+      setState((prev) => ({
+        ...prev,
+        currentStep: 1,
+        data: {
+          step1: {
+            name: route.name || "",
+            startTime: route.startTime ? new Date(route.startTime) : null,
+            endTime: route.endTime ? new Date(route.endTime) : null,
+          },
+          step2: {
+            startType: (route as Record<string, any>).startType || "WAREHOUSE",
+            startId: (route as Record<string, any>).startId || "",
+            startAddress: route.startAddress || "",
+            startLat: route.startLat || 0,
+            startLng: route.startLng || 0,
+            endType: (route as Record<string, any>).endType || "CUSTOMER",
+            endId: (route as Record<string, any>).endId || "",
+            endAddress: route.endAddress || "",
+            endLat: route.endLat || 0,
+            endLng: route.endLng || 0,
+            distanceKm: route.distanceKm || 0,
+            durationMin: route.durationMin || 0,
+          },
+          step3: {
+            driverId: route.driverId || "",
+            vehicleId: route.vehicleId || "",
+          },
+        },
+        isLoading: false,
+        error: null,
+        isSuccess: false,
+      }));
     }
-  }, [open, user]);
+  }, [open, route]);
 
-  // Pre-populate data
-  useEffect(() => {
-    if (route && open) {
-      // Determine origin/dest types based on ID matches or lat/lng
-      // This part is tricky if we don't store "originType" in DB explicitly.
-      // We'll try to guess or just default to Warehouse/Customer if IDs match.
-      // For MVP, we might need to rely on what we have.
+  /* -------------------------------- handlers --------------------------------- */
+  const actions: AddRoutePageActions = {
+    updateStep1: (data) =>
+      setState((prev) => ({
+        ...prev,
+        data: { ...prev.data, step1: { ...prev.data.step1, ...data } },
+      })),
+    updateStep2: (data) =>
+      setState((prev) => ({
+        ...prev,
+        data: { ...prev.data, step2: { ...prev.data.step2, ...data } },
+      })),
+    updateStep3: (data) =>
+      setState((prev) => ({
+        ...prev,
+        data: { ...prev.data, step3: { ...prev.data.step3, ...data } },
+      })),
+    setStep: (step) => setState((prev) => ({ ...prev, currentStep: step })),
+    nextStep: () =>
+      setState((prev) => ({ ...prev, currentStep: prev.currentStep + 1 })),
+    prevStep: () =>
+      setState((prev) => ({ ...prev, currentStep: prev.currentStep - 1 })),
+    reset: () =>
+      setState({
+        currentStep: 1,
+        data: {
+          step1: initialStep1,
+          step2: initialStep2,
+          step3: initialStep3,
+        },
+        isLoading: false,
+        error: null,
+        isSuccess: false,
+      }),
+    closeDialog: () => {
+      if (!state.isLoading) {
+        onClose();
+        setTimeout(actions.reset, 300);
+      }
+    },
+    handleSubmit: async () => {
+      if (!user || !route) return;
+      try {
+        setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-      // Since schema stores Address strings largely, we might just set types to "ADDRESS" if ID is not found in lists?
-      // But lists are async fetched...
+        const payload: Record<string, any> = {
+          name: state.data.step1.name,
+          startTime: state.data.step1.startTime,
+          endTime: state.data.step1.endTime,
+          startAddress: state.data.step2.startAddress,
+          startLat: state.data.step2.startLat,
+          startLng: state.data.step2.startLng,
+          endAddress: state.data.step2.endAddress,
+          endLat: state.data.step2.endLat,
+          endLng: state.data.step2.endLng,
+          distanceKm: state.data.step2.distanceKm,
+          durationMin: state.data.step2.durationMin,
+          driverId: state.data.step3.driverId,
+          vehicleId: state.data.step3.vehicleId,
+        };
 
-      // Let's simplified assumption:
-      // If we have an ID that looks like a UUID, we check lists.
-      // For now, let's just populate what we can (Name, Dates, Driver, Vehicle)
+        await updateRoute(route.id, user.id, payload);
 
-      const toDateTimeString = (date: Date | null) => {
-        if (!date) return "";
-        const d = new Date(date);
-        return d.toISOString().slice(0, 16); // format: YYYY-MM-DDTHH:mm
-      };
+        toast.success("Route updated successfully");
 
-      setFormData({
-        name: route.name || "",
-        driverId: route.driverId || "",
-        vehicleId: route.vehicleId || "",
-        startTime: toDateTimeString(route.startTime),
-        endTime: toDateTimeString(route.endTime),
-        // We might not be able to easy-edit origin/dest if they were generic addresses
-        // Keeping them as is or simple default
-        originType: "WAREHOUSE",
-        originId: "", // We'd need to reverse lookup. Skipping for safety to not overwrite with wrong data easily
-        destinationType: "CUSTOMER",
-        destinationId: "",
-      });
-
-      // If we wanted to fully support editing origin/dest, we'd need to store their types/IDs explicitly in Route model
-      // or infer them complexly here.
-      // For this refactor, let's allow editing Name, Driver, Vehicle, Time.
-    }
-  }, [route, open]);
-
-  const handleUpdate = async () => {
-    if (!user || !route) return;
-    try {
-      // Only update fields that are safe to update without breaking origin/dest if they weren't touched
-      // But our formData requires them to be set if we were creating.
-      // Since we can't easily pre-fill origin/dest ID, we should make them optional or intelligent.
-      // For this UI, let's strict it: You can update Name, Driver, Vehicle, Times.
-      // Origin/Dest updates are disabled in this simplified Edit dialog to avoid data loss/corruption
-      // until we have better persistent state for them.
-
-      const payload: any = {
-        name: formData.name,
-        driverId: formData.driverId,
-        vehicleId: formData.vehicleId,
-        startTime: new Date(formData.startTime),
-        endTime: new Date(formData.endTime),
-      };
-
-      await updateRoute(route.id, user.id, payload);
-      if (onSuccess) onSuccess();
-      onClose();
-    } catch (e) {
-      console.error(e);
-    }
+        setTimeout(() => {
+          onClose();
+          onSuccess?.();
+          actions.reset();
+        }, 1500);
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Failed to update route";
+        setState((prev) => ({ ...prev, isLoading: false, error: message }));
+        toast.error(message);
+      }
+    },
   };
 
-  const statusColor = theme.palette.warning.main;
+  const steps = ["Schedule", "Locations", "Assignments"];
 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={actions.closeDialog}
       maxWidth="md"
       fullWidth
       PaperProps={{
@@ -186,172 +215,154 @@ const EditRouteDialog = (params: EditRouteDialogParams) => {
           bgcolor: "#0B1019",
           backgroundImage: "none",
           border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-          overflow: "hidden",
         },
       }}
     >
-      <GoogleMapsProvider>
-        <Box
+      <Box sx={{ p: 3, pb: 0 }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Stack spacing={0.5}>
+            <Typography variant="h6" fontWeight={600} color="white">
+              Edit Route
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Update your delivery route details and schedule
+            </Typography>
+          </Stack>
+          <IconButton
+            onClick={actions.closeDialog}
+            size="small"
+            sx={{ color: "text.secondary" }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+      </Box>
+      <DialogContent>
+        <Box sx={{ mb: 4, px: 2 }}>
+          <Stepper
+            activeStep={state.currentStep - 1}
+            sx={{
+              "& .MuiStepConnector-line": {
+                borderColor: alpha(theme.palette.divider, 0.1),
+              },
+            }}
+          >
+            {steps.map((label, index) => (
+              <Step key={label}>
+                <StepLabel
+                  StepIconProps={{
+                    sx: {
+                      "&.Mui-active": { color: theme.palette.primary.main },
+                      "&.Mui-completed": {
+                        color: theme.palette.primary.main,
+                      },
+                    },
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    fontWeight={600}
+                    color={
+                      state.currentStep - 1 >= index
+                        ? "text.primary"
+                        : "text.secondary"
+                    }
+                  >
+                    {label}
+                  </Typography>
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Box>
+        <Divider
+          sx={{ mb: 4, borderColor: alpha(theme.palette.divider, 0.05) }}
+        />
+
+        <Box sx={{ minHeight: 400 }}>
+          {state.error && (
+            <Box
+              mb={2}
+              p={2}
+              sx={{
+                bgcolor: alpha(theme.palette.error.main, 0.1),
+                borderRadius: 1,
+              }}
+            >
+              <Typography color="error" variant="caption">
+                {state.error}
+              </Typography>
+            </Box>
+          )}
+          {state.currentStep === 1 && (
+            <FirstRouteDialogStep
+              state={state.data.step1}
+              updateStep1={actions.updateStep1}
+            />
+          )}
+          {state.currentStep === 2 && (
+            <SecondRouteDialogStep
+              state={state.data.step2}
+              updateStep2={actions.updateStep2}
+            />
+          )}
+          {state.currentStep === 3 && (
+            <ThirdRouteDialogStep
+              state={state.data.step3}
+              updateStep3={actions.updateStep3}
+            />
+          )}
+        </Box>
+      </DialogContent>
+      <DialogActions sx={{ p: 3, pt: 0, justifyContent: "space-between" }}>
+        <Button
+          onClick={
+            state.currentStep === 1 ? actions.closeDialog : actions.prevStep
+          }
+          disabled={state.isLoading}
           sx={{
-            p: 3,
-            background: `linear-gradient(135deg, ${alpha(
-              statusColor,
-              0.05
-            )} 0%, transparent 100%)`,
-            borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+            color: "text.secondary",
+            "&:hover": { bgcolor: alpha(theme.palette.divider, 0.05) },
           }}
         >
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="flex-start"
-          >
-            <Stack direction="row" spacing={3} alignItems="center">
-              <Avatar
-                variant="rounded"
-                sx={{
-                  bgcolor: alpha(statusColor, 0.1),
-                  color: statusColor,
-                  width: 72,
-                  height: 72,
-                  fontSize: "2rem",
-                  fontWeight: 800,
-                  borderRadius: 2,
-                }}
-              >
-                <EditIcon fontSize="large" />
-              </Avatar>
-              <Stack spacing={0.5}>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Typography
-                    variant="h4"
-                    fontWeight={700}
-                    sx={{ color: "white" }}
-                  >
-                    Edit Route
-                  </Typography>
-                </Stack>
-                <Stack spacing={1}>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                  >
-                    <PlaceIcon fontSize="small" sx={{ fontSize: "1rem" }} />
-                    Update route details and assignment
-                  </Typography>
-                </Stack>
-              </Stack>
-            </Stack>
-
-            <Stack direction="row" spacing={1}>
-              <IconButton
-                onClick={onClose}
-                size="small"
-                sx={{
-                  bgcolor: alpha(theme.palette.text.secondary, 0.1),
-                  "&:hover": {
-                    bgcolor: alpha(theme.palette.text.secondary, 0.2),
-                  },
-                }}
-              >
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </Stack>
-          </Stack>
-        </Box>
-
-        <DialogContent sx={{ p: 0 }}>
-          <Stack p={2} spacing={2}>
-            <Stack direction="row" spacing={2}>
-              <TextField
-                label="Route Name (Optional)"
-                placeholder="Leave blank to auto-generate"
-                fullWidth
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-              />
-              <TextField
-                label="Start Time"
-                type="datetime-local"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                value={formData.startTime}
-                onChange={(e) =>
-                  setFormData({ ...formData, startTime: e.target.value })
-                }
-              />
-              <TextField
-                label="End Time"
-                type="datetime-local"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                value={formData.endTime}
-                onChange={(e) =>
-                  setFormData({ ...formData, endTime: e.target.value })
-                }
-              />
-            </Stack>
-
-            {/* 
-              Origin/Dest editing disabled for now as resolving types 
-              from flat address strings is complex without ID persistence 
-           */}
-            <Typography variant="caption" color="text.secondary">
-              * Origin and Destination cannot be changed in this view. Please
-              recreate the route if location changes are needed.
-            </Typography>
-
-            <Stack direction="row" spacing={2}>
-              <FormControl fullWidth>
-                <InputLabel>Driver</InputLabel>
-                <Select
-                  value={formData.driverId}
-                  label="Driver"
-                  onChange={(e) =>
-                    setFormData({ ...formData, driverId: e.target.value })
-                  }
-                >
-                  {drivers.map((d) => (
-                    <MenuItem key={d.id} value={d.id}>
-                      {d.user?.name} {d.user?.surname}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel>Vehicle</InputLabel>
-                <Select
-                  value={formData.vehicleId}
-                  label="Vehicle"
-                  onChange={(e) =>
-                    setFormData({ ...formData, vehicleId: e.target.value })
-                  }
-                >
-                  {vehicles.map((v) => (
-                    <MenuItem key={v.id} value={v.id}>
-                      {v.plate} ({v.model})
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Stack>
-
-            <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
-
-            <Button
-              variant="contained"
-              color="warning"
-              onClick={handleUpdate}
-              disabled={!formData.startTime}
-            >
-              Save Changes
-            </Button>
-          </Stack>
-        </DialogContent>
-      </GoogleMapsProvider>
+          {state.currentStep === 1 ? "Cancel" : "Back"}
+        </Button>
+        <Button
+          variant="contained"
+          onClick={
+            state.currentStep === steps.length
+              ? actions.handleSubmit
+              : actions.nextStep
+          }
+          disabled={
+            state.isLoading ||
+            (state.currentStep === 2 &&
+              (!state.data.step2.startAddress ||
+                !state.data.step2.endAddress)) ||
+            (state.currentStep === 3 &&
+              (!state.data.step3.driverId || !state.data.step3.vehicleId))
+          }
+          startIcon={
+            state.isLoading && <CircularProgress size={16} color="inherit" />
+          }
+          sx={{
+            borderRadius: 2,
+            px: 4,
+            fontWeight: 600,
+            boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
+          }}
+        >
+          {state.isLoading
+            ? "Updating..."
+            : state.currentStep === steps.length
+              ? "Update Route"
+              : "Next Step"}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };

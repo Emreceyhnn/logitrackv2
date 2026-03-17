@@ -11,10 +11,11 @@ import {
 } from "@mui/material";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { AddRouteStep1 } from "@/app/lib/type/add-route";
+import { MobileDateTimePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 import RouteIcon from "@mui/icons-material/Route";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import BoltIcon from "@mui/icons-material/Bolt";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 
 interface FirstRouteDialogStepProps {
@@ -115,29 +116,19 @@ const FirstRouteDialogStep = (props: FirstRouteDialogStepProps) => {
                 >
                   Expected Start Time
                 </Typography>
-                <CustomTextArea
-                  name="startTime"
-                  type="datetime-local"
-                  value={
-                    state.startTime
-                      ? new Date(
-                          state.startTime.getTime() -
-                            state.startTime.getTimezoneOffset() * 60000
-                        )
-                          .toISOString()
-                          .slice(0, 16)
-                      : ""
+                <MobileDateTimePicker
+                  value={state.startTime ? dayjs(state.startTime) : null}
+                  onChange={(val) =>
+                    updateStep1({ startTime: val ? val.toDate() : null })
                   }
-                  onChange={(e) => {
-                    updateStep1({
-                      startTime: e.target.value
-                        ? new Date(e.target.value)
-                        : null,
-                    });
+                  minDateTime={dayjs()}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      placeholder: "Select Date & Time",
+                    },
                   }}
-                >
-                  <AccessTimeIcon fontSize="small" />
-                </CustomTextArea>
+                />
               </Stack>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -149,27 +140,19 @@ const FirstRouteDialogStep = (props: FirstRouteDialogStepProps) => {
                 >
                   Expected End Time
                 </Typography>
-                <CustomTextArea
-                  name="endTime"
-                  type="datetime-local"
-                  value={
-                    state.endTime
-                      ? new Date(
-                          state.endTime.getTime() -
-                            state.endTime.getTimezoneOffset() * 60000
-                        )
-                          .toISOString()
-                          .slice(0, 16)
-                      : ""
+                <MobileDateTimePicker
+                  value={state.endTime ? dayjs(state.endTime) : null}
+                  onChange={(val) =>
+                    updateStep1({ endTime: val ? val.toDate() : null })
                   }
-                  onChange={(e) => {
-                    updateStep1({
-                      endTime: e.target.value ? new Date(e.target.value) : null,
-                    });
+                  minDateTime={state.startTime ? dayjs(state.startTime) : dayjs()}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      placeholder: "Select Date & Time",
+                    },
                   }}
-                >
-                  <AccessTimeIcon fontSize="small" />
-                </CustomTextArea>
+                />
               </Stack>
             </Grid>
           </Grid>

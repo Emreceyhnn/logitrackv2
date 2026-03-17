@@ -11,8 +11,15 @@ import {
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import CircularProgress from "@mui/material/CircularProgress";
+import Backdrop from "@mui/material/Backdrop";
+import { toast } from "sonner";
+import { useState } from "react";
+import { getSignedUrlAction } from "@/app/lib/actions/upload";
+import DocumentViewerDialog from "../shared/DocumentViewerDialog";
 
 import { DriverWithRelations } from "@/app/lib/type/driver";
 
@@ -23,6 +30,14 @@ interface DocumentsTabProps {
 const DocumentsTab = ({ driver }: DocumentsTabProps) => {
   const theme = useTheme();
 
+  /* --------------------------------- states --------------------------------- */
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [loadingDoc, setLoadingDoc] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState<{
+    url: string;
+    title: string;
+  } | null>(null);
+
   if (!driver) {
     return <Typography color="text.secondary">No driver selected</Typography>;
   }
@@ -31,6 +46,30 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
     driver.licenseNumber &&
     driver.licenseExpiry &&
     new Date(driver.licenseExpiry) > new Date();
+
+  /* -------------------------------- handlers -------------------------------- */
+  const handleViewDoc = async (url: string, title: string) => {
+    if (!url) {
+      toast.error("Document link not found");
+      return;
+    }
+
+    try {
+      setLoadingDoc(true);
+      const result = await getSignedUrlAction(url);
+      if (result.success && result.url) {
+        setSelectedDoc({ url: result.url, title });
+        setViewerOpen(true);
+      } else {
+        toast.error("Failed to get file access permission");
+      }
+    } catch (error) {
+      console.error("View doc error:", error);
+      toast.error("An error occurred while loading the file");
+    } finally {
+      setLoadingDoc(false);
+    }
+  };
 
   return (
     <Stack
@@ -187,21 +226,39 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                           : "No expiry date"}
                       </Typography>
                     </Box>
-                    <IconButton
-                      size="small"
-                      component="a"
-                      href={doc.url}
-                      target="_blank"
-                      sx={{
-                        color: theme.palette.primary.main,
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        "&:hover": {
-                          bgcolor: alpha(theme.palette.primary.main, 0.2),
-                        },
-                      }}
-                    >
-                      <FileDownloadOutlinedIcon fontSize="small" />
-                    </IconButton>
+                    <Stack direction="row" spacing={1}>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDoc(doc.url, doc.name);
+                        }}
+                        sx={{
+                          color: theme.palette.primary.main,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          "&:hover": {
+                            bgcolor: alpha(theme.palette.primary.main, 0.2),
+                          },
+                        }}
+                      >
+                        <VisibilityOutlinedIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        component="a"
+                        href={doc.url}
+                        target="_blank"
+                        sx={{
+                          color: theme.palette.primary.main,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          "&:hover": {
+                            bgcolor: alpha(theme.palette.primary.main, 0.2),
+                          },
+                        }}
+                      >
+                        <FileDownloadOutlinedIcon fontSize="small" />
+                      </IconButton>
+                    </Stack>
                   </Stack>
                 ))
               ) : (
@@ -235,6 +292,22 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
           </Stack>
         </Grid>
       </Grid>
+
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loadingDoc}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
+      {selectedDoc && (
+        <DocumentViewerDialog
+          open={viewerOpen}
+          onClose={() => setViewerOpen(false)}
+          url={selectedDoc.url}
+          title={selectedDoc.title}
+        />
+      )}
     </Stack>
   );
 };

@@ -118,23 +118,39 @@ const DriverDialog = (params: DriverDialogParams) => {
           alignItems="flex-start"
         >
           <Stack direction="row" spacing={3} alignItems="center">
-            <Avatar
-              variant="rounded"
-              src={driverData.user.avatarUrl || undefined}
+            <Box
               sx={{
-                bgcolor: alpha(statusColor, 0.1),
-                color: statusColor,
-                width: 80,
-                height: 80,
-                fontSize: "2.5rem",
-                fontWeight: 800,
-                borderRadius: 3,
-                boxShadow: `0 8px 24px ${alpha(statusColor, 0.2)}`,
-                border: `1px solid ${alpha(statusColor, 0.2)}`,
+                p: 0.5,
+                borderRadius: 4,
+                bgcolor: alpha("#fff", 0.03),
+                border: `1px solid ${alpha(statusColor, 0.15)}`,
+                boxShadow: `0 0 0 4px ${alpha(statusColor, 0.02)}`,
               }}
             >
-              {driverData.user.name?.charAt(0)}
-            </Avatar>
+              <Avatar
+                variant="rounded"
+                src={driverData.user.avatarUrl || undefined}
+                sx={{
+                  bgcolor: alpha(statusColor, 0.1),
+                  color: statusColor,
+                  width: 80,
+                  height: 80,
+                  fontSize: "2.2rem",
+                  fontWeight: 800,
+                  borderRadius: 3,
+                  boxShadow: `0 8px 16px ${alpha("#000", 0.3)}`,
+                  border: `1px solid ${alpha(statusColor, 0.3)}`,
+                  background: !driverData.user.avatarUrl
+                    ? `linear-gradient(135deg, ${alpha(statusColor, 0.2)} 0%, ${alpha(
+                        statusColor,
+                        0.05
+                      )} 100%)`
+                    : "transparent",
+                }}
+              >
+                {driverData.user.name?.charAt(0).toUpperCase()}
+              </Avatar>
+            </Box>
             <Stack spacing={1}>
               <Stack direction="row" spacing={1.5} alignItems="center">
                 <Typography

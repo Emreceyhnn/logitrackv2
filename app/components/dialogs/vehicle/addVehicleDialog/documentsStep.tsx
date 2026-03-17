@@ -12,8 +12,6 @@ import {
   Switch,
   IconButton,
 } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import SecurityIcon from "@mui/icons-material/Security";
@@ -108,8 +106,7 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ display: "flex", gap: 6, minHeight: 400 }}>
+    <Box sx={{ display: "flex", gap: 6, minHeight: 400 }}>
         <Box sx={{ flex: 1 }}>
           <Typography
             variant="h6"
@@ -435,7 +432,7 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
           </Box>
         </Box>
       </Box>
-    </LocalizationProvider>
+    </Box>
   );
 };
 

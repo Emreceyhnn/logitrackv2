@@ -22,6 +22,8 @@ import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import { IconButton } from "@mui/material";
 import { AddDriverStep1, EligibleUser } from "@/app/lib/type/driver";
 import { useRef, ChangeEvent } from "react";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 interface FirstDriverDialogStepProps {
   state: AddDriverStep1;
@@ -183,25 +185,20 @@ const FirstDriverDialogStep = ({
               >
                 Expiration Date
               </Typography>
-              <CustomTextArea
-                name="licenseExpiry"
-                type="date"
-                placeholder="mm/dd/yyyy"
-                value={
-                  state.licenseExpiry
-                    ? new Date(state.licenseExpiry).toISOString().split("T")[0]
-                    : ""
-                }
-                onChange={(e) =>
+              <DatePicker
+                value={state.licenseExpiry ? dayjs(state.licenseExpiry) : null}
+                onChange={(val) =>
                   updateStep1({
-                    licenseExpiry: e.target.value
-                      ? new Date(e.target.value)
-                      : null,
+                    licenseExpiry: val ? val.toDate() : null,
                   })
                 }
-              >
-                <EventIcon fontSize="small" />
-              </CustomTextArea>
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    placeholder: "Select Date",
+                  },
+                }}
+              />
             </Stack>
           </Grid>
         </Grid>

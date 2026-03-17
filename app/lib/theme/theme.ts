@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material/styles";
+import type {} from "@mui/x-date-pickers/themeAugmentation";
 import { palettes } from "./palette";
 import { getScrollbarStyles } from "@/app/components/scrollbar";
 
@@ -42,6 +43,93 @@ export const getTheme = (mode: ThemeMode) =>
           },
           "*": {
             ...getScrollbarStyles({ palette: palettes[mode] }),
+          },
+        },
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundImage: "none",
+          },
+        },
+      },
+      // Date Picker Premium Styling
+      MuiPickersPopper: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: "#0B1019",
+            backgroundImage: "none",
+            border: `1px solid rgba(255, 255, 255, 0.1)`,
+            borderRadius: 16,
+            boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+          },
+        },
+      },
+      MuiPickersDay: {
+        styleOverrides: {
+          root: {
+            fontSize: "0.875rem",
+            color: "rgba(255, 255, 255, 0.7)",
+            "&.Mui-selected": {
+              backgroundColor: palettes[mode].primary.main,
+              color: palettes[mode].primary.contrastText,
+              fontWeight: 700,
+              "&:hover": {
+                backgroundColor: palettes[mode].primary.main,
+              },
+            },
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.05)",
+            },
+            "&.MuiPickersDay-today": {
+              border: `1px solid ${palettes[mode].primary.main}`,
+            },
+          },
+        },
+      },
+      MuiDateTimePickerToolbar: {
+        styleOverrides: {
+          root: {
+            backgroundColor: "#0B1019",
+            "& .MuiTypography-root": {
+              color: "#FFFFFF",
+            },
+          },
+        },
+      },
+      MuiDateTimePickerTabs: {
+        styleOverrides: {
+          root: {
+            backgroundColor: "#0B1019",
+            "& .MuiTab-root": {
+              color: "rgba(255, 255, 255, 0.5)",
+              "&.Mui-selected": {
+                color: palettes[mode].primary.main,
+              },
+            },
+          },
+        },
+      },
+      MuiTextField: {
+        defaultProps: {
+          variant: "outlined",
+          size: "small",
+        },
+        styleOverrides: {
+          root: {
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 8,
+              backgroundColor: "rgba(255, 255, 255, 0.03)",
+              "& fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.1)",
+              },
+              "&:hover fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.2)",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: palettes[mode].primary.main,
+              },
+            },
           },
         },
       },

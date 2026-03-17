@@ -26,8 +26,7 @@ import OpacityIcon from "@mui/icons-material/Opacity";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useState } from "react";
 import { addMaintenanceRecord } from "@/app/lib/controllers/vehicle";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 
 interface MaintenanceRecordDialogProps {
@@ -159,122 +158,120 @@ export default function MaintenanceRecordDialog({
       </Box>
 
       <DialogContent sx={{ p: 3, pt: 1 }}>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <Stack spacing={4} mt={1}>
-            {error && (
-              <Alert 
-                severity="error" 
-                variant="filled"
-                sx={{ 
-                  borderRadius: 2,
-                  bgcolor: alpha(theme.palette.error.main, 0.1),
-                  color: theme.palette.error.light,
-                  border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
-                }}
-              >
-                {error}
-              </Alert>
-            )}
+        <Stack spacing={4} mt={1}>
+          {error && (
+            <Alert
+              severity="error"
+              variant="filled"
+              sx={{
+                borderRadius: 2,
+                bgcolor: alpha(theme.palette.error.main, 0.1),
+                color: theme.palette.error.light,
+                border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
+              }}
+            >
+              {error}
+            </Alert>
+          )}
 
-            <Box>
-              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
-                Configuration
-              </Typography>
-              <Stack spacing={2.5}>
-                <FormControl fullWidth sx={textFieldSx}>
-                  <InputLabel sx={{ color: alpha("#fff", 0.4) }}>Service Type</InputLabel>
-                  <Select
-                    value={formData.type}
-                    label="Service Type"
-                    onChange={(e) =>
-                      setFormData({ ...formData, type: e.target.value })
-                    }
-                    MenuProps={{
-                      PaperProps: {
-                        sx: {
-                          bgcolor: "#1A202C",
-                          backgroundImage: "none",
-                          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                          mt: 1,
-                        }
-                      }
-                    }}
-                  >
-                    {SERVICE_TYPES.map((st) => (
-                      <MenuItem key={st.value} value={st.value} sx={{ py: 1.5 }}>
-                        <Stack direction="row" spacing={1.5} alignItems="center">
-                          <Box sx={{ color: theme.palette.primary.main, display: 'flex' }}>{st.icon}</Box>
-                          <Typography variant="body2">{st.label}</Typography>
-                        </Stack>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <DatePicker
-                  label="Service Date"
-                  value={formData.date}
-                  onChange={(newValue) =>
-                    setFormData({ ...formData, date: newValue || dayjs() })
-                  }
-                  slotProps={{ 
-                    textField: { 
-                      fullWidth: true, 
-                      sx: textFieldSx,
-                      InputLabelProps: { shrink: true }
-                    } 
-                  }}
-                />
-
-                <TextField
-                  label="Cost"
-                  type="number"
-                  placeholder="0.00"
-                  value={formData.cost}
+          <Box>
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+              Configuration
+            </Typography>
+            <Stack spacing={2.5}>
+              <FormControl fullWidth sx={textFieldSx}>
+                <InputLabel sx={{ color: alpha("#fff", 0.4) }}>Service Type</InputLabel>
+                <Select
+                  value={formData.type}
+                  label="Service Type"
                   onChange={(e) =>
-                    setFormData({ ...formData, cost: e.target.value })
+                    setFormData({ ...formData, type: e.target.value })
                   }
-                  fullWidth
-                  sx={textFieldSx}
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>$</Typography>
-                      </InputAdornment>
-                    ),
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        bgcolor: "#1A202C",
+                        backgroundImage: "none",
+                        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                        mt: 1,
+                      }
+                    }
                   }}
-                />
-              </Stack>
-            </Box>
+                >
+                  {SERVICE_TYPES.map((st) => (
+                    <MenuItem key={st.value} value={st.value} sx={{ py: 1.5 }}>
+                      <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Box sx={{ color: theme.palette.primary.main, display: 'flex' }}>{st.icon}</Box>
+                        <Typography variant="body2">{st.label}</Typography>
+                      </Stack>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-            <Box>
-              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
-                Additional Information
-              </Typography>
+              <DatePicker
+                label="Service Date"
+                value={formData.date}
+                onChange={(newValue) =>
+                  setFormData({ ...formData, date: newValue || dayjs() })
+                }
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    sx: textFieldSx,
+                    InputLabelProps: { shrink: true }
+                  }
+                }}
+              />
+
               <TextField
-                label="Description / Notes"
-                placeholder="Briefly describe the work performed..."
-                value={formData.description}
+                label="Cost"
+                type="number"
+                placeholder="0.00"
+                value={formData.cost}
                 onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
+                  setFormData({ ...formData, cost: e.target.value })
                 }
                 fullWidth
-                multiline
-                rows={4}
-                sx={{
-                  ...textFieldSx,
-                  "& .MuiOutlinedInput-root": {
-                    ...textFieldSx["& .MuiOutlinedInput-root"],
-                    height: "auto",
-                    padding: "12px 14px",
-                  }
-                }}
+                sx={textFieldSx}
                 InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>$</Typography>
+                    </InputAdornment>
+                  ),
+                }}
               />
-            </Box>
-          </Stack>
-        </LocalizationProvider>
+            </Stack>
+          </Box>
+
+          <Box>
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+              Additional Information
+            </Typography>
+            <TextField
+              label="Description / Notes"
+              placeholder="Briefly describe the work performed..."
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              fullWidth
+              multiline
+              rows={4}
+              sx={{
+                ...textFieldSx,
+                "& .MuiOutlinedInput-root": {
+                  ...textFieldSx["& .MuiOutlinedInput-root"],
+                  height: "auto",
+                  padding: "12px 14px",
+                }
+              }}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Box>
+        </Stack>
       </DialogContent>
 
       <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>

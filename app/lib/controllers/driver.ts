@@ -7,6 +7,8 @@ import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
 import {
   CreateDriverFormData,
+  DriverHistory,
+  DriverActivity,
   DriverWithRelations,
   PaginatedResponse,
 } from "../type/driver";
@@ -649,3 +651,99 @@ export const getEligibleUsersForDriver = authenticatedAction(async (user) => {
     return [];
   }
 });
+export const getDriverHistory = authenticatedAction(
+  async (user, driverId: string): Promise<DriverHistory> => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
+
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const driver = await db.driver.findUnique({
+        where: { id: driverId },
+        include: {
+          user: {
+            include: {
+              auditLogs: {
+                where: {
+                  action: { in: ["LOGIN", "LOGOUT"] },
+                },
+                orderBy: { createdAt: "desc" },
+                take: 50,
+              },
+            },
+          },
+          routes: {
+            where: { status: "COMPLETED" },
+            orderBy: { endTime: "desc" },
+            take: 20,
+          },
+          shipments: {
+            where: { status: "DELIVERED" },
+            orderBy: { updatedAt: "desc" },
+            take: 20,
+          },
+          documents: {
+            where: { status: "ACTIVE" },
+          },
+        },
+      });
+
+      if (!driver) throw new Error("Driver not found");
+
+      const activities: DriverActivity[] = [];
+
+      // Add shift logs
+      driver.user.auditLogs.forEach((log) => {
+        activities.push({
+          id: log.id,
+          type: log.action === "LOGIN" ? "SHIFT_START" : "SHIFT_END",
+          title: log.action === "LOGIN" ? "Shift Started" : "Shift Ended",
+          description: `Daily shift ${log.action === "LOGIN" ? "started" : "finished"} at ${log.createdAt.toLocaleTimeString()}`,
+          timestamp: log.createdAt,
+        });
+      });
+
+      // Add completed routes
+      driver.routes.forEach((route) => {
+        activities.push({
+          id: route.id,
+          type: "ROUTE_COMPLETED",
+          title: "Route Completed",
+          description: `Finished route ${route.name || route.id} from ${route.startAddress || 'Start'} to ${route.endAddress || 'End'}`,
+          timestamp: route.endTime || route.updatedAt,
+          metadata: { routeId: route.id },
+        });
+      });
+
+      // Add job completions (shipments)
+      driver.shipments.forEach((shipment) => {
+        activities.push({
+          id: shipment.id,
+          type: "JOB_COMPLETED",
+          title: "Job Delivered",
+          description: `Successfully delivered shipment ${shipment.trackingId} to ${shipment.destination}`,
+          timestamp: shipment.updatedAt,
+          metadata: { shipmentId: shipment.id },
+        });
+      });
+
+      // Sort activities by timestamp descending
+      activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+      return {
+        activities,
+        completedRoutes: driver.routes.length,
+        completedShipments: driver.shipments.length,
+        activePermissions: driver.documents.length,
+      };
+    } catch (error) {
+      console.error("Failed to get driver history:", error);
+      throw error;
+    }
+  }
+);

@@ -25,6 +25,8 @@ import { createFuelLog } from "@/app/lib/controllers/fuel";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { toast } from "sonner";
 import { uploadImageAction } from "@/app/lib/actions/upload";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 const FUEL_TYPES = ["DIESEL", "GASOLINE", "ELECTRIC_KWH", "ADBLUE"];
 
@@ -295,17 +297,13 @@ const AddFuelLogDialog = ({
             }}
           />
 
-          <TextField
-            fullWidth
+          <DatePicker
             label="Date"
-            type="date"
-            value={formData.date}
-            onChange={(e) => updateForm({ date: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                bgcolor: alpha("#1A202C", 0.5),
-                borderRadius: 1.5,
+            value={formData.date ? dayjs(formData.date) : null}
+            onChange={(val) => updateForm({ date: val ? val.toISOString().split("T")[0] : "" })}
+            slotProps={{
+              textField: {
+                fullWidth: true,
               },
             }}
           />

@@ -16,6 +16,8 @@ import {
   ShipmentPriority,
 } from "@/app/lib/type/add-shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 interface BasicInfoSectionProps {
   state: AddShipmentBasicInfo;
@@ -168,22 +170,19 @@ const BasicInfoSection = ({
               >
                 SLA DEADLINE
               </Typography>
-              <CustomTextArea
-                name="slaDeadline"
-                type="date"
-                placeholder="mm/dd/yyyy"
-                value={
-                  state.slaDeadline
-                    ? state.slaDeadline.toISOString().split("T")[0]
-                    : ""
-                }
-                onChange={(e) =>
+              <DatePicker
+                value={state.slaDeadline ? dayjs(state.slaDeadline) : null}
+                onChange={(val) =>
                   updateBasicInfo({
-                    slaDeadline: e.target.value
-                      ? new Date(e.target.value)
-                      : null,
+                    slaDeadline: val ? val.toDate() : null,
                   })
                 }
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    placeholder: "Select Date",
+                  },
+                }}
               />
             </Stack>
           </Grid>

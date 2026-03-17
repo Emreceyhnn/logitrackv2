@@ -23,6 +23,7 @@ import {
 import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseDialog";
 import WarehouseDetailsDialog from "@/app/components/dialogs/warehouse/warehouseDetailsDialog";
 import EditWarehouseDialog from "@/app/components/dialogs/warehouse/editWarehouseDialog";
+import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 
 export default function WarehousePage() {
   /* --------------------------------- states --------------------------------- */
@@ -38,6 +39,9 @@ export default function WarehousePage() {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [warehouseToEditId, setWarehouseToEditId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [warehouseToDeleteId, setWarehouseToDeleteId] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   /* --------------------------------- actions -------------------------------- */
   const fetchAllData = useCallback(async (isInitial = false) => {
@@ -89,16 +93,26 @@ export default function WarehousePage() {
       setEditDialogOpen(true);
     },
     deleteWarehouse: async (id: string) => {
-      if (!window.confirm("Are you sure you want to delete this warehouse? This action cannot be undone.")) return;
-      try {
-        await deleteWarehouse(id);
-        toast.success("Warehouse deleted successfully");
-        actions.refreshAll();
-      } catch (error) {
-        toast.error("Failed to delete warehouse");
-        console.error(error);
-      }
+      setWarehouseToDeleteId(id);
+      setDeleteDialogOpen(true);
     },
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!warehouseToDeleteId) return;
+    setDeleteLoading(true);
+    try {
+      await deleteWarehouse(warehouseToDeleteId);
+      toast.success("Warehouse deleted successfully");
+      setDeleteDialogOpen(false);
+      actions.refreshAll();
+    } catch (error) {
+      toast.error("Failed to delete warehouse");
+      console.error(error);
+    } finally {
+      setDeleteLoading(false);
+      setWarehouseToDeleteId(null);
+    }
   };
 
   /* -------------------------------- lifecycle ------------------------------- */
@@ -110,6 +124,8 @@ export default function WarehousePage() {
     loadInit();
     return () => { mounted = false; };
   }, [fetchAllData]);
+
+  const warehouseToDelete = state.warehouses.find(w => w.id === warehouseToDeleteId);
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>
@@ -201,6 +217,15 @@ export default function WarehousePage() {
             (w) => w.id === warehouseToEditId
           ) || undefined
         }
+      />
+
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Warehouse?"
+        description={`Are you sure you want to delete ${warehouseToDelete?.name || "this warehouse"}? This action cannot be undone.`}
+        loading={deleteLoading}
       />
     </Box>
   );

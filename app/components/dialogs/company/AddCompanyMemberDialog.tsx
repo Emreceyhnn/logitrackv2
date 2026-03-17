@@ -25,6 +25,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 import {
   AddMemberDialogProps,
   DriverStateData,
@@ -404,16 +406,18 @@ export default function AddCompanyMemberDialog({
                     handleDriverDataChange("licenseNumber", e.target.value)
                   }
                 />
-                <TextField
-                  fullWidth
-                  size="small"
+                <DatePicker
                   label="License Expiry"
-                  type="date"
-                  InputLabelProps={{ shrink: true }}
-                  value={driverData.licenseExpiry}
-                  onChange={(e) =>
-                    handleDriverDataChange("licenseExpiry", e.target.value)
+                  value={driverData.licenseExpiry ? dayjs(driverData.licenseExpiry) : null}
+                  onChange={(val) =>
+                    handleDriverDataChange("licenseExpiry", val ? val.toISOString().split("T")[0] : "")
                   }
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      size: "small",
+                    },
+                  }}
                 />
               </Stack>
             </Box>
