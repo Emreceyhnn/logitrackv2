@@ -12,7 +12,7 @@ interface CustomerWithLocations extends Customer {
 export const createShipment = authenticatedAction(
   async (
     user,
-    customerId: string,
+    customerId: string | null | undefined,
     origin: string,
     destination: string,
     status: string = "PENDING",
@@ -23,7 +23,8 @@ export const createShipment = authenticatedAction(
     cargoType: string = "General Cargo",
     destinationLat?: number,
     destinationLng?: number,
-    trackingId?: string
+    trackingId?: string,
+    customerLocationId?: string
   ) => {
     const userId = user?.id;
     const companyId = user?.companyId;
@@ -49,10 +50,10 @@ export const createShipment = authenticatedAction(
       }
 
       // Fetch customer details to potentially get default location if destination is not provided
-      const customer = (await db.customer.findUnique({
+      const customer = customerId ? (await db.customer.findUnique({
         where: { id: customerId },
         include: { locations: true },
-      })) as CustomerWithLocations | null;
+      })) as CustomerWithLocations | null : null;
 
       const defaultCustomerLocation = customer?.locations?.find((l) => l.isDefault);
       const firstCustomerLocation = customer?.locations?.[0];
@@ -78,7 +79,8 @@ export const createShipment = authenticatedAction(
       const newShipment = await db.shipment.create({
         data: {
           trackingId: finalTrackingId,
-          customerId,
+          customerId: customerId || undefined,
+          customerLocationId: customerLocationId || undefined,
           origin,
           destination: finalDestination, // Use the resolved destination
           destinationLat: finalDestinationLat, // Use the resolved destinationLat

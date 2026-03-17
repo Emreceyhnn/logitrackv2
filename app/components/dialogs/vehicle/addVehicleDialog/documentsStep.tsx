@@ -432,8 +432,7 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
           </Box>
         </Box>
       </Box>
-    </Box>
-  );
+    );
 };
 
 export default DocumentsStep;

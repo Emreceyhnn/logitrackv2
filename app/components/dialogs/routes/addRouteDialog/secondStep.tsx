@@ -23,12 +23,12 @@ const SecondRouteDialogStep = ({
 
   /* ------------------------------- constant ------------------------------- */
   const origin = useMemo(
-    () => ({ lat: state.startLat, lng: state.startLng }),
-    [state.startLat, state.startLng]
+    () => (state.startLat && state.startLng ? { lat: state.startLat, lng: state.startLng } : state.startAddress),
+    [state.startLat, state.startLng, state.startAddress]
   );
   const destination = useMemo(
-    () => ({ lat: state.endLat, lng: state.endLng }),
-    [state.endLat, state.endLng]
+    () => (state.endLat && state.endLng ? { lat: state.endLat, lng: state.endLng } : state.endAddress),
+    [state.endLat, state.endLng, state.endAddress]
   );
 
   return (
@@ -82,6 +82,7 @@ const SecondRouteDialogStep = ({
                     Start Address
                   </Typography>
                   <AddressAutocomplete
+                    value={state.startAddress}
                     onAddressSelect={({
                       lat,
                       lng,
@@ -119,6 +120,7 @@ const SecondRouteDialogStep = ({
                     End Address
                   </Typography>
                   <AddressAutocomplete
+                    value={state.endAddress}
                     onAddressSelect={({
                       lat,
                       lng,

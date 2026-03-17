@@ -102,24 +102,37 @@ export const createRoute = authenticatedAction(
         }
       }
 
-      const newRoute = await db.route.create({
-        data: {
-          name: finalName,
-          date,
-          startTime,
-          endTime,
-          distanceKm,
-          durationMin,
-          driverId,
-          vehicleId,
-          companyId: user.companyId,
-          startAddress,
-          startLat,
-          startLng,
-          endAddress,
-          endLat,
-          endLng,
-        },
+      const newRoute = await db.$transaction(async (tx) => {
+        // Create the route
+        const route = await tx.route.create({
+          data: {
+            name: finalName,
+            date,
+            startTime,
+            endTime,
+            distanceKm,
+            durationMin,
+            driverId,
+            vehicleId,
+            companyId: user.companyId,
+            startAddress,
+            startLat,
+            startLng,
+            endAddress,
+            endLat,
+            endLng,
+          },
+        });
+
+        // If driver and vehicle are both provided, assign driver to vehicle
+        if (driverId && vehicleId) {
+          await tx.driver.update({
+            where: { id: driverId },
+            data: { currentVehicleId: vehicleId },
+          });
+        }
+
+        return route;
       });
 
       return { route: newRoute };
@@ -159,6 +172,8 @@ export const getRoutes = authenticatedAction(
                 id: true,
                 plate: true,
                 type: true,
+                brand: true,
+                model: true,
                 currentLat: true,
                 currentLng: true,
                 fuelLevel: true,
@@ -168,6 +183,7 @@ export const getRoutes = authenticatedAction(
               include: {
                 user: {
                   select: {
+                    id: true,
                     name: true,
                     surname: true,
                     avatarUrl: true,
@@ -225,7 +241,7 @@ export const getRouteById = authenticatedAction(
               driver: {
                 include: {
                   user: {
-                    select: { name: true, surname: true, avatarUrl: true },
+                    select: { id: true, name: true, surname: true, avatarUrl: true },
                   },
                 },
               },

@@ -16,7 +16,11 @@ export const createWarehouse = authenticatedAction(
     country: string,
     lat?: number,
     lng?: number,
-    managerId?: string
+    managerId?: string,
+    capacityPallets?: number,
+    capacityVolumeM3?: number,
+    operatingHours?: string,
+    specifications?: string[]
   ) => {
     try {
       const companyId = user.companyId;
@@ -45,8 +49,12 @@ export const createWarehouse = authenticatedAction(
           lat,
           lng,
           companyId: companyId,
-          managerId,
-        },
+          manager: managerId ? { connect: { id: managerId } } : undefined,
+          capacityPallets,
+          capacityVolumeM3,
+          operatingHours,
+          specifications,
+        } as any,
       });
 
       return { warehouse: newWarehouse };
@@ -151,9 +159,19 @@ export const updateWarehouse = authenticatedAction(
         throw new Error("Warehouse not found or unauthorized");
       }
 
-      const updateData = { ...data };
+      const { managerId, ...otherData } = data as any;
+      const updateData: any = { ...otherData };
+
       if (updateData.code === "") {
         updateData.code = `WH-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      }
+
+      if (managerId !== undefined) {
+        if (managerId) {
+          updateData.manager = { connect: { id: managerId } };
+        } else {
+          updateData.manager = { disconnect: true };
+        }
       }
 
       const updatedWarehouse = await db.warehouse.update({
@@ -218,7 +236,7 @@ export const assignManagerToWarehouse = authenticatedAction(
       const updatedWarehouse = await db.warehouse.update({
         where: { id: warehouseId },
         data: {
-          managerId,
+          manager: { connect: { id: managerId } },
         },
       });
 

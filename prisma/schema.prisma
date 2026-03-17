@@ -252,6 +252,7 @@ model Warehouse {
   capacityPallets  Int     @default(5000)
   capacityVolumeM3 Int     @default(100000)
   operatingHours   String? @default("08:00 - 18:00")
+  specifications   String[]
 
   // Management
   managerId String?
@@ -304,6 +305,8 @@ model CustomerLocation {
   lat        Float?
   lng        Float?
   isDefault  Boolean  @default(false)
+  
+  shipments  Shipment[]
   
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -359,8 +362,11 @@ model Shipment {
   id         String @id @default(cuid())
   trackingId String @unique
 
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  customerLocationId String?
+  customerLocation   CustomerLocation? @relation(fields: [customerLocationId], references: [id])
 
   driverId String?
   driver   Driver? @relation(fields: [driverId], references: [id])

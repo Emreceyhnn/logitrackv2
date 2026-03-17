@@ -4,8 +4,8 @@ import { alpha } from "@mui/system";
 import { DirectionsMap } from "../../googleMaps/DirectionsMap";
 
 interface MapRoutesDialogCardProps {
-  origin?: { lat: number; lng: number };
-  destination?: { lat: number; lng: number };
+  origin?: string | { lat: number; lng: number };
+  destination?: string | { lat: number; lng: number };
   addrA?: string;
   addrB?: string;
   vehicleLocation?: {

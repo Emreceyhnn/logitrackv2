@@ -6,6 +6,8 @@ export interface RouteWithRelations extends Route {
     id: string;
     plate: string;
     type: string;
+    brand: string;
+    model: string;
     currentLat: number | null;
     currentLng: number | null;
     fuelLevel: number | null;
@@ -13,7 +15,19 @@ export interface RouteWithRelations extends Route {
 
   driver?: {
     id: string;
+    status: string;
+    phone: string;
+    employeeId: string;
+    licenseNumber: string | null;
+    licenseType: string | null;
+    licenseExpiry: Date | null;
+    rating: number | null;
+    efficiencyScore: number | null;
+    safetyScore: number | null;
+    createdAt: Date;
+    updatedAt: Date;
     user: {
+      id: string;
       name: string;
       surname: string;
       avatarUrl: string | null;

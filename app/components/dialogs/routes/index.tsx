@@ -35,7 +35,10 @@ const getStatusMeta = (status?: string) => {
     case "COMPLETED":
       return { color: "info.main", text: "Completed" };
     case "PENDING":
-      return { color: "warning.main", text: "Pending" };
+    case "PLANNED":
+      return { color: "warning.main", text: "Planned" };
+    case "CANCELED":
+      return { color: "error.main", text: "Canceled" };
     default:
       return { color: "text.primary", text: status ?? "-" };
   }
@@ -64,15 +67,21 @@ export default function RouteDialog({
     (theme.palette as any)[colorKey]?.[colorVariant] ||
     theme.palette.text.primary;
 
-  const mapOrigin = {
-    lat: (route as any).startLat || 0,
-    lng: (route as any).startLng || 0,
-  };
+  const mapOrigin =
+    (route as any).startLat && (route as any).startLng
+      ? {
+          lat: (route as any).startLat,
+          lng: (route as any).startLng,
+        }
+      : (route as any).startAddress || "";
 
-  const mapDestination = {
-    lat: (route as any).endLat || 0,
-    lng: (route as any).endLng || 0,
-  };
+  const mapDestination =
+    (route as any).endLat && (route as any).endLng
+      ? {
+          lat: (route as any).endLat,
+          lng: (route as any).endLng,
+        }
+      : (route as any).endAddress || "";
 
   return (
     <Dialog
@@ -194,26 +203,33 @@ export default function RouteDialog({
                   <DriverCard
                     {...({
                       id: route.driver.id,
-                      status: "ON_JOB",
-                      phone: "",
-                      employeeId: "",
-                      licenseNumber: "",
-                      licenseType: "",
-                      licenseExpiry: null,
-                      rating: 0,
-                      efficiencyScore: 0,
-                      safetyScore: 0,
+                      status: route.driver.status || "ON_JOB",
+                      phone: route.driver.phone || "",
+                      employeeId: route.driver.employeeId || "N/A",
+                      licenseNumber: route.driver.licenseNumber || "",
+                      licenseType: route.driver.licenseType || "",
+                      licenseExpiry: route.driver.licenseExpiry || null,
+                      rating: route.driver.rating || 0,
+                      efficiencyScore: route.driver.efficiencyScore || 0,
+                      safetyScore: route.driver.safetyScore || 0,
                       user: {
-                        id: route.driver.id,
+                        id: route.driver.user.id,
                         name: route.driver.user.name,
                         surname: route.driver.user.surname,
                         email: "",
                         avatarUrl: route.driver.user.avatarUrl,
                         roleId: "",
                       },
-                      currentVehicle: null,
-                      createdAt: new Date(),
-                      updatedAt: new Date(),
+                      currentVehicle: route.vehicle
+                        ? {
+                            id: route.vehicle.id,
+                            plate: route.vehicle.plate,
+                            brand: route.vehicle.brand,
+                            model: route.vehicle.model,
+                          }
+                        : null,
+                      createdAt: route.driver.createdAt,
+                      updatedAt: route.driver.updatedAt,
                     } as any)}
                   />
                 ) : (

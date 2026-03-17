@@ -152,7 +152,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
             />
           </Stack>
 
-          {state.is247 && (
+          {!state.is247 && (
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: 6 }}>
                 <Stack spacing={1}>

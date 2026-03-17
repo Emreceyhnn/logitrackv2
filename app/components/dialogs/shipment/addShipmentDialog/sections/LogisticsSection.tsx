@@ -129,27 +129,35 @@ const LogisticsSection = ({
                 value={state.customerId}
                 onChange={(e) => {
                   const customerId = e.target.value;
-                  updateLogistics({ customerId });
+                  if (!customerId) {
+                    updateLogistics({ 
+                      customerId: "",
+                      customerLocationId: "",
+                      contactEmail: "",
+                    });
+                    return;
+                  }
 
-                  // Auto-fill logic
                   const selectedCustomer = customers.find(
                     (c) => c.id === customerId
                   );
-                  if (selectedCustomer) {
-                    const defaultLoc = selectedCustomer.locations?.find((l) => l.isDefault) || selectedCustomer.locations?.[0];
-                    updateLogistics({
-                      destination:
-                        defaultLoc?.address || state.destination,
-                      destinationLat:
-                        defaultLoc?.lat ?? state.destinationLat,
-                      destinationLng:
-                        defaultLoc?.lng ?? state.destinationLng,
-                      contactEmail:
-                        selectedCustomer.email || state.contactEmail,
-                    });
-                  }
+                  const defaultLoc = selectedCustomer?.locations?.find((l) => l.isDefault) || selectedCustomer?.locations?.[0];
+                  
+                  updateLogistics({ 
+                    customerId,
+                    customerLocationId: defaultLoc?.id || "",
+                    destination: defaultLoc?.address || state.destination,
+                    destinationLat: defaultLoc?.lat ?? state.destinationLat,
+                    destinationLng: defaultLoc?.lng ?? state.destinationLng,
+                    contactEmail: selectedCustomer?.email || state.contactEmail,
+                  });
                 }}
               >
+                <MenuItem value="">
+                  <Typography variant="body2" color="text.secondary">
+                    None / Manual Entry
+                  </Typography>
+                </MenuItem>
                 {customers.map((c) => (
                   <MenuItem key={c.id} value={c.id}>
                     <Stack direction="row" spacing={1} alignItems="center">
@@ -160,6 +168,53 @@ const LogisticsSection = ({
                     </Stack>
                   </MenuItem>
                 ))}
+              </CustomTextArea>
+            </Stack>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Stack spacing={1}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                fontWeight={600}
+              >
+                CUSTOMER LOCATION (DEPOT)
+              </Typography>
+              <CustomTextArea
+                name="customerLocationId"
+                select
+                placeholder="Select depot"
+                disabled={!state.customerId}
+                value={state.customerLocationId}
+                onChange={(e) => {
+                  const locationId = e.target.value;
+                  const selectedCustomer = customers.find(c => c.id === state.customerId);
+                  const selectedLoc = selectedCustomer?.locations?.find(l => l.id === locationId);
+                  
+                  if (selectedLoc) {
+                    updateLogistics({
+                      customerLocationId: locationId,
+                      destination: selectedLoc.address,
+                      destinationLat: selectedLoc.lat ?? undefined,
+                      destinationLng: selectedLoc.lng ?? undefined,
+                    });
+                  } else {
+                    updateLogistics({ customerLocationId: locationId });
+                  }
+                }}
+              >
+                {state.customerId ? (
+                  customers.find(c => c.id === state.customerId)?.locations?.map((l) => (
+                    <MenuItem key={l.id} value={l.id}>
+                      <Typography variant="body2">
+                        {l.name} {l.isDefault ? "(Default)" : ""}
+                      </Typography>
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem value="" disabled>Select a customer first</MenuItem>
+                )}
               </CustomTextArea>
             </Stack>
           </Grid>
