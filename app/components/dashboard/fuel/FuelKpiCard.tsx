@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, useTheme, Box } from "@mui/material";
+import { useTheme, Box } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import LocalAtmIcon from "@mui/icons-material/LocalAtm";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
@@ -8,6 +8,7 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import SpeedIcon from "@mui/icons-material/Speed";
 import { FuelKpiCardProps } from "@/app/lib/type/fuel";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
+import { motion } from "framer-motion";
 
 const FuelKpiCard = ({ state }: FuelKpiCardProps) => {
   const theme = useTheme();
@@ -38,7 +39,7 @@ const FuelKpiCard = ({ state }: FuelKpiCardProps) => {
         ? `$${stats.avgFuelPrice.toFixed(2)}/L`
         : "$0.00/L",
       icon: <TrendingUpIcon />,
-      color: theme.palette.info.main,
+      color: "#06b6d4", // Cyan
     },
     {
       label: "Total Efficiency",
@@ -46,16 +47,43 @@ const FuelKpiCard = ({ state }: FuelKpiCardProps) => {
         ? `${stats.efficiencyKml.toFixed(2)} km/L`
         : "0.00 km/L",
       icon: <SpeedIcon />,
-      color: theme.palette.warning.main,
+      color: "#8b5cf6", // Violet
     },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
     <Box
-      display="grid"
-      gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-      gap={2}
-      mt={2}
+      component={motion.div}
+      variants={container}
+      initial="hidden"
+      animate="show"
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        alignItems: "stretch", // Ensure equal height in rows
+        gap: 3,
+        mt: 3,
+        width: "100%",
+        "& > *": {
+          flex: {
+            xs: "1 1 calc(100% - 24px)",
+            sm: "1 1 calc(50% - 24px)",
+            md: "1 1 calc(25% - 24px)",
+          },
+          display: "flex", // Support StatCard stretching
+        }
+      }}
     >
       {kpiItems.map((item, index) => (
         <StatCard

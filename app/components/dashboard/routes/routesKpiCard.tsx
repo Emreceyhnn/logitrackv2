@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, useTheme } from "@mui/material";
+import { useTheme, Box } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import AltRouteIcon from "@mui/icons-material/AltRoute";
 import LoopIcon from "@mui/icons-material/Loop";
@@ -8,6 +8,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningIcon from "@mui/icons-material/Warning";
 import { RoutesKpiCardProps } from "@/app/lib/type/routes";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
+import { motion } from "framer-motion";
 
 const RoutesKpiCard = ({ stats, loading = false }: { stats: any; loading?: boolean }) => {
   /* -------------------------------- variables ------------------------------- */
@@ -35,13 +36,13 @@ const RoutesKpiCard = ({ stats, loading = false }: { stats: any; loading?: boole
       label: "In Progress",
       value: values.inProgress,
       icon: <LoopIcon />,
-      color: theme.palette.info.main,
+      color: "#0ea5e9", // Sky
     },
     {
       label: "Completed Today",
       value: values.completedToday,
       icon: <CheckCircleIcon />,
-      color: theme.palette.success.main,
+      color: "#10b981", // Emerald
     },
     {
       label: "Delayed Routes",
@@ -51,30 +52,50 @@ const RoutesKpiCard = ({ stats, loading = false }: { stats: any; loading?: boole
     },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
-    <Stack
-      direction={"row"}
-      flexWrap="wrap"
-      gap={2}
-      mt={2}
-      justifyContent={"center"}
+    <Box
+      component={motion.div}
+      variants={container}
+      initial="hidden"
+      animate="show"
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        alignItems: "stretch", // Ensure equal height in rows
+        gap: 3,
+        mt: 3,
+        width: "100%",
+        "& > *": {
+          flex: {
+            xs: "1 1 calc(100% - 24px)",
+            sm: "1 1 calc(50% - 24px)",
+            md: "1 1 calc(25% - 24px)",
+          },
+          display: "flex", // Support StatCard stretching
+        }
+      }}
     >
       {kpiItems.map((item, index) => (
-        <Stack
+        <StatCard
           key={index}
-          flexBasis={{ xs: "100%", sm: "48%", md: "23%" }}
-          flexGrow={1}
-        >
-          <StatCard
-            key={index}
-            title={item.label}
-            value={item.value}
-            icon={item.icon}
-            color={item.color}
-          />
-        </Stack>
+          title={item.label}
+          value={item.value}
+          icon={item.icon}
+          color={item.color}
+        />
       ))}
-    </Stack>
+    </Box>
   );
 };
 

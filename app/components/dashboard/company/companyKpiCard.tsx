@@ -12,6 +12,7 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { CompanyPageProps } from "@/app/lib/type/company";
 import StatCard from "../../cards/StatCard";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
+import { motion } from "framer-motion";
 
 interface KpiItem {
   label: string;
@@ -37,45 +38,68 @@ export default function CompanyKpiCard({ props }: CompanyKpiCardProps) {
       label: "Total Users",
       value: data?.users ?? 0,
       icon: <PeopleIcon sx={{ fontSize: 22 }} />,
-      color: "#6366f1",
+      color: "#6366f1", // Indigo
     },
     {
       label: "Vehicles",
       value: data?.vehicles ?? 0,
       icon: <DirectionsCarIcon sx={{ fontSize: 22 }} />,
-      color: "#0ea5e9",
+      color: "#0ea5e9", // Sky
     },
     {
       label: "Drivers",
       value: data?.drivers ?? 0,
       icon: <BadgeIcon sx={{ fontSize: 22 }} />,
-      color: "#10b981",
+      color: "#10b981", // Emerald
     },
     {
       label: "Warehouses",
       value: data?.warehouses ?? 0,
       icon: <WarehouseIcon sx={{ fontSize: 22 }} />,
-      color: "#f59e0b",
+      color: "#f59e0b", // Amber
     },
     {
       label: "Customers",
       value: data?.customers ?? 0,
       icon: <GroupsIcon sx={{ fontSize: 22 }} />,
-      color: "#ec4899",
+      color: "#ec4899", // Pink
     },
     {
       label: "Shipments",
       value: data?.shipments ?? 0,
       icon: <LocalShippingIcon sx={{ fontSize: 22 }} />,
-      color: "#8b5cf6",
+      color: "#8b5cf6", // Violet
     },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
     <Box
-      display="grid"
-      gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-      gap={2}
+      component={motion.div}
+      variants={container}
+      initial="hidden"
+      animate="show"
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+        justifyContent: "center",
+        alignItems: "stretch", // Ensure equal height in rows
+        gap: 3,
+        mt: 3,
+        width: "100%",
+        "& > *": {
+          display: "flex", // Support StatCard stretching
+        }
+      }}
     >
       {kpis.map((kpi, index) => (
         <StatCard

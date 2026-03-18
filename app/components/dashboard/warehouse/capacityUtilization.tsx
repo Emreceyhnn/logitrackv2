@@ -4,6 +4,8 @@ import {
   CircularProgress,
   Stack,
   Typography,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
@@ -18,46 +20,58 @@ const CapacityUtilization = ({
   warehouses,
   loading = false,
 }: CapacityUtilizationProps) => {
+  const theme = useTheme();
 
   if (loading) {
     return <AnalyticsSkeleton title="Capacity Utilization" height={300} />;
   }
 
   return (
-    <CustomCard sx={{ p: 3, borderRadius: "12px", boxShadow: 3, flex: 2 }}>
-      <Typography variant="h6" fontWeight={600} mb={4}>
+    <CustomCard sx={{ flex: 2 }}>
+      <Typography variant="h6" fontWeight={800} sx={{ mb: 4, letterSpacing: "-0.02em" }}>
         Capacity Utilization
       </Typography>
 
-      <Stack spacing={4} alignItems="center">
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", sm: "repeat(auto-fit, minmax(200px, 1fr))" },
+          gap: 4,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         {warehouses.map((warehouse) => {
+          // Calculation logic stays as provided
           const usedPallets = (warehouse._count?.inventory || 0) * 10;
           const totalPallets = warehouse.capacityPallets || 5000;
           const capacityPct = Math.round((usedPallets / totalPallets) * 100);
 
-          const color = capacityPct > 80 ? "#ef4444" : "#3b82f6";
+          const isCritical = capacityPct > 85;
+          const mainColor = isCritical ? theme.palette.error.main : theme.palette.primary.main;
 
           return (
-            <Stack key={warehouse.id} alignItems="center" spacing={2}>
+            <Stack key={warehouse.id} alignItems="center" spacing={3}>
               <Box position="relative" display="inline-flex">
                 <CircularProgress
                   variant="determinate"
                   value={100}
-                  size={160}
-                  thickness={4}
+                  size={140}
+                  thickness={3}
                   sx={{
-                    color: "rgba(255,255,255,0.05)",
+                    color: alpha(theme.palette.divider, 0.05),
                   }}
                 />
                 <CircularProgress
                   variant="determinate"
                   value={capacityPct}
-                  size={160}
-                  thickness={4}
+                  size={140}
+                  thickness={3}
                   sx={{
-                    color: color,
+                    color: mainColor,
                     position: "absolute",
                     left: 0,
+                    filter: `drop-shadow(0 0 8px ${alpha(mainColor, 0.4)})`,
                     [`& .MuiCircularProgress-circle`]: {
                       strokeLinecap: "round",
                     },
@@ -76,26 +90,35 @@ const CapacityUtilization = ({
                     flexDirection: "column",
                   }}
                 >
-                  <Typography variant="h4" component="div" fontWeight={700}>
+                  <Typography variant="h4" component="div" fontWeight={900} sx={{ letterSpacing: "-0.04em" }}>
                     {capacityPct}%
                   </Typography>
                   <Typography
                     variant="caption"
-                    component="div"
-                    color="text.secondary"
-                    sx={{ textTransform: "uppercase" }}
+                    sx={{ 
+                      textTransform: "uppercase", 
+                      fontWeight: 700,
+                      color: alpha(theme.palette.text.primary, 0.4),
+                      letterSpacing: "0.1em",
+                      fontSize: "0.65rem"
+                    }}
                   >
                     {warehouse.city}
                   </Typography>
                 </Box>
               </Box>
-              <Typography variant="body2" color="text.secondary">
-                Used Pallets
-              </Typography>
+              <Stack alignItems="center" spacing={0.5}>
+                <Typography variant="body2" fontWeight={700} color="text.primary">
+                  {warehouse.name}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {usedPallets.toLocaleString()} / {totalPallets.toLocaleString()} Pallets
+                </Typography>
+              </Stack>
             </Stack>
           );
         })}
-      </Stack>
+      </Box>
     </CustomCard>
   );
 };

@@ -10,6 +10,7 @@ import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import { DriverKpiCardProps } from "@/app/lib/type/driver";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
+import { motion } from "framer-motion";
 
 const DriverKpiCard = ({ data, loading = false }: DriverKpiCardProps & { loading?: boolean }) => {
   /* -------------------------------- variables ------------------------------- */
@@ -30,19 +31,19 @@ const DriverKpiCard = ({ data, loading = false }: DriverKpiCardProps & { loading
       label: "On Duty",
       value: data.onDuty ?? 0,
       icon: <WorkIcon />,
-      color: theme.palette.success.main,
+      color: "#10b981", // Emerald
     },
     {
       label: "Off Duty",
       value: data.offDuty ?? 0,
       icon: <HomeIcon />,
-      color: theme.palette.info.main,
+      color: "#0ea5e9", // Sky
     },
     {
       label: "On Leave",
       value: data.onLeave ?? 0,
       icon: <HomeIcon />,
-      color: theme.palette.warning.main,
+      color: "#f59e0b", // Amber
     },
     {
       label: "Compliance Issues",
@@ -54,22 +55,50 @@ const DriverKpiCard = ({ data, loading = false }: DriverKpiCardProps & { loading
       label: "Avg Safety Rating",
       value: data.avgSafetyScore?.toFixed(1) ?? 0,
       icon: <ShieldIcon />,
-      color: theme.palette.warning.main,
+      color: "#6366f1", // Indigo
     },
     {
       label: "Efficiency Rating",
       value: data.avgEfficiencyScore?.toFixed(1) ?? 0,
       icon: <RocketLaunchIcon />,
-      color: theme.palette.success.main,
+      color: "#8b5cf6", // Violet
     },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
     <Box
-      display="grid"
-      gridTemplateColumns="repeat(auto-fill, minmax(180px, 1fr))"
-      gap={2}
-      mt={2}
+      component={motion.div}
+      variants={container}
+      initial="hidden"
+      animate="show"
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        alignItems: "stretch", // Ensure equal height in rows
+        gap: 3,
+        mt: 3,
+        width: "100%",
+        "& > *": {
+          flex: {
+            xs: "1 1 calc(100% - 24px)",
+            sm: "1 1 calc(50% - 24px)",
+            md: "1 1 calc(33.33% - 24px)",
+            lg: "1 1 calc(20% - 24px)", // This forces 5 on top for 7 total items, leaving 2 on bot
+          },
+          display: "flex", // Support StatCard stretching
+        }
+      }}
     >
       {kpiItems.map((item, index) => (
         <StatCard

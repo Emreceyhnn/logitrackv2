@@ -170,7 +170,11 @@ export default function WarehousePage() {
         />
       </Box>
 
-      <Stack direction={"row"} spacing={4}>
+      <Stack 
+        direction={{ xs: "column", xl: "row" }} 
+        spacing={4}
+        sx={{ mt: 2 }}
+      >
         <CapacityUtilization
           warehouses={state.warehouses}
           loading={state.loading}

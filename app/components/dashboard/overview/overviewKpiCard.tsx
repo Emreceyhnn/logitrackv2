@@ -11,6 +11,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
+import { motion } from "framer-motion";
 
 interface OverviewKpiCardProps {
   stats: {
@@ -27,7 +28,6 @@ interface OverviewKpiCardProps {
 }
 
 const OverviewKpiCard = ({ stats, loading = false }: OverviewKpiCardProps) => {
-  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
   if (loading || !stats) {
@@ -41,58 +41,90 @@ const OverviewKpiCard = ({ stats, loading = false }: OverviewKpiCardProps) => {
       label: "Active Shipments",
       value: values.activeShipments,
       icon: <LocalShippingIcon />,
-      color: theme.palette.primary.main,
+      color: theme.palette.primary.main, // Blue
+      trend: { value: 4, isUp: true }
     },
     {
       label: "Delayed Shipments",
       value: values.delayedShipments,
       icon: <AccessTimeIcon />,
-      color: theme.palette.error.main,
+      color: theme.palette.error.main, // Red
+      trend: { value: 1, isUp: false }
     },
     {
       label: "Vehicles On Trip",
       value: values.vehiclesOnTrip,
       icon: <DirectionsCarIcon />,
-      color: theme.palette.info.main,
+      color: "#0ea5e9", // Sky
+      trend: { value: 6, isUp: true }
     },
     {
       label: "Vehicles In Service",
       value: values.vehiclesInService,
       icon: <BuildIcon />,
-      color: theme.palette.warning.main,
+      color: "#f59e0b", // Amber
     },
     {
       label: "Available Vehicles",
       value: values.availableVehicles,
       icon: <CheckCircleIcon />,
-      color: theme.palette.success.main,
+      color: "#10b981", // Emerald
+      trend: { value: 2, isUp: true }
     },
     {
       label: "Active Drivers",
       value: values.activeDrivers,
       icon: <PersonIcon />,
-      color: theme.palette.secondary.main,
+      color: "#8b5cf6", // Violet
     },
     {
       label: "Warehouses",
       value: values.warehouses,
       icon: <WarehouseIcon />,
-      color: theme.palette.grey[700],
+      color: "#6366f1", // Indigo
     },
     {
       label: "Inventory Skus",
       value: values.inventorySkus,
       icon: <InventoryIcon />,
-      color: theme.palette.info.dark,
+      color: "#06b6d4", // Cyan
+      trend: { value: 8, isUp: true }
     },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
     <Box
-      display="grid"
-      gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-      gap={2}
-      mt={2}
+      component={motion.div}
+      variants={container}
+      initial="hidden"
+      animate="show"
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "stretch",
+        gap: 3,
+        mt: 3,
+        width: "100%",
+        "& > *": {
+          flex: {
+            xs: "1 1 100%",
+            sm: "1 1 calc(50% - 24px)",
+            md: "1 1 calc(33.33% - 24px)",
+            lg: "1 1 calc(20% - 24px)",
+          },
+          display: "flex",
+        }
+      }}
     >
       {kpiItems.map((item, index) => (
         <StatCard
@@ -101,6 +133,7 @@ const OverviewKpiCard = ({ stats, loading = false }: OverviewKpiCardProps) => {
           value={item.value}
           icon={item.icon}
           color={item.color}
+          trend={item.trend}
         />
       ))}
     </Box>
