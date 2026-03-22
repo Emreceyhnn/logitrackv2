@@ -1,5 +1,5 @@
 "use client";
-import { useTheme, Box, Stack } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { WarehouseKpiCardProps } from "@/app/lib/type/warehouse";
 import { 
   Warehouse, 
@@ -12,15 +12,7 @@ import StatCard from "../../cards/StatCard";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 import { motion } from "framer-motion";
 
-<<<<<<< HEAD
-const WarehouseKpiCard = ({
-  stats,
-  loading = false,
-}: WarehouseKpiCardProps) => {
-  /* -------------------------------- variables ------------------------------- */
-=======
 const WarehouseKpiCard = ({ stats, loading = false }: WarehouseKpiCardProps) => {
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
   const theme = useTheme();
 
   if (loading || !stats) {
@@ -78,9 +70,6 @@ const WarehouseKpiCard = ({ stats, loading = false }: WarehouseKpiCardProps) => 
   };
 
   return (
-<<<<<<< HEAD
-    <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
-=======
     <Box
       component={motion.div}
       variants={container}
@@ -104,11 +93,9 @@ const WarehouseKpiCard = ({ stats, loading = false }: WarehouseKpiCardProps) => 
         }
       }}
     >
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       {kpiItems.map((item, index) => (
         <Box
           key={index}
-<<<<<<< HEAD
           sx={{
             width: {
               xs: "100%",
@@ -122,19 +109,12 @@ const WarehouseKpiCard = ({ stats, loading = false }: WarehouseKpiCardProps) => 
             value={item.value}
             icon={item.icon}
             color={item.color}
+            trend={item.trend}
             sx={{ height: "100%" }}
           />
         </Box>
-=======
-          title={item.label}
-          value={item.value}
-          icon={item.icon}
-          color={item.color}
-          trend={item.trend}
-        />
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       ))}
-    </Stack>
+    </Box>
   );
 };
 

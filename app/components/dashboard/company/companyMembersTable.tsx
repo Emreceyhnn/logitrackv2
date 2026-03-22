@@ -2,9 +2,6 @@
 
 import {
   Avatar,
-  Box,
-  Button,
-  Card,
   Chip,
   Stack,
   Table,
@@ -14,6 +11,14 @@ import {
   TableHead,
   TableRow,
   Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  alpha,
+  useTheme,
 } from "@mui/material";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -22,11 +27,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { CompanyPageProps, CompanyMember } from "@/app/lib/type/company";
 import { useState } from "react";
-import AddCompanyMemberDialog from "../../dialogs/company/AddCompanyMemberDialog";
 import CompanyMemberDetailsDialog from "../../dialogs/company/CompanyMemberDetailsDialog";
 import EditCompanyMemberDialog from "../../dialogs/company/EditCompanyMemberDialog";
 import DeleteConfirmationDialog from "../../dialogs/deleteConfirmationDialog";
-import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Divider as MuiDivider, alpha, useTheme } from "@mui/material";
+import CustomCard from "../../cards/card";
 import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 function StatusChip({ status }: { status: string }) {
@@ -59,7 +63,6 @@ export default function CompanyMembersTable({
   const members = state.data?.members ?? [];
   const loading = state.loading;
   
-  const [addOpen, setAddOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -102,48 +105,23 @@ export default function CompanyMembersTable({
   };
 
   return (
-    <Card variant="outlined" sx={{ borderRadius: 3, bgcolor: "background.paper" }}>
-      <Stack
-        px={3}
-        pt={2.5}
-        pb={1.5}
-        direction={"row"}
-        justifyContent={"space-between"}
-        alignItems="center"
-      >
-        <Stack>
-          <Typography fontWeight={700} fontSize={16}>
-            Team Members
-          </Typography>
-          <Typography fontSize={13} color="text.secondary">
-            All users belonging to this company
-          </Typography>
-        </Stack>
-        <Button
-          variant="contained"
-          sx={{ borderRadius: "8px", fontWeight: 700, textTransform: "none" }}
-          onClick={() => setAddOpen(true)}
-        >
-          Add Member
-        </Button>
-      </Stack>
-
-      <TableContainer>
+    <CustomCard sx={{ p: 0, overflow: "hidden" }}>
+      <TableContainer sx={{ p: 0, pt: 1 }}>
         <Table size="small">
-          <TableHead>
+          <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: 600 }}>Member</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Role</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Joined</TableCell>
-              <TableCell sx={{ fontWeight: 600 }} align="right">Actions</TableCell>
+              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }}>Member</TableCell>
+              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }}>Email</TableCell>
+              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }}>Role</TableCell>
+              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }}>Joined</TableCell>
+              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }} align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {members.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6}>
+                <TableCell colSpan={6} sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
                   <Stack py={4} alignItems="center" spacing={1}>
                     <PeopleOutlineIcon
                       sx={{ fontSize: 36, color: "text.disabled" }}
@@ -159,7 +137,7 @@ export default function CompanyMembersTable({
                 <TableRow
                   key={member.id}
                   hover
-                  sx={{ "&:last-child td": { borderBottom: 0 } }}
+                  sx={{ "& td": { borderColor: alpha(theme.palette.divider, 0.1) } }}
                 >
                   <TableCell>
                     <Stack direction="row" spacing={1.5} alignItems="center">
@@ -170,7 +148,7 @@ export default function CompanyMembersTable({
                         {!member.avatarUrl &&
                           `${member.name[0]}${member.surname[0]}`}
                       </Avatar>
-                      <Typography fontSize={13} fontWeight={500}>
+                      <Typography fontSize={13} fontWeight={600}>
                         {member.name} {member.surname}
                       </Typography>
                     </Stack>
@@ -243,7 +221,7 @@ export default function CompanyMembersTable({
           <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
           <ListItemText primary="Edit" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
         </MenuItem>
-        <MuiDivider sx={{ my: 0.5, borderColor: alpha(theme.palette.divider, 0.1) }} />
+        <Divider sx={{ my: 0.5, borderColor: alpha(theme.palette.divider, 0.1) }} />
         <MenuItem onClick={() => handleAction("delete")} sx={{ color: "error.main" }}>
           <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
           <ListItemText primary="Delete" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
@@ -251,7 +229,6 @@ export default function CompanyMembersTable({
       </Menu>
 
       {/* Dialogs */}
-      <AddCompanyMemberDialog open={addOpen} onClose={() => setAddOpen(false)} />
       
       <CompanyMemberDetailsDialog 
         open={detailsOpen} 
@@ -274,6 +251,6 @@ export default function CompanyMembersTable({
         description={`Are you sure you want to remove ${selectedMember?.name} from the company? This will revoke their access immediately.`}
         loading={deleteLoading}
       />
-    </Card>
+    </CustomCard>
   );
 }

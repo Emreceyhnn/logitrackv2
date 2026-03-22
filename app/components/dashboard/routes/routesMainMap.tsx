@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Box, Skeleton, alpha, useTheme } from "@mui/material";
 import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
@@ -12,6 +13,20 @@ interface RoutesMainMapProps {
 
 const RoutesMainMap = ({ mapData, loading }: RoutesMainMapProps) => {
   const theme = useTheme();
+
+  // Map Routes to Markers - moved before early return to satisfy hook rules
+  const markers = useMemo(() => {
+    return mapData.map((d) => {
+      let markerType: "warehouse" | "vehicle" | "customer" | "default" = "default";
+      if (d.type === "V") markerType = "vehicle";
+
+      return {
+        position: d.position,
+        label: d.name,
+        type: markerType,
+      };
+    });
+  }, [mapData]);
 
   if (loading)
     return (
@@ -27,18 +42,6 @@ const RoutesMainMap = ({ mapData, loading }: RoutesMainMapProps) => {
         <Skeleton variant="rectangular" width="100%" height="100%" sx={{ minHeight: 400 }} />
       </Box>
     );
-
-  // Map Routes to Markers
-  const markers = mapData.map((d) => {
-    let markerType: "warehouse" | "vehicle" | "customer" | "default" = "default";
-    if (d.type === "V") markerType = "vehicle";
-
-    return {
-      position: d.position,
-      label: d.name,
-      type: markerType,
-    };
-  });
 
   return (
     <Box sx={{ minHeight: 400, flexGrow: 3, borderRadius: "16px", overflow: "hidden" }}>

@@ -49,21 +49,12 @@ export const createWarehouse = authenticatedAction(
           lat,
           lng,
           companyId: companyId,
-<<<<<<< HEAD
           managerId,
           capacityPallets: capacityPallets || 5000,
           capacityVolumeM3: capacityVolumeM3 || 100000,
           operatingHours: operatingHours || "08:00 - 18:00",
           specifications: specifications || [],
         },
-=======
-          manager: managerId ? { connect: { id: managerId } } : undefined,
-          capacityPallets,
-          capacityVolumeM3,
-          operatingHours,
-          specifications,
-        } as any,
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       });
 
       return { warehouse: newWarehouse };
@@ -168,21 +159,14 @@ export const updateWarehouse = authenticatedAction(
         throw new Error("Warehouse not found or unauthorized");
       }
 
-<<<<<<< HEAD
       const { managerId, ...restData } = data;
       const updateData: any = { ...restData };
-      
-=======
-      const { managerId, ...otherData } = data as any;
-      const updateData: any = { ...otherData };
 
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       if (updateData.code === "") {
         updateData.code = `WH-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
       }
 
       if (managerId !== undefined) {
-<<<<<<< HEAD
         if (managerId === null) {
           // Only disconnect if it was actually connected
           if (existingWarehouse.managerId) {
@@ -190,12 +174,6 @@ export const updateWarehouse = authenticatedAction(
           }
         } else {
           updateData.manager = { connect: { id: managerId } };
-=======
-        if (managerId) {
-          updateData.manager = { connect: { id: managerId } };
-        } else {
-          updateData.manager = { disconnect: true };
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
         }
       }
 

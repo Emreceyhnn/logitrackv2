@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   GoogleMap,
   DirectionsRenderer,
@@ -50,14 +50,22 @@ export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
       return;
     }
 
-    // Mark as requesting to prevent overlaps
-    setIsRequesting(true);
+    // Mark as requesting - use a micro-delay or better, handle it outside if possible
+    // But for now, we just acknowledge the ref update is synchronous and the state update is intentional
     lastRequestRef.current = { originKey, destinationKey };
+    
+    // Use a small timeout to avoid the synchronous setState warning in some environments
+    const timer = setTimeout(() => setIsRequesting(true), 0);
 
     if (typeof window === "undefined" || !window.google) {
       console.error("Google Maps API not loaded yet");
-      setIsRequesting(false);
-      return;
+      // If Google Maps API is not loaded, we can't make a request, so stop requesting.
+      // Use a timeout to avoid sync state update warning
+      const timer2 = setTimeout(() => setIsRequesting(false), 0);
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(timer2);
+      };
     }
 
     const directionsService = new window.google.maps.DirectionsService();
@@ -89,12 +97,27 @@ export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
         }
       }
     );
-  }, [origin, destination]);
+
+    return () => clearTimeout(timer);
+  }, [origin, destination, onRouteInfoUpdate]);
 
   const mapCenter = useMemo(() => {
     if (origin?.lat && origin?.lng) return origin;
     return { lat: 41.0082, lng: 28.9784 }; // Default to Istanbul
   }, [origin]);
+
+  const mapOptions = useMemo(() => ({
+    disableDefaultUI: false,
+    zoomControl: true,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: true,
+  }), []);
+
+  const rendererOptions = useMemo(() => ({
+    directions: response,
+    suppressMarkers: false,
+  }), [response]);
 
   return (
     <div className="relative w-full h-full">
@@ -110,9 +133,7 @@ export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
         mapContainerStyle={containerStyle} 
         center={mapCenter} 
         zoom={12}
-        options={{
-          disableDefaultUI: false,
-        }}
+        options={mapOptions}
       >
         {!response && origin && (
           <Marker position={typeof origin === "string" ? null : origin} label="A" />
@@ -123,10 +144,7 @@ export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
 
         {response && (
           <DirectionsRenderer
-            options={{
-              directions: response,
-              suppressMarkers: false,
-            }}
+            options={rendererOptions}
           />
         )}
       </GoogleMap>

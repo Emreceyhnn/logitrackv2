@@ -1,15 +1,21 @@
 "use client";
 
 import {
-  Paper,
+  IconButton,
+  Chip,
+  Box,
+  alpha,
+  useTheme,
 } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { UserListProps } from "@/app/lib/type/users";
 import EditIcon from "@mui/icons-material/Edit";
-import { IconButton, Chip } from "@mui/material";
+import CustomCard from "../../cards/card";
 import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 const UserList = ({ users, loading, onSelect }: UserListProps) => {
+  const theme = useTheme();
+  
   const columns: GridColDef[] = [
     {
       field: "username",
@@ -22,7 +28,7 @@ const UserList = ({ users, loading, onSelect }: UserListProps) => {
       headerName: "Full Name",
       flex: 1.5,
       minWidth: 150,
-      valueGetter: (params, row) =>
+      valueGetter: (value, row) =>
         `${row.name || ""} ${row.surname || ""}`.trim(),
     },
     {
@@ -86,26 +92,32 @@ const UserList = ({ users, loading, onSelect }: UserListProps) => {
   }
 
   return (
-    <Paper
-      sx={{ height: 600, width: "100%", borderRadius: 2, overflow: "hidden" }}
-    >
-      <DataGrid
-        rows={users}
-        columns={columns}
-        getRowId={(row) => row.id}
-        sx={{
-          border: "none",
-          "& .MuiDataGrid-columnHeaders": {
-            bgcolor: "background.default",
-          },
-          "& .MuiDataGrid-row:hover": {
-            bgcolor: "action.hover",
-            cursor: "pointer",
-          },
-        }}
-        onRowClick={(params) => onSelect(params.row.id)}
-      />
-    </Paper>
+    <CustomCard sx={{ p: 0, overflow: "hidden", height: 600 }}>
+      <Box sx={{ p: 0, height: "100%" }}>
+        <DataGrid
+          rows={users}
+          columns={columns}
+          getRowId={(row) => row.id}
+          sx={{
+            border: "none",
+            "& .MuiDataGrid-columnHeaders": {
+              bgcolor: alpha(theme.palette.primary.main, 0.03),
+            },
+            "& .MuiDataGrid-row:hover": {
+              bgcolor: alpha(theme.palette.primary.main, 0.04),
+              cursor: "pointer",
+            },
+            "& .MuiDataGrid-cell": {
+              borderColor: alpha(theme.palette.divider, 0.1),
+            },
+            "& .MuiDataGrid-columnSeparator": {
+              display: "none",
+            },
+          }}
+          onRowClick={(params) => onSelect(params.row.id)}
+        />
+      </Box>
+    </CustomCard>
   );
 };
 

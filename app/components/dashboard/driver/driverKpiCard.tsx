@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, useTheme, Box } from "@mui/material";
+import { useTheme, Box } from "@mui/material";
 import ShieldIcon from "@mui/icons-material/Shield";
 import StatCard from "../../cards/StatCard";
 import GroupsIcon from "@mui/icons-material/Groups";
@@ -79,9 +79,6 @@ const DriverKpiCard = ({
   };
 
   return (
-<<<<<<< HEAD
-    <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
-=======
     <Box
       component={motion.div}
       variants={container}
@@ -106,7 +103,6 @@ const DriverKpiCard = ({
         }
       }}
     >
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       {kpiItems.map((item, index) => (
         <Box
           key={index}
@@ -127,7 +123,7 @@ const DriverKpiCard = ({
           />
         </Box>
       ))}
-    </Stack>
+    </Box>
   );
 };
 

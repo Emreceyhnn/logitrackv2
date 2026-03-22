@@ -30,6 +30,7 @@ import FingerprintIcon from "@mui/icons-material/Fingerprint";
 
 import { getStatusMeta } from "@/app/lib/priorityColor";
 import DeleteConfirmationDialog from "../../deleteConfirmationDialog";
+import { deleteVehicle } from "@/app/lib/controllers/vehicle";
 
 interface TabPanelProps {
   children?: React.ReactNode;

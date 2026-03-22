@@ -75,15 +75,12 @@ const VehicleKpiCard = ({ state }: VehicleKpiCardProps) => {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   return (
-<<<<<<< HEAD
-    <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
-=======
     <Box
       component={motion.div}
       variants={container}
@@ -100,13 +97,12 @@ const VehicleKpiCard = ({ state }: VehicleKpiCardProps) => {
           flex: {
             xs: "1 1 100%",
             sm: "1 1 calc(50% - 24px)",
-            md: "1 1 calc(33.33% - 24px)",
+            md: "1 1 calc(25% - 24px)",
           },
           display: "flex",
-        }
+        },
       }}
     >
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       {kpiItems.map((item, index) => (
         <Box
           key={index}
@@ -127,7 +123,7 @@ const VehicleKpiCard = ({ state }: VehicleKpiCardProps) => {
           />
         </Box>
       ))}
-    </Stack>
+    </Box>
   );
 };
 

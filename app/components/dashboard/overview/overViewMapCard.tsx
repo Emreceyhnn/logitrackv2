@@ -1,27 +1,32 @@
+import React, { useMemo } from "react";
 import CustomCard from "../../cards/card";
-import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
+import { MapWithMarker, MarkerData } from "@/app/components/googleMaps/MapWithMarker";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { MapData } from "@/app/lib/type/overview";
 
 interface OverviewMapCardProps {
-  values: MapData[];
+  stats: MapData[] | null;
 }
 
-const OverviewMapCard = ({ values }: OverviewMapCardProps) => {
-  if (!values) return null;
+const OverviewMapCard = ({ stats }: OverviewMapCardProps) => {
+  const markers = useMemo<MarkerData[]>(() => {
+    if (!stats) return [];
+    
+    return stats.map((v) => {
+      let markerType: MarkerData["type"] = "default";
+      if (v.type === "W") markerType = "warehouse";
+      else if (v.type === "V") markerType = "vehicle";
+      else if (v.type === "C") markerType = "customer";
 
-  const markers = values.map((v) => {
-    let markerType: "warehouse" | "vehicle" | "customer" | "default" = "default";
-    if (v.type === "W") markerType = "warehouse";
-    else if (v.type === "V") markerType = "vehicle";
-    else if (v.type === "C") markerType = "customer";
+      return {
+        position: v.position,
+        label: v.name,
+        type: markerType,
+      };
+    });
+  }, [stats]);
 
-    return {
-      position: v.position,
-      label: v.name,
-      type: markerType,
-    };
-  });
+  if (!stats) return null;
 
   return (
     <CustomCard sx={{ flexGrow: 10, p: 2 }}>

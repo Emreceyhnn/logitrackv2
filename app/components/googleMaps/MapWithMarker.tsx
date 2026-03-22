@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useMemo } from "react";
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
 
 const containerStyle = {
@@ -6,6 +6,10 @@ const containerStyle = {
   height: "100%",
   borderRadius: "12px",
 };
+
+const PIN_SVG = "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z";
+const TRUCK_SVG = "M20 8h-3V4H3v13h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zM18 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z";
+const WAREHOUSE_SVG = "M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z";
 
 export type MarkerType = "customer" | "warehouse" | "vehicle" | "route" | "default";
 
@@ -22,9 +26,86 @@ interface MapWithMarkerProps {
   height?: string | number;
 }
 
+// Memoized Marker component to prevent unnecessary re-renders of individual markers
+const OptimizedMarker = React.memo(({ marker }: { marker: MarkerData; index: number }) => {
+  const iconConfig = useMemo(() => {
+    if (typeof window === "undefined" || !window.google || !marker.type) return undefined;
+    
+    let path = PIN_SVG;
+    let fillColor = "#EA4335"; 
+    let scale = 1.6;
+    let anchor = new window.google.maps.Point(12, 24);
+    let labelOrigin = new window.google.maps.Point(12, 9);
+    
+    switch (marker.type) {
+      case "warehouse":
+        fillColor = "#8B5CF6"; 
+        path = WAREHOUSE_SVG;
+        break;
+      case "customer":
+        fillColor = "#3B82F6"; 
+        path = PIN_SVG;
+        break;
+      case "vehicle":
+        fillColor = "#10B981"; 
+        path = TRUCK_SVG;
+        scale = 1.3;
+        anchor = new window.google.maps.Point(12, 12);
+        labelOrigin = new window.google.maps.Point(12, -4);
+        break;
+      case "route":
+        fillColor = "#F59E0B"; 
+        scale = 1.2;
+        anchor = new window.google.maps.Point(12, 12);
+        break;
+    }
+
+    return {
+      path,
+      fillColor,
+      fillOpacity: 1,
+      strokeWeight: 1.5,
+      strokeColor: "#FFFFFF",
+      scale,
+      anchor,
+      labelOrigin,
+    };
+  }, [marker.type]);
+
+  const labelConfig = useMemo(() => {
+    if (!marker.label) return undefined;
+    return {
+      text: marker.label.charAt(0).toUpperCase(),
+      color: marker.type === "vehicle" ? "#000" : "#FFF",
+      fontWeight: "bold",
+      fontSize: "12px",
+    };
+  }, [marker.label, marker.type]);
+
+  return (
+    <MarkerF
+      position={marker.position}
+      label={labelConfig}
+      icon={iconConfig}
+      title={marker.label}
+    />
+  );
+});
+
+OptimizedMarker.displayName = "OptimizedMarker";
+
 export const MapWithMarker = ({ center, zoom = 14, markers = [], height = "400px" }: MapWithMarkerProps) => {
-  const mapCenter = center || { lat: 41.0082, lng: 28.9784 }; // Istanbul default
   const mapRef = useRef<google.maps.Map | null>(null);
+
+  const mapCenter = useMemo(() => center || { lat: 41.0082, lng: 28.9784 }, [center]);
+  
+  const mapOptions = useMemo<google.maps.MapOptions>(() => ({
+    disableDefaultUI: false,
+    zoomControl: true,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: true,
+  }), []);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
@@ -35,7 +116,6 @@ export const MapWithMarker = ({ center, zoom = 14, markers = [], height = "400px
       });
       map.fitBounds(bounds);
       
-      // Prevent over-zooming if there's only 1 marker
       const listener = window.google.maps.event.addListener(map, "idle", () => {
         if (map.getZoom()! > 16) map.setZoom(16);
         window.google.maps.event.removeListener(listener);
@@ -43,7 +123,7 @@ export const MapWithMarker = ({ center, zoom = 14, markers = [], height = "400px
     }
   }, [markers]);
 
-  // Adjust bounds if markers magically change during runtime
+  // Adjust bounds if markers change during runtime
   React.useEffect(() => {
     if (mapRef.current && markers.length > 0) {
       const bounds = new window.google.maps.LatLngBounds();
@@ -61,84 +141,18 @@ export const MapWithMarker = ({ center, zoom = 14, markers = [], height = "400px
         center={mapCenter}
         zoom={zoom}
         onLoad={onLoad}
-        options={{
-          disableDefaultUI: false,
-          zoomControl: true,
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: true,
-        }}
+        options={mapOptions}
       >
-        {markers.map((marker, index) => {
-          // Dynamic Pin Rendering
-          let iconConfig: google.maps.Symbol | undefined = undefined;
-          
-          if (typeof window !== "undefined" && window.google && marker.type) {
-            const PIN_SVG = "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z";
-            const TRUCK_SVG = "M20 8h-3V4H3v13h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zM18 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z";
-            const WAREHOUSE_SVG = "M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z";
-            
-            let path = PIN_SVG;
-            let fillColor = "#EA4335"; // Red
-            let scale = 1.6;
-            let anchor = new window.google.maps.Point(12, 24);
-            let labelOrigin = new window.google.maps.Point(12, 9);
-            
-            switch (marker.type) {
-              case "warehouse":
-                fillColor = "#8B5CF6"; // Premium Purple
-                path = WAREHOUSE_SVG;
-                break;
-              case "customer":
-                fillColor = "#3B82F6"; // Premium Blue
-                path = PIN_SVG;
-                break;
-              case "vehicle":
-                fillColor = "#10B981"; // Emerald Green
-                path = TRUCK_SVG;
-                scale = 1.3;
-                anchor = new window.google.maps.Point(12, 12);
-                labelOrigin = new window.google.maps.Point(12, -4); // Push label above truck
-                break;
-              case "route":
-                fillColor = "#F59E0B"; // Amber
-                scale = 1.2;
-                anchor = new window.google.maps.Point(12, 12);
-                break;
-            }
-
-            iconConfig = {
-              path,
-              fillColor,
-              fillOpacity: 1,
-              strokeWeight: 1.5,
-              strokeColor: "#FFFFFF",
-              scale,
-              anchor,
-              labelOrigin,
-            };
-          }
-
-          return (
-            <MarkerF
-              key={index}
-              position={marker.position}
-              label={
-                marker.label
-                  ? {
-                      text: marker.label.charAt(0).toUpperCase(),
-                      color: marker.type === "vehicle" ? "#000" : "#FFF",
-                      fontWeight: "bold",
-                      fontSize: "12px",
-                    }
-                  : undefined
-              }
-              icon={iconConfig}
-              title={marker.label} // Hover text
-            />
-          );
-        })}
+        {markers.map((marker, index) => (
+          <OptimizedMarker 
+            key={`${marker.type}-${index}-${marker.position.lat}-${marker.position.lng}`} 
+            marker={marker} 
+            index={index} 
+          />
+        ))}
       </GoogleMap>
     </div>
   );
 };
+
+export default MapWithMarker;

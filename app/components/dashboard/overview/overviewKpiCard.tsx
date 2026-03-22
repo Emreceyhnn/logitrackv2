@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, useTheme, Box } from "@mui/material";
+import { useTheme, Box } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -103,9 +103,6 @@ const OverviewKpiCard = ({ stats, loading = false }: OverviewKpiCardProps) => {
   };
 
   return (
-<<<<<<< HEAD
-    <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
-=======
     <Box
       component={motion.div}
       variants={container}
@@ -114,7 +111,7 @@ const OverviewKpiCard = ({ stats, loading = false }: OverviewKpiCardProps) => {
       sx={{
         display: "flex",
         flexWrap: "wrap",
-        alignItems: "stretch",
+        alignItems: "stretch", // Ensure equal height in rows
         gap: 3,
         mt: 3,
         width: "100%",
@@ -122,38 +119,33 @@ const OverviewKpiCard = ({ stats, loading = false }: OverviewKpiCardProps) => {
           flex: {
             xs: "1 1 100%",
             sm: "1 1 calc(50% - 24px)",
-            md: "1 1 calc(33.33% - 24px)",
-            lg: "1 1 calc(20% - 24px)",
+            md: "1 1 calc(25% - 24px)",
           },
-          display: "flex",
+          display: "flex", // Support StatCard stretching
         }
       }}
     >
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       {kpiItems.map((item, index) => (
         <Box
           key={index}
-<<<<<<< HEAD
-          sx={{ width: { xs: "100%", sm: "calc(50% - 8px)", md: "calc(25% - 12px)" } }}
+          sx={{
+            width: {
+              xs: "100%",
+              sm: "calc(50% - 8px)",
+              md: "calc(25% - 12px)",
+            },
+          }}
         >
           <StatCard
             title={item.label}
             value={item.value}
             icon={item.icon}
             color={item.color}
-            sx={{ height: "100%" }}
+            trend={item.trend}
           />
         </Box>
-=======
-          title={item.label}
-          value={item.value}
-          icon={item.icon}
-          color={item.color}
-          trend={item.trend}
-        />
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       ))}
-    </Stack>
+    </Box>
   );
 };
 

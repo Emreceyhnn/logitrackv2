@@ -1,13 +1,15 @@
 "use client";
 
-import { Box, Stack, Typography, Alert } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { Box, Stack, Typography, Alert, Button } from "@mui/material";
+import { useEffect, useState, useMemo } from "react";
+import AddIcon from "@mui/icons-material/Add";
 import { getCompanyProfile } from "@/app/lib/controllers/company";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { CompanyPageState, CompanyPageActions } from "@/app/lib/type/company";
 import CompanyKpiCard from "@/app/components/dashboard/company/companyKpiCard";
 import CompanyInfoCard from "@/app/components/dashboard/company/companyInfoCard";
 import CompanyMembersTable from "@/app/components/dashboard/company/companyMembersTable";
+import AddCompanyMemberDialog from "@/app/components/dialogs/company/AddCompanyMemberDialog";
 
 export default function CompanyPage() {
   const [state, setState] = useState<CompanyPageState>({
@@ -15,9 +17,10 @@ export default function CompanyPage() {
     loading: true,
     error: null,
   });
+  const [addMemberOpen, setAddMemberOpen] = useState(false);
 
-  const actions: CompanyPageActions = {
-    fetchData: useCallback(async () => {
+  const actions: CompanyPageActions = useMemo(() => ({
+    fetchData: async () => {
       try {
         const user = await getAuthenticatedUser();
         if (!user) {
@@ -59,9 +62,9 @@ export default function CompanyPage() {
           error: message,
         }));
       }
-    }, []),
+    },
 
-    refreshAll: useCallback(async () => {
+    refreshAll: async () => {
       setState((prev) => ({ ...prev, loading: true, error: null }));
       try {
         const result = await getCompanyProfile();
@@ -81,7 +84,7 @@ export default function CompanyPage() {
             : "Failed to refresh company data.";
         setState((prev) => ({ ...prev, loading: false, error: message }));
       }
-    }, []),
+    },
 
     deleteMember: async (memberId: string) => {
       try {
@@ -105,11 +108,11 @@ export default function CompanyPage() {
         throw err;
       }
     },
-  };
+  }), []);
 
   useEffect(() => {
     actions.fetchData();
-  }, [actions.fetchData]);
+  }, [actions]);
 
   return (
     <Box position="relative" p={{ xs: 2, md: 4 }} width="100%">
@@ -129,6 +132,14 @@ export default function CompanyPage() {
             Overview of your organisation, resources, and team members.
           </Typography>
         </Box>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setAddMemberOpen(true)}
+          sx={{ textTransform: "none", borderRadius: 2 }}
+        >
+          Add Member
+        </Button>
       </Stack>
 
       {state.error && (
@@ -142,6 +153,11 @@ export default function CompanyPage() {
         <CompanyInfoCard props={{ state, actions }} />
         <CompanyMembersTable props={{ state, actions }} />
       </Stack>
+
+      <AddCompanyMemberDialog 
+        open={addMemberOpen} 
+        onClose={() => setAddMemberOpen(false)} 
+      />
     </Box>
   );
 }

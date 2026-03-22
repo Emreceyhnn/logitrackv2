@@ -7,9 +7,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
+  Box,
   Typography,
+  Divider,
+  alpha,
+  useTheme,
 } from "@mui/material";
+import CustomCard from "../../../cards/card";
 import RowActions from "./menu";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import DriverAvatar from "@/app/components/avatar";
@@ -17,6 +21,7 @@ import { VehicleTableProps } from "@/app/lib/type/vehicle";
 import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 const VehicleTable = ({ state, actions }: VehicleTableProps) => {
+  const theme = useTheme();
   const { vehicles, loading = false } = state;
   const { selectVehicle: onVehicleSelect, onEdit, onDelete } = actions;
 
@@ -25,9 +30,10 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   }
 
   return (
-    <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
-      <Table size="small">
-        <TableHead>
+    <CustomCard sx={{ p: 0, overflow: "hidden" }}>
+      <TableContainer sx={{ p: 0, pt: 1 }}>
+        <Table size="small">
+          <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
           <TableRow>
             <TableCell width={50}>#</TableCell>
             <TableCell>Plate</TableCell>
@@ -91,8 +97,9 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
             ))
           )}
         </TableBody>
-      </Table>
-    </TableContainer>
+        </Table>
+      </TableContainer>
+    </CustomCard>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
 
 const containerStyle = {
@@ -9,15 +9,17 @@ const containerStyle = {
 
 export const MapPicker = ({ onLocationSelect, initialCenter }) => {
   const [marker, setMarker] = useState(null);
-  const center = initialCenter || { lat: 41.0082, lng: 28.9784 };
+  const center = useMemo(() => initialCenter || { lat: 41.0082, lng: 28.9784 }, [initialCenter]);
 
-  const onMapClick = (e) => {
+  const onMapClick = useCallback((e) => {
     const lat = e.latLng.lat();
     const lng = e.latLng.lng();
     const newPos = { lat, lng };
     setMarker(newPos);
-    onLocationSelect(newPos);
-  };
+    if (onLocationSelect) {
+      onLocationSelect(newPos);
+    }
+  }, [onLocationSelect]);
 
   return (
     <div className="overflow-hidden border border-gray-200 rounded-xl shadow-sm">

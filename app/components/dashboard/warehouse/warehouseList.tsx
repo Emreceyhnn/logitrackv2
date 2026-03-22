@@ -14,7 +14,6 @@ import {
   LinearProgress,
   alpha,
   useTheme,
-  Box,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
@@ -24,7 +23,6 @@ import { useState } from "react";
 import CustomCard from "../../cards/card";
 import { WarehouseTableProps } from "@/app/lib/type/warehouse";
 import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
-import ListIcon from '@mui/icons-material/List';
 
 const WarehouseListTable = ({
   warehouses,
@@ -78,29 +76,14 @@ const WarehouseListTable = ({
   };
 
   if (loading) {
-    return <TableSkeleton title="Warehouse List" rows={5} columns={7} />;
+    return <TableSkeleton rows={5} columns={7} />;
   }
 
   return (
-    <CustomCard sx={{ width: "100%", overflow: "hidden" }}>
-      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 3 }}>
-        <Box sx={{ 
-          p: 1, 
-          borderRadius: '12px', 
-          bgcolor: alpha(theme.palette.secondary.main, 0.1),
-          color: theme.palette.secondary.main,
-          display: 'flex'
-        }}>
-          <ListIcon fontSize="small" />
-        </Box>
-        <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.02em" }}>
-          Warehouse Fleet
-        </Typography>
-      </Stack>
-
-      <TableContainer>
+    <CustomCard sx={{ p: 0, overflow: "hidden" }}>
+      <TableContainer sx={{ p: 0, pt: 1 }}>
         <Table sx={{ minWidth: 1000 }}>
-          <TableHead>
+          <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
             <TableRow>
               {["CODE", "NAME", "TYPE / CITY", "CAPACITY (PALLETS)", "CAPACITY (VOLUME)", "OPERATING HOURS", ""].map((head, idx) => (
                 <TableCell
@@ -139,30 +122,6 @@ const WarehouseListTable = ({
                   onClick={() => onSelect(warehouse.id)}
                   sx={{
                     cursor: "pointer",
-<<<<<<< HEAD
-                    "&:last-child td, &:last-child th": { border: 0 },
-                  }}
-                >
-                  <TableCell sx={{ fontWeight: 600 }}>
-                    {warehouse.code}
-                  </TableCell>
-                  <TableCell>{warehouse.name}</TableCell>
-                  <TableCell>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        px: 1,
-                        py: 0.5,
-                        borderRadius: 1,
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        color: theme.palette.primary.main,
-                        fontWeight: 700,
-                        fontSize: "0.65rem",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {warehouse.type.replace("_", " ")}
-=======
                     "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.02) },
                     transition: "background-color 0.2s ease"
                   }}
@@ -170,7 +129,6 @@ const WarehouseListTable = ({
                   <TableCell sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
                     <Typography variant="body2" fontWeight={800} color="primary.main">
                       {warehouse.code}
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
                     </Typography>
                   </TableCell>
                   <TableCell sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
@@ -253,21 +211,12 @@ const WarehouseListTable = ({
                       />
                     </Stack>
                   </TableCell>
-<<<<<<< HEAD
-                  <TableCell align="right" sx={{ fontFamily: "monospace" }}>
-                    {typeof operatingHours === "object" &&
-                    operatingHours !== null &&
-                    "monFri" in operatingHours
-                      ? (operatingHours as { monFri: string }).monFri
-                      : operatingHours}
-=======
                   <TableCell align="right" sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
                     <Typography variant="body2" fontWeight={600} sx={{ fontFamily: "monospace" }}>
                       {typeof operatingHours === "object" && operatingHours !== null && "monFri" in operatingHours
                         ? (operatingHours as { monFri: string }).monFri
                         : operatingHours}
                     </Typography>
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
                   </TableCell>
                   <TableCell align="right" sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
                     <IconButton
@@ -315,23 +264,6 @@ const WarehouseListTable = ({
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-<<<<<<< HEAD
-        <MenuItem onClick={handleDetailsClick}>
-          <VisibilityIcon
-            fontSize="small"
-            sx={{ mr: 1.5, color: "text.secondary" }}
-          />
-          <Typography variant="body2">View Details</Typography>
-        </MenuItem>
-        <MenuItem onClick={handleEditClick}>
-          <EditIcon
-            fontSize="small"
-            sx={{ mr: 1.5, color: "text.secondary" }}
-          />
-          <Typography variant="body2">Edit Warehouse</Typography>
-        </MenuItem>
-        <MenuItem onClick={handleDeleteClick} sx={{ color: "error.main" }}>
-=======
         <MenuItem onClick={handleEditClick}>
           <EditIcon fontSize="small" sx={{ mr: 1.5, color: "inherit" }} />
           <Typography variant="body2" fontWeight={600}>Edit Warehouse</Typography>
@@ -341,7 +273,6 @@ const WarehouseListTable = ({
           <Typography variant="body2" fontWeight={600}>View Details</Typography>
         </MenuItem>
         <MenuItem onClick={handleDeleteClick} sx={{ color: "error.main", '&:hover': { bgcolor: alpha(theme.palette.error.main, 0.1) + ' !important' } }}>
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
           <DeleteIcon fontSize="small" sx={{ mr: 1.5, color: "inherit" }} />
           <Typography variant="body2" fontWeight={600}>Delete Factory</Typography>
         </MenuItem>

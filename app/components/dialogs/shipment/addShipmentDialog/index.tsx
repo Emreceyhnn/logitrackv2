@@ -56,6 +56,8 @@ const initialBasicInfo: AddShipmentBasicInfo = {
 const initialLogistics: AddShipmentLogistics = {
   originWarehouseId: "",
   destination: "",
+  destinationLat: undefined,
+  destinationLng: undefined,
   customerId: "",
   customerLocationId: "",
   contactEmail: "",

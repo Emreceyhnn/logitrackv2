@@ -8,7 +8,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   IconButton,
   Typography,
   Avatar,
@@ -23,6 +22,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
+import CustomCard from "../../cards/card";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -116,18 +116,8 @@ const InventoryTable = ({
   };
 
   return (
-    <Paper
-      sx={{
-        width: "100%",
-        mb: 2,
-        borderRadius: "12px",
-        overflow: "hidden",
-        bgcolor: "transparent",
-        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-        boxShadow: 0,
-      }}
-    >
-      <TableContainer>
+    <CustomCard sx={{ p: 0, overflow: "hidden" }}>
+      <TableContainer sx={{ p: 0, pt: 1 }}>
         <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
           <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
             <TableRow>
@@ -297,7 +287,7 @@ const InventoryTable = ({
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </Paper>
+    </CustomCard>
   );
 };
 

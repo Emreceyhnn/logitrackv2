@@ -249,17 +249,10 @@ model Warehouse {
   lng     Float?
 
   // Capacity
-<<<<<<< HEAD
   capacityPallets  Int      @default(5000)
   capacityVolumeM3 Int      @default(100000)
   operatingHours   String?  @default("08:00 - 18:00")
   specifications   String[] @default([])
-=======
-  capacityPallets  Int     @default(5000)
-  capacityVolumeM3 Int     @default(100000)
-  operatingHours   String? @default("08:00 - 18:00")
-  specifications   String[]
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
 
   // Management
   managerId String?
@@ -373,12 +366,9 @@ model Shipment {
 
   customerId String?
   customer   Customer? @relation(fields: [customerId], references: [id])
-<<<<<<< HEAD
-=======
 
   customerLocationId String?
   customerLocation   CustomerLocation? @relation(fields: [customerLocationId], references: [id])
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
 
   driverId String?
   driver   Driver? @relation(fields: [driverId], references: [id])
@@ -463,7 +453,7 @@ model Route {
   company   Company? @relation(fields: [companyId], references: [id])
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt // Fixed typo here (removed extra space if any)
+  updatedAt DateTime @updatedAt
 
   @@map("routes")
 }

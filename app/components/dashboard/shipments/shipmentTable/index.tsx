@@ -6,9 +6,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Typography,
-  Divider,
 } from "@mui/material";
 import CustomCard from "../../../cards/card";
 import RowActions from "./menu";
@@ -50,13 +48,8 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
 
   return (
     <>
-      <CustomCard sx={{ padding: "0 0 6px 0" }}>
-        <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-          Shipment List
-        </Typography>
-        <Divider />
-
-        <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
+      <CustomCard sx={{ p: 0, overflow: "hidden" }}>
+        <TableContainer sx={{ p: 0, pt: 1 }}>
           <Table size="small">
             <TableHead>
               <TableRow>

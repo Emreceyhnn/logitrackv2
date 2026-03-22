@@ -36,32 +36,6 @@ const StatCard = ({
   const theme = useTheme();
 
   return (
-<<<<<<< HEAD
-    <Card
-      onClick={onClick}
-      sx={{
-        ...sx,
-        p: 2.5,
-        height: "100%",
-        borderRadius: "16px",
-        boxShadow: theme.shadows[2],
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        cursor: onClick ? "pointer" : "default",
-        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-        background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${alpha(
-          theme.palette.background.paper,
-          0.9
-        )} 100%)`,
-        "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: theme.shadows[8],
-          borderColor: alpha(color, 0.3),
-        },
-      }}
-=======
     <motion.div
       whileHover={{ y: -6, transition: { duration: 0.3, ease: "easeOut" } }}
       whileTap={{ scale: 0.97 }}
@@ -69,11 +43,11 @@ const StatCard = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       style={{ height: '100%', flex: 1, display: 'flex' }}
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
     >
       <Card
         onClick={onClick}
         sx={{
+          ...sx,
           height: "100%",
           minHeight: "160px",
           width: "100%",

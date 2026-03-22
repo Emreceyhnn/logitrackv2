@@ -5,16 +5,17 @@ import {
   Box,
   Stack,
   Typography,
-  Paper,
   Avatar,
-  Chip,
   IconButton,
+  Chip,
   Menu,
   MenuItem,
   ListItemIcon,
   ListItemText,
   Divider,
   Skeleton,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -26,6 +27,7 @@ import {
   CustomerWithRelations,
   CustomerListProps,
 } from "@/app/lib/type/customer";
+import CustomCard from "../../cards/card";
 
 const CustomerList = ({
   customers,
@@ -66,69 +68,62 @@ const CustomerList = ({
     handleMenuClose();
   };
 
+  const theme = useTheme();
+
   if (loading) {
     return (
-      <Paper
+      <CustomCard
         sx={{
           width: 400,
+          p: 0,
           display: "flex",
           flexDirection: "column",
-          borderRadius: 3,
           overflow: "hidden",
           height: "100%",
-          bgcolor: "background.paper",
         }}
       >
-        <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}>
-          <Skeleton width={120} height={32} />
-          <Skeleton width={80} height={20} />
+        <Box sx={{ p: 3, pb: 0 }}>
+          <Skeleton
+            variant="text"
+            width={120}
+            height={32}
+            sx={{ bgcolor: alpha(theme.palette.text.primary, 0.1), mb: 1 }}
+          />
+          <Skeleton
+            variant="text"
+            width={80}
+            height={20}
+            sx={{ bgcolor: alpha(theme.palette.text.primary, 0.05), mb: 2 }}
+          />
+          <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1), mb: 1 }} />
         </Box>
         <Box sx={{ flex: 1, overflowY: "auto", p: 0 }}>
           {Array.from(new Array(5)).map((_, index) => (
             <Box
               key={index}
-              sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}
+              sx={{ p: 2, borderBottom: "1px solid", borderColor: alpha(theme.palette.divider, 0.1) }}
             >
               <Stack direction="row" spacing={2} alignItems="center">
-                <Skeleton variant="rounded" width={40} height={40} />
+                <Skeleton variant="rounded" width={40} height={40} sx={{ bgcolor: alpha(theme.palette.text.primary, 0.05) }} />
                 <Box sx={{ flex: 1 }}>
-                  <Skeleton width="60%" height={24} />
-                  <Skeleton width="40%" height={16} />
+                  <Skeleton width="60%" height={24} sx={{ bgcolor: alpha(theme.palette.text.primary, 0.1) }} />
+                  <Skeleton width="40%" height={16} sx={{ bgcolor: alpha(theme.palette.text.primary, 0.05) }} />
                 </Box>
               </Stack>
               <Stack spacing={1} sx={{ mt: 2 }}>
-                <Skeleton width="80%" height={16} />
-                <Skeleton width="50%" height={16} />
+                <Skeleton width="80%" height={16} sx={{ bgcolor: alpha(theme.palette.text.primary, 0.05) }} />
+                <Skeleton width="50%" height={16} sx={{ bgcolor: alpha(theme.palette.text.primary, 0.05) }} />
               </Stack>
             </Box>
           ))}
         </Box>
-      </Paper>
+      </CustomCard>
     );
   }
 
   return (
-    <Paper
-      sx={{
-        width: 400,
-        display: "flex",
-        flexDirection: "column",
-        borderRadius: 3,
-        overflow: "hidden",
-        height: "100%",
-        bgcolor: "background.paper",
-      }}
-    >
-      <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}>
-        <Typography variant="h6" fontWeight={700} gutterBottom>
-          Customers
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {customers.length} Active Customers
-        </Typography>
-      </Box>
-
-      <Box sx={{ flex: 1, overflowY: "auto", p: 0 }}>
+    <CustomCard sx={{ width: 400, p: 0, overflow: "hidden", height: "100%", display: "flex", flexDirection: "column" }}>
+      <Box sx={{ p: 0, flexGrow: 1, overflow: "auto" }}>
         {customers.map((customer) => (
           <Box
             key={customer.id}
@@ -136,11 +131,11 @@ const CustomerList = ({
             sx={{
               p: 2,
               borderBottom: "1px solid",
-              borderColor: "divider",
+              borderColor: alpha(theme.palette.divider, 0.1),
               cursor: "pointer",
               bgcolor:
-                selectedId === customer.id ? "action.selected" : "transparent",
-              "&:hover": { bgcolor: "action.hover" },
+                selectedId === customer.id ? alpha(theme.palette.primary.main, 0.08) : "transparent",
+              "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.04) },
               transition: "background-color 0.2s",
             }}
           >
@@ -153,11 +148,12 @@ const CustomerList = ({
               <Avatar
                 variant="rounded"
                 sx={{
-                  bgcolor: "secondary.main",
+                  bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                  color: theme.palette.secondary.main,
                   width: 40,
                   height: 40,
                   fontSize: "1rem",
-                  fontWeight: 700,
+                  fontWeight: 800,
                 }}
               >
                 {customer.name.charAt(0)}
@@ -224,7 +220,7 @@ const CustomerList = ({
                   height: 20,
                   fontSize: "0.65rem",
                   fontWeight: 600,
-                  borderColor: alpha("#fff", 0.1),
+                  borderColor: alpha(theme.palette.divider, 0.1),
                 }}
               />
             </Stack>
@@ -249,8 +245,7 @@ const CustomerList = ({
             borderRadius: 2,
             mt: 0.5,
             boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-            border: "1px solid",
-            borderColor: "divider",
+            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
             bgcolor: "#0B0F19",
           },
         }}
@@ -273,7 +268,7 @@ const CustomerList = ({
             primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
           />
         </MenuItem>
-        <Divider sx={{ my: 0.5, borderColor: "divider" }} />
+        <Divider sx={{ my: 0.5, borderColor: alpha(theme.palette.divider, 0.1) }} />
         <MenuItem
           onClick={() => handleAction("delete")}
           sx={{ color: "error.main" }}
@@ -287,9 +282,8 @@ const CustomerList = ({
           />
         </MenuItem>
       </Menu>
-    </Paper>
+    </CustomCard>
   );
 };
 
-import { alpha } from "@mui/material";
 export default CustomerList;

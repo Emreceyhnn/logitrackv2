@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Stack } from "@mui/material";
+import { Box } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import BadgeIcon from "@mui/icons-material/Badge";
@@ -81,9 +81,6 @@ export default function CompanyKpiCard({ props }: CompanyKpiCardProps) {
   };
 
   return (
-<<<<<<< HEAD
-    <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
-=======
     <Box
       component={motion.div}
       variants={container}
@@ -102,7 +99,6 @@ export default function CompanyKpiCard({ props }: CompanyKpiCardProps) {
         }
       }}
     >
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       {kpis.map((kpi, index) => (
         <Box
           key={index}
@@ -123,6 +119,6 @@ export default function CompanyKpiCard({ props }: CompanyKpiCardProps) {
           />
         </Box>
       ))}
-    </Stack>
+    </Box>
   );
 }

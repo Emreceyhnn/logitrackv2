@@ -1,13 +1,6 @@
 "use client";
 
-<<<<<<< HEAD
-import { Box, Stack, useTheme } from "@mui/material";
-=======
-import {
-  useTheme,
-  Box,
-} from "@mui/material";
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
+import { Box, useTheme } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import WarningIcon from "@mui/icons-material/Warning";
@@ -84,9 +77,6 @@ const InventoryKPI = ({ items, loading = false }: InventoryKPIProps) => {
   };
 
   return (
-<<<<<<< HEAD
-    <Stack direction="row" flexWrap="wrap" gap={2} my={2}>
-=======
     <Box
       component={motion.div}
       variants={container}
@@ -111,11 +101,9 @@ const InventoryKPI = ({ items, loading = false }: InventoryKPIProps) => {
         }
       }}
     >
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       {kpiItems.map((item, index) => (
         <Box
           key={index}
-<<<<<<< HEAD
           sx={{
             width: {
               xs: "100%",
@@ -125,21 +113,13 @@ const InventoryKPI = ({ items, loading = false }: InventoryKPIProps) => {
           }}
         >
           <StatCard
-            key={index}
             title={item.label}
             value={item.value}
             icon={item.icon}
             color={item.color}
+            trend={item.trend}
           />
         </Box>
-=======
-          title={item.label}
-          value={item.value}
-          icon={item.icon}
-          color={item.color}
-          trend={item.trend}
-        />
->>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       ))}
     </Box>
   );

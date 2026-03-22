@@ -6,10 +6,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Typography,
   TablePagination,
   TableSortLabel,
+  alpha,
+  useTheme,
 } from "@mui/material";
 import RowActions from "./menu";
 import { StatusChip } from "@/app/components/chips/statusChips";
@@ -29,6 +29,8 @@ const DriverTable = ({
   sortOrder,
   onRequestSort,
 }: DriverTableProps) => {
+  const theme = useTheme();
+
   /* -------------------------------- handlers -------------------------------- */
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -46,127 +48,123 @@ const DriverTable = ({
   }
 
   return (
-    <>
-      <TableContainer component={Paper} elevation={0} sx={{ p: 2 }}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>#</TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortField === "name"}
-                  direction={sortField === "name" ? sortOrder : "asc"}
-                  onClick={createSortHandler("name")}
-                >
-                  Name
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortField === "status"}
-                  direction={sortField === "status" ? sortOrder : "asc"}
-                  onClick={createSortHandler("status")}
-                >
-                  Status
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortField === "phone"}
-                  direction={sortField === "phone" ? sortOrder : "asc"}
-                  onClick={createSortHandler("phone")}
-                >
-                  Phone
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortField === "vehicle"}
-                  direction={sortField === "vehicle" ? sortOrder : "asc"}
-                  onClick={createSortHandler("vehicle")}
-                >
-                  Vehicle
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortField === "homeBaseWarehouse"}
-                  direction={sortField === "homeBaseWarehouse" ? sortOrder : "asc"}
-                  onClick={createSortHandler("homeBaseWarehouse")}
-                >
-                  Homebase
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortField === "licenseType"}
-                  direction={sortField === "licenseType" ? sortOrder : "asc"}
-                  onClick={createSortHandler("licenseType")}
-                >
-                  License
-                </TableSortLabel>
-              </TableCell>
-              <TableCell align="right">
-                <TableSortLabel
-                  active={sortField === "safetyScore"}
-                  direction={sortField === "safetyScore" ? sortOrder : "asc"}
-                  onClick={createSortHandler("safetyScore")}
-                >
-                  Safety Score
-                </TableSortLabel>
-              </TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
+    <TableContainer sx={{ p: 0 }}>
+      <Table size="small">
+        <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
+          <TableRow>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>#</TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              <TableSortLabel
+                active={sortField === "name"}
+                direction={sortField === "name" ? sortOrder : "asc"}
+                onClick={createSortHandler("name")}
+              >
+                Name
+              </TableSortLabel>
+            </TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              <TableSortLabel
+                active={sortField === "status"}
+                direction={sortField === "status" ? sortOrder : "asc"}
+                onClick={createSortHandler("status")}
+              >
+                Status
+              </TableSortLabel>
+            </TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              <TableSortLabel
+                active={sortField === "phone"}
+                direction={sortField === "phone" ? sortOrder : "asc"}
+                onClick={createSortHandler("phone")}
+              >
+                Phone
+              </TableSortLabel>
+            </TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              <TableSortLabel
+                active={sortField === "vehicle"}
+                direction={sortField === "vehicle" ? sortOrder : "asc"}
+                onClick={createSortHandler("vehicle")}
+              >
+                Vehicle
+              </TableSortLabel>
+            </TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              <TableSortLabel
+                active={sortField === "homeBaseWarehouse"}
+                direction={sortField === "homeBaseWarehouse" ? sortOrder : "asc"}
+                onClick={createSortHandler("homeBaseWarehouse")}
+              >
+                Homebase
+              </TableSortLabel>
+            </TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              <TableSortLabel
+                active={sortField === "licenseType"}
+                direction={sortField === "licenseType" ? sortOrder : "asc"}
+                onClick={createSortHandler("licenseType")}
+              >
+                License
+              </TableSortLabel>
+            </TableCell>
+            <TableCell align="right" sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              <TableSortLabel
+                active={sortField === "safetyScore"}
+                direction={sortField === "safetyScore" ? sortOrder : "asc"}
+                onClick={createSortHandler("safetyScore")}
+              >
+                Safety Score
+              </TableSortLabel>
+            </TableCell>
+            <TableCell align="right" sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Actions</TableCell>
+          </TableRow>
+        </TableHead>
 
-          <TableBody>
-            {drivers.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={9} align="center" sx={{ py: 3 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    No drivers found
-                  </Typography>
+        <TableBody>
+          {drivers.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={9} align="center" sx={{ py: 3, borderColor: alpha(theme.palette.divider, 0.1) }}>
+                  No drivers found
+              </TableCell>
+            </TableRow>
+          ) : (
+            drivers.map((d, index) => (
+              <TableRow key={d.id} hover sx={{ "& td": { borderColor: alpha(theme.palette.divider, 0.1) } }}>
+                <TableCell>
+                  {index + 1 + (meta.page - 1) * meta.limit}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 500 }}>
+                  {d.user.name} {d.user.surname}
+                </TableCell>
+                <TableCell>
+                  <StatusChip status={d.status} />
+                </TableCell>
+                <TableCell>{d.phone}</TableCell>
+                <TableCell>
+                  {d.currentVehicle
+                    ? d.currentVehicle.plate
+                    : "No assigned vehicle"}
+                </TableCell>
+                <TableCell>
+                  {d.homeBaseWarehouse
+                    ? d.homeBaseWarehouse.name
+                    : "Not assigned"}
+                </TableCell>
+                <TableCell>{d.licenseType}</TableCell>
+                <TableCell align="right">{d.safetyScore}</TableCell>
+                <TableCell align="right">
+                  <RowActions
+                    id={d.id}
+                    handleOpenDetails={() => onDriverSelect(d.id)}
+                    handleEdit={() => onEdit(d)}
+                    handleDelete={() => onDelete(d.id)}
+                  />
                 </TableCell>
               </TableRow>
-            ) : (
-              drivers.map((d, index) => (
-                <TableRow key={d.id}>
-                  <TableCell>
-                    {index + 1 + (meta.page - 1) * meta.limit}
-                  </TableCell>
-                  <TableCell>
-                    {d.user.name} {d.user.surname}
-                  </TableCell>
-                  <TableCell>
-                    <StatusChip status={d.status} />
-                  </TableCell>
-                  <TableCell>{d.phone}</TableCell>
-                  <TableCell>
-                    {d.currentVehicle
-                      ? d.currentVehicle.plate
-                      : "No assigned vehicle"}
-                  </TableCell>
-                  <TableCell>
-                    {d.homeBaseWarehouse
-                      ? d.homeBaseWarehouse.name
-                      : "Not assigned"}
-                  </TableCell>
-                  <TableCell>{d.licenseType}</TableCell>
-                  <TableCell align="right">{d.safetyScore}</TableCell>
-                  <TableCell align="right">
-                    <RowActions
-                      id={d.id}
-                      handleOpenDetails={() => onDriverSelect(d.id)}
-                      handleEdit={() => onEdit(d)}
-                      handleDelete={() => onDelete(d.id)}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            ))
+          )}
+        </TableBody>
+      </Table>
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
         component="div"
@@ -179,7 +177,7 @@ const DriverTable = ({
           if (onLimitChange) onLimitChange(newLimit);
         }}
       />
-    </>
+    </TableContainer>
   );
 };
 
