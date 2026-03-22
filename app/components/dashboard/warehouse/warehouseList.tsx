@@ -1,3 +1,4 @@
+"use client";
 import {
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import {
   LinearProgress,
   alpha,
   useTheme,
+  Box,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
@@ -22,6 +24,7 @@ import { useState } from "react";
 import CustomCard from "../../cards/card";
 import { WarehouseTableProps } from "@/app/lib/type/warehouse";
 import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
+import ListIcon from '@mui/icons-material/List';
 
 const WarehouseListTable = ({
   warehouses,
@@ -79,91 +82,42 @@ const WarehouseListTable = ({
   }
 
   return (
-    <CustomCard sx={{ p: 3, borderRadius: "12px", boxShadow: 3 }}>
-      <Typography variant="h6" fontWeight={600} mb={2}>
-        Warehouse List
-      </Typography>
+    <CustomCard sx={{ width: "100%", overflow: "hidden" }}>
+      <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 3 }}>
+        <Box sx={{ 
+          p: 1, 
+          borderRadius: '12px', 
+          bgcolor: alpha(theme.palette.secondary.main, 0.1),
+          color: theme.palette.secondary.main,
+          display: 'flex'
+        }}>
+          <ListIcon fontSize="small" />
+        </Box>
+        <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.02em" }}>
+          Warehouse Fleet
+        </Typography>
+      </Stack>
+
       <TableContainer>
-        <Table>
+        <Table sx={{ minWidth: 1000 }}>
           <TableHead>
             <TableRow>
-              <TableCell
-                sx={{
-                  color: "text.secondary",
-                  fontWeight: 600,
-                  fontSize: "0.75rem",
-                }}
-              >
-                CODE
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "text.secondary",
-                  fontWeight: 600,
-                  fontSize: "0.75rem",
-                }}
-              >
-                NAME
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "text.secondary",
-                  fontWeight: 600,
-                  fontSize: "0.75rem",
-                }}
-              >
-                TYPE
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "text.secondary",
-                  fontWeight: 600,
-                  fontSize: "0.75rem",
-                }}
-              >
-                CITY
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "text.secondary",
-                  fontWeight: 600,
-                  fontSize: "0.75rem",
-                  width: "25%",
-                }}
-              >
-                CAPACITY (PALLETS)
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "text.secondary",
-                  fontWeight: 600,
-                  fontSize: "0.75rem",
-                  width: "25%",
-                }}
-              >
-                CAPACITY (VOLUME)
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "text.secondary",
-                  fontWeight: 600,
-                  fontSize: "0.75rem",
-                  textAlign: "right",
-                }}
-              >
-                OPERATING HOURS
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "text.secondary",
-                  fontWeight: 600,
-                  fontSize: "0.75rem",
-                  textAlign: "right",
-                  width: 60,
-                }}
-              >
-                ACTIONS
-              </TableCell>
+              {["CODE", "NAME", "TYPE / CITY", "CAPACITY (PALLETS)", "CAPACITY (VOLUME)", "OPERATING HOURS", ""].map((head, idx) => (
+                <TableCell
+                  key={idx}
+                  sx={{
+                    color: alpha(theme.palette.text.primary, 0.4),
+                    fontWeight: 800,
+                    fontSize: "0.65rem",
+                    letterSpacing: "0.1em",
+                    borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+                    py: 2,
+                    ...(head === "" && { width: 60 })
+                  }}
+                >
+                  {head}
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -173,11 +127,10 @@ const WarehouseListTable = ({
               const usedVolume = (warehouse._count?.inventory || 0) * 5;
               const totalVolume = warehouse.capacityVolumeM3 || 100000;
 
-              const palletPct = (usedPallets / totalPallets) * 100;
-              const volumePct = (usedVolume / totalVolume) * 100;
+              const palletPct = Math.min((usedPallets / totalPallets) * 100, 100);
+              const volumePct = Math.min((usedVolume / totalVolume) * 100, 100);
 
-              const operatingHours =
-                warehouse.operatingHours || "08:00 - 18:00";
+              const operatingHours = warehouse.operatingHours || "24/7";
 
               return (
                 <TableRow
@@ -186,6 +139,7 @@ const WarehouseListTable = ({
                   onClick={() => onSelect(warehouse.id)}
                   sx={{
                     cursor: "pointer",
+<<<<<<< HEAD
                     "&:last-child td, &:last-child th": { border: 0 },
                   }}
                 >
@@ -208,70 +162,118 @@ const WarehouseListTable = ({
                       }}
                     >
                       {warehouse.type.replace("_", " ")}
+=======
+                    "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.02) },
+                    transition: "background-color 0.2s ease"
+                  }}
+                >
+                  <TableCell sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
+                    <Typography variant="body2" fontWeight={800} color="primary.main">
+                      {warehouse.code}
+>>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
                     </Typography>
                   </TableCell>
-                  <TableCell>{warehouse.city}</TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={2} alignItems="center">
+                  <TableCell sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
+                    <Typography variant="body2" fontWeight={700}>
+                      {warehouse.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.7 }}>
+                      {warehouse.address?.split(',')[0]}
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
+                    <Stack spacing={0.5}>
+                      <Typography variant="caption" sx={{ 
+                        px: 1, 
+                        py: 0.2, 
+                        borderRadius: 1, 
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        color: theme.palette.primary.main,
+                        fontWeight: 800,
+                        fontSize: '0.6rem',
+                        textTransform: 'uppercase',
+                        width: 'fit-content'
+                      }}>
+                        {warehouse.type.replace('_', ' ')}
+                      </Typography>
+                      <Typography variant="body2" fontWeight={600} color="text.secondary">
+                        {warehouse.city}
+                      </Typography>
+                    </Stack>
+                  </TableCell>
+                  <TableCell sx={{ width: "20%", borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
+                    <Stack spacing={1}>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Typography variant="caption" fontWeight={700} color="text.secondary">
+                          {palletPct.toFixed(0)}% Utilized
+                        </Typography>
+                        <Typography variant="caption" sx={{ fontFamily: "monospace", opacity: 0.6 }}>
+                          {usedPallets.toLocaleString()} / {totalPallets.toLocaleString()}
+                        </Typography>
+                      </Stack>
                       <LinearProgress
                         variant="determinate"
                         value={palletPct}
                         sx={{
-                          flex: 1,
                           height: 6,
                           borderRadius: 3,
-                          bgcolor: "rgba(255,255,255,0.05)",
+                          bgcolor: alpha(theme.palette.divider, 0.05),
                           "& .MuiLinearProgress-bar": {
-                            bgcolor: "#3b82f6",
+                            bgcolor: palletPct > 85 ? "error.main" : "primary.main",
                             borderRadius: 3,
+                            boxShadow: `0 0 8px ${alpha(palletPct > 85 ? theme.palette.error.main : theme.palette.primary.main, 0.4)}`,
                           },
                         }}
                       />
-                      <Typography
-                        variant="caption"
-                        sx={{ minWidth: 80, fontFamily: "monospace" }}
-                      >
-                        {usedPallets.toLocaleString()} /{" "}
-                        {totalPallets.toLocaleString()}
-                      </Typography>
                     </Stack>
                   </TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={2} alignItems="center">
+                  <TableCell sx={{ width: "20%", borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
+                    <Stack spacing={1}>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Typography variant="caption" fontWeight={700} color="text.secondary">
+                          {volumePct.toFixed(0)}% Space
+                        </Typography>
+                        <Typography variant="caption" sx={{ fontFamily: "monospace", opacity: 0.6 }}>
+                        {usedVolume.toLocaleString()} / {totalVolume.toLocaleString()} m³
+                        </Typography>
+                      </Stack>
                       <LinearProgress
                         variant="determinate"
                         value={volumePct}
                         sx={{
-                          flex: 1,
                           height: 6,
                           borderRadius: 3,
-                          bgcolor: "rgba(255,255,255,0.05)",
+                          bgcolor: alpha(theme.palette.divider, 0.05),
                           "& .MuiLinearProgress-bar": {
-                            bgcolor: "#10b981",
+                            bgcolor: "success.main",
                             borderRadius: 3,
+                            boxShadow: `0 0 8px ${alpha(theme.palette.success.main, 0.4)}`,
                           },
                         }}
                       />
-                      <Typography
-                        variant="caption"
-                        sx={{ minWidth: 100, fontFamily: "monospace" }}
-                      >
-                        {usedVolume.toLocaleString()}k /{" "}
-                        {totalVolume.toLocaleString()}k m³
-                      </Typography>
                     </Stack>
                   </TableCell>
+<<<<<<< HEAD
                   <TableCell align="right" sx={{ fontFamily: "monospace" }}>
                     {typeof operatingHours === "object" &&
                     operatingHours !== null &&
                     "monFri" in operatingHours
                       ? (operatingHours as { monFri: string }).monFri
                       : operatingHours}
+=======
+                  <TableCell align="right" sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
+                    <Typography variant="body2" fontWeight={600} sx={{ fontFamily: "monospace" }}>
+                      {typeof operatingHours === "object" && operatingHours !== null && "monFri" in operatingHours
+                        ? (operatingHours as { monFri: string }).monFri
+                        : operatingHours}
+                    </Typography>
+>>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right" sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
                     <IconButton
                       size="small"
                       onClick={(e) => handleMenuClick(e, warehouse.id)}
+                      sx={{ color: "text.secondary", "&:hover": { color: "primary.main", bgcolor: alpha(theme.palette.primary.main, 0.1) } }}
                     >
                       <MoreVertIcon fontSize="small" />
                     </IconButton>
@@ -279,13 +281,6 @@ const WarehouseListTable = ({
                 </TableRow>
               );
             })}
-            {warehouses.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 3 }}>
-                  No warehouses found.
-                </TableCell>
-              </TableRow>
-            )}
           </TableBody>
         </Table>
       </TableContainer>
@@ -295,12 +290,32 @@ const WarehouseListTable = ({
         open={Boolean(anchorEl)}
         onClose={() => handleMenuClose()}
         PaperProps={{
-          elevation: 3,
-          sx: { minWidth: 150, borderRadius: 2, mt: 1 },
+          elevation: 0,
+          sx: { 
+            minWidth: 180, 
+            borderRadius: "16px", 
+            mt: 1,
+            bgcolor: alpha(theme.palette.background.paper, 0.9),
+            backdropFilter: 'blur(10px)',
+            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            boxShadow: `0 10px 40px ${alpha("#000", 0.3)}`,
+            '& .MuiMenuItem-root': {
+              borderRadius: '8px',
+              mx: 1,
+              my: 0.5,
+              py: 1,
+              transition: 'all 0.2s',
+              '&:hover': {
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: theme.palette.primary.main,
+              }
+            }
+          },
         }}
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
+<<<<<<< HEAD
         <MenuItem onClick={handleDetailsClick}>
           <VisibilityIcon
             fontSize="small"
@@ -316,8 +331,19 @@ const WarehouseListTable = ({
           <Typography variant="body2">Edit Warehouse</Typography>
         </MenuItem>
         <MenuItem onClick={handleDeleteClick} sx={{ color: "error.main" }}>
+=======
+        <MenuItem onClick={handleEditClick}>
+          <EditIcon fontSize="small" sx={{ mr: 1.5, color: "inherit" }} />
+          <Typography variant="body2" fontWeight={600}>Edit Warehouse</Typography>
+        </MenuItem>
+        <MenuItem onClick={handleDetailsClick}>
+          <VisibilityIcon fontSize="small" sx={{ mr: 1.5, color: "inherit" }} />
+          <Typography variant="body2" fontWeight={600}>View Details</Typography>
+        </MenuItem>
+        <MenuItem onClick={handleDeleteClick} sx={{ color: "error.main", '&:hover': { bgcolor: alpha(theme.palette.error.main, 0.1) + ' !important' } }}>
+>>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
           <DeleteIcon fontSize="small" sx={{ mr: 1.5, color: "inherit" }} />
-          <Typography variant="body2">Delete Warehouse</Typography>
+          <Typography variant="body2" fontWeight={600}>Delete Factory</Typography>
         </MenuItem>
       </Menu>
     </CustomCard>

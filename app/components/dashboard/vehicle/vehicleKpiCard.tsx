@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, useTheme, Box } from "@mui/material";
+import { useTheme, Box } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -11,6 +11,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 
 import { VehicleKpiCardProps } from "@/app/lib/type/vehicle";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
+import { motion } from "framer-motion";
 
 const VehicleKpiCard = ({ state }: VehicleKpiCardProps) => {
   const stats = state.dashboardData?.vehiclesKpis || null;
@@ -41,19 +42,19 @@ const VehicleKpiCard = ({ state }: VehicleKpiCardProps) => {
       label: "Available Vehicle",
       value: values.available ?? 0,
       icon: <CheckCircleIcon />,
-      color: theme.palette.success.main,
+      color: "#10b981", // Emerald
     },
     {
       label: "Vehicle in Service",
       value: values.inService ?? 0,
       icon: <BuildIcon />,
-      color: theme.palette.warning.main,
+      color: "#f59e0b", // Amber
     },
     {
       label: "Vehicles On Trip",
       value: values.onTrip ?? 0,
       icon: <DirectionsCarIcon />,
-      color: theme.palette.info.main,
+      color: "#0ea5e9", // Sky
     },
     {
       label: "Open Issues",
@@ -65,12 +66,47 @@ const VehicleKpiCard = ({ state }: VehicleKpiCardProps) => {
       label: "Docs Due Soon",
       value: values.docsDueSoon ?? 0,
       icon: <DescriptionIcon />,
-      color: theme.palette.secondary.main,
+      color: "#8b5cf6", // Violet
     },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
+<<<<<<< HEAD
     <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
+=======
+    <Box
+      component={motion.div}
+      variants={container}
+      initial="hidden"
+      animate="show"
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "stretch",
+        gap: 3,
+        mt: 3,
+        width: "100%",
+        "& > *": {
+          flex: {
+            xs: "1 1 100%",
+            sm: "1 1 calc(50% - 24px)",
+            md: "1 1 calc(33.33% - 24px)",
+          },
+          display: "flex",
+        }
+      }}
+    >
+>>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       {kpiItems.map((item, index) => (
         <Box
           key={index}

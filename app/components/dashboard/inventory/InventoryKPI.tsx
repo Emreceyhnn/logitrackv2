@@ -1,6 +1,13 @@
 "use client";
 
+<<<<<<< HEAD
 import { Box, Stack, useTheme } from "@mui/material";
+=======
+import {
+  useTheme,
+  Box,
+} from "@mui/material";
+>>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
 import StatCard from "../../cards/StatCard";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import WarningIcon from "@mui/icons-material/Warning";
@@ -9,6 +16,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
+import { motion } from "framer-motion";
 
 interface InventoryKPIProps {
   items: InventoryWithRelations[];
@@ -43,13 +51,15 @@ const InventoryKPI = ({ items, loading = false }: InventoryKPIProps) => {
       label: "LOW STOCK",
       value: lowStockItems.toLocaleString(),
       icon: <WarningIcon fontSize="medium" />,
-      color: theme.palette.warning.main,
+      color: "#f59e0b", // Amber
+      trend: lowStockItems > 0 ? { value: lowStockItems, isUp: true } : undefined
     },
     {
       label: "OUT OF STOCK",
       value: outOfStockItems.toLocaleString(),
       icon: <ErrorIcon fontSize="medium" />,
       color: theme.palette.error.main,
+      trend: outOfStockItems > 0 ? { value: outOfStockItems, isUp: true } : undefined
     },
     {
       label: "TOTAL VALUE",
@@ -59,15 +69,53 @@ const InventoryKPI = ({ items, loading = false }: InventoryKPIProps) => {
         maximumFractionDigits: 0,
       }).format(totalValue),
       icon: <AttachMoneyIcon fontSize="medium" />,
-      color: theme.palette.success.main,
+      color: "#10b981", // Emerald
     },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
+<<<<<<< HEAD
     <Stack direction="row" flexWrap="wrap" gap={2} my={2}>
+=======
+    <Box
+      component={motion.div}
+      variants={container}
+      initial="hidden"
+      animate="show"
+      sx={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        alignItems: "stretch", // Ensure equal height in rows
+        gap: 3,
+        mt: 3,
+        mb: 3,
+        width: "100%",
+        "& > *": {
+          flex: {
+            xs: "1 1 calc(100% - 24px)",
+            sm: "1 1 calc(50% - 24px)",
+            md: "1 1 calc(25% - 24px)",
+          },
+          display: "flex", // Support StatCard stretching
+        }
+      }}
+    >
+>>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       {kpiItems.map((item, index) => (
         <Box
           key={index}
+<<<<<<< HEAD
           sx={{
             width: {
               xs: "100%",
@@ -84,8 +132,16 @@ const InventoryKPI = ({ items, loading = false }: InventoryKPIProps) => {
             color={item.color}
           />
         </Box>
+=======
+          title={item.label}
+          value={item.value}
+          icon={item.icon}
+          color={item.color}
+          trend={item.trend}
+        />
+>>>>>>> b8bcc53a60daca28aadf2363b575744ba82b75bc
       ))}
-    </Stack>
+    </Box>
   );
 };
 

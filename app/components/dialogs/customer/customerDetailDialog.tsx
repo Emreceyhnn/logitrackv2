@@ -15,7 +15,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from "@mui/icons-material/Edit";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
@@ -31,16 +30,15 @@ interface CustomerDetailDialogParams {
   open: boolean;
   onClose: () => void;
   customerId: string | null;
-  onEdit?: (customer: CustomerWithRelations) => void;
-  onDelete?: (customer: CustomerWithRelations) => void;
+
+
 }
 
 const CustomerDetailDialog = ({
   open,
   onClose,
   customerId,
-  onEdit,
-  onDelete,
+
 }: CustomerDetailDialogParams) => {
   /* --------------------------------- states --------------------------------- */
   const theme = useTheme();
@@ -178,35 +176,8 @@ const CustomerDetailDialog = ({
               </Stack>
 
               <Stack direction="row" spacing={1}>
-                <Button
-                  variant="outlined"
-                  startIcon={<EditIcon />}
-                  size="small"
-                  onClick={() => onEdit?.(customer)}
-                  sx={{
-                    textTransform: "none",
-                    borderColor: alpha(theme.palette.divider, 0.1),
-                    color: "text.secondary",
-                    "&:hover": {
-                      borderColor: theme.palette.primary.main,
-                      color: "white",
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                    },
-                  }}
-                >
-                  Edit
-                </Button>
-                {onDelete && (
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    onClick={() => onDelete(customer)}
-                    sx={{ textTransform: "none" }}
-                  >
-                    Delete
-                  </Button>
-                )}
+
+
                 <IconButton
                   onClick={onClose}
                   size="small"
@@ -396,7 +367,7 @@ const CustomerDetailDialog = ({
                         </Typography>
                       )}
                     </Stack>
-                    
+
                     <Stack
                       direction="row"
                       spacing={1.5}
@@ -527,10 +498,10 @@ const CustomerDetailDialog = ({
                     ))}
                     {(!customer.shipments ||
                       customer.shipments.length === 0) && (
-                      <Typography variant="body2" color="text.secondary">
-                        No recent shipments
-                      </Typography>
-                    )}
+                        <Typography variant="body2" color="text.secondary">
+                          No recent shipments
+                        </Typography>
+                      )}
                   </Box>
                 </Box>
               </Box>

@@ -44,6 +44,7 @@ import LogisticsSection from "./sections/LogisticsSection";
 import CargoSection from "./sections/CargoSection";
 import InventorySection from "./sections/InventorySection";
 import RouteSection from "./sections/RouteSection";
+import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 
 const initialBasicInfo: AddShipmentBasicInfo = {
   referenceNumber: "",
@@ -56,6 +57,7 @@ const initialLogistics: AddShipmentLogistics = {
   originWarehouseId: "",
   destination: "",
   customerId: "",
+  customerLocationId: "",
   contactEmail: "",
   billingAccount: "Standard Billing (Net 30)",
 };
@@ -182,7 +184,8 @@ const AddShipmentDialog = ({
         cargo.cargoType,
         logistics.destinationLat,
         logistics.destinationLng,
-        basicInfo.referenceNumber
+        basicInfo.referenceNumber,
+        logistics.customerLocationId
       );
 
       toast.success("Shipment created successfully");
@@ -222,172 +225,173 @@ const AddShipmentDialog = ({
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={closeDialog}
-      maxWidth="lg"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 4,
-          bgcolor: "#0B1019",
-          backgroundImage: "none",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-        },
-      }}
-    >
-      <Box sx={{ p: 3, pb: 0 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ mb: 3 }}
-        >
-          <Stack spacing={0.5}>
-            <Typography variant="h6" fontWeight={700} color="white">
-              {currentStep === 1
-                ? "Create Shipment"
-                : "Cargo & Inventory Details"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Initialize transport record and logistics data
-            </Typography>
-          </Stack>
-          <IconButton onClick={closeDialog} sx={{ color: "text.secondary" }}>
-            <CloseIcon />
-          </IconButton>
-        </Stack>
-
-        <Stepper
-          activeStep={currentStep - 1}
-          sx={{
-            "& .MuiStepLabel-label": {
-              color: alpha("#fff", 0.5),
-              fontWeight: 600,
-            },
-            "& .MuiStepLabel-label.Mui-active": {
-              color: theme.palette.primary.main,
-            },
-            "& .MuiStepLabel-label.Mui-completed": {
-              color: alpha("#fff", 0.7),
-            },
-            "& .MuiStepIcon-root": { color: alpha(theme.palette.divider, 0.1) },
-            "& .MuiStepIcon-root.Mui-active": {
-              color: theme.palette.primary.main,
-            },
-            "& .MuiStepIcon-root.Mui-completed": {
-              color: theme.palette.primary.main,
-            },
-          }}
-        >
-          <Step>
-            <StepLabel>Logistics & Basic Info</StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>Cargo & Inventory</StepLabel>
-          </Step>
-        </Stepper>
-      </Box>
-
-      <DialogContent sx={{ mt: 2, pb: 4, minHeight: 400 }}>
-        {error && (
-          <Box
-            mb={2}
-            p={2}
-            sx={{
-              bgcolor: alpha(theme.palette.error.main, 0.1),
-              borderRadius: 1,
-            }}
-          >
-            <Typography color="error" variant="caption">
-              {error}
-            </Typography>
-          </Box>
-        )}
-        {currentStep === 1 ? (
-          <Stack spacing={6}>
-            <BasicInfoSection
-              state={basicInfo}
-              updateBasicInfo={updateBasicInfo}
-            />
-            <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
-            <LogisticsSection
-              state={logistics}
-              updateLogistics={updateLogistics}
-              warehouses={warehouses}
-              customers={customers}
-            />
-          </Stack>
-        ) : (
-          <Stack spacing={6}>
-            <Grid container spacing={6}>
-              <Grid size={{ xs: 12, lg: 6 }}>
-                <CargoSection state={cargo} updateCargo={updateCargo} />
-              </Grid>
-              <Grid size={{ xs: 12, lg: 6 }}>
-                <RouteSection
-                  state={route}
-                  updateRoute={updateRoute}
-                  routes={routes}
-                />
-              </Grid>
-            </Grid>
-            <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
-            <InventorySection
-              state={inventory}
-              addInventoryItem={addInventoryItem}
-              removeInventoryItem={removeInventoryItem}
-              updateInventory={updateInventory}
-              updateCargo={updateCargo}
-              availableInventory={availableInventory}
-              isLoadingInventory={isLoadingInventory}
-            />
-          </Stack>
-        )}
-      </DialogContent>
-
-      <DialogActions
-        sx={{
-          p: 3,
-          pt: 1,
-          borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
-          justifyContent: "space-between",
+    <GoogleMapsProvider>
+      <Dialog
+        open={open}
+        onClose={closeDialog}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            bgcolor: "#0B1019",
+            backgroundImage: "none",
+            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          },
         }}
       >
-        <Button
-          onClick={currentStep === 1 ? closeDialog : () => setCurrentStep(1)}
-          sx={{ color: "text.secondary", textTransform: "none" }}
-        >
-          {currentStep === 1 ? "Cancel" : "Back"}
-        </Button>
+        <Box sx={{ p: 3, pb: 0 }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            sx={{ mb: 3 }}
+          >
+            <Stack spacing={0.5}>
+              <Typography variant="h6" fontWeight={700} color="white">
+                {currentStep === 1
+                  ? "Create Shipment"
+                  : "Cargo & Inventory Details"}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Initialize transport record and logistics data
+              </Typography>
+            </Stack>
+            <IconButton onClick={closeDialog} sx={{ color: "text.secondary" }}>
+              <CloseIcon />
+            </IconButton>
+          </Stack>
 
-        <Button
-          variant="contained"
-          disabled={
-            isLoading ||
-            (currentStep === 1 &&
-              (!logistics.customerId || !logistics.destination))
-          }
-          onClick={currentStep === 1 ? () => setCurrentStep(2) : handleSubmit}
+          <Stepper
+            activeStep={currentStep - 1}
+            sx={{
+              "& .MuiStepLabel-label": {
+                color: alpha("#fff", 0.5),
+                fontWeight: 600,
+              },
+              "& .MuiStepLabel-label.Mui-active": {
+                color: theme.palette.primary.main,
+              },
+              "& .MuiStepLabel-label.Mui-completed": {
+                color: alpha("#fff", 0.7),
+              },
+              "& .MuiStepIcon-root": { color: alpha(theme.palette.divider, 0.1) },
+              "& .MuiStepIcon-root.Mui-active": {
+                color: theme.palette.primary.main,
+              },
+              "& .MuiStepIcon-root.Mui-completed": {
+                color: theme.palette.primary.main,
+              },
+            }}
+          >
+            <Step>
+              <StepLabel>Logistics & Basic Info</StepLabel>
+            </Step>
+            <Step>
+              <StepLabel>Cargo & Inventory</StepLabel>
+            </Step>
+          </Stepper>
+        </Box>
+
+        <DialogContent sx={{ mt: 2, pb: 4, minHeight: 400 }}>
+          {error && (
+            <Box
+              mb={2}
+              p={2}
+              sx={{
+                bgcolor: alpha(theme.palette.error.main, 0.1),
+                borderRadius: 1,
+              }}
+            >
+              <Typography color="error" variant="caption">
+                {error}
+              </Typography>
+            </Box>
+          )}
+          {currentStep === 1 ? (
+            <Stack spacing={6}>
+              <BasicInfoSection
+                state={basicInfo}
+                updateBasicInfo={updateBasicInfo}
+              />
+              <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
+              <LogisticsSection
+                state={logistics}
+                updateLogistics={updateLogistics}
+                warehouses={warehouses}
+                customers={customers}
+              />
+            </Stack>
+          ) : (
+            <Stack spacing={6}>
+              <Grid container spacing={6}>
+                <Grid size={{ xs: 12, lg: 6 }}>
+                  <CargoSection state={cargo} updateCargo={updateCargo} />
+                </Grid>
+                <Grid size={{ xs: 12, lg: 6 }}>
+                  <RouteSection
+                    state={route}
+                    updateRoute={updateRoute}
+                    routes={routes}
+                  />
+                </Grid>
+              </Grid>
+              <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
+              <InventorySection
+                state={inventory}
+                addInventoryItem={addInventoryItem}
+                removeInventoryItem={removeInventoryItem}
+                updateInventory={updateInventory}
+                updateCargo={updateCargo}
+                availableInventory={availableInventory}
+                isLoadingInventory={isLoadingInventory}
+              />
+            </Stack>
+          )}
+        </DialogContent>
+
+        <DialogActions
           sx={{
-            minWidth: 140,
-            borderRadius: 2,
-            textTransform: "none",
-            fontWeight: 600,
-            boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
+            p: 3,
+            pt: 1,
+            borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+            justifyContent: "space-between",
           }}
-          startIcon={
-            isLoading && <CircularProgress size={16} color="inherit" />
-          }
         >
-          {isLoading
-            ? "Creating..."
-            : currentStep === 1
-              ? "Next Step"
-              : "Create Shipment"}
-        </Button>
-      </DialogActions>
-    </Dialog>
+          <Button
+            onClick={currentStep === 1 ? closeDialog : () => setCurrentStep(1)}
+            sx={{ color: "text.secondary", textTransform: "none" }}
+          >
+            {currentStep === 1 ? "Cancel" : "Back"}
+          </Button>
+
+          <Button
+            variant="contained"
+            disabled={
+              isLoading ||
+              (currentStep === 1 && !logistics.destination)
+            }
+            onClick={currentStep === 1 ? () => setCurrentStep(2) : handleSubmit}
+            sx={{
+              minWidth: 140,
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
+            }}
+            startIcon={
+              isLoading && <CircularProgress size={16} color="inherit" />
+            }
+          >
+            {isLoading
+              ? "Creating..."
+              : currentStep === 1
+                ? "Next Step"
+                : "Create Shipment"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </GoogleMapsProvider>
   );
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, useTheme } from "@mui/material";
+import { Card, useTheme, alpha } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material";
 
 interface CustomCardProps {
@@ -14,12 +14,15 @@ export default function CustomCard({ children, sx }: CustomCardProps) {
   return (
     <Card
       sx={{
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: alpha(theme.palette.background.paper, 0.8),
         backgroundImage: "none",
-        borderRadius: "8px",
-        p: "6px 12px",
+        backdropFilter: "blur(12px)",
+        borderRadius: "20px",
+        p: "20px 24px",
+        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        boxShadow: `0 4px 20px 0 ${alpha("#000", 0.15)}`,
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         ...sx,
-        boxShadow: theme.shadows[4],
       }}
     >
       {children}

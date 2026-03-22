@@ -28,6 +28,7 @@ export interface AddShipmentLogistics {
   destinationLat?: number;
   destinationLng?: number;
   customerId: string;
+  customerLocationId: string;
   contactEmail: string;
   billingAccount: string;
 }
