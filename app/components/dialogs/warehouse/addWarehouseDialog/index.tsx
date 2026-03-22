@@ -107,7 +107,11 @@ const AddWarehouseDialog = ({
           state.data.location.country,
           state.data.location.lat,
           state.data.location.lng,
-          state.data.location.managerId || undefined
+          state.data.location.managerId || undefined,
+          state.data.capacity.capacityPallets,
+          state.data.capacity.capacityVolumeM3,
+          state.data.basicInfo.is247 ? "24/7" : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
+          state.data.capacity.specifications
         );
 
         toast.success("Warehouse created successfully");

@@ -88,7 +88,7 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
                     <TableCell>
                       <StatusChip status={s.status} />
                     </TableCell>
-                    <TableCell>{s.customer.name}</TableCell>
+                    <TableCell>{s.customer?.name || "-"}</TableCell>
                     <TableCell>
                       {new Date(s.createdAt).toLocaleDateString()}
                     </TableCell>

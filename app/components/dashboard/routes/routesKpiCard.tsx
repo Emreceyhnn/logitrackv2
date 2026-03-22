@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, useTheme } from "@mui/material";
+import { Box, Stack, useTheme } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import AltRouteIcon from "@mui/icons-material/AltRoute";
 import LoopIcon from "@mui/icons-material/Loop";
@@ -9,7 +9,13 @@ import WarningIcon from "@mui/icons-material/Warning";
 import { RoutesKpiCardProps } from "@/app/lib/type/routes";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 
-const RoutesKpiCard = ({ stats, loading = false }: { stats: any; loading?: boolean }) => {
+const RoutesKpiCard = ({
+  stats,
+  loading = false,
+}: {
+  stats: any;
+  loading?: boolean;
+}) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
@@ -52,27 +58,20 @@ const RoutesKpiCard = ({ stats, loading = false }: { stats: any; loading?: boole
   ];
 
   return (
-    <Stack
-      direction={"row"}
-      flexWrap="wrap"
-      gap={2}
-      mt={2}
-      justifyContent={"center"}
-    >
+    <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
       {kpiItems.map((item, index) => (
-        <Stack
+        <Box
           key={index}
-          flexBasis={{ xs: "100%", sm: "48%", md: "23%" }}
-          flexGrow={1}
+          sx={{ width: { xs: "100%", sm: "calc(50% - 8px)", md: "calc(25% - 12px)" } }}
         >
           <StatCard
-            key={index}
             title={item.label}
             value={item.value}
             icon={item.icon}
             color={item.color}
+            sx={{ height: "100%" }}
           />
-        </Stack>
+        </Box>
       ))}
     </Stack>
   );

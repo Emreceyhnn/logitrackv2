@@ -18,7 +18,6 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { useRouter } from "next/navigation";
 import { clearAuthCookies } from "@/app/lib/controllers/session";
 
-
 const SideBar = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
@@ -49,7 +48,7 @@ const SideBar = () => {
           sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
         />
       ),
-      subTitles: ["Vehicles", "Drivers", "Routes", "Shipments", "Fuel"],
+      subTitles: ["Vehicles", "Drivers", "Routes", "Shipments"],
     },
     {
       title: "Management",

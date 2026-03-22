@@ -16,7 +16,11 @@ export const createWarehouse = authenticatedAction(
     country: string,
     lat?: number,
     lng?: number,
-    managerId?: string
+    managerId?: string,
+    capacityPallets?: number,
+    capacityVolumeM3?: number,
+    operatingHours?: string,
+    specifications?: string[]
   ) => {
     try {
       const companyId = user.companyId;
@@ -46,6 +50,10 @@ export const createWarehouse = authenticatedAction(
           lng,
           companyId: companyId,
           managerId,
+          capacityPallets: capacityPallets || 5000,
+          capacityVolumeM3: capacityVolumeM3 || 100000,
+          operatingHours: operatingHours || "08:00 - 18:00",
+          specifications: specifications || [],
         },
       });
 
@@ -132,7 +140,7 @@ export const getWarehouseById = authenticatedAction(
 );
 
 export const updateWarehouse = authenticatedAction(
-  async (user, warehouseId: string, data: Prisma.WarehouseUpdateInput) => {
+  async (user, warehouseId: string, data: any) => {
     try {
       await checkPermission(user.id, user.companyId, [
         "role_admin",
@@ -141,7 +149,7 @@ export const updateWarehouse = authenticatedAction(
 
       const existingWarehouse = await db.warehouse.findUnique({
         where: { id: warehouseId },
-        select: { companyId: true },
+        select: { companyId: true, managerId: true },
       });
 
       if (
@@ -151,9 +159,22 @@ export const updateWarehouse = authenticatedAction(
         throw new Error("Warehouse not found or unauthorized");
       }
 
-      const updateData = { ...data };
+      const { managerId, ...restData } = data;
+      const updateData: any = { ...restData };
+      
       if (updateData.code === "") {
         updateData.code = `WH-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      }
+
+      if (managerId !== undefined) {
+        if (managerId === null) {
+          // Only disconnect if it was actually connected
+          if (existingWarehouse.managerId) {
+            updateData.manager = { disconnect: true };
+          }
+        } else {
+          updateData.manager = { connect: { id: managerId } };
+        }
       }
 
       const updatedWarehouse = await db.warehouse.update({
@@ -241,7 +262,9 @@ export const addInventoryItem = authenticatedAction(
     weightKg: number = 0,
     volumeM3: number = 0,
     palletCount: number = 0,
-    cargoType: string = "General Cargo"
+    cargoType: string = "General Cargo",
+    imageUrl?: string,
+    unitValue: number = 0
   ) => {
     try {
       await checkPermission(user.id, user.companyId, [
@@ -290,6 +313,8 @@ export const addInventoryItem = authenticatedAction(
           palletCount,
           cargoType,
           companyId: user.companyId!,
+          imageUrl,
+          unitValue,
         },
       });
 

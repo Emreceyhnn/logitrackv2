@@ -132,9 +132,9 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
             <FormControlLabel
               control={
                 <Switch
-                  defaultChecked
-                  onClick={() =>
-                    actions.updateBasicInfo({ is247: !state.is247 })
+                  checked={state.is247}
+                  onChange={(e) =>
+                    actions.updateBasicInfo({ is247: e.target.checked })
                   }
                   size="small"
                 />
@@ -152,7 +152,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
             />
           </Stack>
 
-          {state.is247 && (
+          {!state.is247 && (
             <Grid container spacing={3}>
               <Grid size={{ xs: 12, md: 6 }}>
                 <Stack spacing={1}>

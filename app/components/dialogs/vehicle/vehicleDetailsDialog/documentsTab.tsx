@@ -32,10 +32,7 @@ import UploadDocumentDialog from "../uploadDocumentDialog";
 import DocumentViewerDialog from "../../shared/DocumentViewerDialog";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
-import {
-  Dialog as ConfirmDialog,
-  DialogContent as ConfirmDialogContent,
-} from "@mui/material";
+import DeleteConfirmationDialog from "../../deleteConfirmationDialog";
 
 interface DocumentsTabProps {
   vehicle?: VehicleWithRelations;
@@ -479,96 +476,14 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
       </Stack>
 
       {/* Delete Confirmation Dialog */}
-      <ConfirmDialog
+      <DeleteConfirmationDialog
         open={deleteConfirmOpen}
         onClose={() => !isDeletingDoc && setDeleteConfirmOpen(false)}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 4,
-            bgcolor: "#0B1019",
-            backgroundImage: "none",
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-          },
-        }}
-      >
-        <Box sx={{ p: 3, pb: 2 }}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Box
-              sx={{
-                bgcolor: alpha(theme.palette.error.main, 0.1),
-                color: theme.palette.error.main,
-                p: 1.25,
-                borderRadius: 2,
-                display: "flex",
-              }}
-            >
-              <WarningIcon />
-            </Box>
-            <Box>
-              <Typography variant="h6" fontWeight={700} color="white">
-                Delete Document?
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}
-              >
-                This action cannot be undone.
-              </Typography>
-            </Box>
-          </Stack>
-        </Box>
-
-        <ConfirmDialogContent sx={{ p: 3, pt: 1 }}>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ lineHeight: 1.6 }}
-          >
-            Are you sure you want to delete <strong>{docToDelete?.name}</strong>?
-            The file and its metadata will be permanently removed.
-          </Typography>
-        </ConfirmDialogContent>
-
-        <Box
-          sx={{
-            p: 3,
-            pt: 2,
-            borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
-          }}
-        >
-          <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button
-              onClick={() => setDeleteConfirmOpen(false)}
-              disabled={isDeletingDoc}
-              sx={{
-                color: "text.secondary",
-                textTransform: "none",
-                fontWeight: 600,
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              onClick={handleConfirmDelete}
-              disabled={isDeletingDoc}
-              sx={{
-                textTransform: "none",
-                borderRadius: 2,
-                px: 3,
-                boxShadow: `0 8px 24px ${alpha(theme.palette.error.main, 0.2)}`,
-                fontWeight: 700,
-                minWidth: 100,
-              }}
-            >
-              {isDeletingDoc ? "Deleting..." : "Delete"}
-            </Button>
-          </Stack>
-        </Box>
-      </ConfirmDialog>
+        onConfirm={handleConfirmDelete}
+        title="Delete Document?"
+        description={`Are you sure you want to delete ${docToDelete?.name}? The file and its metadata will be permanently removed.`}
+        loading={isDeletingDoc}
+      />
 
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}

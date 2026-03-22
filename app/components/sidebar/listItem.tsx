@@ -46,7 +46,6 @@ export function SidebarList(params: Params) {
       Drivers: "/drivers",
       Routes: "/routes",
       Shipments: "/shipments",
-      Fuel: "/fuel",
       Management: "/management",
       Warehouses: "/warehouses",
       Inventory: "/inventory",
@@ -80,7 +79,8 @@ export function SidebarList(params: Params) {
       {items.map((item) => {
         const hasChildren = Boolean(item.subTitles?.length);
         const isOpen = openKey === item.title;
-        const activeItem = isActive(item.title) || item.subTitles?.some(sub => isActive(sub));
+        const activeItem =
+          isActive(item.title) || item.subTitles?.some((sub) => isActive(sub));
 
         return (
           <div key={item.title} style={{ width: "100%" }}>
@@ -93,18 +93,26 @@ export function SidebarList(params: Params) {
               sx={{
                 px: 3,
                 py: 1,
-                bgcolor: activeItem ? alpha(theme.palette.primary.main, 0.08) : "transparent",
-                color: activeItem ? theme.palette.primary.main : "text.secondary",
+                bgcolor: activeItem
+                  ? alpha(theme.palette.primary.main, 0.08)
+                  : "transparent",
+                color: activeItem
+                  ? theme.palette.primary.main
+                  : "text.secondary",
                 "&:hover": {
                   bgcolor: alpha(theme.palette.primary.main, 0.04),
                 },
-                borderRight: activeItem ? `3px solid ${theme.palette.primary.main}` : "none",
+                borderRight: activeItem
+                  ? `3px solid ${theme.palette.primary.main}`
+                  : "none",
               }}
             >
-              <ListItemIcon sx={{
-                minWidth: 32,
-                color: activeItem ? theme.palette.primary.main : "inherit"
-              }}>
+              <ListItemIcon
+                sx={{
+                  minWidth: 32,
+                  color: activeItem ? theme.palette.primary.main : "inherit",
+                }}
+              >
                 {item.icon}
               </ListItemIcon>
 
@@ -112,7 +120,7 @@ export function SidebarList(params: Params) {
                 primary={item.title}
                 primaryTypographyProps={{
                   fontWeight: activeItem ? 700 : 500,
-                  fontSize: 14
+                  fontSize: 14,
                 }}
               />
 
@@ -139,18 +147,22 @@ export function SidebarList(params: Params) {
                         sx={{
                           pl: 7,
                           py: 0.75,
-                          color: subActive ? theme.palette.primary.main : "text.secondary",
-                          bgcolor: subActive ? alpha(theme.palette.primary.main, 0.05) : "transparent",
+                          color: subActive
+                            ? theme.palette.primary.main
+                            : "text.secondary",
+                          bgcolor: subActive
+                            ? alpha(theme.palette.primary.main, 0.05)
+                            : "transparent",
                           "&:hover": {
                             color: theme.palette.primary.main,
-                          }
+                          },
                         }}
                       >
                         <ListItemText
                           primary={sub}
                           primaryTypographyProps={{
                             fontSize: 13,
-                            fontWeight: subActive ? 700 : 500
+                            fontWeight: subActive ? 700 : 500,
                           }}
                         />
                       </ListItemButton>

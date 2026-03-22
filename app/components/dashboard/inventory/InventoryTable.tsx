@@ -9,7 +9,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Checkbox,
   IconButton,
   Typography,
   Avatar,
@@ -55,19 +54,22 @@ const InventoryTable = ({
   onDelete,
 }: InventoryTableProps) => {
   /* --------------------------------- states --------------------------------- */
-  const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const theme = useTheme();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedItem, setSelectedItem] = useState<InventoryWithRelations | null>(null);
+  const [selectedItem, setSelectedItem] =
+    useState<InventoryWithRelations | null>(null);
 
   if (loading) {
     return <TableSkeleton title="Inventory List" rows={5} columns={8} />;
   }
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, item: InventoryWithRelations) => {
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    item: InventoryWithRelations
+  ) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
     setSelectedItem(item);
@@ -86,32 +88,6 @@ const InventoryTable = ({
     handleMenuClose();
   };
 
-  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      const newSelected = items.map((n) => n.id);
-      setSelected(newSelected);
-      return;
-    }
-    setSelected([]);
-  };
-  const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
-    const selectedIndex = selected.indexOf(id);
-    let newSelected: string[] = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -121,13 +97,6 @@ const InventoryTable = ({
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-  /* -------------------------------- variables ------------------------------- */
-  const isSelected = (id: string) => selected.indexOf(id) !== -1;
-  const visibleRows = items.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
 
   /* -------------------------------- function -------------------------------- */
   const getStockColor = (status: string) => {
@@ -153,48 +122,37 @@ const InventoryTable = ({
         mb: 2,
         borderRadius: "12px",
         overflow: "hidden",
-        border: "1px solid",
-        borderColor: "divider",
+        bgcolor: "transparent",
+        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
         boxShadow: 0,
       }}
     >
       <TableContainer>
         <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
-          <TableHead sx={{ bgcolor: "background.default" }}>
+          <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
             <TableRow>
-              <TableCell padding="checkbox">
-                <Checkbox
-                  color="primary"
-                  indeterminate={
-                    selected.length > 0 && selected.length < items.length
-                  }
-                  checked={items.length > 0 && selected.length === items.length}
-                  onChange={handleSelectAllClick}
-                />
-              </TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Product Name</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>SKU</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Category</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Stock Level</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Unit Price</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Warehouses</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 600 }}>
+              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>Product Name</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>SKU</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>Category</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>Stock Level</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>Unit Price</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>Warehouses</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>
                 Actions
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {visibleRows.length === 0 ? (
+            {items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                <TableCell colSpan={8} align="center" sx={{ py: 4, borderColor: alpha(theme.palette.divider, 0.1) }}>
                   <Typography variant="body2" color="text.secondary">
                     No inventory items found
                   </Typography>
                 </TableCell>
               </TableRow>
             ) : (
-              visibleRows.map((row, index) => {
-                const isItemSelected = isSelected(row.id);
+              items.map((row, index) => {
                 const labelId = `enhanced-table-checkbox-${index}`;
                 const status = getStatus(row.quantity, row.minStock);
                 const category = "General";
@@ -203,27 +161,23 @@ const InventoryTable = ({
                 return (
                   <TableRow
                     hover
-                    onClick={(event) => handleClick(event, row.id)}
                     role="checkbox"
-                    aria-checked={isItemSelected}
                     tabIndex={-1}
                     key={row.id}
-                    selected={isItemSelected}
-                    sx={{ cursor: "pointer" }}
+                    sx={{
+                      cursor: "pointer",
+                      transition: "all 0.2s ease-in-out",
+                      "& td": { borderColor: alpha(theme.palette.divider, 0.1) },
+                      "&:hover": { 
+                        bgcolor: alpha(theme.palette.primary.main, 0.04),
+                      }
+                    }}
                   >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                          "aria-labelledby": labelId,
-                        }}
-                      />
-                    </TableCell>
                     <TableCell component="th" id={labelId} scope="row">
                       <Stack direction="row" spacing={2} alignItems="center">
                         <Avatar
                           variant="rounded"
+                          src={row.imageUrl || undefined}
                           sx={{
                             bgcolor: "primary.light",
                             color: "primary.main",
@@ -231,9 +185,12 @@ const InventoryTable = ({
                             height: 40,
                             fontSize: "1rem",
                             fontWeight: 600,
+                            "& img": {
+                              objectFit: "cover",
+                            },
                           }}
                         >
-                          {row.name.charAt(0)}
+                          {!row.imageUrl && row.name.charAt(0)}
                         </Avatar>
                         <Typography variant="body2" fontWeight={600}>
                           {row.name}
@@ -299,27 +256,36 @@ const InventoryTable = ({
         onClose={() => handleMenuClose()}
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        PaperProps={{
-          sx: {
-            minWidth: 150,
-            borderRadius: 2,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-            bgcolor: "#0B0F19",
-          },
-        }}
       >
         <MenuItem onClick={() => handleAction("details")}>
-          <ListItemIcon><InfoIcon fontSize="small" color="info" /></ListItemIcon>
-          <ListItemText primary="Details" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
+          <ListItemIcon>
+            <InfoIcon fontSize="small" color="info" />
+          </ListItemIcon>
+          <ListItemText
+            primary="Details"
+            primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
+          />
         </MenuItem>
         <MenuItem onClick={() => handleAction("edit")}>
-          <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
-          <ListItemText primary="Edit" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
+          <ListItemIcon>
+            <EditIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText
+            primary="Edit"
+            primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
+          />
         </MenuItem>
-        <MenuItem onClick={() => handleAction("delete")} sx={{ color: "error.main" }}>
-          <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
-          <ListItemText primary="Delete" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
+        <MenuItem
+          onClick={() => handleAction("delete")}
+          sx={{ color: "error.main" }}
+        >
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" color="error" />
+          </ListItemIcon>
+          <ListItemText
+            primary="Delete"
+            primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
+          />
         </MenuItem>
       </Menu>
       <TablePagination

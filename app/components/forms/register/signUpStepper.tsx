@@ -9,7 +9,7 @@ import Step1PersonalInfo from "./step1PersonalInfo";
 import Step2Security from "./step2Security";
 import Step3Profile from "./step3Profile";
 import { RegisterUser } from "@/app/lib/controllers/users";
-import CircularIndeterminate from "../../loading";
+import AuthButton from "../../ui/AuthButton";
 
 /* --------------------------------- STYLES --------------------------------- */
 
@@ -230,24 +230,20 @@ export default function SignUpStepper() {
                 </Button>
               )}
               
-              <Button
-                fullWidth
+              <AuthButton
                 type="submit"
-                variant="contained"
-                disabled={loading}
+                loading={loading}
+                loadingText={isLastStep ? "Registering..." : "Continuing..."}
                 sx={{
                   bgcolor: "#38bdf8",
                   color: "#000",
-                  fontWeight: 600,
-                  borderRadius: "12px",
-                  py: 1.5,
                   "&:hover": {
                     bgcolor: "#0ea5e9",
                   }
                 }}
               >
-                {loading ? <CircularIndeterminate /> : (isLastStep ? "Complete Registration" : "Continue")}
-              </Button>
+                {isLastStep ? "Complete Registration" : "Continue"}
+              </AuthButton>
             </Stack>
           </Form>
         )}

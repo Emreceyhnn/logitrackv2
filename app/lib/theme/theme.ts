@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme, alpha } from "@mui/material/styles";
 import type {} from "@mui/x-date-pickers/themeAugmentation";
 import { palettes } from "./palette";
 import { getScrollbarStyles } from "@/app/components/scrollbar";
@@ -54,7 +54,7 @@ export const getTheme = (mode: ThemeMode) =>
         },
       },
       // Date Picker Premium Styling
-      MuiPickersPopper: {
+      MuiPickerPopper: {
         styleOverrides: {
           paper: {
             backgroundColor: "#0B1019",
@@ -129,6 +129,45 @@ export const getTheme = (mode: ThemeMode) =>
               "&.Mui-focused fieldset": {
                 borderColor: palettes[mode].primary.main,
               },
+            },
+          },
+        },
+      },
+      // Global Premium Menu Styling
+      MuiMenu: {
+        styleOverrides: {
+          paper: {
+            minWidth: 160,
+            borderRadius: "12px",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+            border: `1px solid ${alpha("#ffffff", 0.1)}`,
+            backgroundColor: alpha("#0B0F19", 0.8),
+            backdropFilter: "blur(12px)",
+            marginTop: "8px",
+          },
+          list: {
+            padding: "8px",
+          },
+        },
+      },
+      MuiMenuItem: {
+        styleOverrides: {
+          root: {
+            borderRadius: "8px",
+            marginBottom: "4px",
+            padding: "8px 12px",
+            transition: "all 0.2s",
+            "&:hover": {
+              backgroundColor: palettes[mode].primary.main ? alpha(palettes[mode].primary.main, 0.1) : alpha("#ffffff", 0.05),
+            },
+            "&.Mui-selected": {
+              backgroundColor: palettes[mode].primary.main ? alpha(palettes[mode].primary.main, 0.15) : alpha("#ffffff", 0.1),
+              "&:hover": {
+                backgroundColor: palettes[mode].primary.main ? alpha(palettes[mode].primary.main, 0.2) : alpha("#ffffff", 0.15),
+              },
+            },
+            "&:last-child": {
+              marginBottom: 0,
             },
           },
         },

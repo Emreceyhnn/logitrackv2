@@ -1,11 +1,14 @@
 "use client";
-import { useTheme, Box } from "@mui/material";
+import { useTheme, Box, Stack } from "@mui/material";
 import { WarehouseKpiCardProps } from "@/app/lib/type/warehouse";
 import { Warehouse, Inventory } from "@mui/icons-material";
 import StatCard from "../../cards/StatCard";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 
-const WarehouseKpiCard = ({ stats, loading = false }: WarehouseKpiCardProps) => {
+const WarehouseKpiCard = ({
+  stats,
+  loading = false,
+}: WarehouseKpiCardProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
@@ -43,22 +46,28 @@ const WarehouseKpiCard = ({ stats, loading = false }: WarehouseKpiCardProps) => 
   ];
 
   return (
-    <Box
-      display="grid"
-      gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-      gap={2}
-      mt={2}
-    >
+    <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
       {kpiItems.map((item, index) => (
-        <StatCard
+        <Box
           key={index}
-          title={item.label}
-          value={item.value}
-          icon={item.icon}
-          color={item.color}
-        />
+          sx={{
+            width: {
+              xs: "100%",
+              sm: "calc(50% - 8px)",
+              md: "calc(25% - 12px)",
+            },
+          }}
+        >
+          <StatCard
+            title={item.label}
+            value={item.value}
+            icon={item.icon}
+            color={item.color}
+            sx={{ height: "100%" }}
+          />
+        </Box>
       ))}
-    </Box>
+    </Stack>
   );
 };
 

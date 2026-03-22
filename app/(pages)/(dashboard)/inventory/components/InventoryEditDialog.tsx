@@ -3,9 +3,7 @@
 import React, { useEffect } from "react";
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
   Button,
   Grid,
   TextField,
@@ -17,12 +15,9 @@ import {
   alpha,
   useTheme,
   Divider,
-  Avatar,
-  Paper,
 } from "@mui/material";
 import {
   Close as CloseIcon,
-  Save as SaveIcon,
   Warning as WarningIcon,
   Edit as EditIcon,
   Inventory as InventoryIcon,
@@ -32,9 +27,13 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { InventoryEditProps } from "@/app/lib/type/inventory";
+import { uploadImageAction } from "@/app/lib/actions/upload";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const schema = yup.object({
   sku: yup.string().optional(),
+  imageUrl: yup.string().optional().nullable(),
   quantity: yup.number().typeError("Quantity must be a number").required("Quantity is required").min(0, "Cannot be negative"),
   minStock: yup.number().typeError("Min stock must be a number").required("Min Stock is required").min(0, "Cannot be negative"),
   weightKg: yup.number().nullable().transform((v) => (v === "" || isNaN(v) ? null : v)),
@@ -44,6 +43,7 @@ const schema = yup.object({
 
 type FormData = {
   sku?: string;
+  imageUrl?: string | null;
   quantity: number;
   minStock: number;
   weightKg: number | null;
@@ -67,6 +67,7 @@ export default function InventoryEditDialog({
     resolver: yupResolver(schema) as any,
     defaultValues: {
       sku: "",
+      imageUrl: "",
       quantity: 0,
       minStock: 0,
       weightKg: 0,
@@ -79,6 +80,7 @@ export default function InventoryEditDialog({
     if (item && isOpen) {
       reset({
         sku: item.sku || "",
+        imageUrl: item.imageUrl || "",
         quantity: item.quantity,
         minStock: item.minStock,
         weightKg: item.weightKg ?? 0,
@@ -91,7 +93,18 @@ export default function InventoryEditDialog({
   const onSubmit = async (data: FormData) => {
     if (!item) return;
     try {
-      await onUpdate(item.id, data);
+      let finalImageUrl = data.imageUrl || "";
+
+      // If it's a new base64 image, upload it
+      if (finalImageUrl.startsWith("data:")) {
+        const uploadResult = await uploadImageAction(finalImageUrl, "general");
+        finalImageUrl = uploadResult.url;
+      }
+
+      await onUpdate(item.id, {
+        ...data,
+        imageUrl: finalImageUrl,
+      } as any);
       onClose();
     } catch (error) {
       console.error("Failed to update inventory", error);
@@ -177,6 +190,105 @@ export default function InventoryEditDialog({
               </Stack>
               
               <Grid container spacing={3}>
+                <Grid size={{ xs: 12 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ display: "block", mb: 1.5 }}>
+                    PRODUCT IMAGE
+                  </Typography>
+                  <Controller
+                    name="imageUrl"
+                    control={control}
+                    render={({ field }) => (
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: 140,
+                          borderRadius: 3,
+                          border: `2px dashed ${alpha(theme.palette.divider, 0.1)}`,
+                          bgcolor: alpha(theme.palette.background.paper, 0.05),
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          position: "relative",
+                          transition: "all 0.2s ease",
+                          overflow: "hidden",
+                          mb: 3,
+                          "&:hover": {
+                            borderColor: theme.palette.primary.main,
+                            bgcolor: alpha(theme.palette.primary.main, 0.02),
+                          },
+                        }}
+                      >
+                        {field.value ? (
+                          <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
+                            <Box
+                              component="img"
+                              src={field.value}
+                              sx={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                p: 1,
+                              }}
+                            />
+                            <IconButton
+                              size="small"
+                              onClick={() => field.onChange("")}
+                              sx={{
+                                position: "absolute",
+                                top: 8,
+                                right: 8,
+                                bgcolor: alpha(theme.palette.error.main, 0.8),
+                                color: "white",
+                                "&:hover": { bgcolor: theme.palette.error.main },
+                              }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        ) : (
+                          <>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              hidden
+                              id="edit-product-image-upload"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onload = (event) => {
+                                    field.onChange(event.target?.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                            <label
+                              htmlFor="edit-product-image-upload"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                cursor: "pointer",
+                              }}
+                            >
+                              <AddPhotoAlternateIcon
+                                sx={{ fontSize: 32, color: alpha("#fff", 0.2), mb: 1 }}
+                              />
+                              <Typography variant="caption" color="text.secondary">
+                                Click to change image
+                              </Typography>
+                            </label>
+                          </>
+                        )}
+                      </Box>
+                    )}
+                  />
+                </Grid>
                 <Grid size={{ xs: 12 }}>
                   <Controller
                     name="sku"

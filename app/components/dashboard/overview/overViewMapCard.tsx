@@ -10,10 +10,18 @@ interface OverviewMapCardProps {
 const OverviewMapCard = ({ values }: OverviewMapCardProps) => {
   if (!values) return null;
 
-  const markers = values.map((v) => ({
-    position: v.position,
-    label: v.name,
-  }));
+  const markers = values.map((v) => {
+    let markerType: "warehouse" | "vehicle" | "customer" | "default" = "default";
+    if (v.type === "W") markerType = "warehouse";
+    else if (v.type === "V") markerType = "vehicle";
+    else if (v.type === "C") markerType = "customer";
+
+    return {
+      position: v.position,
+      label: v.name,
+      type: markerType,
+    };
+  });
 
   return (
     <CustomCard sx={{ flexGrow: 10, p: 2 }}>

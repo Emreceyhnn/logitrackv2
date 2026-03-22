@@ -18,6 +18,7 @@ const MapVehicleOverviewCard = ({
         {
           position: location,
           label: name,
+          type: "vehicle" as const,
         },
       ]
     : [];

@@ -8,7 +8,6 @@ import {
   Stack,
   Typography,
   Chip,
-  Divider,
   Table,
   TableHead,
   TableRow,
@@ -47,10 +46,10 @@ const InventoryDetailDialog = ({
 
   // Derive display values from real data
   const onHand = item.quantity;
-  const unitPrice = 0; // Not in schema yet
+  const unitPrice = (item as any).unitValue || 0;
   const category = "General"; // Not in schema yet
 
-  const stockDistribution = [] as any[];
+  const stockDistribution: Array<{ warehouseName: string; available: number; onHand: number; reserved: number }> = [];
   // TODO: Fetch real stock distribution from server action
 
   /* -------------------------------- functions ------------------------------- */
@@ -94,6 +93,7 @@ const InventoryDetailDialog = ({
           <Stack direction="row" spacing={2.5} alignItems="center">
             <Avatar
               variant="rounded"
+              src={item.imageUrl || undefined}
               sx={{
                 bgcolor: alpha(theme.palette.primary.main, 0.1),
                 color: theme.palette.primary.main,
@@ -102,9 +102,12 @@ const InventoryDetailDialog = ({
                 fontSize: "1.75rem",
                 fontWeight: 700,
                 borderRadius: 2,
+                "& img": {
+                  objectFit: "cover",
+                },
               }}
             >
-              {item.name.charAt(0)}
+              {!item.imageUrl && item.name.charAt(0)}
             </Avatar>
             <Stack spacing={0.5}>
               <Stack direction="row" spacing={1} alignItems="center">
@@ -124,7 +127,7 @@ const InventoryDetailDialog = ({
                   color={
                     getStatusColor(
                       getStatus(item.quantity, item.minStock)
-                    ) as any
+                    ) as "success" | "warning" | "error"
                   }
                   sx={{ fontWeight: 600, height: 24, borderRadius: 1 }}
                 />
@@ -310,10 +313,7 @@ const InventoryDetailDialog = ({
                       UNIT PRICE
                     </Typography>
                     <Typography variant="body1" fontWeight={700}>
-                      {new Intl.NumberFormat("en-TR", {
-                        style: "currency",
-                        currency: "TRY",
-                      }).format(unitPrice)}
+                      {unitPrice.toLocaleString()}
                     </Typography>
                   </Box>
                 </Stack>

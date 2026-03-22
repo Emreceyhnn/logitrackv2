@@ -28,8 +28,8 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
 
-import { deleteVehicle } from "@/app/lib/controllers/vehicle";
 import { getStatusMeta } from "@/app/lib/priorityColor";
+import DeleteConfirmationDialog from "../../deleteConfirmationDialog";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -279,83 +279,14 @@ const VehicleDialog = (params: VehicleDialogParams) => {
         </Box>
       </DialogContent>
 
-      <Dialog
+      <DeleteConfirmationDialog
         open={deleteConfirmOpen}
         onClose={handleDeleteCancel}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 4,
-            bgcolor: "#0B1019",
-            backgroundImage: "none",
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-          },
-        }}
-      >
-        <Box sx={{ p: 3, pb: 2 }}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Box
-              sx={{
-                bgcolor: alpha(theme.palette.error.main, 0.1),
-                color: theme.palette.error.main,
-                p: 1.25,
-                borderRadius: 2,
-                display: "flex",
-              }}
-            >
-              <WarningIcon />
-            </Box>
-            <Box>
-              <Typography variant="h6" fontWeight={700} color="white">
-                Delete Vehicle?
-              </Typography>
-              <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
-                This action is permanent and cannot be undone.
-              </Typography>
-            </Box>
-          </Stack>
-        </Box>
-
-        <DialogContent sx={{ p: 3, pt: 1 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
-            Are you sure you want to delete <strong>{vehicleData?.plate}</strong>? 
-            This will permanently remove all associated telemetry, documents, and maintenance records from the system.
-          </Typography>
-        </DialogContent>
-
-        <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
-          <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button
-              onClick={handleDeleteCancel}
-              disabled={isDeleting}
-              sx={{
-                color: "text.secondary",
-                textTransform: "none",
-                fontWeight: 600,
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              onClick={handleDeleteConfirm}
-              disabled={isDeleting}
-              sx={{
-                textTransform: "none",
-                borderRadius: 2,
-                px: 3,
-                boxShadow: `0 8px 24px ${alpha(theme.palette.error.main, 0.2)}`,
-                fontWeight: 700,
-                minWidth: 100,
-              }}
-            >
-              {isDeleting ? "Deleting..." : "Confirm Delete"}
-            </Button>
-          </Stack>
-        </Box>
-      </Dialog>
+        onConfirm={handleDeleteConfirm}
+        title="Delete Vehicle?"
+        description={`Are you sure you want to delete ${vehicleData?.plate}? This will permanently remove all associated telemetry, documents, and maintenance records from the system.`}
+        loading={isDeleting}
+      />
     </Dialog>
   );
 };

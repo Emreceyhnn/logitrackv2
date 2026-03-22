@@ -20,9 +20,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useState } from "react";
 import CustomCard from "../../cards/card";
-import {
-  WarehouseTableProps,
-} from "@/app/lib/type/warehouse";
+import { WarehouseTableProps } from "@/app/lib/type/warehouse";
 import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 const WarehouseListTable = ({
@@ -37,7 +35,10 @@ const WarehouseListTable = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [menuRowId, setMenuRowId] = useState<string | null>(null);
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, id: string) => {
+  const handleMenuClick = (
+    event: React.MouseEvent<HTMLElement>,
+    id: string
+  ) => {
     event.stopPropagation();
     setAnchorEl(event.currentTarget);
     setMenuRowId(id);
@@ -183,9 +184,9 @@ const WarehouseListTable = ({
                   key={warehouse.id}
                   hover
                   onClick={() => onSelect(warehouse.id)}
-                  sx={{ 
+                  sx={{
                     cursor: "pointer",
-                    "&:last-child td, &:last-child th": { border: 0 } 
+                    "&:last-child td, &:last-child th": { border: 0 },
                   }}
                 >
                   <TableCell sx={{ fontWeight: 600 }}>
@@ -193,17 +194,20 @@ const WarehouseListTable = ({
                   </TableCell>
                   <TableCell>{warehouse.name}</TableCell>
                   <TableCell>
-                    <Typography variant="caption" sx={{ 
-                      px: 1, 
-                      py: 0.5, 
-                      borderRadius: 1, 
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                      color: theme.palette.primary.main,
-                      fontWeight: 700,
-                      fontSize: '0.65rem',
-                      textTransform: 'uppercase'
-                    }}>
-                      {warehouse.type.replace('_', ' ')}
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 1,
+                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        color: theme.palette.primary.main,
+                        fontWeight: 700,
+                        fontSize: "0.65rem",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {warehouse.type.replace("_", " ")}
                     </Typography>
                   </TableCell>
                   <TableCell>{warehouse.city}</TableCell>
@@ -258,7 +262,9 @@ const WarehouseListTable = ({
                     </Stack>
                   </TableCell>
                   <TableCell align="right" sx={{ fontFamily: "monospace" }}>
-                    {typeof operatingHours === "object" && operatingHours !== null && "monFri" in operatingHours
+                    {typeof operatingHours === "object" &&
+                    operatingHours !== null &&
+                    "monFri" in operatingHours
                       ? (operatingHours as { monFri: string }).monFri
                       : operatingHours}
                   </TableCell>
@@ -295,13 +301,19 @@ const WarehouseListTable = ({
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleEditClick}>
-          <EditIcon fontSize="small" sx={{ mr: 1.5, color: "text.secondary" }} />
-          <Typography variant="body2">Edit Warehouse</Typography>
-        </MenuItem>
         <MenuItem onClick={handleDetailsClick}>
-          <VisibilityIcon fontSize="small" sx={{ mr: 1.5, color: "text.secondary" }} />
+          <VisibilityIcon
+            fontSize="small"
+            sx={{ mr: 1.5, color: "text.secondary" }}
+          />
           <Typography variant="body2">View Details</Typography>
+        </MenuItem>
+        <MenuItem onClick={handleEditClick}>
+          <EditIcon
+            fontSize="small"
+            sx={{ mr: 1.5, color: "text.secondary" }}
+          />
+          <Typography variant="body2">Edit Warehouse</Typography>
         </MenuItem>
         <MenuItem onClick={handleDeleteClick} sx={{ color: "error.main" }}>
           <DeleteIcon fontSize="small" sx={{ mr: 1.5, color: "inherit" }} />

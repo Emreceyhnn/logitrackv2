@@ -6,6 +6,8 @@ export interface AddInventoryItemDetails {
   volumeM3?: number;
   palletCount?: number;
   cargoType?: string;
+  imageUrl?: string;
+  unitValue?: number;
 }
 
 export interface AddInventoryStorageLevels {

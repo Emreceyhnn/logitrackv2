@@ -26,6 +26,7 @@ import {
 import { toast } from "sonner";
 import { addInventoryItem } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/lib/hooks/useUser";
+import { uploadImageAction } from "@/app/lib/actions/upload";
 import ItemDetailsSection from "./sections/ItemDetailsSection";
 import StorageLevelsSection from "./sections/StorageLevelsSection";
 
@@ -33,6 +34,7 @@ const initialItemDetails: AddInventoryItemDetails = {
   sku: "",
   name: "",
   category: "",
+  unitValue: 0,
 };
 
 const initialStorageLevels: AddInventoryStorageLevels = {
@@ -71,6 +73,17 @@ const AddInventoryDialog = ({
     setIsLoading(true);
     setError(null);
     try {
+      let finalImageUrl = itemDetails.imageUrl || "";
+
+      // If it's a base64 string (starts with data:), upload it first
+      if (finalImageUrl.startsWith("data:")) {
+        const uploadResult = await uploadImageAction(
+          finalImageUrl,
+          "general"
+        );
+        finalImageUrl = uploadResult.url;
+      }
+
       await addInventoryItem(
         storageLevels.warehouseId,
         itemDetails.sku,
@@ -80,14 +93,17 @@ const AddInventoryDialog = ({
         itemDetails.weightKg || 0,
         itemDetails.volumeM3 || 0,
         itemDetails.palletCount || 0,
-        itemDetails.cargoType || "General Cargo"
+        itemDetails.cargoType || "General Cargo",
+        finalImageUrl,
+        itemDetails.unitValue || 0
       );
 
       toast.success("Item added to inventory successfully");
       onSuccess?.();
       closeDialog();
-    } catch (err: any) {
-      const message = err.message || "Failed to add inventory item";
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to add inventory item";
       setError(message);
       setIsLoading(false);
       toast.error(message);
@@ -266,7 +282,8 @@ const AddInventoryDialog = ({
             isLoading ||
             (currentStep === 1 &&
               (!itemDetails.name ||
-                !itemDetails.category)) ||
+                !itemDetails.category ||
+                itemDetails.unitValue === undefined)) ||
             (currentStep === 2 && !storageLevels.warehouseId)
           }
           onClick={currentStep < 2 ? () => setCurrentStep(2) : handleSubmit}

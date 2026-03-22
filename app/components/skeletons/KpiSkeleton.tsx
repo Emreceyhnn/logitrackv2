@@ -1,5 +1,5 @@
 "use client";
-import { Stack, Card, Skeleton, alpha, useTheme } from "@mui/material";
+import { Stack, Card, Skeleton, alpha, useTheme, Box } from "@mui/material";
 
 interface KpiSkeletonProps {
   count?: number;
@@ -9,18 +9,11 @@ export default function KpiSkeleton({ count = 4 }: KpiSkeletonProps) {
   const theme = useTheme();
 
   return (
-    <Stack
-      direction={"row"}
-      flexWrap="wrap"
-      gap={2}
-      mt={2}
-      justifyContent={"center"}
-    >
+    <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
       {Array.from(new Array(count)).map((_, index) => (
-        <Stack
+        <Box
           key={index}
-          flexBasis={{ xs: "100%", sm: "48%", md: "23%" }}
-          flexGrow={1}
+          sx={{ width: { xs: "100%", sm: "calc(50% - 8px)", md: "calc(25% - 12px)" } }}
         >
           <Card
             sx={{
@@ -31,7 +24,7 @@ export default function KpiSkeleton({ count = 4 }: KpiSkeletonProps) {
               justifyContent: "space-between",
               border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
               background: theme.palette.background.paper,
-              minHeight: "104px", // Approximate height of StatCard
+              minHeight: "104px",
             }}
           >
             <Stack spacing={1} flexGrow={1}>
@@ -45,7 +38,7 @@ export default function KpiSkeleton({ count = 4 }: KpiSkeletonProps) {
               sx={{ borderRadius: "16px" }}
             />
           </Card>
-        </Stack>
+        </Box>
       ))}
     </Stack>
   );

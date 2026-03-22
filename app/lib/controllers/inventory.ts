@@ -265,3 +265,63 @@ export const getInventoryMovements = authenticatedAction(
   }
 );
 
+export const logWarehouseFulfillment = authenticatedAction(
+  async (
+    user,
+    warehouseId: string,
+    sku: string,
+    quantity: number,
+    type: "PICK" | "PACK",
+    shipmentId?: string
+  ) => {
+    const companyId = user?.companyId || "";
+    const userId = user?.id || "";
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_warehouse",
+        "role_dispatcher",
+      ]);
+
+      if (!companyId) throw new Error("User has no company");
+
+      // Verify the item actually exists here before we pick/pack it
+      const inventoryNode = await db.inventory.findUnique({
+        where: { warehouseId_sku: { warehouseId, sku } }
+      });
+
+      if (!inventoryNode) {
+        throw new Error("Inventory SKU not found in this facility.");
+      }
+
+      // Record the movement.
+      // E.g. If building a future "scan" interface, they fire this endpoint!
+      const movement = await db.inventoryMovement.create({
+        data: {
+          warehouseId,
+          sku,
+          quantity,
+          type, // strictly 'PICK' or 'PACK'
+          userId,
+          companyId,
+          date: new Date(),
+        }
+      });
+      
+      // If picking, deduct stock instantly for accuracy 
+      // Packing means it's already boxed, stock was already deducted
+      if (type === "PICK") {
+         await db.inventory.update({
+            where: { id: inventoryNode.id },
+            data: { quantity: { decrement: quantity } }
+         });
+      }
+
+      return { success: true, movement };
+    } catch (error) {
+      console.error("Failed to log warehouse fulfillment:", error);
+      throw error;
+    }
+  }
+);

@@ -1,4 +1,13 @@
-import { Card, Box, Stack, Typography, useTheme, alpha } from "@mui/material";
+import {
+  Card,
+  Box,
+  Stack,
+  Typography,
+  useTheme,
+  alpha,
+  SxProps,
+  Theme,
+} from "@mui/material";
 import { ReactNode } from "react";
 
 interface StatCardProps {
@@ -7,6 +16,7 @@ interface StatCardProps {
   icon?: ReactNode;
   color?: string;
   onClick?: () => void;
+  sx?: SxProps<Theme>;
 }
 
 const StatCard = ({
@@ -15,6 +25,7 @@ const StatCard = ({
   icon,
   color = "#1976d2",
   onClick,
+  sx,
 }: StatCardProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
@@ -23,8 +34,9 @@ const StatCard = ({
     <Card
       onClick={onClick}
       sx={{
-        flex: 1,
+        ...sx,
         p: 2.5,
+        height: "100%",
         borderRadius: "16px",
         boxShadow: theme.shadows[2],
         display: "flex",

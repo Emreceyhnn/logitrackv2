@@ -2,6 +2,7 @@ import { Warehouse, Inventory, Driver, User } from "@prisma/client";
 
 // Domain Models
 export interface WarehouseWithRelations extends Warehouse {
+  specifications?: string[];
   manager?: {
     id: string;
     name: string;

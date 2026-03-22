@@ -24,6 +24,7 @@ import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseD
 import WarehouseDetailsDialog from "@/app/components/dialogs/warehouse/warehouseDetailsDialog";
 import EditWarehouseDialog from "@/app/components/dialogs/warehouse/editWarehouseDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
+import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 
 export default function WarehousePage() {
   /* --------------------------------- states --------------------------------- */
@@ -181,43 +182,45 @@ export default function WarehousePage() {
         />
       </Stack>
 
-      <AddWarehouseDialog
-        open={addDialogOpen}
-        onClose={() => setAddDialogOpen(false)}
-        onSuccess={actions.refreshAll}
-      />
+      <GoogleMapsProvider>
+        <AddWarehouseDialog
+          open={addDialogOpen}
+          onClose={() => setAddDialogOpen(false)}
+          onSuccess={actions.refreshAll}
+        />
 
-      <WarehouseDetailsDialog
-        open={detailsDialogOpen}
-        onClose={() => {
-          setDetailsDialogOpen(false);
-          actions.selectWarehouse(null);
-        }}
-        onEditSuccess={actions.refreshAll}
-        warehouseData={
-          state.warehouses.find(
-            (w) => w.id === state.selectedWarehouseId
-          ) || undefined
-        }
-      />
+        <WarehouseDetailsDialog
+          open={detailsDialogOpen}
+          onClose={() => {
+            setDetailsDialogOpen(false);
+            actions.selectWarehouse(null);
+          }}
+          onEditSuccess={actions.refreshAll}
+          warehouseData={
+            state.warehouses.find(
+              (w) => w.id === state.selectedWarehouseId
+            ) || undefined
+          }
+        />
 
-      <EditWarehouseDialog
-        open={editDialogOpen}
-        onClose={() => {
-          setEditDialogOpen(false);
-          setWarehouseToEditId(null);
-        }}
-        onSuccess={() => {
-          setEditDialogOpen(false);
-          setWarehouseToEditId(null);
-          actions.refreshAll();
-        }}
-        warehouseData={
-          state.warehouses.find(
-            (w) => w.id === warehouseToEditId
-          ) || undefined
-        }
-      />
+        <EditWarehouseDialog
+          open={editDialogOpen}
+          onClose={() => {
+            setEditDialogOpen(false);
+            setWarehouseToEditId(null);
+          }}
+          onSuccess={() => {
+            setEditDialogOpen(false);
+            setWarehouseToEditId(null);
+            actions.refreshAll();
+          }}
+          warehouseData={
+            state.warehouses.find(
+              (w) => w.id === warehouseToEditId
+            ) || undefined
+          }
+        />
+      </GoogleMapsProvider>
 
       <DeleteConfirmationDialog
         open={deleteDialogOpen}

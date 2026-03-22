@@ -356,17 +356,27 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
           <Typography variant="h6" fontWeight={600} color="white" mb={2}>
             Facility Capabilities
           </Typography>
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
              {warehouse.manager && (
-              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ bgcolor: alpha(theme.palette.info.main, 0.1), color: theme.palette.info.light, px: 2, py: 1.5, borderRadius: 2, border: `1px solid ${alpha(theme.palette.info.main, 0.2)}` }}>
+              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2, bgcolor: alpha(theme.palette.info.main, 0.1), color: theme.palette.info.light, px: 2, py: 1.5, borderRadius: 2, border: `1px solid ${alpha(theme.palette.info.main, 0.2)}` }}>
                 <ThermostatIcon />
                 <Typography variant="button" fontWeight={600}>Managed Facility</Typography>
               </Stack>
             )}
-             <Stack direction="row" alignItems="center" spacing={1.5} sx={{ bgcolor: alpha(theme.palette.divider, 0.05), color: "text.secondary", px: 2, py: 1.5, borderRadius: 2, border: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
+            
+            {warehouse.specifications?.map((spec, index) => (
+              <Stack key={index} direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2, bgcolor: alpha(theme.palette.divider, 0.05), color: "text.secondary", px: 2, py: 1.5, borderRadius: 2, border: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
+                <BusinessCenterIcon />
+                <Typography variant="button" fontWeight={600}>{spec}</Typography>
+              </Stack>
+            ))}
+
+            {(!warehouse.specifications || warehouse.specifications.length === 0) && (
+              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2, bgcolor: alpha(theme.palette.divider, 0.05), color: "text.secondary", px: 2, py: 1.5, borderRadius: 2, border: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
                 <BusinessCenterIcon />
                 <Typography variant="button" fontWeight={600}>Standard Storage</Typography>
               </Stack>
+            )}
           </Stack>
         </Grid>
 

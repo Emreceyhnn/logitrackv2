@@ -11,7 +11,10 @@ import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import { DriverKpiCardProps } from "@/app/lib/type/driver";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 
-const DriverKpiCard = ({ data, loading = false }: DriverKpiCardProps & { loading?: boolean }) => {
+const DriverKpiCard = ({
+  data,
+  loading = false,
+}: DriverKpiCardProps & { loading?: boolean }) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
@@ -65,22 +68,28 @@ const DriverKpiCard = ({ data, loading = false }: DriverKpiCardProps & { loading
   ];
 
   return (
-    <Box
-      display="grid"
-      gridTemplateColumns="repeat(auto-fill, minmax(180px, 1fr))"
-      gap={2}
-      mt={2}
-    >
+    <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
       {kpiItems.map((item, index) => (
-        <StatCard
+        <Box
           key={index}
-          title={item.label}
-          value={item.value}
-          icon={item.icon}
-          color={item.color}
-        />
+          sx={{
+            width: {
+              xs: "100%",
+              sm: "calc(50% - 8px)",
+              md: index < 4 ? "calc(25% - 12px)" : "calc(33% - 8px)",
+            },
+          }}
+        >
+          <StatCard
+            title={item.label}
+            value={item.value}
+            icon={item.icon}
+            color={item.color}
+            sx={{ height: "100%" }}
+          />
+        </Box>
       ))}
-    </Box>
+    </Stack>
   );
 };
 

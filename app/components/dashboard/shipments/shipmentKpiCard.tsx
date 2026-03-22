@@ -1,5 +1,5 @@
 "use client";
-import { Stack, useTheme } from "@mui/material";
+import { Box, Stack, useTheme } from "@mui/material";
 import StatCard from "../../cards/StatCard";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -47,26 +47,20 @@ const ShipmentKpiCard = ({ state }: ShipmentKpiCardProps) => {
   ];
 
   return (
-    <Stack
-      direction={"row"}
-      flexWrap="wrap"
-      gap={2}
-      mt={2}
-      justifyContent={"center"}
-    >
+    <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
       {kpiItems.map((item, index) => (
-        <Stack
+        <Box
           key={index}
-          flexBasis={{ xs: "100%", sm: "48%", md: "23%" }}
-          flexGrow={1}
+          sx={{ width: { xs: "100%", sm: "calc(50% - 8px)", md: "calc(25% - 12px)" } }}
         >
           <StatCard
             title={item.label}
             value={item.value}
             icon={item.icon}
             color={item.color}
+            sx={{ height: "100%" }}
           />
-        </Stack>
+        </Box>
       ))}
     </Stack>
   );

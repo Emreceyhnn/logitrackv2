@@ -133,7 +133,7 @@ export default function CustomersPage() {
       if (!c.locations) return [];
       
       return c.locations
-        .filter((loc) => loc.lat && loc.lng)
+        .filter((loc) => loc.lat != null && loc.lng != null)
         .map((loc) => ({
           position: {
             lat: loc.lat as number,
@@ -142,6 +142,7 @@ export default function CustomersPage() {
           label: c.name.charAt(0).toUpperCase(),
           title: `${c.name} - ${loc.name}`,
           description: loc.address,
+          type: "customer",
         }));
     });
   }, [filteredCustomers]);
@@ -199,14 +200,15 @@ export default function CustomersPage() {
           borderRadius: 3,
           overflow: "hidden",
           position: "relative",
-          minHeight: 400,
+          height: "100%",
         }}
       >
         <GoogleMapsProvider>
           <MapWithMarker 
             center={{ lat: 39.9334, lng: 32.8597 }} // Turkey Central
             markers={mapLocations as any} 
-            zoom={6} 
+            zoom={6}
+            height="100%"
           />
         </GoogleMapsProvider>
         {mapLocations.length === 0 && (

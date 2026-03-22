@@ -6,6 +6,7 @@ export interface InventoryWithRelations extends Inventory {
     code: string;
     name: string;
   };
+  imageUrl?: string | null;
 }
 
 export interface LowStockItem extends Inventory {

@@ -15,7 +15,6 @@ import {
   Avatar,
   useTheme,
   alpha,
-  DialogActions,
   Grid,
   Tabs,
   Tab,
@@ -35,7 +34,6 @@ import {
   GridOn as PalletIcon,
   Edit as EditIcon,
   Warehouse as WarehouseIcon,
-  LocalOffer as LocalOfferIcon,
   History as HistoryIcon,
   Assessment as OverviewIcon,
   TrendingDown as OutIcon,
@@ -77,24 +75,24 @@ export default function InventoryDetailsDialog({
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(false);
 
-  useEffect(() => {
-    if (isOpen && item && tabValue === 1) {
-      loadMovements();
-    }
-  }, [isOpen, item, tabValue]);
-
-  const loadMovements = async () => {
+  const loadMovements = React.useCallback(async () => {
     if (!item) return;
     setLoadingMovements(true);
     try {
-      const data = await getInventoryMovements(item.sku, item.warehouseId) as any[];
-      setMovements(data);
+      const data = await getInventoryMovements(item.sku, item.warehouseId);
+      setMovements(data as InventoryMovement[]);
     } catch (error) {
       console.error("Failed to load movements", error);
     } finally {
       setLoadingMovements(false);
     }
-  };
+  }, [item]);
+
+  useEffect(() => {
+    if (isOpen && item && tabValue === 1) {
+      loadMovements();
+    }
+  }, [isOpen, item, tabValue, loadMovements]);
 
   if (!item) return null;
 
@@ -132,6 +130,7 @@ export default function InventoryDetailsDialog({
           <Stack direction="row" spacing={3} alignItems="center">
             <Avatar
               variant="rounded"
+              src={item.imageUrl || undefined}
               sx={{
                 bgcolor: alpha(theme.palette.primary.main, 0.1),
                 color: theme.palette.primary.main,
@@ -140,9 +139,12 @@ export default function InventoryDetailsDialog({
                 fontSize: "1.75rem",
                 fontWeight: 800,
                 borderRadius: 2,
+                "& img": {
+                  objectFit: "cover",
+                },
               }}
             >
-              {item.name.charAt(0)}
+              {!item.imageUrl && item.name.charAt(0)}
             </Avatar>
             <Stack spacing={0.5}>
               <Stack direction="row" spacing={1.5} alignItems="center">
@@ -237,6 +239,20 @@ export default function InventoryDetailsDialog({
                       <Box>
                         <Typography variant="caption" color="text.secondary" fontWeight={600}>SAFETY STOCK</Typography>
                         <Typography variant="h5" fontWeight={800} color="white">{item.minStock.toLocaleString()}</Typography>
+                      </Box>
+                    </Stack>
+                  </Paper>
+
+                  <Paper variant="outlined" sx={{ p: 2, bgcolor: alpha(theme.palette.success.main, 0.05), borderColor: alpha(theme.palette.success.main, 0.1), borderRadius: 3 }}>
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.1), color: theme.palette.success.light }}>
+                        <InventoryIcon />
+                      </Avatar>
+                      <Box>
+                        <Typography variant="caption" color="text.secondary" fontWeight={600}>UNIT VALUE</Typography>
+                        <Typography variant="h5" fontWeight={800} color="white">
+                          {(item as any).unitValue?.toLocaleString() || "0"}
+                        </Typography>
                       </Box>
                     </Stack>
                   </Paper>

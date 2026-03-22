@@ -7,6 +7,7 @@ type UploadBucket =
   | "vehicles"
   | "documents"
   | "avatars"
+  | "inventory"
   | "general";
 
 interface UploadImageResult {

@@ -29,10 +29,16 @@ const RoutesMainMap = ({ mapData, loading }: RoutesMainMapProps) => {
     );
 
   // Map Routes to Markers
-  const markers = mapData.map((d) => ({
-    position: d.position,
-    label: d.name,
-  }));
+  const markers = mapData.map((d) => {
+    let markerType: "warehouse" | "vehicle" | "customer" | "default" = "default";
+    if (d.type === "V") markerType = "vehicle";
+
+    return {
+      position: d.position,
+      label: d.name,
+      type: markerType,
+    };
+  });
 
   return (
     <Box sx={{ minHeight: 400, flexGrow: 3, borderRadius: "16px", overflow: "hidden" }}>

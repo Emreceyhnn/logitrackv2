@@ -4,16 +4,10 @@ import { Box, Stack, Typography, Alert } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { getCompanyProfile } from "@/app/lib/controllers/company";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
-import {
-  CompanyPageState,
-  CompanyPageActions,
-} from "@/app/lib/type/company";
+import { CompanyPageState, CompanyPageActions } from "@/app/lib/type/company";
 import CompanyKpiCard from "@/app/components/dashboard/company/companyKpiCard";
 import CompanyInfoCard from "@/app/components/dashboard/company/companyInfoCard";
 import CompanyMembersTable from "@/app/components/dashboard/company/companyMembersTable";
-import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyDialog";
-import AddIcon from "@mui/icons-material/Add";
-import { Button } from "@mui/material";
 
 export default function CompanyPage() {
   const [state, setState] = useState<CompanyPageState>({
@@ -21,7 +15,6 @@ export default function CompanyPage() {
     loading: true,
     error: null,
   });
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const actions: CompanyPageActions = {
     fetchData: useCallback(async () => {
@@ -41,7 +34,8 @@ export default function CompanyPage() {
             ...prev,
             data: null,
             loading: false,
-            error: "No company associated with this account. Please create or join a company.",
+            error:
+              "No company associated with this account. Please create or join a company.",
           }));
           return;
         }
@@ -58,7 +52,12 @@ export default function CompanyPage() {
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Failed to load company data.";
-        setState((prev) => ({ ...prev, data: null, loading: false, error: message }));
+        setState((prev) => ({
+          ...prev,
+          data: null,
+          loading: false,
+          error: message,
+        }));
       }
     }, []),
 
@@ -76,14 +75,18 @@ export default function CompanyPage() {
           error: null,
         });
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Failed to refresh company data.";
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Failed to refresh company data.";
         setState((prev) => ({ ...prev, loading: false, error: message }));
       }
     }, []),
 
     deleteMember: async (memberId: string) => {
       try {
-        const { removeCompanyUser } = await import("@/app/lib/controllers/company");
+        const { removeCompanyUser } =
+          await import("@/app/lib/controllers/company");
         await removeCompanyUser(memberId);
         setState((prev) => {
           if (!prev.data) return prev;
@@ -91,12 +94,13 @@ export default function CompanyPage() {
             ...prev,
             data: {
               ...prev.data,
-              members: prev.data.members.filter(m => m.id !== memberId)
-            }
+              members: prev.data.members.filter((m) => m.id !== memberId),
+            },
           };
         });
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Failed to delete member.";
+        const message =
+          err instanceof Error ? err.message : "Failed to delete member.";
         setState((prev) => ({ ...prev, error: message }));
         throw err;
       }
@@ -125,20 +129,6 @@ export default function CompanyPage() {
             Overview of your organisation, resources, and team members.
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setIsCreateDialogOpen(true)}
-          sx={{
-            borderRadius: 2,
-            textTransform: "none",
-            fontWeight: 600,
-            px: 3,
-            boxShadow: (theme) => `0 8px 20px ${theme.palette.primary.main}33`,
-          }}
-        >
-          Add Company
-        </Button>
       </Stack>
 
       {state.error && (
@@ -152,12 +142,6 @@ export default function CompanyPage() {
         <CompanyInfoCard props={{ state, actions }} />
         <CompanyMembersTable props={{ state, actions }} />
       </Stack>
-
-      <CreateCompanyDialog
-        open={isCreateDialogOpen}
-        onClose={() => setIsCreateDialogOpen(false)}
-        onSuccess={actions.refreshAll}
-      />
     </Box>
   );
 }

@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  Box,
-} from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import PeopleIcon from "@mui/icons-material/People";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import BadgeIcon from "@mui/icons-material/Badge";
@@ -72,20 +70,27 @@ export default function CompanyKpiCard({ props }: CompanyKpiCardProps) {
   ];
 
   return (
-    <Box
-      display="grid"
-      gridTemplateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-      gap={2}
-    >
+    <Stack direction="row" flexWrap="wrap" gap={2} mt={2}>
       {kpis.map((kpi, index) => (
-        <StatCard
+        <Box
           key={index}
-          title={kpi.label}
-          value={kpi.value.toLocaleString()}
-          icon={kpi.icon}
-          color={kpi.color}
-        />
+          sx={{
+            width: {
+              xs: "100%",
+              sm: "calc(50% - 8px)",
+              md: index < 4 ? "calc(25% - 12px)" : "calc(50% - 8px)",
+            },
+          }}
+        >
+          <StatCard
+            title={kpi.label}
+            value={kpi.value.toLocaleString()}
+            icon={kpi.icon}
+            color={kpi.color}
+            sx={{ height: "100%" }}
+          />
+        </Box>
       ))}
-    </Box>
+    </Stack>
   );
 }

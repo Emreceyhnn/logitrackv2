@@ -42,9 +42,9 @@ const ContactSection = ({ state, updateContact }: ContactSectionProps) => {
     updateContact({ locations: newLocations });
   };
 
-  const updateLocation = (index: number, field: string, value: any) => {
+  const updateLocation = (index: number, updates: Partial<any>) => {
     const newLocations = [...state.locations];
-    newLocations[index] = { ...newLocations[index], [field]: value };
+    newLocations[index] = { ...newLocations[index], ...updates };
     updateContact({ locations: newLocations });
   };
 
@@ -153,7 +153,7 @@ const ContactSection = ({ state, updateContact }: ContactSectionProps) => {
                       name={`loc-name-${index}`}
                       placeholder="e.g. HQ, London Branch"
                       value={loc.name}
-                      onChange={(e) => updateLocation(index, "name", e.target.value)}
+                      onChange={(e) => updateLocation(index, { name: e.target.value })}
                     />
                   </Stack>
                 </Grid>
@@ -167,16 +167,50 @@ const ContactSection = ({ state, updateContact }: ContactSectionProps) => {
                       placeholder="Search for an address..."
                       value={loc.address}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        updateLocation(index, "address", e.target.value)
+                        updateLocation(index, { address: e.target.value })
                       }
                       onAddressSelect={(data: {
                         formattedAddress: string;
                         lat: number;
                         lng: number;
                       }) => {
-                        updateLocation(index, "address", data.formattedAddress);
-                        updateLocation(index, "lat", data.lat);
-                        updateLocation(index, "lng", data.lng);
+                        updateLocation(index, {
+                          address: data.formattedAddress,
+                          lat: data.lat,
+                          lng: data.lng
+                        });
+                      }}
+                    />
+                  </Stack>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <Stack spacing={1}>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                      LATITUDE
+                    </Typography>
+                    <CustomTextArea
+                      name={`loc-lat-${index}`}
+                      placeholder="e.g. 41.0082"
+                      value={loc.lat !== undefined ? String(loc.lat) : ""}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        updateLocation(index, { lat: isNaN(val) ? undefined : val });
+                      }}
+                    />
+                  </Stack>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                  <Stack spacing={1}>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                      LONGITUDE
+                    </Typography>
+                    <CustomTextArea
+                      name={`loc-lng-${index}`}
+                      placeholder="e.g. 28.9784"
+                      value={loc.lng !== undefined ? String(loc.lng) : ""}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        updateLocation(index, { lng: isNaN(val) ? undefined : val });
                       }}
                     />
                   </Stack>

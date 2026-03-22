@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   Box,
-  Button,
   Stack,
   Typography,
   InputAdornment,
@@ -15,7 +14,7 @@ import { useState } from "react";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
-import CircularIndeterminate from "../loading";
+import AuthButton from "../ui/AuthButton";
 
 import { useRouter } from "next/navigation";
 import { LoginUser } from "@/app/lib/controllers/users";
@@ -180,26 +179,21 @@ export default function LoginForm() {
                 )}
               </Field>
 
-              <Button
-                fullWidth
+              <AuthButton
                 type="submit"
-                variant="contained"
-                disabled={loading}
+                loading={loading}
+                loadingText="Logging In..."
                 sx={{
                   mt: 2,
                   bgcolor: "#38bdf8",
                   color: "#000",
-                  fontWeight: 600,
-                  borderRadius: "12px",
-                  py: 1.5,
-                  fontSize: "16px",
                   "&:hover": {
                     bgcolor: "#0ea5e9",
                   }
                 }}
               >
-                {loading ? <CircularIndeterminate /> : "Log In Now"}
-              </Button>
+                Log In Now
+              </AuthButton>
 
               <Typography
                 variant="body2"

@@ -217,7 +217,32 @@ export const getPicksAndPacks = authenticatedAction(async (user) => {
     await checkPermission(user.id, user.companyId, [], {
       allowNoCompany: true,
     });
-    return { picks: 145, packs: 120 };
+
+    if (!user.companyId) return { picks: 0, packs: 0 };
+
+    // Get live throughput for Today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const metrics = await db.inventoryMovement.groupBy({
+      by: ["type"],
+      where: {
+        companyId: user.companyId,
+        date: { gte: today },
+        type: { in: ["PICK", "PACK"] },
+      },
+      _sum: { quantity: true },
+    });
+
+    let picks = 0;
+    let packs = 0;
+
+    metrics.forEach((m) => {
+      if (m.type === "PICK") picks = m._sum.quantity || 0;
+      if (m.type === "PACK") packs = m._sum.quantity || 0;
+    });
+
+    return { picks, packs };
   } catch (error) {
     console.error("Failed to get picks and packs:", error);
     return { picks: 0, packs: 0 };
