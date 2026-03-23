@@ -11,6 +11,7 @@ export interface ShipmentWithRelations extends Shipment {
   destinationLat?: number | null;
   destinationLng?: number | null;
   customer: CustomerWithRelations | null;
+  customerLocationId?: string | null;
   driver?: {
     id: string;
     user: {
