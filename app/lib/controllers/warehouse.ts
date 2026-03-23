@@ -262,7 +262,9 @@ export const addInventoryItem = authenticatedAction(
     weightKg: number = 0,
     volumeM3: number = 0,
     palletCount: number = 0,
-    cargoType: string = "General Cargo"
+    cargoType: string = "General Cargo",
+    imageUrl?: string,
+    unitValue?: number
   ) => {
     try {
       await checkPermission(user.id, user.companyId, [
@@ -310,6 +312,8 @@ export const addInventoryItem = authenticatedAction(
           volumeM3,
           palletCount,
           cargoType,
+          imageUrl,
+          unitValue: unitValue || 0,
           companyId: user.companyId!,
         },
       });

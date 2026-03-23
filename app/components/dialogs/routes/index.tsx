@@ -13,6 +13,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { RouteWithRelations } from "@/app/lib/type/routes";
+import { DriverWithRelations } from "@/app/lib/type/driver";
 import DriverCard from "../../cards/driverCard";
 import MapRoutesDialogCard from "./map";
 import RouteProgress from "./progress";
@@ -52,7 +53,7 @@ export default function RouteDialog({
   const theme = useTheme();
 
   /* --------------------------------- states --------------------------------- */
-  const [data, setData] = useState(null);
+
   const [liveMetrics, setLiveMetrics] = useState<{
     distanceKm: number;
     durationMin: number;
@@ -63,25 +64,25 @@ export default function RouteDialog({
   /* -------------------------------- functions ------------------------------- */
   const statusMeta = getStatusMeta(route.status || "PENDING");
   const [colorKey, colorVariant] = statusMeta.color.split(".");
+  const palette = theme.palette as unknown as Record<string, Record<string, string>>;
   const statusColor =
-    (theme.palette as any)[colorKey]?.[colorVariant] ||
-    theme.palette.text.primary;
+    palette[colorKey]?.[colorVariant] || theme.palette.text.primary;
 
   const mapOrigin =
-    (route as any).startLat && (route as any).startLng
+    route.startLat && route.startLng
       ? {
-          lat: (route as any).startLat,
-          lng: (route as any).startLng,
+          lat: route.startLat,
+          lng: route.startLng,
         }
-      : (route as any).startAddress || "";
+      : route.startAddress || "";
 
   const mapDestination =
-    (route as any).endLat && (route as any).endLng
+    route.endLat && route.endLng
       ? {
-          lat: (route as any).endLat,
-          lng: (route as any).endLng,
+          lat: route.endLat,
+          lng: route.endLng,
         }
-      : (route as any).endAddress || "";
+      : route.endAddress || "";
 
   return (
     <Dialog
@@ -230,7 +231,7 @@ export default function RouteDialog({
                         : null,
                       createdAt: route.driver.createdAt,
                       updatedAt: route.driver.updatedAt,
-                    } as any)}
+                    } as unknown as DriverWithRelations)}
                   />
                 ) : (
                   <Typography variant="body2" color="text.secondary">
@@ -267,7 +268,7 @@ export default function RouteDialog({
                   </Typography>
                   <Typography variant="h6" fontWeight={700} color="white">
                     {liveMetrics?.distanceKm ||
-                      (route as any).metrics?.totalDistanceKm ||
+                      route.metrics?.totalDistanceKm ||
                       route.distanceKm ||
                       0}{" "}
                     km
@@ -291,7 +292,7 @@ export default function RouteDialog({
                     STOPS
                   </Typography>
                   <Typography variant="h6" fontWeight={700} color="white">
-                    {(route as any).stops?.length || route.shipments?.length
+                    {route.stops?.length || route.shipments?.length
                       ? (route.shipments?.length || 0) + 2
                       : 0}
                   </Typography>

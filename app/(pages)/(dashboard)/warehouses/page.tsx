@@ -53,9 +53,9 @@ export default function WarehousePage() {
       const USER_ID = "usr_001";
 
       const [warehousesData, statsData, movementsData] = await Promise.all([
-        getWarehouses(COMPANY_ID, USER_ID),
-        getWarehouseStats(COMPANY_ID, USER_ID),
-        getRecentStockMovements(COMPANY_ID, USER_ID),
+        getWarehouses(),
+        getWarehouseStats(),
+        getRecentStockMovements(),
       ]);
 
       setState((prev) => ({

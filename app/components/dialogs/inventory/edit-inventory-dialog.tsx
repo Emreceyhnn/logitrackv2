@@ -58,7 +58,7 @@ const EditInventoryDialog = ({
   const handleUpdate = async () => {
     if (!user || !item) return;
     try {
-      await updateInventoryItem(item.id, user.id, {
+      await updateInventoryItem(item.id, {
         name: formData.name,
         sku: formData.sku,
         minStock: Number(formData.minStock),

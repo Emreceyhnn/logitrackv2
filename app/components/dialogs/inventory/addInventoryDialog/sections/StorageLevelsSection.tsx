@@ -37,7 +37,7 @@ const StorageLevelsSection = ({
     const fetchWarehouses = async () => {
       if (!user || !user.companyId) return;
       try {
-        const data = await getWarehouses(user.companyId, user.id);
+        const data = await getWarehouses();
         setWarehouses(data);
       } catch (error) {
         console.error("Failed to fetch warehouses:", error);

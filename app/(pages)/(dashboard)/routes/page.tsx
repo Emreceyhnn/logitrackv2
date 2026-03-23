@@ -149,7 +149,7 @@ export default function RoutesPage() {
     if (!actionRoute || !user) return;
     setDeleteLoading(true);
     try {
-      await deleteRoute(actionRoute.id, user.id);
+      await deleteRoute(actionRoute.id);
       setDeleteOpen(false);
       actions.refreshAll();
     } catch (error) {

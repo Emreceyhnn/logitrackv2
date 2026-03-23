@@ -135,7 +135,6 @@ export default function SignUpStepper() {
     setLoading(true);
     try {
       const res = await RegisterUser(
-        null, // user as guest
         values.username,
         values.name,
         values.surname,

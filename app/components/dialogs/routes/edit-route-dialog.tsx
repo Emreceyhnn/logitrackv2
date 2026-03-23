@@ -184,7 +184,7 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
           vehicleId: state.data.step3.vehicleId,
         };
 
-        await updateRoute(route.id, user.id, payload);
+        await updateRoute(route.id, payload);
 
         toast.success("Route updated successfully");
 

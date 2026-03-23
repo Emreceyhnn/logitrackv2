@@ -322,7 +322,11 @@ export const getShipmentById = authenticatedAction(
 );
 
 export const updateShipment = authenticatedAction(
-  async (user, shipmentId: string, data: Prisma.ShipmentUpdateInput) => {
+  async (
+    user,
+    shipmentId: string,
+    data: Prisma.ShipmentUpdateInput | Prisma.ShipmentUncheckedUpdateInput
+  ) => {
     const userId = user?.id;
     const companyId = user?.companyId;
     try {

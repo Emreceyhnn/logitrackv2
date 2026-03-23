@@ -52,10 +52,7 @@ const CustomerDetailDialog = ({
         setLoading(true);
         setError(null);
         try {
-          // Providing a default user ID if not available from context,
-          // but ideally this should come from a hook.
-          const userId = "usr_001";
-          const data = await getCustomerById(customerId, userId);
+          const data = await getCustomerById(customerId);
           setCustomer(data as unknown as CustomerWithRelations);
         } catch (err: unknown) {
           const message =

@@ -118,7 +118,7 @@ export default function ShipmentPage() {
     if (!actionShipment || !user) return;
     setDeleteLoading(true);
     try {
-      await deleteShipment(actionShipment.id, user.id);
+      await deleteShipment(actionShipment.id);
       setDeleteOpen(false);
       actions.refreshAll();
     } catch (error) {

@@ -65,7 +65,7 @@ export default function CustomersPage() {
     if (!actionCustomer || !user) return;
     setDeleteLoading(true);
     try {
-      await deleteCustomer(actionCustomer.id, user.id);
+      await deleteCustomer(actionCustomer.id);
       toast.success("Customer deleted successfully");
       setDeleteOpen(false);
       setDetailOpen(false);
@@ -84,7 +84,7 @@ export default function CustomersPage() {
     try {
       const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
       const USER_ID = "usr_001";
-      const data = await getCustomers(COMPANY_ID, USER_ID);
+      const data = await getCustomers();
 
       setState((prev) => ({
         ...prev,

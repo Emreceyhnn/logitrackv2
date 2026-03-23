@@ -40,6 +40,20 @@ export interface RouteWithRelations extends Route {
     origin: string;
     destination: string;
   }[];
+  metrics?: {
+    totalDistanceKm?: number;
+    totalDurationMin?: number;
+    totalStops?: number;
+    efficiencyShare?: number;
+  };
+  stops?: {
+    id: string;
+    type: string;
+    name: string;
+    status: string;
+    arrival?: Date;
+    departure?: Date;
+  }[];
 }
 
 // KPI / Stats
