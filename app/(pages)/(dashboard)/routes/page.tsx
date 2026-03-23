@@ -96,7 +96,7 @@ export default function RoutesPage() {
   }, [state.pagination.page, state.pagination.pageSize, state.filters.status]);
 
   const actions: RoutesPageActions = {
-    fetchRoutes: async (_page, _status) => {},
+    fetchRoutes: async () => {},
     fetchStats: async () => {},
     fetchEfficiency: async () => {},
     fetchMapData: async () => {},

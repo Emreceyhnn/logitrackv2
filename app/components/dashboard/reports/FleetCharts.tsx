@@ -1,6 +1,6 @@
 "use client";
 
-import { Paper, Typography, Box, useTheme, Stack } from "@mui/material";
+import { Paper, Typography, Box, useTheme } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { ScatterChart } from "@mui/x-charts/ScatterChart";
 import { FleetVehicleStats } from "@/app/lib/type/reports";

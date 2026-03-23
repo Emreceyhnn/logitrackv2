@@ -206,7 +206,7 @@ export default function CustomersPage() {
         <GoogleMapsProvider>
           <MapWithMarker 
             center={{ lat: 39.9334, lng: 32.8597 }} // Turkey Central
-            markers={mapLocations as any} 
+            markers={mapLocations} 
             zoom={6}
             height="100%"
           />

@@ -6,7 +6,6 @@ import {
   Stack,
   Typography,
   Skeleton,
-  Box,
 } from "@mui/material";
 import CustomCard from "../../cards/card";
 import WarningIcon from "@mui/icons-material/Warning";

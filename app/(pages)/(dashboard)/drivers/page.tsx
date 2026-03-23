@@ -5,7 +5,7 @@ import DriverTable from "@/app/components/dashboard/driver/driverTable";
 import DriverPerformanceCharts from "@/app/components/dashboard/driver/driverPerformanceCharts";
 import { Box, Stack, Typography, Button, Divider } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   DriverPageState,
   DriverPageActions,
@@ -141,7 +141,7 @@ export default function DriverPage() {
       });
     },
 
-    changePage: async (_newPage: number) => {
+    changePage: async () => {
       setState((prev) => ({ ...prev, loading: true }));
     },
 
@@ -155,7 +155,7 @@ export default function DriverPage() {
       );
       await actions.fetchDashboardData();
     },
-  }), [state.filters, state.sort, state.pagination.page, state.pagination.limit, state.drivers]);
+  }), [state.filters, state.sort, state.pagination.page, state.pagination.limit]);
 
   /* -------------------------------- Lifecycle --------------------------------- */
   useEffect(() => {

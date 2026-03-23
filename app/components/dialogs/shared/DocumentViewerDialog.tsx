@@ -296,15 +296,16 @@ export default function DocumentViewerDialog({
                 p: 4,
               }}
             >
-              <img
+              <Box
+                component="img"
                 src={url}
                 alt={title}
-                style={{
+                sx={{
                   maxWidth: "100%",
                   maxHeight: "100%",
                   objectFit: "contain",
                   filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.5))",
-                  borderRadius: 8,
+                  borderRadius: 2,
                 }}
                 onLoad={handleLoad}
                 onError={handleError}

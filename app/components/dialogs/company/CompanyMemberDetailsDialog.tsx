@@ -10,7 +10,6 @@ import {
   Box,
   Avatar,
   Chip,
-  Divider,
   Grid,
   alpha,
   useTheme,
@@ -19,10 +18,7 @@ import {
 import {
   Close as CloseIcon,
   Email as EmailIcon,
-  Shield as ShieldIcon,
   Event as EventIcon,
-  Phone as PhoneIcon,
-  LocationOn as LocationIcon,
 } from "@mui/icons-material";
 import { CompanyMember } from "@/app/lib/type/company";
 

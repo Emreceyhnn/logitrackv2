@@ -11,7 +11,6 @@ import PersonIcon from "@mui/icons-material/Person";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
-import { motion } from "framer-motion";
 
 interface OverviewKpiCardProps {
   stats: {
@@ -91,16 +90,6 @@ const OverviewKpiCard = ({ stats, loading = false }: OverviewKpiCardProps) => {
       trend: { value: 8, isUp: true }
     },
   ];
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
 
   return (
     <Box

@@ -49,7 +49,6 @@ const ActivityIcon = ({ type }: { type: string }) => {
 };
 
 const KPICard = ({ label, value, icon, color }: { label: string; value: number; icon: React.ReactNode; color: string }) => {
-  const theme = useTheme();
   return (
     <Box
       sx={{

@@ -49,9 +49,6 @@ export default function WarehousePage() {
   const fetchAllData = useCallback(async (isInitial = false) => {
     if (isInitial) setState((prev) => ({ ...prev, loading: true }));
     try {
-      const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
-      const USER_ID = "usr_001";
-
       const [warehousesData, statsData, movementsData] = await Promise.all([
         getWarehouses(),
         getWarehouseStats(),

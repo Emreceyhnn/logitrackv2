@@ -34,7 +34,6 @@ import { getShipments } from "@/app/lib/controllers/shipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { Warehouse } from "@prisma/client";
 import { useUser } from "@/app/lib/hooks/useUser";
-import { getDirections } from "@/app/lib/controllers/map";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import FirstRouteDialogStep from "./firstStep";
 import SecondRouteDialogStep from "./secondStep";

@@ -20,7 +20,6 @@ export default function UsersPage() {
 
   /* --------------------------------- actions -------------------------------- */
   const fetchUsers = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true }));
     try {
       const data = await getMyCompanyUsersAction();
       // Cast to compatible type (UserWithRelations includes role/driver)
@@ -54,6 +53,7 @@ export default function UsersPage() {
 
   /* --------------------------------- effects -------------------------------- */
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUsers();
   }, [fetchUsers]);
 

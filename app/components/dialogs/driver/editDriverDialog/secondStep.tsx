@@ -14,7 +14,7 @@ import {
   Button,
   Switch,
 } from "@mui/material";
-import { useEffect, useState, useRef, ChangeEvent } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import {
   EditDriverPageActions,
@@ -35,7 +35,6 @@ import FlashOnIcon from "@mui/icons-material/FlashOn";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import BadgeIcon from "@mui/icons-material/Badge";
 import HotelIcon from "@mui/icons-material/Hotel";
 
@@ -55,12 +54,10 @@ const SecondEditDriverDialogStep = ({
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   /* --------------------------------- states --------------------------------- */
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [vehicles, setVehicles] = useState<VehicleWithRelations[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   /* ------------------------------- lifecycles ------------------------------- */
   useEffect(() => {
@@ -75,8 +72,6 @@ const SecondEditDriverDialogStep = ({
         setVehicles(vData);
       } catch (error) {
         console.error("Failed to fetch Step 2 data:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchData();

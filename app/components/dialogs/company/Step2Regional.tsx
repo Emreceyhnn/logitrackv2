@@ -9,10 +9,8 @@ import {
   MenuItem,
   Select,
   FormControl,
-  InputLabel,
   FormControlLabel,
   Checkbox,
-  Divider,
 } from "@mui/material";
 import { CompanyStepProps } from "@/app/lib/type/create-company";
 import PublicIcon from "@mui/icons-material/Public";

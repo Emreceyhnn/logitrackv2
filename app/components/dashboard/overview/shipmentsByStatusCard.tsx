@@ -1,5 +1,5 @@
 "use client";
-import { Box, Divider, Stack, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Divider, Stack, Typography, useTheme } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { PieChart } from "@mui/x-charts";
 import { useDrawingArea } from "@mui/x-charts/hooks";

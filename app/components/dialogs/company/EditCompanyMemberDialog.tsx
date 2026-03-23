@@ -81,7 +81,7 @@ export default function EditCompanyMemberDialog({
     }
   }, [member, open, reset]);
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async () => {
     if (!member) return;
     try {
       // Logic for updating member would go here

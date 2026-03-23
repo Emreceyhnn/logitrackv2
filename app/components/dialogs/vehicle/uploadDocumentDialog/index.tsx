@@ -412,10 +412,11 @@ export default function UploadDocumentDialog({
                   position: "relative",
                 }}
               >
-                <img
+                <Box
+                  component="img"
                   src={filePreview}
                   alt="File preview"
-                  style={{
+                  sx={{
                     maxHeight: "100%",
                     maxWidth: "100%",
                     objectFit: "contain",

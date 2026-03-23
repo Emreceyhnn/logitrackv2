@@ -349,10 +349,11 @@ const AddFuelLogDialog = ({
                     border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
                   }}
                 >
-                  <img
+                  <Box
+                    component="img"
                     src={receiptPreview}
                     alt="Receipt preview"
-                    style={{
+                    sx={{
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",

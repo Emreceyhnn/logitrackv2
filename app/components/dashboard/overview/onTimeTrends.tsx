@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Divider, Stack, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Divider, Stack, Typography, useTheme } from "@mui/material";
 import { BarChart } from "@mui/x-charts";
 import CustomCard from "../../cards/card";
 import { ShipmentDayStat } from "@/app/lib/type/overview";

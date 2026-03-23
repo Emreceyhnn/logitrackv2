@@ -65,9 +65,7 @@ const RouteTable = ({
     onPageChange(newPage);
   };
 
-  const handleChangeRowsPerPage = (
-    _: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChangeRowsPerPage = () => {
     console.warn("Change rows per page not implemented in parent yet");
   };
 

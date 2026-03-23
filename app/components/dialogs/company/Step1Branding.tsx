@@ -10,7 +10,6 @@ import {
   MenuItem,
   Select,
   FormControl,
-  InputLabel,
 } from "@mui/material";
 import { CompanyStepProps } from "@/app/lib/type/create-company";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
