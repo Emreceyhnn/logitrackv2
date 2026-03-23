@@ -41,6 +41,7 @@ export const getUserFromToken = authenticatedAction(
         throw new Error("User not found");
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: _, ...safeUser } = foundUser;
       return safeUser;
     } catch (error) {
@@ -226,7 +227,7 @@ export const LoginUser = maybeAuthenticatedAction(
 
 // ─── Logout ─────────────────────────────────────────────────────────────────
 
-export const LogoutUser = authenticatedAction(async (_user) => {
+export const LogoutUser = authenticatedAction(async () => {
   try {
     // Get current session
     const sessionUser = await validateSession();

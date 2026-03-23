@@ -21,6 +21,7 @@ import { useState, useEffect } from "react";
 import { createVehicleIssue } from "@/app/lib/controllers/vehicle";
 import { vehicleReportIssueValidationSchema } from "@/app/lib/validationSchema";
 import { getPriorityColor } from "@/app/lib/priorityColor";
+import { ValidationError } from "yup";
 
 interface ReportIssueDialogProps {
   open: boolean;
@@ -120,10 +121,9 @@ const ReportIssueDialog = ({
         onSuccess?.();
       }, 1500);
     } catch (err: unknown) {
-      if (err instanceof Error && err.name === "ValidationError") {
-        const validationError = err as any; // Still need some casting for Yup inner errors if not using full types
+      if (err instanceof ValidationError) {
         const errors: Record<string, string> = {};
-        validationError.inner.forEach((error: any) => {
+        err.inner.forEach((error) => {
           if (error.path) {
             errors[error.path] = error.message;
           }

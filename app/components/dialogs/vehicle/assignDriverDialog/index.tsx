@@ -46,7 +46,7 @@ export default function AssignDriverDialog({
   onSuccess,
 }: AssignDriverDialogProps) {
   /* --------------------------------- states --------------------------------- */
-  const [drivers, setDrivers] = useState<any[]>([]);
+  const [drivers, setDrivers] = useState<DriverWithUser[]>([]);
   const [selectedDriverId, setSelectedDriverId] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);

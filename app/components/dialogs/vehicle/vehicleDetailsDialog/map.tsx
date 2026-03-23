@@ -9,7 +9,6 @@ interface MapVehicleOverviewCardProps {
 }
 
 const MapVehicleOverviewCard = ({
-  id,
   name,
   location,
 }: MapVehicleOverviewCardProps) => {

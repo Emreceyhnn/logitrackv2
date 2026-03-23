@@ -13,6 +13,7 @@ import {
   CardActionArea,
   alpha,
 } from "@mui/material";
+import { Issue } from "@prisma/client";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import BuildIcon from "@mui/icons-material/Build";
 import AddIcon from "@mui/icons-material/Add";
@@ -32,7 +33,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
   const [issueDetailOpen, setIssueDetailOpen] = useState(false);
-  const [selectedIssue, setSelectedIssue] = useState<any | null>(null); // Keeping any for now as issue type is complex with relations
+  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null); 
 
   if (!vehicle) {
     return <Typography color="text.secondary">No vehicle selected</Typography>;
@@ -43,7 +44,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
     onUpdate?.();
   };
 
-  const handleIssueClick = (issue: any) => {
+  const handleIssueClick = (issue: Issue) => {
     setSelectedIssue(issue);
     setIssueDetailOpen(true);
   };

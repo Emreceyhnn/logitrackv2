@@ -140,7 +140,7 @@ export const getWarehouseById = authenticatedAction(
 );
 
 export const updateWarehouse = authenticatedAction(
-  async (user, warehouseId: string, data: Prisma.WarehouseUpdateInput) => {
+  async (user, warehouseId: string, data: Prisma.WarehouseUpdateInput & { managerId?: string | null }) => {
     try {
       await checkPermission(user.id, user.companyId, [
         "role_admin",

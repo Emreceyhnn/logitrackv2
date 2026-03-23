@@ -79,20 +79,14 @@ const EditWarehouseDialog = ({
   // Populate state when warehouseData is available
   useEffect(() => {
     if (warehouseData && open) {
-      const opHours = warehouseData.operatingHours as any;
+      const opHours = warehouseData.operatingHours;
       let openingTime = "08:00";
       let closingTime = "18:00";
       let is247 = false;
 
-      if (opHours === "24/7" || (opHours && opHours.is247)) {
+      if (opHours === "24/7") {
         is247 = true;
-      } else if (opHours && opHours.monFri) {
-        const parts = opHours.monFri.split(" - ");
-        if (parts.length === 2) {
-          openingTime = parts[0];
-          closingTime = parts[1];
-        }
-      } else if (typeof opHours === "string" && opHours.includes(" - ")) {
+      } else if (opHours && opHours.includes(" - ")) {
         const parts = opHours.split(" - ");
         if (parts.length === 2) {
           openingTime = parts[0];
@@ -174,13 +168,14 @@ const EditWarehouseDialog = ({
         toast.success("Warehouse updated successfully");
         onSuccess?.();
         actions.closeDialog();
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Failed to update warehouse";
         setState((prev) => ({
           ...prev,
           isLoading: false,
-          error: err.message || "Failed to update warehouse",
+          error: errorMessage,
         }));
-        toast.error(err.message || "Failed to update warehouse");
+        toast.error(errorMessage);
       }
     },
     closeDialog: () => {

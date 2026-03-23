@@ -21,11 +21,12 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useState, useEffect } from "react";
 import { updateIssue } from "@/app/lib/controllers/vehicle";
 import { getPriorityColor } from "@/app/lib/priorityColor";
+import { Issue } from "@prisma/client";
 
 interface IssueDetailDialogProps {
   open: boolean;
   onClose: () => void;
-  issue: any;
+  issue: Issue | null;
   onUpdate: () => void;
 }
 

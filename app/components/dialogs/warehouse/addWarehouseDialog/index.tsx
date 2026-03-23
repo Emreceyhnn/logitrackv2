@@ -118,13 +118,14 @@ const AddWarehouseDialog = ({
         toast.success("Warehouse created successfully");
         onSuccess?.();
         actions.closeDialog();
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Failed to create warehouse";
         setState((prev) => ({
           ...prev,
           isLoading: false,
-          error: err.message || "Failed to create warehouse",
+          error: errorMessage,
         }));
-        toast.error(err.message || "Failed to create warehouse");
+        toast.error(errorMessage);
       }
     },
     closeDialog: () => {

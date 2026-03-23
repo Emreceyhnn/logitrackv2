@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserStatus, DriverStatus } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 import bcrypt from "bcryptjs";
@@ -77,7 +77,7 @@ async function main() {
         password: hashedPassword,
         avatarUrl: user.avatarUrl,
         roleId: user.roleId,
-        status: user.status as any,
+        status: user.status as UserStatus,
         companyId: COMPANY_ID,
         lastLoginAt: user.lastLoginAt ? new Date(user.lastLoginAt) : null,
       },
@@ -238,7 +238,7 @@ async function main() {
         surname: drv.fullName.split(" ").slice(1).join(" "),
         password: hashedPassword,
         roleId: "role_driver",
-        status: "ACTIVE" as any,
+        status: "ACTIVE" as UserStatus,
         companyId: COMPANY_ID,
       };
 
@@ -264,7 +264,7 @@ async function main() {
           ? new Date(drv.licenses[0].expiresOn)
           : null,
         phone: drv.phone,
-        status: drv.status as any, // Enum mapping might need cast if status strings don't match exactly
+        status: drv.status as DriverStatus, // Enum mapping might need cast if status strings don't match exactly
         companyId: COMPANY_ID,
         currentVehicleId: drv.currentVehicleId,
         homeBaseWarehouseId: drv.homeBaseWarehouseId,
@@ -343,7 +343,7 @@ async function main() {
           warehouseId: mov.warehouseId,
           sku: catalogItem.code,
           quantity: mov.qty,
-          type: mov.type as any,
+          type: mov.type as string,
           date: new Date(mov.timestamp),
           companyId: COMPANY_ID,
         },
@@ -421,7 +421,7 @@ async function main() {
         customerId: shp.customerId,
         driverId: driverId,
         routeId: routeId,
-        status: shp.status as any,
+        status: shp.status as string,
         origin: originStr,
         destination: destStr,
         itemsCount: shp.cargoDetails?.packageCount || 1,
@@ -430,7 +430,7 @@ async function main() {
         history: {
           create:
             shp.tracking?.milestones?.map((milestone: { status: string; timestamp?: string }) => ({
-              status: milestone.status as any,
+              status: milestone.status as string,
               location: "Unknown",
               description: milestone.status,
               createdAt: milestone.timestamp

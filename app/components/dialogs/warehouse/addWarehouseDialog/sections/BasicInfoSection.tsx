@@ -10,6 +10,7 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
+import { WarehouseType } from "@prisma/client";
 import {
   AddWarehouseBasicInfo,
   AddWarehousePageActions,
@@ -97,7 +98,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 select
                 value={state.type}
                 onChange={(e) =>
-                  actions.updateBasicInfo({ type: e.target.value as any })
+                  actions.updateBasicInfo({ type: e.target.value as WarehouseType })
                 }
               >
                 <MenuItem value="WAREHOUSE">Standard Warehouse</MenuItem>

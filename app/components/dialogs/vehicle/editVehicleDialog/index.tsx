@@ -30,6 +30,7 @@ import { uploadImageAction } from "@/app/lib/actions/upload";
 import { toast } from "sonner";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import CircularProgress from "@mui/material/CircularProgress";
+import { VehicleType } from "@prisma/client";
 
 export interface EditVehicleDialogProps {
   open: boolean;
@@ -183,7 +184,7 @@ const EditVehicleDialog = ({
           const updateData = {
             fleetNo: step1.fleetNo,
             plate: step1.plate,
-            type: step1.type as any, // Cast to any to avoid strict enum checking if there's a mismatch
+            type: step1.type as VehicleType, 
             brand: step1.brand,
             model: step1.model,
             year: Number(step1.year),
@@ -209,13 +210,14 @@ const EditVehicleDialog = ({
             onClose();
             onSuccess?.();
           }, 1500);
-        } catch (err: any) {
+        } catch (err: unknown) {
+          const errorMessage = err instanceof Error ? err.message : "Failed to update vehicle";
           setState((prev) => ({
             ...prev,
             isLoading: false,
-            error: err.message || "Failed to update vehicle",
+            error: errorMessage,
           }));
-          toast.error(err.message || "Failed to update vehicle");
+          toast.error(errorMessage);
         }
       },
 

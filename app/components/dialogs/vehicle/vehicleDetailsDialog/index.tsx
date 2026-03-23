@@ -23,7 +23,6 @@ import MaintenanceTab from "./maintenance";
 import CloseIcon from "@mui/icons-material/Close";
 
 import DeleteIcon from "@mui/icons-material/Delete";
-import WarningIcon from "@mui/icons-material/Warning";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
@@ -111,10 +110,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
 
   const statusMeta = getStatusMeta(vehicleData?.status);
   const [colorKey, colorVariant] = statusMeta.color.split(".");
-  const palette = theme.palette as any; // Still using any as MUI palette access by string is tricky with type safety
-  const statusColor = (palette[colorKey] && typeof palette[colorKey] === "object" && colorVariant in palette[colorKey])
-    ? palette[colorKey][colorVariant]
-    : theme.palette.text.primary;
+  const paletteColor = theme.palette[colorKey as keyof typeof theme.palette] as unknown as Record<string, string>;
+  const statusColor = paletteColor?.[colorVariant] || theme.palette.text.primary;
 
   return (
     <Dialog

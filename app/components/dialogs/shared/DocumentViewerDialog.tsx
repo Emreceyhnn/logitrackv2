@@ -19,7 +19,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface DocumentViewerDialogProps {
   open: boolean;

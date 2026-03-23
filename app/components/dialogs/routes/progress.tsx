@@ -6,8 +6,6 @@ import {
   StepLabel,
   StepContent,
   Stack,
-  LinearProgress,
-  Chip,
 } from "@mui/material";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import CircleIcon from "@mui/icons-material/Circle";

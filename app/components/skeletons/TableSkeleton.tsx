@@ -7,15 +7,11 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Divider,
-  Typography,
   alpha,
-  Box,
   useTheme,
-  Theme,
   SxProps,
+  Theme,
 } from "@mui/material";
-import CustomCard from "../cards/card";
 
 interface TableSkeletonProps {
   rows?: number;
@@ -33,7 +29,12 @@ export default function TableSkeleton({
   const theme = useTheme();
 
   return (
-    <TableContainer sx={{ p: title ? 0 : 2, pt: title ? 0 : 3 }}>
+    <TableContainer
+      sx={[
+        { p: title ? 0 : 2, pt: title ? 0 : 3 },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+    >
       <Table sx={{ minWidth: 750 }}>
         <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
           <TableRow>

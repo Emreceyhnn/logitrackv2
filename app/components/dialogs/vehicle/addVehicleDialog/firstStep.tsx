@@ -17,6 +17,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import TagIcon from "@mui/icons-material/Tag";
 import PinIcon from "@mui/icons-material/Pin";
 import { FirstStepProps } from "@/app/lib/type/vehicle";
+import { VehicleType } from "@prisma/client";
 
 const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
   /* -------------------------------- variables ------------------------------- */
@@ -242,7 +243,9 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
           select
           label="Vehicle Type"
           value={data.type}
-          onChange={(e) => actions.updateStep1({ type: e.target.value as any })}
+          onChange={(e) =>
+            actions.updateStep1({ type: e.target.value as VehicleType })
+          }
           sx={textFieldSx}
         >
           <MenuItem value="TRUCK">Heavy Duty Truck</MenuItem>

@@ -26,7 +26,6 @@ const MapRoutesDialogCard = ({
   destination,
   addrA,
   addrB,
-  vehicleLocation,
   onRouteInfoUpdate,
 }: MapRoutesDialogCardProps) => {
   const isRoute = !!((origin || addrA) && (destination || addrB));

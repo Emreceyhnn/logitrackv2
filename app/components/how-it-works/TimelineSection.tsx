@@ -1,13 +1,7 @@
 "use client";
 
 import { Box, Stack, Typography, alpha } from "@mui/material";
-import { keyframes } from "@mui/system";
 import { motion } from "framer-motion";
-
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
 
 const steps = [
   {
