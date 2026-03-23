@@ -1,16 +1,16 @@
 import {
   Shipment,
-  Customer,
   Route,
   ShipmentHistory,
   Company,
 } from "@prisma/client";
+import { CustomerWithRelations } from "./customer";
 
 // Domain Models
 export interface ShipmentWithRelations extends Shipment {
   destinationLat?: number | null;
   destinationLng?: number | null;
-  customer: Customer | null;
+  customer: CustomerWithRelations | null;
   driver?: {
     id: string;
     user: {
@@ -20,6 +20,13 @@ export interface ShipmentWithRelations extends Shipment {
     };
   } | null;
   route?: Route | null;
+
+  // New fields
+  priority?: string | null;
+  type?: string | null;
+  slaDeadline?: Date | null;
+  contactEmail?: string | null;
+  billingAccount?: string | null;
 
   // For detail view
   company?: Company;

@@ -6,7 +6,13 @@ import { useEffect, useState, useMemo } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { getCompanyProfile } from "@/app/lib/controllers/company";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
-import { CompanyPageState, CompanyPageActions } from "@/app/lib/type/company";
+import { 
+  CompanyPageState, 
+  CompanyPageActions, 
+  CompanyProfile, 
+  CompanyStats, 
+  CompanyMember 
+} from "@/app/lib/type/company";
 import CompanyKpiCard from "@/app/components/dashboard/company/companyKpiCard";
 import CompanyInfoCard from "@/app/components/dashboard/company/companyInfoCard";
 import CompanyMembersTable from "@/app/components/dashboard/company/companyMembersTable";
@@ -46,9 +52,9 @@ export default function CompanyPage() {
         const result = await getCompanyProfile();
         setState({
           data: {
-            profile: result.profile as any,
-            stats: result.stats as any,
-            members: result.members as any,
+            profile: result.profile as CompanyProfile,
+            stats: result.stats as CompanyStats,
+            members: result.members as CompanyMember[],
           },
           loading: false,
           error: null,
@@ -71,9 +77,9 @@ export default function CompanyPage() {
         const result = await getCompanyProfile();
         setState({
           data: {
-            profile: result.profile as any,
-            stats: result.stats as any,
-            members: result.members as any,
+            profile: result.profile as CompanyProfile,
+            stats: result.stats as CompanyStats,
+            members: result.members as CompanyMember[],
           },
           loading: false,
           error: null,

@@ -18,7 +18,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   AddRoutePageState,
   AddRoutePageActions,
@@ -34,6 +34,7 @@ import SecondRouteDialogStep from "./addRouteDialog/secondStep";
 import ThirdRouteDialogStep from "./addRouteDialog/thirdStep";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+import { Prisma } from "@prisma/client";
 
 interface EditRouteDialogProps {
   open: boolean;
@@ -71,6 +72,7 @@ const initialStep3: AddRouteStep3 = {
 const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
+  const isInitialized = useRef<string | null>(null);
 
   /* --------------------------------- states --------------------------------- */
   const [state, setState] = useState<AddRoutePageState>({
@@ -87,7 +89,9 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
 
   /* ------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
-    if (open && route) {
+    if (open && route && isInitialized.current !== route.id) {
+      isInitialized.current = route.id;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState((prev) => ({
         ...prev,
         currentStep: 1,
@@ -98,13 +102,13 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
             endTime: route.endTime ? new Date(route.endTime) : null,
           },
           step2: {
-            startType: (route as Record<string, any>).startType || "WAREHOUSE",
-            startId: (route as Record<string, any>).startId || "",
+            startType: (route as unknown as Record<string, unknown>).startType as AddRouteStep2["startType"] || "WAREHOUSE",
+            startId: (route as unknown as Record<string, unknown>).startId as string || "",
             startAddress: route.startAddress || "",
             startLat: route.startLat || 0,
             startLng: route.startLng || 0,
-            endType: (route as Record<string, any>).endType || "CUSTOMER",
-            endId: (route as Record<string, any>).endId || "",
+            endType: (route as unknown as Record<string, unknown>).endType as AddRouteStep2["endType"] || "CUSTOMER",
+            endId: (route as unknown as Record<string, unknown>).endId as string || "",
             endAddress: route.endAddress || "",
             endLat: route.endLat || 0,
             endLng: route.endLng || 0,
@@ -120,6 +124,8 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
         error: null,
         isSuccess: false,
       }));
+    } else if (!open) {
+      isInitialized.current = null;
     }
   }, [open, route]);
 
@@ -168,7 +174,7 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
       try {
         setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-        const payload: Record<string, any> = {
+        const payload: Prisma.RouteUpdateInput = {
           name: state.data.step1.name,
           startTime: state.data.step1.startTime,
           endTime: state.data.step1.endTime,
@@ -180,8 +186,8 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
           endLng: state.data.step2.endLng,
           distanceKm: state.data.step2.distanceKm,
           durationMin: state.data.step2.durationMin,
-          driverId: state.data.step3.driverId,
-          vehicleId: state.data.step3.vehicleId,
+          driver: state.data.step3.driverId ? { connect: { id: state.data.step3.driverId } } : { disconnect: true },
+          vehicle: state.data.step3.vehicleId ? { connect: { id: state.data.step3.vehicleId } } : { disconnect: true },
         };
 
         await updateRoute(route.id, payload);

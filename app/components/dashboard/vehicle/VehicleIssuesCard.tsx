@@ -83,7 +83,7 @@ export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
                       <Chip
                         label={issue.priority}
                         size="small"
-                        color={getPriorityColor(issue.priority) as any}
+                        color={getPriorityColor(issue.priority)}
                         variant="outlined"
                       />
                     </Box>

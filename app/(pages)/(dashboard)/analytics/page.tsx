@@ -5,7 +5,7 @@ import AnalyticsHeader from "@/app/components/dashboard/analytics/AnalyticsHeade
 import PerformanceGauges from "@/app/components/dashboard/analytics/PerformanceGauges";
 import CostAnalysisCharts from "@/app/components/dashboard/analytics/CostAnalysisCharts";
 import ForecastingWidget from "@/app/components/dashboard/analytics/ForecastingWidget";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { AnalyticsPageState, AnalyticsPageActions } from "@/app/lib/type/analytics.d";
 
 export default function AnalyticsPage() {
@@ -22,13 +22,13 @@ export default function AnalyticsPage() {
     }
   }, []);
 
-  const actions: AnalyticsPageActions = {
+  const actions: AnalyticsPageActions = useMemo(() => ({
     fetchData
-  };
+  }), [fetchData]);
 
   useEffect(() => {
     actions.fetchData();
-  }, [actions.fetchData]);
+  }, [actions]);
 
   return (
     <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>

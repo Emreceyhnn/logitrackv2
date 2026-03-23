@@ -1,4 +1,6 @@
-export const getPriorityColor = (priority: string) => {
+import { ChipProps } from "@mui/material";
+
+export const getPriorityColor = (priority: string): ChipProps["color"] => {
   const normalizedPriority = priority?.toUpperCase();
 
   switch (normalizedPriority) {

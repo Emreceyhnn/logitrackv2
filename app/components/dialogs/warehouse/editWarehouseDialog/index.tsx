@@ -17,7 +17,7 @@ import {
   StepLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   EditWarehouseDialogProps,
   EditWarehousePageActions,
@@ -63,6 +63,7 @@ const EditWarehouseDialog = ({
 }: EditWarehouseDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
+  const isInitialized = useRef<string | null>(null);
 
   const [state, setState] = useState<EditWarehousePageState>({
     data: {
@@ -78,7 +79,8 @@ const EditWarehouseDialog = ({
 
   // Populate state when warehouseData is available
   useEffect(() => {
-    if (warehouseData && open) {
+    if (warehouseData && open && isInitialized.current !== warehouseData.id) {
+      isInitialized.current = warehouseData.id;
       const opHours = warehouseData.operatingHours;
       let openingTime = "08:00";
       let closingTime = "18:00";
@@ -94,6 +96,7 @@ const EditWarehouseDialog = ({
         }
       }
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState({
         data: {
           basicInfo: {
@@ -124,6 +127,8 @@ const EditWarehouseDialog = ({
         error: null,
         isSuccess: false,
       });
+    } else if (!open) {
+      isInitialized.current = null;
     }
   }, [warehouseData, open]);
 

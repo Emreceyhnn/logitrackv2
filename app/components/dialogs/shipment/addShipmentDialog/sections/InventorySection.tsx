@@ -26,6 +26,7 @@ import {
   InventoryShipmentItem,
   AddShipmentCargo,
 } from "@/app/lib/type/add-shipment";
+import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -39,7 +40,7 @@ interface InventorySectionProps {
   removeInventoryItem: (id: string) => void;
   updateInventory: (data: Partial<AddShipmentInventory>) => void;
   updateCargo: (data: Partial<AddShipmentCargo>) => void;
-  availableInventory: any[];
+  availableInventory: InventoryWithRelations[];
   isLoadingInventory: boolean;
 }
 
@@ -81,14 +82,14 @@ const InventorySection = ({
     );
   };
 
-  const selectProduct = (product: any) => {
+  const selectProduct = (product: InventoryWithRelations) => {
     const newItem: InventoryShipmentItem = {
       id: crypto.randomUUID(),
       sku: product.sku,
       name: product.name,
       quantity: 1,
       maxQuantity: product.quantity,
-      unit: product.unit || "Each",
+      unit: (product.unit as InventoryShipmentItem["unit"]) || "Each",
       weightKg: product.weightKg || 0,
       volumeM3: product.volumeM3 || 0,
       palletCount: product.palletCount || 0,
@@ -325,7 +326,7 @@ const InventorySection = ({
                       select
                       value={item.unit}
                       onChange={(e) =>
-                        updateItem(item.id, { unit: e.target.value as any })
+                        updateItem(item.id, { unit: e.target.value as InventoryShipmentItem["unit"] })
                       }
                     >
                       <MenuItem value="Each">Each</MenuItem>

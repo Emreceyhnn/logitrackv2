@@ -46,7 +46,7 @@ const InventoryDetailDialog = ({
 
   // Derive display values from real data
   const onHand = item.quantity;
-  const unitPrice = (item as any).unitValue || 0;
+  const unitPrice = item.unitValue || 0;
   const category = "General"; // Not in schema yet
 
   const stockDistribution: Array<{ warehouseName: string; available: number; onHand: number; reserved: number }> = [];

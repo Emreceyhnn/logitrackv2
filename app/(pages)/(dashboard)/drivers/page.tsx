@@ -92,10 +92,10 @@ export default function DriverPage() {
           },
           loading: false,
         }));
-      } catch (error: any) {
+      } catch (error: unknown) {
         setState((prev) => ({
           ...prev,
-          error: error.message,
+          error: error instanceof Error ? error.message : "An unknown error occurred",
           loading: false,
         }));
       }
@@ -116,14 +116,14 @@ export default function DriverPage() {
               }
             : null,
         }));
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Failed dashboard data", error);
       }
     },
 
     selectDriver: (id: string | null) => {
       setState((prev) => {
-        const driver = prev.drivers.find((d: any) => d.id === id) || null;
+        const driver = prev.drivers.find((d) => d.id === id) || null;
         return { ...prev, selectedDriverId: id, selectedDriver: driver };
       });
       if (id) setIsDetailsOpen(true);
@@ -169,7 +169,14 @@ export default function DriverPage() {
     if (!state.dashboardData) {
       actions.fetchDashboardData();
     }
-  }, [actions, state.dashboardData]);
+  }, [
+    actions, 
+    state.dashboardData, 
+    state.pagination.page, 
+    state.pagination.limit, 
+    state.filters, 
+    state.sort
+  ]);
 
   /* -------------------------------- Handlers -------------------------------- */
   const handleEdit = (driver: DriverWithRelations) => {
@@ -193,7 +200,7 @@ export default function DriverPage() {
         state.filters
       );
       actions.fetchDashboardData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Delete failed", error);
     } finally {
 
@@ -315,6 +322,7 @@ export default function DriverPage() {
       />
 
       <EditDriverDialog
+        key={driverToEdit?.id}
         open={isEditOpen}
         driver={driverToEdit}
         onClose={() => setIsEditOpen(false)}

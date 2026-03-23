@@ -81,9 +81,12 @@ const DriverDialog = (params: DriverDialogParams) => {
   if (!driverData) return null;
 
   const statusMeta = getStatusMeta(driverData.status);
-  const [colorKey, colorVariant] = statusMeta.color;
+  const colorParts = statusMeta.color.split(".");
+  const colorKey = colorParts[0] as keyof typeof theme.palette;
+  const colorVariant = colorParts[1] || "main";
+  
   const statusColor =
-    (theme.palette as any)[colorKey]?.[colorVariant] ||
+    (theme.palette[colorKey] as unknown as Record<string, string>)?.[colorVariant] ||
     theme.palette.text.primary;
 
   return (

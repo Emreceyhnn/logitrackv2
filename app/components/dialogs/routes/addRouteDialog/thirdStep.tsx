@@ -19,6 +19,8 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import BuildIcon from "@mui/icons-material/Build";
 import GppGoodIcon from "@mui/icons-material/GppGood";
+import { DriverWithRelations } from "@/app/lib/type/driver";
+import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useEffect, useState } from "react";
 import { getDrivers } from "@/app/lib/controllers/driver";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
@@ -36,8 +38,8 @@ const ThirdRouteDialogStep = ({
   const theme = useTheme();
 
   /* --------------------------------- states --------------------------------- */
-  const [drivers, setDrivers] = useState<any[]>([]);
-  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [drivers, setDrivers] = useState<DriverWithRelations[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleWithRelations[]>([]);
   const [loadingItems, setLoadingItems] = useState(true);
 
   /* ------------------------------- lifecycle ------------------------------- */
@@ -122,7 +124,7 @@ const ThirdRouteDialogStep = ({
                   drivers.map((driver) => (
                     <MenuItem key={driver.id} value={driver.id}>
                       <Avatar
-                        src={driver.user.avatarUrl}
+                        src={driver.user.avatarUrl || undefined}
                         sx={{ width: 24, height: 24 }}
                       />
                       <Typography variant="body2">

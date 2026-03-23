@@ -11,6 +11,9 @@ export interface DriverWithRelations {
   rating: number | null;
   efficiencyScore: number | null;
   safetyScore: number | null;
+  hazmatCertified: boolean;
+  languages: string[];
+  homeBaseWarehouseId: string | null;
 
   user: {
     id: string;

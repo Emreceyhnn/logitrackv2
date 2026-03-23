@@ -27,7 +27,7 @@ import {
   getShipmentVolumeHistory,
   getMapData,
 } from "@/app/lib/controllers/analytics";
-import { OverviewPageState } from "@/app/lib/type/overview";
+import { OverviewPageState, MapData } from "@/app/lib/type/overview";
 
 export default function OverviewPage() {
   const router = useRouter();
@@ -87,7 +87,7 @@ export default function OverviewPage() {
         getMapData(),
       ]);
 
-      const validMapData = (mapDataRes || []).map((item: any) => ({
+      const validMapData: MapData[] = (mapDataRes || []).map((item: MapData) => ({
         ...item,
         type: (["W", "V", "C"].includes(item.type) ? item.type : "W") as
           | "W"
@@ -124,6 +124,7 @@ export default function OverviewPage() {
   }, [router]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDashboardData();
   }, [fetchDashboardData]);
 

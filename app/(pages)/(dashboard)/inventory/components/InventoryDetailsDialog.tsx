@@ -251,7 +251,7 @@ export default function InventoryDetailsDialog({
                       <Box>
                         <Typography variant="caption" color="text.secondary" fontWeight={600}>UNIT VALUE</Typography>
                         <Typography variant="h5" fontWeight={800} color="white">
-                          {(item as any).unitValue?.toLocaleString() || "0"}
+                          {item.unitValue?.toLocaleString() || "0"}
                         </Typography>
                       </Box>
                     </Stack>

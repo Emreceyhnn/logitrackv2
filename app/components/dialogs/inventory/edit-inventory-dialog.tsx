@@ -46,6 +46,7 @@ const EditInventoryDialog = ({
 
   useEffect(() => {
     if (item && open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         name: item.name || "",
         sku: item.sku || "",

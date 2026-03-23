@@ -24,7 +24,12 @@ export const createShipment = authenticatedAction(
     destinationLat?: number,
     destinationLng?: number,
     trackingId?: string,
-    customerLocationId?: string
+    customerLocationId?: string,
+    priority: string = "MEDIUM",
+    type: string = "Standard Freight",
+    slaDeadline?: Date | null,
+    contactEmail?: string,
+    billingAccount?: string
   ) => {
     const userId = user?.id;
     const companyId = user?.companyId;
@@ -92,6 +97,11 @@ export const createShipment = authenticatedAction(
           palletCount,
           cargoType,
           companyId,
+          priority,
+          type,
+          slaDeadline,
+          contactEmail,
+          billingAccount,
           history: {
             create: {
               status: status,

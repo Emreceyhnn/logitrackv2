@@ -18,7 +18,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import FirstStep from "../addVehicleDialog/firstStep";
 import TechSpecsStep from "../addVehicleDialog/techSpecsStep";
 import {
@@ -85,9 +85,12 @@ const EditVehicleDialog = ({
     isSuccess: false,
   });
 
+  const isInitialized = useRef<string | null>(null);
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
-    if (open && vehicle) {
+    if (open && vehicle && isInitialized.current !== vehicle.id) {
+      isInitialized.current = vehicle.id;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState({
         currentStep: 1,
         data: {
@@ -123,6 +126,8 @@ const EditVehicleDialog = ({
         error: null,
         isSuccess: false,
       });
+    } else if (!open) {
+      isInitialized.current = null;
     }
   }, [open, vehicle]);
 

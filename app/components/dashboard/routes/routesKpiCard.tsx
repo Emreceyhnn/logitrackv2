@@ -6,7 +6,7 @@ import AltRouteIcon from "@mui/icons-material/AltRoute";
 import LoopIcon from "@mui/icons-material/Loop";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningIcon from "@mui/icons-material/Warning";
-import { RoutesKpiCardProps } from "@/app/lib/type/routes";
+import { RouteStats } from "@/app/lib/type/routes";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 import { motion } from "framer-motion";
 
@@ -14,7 +14,7 @@ const RoutesKpiCard = ({
   stats,
   loading = false,
 }: {
-  stats: any;
+  stats: RouteStats | null;
   loading?: boolean;
 }) => {
   /* -------------------------------- variables ------------------------------- */

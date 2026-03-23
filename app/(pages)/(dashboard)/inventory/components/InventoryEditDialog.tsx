@@ -23,10 +23,10 @@ import {
   Inventory as InventoryIcon,
   SettingsSuggest as SettingsIcon,
 } from "@mui/icons-material";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { InventoryEditProps } from "@/app/lib/type/inventory";
+import { InventoryEditProps, InventoryWithRelations } from "@/app/lib/type/inventory";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -64,7 +64,7 @@ export default function InventoryEditDialog({
     reset,
     formState: { isSubmitting, errors },
   } = useForm<FormData>({
-    resolver: yupResolver(schema) as any,
+    resolver: yupResolver(schema) as unknown as Resolver<FormData>,
     defaultValues: {
       sku: "",
       imageUrl: "",
@@ -104,7 +104,7 @@ export default function InventoryEditDialog({
       await onUpdate(item.id, {
         ...data,
         imageUrl: finalImageUrl,
-      } as any);
+      } as Partial<InventoryWithRelations>);
       onClose();
     } catch (error) {
       console.error("Failed to update inventory", error);

@@ -199,23 +199,26 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
       // Find the origin warehouse from the warehouses list
       const warehouse = warehouses.find((w) => w.id === shipment.origin);
 
+      const defaultLoc = shipment.customer?.locations?.find((l) => l.isDefault);
+      const fallbackLoc = shipment.customer?.locations?.[0];
+
       const updateData: Partial<AddRouteStep2> = {
-        endAddress: shipment.destination || (shipment.customer as any)?.locations?.find((l: any) => l.isDefault)?.address || (shipment.customer as any)?.locations?.[0]?.address || "",
+        endAddress: shipment.destination || defaultLoc?.address || fallbackLoc?.address || "",
         endLat:
           typeof shipment.destinationLat === "number"
-            ? shipment.destinationLat
-            : typeof (shipment.customer as any)?.locations?.find((l: any) => l.isDefault)?.lat === "number"
-              ? ((shipment.customer as any)?.locations?.find((l: any) => l.isDefault)?.lat as number)
-              : typeof (shipment.customer as any)?.locations?.[0]?.lat === "number"
-                ? ((shipment.customer as any)?.locations?.[0]?.lat as number)
+            ? (shipment.destinationLat as number)
+            : typeof defaultLoc?.lat === "number"
+              ? (defaultLoc.lat as number)
+              : typeof fallbackLoc?.lat === "number"
+                ? (fallbackLoc.lat as number)
                 : undefined,
         endLng:
           typeof shipment.destinationLng === "number"
-            ? shipment.destinationLng
-            : typeof (shipment.customer as any)?.locations?.find((l: any) => l.isDefault)?.lng === "number"
-              ? ((shipment.customer as any)?.locations?.find((l: any) => l.isDefault)?.lng as number)
-              : typeof (shipment.customer as any)?.locations?.[0]?.lng === "number"
-                ? ((shipment.customer as any)?.locations?.[0]?.lng as number)
+            ? (shipment.destinationLng as number)
+            : typeof defaultLoc?.lng === "number"
+              ? (defaultLoc.lng as number)
+              : typeof fallbackLoc?.lng === "number"
+                ? (fallbackLoc.lng as number)
                 : undefined,
       };
 

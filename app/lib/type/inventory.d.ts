@@ -7,6 +7,8 @@ export interface InventoryWithRelations extends Inventory {
     name: string;
   };
   imageUrl?: string | null;
+  unitValue?: number | null;
+  unit?: string;
 }
 
 export interface LowStockItem extends Inventory {

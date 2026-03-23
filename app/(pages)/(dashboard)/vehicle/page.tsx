@@ -17,7 +17,7 @@ import {
 } from "@/app/lib/type/vehicle";
 import { Box, Stack, Typography, Button, Alert, Divider } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { deleteVehicle } from "@/app/lib/controllers/vehicle";
@@ -41,76 +41,82 @@ export default function VehiclePage() {
     useState<VehicleWithRelations | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  /* --------------------------------- actions -------------------------------- */
-  const actions: VehiclePageActions = {
-    fetchVehicles: useCallback(async () => {
-      try {
-        setState((prev) => ({ ...prev, loading: true }));
-        const vehicles = await getVehicles(state.filters);
-        setState((prev) => ({ ...prev, vehicles, loading: false }));
-      } catch (error) {
-        console.error("Failed to fetch vehicles:", error);
-        setState((prev) => ({
-          ...prev,
-          loading: false,
-          error: "Failed to load vehicle list",
-        }));
-      }
-    }, [state.filters]),
-
-    fetchDashboardData: useCallback(async () => {
-      try {
-        const dashboardData = await getVehiclesDashboardData();
-        console.log(dashboardData);
-        setState((prev) => ({ ...prev, dashboardData }));
-      } catch (error) {
-        console.error("Failed to fetch dashboard data:", error);
-      }
-    }, []),
-
-    refreshAll: useCallback(async () => {
-      setState((prev) => ({ ...prev, loading: true, error: null }));
-      try {
-        const [vehicles, dashboardData] = await Promise.all([
-          getVehicles(state.filters),
-          getVehiclesDashboardData(),
-        ]);
-        setState((prev) => ({
-          ...prev,
-          vehicles,
-          dashboardData,
-          loading: false,
-        }));
-      } catch (error) {
-        console.error("Failed to refresh data:", error);
-        setState((prev) => ({
-          ...prev,
-          loading: false,
-          error: "Failed to refresh data. Please try again.",
-        }));
-      }
-    }, [state.filters]),
-
-    selectVehicle: useCallback((id: string | null) => {
-      setState((prev) => ({ ...prev, selectedVehicleId: id }));
-    }, []),
-
-    updateFilters: useCallback((newFilters) => {
+  /* ---------------------------------- actions ------------------------------- */
+  const fetchVehicles = useCallback(async () => {
+    try {
+      setState((prev) => ({ ...prev, loading: true }));
+      const vehicles = await getVehicles(state.filters);
+      setState((prev) => ({ ...prev, vehicles, loading: false }));
+    } catch (error) {
+      console.error("Failed to fetch vehicles:", error);
       setState((prev) => ({
         ...prev,
-        filters: { ...prev.filters, ...newFilters },
+        loading: false,
+        error: "Failed to load vehicle list",
       }));
-    }, []),
-  };
+    }
+  }, [state.filters]);
+
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      const dashboardData = await getVehiclesDashboardData();
+      console.log(dashboardData);
+      setState((prev) => ({ ...prev, dashboardData }));
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error);
+    }
+  }, []);
+
+  const refreshAll = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+    try {
+      const [vehicles, dashboardData] = await Promise.all([
+        getVehicles(state.filters),
+        getVehiclesDashboardData(),
+      ]);
+      setState((prev) => ({
+        ...prev,
+        vehicles,
+        dashboardData,
+        loading: false,
+      }));
+    } catch (error) {
+      console.error("Failed to refresh data:", error);
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: "Failed to refresh data. Please try again.",
+      }));
+    }
+  }, [state.filters]);
+
+  const selectVehicle = useCallback((id: string | null) => {
+    setState((prev) => ({ ...prev, selectedVehicleId: id }));
+  }, []);
+
+  const updateFilters = useCallback((newFilters: Partial<VehiclePageState["filters"]>) => {
+    setState((prev) => ({
+      ...prev,
+      filters: { ...prev.filters, ...newFilters },
+    }));
+  }, []);
+
+  const actions: VehiclePageActions = useMemo(() => ({
+    fetchVehicles,
+    fetchDashboardData,
+    refreshAll,
+    selectVehicle,
+    updateFilters,
+  }), [fetchVehicles, fetchDashboardData, refreshAll, selectVehicle, updateFilters]);
 
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
-    actions.fetchVehicles();
-  }, [state.filters]);
+    fetchVehicles();
+  }, [fetchVehicles]);
 
   useEffect(() => {
-    actions.fetchDashboardData();
-  }, []);
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleAddSuccess = () => {
@@ -250,7 +256,7 @@ export default function VehiclePage() {
         <VehicleDialog
           open={!!selectedVehicle}
           onClose={() => actions.selectVehicle(null)}
-          vehicleData={selectedVehicle as any}
+          vehicleData={selectedVehicle}
           onEditSuccess={handleDialogEditSuccess}
           onDeleteSuccess={handleDialogDeleteSuccess}
           onUpdateSuccess={actions.refreshAll}

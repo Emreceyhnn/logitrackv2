@@ -15,8 +15,9 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { DriverStatus } from "@prisma/client";
 import CloseIcon from "@mui/icons-material/Close";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   EditDriverDialogProps,
   EditDriverPageActions,
@@ -69,9 +70,44 @@ const EditDriverDialog = ({
     isSuccess: false,
   });
 
+  /* -------------------------------- handlers -------------------------------- */
+  const reset = useCallback(() => {
+    setState({
+      currentStep: 1,
+      data: {
+        step1: driver ? {
+          phone: driver.phone || "",
+          employeeId: driver.employeeId || "",
+          licenseNo: driver.licenseNumber || "",
+          licenseType: driver.licenseType || "",
+          licenseExpiry: driver.licenseExpiry ? new Date(driver.licenseExpiry) : null,
+          licencePhoto: null,
+        } : initialStep1,
+        step2: driver ? {
+          homeWareHouseId: driver.homeBaseWarehouseId || "",
+          currentVehicleId: driver.currentVehicle?.id || "",
+          status: driver.status,
+          languages: driver.languages || [],
+          hazmatCertified: driver.hazmatCertified || false,
+          documents: [],
+        } : initialStep2,
+      },
+      isLoading: false,
+      error: null,
+      isSuccess: false,
+    });
+  }, [driver]);
+
+  const closeDialog = useCallback(() => {
+    if (!state.isLoading) {
+      onClose();
+    }
+  }, [state.isLoading, onClose]);
+
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (driver && open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState((prev) => ({
         ...prev,
         data: {
@@ -86,11 +122,11 @@ const EditDriverDialog = ({
             licencePhoto: null,
           },
           step2: {
-            homeWareHouseId: (driver as any).homeBaseWarehouseId || "",
+            homeWareHouseId: driver.homeBaseWarehouseId || "",
             currentVehicleId: driver.currentVehicle?.id || "",
             status: driver.status,
-            languages: (driver as any).languages || [],
-            hazmatCertified: (driver as any).hazmatCertified || false,
+            languages: driver.languages || [],
+            hazmatCertified: driver.hazmatCertified || false,
             documents: [], // existing docs could be loaded here but update API mostly appends currently
           },
         },
@@ -98,7 +134,99 @@ const EditDriverDialog = ({
     }
   }, [driver, open]);
 
-  /* -------------------------------- actions --------------------------------- */
+  const handleSubmit = useCallback(async () => {
+    if (!driver) return;
+
+    try {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
+      const { step1, step2 } = state.data;
+
+      const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+        });
+      };
+
+      // 1. Upload Licence Photo if exists
+      let licensePhotoUrl = "";
+      if (step1.licencePhoto) {
+        const base64 = await fileToBase64(step1.licencePhoto);
+        const uploadResult = await uploadImageAction(
+          base64,
+          "documents",
+          `drivers/${driver.user.id}/license`
+        );
+        licensePhotoUrl = uploadResult.url;
+      }
+
+      // 2. Upload additional documents if exist
+      const uploadedDocs = await Promise.all(
+        step2.documents.map(async (doc) => {
+          if (doc.file) {
+            const base64 = await fileToBase64(doc.file);
+            const uploadResult = await uploadImageAction(
+              base64,
+              "documents",
+              `drivers/${driver.user.id}/docs`
+            );
+            return {
+              name: doc.name,
+              type: doc.type,
+              url: uploadResult.url,
+              expiryDate: doc.expiryDate || undefined,
+            };
+          }
+          return null;
+        })
+      );
+
+      const payload = {
+        phone: step1.phone,
+        employeeId: step1.employeeId,
+        licenseNumber: step1.licenseNo,
+        licenseExpiry: step1.licenseExpiry,
+        licenseType: step1.licenseType,
+        status: step2.status as DriverStatus,
+        currentVehicleId: step2.currentVehicleId || null,
+        homeBaseWarehouseId: step2.homeWareHouseId || null,
+        languages: step2.languages,
+        hazmatCertified: step2.hazmatCertified,
+        ...(licensePhotoUrl && { licensePhotoUrl }),
+        ...(uploadedDocs.length > 0 && {
+          documents: uploadedDocs.filter((d) => d !== null) as {
+            name: string;
+            type: string;
+            url: string;
+            expiryDate?: Date;
+          }[],
+        }),
+      };
+
+      await updateDriver(driver.id, payload);
+
+      setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
+      toast.success("Driver updated successfully");
+
+      setTimeout(() => {
+        onClose();
+        onSuccess?.();
+        reset();
+      }, 1500);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to update driver";
+      setState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: message,
+      }));
+      toast.error(message);
+    }
+  }, [driver, state.data, onClose, onSuccess, reset]);
+
   const actions: EditDriverPageActions = useMemo(
     () => ({
       updateStep1: (data) => {
@@ -123,112 +251,11 @@ const EditDriverDialog = ({
       prevStep: () => {
         setState((prev) => ({ ...prev, currentStep: prev.currentStep - 1 }));
       },
-      handleSubmit: async () => {
-        if (!driver) return;
-
-        try {
-          setState((prev) => ({ ...prev, isLoading: true, error: null }));
-
-          const { step1, step2 } = state.data;
-
-          const fileToBase64 = (file: File): Promise<string> => {
-            return new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.readAsDataURL(file);
-              reader.onload = () => resolve(reader.result as string);
-              reader.onerror = (error) => reject(error);
-            });
-          };
-
-          // 1. Upload Licence Photo if exists
-          let licensePhotoUrl = "";
-          if (step1.licencePhoto) {
-            const base64 = await fileToBase64(step1.licencePhoto);
-            const uploadResult = await uploadImageAction(
-              base64,
-              "documents",
-              `drivers/${driver.user.id}/license`
-            );
-            licensePhotoUrl = uploadResult.url;
-          }
-
-          // 2. Upload additional documents if exist
-          const uploadedDocs = await Promise.all(
-            step2.documents.map(async (doc) => {
-              if (doc.file) {
-                const base64 = await fileToBase64(doc.file);
-                const uploadResult = await uploadImageAction(
-                  base64,
-                  "documents",
-                  `drivers/${driver.user.id}/docs`
-                );
-                return {
-                  name: doc.name,
-                  type: doc.type,
-                  url: uploadResult.url,
-                  expiryDate: doc.expiryDate || undefined,
-                };
-              }
-              return null;
-            })
-          );
-
-          const payload = {
-            phone: step1.phone,
-            employeeId: step1.employeeId,
-            licenseNumber: step1.licenseNo,
-            licenseExpiry: step1.licenseExpiry,
-            licenseType: step1.licenseType,
-            status: step2.status as any,
-            currentVehicleId: step2.currentVehicleId || null,
-            homeBaseWarehouseId: step2.homeWareHouseId || null,
-            languages: step2.languages,
-            hazmatCertified: step2.hazmatCertified,
-            ...(licensePhotoUrl && { licensePhotoUrl }),
-            ...(uploadedDocs.length > 0 && {
-              documents: uploadedDocs.filter((d) => d !== null) as any[],
-            }),
-          };
-
-          await updateDriver(driver.id, payload);
-
-          setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
-          toast.success("Driver updated successfully");
-
-          setTimeout(() => {
-            onClose();
-            onSuccess?.();
-            actions.reset();
-          }, 1500);
-        } catch (err: any) {
-          setState((prev) => ({
-            ...prev,
-            isLoading: false,
-            error: err.message || "Failed to update driver",
-          }));
-          toast.error(err.message || "Failed to update driver");
-        }
-      },
-
-      closeDialog: () => {
-        if (!state.isLoading) {
-          onClose();
-        }
-      },
-      reset: () => {
-        setState({
-          currentStep: 1,
-          data: {
-            step1: initialStep1,
-            step2: initialStep2,
-          },
-          isLoading: false,
-          error: null,
-          isSuccess: false,
-        });
-      },
+      handleSubmit,
+      closeDialog,
+      reset,
     }),
-    [state.data, state.isLoading, onClose, onSuccess, driver]
+    [handleSubmit, closeDialog, reset]
   );
 
   const steps = ["DRIVER CREDENTIALS", "ASSIGNMENT & SETTINGS"];

@@ -12,6 +12,7 @@ import {
 import { AddInventoryStorageLevels } from "@/app/lib/type/add-inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { useEffect, useState } from "react";
+import { Warehouse } from "@prisma/client";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/lib/hooks/useUser";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -30,7 +31,7 @@ const StorageLevelsSection = ({
   const { user } = useUser();
 
   /* --------------------------------- states --------------------------------- */
-  const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
 
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {

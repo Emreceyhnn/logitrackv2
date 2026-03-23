@@ -21,6 +21,8 @@ import { useEffect, useState } from "react";
 import { AddFuelLogDialogProps } from "@/app/lib/type/fuel";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { getDrivers } from "@/app/lib/controllers/driver";
+import { VehicleWithRelations } from "@/app/lib/type/vehicle";
+import { DriverWithRelations } from "@/app/lib/type/driver";
 import { createFuelLog } from "@/app/lib/controllers/fuel";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { toast } from "sonner";
@@ -60,8 +62,8 @@ const AddFuelLogDialog = ({
   const theme = useTheme();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
-  const [vehicles, setVehicles] = useState<any[]>([]);
-  const [drivers, setDrivers] = useState<any[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleWithRelations[]>([]);
+  const [drivers, setDrivers] = useState<DriverWithRelations[]>([]);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>(initialForm);
 
@@ -135,8 +137,9 @@ const AddFuelLogDialog = ({
       toast.success("Fuel log created successfully");
       onSuccess?.();
       handleClose();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create fuel log");
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to create fuel log";
+      toast.error(message);
     } finally {
       setLoading(false);
     }

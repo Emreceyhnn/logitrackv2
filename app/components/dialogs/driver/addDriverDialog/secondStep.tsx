@@ -25,6 +25,8 @@ import {
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { useUser } from "@/app/lib/hooks/useUser";
+import { Warehouse } from "@prisma/client";
+import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 
 import WarehouseIcon from "@mui/icons-material/HomeRepairService";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -56,8 +58,8 @@ const SecondDriverDialogStep = ({
   const { user } = useUser();
 
   /* --------------------------------- states --------------------------------- */
-  const [warehouses, setWarehouses] = useState<any[]>([]);
-  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleWithRelations[]>([]);
 
   /* ------------------------------- lifecycles ------------------------------- */
   useEffect(() => {

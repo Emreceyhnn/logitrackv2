@@ -96,14 +96,14 @@ export default function CreateCompanyDialog({
     }
   };
 
-  const legacyState: any = {
+  const legacyState = {
     activeStep,
     formData,
     loading,
     error,
   };
 
-  const legacyActions: any = {
+  const legacyActions = {
     handleNext,
     handleBack,
     updateFormData,
@@ -152,7 +152,7 @@ export default function CreateCompanyDialog({
                 : "Regional Settings"}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Configure your organization's core profile and presence
+              Configure your organization&apos;s core profile and presence
             </Typography>
           </Stack>
           <IconButton

@@ -3,9 +3,7 @@
 import React, { useEffect } from "react";
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
   Button,
   Grid,
   TextField,
@@ -22,9 +20,8 @@ import {
   Close as CloseIcon,
   Save as SaveIcon,
   Edit as EditIcon,
-  Security as SecurityIcon,
 } from "@mui/icons-material";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { CompanyMember } from "@/app/lib/type/company";
@@ -64,7 +61,7 @@ export default function EditCompanyMemberDialog({
     reset,
     formState: { isSubmitting, errors },
   } = useForm<FormData>({
-    resolver: yupResolver(schema) as any,
+    resolver: yupResolver(schema) as unknown as Resolver<FormData>,
     defaultValues: {
       name: "",
       surname: "",

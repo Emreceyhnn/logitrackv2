@@ -12,6 +12,8 @@ import {
   RoutesPageActions,
   RoutesPageState,
   RouteWithRelations,
+  RouteEfficiencyStats,
+  MapRouteData,
 } from "@/app/lib/type/routes";
 import {
   getActiveRoutesLocations,
@@ -74,8 +76,8 @@ export default function RoutesPage() {
         ...prev,
         routes: routesData.routes as RouteWithRelations[],
         stats: statsData,
-        efficiency: efficiencyData as any,
-        mapData: mapDataLocations as any,
+        efficiency: efficiencyData as RouteEfficiencyStats,
+        mapData: mapDataLocations as MapRouteData[],
         pagination: {
           ...prev.pagination,
           total: routesData.totalCount,

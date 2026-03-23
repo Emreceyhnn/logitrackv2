@@ -25,6 +25,8 @@ import {
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { useUser } from "@/app/lib/hooks/useUser";
+import { Warehouse } from "@prisma/client";
+import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 
 import WarehouseIcon from "@mui/icons-material/HomeRepairService";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -56,8 +58,8 @@ const SecondEditDriverDialogStep = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   /* --------------------------------- states --------------------------------- */
-  const [warehouses, setWarehouses] = useState<any[]>([]);
-  const [vehicles, setVehicles] = useState<any[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleWithRelations[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   /* ------------------------------- lifecycles ------------------------------- */
@@ -83,7 +85,7 @@ const SecondEditDriverDialogStep = ({
   /* -------------------------------- handlers -------------------------------- */
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newDocs = Array.from(e.target.files).map((file) => ({
+      const newDocs = Array.from(e.target.files).map((file: File) => ({
         id: Math.random().toString(36).substr(2, 9),
         name: file.name,
         type: "OTHER",

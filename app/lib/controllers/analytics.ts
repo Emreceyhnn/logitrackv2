@@ -3,6 +3,7 @@
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
+import { MapData } from "../type/overview";
 
 export const getOverviewStats = authenticatedAction(async (user) => {
   try {
@@ -489,7 +490,7 @@ export const getOnTimeTrends = authenticatedAction(async (user) => {
   }
 });
 
-export const getMapData = authenticatedAction(async (user) => {
+export const getMapData = authenticatedAction(async (user): Promise<MapData[]> => {
   try {
     await checkPermission(user.id, user.companyId, [], {
       allowNoCompany: true,
@@ -508,7 +509,7 @@ export const getMapData = authenticatedAction(async (user) => {
         position: { lat: w.lat || 40.7128, lng: w.lng || -74.006 },
         name: w.name,
         id: w.id,
-        type: "W",
+        type: "W" as const,
       })),
       ...vehicles.map((v) => ({
         position: {
@@ -517,13 +518,13 @@ export const getMapData = authenticatedAction(async (user) => {
         },
         name: v.plate,
         id: v.id,
-        type: "V",
+        type: "V" as const,
       })),
       ...customers.map((c) => ({
         position: { lat: 40.75, lng: -74.05 },
         name: c.name,
         id: c.id,
-        type: "C",
+        type: "C" as const,
       })),
     ];
   } catch (error) {

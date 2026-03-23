@@ -109,9 +109,10 @@ export default function UploadDocumentDialog({
 
       onSuccess();
       handleClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || "Failed to upload document");
+      const errorMessage = err instanceof Error ? err.message : "Failed to upload document";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

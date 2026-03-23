@@ -310,7 +310,7 @@ const FirstEditDriverDialogStep = ({
             color="text.secondary"
             sx={{ lineHeight: 1.5 }}
           >
-            Please ensure all text and the driver's photo are clearly visible.
+            Please ensure all text and the driver&apos;s photo are clearly visible.
             Compliance checks are automated.
           </Typography>
         </Stack>

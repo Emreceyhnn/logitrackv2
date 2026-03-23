@@ -42,7 +42,10 @@ const ContactSection = ({ state, updateContact }: ContactSectionProps) => {
     updateContact({ locations: newLocations });
   };
 
-  const updateLocation = (index: number, updates: Partial<any>) => {
+  const updateLocation = (
+    index: number,
+    updates: Partial<AddCustomerContact["locations"][number]>
+  ) => {
     const newLocations = [...state.locations];
     newLocations[index] = { ...newLocations[index], ...updates };
     updateContact({ locations: newLocations });

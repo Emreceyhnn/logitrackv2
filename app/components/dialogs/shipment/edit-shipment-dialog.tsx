@@ -37,6 +37,7 @@ import { getCustomers } from "@/app/lib/controllers/customer";
 import { getInventory } from "@/app/lib/controllers/inventory";
 import { getRoutes } from "@/app/lib/controllers/routes";
 import { useUser } from "@/app/lib/hooks/useUser";
+import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { RouteWithRelations } from "@/app/lib/type/routes";
@@ -52,15 +53,6 @@ interface EditShipmentDialogProps {
   onClose: () => void;
   onSuccess?: () => void;
   shipment: ShipmentWithRelations | null;
-}
-
-// Local type for easier access to optional/extra fields
-interface ExtendedShipment extends ShipmentWithRelations {
-  priority?: ShipmentPriority;
-  type?: string;
-  slaDeadline?: Date | string | null;
-  contactEmail?: string;
-  billingAccount?: string;
 }
 
 const EditShipmentDialog = ({
@@ -105,7 +97,7 @@ const EditShipmentDialog = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingInventory, setIsLoadingInventory] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [availableInventory, setAvailableInventory] = useState<any[]>([]);
+  const [availableInventory, setAvailableInventory] = useState<InventoryWithRelations[]>([]);
 
   const [warehouses, setWarehouses] = useState<WarehouseWithRelations[]>([]);
   const [customers, setCustomers] = useState<CustomerWithRelations[]>([]);
@@ -114,14 +106,12 @@ const EditShipmentDialog = ({
   /* ------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (open && shipment) {
-      const extraShipment = shipment as ExtendedShipment;
-
       setBasicInfo({
         referenceNumber: shipment.trackingId || "",
-        priority: (extraShipment.priority as any) || "MEDIUM",
-        type: extraShipment.type || "Standard Freight",
-        slaDeadline: extraShipment.slaDeadline
-          ? new Date(extraShipment.slaDeadline)
+        priority: (shipment.priority as ShipmentPriority) || "MEDIUM",
+        type: shipment.type || "Standard Freight",
+        slaDeadline: shipment.slaDeadline
+          ? new Date(shipment.slaDeadline)
           : null,
       });
       setLogistics({
@@ -129,9 +119,9 @@ const EditShipmentDialog = ({
         destination: shipment.destination || "",
         customerId: shipment.customerId || "",
         customerLocationId: shipment.customerLocationId || "",
-        contactEmail: extraShipment.contactEmail || "",
+        contactEmail: shipment.contactEmail || "",
         billingAccount:
-          extraShipment.billingAccount || "Standard Billing (Net 30)",
+          shipment.billingAccount || "Standard Billing (Net 30)",
         destinationLat: shipment.destinationLat ?? undefined,
         destinationLng: shipment.destinationLng ?? undefined,
       });

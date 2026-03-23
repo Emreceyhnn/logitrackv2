@@ -3,7 +3,7 @@
 import { Box, Button, Typography, Stack } from "@mui/material";
 import { useEffect, useState, useCallback } from "react";
 import { getMyCompanyUsersAction } from "@/app/lib/controllers/users";
-import { UsersPageState, UsersPageActions } from "@/app/lib/type/users";
+import { UsersPageState, UsersPageActions, UserWithRelations } from "@/app/lib/type/users";
 import UserList from "@/app/components/dashboard/users/UserList";
 import Link from "next/link";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
@@ -27,16 +27,17 @@ export default function UsersPage() {
       // The controller returns role/driver, so it should match.
       setState((prev) => ({
         ...prev,
-        users: data as any,
+        users: data as UserWithRelations[],
         loading: false,
         error: null,
       }));
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to fetch users";
       console.error("Failed to fetch users:", error);
       setState((prev) => ({
         ...prev,
         loading: false,
-        error: error.message,
+        error: message,
       }));
     }
   }, []);

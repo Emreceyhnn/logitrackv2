@@ -325,6 +325,7 @@ model Inventory {
   minStock Int    @default(0)
   imageUrl String?
   unitValue Float?   @default(0)
+  unit      String   @default("Each")
 
   // Physical Properties for Shipping
   weightKg    Float?  @default(0)
@@ -380,12 +381,18 @@ model Shipment {
   destinationLng Float?
 
   itemsCount Int @default(1)
+  priority    String? @default("MEDIUM")
+  type        String? @default("Standard Freight")
+  slaDeadline DateTime?
 
   // Physical Properties (Total for the shipment)
   weightKg    Float?  @default(0)
   volumeM3    Float?  @default(0)
   palletCount Float?  @default(0)
   cargoType   String? @default("General Cargo")
+
+  contactEmail   String?
+  billingAccount String? @default("Standard Billing (Net 30)")
 
   routeId String?
   route   Route?  @relation(fields: [routeId], references: [id])

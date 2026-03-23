@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
+import { MapWithMarker, MarkerData } from "@/app/components/googleMaps/MapWithMarker";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import CustomerDetailDialog from "@/app/components/dialogs/customer/customerDetailDialog";
 import EditCustomerDialog from "@/app/components/dialogs/customer/editCustomerDialog";
@@ -70,9 +70,10 @@ export default function CustomersPage() {
       setDeleteOpen(false);
       setDetailOpen(false);
       fetchCustomers();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to delete customer";
       console.error("Failed to delete customer:", error);
-      toast.error(error.message || "Failed to delete customer");
+      toast.error(message);
     } finally {
       setDeleteLoading(false);
     }
@@ -80,32 +81,31 @@ export default function CustomersPage() {
 
   /* --------------------------------- actions -------------------------------- */
   const fetchCustomers = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true }));
+    setState((prev: CustomerPageState) => ({ ...prev, loading: true }));
     try {
-      const COMPANY_ID = "cmlgt985b0003x0cuhtyxoihd";
-      const USER_ID = "usr_001";
       const data = await getCustomers();
 
-      setState((prev) => ({
+      setState((prev: CustomerPageState) => ({
         ...prev,
         customers: data,
         loading: false,
         error: null,
       }));
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Failed to fetch customers";
       console.error("Failed to fetch customers", error);
-      setState((prev) => ({ ...prev, loading: false, error: error.message }));
+      setState((prev: CustomerPageState) => ({ ...prev, loading: false, error: message }));
     }
   }, []);
 
   const actions: CustomerPageActions = {
     fetchCustomers,
-    selectCustomer: (id) => {
-      setState((prev) => ({ ...prev, selectedCustomerId: id }));
+    selectCustomer: (id: string | null) => {
+      setState((prev: CustomerPageState) => ({ ...prev, selectedCustomerId: id }));
       if (id) setDetailOpen(true);
     },
-    updateFilters: (filters) =>
-      setState((prev) => ({
+    updateFilters: (filters: Partial<CustomerPageState["filters"]>) =>
+      setState((prev: CustomerPageState) => ({
         ...prev,
         filters: { ...prev.filters, ...filters },
       })),
@@ -121,28 +121,28 @@ export default function CustomersPage() {
     if (!state.filters.search) return state.customers;
     const lowerTerm = state.filters.search.toLowerCase();
     return state.customers.filter(
-      (c) =>
+      (c: CustomerWithRelations) =>
         c.name.toLowerCase().includes(lowerTerm) ||
         c.code.toLowerCase().includes(lowerTerm)
     );
   }, [state.customers, state.filters.search]);
 
   // Extract valid locations for all customers
-  const mapLocations = useMemo<any[]>(() => {
-    return filteredCustomers.flatMap((c) => {
+  const mapLocations = useMemo<MarkerData[]>(() => {
+    return filteredCustomers.flatMap((c: CustomerWithRelations) => {
       if (!c.locations) return [];
       
       return c.locations
         .filter((loc) => loc.lat != null && loc.lng != null)
         .map((loc) => ({
           position: {
-            lat: loc.lat as number,
-            lng: loc.lng as number,
+            lat: Number(loc.lat),
+            lng: Number(loc.lng),
           },
           label: c.name.charAt(0).toUpperCase(),
           title: `${c.name} - ${loc.name}`,
           description: loc.address,
-          type: "customer",
+          type: "customer" as const,
         }));
     });
   }, [filteredCustomers]);
