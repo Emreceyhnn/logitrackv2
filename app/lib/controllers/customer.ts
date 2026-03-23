@@ -34,7 +34,7 @@ export const createCustomer = authenticatedAction(
       // Auto-generate code if not provided
       const customerCode = code || `CUST-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
-      const newCustomer = await (db.customer as any).create({
+      const newCustomer = await db.customer.create({
         data: {
           name,
           code: customerCode,
@@ -170,7 +170,7 @@ export const updateCustomer = authenticatedAction(
         finalCode = `CUST-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
       }
 
-      const updateData: any = {
+      const updateData: Prisma.CustomerUpdateInput = {
         name: data.name,
         code: finalCode,
         industry: data.industry,
@@ -181,18 +181,18 @@ export const updateCustomer = authenticatedAction(
 
       if (data.locations) {
         // Find existing locations to determine what to delete, update, or create
-        const currentLocations = await (db as any).customerLocation.findMany({
+        const currentLocations = await db.customerLocation.findMany({
           where: { customerId }
         });
         
         const incomingIds = data.locations.map(l => l.id).filter(Boolean);
-        const locationsToDelete = currentLocations.filter((cl: any) => !incomingIds.includes(cl.id));
+        const locationsToDelete = currentLocations.filter((cl) => !incomingIds.includes(cl.id));
         const locationsToCreate = data.locations.filter(l => !l.id);
         const locationsToUpdate = data.locations.filter(l => l.id);
 
         updateData.locations = {
           deleteMany: {
-            id: { in: locationsToDelete.map((l: any) => l.id) }
+            id: { in: locationsToDelete.map((l) => l.id) }
           },
           create: locationsToCreate.map(loc => ({
             name: loc.name,

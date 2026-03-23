@@ -19,7 +19,7 @@ interface CompanyInfoCardProps {
 }
 
 export default function CompanyInfoCard({ props }: CompanyInfoCardProps) {
-  const { state, actions } = props;
+  const { state } = props;
   const profile = state.data?.profile ?? null;
   const formattedDate = profile?.createdAt
     ? new Date(profile.createdAt).toLocaleDateString("en-US", {

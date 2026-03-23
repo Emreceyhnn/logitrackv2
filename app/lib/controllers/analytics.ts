@@ -68,7 +68,59 @@ export const getActionRequired = authenticatedAction(async (user) => {
     await checkPermission(user.id, user.companyId, [], {
       allowNoCompany: true,
     });
-    return [];
+
+    if (!user.companyId) return [];
+
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+    const [openIssues, expiringDocs] = await Promise.all([
+      db.issue.findMany({
+        where: {
+          companyId: user.companyId,
+          status: { in: ["OPEN", "IN_PROGRESS"] },
+          priority: { in: ["HIGH", "CRITICAL"] },
+        },
+        take: 10,
+        orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
+      }),
+      db.document.findMany({
+        where: {
+          companyId: user.companyId,
+          expiryDate: { not: null, lte: thirtyDaysFromNow },
+          status: { not: "EXPIRED" },
+        },
+        take: 5,
+        orderBy: { expiryDate: "asc" },
+      }),
+    ]);
+
+    const issueAlerts = openIssues.map((issue) => ({
+      type: (issue.type === "VEHICLE"
+        ? "vehicle"
+        : issue.type === "DRIVER"
+        ? "driver"
+        : issue.type === "SHIPMENT"
+        ? "SHIPMENT_DELAY"
+        : "vehicle") as
+        | "vehicle"
+        | "driver"
+        | "SHIPMENT_DELAY"
+        | "DOCUMENT_DUE"
+        | "warehouse",
+      title: issue.title,
+      message: `${issue.priority} · ${issue.status.replace("_", " ")}`,
+    }));
+
+    const docAlerts = expiringDocs.map((doc) => ({
+      type: "DOCUMENT_DUE" as const,
+      title: doc.name,
+      message: doc.expiryDate
+        ? `Expires ${new Date(doc.expiryDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+        : "Expiry approaching",
+    }));
+
+    return [...issueAlerts, ...docAlerts];
   } catch (error) {
     console.error("Failed to get action required:", error);
     return [];
@@ -86,25 +138,49 @@ export const getDailyOperations = authenticatedAction(async (user) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [plannedRoutes, completedDeliveries] = await Promise.all([
-      db.route.count({
-        where: { companyId: user.companyId, status: "PLANNED" },
-      }),
-      db.shipment.count({
-        where: {
-          companyId: user.companyId,
-          status: "DELIVERED",
-          updatedAt: { gte: today },
-        },
-      }),
-    ]);
+    const [plannedRoutes, completedDeliveries, failedDeliveries, fuelToday, avgDuration] =
+      await Promise.all([
+        db.route.count({
+          where: { companyId: user.companyId, status: "PLANNED" },
+        }),
+        db.shipment.count({
+          where: {
+            companyId: user.companyId,
+            status: "DELIVERED",
+            updatedAt: { gte: today },
+          },
+        }),
+        db.shipment.count({
+          where: {
+            companyId: user.companyId,
+            status: "CANCELLED",
+            updatedAt: { gte: today },
+          },
+        }),
+        db.fuelLog.aggregate({
+          where: {
+            companyId: user.companyId,
+            date: { gte: today },
+          },
+          _sum: { volumeLiter: true },
+        }),
+        db.route.aggregate({
+          where: {
+            companyId: user.companyId,
+            status: "COMPLETED",
+            updatedAt: { gte: today },
+            durationMin: { not: null },
+          },
+          _avg: { durationMin: true },
+        }),
+      ]);
 
     return {
       plannedRoutes,
       completedDeliveries,
-      failedDeliveries: 0,
-      avgDeliveryTimeMin: 45,
-      fuelConsumedLiters: 250,
+      failedDeliveries,
+      avgDeliveryTimeMin: Math.round(avgDuration._avg.durationMin ?? 0),
+      fuelConsumedLiters: Math.round(fuelToday._sum.volumeLiter ?? 0),
     };
   } catch (error) {
     console.error("Failed to get daily operations:", error);
@@ -126,15 +202,35 @@ export const getFuelStats = authenticatedAction(async (user) => {
 
     if (!user.companyId) return [];
 
-    const vehicles = await db.vehicle.findMany({
-      where: { companyId: user.companyId },
-      take: 5,
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const fuelByVehicle = await db.fuelLog.groupBy({
+      by: ["vehicleId"],
+      where: {
+        companyId: user.companyId,
+        date: { gte: thirtyDaysAgo },
+      },
+      _sum: { volumeLiter: true, cost: true },
+      orderBy: { _sum: { volumeLiter: "desc" } },
+      take: 8,
     });
 
-    return vehicles.map((v) => ({
-      id: v.id,
-      plate: v.plate,
-      value: 25 + Math.random() * 10,
+    if (fuelByVehicle.length === 0) return [];
+
+    const vehicleIds = fuelByVehicle.map((f) => f.vehicleId);
+    const vehicles = await db.vehicle.findMany({
+      where: { id: { in: vehicleIds } },
+      select: { id: true, plate: true },
+    });
+
+    const vehicleMap = new Map(vehicles.map((v) => [v.id, v.plate]));
+
+    return fuelByVehicle.map((f) => ({
+      id: f.vehicleId,
+      plate: vehicleMap.get(f.vehicleId) ?? f.vehicleId,
+      value: Math.round((f._sum.volumeLiter ?? 0) * 10) / 10,
+      totalCost: Math.round(f._sum.cost ?? 0),
     }));
   } catch (error) {
     console.error("Failed to get fuel stats:", error);
@@ -152,15 +248,49 @@ export const getWarehouseCapacity = authenticatedAction(async (user) => {
 
     const warehouses = await db.warehouse.findMany({
       where: { companyId: user.companyId },
-      include: { inventory: true },
+      include: {
+        _count: { select: { inventory: true } },
+      },
     });
 
-    return warehouses.map((w) => ({
-      warehouseName: w.name,
-      warehouseId: w.id,
-      capacity: 75,
-      volume: 60,
-    }));
+    const warehouseIds = warehouses.map((w) => w.id);
+
+    const palletSums = await db.inventory.groupBy({
+      by: ["warehouseId"],
+      where: { warehouseId: { in: warehouseIds } },
+      _sum: { palletCount: true, volumeM3: true },
+    });
+
+    const palletMap = new Map(
+      palletSums.map((p) => [
+        p.warehouseId,
+        {
+          pallets: p._sum.palletCount ?? 0,
+          volume: p._sum.volumeM3 ?? 0,
+        },
+      ])
+    );
+
+    return warehouses.map((w) => {
+      const used = palletMap.get(w.id) ?? { pallets: 0, volume: 0 };
+      const palletCapacity = w.capacityPallets || 5000;
+      const volumeCapacity = w.capacityVolumeM3 || 100000;
+      const palletUsed = Math.round(used.pallets);
+      const volumeUsed = Math.round(used.volume);
+      const capacityPct = Math.min(Math.round((palletUsed / palletCapacity) * 100), 100);
+      const volumePct = Math.min(Math.round((volumeUsed / volumeCapacity) * 100), 100);
+
+      return {
+        warehouseName: w.name,
+        warehouseId: w.id,
+        capacity: capacityPct,
+        volume: volumePct,
+        palletUsed,
+        palletCapacity,
+        volumeUsed,
+        volumeCapacity,
+      };
+    });
   } catch (error) {
     console.error("Failed to get warehouse capacity:", error);
     return [];
@@ -176,19 +306,45 @@ export const getLowStockItems = authenticatedAction(async (user) => {
     if (!user.companyId) return [];
 
     const lowStock = await db.inventory.findMany({
-      where: { companyId: user.companyId, quantity: { lt: 50 } },
-      take: 5,
+      where: {
+        companyId: user.companyId,
+        quantity: { lte: db.inventory.fields.minStock as unknown as number },
+      },
+      take: 8,
       include: { warehouse: true },
+      orderBy: { quantity: "asc" },
     });
 
     return lowStock.map((i) => ({
       item: i.name,
+      sku: i.sku,
       warehouseId: i.warehouse.name,
       onHand: i.quantity,
+      minStock: i.minStock,
     }));
   } catch (error) {
-    console.error("Failed to get low stock items:", error);
-    return [];
+    // Fallback: query items where quantity < 50
+    try {
+      const lowStock = await db.inventory.findMany({
+        where: {
+          companyId: user.companyId!,
+          quantity: { lt: 50 },
+        },
+        take: 8,
+        include: { warehouse: true },
+        orderBy: { quantity: "asc" },
+      });
+      return lowStock.map((i) => ({
+        item: i.name,
+        sku: i.sku,
+        warehouseId: i.warehouse.name,
+        onHand: i.quantity,
+        minStock: i.minStock,
+      }));
+    } catch {
+      console.error("Failed to get low stock items:", error);
+      return [];
+    }
   }
 });
 
@@ -220,7 +376,6 @@ export const getPicksAndPacks = authenticatedAction(async (user) => {
 
     if (!user.companyId) return { picks: 0, packs: 0 };
 
-    // Get live throughput for Today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -249,18 +404,85 @@ export const getPicksAndPacks = authenticatedAction(async (user) => {
   }
 });
 
+export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
+  try {
+    await checkPermission(user.id, user.companyId, [], {
+      allowNoCompany: true,
+    });
+
+    if (!user.companyId) return [];
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const shipments = await db.shipment.findMany({
+      where: {
+        companyId: user.companyId,
+        createdAt: { gte: sevenDaysAgo },
+      },
+      select: { createdAt: true },
+    });
+
+    // Build 7-day buckets
+    const result: { date: string; count: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      d.setHours(0, 0, 0, 0);
+      const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      const dayStart = new Date(d);
+      const dayEnd = new Date(d);
+      dayEnd.setHours(23, 59, 59, 999);
+      const count = shipments.filter((s) => {
+        const t = new Date(s.createdAt).getTime();
+        return t >= dayStart.getTime() && t <= dayEnd.getTime();
+      }).length;
+      result.push({ date: label, count });
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Failed to get shipment volume history:", error);
+    return [];
+  }
+});
+
+// Keep for backward compat (on-time trends replaced by shipment volume)
 export const getOnTimeTrends = authenticatedAction(async (user) => {
   try {
     await checkPermission(user.id, user.companyId, [], {
       allowNoCompany: true,
     });
-    return [
-      { date: "2026-01-28", value: 92 },
-      { date: "2026-01-29", value: 94 },
-      { date: "2026-01-30", value: 91 },
-      { date: "2026-01-31", value: 95 },
-      { date: "2026-02-02", value: 94 },
-    ];
+
+    if (!user.companyId) return [];
+
+    // Use last 30 days of completed routes as proxy for on-time rate
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+    const completedRoutes = await db.route.findMany({
+      where: {
+        companyId: user.companyId,
+        status: "COMPLETED",
+        updatedAt: { gte: thirtyDaysAgo },
+      },
+      select: { updatedAt: true },
+      orderBy: { updatedAt: "asc" },
+    });
+
+    // Group by date
+    const byDate = new Map<string, number>();
+    completedRoutes.forEach((r) => {
+      const label = new Date(r.updatedAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+      byDate.set(label, (byDate.get(label) ?? 0) + 1);
+    });
+
+    return Array.from(byDate.entries()).map(([date, value]) => ({ date, value }));
   } catch (error) {
     console.error("Failed to get on time trends:", error);
     return [];
@@ -361,51 +583,9 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
         ],
       },
       forecast: {
-        weeks: [
-          "W1",
-          "W2",
-          "W3",
-          "W4",
-          "W5",
-          "W6",
-          "W7",
-          "W8",
-          "W9",
-          "W10",
-          "W11",
-          "W12",
-          "W13",
-        ],
-        actuals: [
-          120,
-          132,
-          125,
-          145,
-          150,
-          160,
-          155,
-          175,
-          180,
-          null,
-          null,
-          null,
-          null,
-        ],
-        predicted: [
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          180,
-          195,
-          210,
-          225,
-          240,
-        ],
+        weeks: ["W1","W2","W3","W4","W5","W6","W7","W8","W9","W10","W11","W12","W13"],
+        actuals: [120,132,125,145,150,160,155,175,180,null,null,null,null],
+        predicted: [null,null,null,null,null,null,null,null,180,195,210,225,240],
       },
     };
   } catch (error) {

@@ -1,4 +1,4 @@
-import { Vehicle, Driver } from "@prisma/client";
+
 
 export interface FuelLog {
   id: string;
@@ -52,7 +52,7 @@ export interface FuelPageState {
 export interface FuelPageActions {
   fetchLogs: () => Promise<void>;
   fetchStats: () => Promise<void>;
-  createLog: (data: any) => Promise<void>;
+  createLog: (data: Omit<FuelLog, "id" | "createdAt" | "updatedAt" | "companyId">) => Promise<void>;
   updateFilters: (filters: Partial<FuelPageState["filters"]>) => void;
   refreshAll: () => Promise<void>;
 }

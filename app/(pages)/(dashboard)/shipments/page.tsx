@@ -3,7 +3,8 @@
 import ShipmentKpiCard from "@/app/components/dashboard/shipments/shipmentKpiCard";
 import ShipmentTable from "@/app/components/dashboard/shipments/shipmentTable";
 import ShipmentAnalytics from "@/app/components/dashboard/shipments/ShipmentAnalytics";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography, Divider } from "@mui/material";
+import CustomCard from "@/app/components/cards/card";
 import { useCallback, useEffect, useState } from "react";
 import {
   ShipmentPageState,
@@ -158,14 +159,20 @@ export default function ShipmentPage() {
       <ShipmentKpiCard state={state} actions={actions} />
 
       <Stack mt={2}>
-        <ShipmentTable
-          state={state}
-          actions={{
-            ...actions,
-            onEdit: handleEdit,
-            onDelete: handleDelete,
-          }}
-        />
+        <CustomCard sx={{ padding: "0 0 6px 0" }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+            Shipment List
+          </Typography>
+          <Divider />
+          <ShipmentTable
+            state={state}
+            actions={{
+              ...actions,
+              onEdit: handleEdit,
+              onDelete: handleDelete,
+            }}
+          />
+        </CustomCard>
       </Stack>
 
       <ShipmentAnalytics state={state} actions={actions} />

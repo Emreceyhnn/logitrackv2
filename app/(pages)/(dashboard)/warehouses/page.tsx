@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography, Divider } from "@mui/material";
+import CustomCard from "@/app/components/cards/card";
 import WarehouseKpiCard from "@/app/components/dashboard/warehouse/warehouseKpiCard";
 import WarehouseListTable from "@/app/components/dashboard/warehouse/warehouseList";
 import CapacityUtilization from "@/app/components/dashboard/warehouse/capacityUtilization";
@@ -160,16 +161,22 @@ export default function WarehousePage() {
         <WarehouseKpiCard stats={state.stats} loading={state.loading} />
       </Box>
 
-      <Box mb={2}>
-        <WarehouseListTable
-          warehouses={state.warehouses}
-          loading={state.loading}
-          onSelect={actions.selectWarehouse}
-          onEdit={actions.editWarehouse}
-          onDelete={actions.deleteWarehouse}
-          onDetails={actions.selectWarehouse}
-        />
-      </Box>
+      <Stack mt={2}>
+        <CustomCard sx={{ padding: "0 0 6px 0" }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+            Warehouse List
+          </Typography>
+          <Divider />
+          <WarehouseListTable
+            warehouses={state.warehouses}
+            loading={state.loading}
+            onSelect={actions.selectWarehouse}
+            onEdit={actions.editWarehouse}
+            onDelete={actions.deleteWarehouse}
+            onDetails={actions.selectWarehouse}
+          />
+        </CustomCard>
+      </Stack>
 
       <Stack 
         direction={{ xs: "column", xl: "row" }} 

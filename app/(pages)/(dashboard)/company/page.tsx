@@ -1,6 +1,7 @@
 "use client";
 
-import { Box, Stack, Typography, Alert, Button } from "@mui/material";
+import { Box, Stack, Typography, Alert, Button, Divider } from "@mui/material";
+import CustomCard from "@/app/components/cards/card";
 import { useEffect, useState, useMemo } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { getCompanyProfile } from "@/app/lib/controllers/company";
@@ -151,7 +152,13 @@ export default function CompanyPage() {
       <Stack spacing={3}>
         <CompanyKpiCard props={{ state, actions }} />
         <CompanyInfoCard props={{ state, actions }} />
-        <CompanyMembersTable props={{ state, actions }} />
+        <CustomCard sx={{ padding: "0 0 6px 0" }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+            Team Members
+          </Typography>
+          <Divider />
+          <CompanyMembersTable props={{ state, actions }} />
+        </CustomCard>
       </Stack>
 
       <AddCompanyMemberDialog 

@@ -2,7 +2,6 @@
 
 import bcrypt from "bcryptjs";
 import { checkPermission } from "./utils/checkPermission";
-import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { db } from "../db";
 import {
@@ -22,7 +21,7 @@ import {
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only";
 
 export const getUserFromToken = authenticatedAction(
-  async (user, token: string) => {
+  async (user, token: string): Promise<Omit<import("@prisma/client").User & { company: import("@prisma/client").Company | null }, "password"> | null> => {
     const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
@@ -42,7 +41,7 @@ export const getUserFromToken = authenticatedAction(
         throw new Error("User not found");
       }
 
-      const { password, ...safeUser } = foundUser;
+      const { password: _, ...safeUser } = foundUser;
       return safeUser;
     } catch (error) {
       console.error("Failed to get user from token:", error);
@@ -227,7 +226,7 @@ export const LoginUser = maybeAuthenticatedAction(
 
 // ─── Logout ─────────────────────────────────────────────────────────────────
 
-export const LogoutUser = authenticatedAction(async (user) => {
+export const LogoutUser = authenticatedAction(async (_user) => {
   try {
     // Get current session
     const sessionUser = await validateSession();

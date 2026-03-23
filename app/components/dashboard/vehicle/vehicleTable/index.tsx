@@ -7,13 +7,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Box,
   Typography,
-  Divider,
   alpha,
   useTheme,
 } from "@mui/material";
-import CustomCard from "../../../cards/card";
 import RowActions from "./menu";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import DriverAvatar from "@/app/components/avatar";
@@ -26,31 +23,30 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   const { selectVehicle: onVehicleSelect, onEdit, onDelete } = actions;
 
   if (loading) {
-     return <TableSkeleton title="Vehicle List" rows={5} columns={9} />;
+    return <TableSkeleton title="Vehicle List" rows={5} columns={9} />;
   }
 
   return (
-    <CustomCard sx={{ p: 0, overflow: "hidden" }}>
-      <TableContainer sx={{ p: 0, pt: 1 }}>
-        <Table size="small">
-          <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
+    <TableContainer sx={{ p: 0 }}>
+      <Table size="small">
+        <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
           <TableRow>
-            <TableCell width={50}>#</TableCell>
-            <TableCell>Plate</TableCell>
-            <TableCell>Brand/Model</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Odometer</TableCell>
-            <TableCell>Driver</TableCell>
-            <TableCell>Type</TableCell>
-            <TableCell align="right">Fuel Level</TableCell>
-            <TableCell align="right"></TableCell>
+            <TableCell width={50} sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>#</TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Plate</TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Brand/Model</TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Status</TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Odometer</TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Driver</TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Type</TableCell>
+            <TableCell align="right" sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Fuel Level</TableCell>
+            <TableCell align="right" sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}></TableCell>
           </TableRow>
         </TableHead>
 
-        <TableBody>
+        <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
           {vehicles.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} align="center" sx={{ py: 3 }}>
+              <TableCell colSpan={9} align="center" sx={{ py: 3, borderColor: alpha(theme.palette.divider, 0.1) }}>
                 <Typography variant="body2" color="text.secondary">
                   No vehicles found
                 </Typography>
@@ -58,7 +54,7 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
             </TableRow>
           ) : (
             vehicles.map((v, index) => (
-              <TableRow key={v.id} hover>
+              <TableRow key={v.id} hover sx={{ "& td": { borderColor: alpha(theme.palette.divider, 0.1) } }}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell sx={{ fontWeight: 500 }}>{v.plate}</TableCell>
                 <TableCell>{`${v.brand} - ${v.model} / ${v.year}`}</TableCell>
@@ -97,9 +93,8 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
             ))
           )}
         </TableBody>
-        </Table>
-      </TableContainer>
-    </CustomCard>
+      </Table>
+    </TableContainer>
   );
 };
 

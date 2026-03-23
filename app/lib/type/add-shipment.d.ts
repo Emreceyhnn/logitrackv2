@@ -1,4 +1,4 @@
-import { Customer, Warehouse, Route } from "@prisma/client";
+import { InventoryWithRelations } from "./inventory";
 
 export type ShipmentPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
@@ -56,7 +56,7 @@ export interface AddShipmentPageState {
     inventory: AddShipmentInventory;
     route: AddShipmentRoute;
   };
-  availableInventory: any[]; // Or closer to Inventory
+  availableInventory: InventoryWithRelations[];
   currentStep: number;
   isLoading: boolean;
   isLoadingInventory: boolean;

@@ -1,4 +1,4 @@
-// Dashboard Data Types
+// Domain Models
 export interface ActionRequiredItems {
   type: "vehicle" | "driver" | "SHIPMENT_DELAY" | "DOCUMENT_DUE" | "warehouse";
   title: string;
@@ -27,20 +27,27 @@ export interface DailyOperationsData {
 export interface FuelStat {
   id: string;
   plate: string;
-  value: number;
+  value: number; // volumeLiter (30-day sum)
+  totalCost: number;
 }
 
 export interface WarehouseCapacityStat {
   warehouseName: string;
   warehouseId: string;
-  capacity: number; // utilization %
-  volume: number;
+  capacity: number; // pallet utilization %
+  volume: number;   // volume utilization %
+  palletUsed: number;
+  palletCapacity: number;
+  volumeUsed: number;
+  volumeCapacity: number;
 }
 
 export interface LowStockItemStat {
   item: string;
-  warehouseId: string; // Controller returns name here currently
+  sku: string;
+  warehouseId: string; // warehouse name
   onHand: number;
+  minStock: number;
 }
 
 export interface PicksAndPacksData {
@@ -53,6 +60,11 @@ export interface TrendData {
   value: number;
 }
 
+export interface ShipmentDayStat {
+  date: string;
+  count: number;
+}
+
 export interface MapData {
   position: {
     lat: number;
@@ -60,7 +72,7 @@ export interface MapData {
   };
   name: string;
   id: string;
-  type: "W" | "V" | "C"; // Warehouse, Vehicle, Customer
+  type: "W" | "V" | "C";
 }
 
 export interface DashboardData {
@@ -72,6 +84,7 @@ export interface DashboardData {
   shipmentStatus: string[];
   picksAndPacks: PicksAndPacksData | null;
   trends: TrendData[];
+  shipmentVolume: ShipmentDayStat[];
   mapData: MapData[];
 }
 

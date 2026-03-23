@@ -77,7 +77,7 @@ async function main() {
         password: hashedPassword,
         avatarUrl: user.avatarUrl,
         roleId: user.roleId,
-        status: user.status,
+        status: user.status as any,
         companyId: COMPANY_ID,
         lastLoginAt: user.lastLoginAt ? new Date(user.lastLoginAt) : null,
       },
@@ -183,7 +183,7 @@ async function main() {
         companyId: COMPANY_ID,
         maintenanceRecords: {
           create:
-            veh.maintenance?.history?.map((hist: any) => ({
+            veh.maintenance?.history?.map((hist: { serviceType: string; date: string; cost: number; technician: string }) => ({
               type: hist.serviceType,
               date: new Date(hist.date),
               cost: hist.cost,
@@ -192,7 +192,7 @@ async function main() {
         },
         documents: {
           create:
-            veh.documents?.map((doc: any) => {
+            veh.documents?.map((doc: { type: string; expiresOn?: string }) => {
               const expiryDate = doc.expiresOn ? new Date(doc.expiresOn) : null;
               const now = new Date();
               let docStatus = "ACTIVE";
@@ -238,7 +238,7 @@ async function main() {
         surname: drv.fullName.split(" ").slice(1).join(" "),
         password: hashedPassword,
         roleId: "role_driver",
-        status: "ACTIVE",
+        status: "ACTIVE" as any,
         companyId: COMPANY_ID,
       };
 
@@ -248,7 +248,7 @@ async function main() {
       if (existingUser) {
         userId = existingUser.id;
       } else {
-        await prisma.user.create({ data: newUserData as any });
+        await prisma.user.create({ data: newUserData });
         createdUserIds.add(userId);
       }
     }
@@ -259,12 +259,12 @@ async function main() {
         userId: userId!,
         employeeId: drv.employeeId,
         licenseNumber: drv.licenses?.[0]?.type || "UNKNOWN",
-        licenseType: drv.licenses?.map((l: any) => l.type).join(","),
+        licenseType: drv.licenses?.map((l: { type: string }) => l.type).join(","),
         licenseExpiry: drv.licenses?.[0]?.expiresOn
           ? new Date(drv.licenses[0].expiresOn)
           : null,
         phone: drv.phone,
-        status: drv.status,
+        status: drv.status as any, // Enum mapping might need cast if status strings don't match exactly
         companyId: COMPANY_ID,
         currentVehicleId: drv.currentVehicleId,
         homeBaseWarehouseId: drv.homeBaseWarehouseId,
@@ -273,7 +273,7 @@ async function main() {
         rating: drv.rating?.avg,
         documents: {
           create:
-            drv.licenses?.map((lic: any) => {
+            drv.licenses?.map((lic: { type: string; expiresOn?: string }) => {
               const expiryDate = lic.expiresOn ? new Date(lic.expiresOn) : null;
               const now = new Date();
               let docStatus = "ACTIVE";
@@ -308,7 +308,7 @@ async function main() {
   console.log(`📦 Creating inventory items...`);
   for (const stock of mockData.inventory.stock) {
     const catalogItem = mockData.inventory.catalog.find(
-      (c: any) => c.id === stock.skuId
+      (c: { id: string }) => c.id === stock.skuId
     );
     if (!catalogItem) {
       continue;
@@ -331,7 +331,7 @@ async function main() {
   if (mockData.inventory.movements) {
     for (const mov of mockData.inventory.movements) {
       const catalogItem = mockData.inventory.catalog.find(
-        (c: any) => c.id === mov.skuId
+        (c: { id: string }) => c.id === mov.skuId
       );
       if (!catalogItem) {
         continue;
@@ -343,13 +343,9 @@ async function main() {
           warehouseId: mov.warehouseId,
           sku: catalogItem.code,
           quantity: mov.qty,
-          type: mov.type,
+          type: mov.type as any,
           date: new Date(mov.timestamp),
           companyId: COMPANY_ID,
-          // Optionally assign a user if available in mock data or pick a random one,
-          // but for now leaving it null or assigning a default if needed.
-          // The mock data doesn't seem to have userId for movements explicitly,
-          // but we could assign it to a warehouse manager if we wanted to be fancy.
         },
       });
     }
@@ -388,7 +384,7 @@ async function main() {
     let originStr = "Unknown";
     if (shp.origin.type === "WAREHOUSE") {
       const wh = mockData.warehouses.find(
-        (w: any) => w.id === shp.origin.warehouseId
+        (w: { id: string; name: string }) => w.id === shp.origin.warehouseId
       );
       originStr = wh ? wh.name : shp.origin.warehouseId;
     } else {
@@ -402,12 +398,12 @@ async function main() {
     if (shp.assignedTo?.routeId) {
       const potentialRouteId = shp.assignedTo.routeId;
       const routeExists = mockData.routes?.some(
-        (r: any) => r.id === potentialRouteId
+        (r: { id: string }) => r.id === potentialRouteId
       );
 
       if (routeExists) {
         routeId = potentialRouteId;
-        const route = mockData.routes?.find((r: any) => r.id === routeId);
+        const route = mockData.routes?.find((r: { id: string; driverId?: string }) => r.id === routeId);
         if (route && route.driverId) {
           driverId = route.driverId;
         }
@@ -425,7 +421,7 @@ async function main() {
         customerId: shp.customerId,
         driverId: driverId,
         routeId: routeId,
-        status: shp.status,
+        status: shp.status as any,
         origin: originStr,
         destination: destStr,
         itemsCount: shp.cargoDetails?.packageCount || 1,
@@ -433,8 +429,8 @@ async function main() {
         createdAt: shp.dates.created ? new Date(shp.dates.created) : undefined,
         history: {
           create:
-            shp.tracking?.milestones?.map((milestone: any) => ({
-              status: milestone.status,
+            shp.tracking?.milestones?.map((milestone: { status: string; timestamp?: string }) => ({
+              status: milestone.status as any,
               location: "Unknown",
               description: milestone.status,
               createdAt: milestone.timestamp

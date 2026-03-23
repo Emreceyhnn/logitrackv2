@@ -1,4 +1,5 @@
 import { WarehouseType } from "@prisma/client";
+import { WarehouseWithRelations } from "./warehouse";
 
 export interface EditWarehouseBasicInfo {
   name: string;
@@ -51,5 +52,5 @@ export interface EditWarehouseDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  warehouseData?: any; // We will use WarehouseWithRelations in the component
+  warehouseData?: WarehouseWithRelations;
 }

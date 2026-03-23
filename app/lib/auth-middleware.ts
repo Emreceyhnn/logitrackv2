@@ -39,10 +39,10 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
   return null;
 }
 
-export function authenticatedAction<T>(
-  action: (user: AuthenticatedUser, ...args: any[]) => Promise<T>
+export function authenticatedAction<T, Args extends unknown[]>(
+  action: (user: AuthenticatedUser, ...args: Args) => Promise<T>
 ) {
-  return async (...args: any[]): Promise<T> => {
+  return async (...args: Args): Promise<T> => {
     const user = await getAuthenticatedUser();
 
     if (!user) {
@@ -53,11 +53,13 @@ export function authenticatedAction<T>(
   };
 }
 
-export function maybeAuthenticatedAction<T>(
-  action: (user: AuthenticatedUser | null, ...args: any[]) => Promise<T>
+export function maybeAuthenticatedAction<T, Args extends unknown[]>(
+  action: (user: AuthenticatedUser | null, ...args: Args) => Promise<T>
 ) {
-  return async (...args: any[]): Promise<T> => {
+  return async (...args: Args): Promise<T> => {
     const user = await getAuthenticatedUser();
     return action(user, ...args);
   };
 }
+
+

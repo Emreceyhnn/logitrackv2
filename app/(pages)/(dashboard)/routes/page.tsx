@@ -4,7 +4,8 @@ import RoutesKpiCard from "@/app/components/dashboard/routes/routesKpiCard";
 import RoutesMainMap from "@/app/components/dashboard/routes/routesMainMap";
 import RouteEfficiency from "@/app/components/dashboard/routes/routeEfficiency";
 import RouteTable from "@/app/components/dashboard/routes/routeTable";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography, Divider } from "@mui/material";
+import CustomCard from "@/app/components/cards/card";
 import { useCallback, useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {
@@ -93,7 +94,7 @@ export default function RoutesPage() {
   }, [state.pagination.page, state.pagination.pageSize, state.filters.status]);
 
   const actions: RoutesPageActions = {
-    fetchRoutes: async (page, status) => {},
+    fetchRoutes: async (_page, _status) => {},
     fetchStats: async () => {},
     fetchEfficiency: async () => {},
     fetchMapData: async () => {},
@@ -195,16 +196,22 @@ export default function RoutesPage() {
         <RouteEfficiency data={state.efficiency} loading={state.loading} />
       </Stack>
       <Stack mt={2}>
-        <RouteTable
-          routes={state.routes}
-          loading={state.loading}
-          pagination={state.pagination}
-          onPageChange={handlePageChange}
-          onSelect={actions.selectRoute}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onRefresh={actions.refreshAll}
-        />
+        <CustomCard sx={{ padding: "0 0 6px 0" }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+            Route List
+          </Typography>
+          <Divider />
+          <RouteTable
+            routes={state.routes}
+            loading={state.loading}
+            pagination={state.pagination}
+            onPageChange={handlePageChange}
+            onSelect={actions.selectRoute}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onRefresh={actions.refreshAll}
+          />
+        </CustomCard>
       </Stack>
 
       <EditRouteDialog

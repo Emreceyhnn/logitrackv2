@@ -5,8 +5,6 @@ import {
   Document,
   MaintenanceRecord,
   Route,
-  User,
-  Driver,
 } from "@prisma/client";
 
 export interface VehicleDashboardProps {

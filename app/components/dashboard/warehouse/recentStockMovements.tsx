@@ -73,7 +73,7 @@ const RecentStockMovements = ({
               ))}
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
             {movements.map((move) => {
               const isPick = move.type === "PICK";
               const date = new Date(move.date);
@@ -94,12 +94,12 @@ const RecentStockMovements = ({
                     transition: "background-color 0.2s ease"
                   }}
                 >
-                  <TableCell sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
+                  <TableCell>
                     <Typography variant="body2" fontWeight={800} color="text.primary">
                       {move.warehouse?.code}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
+                  <TableCell>
                     <Typography variant="body2" fontWeight={600}>
                       {move.itemName}
                     </Typography>
@@ -107,7 +107,7 @@ const RecentStockMovements = ({
                       {move.sku}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
+                  <TableCell>
                     <Chip
                       label={move.type}
                       size="small"
@@ -122,7 +122,7 @@ const RecentStockMovements = ({
                       }}
                     />
                   </TableCell>
-                  <TableCell sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}>
+                  <TableCell>
                     <Typography 
                       variant="body2" 
                       fontWeight={800} 
@@ -134,7 +134,6 @@ const RecentStockMovements = ({
                   </TableCell>
                   <TableCell 
                     align="right" 
-                    sx={{ borderBottom: `1px solid ${alpha(theme.palette.divider, 0.03)}` }}
                   >
                     <Typography variant="body2" fontWeight={600} color="text.primary">
                       {timeDisplay}

@@ -22,7 +22,6 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import CustomCard from "../../cards/card";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -63,7 +62,14 @@ const InventoryTable = ({
     useState<InventoryWithRelations | null>(null);
 
   if (loading) {
-    return <TableSkeleton title="Inventory List" rows={5} columns={8} />;
+    return (
+      <TableSkeleton
+        title="Inventory List"
+        rows={5}
+        columns={8}
+        sx={{ mt: 2 }}
+      />
+    );
   }
 
   const handleMenuOpen = (
@@ -116,26 +122,85 @@ const InventoryTable = ({
   };
 
   return (
-    <CustomCard sx={{ p: 0, overflow: "hidden" }}>
-      <TableContainer sx={{ p: 0, pt: 1 }}>
-        <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
+    <>
+      <TableContainer sx={{ p: 0 }}>
+        <Table size="small" sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
           <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>Product Name</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>SKU</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>Category</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>Stock Level</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>Unit Price</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>Warehouses</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 600, color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.1) }}>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  color: "text.secondary",
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                }}
+              >
+                Product Name
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  color: "text.secondary",
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                }}
+              >
+                SKU
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  color: "text.secondary",
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                }}
+              >
+                Category
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  color: "text.secondary",
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                }}
+              >
+                Stock Level
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  color: "text.secondary",
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                }}
+              >
+                Unit Price
+              </TableCell>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  color: "text.secondary",
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                }}
+              >
+                Warehouses
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{
+                  fontWeight: 600,
+                  color: "text.secondary",
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                }}
+              >
                 Actions
               </TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
             {items.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 4, borderColor: alpha(theme.palette.divider, 0.1) }}>
+                <TableCell
+                  colSpan={8}
+                  align="center"
+                  sx={{ py: 4, borderColor: alpha(theme.palette.divider, 0.1) }}
+                >
                   <Typography variant="body2" color="text.secondary">
                     No inventory items found
                   </Typography>
@@ -156,11 +221,11 @@ const InventoryTable = ({
                     key={row.id}
                     sx={{
                       cursor: "pointer",
+                      "& td, & th": { borderColor: alpha(theme.palette.divider, 0.1) },
                       transition: "all 0.2s ease-in-out",
-                      "& td": { borderColor: alpha(theme.palette.divider, 0.1) },
-                      "&:hover": { 
+                      "&:hover": {
                         bgcolor: alpha(theme.palette.primary.main, 0.04),
-                      }
+                      },
                     }}
                   >
                     <TableCell component="th" id={labelId} scope="row">
@@ -287,7 +352,7 @@ const InventoryTable = ({
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </CustomCard>
+    </>
   );
 };
 

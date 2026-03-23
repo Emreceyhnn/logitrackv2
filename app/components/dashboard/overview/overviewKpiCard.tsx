@@ -104,24 +104,20 @@ const OverviewKpiCard = ({ stats, loading = false }: OverviewKpiCardProps) => {
 
   return (
     <Box
-      component={motion.div}
-      variants={container}
-      initial="hidden"
-      animate="show"
       sx={{
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "stretch", // Ensure equal height in rows
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "1fr",
+          sm: "repeat(2, 1fr)",
+          md: "repeat(4, 1fr)",
+          lg: "repeat(15, 1fr)", // 15 column grid allows 5 cards of 3 cols, or 3 cards of 5 cols
+        },
         gap: 3,
         mt: 3,
         width: "100%",
         "& > *": {
-          flex: {
-            xs: "1 1 100%",
-            sm: "1 1 calc(50% - 24px)",
-            md: "1 1 calc(25% - 24px)",
-          },
-          display: "flex", // Support StatCard stretching
+          display: "flex",
+          "& > div": { width: "100%" } // ensure motion.div fills the grid item
         }
       }}
     >
@@ -129,10 +125,11 @@ const OverviewKpiCard = ({ stats, loading = false }: OverviewKpiCardProps) => {
         <Box
           key={index}
           sx={{
-            width: {
-              xs: "100%",
-              sm: "calc(50% - 8px)",
-              md: "calc(25% - 12px)",
+            gridColumn: {
+              xs: "span 1",
+              sm: "span 1",
+              md: "span 1", // naturally wraps after 4 
+              lg: index < 5 ? "span 3" : "span 5", // Top row: 5 cards. Bottom row: 3 cards.
             },
           }}
         >

@@ -65,7 +65,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
                   fill: theme.palette.success.main,
                 },
               }}
-              text={({ value, valueMax }) => `${value}%`}
+              text={({ value }) => `${value}%`}
             />
           </Box>
           <Typography variant="body2" color="text.secondary" align="center">

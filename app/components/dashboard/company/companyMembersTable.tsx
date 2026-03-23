@@ -30,7 +30,6 @@ import { useState } from "react";
 import CompanyMemberDetailsDialog from "../../dialogs/company/CompanyMemberDetailsDialog";
 import EditCompanyMemberDialog from "../../dialogs/company/EditCompanyMemberDialog";
 import DeleteConfirmationDialog from "../../dialogs/deleteConfirmationDialog";
-import CustomCard from "../../cards/card";
 import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 function StatusChip({ status }: { status: string }) {
@@ -105,8 +104,8 @@ export default function CompanyMembersTable({
   };
 
   return (
-    <CustomCard sx={{ p: 0, overflow: "hidden" }}>
-      <TableContainer sx={{ p: 0, pt: 1 }}>
+    <>
+      <TableContainer sx={{ p: 0 }}>
         <Table size="small">
           <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
             <TableRow>
@@ -118,7 +117,7 @@ export default function CompanyMembersTable({
               <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }} align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
+          <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
             {members.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
@@ -251,6 +250,6 @@ export default function CompanyMembersTable({
         description={`Are you sure you want to remove ${selectedMember?.name} from the company? This will revoke their access immediately.`}
         loading={deleteLoading}
       />
-    </CustomCard>
+    </>
   );
 }

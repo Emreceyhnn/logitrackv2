@@ -38,10 +38,9 @@ const DriverTable = ({
   ) => {
     onPageChange(newPage + 1); // MUI uses 0-indexed, our API uses 1-indexed
   };
-  const createSortHandler =
-    (property: string) => () => {
-      if (onRequestSort) onRequestSort(property);
-    };
+  const createSortHandler = (property: string) => () => {
+    if (onRequestSort) onRequestSort(property);
+  };
 
   if (loading) {
     return <TableSkeleton title="Driver List" rows={10} columns={8} />;
@@ -52,7 +51,9 @@ const DriverTable = ({
       <Table size="small">
         <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
           <TableRow>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>#</TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              #
+            </TableCell>
             <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
               <TableSortLabel
                 active={sortField === "name"}
@@ -92,7 +93,9 @@ const DriverTable = ({
             <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
               <TableSortLabel
                 active={sortField === "homeBaseWarehouse"}
-                direction={sortField === "homeBaseWarehouse" ? sortOrder : "asc"}
+                direction={
+                  sortField === "homeBaseWarehouse" ? sortOrder : "asc"
+                }
                 onClick={createSortHandler("homeBaseWarehouse")}
               >
                 Homebase
@@ -107,7 +110,10 @@ const DriverTable = ({
                 License
               </TableSortLabel>
             </TableCell>
-            <TableCell align="right" sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+            <TableCell
+              align="right"
+              sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}
+            >
               <TableSortLabel
                 active={sortField === "safetyScore"}
                 direction={sortField === "safetyScore" ? sortOrder : "asc"}
@@ -116,20 +122,35 @@ const DriverTable = ({
                 Safety Score
               </TableSortLabel>
             </TableCell>
-            <TableCell align="right" sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Actions</TableCell>
+            <TableCell
+              align="right"
+              sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}
+            >
+              Actions
+            </TableCell>
           </TableRow>
         </TableHead>
 
-        <TableBody>
+        <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
           {drivers.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} align="center" sx={{ py: 3, borderColor: alpha(theme.palette.divider, 0.1) }}>
-                  No drivers found
+              <TableCell
+                colSpan={9}
+                align="center"
+                sx={{ py: 3, borderColor: alpha(theme.palette.divider, 0.1) }}
+              >
+                No drivers found
               </TableCell>
             </TableRow>
           ) : (
             drivers.map((d, index) => (
-              <TableRow key={d.id} hover sx={{ "& td": { borderColor: alpha(theme.palette.divider, 0.1) } }}>
+              <TableRow
+                key={d.id}
+                hover
+                sx={{
+                  "& td": { borderColor: alpha(theme.palette.divider, 0.1) },
+                }}
+              >
                 <TableCell>
                   {index + 1 + (meta.page - 1) * meta.limit}
                 </TableCell>

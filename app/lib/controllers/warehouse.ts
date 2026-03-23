@@ -140,7 +140,7 @@ export const getWarehouseById = authenticatedAction(
 );
 
 export const updateWarehouse = authenticatedAction(
-  async (user, warehouseId: string, data: any) => {
+  async (user, warehouseId: string, data: Prisma.WarehouseUpdateInput) => {
     try {
       await checkPermission(user.id, user.companyId, [
         "role_admin",
@@ -159,8 +159,8 @@ export const updateWarehouse = authenticatedAction(
         throw new Error("Warehouse not found or unauthorized");
       }
 
-      const { managerId, ...restData } = data;
-      const updateData: any = { ...restData };
+      const { managerId, ...restData } = data as { managerId?: string | null } & Prisma.WarehouseUpdateInput;
+      const updateData: Prisma.WarehouseUpdateInput = { ...restData };
 
       if (updateData.code === "") {
         updateData.code = `WH-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
@@ -262,9 +262,7 @@ export const addInventoryItem = authenticatedAction(
     weightKg: number = 0,
     volumeM3: number = 0,
     palletCount: number = 0,
-    cargoType: string = "General Cargo",
-    imageUrl?: string,
-    unitValue: number = 0
+    cargoType: string = "General Cargo"
   ) => {
     try {
       await checkPermission(user.id, user.companyId, [
@@ -313,8 +311,6 @@ export const addInventoryItem = authenticatedAction(
           palletCount,
           cargoType,
           companyId: user.companyId!,
-          imageUrl,
-          unitValue,
         },
       });
 

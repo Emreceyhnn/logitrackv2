@@ -1,4 +1,4 @@
-import { Route, RouteStatus, Driver, Vehicle, Shipment } from "@prisma/client";
+import { Route } from "@prisma/client";
 
 // Domain Models
 export interface RouteWithRelations extends Route {

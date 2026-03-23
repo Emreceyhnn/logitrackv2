@@ -272,7 +272,7 @@ export const logWarehouseFulfillment = authenticatedAction(
     sku: string,
     quantity: number,
     type: "PICK" | "PACK",
-    shipmentId?: string
+    _shipmentId?: string
   ) => {
     const companyId = user?.companyId || "";
     const userId = user?.id || "";

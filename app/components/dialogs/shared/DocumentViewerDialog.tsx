@@ -46,19 +46,8 @@ export default function DocumentViewerDialog({
     url.toLowerCase().endsWith(".pdf") ||
     url.includes("/raw/upload/") === false;
 
-  // Use a key to force iframe reload when URL changes
+  // Use a key to force reset state when URL changes
   const viewerKey = `${url}-${open}`;
-
-  // Reset states when URL changes or dialog opens
-  useEffect(() => {
-    if (open) {
-      // Avoid cascading render by only setting if it's currently true
-      setError((prev) => (prev ? false : prev));
-    }
-  }, [open, url]);
-
-  // Initial state should be loading true to avoid cascading render on mount
-  // I already have useState(true) so we're good.
 
   const handleLoad = () => {
     setLoading(false);

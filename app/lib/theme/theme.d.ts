@@ -105,5 +105,6 @@ declare module "@mui/material/styles" {
 
 declare module "@emotion/react" {
   import { Theme as MuiTheme } from "@mui/material/styles";
-  export interface Theme extends MuiTheme {}
+export type Theme = MuiTheme;
+
 }

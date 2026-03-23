@@ -11,7 +11,6 @@ import {
   useTheme,
   Typography,
 } from "@mui/material";
-import CustomCard from "../../../cards/card";
 import { useState } from "react";
 import RowActions from "../../vehicle/vehicleTable/menu";
 import RouteDetailsDialog from "@/app/components/dialogs/routes";
@@ -73,82 +72,96 @@ const RouteTable = ({
   };
 
   return (
-    <>
-      <CustomCard sx={{ p: 0, overflow: "hidden" }}>
+    <TableContainer sx={{ p: 0 }}>
+      <Table size="small">
+        <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
+          <TableRow>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              Route Id
+            </TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              Vehicle Plate
+            </TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              Origin
+            </TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              Destination
+            </TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              ETA
+            </TableCell>
+            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
+              Status
+            </TableCell>
+            <TableCell
+              sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}
+              align="right"
+            >
+              Actions
+            </TableCell>
+          </TableRow>
+        </TableHead>
 
-        <TableContainer sx={{ p: 0 }}>
-          <Table size="small">
-            <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
-              <TableRow>
-                <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Route Id</TableCell>
-                <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Vehicle Plate</TableCell>
-                <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Origin</TableCell>
-                <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Destination</TableCell>
-                <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>ETA</TableCell>
-                <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Status</TableCell>
-                <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}></TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {routes.map((r) => (
-                <TableRow key={r.id} hover sx={{ "& td": { borderColor: alpha(theme.palette.divider, 0.1) } }}>
-                  <TableCell sx={{ paddingBlock: 2 }}>
-                    <Typography variant="body2" fontWeight={600}>
-                      {r.name || r.id}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ paddingBlock: 2 }}>
-                    {r.vehicle?.plate || "Unassigned"}
-                  </TableCell>
-                  <TableCell sx={{ paddingBlock: 2 }}>
-                    {r.startAddress || "N/A"}
-                  </TableCell>
-                  <TableCell sx={{ paddingBlock: 2 }}>
-                    {r.endAddress || "N/A"}
-                  </TableCell>
-                  <TableCell sx={{ paddingBlock: 2 }}>
-                    {r.endTime ? new Date(r.endTime).toLocaleString() : "N/A"}
-                  </TableCell>
-                  <TableCell sx={{ paddingBlock: 2 }}>
-                    <StatusChip status={r.status} />
-                  </TableCell>
-                  <TableCell align="right">
-                    <RowActions
-                      id={r.id}
-                      handleOpenDetails={handleOpenDetails}
-                      handleEdit={onEdit}
-                      handleDelete={onDelete}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-              {routes.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 3, borderColor: alpha(theme.palette.divider, 0.1) }}>
-                    No routes found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          <TablePagination
-            rowsPerPageOptions={[10]}
-            component="div"
-            count={pagination.total}
-            rowsPerPage={pagination.pageSize}
-            page={pagination.page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </TableContainer>
-      </CustomCard>
+        <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
+          {routes.map((r) => (
+            <TableRow
+              key={r.id}
+              hover
+              sx={{ "& td": { borderColor: alpha(theme.palette.divider, 0.1) } }}
+            >
+              <TableCell>
+                <Typography variant="body2" fontWeight={600}>
+                  {r.name || r.id}
+                </Typography>
+              </TableCell>
+              <TableCell>{r.vehicle?.plate || "Unassigned"}</TableCell>
+              <TableCell>{r.startAddress || "N/A"}</TableCell>
+              <TableCell>{r.endAddress || "N/A"}</TableCell>
+              <TableCell>
+                {r.endTime ? new Date(r.endTime).toLocaleString() : "N/A"}
+              </TableCell>
+              <TableCell>
+                <StatusChip status={r.status} />
+              </TableCell>
+              <TableCell align="right">
+                <RowActions
+                  id={r.id}
+                  handleOpenDetails={handleOpenDetails}
+                  handleEdit={onEdit}
+                  handleDelete={onDelete}
+                />
+              </TableCell>
+            </TableRow>
+          ))}
+          {routes.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={7}
+                align="center"
+                sx={{ py: 3, borderColor: alpha(theme.palette.divider, 0.1) }}
+              >
+                No routes found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50]}
+        component="div"
+        count={pagination.total}
+        rowsPerPage={pagination.pageSize}
+        page={pagination.page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
       <RouteDetailsDialog
         open={openDetails}
         onClose={handleCloseDetails}
         route={selectedRoute}
       />
-    </>
+    </TableContainer>
   );
 };
 

@@ -1,11 +1,9 @@
 "use server";
 
 import { db } from "../db";
-import { authenticatedAction } from "../auth-middleware";
-import { checkPermission } from "./utils/checkPermission";
 import { getUserFromToken } from "./users";
-import { ReportsData } from "../type/reports";
 import { cookies } from "next/headers";
+import { ReportsData } from "../type/reports";
 
 export async function getReportsDataAction(): Promise<ReportsData | null> {
   try {
@@ -13,7 +11,7 @@ export async function getReportsDataAction(): Promise<ReportsData | null> {
     const token = cookieStore.get("token")?.value;
     if (!token) return null;
 
-    const requester = await getUserFromToken(token);
+    const requester = (await getUserFromToken(token)) as { companyId?: string | null } | null;
     if (!requester || !requester.companyId) return null;
     const companyId = requester.companyId;
 

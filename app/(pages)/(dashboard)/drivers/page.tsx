@@ -5,7 +5,7 @@ import DriverTable from "@/app/components/dashboard/driver/driverTable";
 import DriverPerformanceCharts from "@/app/components/dashboard/driver/driverPerformanceCharts";
 import { Box, Stack, Typography, Button, Divider } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import {
   DriverPageState,
   DriverPageActions,
@@ -60,56 +60,48 @@ export default function DriverPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [driverToDelete, setDriverToDelete] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string }>({
-    open: false,
-    message: "",
-  });
+
+
+
 
   /* --------------------------------- Actions -------------------------------- */
-  const actions: DriverPageActions = {
-    fetchDrivers: useCallback(
-      async (
-        page = 1,
-        limit = 10,
-        currentFilters = state.filters,
-        currentSort = state.sort
-      ) => {
-        try {
-          const result = await getDrivers(
-            page,
-            limit,
-            currentFilters.search,
-            currentFilters.status,
-            currentFilters.hasVehicle,
-            currentSort.field,
-            currentSort.order
-          );
-          setState((prev) => ({
-            ...prev,
-            drivers: result.data as unknown as DriverWithRelations[],
-            pagination: {
-              page: result.meta.page,
-              limit: result.meta.limit,
-              total: result.meta.total,
-            },
-            loading: false,
-          }));
-        } catch (error: any) {
-          setState((prev) => ({
-            ...prev,
-            error: error.message,
-            loading: false,
-          }));
-          setSnackbar({
-            open: true,
-            message: error.message || "Failed to fetch drivers",
-          });
-        }
-      },
-      [state.filters, state.sort]
-    ),
+  const actions: DriverPageActions = useMemo(() => ({
+    fetchDrivers: async (
+      page = 1,
+      limit = 10,
+      currentFilters = state.filters,
+      currentSort = state.sort
+    ) => {
+      try {
+        const result = await getDrivers(
+          page,
+          limit,
+          currentFilters.search,
+          currentFilters.status,
+          currentFilters.hasVehicle,
+          currentSort.field,
+          currentSort.order
+        );
+        setState((prev) => ({
+          ...prev,
+          drivers: result.data as unknown as DriverWithRelations[],
+          pagination: {
+            page: result.meta.page,
+            limit: result.meta.limit,
+            total: result.meta.total,
+          },
+          loading: false,
+        }));
+      } catch (error: any) {
+        setState((prev) => ({
+          ...prev,
+          error: error.message,
+          loading: false,
+        }));
+      }
+    },
 
-    fetchDashboardData: useCallback(async () => {
+    fetchDashboardData: async () => {
       try {
         const data = await getDriverDashboardData();
         setState((prev) => ({
@@ -127,17 +119,17 @@ export default function DriverPage() {
       } catch (error: any) {
         console.error("Failed dashboard data", error);
       }
-    }, []),
+    },
 
-    selectDriver: useCallback((id) => {
+    selectDriver: (id: string | null) => {
       setState((prev) => {
-        const driver = prev.drivers.find((d) => d.id === id) || null;
+        const driver = prev.drivers.find((d: any) => d.id === id) || null;
         return { ...prev, selectedDriverId: id, selectedDriver: driver };
       });
       if (id) setIsDetailsOpen(true);
-    }, []),
+    },
 
-    updateFilters: useCallback((newFilters) => {
+    updateFilters: (newFilters: Partial<DriverFilters>) => {
       setState((prev) => {
         const updatedFilters = { ...prev.filters, ...newFilters };
         return {
@@ -147,13 +139,13 @@ export default function DriverPage() {
           loading: true,
         };
       });
-    }, []),
+    },
 
-    changePage: useCallback(async (newPage: number) => {
+    changePage: async (_newPage: number) => {
       setState((prev) => ({ ...prev, loading: true }));
-    }, []),
+    },
 
-    refreshAll: useCallback(async () => {
+    refreshAll: async () => {
       setState((prev) => ({ ...prev, loading: true }));
       await actions.fetchDrivers(
         state.pagination.page,
@@ -162,13 +154,8 @@ export default function DriverPage() {
         state.sort
       );
       await actions.fetchDashboardData();
-    }, [
-      state.pagination.page,
-      state.pagination.limit,
-      state.filters,
-      state.sort,
-    ]),
-  };
+    },
+  }), [state.filters, state.sort, state.pagination.page, state.pagination.limit, state.drivers]);
 
   /* -------------------------------- Lifecycle --------------------------------- */
   useEffect(() => {
@@ -182,12 +169,7 @@ export default function DriverPage() {
     if (!state.dashboardData) {
       actions.fetchDashboardData();
     }
-  }, [
-    state.pagination.page,
-    state.pagination.limit,
-    state.filters,
-    state.sort,
-  ]);
+  }, [actions, state.dashboardData]);
 
   /* -------------------------------- Handlers -------------------------------- */
   const handleEdit = (driver: DriverWithRelations) => {
@@ -203,20 +185,18 @@ export default function DriverPage() {
     setDeleteLoading(true);
     try {
       await deleteDriver(driverToDelete);
-      setSnackbar({ open: true, message: "Driver deleted successfully" });
       setIsDeleteOpen(false);
       actions.fetchDrivers(
+
         state.pagination.page,
         state.pagination.limit,
         state.filters
       );
       actions.fetchDashboardData();
     } catch (error: any) {
-      setSnackbar({
-        open: true,
-        message: error.message || "Failed to delete driver",
-      });
+      console.error("Delete failed", error);
     } finally {
+
       setDeleteLoading(false);
     }
   };

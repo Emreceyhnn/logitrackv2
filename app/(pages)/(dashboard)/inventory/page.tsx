@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useCallback, useState, useEffect, useMemo } from "react";
-import { Box } from "@mui/material";
+import { Box, Divider, Stack, Typography } from "@mui/material";
+import CustomCard from "@/app/components/cards/card";
 import InventoryHeader from "@/app/components/dashboard/inventory/InventoryHeader";
 import InventoryKPI from "@/app/components/dashboard/inventory/InventoryKPI";
 import InventoryTable from "@/app/components/dashboard/inventory/InventoryTable";
@@ -142,13 +143,21 @@ export default function InventoryPage() {
 
       <InventoryKPI items={filteredData} loading={state.loading} />
 
-      <InventoryTable
-        items={filteredData}
-        loading={state.loading}
-        onSelect={actions.openDetails}
-        onEdit={(item) => actions.openEdit(item.id)}
-        onDelete={handleDeleteRequest}
-      />
+      <Stack mt={2}>
+        <CustomCard sx={{ padding: "0 0 6px 0" }}>
+          <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
+            Inventory List
+          </Typography>
+          <Divider />
+          <InventoryTable
+            items={filteredData}
+            loading={state.loading}
+            onSelect={actions.openDetails}
+            onEdit={(item) => actions.openEdit(item.id)}
+            onDelete={handleDeleteRequest}
+          />
+        </CustomCard>
+      </Stack>
 
       <InventoryDetailsDialog
         isOpen={state.isDetailsOpen}

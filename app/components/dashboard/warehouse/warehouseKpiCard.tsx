@@ -1,18 +1,21 @@
 "use client";
 import { Box, useTheme } from "@mui/material";
 import { WarehouseKpiCardProps } from "@/app/lib/type/warehouse";
-import { 
-  Warehouse, 
-  Inventory2, 
-  ListAlt, 
-  Storage, 
-  Category 
+import {
+  Warehouse,
+  Inventory2,
+  ListAlt,
+  Storage,
+  Category,
 } from "@mui/icons-material";
 import StatCard from "../../cards/StatCard";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 import { motion } from "framer-motion";
 
-const WarehouseKpiCard = ({ stats, loading = false }: WarehouseKpiCardProps) => {
+const WarehouseKpiCard = ({
+  stats,
+  loading = false,
+}: WarehouseKpiCardProps) => {
   const theme = useTheme();
 
   if (loading || !stats) {
@@ -27,35 +30,35 @@ const WarehouseKpiCard = ({ stats, loading = false }: WarehouseKpiCardProps) => 
       value: values.totalWarehouses,
       icon: <Warehouse />,
       color: theme.palette.primary.main, // Blue
-      trend: { value: 2, isUp: true }
+      trend: { value: 2, isUp: true },
     },
     {
       label: "INVENTORY SKUS",
       value: values.totalSkus.toLocaleString(),
       icon: <Inventory2 />,
       color: "#06b6d4", // Cyan
-      trend: { value: 12, isUp: true }
+      trend: { value: 12, isUp: true },
     },
     {
       label: "TOTAL ITEMS",
       value: values.totalItems.toLocaleString(),
       icon: <ListAlt />,
       color: "#8b5cf6", // Violet
-      trend: { value: 8, isUp: true }
+      trend: { value: 8, isUp: true },
     },
     {
       label: "PALLET CAPACITY",
       value: values.totalCapacityPallets.toLocaleString(),
       icon: <Category />,
       color: "#f59e0b", // Amber
-      trend: { value: 5, isUp: true }
+      trend: { value: 5, isUp: true },
     },
     {
       label: "STOCKED VOLUME",
       value: `${values.totalCapacityVolume.toLocaleString()} M³`,
       icon: <Storage />,
       color: "#10b981", // Emerald
-      trend: { value: 15, isUp: true }
+      trend: { value: 15, isUp: true },
     },
   ];
 
@@ -64,9 +67,9 @@ const WarehouseKpiCard = ({ stats, loading = false }: WarehouseKpiCardProps) => 
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   return (
@@ -90,7 +93,7 @@ const WarehouseKpiCard = ({ stats, loading = false }: WarehouseKpiCardProps) => 
             lg: "1 1 calc(20% - 24px)",
           },
           display: "flex", // Support StatCard stretching
-        }
+        },
       }}
     >
       {kpiItems.map((item, index) => (

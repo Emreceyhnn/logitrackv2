@@ -1,7 +1,6 @@
 import {
   Shipment,
   Customer,
-  Driver,
   Route,
   ShipmentHistory,
   Company,
@@ -11,7 +10,7 @@ import {
 export interface ShipmentWithRelations extends Shipment {
   destinationLat?: number | null;
   destinationLng?: number | null;
-  customer: Customer;
+  customer: Customer | null;
   driver?: {
     id: string;
     user: {

@@ -1,4 +1,4 @@
-import { Warehouse, Inventory, Driver, User } from "@prisma/client";
+import { Warehouse, Inventory, Driver } from "@prisma/client";
 
 // Domain Models
 export interface WarehouseWithRelations extends Warehouse {

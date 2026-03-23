@@ -64,12 +64,12 @@ export const createRoute = authenticatedAction(
           startLng = warehouse.lng || undefined;
         }
       } else if (origin?.type === "CUSTOMER" && origin.id) {
-        const customer = (await db.customer.findUnique({
+        const customer = await db.customer.findUnique({
           where: { id: origin.id },
-          include: { locations: true } as any
-        })) as any;
+          include: { locations: true }
+        });
         if (customer && customer.locations.length > 0) {
-          const defaultLoc = customer.locations.find((l: any) => l.isDefault) || customer.locations[0];
+          const defaultLoc = customer.locations.find((l) => l.isDefault) || customer.locations[0];
           startAddress = defaultLoc.address || undefined;
           startLat = defaultLoc.lat || undefined;
           startLng = defaultLoc.lng || undefined;
@@ -90,12 +90,12 @@ export const createRoute = authenticatedAction(
           endLng = warehouse.lng || undefined;
         }
       } else if (destination?.type === "CUSTOMER" && destination.id) {
-        const customer = (await db.customer.findUnique({
+        const customer = await db.customer.findUnique({
           where: { id: destination.id },
-          include: { locations: true } as any
-        })) as any;
+          include: { locations: true }
+        });
         if (customer && customer.locations.length > 0) {
-          const defaultLoc = customer.locations.find((l: any) => l.isDefault) || customer.locations[0];
+          const defaultLoc = customer.locations.find((l) => l.isDefault) || customer.locations[0];
           endAddress = defaultLoc.address || undefined;
           endLat = defaultLoc.lat || undefined;
           endLng = defaultLoc.lng || undefined;

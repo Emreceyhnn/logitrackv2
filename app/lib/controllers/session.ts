@@ -8,8 +8,6 @@ import type { AuditAction } from "@prisma/client";
 
 // ─── Secrets ────────────────────────────────────────────────────────────────
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only";
-const REFRESH_SECRET =
-  process.env.REFRESH_SECRET || "fallback_refresh_for_dev_only";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 const ACCESS_TOKEN_EXPIRY = "15m"; // 15 minutes

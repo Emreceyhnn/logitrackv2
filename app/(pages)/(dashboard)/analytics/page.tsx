@@ -1,46 +1,49 @@
 "use client";
 
-import { Box, Stack, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import AnalyticsHeader from "@/app/components/dashboard/analytics/AnalyticsHeader";
 import PerformanceGauges from "@/app/components/dashboard/analytics/PerformanceGauges";
 import CostAnalysisCharts from "@/app/components/dashboard/analytics/CostAnalysisCharts";
 import ForecastingWidget from "@/app/components/dashboard/analytics/ForecastingWidget";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { AnalyticsPageState, AnalyticsPageActions } from "@/app/lib/type/analytics.d";
 
 export default function AnalyticsPage() {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<AnalyticsPageState | null>(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const result = await import("@/app/lib/controllers/analytics").then(
+        (mod) => mod.getAnalyticsDashboardData()
+      );
+      setState(result);
+    } catch (error) {
+      console.error("Failed to fetch analytics", error);
+    }
+  }, []);
+
+  const actions: AnalyticsPageActions = {
+    fetchData
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await import("@/app/lib/controllers/analytics").then(
-          (mod) => mod.getAnalyticsDashboardData()
-        ); // Passing token/companyID
-        setData(result);
-      } catch (error) {
-        console.error("Failed to fetch analytics", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+    actions.fetchData();
+  }, [actions.fetchData]);
 
   return (
     <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
       <AnalyticsHeader />
 
       <Box sx={{ mb: 3 }}>
-        <PerformanceGauges data={data?.performance} />
+        <PerformanceGauges data={state?.performance} />
       </Box>
 
       <Box sx={{ mb: 3 }}>
-        <CostAnalysisCharts data={data?.costs} />
+        <CostAnalysisCharts data={state?.costs} />
       </Box>
 
       <Box>
-        <ForecastingWidget data={data?.forecast} />
+        <ForecastingWidget data={state?.forecast} />
       </Box>
     </Box>
   );

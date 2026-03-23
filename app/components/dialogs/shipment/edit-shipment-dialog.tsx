@@ -84,6 +84,7 @@ const EditShipmentDialog = ({
     originWarehouseId: "",
     destination: "",
     customerId: "",
+    customerLocationId: "",
     contactEmail: "",
     billingAccount: "Standard Billing (Net 30)",
   });
@@ -127,6 +128,7 @@ const EditShipmentDialog = ({
         originWarehouseId: shipment.origin || "",
         destination: shipment.destination || "",
         customerId: shipment.customerId || "",
+        customerLocationId: shipment.customerLocationId || "",
         contactEmail: extraShipment.contactEmail || "",
         billingAccount:
           extraShipment.billingAccount || "Standard Billing (Net 30)",

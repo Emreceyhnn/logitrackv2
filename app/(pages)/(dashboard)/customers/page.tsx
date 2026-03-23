@@ -230,8 +230,6 @@ export default function CustomersPage() {
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
         customerId={state.selectedCustomerId}
-        onEdit={(customer) => handleEdit(customer)}
-        onDelete={(customer) => handleDelete(customer)}
       />
 
       <EditCustomerDialog
