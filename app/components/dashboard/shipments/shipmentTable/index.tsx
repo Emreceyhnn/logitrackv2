@@ -1,151 +1,171 @@
 "use client";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  alpha,
-  useTheme,
-} from "@mui/material";
-import RowActions from "./menu";
-import ShipmentDetailDialog from "../../../dialogs/shipment/shipmentDetailDialog";
-import { useState } from "react";
-import {
+
+import { useState, useCallback } from "react";
+import { Typography } from "@mui/material";
+import DataTable from "@/app/components/ui/DataTable";
+import type { DataTableColumn, DataTableFilter, DataTableRowAction } from "@/app/lib/type/dataTable";
+import { StatusChip } from "@/app/components/chips/statusChips";
+import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDetailDialog";
+import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import type {
   ShipmentTableProps,
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
-import { StatusChip } from "@/app/components/chips/statusChips";
-import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
+
+// Shipment status is a string field (no Prisma enum). Based on StatusChip categories.
+const SHIPMENT_STATUS_VALUES = [
+  "PENDING",
+  "PICKED_UP",
+  "IN_TRANSIT",
+  "DELIVERED",
+  "COMPLETED",
+  "FAILED",
+  "CANCELLED",
+] as const;
+
+const SHIPMENT_FILTERS: DataTableFilter[] = [
+  {
+    key: "status",
+    label: "Status",
+    options: SHIPMENT_STATUS_VALUES.map((s) => ({
+      label: s.replace(/_/g, " "),
+      value: s,
+    })),
+    multiple: false,
+  },
+];
 
 const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
-  const { shipments, loading = false } = state;
-  const { selectShipment: onSelect, onEdit, onDelete } = actions;
-  const theme = useTheme();
+  const { shipments, loading = false, filters } = state;
+  const { selectShipment, onEdit, onDelete, updateFilters } = actions;
 
-  /* --------------------------------- states --------------------------------- */
-  const [open, setOpen] = useState(false);
+  /* --------------------------------- dialog state --------------------------------- */
+  const [detailOpen, setDetailOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] =
     useState<ShipmentWithRelations | null>(null);
 
-  if (loading) {
-    return <TableSkeleton title="Shipment List" rows={5} columns={9} />;
-  }
+  /* --------------------------------- handlers --------------------------------- */
+  const handleOpenDetails = useCallback(
+    (row: ShipmentWithRelations) => {
+      setSelectedShipment(row);
+      setDetailOpen(true);
+      selectShipment(row.id);
+    },
+    [selectShipment]
+  );
 
-  /* -------------------------------- handlers -------------------------------- */
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      updateFilters({ search: value });
+    },
+    [updateFilters]
+  );
 
-  const handleOpen = (id: string) => {
-    const shipment = shipments.find((s) => s.id === id);
-    if (!shipment) return;
+  const handleFilterChange = useCallback(
+    (key: string, values: string[]) => {
+      if (key === "status") {
+        updateFilters({ status: values[0] as string | undefined });
+      }
+    },
+    [updateFilters]
+  );
 
-    setSelectedShipment(shipment);
-    setOpen(true);
-    onSelect(id);
-  };
+  /* --------------------------------- columns --------------------------------- */
+  const columns: DataTableColumn<ShipmentWithRelations>[] = [
+    {
+      key: "trackingId",
+      label: "Code",
+      render: (row) => (
+        <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>
+          {row.trackingId}
+        </Typography>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (row) => <StatusChip status={row.status} />,
+    },
+    {
+      key: "customer",
+      label: "Customer",
+      render: (row) => row.customer?.name ?? "-",
+    },
+    {
+      key: "createdAt",
+      label: "Created",
+      render: (row) => new Date(row.createdAt).toLocaleDateString(),
+    },
+    {
+      key: "destination",
+      label: "Destination",
+      render: (row) => row.destination,
+    },
+    {
+      key: "driver",
+      label: "Driver",
+      render: (row) =>
+        row.driver?.user.name
+          ? `${row.driver.user.name} ${row.driver.user.surname}`
+          : "-",
+    },
+    {
+      key: "route",
+      label: "Route",
+      render: (row) => row.route?.name ?? row.routeId ?? "-",
+    },
+    {
+      key: "items",
+      label: "Items",
+      align: "right",
+      render: (row) => row.itemsCount,
+    },
+  ];
+
+  /* --------------------------------- row actions --------------------------------- */
+  const rowActions: DataTableRowAction<ShipmentWithRelations>[] = [
+    {
+      label: "Details",
+      icon: <ContentPasteIcon fontSize="small" />,
+      onClick: handleOpenDetails,
+    },
+    {
+      label: "Edit",
+      icon: <EditIcon fontSize="small" />,
+      onClick: (row) => onEdit(row.id),
+    },
+    {
+      label: "Delete",
+      icon: <DeleteIcon fontSize="small" />,
+      onClick: (row) => onDelete(row.id),
+      color: "error",
+    },
+  ];
+
+  const activeFilters: Record<string, string[]> = {};
+  if (filters.status) activeFilters["status"] = [filters.status];
 
   return (
     <>
-    <TableContainer sx={{ p: 0 }}>
-      <Table size="small">
-        <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
-          <TableRow>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              Code
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              Status
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              Customer
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              Created
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              Destination
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              Driver
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              Route
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}
-            >
-              Items
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}
-            >
-              Actions
-            </TableCell>
-          </TableRow>
-        </TableHead>
-
-        <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
-          {shipments.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={9}
-                align="center"
-                sx={{ py: 3, borderColor: alpha(theme.palette.divider, 0.1) }}
-              >
-                <Typography variant="body2" color="text.secondary">
-                  No shipments found
-                </Typography>
-              </TableCell>
-            </TableRow>
-          ) : (
-            shipments.map((s) => (
-              <TableRow
-                key={s.id}
-                hover
-                sx={{
-                  "& td": { borderColor: alpha(theme.palette.divider, 0.1) },
-                }}
-              >
-                <TableCell>{s.trackingId}</TableCell>
-                <TableCell>
-                  <StatusChip status={s.status} />
-                </TableCell>
-                <TableCell>{s.customer?.name || "-"}</TableCell>
-                <TableCell>
-                  {new Date(s.createdAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell>{s.destination}</TableCell>
-                <TableCell>
-                  {s.driver?.user.name
-                    ? `${s.driver.user.name} ${s.driver.user.surname}`
-                    : "-"}
-                </TableCell>
-                <TableCell>{s.route?.name || s.routeId || "-"}</TableCell>
-                <TableCell align="right">{s.itemsCount}</TableCell>
-                <TableCell align="right">
-                  <RowActions
-                    id={s.id}
-                    handleOpenDetails={handleOpen}
-                    handleEdit={onEdit}
-                    handleDelete={onDelete}
-                  />
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+      <DataTable<ShipmentWithRelations>
+        rows={shipments}
+        columns={columns}
+        loading={loading}
+        emptyMessage="No shipments found"
+        searchValue={filters.search ?? ""}
+        searchPlaceholder="Search shipments..."
+        onSearchChange={handleSearchChange}
+        filters={SHIPMENT_FILTERS}
+        activeFilters={activeFilters}
+        onFilterChange={handleFilterChange}
+        rowActions={rowActions}
+      />
 
       <ShipmentDetailDialog
-        open={open}
-        onClose={handleClose}
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
         shipment={selectedShipment}
       />
     </>

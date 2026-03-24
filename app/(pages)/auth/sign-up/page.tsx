@@ -12,7 +12,7 @@ export default function SignInPage() {
         overflow: "hidden",
       }}
     >
-      {/* Background Orbs for Premium Look */}
+
       <Box
         sx={{
           position: "absolute",

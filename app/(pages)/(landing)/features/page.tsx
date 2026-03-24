@@ -86,7 +86,7 @@ export default function FeaturesPage() {
         overflow: "hidden",
       }}
     >
-      {/* Background Orbs */}
+
       <Box
         sx={{
           position: "absolute",
@@ -122,7 +122,7 @@ export default function FeaturesPage() {
           pb: { xs: 10, md: 20 },
         }}
       >
-        {/* Header */}
+
         <Stack spacing={4} alignItems="center" textAlign="center" mb={15} sx={{ animation: `${fadeIn} 0.8s ease-out` }}>
           <Chip
             label="Product Capabilities"
@@ -160,12 +160,11 @@ export default function FeaturesPage() {
               lineHeight: 1.6,
             }}
           >
-            From predictive telemetry to autonomous warehouse orchestration, explore the tools 
+            From predictive telemetry to autonomous warehouse orchestration, explore the tools
             redefining what it means to be a global logistics leader.
           </Typography>
         </Stack>
 
-        {/* Features Grid */}
         <Grid container spacing={4}>
           {features.map((feature, idx) => (
             <Grid size={{ xs: 12, md: 6, lg: 4 }} key={idx}>
@@ -216,7 +215,7 @@ export default function FeaturesPage() {
                       {feature.description}
                     </Typography>
                   </Box>
-                  
+
                   <Box sx={{ pt: 2, borderTop: `1px solid ${alpha("#cbd5f5", 0.05)}` }}>
                     <Stack spacing={1}>
                       {feature.details.map((detail, dIdx) => (
@@ -235,7 +234,7 @@ export default function FeaturesPage() {
           ))}
         </Grid>
 
-        {/* Tech Stack Overlay (Visual Polish) */}
+
         <Box
           sx={{
             mt: 20,
@@ -253,11 +252,11 @@ export default function FeaturesPage() {
             One Dashboard. Infinite Control.
           </Typography>
           <Typography variant="body1" sx={{ color: alpha("#cbd5f5", 0.7), maxWidth: 900, mx: "auto", mb: 6, lineHeight: 1.8 }}>
-            Our features aren&apos;t standalone tools—they are part of a deeply integrated ecosystem. 
-            When your warehouse updates, your fleet reacts. When traffic spikes, your customer knows. 
+            Our features aren&apos;t standalone tools—they are part of a deeply integrated ecosystem.
+            When your warehouse updates, your fleet reacts. When traffic spikes, your customer knows.
             That is the Logi-Track advantage.
           </Typography>
-          
+
           <Grid container spacing={2} justifyContent="center">
             {["Cloud Native", "AI Optimized", "256-bit AES Encryption", "99.9% SLA", "PCI-DSS Compliant"].map((stat, sIdx) => (
               <Grid key={sIdx}>
@@ -280,7 +279,7 @@ export default function FeaturesPage() {
         </Box>
       </Container>
 
-      {/* Footer */}
+
       <Box
         sx={{
           py: 10,

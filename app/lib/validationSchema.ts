@@ -154,3 +154,24 @@ export const editCustomerValidationSchema = Yup.object({
   taxId: Yup.string().nullable(),
   industry: Yup.string().nullable(),
 });
+
+export const signUpValidationSchema = [
+  Yup.object({
+    name: Yup.string().min(2, "Name too short").required("Name is required"),
+    surname: Yup.string().min(2, "Surname too short").required("Surname is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+  }),
+  Yup.object({
+    username: Yup.string().min(3, "Username too short").required("Username is required"),
+    password: Yup.string()
+      .min(8, "Password must be at least 8 characters")
+      .matches(/[a-z]/, "Lowercase required")
+      .matches(/[A-Z]/, "Uppercase required")
+      .matches(/[0-9]/, "Number required")
+      .required("Password is required"),
+    repeatPassword: Yup.string()
+      .oneOf([Yup.ref("password")], "Passwords must match")
+      .required("Repeat password is required"),
+  }),
+  Yup.object({}),
+];

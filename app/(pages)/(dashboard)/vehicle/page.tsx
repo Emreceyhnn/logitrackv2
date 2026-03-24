@@ -15,13 +15,13 @@ import {
   VehiclePageState,
   VehicleWithRelations,
 } from "@/app/lib/type/vehicle";
-import { Box, Stack, Typography, Button, Alert, Divider } from "@mui/material";
+import { Box, Stack, Typography, Button, Alert } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useCallback, useEffect, useState, useMemo } from "react";
 import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { deleteVehicle } from "@/app/lib/controllers/vehicle";
-import VehicleToolbar from "@/app/components/dashboard/vehicle/toolbar";
+
 import CustomCard from "@/app/components/cards/card";
 
 export default function VehiclePage() {
@@ -224,8 +224,6 @@ export default function VehiclePage() {
             Vehicle List
           </Typography>
 
-          <VehicleToolbar state={state} actions={actions} />
-          <Divider />
           <VehicleTable
             state={state}
             actions={{

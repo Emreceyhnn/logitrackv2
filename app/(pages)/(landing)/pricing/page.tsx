@@ -93,7 +93,7 @@ export default function PricingPage() {
         overflow: "hidden",
       }}
     >
-      {/* Background Polish */}
+
       <Box
         sx={{
           position: "absolute",
@@ -117,7 +117,7 @@ export default function PricingPage() {
           pb: { xs: 12, md: 20 },
         }}
       >
-        {/* Header */}
+
         <Stack spacing={4} alignItems="center" textAlign="center" mb={10} sx={{ animation: `${fadeIn} 0.8s ease-out` }}>
           <Chip
             label="Pricing Plans"
@@ -146,13 +146,13 @@ export default function PricingPage() {
           >
             Predictable Pricing for <br /> Unpredictable Logistics.
           </Typography>
-          
+
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography variant="body2" sx={{ color: !isYearly ? "#38bdf8" : alpha("#cbd5f5", 0.6), fontWeight: 600 }}>
               Monthly
             </Typography>
-            <Switch 
-              checked={isYearly} 
+            <Switch
+              checked={isYearly}
               onChange={() => setIsYearly(!isYearly)}
               sx={{
                 '& .MuiSwitch-switchBase.Mui-checked': { color: '#38bdf8' },
@@ -163,22 +163,22 @@ export default function PricingPage() {
               <Typography variant="body2" sx={{ color: isYearly ? "#38bdf8" : alpha("#cbd5f5", 0.6), fontWeight: 600 }}>
                 Yearly
               </Typography>
-              <Chip 
-                label="Save 20%" 
-                size="small" 
-                sx={{ 
-                  bgcolor: alpha("#10b981", 0.1), 
-                  color: "#10b981", 
+              <Chip
+                label="Save 20%"
+                size="small"
+                sx={{
+                  bgcolor: alpha("#10b981", 0.1),
+                  color: "#10b981",
                   border: "1px solid rgba(16, 185, 129, 0.3)",
                   fontSize: "0.65rem",
                   fontWeight: 800
-                }} 
+                }}
               />
             </Stack>
           </Stack>
         </Stack>
 
-        {/* Pricing Cards */}
+
         <Grid container spacing={4} alignItems="center">
           {pricingTiers.map((tier, idx) => (
             <Grid size={{ xs: 12, md: 4 }} key={idx}>
@@ -214,7 +214,7 @@ export default function PricingPage() {
                     }}
                   />
                 )}
-                
+
                 <Typography variant="h5" fontWeight={800} mb={1}>
                   {tier.title}
                 </Typography>
@@ -269,7 +269,7 @@ export default function PricingPage() {
           ))}
         </Grid>
 
-        {/* Enterprise Context */}
+
         <Box
           sx={{
             mt: 15,
@@ -286,8 +286,8 @@ export default function PricingPage() {
               Enterprise-Grade Security & Performance
             </Typography>
             <Typography variant="body1" sx={{ color: alpha("#cbd5f5", 0.7), maxWidth: 800, mx: "auto", lineHeight: 1.8 }}>
-              Need more than 10,000 routes per month? Our Global infrastructure handles millions of telemetry events 
-              per second with 99.99% uptime. Contact our engineering team for custom integration solutions 
+              Need more than 10,000 routes per month? Our Global infrastructure handles millions of telemetry events
+              per second with 99.99% uptime. Contact our engineering team for custom integration solutions
               and volume-based pricing.
             </Typography>
             <Button
@@ -304,7 +304,7 @@ export default function PricingPage() {
         </Box>
       </Container>
 
-      {/* Footer */}
+
       <Box
         sx={{
           py: 8,

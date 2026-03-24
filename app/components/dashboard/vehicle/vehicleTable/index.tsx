@@ -1,100 +1,185 @@
 "use client";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  alpha,
-  useTheme,
-} from "@mui/material";
-import RowActions from "./menu";
+import { useCallback, useMemo } from "react";
+import { Typography } from "@mui/material";
+import { VehicleStatus, VehicleType } from "@prisma/client";
+import DataTable from "@/app/components/ui/DataTable";
+import type { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTable";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import DriverAvatar from "@/app/components/avatar";
-import { VehicleTableProps } from "@/app/lib/type/vehicle";
-import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
+import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import type { VehicleTableProps, VehicleWithRelations } from "@/app/lib/type/vehicle";
+
+const STATUS_OPTIONS = Object.values(VehicleStatus).map((s) => ({
+  label: s.replace(/_/g, " "),
+  value: s,
+}));
+
+const TYPE_OPTIONS = Object.values(VehicleType).map((t) => ({
+  label: t.replace(/_/g, " "),
+  value: t,
+}));
+
+const VEHICLE_FILTERS = [
+  {
+    key: "status",
+    label: "Status",
+    options: STATUS_OPTIONS,
+    multiple: true,
+  },
+  {
+    key: "type",
+    label: "Type",
+    options: TYPE_OPTIONS,
+    multiple: true,
+  },
+];
 
 const VehicleTable = ({ state, actions }: VehicleTableProps) => {
-  const theme = useTheme();
-  const { vehicles, loading = false } = state;
-  const { selectVehicle: onVehicleSelect, onEdit, onDelete } = actions;
+  const { vehicles, loading = false, filters } = state;
+  const { selectVehicle, onEdit, onDelete, updateFilters } = actions;
 
-  if (loading) {
-    return <TableSkeleton title="Vehicle List" rows={5} columns={9} />;
-  }
+  /* --------------------------------- handlers --------------------------------- */
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      updateFilters({ search: value });
+    },
+    [updateFilters]
+  );
+
+  const handleFilterChange = useCallback(
+    (key: string, values: string[]) => {
+      if (key === "status") {
+        updateFilters({ status: values as VehicleStatus[] });
+      } else if (key === "type") {
+        updateFilters({ type: values as VehicleType[] });
+      }
+    },
+    [updateFilters]
+  );
+
+  /* --------------------------------- columns --------------------------------- */
+  const columns: DataTableColumn<VehicleWithRelations>[] = useMemo(
+    () => [
+      {
+        key: "index",
+        label: "#",
+        width: 50,
+        render: (_row) => {
+          const idx = vehicles.indexOf(_row);
+          return idx + 1;
+        },
+      },
+      {
+        key: "plate",
+        label: "Plate",
+        render: (row) => (
+          <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>
+            {row.plate}
+          </Typography>
+        ),
+      },
+      {
+        key: "brandModel",
+        label: "Brand / Model",
+        render: (row) => `${row.brand} – ${row.model} / ${row.year}`,
+      },
+      {
+        key: "status",
+        label: "Status",
+        render: (row) => <StatusChip status={row.status} />,
+      },
+      {
+        key: "odometer",
+        label: "Odometer",
+        render: (row) =>
+          row.odometerKm ? `${row.odometerKm.toLocaleString()} km` : "N/A",
+      },
+      {
+        key: "driver",
+        label: "Driver",
+        render: (row) =>
+          row.driver?.user ? (
+            <DriverAvatar
+              avatarUrl={row.driver.user.avatarUrl ?? ""}
+              name={row.driver.user.name}
+              surname={row.driver.user.surname}
+              rating={row.driver.rating ?? 0}
+              size="small"
+            />
+          ) : (
+            <Typography variant="caption" color="text.secondary">
+              Not Assigned
+            </Typography>
+          ),
+      },
+      {
+        key: "type",
+        label: "Type",
+        render: (row) => row.type.replace(/_/g, " "),
+      },
+      {
+        key: "fuelLevel",
+        label: "Fuel Level",
+        align: "right",
+        render: (row) => `${row.fuelLevel ?? 0}%`,
+      },
+    ],
+    [vehicles]
+  );
+
+  /* --------------------------------- row actions --------------------------------- */
+  const rowActions: DataTableRowAction<VehicleWithRelations>[] = useMemo(
+    () => [
+      {
+        label: "Details",
+        icon: <ContentPasteIcon fontSize="small" />,
+        onClick: (row) => selectVehicle(row.id),
+      },
+      {
+        label: "Edit",
+        icon: <EditIcon fontSize="small" />,
+        onClick: (row) => onEdit(row.id),
+      },
+      {
+        label: "Delete",
+        icon: <DeleteIcon fontSize="small" />,
+        onClick: (row) => onDelete(row.id),
+        color: "error",
+      },
+    ],
+    [selectVehicle, onEdit, onDelete]
+  );
+
+  /* --------------------------------- active filters --------------------------------- */
+  const activeFilters: Record<string, string[]> = useMemo(
+    () => ({
+      ...(filters.status && filters.status.length > 0
+        ? { status: filters.status as string[] }
+        : {}),
+      ...(filters.type && filters.type.length > 0
+        ? { type: filters.type as string[] }
+        : {}),
+    }),
+    [filters]
+  );
 
   return (
-    <TableContainer sx={{ p: 0 }}>
-      <Table size="small">
-        <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
-          <TableRow>
-            <TableCell width={50} sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>#</TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Plate</TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Brand/Model</TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Status</TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Odometer</TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Driver</TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Type</TableCell>
-            <TableCell align="right" sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>Fuel Level</TableCell>
-            <TableCell align="right" sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}></TableCell>
-          </TableRow>
-        </TableHead>
-
-        <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
-          {vehicles.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={9} align="center" sx={{ py: 3, borderColor: alpha(theme.palette.divider, 0.1) }}>
-                <Typography variant="body2" color="text.secondary">
-                  No vehicles found
-                </Typography>
-              </TableCell>
-            </TableRow>
-          ) : (
-            vehicles.map((v, index) => (
-              <TableRow key={v.id} hover sx={{ "& td": { borderColor: alpha(theme.palette.divider, 0.1) } }}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell sx={{ fontWeight: 500 }}>{v.plate}</TableCell>
-                <TableCell>{`${v.brand} - ${v.model} / ${v.year}`}</TableCell>
-                <TableCell>
-                  <StatusChip status={v.status} />
-                </TableCell>
-                <TableCell>
-                  {v.odometerKm ? `${v.odometerKm.toLocaleString()} km` : "N/A"}
-                </TableCell>
-                <TableCell>
-                  {v.driver?.user ? (
-                    <DriverAvatar
-                      avatarUrl={v.driver?.user?.avatarUrl || ""}
-                      name={v.driver?.user?.name || ""}
-                      surname={v.driver?.user?.surname || ""}
-                      rating={v.driver?.rating || 0}
-                      size="small"
-                    />
-                  ) : (
-                    <Typography variant="caption" color="text.secondary">
-                      Not Assigned
-                    </Typography>
-                  )}
-                </TableCell>
-                <TableCell>{v.type}</TableCell>
-                <TableCell align="right">{v.fuelLevel ?? 0}%</TableCell>
-                <TableCell align="right">
-                  <RowActions
-                    id={v.id}
-                    handleOpenDetails={onVehicleSelect}
-                    handleEdit={onEdit}
-                    handleDelete={onDelete}
-                  />
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <DataTable<VehicleWithRelations>
+      rows={vehicles}
+      columns={columns}
+      loading={loading}
+      emptyMessage="No vehicles found"
+      searchValue={filters.search ?? ""}
+      searchPlaceholder="Search vehicles..."
+      onSearchChange={handleSearchChange}
+      filters={VEHICLE_FILTERS}
+      activeFilters={activeFilters}
+      onFilterChange={handleFilterChange}
+      rowActions={rowActions}
+    />
   );
 };
 

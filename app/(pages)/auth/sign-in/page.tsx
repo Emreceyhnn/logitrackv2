@@ -8,7 +8,6 @@ export default function SignInPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -34,7 +33,7 @@ export default function SignInPage() {
         overflow: "hidden",
       }}
     >
-      {/* Background Orbs for Premium Look */}
+
       <Box
         sx={{
           position: "absolute",

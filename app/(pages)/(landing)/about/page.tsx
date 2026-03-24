@@ -34,7 +34,7 @@ export default function AboutPage() {
         overflow: "hidden",
       }}
     >
-      {/* Background Gradients */}
+
       <Box
         sx={{
           position: "absolute",
@@ -56,7 +56,7 @@ export default function AboutPage() {
           pb: { xs: 10, md: 16 },
         }}
       >
-        {/* Hero Section */}
+
         <Stack spacing={4} alignItems="center" textAlign="center" mb={12}>
           <Chip
             label="Our Mission"
@@ -95,14 +95,14 @@ export default function AboutPage() {
               lineHeight: 1.6,
             }}
           >
-            At LogiTrack, we don’t just track shipments—we synchronize entire supply chains. 
+            At LogiTrack, we don’t just track shipments—we synchronize entire supply chains.
             Our mission is to transform fragmented logistics data into live intelligence.
           </Typography>
         </Stack>
 
         <Divider sx={{ borderColor: alpha("#cbd5f5", 0.1), mb: 12 }} />
 
-        {/* Vision Section */}
+
         <Stack
           direction={{ xs: "column", md: "row" }}
           spacing={8}
@@ -117,8 +117,8 @@ export default function AboutPage() {
               Eliminating the blind spots in modern logistics.
             </Typography>
             <Typography variant="body1" sx={{ color: alpha("#cbd5f5", 0.9), fontSize: "1.1rem", lineHeight: 1.8 }}>
-              Born from the intersection of AI innovation and operational expertise, LogiTrack was built to 
-              solve the most complex challenges in freight and warehouse management. We envision a world 
+              Born from the intersection of AI innovation and operational expertise, LogiTrack was built to
+              solve the most complex challenges in freight and warehouse management. We envision a world
               where every vehicle, warehouse, and shipment is part of a unified, self-optimizing ecosystem.
             </Typography>
           </Box>
@@ -156,7 +156,7 @@ export default function AboutPage() {
           </Box>
         </Stack>
 
-        {/* Core Pillars */}
+
         <Box mb={16}>
           <Typography
             variant="h4"
@@ -216,7 +216,7 @@ export default function AboutPage() {
           </Stack>
         </Box>
 
-        {/* Why We Do It */}
+
         <Box
           sx={{
             p: { xs: 6, md: 10 },
@@ -252,13 +252,13 @@ export default function AboutPage() {
               lineHeight: 1.6,
             }}
           >
-            In an era of instant expectations, logistics is no longer a back-office function—it is a competitive advantage. 
+            In an era of instant expectations, logistics is no longer a back-office function—it is a competitive advantage.
             LogiTrack provides the tools to turn that advantage into a market-leading reality.
           </Typography>
         </Box>
       </Container>
 
-      {/* Footer-like simple section */}
+
       <Box
         sx={{
           py: 8,

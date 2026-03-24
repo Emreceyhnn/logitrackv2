@@ -17,7 +17,7 @@ export default function HowItWorksPage() {
         position: "relative",
       }}
     >
-      {/* Background Effects */}
+
       <Box
         sx={{
           position: "absolute",
@@ -44,7 +44,7 @@ export default function HowItWorksPage() {
       />
 
       <Box sx={{ position: "relative", zIndex: 1 }}>
-        {/* Navigation */}
+
         <Box
           sx={{
             backdropFilter: "blur(16px)",
@@ -85,7 +85,7 @@ export default function HowItWorksPage() {
           </Container>
         </Box>
 
-        {/* Hero Section */}
+
         <Container maxWidth="md" sx={{ pt: 15, pb: 10, textAlign: "center" }}>
           <Typography
             variant="overline"
@@ -119,12 +119,11 @@ export default function HowItWorksPage() {
           </Typography>
         </Container>
 
-        {/* Timeline Section */}
         <Container maxWidth="lg">
           <TimelineSection />
         </Container>
 
-        {/* CTA Section */}
+
         <Box sx={{ py: 15, textAlign: "center", position: "relative" }}>
           <Box
             sx={{
@@ -179,7 +178,7 @@ export default function HowItWorksPage() {
           </Container>
         </Box>
 
-        {/* Footer */}
+
         <Box sx={{ py: 6, borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}>
           <Container maxWidth="lg">
             <Stack direction="row" alignItems="center" justifyContent="space-between">

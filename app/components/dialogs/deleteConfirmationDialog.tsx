@@ -51,7 +51,7 @@ export default function DeleteConfirmationDialog({
         },
       }}
     >
-      {/* Header with Icon and Close */}
+
       <Box sx={{ p: 3, pb: 2 }}>
         <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
           <Stack direction="row" spacing={2} alignItems="center">
@@ -78,9 +78,9 @@ export default function DeleteConfirmationDialog({
               </Typography>
             </Box>
           </Stack>
-          <IconButton 
-            onClick={onClose} 
-            size="small" 
+          <IconButton
+            onClick={onClose}
+            size="small"
             sx={{ color: alpha("#fff", 0.3), "&:hover": { color: "white" } }}
             disabled={loading}
           >

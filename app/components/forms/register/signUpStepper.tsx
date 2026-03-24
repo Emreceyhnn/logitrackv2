@@ -4,18 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Box, Button, Stack, Step, StepLabel, Stepper, Typography, styled, StepConnector, stepConnectorClasses } from "@mui/material";
 import { Form, Formik, FormikHelpers } from "formik";
-import * as Yup from "yup";
 import Step1PersonalInfo from "./step1PersonalInfo";
 import Step2Security from "./step2Security";
 import Step3Profile from "./step3Profile";
 import { RegisterUser } from "@/app/lib/controllers/users";
 import AuthButton from "../../ui/AuthButton";
+import { signUpValidationSchema } from "@/app/lib/validationSchema";
 
 /* --------------------------------- STYLES --------------------------------- */
 
 const ColorlibConnector = styled(StepConnector)(() => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    top: 25, // Centered with 50px icon
+    top: 25,
     left: "calc(-50% + 25px)",
     right: "calc(50% + 25px)",
   },
@@ -77,28 +77,6 @@ function ColorlibStepIcon(props: { active?: boolean; completed?: boolean; icon: 
   );
 }
 
-/* ------------------------------- VALIDATION ------------------------------- */
-
-const validationSchemas = [
-  Yup.object({
-    name: Yup.string().min(2, "Name too short").required("Name is required"),
-    surname: Yup.string().min(2, "Surname too short").required("Surname is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-  }),
-  Yup.object({
-    username: Yup.string().min(3, "Username too short").required("Username is required"),
-    password: Yup.string()
-      .min(8, "Password must be at least 8 characters")
-      .matches(/[a-z]/, "Lowercase required")
-      .matches(/[A-Z]/, "Uppercase required")
-      .matches(/[0-9]/, "Number required")
-      .required("Password is required"),
-    repeatPassword: Yup.string()
-      .oneOf([Yup.ref("password")], "Passwords must match")
-      .required("Repeat password is required"),
-  }),
-  Yup.object({}), // Validation for step 3 if needed
-];
 
 const steps = ["Personal", "Security", "Review"];
 
@@ -150,7 +128,7 @@ export default function SignUpStepper() {
       console.error("Registration failed:", error);
       const message = error instanceof Error ? error.message : "Registration failed";
       actions.setFieldError("email", message);
-      // Optional: go back to step 1/2 if those fields had the error
+
       if (message.includes("Username")) setActiveStep(1);
       if (message.includes("Email")) setActiveStep(0);
     } finally {
@@ -160,30 +138,30 @@ export default function SignUpStepper() {
 
   return (
     <Box sx={{ width: "100%", maxWidth: 500, mx: "auto" }}>
-      <Stepper 
-        alternativeLabel 
-        activeStep={activeStep} 
+      <Stepper
+        alternativeLabel
+        activeStep={activeStep}
         connector={<ColorlibConnector />}
         sx={{ mb: 6 }}
       >
         {steps.map((label, index) => (
           <Step key={label}>
-            <StepLabel 
+            <StepLabel
               StepIconComponent={(props) => (
                 <ColorlibStepIcon {...props} icon={index + 1} />
               )}
             >
-                <Typography 
-                  sx={{ 
-                    color: activeStep >= index ? "#fff" : "rgba(255,255,255,0.2)", 
-                    fontWeight: activeStep === index ? 600 : 400,
-                    fontSize: "13px",
-                    mt: 1,
-                    transition: "all 0.4s ease"
-                  }}
-                >
-                  {label}
-                </Typography>
+              <Typography
+                sx={{
+                  color: activeStep >= index ? "#fff" : "rgba(255,255,255,0.2)",
+                  fontWeight: activeStep === index ? 600 : 400,
+                  fontSize: "13px",
+                  mt: 1,
+                  transition: "all 0.4s ease"
+                }}
+              >
+                {label}
+              </Typography>
             </StepLabel>
           </Step>
         ))}
@@ -198,7 +176,7 @@ export default function SignUpStepper() {
           password: "",
           repeatPassword: "",
         }}
-        validationSchema={validationSchemas[activeStep]}
+        validationSchema={signUpValidationSchema[activeStep]}
         onSubmit={handleNext}
       >
         {({ handleSubmit }) => (
@@ -228,7 +206,7 @@ export default function SignUpStepper() {
                   Back
                 </Button>
               )}
-              
+
               <AuthButton
                 type="submit"
                 loading={loading}

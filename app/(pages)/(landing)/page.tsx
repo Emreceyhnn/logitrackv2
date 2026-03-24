@@ -689,7 +689,7 @@ export default function LandingPage() {
             <Box
               sx={{
                 display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)", // 3 sütun
+                gridTemplateColumns: "repeat(3, 1fr)",
                 gap: 6,
               }}
             >

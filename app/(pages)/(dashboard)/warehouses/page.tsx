@@ -76,8 +76,8 @@ export default function WarehousePage() {
     fetchWarehouses: async () => {
       await fetchAllData();
     },
-    fetchStats: async () => {},
-    fetchRecentMovements: async () => {},
+    fetchStats: async () => { },
+    fetchRecentMovements: async () => { },
     refreshAll: async () => {
       await fetchAllData(false);
     },
@@ -97,6 +97,8 @@ export default function WarehousePage() {
     },
   };
 
+
+  /* -------------------------------- handlers -------------------------------- */
   const handleDeleteConfirm = async () => {
     if (!warehouseToDeleteId) return;
     setDeleteLoading(true);
@@ -175,8 +177,8 @@ export default function WarehousePage() {
         </CustomCard>
       </Stack>
 
-      <Stack 
-        direction={{ xs: "column", xl: "row" }} 
+      <Stack
+        direction={{ xs: "column", xl: "row" }}
         spacing={4}
         sx={{ mt: 2 }}
       >
