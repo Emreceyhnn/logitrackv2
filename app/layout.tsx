@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./style/globals.css";
 import Providers from "./lib/theme/themeProviders";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={poppins.variable}>
         <Providers>{children}</Providers>
+        <SpeedInsights />
       </body>
     </html>
   );
