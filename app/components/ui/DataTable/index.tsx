@@ -93,8 +93,8 @@ function RowMenu<TRow>({ row, actions }: RowMenuProps<TRow>) {
                 action.color === "error"
                   ? "error.main"
                   : action.color === "warning"
-                  ? "warning.main"
-                  : "text.primary",
+                    ? "warning.main"
+                    : "text.primary",
               fontSize: 14,
             }}
           >
@@ -104,8 +104,8 @@ function RowMenu<TRow>({ row, actions }: RowMenuProps<TRow>) {
                   action.color === "error"
                     ? "error.main"
                     : action.color === "warning"
-                    ? "warning.main"
-                    : "text.secondary",
+                      ? "warning.main"
+                      : "text.secondary",
                 minWidth: 32,
               }}
             >
@@ -118,10 +118,6 @@ function RowMenu<TRow>({ row, actions }: RowMenuProps<TRow>) {
     </>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Internal: Toolbar
-// ---------------------------------------------------------------------------
 
 interface DataTableToolbarProps {
   searchValue: string;
@@ -194,10 +190,7 @@ function DataTableToolbar({
           input: {
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon
-                  fontSize="small"
-                  sx={{ color: "text.secondary" }}
-                />
+                <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
               </InputAdornment>
             ),
           },
@@ -253,7 +246,11 @@ function DataTableToolbar({
               sx={{ borderRadius: 2, fontSize: 13 }}
             >
               {filter.options.map((opt) => (
-                <MenuItem key={opt.value} value={opt.value} sx={{ fontSize: 13 }}>
+                <MenuItem
+                  key={opt.value}
+                  value={opt.value}
+                  sx={{ fontSize: 13 }}
+                >
                   <Checkbox
                     size="small"
                     checked={selected.indexOf(opt.value) > -1}
@@ -272,7 +269,11 @@ function DataTableToolbar({
 
       {/* Active filter count badge */}
       {totalActive > 0 && (
-        <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: "nowrap" }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ whiteSpace: "nowrap" }}
+        >
           {totalActive} filter{totalActive > 1 ? "s" : ""} active
         </Typography>
       )}
@@ -298,7 +299,8 @@ function DataTable<TRow extends { id: string }>({
   rowActions,
 }: DataTableProps<TRow>) {
   const theme = useTheme();
-  const colCount = columns.length + (rowActions && rowActions.length > 0 ? 1 : 0);
+  const colCount =
+    columns.length + (rowActions && rowActions.length > 0 ? 1 : 0);
 
   const showToolbar =
     !!onSearchChange || (filters.length > 0 && !!onFilterChange);
@@ -343,9 +345,7 @@ function DataTable<TRow extends { id: string }>({
       <TableContainer sx={{ p: 0 }}>
         <Table size="small">
           {/* ── Head ─────────────────────────────────────────────────── */}
-          <TableHead
-            sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}
-          >
+          <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
             <TableRow>
               {columns.map((col) => (
                 <TableCell

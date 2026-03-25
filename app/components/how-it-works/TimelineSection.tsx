@@ -7,37 +7,43 @@ const steps = [
   {
     step: "01",
     title: "Connect Your Fleet",
-    description: "Integrate telematics, TMS, and WMS data sources in minutes with our prebuilt high-performance connectors.",
+    description:
+      "Integrate telematics, TMS, and WMS data sources in minutes with our prebuilt high-performance connectors.",
     color: "#38bdf8",
   },
   {
     step: "02",
     title: "Visualize Operations",
-    description: "Monitor every shipment and asset in real time with adaptive dashboards, heatmaps, and live GPS tracking.",
+    description:
+      "Monitor every shipment and asset in real time with adaptive dashboards, heatmaps, and live GPS tracking.",
     color: "#6366f1",
   },
   {
     step: "03",
     title: "Automate Decisions",
-    description: "Trigger proactive workflows and automated alerts before potential delays or issues escalate.",
+    description:
+      "Trigger proactive workflows and automated alerts before potential delays or issues escalate.",
     color: "#a855f7",
   },
   {
     step: "04",
     title: "Optimize Routes",
-    description: "Leverage AI-driven optimization to minimize fuel costs, reduce idle time, and maximize driver efficiency.",
+    description:
+      "Leverage AI-driven optimization to minimize fuel costs, reduce idle time, and maximize driver efficiency.",
     color: "#38bdf8",
   },
   {
     step: "05",
     title: "Analyze Performance",
-    description: "Evaluate critical KPIs like delivery accuracy and cost per shipment with our advanced analytics suite.",
+    description:
+      "Evaluate critical KPIs like delivery accuracy and cost per shipment with our advanced analytics suite.",
     color: "#6366f1",
   },
   {
     step: "06",
     title: "Scale Seamlessly",
-    description: "Expand your logistics network globally with modular integrations and scalable cloud infrastructure.",
+    description:
+      "Expand your logistics network globally with modular integrations and scalable cloud infrastructure.",
     color: "#a855f7",
   },
 ];
@@ -45,7 +51,6 @@ const steps = [
 export default function TimelineSection() {
   return (
     <Box sx={{ position: "relative", py: 10 }}>
-      {/* Vertical Line Connector */}
       <Box
         sx={{
           position: "absolute",
@@ -53,7 +58,8 @@ export default function TimelineSection() {
           top: 0,
           bottom: 0,
           width: "2px",
-          background: "linear-gradient(to bottom, transparent, rgba(56, 189, 248, 0.3), rgba(99, 102, 241, 0.3), transparent)",
+          background:
+            "linear-gradient(to bottom, transparent, rgba(56, 189, 248, 0.3), rgba(99, 102, 241, 0.3), transparent)",
           transform: { md: "translateX(-50%)" },
           zIndex: 0,
         }}
@@ -79,11 +85,13 @@ export default function TimelineSection() {
               zIndex: 1,
             }}
           >
-            {/* Step Content */}
             <Box
               sx={{
                 width: { xs: "100%", md: "45%" },
-                textAlign: { xs: "left", md: index % 2 === 0 ? "right" : "left" },
+                textAlign: {
+                  xs: "left",
+                  md: index % 2 === 0 ? "right" : "left",
+                },
                 pl: { xs: "60px", md: 0 },
                 pr: { xs: 0, md: 0 },
               }}
@@ -117,7 +125,10 @@ export default function TimelineSection() {
                 >
                   STEP {item.step}
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: "#fff" }}>
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: 700, mb: 2, color: "#fff" }}
+                >
                   {item.title}
                 </Typography>
                 <Typography
@@ -129,7 +140,6 @@ export default function TimelineSection() {
               </Box>
             </Box>
 
-            {/* Central Node */}
             <Box
               sx={{
                 position: "absolute",
@@ -158,7 +168,6 @@ export default function TimelineSection() {
               />
             </Box>
 
-            {/* Spacer for MD */}
             <Box sx={{ width: { xs: 0, md: "10%" } }} />
             <Box sx={{ width: { xs: "100%", md: "45%" } }} />
           </Box>

@@ -1,7 +1,5 @@
 "use client";
 
-// Remove unused import
-
 export interface ScrollbarTheme {
   palette?: {
     scroll?: {

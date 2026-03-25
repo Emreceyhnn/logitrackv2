@@ -27,8 +27,9 @@ export const createWarehouse = authenticatedAction(
 
       await checkPermission(user.id, companyId, ["role_admin", "role_manager"]);
 
-      // Auto-generate code if missing
-      const warehouseCode = code || `WH-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      const warehouseCode =
+        code ||
+        `WH-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
       const existingWarehouse = await db.warehouse.findUnique({
         where: { code: warehouseCode },
@@ -140,7 +141,11 @@ export const getWarehouseById = authenticatedAction(
 );
 
 export const updateWarehouse = authenticatedAction(
-  async (user, warehouseId: string, data: Prisma.WarehouseUpdateInput & { managerId?: string | null }) => {
+  async (
+    user,
+    warehouseId: string,
+    data: Prisma.WarehouseUpdateInput & { managerId?: string | null }
+  ) => {
     try {
       await checkPermission(user.id, user.companyId, [
         "role_admin",
@@ -159,7 +164,9 @@ export const updateWarehouse = authenticatedAction(
         throw new Error("Warehouse not found or unauthorized");
       }
 
-      const { managerId, ...restData } = data as { managerId?: string | null } & Prisma.WarehouseUpdateInput;
+      const { managerId, ...restData } = data as {
+        managerId?: string | null;
+      } & Prisma.WarehouseUpdateInput;
       const updateData: Prisma.WarehouseUpdateInput = { ...restData };
 
       if (updateData.code === "") {
@@ -168,7 +175,6 @@ export const updateWarehouse = authenticatedAction(
 
       if (managerId !== undefined) {
         if (managerId === null) {
-          // Only disconnect if it was actually connected
           if (existingWarehouse.managerId) {
             updateData.manager = { disconnect: true };
           }
@@ -286,7 +292,9 @@ export const addInventoryItem = authenticatedAction(
       }
 
       // Auto-generate SKU if not provided
-      const itemSku = sku || `SKU-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      const itemSku =
+        sku ||
+        `SKU-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
       const existingItem = await db.inventory.findUnique({
         where: {

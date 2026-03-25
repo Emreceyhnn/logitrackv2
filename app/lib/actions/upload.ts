@@ -22,7 +22,7 @@ interface SignedUrlResult {
   signed: boolean;
 }
 
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 const ALLOWED_MIME_PREFIXES = [
   "data:image/jpeg",
@@ -76,14 +76,15 @@ export const uploadImageAction = authenticatedAction(
   ): Promise<UploadImageResult> => {
     validateBase64Image(fileData);
 
-    // Convert base64 to buffer for Supabase upload
     const base64Part = fileData.split(",")[1];
     const mimeType = fileData.split(";")[0].split(":")[1];
     const buffer = Buffer.from(base64Part, "base64");
 
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
     const ext = mimeType.split("/")[1];
-    const filePath = folder ? `${folder}/${fileName}.${ext}` : `${fileName}.${ext}`;
+    const filePath = folder
+      ? `${folder}/${fileName}.${ext}`
+      : `${fileName}.${ext}`;
 
     const { data, error } = await supabase.storage
       .from(bucket)
@@ -97,9 +98,9 @@ export const uploadImageAction = authenticatedAction(
       throw new Error(`Failed to upload to Supabase: ${error.message}`);
     }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(data.path);
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from(bucket).getPublicUrl(data.path);
 
     return {
       success: true,
@@ -110,11 +111,13 @@ export const uploadImageAction = authenticatedAction(
 );
 
 export const getSignedUrlAction = authenticatedAction(
-  async (_user, fileUrl: string, bucket: string = "documents"): Promise<SignedUrlResult> => {
+  async (
+    _user,
+    fileUrl: string,
+    bucket: string = "documents"
+  ): Promise<SignedUrlResult> => {
     validateFileUrl(fileUrl);
 
-    // Extract path from URL
-    // Standard Supabase public URL: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
     const urlParts = fileUrl.split("/");
     const path = urlParts.slice(urlParts.indexOf(bucket) + 1).join("/");
 
@@ -124,10 +127,13 @@ export const getSignedUrlAction = authenticatedAction(
 
     const { data, error } = await supabase.storage
       .from(bucket)
-      .createSignedUrl(path, 3600); // 1 hour
+      .createSignedUrl(path, 3600);
 
     if (error) {
-      console.error("[getSignedUrlAction] Failed to generate signed URL:", error);
+      console.error(
+        "[getSignedUrlAction] Failed to generate signed URL:",
+        error
+      );
       throw new Error("Failed to generate a secure viewing link.");
     }
 

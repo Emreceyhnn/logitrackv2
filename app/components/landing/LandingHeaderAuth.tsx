@@ -136,7 +136,6 @@ export default function LandingHeaderAuth() {
     }
   }
 
-  // Not logged in
   return (
     <Stack direction="row" spacing={2}>
       <Button

@@ -32,7 +32,7 @@ const AuthButton = ({
       variant="contained"
       disabled={loading || disabled}
       sx={{
-        height: 52, // Fixed height to prevent layout shifts
+        height: 52,
         borderRadius: 2,
         textTransform: "none",
         fontWeight: 700,
@@ -74,7 +74,10 @@ const AuthButton = ({
               sx={{ color: "inherit" }}
             />
             {loadingText && (
-              <Box component="span" sx={{ fontSize: "0.9rem", fontWeight: 600 }}>
+              <Box
+                component="span"
+                sx={{ fontSize: "0.9rem", fontWeight: 600 }}
+              >
                 {loadingText}
               </Box>
             )}

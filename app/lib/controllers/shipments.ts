@@ -55,15 +55,23 @@ export const createShipment = authenticatedAction(
       }
 
       // Fetch customer details to potentially get default location if destination is not provided
-      const customer = customerId ? (await db.customer.findUnique({
-        where: { id: customerId },
-        include: { locations: true },
-      })) as CustomerWithLocations | null : null;
+      const customer = customerId
+        ? ((await db.customer.findUnique({
+            where: { id: customerId },
+            include: { locations: true },
+          })) as CustomerWithLocations | null)
+        : null;
 
-      const defaultCustomerLocation = customer?.locations?.find((l) => l.isDefault);
+      const defaultCustomerLocation = customer?.locations?.find(
+        (l) => l.isDefault
+      );
       const firstCustomerLocation = customer?.locations?.[0];
 
-      const finalDestination = destination || defaultCustomerLocation?.address || firstCustomerLocation?.address || "";
+      const finalDestination =
+        destination ||
+        defaultCustomerLocation?.address ||
+        firstCustomerLocation?.address ||
+        "";
       const finalDestinationLat =
         typeof destinationLat === "number"
           ? destinationLat
@@ -87,9 +95,9 @@ export const createShipment = authenticatedAction(
           customerId: customerId || undefined,
           customerLocationId: customerLocationId || undefined,
           origin,
-          destination: finalDestination, // Use the resolved destination
-          destinationLat: finalDestinationLat, // Use the resolved destinationLat
-          destinationLng: finalDestinationLng, // Use the resolved destinationLng
+          destination: finalDestination,
+          destinationLat: finalDestinationLat,
+          destinationLng: finalDestinationLng,
           status,
           itemsCount,
           weightKg,
@@ -267,7 +275,7 @@ export const getShipments = authenticatedAction(async (user) => {
       where: { companyId },
       include: {
         customer: {
-          include: { locations: true }
+          include: { locations: true },
         },
         driver: {
           include: {

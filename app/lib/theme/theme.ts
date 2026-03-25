@@ -1,6 +1,87 @@
 import { createTheme, alpha } from "@mui/material/styles";
 import type {} from "@mui/x-date-pickers/themeAugmentation";
 import { palettes } from "./palette";
+
+declare module "@mui/material/styles" {
+  interface Palette {
+    icon?: {
+      primary: string;
+      secondary: string;
+    };
+    buttonPrimary?: {
+      buttonBg: string;
+      buttonBgHover: string;
+      iconColor: string;
+      iconBgColor: string;
+      primaryText: string;
+    };
+    buttonSecondary?: {
+      buttonBg: string;
+      buttonBgHover: string;
+      iconColor: string;
+      iconBg: string;
+      primaryText: string;
+    };
+    logo?: {
+      color1: string;
+      color2: string;
+      text: string;
+    };
+    scroll?: {
+      color: string;
+      hover: string;
+      background: string;
+    };
+  }
+
+  interface PaletteOptions {
+    icon?: {
+      primary?: string;
+      secondary?: string;
+    };
+    buttonPrimary?: {
+      buttonBg?: string;
+      buttonBgHover?: string;
+      iconColor?: string;
+      iconBgColor?: string;
+      primaryText?: string;
+    };
+    buttonSecondary?: {
+      buttonBg?: string;
+      buttonBgHover?: string;
+      iconColor?: string;
+      iconBg?: string;
+      primaryText?: string;
+    };
+    logo?: {
+      color1?: string;
+      color2?: string;
+      text?: string;
+    };
+    scroll?: {
+      color?: string;
+      hover?: string;
+      background?: string;
+    };
+  }
+
+  interface TypeBackground {
+    dashboardBg?: string;
+    sidebar?: string;
+    header?: string;
+    hoverBg?: string;
+  }
+
+  interface TypeText {
+    greenText?: string;
+    sideBarText?: string;
+  }
+
+  interface BreakpointOverrides {
+    mobile: true;
+    xxl: true;
+  }
+}
 import { getScrollbarStyles } from "@/app/components/scrollbar";
 
 // import types from types.d.ts if needed, but .d.ts should be global or referenced via triple-slash if not in include path
@@ -13,13 +94,13 @@ export const getTheme = (mode: ThemeMode) =>
 
     breakpoints: {
       values: {
-        xs: 0, // mobile
-        mobile: 650, // mobile
-        sm: 800, // tablet
-        md: 1024, // small laptop
-        lg: 1280, // desktop
-        xl: 1536, // large screens
-        xxl: 1700,
+        xs: 0,
+        sm: 600,
+        md: 960,
+        lg: 1280,
+        xl: 1920,
+        mobile: 650,
+        xxl: 1600,
       },
     },
     typography: {

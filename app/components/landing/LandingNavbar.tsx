@@ -1,4 +1,13 @@
-import { AppBar, Box, Container, Stack, Toolbar, Typography, alpha, useScrollTrigger } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Container,
+  Stack,
+  Toolbar,
+  Typography,
+  alpha,
+  useScrollTrigger,
+} from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import LandingHeaderAuth from "./LandingHeaderAuth";
@@ -27,8 +36,8 @@ export default function LandingNavbar() {
             py: trigger ? 1 : 1.5,
             px: { xs: 2, md: 4 },
             borderRadius: "24px",
-            background: trigger 
-              ? alpha("#020617", 0.85) 
+            background: trigger
+              ? alpha("#020617", 0.85)
               : alpha("#0f172a", 0.4),
             backdropFilter: "blur(20px)",
             border: `1px solid ${trigger ? alpha("#38bdf8", 0.2) : alpha("#cbd5f5", 0.1)}`,
@@ -37,7 +46,6 @@ export default function LandingNavbar() {
             justifyContent: "space-between",
           }}
         >
-          {/* Logo Section */}
           <Link href="/" style={{ textDecoration: "none" }}>
             <Stack direction="row" spacing={1.5} alignItems="center">
               <Box
@@ -59,15 +67,15 @@ export default function LandingNavbar() {
                   height={trigger ? 22 : 28}
                 />
               </Box>
-              <Typography 
-                variant="h6" 
-                sx={{ 
-                  fontWeight: 800, 
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 800,
                   letterSpacing: 1.5,
                   fontSize: trigger ? "1rem" : "1.25rem",
                   color: "#fff",
                   transition: "all 0.4s ease",
-                  display: { xs: "none", sm: "block" }
+                  display: { xs: "none", sm: "block" },
                 }}
               >
                 LOGI-TRACK
@@ -75,10 +83,9 @@ export default function LandingNavbar() {
             </Stack>
           </Link>
 
-          {/* Nav Links */}
-          <Stack 
-            direction="row" 
-            spacing={4} 
+          <Stack
+            direction="row"
+            spacing={4}
             alignItems="center"
             sx={{ display: { xs: "none", md: "flex" } }}
           >
@@ -106,7 +113,6 @@ export default function LandingNavbar() {
             ))}
           </Stack>
 
-          {/* Auth Section */}
           <LandingHeaderAuth />
         </Toolbar>
       </Container>
