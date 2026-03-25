@@ -5,24 +5,20 @@ import {
   Button,
   Stack,
   CircularProgress,
-  Dialog,
-  IconButton,
-  Box,
+  alpha,
 } from "@mui/material";
-import { alpha } from "@mui/system";
 import Link from "next/link";
 import { getUserSession } from "@/app/lib/actions/auth";
-import CreateCompanyForm from "@/app/components/forms/createCompanyForm";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import CreateCompanyDialog from "../dialogs/company/CreateCompanyDialog";
+import UserAccountNav from "../nav/UserAccountNav";
 
 export default function LandingHeaderAuth() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
     id: string;
     companyId: string | null;
-    roleId: string | null;
-    sessionId: string;
   } | null>(null);
+
   const [openCompanyModal, setOpenCompanyModal] = useState(false);
 
   const checkAuth = async () => {
@@ -51,33 +47,35 @@ export default function LandingHeaderAuth() {
   }
 
   if (user) {
-    if (user.companyId) {
-      return (
-        <Stack direction="row" spacing={2}>
-          <Button
-            variant="contained"
-            component={Link}
-            href="/overview"
-            sx={{
-              textTransform: "none",
-              fontWeight: 700,
-              px: 3,
-              borderRadius: "999px",
-              background: "linear-gradient(135deg, #22d3ee, #2563eb)",
-              boxShadow: "0 12px 30px rgba(37, 99, 235, 0.35)",
-              "&:hover": {
-                background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
-              },
-            }}
-          >
-            Go to Dashboard
-          </Button>
-        </Stack>
-      );
-    } else {
-      return (
-        <>
-          <Stack direction="row" spacing={2}>
+    return (
+      <>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <UserAccountNav />
+
+          {/* CTA buttons */}
+          {user.companyId ? (
+            <Button
+              variant="contained"
+              component={Link}
+              href="/overview"
+              sx={{
+                textTransform: "none",
+                fontWeight: 700,
+                px: 3,
+                height: 40,
+                borderRadius: "999px",
+                background: "linear-gradient(135deg, #22d3ee, #2563eb)",
+                boxShadow: "0 12px 30px rgba(37, 99, 235, 0.35)",
+                "&:hover": { 
+                    background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
+                    transform: "scale(1.02)"
+                },
+                transition: "all 0.2s"
+              }}
+            >
+              Dashboard
+            </Button>
+          ) : (
             <Button
               variant="contained"
               onClick={() => setOpenCompanyModal(true)}
@@ -85,55 +83,29 @@ export default function LandingHeaderAuth() {
                 textTransform: "none",
                 fontWeight: 700,
                 px: 3,
+                height: 40,
                 borderRadius: "999px",
                 background: "linear-gradient(135deg, #22d3ee, #2563eb)",
                 boxShadow: "0 12px 30px rgba(37, 99, 235, 0.35)",
-                "&:hover": {
-                  background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
+                "&:hover": { 
+                    background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
+                    transform: "scale(1.02)"
                 },
+                transition: "all 0.2s"
               }}
             >
-              Create Company
+              Setup Org
             </Button>
-          </Stack>
+          )}
+        </Stack>
 
-          <Dialog
-            open={openCompanyModal}
-            onClose={() => setOpenCompanyModal(false)}
-            PaperProps={{
-              sx: {
-                bgcolor: "transparent",
-                boxShadow: "none",
-                overflow: "visible",
-              },
-            }}
-          >
-            <Box
-              sx={{
-                position: "relative",
-                bgcolor: "#151515",
-                borderRadius: "16px",
-                overflow: "hidden",
-              }}
-            >
-              <IconButton
-                onClick={() => setOpenCompanyModal(false)}
-                sx={{
-                  position: "absolute",
-                  right: 8,
-                  top: 8,
-                  color: "rgba(255,255,255,0.5)",
-                  zIndex: 1,
-                }}
-              >
-                <CloseRoundedIcon />
-              </IconButton>
-              <CreateCompanyForm onSuccess={handleSuccess} />
-            </Box>
-          </Dialog>
-        </>
-      );
-    }
+        <CreateCompanyDialog
+          open={openCompanyModal}
+          onClose={() => setOpenCompanyModal(false)}
+          onSuccess={handleSuccess}
+        />
+      </>
+    );
   }
 
   return (
@@ -149,23 +121,28 @@ export default function LandingHeaderAuth() {
           "&:hover": { color: "#38bdf8" },
         }}
       >
-        Login
+        Sign In
       </Button>
       <Button
         variant="contained"
+        component={Link}
+        href="/auth/sign-up"
         sx={{
           textTransform: "none",
           fontWeight: 700,
-          px: 3,
+          px: 4,
+          height: 40,
           borderRadius: "999px",
           background: "linear-gradient(135deg, #22d3ee, #2563eb)",
           boxShadow: "0 12px 30px rgba(37, 99, 235, 0.35)",
-          "&:hover": {
-            background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
+          "&:hover": { 
+              background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
+              transform: "scale(1.02)"
           },
+          transition: "all 0.2s"
         }}
       >
-        Request a Demo
+        Start Pro
       </Button>
     </Stack>
   );

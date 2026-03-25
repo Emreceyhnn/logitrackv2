@@ -82,6 +82,7 @@ export const RegisterUser = maybeAuthenticatedAction(
     surname: string,
     password: string,
     email: string,
+    avatarUrl?: string,
     deviceInfo?: string,
     ipAddress?: string
   ) => {
@@ -101,9 +102,9 @@ export const RegisterUser = maybeAuthenticatedAction(
 
       if (isExist) {
         if (isExist.username === username) {
-          throw new Error("Username already exists");
+          return { error: "Username already exists", field: "username" };
         }
-        throw new Error("Email already exists");
+        return { error: "Email already exists", field: "email" };
       }
 
       const newUser = await db.user.create({
@@ -113,6 +114,7 @@ export const RegisterUser = maybeAuthenticatedAction(
           surname,
           password: hashedPassword,
           email,
+          avatarUrl,
           companyId: user?.companyId || null, // Guest registration has no company initially
         },
       });
@@ -127,7 +129,7 @@ export const RegisterUser = maybeAuthenticatedAction(
         action: "REGISTER",
         ipAddress,
         deviceInfo,
-        metadata: { email },
+        metadata: { email, avatarUrl },
       });
 
       return {
@@ -137,12 +139,14 @@ export const RegisterUser = maybeAuthenticatedAction(
           surname: newUser.surname,
           email: newUser.email,
           username: newUser.username,
+          avatarUrl: newUser.avatarUrl,
           companyId: newUser.companyId,
         },
       };
     } catch (error) {
       console.error("Failed to create user:", error);
-      throw error;
+      const message = error instanceof Error ? error.message : "Internal server error";
+      return { error: message, field: "general" };
     }
   }
 );

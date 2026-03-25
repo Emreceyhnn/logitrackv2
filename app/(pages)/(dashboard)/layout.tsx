@@ -1,6 +1,7 @@
 "use client";
 
 import SideBar from "@/app/components/sidebar";
+import DashboardHeader from "@/app/components/dashboard/DashboardHeader";
 import { Box, useTheme } from "@mui/material";
 
 export default function DashboardLayout({
@@ -13,9 +14,9 @@ export default function DashboardLayout({
   return (
     <Box
       display="flex"
-      sx={{ 
+      sx={{
         backgroundColor: theme.palette.background.dashboardBg,
-        minHeight: "100vh"
+        minHeight: "100vh",
       }}
     >
       <Box
@@ -24,6 +25,8 @@ export default function DashboardLayout({
           display: { xs: "none", md: "block" },
           width: 200,
           flexShrink: 0,
+          position: "relative",
+          zIndex: theme.zIndex.drawer,
         }}
       >
         <SideBar />
@@ -38,7 +41,8 @@ export default function DashboardLayout({
           flexDirection: "column",
         }}
       >
-        {children}
+        <DashboardHeader />
+        <Box sx={{ flexGrow: 1 }}>{children}</Box>
       </Box>
     </Box>
   );

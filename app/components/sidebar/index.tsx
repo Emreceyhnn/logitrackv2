@@ -11,7 +11,6 @@ import MonitorIcon from "@mui/icons-material/Monitor";
 import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
 import KeyboardCommandKeyIcon from "@mui/icons-material/KeyboardCommandKey";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
-import SettingsIcon from "@mui/icons-material/Settings";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { SidebarList } from "./listItem";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -57,7 +56,7 @@ const SideBar = () => {
           sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
         />
       ),
-      subTitles: ["Warehouses", "Inventory", "Customers"],
+      subTitles: ["Warehouses", "Inventory", "Customers", "Company"],
     },
     {
       title: "Analytics",
@@ -67,15 +66,6 @@ const SideBar = () => {
         />
       ),
       subTitles: ["Reports", "Analytics"],
-    },
-    {
-      title: "Settings",
-      icon: (
-        <SettingsIcon
-          sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
-        />
-      ),
-      subTitles: ["Users", "Roles", "Settings", "Company"],
     },
   ];
 

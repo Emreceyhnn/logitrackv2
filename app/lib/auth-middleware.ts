@@ -5,6 +5,9 @@ export type AuthenticatedUser = {
   companyId: string | null;
   roleId: string | null;
   sessionId: string;
+  name: string;
+  surname: string;
+  avatarUrl: string | null;
 };
 
 export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
@@ -14,6 +17,9 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
     if (sessionUser) {
       return {
         id: sessionUser.id,
+        name: sessionUser.name,
+        surname: sessionUser.surname,
+        avatarUrl: sessionUser.avatarUrl,
         companyId: sessionUser.companyId,
         roleId: sessionUser.roleId,
         sessionId: sessionUser.sessionId,
@@ -26,6 +32,9 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
       if (sessionUser) {
         return {
           id: sessionUser.id,
+          name: sessionUser.name,
+          surname: sessionUser.surname,
+          avatarUrl: sessionUser.avatarUrl,
           companyId: sessionUser.companyId,
           roleId: sessionUser.roleId,
           sessionId: sessionUser.sessionId,
@@ -61,5 +70,3 @@ export function maybeAuthenticatedAction<T, Args extends unknown[]>(
     return action(user, ...args);
   };
 }
-
-

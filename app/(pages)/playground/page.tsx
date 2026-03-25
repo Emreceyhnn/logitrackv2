@@ -1,12 +1,12 @@
 "use client";
 
+import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyDialog";
 import { Box } from "@mui/material";
-import GoogleMapDemo from "@/app/components/googleMaps/maps";
 
 export default function Playground() {
   return (
     <Box>
-      <GoogleMapDemo />
+      <CreateCompanyDialog open={true} onClose={() => {}} />
     </Box>
   );
 }

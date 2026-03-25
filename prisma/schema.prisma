@@ -148,7 +148,7 @@ model Driver {
 
   // Relations
   currentVehicleId String?  @unique
-  currentVehicle   Vehicle? @relation(fields: [currentVehicleId], references: [id])
+  currentVehicle   Vehicle? @relation(fields: [currentVehicleId], references: [id], onDelete: SetNull)
 
   companyId String?
   company   Company? @relation(fields: [companyId], references: [id])
@@ -222,7 +222,7 @@ model Vehicle {
 model MaintenanceRecord {
   id        String  @id @default(cuid())
   vehicleId String
-  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
   type        String // Routine, Repair, etc.
   date        DateTime
@@ -452,7 +452,7 @@ model Route {
   driver   Driver? @relation(fields: [driverId], references: [id])
 
   vehicleId String?
-  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
 
   shipments Shipment[]
 
@@ -478,7 +478,7 @@ model Document {
   driver   Driver? @relation(fields: [driverId], references: [id])
 
   vehicleId String?
-  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
   companyId String?
   company   Company? @relation(fields: [companyId], references: [id])
@@ -492,7 +492,7 @@ model Document {
 model FuelLog {
   id        String  @id @default(cuid())
   vehicleId String
-  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
   driverId  String
   driver    Driver  @relation(fields: [driverId], references: [id])
   companyId String
@@ -523,7 +523,7 @@ model Issue {
 
   // Relations
   vehicleId String?
-  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
 
   driverId String?
   driver   Driver? @relation(fields: [driverId], references: [id])

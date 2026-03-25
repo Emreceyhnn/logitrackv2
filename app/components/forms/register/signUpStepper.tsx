@@ -2,7 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Box, Button, Stack, Step, StepLabel, Stepper, Typography, styled, StepConnector, stepConnectorClasses } from "@mui/material";
+import {
+  Box,
+  Button,
+  Stack,
+  Step,
+  StepLabel,
+  Stepper,
+  Typography,
+  styled,
+  StepConnector,
+  stepConnectorClasses,
+} from "@mui/material";
 import { Form, Formik, FormikHelpers } from "formik";
 import Step1PersonalInfo from "./step1PersonalInfo";
 import Step2Security from "./step2Security";
@@ -21,13 +32,15 @@ const ColorlibConnector = styled(StepConnector)(() => ({
   },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      backgroundImage: "linear-gradient( 95deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)",
+      backgroundImage:
+        "linear-gradient( 95deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)",
       opacity: 1,
     },
   },
   [`&.${stepConnectorClasses.completed}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      backgroundImage: "linear-gradient( 95deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)",
+      backgroundImage:
+        "linear-gradient( 95deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)",
       opacity: 1,
     },
   },
@@ -57,18 +70,24 @@ const ColorlibStepIconRoot = styled("div")<{
   border: "1px solid rgba(255, 255, 255, 0.1)",
   transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
   ...(active && {
-    backgroundImage: "linear-gradient( 136deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)",
+    backgroundImage:
+      "linear-gradient( 136deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)",
     boxShadow: "0 0 20px rgba(56, 189, 248, 0.3)",
     border: "none",
     transform: "scale(1.1)",
   }),
   ...(completed && {
-    backgroundImage: "linear-gradient( 136deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)",
+    backgroundImage:
+      "linear-gradient( 136deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)",
     boxShadow: "0 0 15px rgba(56, 189, 248, 0.2)",
   }),
 }));
 
-function ColorlibStepIcon(props: { active?: boolean; completed?: boolean; icon: React.ReactNode }) {
+function ColorlibStepIcon(props: {
+  active?: boolean;
+  completed?: boolean;
+  icon: React.ReactNode;
+}) {
   const { active, completed, icon } = props;
   return (
     <ColorlibStepIconRoot active={active} completed={completed}>
@@ -76,7 +95,6 @@ function ColorlibStepIcon(props: { active?: boolean; completed?: boolean; icon: 
     </ColorlibStepIconRoot>
   );
 }
-
 
 const steps = ["Personal", "Security", "Review"];
 
@@ -87,6 +105,7 @@ interface RegisterFormValues {
   username: string;
   password: string;
   repeatPassword: string;
+  avatarUrl: string;
 }
 
 export default function SignUpStepper() {
@@ -96,7 +115,10 @@ export default function SignUpStepper() {
 
   const isLastStep = activeStep === steps.length - 1;
 
-  const handleNext = async (values: RegisterFormValues, actions: FormikHelpers<RegisterFormValues>) => {
+  const handleNext = async (
+    values: RegisterFormValues,
+    actions: FormikHelpers<RegisterFormValues>
+  ) => {
     if (isLastStep) {
       await handleSubmit(values, actions);
     } else {
@@ -109,7 +131,10 @@ export default function SignUpStepper() {
     setActiveStep((prev) => prev - 1);
   };
 
-  const handleSubmit = async (values: RegisterFormValues, actions: FormikHelpers<RegisterFormValues>) => {
+  const handleSubmit = async (
+    values: RegisterFormValues,
+    actions: FormikHelpers<RegisterFormValues>
+  ) => {
     setLoading(true);
     try {
       const res = await RegisterUser(
@@ -117,20 +142,33 @@ export default function SignUpStepper() {
         values.name,
         values.surname,
         values.password,
-        values.email
+        values.email,
+        values.avatarUrl
       );
 
-      if (res && res.user) {
+      if (res && "error" in res) {
+        console.error("Registration failed:", res.error);
+
+        if (typeof res.error === "string") {
+          if (res.field === "username") {
+            setActiveStep(1);
+            actions.setFieldError("username", res.error);
+          } else if (res.field === "email") {
+            setActiveStep(0);
+            actions.setFieldError("email", res.error);
+          } else {
+            actions.setFieldError("email", res.error);
+            setActiveStep(0);
+          }
+        }
+      } else if (res && "user" in res) {
         router.refresh();
-        router.push("/onboarding");
+        router.push("/");
       }
     } catch (error: unknown) {
-      console.error("Registration failed:", error);
-      const message = error instanceof Error ? error.message : "Registration failed";
-      actions.setFieldError("email", message);
-
-      if (message.includes("Username")) setActiveStep(1);
-      if (message.includes("Email")) setActiveStep(0);
+      console.error("Critical Registration crash:", error);
+      actions.setFieldError("email", "An unexpected network error occurred.");
+      setActiveStep(0);
     } finally {
       setLoading(false);
     }
@@ -157,7 +195,7 @@ export default function SignUpStepper() {
                   fontWeight: activeStep === index ? 600 : 400,
                   fontSize: "13px",
                   mt: 1,
-                  transition: "all 0.4s ease"
+                  transition: "all 0.4s ease",
                 }}
               >
                 {label}
@@ -175,6 +213,7 @@ export default function SignUpStepper() {
           username: "",
           password: "",
           repeatPassword: "",
+          avatarUrl: "",
         }}
         validationSchema={signUpValidationSchema[activeStep]}
         onSubmit={handleNext}
@@ -200,7 +239,7 @@ export default function SignUpStepper() {
                     py: 1.5,
                     "&:hover": {
                       borderColor: "#38bdf8",
-                    }
+                    },
                   }}
                 >
                   Back
@@ -216,7 +255,7 @@ export default function SignUpStepper() {
                   color: "#000",
                   "&:hover": {
                     bgcolor: "#0ea5e9",
-                  }
+                  },
                 }}
               >
                 {isLastStep ? "Complete Registration" : "Continue"}

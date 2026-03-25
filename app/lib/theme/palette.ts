@@ -1,4 +1,4 @@
-import type { PaletteMode } from "@mui/material";
+import { alpha, type PaletteMode } from "@mui/material";
 
 export const palettes = {
   /* -------------------------------- DARKMODE -------------------------------- */
@@ -61,56 +61,56 @@ export const palettes = {
     mode: "light" as PaletteMode,
 
     primary: {
-      main: "#BEDBB0",
+      main: "#FF5722", // Premium Orange
       contrastText: "#FFFFFF",
     },
 
     background: {
       default: "#FFFFFF",
-      dashboardBg: "#F6F6F7",
-      paper: "#e4e4e4",
+      dashboardBg: "#F9FAFB",
+      paper: "#FFFFFF",
       sidebar: "#FFFFFF",
-      header: "#FCFCFC",
-      hoverBg: "rgba(177, 177, 177, 0.99)",
+      header: "#FFFFFF",
+      hoverBg: alpha("#FF5722", 0.05),
     },
 
     text: {
-      primary: "#161616",
-      secondary: "#161616b3",
-      greenText: "#BEDBB0",
-      sideBarText: "#161616",
+      primary: "#1A202C", // Dark Slate
+      secondary: "#718096", // Slate Gray
+      greenText: "#48BB78",
+      sideBarText: "#1A202C",
     },
 
-    divider: "rgba(255,255,255,0.3)",
+    divider: "rgba(0,0,0,0.08)",
 
     icon: {
-      primary: "#BEDBB0",
-      secondary: "#8c8c8c",
+      primary: "#FF5722",
+      secondary: "#718096",
     },
 
     buttonPrimary: {
-      buttonBg: "rgba(190, 219, 176, 1)",
-      buttonBgHover: "rgba(157, 200, 136, 1)",
+      buttonBg: "#FF5722",
+      buttonBgHover: "#E64A19",
       iconColor: "#FFFFFF",
-      iconBgColor: "#161616",
-      primaryText: "#161616",
+      iconBgColor: "rgba(255,255,255,0.2)",
+      primaryText: "#FFFFFF",
     },
     buttonSecondary: {
       buttonBg: "#FFFFFF",
-      buttonBgHover: "#ffffff93",
-      iconColor: "#FFFFFF",
-      iconBg: "#161616",
-      primaryText: "#161616",
+      buttonBgHover: "#F7FAFC",
+      iconColor: "#FF5722",
+      iconBg: alpha("#FF5722", 0.1),
+      primaryText: "#FF5722",
     },
     logo: {
-      color1: "#1F1F1F",
-      color2: "#FFFFFF",
-      text: "#1F1F1F",
+      color1: "#FF5722",
+      color2: "#1A202C",
+      text: "#1A202C",
     },
     scroll: {
-      color: "rgba(22, 22, 22, 0.1)",
-      hover: "rgba(22, 22, 22, 0.2)",
-      background: "rgba(232, 232, 232, 1)",
+      color: "rgba(255, 87, 34, 0.2)",
+      hover: "rgba(255, 87, 34, 0.4)",
+      background: "#F7FAFC",
     },
   },
 };

@@ -11,6 +11,7 @@ import {
   FormControl,
   FormControlLabel,
   Checkbox,
+  Grid,
 } from "@mui/material";
 import { CompanyStepProps } from "@/app/lib/type/create-company";
 import PublicIcon from "@mui/icons-material/Public";
@@ -27,23 +28,22 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
       <Box sx={{ mb: 4 }}>
         <Typography
           variant="overline"
-          sx={{ color: "primary.main", fontWeight: 700 }}
+          sx={{ color: "primary.main", fontWeight: 800, letterSpacing: "0.1em" }}
         >
-          Setup &gt; Create New Company
+          GLOBAL CONFIGURATION
         </Typography>
-        <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>
-          Regional Settings
+        <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, letterSpacing: "-0.01em" }}>
+          Regional Ecosystem
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Step 2: Configure how your team interacts with time and local
-          commerce.
+          Configure how your team interacts with time, local commerce, and data visibility.
         </Typography>
       </Box>
 
       <Stack spacing={4}>
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-            Default Timezone *
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
+            Principal Timezone *
           </Typography>
           <FormControl fullWidth>
             <Select
@@ -54,27 +54,29 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
               }
               startAdornment={
                 <PublicIcon
-                  sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                  sx={{ mr: 1, color: alpha(theme.palette.text.primary, 0.3), fontSize: 20 }}
                 />
               }
               sx={{
-                bgcolor: alpha(theme.palette.background.paper, 0.4),
-                borderRadius: 2,
+                bgcolor: alpha(theme.palette.background.paper, 0.5),
+                borderRadius: 3,
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                }
               }}
             >
-              <MenuItem value="EST">
-                (GMT-05:00) Eastern Time (US & Canada)
-              </MenuItem>
               <MenuItem value="UTC">UTC (Universal Coordinated Time)</MenuItem>
-              <MenuItem value="TR">GMT+03:00 (Turkey Standard Time)</MenuItem>
+              <MenuItem value="EST">Eastern Time (US & Canada)</MenuItem>
+              <MenuItem value="TR">Turkey Standard Time (GMT+03:00)</MenuItem>
+              <MenuItem value="CET">Central European Time (GMT+01:00)</MenuItem>
             </Select>
           </FormControl>
         </Box>
 
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-              Base Currency
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
+              Functional Currency
             </Typography>
             <FormControl fullWidth>
               <Select
@@ -85,23 +87,27 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                 }
                 startAdornment={
                   <PaymentsIcon
-                    sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                    sx={{ mr: 1, color: alpha(theme.palette.text.primary, 0.3), fontSize: 20 }}
                   />
                 }
                 sx={{
-                  bgcolor: alpha(theme.palette.background.paper, 0.4),
-                  borderRadius: 2,
+                  bgcolor: alpha(theme.palette.background.paper, 0.5),
+                  borderRadius: 3,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: alpha(theme.palette.divider, 0.1),
+                  }
                 }}
               >
-                <MenuItem value="USD">USD - US Dollar ($)</MenuItem>
-                <MenuItem value="EUR">EUR - Euro (€)</MenuItem>
-                <MenuItem value="TRY">TRY - Turkish Lira (₺)</MenuItem>
+                <MenuItem value="USD">USD - United States Dollar</MenuItem>
+                <MenuItem value="EUR">EUR - European Euro</MenuItem>
+                <MenuItem value="TRY">TRY - Turkish Lira</MenuItem>
+                <MenuItem value="GBP">GBP - British Pound</MenuItem>
               </Select>
             </FormControl>
-          </Box>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-              Preferred Language
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
+              System Language
             </Typography>
             <FormControl fullWidth>
               <Select
@@ -112,44 +118,48 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                 }
                 startAdornment={
                   <LanguageIcon
-                    sx={{ mr: 1, color: "text.secondary", fontSize: 20 }}
+                    sx={{ mr: 1, color: alpha(theme.palette.text.primary, 0.3), fontSize: 20 }}
                   />
                 }
                 sx={{
-                  bgcolor: alpha(theme.palette.background.paper, 0.4),
-                  borderRadius: 2,
+                  bgcolor: alpha(theme.palette.background.paper, 0.5),
+                  borderRadius: 3,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: alpha(theme.palette.divider, 0.1),
+                  }
                 }}
               >
-                <MenuItem value="EN">English (United States)</MenuItem>
-                <MenuItem value="TR">Turkish (Türkiye)</MenuItem>
+                <MenuItem value="EN">English (Global Standart)</MenuItem>
+                <MenuItem value="TR">Turkish (Türkiye Opsiyonu)</MenuItem>
               </Select>
             </FormControl>
-          </Box>
-        </Stack>
+          </Grid>
+        </Grid>
 
         <Box
           sx={{
             p: 3,
-            borderRadius: 3,
-            bgcolor: alpha(theme.palette.primary.main, 0.03),
-            border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+            borderRadius: 4,
+            bgcolor: alpha(theme.palette.primary.main, 0.04),
+            border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
             display: "flex",
-            gap: 2,
+            gap: 2.5,
+            transition: "0.2s",
+            "&:hover": {
+               bgcolor: alpha(theme.palette.primary.main, 0.06),
+            }
           }}
         >
-          <InfoOutlinedIcon sx={{ color: "primary.main" }} />
+          <InfoOutlinedIcon sx={{ color: theme.palette.primary.main, mt: 0.5 }} />
           <Box>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
-              Regional Visibility
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 0.5 }}>
+              Referential Integrity & Scope
             </Typography>
             <Typography
               variant="caption"
-              color="text.secondary"
-              sx={{ display: "block", mb: 2 }}
+              sx={{ color: alpha(theme.palette.text.secondary, 0.7), display: "block", mb: 2, lineHeight: 1.5 }}
             >
-              These settings will be applied to all newly created warehouses and
-              fleets by default, but can be overwritten individually if you
-              operate globally.
+              These presets automatically standardize all operational units. Sub-entities (warehouses, fleets) can still override these individually when needed.
             </Typography>
             <FormControlLabel
               control={
@@ -160,12 +170,15 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                       regionalVisibility: e.target.checked,
                     })
                   }
-                  sx={{ color: "primary.main" }}
+                  sx={{ 
+                    color: alpha(theme.palette.primary.main, 0.5),
+                    "&.Mui-checked": { color: theme.palette.primary.main }
+                  }}
                 />
               }
               label={
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  Enable global regional overrides
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                  Enable dynamic regional overrides
                 </Typography>
               }
             />

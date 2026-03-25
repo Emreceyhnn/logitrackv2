@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import {
   Box,
   TextField,
@@ -13,10 +14,12 @@ import {
 } from "@mui/material";
 import { CompanyStepProps } from "@/app/lib/type/create-company";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 
 export default function Step1Branding({ state, actions }: CompanyStepProps) {
   const theme = useTheme();
   const { formData } = state;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
@@ -39,111 +42,145 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
   };
 
   const handleClickUpload = () => {
-    const input = document.getElementById("logo-upload-input");
-    input?.click();
+    fileInputRef.current?.click();
   };
 
   return (
     <Box>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>
-          Create New Company
+        <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, letterSpacing: "-0.01em" }}>
+          Brand Persona
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Step 1: Focuses on Branding
+          Define how your organization appears across the LogiTrack ecosystem.
         </Typography>
       </Box>
 
       <Stack spacing={4}>
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-            Company Name *
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
+            Legal Entity Name *
           </Typography>
           <TextField
             fullWidth
-            placeholder="Enter your unique company name"
+            placeholder="e.g. Global Logistics Inc."
             name="name"
             value={formData.name}
             onChange={handleChange}
-            variant="outlined"
+            autoFocus
             sx={{
               "& .MuiOutlinedInput-root": {
-                bgcolor: alpha(theme.palette.background.paper, 0.4),
-                borderRadius: 2,
+                bgcolor: alpha(theme.palette.background.paper, 0.5),
+                borderRadius: 3,
+                border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                "&.Mui-focused": {
+                  boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.1)}`,
+                }
               },
             }}
           />
           <Typography
             variant="caption"
-            color="text.secondary"
-            sx={{ mt: 1, display: "block" }}
+            sx={{ mt: 1, display: "block", color: alpha(theme.palette.text.secondary, 0.6) }}
           >
-            This name must be unique within the platform.
+            This will be your primary identifier for billing and administrative tasks.
           </Typography>
         </Box>
 
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-            Company Logo
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
+            Digital Identity (Logo)
           </Typography>
           <Box
             onClick={handleClickUpload}
             sx={{
               border: `2px dashed ${alpha(
-                theme.palette.divider,
-                formData.logo ? 0.5 : 0.2
+                theme.palette.primary.main,
+                formData.logo ? 0.4 : 0.15
               )}`,
-              borderRadius: 3,
-              p: formData.logo ? 2 : 4,
+              borderRadius: 4,
+              p: formData.logo ? 2 : 5,
               textAlign: "center",
               cursor: "pointer",
-              transition: "all 0.2s ease",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               position: "relative",
               overflow: "hidden",
+              bgcolor: formData.logo 
+                ? alpha(theme.palette.background.paper, 0.3)
+                : alpha(theme.palette.primary.main, 0.02),
               "&:hover": {
-                borderColor: "primary.main",
-                bgcolor: alpha(theme.palette.primary.main, 0.02),
+                borderColor: theme.palette.primary.main,
+                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                transform: "translateY(-2px)",
               },
             }}
           >
             <input
               type="file"
-              id="logo-upload-input"
+              ref={fileInputRef}
               hidden
               accept="image/*"
               onChange={handleFileChange}
             />
             {formData.logo ? (
-              <Box
-                component="img"
-                src={formData.logo}
-                sx={{
-                  maxHeight: 120,
-                  maxWidth: "100%",
-                  borderRadius: 1,
-                  display: "block",
-                  mx: "auto",
-                }}
-              />
-            ) : (
-              <>
-                <CloudUploadIcon
-                  sx={{ fontSize: 40, color: "text.secondary", mb: 2 }}
+              <Box sx={{ position: "relative" }}>
+                 <Box
+                  component="img"
+                  src={formData.logo}
+                  sx={{
+                    maxHeight: 140,
+                    maxWidth: "100%",
+                    borderRadius: 2,
+                    display: "block",
+                    mx: "auto",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+                  }}
                 />
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  Click to upload or drag and drop
+                <Box sx={{ 
+                  position: "absolute", 
+                  inset: 0, 
+                  bgcolor: "rgba(0,0,0,0.4)", 
+                  opacity: 0, 
+                  transition: "0.2s", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  borderRadius: 2,
+                  "&:hover": { opacity: 1 }
+                }}>
+                  <Typography variant="button" sx={{ color: "#fff", fontWeight: 700 }}>
+                    Change Logo
+                  </Typography>
+                </Box>
+              </Box>
+            ) : (
+              <Stack alignItems="center" spacing={1}>
+                <Box sx={{ 
+                  width: 50, 
+                  height: 50, 
+                  borderRadius: "50%", 
+                  bgcolor: alpha(theme.palette.primary.main, 0.1), 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  mb: 1
+                }}>
+                  <CloudUploadIcon sx={{ color: theme.palette.primary.main }} />
+                </Box>
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                  Upload Brand Assets
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  SVG, PNG, JPG (max. 800x400px)
+                  PNG, JPG or SVG. Max size 5MB.
                 </Typography>
-              </>
+              </Stack>
             )}
           </Box>
         </Box>
 
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>
-            Primary Industry
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
+            Core Industry
           </Typography>
           <FormControl fullWidth>
             <Select
@@ -153,18 +190,24 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
                 actions.updateFormData({ industry: e.target.value as string })
               }
               displayEmpty
+              startAdornment={
+                <BusinessCenterIcon sx={{ mr: 1, color: alpha(theme.palette.text.primary, 0.3), fontSize: 20 }} />
+              }
               sx={{
-                bgcolor: alpha(theme.palette.background.paper, 0.4),
-                borderRadius: 2,
+                bgcolor: alpha(theme.palette.background.paper, 0.5),
+                borderRadius: 3,
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                }
               }}
             >
               <MenuItem value="" disabled>
-                Select an industry...
+                Select industry domain...
               </MenuItem>
-              <MenuItem value="logistics">Logistics & Transportation</MenuItem>
-              <MenuItem value="tech">Technology</MenuItem>
-              <MenuItem value="manufacturing">Manufacturing</MenuItem>
-              <MenuItem value="retail">Retail</MenuItem>
+              <MenuItem value="logistics">Logistics & Supply Chain</MenuItem>
+              <MenuItem value="E-Commerce">E-Commerce & Delivery</MenuItem>
+              <MenuItem value="manufacturing">Industrial Manufacturing</MenuItem>
+              <MenuItem value="retail">Retail & Enterprise</MenuItem>
             </Select>
           </FormControl>
         </Box>

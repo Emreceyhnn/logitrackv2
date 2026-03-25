@@ -60,7 +60,7 @@ export default function VehiclePage() {
   const fetchDashboardData = useCallback(async () => {
     try {
       const dashboardData = await getVehiclesDashboardData();
-      console.log(dashboardData);
+
       setState((prev) => ({ ...prev, dashboardData }));
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
@@ -94,20 +94,32 @@ export default function VehiclePage() {
     setState((prev) => ({ ...prev, selectedVehicleId: id }));
   }, []);
 
-  const updateFilters = useCallback((newFilters: Partial<VehiclePageState["filters"]>) => {
-    setState((prev) => ({
-      ...prev,
-      filters: { ...prev.filters, ...newFilters },
-    }));
-  }, []);
+  const updateFilters = useCallback(
+    (newFilters: Partial<VehiclePageState["filters"]>) => {
+      setState((prev) => ({
+        ...prev,
+        filters: { ...prev.filters, ...newFilters },
+      }));
+    },
+    []
+  );
 
-  const actions: VehiclePageActions = useMemo(() => ({
-    fetchVehicles,
-    fetchDashboardData,
-    refreshAll,
-    selectVehicle,
-    updateFilters,
-  }), [fetchVehicles, fetchDashboardData, refreshAll, selectVehicle, updateFilters]);
+  const actions: VehiclePageActions = useMemo(
+    () => ({
+      fetchVehicles,
+      fetchDashboardData,
+      refreshAll,
+      selectVehicle,
+      updateFilters,
+    }),
+    [
+      fetchVehicles,
+      fetchDashboardData,
+      refreshAll,
+      selectVehicle,
+      updateFilters,
+    ]
+  );
 
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {

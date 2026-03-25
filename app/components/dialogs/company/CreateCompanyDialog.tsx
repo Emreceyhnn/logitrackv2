@@ -21,6 +21,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   CompanyFormData,
   CreateCompanyDialogProps,
@@ -35,7 +36,7 @@ const initialFormData: CompanyFormData = {
   name: "",
   logo: null,
   industry: "",
-  timezone: "EST",
+  timezone: "UTC",
   currency: "USD",
   language: "EN",
   regionalVisibility: true,
@@ -50,13 +51,19 @@ export default function CreateCompanyDialog({
 
   /* ---------------------------------- State --------------------------------- */
   const [activeStep, setActiveStep] = useState(0);
+  const [direction, setDirection] = useState(0); // For framer-motion slide direction
   const [formData, setFormData] = useState<CompanyFormData>(initialFormData);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   /* -------------------------------- Handlers -------------------------------- */
-  const handleNext = () => setActiveStep((prev) => prev + 1);
-  const handleBack = () => setActiveStep((prev) => prev - 1);
+  const handleNext = () => {
+    setDirection(1);
+    setActiveStep((prev) => prev + 1);
+  };
+  const handleBack = () => {
+    setDirection(-1);
+    setActiveStep((prev) => prev - 1);
+  };
 
   const updateFormData = (data: Partial<CompanyFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
@@ -64,19 +71,23 @@ export default function CreateCompanyDialog({
 
   const resetDialog = () => {
     setActiveStep(0);
+    setDirection(0);
     setFormData(initialFormData);
     setLoading(false);
-    setError(null);
   };
 
   const handleSubmit = async () => {
     setLoading(true);
-    setError(null);
     try {
       let logoUrl = formData.logo;
 
+      // Handle logo upload if it's a base64 string
       if (logoUrl && logoUrl.startsWith("data:image")) {
-        const uploadResult = await uploadImageAction(logoUrl, "general", "logos");
+        const uploadResult = await uploadImageAction(
+          logoUrl,
+          "general",
+          "logos"
+        );
         logoUrl = uploadResult.url;
       }
 
@@ -89,38 +100,38 @@ export default function CreateCompanyDialog({
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Failed to create company";
-      setError(message);
       toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const legacyState = {
-    activeStep,
-    formData,
-    loading,
-    error,
+  const stepProps = {
+    state: { activeStep, formData, loading, error: null },
+    actions: {
+      handleNext,
+      handleBack,
+      updateFormData,
+      submit: handleSubmit,
+      reset: resetDialog,
+    },
   };
 
-  const legacyActions = {
-    handleNext,
-    handleBack,
-    updateFormData,
-    submit: handleSubmit,
-    reset: resetDialog,
-  };
-
-  /* -------------------------------- Render ---------------------------------- */
-  const renderStep = () => {
-    switch (activeStep) {
-      case 0:
-        return <Step1Branding state={legacyState} actions={legacyActions} />;
-      case 1:
-        return <Step2Regional state={legacyState} actions={legacyActions} />;
-      default:
-        return null;
-    }
+  const variants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 50 : -50,
+      opacity: 0,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 50 : -50,
+      opacity: 0,
+    }),
   };
 
   return (
@@ -132,9 +143,10 @@ export default function CreateCompanyDialog({
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: "#0B1019",
+          bgcolor: theme.palette.mode === "dark" ? "#0B1019" : "#fff",
           backgroundImage: "none",
           border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          overflow: "hidden",
         },
       }}
     >
@@ -146,10 +158,10 @@ export default function CreateCompanyDialog({
           sx={{ mb: 3 }}
         >
           <Stack spacing={0.5}>
-            <Typography variant="h6" fontWeight={700} color="white">
+            <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.02em" }}>
               {activeStep === 0
-                ? "Create Company Portfolio"
-                : "Regional Settings"}
+                ? "Company Identity"
+                : "Regional Ecosystem"}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Configure your organization&apos;s core profile and presence
@@ -160,7 +172,10 @@ export default function CreateCompanyDialog({
             sx={{
               color: "text.secondary",
               bgcolor: alpha(theme.palette.text.secondary, 0.05),
-              "&:hover": { bgcolor: alpha(theme.palette.text.secondary, 0.1) },
+              "&:hover": { 
+                bgcolor: alpha(theme.palette.error.main, 0.1),
+                color: theme.palette.error.main 
+              },
             }}
           >
             <CloseIcon fontSize="small" />
@@ -171,14 +186,17 @@ export default function CreateCompanyDialog({
           activeStep={activeStep}
           sx={{
             "& .MuiStepLabel-label": {
-              color: alpha("#fff", 0.5),
-              fontWeight: 600,
+              color: alpha(theme.palette.text.primary, 0.4),
+              fontWeight: 700,
+              fontSize: "0.75rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
             },
             "& .MuiStepLabel-label.Mui-active": {
               color: theme.palette.primary.main,
             },
             "& .MuiStepLabel-label.Mui-completed": {
-              color: alpha("#fff", 0.7),
+              color: alpha(theme.palette.text.primary, 0.8),
             },
             "& .MuiStepIcon-root": { color: alpha(theme.palette.divider, 0.1) },
             "& .MuiStepIcon-root.Mui-active": {
@@ -198,8 +216,24 @@ export default function CreateCompanyDialog({
         </Stepper>
       </Box>
 
-      <DialogContent sx={{ mt: 2, pb: 4, minHeight: 300 }}>
-        {renderStep()}
+      <DialogContent sx={{ mt: 2, pb: 4, minHeight: 320, overflow: "hidden" }}>
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={activeStep}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 },
+            }}
+          >
+            {activeStep === 0 && <Step1Branding {...stepProps} />}
+            {activeStep === 1 && <Step2Regional {...stepProps} />}
+          </motion.div>
+        </AnimatePresence>
       </DialogContent>
 
       <DialogActions
@@ -208,6 +242,7 @@ export default function CreateCompanyDialog({
           pt: 1,
           borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
           justifyContent: "space-between",
+          bgcolor: alpha(theme.palette.background.paper, 0.4),
         }}
       >
         <Button
@@ -215,11 +250,14 @@ export default function CreateCompanyDialog({
           sx={{
             color: "text.secondary",
             textTransform: "none",
-            fontWeight: 600,
+            fontWeight: 700,
+            borderRadius: 2,
+            px: 3,
+            "&:hover": { bgcolor: alpha(theme.palette.text.secondary, 0.1) }
           }}
           startIcon={activeStep > 0 ? <NavigateBeforeIcon /> : null}
         >
-          {activeStep === 0 ? "Cancel" : "Back"}
+          {activeStep === 0 ? "Discard" : "Back"}
         </Button>
 
         <Button
@@ -239,16 +277,20 @@ export default function CreateCompanyDialog({
             borderRadius: 2,
             textTransform: "none",
             px: 4,
-            minWidth: 140,
-            fontWeight: 600,
-            boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
+            minWidth: 160,
+            py: 1.2,
+            fontWeight: 800,
+            boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.25)}`,
+            "&:hover": {
+               boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.35)}`,
+            }
           }}
         >
           {loading
-            ? "Creating..."
+            ? "Finalizing..."
             : activeStep === 1
-              ? "Complete Setup"
-              : "Next Step"}
+              ? "Publish Portfolio"
+              : "Next Objective"}
         </Button>
       </DialogActions>
     </Dialog>

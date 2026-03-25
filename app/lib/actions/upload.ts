@@ -1,7 +1,7 @@
 "use server";
 
 import { supabase } from "../supabase";
-import { authenticatedAction } from "../auth-middleware";
+import { authenticatedAction, maybeAuthenticatedAction } from "../auth-middleware";
 
 type UploadBucket =
   | "vehicles"
@@ -67,7 +67,7 @@ function validateFileUrl(fileUrl: string): void {
   }
 }
 
-export const uploadImageAction = authenticatedAction(
+export const uploadImageAction = maybeAuthenticatedAction(
   async (
     _user,
     fileData: string,

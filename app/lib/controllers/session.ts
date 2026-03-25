@@ -28,6 +28,9 @@ export type SessionUser = {
   companyId: string | null;
   roleId: string | null;
   sessionId: string;
+  name: string;
+  surname: string;
+  avatarUrl: string | null;
 };
 
 export interface SessionJWTPayload extends jwt.JwtPayload {
@@ -83,6 +86,9 @@ export async function createSession(
     username?: string | null;
     roleId?: string | null;
     companyId?: string | null;
+    name?: string | null;
+    surname?: string | null;
+    avatarUrl?: string | null;
   },
 
   deviceInfo?: string,
@@ -125,7 +131,9 @@ export async function createSession(
     return { accessToken, sessionId: session.id };
   } catch (error) {
     console.error("Failed to create session in DB:", error);
-    throw new Error("Authentication session failed to initialize properly. Please try again.");
+    throw new Error(
+      "Authentication session failed to initialize properly. Please try again."
+    );
   }
 }
 
@@ -168,7 +176,15 @@ export async function validateSession(): Promise<SessionUser | null> {
       where: { token: tokenHash },
       include: {
         user: {
-          select: { id: true, companyId: true, roleId: true, status: true },
+          select: {
+            id: true,
+            companyId: true,
+            roleId: true,
+            status: true,
+            name: true,
+            surname: true,
+            avatarUrl: true,
+          },
         },
       },
     });
@@ -223,6 +239,9 @@ export async function validateSession(): Promise<SessionUser | null> {
       companyId: session.user.companyId,
       roleId: session.user.roleId,
       sessionId: session.id,
+      name: session.user.name,
+      surname: session.user.surname,
+      avatarUrl: session.user.avatarUrl,
     };
   } catch (error) {
     console.error("[validateSession] ❌ Unexpected error:", error);
