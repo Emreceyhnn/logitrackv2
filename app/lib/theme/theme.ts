@@ -32,6 +32,16 @@ declare module "@mui/material/styles" {
       hover: string;
       background: string;
     };
+    kpi: {
+      indigo: string;
+      sky: string;
+      emerald: string;
+      amber: string;
+      pink: string;
+      violet: string;
+      cyan: string;
+      purple: string;
+    };
   }
 
   interface PaletteOptions {
@@ -62,6 +72,16 @@ declare module "@mui/material/styles" {
       color?: string;
       hover?: string;
       background?: string;
+    };
+    kpi?: {
+      indigo?: string;
+      sky?: string;
+      emerald?: string;
+      amber?: string;
+      pink?: string;
+      violet?: string;
+      cyan?: string;
+      purple?: string;
     };
   }
 

@@ -12,7 +12,10 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import { MapWithMarker, MarkerData } from "@/app/components/googleMaps/MapWithMarker";
+import {
+  MapWithMarker,
+  MarkerData,
+} from "@/app/components/googleMaps/MapWithMarker";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import CustomerDetailDialog from "@/app/components/dialogs/customer/customerDetailDialog";
 import EditCustomerDialog from "@/app/components/dialogs/customer/editCustomerDialog";
@@ -30,9 +33,10 @@ import { useUser } from "@/app/lib/hooks/useUser";
 import { toast } from "sonner";
 
 export default function CustomersPage() {
+  /* -------------------------------- VARIABLES ------------------------------- */
   const { user } = useUser();
 
-  /* --------------------------------- states --------------------------------- */
+  /* --------------------------------- STATES --------------------------------- */
   const [state, setState] = useState<CustomerPageState>({
     customers: [],
     selectedCustomerId: null,
@@ -42,7 +46,6 @@ export default function CustomersPage() {
     loading: true,
     error: null,
   });
-
   const [detailOpen, setDetailOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
@@ -51,6 +54,7 @@ export default function CustomersPage() {
     useState<CustomerWithRelations | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handleEdit = (customer: CustomerWithRelations) => {
     setActionCustomer(customer);
     setEditOpen(true);
@@ -71,7 +75,8 @@ export default function CustomersPage() {
       setDetailOpen(false);
       fetchCustomers();
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to delete customer";
+      const message =
+        error instanceof Error ? error.message : "Failed to delete customer";
       console.error("Failed to delete customer:", error);
       toast.error(message);
     } finally {
@@ -92,16 +97,24 @@ export default function CustomersPage() {
         error: null,
       }));
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to fetch customers";
+      const message =
+        error instanceof Error ? error.message : "Failed to fetch customers";
       console.error("Failed to fetch customers", error);
-      setState((prev: CustomerPageState) => ({ ...prev, loading: false, error: message }));
+      setState((prev: CustomerPageState) => ({
+        ...prev,
+        loading: false,
+        error: message,
+      }));
     }
   }, []);
 
   const actions: CustomerPageActions = {
     fetchCustomers,
     selectCustomer: (id: string | null) => {
-      setState((prev: CustomerPageState) => ({ ...prev, selectedCustomerId: id }));
+      setState((prev: CustomerPageState) => ({
+        ...prev,
+        selectedCustomerId: id,
+      }));
       if (id) setDetailOpen(true);
     },
     updateFilters: (filters: Partial<CustomerPageState["filters"]>) =>
@@ -111,12 +124,12 @@ export default function CustomersPage() {
       })),
   };
 
-  /* --------------------------------- effects -------------------------------- */
+  /* ------------------------------- LIFECYCLES ------------------------------- */
   useEffect(() => {
     fetchCustomers();
   }, [fetchCustomers]);
 
-  /* --------------------------------filters -------------------------------- */
+  /* --------------------------------- HELPERS -------------------------------- */
   const filteredCustomers = useMemo(() => {
     if (!state.filters.search) return state.customers;
     const lowerTerm = state.filters.search.toLowerCase();
@@ -127,11 +140,10 @@ export default function CustomersPage() {
     );
   }, [state.customers, state.filters.search]);
 
-  // Extract valid locations for all customers
   const mapLocations = useMemo<MarkerData[]>(() => {
     return filteredCustomers.flatMap((c: CustomerWithRelations) => {
       if (!c.locations) return [];
-      
+
       return c.locations
         .filter((loc) => loc.lat != null && loc.lng != null)
         .map((loc) => ({
@@ -147,7 +159,6 @@ export default function CustomersPage() {
     });
   }, [filteredCustomers]);
 
-  /* --------------------------------- render --------------------------------- */
   return (
     <Box sx={{ height: "calc(100vh - 100px)", p: 3, display: "flex", gap: 3 }}>
       <Stack spacing={2} sx={{ width: 400, height: "100%" }}>
@@ -204,9 +215,9 @@ export default function CustomersPage() {
         }}
       >
         <GoogleMapsProvider>
-          <MapWithMarker 
-            center={{ lat: 39.9334, lng: 32.8597 }} // Turkey Central
-            markers={mapLocations} 
+          <MapWithMarker
+            center={{ lat: 39.9334, lng: 32.8597 }}
+            markers={mapLocations}
             zoom={6}
             height="100%"
           />

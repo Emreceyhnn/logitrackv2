@@ -1,10 +1,16 @@
 "use client";
 
-import RoutesKpiCard from "@/app/components/dashboard/routes/routesKpiCard";
 import RoutesMainMap from "@/app/components/dashboard/routes/routesMainMap";
 import RouteEfficiency from "@/app/components/dashboard/routes/routeEfficiency";
 import RouteTable from "@/app/components/dashboard/routes/routeTable";
-import { Box, Button, Stack, Typography, Divider } from "@mui/material";
+import {
+  Box,
+  Button,
+  Stack,
+  Typography,
+  Divider,
+  useTheme,
+} from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
 import { useCallback, useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
@@ -26,12 +32,15 @@ import EditRouteDialog from "@/app/components/dialogs/routes/edit-route-dialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { useUser } from "@/app/lib/hooks/useUser";
 import AddRouteDialog from "@/app/components/dialogs/routes/addRouteDialog";
+import { AltRoute, Loop, CheckCircle, Warning } from "@mui/icons-material";
+import KpiCards from "@/app/components/cards/KpiCards";
 
 export default function RoutesPage() {
-  /* -------------------------------- variables ------------------------------- */
+  /* -------------------------------- VARIABLES ------------------------------- */
   const { user } = useUser();
+  const theme = useTheme();
 
-  /* --------------------------------- states --------------------------------- */
+  /* --------------------------------- STATE --------------------------------- */
   const [state, setState] = useState<RoutesPageState>({
     routes: [],
     stats: null,
@@ -56,7 +65,7 @@ export default function RoutesPage() {
   );
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  /* --------------------------------- actions -------------------------------- */
+  /* --------------------------------- ACTIONS -------------------------------- */
   const fetchRoutesData = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true }));
     try {
@@ -124,12 +133,12 @@ export default function RoutesPage() {
     },
   };
 
-  /* -------------------------------- lifecycle ------------------------------- */
+  /* -------------------------------- LIFECYCLE ------------------------------- */
   useEffect(() => {
     fetchRoutesData();
   }, [fetchRoutesData]);
 
-  /* -------------------------------- handlers -------------------------------- */
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handlePageChange = (newPage: number) => {
     actions.changePage(newPage);
   };
@@ -165,6 +174,35 @@ export default function RoutesPage() {
     actions.refreshAll();
   };
 
+  /* --------------------------------- KPI --------------------------------- */
+
+  const kpiItems = [
+    {
+      label: "Active Routes",
+      value: state.stats?.active || 0,
+      icon: <AltRoute sx={{ fontSize: 22 }} />,
+      color: theme.palette.primary.main,
+    },
+    {
+      label: "In Progress",
+      value: state.stats?.inProgress || 0,
+      icon: <Loop sx={{ fontSize: 22 }} />,
+      color: "#0ea5e9", // Sky
+    },
+    {
+      label: "Completed Today",
+      value: state.stats?.completedToday || 0,
+      icon: <CheckCircle sx={{ fontSize: 22 }} />,
+      color: "#10b981", // Emerald
+    },
+    {
+      label: "Delayed Routes",
+      value: state.stats?.delayed || 0,
+      icon: <Warning sx={{ fontSize: 22 }} />,
+      color: theme.palette.error.main,
+    },
+  ];
+
   return (
     <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
       <Stack
@@ -192,7 +230,8 @@ export default function RoutesPage() {
           Add Route
         </Button>
       </Stack>
-      <RoutesKpiCard stats={state.stats} loading={state.loading} />
+      <KpiCards kpis={kpiItems} loading={state.loading} />
+
       <Stack mt={2} direction={"row"} spacing={3}>
         <RoutesMainMap mapData={state.mapData} loading={state.loading} />
         <RouteEfficiency data={state.efficiency} loading={state.loading} />

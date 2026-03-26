@@ -1,9 +1,13 @@
 "use client";
 
-import DriverKpiCard from "@/app/components/dashboard/driver/driverKpiCard";
-import DriverTable from "@/app/components/dashboard/driver/driverTable";
-import DriverPerformanceCharts from "@/app/components/dashboard/driver/driverPerformanceCharts";
-import { Box, Stack, Typography, Button, Divider } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Typography,
+  Button,
+  Divider,
+  useTheme,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState, useMemo } from "react";
 import {
@@ -17,16 +21,30 @@ import {
   getDrivers,
   deleteDriver,
 } from "@/app/lib/controllers/driver";
-
-import DriverDialog from "@/app/components/dialogs/driver";
+import {
+  Shield,
+  Groups,
+  Work,
+  Home,
+  ReportProblem,
+  RocketLaunch,
+} from "@mui/icons-material";
+import DriverTable from "@/app/components/dashboard/driver/driverTable";
+import DriverPerformanceCharts from "@/app/components/dashboard/driver/driverPerformanceCharts";
 import DriverTableToolbar from "@/app/components/dashboard/driver/driverTable/toolbar";
-import EditDriverDialog from "@/app/components/dialogs/driver/editDriverDialog";
-import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";
 import CustomCard from "@/app/components/cards/card";
 
+import DriverDialog from "@/app/components/dialogs/driver";
+import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";
+import EditDriverDialog from "@/app/components/dialogs/driver/editDriverDialog";
+import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
+import KpiCards from "@/app/components/cards/KpiCards";
+
 export default function DriverPage() {
-  /* ---------------------------------- State --------------------------------- */
+  /* -------------------------------- VARIABLES ------------------------------- */
+  const theme = useTheme();
+
+  /* ---------------------------------- STATES --------------------------------- */
   const [state, setState] = useState<
     DriverPageState & { sort: { field: string; order: "asc" | "desc" } }
   >({
@@ -61,103 +79,106 @@ export default function DriverPage() {
   const [driverToDelete, setDriverToDelete] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  /* --------------------------------- ACTIONS -------------------------------- */
+  const actions: DriverPageActions = useMemo(
+    () => ({
+      fetchDrivers: async (
+        page = 1,
+        limit = 10,
+        currentFilters = state.filters,
+        currentSort = state.sort
+      ) => {
+        try {
+          const result = await getDrivers(
+            page,
+            limit,
+            currentFilters.search,
+            currentFilters.status,
+            currentFilters.hasVehicle,
+            currentSort.field,
+            currentSort.order
+          );
+          setState((prev) => ({
+            ...prev,
+            drivers: result.data as unknown as DriverWithRelations[],
+            pagination: {
+              page: result.meta.page,
+              limit: result.meta.limit,
+              total: result.meta.total,
+            },
+            loading: false,
+          }));
+        } catch (error: unknown) {
+          setState((prev) => ({
+            ...prev,
+            error:
+              error instanceof Error
+                ? error.message
+                : "An unknown error occurred",
+            loading: false,
+          }));
+        }
+      },
 
+      fetchDashboardData: async () => {
+        try {
+          const data = await getDriverDashboardData();
+          setState((prev) => ({
+            ...prev,
+            dashboardData: data
+              ? {
+                  ...data,
+                  performanceCharts: data.performanceCharts.map((chart) => ({
+                    ...chart,
+                    days: chart.days.map((d) => Number(d)),
+                  })),
+                }
+              : null,
+          }));
+        } catch (error: unknown) {
+          console.error("Failed dashboard data", error);
+        }
+      },
 
+      selectDriver: (id: string | null) => {
+        setState((prev) => {
+          const driver = prev.drivers.find((d) => d.id === id) || null;
+          return { ...prev, selectedDriverId: id, selectedDriver: driver };
+        });
+        if (id) setIsDetailsOpen(true);
+      },
 
-  /* --------------------------------- Actions -------------------------------- */
-  const actions: DriverPageActions = useMemo(() => ({
-    fetchDrivers: async (
-      page = 1,
-      limit = 10,
-      currentFilters = state.filters,
-      currentSort = state.sort
-    ) => {
-      try {
-        const result = await getDrivers(
-          page,
-          limit,
-          currentFilters.search,
-          currentFilters.status,
-          currentFilters.hasVehicle,
-          currentSort.field,
-          currentSort.order
+      updateFilters: (newFilters: Partial<DriverFilters>) => {
+        setState((prev) => {
+          const updatedFilters = { ...prev.filters, ...newFilters };
+          return {
+            ...prev,
+            filters: updatedFilters,
+            pagination: { ...prev.pagination, page: 1 },
+            loading: true,
+          };
+        });
+      },
+
+      changePage: async () => {
+        setState((prev) => ({ ...prev, loading: true }));
+      },
+
+      refreshAll: async () => {
+        setState((prev) => ({ ...prev, loading: true }));
+        await actions.fetchDrivers(
+          state.pagination.page,
+          state.pagination.limit,
+          state.filters,
+          state.sort
         );
-        setState((prev) => ({
-          ...prev,
-          drivers: result.data as unknown as DriverWithRelations[],
-          pagination: {
-            page: result.meta.page,
-            limit: result.meta.limit,
-            total: result.meta.total,
-          },
-          loading: false,
-        }));
-      } catch (error: unknown) {
-        setState((prev) => ({
-          ...prev,
-          error: error instanceof Error ? error.message : "An unknown error occurred",
-          loading: false,
-        }));
-      }
-    },
+        await actions.fetchDashboardData();
+      },
+    }),
+    [state.filters, state.sort, state.pagination.page, state.pagination.limit]
+  );
 
-    fetchDashboardData: async () => {
-      try {
-        const data = await getDriverDashboardData();
-        setState((prev) => ({
-          ...prev,
-          dashboardData: data
-            ? {
-                ...data,
-                performanceCharts: data.performanceCharts.map((chart) => ({
-                  ...chart,
-                  days: chart.days.map((d) => Number(d)),
-                })),
-              }
-            : null,
-        }));
-      } catch (error: unknown) {
-        console.error("Failed dashboard data", error);
-      }
-    },
-
-    selectDriver: (id: string | null) => {
-      setState((prev) => {
-        const driver = prev.drivers.find((d) => d.id === id) || null;
-        return { ...prev, selectedDriverId: id, selectedDriver: driver };
-      });
-      if (id) setIsDetailsOpen(true);
-    },
-
-    updateFilters: (newFilters: Partial<DriverFilters>) => {
-      setState((prev) => {
-        const updatedFilters = { ...prev.filters, ...newFilters };
-        return {
-          ...prev,
-          filters: updatedFilters,
-          pagination: { ...prev.pagination, page: 1 },
-          loading: true,
-        };
-      });
-    },
-
-    changePage: async () => {
-      setState((prev) => ({ ...prev, loading: true }));
-    },
-
-    refreshAll: async () => {
-      setState((prev) => ({ ...prev, loading: true }));
-      await actions.fetchDrivers(
-        state.pagination.page,
-        state.pagination.limit,
-        state.filters,
-        state.sort
-      );
-      await actions.fetchDashboardData();
-    },
-  }), [state.filters, state.sort, state.pagination.page, state.pagination.limit]);
-
-  /* -------------------------------- Lifecycle --------------------------------- */
+  /* -------------------------------- LIFECYCLE --------------------------------- */
   useEffect(() => {
     actions.fetchDrivers(
       state.pagination.page,
@@ -170,15 +191,15 @@ export default function DriverPage() {
       actions.fetchDashboardData();
     }
   }, [
-    actions, 
-    state.dashboardData, 
-    state.pagination.page, 
-    state.pagination.limit, 
-    state.filters, 
-    state.sort
+    actions,
+    state.dashboardData,
+    state.pagination.page,
+    state.pagination.limit,
+    state.filters,
+    state.sort,
   ]);
 
-  /* -------------------------------- Handlers -------------------------------- */
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handleEdit = (driver: DriverWithRelations) => {
     setDriverToEdit(driver);
     setIsEditOpen(true);
@@ -194,7 +215,6 @@ export default function DriverPage() {
       await deleteDriver(driverToDelete);
       setIsDeleteOpen(false);
       actions.fetchDrivers(
-
         state.pagination.page,
         state.pagination.limit,
         state.filters
@@ -203,7 +223,6 @@ export default function DriverPage() {
     } catch (error: unknown) {
       console.error("Delete failed", error);
     } finally {
-
       setDeleteLoading(false);
     }
   };
@@ -234,6 +253,52 @@ export default function DriverPage() {
       },
     }));
   };
+
+  /* --------------------------------- KPI --------------------------------- */
+  const kpis = [
+    {
+      label: "Total Drivers",
+      value: state.dashboardData?.driversKpis?.totalDrivers ?? 0,
+      icon: <Groups sx={{ fontSize: 22 }} />,
+      color: theme.palette.primary.main,
+    },
+    {
+      label: "On Duty",
+      value: state.dashboardData?.driversKpis?.onDuty ?? 0,
+      icon: <Work sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.emerald,
+    },
+    {
+      label: "Off Duty",
+      value: state.dashboardData?.driversKpis?.offDuty ?? 0,
+      icon: <Home sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.sky,
+    },
+    {
+      label: "On Leave",
+      value: state.dashboardData?.driversKpis?.onLeave ?? 0,
+      icon: <Home sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.amber,
+    },
+    {
+      label: "Compliance Issues",
+      value: state.dashboardData?.driversKpis?.complianceIssues ?? 0,
+      icon: <ReportProblem sx={{ fontSize: 22 }} />,
+      color: theme.palette.error.main,
+    },
+    {
+      label: "Avg Safety Rating",
+      value: state.dashboardData?.driversKpis?.avgSafetyScore ?? 0,
+      icon: <Shield sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.indigo,
+    },
+    {
+      label: "Efficiency Rating",
+      value: state.dashboardData?.driversKpis?.avgEfficiencyScore ?? 0,
+      icon: <RocketLaunch sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.violet,
+    },
+  ];
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>
@@ -269,7 +334,7 @@ export default function DriverPage() {
         </Typography>
       )}
 
-      <DriverKpiCard data={state.dashboardData?.driversKpis || null} loading={state.loading} />
+      <KpiCards kpis={kpis} loading={state.loading} />
 
       <Stack gap={2} mt={2}>
         <CustomCard sx={{ padding: "0 0 6px 0" }}>
@@ -311,7 +376,10 @@ export default function DriverPage() {
         </CustomCard>
       </Stack>
 
-      <DriverPerformanceCharts data={state.dashboardData?.performanceCharts} loading={state.loading} />
+      <DriverPerformanceCharts
+        data={state.dashboardData?.performanceCharts}
+        loading={state.loading}
+      />
 
       <AddDriverDialog
         open={isAddDialogOpen}

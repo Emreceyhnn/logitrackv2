@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useCallback, useState, useEffect, useMemo } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
 import InventoryHeader from "@/app/components/dashboard/inventory/InventoryHeader";
-import InventoryKPI from "@/app/components/dashboard/inventory/InventoryKPI";
 import InventoryTable from "@/app/components/dashboard/inventory/InventoryTable";
 import {
   InventoryPageState,
@@ -17,15 +16,25 @@ import {
   updateInventoryItem,
 } from "@/app/lib/controllers/inventory";
 import { useUser } from "@/app/lib/hooks/useUser";
-import InventoryDetailsDialog from "./components/InventoryDetailsDialog";
-import InventoryEditDialog from "./components/InventoryEditDialog";
+import InventoryDetailsDialog from "../../../components/dialogs/inventory/InventoryDetailsDialog";
+import InventoryEditDialog from "../../../components/dialogs/inventory/InventoryEditDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import AddInventoryDialog from "@/app/components/dialogs/inventory/addInventoryDialog";
+import {
+  Inventory,
+  Warning,
+  Error as ErrorIcon,
+  AttachMoney,
+} from "@mui/icons-material";
+import { useTheme } from "@mui/material/styles";
+import KpiCards from "@/app/components/cards/KpiCards";
 
 export default function InventoryPage() {
+  /* -------------------------------- VARIABLES ------------------------------- */
+  const theme = useTheme();
   useUser();
 
-  /* --------------------------------- single root state --------------------------------- */
+  /* --------------------------------- STATE --------------------------------- */
   const [state, setState] = useState<InventoryPageState>({
     inventory: [],
     lowStockItems: [],
@@ -43,11 +52,11 @@ export default function InventoryPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
 
-  /* --------------------------------- fetch logic -------------------------------- */
+  /* --------------------------------- ACTIONS -------------------------------- */
   const fetchInventory = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true }));
     try {
-      const data = await getInventory() as InventoryWithRelations[];
+      const data = (await getInventory()) as InventoryWithRelations[];
       setState((prev) => ({
         ...prev,
         inventory: data,
@@ -56,33 +65,43 @@ export default function InventoryPage() {
       }));
     } catch (error) {
       console.error("Failed to fetch inventory", error);
-      const message = error instanceof Error ? error.message : "An unknown error occurred";
+      const message =
+        error instanceof Error ? error.message : "An unknown error occurred";
       setState((prev) => ({ ...prev, loading: false, error: message }));
     }
   }, []);
 
-  /* --------------------------------- page actions -------------------------------- */
   const actions: InventoryPageActions = {
     fetchInventory,
     fetchLowStock: async () => {},
     refreshAll: fetchInventory,
-    
+
     openDetails: (id) => {
-      const item = state.inventory.find(i => i.id === id) || null;
-      setState(prev => ({ ...prev, selectedItemId: id, selectedItem: item, isDetailsOpen: true }));
+      const item = state.inventory.find((i) => i.id === id) || null;
+      setState((prev) => ({
+        ...prev,
+        selectedItemId: id,
+        selectedItem: item,
+        isDetailsOpen: true,
+      }));
     },
 
     closeDetails: () => {
-      setState(prev => ({ ...prev, isDetailsOpen: false }));
+      setState((prev) => ({ ...prev, isDetailsOpen: false }));
     },
 
     openEdit: (id) => {
-      const item = state.inventory.find(i => i.id === id) || null;
-      setState(prev => ({ ...prev, selectedItemId: id, selectedItem: item, isEditOpen: true }));
+      const item = state.inventory.find((i) => i.id === id) || null;
+      setState((prev) => ({
+        ...prev,
+        selectedItemId: id,
+        selectedItem: item,
+        isEditOpen: true,
+      }));
     },
 
     closeEdit: () => {
-      setState(prev => ({ ...prev, isEditOpen: false }));
+      setState((prev) => ({ ...prev, isEditOpen: false }));
     },
 
     updateItem: async (id, data) => {
@@ -97,14 +116,16 @@ export default function InventoryPage() {
       })),
   };
 
+  /* -------------------------------- LIFECYCLE ------------------------------- */
   useEffect(() => {
     fetchInventory();
   }, [fetchInventory]);
 
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handleDeleteRequest = (id: string) => {
-    const item = state.inventory.find(i => i.id === id);
+    const item = state.inventory.find((i) => i.id === id);
     if (item) {
-      setState(prev => ({ ...prev, selectedItem: item }));
+      setState((prev) => ({ ...prev, selectedItem: item }));
       setIsDeleteOpen(true);
     }
   };
@@ -123,6 +144,7 @@ export default function InventoryPage() {
     }
   };
 
+  /* --------------------------------- HELPER --------------------------------- */
   const filteredData = useMemo(() => {
     if (!state.filters.search) return state.inventory;
     const lowerTerm = state.filters.search.toLowerCase();
@@ -133,6 +155,54 @@ export default function InventoryPage() {
     );
   }, [state.inventory, state.filters.search]);
 
+  const totalItems = filteredData.length;
+  const lowStockItems = filteredData.filter(
+    (item) => item.quantity > 0 && item.quantity <= item.minStock
+  ).length;
+  const outOfStockItems = filteredData.filter(
+    (item) => item.quantity === 0
+  ).length;
+
+  const totalValue = 0;
+
+  /* ----------------------------------- KPI ---------------------------------- */
+  const kpiItems = [
+    {
+      label: "TOTAL ITEMS",
+      value: totalItems ?? 0,
+      icon: <Inventory sx={{ fontSize: 22 }} />,
+      color: theme.palette.primary.main,
+    },
+    {
+      label: "LOW STOCK",
+      value: lowStockItems ?? 0,
+      icon: <Warning sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.amber,
+      trend:
+        lowStockItems > 0 ? { value: lowStockItems, isUp: true } : undefined,
+    },
+    {
+      label: "OUT OF STOCK",
+      value: outOfStockItems ?? 0,
+      icon: <ErrorIcon sx={{ fontSize: 22 }} />,
+      color: theme.palette.error.main,
+      trend:
+        outOfStockItems > 0
+          ? { value: outOfStockItems, isUp: true }
+          : undefined,
+    },
+    {
+      label: "TOTAL VALUE",
+      value: new Intl.NumberFormat("en-TR", {
+        style: "currency",
+        currency: "TRY",
+        maximumFractionDigits: 0,
+      }).format(totalValue),
+      icon: <AttachMoney sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.emerald,
+    },
+  ];
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <InventoryHeader
@@ -140,8 +210,7 @@ export default function InventoryPage() {
         onFilterClick={() => {}}
         onAddClick={() => setIsAddOpen(true)}
       />
-
-      <InventoryKPI items={filteredData} loading={state.loading} />
+      <KpiCards kpis={kpiItems} loading={state.loading} />
 
       <Stack mt={2}>
         <CustomCard sx={{ padding: "0 0 6px 0" }}>

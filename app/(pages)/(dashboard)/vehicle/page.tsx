@@ -2,7 +2,6 @@
 
 import DocumentCalenderCard from "@/app/components/dashboard/vehicle/documentCalenderCard";
 import VehicleCapacityChart from "@/app/components/dashboard/vehicle/maxLoad";
-import VehicleKpiCard from "@/app/components/dashboard/vehicle/vehicleKpiCard";
 import VehicleTable from "@/app/components/dashboard/vehicle/vehicleTable";
 import AddVehicleDialog from "@/app/components/dialogs/vehicle/addVehicleDialog";
 import VehicleDialog from "@/app/components/dialogs/vehicle/vehicleDetailsDialog";
@@ -15,17 +14,28 @@ import {
   VehiclePageState,
   VehicleWithRelations,
 } from "@/app/lib/type/vehicle";
-import { Box, Stack, Typography, Button, Alert } from "@mui/material";
+import { Box, Stack, Typography, Button, Alert, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useCallback, useEffect, useState, useMemo } from "react";
 import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { deleteVehicle } from "@/app/lib/controllers/vehicle";
-
 import CustomCard from "@/app/components/cards/card";
+import {
+  Build,
+  CheckCircle,
+  Description,
+  DirectionsCar,
+  LocalShipping,
+  ReportProblem,
+} from "@mui/icons-material";
+import KpiCards from "@/app/components/cards/KpiCards";
 
 export default function VehiclePage() {
-  /* --------------------------------- states --------------------------------- */
+  /* -------------------------------- VARIABLES ------------------------------- */
+  const theme = useTheme();
+
+  /* --------------------------------- STATES --------------------------------- */
   const [state, setState] = useState<VehiclePageState>({
     vehicles: [],
     dashboardData: null,
@@ -41,7 +51,7 @@ export default function VehiclePage() {
     useState<VehicleWithRelations | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  /* ---------------------------------- actions ------------------------------- */
+  /* ---------------------------------- ACTIONS ------------------------------- */
   const fetchVehicles = useCallback(async () => {
     try {
       setState((prev) => ({ ...prev, loading: true }));
@@ -121,7 +131,7 @@ export default function VehiclePage() {
     ]
   );
 
-  /* -------------------------------- lifecycle ------------------------------- */
+  /* -------------------------------- LIFECYCLE ------------------------------- */
   useEffect(() => {
     fetchVehicles();
   }, [fetchVehicles]);
@@ -130,7 +140,7 @@ export default function VehiclePage() {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  /* -------------------------------- handlers -------------------------------- */
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handleAddSuccess = () => {
     actions.refreshAll();
   };
@@ -194,6 +204,47 @@ export default function VehiclePage() {
     (v) => v.id === state.selectedVehicleId
   );
 
+  /* ----------------------------------- KPI ---------------------------------- */
+
+  const kpiItems = [
+    {
+      label: "Total Vehicle",
+      value: state.dashboardData?.vehiclesKpis?.totalVehicles ?? 0,
+      icon: <LocalShipping sx={{ fontSize: 22 }} />,
+      color: theme.palette.primary.main,
+    },
+    {
+      label: "Available Vehicle",
+      value: state.dashboardData?.vehiclesKpis?.available ?? 0,
+      icon: <CheckCircle sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.emerald,
+    },
+    {
+      label: "Vehicle in Service",
+      value: state.dashboardData?.vehiclesKpis?.inService ?? 0,
+      icon: <Build sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.amber,
+    },
+    {
+      label: "Vehicles On Trip",
+      value: state.dashboardData?.vehiclesKpis?.onTrip ?? 0,
+      icon: <DirectionsCar sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.sky,
+    },
+    {
+      label: "Open Issues",
+      value: state.dashboardData?.vehiclesKpis?.openIssues ?? 0,
+      icon: <ReportProblem sx={{ fontSize: 22 }} />,
+      color: theme.palette.error.main,
+    },
+    {
+      label: "Docs Due Soon",
+      value: state.dashboardData?.vehiclesKpis?.docsDueSoon ?? 0,
+      icon: <Description sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.violet,
+    },
+  ];
+
   return (
     <Box position={"relative"} p={4} width={"100%"}>
       <Stack
@@ -228,7 +279,7 @@ export default function VehiclePage() {
         </Alert>
       )}
 
-      <VehicleKpiCard state={state} actions={actions} />
+      <KpiCards kpis={kpiItems} loading={state.loading} />
 
       <Stack mt={2}>
         <CustomCard sx={{ padding: "0 0 6px 0" }}>

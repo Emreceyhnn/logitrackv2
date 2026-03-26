@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Stack, Typography, alpha } from "@mui/material";
+import { Box, Stack, Typography, alpha, useTheme } from "@mui/material";
 import { motion } from "framer-motion";
 
 const steps = [
@@ -49,6 +49,16 @@ const steps = [
 ];
 
 export default function TimelineSection() {
+  const theme = useTheme();
+
+  const coloredSteps = steps.map((step) => {
+    let color = step.color;
+    if (step.color === "#38bdf8") color = theme.palette.kpi.cyan;
+    if (step.color === "#6366f1") color = theme.palette.kpi.indigo;
+    if (step.color === "#a855f7") color = theme.palette.kpi.purple;
+    return { ...step, color };
+  });
+
   return (
     <Box sx={{ position: "relative", py: 10 }}>
       <Box
@@ -58,15 +68,14 @@ export default function TimelineSection() {
           top: 0,
           bottom: 0,
           width: "2px",
-          background:
-            "linear-gradient(to bottom, transparent, rgba(56, 189, 248, 0.3), rgba(99, 102, 241, 0.3), transparent)",
+          background: `linear-gradient(to bottom, transparent, ${alpha(theme.palette.kpi.cyan, 0.3)}, ${alpha(theme.palette.kpi.indigo, 0.3)}, transparent)`,
           transform: { md: "translateX(-50%)" },
           zIndex: 0,
         }}
       />
 
       <Stack spacing={8}>
-        {steps.map((item, index) => (
+        {coloredSteps.map((item, index) => (
           <Box
             key={item.step}
             component={motion.div}

@@ -1,9 +1,15 @@
 "use client";
 
-import ShipmentKpiCard from "@/app/components/dashboard/shipments/shipmentKpiCard";
 import ShipmentTable from "@/app/components/dashboard/shipments/shipmentTable";
 import ShipmentAnalytics from "@/app/components/dashboard/shipments/ShipmentAnalytics";
-import { Box, Button, Stack, Typography, Divider } from "@mui/material";
+import {
+  Box,
+  Button,
+  Stack,
+  Typography,
+  Divider,
+  useTheme,
+} from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -24,11 +30,20 @@ import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmatio
 import { useUser } from "@/app/lib/hooks/useUser";
 import AddIcon from "@mui/icons-material/Add";
 
-export default function ShipmentPage() {
-  /* -------------------------------- variables ------------------------------- */
-  const { user } = useUser();
+import {
+  LocalShipping,
+  AccessTime,
+  DirectionsBoat,
+  Inventory,
+} from "@mui/icons-material";
+import KpiCards from "@/app/components/cards/KpiCards";
 
-  /* ---------------------------------- state --------------------------------- */
+export default function ShipmentPage() {
+  /* -------------------------------- VARIABLES ------------------------------- */
+  const { user } = useUser();
+  const theme = useTheme();
+
+  /* ---------------------------------- STATES --------------------------------- */
   const [state, setState] = useState<ShipmentPageState>({
     shipments: [],
     stats: null,
@@ -46,7 +61,7 @@ export default function ShipmentPage() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
-  /* --------------------------------- actions -------------------------------- */
+  /* --------------------------------- ACTIONS -------------------------------- */
   const fetchAllData = useCallback(async () => {
     if (!user || !user.companyId || !user.id) return;
     setState((prev) => ({ ...prev, loading: true }));
@@ -94,12 +109,12 @@ export default function ShipmentPage() {
       })),
   };
 
-  /* -------------------------------- effects --------------------------------- */
+  /* -------------------------------- LIFECYCLE --------------------------------- */
   useEffect(() => {
     fetchAllData();
   }, [fetchAllData]);
 
-  /* -------------------------------- handlers -------------------------------- */
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handleEdit = (id: string) => {
     const shipment = state.shipments.find((s) => s.id === id);
     if (shipment) {
@@ -127,6 +142,35 @@ export default function ShipmentPage() {
       setDeleteLoading(false);
     }
   };
+
+  /* --------------------------------- RENDER --------------------------------- */
+
+  const kpiItems = [
+    {
+      label: "Total Shipments",
+      value: state.stats?.total || 0,
+      icon: <Inventory sx={{ fontSize: 22 }} />,
+      color: theme.palette.primary.main,
+    },
+    {
+      label: "Active Shipments",
+      value: state.stats?.active || 0,
+      icon: <LocalShipping sx={{ fontSize: 22 }} />,
+      color: "#0ea5e9", // Sky
+    },
+    {
+      label: "Delayed Shipments",
+      value: state.stats?.delayed || 0,
+      icon: <AccessTime sx={{ fontSize: 22 }} />,
+      color: theme.palette.error.main,
+    },
+    {
+      label: "In Transit",
+      value: state.stats?.inTransit || 0,
+      icon: <DirectionsBoat sx={{ fontSize: 22 }} />,
+      color: "#10b981", // Emerald
+    },
+  ];
 
   return (
     <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
@@ -156,7 +200,7 @@ export default function ShipmentPage() {
         </Button>
       </Stack>
 
-      <ShipmentKpiCard state={state} actions={actions} />
+      <KpiCards kpis={kpiItems} loading={state.loading} />
 
       <Stack mt={2}>
         <CustomCard sx={{ padding: "0 0 6px 0" }}>

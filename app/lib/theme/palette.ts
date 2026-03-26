@@ -56,6 +56,16 @@ export const palettes = {
       hover: "rgba(18, 18, 18,0.5)",
       background: "#2e3234",
     },
+    kpi: {
+      indigo: "#6366f1",
+      sky: "#0ea5e9",
+      emerald: "#10b981",
+      amber: "#f59e0b",
+      pink: "#ec4899",
+      violet: "#8b5cf6",
+      cyan: "#38bdf8",
+      purple: "#a855f7",
+    },
   },
   light: {
     mode: "light" as PaletteMode,
@@ -111,6 +121,16 @@ export const palettes = {
       color: "rgba(255, 87, 34, 0.2)",
       hover: "rgba(255, 87, 34, 0.4)",
       background: "#F7FAFC",
+    },
+    kpi: {
+      indigo: "#6366f1",
+      sky: "#0ea5e9",
+      emerald: "#10b981",
+      amber: "#f59e0b",
+      pink: "#ec4899",
+      violet: "#8b5cf6",
+      cyan: "#38bdf8",
+      purple: "#a855f7",
     },
   },
 };

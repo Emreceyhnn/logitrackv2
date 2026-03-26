@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Box, Button, Stack, Typography, Divider } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
-import WarehouseKpiCard from "@/app/components/dashboard/warehouse/warehouseKpiCard";
 import WarehouseListTable from "@/app/components/dashboard/warehouse/warehouseList";
 import CapacityUtilization from "@/app/components/dashboard/warehouse/capacityUtilization";
 import RecentStockMovements from "@/app/components/dashboard/warehouse/recentStockMovements";
@@ -26,9 +25,22 @@ import WarehouseDetailsDialog from "@/app/components/dialogs/warehouse/warehouse
 import EditWarehouseDialog from "@/app/components/dialogs/warehouse/editWarehouseDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+import { useTheme } from "@mui/material";
+
+import {
+  Warehouse,
+  Inventory2,
+  ListAlt,
+  Storage,
+  Category,
+} from "@mui/icons-material";
+import KpiCards from "@/app/components/cards/KpiCards";
 
 export default function WarehousePage() {
-  /* --------------------------------- states --------------------------------- */
+  /* -------------------------------- VARIABLES ------------------------------- */
+  const theme = useTheme();
+
+  /* --------------------------------- STATES --------------------------------- */
   const [state, setState] = useState<WarehousePageState>({
     warehouses: [],
     stats: null,
@@ -40,12 +52,16 @@ export default function WarehousePage() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [warehouseToEditId, setWarehouseToEditId] = useState<string | null>(null);
+  const [warehouseToEditId, setWarehouseToEditId] = useState<string | null>(
+    null
+  );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [warehouseToDeleteId, setWarehouseToDeleteId] = useState<string | null>(null);
+  const [warehouseToDeleteId, setWarehouseToDeleteId] = useState<string | null>(
+    null
+  );
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  /* --------------------------------- actions -------------------------------- */
+  /* --------------------------------- ACTIONS -------------------------------- */
   const fetchAllData = useCallback(async (isInitial = false) => {
     if (isInitial) setState((prev) => ({ ...prev, loading: true }));
     try {
@@ -76,8 +92,8 @@ export default function WarehousePage() {
     fetchWarehouses: async () => {
       await fetchAllData();
     },
-    fetchStats: async () => { },
-    fetchRecentMovements: async () => { },
+    fetchStats: async () => {},
+    fetchRecentMovements: async () => {},
     refreshAll: async () => {
       await fetchAllData(false);
     },
@@ -97,8 +113,7 @@ export default function WarehousePage() {
     },
   };
 
-
-  /* -------------------------------- handlers -------------------------------- */
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handleDeleteConfirm = async () => {
     if (!warehouseToDeleteId) return;
     setDeleteLoading(true);
@@ -116,17 +131,61 @@ export default function WarehousePage() {
     }
   };
 
-  /* -------------------------------- lifecycle ------------------------------- */
+  /* -------------------------------- LIFECYCLE ------------------------------- */
   useEffect(() => {
     let mounted = true;
     const loadInit = async () => {
       if (mounted) await fetchAllData(true);
     };
     loadInit();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [fetchAllData]);
 
-  const warehouseToDelete = state.warehouses.find(w => w.id === warehouseToDeleteId);
+  const warehouseToDelete = state.warehouses.find(
+    (w) => w.id === warehouseToDeleteId
+  );
+
+  /* --------------------------------- KPI --------------------------------- */
+
+  const kpiItems = [
+    {
+      label: "TOTAL WAREHOUSES",
+      value: state.stats?.totalWarehouses || 0,
+      icon: <Warehouse sx={{ fontSize: 22 }} />,
+      color: theme.palette.primary.main,
+      trend: { value: 2, isUp: true },
+    },
+    {
+      label: "INVENTORY SKUS",
+      value: state.stats?.totalSkus.toLocaleString() || 0,
+      icon: <Inventory2 sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.cyan,
+      trend: { value: 12, isUp: true },
+    },
+    {
+      label: "TOTAL ITEMS",
+      value: state.stats?.totalItems.toLocaleString() || 0,
+      icon: <ListAlt sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.violet,
+      trend: { value: 8, isUp: true },
+    },
+    {
+      label: "PALLET CAPACITY",
+      value: state.stats?.totalCapacityPallets.toLocaleString() || 0,
+      icon: <Category sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.amber,
+      trend: { value: 5, isUp: true },
+    },
+    {
+      label: "STOCKED VOLUME",
+      value: `${state.stats?.totalCapacityVolume.toLocaleString()} M³`,
+      icon: <Storage sx={{ fontSize: 22 }} />,
+      color: theme.palette.kpi.emerald,
+      trend: { value: 15, isUp: true },
+    },
+  ];
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>
@@ -157,7 +216,7 @@ export default function WarehousePage() {
       </Stack>
 
       <Box mb={2}>
-        <WarehouseKpiCard stats={state.stats} loading={state.loading} />
+        <KpiCards kpis={kpiItems} loading={state.loading} />
       </Box>
 
       <Stack mt={2}>
@@ -177,11 +236,7 @@ export default function WarehousePage() {
         </CustomCard>
       </Stack>
 
-      <Stack
-        direction={{ xs: "column", xl: "row" }}
-        spacing={4}
-        sx={{ mt: 2 }}
-      >
+      <Stack direction={{ xs: "column", xl: "row" }} spacing={4} sx={{ mt: 2 }}>
         <CapacityUtilization
           warehouses={state.warehouses}
           loading={state.loading}
@@ -207,9 +262,8 @@ export default function WarehousePage() {
           }}
           onEditSuccess={actions.refreshAll}
           warehouseData={
-            state.warehouses.find(
-              (w) => w.id === state.selectedWarehouseId
-            ) || undefined
+            state.warehouses.find((w) => w.id === state.selectedWarehouseId) ||
+            undefined
           }
         />
 
@@ -225,9 +279,8 @@ export default function WarehousePage() {
             actions.refreshAll();
           }}
           warehouseData={
-            state.warehouses.find(
-              (w) => w.id === warehouseToEditId
-            ) || undefined
+            state.warehouses.find((w) => w.id === warehouseToEditId) ||
+            undefined
           }
         />
       </GoogleMapsProvider>
