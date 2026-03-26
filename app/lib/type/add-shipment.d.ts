@@ -24,6 +24,8 @@ export interface AddShipmentBasicInfo {
 
 export interface AddShipmentLogistics {
   originWarehouseId: string;
+  originLat?: number;
+  originLng?: number;
   destination: string;
   destinationLat?: number;
   destinationLng?: number;

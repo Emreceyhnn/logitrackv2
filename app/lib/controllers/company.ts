@@ -18,15 +18,37 @@ export const createCompany = authenticatedAction(
       },
     });
 
+    // Ensure core roles exist
+    const defaultRoles = [
+      { id: "role_admin", name: "Administrator", description: "Full system access" },
+      { id: "role_manager", name: "Manager", description: "Company management access" },
+      { id: "role_dispatcher", name: "Dispatcher", description: "Shipment and route management" },
+      { id: "role_driver", name: "Driver", description: "Limited access for drivers" },
+      { id: "role_warehouse", name: "Warehouse", description: "Warehouse and inventory management" },
+    ];
+
+    for (const r of defaultRoles) {
+      await db.role.upsert({
+        where: { id: r.id },
+        update: {},
+        create: {
+          id: r.id,
+          name: r.name,
+          description: r.description,
+          permissions: [], // Permissions can be managed separately
+        },
+      });
+    }
+
     const role = await db.role.findFirst({
-      where: { name: { equals: "Administrator", mode: "insensitive" } },
+      where: { id: "role_admin" },
     });
 
     const updatedUser = await db.user.update({
       where: { id: user.id },
       data: {
         companyId: newCompany.id,
-        roleId: role?.id ?? null,
+        roleId: role?.id ?? "role_admin",
       },
     });
 

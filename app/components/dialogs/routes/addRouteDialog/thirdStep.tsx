@@ -49,7 +49,7 @@ const ThirdRouteDialogStep = ({
       try {
         const [driversRes, vehiclesRes] = await Promise.all([
           getDrivers(1, 100),
-          getVehicles(),
+          getVehicles({ status: ["AVAILABLE"] }),
         ]);
         setDrivers(driversRes.data);
         setVehicles(vehiclesRes);

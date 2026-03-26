@@ -267,9 +267,7 @@ const WarehouseListTable = ({
                       />
                     </Stack>
                   </TableCell>
-                  <TableCell
-                    align="right"
-                  >
+                  <TableCell align="right">
                     <Typography
                       variant="body2"
                       fontWeight={600}
@@ -282,9 +280,7 @@ const WarehouseListTable = ({
                         : operatingHours}
                     </Typography>
                   </TableCell>
-                  <TableCell
-                    align="right"
-                  >
+                  <TableCell align="right">
                     <IconButton
                       size="small"
                       onClick={(e) => handleMenuClick(e, warehouse.id)}
@@ -336,18 +332,19 @@ const WarehouseListTable = ({
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleEditClick}>
-          <EditIcon fontSize="small" sx={{ mr: 1.5, color: "inherit" }} />
-          <Typography variant="body2" fontWeight={600}>
-            Edit Warehouse
-          </Typography>
-        </MenuItem>
         <MenuItem onClick={handleDetailsClick}>
           <VisibilityIcon fontSize="small" sx={{ mr: 1.5, color: "inherit" }} />
           <Typography variant="body2" fontWeight={600}>
             View Details
           </Typography>
         </MenuItem>
+        <MenuItem onClick={handleEditClick}>
+          <EditIcon fontSize="small" sx={{ mr: 1.5, color: "inherit" }} />
+          <Typography variant="body2" fontWeight={600}>
+            Edit Warehouse
+          </Typography>
+        </MenuItem>
+
         <MenuItem
           onClick={handleDeleteClick}
           sx={{

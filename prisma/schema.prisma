@@ -376,6 +376,8 @@ model Shipment {
 
   status      String // PENDING, IN_TRANSIT, DELIVERED, etc.
   origin      String
+  originLat   Float?
+  originLng   Float?
   destination String
   destinationLat Float?
   destinationLng Float?

@@ -67,7 +67,9 @@ const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
             placeholder="0"
             value={data.maxLoadKg}
             onChange={(e) =>
-              actions.updateStep2({ maxLoadKg: Number(e.target.value) })
+              actions.updateStep2({
+                maxLoadKg: e.target.value === "" ? "" : Number(e.target.value),
+              })
             }
             sx={textFieldSx}
             InputProps={{
@@ -128,7 +130,9 @@ const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
             placeholder="50"
             value={data.fuelLevel}
             onChange={(e) =>
-              actions.updateStep2({ fuelLevel: Number(e.target.value) })
+              actions.updateStep2({
+                fuelLevel: e.target.value === "" ? "" : Number(e.target.value),
+              })
             }
             sx={textFieldSx}
             InputProps={{
@@ -165,7 +169,8 @@ const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
             value={data.avgFuelConsumption}
             onChange={(e) =>
               actions.updateStep2({
-                avgFuelConsumption: Number(e.target.value),
+                avgFuelConsumption:
+                  e.target.value === "" ? "" : Number(e.target.value),
               })
             }
             sx={textFieldSx}

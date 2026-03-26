@@ -211,7 +211,7 @@ const InventoryTable = ({
                 const labelId = `enhanced-table-checkbox-${index}`;
                 const status = getStatus(row.quantity, row.minStock);
                 const category = "General";
-                const unitPrice = 100;
+                const unitPrice = row.unitValue || 0;
 
                 return (
                   <TableRow
@@ -221,7 +221,10 @@ const InventoryTable = ({
                     key={row.id}
                     sx={{
                       cursor: "pointer",
-                      "& td, & th": { borderColor: alpha(theme.palette.divider, 0.1) },
+                      "& td, & th": { 
+                        borderColor: alpha(theme.palette.divider, 0.1),
+                        borderBottom: index === items.length - 1 ? "none !important" : undefined 
+                      },
                       transition: "all 0.2s ease-in-out",
                       "&:hover": {
                         bgcolor: alpha(theme.palette.primary.main, 0.04),

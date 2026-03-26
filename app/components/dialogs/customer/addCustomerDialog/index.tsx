@@ -16,7 +16,9 @@ import {
   Step,
   StepLabel,
 } from "@mui/material";
+import BusinessIcon from "@mui/icons-material/Business";
 import CloseIcon from "@mui/icons-material/Close";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useState } from "react";
 import { AddCustomerDialogProps, AddCustomerContact } from "@/app/lib/type/add-customer";
 import { toast } from "sonner";
@@ -116,13 +118,22 @@ const AddCustomerDialog = ({
         onClose={closeDialog}
         maxWidth="sm"
         fullWidth
+        slotProps={{
+          backdrop: {
+            sx: {
+              backdropFilter: "blur(8px)",
+              backgroundColor: alpha(theme.palette.background.default, 0.4),
+            },
+          },
+        }}
         PaperProps={{
           sx: {
             bgcolor: "#0B0F19",
-            backgroundImage: "none",
+            backgroundImage: "radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent), radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.03), transparent)",
             borderRadius: 4,
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            border: `1px solid ${alpha("#fff", 0.08)}`,
             maxHeight: "90vh",
+            boxShadow: "0 24px 48px -12px rgba(0,0,0,0.5)",
           },
         }}
       >
@@ -136,26 +147,37 @@ const AddCustomerDialog = ({
             <Stack direction="row" spacing={2} alignItems="center">
               <Box
                 sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 2,
+                  width: 44,
+                  height: 44,
+                  borderRadius: 2.5,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
                   color: theme.palette.primary.main,
                 }}
               >
-                <Typography variant="h6" sx={{ lineHeight: 1 }}>
-                  🏢
+                <BusinessIcon fontSize="small" />
+              </Box>
+              <Box>
+                <Typography variant="h6" fontWeight={700} color="white" lineHeight={1.2}>
+                  Add Customer
+                </Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                  REGISTER A NEW PARTNER
                 </Typography>
               </Box>
-              <Typography variant="h6" fontWeight={700} color="white">
-                Add New Customer
-              </Typography>
             </Stack>
-            <IconButton onClick={closeDialog} sx={{ color: "text.secondary" }}>
-              <CloseIcon />
+            <IconButton 
+              onClick={closeDialog} 
+              sx={{ 
+                color: "text.secondary",
+                bgcolor: alpha("#fff", 0.03),
+                "&:hover": { bgcolor: alpha("#fff", 0.08), color: "white" }
+              }}
+            >
+              <CloseIcon fontSize="small" />
             </IconButton>
           </Stack>
 
@@ -163,27 +185,44 @@ const AddCustomerDialog = ({
             activeStep={currentStep - 1}
             sx={{
               mb: 4,
+              px: 1,
               "& .MuiStepLabel-label": {
                 color: alpha("#fff", 0.3),
                 fontWeight: 600,
-                fontSize: "0.65rem",
+                fontSize: "0.7rem",
                 textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                mt: 1,
               },
               "& .MuiStepLabel-label.Mui-active": {
-                color: theme.palette.primary.main,
+                color: "white",
               },
               "& .MuiStepLabel-label.Mui-completed": {
-                color: alpha("#fff", 0.5),
+                color: alpha("#fff", 0.6),
               },
-              "& .MuiStepIcon-root": { color: alpha(theme.palette.divider, 0.1) },
+              "& .MuiStepIcon-root": { 
+                width: 28,
+                height: 28,
+                color: alpha("#fff", 0.05),
+                border: `1px solid ${alpha("#fff", 0.08)}`,
+                borderRadius: "50%",
+                transition: "all 0.3s ease",
+              },
               "& .MuiStepIcon-root.Mui-active": {
                 color: theme.palette.primary.main,
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.5)}`,
+                boxShadow: `0 0 12px ${alpha(theme.palette.primary.main, 0.3)}`,
               },
               "& .MuiStepIcon-root.Mui-completed": {
                 color: theme.palette.primary.main,
               },
+              "& .MuiStepIcon-text": {
+                fill: "white",
+                fontWeight: 700,
+              },
               "& .MuiStepConnector-line": {
-                borderColor: alpha(theme.palette.divider, 0.1),
+                borderColor: alpha("#fff", 0.05),
+                borderTopWidth: 2,
               },
               "& .MuiStepConnector-root.Mui-active .MuiStepConnector-line": {
                 borderColor: theme.palette.primary.main,
@@ -231,8 +270,8 @@ const AddCustomerDialog = ({
         <DialogActions
           sx={{
             p: 3,
-            pt: 1,
-            borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+            pt: 2,
+            borderTop: `1px solid ${alpha("#fff", 0.05)}`,
             justifyContent: "space-between",
           }}
         >
@@ -243,9 +282,11 @@ const AddCustomerDialog = ({
                 : () => setCurrentStep(currentStep - 1)
             }
             sx={{
-              color: "text.secondary",
+              color: alpha("#fff", 0.5),
               textTransform: "none",
               fontWeight: 600,
+              px: 3,
+              "&:hover": { color: "white", bgcolor: alpha("#fff", 0.05) }
             }}
           >
             {currentStep === 1 ? "Cancel" : "Back"}
@@ -260,12 +301,24 @@ const AddCustomerDialog = ({
             onClick={currentStep < 2 ? () => setCurrentStep(2) : handleSubmit}
             sx={{
               minWidth: 160,
-              borderRadius: 2,
+              borderRadius: 2.5,
               textTransform: "none",
               fontWeight: 700,
-              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.25)}`,
               py: 1.2,
+              px: 4,
+              transition: "all 0.2s ease",
+              "&:hover": {
+                boxShadow: `0 12px 32px ${alpha(theme.palette.primary.main, 0.4)}`,
+                transform: "translateY(-1px)",
+              },
+              "&:active": {
+                transform: "translateY(0)",
+              }
             }}
+            endIcon={
+              !isLoading && currentStep < 2 ? <ArrowForwardIcon /> : undefined
+            }
             startIcon={
               isLoading && <CircularProgress size={16} color="inherit" />
             }
@@ -273,7 +326,7 @@ const AddCustomerDialog = ({
             {isLoading
               ? "Creating..."
               : currentStep < 2
-                ? "Next Step →"
+                ? "Next Details"
                 : "Register Customer"}
           </Button>
         </DialogActions>

@@ -163,7 +163,10 @@ export default function InventoryPage() {
     (item) => item.quantity === 0
   ).length;
 
-  const totalValue = 0;
+  const totalValue = filteredData.reduce(
+    (acc, item) => acc + item.quantity * (item.unitValue || 0),
+    0
+  );
 
   /* ----------------------------------- KPI ---------------------------------- */
   const kpiItems = [
@@ -236,6 +239,7 @@ export default function InventoryPage() {
       />
 
       <InventoryEditDialog
+        key={state.selectedItem?.id}
         isOpen={state.isEditOpen}
         onClose={actions.closeEdit}
         item={state.selectedItem}

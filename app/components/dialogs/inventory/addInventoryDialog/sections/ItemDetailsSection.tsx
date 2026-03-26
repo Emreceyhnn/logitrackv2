@@ -14,6 +14,7 @@ import { AddInventoryItemDetails } from "@/app/lib/type/add-inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import { useState } from "react";
 
 interface ItemDetailsSectionProps {
   state: AddInventoryItemDetails;
@@ -37,6 +38,19 @@ const ItemDetailsSection = ({
 }: ItemDetailsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+
+  /* ---------------------------------- state --------------------------------- */
+  // Use local state for string values to handle decimals (e.g. "0.") and empty states smoothly
+  const [localUnitValue, setLocalUnitValue] = useState(state.unitValue === 0 ? "" : state.unitValue?.toString() || "");
+  const [localWeight, setLocalWeight] = useState(state.weightKg === 0 ? "" : state.weightKg?.toString() || "");
+  const [localVolume, setLocalVolume] = useState(state.volumeM3 === 0 ? "" : state.volumeM3?.toString() || "");
+  const [localPalletCount, setLocalPalletCount] = useState(state.palletCount === 0 ? "" : state.palletCount?.toString() || "");
+
+  const handleNumChange = (field: keyof AddInventoryItemDetails, val: string, setLocal: (v: string) => void) => {
+    setLocal(val);
+    const parsed = parseFloat(val);
+    updateItemDetails({ [field]: isNaN(parsed) ? 0 : parsed });
+  };
 
   return (
     <Box>
@@ -115,18 +129,14 @@ const ItemDetailsSection = ({
               color="text.secondary"
               fontWeight={600}
             >
-              UNIT VALUE *
+              UNIT PRICE *
             </Typography>
             <CustomTextArea
               name="unitValue"
               type="number"
               placeholder="0.00"
-              value={state.unitValue?.toString() || "0"}
-              onChange={(e) =>
-                updateItemDetails({
-                  unitValue: parseFloat(e.target.value) || 0,
-                })
-              }
+              value={localUnitValue}
+              onChange={(e) => handleNumChange("unitValue", e.target.value, setLocalUnitValue)}
             />
           </Stack>
 
@@ -242,12 +252,8 @@ const ItemDetailsSection = ({
                   name="weightKg"
                   type="number"
                   placeholder="0.00"
-                  value={state.weightKg?.toString() || "0"}
-                  onChange={(e) =>
-                    updateItemDetails({
-                      weightKg: parseFloat(e.target.value) || 0,
-                    })
-                  }
+                  value={localWeight}
+                  onChange={(e) => handleNumChange("weightKg", e.target.value, setLocalWeight)}
                 />
               </Stack>
             </Grid>
@@ -264,12 +270,8 @@ const ItemDetailsSection = ({
                   name="volumeM3"
                   type="number"
                   placeholder="0.000"
-                  value={state.volumeM3?.toString() || "0"}
-                  onChange={(e) =>
-                    updateItemDetails({
-                      volumeM3: parseFloat(e.target.value) || 0,
-                    })
-                  }
+                  value={localVolume}
+                  onChange={(e) => handleNumChange("volumeM3", e.target.value, setLocalVolume)}
                 />
               </Stack>
             </Grid>
@@ -286,12 +288,8 @@ const ItemDetailsSection = ({
                   name="palletCount"
                   type="number"
                   placeholder="0.0"
-                  value={state.palletCount?.toString() || "0"}
-                  onChange={(e) =>
-                    updateItemDetails({
-                      palletCount: parseFloat(e.target.value) || 0,
-                    })
-                  }
+                  value={localPalletCount}
+                  onChange={(e) => handleNumChange("palletCount", e.target.value, setLocalPalletCount)}
                 />
               </Stack>
             </Grid>

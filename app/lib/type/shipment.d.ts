@@ -8,6 +8,8 @@ import { CustomerWithRelations } from "./customer";
 
 // Domain Models
 export interface ShipmentWithRelations extends Shipment {
+  originLat?: number | null;
+  originLng?: number | null;
   destinationLat?: number | null;
   destinationLng?: number | null;
   customer: CustomerWithRelations | null;

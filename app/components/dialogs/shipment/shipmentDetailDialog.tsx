@@ -36,12 +36,17 @@ export default function ShipmentDetailDialog({
   if (!shipment) return null;
 
   const mapOrigin =
-    shipment.route?.startLat && shipment.route?.startLng
+    shipment.originLat && shipment.originLng
       ? {
-          lat: Number(shipment.route.startLat),
-          lng: Number(shipment.route.startLng),
+          lat: Number(shipment.originLat),
+          lng: Number(shipment.originLng),
         }
-      : undefined;
+      : shipment.route?.startLat && shipment.route?.startLng
+        ? {
+            lat: Number(shipment.route.startLat),
+            lng: Number(shipment.route.startLng),
+          }
+        : undefined;
 
   const mapDestination =
     shipment.destinationLat && shipment.destinationLng

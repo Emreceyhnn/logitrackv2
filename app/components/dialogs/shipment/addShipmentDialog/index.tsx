@@ -56,6 +56,8 @@ const initialBasicInfo: AddShipmentBasicInfo = {
 
 const initialLogistics: AddShipmentLogistics = {
   originWarehouseId: "",
+  originLat: undefined,
+  originLng: undefined,
   destination: "",
   destinationLat: undefined,
   destinationLng: undefined,
@@ -175,9 +177,14 @@ const AddShipmentDialog = ({
     setIsLoading(true);
     setError(null);
     try {
+      const selectedWarehouse = warehouses.find(
+        (w) => w.id === logistics.originWarehouseId
+      );
+      const originName = selectedWarehouse?.name || logistics.originWarehouseId;
+
       await createShipment(
         logistics.customerId,
-        logistics.originWarehouseId,
+        originName,
         logistics.destination,
         "PENDING",
         inventory.items.length || 1,
@@ -187,6 +194,8 @@ const AddShipmentDialog = ({
         cargo.cargoType,
         logistics.destinationLat,
         logistics.destinationLng,
+        logistics.originLat,
+        logistics.originLng,
         basicInfo.referenceNumber,
         logistics.customerLocationId
       );

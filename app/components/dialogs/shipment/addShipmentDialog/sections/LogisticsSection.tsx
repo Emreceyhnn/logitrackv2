@@ -64,9 +64,21 @@ const LogisticsSection = ({
                 select
                 placeholder="Search origin warehouse..."
                 value={state.originWarehouseId}
-                onChange={(e) =>
-                  updateLogistics({ originWarehouseId: e.target.value })
-                }
+                onChange={(e) => {
+                  const warehouseId = e.target.value;
+                  const selectedWarehouse = warehouses.find(
+                    (w) => w.id === warehouseId
+                  );
+                  if (selectedWarehouse) {
+                    updateLogistics({
+                      originWarehouseId: warehouseId,
+                      originLat: selectedWarehouse.lat ?? undefined,
+                      originLng: selectedWarehouse.lng ?? undefined,
+                    });
+                  } else {
+                    updateLogistics({ originWarehouseId: warehouseId });
+                  }
+                }}
               >
                 {warehouses.map((w) => (
                   <MenuItem key={w.id} value={w.id}>

@@ -29,6 +29,7 @@ import { useUser } from "@/app/lib/hooks/useUser";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import ItemDetailsSection from "./sections/ItemDetailsSection";
 import StorageLevelsSection from "./sections/StorageLevelsSection";
+import ReviewSection from "./sections/ReviewSection";
 
 const initialItemDetails: AddInventoryItemDetails = {
   sku: "",
@@ -59,6 +60,7 @@ const AddInventoryDialog = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formKey, setFormKey] = useState(0);
 
   /* ---------------------------------- handlers --------------------------------- */
   const updateItemDetails = (data: Partial<AddInventoryItemDetails>) =>
@@ -116,6 +118,7 @@ const AddInventoryDialog = ({
     setCurrentStep(1);
     setIsLoading(false);
     setError(null);
+    setFormKey((prev) => prev + 1);
   };
 
   const closeDialog = () => {
@@ -233,23 +236,23 @@ const AddInventoryDialog = ({
         )}
         {currentStep === 1 && (
           <ItemDetailsSection
+            key={`item-details-${formKey}`}
             state={itemDetails}
             updateItemDetails={updateItemDetails}
           />
         )}
         {currentStep === 2 && (
           <StorageLevelsSection
+            key={`storage-levels-${formKey}`}
             state={storageLevels}
             updateStorageLevels={updateStorageLevels}
           />
         )}
         {currentStep === 3 && (
-          <Box sx={{ textAlign: "center", py: 4 }}>
-            <Typography color="text.secondary">
-              Review step placeholder
-            </Typography>
-            <Button onClick={() => setCurrentStep(1)}>Go back and edit</Button>
-          </Box>
+          <ReviewSection
+            itemDetails={itemDetails}
+            storageLevels={storageLevels}
+          />
         )}
       </DialogContent>
 
@@ -286,7 +289,13 @@ const AddInventoryDialog = ({
                 itemDetails.unitValue === undefined)) ||
             (currentStep === 2 && !storageLevels.warehouseId)
           }
-          onClick={currentStep < 2 ? () => setCurrentStep(2) : handleSubmit}
+          onClick={
+            currentStep === 1 
+              ? () => setCurrentStep(2) 
+              : currentStep === 2 
+                ? () => setCurrentStep(3) 
+                : handleSubmit
+          }
           sx={{
             minWidth: 160,
             borderRadius: 2,
@@ -301,9 +310,11 @@ const AddInventoryDialog = ({
         >
           {isLoading
             ? "Adding..."
-            : currentStep < 2
+            : currentStep === 1
               ? "Next Step →"
-              : "Add to Inventory"}
+              : currentStep === 2
+                ? "Review Selection →"
+                : "Add to Inventory"}
         </Button>
       </DialogActions>
     </Dialog>

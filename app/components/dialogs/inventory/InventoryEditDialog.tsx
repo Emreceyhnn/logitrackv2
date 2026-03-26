@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -76,6 +76,24 @@ export default function InventoryEditDialog({
     },
   });
 
+  /* ---------------------------------- state --------------------------------- */
+  // Local string state for smooth numeric input
+  const [localQuantity, setLocalQuantity] = useState(
+    item?.quantity?.toString() || ""
+  );
+  const [localMinStock, setLocalMinStock] = useState(
+    item?.minStock?.toString() || ""
+  );
+  const [localWeight, setLocalWeight] = useState(
+    item?.weightKg ? item.weightKg.toString() : ""
+  );
+  const [localVolume, setLocalVolume] = useState(
+    item?.volumeM3 ? item.volumeM3.toString() : ""
+  );
+  const [localPalletCount, setLocalPalletCount] = useState(
+    item?.palletCount ? item.palletCount.toString() : ""
+  );
+
   useEffect(() => {
     if (item && isOpen) {
       reset({
@@ -89,6 +107,23 @@ export default function InventoryEditDialog({
       });
     }
   }, [item, isOpen, reset]);
+
+  const handleNumChange = (
+    val: string, 
+    setLocal: (v: string) => void, 
+    fieldChange: (v: number | null) => void,
+    isFloat: boolean = false
+  ) => {
+    setLocal(val);
+    if (val === "") {
+      fieldChange(0);
+      return;
+    }
+    const parsed = isFloat ? parseFloat(val) : parseInt(val);
+    if (!isNaN(parsed)) {
+      fieldChange(parsed);
+    }
+  };
 
   const onSubmit = async (data: FormData) => {
     if (!item) return;
@@ -314,6 +349,8 @@ export default function InventoryEditDialog({
                         label="Available Quantity"
                         type="number"
                         fullWidth
+                        value={localQuantity}
+                        onChange={(e) => handleNumChange(e.target.value, setLocalQuantity, field.onChange)}
                         error={!!errors.quantity}
                         helperText={errors.quantity?.message}
                         sx={textFieldSx}
@@ -331,6 +368,8 @@ export default function InventoryEditDialog({
                         label="Safety Threshold"
                         type="number"
                         fullWidth
+                        value={localMinStock}
+                        onChange={(e) => handleNumChange(e.target.value, setLocalMinStock, field.onChange)}
                         error={!!errors.minStock}
                         helperText={errors.minStock?.message}
                         sx={textFieldSx}
@@ -379,6 +418,8 @@ export default function InventoryEditDialog({
                         label="Unit Weight"
                         type="number"
                         fullWidth
+                        value={localWeight}
+                        onChange={(e) => handleNumChange(e.target.value, setLocalWeight, field.onChange, true)}
                         InputProps={{ 
                           endAdornment: <InputAdornment position="end">Kg</InputAdornment>,
                         }}
@@ -397,6 +438,8 @@ export default function InventoryEditDialog({
                         label="Total Volume"
                         type="number"
                         fullWidth
+                        value={localVolume}
+                        onChange={(e) => handleNumChange(e.target.value, setLocalVolume, field.onChange, true)}
                         InputProps={{ 
                           endAdornment: <InputAdornment position="end">M³</InputAdornment>,
                         }}
@@ -415,6 +458,8 @@ export default function InventoryEditDialog({
                         label="Pallets"
                         type="number"
                         fullWidth
+                        value={localPalletCount}
+                        onChange={(e) => handleNumChange(e.target.value, setLocalPalletCount, field.onChange, true)}
                         sx={textFieldSx}
                       />
                     )}

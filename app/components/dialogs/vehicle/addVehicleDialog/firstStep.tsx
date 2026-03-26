@@ -63,9 +63,8 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
     actions.updateStep1({ photo: undefined });
   };
 
-  const photoPreview = data.photo instanceof File 
-    ? URL.createObjectURL(data.photo) 
-    : data.photo;
+  const photoPreview =
+    data.photo instanceof File ? URL.createObjectURL(data.photo) : data.photo;
 
   return (
     <Box sx={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 4 }}>
@@ -88,8 +87,12 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
             position: "relative",
             overflow: "hidden",
             "&:hover": {
-              borderColor: photoPreview ? "none" : alpha(theme.palette.primary.main, 0.3),
-              bgcolor: photoPreview ? "none" : alpha(theme.palette.primary.main, 0.02),
+              borderColor: photoPreview
+                ? "none"
+                : alpha(theme.palette.primary.main, 0.3),
+              bgcolor: photoPreview
+                ? "none"
+                : alpha(theme.palette.primary.main, 0.02),
             },
           })}
         >
@@ -171,8 +174,8 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
               borderRadius: 1,
               bgcolor: alpha(theme.palette.divider, 0.1),
               overflow: "hidden",
-              border: photoPreview 
-                ? `2px solid ${theme.palette.primary.main}` 
+              border: photoPreview
+                ? `2px solid ${theme.palette.primary.main}`
                 : `1px solid ${alpha(theme.palette.divider, 0.1)}`,
             }}
           >
@@ -279,7 +282,9 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
             placeholder="e.g. 2023"
             value={data.year}
             onChange={(e) =>
-              actions.updateStep1({ year: Number(e.target.value) })
+              actions.updateStep1({
+                year: e.target.value === "" ? "" : Number(e.target.value),
+              })
             }
             sx={textFieldSx}
           />
@@ -290,7 +295,10 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
             placeholder="e.g. 50000"
             value={data.nextServiceKm}
             onChange={(e) =>
-              actions.updateStep1({ nextServiceKm: Number(e.target.value) })
+              actions.updateStep1({
+                nextServiceKm:
+                  e.target.value === "" ? "" : Number(e.target.value),
+              })
             }
             sx={textFieldSx}
             InputProps={{
@@ -311,7 +319,9 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
           type="number"
           value={data.odometerKm}
           onChange={(e) =>
-            actions.updateStep1({ odometerKm: Number(e.target.value) })
+            actions.updateStep1({
+              odometerKm: e.target.value === "" ? "" : Number(e.target.value),
+            })
           }
           sx={textFieldSx}
           InputProps={{
