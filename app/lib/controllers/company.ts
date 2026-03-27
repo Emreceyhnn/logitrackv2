@@ -4,6 +4,7 @@ import { db } from "../db";
 import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";
 import { createSession, revokeSession } from "./session";
+import { UserStatus } from "@prisma/client";
 
 export const createCompany = authenticatedAction(
   async (user, name: string, avatarUrl?: string) => {
@@ -296,7 +297,7 @@ export const getCompanyProfile = authenticatedAction(async (user) => {
       where: { id: companyId, users: { some: { id: user.id } } },
       include: {
         users: {
-          include: { role: { select: { name: true } } },
+          include: { role: { select: { id: true, name: true } } },
           orderBy: { createdAt: "asc" },
         },
       },
@@ -339,6 +340,7 @@ export const getCompanyProfile = authenticatedAction(async (user) => {
         email: u.email,
         avatarUrl: u.avatarUrl ?? null,
         status: u.status,
+        roleId: u.role?.id ?? null,
         roleName: u.role?.name ?? null,
         createdAt: u.createdAt.toISOString(),
       })),
@@ -398,6 +400,28 @@ export const addCompanyUser = authenticatedAction(
     try {
       await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
 
+      const standardRoles: Record<string, { name: string; desc: string }> = {
+        role_admin: { name: "Administrator", desc: "Full system access" },
+        role_manager: { name: "Manager", desc: "Company management access" },
+        role_dispatcher: { name: "Dispatcher", desc: "Shipment and route management" },
+        role_driver: { name: "Driver", desc: "Limited access for drivers" },
+        role_warehouse: { name: "Warehouse", desc: "Warehouse and inventory management" },
+        role_default: { name: "Default", desc: "Standard system access" },
+      };
+
+      if (standardRoles[roleName]) {
+        await db.role.upsert({
+          where: { id: roleName },
+          update: {},
+          create: {
+            id: roleName,
+            name: standardRoles[roleName].name,
+            description: standardRoles[roleName].desc,
+            permissions: [],
+          },
+        });
+      }
+
       const updatedUser = await db.user.update({
         where: { id: targetUserId },
         data: {
@@ -411,6 +435,57 @@ export const addCompanyUser = authenticatedAction(
       console.error("Failed to add company user:", error);
       throw new Error(
         error instanceof Error ? error.message : "Failed to add company user"
+      );
+    }
+  }
+);
+
+export const updateCompanyMember = authenticatedAction(
+  async (user, targetUserId: string, data: { name: string; surname: string; roleId: string; status: UserStatus }) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
+
+    try {
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+
+      // Ensure standard roles exist in the global roles table before assigning them
+      const standardRoles: Record<string, { name: string; desc: string }> = {
+        role_admin: { name: "Administrator", desc: "Full system access" },
+        role_manager: { name: "Manager", desc: "Company management access" },
+        role_dispatcher: { name: "Dispatcher", desc: "Shipment and route management" },
+        role_driver: { name: "Driver", desc: "Limited access for drivers" },
+        role_warehouse: { name: "Warehouse", desc: "Warehouse and inventory management" },
+        role_default: { name: "Default", desc: "Standard system access" },
+      };
+
+      if (standardRoles[data.roleId]) {
+        await db.role.upsert({
+          where: { id: data.roleId },
+          update: {},
+          create: {
+            id: data.roleId,
+            name: standardRoles[data.roleId].name,
+            description: standardRoles[data.roleId].desc,
+            permissions: [],
+          },
+        });
+      }
+
+      const updatedUser = await db.user.update({
+        where: { id: targetUserId },
+        data: {
+          name: data.name,
+          surname: data.surname,
+          roleId: data.roleId,
+          status: data.status,
+        },
+      });
+
+      return updatedUser;
+    } catch (error) {
+      console.error("Failed to update company user:", error);
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to update company user"
       );
     }
   }

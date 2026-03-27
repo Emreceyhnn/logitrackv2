@@ -25,11 +25,13 @@ import { useForm, Controller, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { CompanyMember } from "@/app/lib/type/company";
+import { updateCompanyMember } from "@/app/lib/controllers/company";
+import { UserStatus } from "@prisma/client";
 
 const schema = yup.object({
   name: yup.string().required("Name is required"),
   surname: yup.string().required("Surname is required"),
-  roleName: yup.string().required("Role is required"),
+  roleId: yup.string().required("Role is required"),
   status: yup.string().required("Status is required"),
 }).required();
 
@@ -43,7 +45,7 @@ interface EditCompanyMemberDialogProps {
 type FormData = {
   name: string;
   surname: string;
-  roleName: string;
+  roleId: string;
   status: string;
 };
 
@@ -65,7 +67,7 @@ export default function EditCompanyMemberDialog({
     defaultValues: {
       name: "",
       surname: "",
-      roleName: "",
+      roleId: "",
       status: "",
     },
   });
@@ -75,18 +77,21 @@ export default function EditCompanyMemberDialog({
       reset({
         name: member.name,
         surname: member.surname,
-        roleName: member.roleName || "USER",
+        roleId: member.roleId || "role_default",
         status: member.status,
       });
     }
   }, [member, open, reset]);
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: FormData) => {
     if (!member) return;
     try {
-      // Logic for updating member would go here
-      // For now, we simulate success
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await updateCompanyMember(member.id, {
+        name: data.name,
+        surname: data.surname,
+        roleId: data.roleId,
+        status: data.status as UserStatus,
+      });
       onSuccess();
       onClose();
     } catch (error) {
@@ -156,67 +161,69 @@ export default function EditCompanyMemberDialog({
           </IconButton>
         </Stack>
       </Box>
-
-      <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1) }} />
-
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent sx={{ p: 4 }}>
-          <Stack spacing={3}>
-            <Grid container spacing={2}>
-              <Grid size={6}>
-                <Controller
-                  name="name"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="First Name"
-                      fullWidth
-                      error={!!errors.name}
-                      helperText={errors.name?.message}
-                      sx={textFieldSx}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid size={6}>
-                <Controller
-                  name="surname"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Last Name"
-                      fullWidth
-                      error={!!errors.surname}
-                      helperText={errors.surname?.message}
-                      sx={textFieldSx}
-                    />
-                  )}
-                />
-              </Grid>
-            </Grid>
-
-            <Controller
-              name="roleName"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  select
-                  label="System Role"
-                  fullWidth
-                  error={!!errors.roleName}
-                  helperText={errors.roleName?.message}
-                  sx={textFieldSx}
-                >
-                  <MenuItem value="ADMIN">Administrator</MenuItem>
-                  <MenuItem value="MANAGER">Manager</MenuItem>
-                  <MenuItem value="OPERATOR">Operator</MenuItem>
-                  <MenuItem value="USER">Standard User</MenuItem>
-                </TextField>
-              )}
-            />
+ 
+       <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1) }} />
+ 
+       <form onSubmit={handleSubmit(onSubmit)}>
+         <DialogContent sx={{ p: 4 }}>
+           <Stack spacing={3}>
+             <Grid container spacing={2}>
+               <Grid size={6}>
+                 <Controller
+                   name="name"
+                   control={control}
+                   render={({ field }) => (
+                     <TextField
+                       {...field}
+                       label="First Name"
+                       fullWidth
+                       error={!!errors.name}
+                       helperText={errors.name?.message}
+                       sx={textFieldSx}
+                     />
+                   )}
+                 />
+               </Grid>
+               <Grid size={6}>
+                 <Controller
+                   name="surname"
+                   control={control}
+                   render={({ field }) => (
+                     <TextField
+                       {...field}
+                       label="Last Name"
+                       fullWidth
+                       error={!!errors.surname}
+                       helperText={errors.surname?.message}
+                       sx={textFieldSx}
+                     />
+                   )}
+                 />
+               </Grid>
+             </Grid>
+ 
+             <Controller
+               name="roleId"
+               control={control}
+               render={({ field }) => (
+                 <TextField
+                   {...field}
+                   select
+                   label="System Role"
+                   fullWidth
+                   error={!!errors.roleId}
+                   helperText={errors.roleId?.message}
+                   sx={textFieldSx}
+                 >
+                   <MenuItem value="role_default">Default (Standard User)</MenuItem>
+                   <MenuItem value="role_admin">Administrator</MenuItem>
+                   <MenuItem value="role_manager">Manager</MenuItem>
+                   <MenuItem value="role_dispatcher">Dispatcher</MenuItem>
+                   <MenuItem value="role_warehouse">Warehouse</MenuItem>
+                   <MenuItem value="role_driver">Driver</MenuItem>
+                 </TextField>
+               )}
+             />
 
             <Controller
               name="status"

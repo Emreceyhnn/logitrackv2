@@ -437,6 +437,7 @@ export const searchPlatformUsers = authenticatedAction(
 
       const users = await db.user.findMany({
         where: {
+          companyId: null,
           OR: [
             { name: { contains: query, mode: "insensitive" } },
             { surname: { contains: query, mode: "insensitive" } },

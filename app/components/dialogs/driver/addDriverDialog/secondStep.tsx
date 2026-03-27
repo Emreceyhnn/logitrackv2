@@ -13,7 +13,12 @@ import {
   useTheme,
   Button,
   Switch,
+  TextField,
 } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState, ChangeEvent } from "react";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import {
@@ -82,22 +87,38 @@ const SecondDriverDialogStep = ({
   /* -------------------------------- handlers -------------------------------- */
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newDocs: AddDriverDocument[] = Array.from(e.target.files).map((file: File) => ({
-        id: crypto.randomUUID(),
-        name: file.name,
-        type: "OTHER",
-        expiryDate: null,
-        file: file,
-        size: (file.size / (1024 * 1024)).toFixed(2) + " MB",
-        uploadedAt: new Date().toLocaleDateString(),
-      }));
+      const newDocs: AddDriverDocument[] = Array.from(e.target.files).map((file: File) => {
+        const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
+        return {
+          id: crypto.randomUUID(),
+          name: file.name,
+          type: "OTHER",
+          expiryDate: null,
+          file: file,
+          previewUrl,
+          size: (file.size / (1024 * 1024)).toFixed(2) + " MB",
+          uploadedAt: new Date().toLocaleDateString(),
+        };
+      });
       updateStep2({
         documents: [...state.documents, ...newDocs],
       });
     }
   };
 
+  const updateDocExpiry = (id: string, date: Dayjs | null) => {
+    updateStep2({
+      documents: state.documents.map((doc) =>
+        doc.id === id ? { ...doc, expiryDate: date ? date.toDate() : null } : doc
+      ),
+    });
+  };
+
   const removeDoc = (id: string) => {
+    const docToRemove = state.documents.find(d => d.id === id);
+    if (docToRemove?.previewUrl) {
+      URL.revokeObjectURL(docToRemove.previewUrl);
+    }
     updateStep2({
       documents: state.documents.filter((doc) => doc.id !== id),
     });
@@ -382,52 +403,98 @@ const SecondDriverDialogStep = ({
             </Box>
 
             <Stack spacing={1.5}>
-              {state.documents.map((doc) => (
-                <Stack
-                  key={doc.id}
-                  direction="row"
-                  spacing={2}
-                  alignItems="center"
-                  sx={{
-                    p: 1.5,
-                    borderRadius: 2,
-                    bgcolor: alpha("#1A202C", 0.5),
-                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                  }}
-                >
-                  <Box
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                {state.documents.map((doc) => (
+                  <Stack
+                    key={doc.id}
+                    spacing={1.5}
                     sx={{
-                      p: 1,
-                      borderRadius: 1,
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
-                      color: theme.palette.primary.main,
-                      display: "flex",
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: alpha("#1A202C", 0.5),
+                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                     }}
                   >
-                    <InsertDriveFileIcon fontSize="small" />
-                  </Box>
-                  <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography
-                      variant="body2"
-                      fontWeight={600}
-                      color="white"
-                      noWrap
-                    >
-                      {doc.name}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {doc.size} • Added {doc.uploadedAt}
-                    </Typography>
-                  </Box>
-                  <IconButton
-                    size="small"
-                    onClick={() => removeDoc(doc.id)}
-                    sx={{ color: "text.secondary" }}
-                  >
-                    <DeleteOutlineIcon fontSize="small" />
-                  </IconButton>
-                </Stack>
-              ))}
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Box
+                        sx={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: 1,
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          color: theme.palette.primary.main,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {doc.previewUrl ? (
+                          <Box
+                            component="img"
+                            src={doc.previewUrl}
+                            sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
+                        ) : (
+                          <InsertDriveFileIcon fontSize="small" />
+                        )}
+                      </Box>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography
+                          variant="body2"
+                          fontWeight={600}
+                          color="white"
+                          noWrap
+                        >
+                          {doc.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {doc.size} • Added {doc.uploadedAt}
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        size="small"
+                        onClick={() => removeDoc(doc.id)}
+                        sx={{ color: "text.secondary" }}
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </Stack>
+                    
+                    <Box>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ mb: 1, display: "block", fontWeight: 500 }}
+                      >
+                        Expiry Date (Optional)
+                      </Typography>
+                      <DatePicker
+                        value={doc.expiryDate ? dayjs(doc.expiryDate) : null}
+                        onChange={(newValue) => updateDocExpiry(doc.id, newValue)}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            size: "small",
+                            placeholder: "Not set",
+                            sx: {
+                              "& .MuiOutlinedInput-root": {
+                                backgroundColor: alpha(theme.palette.background.paper, 0.1),
+                                borderRadius: 1.5,
+                                fontSize: "0.8rem",
+                                "& fieldset": { borderColor: alpha(theme.palette.divider, 0.1) },
+                                "&:hover fieldset": { borderColor: alpha(theme.palette.primary.main, 0.2) },
+                              },
+                              "& .MuiOutlinedInput-input": { color: "white" },
+                              "& .MuiIconButton-root": { color: alpha("#fff", 0.5) }
+                            }
+                          }
+                        }}
+                      />
+                    </Box>
+                  </Stack>
+                ))}
+              </LocalizationProvider>
             </Stack>
           </Stack>
         </Stack>

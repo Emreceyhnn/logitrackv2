@@ -236,6 +236,7 @@ export default function CompanyPage() {
       <AddCompanyMemberDialog
         open={addMemberOpen}
         onClose={() => setAddMemberOpen(false)}
+        onSuccess={actions.refreshAll}
       />
     </Box>
   );

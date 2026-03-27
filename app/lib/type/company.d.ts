@@ -22,6 +22,7 @@ export interface CompanyMember {
   email: string;
   avatarUrl: string | null;
   status: string;
+  roleId: string | null;
   roleName: string | null;
   createdAt: string;
 }

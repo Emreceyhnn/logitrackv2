@@ -69,7 +69,7 @@ export default function AddCompanyMemberDialog({
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState<SearchedUser[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [selectedRole, setSelectedRole] = useState("role_dispatcher");
+  const [selectedRole, setSelectedRole] = useState("role_default");
   const [driverData, setDriverData] =
     useState<DriverStateData>(initialDriverData);
   const [loading, setLoading] = useState(false);
@@ -87,7 +87,7 @@ export default function AddCompanyMemberDialog({
     setSearchQuery("");
     setResults([]);
     setSelectedUserId(null);
-    setSelectedRole("role_dispatcher");
+    setSelectedRole("role_default");
     setDriverData(initialDriverData);
     setLoading(false);
     setError(null);

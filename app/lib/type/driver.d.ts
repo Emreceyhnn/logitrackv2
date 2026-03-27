@@ -183,6 +183,7 @@ export interface AddDriverDocument {
   expiryDate: Date | null;
   file: File | null;
   url?: string;
+  previewUrl?: string;
   size?: string;
   uploadedAt?: string;
 }
