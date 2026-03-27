@@ -18,7 +18,6 @@ import {
   ListItem,
   ListItemText,
   ListItemButton,
-  Tooltip,
   IconButton,
 } from "@mui/material";
 import {
@@ -31,7 +30,6 @@ import CustomTextArea from "@/app/components/inputs/customTextArea";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import InventoryIcon from "@mui/icons-material/Inventory";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useState } from "react";
 
 interface InventorySectionProps {
@@ -67,17 +65,41 @@ const InventorySection = ({
       name: "",
       quantity: 1,
       unit: "Each",
+      weightKg: 0,
+      volumeM3: 0,
+      palletCount: 1, // Default to 1 to avoid division by zero
     };
     addInventoryItem(newItem);
   };
 
   const calculateTotals = (items: InventoryShipmentItem[]) => {
     return items.reduce(
-      (acc, item) => ({
-        weightKg: acc.weightKg + (item.weightKg || 0) * item.quantity,
-        volumeM3: acc.volumeM3 + (item.volumeM3 || 0) * item.quantity,
-        palletCount: acc.palletCount + (item.palletCount || 0) * item.quantity,
-      }),
+      (acc, item) => {
+        const qty = item.quantity || 0;
+        const perPallet = item.palletCount || 0;
+        const unitWeight = item.weightKg || 0;
+        const unitVolume = item.volumeM3 || 0;
+
+        let itemTotalWeight = 0;
+        let itemTotalVolume = 0;
+        let itemTotalPallets = 0;
+
+        if (item.unit === "Pallet") {
+          itemTotalPallets = qty;
+          itemTotalWeight = unitWeight * perPallet * qty;
+          itemTotalVolume = unitVolume * perPallet * qty;
+        } else {
+          itemTotalPallets = perPallet > 0 ? qty / perPallet : 0;
+          itemTotalWeight = unitWeight * qty;
+          itemTotalVolume = unitVolume * qty;
+        }
+
+        return {
+          weightKg: acc.weightKg + itemTotalWeight,
+          volumeM3: acc.volumeM3 + itemTotalVolume,
+          palletCount: acc.palletCount + itemTotalPallets,
+        };
+      },
       { weightKg: 0, volumeM3: 0, palletCount: 0 }
     );
   };
@@ -89,10 +111,10 @@ const InventorySection = ({
       name: product.name,
       quantity: 1,
       maxQuantity: product.quantity,
-      unit: (product.unit as InventoryShipmentItem["unit"]) || "Each",
+      unit: product.unit === "Pallet" ? "Pallet" : "Each",
       weightKg: product.weightKg || 0,
       volumeM3: product.volumeM3 || 0,
-      palletCount: product.palletCount || 0,
+      palletCount: product.palletCount || 1, // Get from DB, default to 1 if missing
       cargoType: product.cargoType || "General Cargo",
     };
 
@@ -131,7 +153,7 @@ const InventorySection = ({
 
   return (
     <Box>
-      <Stack spacing={2.5}>
+      <Stack spacing={2}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -147,7 +169,7 @@ const InventorySection = ({
               }}
             />
             <Typography variant="subtitle2" fontWeight={700} color="white">
-              Inventory Contents
+              Inventory Detail
             </Typography>
           </Stack>
           <Stack direction="row" spacing={1}>
@@ -168,7 +190,7 @@ const InventorySection = ({
                 textTransform: "none",
               }}
             >
-              Select from Warehouse
+              Warehouse
             </Button>
             <Button
               startIcon={<AddIcon />}
@@ -180,154 +202,76 @@ const InventorySection = ({
                 textTransform: "none",
               }}
             >
-              Manual Add
+              Manual
             </Button>
           </Stack>
         </Stack>
 
-        <Stack spacing={2}>
-          {state.items.length === 0 ? (
-            <Box
-              sx={{
-                p: 4,
-                textAlign: "center",
-                borderRadius: 2,
-                border: `1px dashed ${alpha(theme.palette.divider, 0.1)}`,
-                bgcolor: alpha(theme.palette.divider, 0.02),
-              }}
-            >
-              <Typography variant="body2" color="text.secondary">
-                No items added yet.
-                {availableInventory.length > 0
-                  ? " Select items from the warehouse inventory above."
-                  : " Select an origin warehouse to see available items."}
-              </Typography>
-            </Box>
-          ) : (
-            <Stack spacing={1.5}>
-              <Grid container spacing={2} sx={{ mb: 1, px: 1 }}>
-                <Grid size={{ xs: 3 }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    fontWeight={600}
-                  >
-                    SKU ID
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 4.5 }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    fontWeight={600}
-                  >
-                    ITEM NAME
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 2.5 }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    fontWeight={600}
-                  >
-                    QUANTITY / STOCK
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 1.5 }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    fontWeight={600}
-                  >
-                    UNIT
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 0.5 }} />
+        {state.items.length === 0 ? (
+          <Box
+            sx={{
+              p: 4,
+              textAlign: "center",
+              borderRadius: 2,
+              border: `1px dashed ${alpha(theme.palette.divider, 0.1)}`,
+              bgcolor: alpha(theme.palette.divider, 0.02),
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              No items added.
+            </Typography>
+          </Box>
+        ) : (
+          <Stack spacing={1}>
+            <Grid container spacing={1.5} sx={{ mb: 1, px: 1 }}>
+              <Grid size={{ xs: 3 }}>
+                <Typography variant="caption" fontWeight={700} color="text.secondary">SKU ID</Typography>
               </Grid>
+              <Grid size={{ xs: 5.5 }}>
+                <Typography variant="caption" fontWeight={700} color="text.secondary">ITEM NAME</Typography>
+              </Grid>
+              <Grid size={{ xs: 1.5 }}>
+                <Typography variant="caption" fontWeight={700} color="text.secondary">QTY</Typography>
+              </Grid>
+              <Grid size={{ xs: 1.5 }}>
+                <Typography variant="caption" fontWeight={700} color="text.secondary">UNIT</Typography>
+              </Grid>
+              <Grid size={{ xs: 0.5 }} />
+            </Grid>
 
-              {state.items.map((item) => (
-                <Grid
-                  container
-                  spacing={2}
-                  key={item.id}
-                  alignItems="flex-start"
-                >
+            {state.items.map((item) => (
+              <Box key={item.id}>
+                <Grid container spacing={1.5} alignItems="center" sx={{ px: 1, mb: 0.5 }}>
                   <Grid size={{ xs: 3 }}>
                     <CustomTextArea
                       name={`sku-${item.id}`}
-                      placeholder="SKU-88219"
+                      placeholder="SKU"
                       value={item.sku}
-                      onChange={(e) =>
-                        updateItem(item.id, { sku: e.target.value })
-                      }
+                      onChange={(e) => updateItem(item.id, { sku: e.target.value })}
                     />
                   </Grid>
-                  <Grid size={{ xs: 4.5 }}>
+                  <Grid size={{ xs: 5.5 }}>
                     <CustomTextArea
                       name={`name-${item.id}`}
-                      placeholder="Enter item name..."
+                      placeholder="Name"
                       value={item.name}
-                      onChange={(e) =>
-                        updateItem(item.id, { name: e.target.value })
-                      }
+                      onChange={(e) => updateItem(item.id, { name: e.target.value })}
                     />
                   </Grid>
-                  <Grid size={{ xs: 2.5 }}>
-                    <Stack spacing={0.5}>
-                      <CustomTextArea
-                        name={`qty-${item.id}`}
-                        type="number"
-                        value={item.quantity.toString()}
-                        onChange={(e) =>
-                          updateItem(item.id, {
-                            quantity: parseInt(e.target.value) || 0,
-                          })
-                        }
-                        error={
-                          item.maxQuantity !== undefined &&
-                          item.quantity > item.maxQuantity
-                        }
-                      />
-                      {item.maxQuantity !== undefined && (
-                        <Stack
-                          direction="row"
-                          spacing={0.5}
-                          alignItems="center"
-                          sx={{ minHeight: 16 }}
-                        >
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color:
-                                item.quantity > item.maxQuantity
-                                  ? "error.main"
-                                  : "text.secondary",
-                              fontWeight:
-                                item.quantity > item.maxQuantity ? 700 : 400,
-                              lineHeight: 1,
-                            }}
-                          >
-                            Max: {item.maxQuantity}
-                          </Typography>
-                          {item.quantity > item.maxQuantity && (
-                            <Tooltip title="Stock limit exceeded">
-                              <InfoOutlinedIcon
-                                sx={{ fontSize: 12, color: "error.main" }}
-                              />
-                            </Tooltip>
-                          )}
-                        </Stack>
-                      )}
-                    </Stack>
+                  <Grid size={{ xs: 1.5 }}>
+                    <CustomTextArea
+                      name={`qty-${item.id}`}
+                      type="number"
+                      value={item.quantity.toString()}
+                      onChange={(e) => updateItem(item.id, { quantity: parseInt(e.target.value) || 0 })}
+                    />
                   </Grid>
                   <Grid size={{ xs: 1.5 }}>
                     <CustomTextArea
                       name={`unit-${item.id}`}
                       select
                       value={item.unit}
-                      onChange={(e) =>
-                        updateItem(item.id, { unit: e.target.value as InventoryShipmentItem["unit"] })
-                      }
+                      onChange={(e) => updateItem(item.id, { unit: e.target.value as InventoryShipmentItem["unit"] })}
                     >
                       <MenuItem value="Each">Each</MenuItem>
                       <MenuItem value="Box">Box</MenuItem>
@@ -338,20 +282,26 @@ const InventorySection = ({
                     <IconButton
                       size="small"
                       onClick={() => handleRemove(item.id)}
-                      sx={{
-                        mt: 1,
-                        color: "text.secondary",
-                        "&:hover": { color: "error.main" },
-                      }}
+                      sx={{ color: "text.secondary", "&:hover": { color: "error.main" } }}
                     >
                       <DeleteOutlineIcon fontSize="small" />
                     </IconButton>
                   </Grid>
                 </Grid>
-              ))}
-            </Stack>
-          )}
-        </Stack>
+                
+                {/* Row Feedback */}
+                <Stack direction="row" spacing={3} sx={{ px: 1.5, mb: 1.5 }}>
+                    <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "10px" }}>
+                       Calculated Pallets: <b>{(item.unit === "Pallet" ? item.quantity : (item.palletCount && item.palletCount > 0 ? item.quantity / item.palletCount : 0)).toFixed(2)}</b>
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "10px" }}>
+                       Row Weight: <b>{(item.unit === "Pallet" ? (item.weightKg || 0) * (item.palletCount || 0) * item.quantity : (item.weightKg || 0) * item.quantity).toFixed(2)} KG</b>
+                    </Typography>
+                </Stack>
+              </Box>
+            ))}
+          </Stack>
+        )}
       </Stack>
 
       <Dialog
@@ -369,7 +319,7 @@ const InventorySection = ({
         }}
       >
         <DialogTitle sx={{ color: "white", fontWeight: 700 }}>
-          Select Product
+          Warehouse Inventory
         </DialogTitle>
         <DialogContent
           dividers
@@ -389,7 +339,7 @@ const InventorySection = ({
                 >
                   <ListItemText
                     primary={product.name}
-                    secondary={`SKU: ${product.sku} | In Stock: ${product.quantity}`}
+                    secondary={`SKU: ${product.sku} | In Stock: ${product.quantity} | U/Pallet: ${product.palletCount}`}
                     primaryTypographyProps={{ color: "white", fontWeight: 600 }}
                     secondaryTypographyProps={{ color: "text.secondary" }}
                   />

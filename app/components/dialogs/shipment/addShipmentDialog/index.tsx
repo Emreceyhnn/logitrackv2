@@ -197,7 +197,12 @@ const AddShipmentDialog = ({
         logistics.originLat,
         logistics.originLng,
         basicInfo.referenceNumber,
-        logistics.customerLocationId
+        logistics.customerLocationId,
+        basicInfo.priority,
+        basicInfo.type,
+        basicInfo.slaDeadline,
+        logistics.contactEmail,
+        logistics.billingAccount
       );
 
       toast.success("Shipment created successfully");

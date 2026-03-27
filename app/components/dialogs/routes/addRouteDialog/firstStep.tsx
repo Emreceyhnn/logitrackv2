@@ -121,7 +121,6 @@ const FirstRouteDialogStep = (props: FirstRouteDialogStepProps) => {
                   onChange={(val) =>
                     updateStep1({ startTime: val ? val.toDate() : null })
                   }
-                  minDateTime={dayjs()}
                   slotProps={{
                     textField: {
                       fullWidth: true,

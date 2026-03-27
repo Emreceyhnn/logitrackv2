@@ -16,7 +16,7 @@ import {
   ShipmentPriority,
 } from "@/app/lib/type/add-shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
-import { DatePicker } from "@mui/x-date-pickers";
+import { DateTimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 
 interface BasicInfoSectionProps {
@@ -170,7 +170,8 @@ const BasicInfoSection = ({
               >
                 SLA DEADLINE
               </Typography>
-              <DatePicker
+              <DateTimePicker
+                label="SLA Deadline"
                 value={state.slaDeadline ? dayjs(state.slaDeadline) : null}
                 onChange={(val) =>
                   updateBasicInfo({
@@ -180,7 +181,7 @@ const BasicInfoSection = ({
                 slotProps={{
                   textField: {
                     fullWidth: true,
-                    placeholder: "Select Date",
+                    placeholder: "Select Date & Time",
                   },
                 }}
               />

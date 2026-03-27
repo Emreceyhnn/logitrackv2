@@ -233,15 +233,30 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
         updateData.startType = "WAREHOUSE"; // Assuming it's still a warehouse even if not in list
       }
 
-      // Pre-fill Step 1: Name
-      actions.updateStep1({
-        name: `Delivery: ${shipment.customer?.name || "Shipment"} - ${shipment.trackingId}`,
-      });
+      const deadlineDate = shipment.slaDeadline ? new Date(shipment.slaDeadline) : null;
+      const hasDeadline = deadlineDate && !isNaN(deadlineDate.getTime());
 
-      actions.updateStep2(updateData);
+      setState((prev) => ({
+        ...prev,
+        data: {
+          ...prev.data,
+          step1: {
+            ...prev.data.step1,
+            name: `Delivery: ${shipment.customer?.name || "Shipment"} - ${shipment.trackingId}`,
+            startTime: hasDeadline ? deadlineDate : prev.data.step1.startTime,
+            endTime: hasDeadline 
+              ? new Date(deadlineDate.getTime() + 2 * 60 * 60 * 1000) 
+              : prev.data.step1.endTime,
+          },
+          step2: {
+            ...prev.data.step2,
+            ...updateData
+          }
+        }
+      }));
       
       toast.info(
-        `Pre-filled from shipment ${shipment.trackingId}`
+        `Pre-filled from shipment ${shipment.trackingId}${hasDeadline ? " including deadline" : ""}`
       );
     }
   };
