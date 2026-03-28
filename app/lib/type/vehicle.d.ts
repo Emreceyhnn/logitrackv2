@@ -114,6 +114,7 @@ export interface VehicleTableProps {
   actions: VehiclePageActions & {
     onEdit: (id: string) => void;
     onDelete: (id: string) => void;
+    onUpdateSuccess?: () => void;
   };
 }
 

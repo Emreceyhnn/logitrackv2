@@ -1,0 +1,207 @@
+"use client";
+
+import {
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  alpha,
+  useTheme,
+  CircularProgress,
+} from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import { useState, useCallback } from "react";
+import { updateRouteStatus } from "@/app/lib/controllers/routes";
+import { RouteStatus } from "@prisma/client";
+import CustomToast from "@/app/components/toast";
+
+interface RouteRowActionsProps {
+  id: string;
+  status: string;
+  handleOpenDetails: (id: string) => void;
+  handleEdit?: (id: string) => void;
+  handleDelete?: (id: string) => void;
+  onRefresh?: () => void;
+}
+
+const RouteRowActions = ({
+  id,
+  status,
+  handleOpenDetails,
+  handleEdit,
+  handleDelete,
+  onRefresh,
+}: RouteRowActionsProps) => {
+  const theme = useTheme();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [loading, setLoading] = useState(false);
+  const open = Boolean(anchorEl);
+
+  const [toastState, setToastState] = useState<{
+    open: boolean;
+    type: "success" | "error" | "info" | "warning";
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    message: "",
+  });
+
+  const showToast = useCallback(
+    (type: "success" | "error" | "info" | "warning", message: string) => {
+      setToastState({ open: true, type, message });
+    },
+    []
+  );
+
+  const handleStatusChange = async (newStatus: RouteStatus) => {
+    setAnchorEl(null);
+    setLoading(true);
+    try {
+      await updateRouteStatus(id, newStatus);
+      showToast("success", `Route updated to ${newStatus}`);
+      onRefresh?.();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to update route";
+      showToast("error", message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <CustomToast
+        open={toastState.open}
+        type={toastState.type}
+        message={toastState.message}
+        onClose={() => setToastState((t) => ({ ...t, open: false }))}
+      />
+      <IconButton 
+        size="small" 
+        onClick={(e) => setAnchorEl(e.currentTarget)}
+        disabled={loading}
+      >
+        {loading ? (
+          <CircularProgress size={20} color="inherit" />
+        ) : (
+          <MoreVertIcon fontSize="small" />
+        )}
+      </IconButton>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={() => setAnchorEl(null)}
+        PaperProps={{
+          sx: {
+            backgroundColor: "#0B1019",
+            backgroundImage: "none",
+            borderRadius: "12px",
+            minWidth: 180,
+            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.4)",
+            mt: 0.5,
+          },
+        }}
+      >
+        <MenuItem
+          onClick={() => {
+            setAnchorEl(null);
+            handleOpenDetails(id);
+          }}
+          sx={{ py: 1.5 }}
+        >
+          <ListItemIcon>
+            <ContentPasteIcon fontSize="small" sx={{ color: "text.secondary" }} />
+          </ListItemIcon>
+          <ListItemText primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}>
+            Details
+          </ListItemText>
+        </MenuItem>
+
+        {status === "PLANNED" && (
+          <MenuItem
+            onClick={() => handleStatusChange("ACTIVE")}
+            sx={{ 
+              py: 1.5,
+              color: theme.palette.success.main,
+              "&:hover": { bgcolor: alpha(theme.palette.success.main, 0.1) }
+            }}
+          >
+            <ListItemIcon>
+              <PlayArrowIcon fontSize="small" sx={{ color: "inherit" }} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}>
+              Activate Route
+            </ListItemText>
+          </MenuItem>
+        )}
+
+        {status === "ACTIVE" && (
+          <MenuItem
+            onClick={() => handleStatusChange("COMPLETED")}
+            sx={{ 
+              py: 1.5,
+              color: theme.palette.primary.main,
+              "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) }
+            }}
+          >
+            <ListItemIcon>
+              <CheckCircleIcon fontSize="small" sx={{ color: "inherit" }} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}>
+              Complete Route
+            </ListItemText>
+          </MenuItem>
+        )}
+
+        {handleEdit && (
+          <MenuItem
+            onClick={() => {
+              setAnchorEl(null);
+              handleEdit(id);
+            }}
+            sx={{ py: 1.5 }}
+          >
+            <ListItemIcon>
+              <EditIcon fontSize="small" sx={{ color: "text.secondary" }} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}>
+              Edit
+            </ListItemText>
+          </MenuItem>
+        )}
+
+        {handleDelete && (
+          <MenuItem
+            onClick={() => {
+              setAnchorEl(null);
+              handleDelete(id);
+            }}
+            sx={{ 
+              py: 1.5,
+              color: theme.palette.error.main,
+              "&:hover": { bgcolor: alpha(theme.palette.error.main, 0.1) }
+            }}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" sx={{ color: "inherit" }} />
+            </ListItemIcon>
+            <ListItemText primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}>
+              Delete
+            </ListItemText>
+          </MenuItem>
+        )}
+      </Menu>
+    </>
+  );
+};
+
+export default RouteRowActions;

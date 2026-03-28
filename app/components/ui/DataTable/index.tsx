@@ -81,39 +81,41 @@ function RowMenu<TRow>({ row, actions }: RowMenuProps<TRow>) {
           },
         }}
       >
-        {actions.map((action, idx) => (
-          <MenuItem
-            key={idx}
-            onClick={() => {
-              handleClose();
-              action.onClick(row);
-            }}
-            sx={{
-              color:
-                action.color === "error"
-                  ? "error.main"
-                  : action.color === "warning"
-                    ? "warning.main"
-                    : "text.primary",
-              fontSize: 14,
-            }}
-          >
-            <ListItemIcon
+        {actions
+          .filter((action: DataTableRowAction<TRow>) => !action.hidden || !action.hidden(row))
+          .map((action: DataTableRowAction<TRow>, idx: number) => (
+            <MenuItem
+              key={idx}
+              onClick={() => {
+                handleClose();
+                action.onClick(row);
+              }}
               sx={{
                 color:
                   action.color === "error"
                     ? "error.main"
                     : action.color === "warning"
                       ? "warning.main"
-                      : "text.secondary",
-                minWidth: 32,
+                      : "text.primary",
+                fontSize: 14,
               }}
             >
-              {action.icon}
-            </ListItemIcon>
-            <ListItemText>{action.label}</ListItemText>
-          </MenuItem>
-        ))}
+              <ListItemIcon
+                sx={{
+                  color:
+                    action.color === "error"
+                      ? "error.main"
+                      : action.color === "warning"
+                        ? "warning.main"
+                        : "text.secondary",
+                  minWidth: 32,
+                }}
+              >
+                {action.icon}
+              </ListItemIcon>
+              <ListItemText>{action.label}</ListItemText>
+            </MenuItem>
+          ))}
       </Menu>
     </>
   );

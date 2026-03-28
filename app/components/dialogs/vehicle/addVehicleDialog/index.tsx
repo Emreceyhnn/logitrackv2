@@ -30,8 +30,8 @@ import {
   VehicleStep3Data,
 } from "@/app/lib/type/vehicle";
 import { createVehicle, uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
-import { toast } from "sonner";
 import { uploadImageAction } from "@/app/lib/actions/upload";
+import CustomToast from "@/app/components/toast";
 
 const initialStep1: VehicleStep1Data = {
   fleetNo: "",
@@ -81,6 +81,23 @@ const AddVehicleDialog = ({
     isSuccess: false,
   });
 
+  const [toast, setToast] = useState<{
+    open: boolean;
+    type: "success" | "error" | "info" | "warning";
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    message: "",
+  });
+
+  const showToast = (
+    type: "success" | "error" | "info" | "warning",
+    message: string
+  ) => {
+    setToast({ open: true, type, message });
+  };
+
   /* -------------------------------- Handlers -------------------------------- */
   const actions: AddVehiclePageActions = {
     updateStep1: (data) =>
@@ -123,6 +140,20 @@ const AddVehicleDialog = ({
     },
     handleSubmit: async () => {
       try {
+        // Validation: Mandatory documents (REGISTRATION, INSPECTION, INSURANCE)
+        const requiredTypes = ["REGISTRATION", "INSPECTION", "INSURANCE"];
+        const uploadedTypes = state.data.step3.documents.map(d => d.type);
+        const missingTypes = requiredTypes.filter(t => !uploadedTypes.includes(t));
+
+        if (missingTypes.length > 0) {
+          const missingLabels = missingTypes.map(t => 
+            t === "REGISTRATION" ? "Registration (Ruhsat)" :
+            t === "INSPECTION" ? "Inspection (Muayene)" :
+            t === "INSURANCE" ? "Insurance (Sigorta)" : t
+          );
+          throw new Error(`Please upload required documents: ${missingLabels.join(", ")}`);
+        }
+
         setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
         const fileToBase64 = (file: File): Promise<string> => {
@@ -194,7 +225,7 @@ const AddVehicleDialog = ({
         }
 
         setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
-        toast.success("Vehicle added successfully");
+        showToast("success", "Vehicle added successfully");
 
         setTimeout(() => {
           onClose();
@@ -205,7 +236,7 @@ const AddVehicleDialog = ({
         const message =
           err instanceof Error ? err.message : "Failed to create vehicle";
         setState((prev) => ({ ...prev, isLoading: false, error: message }));
-        toast.error(message);
+        showToast("error", message);
       }
     },
   };
@@ -213,7 +244,14 @@ const AddVehicleDialog = ({
   const steps = ["General Info", "Tech Specs", "Documents"];
 
   return (
-    <Dialog
+    <>
+      <CustomToast
+        open={toast.open}
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
+      />
+      <Dialog
       open={open}
       onClose={actions.closeDialog}
       maxWidth="md"
@@ -370,6 +408,7 @@ const AddVehicleDialog = ({
         </Box>
       </DialogContent>
     </Dialog>
+    </>
   );
 };
 

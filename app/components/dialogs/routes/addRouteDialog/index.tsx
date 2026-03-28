@@ -243,7 +243,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
           step1: {
             ...prev.data.step1,
             name: `Delivery: ${shipment.customer?.name || "Shipment"} - ${shipment.trackingId}`,
-            startTime: hasDeadline ? deadlineDate : prev.data.step1.startTime,
+            startTime: null,
             endTime: hasDeadline 
               ? new Date(deadlineDate.getTime() + 2 * 60 * 60 * 1000) 
               : prev.data.step1.endTime,

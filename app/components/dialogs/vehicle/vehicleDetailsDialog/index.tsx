@@ -1,26 +1,17 @@
 "use client";
 
-import {
-  alpha,
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  Dialog,
-  DialogContent,
-  IconButton,
-  Stack,
-  Tab,
-  Tabs,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { alpha, Avatar, Box, Button, Chip, Dialog, DialogContent, IconButton, Stack, Tab, Tabs, Typography, useTheme } from "@mui/material";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useState } from "react";
 import OverviewTab from "./overviewTab";
 import DocumentsTab from "./documentsTab";
 import MaintenanceTab from "./maintenance";
 import CloseIcon from "@mui/icons-material/Close";
+import CustomToast from "@/app/components/toast";
+import BuildIcon from "@mui/icons-material/Build";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
+import { VehicleStatus } from "@prisma/client";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -76,6 +67,23 @@ const VehicleDialog = (params: VehicleDialogParams) => {
   const [value, setValue] = useState(0);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
+  const [toast, setToast] = useState<{
+    open: boolean;
+    type: "success" | "error" | "info" | "warning";
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    message: "",
+  });
+
+  const showToast = (
+    type: "success" | "error" | "info" | "warning",
+    message: string
+  ) => {
+    setToast({ open: true, type, message });
+  };
 
   /* -------------------------------- handlers -------------------------------- */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -103,6 +111,21 @@ const VehicleDialog = (params: VehicleDialogParams) => {
 
   const handleDeleteCancel = () => {
     setDeleteConfirmOpen(false);
+  };
+
+  const handleStatusUpdate = async (newStatus: VehicleStatus) => {
+    if (!vehicleData) return;
+    try {
+      setStatusLoading(true);
+      await updateVehicleStatus(vehicleData.id, newStatus);
+      showToast("success", `Vehicle status updated to ${newStatus.replace(/_/g, " ")}`);
+      onUpdateSuccess?.();
+    } catch (error) {
+      showToast("error", "Failed to update vehicle status");
+      console.error(error);
+    } finally {
+      setStatusLoading(false);
+    }
   };
 
   /* -------------------------------- variables ------------------------------- */
@@ -194,12 +217,50 @@ const VehicleDialog = (params: VehicleDialogParams) => {
             </Stack>
           </Stack>
 
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            {vehicleData?.status === "MAINTENANCE" ? (
+              <Button
+                size="small"
+                variant="outlined"
+                color="success"
+                startIcon={<CheckCircleIcon />}
+                disabled={statusLoading}
+                onClick={() => handleStatusUpdate("AVAILABLE")}
+                sx={{
+                  borderRadius: 2,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  bgcolor: alpha(theme.palette.success.main, 0.05),
+                }}
+              >
+                Return to Service
+              </Button>
+            ) : (
+              vehicleData?.status === "AVAILABLE" && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="warning"
+                  startIcon={<BuildIcon />}
+                  disabled={statusLoading}
+                  onClick={() => handleStatusUpdate("MAINTENANCE")}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: "none",
+                    fontWeight: 600,
+                    bgcolor: alpha(theme.palette.warning.main, 0.05),
+                  }}
+                >
+                  Set Maintenance
+                </Button>
+              )
+            )}
             <IconButton
               onClick={onClose}
               size="small"
               sx={{
                 color: "text.secondary",
+                ml: 1,
               }}
             >
               <CloseIcon fontSize="small" />
@@ -207,6 +268,13 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           </Stack>
         </Stack>
       </Box>
+
+      <CustomToast
+        open={toast.open}
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
+      />
 
       <DialogContent sx={{ p: 0 }}>
         <Stack>

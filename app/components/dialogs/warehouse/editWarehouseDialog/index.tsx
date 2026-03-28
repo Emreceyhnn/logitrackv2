@@ -23,9 +23,9 @@ import {
   EditWarehousePageActions,
   EditWarehousePageState,
 } from "@/app/lib/type/edit-warehouse";
-import { toast } from "sonner";
 import { updateWarehouse } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/lib/hooks/useUser";
+import CustomToast from "@/app/components/toast";
 import BasicInfoSection from "./sections/BasicInfoSection";
 import LocationSection from "./sections/LocationSection";
 import CapacitySection from "./sections/CapacitySection";
@@ -76,6 +76,23 @@ const EditWarehouseDialog = ({
     error: null,
     isSuccess: false,
   });
+
+  const [toast, setToast] = useState<{
+    open: boolean;
+    type: "success" | "error" | "info" | "warning";
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    message: "",
+  });
+
+  const showToast = (
+    type: "success" | "error" | "info" | "warning",
+    message: string
+  ) => {
+    setToast({ open: true, type, message });
+  };
 
   // Populate state when warehouseData is available
   useEffect(() => {
@@ -170,17 +187,18 @@ const EditWarehouseDialog = ({
           specifications: state.data.capacity.specifications,
         });
 
-        toast.success("Warehouse updated successfully");
+        showToast("success", "Warehouse updated successfully");
         onSuccess?.();
         actions.closeDialog();
       } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to update warehouse";
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to update warehouse";
         setState((prev) => ({
           ...prev,
           isLoading: false,
           error: errorMessage,
         }));
-        toast.error(errorMessage);
+        showToast("error", errorMessage);
       }
     },
     closeDialog: () => {
@@ -197,6 +215,12 @@ const EditWarehouseDialog = ({
 
   return (
     <GoogleMapsProvider>
+      <CustomToast
+        open={toast.open}
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
+      />
       <Dialog
         open={open}
         onClose={actions.closeDialog}

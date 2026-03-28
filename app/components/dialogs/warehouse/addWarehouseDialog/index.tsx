@@ -23,9 +23,9 @@ import {
   AddWarehousePageActions,
   AddWarehousePageState,
 } from "@/app/lib/type/add-warehouse";
-import { toast } from "sonner";
 import { createWarehouse } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/lib/hooks/useUser";
+import CustomToast from "@/app/components/toast";
 import BasicInfoSection from "./sections/BasicInfoSection";
 import LocationSection from "./sections/LocationSection";
 import CapacitySection from "./sections/CapacitySection";
@@ -76,6 +76,23 @@ const AddWarehouseDialog = ({
     isSuccess: false,
   });
 
+  const [toast, setToast] = useState<{
+    open: boolean;
+    type: "success" | "error" | "info" | "warning";
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    message: "",
+  });
+
+  const showToast = (
+    type: "success" | "error" | "info" | "warning",
+    message: string
+  ) => {
+    setToast({ open: true, type, message });
+  };
+
   /* ---------------------------------- actions --------------------------------- */
   const actions: AddWarehousePageActions = {
     updateBasicInfo: (data) =>
@@ -115,17 +132,18 @@ const AddWarehouseDialog = ({
           state.data.capacity.specifications
         );
 
-        toast.success("Warehouse created successfully");
+        showToast("success", "Warehouse created successfully");
         onSuccess?.();
         actions.closeDialog();
       } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to create warehouse";
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to create warehouse";
         setState((prev) => ({
           ...prev,
           isLoading: false,
           error: errorMessage,
         }));
-        toast.error(errorMessage);
+        showToast("error", errorMessage);
       }
     },
     closeDialog: () => {
@@ -151,6 +169,12 @@ const AddWarehouseDialog = ({
 
   return (
     <GoogleMapsProvider>
+      <CustomToast
+        open={toast.open}
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast((t) => ({ ...t, open: false }))}
+      />
       <Dialog
         open={open}
         onClose={actions.closeDialog}

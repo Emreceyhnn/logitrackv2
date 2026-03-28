@@ -65,6 +65,30 @@ const ThirdRouteDialogStep = ({
   const selectedDriver = drivers.find((d) => d.id === state.driverId);
   const selectedVehicle = vehicles.find((v) => v.id === state.vehicleId);
 
+  const handleDriverChange = (driverId: string) => {
+    const driver = drivers.find((d) => d.id === driverId);
+    const updates: Partial<AddRouteStep3> = { driverId };
+    
+    // Auto-fill vehicle if the driver has one assigned and current vehicle is empty
+    if (driver?.currentVehicle?.id && !state.vehicleId) {
+      updates.vehicleId = driver.currentVehicle.id;
+    }
+    
+    updateStep3(updates);
+  };
+
+  const handleVehicleChange = (vehicleId: string) => {
+    const vehicle = vehicles.find((v) => v.id === vehicleId);
+    const updates: Partial<AddRouteStep3> = { vehicleId };
+    
+    // Auto-fill driver if the vehicle has one assigned and current driver is empty
+    if (vehicle?.driver?.id && !state.driverId) {
+      updates.driverId = vehicle.driver.id;
+    }
+    
+    updateStep3(updates);
+  };
+
   return (
     <Box>
       <Stack spacing={4}>
@@ -106,7 +130,7 @@ const ThirdRouteDialogStep = ({
                 name="driverId"
                 select
                 value={state.driverId}
-                onChange={(e) => updateStep3({ driverId: e.target.value })}
+                onChange={(e) => handleDriverChange(e.target.value)}
                 sx={{
                   "& .MuiSelect-select": {
                     display: "flex",
@@ -150,7 +174,7 @@ const ThirdRouteDialogStep = ({
                 name="vehicleId"
                 select
                 value={state.vehicleId}
-                onChange={(e) => updateStep3({ vehicleId: e.target.value })}
+                onChange={(e) => handleVehicleChange(e.target.value)}
                 sx={{
                   "& .MuiSelect-select": {
                     display: "flex",

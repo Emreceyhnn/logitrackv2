@@ -152,7 +152,7 @@ const AddShipmentDialog = ({
     }
   }, [logistics.originWarehouseId, user]);
 
-  /* -------------------------------- actions --------------------------------- */
+
   /* -------------------------------- handlers --------------------------------- */
   const updateBasicInfo = (data: Partial<AddShipmentBasicInfo>) =>
     setBasicInfo((prev) => ({ ...prev, ...data }));

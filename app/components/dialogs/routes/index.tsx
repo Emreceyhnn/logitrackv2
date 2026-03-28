@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useCallback } from "react";
 import {
   alpha,
   Box,
@@ -11,8 +12,13 @@ import {
   Stack,
   Typography,
   useTheme,
+  Button,
+  CircularProgress,
 } from "@mui/material";
+import { updateRouteStatus } from "@/app/lib/controllers/routes";
 import { RouteWithRelations } from "@/app/lib/type/routes";
+import { RouteStatus } from "@prisma/client";
+import CustomToast from "@/app/components/toast";
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import DriverCard from "../../cards/driverCard";
 import MapRoutesDialogCard from "./map";
@@ -21,11 +27,12 @@ import RoutesTelemetryCards from "./telemetry";
 import CloseIcon from "@mui/icons-material/Close";
 import AltRouteIcon from "@mui/icons-material/AltRoute";
 import PlaceIcon from "@mui/icons-material/Place";
-import { useState } from "react";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 interface RouteDialogProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
   route: RouteWithRelations | null;
 }
 
@@ -48,6 +55,7 @@ const getStatusMeta = (status?: string) => {
 export default function RouteDialog({
   open,
   onClose,
+  onSuccess,
   route,
 }: RouteDialogProps) {
   const theme = useTheme();
@@ -59,12 +67,48 @@ export default function RouteDialog({
     durationMin: number;
   } | null>(null);
 
+  const [statusLoading, setStatusLoading] = useState(false);
+  const [toast, setToast] = useState<{
+    open: boolean;
+    type: "success" | "error" | "info" | "warning";
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    message: "",
+  });
+
+  const showToast = useCallback(
+    (type: "success" | "error" | "info" | "warning", message: string) => {
+      setToast({ open: true, type, message });
+    },
+    []
+  );
+
   if (!route) return null;
 
   /* -------------------------------- functions ------------------------------- */
+  const handleStatusChange = async (newStatus: RouteStatus) => {
+    setStatusLoading(true);
+    try {
+      await updateRouteStatus(route.id, newStatus);
+      showToast("success", `Route status updated to ${newStatus}`);
+      onSuccess?.();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update status";
+      showToast("error", message);
+    } finally {
+      setStatusLoading(false);
+    }
+  };
+
   const statusMeta = getStatusMeta(route.status || "PENDING");
   const [colorKey, colorVariant] = statusMeta.color.split(".");
-  const palette = theme.palette as unknown as Record<string, Record<string, string>>;
+  const palette = theme.palette as unknown as Record<
+    string,
+    Record<string, string>
+  >;
   const statusColor =
     palette[colorKey]?.[colorVariant] || theme.palette.text.primary;
 
@@ -85,9 +129,16 @@ export default function RouteDialog({
       : route.endAddress || "";
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
+    <>
+      <CustomToast
+        open={toast.open}
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast((t) => ({ ...t, open: false }))}
+      />
+      <Dialog
+        open={open}
+        onClose={onClose}
       maxWidth="lg"
       fullWidth
       PaperProps={{
@@ -166,15 +217,105 @@ export default function RouteDialog({
             </Stack>
           </Stack>
 
-          <IconButton
-            onClick={onClose}
-            sx={{
-              color: "rgba(255,255,255,0.4)",
-              "&:hover": { color: "white", bgcolor: alpha("#fff", 0.05) },
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            {/* Action Buttons based on status */}
+            {route.status === "PLANNED" && (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={() => handleStatusChange("ACTIVE")}
+                  disabled={statusLoading}
+                  sx={{
+                    bgcolor: theme.palette.success.main,
+                    "&:hover": { bgcolor: theme.palette.success.dark },
+                    borderRadius: "10px",
+                    textTransform: "none",
+                    fontWeight: 600,
+                    px: 2,
+                    height: 36,
+                  }}
+                >
+                  Start Route
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleStatusChange("CANCELED")}
+                  disabled={statusLoading}
+                  sx={{
+                    color: theme.palette.error.main,
+                    borderColor: theme.palette.error.main,
+                    "&:hover": { 
+                      bgcolor: alpha(theme.palette.error.main, 0.05),
+                      borderColor: theme.palette.error.dark 
+                    },
+                    borderRadius: "10px",
+                    textTransform: "none",
+                    fontWeight: 600,
+                    px: 2,
+                    height: 36,
+                  }}
+                >
+                  Cancel
+                </Button>
+              </>
+            )}
+
+            {route.status === "ACTIVE" && (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={() => handleStatusChange("COMPLETED")}
+                  disabled={statusLoading}
+                  startIcon={
+                    statusLoading ? (
+                      <CircularProgress size={16} color="inherit" />
+                    ) : (
+                      <CheckCircleIcon sx={{ fontSize: 18 }} />
+                    )
+                  }
+                  sx={{
+                    bgcolor: theme.palette.primary.main,
+                    "&:hover": { bgcolor: theme.palette.primary.dark },
+                    borderRadius: "10px",
+                    textTransform: "none",
+                    fontWeight: 600,
+                    px: 2,
+                    height: 36,
+                  }}
+                >
+                  Complete Route
+                </Button>
+                <Button
+                  variant="text"
+                  onClick={() => handleStatusChange("CANCELED")}
+                  disabled={statusLoading}
+                  sx={{
+                    color: alpha("#fff", 0.5),
+                    "&:hover": { 
+                      color: theme.palette.error.main,
+                      bgcolor: alpha(theme.palette.error.main, 0.05) 
+                    },
+                    borderRadius: "10px",
+                    textTransform: "none",
+                    fontWeight: 600,
+                    height: 36,
+                  }}
+                >
+                  Cancel Route
+                </Button>
+              </>
+            )}
+
+            <IconButton
+              onClick={onClose}
+              sx={{
+                color: "rgba(255,255,255,0.4)",
+                "&:hover": { color: "white", bgcolor: alpha("#fff", 0.05) },
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Stack>
         </Stack>
       </Box>
 
@@ -355,5 +496,6 @@ export default function RouteDialog({
         </Stack>
       </DialogContent>
     </Dialog>
-  );
+  </>
+);
 }

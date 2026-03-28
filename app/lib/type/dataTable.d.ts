@@ -44,6 +44,8 @@ export interface DataTableRowAction<TRow> {
   onClick: (row: TRow) => void;
   /** Controls text/icon color in the menu item */
   color?: "default" | "error" | "warning";
+  /** Optional callback to hide the action for a specific row */
+  hidden?: (row: TRow) => boolean;
 }
 
 // ---------------------------------------------------------------------------

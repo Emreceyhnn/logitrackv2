@@ -14,14 +14,21 @@ import {
   alpha,
 } from "@mui/material";
 import { Issue } from "@prisma/client";
-import { VehicleWithRelations } from "@/app/lib/type/vehicle";
-import BuildIcon from "@mui/icons-material/Build";
+import { VehicleWithRelations } from "@/app/lib/type/vehicle.d";
 import AddIcon from "@mui/icons-material/Add";
 import { PriorityChip } from "../../../chips/priorityChips";
 import { useState } from "react";
 import ReportIssueDialog from "../reportIssueDialog";
 import MaintenanceRecordDialog from "../maintenanceRecordDialog";
+import MaintenanceDetailDialog from "../maintenanceDetailDialog";
 import IssueDetailDialog from "../issueDetailDialog";
+import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
+import PendingIcon from "@mui/icons-material/Pending";
+import CancelIcon from "@mui/icons-material/Cancel";
+import { VehicleStatus } from "@prisma/client";
+import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
 
 interface MaintenanceTabProps {
   vehicle?: VehicleWithRelations;
@@ -32,6 +39,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   /* --------------------------------- states --------------------------------- */
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
+  const [maintenanceDetailOpen, setMaintenanceDetailOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const [issueDetailOpen, setIssueDetailOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null); 
 
@@ -47,6 +56,35 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const handleIssueClick = (issue: Issue) => {
     setSelectedIssue(issue);
     setIssueDetailOpen(true);
+  };
+
+  const handleVehicleStatusChange = async (newStatus: VehicleStatus) => {
+    try {
+      await updateVehicleStatus(vehicle.id, newStatus);
+      handleUpdate();
+    } catch (error) {
+      console.error("Failed to update vehicle status:", error);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "COMPLETED": return "#48BB78";
+      case "IN_PROGRESS": return "#4299E1";
+      case "SCHEDULED": return "#F6AD55";
+      case "CANCELLED": return "#F56565";
+      default: return "success.main";
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "COMPLETED": return <CheckCircleIcon sx={{ fontSize: 14 }} />;
+      case "IN_PROGRESS": return <PendingIcon sx={{ fontSize: 14 }} />;
+      case "SCHEDULED": return <ErrorIcon sx={{ fontSize: 14 }} />;
+      case "CANCELLED": return <CancelIcon sx={{ fontSize: 14 }} />;
+      default: return null;
+    }
   };
 
   /* -------------------------------- variables ------------------------------- */
@@ -82,35 +120,65 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             <Typography
               sx={{ fontSize: 16, fontWeight: 300, color: "text.secondary" }}
             >
-              Next Service
+              Vehicle Status
             </Typography>
-            <BuildIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+            <Box sx={{ 
+              width: 10, 
+              height: 10, 
+              borderRadius: "50%", 
+              bgcolor: vehicle.status === "AVAILABLE" ? "success.main" : vehicle.status === "MAINTENANCE" ? "warning.main" : "info.main" 
+            }} />
           </Stack>
-          <Typography sx={{ fontSize: 24, fontWeight: 800, color: "white" }}>
-            {vehicle.nextServiceKm && vehicle.odometerKm
-              ? `${(vehicle.nextServiceKm - vehicle.odometerKm).toLocaleString()} km`
-              : "N/A"}
-          </Typography>
+          <FormControl fullWidth size="small" sx={{ mt: 1 }}>
+            <Select
+              value={vehicle.status}
+              onChange={(e) => handleVehicleStatusChange(e.target.value as VehicleStatus)}
+              sx={{
+                color: "white",
+                fontSize: "1.1rem",
+                fontWeight: 700,
+                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                "& .MuiSelect-select": { paddingLeft: 0 },
+                "& .MuiSvgIcon-root": { color: alpha("#fff", 0.3) }
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    bgcolor: "#1A202C",
+                    backgroundImage: "none",
+                    border: `1px solid ${alpha("#ffffff", 0.1)}`,
+                  }
+                }
+              }}
+            >
+              <MenuItem value="AVAILABLE">AVAILABLE</MenuItem>
+              <MenuItem value="ON_TRIP">ON TRIP</MenuItem>
+              <MenuItem value="MAINTENANCE">MAINTENANCE</MenuItem>
+            </Select>
+          </FormControl>
           <Typography
-            sx={{ fontSize: 14, fontWeight: 200, color: "text.secondary" }}
+            sx={{ fontSize: 12, fontWeight: 200, color: "text.secondary", mt: 0.5 }}
           >
-            left until next scheduled service
+            Manage overall availability
           </Typography>
-          <Divider sx={{ color: "text.disabled" }} />
+          <Divider sx={{ mt: 1, color: "text.disabled" }} />
           <Stack
             direction={"row"}
             alignItems={"center"}
             justifyContent={"space-between"}
+            mt={1}
           >
             <Typography
-              sx={{ fontSize: 14, fontWeight: 600, color: "text.secondary" }}
+              sx={{ fontSize: 13, fontWeight: 600, color: "text.secondary" }}
             >
-              ESTIMATED DATE
+              NEXT SERVICE
             </Typography>
             <Typography
-              sx={{ fontSize: 14, fontWeight: 300, color: "info.main" }}
+              sx={{ fontSize: 13, fontWeight: 300, color: "info.main" }}
             >
-              {vehicle.nextServiceKm ? "Calculated based on km" : "N/A"}
+              {vehicle.nextServiceKm && vehicle.odometerKm
+                ? `${(vehicle.nextServiceKm - vehicle.odometerKm).toLocaleString()} km left`
+                : "N/A"}
             </Typography>
           </Stack>
         </Card>
@@ -317,7 +385,18 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                   maintenanceHistory.map((v, index) => (
                     <TableRow
                       key={index}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                      onClick={() => {
+                        setSelectedRecord(v);
+                        setMaintenanceDetailOpen(true);
+                      }}
+                      sx={{
+                        "&:last-child td, &:last-child th": { border: 0 },
+                        "&:hover": {
+                          bgcolor: alpha("#ffffff", 0.02),
+                          cursor: "pointer",
+                        },
+                        transition: "background-color 0.2s",
+                      }}
                     >
                       <TableCell
                         align="left"
@@ -365,16 +444,27 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                       >
                         <Box
                           sx={{
-                            padding: "6px 1px",
-                            borderRadius: "35px",
-                            bgcolor: "success.main",
-                            textAlign: "center",
+                            padding: "4px 8px",
+                            borderRadius: "12px",
+                            bgcolor: alpha(getStatusColor((v as any).status || "COMPLETED"), 0.1),
+                            border: `1px solid ${alpha(getStatusColor((v as any).status || "COMPLETED"), 0.2)}`,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 1,
                           }}
                         >
+                          <Box sx={{ color: getStatusColor((v as any).status || "COMPLETED"), display: "flex" }}>
+                            {getStatusIcon((v as any).status || "COMPLETED")}
+                          </Box>
                           <Typography
-                            sx={{ fontSize: 14, color: "rgba(255,255,255,0.8)" }}
+                            sx={{ 
+                              fontSize: 11, 
+                              fontWeight: 700,
+                              color: getStatusColor((v as any).status || "COMPLETED"),
+                              textTransform: "uppercase"
+                            }}
                           >
-                            COMPLETED
+                            {(v as any).status || "COMPLETED"}
                           </Typography>
                         </Box>
                       </TableCell>
@@ -410,6 +500,16 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
         onClose={() => setIssueDetailOpen(false)}
         issue={selectedIssue}
         onUpdate={handleUpdate}
+      />
+      {/* Maintenance Detail Dialog */}
+      <MaintenanceDetailDialog
+        open={maintenanceDetailOpen}
+        onClose={() => {
+          setMaintenanceDetailOpen(false);
+          setSelectedRecord(null);
+        }}
+        record={selectedRecord}
+        onSuccess={handleUpdate}
       />
     </Stack>
   );

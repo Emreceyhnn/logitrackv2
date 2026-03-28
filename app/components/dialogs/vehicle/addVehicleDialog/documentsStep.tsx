@@ -7,12 +7,15 @@ import {
   Stack,
   alpha,
   useTheme,
-  TextField,
   InputAdornment,
   Switch,
   IconButton,
+  Chip,
+  MenuItem,
+  Select,
+  FormControl,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import SecurityIcon from "@mui/icons-material/Security";
 import BuildIcon from "@mui/icons-material/Build";
@@ -22,14 +25,14 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
-import { MenuItem, Select, FormControl } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DocumentsStepProps } from "@/app/lib/type/vehicle";
 
 const DOCUMENT_TYPES = [
-  { value: "REGISTRATION", label: "Registration", icon: <BadgeIcon /> },
-  { value: "INSURANCE", label: "Insurance", icon: <VerifiedUserIcon /> },
+  { value: "REGISTRATION", label: "Registration", icon: <BadgeIcon />, required: true },
+  { value: "INSURANCE", label: "Insurance", icon: <VerifiedUserIcon />, required: true },
   { value: "LICENSE", label: "License/Permit", icon: <LocalLibraryIcon /> },
-  { value: "INSPECTION", label: "Inspection", icon: <SecurityIcon /> },
+  { value: "INSPECTION", label: "Inspection", icon: <SecurityIcon />, required: true },
   { value: "MAINTENANCE", label: "Maintenance", icon: <BuildIcon /> },
   { value: "OTHER", label: "Other", icon: <AssignmentIcon /> },
 ];
@@ -210,6 +213,32 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
         >
           Vehicle Documents
         </Typography>
+
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="caption" sx={{ color: "text.secondary", mb: 1.5, display: "block", fontWeight: 700, textTransform: "uppercase" }}>
+            Required Documents
+          </Typography>
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            {DOCUMENT_TYPES.filter(t => t.required).map(t => {
+              const isUploaded = data.documents.some(d => d.type === t.value);
+              return (
+                <Chip
+                  key={t.value}
+                  label={t.label}
+                  size="small"
+                  icon={isUploaded ? <CheckCircleIcon sx={{ fontSize: '14px !important' }} /> : undefined}
+                  sx={{
+                    bgcolor: isUploaded ? alpha(theme.palette.success.main, 0.1) : alpha(theme.palette.error.main, 0.1),
+                    color: isUploaded ? theme.palette.success.light : theme.palette.error.light,
+                    border: `1px solid ${isUploaded ? alpha(theme.palette.success.main, 0.2) : alpha(theme.palette.error.main, 0.2)}`,
+                    fontWeight: 600,
+                    px: 0.5,
+                  }}
+                />
+              );
+            })}
+          </Stack>
+        </Box>
 
         <Box
           sx={{

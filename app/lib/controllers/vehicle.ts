@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "../db";
-import { Issue, Prisma, VehicleStatus, VehicleType } from "@prisma/client";
+import { Issue, MaintenanceStatus, Prisma, VehicleStatus, VehicleType } from "@prisma/client";
 import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";
 import {
@@ -457,7 +457,7 @@ export const addMaintenanceRecord = authenticatedAction(
   async (
     user,
     vehicleId: string,
-    recordData: { type: string; date: Date; cost: number; description?: string }
+    recordData: { type: string; date: Date; cost: number; status?: MaintenanceStatus; description?: string }
   ) => {
     const userId = user?.id || "";
     const companyId = user?.companyId || "";
@@ -754,3 +754,48 @@ export const updateIssue = authenticatedAction(
     }
   }
 );
+
+export const updateMaintenanceRecord = authenticatedAction(
+  async (
+    user,
+    recordId: string,
+    data: {
+      type?: string;
+      date?: Date;
+      cost?: number;
+      status?: MaintenanceStatus;
+      description?: string;
+    }
+  ) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const foundRecord = await db.maintenanceRecord.findUnique({
+        where: { id: recordId },
+        include: { vehicle: { select: { companyId: true } } },
+      });
+
+      if (!foundRecord || foundRecord.vehicle.companyId !== companyId) {
+        throw new Error("Record not found or unauthorized");
+      }
+
+      const updatedRecord = await db.maintenanceRecord.update({
+        where: { id: recordId },
+        data,
+      });
+
+      return updatedRecord;
+    } catch (error) {
+      console.error("Failed to update maintenance record:", error);
+      throw error;
+    }
+  }
+);
+
+

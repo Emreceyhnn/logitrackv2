@@ -11,6 +11,11 @@ import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { VehicleTableProps, VehicleWithRelations } from "@/app/lib/type/vehicle";
+import BuildIcon from "@mui/icons-material/Build";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import { useState } from "react";
+import CustomToast from "@/app/components/toast";
+import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
 
 const STATUS_OPTIONS = Object.values(VehicleStatus).map((s) => ({
   label: s.replace(/_/g, " "),
@@ -39,7 +44,40 @@ const VEHICLE_FILTERS = [
 
 const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   const { vehicles, loading = false, filters } = state;
-  const { selectVehicle, onEdit, onDelete, updateFilters } = actions;
+  const { selectVehicle, onEdit, onDelete, updateFilters, onUpdateSuccess } = actions;
+
+  const [toast, setToast] = useState<{
+    open: boolean;
+    type: "success" | "error" | "info" | "warning";
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    message: "",
+  });
+
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  const showToast = (
+    type: "success" | "error" | "info" | "warning",
+    message: string
+  ) => {
+    setToast({ open: true, type, message });
+  };
+
+  const handleStatusUpdate = useCallback(async (vehicleId: string, newStatus: VehicleStatus) => {
+    try {
+      setActionLoading(vehicleId);
+      await updateVehicleStatus(vehicleId, newStatus);
+      showToast("success", `Vehicle status updated to ${newStatus.replace(/_/g, " ")}`);
+      onUpdateSuccess?.();
+    } catch (error) {
+      showToast("error", "Failed to update vehicle status");
+      console.error(error);
+    } finally {
+      setActionLoading(null);
+    }
+  }, [onUpdateSuccess]);
 
   /* --------------------------------- handlers --------------------------------- */
   const handleSearchChange = useCallback(
@@ -144,13 +182,25 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         onClick: (row) => onEdit(row.id),
       },
       {
+        label: "Set Maintenance",
+        icon: <BuildIcon fontSize="small" />,
+        onClick: (row) => handleStatusUpdate(row.id, "MAINTENANCE"),
+        hidden: (row) => row.status === "MAINTENANCE" || row.status === "ON_TRIP",
+      },
+      {
+        label: "Return to Service",
+        icon: <CheckCircleOutlineIcon fontSize="small" />,
+        onClick: (row) => handleStatusUpdate(row.id, "AVAILABLE"),
+        hidden: (row) => row.status !== "MAINTENANCE",
+      },
+      {
         label: "Delete",
         icon: <DeleteIcon fontSize="small" />,
         onClick: (row) => onDelete(row.id),
         color: "error",
       },
     ],
-    [selectVehicle, onEdit, onDelete]
+    [selectVehicle, onEdit, onDelete, handleStatusUpdate]
   );
 
   /* --------------------------------- active filters --------------------------------- */
@@ -167,19 +217,27 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   );
 
   return (
-    <DataTable<VehicleWithRelations>
-      rows={vehicles}
-      columns={columns}
-      loading={loading}
-      emptyMessage="No vehicles found"
-      searchValue={filters.search ?? ""}
-      searchPlaceholder="Search vehicles..."
-      onSearchChange={handleSearchChange}
-      filters={VEHICLE_FILTERS}
-      activeFilters={activeFilters}
-      onFilterChange={handleFilterChange}
-      rowActions={rowActions}
-    />
+    <>
+      <CustomToast
+        open={toast.open}
+        type={toast.type}
+        message={toast.message}
+        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
+      />
+      <DataTable<VehicleWithRelations>
+        rows={vehicles}
+        columns={columns}
+        loading={loading || !!actionLoading}
+        emptyMessage="No vehicles found"
+        searchValue={filters.search ?? ""}
+        searchPlaceholder="Search vehicles..."
+        onSearchChange={handleSearchChange}
+        filters={VEHICLE_FILTERS}
+        activeFilters={activeFilters}
+        onFilterChange={handleFilterChange}
+        rowActions={rowActions}
+      />
+    </>
   );
 };
 

@@ -696,3 +696,146 @@ export const getActiveRoutesLocations = authenticatedAction(async (user) => {
     return [];
   }
 });
+
+export const updateRouteStatus = authenticatedAction(
+  async (user, routeId: string, status: RouteStatus) => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const route = await db.route.findUnique({
+        where: { id: routeId, companyId },
+        include: { shipments: true },
+      });
+
+      if (!route) {
+        throw new Error("Route not found or unauthorized");
+      }
+
+      if (route.status === status) {
+        return route;
+      }
+
+      const updatedRoute = await db.$transaction(async (tx) => {
+        const updateData: Prisma.RouteUpdateInput = { status };
+
+        if (status === "ACTIVE" && !route.startTime) {
+          updateData.startTime = new Date();
+        } else if (status === "COMPLETED") {
+          updateData.endTime = new Date();
+        }
+
+        const newRoute = await tx.route.update({
+          where: { id: routeId },
+          data: updateData,
+        });
+
+        // side-effects based on target status
+        if (status === "ACTIVE") {
+          // Vehicle to ON_TRIP, Driver to ON_JOB, Shipments to IN_TRANSIT
+          if (route.vehicleId) {
+            await tx.vehicle.update({
+              where: { id: route.vehicleId },
+              data: { status: "ON_TRIP" },
+            });
+          }
+          if (route.driverId) {
+            await tx.driver.update({
+              where: { id: route.driverId },
+              data: { status: "ON_JOB" },
+            });
+          }
+          if (route.shipments.length > 0) {
+            await tx.shipment.updateMany({
+              where: { routeId: route.id },
+              data: { status: "IN_TRANSIT" },
+            });
+            for (const shipment of route.shipments) {
+              await tx.shipmentHistory.create({
+                data: {
+                  shipmentId: shipment.id,
+                  status: "IN_TRANSIT",
+                  description: "Route started - Shipment in transit",
+                  createdBy: userId || "",
+                },
+              });
+            }
+          }
+        } else if (status === "COMPLETED") {
+          // Vehicle to AVAILABLE, Driver to OFF_DUTY, Shipments to DELIVERED
+          if (route.vehicleId) {
+            await tx.vehicle.update({
+              where: { id: route.vehicleId },
+              data: { status: "AVAILABLE" },
+            });
+          }
+          if (route.driverId) {
+            await tx.driver.update({
+              where: { id: route.driverId },
+              data: { status: "OFF_DUTY" },
+            });
+          }
+          if (route.shipments.length > 0) {
+            await tx.shipment.updateMany({
+              where: { routeId: route.id },
+              data: { status: "COMPLETED" },
+            });
+            for (const shipment of route.shipments) {
+              await tx.shipmentHistory.create({
+                data: {
+                  shipmentId: shipment.id,
+                  status: "COMPLETED",
+                  location: route.endAddress || "Destination",
+                  description: "Route completed - Shipment completed",
+                  createdBy: userId || "",
+                },
+              });
+            }
+          }
+        } else if (status === "CANCELED") {
+          // Vehicle to AVAILABLE, Driver to OFF_DUTY
+          if (route.vehicleId) {
+            await tx.vehicle.update({
+              where: { id: route.vehicleId },
+              data: { status: "AVAILABLE" },
+            });
+          }
+          if (route.driverId) {
+            await tx.driver.update({
+              where: { id: route.driverId },
+              data: { status: "OFF_DUTY" },
+            });
+          }
+          if (route.shipments.length > 0) {
+            await tx.shipment.updateMany({
+              where: { routeId: route.id },
+              data: { status: "PENDING" }, // revert to pending
+            });
+            for (const shipment of route.shipments) {
+              await tx.shipmentHistory.create({
+                data: {
+                  shipmentId: shipment.id,
+                  status: "PENDING",
+                  description: "Route canceled - Shipment reverted to pending",
+                  createdBy: userId || "",
+                },
+              });
+            }
+          }
+        }
+
+        return newRoute;
+      });
+
+      return updatedRoute;
+    } catch (error) {
+      console.error("Failed to update route status:", error);
+      throw error;
+    }
+  }
+);

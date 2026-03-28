@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import RowActions from "../../vehicle/vehicleTable/menu";
+import RouteRowActions from "./routeRowActions";
 import RouteDetailsDialog from "@/app/components/dialogs/routes";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { RouteTableProps, RouteWithRelations } from "@/app/lib/type/routes";
@@ -32,6 +32,7 @@ const RouteTable = ({
   onSelect,
   onEdit,
   onDelete,
+  onRefresh,
 }: ExtendedRouteTableProps) => {
   const theme = useTheme();
 
@@ -123,11 +124,13 @@ const RouteTable = ({
                 <StatusChip status={r.status} />
               </TableCell>
               <TableCell align="right">
-                <RowActions
+                <RouteRowActions
                   id={r.id}
+                  status={r.status}
                   handleOpenDetails={handleOpenDetails}
                   handleEdit={onEdit}
                   handleDelete={onDelete}
+                  onRefresh={onRefresh}
                 />
               </TableCell>
             </TableRow>

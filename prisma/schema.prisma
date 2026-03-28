@@ -219,6 +219,13 @@ model Vehicle {
   @@map("vehicles")
 }
 
+enum MaintenanceStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 model MaintenanceRecord {
   id        String  @id @default(cuid())
   vehicleId String
@@ -227,6 +234,7 @@ model MaintenanceRecord {
   type        String // Routine, Repair, etc.
   date        DateTime
   cost        Float
+  status      MaintenanceStatus @default(COMPLETED)
   description String?
 
   createdAt DateTime @default(now())

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Dialog,
   DialogContent,
@@ -16,6 +18,7 @@ import {
   Typography,
   Box,
   useTheme,
+  Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import BuildIcon from "@mui/icons-material/Build";
@@ -24,34 +27,55 @@ import SearchIcon from "@mui/icons-material/Search";
 import TireRepairIcon from "@mui/icons-material/TireRepair";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import { useState } from "react";
-import { addMaintenanceRecord } from "@/app/lib/controllers/vehicle";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import { useState, useEffect } from "react";
+import { updateMaintenanceRecord } from "@/app/lib/controllers/vehicle";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
+import { MaintenanceStatus } from "@prisma/client";
 
-interface MaintenanceRecordDialogProps {
+interface MaintenanceDetailDialogProps {
   open: boolean;
   onClose: () => void;
-  vehicleId: string;
+  record: any;
   onSuccess: () => void;
 }
 
-export default function MaintenanceRecordDialog({
+export default function MaintenanceDetailDialog({
   open,
   onClose,
-  vehicleId,
+  record,
   onSuccess,
-}: MaintenanceRecordDialogProps) {
+}: MaintenanceDetailDialogProps) {
   /* --------------------------------- states --------------------------------- */
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    type: string;
+    date: Dayjs;
+    cost: string;
+    status: string;
+    description: string;
+  }>({
     type: "",
-    date: dayjs() as Dayjs,
+    date: dayjs(),
     cost: "",
     status: "COMPLETED",
     description: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (record) {
+      setFormData({
+        type: record.type,
+        date: dayjs(record.date),
+        cost: record.cost.toString(),
+        status: record.status || "COMPLETED",
+        description: record.description || "",
+      });
+    }
+  }, [record]);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleSubmit = async () => {
@@ -64,34 +88,22 @@ export default function MaintenanceRecordDialog({
     setError(null);
 
     try {
-      await addMaintenanceRecord(vehicleId, {
+      await updateMaintenanceRecord(record.id, {
         type: formData.type,
         date: formData.date.toDate(),
         cost: parseFloat(formData.cost),
-        status: formData.status as any,
+        status: formData.status as MaintenanceStatus,
         description: formData.description,
       });
 
       onSuccess();
-      handleClose();
+      onClose();
     } catch (err) {
       console.error(err);
-      setError("Failed to create maintenance record");
+      setError("Failed to update maintenance record");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleClose = () => {
-    setFormData({
-      type: "",
-      date: dayjs(),
-      cost: "",
-      status: "COMPLETED",
-      description: "",
-    });
-    setError(null);
-    onClose();
   };
 
   /* ---------------------------------- styles --------------------------------- */
@@ -138,10 +150,12 @@ export default function MaintenanceRecordDialog({
     { value: "CANCELLED", label: "Cancelled", color: "#F56565" },
   ];
 
+  if (!record) return null;
+
   return (
     <Dialog 
       open={open} 
-      onClose={handleClose} 
+      onClose={onClose} 
       fullWidth 
       maxWidth="sm"
       PaperProps={{
@@ -156,14 +170,14 @@ export default function MaintenanceRecordDialog({
       <Box sx={{ p: 3, pb: 2 }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Typography variant="h6" fontWeight={700} color="white">
-            Add Maintenance Record
+            Maintenance Details
           </Typography>
-          <IconButton onClick={handleClose} size="small" sx={{ color: "text.secondary" }}>
+          <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
         <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
-          Log service and maintenance events for this vehicle.
+          View and manage the status of this maintenance entry.
         </Typography>
       </Box>
 
@@ -186,44 +200,51 @@ export default function MaintenanceRecordDialog({
 
           <Box>
             <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+              Maintenance Status
+            </Typography>
+            <FormControl fullWidth sx={textFieldSx}>
+              <InputLabel sx={{ color: alpha("#fff", 0.4) }}>Status</InputLabel>
+              <Select
+                value={formData.status}
+                label="Status"
+                onChange={(e) =>
+                  setFormData({ ...formData, status: e.target.value })
+                }
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      bgcolor: "#1A202C",
+                      backgroundImage: "none",
+                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                      mt: 1,
+                    }
+                  }
+                }}
+              >
+                {MAINTENANCE_STATUSES.map((status) => (
+                  <MenuItem key={status.value} value={status.value} sx={{ py: 1.5 }}>
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                      <Box sx={{ 
+                        width: 8, 
+                        height: 8, 
+                        borderRadius: '50%', 
+                        bgcolor: status.color 
+                      }} />
+                      <Typography variant="body2">{status.label}</Typography>
+                    </Stack>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
+
+          <Box>
+            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
               Configuration
             </Typography>
             <Stack spacing={2.5}>
-              <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: alpha("#fff", 0.4) }}>Maintenance Status</InputLabel>
-                <Select
-                  value={formData.status}
-                  label="Maintenance Status"
-                  onChange={(e) =>
-                    setFormData({ ...formData, status: e.target.value })
-                  }
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        bgcolor: "#1A202C",
-                        backgroundImage: "none",
-                        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                        mt: 1,
-                      }
-                    }
-                  }}
-                >
-                  {MAINTENANCE_STATUSES.map((status) => (
-                    <MenuItem key={status.value} value={status.value} sx={{ py: 1.5 }}>
-                      <Stack direction="row" spacing={1.5} alignItems="center">
-                        <Box sx={{ 
-                          width: 8, 
-                          height: 8, 
-                          borderRadius: '50%', 
-                          bgcolor: status.color 
-                        }} />
-                        <Typography variant="body2">{status.label}</Typography>
-                      </Stack>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
               <FormControl fullWidth sx={textFieldSx}>
                 <InputLabel sx={{ color: alpha("#fff", 0.4) }}>Service Type</InputLabel>
                 <Select
@@ -283,7 +304,7 @@ export default function MaintenanceRecordDialog({
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>$</Typography>
+                      <AttachMoneyIcon sx={{ fontSize: 18, color: "text.secondary" }} />
                     </InputAdornment>
                   ),
                 }}
@@ -322,7 +343,7 @@ export default function MaintenanceRecordDialog({
       <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
         <Stack direction="row" spacing={2} justifyContent="flex-end">
           <Button 
-            onClick={handleClose} 
+            onClick={onClose} 
             disabled={loading}
             sx={{ 
               color: "text.secondary", 
@@ -348,9 +369,9 @@ export default function MaintenanceRecordDialog({
             {loading ? (
               <Stack direction="row" spacing={1} alignItems="center">
                 <CircularProgress size={16} color="inherit" />
-                <span>Saving...</span>
+                <span>Updating...</span>
               </Stack>
-            ) : "Save Record"}
+            ) : "Update Record"}
           </Button>
         </Stack>
       </Box>
