@@ -3,6 +3,7 @@
 import React from "react";
 import { Box, Stack, Typography, useTheme, alpha } from "@mui/material";
 import UserAccountNav from "../nav/UserAccountNav";
+import NotificationBell from "../notifications/NotificationBell";
 
 export default function DashboardHeader() {
   const theme = useTheme();
@@ -45,6 +46,7 @@ export default function DashboardHeader() {
       </Stack>
 
       <Stack direction="row" spacing={2} alignItems="center">
+        <NotificationBell />
         <UserAccountNav />
       </Stack>
     </Box>

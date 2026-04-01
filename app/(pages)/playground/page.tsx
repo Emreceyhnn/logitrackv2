@@ -1,283 +1,408 @@
 "use client";
 
-import VehicleTable from "@/app/components/playgrounds/customTable";
-import AddVehicleDialog from "@/app/components/dialogs/vehicle/addVehicleDialog";
-import VehicleDialog from "@/app/components/dialogs/vehicle/vehicleDetailsDialog";
+import React, { useState } from "react";
 import {
-  getVehicles,
-  getVehiclesDashboardData,
-} from "@/app/lib/controllers/vehicle";
+  Box,
+  Container,
+  Typography,
+  Paper,
+  TextField,
+  Button,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Chip,
+  Stack,
+} from "@mui/material";
 import {
-  VehiclePageActions,
-  VehiclePageState,
-  VehicleWithRelations,
-} from "@/app/lib/type/vehicle";
-import { Box, Stack, Typography, Button, Alert, useTheme } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import { useCallback, useEffect, useState, useMemo } from "react";
-import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
-import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import { deleteVehicle } from "@/app/lib/controllers/vehicle";
-import CustomCard from "@/app/components/cards/card";
+  NotificationsActive as NotifIcon,
+  Send as SendIcon,
+  Delete as DeleteIcon,
+  CheckCircle as ReadIcon,
+} from "@mui/icons-material";
+import { createNotification, NotificationType } from "@/app/lib/notifications";
+import { useNotifications } from "@/app/hooks/useNotifications";
 
-export default function Playground() {
-  /* -------------------------------- VARIABLES ------------------------------- */
-  const theme = useTheme();
+const COLORS = {
+  bg: "radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%)",
+  // Modified from white to a dark glass look for better cohesion
+  panel: "rgba(30, 41, 59, 0.7)", 
+  info: "#38bdf8",
+  success: "#4ade80",
+  warning: "#fbbf24", // Fixed: Proper Amber for Warning
+  error: "#f43f5e",   // Fixed: Distinct Rose/Crimson for Error
+  textHeader: "#f8fafc",
+  textBody: "#cbd5e1",
+  textMuted: "#94a3b8", // Darker for better contrast on glass
+};
 
-  /* --------------------------------- STATES --------------------------------- */
-  const [state, setState] = useState<VehiclePageState>({
-    vehicles: [],
-    dashboardData: null,
-    filters: {},
-    selectedVehicleId: null,
-    loading: true,
-    error: null,
+const Playground = () => {
+  // Simulator State
+  const [currentUserId, setCurrentUserId] = useState("user_001");
+  const [currentCompanyId, setCurrentCompanyId] = useState("comp_alpha");
+  const [currentRole, setCurrentRole] = useState("ADMIN");
+
+  // Send Form State
+  const [targetType, setTargetType] = useState<"USER" | "COMPANY" | "ROLE" | "EVERYONE">(
+    "USER"
+  );
+  const [title, setTitle] = useState("New Alert");
+  const [message, setMessage] = useState("This is a real-time test message.");
+  const [type, setType] = useState<NotificationType>("INFO");
+
+  // Hook into real-time stream
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useNotifications({
+    id: currentUserId,
+    companyId: currentCompanyId,
+    roleName: currentRole,
   });
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [actionVehicle, setActionVehicle] =
-    useState<VehicleWithRelations | null>(null);
-  const [actionLoading, setActionLoading] = useState(false);
 
-  /* ---------------------------------- ACTIONS ------------------------------- */
-  const fetchVehicles = useCallback(async () => {
-    try {
-      setState((prev) => ({ ...prev, loading: true }));
-      const vehicles = await getVehicles(state.filters);
-      setState((prev) => ({ ...prev, vehicles, loading: false }));
-    } catch (error) {
-      console.error("Failed to fetch vehicles:", error);
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: "Failed to load vehicle list",
-      }));
+  const handleSend = async () => {
+    const target: { userId?: string; companyId?: string; roleName?: string; isGlobal?: boolean } =
+      {};
+    if (targetType === "USER") target.userId = currentUserId;
+    if (targetType === "COMPANY") target.companyId = currentCompanyId;
+    if (targetType === "ROLE") {
+      target.companyId = currentCompanyId;
+      target.roleName = currentRole;
     }
-  }, [state.filters]);
+    if (targetType === "EVERYONE") target.isGlobal = true;
 
-  const fetchDashboardData = useCallback(async () => {
-    try {
-      const dashboardData = await getVehiclesDashboardData();
-
-      setState((prev) => ({ ...prev, dashboardData }));
-    } catch (error) {
-      console.error("Failed to fetch dashboard data:", error);
-    }
-  }, []);
-
-  const refreshAll = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-    try {
-      const [vehicles, dashboardData] = await Promise.all([
-        getVehicles(state.filters),
-        getVehiclesDashboardData(),
-      ]);
-      setState((prev) => ({
-        ...prev,
-        vehicles,
-        dashboardData,
-        loading: false,
-      }));
-    } catch (error) {
-      console.error("Failed to refresh data:", error);
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: "Failed to refresh data. Please try again.",
-      }));
-    }
-  }, [state.filters]);
-
-  const selectVehicle = useCallback((id: string | null) => {
-    setState((prev) => ({ ...prev, selectedVehicleId: id }));
-  }, []);
-
-  const updateFilters = useCallback(
-    (newFilters: Partial<VehiclePageState["filters"]>) => {
-      setState((prev) => ({
-        ...prev,
-        filters: { ...prev.filters, ...newFilters },
-      }));
-    },
-    []
-  );
-
-  const actions: VehiclePageActions = useMemo(
-    () => ({
-      fetchVehicles,
-      fetchDashboardData,
-      refreshAll,
-      selectVehicle,
-      updateFilters,
-    }),
-    [
-      fetchVehicles,
-      fetchDashboardData,
-      refreshAll,
-      selectVehicle,
-      updateFilters,
-    ]
-  );
-
-  /* -------------------------------- LIFECYCLE ------------------------------- */
-  useEffect(() => {
-    fetchVehicles();
-  }, [fetchVehicles]);
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
-
-  /* -------------------------------- HANDLERS -------------------------------- */
-  const handleAddSuccess = () => {
-    actions.refreshAll();
+    await createNotification(target, {
+      title,
+      message,
+      type,
+    });
   };
 
-  const handleEdit = useCallback(
-    (id: string) => {
-      const v = state.vehicles.find((v) => v.id === id);
-      if (v) {
-        setActionVehicle(v);
-        setEditDialogOpen(true);
-      }
-    },
-    [state.vehicles]
-  );
-
-  const handleDelete = useCallback(
-    (id: string) => {
-      const v = state.vehicles.find((v) => v.id === id);
-      if (v) {
-        setActionVehicle(v);
-        setDeleteDialogOpen(true);
-      }
-    },
-    [state.vehicles]
-  );
-
-  const handleEditFormSuccess = () => {
-    setEditDialogOpen(false);
-    actions.refreshAll();
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!actionVehicle) return;
-
-    setActionLoading(true);
-    try {
-      await deleteVehicle(actionVehicle.id);
-      setDeleteDialogOpen(false);
-      actions.refreshAll();
-
-      if (state.selectedVehicleId === actionVehicle.id) {
-        actions.selectVehicle(null);
-      }
-    } catch (error) {
-      console.error("Failed to delete vehicle:", error);
-    } finally {
-      setActionLoading(false);
+  const getStatusColor = (t: NotificationType) => {
+    switch (t) {
+      case "SUCCESS": return COLORS.success;
+      case "WARNING": return COLORS.warning;
+      case "ERROR": return COLORS.error;
+      default: return COLORS.info;
     }
   };
-
-  const handleDialogEditSuccess = () => {
-    actions.refreshAll();
-  };
-
-  const handleDialogDeleteSuccess = () => {
-    actions.refreshAll();
-    actions.selectVehicle(null);
-  };
-
-  const selectedVehicle = state.vehicles.find(
-    (v) => v.id === state.selectedVehicleId
-  );
 
   return (
-    <Box position={"relative"} p={4} width={"100%"}>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
-      >
-        <Box>
-          <Typography
-            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
-          >
-            Vehicle Management
-          </Typography>
-          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
-            Manage your fleet vehicles, monitor performance and license status.
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setAddDialogOpen(true)}
-          sx={{ textTransform: "none", borderRadius: 2 }}
+    <Box sx={{ 
+      background: COLORS.bg, 
+      minHeight: "100vh", 
+      py: 6,
+      px: 2,
+      display: "flex",
+      alignItems: "center",
+      color: COLORS.textBody
+    }}>
+      <Container maxWidth="lg">
+        <Typography
+          variant="h3"
+          gutterBottom
+          sx={{ 
+            fontWeight: 800, 
+            color: COLORS.textHeader, 
+            mb: 5,
+            textAlign: "center",
+            letterSpacing: "-0.03em"
+          }}
         >
-          Add Vehicle
-        </Button>
-      </Stack>
+          Notification Engine
+        </Typography>
 
-      {state.error && (
-        <Alert severity="error" sx={{ mb: 2, mt: 2 }}>
-          {state.error}
-        </Alert>
-      )}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 4,
+            flexDirection: { xs: "column", md: "row" },
+          }}
+        >
+          {/* SENDER PANEL */}
+          <Box sx={{ flex: 1 }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 4,
+                borderRadius: 4,
+                height: "100%",
+                background: COLORS.panel,
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5)",
+              }}
+            >
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{ display: "flex", alignItems: "center", gap: 1.5, fontWeight: 700, mb: 3, color: COLORS.textHeader }}
+              >
+                <SendIcon sx={{ color: COLORS.info }} /> Broadcast Trigger
+              </Typography>
+              
+              <Stack spacing={3}>
+                <FormControl fullWidth>
+                  <InputLabel sx={{ color: COLORS.textMuted }}>Targeting Scope</InputLabel>
+                  <Select
+                    value={targetType}
+                    label="Targeting Scope"
+                    onChange={(e) => setTargetType(e.target.value as "USER" | "COMPANY" | "ROLE" | "EVERYONE")}
+                    sx={{ 
+                      borderRadius: 2, 
+                      color: COLORS.textHeader, 
+                      bgcolor: "rgba(0,0,0,0.2)",
+                      "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.1)" }
+                    }}
+                  >
+                    <MenuItem value="USER">Personal Inbox</MenuItem>
+                    <MenuItem value="COMPANY">Company-wide Node</MenuItem>
+                    <MenuItem value="ROLE">Role-based Segment</MenuItem>
+                    <MenuItem value="EVERYONE">Global Broadcast (Everyone)</MenuItem>
+                  </Select>
+                </FormControl>
 
-      <Stack mt={2}>
-        <CustomCard sx={{ padding: "0 0 6px 0" }}>
-          <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-            Vehicle List
-          </Typography>
+                <Box display="flex" gap={2}>
+                  <TextField
+                    fullWidth
+                    label="Title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    sx={{ 
+                      "& .MuiInputBase-root": { color: COLORS.textHeader, bgcolor: "rgba(0,0,0,0.2)" },
+                      "& .MuiInputLabel-root": { color: COLORS.textMuted },
+                      "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.1)" }
+                    }}
+                  />
+                  <Select
+                    value={type}
+                    onChange={(e) => setType(e.target.value as NotificationType)}
+                    sx={{ 
+                      minWidth: 100, 
+                      color: COLORS.textHeader, 
+                      bgcolor: "rgba(0,0,0,0.2)",
+                      "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.1)" }
+                    }}
+                  >
+                    <MenuItem value="INFO">INFO</MenuItem>
+                    <MenuItem value="SUCCESS">SUCCESS</MenuItem>
+                    <MenuItem value="WARNING">WARNING</MenuItem>
+                    <MenuItem value="ERROR">ERROR</MenuItem>
+                  </Select>
+                </Box>
 
-          <VehicleTable
-            state={state}
-            actions={{
-              ...actions,
-              onEdit: handleEdit,
-              onDelete: handleDelete,
-            }}
-          />
-        </CustomCard>
-      </Stack>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  label="Content Message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  sx={{ 
+                    "& .MuiInputBase-root": { color: COLORS.textHeader, bgcolor: "rgba(0,0,0,0.2)" },
+                    "& .MuiInputLabel-root": { color: COLORS.textMuted },
+                    "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.1)" }
+                  }}
+                />
 
-      <AddVehicleDialog
-        open={addDialogOpen}
-        onClose={() => setAddDialogOpen(false)}
-        onSuccess={handleAddSuccess}
-      />
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  onClick={handleSend}
+                  sx={{ 
+                    py: 2, 
+                    borderRadius: 2,
+                    textTransform: "none", 
+                    fontWeight: 700,
+                    fontSize: "1rem",
+                    bgcolor: COLORS.info,
+                    "&:hover": { bgcolor: "#0ea5e9" }
+                  }}
+                >
+                  Fire Signal
+                </Button>
 
-      {selectedVehicle && (
-        <VehicleDialog
-          open={!!selectedVehicle}
-          onClose={() => actions.selectVehicle(null)}
-          vehicleData={selectedVehicle}
-          onEditSuccess={handleDialogEditSuccess}
-          onDeleteSuccess={handleDialogDeleteSuccess}
-          onUpdateSuccess={actions.refreshAll}
-        />
-      )}
+                <Box sx={{ p: 2, bgcolor: "rgba(0,0,0,0.2)", borderRadius: 3, border: "1px solid rgba(255,255,255,0.05)" }}>
+                  <Typography variant="caption" fontWeight={700} sx={{ color: COLORS.textMuted, mb: 1.5, display: "block", textTransform: "uppercase" }}>
+                    Simulator Context
+                  </Typography>
+                  <Stack direction="row" spacing={2}>
+                    <TextField 
+                      size="small" 
+                      label="My ID" 
+                      value={currentUserId} 
+                      onChange={(e) => setCurrentUserId(e.target.value)}
+                      sx={{ "& .MuiInputBase-root": { color: COLORS.textHeader, fontSize: 12 } }}
+                    />
+                    <TextField 
+                      size="small" 
+                      label="Comp ID" 
+                      value={currentCompanyId} 
+                      onChange={(e) => setCurrentCompanyId(e.target.value)}
+                      sx={{ "& .MuiInputBase-root": { color: COLORS.textHeader, fontSize: 12 } }}
+                    />
+                    <TextField 
+                      size="small" 
+                      label="Role" 
+                      value={currentRole} 
+                      onChange={(e) => setCurrentRole(e.target.value)}
+                      sx={{ "& .MuiInputBase-root": { color: COLORS.textHeader, fontSize: 12 } }}
+                    />
+                  </Stack>
+                </Box>
+              </Stack>
+            </Paper>
+          </Box>
 
-      {actionVehicle && (
-        <EditVehicleDialog
-          open={editDialogOpen}
-          onClose={() => setEditDialogOpen(false)}
-          onSuccess={handleEditFormSuccess}
-          vehicle={actionVehicle}
-        />
-      )}
+          {/* RECEIVER PANEL */}
+          <Box sx={{ flex: 1 }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 4,
+                height: "100%",
+                borderRadius: 4,
+                background: COLORS.panel,
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5)",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={3}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{ display: "flex", alignItems: "center", gap: 1.5, fontWeight: 700, color: COLORS.textHeader }}
+                >
+                  <NotifIcon sx={{ color: unreadCount > 0 ? getStatusColor(type) : COLORS.info }} /> Live Feed
+                  {unreadCount > 0 && (
+                    <Chip 
+                      label={`${unreadCount} New`} 
+                      size="small" 
+                      sx={{ 
+                        bgcolor: COLORS.error, 
+                        color: "white", 
+                        fontWeight: 700,
+                        height: 20
+                      }} 
+                    />
+                  )}
+                </Typography>
+                <Button
+                  size="small"
+                  onClick={markAllAsRead}
+                  disabled={unreadCount === 0}
+                  sx={{ color: COLORS.info, textTransform: "none", fontWeight: 700 }}
+                >
+                  Clear All
+                </Button>
+              </Box>
 
-      <DeleteConfirmationDialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Vehicle?"
-        description={`Are you sure you want to delete ${actionVehicle?.plate}? This will permanently remove the vehicle and all associated data from the system.`}
-        loading={actionLoading}
-      />
+              <Divider sx={{ mb: 3, borderColor: "rgba(255,255,255,0.05)" }} />
+
+              {loading ? (
+                <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                  <Typography sx={{ color: COLORS.textMuted }}>Syncing signals...</Typography>
+                </Box>
+              ) : notifications.length === 0 ? (
+                <Box
+                  sx={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 2,
+                    opacity: 0.4,
+                    py: 8
+                  }}
+                >
+                  <NotifIcon sx={{ fontSize: 48, color: COLORS.textMuted }} />
+                  <Typography variant="body2">No signals detected.</Typography>
+                </Box>
+              ) : (
+                <List sx={{ flex: 1, overflow: "auto", pr: 1, maxHeight: 650 }}>
+                  {notifications.map((notif) => (
+                    <ListItem
+                      key={notif.id}
+                      sx={{
+                        mb: 2,
+                        borderRadius: 3,
+                        border: "1px solid",
+                        borderColor: notif.isRead ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)",
+                        background: notif.isRead ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.03)",
+                        transition: "all 0.2s",
+                        "&:hover": {
+                          borderColor: getStatusColor(notif.type),
+                          background: "rgba(255,255,255,0.05)",
+                        }
+                      }}
+                      secondaryAction={
+                        <Stack direction="row" spacing={0.5}>
+                          {!notif.isRead && (
+                            <IconButton onClick={() => markAsRead(notif)} sx={{ color: COLORS.info }}>
+                              <ReadIcon fontSize="small" />
+                            </IconButton>
+                          )}
+                          <IconButton onClick={() => deleteNotification(notif)} sx={{ color: COLORS.textMuted, "&:hover": { color: COLORS.error } }}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Stack>
+                      }
+                    >
+                      <ListItemText
+                        primary={
+                          <Box display="flex" alignItems="center" gap={1.5}>
+                            <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: getStatusColor(notif.type) }} />
+                            <Typography
+                              variant="subtitle2"
+                              sx={{ 
+                                fontWeight: notif.isRead ? 500 : 700,
+                                color: COLORS.textHeader 
+                              }}
+                            >
+                              {notif.title}
+                            </Typography>
+                          </Box>
+                        }
+                        secondary={
+                          <Box sx={{ mt: 0.5, pl: 2.5 }}>
+                            <Typography variant="body2" sx={{ color: COLORS.textBody, mb: 0.5 }}>
+                              {notif.message}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: COLORS.textMuted, fontSize: 10 }}>
+                              {new Date(notif.createdAt).toLocaleTimeString()}
+                            </Typography>
+                          </Box>
+                        }
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              )}
+            </Paper>
+          </Box>
+        </Box>
+      </Container>
     </Box>
   );
-}
+};
+
+export default Playground;
