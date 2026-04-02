@@ -111,6 +111,13 @@ export const getActionRequired = authenticatedAction(async (user) => {
         | "warehouse",
       title: issue.title,
       message: `${issue.priority} · ${issue.status.replace("_", " ")}`,
+      link: issue.type === "VEHICLE" && issue.vehicleId 
+        ? `/vehicle?id=${issue.vehicleId}` 
+        : issue.type === "DRIVER" && issue.driverId 
+        ? `/drivers?id=${issue.driverId}` 
+        : issue.type === "SHIPMENT" && issue.shipmentId 
+        ? `/shipments?id=${issue.shipmentId}` 
+        : undefined,
     }));
 
     const docAlerts = expiringDocs.map((doc) => ({
@@ -119,6 +126,11 @@ export const getActionRequired = authenticatedAction(async (user) => {
       message: doc.expiryDate
         ? `Expires ${new Date(doc.expiryDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
         : "Expiry approaching",
+      link: doc.driverId 
+        ? `/drivers?id=${doc.driverId}` 
+        : doc.vehicleId 
+        ? `/vehicle?id=${doc.vehicleId}` 
+        : undefined,
     }));
 
     return [...issueAlerts, ...docAlerts];

@@ -39,6 +39,7 @@ interface DriverDialogParams {
   onEdit?: (driver: DriverWithRelations) => void;
   onDelete?: (id: string) => void;
   driverData: DriverWithRelations | null;
+  initialTab?: number;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -65,10 +66,10 @@ function a11yProps(index: number) {
 }
 
 const DriverDialog = (params: DriverDialogParams) => {
-  const { open, onClose, driverData, onEdit, onDelete } = params;
+  const { open, onClose, driverData, onEdit, onDelete, initialTab } = params;
 
   /* --------------------------------- states --------------------------------- */
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(initialTab ?? 0);
 
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();

@@ -35,6 +35,7 @@ interface VehicleDialogParams {
   onDeleteSuccess?: () => void;
   onEditSuccess?: () => void;
   onUpdateSuccess?: () => void;
+  initialTab?: number;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -61,10 +62,10 @@ function a11yProps(index: number) {
 }
 
 const VehicleDialog = (params: VehicleDialogParams) => {
-  const { open, onClose, vehicleData, onDeleteSuccess, onUpdateSuccess } = params;
+  const { open, onClose, vehicleData, onDeleteSuccess, onUpdateSuccess, initialTab } = params;
 
   /* --------------------------------- states --------------------------------- */
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(initialTab ?? 0);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);

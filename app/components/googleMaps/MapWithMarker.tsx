@@ -24,10 +24,12 @@ interface MapWithMarkerProps {
   zoom?: number;
   markers?: MarkerData[];
   height?: string | number;
+  onMarkerClick?: (marker: MarkerData) => void;
+  options?: google.maps.MapOptions;
 }
 
 // Memoized Marker component to prevent unnecessary re-renders of individual markers
-const OptimizedMarker = React.memo(({ marker }: { marker: MarkerData; index: number }) => {
+const OptimizedMarker = React.memo(({ marker, onClick }: { marker: MarkerData; onClick?: (m: MarkerData) => void }) => {
   const iconConfig = useMemo(() => {
     if (typeof window === "undefined" || !window.google || !marker.type) return undefined;
     
@@ -82,19 +84,30 @@ const OptimizedMarker = React.memo(({ marker }: { marker: MarkerData; index: num
     };
   }, [marker.label, marker.type]);
 
-  return (
-    <MarkerF
-      position={marker.position}
-      label={labelConfig}
-      icon={iconConfig}
-      title={marker.label}
-    />
-  );
-});
+    return (
+      <MarkerF
+        position={marker.position}
+        label={labelConfig}
+        icon={iconConfig}
+        title={marker.label}
+        onClick={() => onClick?.(marker)}
+        // We can add animation here if needed, but Google Maps React doesn't support easy interpolation
+        // Standard non-blocking updates are usually enough for 1s intervals
+      />
+    );
+  }
+);
 
 OptimizedMarker.displayName = "OptimizedMarker";
 
-export const MapWithMarker = ({ center, zoom = 14, markers = [], height = "400px" }: MapWithMarkerProps) => {
+export const MapWithMarker = ({ 
+  center, 
+  zoom = 14, 
+  markers = [], 
+  height = "400px",
+  onMarkerClick,
+  options
+}: MapWithMarkerProps) => {
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const mapCenter = useMemo(() => center || { lat: 41.0082, lng: 28.9784 }, [center]);
@@ -105,7 +118,8 @@ export const MapWithMarker = ({ center, zoom = 14, markers = [], height = "400px
     mapTypeControl: false,
     streetViewControl: false,
     fullscreenControl: true,
-  }), []);
+    ...options
+  }), [options]);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
@@ -123,19 +137,19 @@ export const MapWithMarker = ({ center, zoom = 14, markers = [], height = "400px
     }
   }, [markers]);
 
-  // Adjust bounds if markers change during runtime
+  // Adjust bounds if markers change during runtime ONLY if center is not provided
   React.useEffect(() => {
-    if (mapRef.current && markers.length > 0) {
+    if (!center && mapRef.current && markers.length > 0) {
       const bounds = new window.google.maps.LatLngBounds();
       markers.forEach((marker) => {
         bounds.extend(new window.google.maps.LatLng(marker.position.lat, marker.position.lng));
       });
       mapRef.current.fitBounds(bounds);
     }
-  }, [markers]);
+  }, [markers, center]);
 
   return (
-    <div className="overflow-hidden border border-gray-200 rounded-xl shadow-sm" style={{ height }}>
+    <div className="overflow-hidden border border-gray-200/10 rounded-xl shadow-2xl" style={{ height }}>
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={mapCenter}
@@ -145,9 +159,9 @@ export const MapWithMarker = ({ center, zoom = 14, markers = [], height = "400px
       >
         {markers.map((marker, index) => (
           <OptimizedMarker 
-            key={`${marker.type}-${index}-${marker.position.lat}-${marker.position.lng}`} 
+            key={`${marker.label || 'm'}-${index}`} 
             marker={marker} 
-            index={index} 
+            onClick={onMarkerClick}
           />
         ))}
       </GoogleMap>

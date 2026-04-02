@@ -11,20 +11,16 @@ import {
   useTheme,
 } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, Suspense, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ShipmentPageState,
   ShipmentPageActions,
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
-import {
-  getShipments,
-  getShipmentStats,
-  getShipmentStatusDistribution,
-  getShipmentVolumeHistory,
-  deleteShipment,
-} from "@/app/lib/controllers/shipments";
+import { useShipments, useShipmentStats, useShipmentVolumeHistory, useShipmentStatusDistribution, useShipmentMutations } from "@/app/hooks/useShipments";
 import EditShipmentDialog from "@/app/components/dialogs/shipment/edit-shipment-dialog";
+import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDetailDialog";
 import AddShipmentDialog from "@/app/components/dialogs/shipment/addShipmentDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { useUser } from "@/app/lib/hooks/useUser";
@@ -39,80 +35,75 @@ import {
 import KpiCards from "@/app/components/cards/KpiCards";
 
 export default function ShipmentPage() {
+  return (
+    <Suspense fallback={<Box p={4}>Loading...</Box>}>
+      <ShipmentContent />
+    </Suspense>
+  );
+}
+
+function ShipmentContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const { user } = useUser();
   const theme = useTheme();
+  const searchParams = useSearchParams();
+  const shipmentIdFromUrl = searchParams.get("id");
 
   /* ---------------------------------- STATES --------------------------------- */
-  const [state, setState] = useState<ShipmentPageState>({
-    shipments: [],
-    stats: null,
-    volumeHistory: [],
-    statusDistribution: [],
-    selectedShipmentId: null,
-    filters: {},
-    loading: true,
-    error: null,
-  });
+  /* ---------------------------------- STATES --------------------------------- */
+  const [filters, setFilters] = useState<any>({});
+  const [selectedShipmentId, setSelectedShipmentId] = useState<string | null>(null);
+  
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [actionShipment, setActionShipment] =
-    useState<ShipmentWithRelations | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [actionShipment, setActionShipment] = useState<ShipmentWithRelations | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
+  /* ---------------------------------- HOOKS --------------------------------- */
+  const { data: shipments = [], isLoading: isShipmentsLoading, refetch: refetchShipments } = useShipments();
+  const { data: stats, isLoading: isStatsLoading, refetch: refetchStats } = useShipmentStats();
+  const { data: volumeHistory = [], isLoading: isHistoryLoading, refetch: refetchHistory } = useShipmentVolumeHistory();
+  const { data: statusDistribution = [], isLoading: isDistLoading, refetch: refetchDist } = useShipmentStatusDistribution();
+  
+  const { deleteShipment: deleteMutation } = useShipmentMutations();
+
+  const loading = isShipmentsLoading || isStatsLoading || isHistoryLoading || isDistLoading;
+
   /* --------------------------------- ACTIONS -------------------------------- */
-  const fetchAllData = useCallback(async () => {
-    if (!user || !user.companyId || !user.id) return;
-    setState((prev) => ({ ...prev, loading: true }));
+  const refreshAll = useCallback(async () => {
+    await Promise.all([refetchShipments(), refetchStats(), refetchHistory(), refetchDist()]);
+  }, [refetchShipments, refetchStats, refetchHistory, refetchDist]);
 
-    try {
-      const [shipmentsData, statsData, statusDist, volumeHist] =
-        await Promise.all([
-          getShipments(),
-          getShipmentStats(),
-          getShipmentStatusDistribution(),
-          getShipmentVolumeHistory(),
-        ]);
+  const actions: ShipmentPageActions = useMemo(
+    () => ({
+      fetchShipments: async () => {},
+      fetchStats: async () => {},
+      fetchCharts: async () => {},
+      refreshAll,
+      selectShipment: (id: string | null) => setSelectedShipmentId(id),
+      updateFilters: (newFilters: any) => setFilters((prev: any) => ({ ...prev, ...newFilters })),
+    }),
+    [refreshAll]
+  );
 
-      setState((prev) => ({
-        ...prev,
-        shipments: shipmentsData,
-        stats: statsData,
-        statusDistribution: statusDist,
-        volumeHistory: volumeHist,
-        loading: false,
-        error: null,
-      }));
-    } catch (error) {
-      console.error("Failed to fetch shipment data:", error);
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: "Failed to load data",
-      }));
-    }
-  }, [user]);
-  const selectShipment = (id: string | null) => {
-    setState((prev) => ({ ...prev, selectedShipmentId: id }));
-  };
-  const actions: ShipmentPageActions = {
-    fetchShipments: async () => {},
-    fetchStats: async () => {},
-    fetchCharts: async () => {},
-    refreshAll: fetchAllData,
-    selectShipment,
-    updateFilters: (filters) =>
-      setState((prev) => ({
-        ...prev,
-        filters: { ...prev.filters, ...filters },
-      })),
+  /* -------------------------- COMPATIBILITY LAYER --------------------------- */
+  const state: ShipmentPageState = {
+    shipments: shipments as any,
+    stats: stats || null,
+    volumeHistory: volumeHistory as any,
+    statusDistribution: statusDistribution as any,
+    selectedShipmentId,
+    filters,
+    loading,
+    error: null,
   };
 
   /* -------------------------------- LIFECYCLE --------------------------------- */
   useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
+    if (shipmentIdFromUrl) {
+      actions.selectShipment(shipmentIdFromUrl);
+    }
+  }, [shipmentIdFromUrl, actions]);
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleEdit = (id: string) => {
@@ -130,20 +121,20 @@ export default function ShipmentPage() {
     }
   };
   const handleDeleteConfirm = async () => {
-    if (!actionShipment || !user) return;
-    setDeleteLoading(true);
+    if (!actionShipment) return;
     try {
-      await deleteShipment(actionShipment.id);
+      await deleteMutation.mutateAsync(actionShipment.id);
       setDeleteOpen(false);
-      actions.refreshAll();
     } catch (error) {
       console.error("Failed to delete shipment:", error);
-    } finally {
-      setDeleteLoading(false);
     }
   };
 
   /* --------------------------------- RENDER --------------------------------- */
+
+  const selectedShipment = state.shipments.find(
+    (s) => s.id === state.selectedShipmentId
+  );
 
   const kpiItems = [
     {
@@ -221,17 +212,23 @@ export default function ShipmentPage() {
 
       <ShipmentAnalytics state={state} actions={actions} />
 
+      <ShipmentDetailDialog
+        open={!!selectedShipment}
+        onClose={() => actions.selectShipment(null)}
+        shipment={selectedShipment || null}
+      />
+
       <EditShipmentDialog
         open={editOpen}
         onClose={() => setEditOpen(false)}
         shipment={actionShipment}
-        onSuccess={actions.refreshAll}
+        onSuccess={refreshAll}
       />
 
       <AddShipmentDialog
         open={addDialogOpen}
         onClose={() => setAddDialogOpen(false)}
-        onSuccess={actions.refreshAll}
+        onSuccess={refreshAll}
       />
 
       <DeleteConfirmationDialog
@@ -242,7 +239,7 @@ export default function ShipmentPage() {
         description={`Are you sure you want to delete shipment ${
           actionShipment?.trackingId || ""
         }?`}
-        loading={deleteLoading}
+        loading={deleteMutation.isPending}
       />
     </Box>
   );

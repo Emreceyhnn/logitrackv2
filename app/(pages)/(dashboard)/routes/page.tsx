@@ -12,22 +12,21 @@ import {
   useTheme,
 } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {
   RoutesPageActions,
-  RoutesPageState,
   RouteWithRelations,
   RouteEfficiencyStats,
   MapRouteData,
 } from "@/app/lib/type/routes";
-import {
-  getActiveRoutesLocations,
-  getRouteEfficiencyStats,
-  getRoutes,
-  getRouteStats,
-  deleteRoute,
-} from "@/app/lib/controllers/routes";
+import { 
+  useRoutes, 
+  useRouteStats, 
+  useRouteEfficiency, 
+  useRouteLocations, 
+  useRouteMutations 
+} from "@/app/hooks/useRoutes";
 import EditRouteDialog from "@/app/components/dialogs/routes/edit-route-dialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { useUser } from "@/app/lib/hooks/useUser";
@@ -41,163 +40,112 @@ export default function RoutesPage() {
   const theme = useTheme();
 
   /* --------------------------------- STATE --------------------------------- */
-  const [state, setState] = useState<RoutesPageState>({
-    routes: [],
-    stats: null,
-    efficiency: null,
-    mapData: [],
-    filters: {},
-    pagination: {
-      page: 0,
-      pageSize: 10,
-      total: 0,
-    },
-    selectedRouteId: null,
-    viewMode: "list",
-    loading: true,
-    error: null,
+  const [filters, setFilters] = useState<any>({});
+  const [pagination, setPagination] = useState({
+    page: 0,
+    pageSize: 10,
   });
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [actionRoute, setActionRoute] = useState<RouteWithRelations | null>(
-    null
-  );
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [actionRoute, setActionRoute] = useState<RouteWithRelations | null>(null);
+
+  /* ---------------------------------- HOOKS --------------------------------- */
+  const { 
+    data: routesData, 
+    isLoading: isRoutesLoading, 
+    refetch: refetchRoutes 
+  } = useRoutes(pagination.page, pagination.pageSize, filters.status);
+  
+  const { data: stats, isLoading: isStatsLoading, refetch: refetchStats } = useRouteStats();
+  const { data: efficiency, isLoading: isEfficiencyLoading, refetch: refetchEfficiency } = useRouteEfficiency();
+  const { data: mapData = [], isLoading: isLocationsLoading, refetch: refetchLocations } = useRouteLocations();
+  
+  const { deleteRoute: deleteMutation } = useRouteMutations();
+
+  const loading = isRoutesLoading || isStatsLoading || isEfficiencyLoading || isLocationsLoading;
 
   /* --------------------------------- ACTIONS -------------------------------- */
-  const fetchRoutesData = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true }));
-    try {
-      const [routesData, statsData, efficiencyData, mapDataLocations] =
-        await Promise.all([
-          getRoutes(
-            state.pagination.page + 1,
-            state.pagination.pageSize,
-            state.filters.status
-          ),
-          getRouteStats(),
-          getRouteEfficiencyStats(),
-          getActiveRoutesLocations(),
-        ]);
-
-      setState((prev) => ({
-        ...prev,
-        routes: routesData.routes as RouteWithRelations[],
-        stats: statsData,
-        efficiency: efficiencyData as RouteEfficiencyStats,
-        mapData: mapDataLocations as MapRouteData[],
-        pagination: {
-          ...prev.pagination,
-          total: routesData.totalCount,
-        },
-        loading: false,
-        error: null,
-      }));
-    } catch (error) {
-      console.error("Failed to fetch routes data:", error);
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: "Failed to load routes data",
-      }));
-    }
-  }, [state.pagination.page, state.pagination.pageSize, state.filters.status]);
+  const refreshAll = useCallback(async () => {
+    await Promise.all([refetchRoutes(), refetchStats(), refetchEfficiency(), refetchLocations()]);
+  }, [refetchRoutes, refetchStats, refetchEfficiency, refetchLocations]);
 
   const actions: RoutesPageActions = {
     fetchRoutes: async () => {},
     fetchStats: async () => {},
     fetchEfficiency: async () => {},
     fetchMapData: async () => {},
-    refreshAll: async () => {
-      await fetchRoutesData();
+    refreshAll,
+    updateFilters: (newFilters) => {
+      setFilters((prev: any) => ({ ...prev, ...newFilters }));
+      setPagination((prev) => ({ ...prev, page: 0 }));
     },
-    updateFilters: (filters) => {
-      setState((prev) => ({
-        ...prev,
-        filters: { ...prev.filters, ...filters },
-        pagination: { ...prev.pagination, page: 0 },
-      }));
-    },
-    selectRoute: (id) => {
-      setState((prev) => ({ ...prev, selectedRouteId: id }));
-    },
-    setViewMode: (mode) => {
-      setState((prev) => ({ ...prev, viewMode: mode }));
-    },
-    changePage: (newPage) => {
-      setState((prev) => ({
-        ...prev,
-        pagination: { ...prev.pagination, page: newPage },
-      }));
-    },
+    selectRoute: (id) => setSelectedRouteId(id),
+    setViewMode: (mode) => setViewMode(mode),
+    changePage: (newPage) => setPagination((prev) => ({ ...prev, page: newPage })),
   };
-
-  /* -------------------------------- LIFECYCLE ------------------------------- */
-  useEffect(() => {
-    fetchRoutesData();
-  }, [fetchRoutesData]);
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handlePageChange = (newPage: number) => {
     actions.changePage(newPage);
   };
+  
   const handleEdit = (id: string) => {
-    const route = state.routes.find((r) => r.id === id);
+    const route = (routesData?.routes as RouteWithRelations[] || []).find((r) => r.id === id);
     if (route) {
       setActionRoute(route);
       setEditOpen(true);
     }
   };
+  
   const handleDelete = (id: string) => {
-    const route = state.routes.find((r) => r.id === id);
+    const route = (routesData?.routes as RouteWithRelations[] || []).find((r) => r.id === id);
     if (route) {
       setActionRoute(route);
       setDeleteOpen(true);
     }
   };
+  
   const handleDeleteConfirm = async () => {
     if (!actionRoute || !user) return;
-    setDeleteLoading(true);
     try {
-      await deleteRoute(actionRoute.id);
+      await deleteMutation.mutateAsync(actionRoute.id);
       setDeleteOpen(false);
-      actions.refreshAll();
     } catch (error) {
       console.error("Failed to delete route:", error);
-    } finally {
-      setDeleteLoading(false);
     }
   };
+  
   const handleCloseAdd = () => {
     setAddDialogOpen(false);
-    actions.refreshAll();
+    refreshAll();
   };
 
   /* --------------------------------- KPI --------------------------------- */
-
   const kpiItems = [
     {
       label: "Active Routes",
-      value: state.stats?.active || 0,
+      value: stats?.active || 0,
       icon: <AltRoute sx={{ fontSize: 22 }} />,
       color: theme.palette.primary.main,
     },
     {
       label: "In Progress",
-      value: state.stats?.inProgress || 0,
+      value: stats?.inProgress || 0,
       icon: <Loop sx={{ fontSize: 22 }} />,
       color: "#0ea5e9", // Sky
     },
     {
       label: "Completed Today",
-      value: state.stats?.completedToday || 0,
+      value: stats?.completedToday || 0,
       icon: <CheckCircle sx={{ fontSize: 22 }} />,
       color: "#10b981", // Emerald
     },
     {
       label: "Delayed Routes",
-      value: state.stats?.delayed || 0,
+      value: stats?.delayed || 0,
       icon: <Warning sx={{ fontSize: 22 }} />,
       color: theme.palette.error.main,
     },
@@ -230,11 +178,11 @@ export default function RoutesPage() {
           Add Route
         </Button>
       </Stack>
-      <KpiCards kpis={kpiItems} loading={state.loading} />
+      <KpiCards kpis={kpiItems} loading={loading} />
 
       <Stack mt={2} direction={"row"} spacing={3}>
-        <RoutesMainMap mapData={state.mapData} loading={state.loading} />
-        <RouteEfficiency data={state.efficiency} loading={state.loading} />
+        <RoutesMainMap mapData={mapData as MapRouteData[]} loading={loading} />
+        <RouteEfficiency data={efficiency as RouteEfficiencyStats} loading={loading} />
       </Stack>
       <Stack mt={2}>
         <CustomCard sx={{ padding: "0 0 6px 0" }}>
@@ -243,14 +191,18 @@ export default function RoutesPage() {
           </Typography>
           <Divider />
           <RouteTable
-            routes={state.routes}
-            loading={state.loading}
-            pagination={state.pagination}
+            routes={routesData?.routes || []}
+            loading={loading}
+            pagination={{
+              page: pagination.page,
+              pageSize: pagination.pageSize,
+              total: routesData?.totalCount || 0,
+            }}
             onPageChange={handlePageChange}
             onSelect={actions.selectRoute}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            onRefresh={actions.refreshAll}
+            onRefresh={refreshAll}
           />
         </CustomCard>
       </Stack>
@@ -259,7 +211,7 @@ export default function RoutesPage() {
         open={editOpen}
         onClose={() => setEditOpen(false)}
         route={actionRoute}
-        onSuccess={actions.refreshAll}
+        onSuccess={refreshAll}
       />
 
       <DeleteConfirmationDialog
@@ -268,7 +220,7 @@ export default function RoutesPage() {
         onConfirm={handleDeleteConfirm}
         title="Delete Route?"
         description={`Are you sure you want to delete route ${actionRoute?.name || actionRoute?.id}?`}
-        loading={deleteLoading}
+        loading={deleteMutation.isPending}
       />
       <AddRouteDialog open={addDialogOpen} onClose={handleCloseAdd} />
     </Box>

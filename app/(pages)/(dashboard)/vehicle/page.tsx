@@ -5,21 +5,18 @@ import VehicleCapacityChart from "@/app/components/dashboard/vehicle/maxLoad";
 import VehicleTable from "@/app/components/dashboard/vehicle/vehicleTable";
 import AddVehicleDialog from "@/app/components/dialogs/vehicle/addVehicleDialog";
 import VehicleDialog from "@/app/components/dialogs/vehicle/vehicleDetailsDialog";
-import {
-  getVehicles,
-  getVehiclesDashboardData,
-} from "@/app/lib/controllers/vehicle";
+import { useVehicles, useVehiclesDashboardData, useVehicleMutations } from "@/app/hooks/useVehicles";
 import {
   VehiclePageActions,
   VehiclePageState,
   VehicleWithRelations,
 } from "@/app/lib/type/vehicle";
-import { Box, Stack, Typography, Button, Alert, useTheme } from "@mui/material";
+import { Box, Stack, Typography, Button, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import { deleteVehicle } from "@/app/lib/controllers/vehicle";
 import CustomCard from "@/app/components/cards/card";
 import {
   Build,
@@ -32,73 +29,55 @@ import {
 import KpiCards from "@/app/components/cards/KpiCards";
 
 export default function VehiclePage() {
+  return (
+    <Suspense fallback={<Box p={4}>Loading...</Box>}>
+      <VehicleContent />
+    </Suspense>
+  );
+}
+
+function VehicleContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
+  const searchParams = useSearchParams();
+  const vehicleIdFromUrl = searchParams.get("id");
+  const tabFromUrl = searchParams.get("tab");
 
   /* --------------------------------- STATES --------------------------------- */
-  const [state, setState] = useState<VehiclePageState>({
-    vehicles: [],
-    dashboardData: null,
+  const [state, setState] = useState<{
+    filters: VehiclePageState["filters"];
+    selectedVehicleId: string | null;
+  }>({
     filters: {},
     selectedVehicleId: null,
-    loading: true,
-    error: null,
   });
+
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [actionVehicle, setActionVehicle] =
-    useState<VehicleWithRelations | null>(null);
-  const [actionLoading, setActionLoading] = useState(false);
+  const [actionVehicle, setActionVehicle] = useState<VehicleWithRelations | null>(null);
+
+  /* ---------------------------------- HOOKS --------------------------------- */
+  const { 
+    data: vehicles = [], 
+    isLoading: isVehiclesLoading,
+    refetch: refetchVehicles 
+  } = useVehicles(state.filters);
+
+  const { 
+    data: dashboardData, 
+    isLoading: isDashboardLoading,
+    refetch: refetchDashboard 
+  } = useVehiclesDashboardData();
+
+  const { deleteVehicle: deleteMutation } = useVehicleMutations();
+
+  const loading = isVehiclesLoading || isDashboardLoading;
 
   /* ---------------------------------- ACTIONS ------------------------------- */
-  const fetchVehicles = useCallback(async () => {
-    try {
-      setState((prev) => ({ ...prev, loading: true }));
-      const vehicles = await getVehicles(state.filters);
-      setState((prev) => ({ ...prev, vehicles, loading: false }));
-    } catch (error) {
-      console.error("Failed to fetch vehicles:", error);
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: "Failed to load vehicle list",
-      }));
-    }
-  }, [state.filters]);
-
-  const fetchDashboardData = useCallback(async () => {
-    try {
-      const dashboardData = await getVehiclesDashboardData();
-
-      setState((prev) => ({ ...prev, dashboardData }));
-    } catch (error) {
-      console.error("Failed to fetch dashboard data:", error);
-    }
-  }, []);
-
   const refreshAll = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-    try {
-      const [vehicles, dashboardData] = await Promise.all([
-        getVehicles(state.filters),
-        getVehiclesDashboardData(),
-      ]);
-      setState((prev) => ({
-        ...prev,
-        vehicles,
-        dashboardData,
-        loading: false,
-      }));
-    } catch (error) {
-      console.error("Failed to refresh data:", error);
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: "Failed to refresh data. Please try again.",
-      }));
-    }
-  }, [state.filters]);
+    await Promise.all([refetchVehicles(), refetchDashboard()]);
+  }, [refetchVehicles, refetchDashboard]);
 
   const selectVehicle = useCallback((id: string | null) => {
     setState((prev) => ({ ...prev, selectedVehicleId: id }));
@@ -116,29 +95,21 @@ export default function VehiclePage() {
 
   const actions: VehiclePageActions = useMemo(
     () => ({
-      fetchVehicles,
-      fetchDashboardData,
+      fetchVehicles: async () => {}, // Handled by React Query
+      fetchDashboardData: async () => {}, // Handled by React Query
       refreshAll,
       selectVehicle,
       updateFilters,
     }),
-    [
-      fetchVehicles,
-      fetchDashboardData,
-      refreshAll,
-      selectVehicle,
-      updateFilters,
-    ]
+    [refreshAll, selectVehicle, updateFilters]
   );
 
   /* -------------------------------- LIFECYCLE ------------------------------- */
   useEffect(() => {
-    fetchVehicles();
-  }, [fetchVehicles]);
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
+    if (vehicleIdFromUrl) {
+      actions.selectVehicle(vehicleIdFromUrl);
+    }
+  }, [vehicleIdFromUrl, actions]);
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleAddSuccess = () => {
@@ -147,104 +118,94 @@ export default function VehiclePage() {
 
   const handleEdit = useCallback(
     (id: string) => {
-      const v = state.vehicles.find((v) => v.id === id);
+      const v = vehicles.find((v) => v.id === id);
       if (v) {
         setActionVehicle(v);
         setEditDialogOpen(true);
       }
     },
-    [state.vehicles]
+    [vehicles]
   );
 
   const handleDelete = useCallback(
     (id: string) => {
-      const v = state.vehicles.find((v) => v.id === id);
+      const v = vehicles.find((v) => v.id === id);
       if (v) {
         setActionVehicle(v);
         setDeleteDialogOpen(true);
       }
     },
-    [state.vehicles]
+    [vehicles]
   );
 
   const handleEditFormSuccess = () => {
     setEditDialogOpen(false);
-    actions.refreshAll();
   };
 
   const handleDeleteConfirm = async () => {
     if (!actionVehicle) return;
 
-    setActionLoading(true);
     try {
-      await deleteVehicle(actionVehicle.id);
+      await deleteMutation.mutateAsync(actionVehicle.id);
       setDeleteDialogOpen(false);
-      actions.refreshAll();
 
       if (state.selectedVehicleId === actionVehicle.id) {
         actions.selectVehicle(null);
       }
     } catch (error) {
       console.error("Failed to delete vehicle:", error);
-    } finally {
-      setActionLoading(false);
     }
   };
 
-  const handleDialogEditSuccess = () => {
-    actions.refreshAll();
-  };
-
   const handleDialogDeleteSuccess = () => {
-    actions.refreshAll();
     actions.selectVehicle(null);
   };
 
-  const selectedVehicle = state.vehicles.find(
+  const selectedVehicle = vehicles.find(
     (v) => v.id === state.selectedVehicleId
   );
 
   /* ----------------------------------- KPI ---------------------------------- */
-
   const kpiItems = [
     {
       label: "Total Vehicle",
-      value: state.dashboardData?.vehiclesKpis?.totalVehicles ?? 0,
+      value: dashboardData?.vehiclesKpis?.totalVehicles ?? 0,
       icon: <LocalShipping sx={{ fontSize: 22 }} />,
       color: theme.palette.primary.main,
     },
     {
       label: "Available Vehicle",
-      value: state.dashboardData?.vehiclesKpis?.available ?? 0,
+      value: dashboardData?.vehiclesKpis?.available ?? 0,
       icon: <CheckCircle sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.emerald,
     },
     {
       label: "Vehicle in Service",
-      value: state.dashboardData?.vehiclesKpis?.inService ?? 0,
+      value: dashboardData?.vehiclesKpis?.inService ?? 0,
       icon: <Build sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.amber,
     },
     {
       label: "Vehicles On Trip",
-      value: state.dashboardData?.vehiclesKpis?.onTrip ?? 0,
+      value: dashboardData?.vehiclesKpis?.onTrip ?? 0,
       icon: <DirectionsCar sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.sky,
     },
     {
       label: "Open Issues",
-      value: state.dashboardData?.vehiclesKpis?.openIssues ?? 0,
+      value: dashboardData?.vehiclesKpis?.openIssues ?? 0,
       icon: <ReportProblem sx={{ fontSize: 22 }} />,
       color: theme.palette.error.main,
     },
     {
-      label: "Docs Due Soon",
-      value: state.dashboardData?.vehiclesKpis?.docsDueSoon ?? 0,
+      label: "Document Expiring",
+      value: dashboardData?.vehiclesKpis?.docsDueSoon ?? 0,
       icon: <Description sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.violet,
+      color: theme.palette.kpi.amber,
     },
   ];
 
+  /* --------------------------------- RENDER --------------------------------- */
   return (
     <Box position={"relative"} p={4} width={"100%"}>
       <Stack
@@ -260,7 +221,7 @@ export default function VehiclePage() {
             Vehicle Management
           </Typography>
           <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
-            Manage your fleet vehicles, monitor performance and license status.
+            Monitor and manage your fleet vehicles, maintenance, and compliance.
           </Typography>
         </Box>
         <Button
@@ -273,13 +234,7 @@ export default function VehiclePage() {
         </Button>
       </Stack>
 
-      {state.error && (
-        <Alert severity="error" sx={{ mb: 2, mt: 2 }}>
-          {state.error}
-        </Alert>
-      )}
-
-      <KpiCards kpis={kpiItems} loading={state.loading} />
+      <KpiCards kpis={kpiItems} loading={loading} />
 
       <Stack mt={2}>
         <CustomCard sx={{ padding: "0 0 6px 0" }}>
@@ -288,7 +243,12 @@ export default function VehiclePage() {
           </Typography>
 
           <VehicleTable
-            state={state}
+            state={{
+              ...state,
+              vehicles,
+              loading,
+              error: null,
+            } as any}
             actions={{
               ...actions,
               onEdit: handleEdit,
@@ -299,11 +259,11 @@ export default function VehiclePage() {
       </Stack>
 
       <Stack mt={2} direction={{ xs: "column", md: "row" }} spacing={2}>
-        <DocumentCalenderCard data={state.dashboardData?.expiringDocs || []} />
+        <DocumentCalenderCard data={dashboardData?.expiringDocs || []} />
 
         <VehicleCapacityChart
-          data={state.dashboardData?.vehiclesCapacity || []}
-          loading={state.loading}
+          data={dashboardData?.vehiclesCapacity || []}
+          loading={loading}
         />
       </Stack>
 
@@ -315,12 +275,13 @@ export default function VehiclePage() {
 
       {selectedVehicle && (
         <VehicleDialog
-          open={!!selectedVehicle}
+          key={state.selectedVehicleId}
+          open={!!state.selectedVehicleId}
           onClose={() => actions.selectVehicle(null)}
-          vehicleData={selectedVehicle}
-          onEditSuccess={handleDialogEditSuccess}
+          vehicleData={vehicles.find((v) => v.id === state.selectedVehicleId)}
+          onUpdateSuccess={refreshAll}
           onDeleteSuccess={handleDialogDeleteSuccess}
-          onUpdateSuccess={actions.refreshAll}
+          initialTab={tabFromUrl ? parseInt(tabFromUrl) : 0}
         />
       )}
 
@@ -339,7 +300,7 @@ export default function VehiclePage() {
         onConfirm={handleDeleteConfirm}
         title="Delete Vehicle?"
         description={`Are you sure you want to delete ${actionVehicle?.plate}? This will permanently remove the vehicle and all associated data from the system.`}
-        loading={actionLoading}
+        loading={deleteMutation.isPending}
       />
     </Box>
   );

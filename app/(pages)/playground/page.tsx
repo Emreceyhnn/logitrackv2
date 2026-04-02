@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -28,6 +28,11 @@ import {
 } from "@mui/icons-material";
 import { createNotification, NotificationType } from "@/app/lib/notifications";
 import { useNotifications } from "@/app/hooks/useNotifications";
+import { VehicleLiveMap } from "@/app/components/dashboard/VehicleLiveMap";
+import { updateVehicleLocation } from "@/app/lib/vehicleTracking";
+import { getVehicles } from "@/app/lib/controllers/vehicle";
+import { VehicleWithRelations } from "@/app/lib/type/vehicle";
+import { LocalShipping as TruckIcon, TravelExplore as ExploreIcon } from "@mui/icons-material";
 
 const COLORS = {
   bg: "radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%)",
@@ -40,6 +45,7 @@ const COLORS = {
   textHeader: "#f8fafc",
   textBody: "#cbd5e1",
   textMuted: "#94a3b8", // Darker for better contrast on glass
+  accent: "#38bdf8",
 };
 
 const Playground = () => {
@@ -55,6 +61,41 @@ const Playground = () => {
   const [title, setTitle] = useState("New Alert");
   const [message, setMessage] = useState("This is a real-time test message.");
   const [type, setType] = useState<NotificationType>("INFO");
+
+  // Vehicle Simulator State
+  const [vehicles, setVehicles] = useState<VehicleWithRelations[]>([]);
+  const [selectedSimVehicle, setSelectedSimVehicle] = useState<string>("");
+  const [isSimulating, setIsSimulating] = useState(false);
+
+  // Fetch vehicles for simulator
+  useEffect(() => {
+    getVehicles().then(setVehicles).catch(console.error);
+  }, []);
+
+  const handleSimulateMovement = async () => {
+    if (!selectedSimVehicle) return;
+    setIsSimulating(true);
+
+    // Get current vehicle to find starting point or use default
+    const vehicle = vehicles.find(v => v.id === selectedSimVehicle);
+    let lat = vehicle?.currentLat || 41.0082;
+    let lng = vehicle?.currentLng || 28.9784;
+
+    // Simulate 5 steps of movement
+    for (let i = 0; i < 5; i++) {
+        lat += (Math.random() - 0.5) * 0.005;
+        lng += (Math.random() - 0.5) * 0.005;
+        await updateVehicleLocation(selectedSimVehicle, {
+            lat,
+            lng,
+            speed: 40 + Math.random() * 20,
+            heading: Math.random() * 360
+        });
+        await new Promise(r => setTimeout(r, 2000));
+    }
+    
+    setIsSimulating(false);
+  };
 
   // Hook into real-time stream
   const {
@@ -121,6 +162,111 @@ const Playground = () => {
         >
           Notification Engine
         </Typography>
+
+        <Box
+          sx={{
+            display: "flex",
+            gap: 4,
+            flexDirection: { xs: "column", md: "row" },
+            mb: 4
+          }}
+        >
+          {/* VEHICLE MAP PANEL */}
+          <Box sx={{ flex: 2 }}>
+            <Paper
+                elevation={0}
+                sx={{
+                    p: 3,
+                    borderRadius: 4,
+                    background: COLORS.panel,
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5)",
+                }}
+            >
+                <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{ display: "flex", alignItems: "center", gap: 1.5, fontWeight: 700, mb: 3, color: COLORS.textHeader }}
+                >
+                    <ExploreIcon sx={{ color: COLORS.accent }} /> Fleet Live Tracking
+                </Typography>
+                <VehicleLiveMap />
+            </Paper>
+          </Box>
+
+          {/* VEHICLE SIMULATOR PANEL */}
+          <Box sx={{ flex: 1 }}>
+            <Paper
+                elevation={0}
+                sx={{
+                    p: 4,
+                    borderRadius: 4,
+                    height: "100%",
+                    background: COLORS.panel,
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.5)",
+                }}
+            >
+                <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{ display: "flex", alignItems: "center", gap: 1.5, fontWeight: 700, mb: 3, color: COLORS.textHeader }}
+                >
+                    <TruckIcon sx={{ color: COLORS.success }} /> GPS Simulator
+                </Typography>
+                
+                <Stack spacing={3}>
+                    <FormControl fullWidth>
+                        <InputLabel sx={{ color: COLORS.textMuted }}>Select Vehicle</InputLabel>
+                        <Select
+                            value={selectedSimVehicle}
+                            label="Select Vehicle"
+                            onChange={(e) => setSelectedSimVehicle(e.target.value)}
+                            sx={{ 
+                                borderRadius: 2, 
+                                color: COLORS.textHeader, 
+                                bgcolor: "rgba(0,0,0,0.2)",
+                                "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.1)" }
+                            }}
+                        >
+                            {vehicles.map(v => (
+                                <MenuItem key={v.id} value={v.id}>{v.plate} ({v.brand})</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        size="large"
+                        disabled={!selectedSimVehicle || isSimulating}
+                        onClick={handleSimulateMovement}
+                        sx={{ 
+                            py: 2, 
+                            borderRadius: 2,
+                            textTransform: "none", 
+                            fontWeight: 700,
+                            fontSize: "1rem",
+                            bgcolor: COLORS.success,
+                            "&:hover": { bgcolor: "#22c55e" },
+                            "&.Mui-disabled": { bgcolor: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.2)" }
+                        }}
+                    >
+                        {isSimulating ? "Transmitting GPS..." : "Start Random Trip"}
+                    </Button>
+
+                    <Box sx={{ p: 2, bgcolor: "rgba(0,0,0,0.2)", borderRadius: 3, border: "1px solid rgba(255,255,255,0.05)" }}>
+                        <Typography variant="caption" sx={{ color: COLORS.textMuted }}>
+                            This simulator pushes real-time coordinate updates to Firebase. 
+                            Open this page in another tab to see the marker move simultaneously.
+                        </Typography>
+                    </Box>
+                </Stack>
+            </Paper>
+          </Box>
+        </Box>
 
         <Box
           sx={{

@@ -1,27 +1,20 @@
 "use client";
 
-import { useCallback, useState, useEffect, useMemo } from "react";
+import { useCallback, useState, useMemo, Suspense } from "react";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
 import InventoryHeader from "@/app/components/dashboard/inventory/InventoryHeader";
 import InventoryTable from "@/app/components/dashboard/inventory/InventoryTable";
 import {
-  InventoryPageState,
   InventoryPageActions,
-  InventoryWithRelations,
 } from "@/app/lib/type/inventory";
-import {
-  deleteInventoryItem,
-  getInventory,
-  updateInventoryItem,
-} from "@/app/lib/controllers/inventory";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useInventory, useLowStockItems, useInventoryMutations } from "@/app/hooks/useInventory";
 import InventoryDetailsDialog from "../../../components/dialogs/inventory/InventoryDetailsDialog";
 import InventoryEditDialog from "../../../components/dialogs/inventory/InventoryEditDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import AddInventoryDialog from "@/app/components/dialogs/inventory/addInventoryDialog";
 import {
-  Inventory,
+  Inventory as InventoryIcon,
   Warning,
   Error as ErrorIcon,
   AttachMoney,
@@ -30,141 +23,112 @@ import { useTheme } from "@mui/material/styles";
 import KpiCards from "@/app/components/cards/KpiCards";
 
 export default function InventoryPage() {
+  return (
+    <Suspense fallback={<Box p={4}>Loading...</Box>}>
+      <InventoryContent />
+    </Suspense>
+  );
+}
+
+function InventoryContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
-  useUser();
 
-  /* --------------------------------- STATE --------------------------------- */
-  const [state, setState] = useState<InventoryPageState>({
-    inventory: [],
-    lowStockItems: [],
-    selectedItemId: null,
-    selectedItem: null,
-    isDetailsOpen: false,
-    isEditOpen: false,
-    recentMovements: [],
-    filters: {},
-    loading: true,
-    error: null,
-  });
-
+  /* ---------------------------------- STATE --------------------------------- */
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+
+  /* ---------------------------------- HOOKS --------------------------------- */
+  const { 
+    data: inventory = [], 
+    isLoading: isInventoryLoading, 
+    refetch: refetchInventory 
+  } = useInventory();
+  
+  const { 
+    data: lowStockData = [], 
+    isLoading: isLowStockLoading, 
+    refetch: refetchLowStock 
+  } = useLowStockItems();
+  
+  const { deleteItem: deleteMutation, updateItem: updateMutation } = useInventoryMutations();
+
+  const loading = isInventoryLoading || isLowStockLoading;
 
   /* --------------------------------- ACTIONS -------------------------------- */
-  const fetchInventory = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true }));
-    try {
-      const data = (await getInventory()) as InventoryWithRelations[];
-      setState((prev) => ({
-        ...prev,
-        inventory: data,
-        loading: false,
-        error: null,
-      }));
-    } catch (error) {
-      console.error("Failed to fetch inventory", error);
-      const message =
-        error instanceof Error ? error.message : "An unknown error occurred";
-      setState((prev) => ({ ...prev, loading: false, error: message }));
-    }
-  }, []);
+  const refreshAll = useCallback(async () => {
+    await Promise.all([refetchInventory(), refetchLowStock()]);
+  }, [refetchInventory, refetchLowStock]);
 
   const actions: InventoryPageActions = {
-    fetchInventory,
+    fetchInventory: async () => {},
     fetchLowStock: async () => {},
-    refreshAll: fetchInventory,
+    refreshAll,
 
     openDetails: (id) => {
-      const item = state.inventory.find((i) => i.id === id) || null;
-      setState((prev) => ({
-        ...prev,
-        selectedItemId: id,
-        selectedItem: item,
-        isDetailsOpen: true,
-      }));
+      setSelectedItemId(id);
+      setIsDetailsOpen(true);
     },
 
-    closeDetails: () => {
-      setState((prev) => ({ ...prev, isDetailsOpen: false }));
-    },
+    closeDetails: () => setIsDetailsOpen(false),
 
     openEdit: (id) => {
-      const item = state.inventory.find((i) => i.id === id) || null;
-      setState((prev) => ({
-        ...prev,
-        selectedItemId: id,
-        selectedItem: item,
-        isEditOpen: true,
-      }));
+      setSelectedItemId(id);
+      setIsEditOpen(true);
     },
 
-    closeEdit: () => {
-      setState((prev) => ({ ...prev, isEditOpen: false }));
-    },
+    closeEdit: () => setIsEditOpen(false),
 
     updateItem: async (id, data) => {
-      await updateInventoryItem(id, data);
-      await fetchInventory();
+      await updateMutation.mutateAsync({ id, data });
     },
 
-    updateFilters: (filters) =>
-      setState((prev) => ({
-        ...prev,
-        filters: { ...prev.filters, ...filters },
-      })),
+    updateFilters: (newFilters) => setFilters((prev) => ({ ...prev, ...newFilters })),
   };
 
-  /* -------------------------------- LIFECYCLE ------------------------------- */
-  useEffect(() => {
-    fetchInventory();
-  }, [fetchInventory]);
+  const selectedItem = inventory.find((i) => i.id === selectedItemId) || null;
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleDeleteRequest = (id: string) => {
-    const item = state.inventory.find((i) => i.id === id);
-    if (item) {
-      setState((prev) => ({ ...prev, selectedItem: item }));
-      setIsDeleteOpen(true);
-    }
+    setSelectedItemId(id);
+    setIsDeleteOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
-    if (!state.selectedItem) return;
-    setIsDeleteLoading(true);
+    if (!selectedItem) return;
     try {
-      await deleteInventoryItem(state.selectedItem.id);
+      await deleteMutation.mutateAsync(selectedItem.id);
       setIsDeleteOpen(false);
-      actions.refreshAll();
     } catch (error) {
       console.error("Delete failed", error);
-    } finally {
-      setIsDeleteLoading(false);
     }
   };
 
   /* --------------------------------- HELPER --------------------------------- */
   const filteredData = useMemo(() => {
-    if (!state.filters.search) return state.inventory;
-    const lowerTerm = state.filters.search.toLowerCase();
-    return state.inventory.filter(
+    if (!filters.search) return inventory;
+    const lowerTerm = filters.search.toLowerCase();
+    return inventory.filter(
       (item) =>
         item.name.toLowerCase().includes(lowerTerm) ||
         item.sku.toLowerCase().includes(lowerTerm)
     );
-  }, [state.inventory, state.filters.search]);
+  }, [inventory, filters.search]);
 
   const totalItems = filteredData.length;
-  const lowStockItems = filteredData.filter(
+  const lowStockItemsCount = filteredData.filter(
     (item) => item.quantity > 0 && item.quantity <= item.minStock
   ).length;
-  const outOfStockItems = filteredData.filter(
+  const outOfStockItemsCount = filteredData.filter(
     (item) => item.quantity === 0
   ).length;
 
   const totalValue = filteredData.reduce(
-    (acc, item) => acc + item.quantity * (item.unitValue || 0),
+    (acc: number, item) => acc + item.quantity * (item.unitValue || 0),
     0
   );
 
@@ -173,25 +137,25 @@ export default function InventoryPage() {
     {
       label: "TOTAL ITEMS",
       value: totalItems ?? 0,
-      icon: <Inventory sx={{ fontSize: 22 }} />,
+      icon: <InventoryIcon sx={{ fontSize: 22 }} />,
       color: theme.palette.primary.main,
     },
     {
       label: "LOW STOCK",
-      value: lowStockItems ?? 0,
+      value: lowStockItemsCount ?? 0,
       icon: <Warning sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.amber,
       trend:
-        lowStockItems > 0 ? { value: lowStockItems, isUp: true } : undefined,
+        lowStockItemsCount > 0 ? { value: lowStockItemsCount, isUp: true } : undefined,
     },
     {
       label: "OUT OF STOCK",
-      value: outOfStockItems ?? 0,
+      value: outOfStockItemsCount ?? 0,
       icon: <ErrorIcon sx={{ fontSize: 22 }} />,
       color: theme.palette.error.main,
       trend:
-        outOfStockItems > 0
-          ? { value: outOfStockItems, isUp: true }
+        outOfStockItemsCount > 0
+          ? { value: outOfStockItemsCount, isUp: true }
           : undefined,
     },
     {
@@ -213,7 +177,7 @@ export default function InventoryPage() {
         onFilterClick={() => {}}
         onAddClick={() => setIsAddOpen(true)}
       />
-      <KpiCards kpis={kpiItems} loading={state.loading} />
+      <KpiCards kpis={kpiItems} loading={loading} />
 
       <Stack mt={2}>
         <CustomCard sx={{ padding: "0 0 6px 0" }}>
@@ -223,7 +187,7 @@ export default function InventoryPage() {
           <Divider />
           <InventoryTable
             items={filteredData}
-            loading={state.loading}
+            loading={loading}
             onSelect={actions.openDetails}
             onEdit={(item) => actions.openEdit(item.id)}
             onDelete={handleDeleteRequest}
@@ -232,24 +196,24 @@ export default function InventoryPage() {
       </Stack>
 
       <InventoryDetailsDialog
-        isOpen={state.isDetailsOpen}
+        isOpen={isDetailsOpen}
         onClose={actions.closeDetails}
-        item={state.selectedItem}
+        item={selectedItem}
         onEdit={actions.openEdit}
       />
 
       <InventoryEditDialog
-        key={state.selectedItem?.id}
-        isOpen={state.isEditOpen}
+        key={selectedItem?.id}
+        isOpen={isEditOpen}
         onClose={actions.closeEdit}
-        item={state.selectedItem}
+        item={selectedItem}
         onUpdate={actions.updateItem}
       />
 
       <AddInventoryDialog
         open={isAddOpen}
         onClose={() => setIsAddOpen(false)}
-        onSuccess={actions.refreshAll}
+        onSuccess={refreshAll}
       />
 
       <DeleteConfirmationDialog
@@ -257,8 +221,8 @@ export default function InventoryPage() {
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={handleDeleteConfirm}
         title="Delete Item"
-        description={`Are you sure you want to delete ${state.selectedItem?.name}?`}
-        loading={isDeleteLoading}
+        description={`Are you sure you want to delete ${selectedItem?.name}?`}
+        loading={deleteMutation.isPending}
       />
     </Box>
   );

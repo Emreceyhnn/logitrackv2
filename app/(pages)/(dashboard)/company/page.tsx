@@ -10,17 +10,15 @@ import {
   useTheme,
 } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import AddIcon from "@mui/icons-material/Add";
-import { getCompanyProfile } from "@/app/lib/controllers/company";
-import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import {
-  CompanyPageState,
   CompanyPageActions,
   CompanyProfile,
   CompanyStats,
   CompanyMember,
 } from "@/app/lib/type/company";
+import { useCompanyProfile, useCompanyMutations } from "@/app/hooks/useCompany";
 import CompanyInfoCard from "@/app/components/dashboard/company/companyInfoCard";
 import CompanyMembersTable from "@/app/components/dashboard/company/companyMembersTable";
 import AddCompanyMemberDialog from "@/app/components/dialogs/company/AddCompanyMemberDialog";
@@ -38,117 +36,50 @@ export default function CompanyPage() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
 
-  /* --------------------------------- STATES --------------------------------- */
-  const [state, setState] = useState<CompanyPageState>({
-    data: null,
-    loading: true,
-    error: null,
-  });
+  /* ---------------------------------- HOOKS --------------------------------- */
+  const {
+    data: result,
+    isLoading: loading,
+    error,
+    refetch,
+  } = useCompanyProfile();
+  const { deleteMember: deleteMutation } = useCompanyMutations();
+
+  /* ---------------------------------- STATE --------------------------------- */
   const [addMemberOpen, setAddMemberOpen] = useState(false);
 
   /* --------------------------------- ACTIONS -------------------------------- */
+  const state = useMemo(
+    () => ({
+      data: result
+        ? {
+            profile: result.profile as CompanyProfile,
+            stats: result.stats as CompanyStats,
+            members: result.members as CompanyMember[],
+          }
+        : null,
+      loading,
+      error: error ? (error instanceof Error ? error.message : String(error)) : null,
+    }),
+    [result, loading, error]
+  );
+
   const actions: CompanyPageActions = useMemo(
     () => ({
       fetchData: async () => {
-        try {
-          const user = await getAuthenticatedUser();
-          if (!user) {
-            setState((prev) => ({
-              ...prev,
-              data: null,
-              loading: false,
-              error: "Unauthorized. Please log in.",
-            }));
-            return;
-          }
-          if (!user.companyId) {
-            setState((prev) => ({
-              ...prev,
-              data: null,
-              loading: false,
-              error:
-                "No company associated with this account. Please create or join a company.",
-            }));
-            return;
-          }
-          const result = await getCompanyProfile();
-          setState({
-            data: {
-              profile: result.profile as CompanyProfile,
-              stats: result.stats as CompanyStats,
-              members: result.members as CompanyMember[],
-            },
-            loading: false,
-            error: null,
-          });
-        } catch (err: unknown) {
-          const message =
-            err instanceof Error ? err.message : "Failed to load company data.";
-          setState((prev) => ({
-            ...prev,
-            data: null,
-            loading: false,
-            error: message,
-          }));
-        }
+        await refetch();
       },
-
       refreshAll: async () => {
-        setState((prev) => ({ ...prev, loading: true, error: null }));
-        try {
-          const result = await getCompanyProfile();
-          setState({
-            data: {
-              profile: result.profile as CompanyProfile,
-              stats: result.stats as CompanyStats,
-              members: result.members as CompanyMember[],
-            },
-            loading: false,
-            error: null,
-          });
-        } catch (err: unknown) {
-          const message =
-            err instanceof Error
-              ? err.message
-              : "Failed to refresh company data.";
-          setState((prev) => ({ ...prev, loading: false, error: message }));
-        }
+        await refetch();
       },
-
       deleteMember: async (memberId: string) => {
-        try {
-          const { removeCompanyUser } =
-            await import("@/app/lib/controllers/company");
-          await removeCompanyUser(memberId);
-          setState((prev) => {
-            if (!prev.data) return prev;
-            return {
-              ...prev,
-              data: {
-                ...prev.data,
-                members: prev.data.members.filter((m) => m.id !== memberId),
-              },
-            };
-          });
-        } catch (err: unknown) {
-          const message =
-            err instanceof Error ? err.message : "Failed to delete member.";
-          setState((prev) => ({ ...prev, error: message }));
-          throw err;
-        }
+        await deleteMutation.mutateAsync(memberId);
       },
     }),
-    []
+    [refetch, deleteMutation]
   );
 
-  /* -------------------------------- LIFECYCLE ------------------------------- */
-
-  useEffect(() => {
-    actions.fetchData();
-  }, [actions]);
-
   /* --------------------------------- KPI --------------------------------- */
-
   const kpis = [
     {
       label: "Total Users",
@@ -187,6 +118,7 @@ export default function CompanyPage() {
       color: theme.palette.kpi.violet,
     },
   ];
+
   return (
     <Box position="relative" p={{ xs: 2, md: 4 }} width="100%">
       <Stack

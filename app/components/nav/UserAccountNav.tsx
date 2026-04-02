@@ -19,7 +19,7 @@ import {
   Person as PersonIcon,
   Logout as LogoutIcon,
 } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
+
 import { getUserSession, logoutAction } from "@/app/lib/actions/auth";
 
 // Dialogs
@@ -68,7 +68,7 @@ const menuPaperSx = {
 
 export default function UserAccountNav() {
   const theme = useTheme();
-  const router = useRouter();
+
   
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
@@ -121,8 +121,7 @@ export default function UserAccountNav() {
   const handleLogout = async () => {
     handleMenuClose();
     await logoutAction();
-    router.push("/");
-    router.refresh();
+    window.location.href = "/";
   };
 
   if (loading) {

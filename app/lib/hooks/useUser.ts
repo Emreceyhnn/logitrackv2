@@ -18,23 +18,10 @@ export function useUser() {
     const fetchUser = async () => {
       try {
         const session = await getUserSession();
-        if (session) {
-          setUser(session);
-        } else {
-          setUser({
-            id: "usr_001",
-            companyId: "cmlgt985b0003x0cuhtyxoihd",
-            roleId: "role_admin",
-          });
-        }
+        setUser(session);
       } catch (error) {
         console.error("Failed to fetch user session", error);
-
-        setUser({
-          id: "usr_001",
-          companyId: "cmlgt985b0003x0cuhtyxoihd",
-          roleId: "role_admin",
-        });
+        setUser(null);
       } finally {
         setLoading(false);
       }

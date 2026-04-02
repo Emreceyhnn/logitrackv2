@@ -22,13 +22,12 @@ import EditCustomerDialog from "@/app/components/dialogs/customer/editCustomerDi
 import AddCustomerDialog from "@/app/components/dialogs/customer/addCustomerDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import CustomerList from "@/app/components/dashboard/customer/CustomerList";
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
 import {
-  CustomerPageState,
   CustomerPageActions,
   CustomerWithRelations,
 } from "@/app/lib/type/customer";
-import { getCustomers, deleteCustomer } from "@/app/lib/controllers/customer";
+import { useCustomers, useCustomerMutations } from "@/app/hooks/useCustomers";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { toast } from "sonner";
 
@@ -36,23 +35,25 @@ export default function CustomersPage() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const { user } = useUser();
 
-  /* --------------------------------- STATES --------------------------------- */
-  const [state, setState] = useState<CustomerPageState>({
-    customers: [],
-    selectedCustomerId: null,
-    filters: {
-      search: "",
-    },
-    loading: true,
-    error: null,
-  });
+  /* ---------------------------------- STATE --------------------------------- */
+  const [filters, setFilters] = useState<{ search: string }>({ search: "" });
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
+    null
+  );
   const [detailOpen, setDetailOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [actionCustomer, setActionCustomer] =
     useState<CustomerWithRelations | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  /* ---------------------------------- HOOKS --------------------------------- */
+  const {
+    data: customers = [],
+    isLoading: loading,
+    refetch: refetchCustomers,
+  } = useCustomers();
+  const { deleteCustomer: deleteMutation } = useCustomerMutations();
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleEdit = (customer: CustomerWithRelations) => {
@@ -67,78 +68,38 @@ export default function CustomersPage() {
 
   const handleDeleteConfirm = async () => {
     if (!actionCustomer || !user) return;
-    setDeleteLoading(true);
     try {
-      await deleteCustomer(actionCustomer.id);
+      await deleteMutation.mutateAsync(actionCustomer.id);
       toast.success("Customer deleted successfully");
       setDeleteOpen(false);
       setDetailOpen(false);
-      fetchCustomers();
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to delete customer";
-      console.error("Failed to delete customer:", error);
+      const message = error instanceof Error ? error.message : "Failed to delete customer";
       toast.error(message);
-    } finally {
-      setDeleteLoading(false);
     }
   };
 
-  /* --------------------------------- actions -------------------------------- */
-  const fetchCustomers = useCallback(async () => {
-    setState((prev: CustomerPageState) => ({ ...prev, loading: true }));
-    try {
-      const data = await getCustomers();
-
-      setState((prev: CustomerPageState) => ({
-        ...prev,
-        customers: data,
-        loading: false,
-        error: null,
-      }));
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to fetch customers";
-      console.error("Failed to fetch customers", error);
-      setState((prev: CustomerPageState) => ({
-        ...prev,
-        loading: false,
-        error: message,
-      }));
-    }
-  }, []);
-
+  /* --------------------------------- ACTIONS -------------------------------- */
   const actions: CustomerPageActions = {
-    fetchCustomers,
+    fetchCustomers: async () => {},
     selectCustomer: (id: string | null) => {
-      setState((prev: CustomerPageState) => ({
-        ...prev,
-        selectedCustomerId: id,
-      }));
+      setSelectedCustomerId(id);
       if (id) setDetailOpen(true);
     },
-    updateFilters: (filters: Partial<CustomerPageState["filters"]>) =>
-      setState((prev: CustomerPageState) => ({
-        ...prev,
-        filters: { ...prev.filters, ...filters },
-      })),
+    updateFilters: (newFilters: Partial<{ search: string }>) =>
+      setFilters((prev) => ({ ...prev, ...newFilters })),
   };
-
-  /* ------------------------------- LIFECYCLES ------------------------------- */
-  useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers]);
 
   /* --------------------------------- HELPERS -------------------------------- */
   const filteredCustomers = useMemo(() => {
-    if (!state.filters.search) return state.customers;
-    const lowerTerm = state.filters.search.toLowerCase();
-    return state.customers.filter(
+    if (!filters.search) return customers;
+    const lowerTerm = filters.search.toLowerCase();
+    return customers.filter(
       (c: CustomerWithRelations) =>
         c.name.toLowerCase().includes(lowerTerm) ||
         c.code.toLowerCase().includes(lowerTerm)
     );
-  }, [state.customers, state.filters.search]);
+  }, [customers, filters.search]);
 
   const mapLocations = useMemo<MarkerData[]>(() => {
     return filteredCustomers.flatMap((c: CustomerWithRelations) => {
@@ -168,7 +129,7 @@ export default function CustomersPage() {
               fullWidth
               placeholder="Search customers..."
               size="small"
-              value={state.filters.search || ""}
+              value={filters.search || ""}
               onChange={(e) =>
                 actions.updateFilters({ search: e.target.value })
               }
@@ -196,8 +157,8 @@ export default function CustomersPage() {
         <Box sx={{ flex: 1, overflow: "hidden" }}>
           <CustomerList
             customers={filteredCustomers}
-            selectedId={state.selectedCustomerId}
-            loading={state.loading}
+            selectedId={selectedCustomerId}
+            loading={loading}
             onSelect={actions.selectCustomer}
             onEdit={handleEdit}
             onDelete={handleDelete}
@@ -240,20 +201,20 @@ export default function CustomersPage() {
       <CustomerDetailDialog
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
-        customerId={state.selectedCustomerId}
+        customerId={selectedCustomerId}
       />
 
       <EditCustomerDialog
         open={editOpen}
         onClose={() => setEditOpen(false)}
-        onSuccess={fetchCustomers}
+        onSuccess={refetchCustomers}
         customer={actionCustomer}
       />
 
       <AddCustomerDialog
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        onSuccess={fetchCustomers}
+        onSuccess={refetchCustomers}
       />
 
       <DeleteConfirmationDialog
@@ -262,7 +223,7 @@ export default function CustomersPage() {
         onConfirm={handleDeleteConfirm}
         title="Delete Customer?"
         description={`Are you sure you want to delete ${actionCustomer?.name || "this customer"}? This action cannot be undone.`}
-        loading={deleteLoading}
+        loading={deleteMutation.isPending}
       />
     </Box>
   );

@@ -6,6 +6,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { ThemeContext } from "./themeContext";
 import { getTheme, type ThemeMode } from "./theme";
+import QueryProvider from "../providers/QueryProvider";
+import { Toaster } from "sonner";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<ThemeMode>("dark");
@@ -14,10 +16,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeContext.Provider value={{ mode, setMode }}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          {children}
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Toaster richColors closeButton position="top-right" />
+            {children}
+          </ThemeProvider>
+        </QueryProvider>
       </LocalizationProvider>
     </ThemeContext.Provider>
   );

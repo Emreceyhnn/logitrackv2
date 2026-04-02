@@ -235,7 +235,7 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
           <MapVehicleOverviewCard
             id={vehicle.id}
             name={vehicle.plate}
-            location={
+            dbLocation={
               vehicle.currentLat && vehicle.currentLng
                 ? { lat: vehicle.currentLat, lng: vehicle.currentLng }
                 : null

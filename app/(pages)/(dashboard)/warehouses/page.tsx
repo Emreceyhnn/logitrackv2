@@ -1,25 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Box, Button, Stack, Typography, Divider } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
 import WarehouseListTable from "@/app/components/dashboard/warehouse/warehouseList";
 import CapacityUtilization from "@/app/components/dashboard/warehouse/capacityUtilization";
 import RecentStockMovements from "@/app/components/dashboard/warehouse/recentStockMovements";
 import AddIcon from "@mui/icons-material/Add";
-import {
-  getRecentStockMovements,
-  getWarehouses,
-  getWarehouseStats,
-  deleteWarehouse,
-} from "@/app/lib/controllers/warehouse";
 import { toast } from "sonner";
 import {
   WarehousePageActions,
-  WarehousePageState,
-  WarehouseWithRelations,
-  InventoryMovementWithRelations,
 } from "@/app/lib/type/warehouse";
+import { 
+  useWarehouses, 
+  useWarehouseStats, 
+  useRecentStockMovements, 
+  useWarehouseMutations 
+} from "@/app/hooks/useWarehouses";
 import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseDialog";
 import WarehouseDetailsDialog from "@/app/components/dialogs/warehouse/warehouseDetailsDialog";
 import EditWarehouseDialog from "@/app/components/dialogs/warehouse/editWarehouseDialog";
@@ -28,7 +25,7 @@ import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvid
 import { useTheme } from "@mui/material";
 
 import {
-  Warehouse,
+  Warehouse as WarehouseIcon,
   Inventory2,
   ListAlt,
   Storage,
@@ -41,64 +38,35 @@ export default function WarehousePage() {
   const theme = useTheme();
 
   /* --------------------------------- STATES --------------------------------- */
-  const [state, setState] = useState<WarehousePageState>({
-    warehouses: [],
-    stats: null,
-    recentMovements: [],
-    selectedWarehouseId: null,
-    loading: true,
-    error: null,
-  });
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [warehouseToEditId, setWarehouseToEditId] = useState<string | null>(
-    null
-  );
+  const [warehouseToEditId, setWarehouseToEditId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [warehouseToDeleteId, setWarehouseToDeleteId] = useState<string | null>(
-    null
-  );
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [warehouseToDeleteId, setWarehouseToDeleteId] = useState<string | null>(null);
+
+  /* ---------------------------------- HOOKS --------------------------------- */
+  const { data: warehouses = [], isLoading: isWarehousesLoading, refetch: refetchWarehouses } = useWarehouses();
+  const { data: stats, isLoading: isStatsLoading, refetch: refetchStats } = useWarehouseStats();
+  const { data: recentMovements = [], isLoading: isMovementsLoading, refetch: refetchMovements } = useRecentStockMovements();
+  
+  const { deleteWarehouse: deleteMutation } = useWarehouseMutations();
+
+  const loading = isWarehousesLoading || isStatsLoading || isMovementsLoading;
 
   /* --------------------------------- ACTIONS -------------------------------- */
-  const fetchAllData = useCallback(async (isInitial = false) => {
-    if (isInitial) setState((prev) => ({ ...prev, loading: true }));
-    try {
-      const [warehousesData, statsData, movementsData] = await Promise.all([
-        getWarehouses(),
-        getWarehouseStats(),
-        getRecentStockMovements(),
-      ]);
+  const refreshAll = useCallback(async () => {
+    await Promise.all([refetchWarehouses(), refetchStats(), refetchMovements()]);
+  }, [refetchWarehouses, refetchStats, refetchMovements]);
 
-      setState((prev) => ({
-        ...prev,
-        warehouses: warehousesData as WarehouseWithRelations[],
-        stats: statsData,
-        recentMovements: movementsData as InventoryMovementWithRelations[],
-        loading: false,
-        error: null,
-      }));
-    } catch (error) {
-      console.error("Failed to fetch warehouse data:", error);
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: "Failed to load warehouse data",
-      }));
-    }
-  }, []);
   const actions: WarehousePageActions = {
-    fetchWarehouses: async () => {
-      await fetchAllData();
-    },
+    fetchWarehouses: async () => {},
     fetchStats: async () => {},
     fetchRecentMovements: async () => {},
-    refreshAll: async () => {
-      await fetchAllData(false);
-    },
+    refreshAll,
     selectWarehouse: (id: string | null) => {
-      setState((prev) => ({ ...prev, selectedWarehouseId: id }));
+      setSelectedWarehouseId(id);
       if (id) {
         setDetailsDialogOpen(true);
       }
@@ -116,71 +84,55 @@ export default function WarehousePage() {
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleDeleteConfirm = async () => {
     if (!warehouseToDeleteId) return;
-    setDeleteLoading(true);
     try {
-      await deleteWarehouse(warehouseToDeleteId);
+      await deleteMutation.mutateAsync(warehouseToDeleteId);
       toast.success("Warehouse deleted successfully");
       setDeleteDialogOpen(false);
-      actions.refreshAll();
     } catch (error) {
       toast.error("Failed to delete warehouse");
       console.error(error);
     } finally {
-      setDeleteLoading(false);
       setWarehouseToDeleteId(null);
     }
   };
 
-  /* -------------------------------- LIFECYCLE ------------------------------- */
-  useEffect(() => {
-    let mounted = true;
-    const loadInit = async () => {
-      if (mounted) await fetchAllData(true);
-    };
-    loadInit();
-    return () => {
-      mounted = false;
-    };
-  }, [fetchAllData]);
-
-  const warehouseToDelete = state.warehouses.find(
-    (w) => w.id === warehouseToDeleteId
+  const warehouseToDelete = warehouses.find(
+    (w: any) => w.id === warehouseToDeleteId
   );
 
   /* --------------------------------- KPI --------------------------------- */
-
   const kpiItems = [
     {
       label: "TOTAL WAREHOUSES",
-      value: state.stats?.totalWarehouses || 0,
-      icon: <Warehouse sx={{ fontSize: 22 }} />,
+      value: stats?.totalWarehouses || 0,
+      icon: <WarehouseIcon sx={{ fontSize: 22 }} />,
       color: theme.palette.primary.main,
       trend: { value: 2, isUp: true },
     },
     {
       label: "INVENTORY SKUS",
-      value: state.stats?.totalSkus.toLocaleString() || 0,
+      value: stats?.totalSkus.toLocaleString() || 0,
       icon: <Inventory2 sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.cyan,
       trend: { value: 12, isUp: true },
     },
     {
       label: "TOTAL ITEMS",
-      value: state.stats?.totalItems.toLocaleString() || 0,
+      value: stats?.totalItems.toLocaleString() || 0,
       icon: <ListAlt sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.violet,
       trend: { value: 8, isUp: true },
     },
     {
       label: "PALLET CAPACITY",
-      value: state.stats?.totalCapacityPallets.toLocaleString() || 0,
+      value: stats?.totalCapacityPallets.toLocaleString() || 0,
       icon: <Category sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.amber,
       trend: { value: 5, isUp: true },
     },
     {
       label: "STOCKED VOLUME",
-      value: `${state.stats?.totalCapacityVolume.toLocaleString()} M³`,
+      value: `${stats?.totalCapacityVolume.toLocaleString() || 0} M³`,
       icon: <Storage sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.emerald,
       trend: { value: 15, isUp: true },
@@ -216,7 +168,7 @@ export default function WarehousePage() {
       </Stack>
 
       <Box mb={2}>
-        <KpiCards kpis={kpiItems} loading={state.loading} />
+        <KpiCards kpis={kpiItems} loading={loading} />
       </Box>
 
       <Stack mt={2}>
@@ -226,8 +178,8 @@ export default function WarehousePage() {
           </Typography>
           <Divider />
           <WarehouseListTable
-            warehouses={state.warehouses}
-            loading={state.loading}
+            warehouses={warehouses}
+            loading={loading}
             onSelect={actions.selectWarehouse}
             onEdit={actions.editWarehouse}
             onDelete={actions.deleteWarehouse}
@@ -238,12 +190,12 @@ export default function WarehousePage() {
 
       <Stack direction={{ xs: "column", xl: "row" }} spacing={4} sx={{ mt: 2 }}>
         <CapacityUtilization
-          warehouses={state.warehouses}
-          loading={state.loading}
+          warehouses={warehouses}
+          loading={loading}
         />
         <RecentStockMovements
-          movements={state.recentMovements}
-          loading={state.loading}
+          movements={recentMovements}
+          loading={loading}
         />
       </Stack>
 
@@ -251,7 +203,7 @@ export default function WarehousePage() {
         <AddWarehouseDialog
           open={addDialogOpen}
           onClose={() => setAddDialogOpen(false)}
-          onSuccess={actions.refreshAll}
+          onSuccess={refreshAll}
         />
 
         <WarehouseDetailsDialog
@@ -260,9 +212,9 @@ export default function WarehousePage() {
             setDetailsDialogOpen(false);
             actions.selectWarehouse(null);
           }}
-          onEditSuccess={actions.refreshAll}
+          onEditSuccess={refreshAll}
           warehouseData={
-            state.warehouses.find((w) => w.id === state.selectedWarehouseId) ||
+            warehouses.find((w: any) => w.id === selectedWarehouseId) ||
             undefined
           }
         />
@@ -279,7 +231,7 @@ export default function WarehousePage() {
             actions.refreshAll();
           }}
           warehouseData={
-            state.warehouses.find((w) => w.id === warehouseToEditId) ||
+            warehouses.find((w: any) => w.id === warehouseToEditId) ||
             undefined
           }
         />
@@ -291,7 +243,7 @@ export default function WarehousePage() {
         onConfirm={handleDeleteConfirm}
         title="Delete Warehouse?"
         description={`Are you sure you want to delete ${warehouseToDelete?.name || "this warehouse"}? This action cannot be undone.`}
-        loading={deleteLoading}
+        loading={deleteMutation.isPending}
       />
     </Box>
   );

@@ -1,4 +1,4 @@
-import { Box, Divider, List, ListItem, Stack, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Divider, List, ListItem, ListItemButton, Stack, Typography, alpha, useTheme } from "@mui/material";
 import CustomCard from "../../cards/card";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
@@ -8,6 +8,7 @@ import WarehouseIcon from "@mui/icons-material/Warehouse";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { ReactNode } from "react";
 import { ActionRequiredItems } from "@/app/lib/type/overview";
+import { useRouter } from "next/navigation";
 
 interface ActionRequiredCardProps {
   alerts?: ActionRequiredItems[];
@@ -15,6 +16,13 @@ interface ActionRequiredCardProps {
 
 const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
   const theme = useTheme();
+  const router = useRouter();
+
+  const handleActionClick = (link?: string) => {
+    if (link) {
+      router.push(link);
+    }
+  };
 
   const setType: Record<ActionRequiredItems["type"], ReactNode> = {
     SHIPMENT_DELAY: (
@@ -136,31 +144,34 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
           <List sx={{ p: 0 }}>
             {alerts.map((i, index) => (
               <Box key={index}>
-                <ListItem
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "start",
-                    gap: 2,
-                    p: 2,
-                    transition: "background-color 0.2s",
-                    "&:hover": {
-                      bgcolor: "action.hover",
-                    }
-                  }}
-                >
-                  {setType[i.type]}
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => handleActionClick(i.link)}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "start",
+                      gap: 2,
+                      p: 2,
+                      transition: "background-color 0.2s",
+                      "&:hover": {
+                        bgcolor: "action.hover",
+                      },
+                    }}
+                  >
+                    {setType[i.type]}
 
-                  <Stack spacing={0.25}>
-                    <Typography fontSize={14} fontWeight={600} color="text.primary">
-                      {i.title}
-                    </Typography>
-                    <Typography fontSize={13} color="text.secondary">
-                      {i.message}
-                    </Typography>
-                  </Stack>
+                    <Stack spacing={0.25}>
+                      <Typography fontSize={14} fontWeight={600} color="text.primary">
+                        {i.title}
+                      </Typography>
+                      <Typography fontSize={13} color="text.secondary">
+                        {i.message}
+                      </Typography>
+                    </Stack>
+                  </ListItemButton>
                 </ListItem>
-                {index !== alerts.length - 1 && <Divider component="li" />}
+                {index !== alerts.length - 1 && <Divider />}
               </Box>
             ))}
           </List>

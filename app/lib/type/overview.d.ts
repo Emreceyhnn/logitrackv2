@@ -3,6 +3,7 @@ export interface ActionRequiredItems {
   type: "vehicle" | "driver" | "SHIPMENT_DELAY" | "DOCUMENT_DUE" | "warehouse";
   title: string;
   message: string;
+  link?: string;
 }
 
 export interface OverviewStats {

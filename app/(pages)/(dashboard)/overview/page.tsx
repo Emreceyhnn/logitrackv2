@@ -20,22 +20,10 @@ import ShipmentOnStatusCard from "@/app/components/dashboard/overview/shipmentsB
 import PicksPacksDailyCard from "@/app/components/dashboard/overview/picsPacksDailyCard";
 import ShipmentVolumeCard from "@/app/components/dashboard/overview/onTimeTrends";
 import OverviewMapCard from "@/app/components/dashboard/overview/overViewMapCard";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import {
-  getOverviewStats,
-  getActionRequired,
-  getDailyOperations,
-  getFuelStats,
-  getWarehouseCapacity,
-  getLowStockItems,
-  getShipmentStatusStats,
-  getPicksAndPacks,
-  getShipmentVolumeHistory,
-  getMapData,
-} from "@/app/lib/controllers/analytics";
-import { OverviewPageState, MapData } from "@/app/lib/type/overview";
+import { useOverviewData } from "@/app/hooks/useOverview";
+import { MapData } from "@/app/lib/type/overview";
 import {
   LocalShipping,
   AccessTime,
@@ -50,167 +38,83 @@ import KpiCards from "@/app/components/cards/KpiCards";
 
 export default function OverviewPage() {
   /* -------------------------------- VARIABLES ------------------------------- */
-  const router = useRouter();
   const theme = useTheme();
 
-  /* --------------------------------- STATES --------------------------------- */
-  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
-  const [state, setState] = useState<OverviewPageState>({
-    data: {
-      stats: null,
-      dailyOps: null,
-      fuelStats: [],
-      warehouseCapacity: [],
-      lowStockItems: [],
-      shipmentStatus: [],
-      picksAndPacks: null,
-      shipmentVolume: [],
-      trends: [], // Backward compatibility
-      mapData: [],
-    },
-    alerts: [],
-    loading: true,
-    error: null,
-  });
+  /* ---------------------------------- HOOKS --------------------------------- */
+  const { data, isLoading, refetch } = useOverviewData();
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(new Date());
 
-  /* --------------------------------- ACTIONS -------------------------------- */
-  const fetchDashboardData = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true }));
-
-    try {
-      // Check auth & company
-      const session = await getOverviewStats();
-
-      if (!session) {
-        // Redirect to onboarding if no companyId exists
-        router.push("/onboarding");
-        return;
-      }
-
-      const [
-        statsData,
-        alertsData,
-        dailyOpsData,
-        fuelData,
-        capacityData,
-        lowStockData,
-        statusData,
-        picksData,
-        volumeData,
-        mapDataRes,
-      ] = await Promise.all([
-        Promise.resolve(session),
-        getActionRequired(),
-        getDailyOperations(),
-        getFuelStats(),
-        getWarehouseCapacity(),
-        getLowStockItems(),
-        getShipmentStatusStats(),
-        getPicksAndPacks(),
-        getShipmentVolumeHistory(),
-        getMapData(),
-      ]);
-
-      const validMapData: MapData[] = (mapDataRes || []).map(
-        (item: MapData) => ({
-          ...item,
-          type: (["W", "V", "C"].includes(item.type) ? item.type : "W") as
-            | "W"
-            | "V"
-            | "C",
-        })
-      );
-
-      setState({
-        data: {
-          stats: statsData,
-          dailyOps: dailyOpsData,
-          fuelStats: fuelData || [],
-          warehouseCapacity: capacityData || [],
-          lowStockItems: lowStockData || [],
-          shipmentStatus: statusData || [],
-          picksAndPacks: picksData,
-          shipmentVolume: volumeData || [],
-          trends: [],
-          mapData: validMapData,
-        },
-        alerts: alertsData || [],
-        loading: false,
-        error: null,
-      });
-      setLastRefreshed(new Date());
-    } catch (error) {
-      console.error("Failed to fetch dashboard data:", error);
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: "Failed to fetch data",
-      }));
-    }
-  }, [router]);
-
-  /* -------------------------------- LIFECYCLE ------------------------------- */
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchDashboardData();
-  }, [fetchDashboardData]);
+  const handleRefresh = async () => {
+    await refetch();
+    setLastRefreshed(new Date());
+  };
 
   /* ----------------------------------- KPI ---------------------------------- */
-  const kpiItems = [
+  const kpiItems = useMemo(() => [
     {
       label: "Active Shipments",
-      value: state.data.stats?.activeShipments || 0,
+      value: data.stats?.activeShipments || 0,
       icon: <LocalShipping sx={{ fontSize: 22 }} />,
       color: theme.palette.primary.main,
       trend: { value: 4, isUp: true },
     },
     {
       label: "Delayed Shipments",
-      value: state.data.stats?.delayedShipments || 0,
+      value: data.stats?.delayedShipments || 0,
       icon: <AccessTime sx={{ fontSize: 22 }} />,
       color: theme.palette.error.main,
       trend: { value: 1, isUp: false },
     },
     {
       label: "Vehicles On Trip",
-      value: state.data.stats?.vehiclesOnTrip || 0,
+      value: data.stats?.vehiclesOnTrip || 0,
       icon: <DirectionsCar sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.sky,
       trend: { value: 6, isUp: true },
     },
     {
       label: "Vehicles In Service",
-      value: state.data.stats?.vehiclesInService || 0,
+      value: data.stats?.vehiclesInService || 0,
       icon: <Build sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.amber,
     },
     {
       label: "Available Vehicles",
-      value: state.data.stats?.availableVehicles || 0,
+      value: data.stats?.availableVehicles || 0,
       icon: <CheckCircle sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.emerald,
       trend: { value: 2, isUp: true },
     },
     {
       label: "Active Drivers",
-      value: state.data.stats?.activeDrivers || 0,
+      value: data.stats?.activeDrivers || 0,
       icon: <Person sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.violet,
     },
     {
       label: "Warehouses",
-      value: state.data.stats?.warehouses || 0,
+      value: data.stats?.warehouses || 0,
       icon: <Warehouse sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.indigo,
     },
     {
       label: "Inventory Skus",
-      value: state.data.stats?.inventorySkus || 0,
+      value: data.stats?.inventorySkus || 0,
       icon: <Inventory sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.cyan,
       trend: { value: 8, isUp: true },
     },
-  ];
+  ], [data.stats, theme]);
+
+  const mapData: MapData[] = useMemo(() => (data.mapData || []).map(
+    (item: any) => ({
+      ...item,
+      type: (["W", "V", "C"].includes(item.type) ? item.type : "W") as
+        | "W"
+        | "V"
+        | "C",
+    })
+  ), [data.mapData]);
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>
@@ -243,10 +147,10 @@ export default function OverviewPage() {
           <Tooltip title="Refresh Dashboard">
             <IconButton
               size="small"
-              onClick={fetchDashboardData}
-              disabled={state.loading}
+              onClick={handleRefresh}
+              disabled={isLoading}
               sx={{
-                animation: state.loading ? "spin 1s linear infinite" : "none",
+                animation: isLoading ? "spin 1s linear infinite" : "none",
                 "@keyframes spin": {
                   "0%": { transform: "rotate(0deg)" },
                   "100%": { transform: "rotate(360deg)" },
@@ -260,7 +164,7 @@ export default function OverviewPage() {
       </Stack>
       <Divider sx={{ mb: 3 }} />
 
-      <KpiCards kpis={kpiItems} loading={state.loading} />
+      <KpiCards kpis={kpiItems} loading={isLoading} />
 
       <Box
         sx={{
@@ -274,7 +178,7 @@ export default function OverviewPage() {
           mt: 3,
         }}
       >
-        {state.loading ? (
+        {isLoading ? (
           <>
             {Array.from(new Array(3)).map((_, i) => (
               <Box
@@ -394,7 +298,7 @@ export default function OverviewPage() {
                 flexDirection: "column",
               }}
             >
-              <DailyOperationsCard values={state.data.dailyOps} />
+              <DailyOperationsCard values={data.dailyOps} />
             </Box>
             <Box
               sx={{
@@ -403,7 +307,7 @@ export default function OverviewPage() {
                 flexDirection: "column",
               }}
             >
-              <FuelByVehicleCard values={state.data.fuelStats} />
+              <FuelByVehicleCard values={data.fuelStats} />
             </Box>
             <Box
               sx={{
@@ -412,7 +316,7 @@ export default function OverviewPage() {
                 flexDirection: "column",
               }}
             >
-              <ShipmentOnStatusCard values={state.data.shipmentStatus} />
+              <ShipmentOnStatusCard values={data.shipmentStatus} />
             </Box>
 
             <Box
@@ -422,7 +326,7 @@ export default function OverviewPage() {
                 flexDirection: "column",
               }}
             >
-              <ActionRequiredCard alerts={state.alerts} />
+              <ActionRequiredCard alerts={data.alerts} />
             </Box>
             <Box
               sx={{
@@ -431,7 +335,7 @@ export default function OverviewPage() {
                 flexDirection: "column",
               }}
             >
-              <WarehouseCapacityCard values={state.data.warehouseCapacity} />
+              <WarehouseCapacityCard values={data.warehouseCapacity} />
             </Box>
             <Box
               sx={{
@@ -440,7 +344,7 @@ export default function OverviewPage() {
                 flexDirection: "column",
               }}
             >
-              <PicksPacksDailyCard values={state.data.picksAndPacks} />
+              <PicksPacksDailyCard values={data.picksAndPacks} />
             </Box>
 
             <Box
@@ -450,7 +354,7 @@ export default function OverviewPage() {
                 flexDirection: "column",
               }}
             >
-              <ShipmentVolumeCard values={state.data.shipmentVolume} />
+              <ShipmentVolumeCard values={data.shipmentVolume} />
             </Box>
             <Box
               sx={{
@@ -459,7 +363,7 @@ export default function OverviewPage() {
                 flexDirection: "column",
               }}
             >
-              <AlertInventoryCard inventory={state.data.lowStockItems} />
+              <AlertInventoryCard inventory={data.lowStockItems} />
             </Box>
 
             <Box
@@ -469,7 +373,7 @@ export default function OverviewPage() {
                 flexDirection: "column",
               }}
             >
-              <OverviewMapCard stats={state.data.mapData} />
+              <OverviewMapCard stats={mapData} />
             </Box>
           </>
         )}

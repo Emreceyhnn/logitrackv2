@@ -98,9 +98,7 @@ export async function createSession(
   const refreshToken = generateRefreshToken();
 
   const tokenHash = hashToken(accessToken);
-  const expiresAt = new Date(
-    Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000
-  );
+  const expiresAt = new Date(Date.now() + 60 * 1000);
 
   // Create session in DB
   try {
@@ -125,7 +123,7 @@ export async function createSession(
 
     cookieStore.set("refreshToken", refreshToken, {
       ...COOKIE_OPTIONS,
-      maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60, // 7 days in seconds
+      maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
     });
 
     return { accessToken, sessionId: session.id };
@@ -284,10 +282,12 @@ export async function refreshSession(): Promise<boolean> {
     });
 
     if (!session || session.isRevoked || session.expiresAt < new Date()) {
+      await clearAuthCookies();
       return false;
     }
 
     if (session.user.status !== "ACTIVE") {
+      await clearAuthCookies();
       return false;
     }
 
@@ -314,7 +314,7 @@ export async function refreshSession(): Promise<boolean> {
 
     cookieStore.set("refreshToken", newRefreshToken, {
       ...COOKIE_OPTIONS,
-      maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60,
+      maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
     });
 
     // Log the refresh event
