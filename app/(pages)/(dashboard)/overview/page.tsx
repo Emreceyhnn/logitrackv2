@@ -107,7 +107,7 @@ export default function OverviewPage() {
   ], [data.stats, theme]);
 
   const mapData: MapData[] = useMemo(() => (data.mapData || []).map(
-    (item: any) => ({
+    (item: MapData) => ({
       ...item,
       type: (["W", "V", "C"].includes(item.type) ? item.type : "W") as
         | "W"

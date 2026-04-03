@@ -3,7 +3,7 @@
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
-import { Prisma, Customer, CustomerLocation } from "@prisma/client";
+import { Prisma, Customer, CustomerLocation, ShipmentStatus, ShipmentPriority } from "@prisma/client";
 
 interface CustomerWithLocations extends Customer {
   locations: CustomerLocation[];
@@ -15,7 +15,7 @@ export const createShipment = authenticatedAction(
     customerId: string | null | undefined,
     origin: string,
     destination: string,
-    status: string = "PENDING",
+    status: ShipmentStatus = ShipmentStatus.PENDING,
     itemsCount: number = 1,
     weightKg: number = 0,
     volumeM3: number = 0,
@@ -27,7 +27,7 @@ export const createShipment = authenticatedAction(
     originLng?: number,
     trackingId?: string,
     customerLocationId?: string,
-    priority: string = "MEDIUM",
+    priority: ShipmentPriority = ShipmentPriority.MEDIUM,
     type: string = "Standard Freight",
     slaDeadline?: Date | null,
     contactEmail?: string,
@@ -156,10 +156,10 @@ export const assignDriverToShipment = authenticatedAction(
         where: { id: shipmentId },
         data: {
           driverId,
-          status: "assigned",
+          status: ShipmentStatus.ASSIGNED,
           history: {
             create: {
-              status: "assigned",
+              status: ShipmentStatus.ASSIGNED,
               description: `Driver assigned`,
               createdBy: userId,
             },
@@ -199,10 +199,10 @@ export const assignRouteToShipment = authenticatedAction(
         where: { id: shipmentId },
         data: {
           routeId,
-          status: "planned",
+          status: ShipmentStatus.PLANNED,
           history: {
             create: {
-              status: "planned",
+              status: ShipmentStatus.PLANNED,
               description: `Route assigned`,
               createdBy: userId,
             },
@@ -222,7 +222,7 @@ export const updateShipmentStatus = authenticatedAction(
   async (
     user,
     shipmentId: string,
-    status: string,
+    status: ShipmentStatus,
     location?: string,
     description?: string
   ) => {
@@ -459,14 +459,14 @@ export const getShipmentStats = authenticatedAction(async (user) => {
       db.shipment.count({
         where: {
           companyId,
-          status: { in: ["PENDING", "IN_TRANSIT", "PROCESSING"] },
+          status: { in: [ShipmentStatus.PENDING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.PROCESSING] },
         },
       }),
       db.shipment.count({
-        where: { companyId, status: "DELAYED" },
+        where: { companyId, status: ShipmentStatus.DELAYED },
       }),
       db.shipment.count({
-        where: { companyId, status: "IN_TRANSIT" },
+        where: { companyId, status: ShipmentStatus.IN_TRANSIT },
       }),
     ]);
 

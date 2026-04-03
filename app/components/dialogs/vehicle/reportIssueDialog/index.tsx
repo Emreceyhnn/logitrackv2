@@ -22,6 +22,7 @@ import { createVehicleIssue } from "@/app/lib/controllers/vehicle";
 import { vehicleReportIssueValidationSchema } from "@/app/lib/validationSchema";
 import { getPriorityColor } from "@/app/lib/priorityColor";
 import { ValidationError } from "yup";
+import { IssuePriority } from "@prisma/client";
 
 interface ReportIssueDialogProps {
   open: boolean;
@@ -33,7 +34,7 @@ interface ReportIssueDialogProps {
 
 interface IssueFormData {
   title: string;
-  priority: string;
+  priority: IssuePriority;
   description: string;
 }
 
@@ -50,7 +51,7 @@ const ReportIssueDialog = ({
   /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState<IssueFormData>({
     title: "",
-    priority: "MEDIUM",
+    priority: IssuePriority.MEDIUM,
     description: "",
   });
 
@@ -64,7 +65,7 @@ const ReportIssueDialog = ({
     if (open) {
       setFormData({
         title: "",
-        priority: "MEDIUM",
+        priority: IssuePriority.MEDIUM,
         description: "",
       });
       setError(null);
@@ -291,18 +292,18 @@ const ReportIssueDialog = ({
                   }
                 }}
               >
-                {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((p) => (
-                  <MenuItem key={p} value={p} sx={{ py: 1.5 }}>
+                {(Object.values(IssuePriority) as IssuePriority[]).map((p) => (
+                  <MenuItem key={p as string} value={p} sx={{ py: 1.5 }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                       <Box
                         sx={{
                           width: 8,
                           height: 8,
                           borderRadius: "50%",
-                          bgcolor: getPriorityColor(p),
+                          bgcolor: getPriorityColor(p as string),
                         }}
                       />
-                      <Typography variant="body2">{p}</Typography>
+                      <Typography variant="body2">{p as string}</Typography>
                     </Box>
                   </MenuItem>
                 ))}

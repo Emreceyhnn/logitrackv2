@@ -111,10 +111,7 @@ export default function ShipmentAnalytics({
               ]}
               height={300}
               margin={{ right: 150 }}
-              slotProps={{
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                legend: { hidden: true } as any,
-              }}
+              hideLegend
             />
           </Box>
         </Card>

@@ -246,9 +246,10 @@ function VehicleContent() {
             state={{
               ...state,
               vehicles,
+              dashboardData: dashboardData ?? null,
               loading,
               error: null,
-            } as any}
+            } as VehiclePageState}
             actions={{
               ...actions,
               onEdit: handleEdit,

@@ -27,18 +27,17 @@ import SearchIcon from "@mui/icons-material/Search";
 import TireRepairIcon from "@mui/icons-material/TireRepair";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { useState, useEffect } from "react";
 import { updateMaintenanceRecord } from "@/app/lib/controllers/vehicle";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
-import { MaintenanceStatus } from "@prisma/client";
+import { MaintenanceStatus, MaintenanceRecord } from "@prisma/client";
 
 interface MaintenanceDetailDialogProps {
   open: boolean;
   onClose: () => void;
-  record: any;
+  record: MaintenanceRecord | null;
   onSuccess: () => void;
 }
 
@@ -53,7 +52,7 @@ export default function MaintenanceDetailDialog({
     type: string;
     date: Dayjs;
     cost: string;
-    status: string;
+    status: MaintenanceStatus;
     description: string;
   }>({
     type: "",
@@ -71,7 +70,7 @@ export default function MaintenanceDetailDialog({
         type: record.type,
         date: dayjs(record.date),
         cost: record.cost.toString(),
-        status: record.status || "COMPLETED",
+        status: (record.status as MaintenanceStatus) || "COMPLETED",
         description: record.description || "",
       });
     }
@@ -79,6 +78,7 @@ export default function MaintenanceDetailDialog({
 
   /* -------------------------------- handlers -------------------------------- */
   const handleSubmit = async () => {
+    if (!record?.id) return;
     if (!formData.type || !formData.date || !formData.cost) {
       setError("Please fill in all required fields.");
       return;
@@ -88,11 +88,11 @@ export default function MaintenanceDetailDialog({
     setError(null);
 
     try {
-      await updateMaintenanceRecord(record.id, {
+      await updateMaintenanceRecord(record!.id, {
         type: formData.type,
         date: formData.date.toDate(),
         cost: parseFloat(formData.cost),
-        status: formData.status as MaintenanceStatus,
+        status: formData.status,
         description: formData.description,
       });
 

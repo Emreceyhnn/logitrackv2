@@ -23,7 +23,6 @@ import EditShipmentDialog from "@/app/components/dialogs/shipment/edit-shipment-
 import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDetailDialog";
 import AddShipmentDialog from "@/app/components/dialogs/shipment/addShipmentDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import { useUser } from "@/app/lib/hooks/useUser";
 import AddIcon from "@mui/icons-material/Add";
 
 import {
@@ -44,14 +43,12 @@ export default function ShipmentPage() {
 
 function ShipmentContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
-  const { user } = useUser();
   const theme = useTheme();
   const searchParams = useSearchParams();
   const shipmentIdFromUrl = searchParams.get("id");
 
   /* ---------------------------------- STATES --------------------------------- */
-  /* ---------------------------------- STATES --------------------------------- */
-  const [filters, setFilters] = useState<any>({});
+  const [filters, setFilters] = useState<ShipmentPageState["filters"]>({});
   const [selectedShipmentId, setSelectedShipmentId] = useState<string | null>(null);
   
   const [editOpen, setEditOpen] = useState(false);
@@ -81,17 +78,18 @@ function ShipmentContent() {
       fetchCharts: async () => {},
       refreshAll,
       selectShipment: (id: string | null) => setSelectedShipmentId(id),
-      updateFilters: (newFilters: any) => setFilters((prev: any) => ({ ...prev, ...newFilters })),
+      updateFilters: (newFilters: Partial<ShipmentPageState["filters"]>) => 
+        setFilters((prev) => ({ ...prev, ...newFilters })),
     }),
     [refreshAll]
   );
 
   /* -------------------------- COMPATIBILITY LAYER --------------------------- */
   const state: ShipmentPageState = {
-    shipments: shipments as any,
+    shipments: shipments,
     stats: stats || null,
-    volumeHistory: volumeHistory as any,
-    statusDistribution: statusDistribution as any,
+    volumeHistory: volumeHistory,
+    statusDistribution: statusDistribution,
     selectedShipmentId,
     filters,
     loading,

@@ -1,6 +1,7 @@
+import { ShipmentPriority } from "@prisma/client";
 import { InventoryWithRelations } from "./inventory";
 
-export type ShipmentPriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export { ShipmentPriority };
 
 export interface InventoryShipmentItem {
   id: string;

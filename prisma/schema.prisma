@@ -63,6 +63,47 @@ enum AuditAction {
   LOGIN_FAILED
 }
 
+enum ShipmentStatus {
+  PENDING
+  PROCESSING
+  ASSIGNED
+  PLANNED
+  IN_TRANSIT
+  DELIVERED
+  DELAYED
+  CANCELLED
+  COMPLETED
+  FAILED
+}
+
+enum ShipmentPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IssueType {
+  VEHICLE
+  DRIVER
+  SHIPMENT
+  OTHER
+}
+
 // Models
 
 model Company {
@@ -382,7 +423,7 @@ model Shipment {
   driverId String?
   driver   Driver? @relation(fields: [driverId], references: [id])
 
-  status      String // PENDING, IN_TRANSIT, DELIVERED, etc.
+  status      ShipmentStatus @default(PENDING)
   origin      String
   originLat   Float?
   originLng   Float?
@@ -391,7 +432,7 @@ model Shipment {
   destinationLng Float?
 
   itemsCount Int @default(1)
-  priority    String? @default("MEDIUM")
+  priority    ShipmentPriority? @default(MEDIUM)
   type        String? @default("Standard Freight")
   slaDeadline DateTime?
 
@@ -527,9 +568,9 @@ model Issue {
   id          String  @id @default(cuid())
   title       String
   description String?
-  status      String // OPEN, IN_PROGRESS, RESOLVED, CLOSED
-  priority    String // LOW, MEDIUM, HIGH, CRITICAL
-  type        String // VEHICLE, DRIVER, SHIPMENT, OTHER
+  status      IssueStatus    @default(OPEN)
+  priority    IssuePriority  @default(MEDIUM)
+  type        IssueType      @default(OTHER)
 
   // Relations
   vehicleId String?

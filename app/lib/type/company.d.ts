@@ -1,13 +1,13 @@
 export interface CompanyProfile {
-  id: string;
-  name: string;
+  id?: string;
+  name?: string;
   avatarUrl: string | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CompanyStats {
-  users: number;
+  users?: number;
   vehicles: number;
   drivers: number;
   warehouses: number;
@@ -30,7 +30,7 @@ export interface CompanyMember {
 export interface CompanyPageData {
   profile: CompanyProfile;
   stats: CompanyStats;
-  members: CompanyMember[];
+  members: CompanyMember[] | undefined;
 }
 
 export interface CompanyPageState {

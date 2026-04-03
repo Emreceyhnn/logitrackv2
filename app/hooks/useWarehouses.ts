@@ -9,7 +9,13 @@ import {
   deleteWarehouse,
   assignManagerToWarehouse,
 } from "@/app/lib/controllers/warehouse";
+import { Warehouse } from "@prisma/client";
 import { toast } from "sonner";
+import {
+  WarehouseWithRelations,
+  WarehouseStats,
+  InventoryMovementWithRelations,
+} from "@/app/lib/type/warehouse";
 
 export const warehouseKeys = {
   all: ["warehouses"] as const,
@@ -20,34 +26,34 @@ export const warehouseKeys = {
 };
 
 export function useWarehouses() {
-  return useQuery({
+  return useQuery<WarehouseWithRelations[]>({
     queryKey: warehouseKeys.lists(),
-    queryFn: () => getWarehouses() as any,
+    queryFn: () => getWarehouses(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useWarehouse(id: string | null) {
-  return useQuery({
+  return useQuery<WarehouseWithRelations | null>({
     queryKey: warehouseKeys.details(id || ""),
-    queryFn: () => getWarehouseById(id!) as any,
+    queryFn: () => (id ? getWarehouseById(id) : null),
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useWarehouseStats() {
-  return useQuery({
+  return useQuery<WarehouseStats | null>({
     queryKey: warehouseKeys.stats(),
-    queryFn: () => getWarehouseStats() as any,
+    queryFn: () => getWarehouseStats(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useRecentStockMovements() {
-  return useQuery({
+  return useQuery<InventoryMovementWithRelations[]>({
     queryKey: warehouseKeys.movements(),
-    queryFn: () => getRecentStockMovements() as any,
+    queryFn: () => getRecentStockMovements(),
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -60,16 +66,30 @@ export function useWarehouseMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: any) => {
+  const handleError = (message: string, error: Error | unknown) => {
     console.error(message, error);
-    toast.error(error?.message || message);
+    toast.error((error as Error)?.message || message);
   };
 
   const createMutation = useMutation({
-    mutationFn: (data: any) =>
+    mutationFn: (data: {
+      name: string;
+      code: string;
+      type: import("@prisma/client").WarehouseType;
+      address: string;
+      city: string;
+      country: string;
+      lat?: number;
+      lng?: number;
+      managerId: string;
+      capacityPallets: number;
+      capacityVolumeM3: number;
+      operatingHours?: string;
+      specifications?: string[];
+    }) =>
       createWarehouse(
         data.name,
-        data.code!,
+        data.code,
         data.type,
         data.address,
         data.city,
@@ -83,27 +103,27 @@ export function useWarehouseMutations() {
         data.specifications
       ),
     onSuccess: () => handleSuccess("Warehouse created successfully"),
-    onError: (error) => handleError("Failed to create warehouse", error),
+    onError: (error: Error) => handleError("Failed to create warehouse", error),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
+    mutationFn: ({ id, data }: { id: string; data: Partial<Warehouse> }) =>
       updateWarehouse(id, data),
     onSuccess: () => handleSuccess("Warehouse updated successfully"),
-    onError: (error) => handleError("Failed to update warehouse", error),
+    onError: (error: Error) => handleError("Failed to update warehouse", error),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteWarehouse(id),
     onSuccess: () => handleSuccess("Warehouse deleted successfully"),
-    onError: (error) => handleError("Failed to delete warehouse", error),
+    onError: (error: Error) => handleError("Failed to delete warehouse", error),
   });
 
   const assignManagerMutation = useMutation({
     mutationFn: ({ id, managerId }: { id: string; managerId: string }) =>
       assignManagerToWarehouse(id, managerId),
     onSuccess: () => handleSuccess("Manager assigned successfully"),
-    onError: (error) => handleError("Failed to assign manager", error),
+    onError: (error: Error) => handleError("Failed to assign manager", error),
   });
 
   return {

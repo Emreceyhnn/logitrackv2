@@ -3,11 +3,15 @@ import {
   Route,
   ShipmentHistory,
   Company,
+  ShipmentStatus,
+  ShipmentPriority,
 } from "@prisma/client";
 import { CustomerWithRelations } from "./customer";
 
 // Domain Models
-export interface ShipmentWithRelations extends Shipment {
+export interface ShipmentWithRelations extends Omit<Shipment, "status" | "priority"> {
+  status: ShipmentStatus;
+  priority: ShipmentPriority | null;
   originLat?: number | null;
   originLng?: number | null;
   destinationLat?: number | null;
@@ -25,14 +29,13 @@ export interface ShipmentWithRelations extends Shipment {
   route?: Route | null;
 
   // New fields
-  priority?: string | null;
   type?: string | null;
   slaDeadline?: Date | null;
   contactEmail?: string | null;
   billingAccount?: string | null;
 
   // For detail view
-  company?: Company;
+  company?: Company | null;
   history?: ShipmentHistory[];
 }
 
@@ -50,7 +53,7 @@ export interface ShipmentVolumeData {
 }
 
 export interface ShipmentStatusData {
-  status: string;
+  status: ShipmentStatus;
   count: number;
 }
 
@@ -62,7 +65,7 @@ export interface ShipmentPageState {
   statusDistribution: ShipmentStatusData[];
   selectedShipmentId: string | null;
   filters: {
-    status?: string;
+    status?: ShipmentStatus;
     search?: string;
     date?: Date;
   };

@@ -1,19 +1,5 @@
-import {
-  Box,
-  Button,
-  Card,
-  Stack,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Divider,
-  CardActionArea,
-  alpha,
-} from "@mui/material";
-import { Issue } from "@prisma/client";
+import { Box, Button, Card, Stack, Typography, Table, TableBody, TableCell, TableHead, TableRow, Divider, CardActionArea, alpha } from "@mui/material";
+import { Issue, MaintenanceRecord } from "@prisma/client";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle.d";
 import AddIcon from "@mui/icons-material/Add";
 import { PriorityChip } from "../../../chips/priorityChips";
@@ -27,8 +13,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import PendingIcon from "@mui/icons-material/Pending";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { VehicleStatus } from "@prisma/client";
-import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
+import { VehicleStatus, IssueStatus } from "@prisma/client";
+import { MenuItem, Select, FormControl } from "@mui/material";
 
 interface MaintenanceTabProps {
   vehicle?: VehicleWithRelations;
@@ -40,7 +26,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
   const [maintenanceDetailOpen, setMaintenanceDetailOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const [selectedRecord, setSelectedRecord] = useState<MaintenanceRecord | null>(null);
   const [issueDetailOpen, setIssueDetailOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null); 
 
@@ -91,7 +77,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const maintenanceHistory = (vehicle.maintenanceRecords || []).slice(-4);
   const openIssues =
     vehicle.issues?.filter(
-      (i) => i.status === "OPEN" || i.status === "IN_PROGRESS"
+      (i) => i.status === IssueStatus.OPEN || i.status === IssueStatus.IN_PROGRESS
     ) || [];
 
   return (
@@ -124,10 +110,10 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             </Typography>
             <Box sx={{ 
               width: 10, 
-              height: 10, 
-              borderRadius: "50%", 
-              bgcolor: vehicle.status === "AVAILABLE" ? "success.main" : vehicle.status === "MAINTENANCE" ? "warning.main" : "info.main" 
-            }} />
+               height: 10, 
+               borderRadius: "50%", 
+               bgcolor: vehicle.status === VehicleStatus.AVAILABLE ? "success.main" : vehicle.status === VehicleStatus.MAINTENANCE ? "warning.main" : "info.main" 
+             }} />
           </Stack>
           <FormControl fullWidth size="small" sx={{ mt: 1 }}>
             <Select
@@ -151,9 +137,9 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                 }
               }}
             >
-              <MenuItem value="AVAILABLE">AVAILABLE</MenuItem>
-              <MenuItem value="ON_TRIP">ON TRIP</MenuItem>
-              <MenuItem value="MAINTENANCE">MAINTENANCE</MenuItem>
+                <MenuItem value={VehicleStatus.AVAILABLE}>AVAILABLE</MenuItem>
+                <MenuItem value={VehicleStatus.ON_TRIP}>ON TRIP</MenuItem>
+                <MenuItem value={VehicleStatus.MAINTENANCE}>MAINTENANCE</MenuItem>
             </Select>
           </FormControl>
           <Typography
@@ -446,25 +432,25 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                           sx={{
                             padding: "4px 8px",
                             borderRadius: "12px",
-                            bgcolor: alpha(getStatusColor((v as any).status || "COMPLETED"), 0.1),
-                            border: `1px solid ${alpha(getStatusColor((v as any).status || "COMPLETED"), 0.2)}`,
+                            bgcolor: alpha(getStatusColor(v.status || "COMPLETED"), 0.1),
+                            border: `1px solid ${alpha(getStatusColor(v.status || "COMPLETED"), 0.2)}`,
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 1,
                           }}
                         >
-                          <Box sx={{ color: getStatusColor((v as any).status || "COMPLETED"), display: "flex" }}>
-                            {getStatusIcon((v as any).status || "COMPLETED")}
+                          <Box sx={{ color: getStatusColor(v.status || "COMPLETED"), display: "flex" }}>
+                            {getStatusIcon(v.status || "COMPLETED")}
                           </Box>
                           <Typography
                             sx={{ 
                               fontSize: 11, 
                               fontWeight: 700,
-                              color: getStatusColor((v as any).status || "COMPLETED"),
+                              color: getStatusColor(v.status || "COMPLETED"),
                               textTransform: "uppercase"
                             }}
                           >
-                            {(v as any).status || "COMPLETED"}
+                            {v.status || "COMPLETED"}
                           </Typography>
                         </Box>
                       </TableCell>

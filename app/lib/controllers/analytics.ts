@@ -4,6 +4,14 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { MapData } from "../type/overview";
+import { 
+  ShipmentStatus, 
+  VehicleStatus, 
+  RouteStatus, 
+  IssueStatus, 
+  IssuePriority, 
+  IssueType 
+} from "@prisma/client";
 
 export const getOverviewStats = authenticatedAction(async (user) => {
   try {
@@ -26,20 +34,20 @@ export const getOverviewStats = authenticatedAction(async (user) => {
       db.shipment.count({
         where: {
           companyId: user.companyId,
-          status: { notIn: ["DELIVERED", "CANCELLED", "COMPLETED"] },
+          status: { notIn: [ShipmentStatus.DELIVERED, ShipmentStatus.CANCELLED, ShipmentStatus.COMPLETED] },
         },
       }),
       db.shipment.count({
-        where: { companyId: user.companyId, status: "DELAYED" },
+        where: { companyId: user.companyId, status: ShipmentStatus.DELAYED },
       }),
       db.vehicle.count({
-        where: { companyId: user.companyId, status: "ON_TRIP" },
+        where: { companyId: user.companyId, status: VehicleStatus.ON_TRIP },
       }),
       db.vehicle.count({
-        where: { companyId: user.companyId, status: "MAINTENANCE" },
+        where: { companyId: user.companyId, status: VehicleStatus.MAINTENANCE },
       }),
       db.vehicle.count({
-        where: { companyId: user.companyId, status: "AVAILABLE" },
+        where: { companyId: user.companyId, status: VehicleStatus.AVAILABLE },
       }),
       db.driver.count({
         where: { companyId: user.companyId, status: "ON_JOB" },
@@ -79,8 +87,8 @@ export const getActionRequired = authenticatedAction(async (user) => {
       db.issue.findMany({
         where: {
           companyId: user.companyId,
-          status: { in: ["OPEN", "IN_PROGRESS"] },
-          priority: { in: ["HIGH", "CRITICAL"] },
+          status: { in: [IssueStatus.OPEN, IssueStatus.IN_PROGRESS] },
+          priority: { in: [IssuePriority.HIGH, IssuePriority.CRITICAL] },
         },
         take: 10,
         orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
@@ -97,11 +105,11 @@ export const getActionRequired = authenticatedAction(async (user) => {
     ]);
 
     const issueAlerts = openIssues.map((issue) => ({
-      type: (issue.type === "VEHICLE"
+      type: (issue.type === IssueType.VEHICLE
         ? "vehicle"
-        : issue.type === "DRIVER"
+        : issue.type === IssueType.DRIVER
         ? "driver"
-        : issue.type === "SHIPMENT"
+        : issue.type === IssueType.SHIPMENT
         ? "SHIPMENT_DELAY"
         : "vehicle") as
         | "vehicle"
@@ -111,11 +119,11 @@ export const getActionRequired = authenticatedAction(async (user) => {
         | "warehouse",
       title: issue.title,
       message: `${issue.priority} · ${issue.status.replace("_", " ")}`,
-      link: issue.type === "VEHICLE" && issue.vehicleId 
+      link: issue.type === IssueType.VEHICLE && issue.vehicleId 
         ? `/vehicle?id=${issue.vehicleId}` 
-        : issue.type === "DRIVER" && issue.driverId 
+        : issue.type === IssueType.DRIVER && issue.driverId 
         ? `/drivers?id=${issue.driverId}` 
-        : issue.type === "SHIPMENT" && issue.shipmentId 
+        : issue.type === IssueType.SHIPMENT && issue.shipmentId 
         ? `/shipments?id=${issue.shipmentId}` 
         : undefined,
     }));
@@ -154,19 +162,19 @@ export const getDailyOperations = authenticatedAction(async (user) => {
     const [plannedRoutes, completedDeliveries, failedDeliveries, fuelToday, avgDuration] =
       await Promise.all([
         db.route.count({
-          where: { companyId: user.companyId, status: "PLANNED" },
+          where: { companyId: user.companyId, status: RouteStatus.PLANNED },
         }),
         db.shipment.count({
           where: {
             companyId: user.companyId,
-            status: "DELIVERED",
+            status: ShipmentStatus.DELIVERED,
             updatedAt: { gte: today },
           },
         }),
         db.shipment.count({
           where: {
             companyId: user.companyId,
-            status: "CANCELLED",
+            status: ShipmentStatus.CANCELLED,
             updatedAt: { gte: today },
           },
         }),
@@ -180,7 +188,7 @@ export const getDailyOperations = authenticatedAction(async (user) => {
         db.route.aggregate({
           where: {
             companyId: user.companyId,
-            status: "COMPLETED",
+            status: RouteStatus.COMPLETED,
             updatedAt: { gte: today },
             durationMin: { not: null },
           },
@@ -478,7 +486,7 @@ export const getOnTimeTrends = authenticatedAction(async (user) => {
     const completedRoutes = await db.route.findMany({
       where: {
         companyId: user.companyId,
-        status: "COMPLETED",
+        status: RouteStatus.COMPLETED,
         updatedAt: { gte: thirtyDaysAgo },
       },
       select: { updatedAt: true },
@@ -557,11 +565,11 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
       await Promise.all([
         db.vehicle.count({ where: { companyId: user.companyId } }),
         db.vehicle.count({
-          where: { companyId: user.companyId, status: "ON_TRIP" },
+          where: { companyId: user.companyId, status: VehicleStatus.ON_TRIP },
         }),
         db.shipment.count({ where: { companyId: user.companyId } }),
         db.shipment.count({
-          where: { companyId: user.companyId, status: "DELAYED" },
+          where: { companyId: user.companyId, status: ShipmentStatus.DELAYED },
         }),
       ]);
 

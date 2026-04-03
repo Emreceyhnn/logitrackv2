@@ -13,7 +13,6 @@ import {
   useTheme,
   Button,
   Switch,
-  TextField,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -30,7 +29,7 @@ import {
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { useUser } from "@/app/lib/hooks/useUser";
-import { Warehouse } from "@prisma/client";
+import { Warehouse, DriverStatus } from "@prisma/client";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 
 import WarehouseIcon from "@mui/icons-material/HomeRepairService";
@@ -247,7 +246,7 @@ const SecondEditDriverDialogStep = ({
               ].map((status) => (
                 <Box
                   key={status.id}
-                  onClick={() => actions.updateStep2({ status: status.id })}
+                  onClick={() => actions.updateStep2({ status: status.id as DriverStatus })}
                   sx={{
                     flex: 1,
                     p: 2,

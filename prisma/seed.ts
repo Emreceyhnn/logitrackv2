@@ -1,4 +1,4 @@
-import { PrismaClient, UserStatus, DriverStatus } from "@prisma/client";
+import { PrismaClient, UserStatus, DriverStatus, VehicleStatus, ShipmentStatus, ShipmentPriority, RouteStatus, IssueStatus, IssuePriority, IssueType } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 import bcrypt from "bcryptjs";
@@ -169,7 +169,7 @@ async function main() {
         brand: veh.brand,
         model: veh.model,
         year: veh.year,
-        status: veh.status === "IDLE" ? "AVAILABLE" : veh.status,
+        status: (veh.status === "IDLE" ? VehicleStatus.AVAILABLE : veh.status as VehicleStatus),
         maxLoadKg: veh.specs.maxLoadKg,
         fuelType: veh.specs.fuelType,
         currentLat: veh.currentStatus?.location?.lat,
@@ -361,10 +361,10 @@ async function main() {
           name: route.code,
           status:
             route.status === "IN_PROGRESS"
-              ? "ACTIVE"
+              ? RouteStatus.ACTIVE
               : route.status === "PENDING"
-                ? "PLANNED"
-                : "COMPLETED", // Mapping
+                ? RouteStatus.PLANNED
+                : RouteStatus.COMPLETED, // Mapping
           date: new Date(route.schedule.plannedStart),
           startTime: new Date(route.schedule.plannedStart),
           endTime: new Date(route.schedule.plannedEnd),
@@ -421,7 +421,8 @@ async function main() {
         customerId: shp.customerId,
         driverId: driverId,
         routeId: routeId,
-        status: shp.status as string,
+        status: (shp.status as ShipmentStatus) || ShipmentStatus.PENDING,
+        priority: (shp.priority as ShipmentPriority) || ShipmentPriority.MEDIUM,
         origin: originStr,
         destination: destStr,
         itemsCount: shp.cargoDetails?.packageCount || 1,
@@ -430,7 +431,7 @@ async function main() {
         history: {
           create:
             shp.tracking?.milestones?.map((milestone: { status: string; timestamp?: string }) => ({
-              status: milestone.status as string,
+              status: milestone.status,
               location: "Unknown",
               description: milestone.status,
               createdAt: milestone.timestamp
@@ -461,11 +462,11 @@ async function main() {
       await prisma.issue.create({
         data: {
           id: alert.id,
-          title: alert.type,
+          title: alert.type || "System Alert",
           description: alert.message,
-          status: alert.status,
-          priority: priority,
-          type: alert.type,
+          status: (alert.status as IssueStatus) || IssueStatus.OPEN,
+          priority: (priority as IssuePriority),
+          type: (alert.type as IssueType) || IssueType.OTHER,
           vehicleId: vehicleId,
           shipmentId: shipmentId,
           driverId: driverId,

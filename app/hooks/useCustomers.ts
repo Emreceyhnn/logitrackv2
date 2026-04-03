@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getCustomers, deleteCustomer } from "@/app/lib/controllers/customer";
 import { toast } from "sonner";
+import { CustomerWithRelations } from "@/app/lib/type/customer";
 
 export const customerKeys = {
   all: ["customers"] as const,
@@ -9,9 +10,9 @@ export const customerKeys = {
 };
 
 export function useCustomers() {
-  return useQuery({
+  return useQuery<CustomerWithRelations[]>({
     queryKey: customerKeys.lists(),
-    queryFn: () => getCustomers() as any,
+    queryFn: () => getCustomers(),
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -24,15 +25,15 @@ export function useCustomerMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: any) => {
+  const handleError = (message: string, error: Error | unknown) => {
     console.error(message, error);
-    toast.error(error?.message || message);
+    toast.error((error as Error)?.message || message);
   };
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteCustomer(id),
     onSuccess: () => handleSuccess("Customer deleted successfully"),
-    onError: (error) => handleError("Failed to delete customer", error),
+    onError: (error: Error) => handleError("Failed to delete customer", error),
   });
 
   return {

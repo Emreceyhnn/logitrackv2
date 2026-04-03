@@ -8,6 +8,13 @@ import {
 } from "@/app/lib/controllers/routes";
 import { toast } from "sonner";
 
+import {
+  RouteWithRelations,
+  RouteStats,
+  RouteEfficiencyStats,
+  MapRouteData,
+} from "@/app/lib/type/routes";
+
 export const routeKeys = {
   all: ["routes"] as const,
   lists: (page: number, pageSize: number, status?: string) => 
@@ -19,33 +26,33 @@ export const routeKeys = {
 };
 
 export function useRoutes(page: number, pageSize: number, status?: string) {
-  return useQuery({
+  return useQuery<{ routes: RouteWithRelations[]; totalCount: number }>({
     queryKey: routeKeys.lists(page, pageSize, status),
-    queryFn: () => getRoutes(page + 1, pageSize, status) as any,
+    queryFn: () => getRoutes(page + 1, pageSize, status),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useRouteStats() {
-  return useQuery({
+  return useQuery<RouteStats | null>({
     queryKey: routeKeys.stats(),
-    queryFn: () => getRouteStats() as any,
+    queryFn: () => getRouteStats(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useRouteEfficiency() {
-  return useQuery({
+  return useQuery<RouteEfficiencyStats | null>({
     queryKey: routeKeys.efficiency(),
-    queryFn: () => getRouteEfficiencyStats() as any,
+    queryFn: () => getRouteEfficiencyStats(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useRouteLocations() {
-  return useQuery({
+  return useQuery<MapRouteData[]>({
     queryKey: routeKeys.locations(),
-    queryFn: () => getActiveRoutesLocations() as any,
+    queryFn: () => getActiveRoutesLocations(),
     staleTime: 1000 * 30, // Locations update faster
   });
 }
@@ -58,9 +65,9 @@ export function useRouteMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: any) => {
+  const handleError = (message: string, error: Error | unknown) => {
     console.error(message, error);
-    toast.error(error?.message || message);
+    toast.error((error as Error)?.message || message);
   };
 
   const deleteMutation = useMutation({

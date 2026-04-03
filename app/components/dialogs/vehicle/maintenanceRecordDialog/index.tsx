@@ -28,6 +28,7 @@ import { useState } from "react";
 import { addMaintenanceRecord } from "@/app/lib/controllers/vehicle";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
+import { MaintenanceStatus } from "@prisma/client";
 
 interface MaintenanceRecordDialogProps {
   open: boolean;
@@ -47,7 +48,7 @@ export default function MaintenanceRecordDialog({
     type: "",
     date: dayjs() as Dayjs,
     cost: "",
-    status: "COMPLETED",
+    status: MaintenanceStatus.COMPLETED,
     description: "",
   });
   const [loading, setLoading] = useState(false);
@@ -68,7 +69,7 @@ export default function MaintenanceRecordDialog({
         type: formData.type,
         date: formData.date.toDate(),
         cost: parseFloat(formData.cost),
-        status: formData.status as any,
+        status: formData.status,
         description: formData.description,
       });
 
@@ -87,7 +88,7 @@ export default function MaintenanceRecordDialog({
       type: "",
       date: dayjs(),
       cost: "",
-      status: "COMPLETED",
+      status: MaintenanceStatus.COMPLETED,
       description: "",
     });
     setError(null);
@@ -209,7 +210,7 @@ export default function MaintenanceRecordDialog({
                   }}
                 >
                   {MAINTENANCE_STATUSES.map((status) => (
-                    <MenuItem key={status.value} value={status.value} sx={{ py: 1.5 }}>
+                    <MenuItem key={status.value} value={status.value as MaintenanceStatus} sx={{ py: 1.5 }}>
                       <Stack direction="row" spacing={1.5} alignItems="center">
                         <Box sx={{ 
                           width: 8, 

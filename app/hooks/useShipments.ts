@@ -11,6 +11,13 @@ import {
   updateShipmentStatus,
 } from "@/app/lib/controllers/shipments";
 import { toast } from "sonner";
+import {
+  ShipmentWithRelations,
+  ShipmentStats,
+  ShipmentVolumeData,
+  ShipmentStatusData,
+} from "@/app/lib/type/shipment";
+import { Prisma, ShipmentStatus, ShipmentPriority } from "@prisma/client";
 
 export const shipmentKeys = {
   all: ["shipments"] as const,
@@ -22,42 +29,58 @@ export const shipmentKeys = {
 };
 
 export function useShipments() {
-  return useQuery({
+  return useQuery<ShipmentWithRelations[]>({
     queryKey: shipmentKeys.lists(),
-    queryFn: () => getShipments() as any,
+    queryFn: async () => {
+      const result = await getShipments();
+      return result as ShipmentWithRelations[];
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
 export function useShipmentDetails(id: string | null) {
-  return useQuery({
+  return useQuery<ShipmentWithRelations | null>({
     queryKey: shipmentKeys.details(id || ""),
-    queryFn: () => getShipmentById(id!) as any,
+    queryFn: async () => {
+      if (!id) return null;
+      const result = await getShipmentById(id);
+      return result as ShipmentWithRelations | null;
+    },
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useShipmentStats() {
-  return useQuery({
+  return useQuery<ShipmentStats>({
     queryKey: shipmentKeys.stats(),
-    queryFn: () => getShipmentStats() as any,
+    queryFn: async () => {
+      const result = await getShipmentStats();
+      return result as ShipmentStats;
+    },
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useShipmentVolumeHistory() {
-  return useQuery({
+  return useQuery<ShipmentVolumeData[]>({
     queryKey: shipmentKeys.history(),
-    queryFn: () => getShipmentVolumeHistory() as any,
+    queryFn: async () => {
+      const result = await getShipmentVolumeHistory();
+      return result as unknown as ShipmentVolumeData[];
+    },
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useShipmentStatusDistribution() {
-  return useQuery({
+  return useQuery<ShipmentStatusData[]>({
     queryKey: shipmentKeys.distribution(),
-    queryFn: () => getShipmentStatusDistribution() as any,
+    queryFn: async () => {
+      const result = await getShipmentStatusDistribution();
+      return result as unknown as ShipmentStatusData[];
+    },
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -70,44 +93,48 @@ export function useShipmentMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: any) => {
+  const handleError = (message: string, error: Error | unknown) => {
     console.error(message, error);
-    toast.error(error?.message || message);
+    toast.error((error as Error)?.message || message);
   };
 
   const createMutation = useMutation({
-    mutationFn: (data: any) =>
+    mutationFn: (data: Partial<ShipmentWithRelations> & { customerId: string; origin: string; destination: string; status: ShipmentStatus }) =>
       createShipment(
-        data.customerId,
-        data.origin,
-        data.destination,
-        data.status,
-        data.itemsCount,
-        data.weightKg,
-        data.volumeM3,
-        data.palletCount,
-        data.cargoType,
-        data.destinationLat,
-        data.destinationLng,
-        data.originLat,
-        data.originLng,
-        data.trackingId,
-        data.customerLocationId,
-        data.priority,
-        data.type,
-        data.slaDeadline,
-        data.contactEmail,
-        data.billingAccount
+        data.customerId!,
+        data.origin!,
+        data.destination!,
+        data.status!,
+        data.itemsCount || 0,
+        data.weightKg || 0,
+        data.volumeM3 || 0,
+        data.palletCount || 0,
+        data.cargoType || "",
+        data.destinationLat || 0,
+        data.destinationLng || 0,
+        data.originLat || 0,
+        data.originLng || 0,
+        data.trackingId || "",
+        data.customerLocationId || "",
+        (data.priority as unknown as ShipmentPriority) || ShipmentPriority.MEDIUM,
+        data.type || "STANDARD",
+        data.slaDeadline ? new Date(data.slaDeadline) : null,
+        data.contactEmail || "",
+        data.billingAccount || ""
       ),
     onSuccess: () => handleSuccess("Shipment created successfully"),
-    onError: (error) => handleError("Failed to create shipment", error),
+    onError: (error: Error) => handleError("Failed to create shipment", error),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
-      updateShipment(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<ShipmentWithRelations> }) => {
+      // Exclude relation fields from update data to satisfy Prisma types
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { company, history, customer, driver, route, ...updateData } = data;
+      return updateShipment(id, updateData as Prisma.ShipmentUpdateInput);
+    },
     onSuccess: () => handleSuccess("Shipment updated successfully"),
-    onError: (error) => handleError("Failed to update shipment", error),
+    onError: (error: Error) => handleError("Failed to update shipment", error),
   });
 
   const deleteMutation = useMutation({
@@ -124,7 +151,7 @@ export function useShipmentMutations() {
       description,
     }: {
       id: string;
-      status: string;
+      status: ShipmentStatus;
       location?: string;
       description?: string;
     }) => updateShipmentStatus(id, status, location, description),

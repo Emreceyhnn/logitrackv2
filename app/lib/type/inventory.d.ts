@@ -26,7 +26,7 @@ export interface InventoryMovement {
   user?: {
     name: string;
     surname: string;
-  };
+  } | null;
 }
 
 // Page State

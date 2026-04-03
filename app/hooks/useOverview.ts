@@ -11,6 +11,17 @@ import {
   getShipmentVolumeHistory,
   getMapData,
 } from "@/app/lib/controllers/analytics";
+import {
+  ActionRequiredItems,
+  OverviewStats,
+  DailyOperationsData,
+  FuelStat,
+  WarehouseCapacityStat,
+  LowStockItemStat,
+  PicksAndPacksData,
+  ShipmentDayStat,
+  MapData,
+} from "@/app/lib/type/overview";
 
 export const overviewKeys = {
   all: ["overview"] as const,
@@ -27,81 +38,81 @@ export const overviewKeys = {
 };
 
 export function useOverviewStats() {
-  return useQuery({
+  return useQuery<OverviewStats | null>({
     queryKey: overviewKeys.stats(),
-    queryFn: () => getOverviewStats() as any,
+    queryFn: () => getOverviewStats(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useActionRequired() {
-  return useQuery({
+  return useQuery<ActionRequiredItems[] | null>({
     queryKey: overviewKeys.actionRequired(),
-    queryFn: () => getActionRequired() as any,
+    queryFn: () => getActionRequired(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useDailyOperations() {
-  return useQuery({
+  return useQuery<DailyOperationsData | null>({
     queryKey: overviewKeys.dailyOperations(),
-    queryFn: () => getDailyOperations() as any,
+    queryFn: () => getDailyOperations(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useFuelStats() {
-  return useQuery({
+  return useQuery<FuelStat[]>({
     queryKey: overviewKeys.fuelStats(),
-    queryFn: () => getFuelStats() as any,
+    queryFn: () => getFuelStats(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useWarehouseCapacity() {
-  return useQuery({
+  return useQuery<WarehouseCapacityStat[]>({
     queryKey: overviewKeys.warehouseCapacity(),
-    queryFn: () => getWarehouseCapacity() as any,
+    queryFn: () => getWarehouseCapacity(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useLowStockItems() {
-  return useQuery({
+  return useQuery<LowStockItemStat[]>({
     queryKey: overviewKeys.lowStockItems(),
-    queryFn: () => getLowStockItems() as any,
+    queryFn: () => getLowStockItems(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useShipmentStatusStats() {
-  return useQuery({
+  return useQuery<string[]>({
     queryKey: overviewKeys.shipmentStatus(),
-    queryFn: () => getShipmentStatusStats() as any,
+    queryFn: () => getShipmentStatusStats(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function usePicksAndPacks() {
-  return useQuery({
+  return useQuery<PicksAndPacksData>({
     queryKey: overviewKeys.picksAndPacks(),
-    queryFn: () => getPicksAndPacks() as any,
+    queryFn: () => getPicksAndPacks(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useShipmentVolumeHistory() {
-  return useQuery({
+  return useQuery<ShipmentDayStat[]>({
     queryKey: overviewKeys.shipmentVolume(),
-    queryFn: () => getShipmentVolumeHistory() as any,
+    queryFn: () => getShipmentVolumeHistory(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useMapData() {
-  return useQuery({
+  return useQuery<MapData[]>({
     queryKey: overviewKeys.mapData(),
-    queryFn: () => getMapData() as any,
+    queryFn: () => getMapData(),
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -144,14 +155,14 @@ export function useOverviewData() {
 
   return {
     data: {
-      stats: stats.data,
+      stats: stats.data || null,
       alerts: actionRequired.data || [],
-      dailyOps: dailyOps.data,
+      dailyOps: dailyOps.data || null,
       fuelStats: fuelStats.data || [],
       warehouseCapacity: warehouseCapacity.data || [],
       lowStockItems: lowStockItems.data || [],
       shipmentStatus: shipmentStatus.data || [],
-      picksAndPacks: picksAndPacks.data,
+      picksAndPacks: picksAndPacks.data || null,
       shipmentVolume: shipmentVolume.data || [],
       mapData: mapData.data || [],
     },

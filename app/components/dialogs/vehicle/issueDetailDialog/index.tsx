@@ -21,7 +21,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useState, useEffect } from "react";
 import { updateIssue } from "@/app/lib/controllers/vehicle";
 import { getPriorityColor } from "@/app/lib/priorityColor";
-import { Issue } from "@prisma/client";
+import { Issue, IssueStatus, IssuePriority } from "@prisma/client";
 
 interface IssueDetailDialogProps {
   open: boolean;
@@ -40,8 +40,8 @@ export default function IssueDetailDialog({
   const theme = useTheme();
 
   /* --------------------------------- states --------------------------------- */
-  const [status, setStatus] = useState("");
-  const [priority, setPriority] = useState("");
+  const [status, setStatus] = useState<IssueStatus | "">("");
+  const [priority, setPriority] = useState<IssuePriority | "">("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,7 +60,10 @@ export default function IssueDetailDialog({
     setError(null);
 
     try {
-      await updateIssue(issue.id, { status, priority });
+      await updateIssue(issue.id, { 
+        status: status as IssueStatus, 
+        priority: priority as IssuePriority 
+      });
       onUpdate();
       onClose();
     } catch (err) {
@@ -228,10 +231,10 @@ export default function IssueDetailDialog({
                       }
                     }}
                   >
-                    <MenuItem value="OPEN">Open</MenuItem>
-                    <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-                    <MenuItem value="RESOLVED">Resolved</MenuItem>
-                    <MenuItem value="CLOSED">Closed</MenuItem>
+                    <MenuItem value={IssueStatus.OPEN}>Open</MenuItem>
+                    <MenuItem value={IssueStatus.IN_PROGRESS}>In Progress</MenuItem>
+                    <MenuItem value={IssueStatus.RESOLVED}>Resolved</MenuItem>
+                    <MenuItem value={IssueStatus.CLOSED}>Closed</MenuItem>
                   </Select>
                 </FormControl>
 
@@ -263,11 +266,11 @@ export default function IssueDetailDialog({
                       );
                     }}
                   >
-                    {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((p) => (
-                      <MenuItem key={p} value={p} sx={{ py: 1.5 }}>
+                    {(Object.values(IssuePriority) as IssuePriority[]).map((p) => (
+                      <MenuItem key={p as string} value={p} sx={{ py: 1.5 }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                          <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: getPriorityColor(p) }} />
-                          <Typography variant="body2">{p}</Typography>
+                          <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: getPriorityColor(p as string) }} />
+                          <Typography variant="body2">{p as string}</Typography>
                         </Box>
                       </MenuItem>
                     ))}

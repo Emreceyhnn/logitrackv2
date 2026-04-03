@@ -20,9 +20,14 @@ export const StatusChip = ({ status }: { status: string }) => {
     }
 
     if (
-      ["IN_PROGRESS", "IN_TRANSIT", "PICKED_UP", "IN_SERVICE", "IDLE"].includes(
-        normalizedStatus
-      )
+      [
+        "IN_PROGRESS",
+        "IN_TRANSIT",
+        "PICKED_UP",
+        "IN_SERVICE",
+        "IDLE",
+        "PROCESSING",
+      ].includes(normalizedStatus)
     ) {
       return { bgColor: "#e3f2fd", color: "#0288d1" };
     }
@@ -34,15 +39,17 @@ export const StatusChip = ({ status }: { status: string }) => {
         "LOW",
         "MEDIUM",
         "PLANNED",
+        "ASSIGNED",
         "OFF_DUTY",
         "MAINTENANCE",
+        "PENDING",
       ].includes(normalizedStatus)
     ) {
       return { bgColor: "#fff3cd", color: "#f57c00" };
     }
 
     if (
-      ["ERROR", "EXPIRED", "HIGH", "FAILED", "CRITITCAL"].includes(
+      ["ERROR", "EXPIRED", "HIGH", "FAILED", "CRITICAL", "DELAYED", "CANCELLED"].includes(
         normalizedStatus
       )
     ) {

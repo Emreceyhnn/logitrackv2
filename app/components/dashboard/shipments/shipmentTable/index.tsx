@@ -13,25 +13,18 @@ import type {
   ShipmentTableProps,
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
+import { ShipmentStatus } from "@prisma/client";
 
-// Shipment status is a string field (no Prisma enum). Based on StatusChip categories.
-const SHIPMENT_STATUS_VALUES = [
-  "PENDING",
-  "PICKED_UP",
-  "IN_TRANSIT",
-  "DELIVERED",
-  "COMPLETED",
-  "FAILED",
-  "CANCELLED",
-] as const;
+// Shipment status is now a Prisma enum.
+const SHIPMENT_STATUS_VALUES = Object.values(ShipmentStatus) as ShipmentStatus[];
 
 const SHIPMENT_FILTERS: DataTableFilter[] = [
   {
     key: "status",
     label: "Status",
-    options: SHIPMENT_STATUS_VALUES.map((s) => ({
+    options: SHIPMENT_STATUS_VALUES.map((s: ShipmentStatus) => ({
       label: s.replace(/_/g, " "),
-      value: s,
+      value: s as string,
     })),
     multiple: false,
   },
@@ -66,7 +59,7 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
   const handleFilterChange = useCallback(
     (key: string, values: string[]) => {
       if (key === "status") {
-        updateFilters({ status: values[0] as string | undefined });
+        updateFilters({ status: values[0] as ShipmentStatus | undefined });
       }
     },
     [updateFilters]
@@ -145,7 +138,7 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
   ];
 
   const activeFilters: Record<string, string[]> = {};
-  if (filters.status) activeFilters["status"] = [filters.status];
+  if (filters.status) activeFilters["status"] = [filters.status as string];
 
   return (
     <>

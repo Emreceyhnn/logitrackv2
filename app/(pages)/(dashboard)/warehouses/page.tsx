@@ -10,6 +10,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { toast } from "sonner";
 import {
   WarehousePageActions,
+  WarehouseWithRelations,
 } from "@/app/lib/type/warehouse";
 import { 
   useWarehouses, 
@@ -97,7 +98,7 @@ export default function WarehousePage() {
   };
 
   const warehouseToDelete = warehouses.find(
-    (w: any) => w.id === warehouseToDeleteId
+    (w: WarehouseWithRelations) => w.id === warehouseToDeleteId
   );
 
   /* --------------------------------- KPI --------------------------------- */
@@ -214,7 +215,7 @@ export default function WarehousePage() {
           }}
           onEditSuccess={refreshAll}
           warehouseData={
-            warehouses.find((w: any) => w.id === selectedWarehouseId) ||
+            warehouses.find((w: WarehouseWithRelations) => w.id === selectedWarehouseId) ||
             undefined
           }
         />
@@ -231,7 +232,7 @@ export default function WarehousePage() {
             actions.refreshAll();
           }}
           warehouseData={
-            warehouses.find((w: any) => w.id === warehouseToEditId) ||
+            warehouses.find((w: WarehouseWithRelations) => w.id === warehouseToEditId) ||
             undefined
           }
         />

@@ -8,7 +8,8 @@ import InventoryTable from "@/app/components/dashboard/inventory/InventoryTable"
 import {
   InventoryPageActions,
 } from "@/app/lib/type/inventory";
-import { useInventory, useLowStockItems, useInventoryMutations } from "@/app/hooks/useInventory";
+import { useInventory, useInventoryMutations } from "@/app/hooks/useInventory";
+import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import InventoryDetailsDialog from "../../../components/dialogs/inventory/InventoryDetailsDialog";
 import InventoryEditDialog from "../../../components/dialogs/inventory/InventoryEditDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
@@ -49,20 +50,15 @@ function InventoryContent() {
     refetch: refetchInventory 
   } = useInventory();
   
-  const { 
-    data: lowStockData = [], 
-    isLoading: isLowStockLoading, 
-    refetch: refetchLowStock 
-  } = useLowStockItems();
   
   const { deleteItem: deleteMutation, updateItem: updateMutation } = useInventoryMutations();
 
-  const loading = isInventoryLoading || isLowStockLoading;
+  const loading = isInventoryLoading;
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
-    await Promise.all([refetchInventory(), refetchLowStock()]);
-  }, [refetchInventory, refetchLowStock]);
+    await refetchInventory();
+  }, [refetchInventory]);
 
   const actions: InventoryPageActions = {
     fetchInventory: async () => {},
@@ -90,7 +86,7 @@ function InventoryContent() {
     updateFilters: (newFilters) => setFilters((prev) => ({ ...prev, ...newFilters })),
   };
 
-  const selectedItem = inventory.find((i) => i.id === selectedItemId) || null;
+  const selectedItem = (inventory as InventoryWithRelations[]).find((i: InventoryWithRelations) => i.id === selectedItemId) || null;
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleDeleteRequest = (id: string) => {
@@ -112,23 +108,23 @@ function InventoryContent() {
   const filteredData = useMemo(() => {
     if (!filters.search) return inventory;
     const lowerTerm = filters.search.toLowerCase();
-    return inventory.filter(
-      (item) =>
+    return (inventory as InventoryWithRelations[]).filter(
+      (item: InventoryWithRelations) =>
         item.name.toLowerCase().includes(lowerTerm) ||
         item.sku.toLowerCase().includes(lowerTerm)
     );
   }, [inventory, filters.search]);
 
   const totalItems = filteredData.length;
-  const lowStockItemsCount = filteredData.filter(
-    (item) => item.quantity > 0 && item.quantity <= item.minStock
+  const lowStockItemsCount = (filteredData as InventoryWithRelations[]).filter(
+    (item: InventoryWithRelations) => item.quantity > 0 && item.quantity <= item.minStock
   ).length;
-  const outOfStockItemsCount = filteredData.filter(
-    (item) => item.quantity === 0
+  const outOfStockItemsCount = (filteredData as InventoryWithRelations[]).filter(
+    (item: InventoryWithRelations) => item.quantity === 0
   ).length;
 
-  const totalValue = filteredData.reduce(
-    (acc: number, item) => acc + item.quantity * (item.unitValue || 0),
+  const totalValue = (filteredData as InventoryWithRelations[]).reduce(
+    (acc: number, item: InventoryWithRelations) => acc + item.quantity * (item.unitValue || 0),
     0
   );
 

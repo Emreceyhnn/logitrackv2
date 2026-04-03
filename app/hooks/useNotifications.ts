@@ -25,19 +25,20 @@ interface UserContext {
 export const useNotifications = (user: UserContext | undefined) => {
   const [notificationMap, setNotificationMap] = useState<Record<string, Notification>>({});
   const [loading, setLoading] = useState(true);
+  const [prevUserId, setPrevUserId] = useState(user?.id);
 
-  // Separate effect for cleaning up when user changes or logs out
-  useEffect(() => {
+  if (user?.id !== prevUserId) {
+    setPrevUserId(user?.id);
     if (!user?.id) {
       setNotificationMap({});
       setLoading(false);
+    } else {
+      setLoading(true);
     }
-  }, [user?.id]);
+  }
 
   useEffect(() => {
     if (!user?.id) return;
-
-    setLoading(true);
 
     const paths = [
       { key: "everybody", path: "notifications/groups/everyone" },

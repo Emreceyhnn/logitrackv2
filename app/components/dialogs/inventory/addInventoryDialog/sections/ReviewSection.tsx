@@ -98,7 +98,7 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
         </Box>
 
         <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1.5}>
               <Stack direction="row" spacing={1} alignItems="center">
                 <InfoIcon sx={{ fontSize: "1rem", color: theme.palette.primary.main }} />
@@ -116,7 +116,7 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
             </Stack>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1.5}>
               <Stack direction="row" spacing={1} alignItems="center">
                 <WarehouseIcon sx={{ fontSize: "1rem", color: theme.palette.primary.main }} />

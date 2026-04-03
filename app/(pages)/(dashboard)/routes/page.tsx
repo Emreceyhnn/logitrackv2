@@ -12,13 +12,14 @@ import {
   useTheme,
 } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {
   RoutesPageActions,
   RouteWithRelations,
   RouteEfficiencyStats,
   MapRouteData,
+  RoutesPageState,
 } from "@/app/lib/type/routes";
 import { 
   useRoutes, 
@@ -40,13 +41,11 @@ export default function RoutesPage() {
   const theme = useTheme();
 
   /* --------------------------------- STATE --------------------------------- */
-  const [filters, setFilters] = useState<any>({});
+  const [filters, setFilters] = useState<RoutesPageState["filters"]>({});
   const [pagination, setPagination] = useState({
     page: 0,
     pageSize: 10,
   });
-  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -78,13 +77,11 @@ export default function RoutesPage() {
     fetchEfficiency: async () => {},
     fetchMapData: async () => {},
     refreshAll,
-    updateFilters: (newFilters) => {
-      setFilters((prev: any) => ({ ...prev, ...newFilters }));
+    updateFilters: (newFilters: Partial<RoutesPageState["filters"]>) => {
+      setFilters((prev) => ({ ...prev, ...newFilters }));
       setPagination((prev) => ({ ...prev, page: 0 }));
     },
-    selectRoute: (id) => setSelectedRouteId(id),
-    setViewMode: (mode) => setViewMode(mode),
-    changePage: (newPage) => setPagination((prev) => ({ ...prev, page: newPage })),
+    changePage: (newPage: number) => setPagination((prev) => ({ ...prev, page: newPage })),
   };
 
   /* -------------------------------- HANDLERS -------------------------------- */
@@ -199,7 +196,7 @@ export default function RoutesPage() {
               total: routesData?.totalCount || 0,
             }}
             onPageChange={handlePageChange}
-            onSelect={actions.selectRoute}
+            onSelect={() => {}}
             onEdit={handleEdit}
             onDelete={handleDelete}
             onRefresh={refreshAll}

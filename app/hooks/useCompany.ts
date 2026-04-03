@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getCompanyProfile, removeCompanyUser } from "@/app/lib/controllers/company";
 import { toast } from "sonner";
+import { CompanyPageData } from "@/app/lib/type/company";
 
 export const companyKeys = {
   all: ["company"] as const,
@@ -8,9 +9,9 @@ export const companyKeys = {
 };
 
 export function useCompanyProfile() {
-  return useQuery({
+  return useQuery<CompanyPageData>({
     queryKey: companyKeys.profile(),
-    queryFn: () => getCompanyProfile() as any,
+    queryFn: () => getCompanyProfile(),
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -23,15 +24,15 @@ export function useCompanyMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: any) => {
+  const handleError = (message: string, error: Error | unknown) => {
     console.error(message, error);
-    toast.error(error?.message || message);
+    toast.error((error as Error)?.message || message);
   };
 
   const deleteMemberMutation = useMutation({
     mutationFn: (memberId: string) => removeCompanyUser(memberId),
     onSuccess: () => handleSuccess("Member removed from company successfully"),
-    onError: (error) => handleError("Failed to remove member", error),
+    onError: (error: Error) => handleError("Failed to remove member", error),
   });
 
   return {

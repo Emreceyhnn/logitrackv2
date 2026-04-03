@@ -40,6 +40,7 @@ import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { RouteWithRelations } from "@/app/lib/type/routes";
+import { ShipmentStatus, ShipmentPriority } from "@prisma/client";
 import BasicInfoSection from "./sections/BasicInfoSection";
 import LogisticsSection from "./sections/LogisticsSection";
 import CargoSection from "./sections/CargoSection";
@@ -49,7 +50,7 @@ import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvid
 
 const initialBasicInfo: AddShipmentBasicInfo = {
   referenceNumber: "",
-  priority: "MEDIUM",
+  priority: ShipmentPriority.MEDIUM,
   type: "Standard Freight",
   slaDeadline: null,
 };
@@ -186,7 +187,7 @@ const AddShipmentDialog = ({
         logistics.customerId,
         originName,
         logistics.destination,
-        "PENDING",
+        ShipmentStatus.PENDING,
         inventory.items.length || 1,
         cargo.weightKg,
         cargo.volumeM3,

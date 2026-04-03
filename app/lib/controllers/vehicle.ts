@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "../db";
-import { Issue, MaintenanceStatus, Prisma, VehicleStatus, VehicleType } from "@prisma/client";
+import { Issue, MaintenanceStatus, Prisma, VehicleStatus, VehicleType, IssueStatus, IssuePriority, IssueType } from "@prisma/client";
 import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";
 import {
@@ -154,7 +154,7 @@ export const getVehicles = authenticatedAction(
         if (filters.hasIssues) {
           whereClause.issues = {
             some: {
-              status: { in: ["OPEN", "IN_PROGRESS"] },
+              status: { in: [IssueStatus.OPEN, IssueStatus.IN_PROGRESS] },
             },
           };
         }
@@ -308,8 +308,8 @@ export const createVehicleIssue = authenticatedAction(
     vehicleId: string,
     issueData: {
       title: string;
-      type: string;
-      priority: string;
+      type: IssueType;
+      priority: IssuePriority;
       description?: string;
     }
   ) => {
@@ -338,7 +338,7 @@ export const createVehicleIssue = authenticatedAction(
           type: issueData.type,
           priority: issueData.priority,
           description: issueData.description || null,
-          status: "OPEN",
+          status: IssueStatus.OPEN,
           vehicleId,
           companyId,
         },
@@ -719,8 +719,8 @@ export const updateIssue = authenticatedAction(
     user,
     issueId: string,
     data: {
-      status?: string;
-      priority?: string;
+      status?: IssueStatus;
+      priority?: IssuePriority;
       description?: string;
     }
   ) => {

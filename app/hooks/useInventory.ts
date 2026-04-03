@@ -9,7 +9,9 @@ import {
   deleteInventoryItem,
   logWarehouseFulfillment,
 } from "@/app/lib/controllers/inventory";
+import { Inventory } from "@prisma/client";
 import { toast } from "sonner";
+import { InventoryWithRelations, LowStockItem, InventoryMovement } from "@/app/lib/type/inventory";
 
 export const inventoryKeys = {
   all: ["inventory"] as const,
@@ -20,34 +22,34 @@ export const inventoryKeys = {
 };
 
 export function useInventory(warehouseId?: string) {
-  return useQuery({
+  return useQuery<InventoryWithRelations[]>({
     queryKey: inventoryKeys.lists(warehouseId),
-    queryFn: () => getInventory(warehouseId) as any,
+    queryFn: () => getInventory(warehouseId),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useInventoryItem(id: string | null) {
-  return useQuery({
+  return useQuery<InventoryWithRelations | null>({
     queryKey: inventoryKeys.details(id || ""),
-    queryFn: () => getInventoryItemById(id!) as any,
+    queryFn: () => (id ? getInventoryItemById(id) : null),
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useLowStockItems() {
-  return useQuery({
+  return useQuery<LowStockItem[]>({
     queryKey: inventoryKeys.lowStock(),
-    queryFn: () => getLowStockItems() as any,
+    queryFn: () => getLowStockItems(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useInventoryMovements(sku: string | null, warehouseId: string | null) {
-  return useQuery({
+  return useQuery<InventoryMovement[]>({
     queryKey: inventoryKeys.movements(sku || "", warehouseId || ""),
-    queryFn: () => getInventoryMovements(sku!, warehouseId!) as any,
+    queryFn: () => getInventoryMovements(sku!, warehouseId!),
     enabled: !!sku && !!warehouseId,
     staleTime: 1000 * 60 * 5,
   });
@@ -61,13 +63,23 @@ export function useInventoryMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: any) => {
+  const handleError = (message: string, error: Error | unknown) => {
     console.error(message, error);
-    toast.error(error?.message || message);
+    toast.error((error as Error)?.message || message);
   };
 
   const createMutation = useMutation({
-    mutationFn: (data: any) =>
+    mutationFn: (data: {
+      warehouseId: string;
+      sku: string;
+      name: string;
+      quantity: number;
+      minStock: number;
+      weightKg?: number;
+      volumeM3?: number;
+      palletCount?: number;
+      cargoType?: string;
+    }) =>
       createInventoryItem(
         data.warehouseId,
         data.sku,
@@ -80,27 +92,27 @@ export function useInventoryMutations() {
         data.cargoType
       ),
     onSuccess: () => handleSuccess("Item added to inventory successfully"),
-    onError: (error) => handleError("Failed to add inventory item", error),
+    onError: (error: Error) => handleError("Failed to add inventory item", error),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
+    mutationFn: ({ id, data }: { id: string; data: Partial<Inventory> }) =>
       updateInventoryItem(id, data),
     onSuccess: () => handleSuccess("Inventory item updated successfully"),
-    onError: (error) => handleError("Failed to update inventory item", error),
+    onError: (error: Error) => handleError("Failed to update inventory item", error),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteInventoryItem(id),
     onSuccess: () => handleSuccess("Inventory item deleted successfully"),
-    onError: (error) => handleError("Failed to delete inventory item", error),
+    onError: (error: Error) => handleError("Failed to delete inventory item", error),
   });
 
   const logFulfillmentMutation = useMutation({
     mutationFn: (data: { warehouseId: string; sku: string; quantity: number; type: "PICK" | "PACK" }) =>
       logWarehouseFulfillment(data.warehouseId, data.sku, data.quantity, data.type),
     onSuccess: () => handleSuccess("Fulfillment logged successfully"),
-    onError: (error) => handleError("Failed to log fulfillment", error),
+    onError: (error: Error) => handleError("Failed to log fulfillment", error),
   });
 
   return {

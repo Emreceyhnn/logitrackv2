@@ -1,4 +1,4 @@
-import { Route } from "@prisma/client";
+import { Route, RouteStatus } from "@prisma/client";
 
 // Domain Models
 export interface RouteWithRelations extends Route {
@@ -107,7 +107,7 @@ export interface RoutesPageState {
   mapData: MapRouteData[];
   // Filter Types:
   filters: {
-    status?: string;
+    status?: RouteStatus;
     search?: string;
     date?: Date;
   };
@@ -124,14 +124,12 @@ export interface RoutesPageState {
 
 // Page Actions
 export interface RoutesPageActions {
-  fetchRoutes: (page?: number, status?: string) => Promise<void>;
+  fetchRoutes: (page?: number, status?: RouteStatus) => Promise<void>;
   fetchStats: () => Promise<void>;
   fetchEfficiency: () => Promise<void>;
   fetchMapData: () => Promise<void>;
   refreshAll: () => Promise<void>;
   updateFilters: (filters: Partial<RoutesPageState["filters"]>) => void;
-  selectRoute: (id: string | null) => void;
-  setViewMode: (mode: "list" | "map") => void;
   changePage: (page: number) => void;
 }
 
@@ -139,7 +137,7 @@ export interface RoutesPageActions {
 export interface RouteTableProps {
   routes: RouteWithRelations[];
   loading: boolean;
-  onSelect: (id: string) => void;
+  onSelect?: (id: string) => void;
   pagination: RoutesPageState["pagination"];
   onPageChange: (page: number) => void;
 }

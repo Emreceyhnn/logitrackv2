@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAnalyticsDashboardData } from "@/app/lib/controllers/analytics";
+import { AnalyticsPageState } from "@/app/lib/type/analytics";
 
 export const analyticsKeys = {
   all: ["analytics"] as const,
@@ -7,9 +8,12 @@ export const analyticsKeys = {
 };
 
 export function useAnalyticsData() {
-  return useQuery({
+  return useQuery<AnalyticsPageState | null>({
     queryKey: analyticsKeys.dashboard(),
-    queryFn: () => getAnalyticsDashboardData() as any,
+    queryFn: async () => {
+      const result = await getAnalyticsDashboardData();
+      return result as AnalyticsPageState | null;
+    },
     staleTime: 1000 * 60 * 10, // Analytics can be more stale
   });
 }

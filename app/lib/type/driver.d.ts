@@ -76,7 +76,7 @@ export interface DriverDashboardResponseType {
     name: string;
     rating: number;
     workingHours: number;
-    days: number[]; // Added for chart compatibility
+    days: (string | number)[]; // Accommodate both string (ISO/Labels) and number (timestamps/offsets)
     values: number[]; // Added for chart compatibility
   }[];
 }
@@ -191,7 +191,7 @@ export interface AddDriverDocument {
 export interface AddDriverStep2 {
   homeWareHouseId: string;
   currentVehicleId: string;
-  status: string;
+  status: DriverStatus;
   languages: string[];
   hazmatCertified: boolean;
   documents: AddDriverDocument[];
@@ -237,7 +237,7 @@ export interface EditDriverStep1 {
 export interface EditDriverStep2 {
   homeWareHouseId: string;
   currentVehicleId: string;
-  status: string;
+  status: DriverStatus;
   languages: string[];
   hazmatCertified: boolean;
   documents: AddDriverDocument[];
