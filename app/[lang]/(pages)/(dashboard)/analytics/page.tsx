@@ -5,7 +5,7 @@ import AnalyticsHeader from "@/app/components/dashboard/analytics/AnalyticsHeade
 import PerformanceGauges from "@/app/components/dashboard/analytics/PerformanceGauges";
 import CostAnalysisCharts from "@/app/components/dashboard/analytics/CostAnalysisCharts";
 import ForecastingWidget from "@/app/components/dashboard/analytics/ForecastingWidget";
-import { useAnalyticsData } from "@/app/[lang]/hooks/useAnalytics";
+import { useAnalyticsData } from "@/app/hooks/useAnalytics";
 
 export default function AnalyticsPage() {
   const { data: state, isLoading } = useAnalyticsData();

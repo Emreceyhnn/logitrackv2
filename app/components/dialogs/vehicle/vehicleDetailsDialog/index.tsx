@@ -90,22 +90,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
-  const [toast, setToast] = useState<{
-    open: boolean;
-    type: "success" | "error" | "info" | "warning";
-    message: string;
-  }>({
-    open: false,
-    type: "success",
-    message: "",
-  });
-
-  const showToast = (
-    type: "success" | "error" | "info" | "warning",
-    message: string
-  ) => {
-    setToast({ open: true, type, message });
-  };
 
   /* -------------------------------- handlers -------------------------------- */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -140,13 +124,9 @@ const VehicleDialog = (params: VehicleDialogParams) => {
     try {
       setStatusLoading(true);
       await updateVehicleStatus(vehicleData.id, newStatus);
-      showToast(
-        "success",
-        `Vehicle status updated to ${newStatus.replace(/_/g, " ")}`
-      );
+
       onUpdateSuccess?.();
     } catch (error) {
-      showToast("error", "Failed to update vehicle status");
       console.error(error);
     } finally {
       setStatusLoading(false);

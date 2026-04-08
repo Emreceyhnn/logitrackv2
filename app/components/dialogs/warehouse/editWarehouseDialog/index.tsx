@@ -77,23 +77,6 @@ const EditWarehouseDialog = ({
     isSuccess: false,
   });
 
-  const [toast, setToast] = useState<{
-    open: boolean;
-    type: "success" | "error" | "info" | "warning";
-    message: string;
-  }>({
-    open: false,
-    type: "success",
-    message: "",
-  });
-
-  const showToast = (
-    type: "success" | "error" | "info" | "warning",
-    message: string
-  ) => {
-    setToast({ open: true, type, message });
-  };
-
   // Populate state when warehouseData is available
   useEffect(() => {
     if (warehouseData && open && isInitialized.current !== warehouseData.id) {
@@ -189,7 +172,6 @@ const EditWarehouseDialog = ({
           specifications: state.data.capacity.specifications,
         });
 
-        showToast("success", "Warehouse updated successfully");
         onSuccess?.();
         actions.closeDialog();
       } catch (err: unknown) {
@@ -200,7 +182,6 @@ const EditWarehouseDialog = ({
           isLoading: false,
           error: errorMessage,
         }));
-        showToast("error", errorMessage);
       }
     },
     closeDialog: () => {

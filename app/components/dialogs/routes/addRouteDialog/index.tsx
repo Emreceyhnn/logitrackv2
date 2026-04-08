@@ -19,9 +19,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useEffect } from "react";
-import {
-  AddRouteDialogProps,
-} from "@/app/lib/type/add-route";
+import { AddRouteDialogProps } from "@/app/lib/type/add-route";
 import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { toast } from "sonner";
 import { createRoute } from "@/app/lib/controllers/routes";
@@ -125,7 +123,8 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
         setCurrentStep(1);
       }, 1500);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to create route";
+      const message =
+        err instanceof Error ? err.message : "Failed to create route";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -149,18 +148,39 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
         onSubmit={onSubmit}
         enableReinitialize
       >
-        {({ values, touched, errors, handleSubmit, validateForm, setFieldTouched, setFieldValue }) => {
-          
+        {({ handleSubmit, validateForm, setFieldTouched, setFieldValue }) => {
           const handleShipmentSelect = async (shipmentId: string) => {
             const shipment = shipments.find((s) => s.id === shipmentId);
             if (shipment) {
-              const warehouse = warehouses.find((w) => w.id === shipment.origin);
-              const defaultLoc = shipment.customer?.locations?.find((l) => l.isDefault);
+              const warehouse = warehouses.find(
+                (w) => w.id === shipment.origin
+              );
+              const defaultLoc = shipment.customer?.locations?.find(
+                (l) => l.isDefault
+              );
               const fallbackLoc = shipment.customer?.locations?.[0];
 
-              setFieldValue("endAddress", shipment.destination || defaultLoc?.address || fallbackLoc?.address || "");
-              setFieldValue("endLat", shipment.destinationLat ?? defaultLoc?.lat ?? fallbackLoc?.lat ?? undefined);
-              setFieldValue("endLng", shipment.destinationLng ?? defaultLoc?.lng ?? fallbackLoc?.lng ?? undefined);
+              setFieldValue(
+                "endAddress",
+                shipment.destination ||
+                  defaultLoc?.address ||
+                  fallbackLoc?.address ||
+                  ""
+              );
+              setFieldValue(
+                "endLat",
+                shipment.destinationLat ??
+                  defaultLoc?.lat ??
+                  fallbackLoc?.lat ??
+                  undefined
+              );
+              setFieldValue(
+                "endLng",
+                shipment.destinationLng ??
+                  defaultLoc?.lng ??
+                  fallbackLoc?.lng ??
+                  undefined
+              );
 
               if (warehouse) {
                 setFieldValue("startAddress", warehouse.address);
@@ -170,12 +190,21 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                 setFieldValue("startType", "WAREHOUSE");
               }
 
-              const deadlineDate = shipment.slaDeadline ? new Date(shipment.slaDeadline) : null;
-              const hasDeadline = deadlineDate && !isNaN(deadlineDate.getTime());
+              const deadlineDate = shipment.slaDeadline
+                ? new Date(shipment.slaDeadline)
+                : null;
+              const hasDeadline =
+                deadlineDate && !isNaN(deadlineDate.getTime());
 
-              setFieldValue("name", `Delivery: ${shipment.customer?.name || "Shipment"} - ${shipment.trackingId}`);
+              setFieldValue(
+                "name",
+                `Delivery: ${shipment.customer?.name || "Shipment"} - ${shipment.trackingId}`
+              );
               if (hasDeadline) {
-                setFieldValue("endTime", new Date(deadlineDate!.getTime() + 2 * 60 * 60 * 1000));
+                setFieldValue(
+                  "endTime",
+                  new Date(deadlineDate!.getTime() + 2 * 60 * 60 * 1000)
+                );
               }
 
               toast.info(`Pre-filled from shipment ${shipment.trackingId}`);
@@ -185,17 +214,19 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
           const handleNextStep = async () => {
             let fieldsToValidate: string[] = [];
             if (currentStep === 1) {
-              fieldsToValidate = ['name', 'startTime', 'endTime'];
+              fieldsToValidate = ["name", "startTime", "endTime"];
             } else if (currentStep === 2) {
-              fieldsToValidate = ['startAddress', 'endAddress'];
+              fieldsToValidate = ["startAddress", "endAddress"];
             }
 
-            fieldsToValidate.forEach(f => setFieldTouched(f, true));
+            fieldsToValidate.forEach((f) => setFieldTouched(f, true));
             const result = await validateForm();
-            const hasErrors = fieldsToValidate.some(f => result[f as keyof typeof result]);
+            const hasErrors = fieldsToValidate.some(
+              (f) => result[f as keyof typeof result]
+            );
 
             if (!hasErrors) {
-              setCurrentStep(prev => prev + 1);
+              setCurrentStep((prev) => prev + 1);
             } else {
               toast.error("Please fix errors before proceeding.");
             }
@@ -217,7 +248,11 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
               }}
             >
               <Box sx={{ p: 3, pb: 0 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
                   <Stack spacing={0.5}>
                     <Typography variant="h6" fontWeight={600} color="white">
                       Add New Route
@@ -226,18 +261,48 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                       Configure your new delivery route details and schedule
                     </Typography>
                   </Stack>
-                  <IconButton onClick={closeDialog} size="small" sx={{ color: "text.secondary" }}>
+                  <IconButton
+                    onClick={closeDialog}
+                    size="small"
+                    sx={{ color: "text.secondary" }}
+                  >
                     <CloseIcon fontSize="small" />
                   </IconButton>
                 </Stack>
               </Box>
               <DialogContent>
                 <Box sx={{ mb: 4, px: 2 }}>
-                  <Stepper activeStep={currentStep - 1} sx={{ "& .MuiStepConnector-line": { borderColor: alpha(theme.palette.divider, 0.1) } }}>
+                  <Stepper
+                    activeStep={currentStep - 1}
+                    sx={{
+                      "& .MuiStepConnector-line": {
+                        borderColor: alpha(theme.palette.divider, 0.1),
+                      },
+                    }}
+                  >
                     {steps.map((label, index) => (
                       <Step key={label}>
-                        <StepLabel StepIconProps={{ sx: { "&.Mui-active": { color: theme.palette.primary.main }, "&.Mui-completed": { color: theme.palette.primary.main } } }}>
-                          <Typography variant="caption" fontWeight={600} color={currentStep - 1 >= index ? "text.primary" : "text.secondary"}>
+                        <StepLabel
+                          StepIconProps={{
+                            sx: {
+                              "&.Mui-active": {
+                                color: theme.palette.primary.main,
+                              },
+                              "&.Mui-completed": {
+                                color: theme.palette.primary.main,
+                              },
+                            },
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            fontWeight={600}
+                            color={
+                              currentStep - 1 >= index
+                                ? "text.primary"
+                                : "text.secondary"
+                            }
+                          >
                             {label}
                           </Typography>
                         </StepLabel>
@@ -245,7 +310,12 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                     ))}
                   </Stepper>
                 </Box>
-                <Divider sx={{ mb: 4, borderColor: alpha(theme.palette.divider, 0.05) }} />
+                <Divider
+                  sx={{
+                    mb: 4,
+                    borderColor: alpha(theme.palette.divider, 0.05),
+                  }}
+                />
 
                 <Box sx={{ minHeight: 400 }}>
                   <Form>
@@ -260,22 +330,46 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   </Form>
                 </Box>
               </DialogContent>
-              <DialogActions sx={{ p: 3, pt: 0, justifyContent: "space-between" }}>
+              <DialogActions
+                sx={{ p: 3, pt: 0, justifyContent: "space-between" }}
+              >
                 <Button
-                  onClick={currentStep === 1 ? closeDialog : () => setCurrentStep(prev => prev - 1)}
+                  onClick={
+                    currentStep === 1
+                      ? closeDialog
+                      : () => setCurrentStep((prev) => prev - 1)
+                  }
                   disabled={isLoading}
-                  sx={{ color: "text.secondary", "&:hover": { bgcolor: alpha(theme.palette.divider, 0.05) } }}
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { bgcolor: alpha(theme.palette.divider, 0.05) },
+                  }}
                 >
                   {currentStep === 1 ? "Cancel" : "Back"}
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={currentStep === steps.length ? () => handleSubmit() : handleNextStep}
+                  onClick={
+                    currentStep === steps.length
+                      ? () => handleSubmit()
+                      : handleNextStep
+                  }
                   disabled={isLoading}
-                  startIcon={isLoading && <CircularProgress size={16} color="inherit" />}
-                  sx={{ borderRadius: 2, px: 4, fontWeight: 600, boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}` }}
+                  startIcon={
+                    isLoading && <CircularProgress size={16} color="inherit" />
+                  }
+                  sx={{
+                    borderRadius: 2,
+                    px: 4,
+                    fontWeight: 600,
+                    boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
+                  }}
                 >
-                  {isLoading ? "Creating..." : currentStep === steps.length ? "Create Route" : "Next Step"}
+                  {isLoading
+                    ? "Creating..."
+                    : currentStep === steps.length
+                      ? "Create Route"
+                      : "Next Step"}
                 </Button>
               </DialogActions>
             </Dialog>

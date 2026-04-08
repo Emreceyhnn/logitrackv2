@@ -11,6 +11,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import ExploreIcon from "@mui/icons-material/Explore";
 
 import { useFormikContext, FieldArray, getIn } from "formik";
+import { CustomerFormValues, CustomerFormLocation } from "@/app/lib/type/customer";
 
 const LabelWithIcon = ({ icon: Icon, label }: { icon: React.ComponentType<SvgIconProps>, label: string }) => (
   <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
@@ -28,7 +29,7 @@ const LabelWithIcon = ({ icon: Icon, label }: { icon: React.ComponentType<SvgIco
 
 const ContactSection = () => {
   const theme = useTheme();
-  const { values, errors, touched, setFieldValue, handleBlur } = useFormikContext<any>();
+  const { values, errors, touched, setFieldValue, handleBlur } = useFormikContext<CustomerFormValues>();
 
   return (
     <Box sx={{ py: 1 }}>
@@ -115,7 +116,7 @@ const ContactSection = () => {
               </Stack>
 
               <Stack spacing={3}>
-                {values.locations.map((loc: any, index: number) => {
+                {values.locations.map((loc: CustomerFormLocation, index: number) => {
                   const locErrors = getIn(errors, `locations[${index}]`);
                   const locTouched = getIn(touched, `locations[${index}]`);
 

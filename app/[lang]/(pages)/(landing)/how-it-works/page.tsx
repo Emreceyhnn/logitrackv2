@@ -1,17 +1,8 @@
 "use client";
 
-import {
-  Box,
-  Container,
-  Typography,
-  Stack,
-  Button,
-  alpha,
-} from "@mui/material";
-import LandingHeaderAuth from "@/app/components/landing/LandingHeaderAuth";
+import { Box, Container, Typography, Stack, Button } from "@mui/material";
 import TimelineSection from "@/app/components/how-it-works/TimelineSection";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function HowItWorksPage() {
   return (
@@ -52,64 +43,6 @@ export default function HowItWorksPage() {
       />
 
       <Box sx={{ position: "relative", zIndex: 1 }}>
-        <Box
-          sx={{
-            backdropFilter: "blur(16px)",
-            backgroundColor: alpha("#020617", 0.6),
-            borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-            position: "sticky",
-            top: 0,
-            zIndex: 1000,
-          }}
-        >
-          <Container maxWidth="lg">
-            <Stack
-              direction="row"
-              height={80}
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Link
-                href="/en"
-                style={{
-                  textDecoration: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: "10px",
-                    background: "linear-gradient(135deg, #38bdf8, #6366f1)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Image
-                    src="/logo-beyaz-vector.png"
-                    alt="Logo"
-                    width={24}
-                    height={24}
-                  />
-                </Box>
-                <Typography
-                  variant="h6"
-                  fontWeight={700}
-                  color="#fff"
-                  letterSpacing={1}
-                >
-                  LOGI-TRACK
-                </Typography>
-              </Link>
-              <LandingHeaderAuth />
-            </Stack>
-          </Container>
-        </Box>
-
         <Container maxWidth="md" sx={{ pt: 15, pb: 10, textAlign: "center" }}>
           <Typography
             variant="overline"

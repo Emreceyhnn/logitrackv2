@@ -76,23 +76,6 @@ const AddWarehouseDialog = ({
     isSuccess: false,
   });
 
-  const [toast, setToast] = useState<{
-    open: boolean;
-    type: "success" | "error" | "info" | "warning";
-    message: string;
-  }>({
-    open: false,
-    type: "success",
-    message: "",
-  });
-
-  const showToast = (
-    type: "success" | "error" | "info" | "warning",
-    message: string
-  ) => {
-    setToast({ open: true, type, message });
-  };
-
   /* ---------------------------------- actions --------------------------------- */
   const actions: AddWarehousePageActions = {
     updateBasicInfo: (data) =>
@@ -134,7 +117,6 @@ const AddWarehouseDialog = ({
           state.data.capacity.specifications
         );
 
-        showToast("success", "Warehouse created successfully");
         onSuccess?.();
         actions.closeDialog();
       } catch (err: unknown) {
@@ -145,7 +127,6 @@ const AddWarehouseDialog = ({
           isLoading: false,
           error: errorMessage,
         }));
-        showToast("error", errorMessage);
       }
     },
     closeDialog: () => {

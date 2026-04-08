@@ -285,7 +285,14 @@
       "saveSuccess": "Başarıyla kaydedildi",
       "errorOccurred": "Bir hata oluştu",
       "settings": "Ayarlar",
-      "documents": "Belgeler"
+      "documents": "Belgeler",
+      "noData": "Veri bulunamadı.",
+      "success": "Başarılı",
+      "error": "Hata",
+      "warning": "Uyarı",
+      "info": "Bilgi",
+      "confirm": "Onayla",
+      "submit": "Gönder"
     },
     "sidebar": {
       "overview": "Genel Bakış",
@@ -438,6 +445,7 @@
         "fuelType": "Yakıt Tipi",
         "fuelLevel": "Yakıt Seviyesi",
         "service": "Bir Sonraki Servis (km)",
+        "transmission": "Şanzıman",
         "status": "Mevcut Durum"
       }
     },
@@ -445,6 +453,9 @@
       "title": "Sürücü Yönetimi",
       "subtitle": "Sürücülerinizi yönetin, performans ve ehliyet durumlarını izleyin.",
       "addDriver": "Sürücü Ekle",
+      "dialogs": {
+        "addTitle": "Yeni Sürücü Ekle"
+      },
       "totalDrivers": "Toplam Filo Sürücüsü",
       "onDuty": "Görevde",
       "offDuty": "İstirahatte",
@@ -469,6 +480,9 @@
       "outOfStock": "STOKTA YOK",
       "totalValue": "TOPLAM DEĞER",
       "addInventory": "Envanter Ekle",
+      "dialogs": {
+        "addTitle": "Yeni Ürün Ekle"
+      },
       "deleteTitle": "Öğeyi Sil",
       "deleteDesc": "Bu öğeyi silmek istediğinize emin misiniz?",
       "fields": {

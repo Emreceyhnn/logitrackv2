@@ -3,15 +3,7 @@
 import RoutesMainMap from "@/app/components/dashboard/routes/routesMainMap";
 import RouteEfficiency from "@/app/components/dashboard/routes/routeEfficiency";
 import RouteTable from "@/app/components/dashboard/routes/routeTable";
-import {
-  Box,
-  Button,
-  Stack,
-  Typography,
-  Divider,
-  useTheme,
-} from "@mui/material";
-import CustomCard from "@/app/components/cards/card";
+import { Box, Button, Stack, Typography, useTheme } from "@mui/material";
 import { useCallback, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {
@@ -21,12 +13,12 @@ import {
   MapRouteData,
   RoutesPageState,
 } from "@/app/lib/type/routes";
-import { 
-  useRoutes, 
-  useRouteStats, 
-  useRouteEfficiency, 
-  useRouteLocations, 
-  useRouteMutations 
+import {
+  useRoutes,
+  useRouteStats,
+  useRouteEfficiency,
+  useRouteLocations,
+  useRouteMutations,
 } from "@/app/hooks/useRoutes";
 import EditRouteDialog from "@/app/components/dialogs/routes/edit-route-dialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
@@ -49,26 +41,49 @@ export default function RoutesPage() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [actionRoute, setActionRoute] = useState<RouteWithRelations | null>(null);
+  const [actionRoute, setActionRoute] = useState<RouteWithRelations | null>(
+    null
+  );
 
   /* ---------------------------------- HOOKS --------------------------------- */
-  const { 
-    data: routesData, 
-    isLoading: isRoutesLoading, 
-    refetch: refetchRoutes 
+  const {
+    data: routesData,
+    isLoading: isRoutesLoading,
+    refetch: refetchRoutes,
   } = useRoutes(pagination.page, pagination.pageSize, filters.status);
-  
-  const { data: stats, isLoading: isStatsLoading, refetch: refetchStats } = useRouteStats();
-  const { data: efficiency, isLoading: isEfficiencyLoading, refetch: refetchEfficiency } = useRouteEfficiency();
-  const { data: mapData = [], isLoading: isLocationsLoading, refetch: refetchLocations } = useRouteLocations();
-  
+
+  const {
+    data: stats,
+    isLoading: isStatsLoading,
+    refetch: refetchStats,
+  } = useRouteStats();
+  const {
+    data: efficiency,
+    isLoading: isEfficiencyLoading,
+    refetch: refetchEfficiency,
+  } = useRouteEfficiency();
+  const {
+    data: mapData = [],
+    isLoading: isLocationsLoading,
+    refetch: refetchLocations,
+  } = useRouteLocations();
+
   const { deleteRoute: deleteMutation } = useRouteMutations();
 
-  const loading = isRoutesLoading || isStatsLoading || isEfficiencyLoading || isLocationsLoading;
+  const loading =
+    isRoutesLoading ||
+    isStatsLoading ||
+    isEfficiencyLoading ||
+    isLocationsLoading;
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
-    await Promise.all([refetchRoutes(), refetchStats(), refetchEfficiency(), refetchLocations()]);
+    await Promise.all([
+      refetchRoutes(),
+      refetchStats(),
+      refetchEfficiency(),
+      refetchLocations(),
+    ]);
   }, [refetchRoutes, refetchStats, refetchEfficiency, refetchLocations]);
 
   const actions: RoutesPageActions = {
@@ -81,30 +96,35 @@ export default function RoutesPage() {
       setFilters((prev) => ({ ...prev, ...newFilters }));
       setPagination((prev) => ({ ...prev, page: 0 }));
     },
-    changePage: (newPage: number) => setPagination((prev) => ({ ...prev, page: newPage })),
+    changePage: (newPage: number) =>
+      setPagination((prev) => ({ ...prev, page: newPage })),
   };
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handlePageChange = (newPage: number) => {
     actions.changePage(newPage);
   };
-  
+
   const handleEdit = (id: string) => {
-    const route = (routesData?.routes as RouteWithRelations[] || []).find((r) => r.id === id);
+    const route = ((routesData?.routes as RouteWithRelations[]) || []).find(
+      (r) => r.id === id
+    );
     if (route) {
       setActionRoute(route);
       setEditOpen(true);
     }
   };
-  
+
   const handleDelete = (id: string) => {
-    const route = (routesData?.routes as RouteWithRelations[] || []).find((r) => r.id === id);
+    const route = ((routesData?.routes as RouteWithRelations[]) || []).find(
+      (r) => r.id === id
+    );
     if (route) {
       setActionRoute(route);
       setDeleteOpen(true);
     }
   };
-  
+
   const handleDeleteConfirm = async () => {
     if (!actionRoute || !user) return;
     try {
@@ -114,7 +134,7 @@ export default function RoutesPage() {
       console.error("Failed to delete route:", error);
     }
   };
-  
+
   const handleCloseAdd = () => {
     setAddDialogOpen(false);
     refreshAll();
@@ -179,7 +199,10 @@ export default function RoutesPage() {
 
       <Stack mt={2} direction={"row"} spacing={3}>
         <RoutesMainMap mapData={mapData as MapRouteData[]} loading={loading} />
-        <RouteEfficiency data={efficiency as RouteEfficiencyStats} loading={loading} />
+        <RouteEfficiency
+          data={efficiency as RouteEfficiencyStats}
+          loading={loading}
+        />
       </Stack>
       <Stack mt={2}>
         <RouteTable

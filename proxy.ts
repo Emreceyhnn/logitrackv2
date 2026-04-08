@@ -8,22 +8,23 @@ import {
   DEFAULT_REDIRECT_AFTER_LOGIN,
   LOCALES,
   DEFAULT_LOCALE,
-  SIGN_IN_ROUTE
+  SIGN_IN_ROUTE,
+  Locale
 } from "@/app/lib/constants";
 
 function getLocaleFromPathname(pathname: string): {
-  locale: string;
+  locale: Locale;
   restPath: string;
 } {
   const segments = pathname.split("/").filter(Boolean);
   const firstSegment = segments[0];
 
-  if (LOCALES.includes(firstSegment as any)) {
+  if (LOCALES.includes(firstSegment as Locale)) {
     const restPath = "/" + segments.slice(1).join("/");
-    return { locale: firstSegment, restPath: restPath === "/" ? "" : restPath };
+    return { locale: firstSegment as Locale, restPath: restPath === "/" ? "" : restPath };
   }
 
-  return { locale: (DEFAULT_LOCALE as string), restPath: pathname };
+  return { locale: DEFAULT_LOCALE, restPath: pathname };
 }
 
 export default async function middleware(request: NextRequest) {

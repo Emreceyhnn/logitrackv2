@@ -16,9 +16,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
 import { RouteStatus } from "@prisma/client";
+
+import { toast } from "sonner";
 
 interface RouteRowActionsProps {
   id: string;
@@ -42,34 +44,17 @@ const RouteRowActions = ({
   const [loading, setLoading] = useState(false);
   const open = Boolean(anchorEl);
 
-  const [toastState, setToastState] = useState<{
-    open: boolean;
-    type: "success" | "error" | "info" | "warning";
-    message: string;
-  }>({
-    open: false,
-    type: "success",
-    message: "",
-  });
-
-  const showToast = useCallback(
-    (type: "success" | "error" | "info" | "warning", message: string) => {
-      setToastState({ open: true, type, message });
-    },
-    []
-  );
-
   const handleStatusChange = async (newStatus: RouteStatus) => {
     setAnchorEl(null);
     setLoading(true);
     try {
       await updateRouteStatus(id, newStatus);
-      showToast("success", `Route updated to ${newStatus}`);
+      toast.success("Route status updated successfully");
       onRefresh?.();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to update route";
-      showToast("error", message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }

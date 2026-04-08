@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build && xcopy /E /I /Y public .next\\standalone\\public && xcopy /E /I /Y .next\\static .next\\standalone\\.next\\static",
+    "build": "shx rm -rf node_modules/.prisma && prisma generate && next build && shx mkdir -p .next/standalone/public && shx cp -r public/* .next/standalone/public/ && shx mkdir -p .next/standalone/.next/static && shx cp -r .next/static/* .next/standalone/.next/static/",
     "start": "dotenv -e .env -- node .next/standalone/server.js",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:run": "prisma studio",
@@ -62,6 +63,7 @@
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.8.1",
     "prisma": "^5.10.2",
+    "shx": "^0.4.0",
     "tsx": "^4.21.0",
     "typescript": "^5"
   },

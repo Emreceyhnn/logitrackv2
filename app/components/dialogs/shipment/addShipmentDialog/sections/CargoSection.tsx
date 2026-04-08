@@ -15,9 +15,7 @@ import MonitorWeightIcon from "@mui/icons-material/MonitorWeight";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import InventoryIcon from "@mui/icons-material/Inventory";
 
-interface CargoSectionProps {}
-
-const CargoSection = ({}: CargoSectionProps) => {
+const CargoSection = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { values, setFieldValue, handleBlur, touched, errors } =

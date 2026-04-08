@@ -29,6 +29,7 @@ import type {
 import ProfileHeader from "./components/ProfileHeader";
 import ProfileTab from "./components/ProfileTab";
 import SecurityTab from "./components/SecurityTab";
+import { toast } from "sonner";
 
 interface Props {
   open: boolean;
@@ -54,22 +55,10 @@ export default function ProfileDialog({ open, onClose }: Props) {
     passwordForm: { currentPassword: "", newPassword: "", confirmPassword: "" },
   });
 
-  const [toast, setToast] = useState<{
-    open: boolean;
-    type: "success" | "error";
-    message: string;
-  }>({
-    open: false,
-    type: "success",
-    message: "",
-  });
-
-  const showToast = useCallback(
-    (type: "success" | "error", message: string) => {
-      setToast({ open: true, type, message });
-    },
-    []
-  );
+  const showToast = useCallback((type: "success" | "error", message: string) => {
+    if (type === "success") toast.success(message);
+    else toast.error(message);
+  }, []);
 
   const loadProfile = useCallback(async () => {
     setState((s) => ({ ...s, isLoading: true }));

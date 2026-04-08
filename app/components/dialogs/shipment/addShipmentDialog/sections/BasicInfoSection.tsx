@@ -18,9 +18,7 @@ import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 
-interface BasicInfoSectionProps {}
-
-const BasicInfoSection = ({}: BasicInfoSectionProps) => {
+const BasicInfoSection = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { values, setFieldValue, handleBlur, touched, errors } =

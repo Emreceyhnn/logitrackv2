@@ -8,5 +8,5 @@ export default async function Playground({
   const { lang } = await params;
   const dict = getDictionary(lang);
 
-  return <h1>{dict.first.title}</h1>;
+  return <h1>{dict.landing.hero.title}</h1>;
 }

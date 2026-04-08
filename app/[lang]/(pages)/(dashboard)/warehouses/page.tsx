@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Box, Button, Stack, Typography, Divider } from "@mui/material";
-import CustomCard from "@/app/components/cards/card";
+import { Box, Button, Stack, Typography } from "@mui/material";
 import WarehouseListTable from "@/app/components/dashboard/warehouse/warehouseList";
 import CapacityUtilization from "@/app/components/dashboard/warehouse/capacityUtilization";
 import RecentStockMovements from "@/app/components/dashboard/warehouse/recentStockMovements";
@@ -12,11 +11,11 @@ import {
   WarehousePageActions,
   WarehouseWithRelations,
 } from "@/app/lib/type/warehouse";
-import { 
-  useWarehouses, 
-  useWarehouseStats, 
-  useRecentStockMovements, 
-  useWarehouseMutations 
+import {
+  useWarehouses,
+  useWarehouseStats,
+  useRecentStockMovements,
+  useWarehouseMutations,
 } from "@/app/hooks/useWarehouses";
 import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseDialog";
 import WarehouseDetailsDialog from "@/app/components/dialogs/warehouse/warehouseDetailsDialog";
@@ -39,26 +38,48 @@ export default function WarehousePage() {
   const theme = useTheme();
 
   /* --------------------------------- STATES --------------------------------- */
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(null);
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(
+    null
+  );
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [warehouseToEditId, setWarehouseToEditId] = useState<string | null>(null);
+  const [warehouseToEditId, setWarehouseToEditId] = useState<string | null>(
+    null
+  );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [warehouseToDeleteId, setWarehouseToDeleteId] = useState<string | null>(null);
+  const [warehouseToDeleteId, setWarehouseToDeleteId] = useState<string | null>(
+    null
+  );
 
   /* ---------------------------------- HOOKS --------------------------------- */
-  const { data: warehouses = [], isLoading: isWarehousesLoading, refetch: refetchWarehouses } = useWarehouses();
-  const { data: stats, isLoading: isStatsLoading, refetch: refetchStats } = useWarehouseStats();
-  const { data: recentMovements = [], isLoading: isMovementsLoading, refetch: refetchMovements } = useRecentStockMovements();
-  
+  const {
+    data: warehouses = [],
+    isLoading: isWarehousesLoading,
+    refetch: refetchWarehouses,
+  } = useWarehouses();
+  const {
+    data: stats,
+    isLoading: isStatsLoading,
+    refetch: refetchStats,
+  } = useWarehouseStats();
+  const {
+    data: recentMovements = [],
+    isLoading: isMovementsLoading,
+    refetch: refetchMovements,
+  } = useRecentStockMovements();
+
   const { deleteWarehouse: deleteMutation } = useWarehouseMutations();
 
   const loading = isWarehousesLoading || isStatsLoading || isMovementsLoading;
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
-    await Promise.all([refetchWarehouses(), refetchStats(), refetchMovements()]);
+    await Promise.all([
+      refetchWarehouses(),
+      refetchStats(),
+      refetchMovements(),
+    ]);
   }, [refetchWarehouses, refetchStats, refetchMovements]);
 
   const actions: WarehousePageActions = {
@@ -184,14 +205,8 @@ export default function WarehousePage() {
       </Stack>
 
       <Stack direction={{ xs: "column", xl: "row" }} spacing={4} sx={{ mt: 2 }}>
-        <CapacityUtilization
-          warehouses={warehouses}
-          loading={loading}
-        />
-        <RecentStockMovements
-          movements={recentMovements}
-          loading={loading}
-        />
+        <CapacityUtilization warehouses={warehouses} loading={loading} />
+        <RecentStockMovements movements={recentMovements} loading={loading} />
       </Stack>
 
       <GoogleMapsProvider>
@@ -209,8 +224,9 @@ export default function WarehousePage() {
           }}
           onEditSuccess={refreshAll}
           warehouseData={
-            warehouses.find((w: WarehouseWithRelations) => w.id === selectedWarehouseId) ||
-            undefined
+            warehouses.find(
+              (w: WarehouseWithRelations) => w.id === selectedWarehouseId
+            ) || undefined
           }
         />
 
@@ -226,8 +242,9 @@ export default function WarehousePage() {
             actions.refreshAll();
           }}
           warehouseData={
-            warehouses.find((w: WarehouseWithRelations) => w.id === warehouseToEditId) ||
-            undefined
+            warehouses.find(
+              (w: WarehouseWithRelations) => w.id === warehouseToEditId
+            ) || undefined
           }
         />
       </GoogleMapsProvider>

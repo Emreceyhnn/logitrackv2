@@ -27,8 +27,32 @@ import {
   AddVehiclePageProps,
   VehicleFormValues,
 } from "@/app/lib/type/vehicle";
+import { VehicleType } from "@prisma/client";
 import { createVehicle, uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
 import { uploadImageAction } from "@/app/lib/actions/upload";
+import { fileToBase64 } from "@/app/lib/utils/fileUtils";
+
+interface VehicleCreateInput {
+  plate: string;
+  fleetNo?: string;
+  brand: string;
+  model: string;
+  type: VehicleType;
+  year: number;
+  odometerKm?: number;
+  photo?: string;
+  maxLoadKg: number;
+  fuelType: string;
+  avgFuelConsumption?: number;
+  fuelLevel?: number;
+  engineSize?: string;
+  transmission?: string;
+  techNotes?: string;
+  registrationExpiry?: Date;
+  inspectionExpiry?: Date;
+  nextServiceKm?: number;
+  enableAlerts?: boolean;
+}
 import { Formik, FormikHelpers } from "formik";
 import { addVehicleValidationSchema } from "@/app/lib/validationSchema";
 import { toast } from "sonner";
@@ -94,15 +118,6 @@ const AddVehicleDialog = ({
 
       setError(null);
 
-      const fileToBase64 = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = (error) => reject(error);
-        });
-      };
-
       let photoUrl = values.photo;
       if (values.photo instanceof File) {
         const base64 = await fileToBase64(values.photo);
@@ -110,10 +125,10 @@ const AddVehicleDialog = ({
         photoUrl = uploadResult.url;
       }
 
-      const payload = {
+      const payload: VehicleCreateInput = {
         fleetNo: values.fleetNo || undefined,
         plate: values.plate,
-        type: values.type,
+        type: values.type as VehicleType,
         brand: values.brand,
         model: values.model,
         year: Number(values.year),
@@ -132,7 +147,7 @@ const AddVehicleDialog = ({
         enableAlerts: values.enableExpiryAlerts,
       };
 
-      const createdVehicle = await createVehicle(payload as any);
+      const createdVehicle = await createVehicle(payload as unknown as Record<string, unknown>);
 
       const docPromises = values.documents
         .filter(doc => doc.file)

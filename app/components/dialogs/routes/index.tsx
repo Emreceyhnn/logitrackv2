@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   alpha,
   Box,
@@ -15,6 +15,7 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
+import { toast } from "sonner";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import { RouteStatus } from "@prisma/client";
@@ -32,7 +33,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 interface RouteDialogProps {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
   route: RouteWithRelations | null;
 }
 
@@ -55,7 +55,6 @@ const getStatusMeta = (status?: string) => {
 export default function RouteDialog({
   open,
   onClose,
-  onSuccess,
   route,
 }: RouteDialogProps) {
   const theme = useTheme();
@@ -68,22 +67,6 @@ export default function RouteDialog({
   } | null>(null);
 
   const [statusLoading, setStatusLoading] = useState(false);
-  const [toast, setToast] = useState<{
-    open: boolean;
-    type: "success" | "error" | "info" | "warning";
-    message: string;
-  }>({
-    open: false,
-    type: "success",
-    message: "",
-  });
-
-  const showToast = useCallback(
-    (type: "success" | "error" | "info" | "warning", message: string) => {
-      setToast({ open: true, type, message });
-    },
-    []
-  );
 
   if (!route) return null;
 
@@ -92,12 +75,11 @@ export default function RouteDialog({
     setStatusLoading(true);
     try {
       await updateRouteStatus(route.id, newStatus);
-      showToast("success", `Route status updated to ${newStatus}`);
-      onSuccess?.();
+      toast.success(`Route status successfully updated to ${newStatus}`);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to update status";
-      showToast("error", message);
+      toast.error(message);
     } finally {
       setStatusLoading(false);
     }

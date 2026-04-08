@@ -28,6 +28,7 @@ import SettingsHeader from "./components/SettingsHeader";
 import RegionalTab from "./components/RegionalTab";
 import NotificationsTab from "./components/NotificationsTab";
 import AppearanceTab from "./components/AppearanceTab";
+import { toast } from "sonner";
 
 interface Props {
   open: boolean;
@@ -58,18 +59,9 @@ export default function SettingsDialog({ open, onClose }: Props) {
     appearance: { mode: "dark" },
   });
 
-  const [toast, setToast] = useState<{
-    open: boolean;
-    type: "success" | "error";
-    message: string;
-  }>({
-    open: false,
-    type: "success",
-    message: "",
-  });
-
   const showToast = useCallback((type: "success" | "error", msg: string) => {
-    setToast({ open: true, type, message: msg });
+    if (type === "success") toast.success(msg);
+    else toast.error(msg);
   }, []);
 
   const actions: SettingsPageActions = {

@@ -9,6 +9,26 @@ export interface CustomerWithRelations extends Omit<Customer, 'address' | 'lat' 
   locations?: import("@prisma/client").CustomerLocation[];
 }
 
+// Form State
+export interface CustomerFormLocation {
+  id?: string;
+  name: string;
+  address: string;
+  lat?: number;
+  lng?: number;
+  isDefault: boolean;
+}
+
+export interface CustomerFormValues {
+  name: string;
+  code: string;
+  industry: string;
+  taxId: string;
+  email: string;
+  phone: string;
+  locations: CustomerFormLocation[];
+}
+
 // Page State
 export interface CustomerPageState {
   customers: CustomerWithRelations[];

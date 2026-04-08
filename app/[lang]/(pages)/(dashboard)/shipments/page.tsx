@@ -2,15 +2,7 @@
 
 import ShipmentTable from "@/app/components/dashboard/shipments/shipmentTable";
 import ShipmentAnalytics from "@/app/components/dashboard/shipments/ShipmentAnalytics";
-import {
-  Box,
-  Button,
-  Stack,
-  Typography,
-  Divider,
-  useTheme,
-} from "@mui/material";
-import CustomCard from "@/app/components/cards/card";
+import { Box, Button, Stack, Typography, useTheme } from "@mui/material";
 import { useCallback, useEffect, useState, Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import {
@@ -18,7 +10,13 @@ import {
   ShipmentPageActions,
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
-import { useShipments, useShipmentStats, useShipmentVolumeHistory, useShipmentStatusDistribution, useShipmentMutations } from "@/app/hooks/useShipments";
+import {
+  useShipments,
+  useShipmentStats,
+  useShipmentVolumeHistory,
+  useShipmentStatusDistribution,
+  useShipmentMutations,
+} from "@/app/hooks/useShipments";
 import EditShipmentDialog from "@/app/components/dialogs/shipment/edit-shipment-dialog";
 import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDetailDialog";
 import AddShipmentDialog from "@/app/components/dialogs/shipment/addShipmentDialog";
@@ -49,26 +47,51 @@ function ShipmentContent() {
 
   /* ---------------------------------- STATES --------------------------------- */
   const [filters, setFilters] = useState<ShipmentPageState["filters"]>({});
-  const [selectedShipmentId, setSelectedShipmentId] = useState<string | null>(null);
-  
+  const [selectedShipmentId, setSelectedShipmentId] = useState<string | null>(
+    null
+  );
+
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [actionShipment, setActionShipment] = useState<ShipmentWithRelations | null>(null);
+  const [actionShipment, setActionShipment] =
+    useState<ShipmentWithRelations | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   /* ---------------------------------- HOOKS --------------------------------- */
-  const { data: shipments = [], isLoading: isShipmentsLoading, refetch: refetchShipments } = useShipments();
-  const { data: stats, isLoading: isStatsLoading, refetch: refetchStats } = useShipmentStats();
-  const { data: volumeHistory = [], isLoading: isHistoryLoading, refetch: refetchHistory } = useShipmentVolumeHistory();
-  const { data: statusDistribution = [], isLoading: isDistLoading, refetch: refetchDist } = useShipmentStatusDistribution();
-  
+  const {
+    data: shipments = [],
+    isLoading: isShipmentsLoading,
+    refetch: refetchShipments,
+  } = useShipments();
+  const {
+    data: stats,
+    isLoading: isStatsLoading,
+    refetch: refetchStats,
+  } = useShipmentStats();
+  const {
+    data: volumeHistory = [],
+    isLoading: isHistoryLoading,
+    refetch: refetchHistory,
+  } = useShipmentVolumeHistory();
+  const {
+    data: statusDistribution = [],
+    isLoading: isDistLoading,
+    refetch: refetchDist,
+  } = useShipmentStatusDistribution();
+
   const { deleteShipment: deleteMutation } = useShipmentMutations();
 
-  const loading = isShipmentsLoading || isStatsLoading || isHistoryLoading || isDistLoading;
+  const loading =
+    isShipmentsLoading || isStatsLoading || isHistoryLoading || isDistLoading;
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
-    await Promise.all([refetchShipments(), refetchStats(), refetchHistory(), refetchDist()]);
+    await Promise.all([
+      refetchShipments(),
+      refetchStats(),
+      refetchHistory(),
+      refetchDist(),
+    ]);
   }, [refetchShipments, refetchStats, refetchHistory, refetchDist]);
 
   const actions: ShipmentPageActions = useMemo(
@@ -78,7 +101,7 @@ function ShipmentContent() {
       fetchCharts: async () => {},
       refreshAll,
       selectShipment: (id: string | null) => setSelectedShipmentId(id),
-      updateFilters: (newFilters: Partial<ShipmentPageState["filters"]>) => 
+      updateFilters: (newFilters: Partial<ShipmentPageState["filters"]>) =>
         setFilters((prev) => ({ ...prev, ...newFilters })),
     }),
     [refreshAll]

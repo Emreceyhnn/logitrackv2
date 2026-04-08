@@ -17,7 +17,7 @@ import {
   StepLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { CustomerWithRelations } from "@/app/lib/type/customer";
+import { CustomerWithRelations, CustomerFormValues } from "@/app/lib/type/customer";
 import { updateCustomer } from "@/app/lib/controllers/customer";
 import { useTransition, useState } from "react";
 import { toast } from "sonner";
@@ -25,8 +25,6 @@ import { useUser } from "@/app/lib/hooks/useUser";
 import IdentitySection from "./addCustomerDialog/sections/IdentitySection";
 import ContactSection from "./addCustomerDialog/sections/ContactSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
-
-
 
 interface EditCustomerDialogProps {
   open: boolean;
@@ -37,16 +35,6 @@ interface EditCustomerDialogProps {
 
 import { Formik, Form } from "formik";
 import { editCustomerValidationSchema } from "@/app/lib/validationSchema";
-
-const initialValues = {
-  name: "",
-  code: "",
-  industry: "",
-  taxId: "",
-  email: "",
-  phone: "",
-  locations: [] as any[],
-};
 
 export default function EditCustomerDialog({
   open,
@@ -60,7 +48,7 @@ export default function EditCustomerDialog({
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (values: typeof initialValues) => {
+  const handleSubmit = async (values: CustomerFormValues) => {
     if (!customer || !user) return;
 
     startTransition(async () => {
