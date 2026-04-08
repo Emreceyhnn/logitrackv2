@@ -21,7 +21,15 @@ import {
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only";
 
 export const getUserFromToken = authenticatedAction(
-  async (user, token: string): Promise<Omit<import("@prisma/client").User & { company: import("@prisma/client").Company | null }, "password"> | null> => {
+  async (
+    user,
+    token: string
+  ): Promise<Omit<
+    import("@prisma/client").User & {
+      company: import("@prisma/client").Company | null;
+    },
+    "password"
+  > | null> => {
     const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
@@ -77,7 +85,6 @@ export const getUsers = authenticatedAction(async (user) => {
 export const RegisterUser = maybeAuthenticatedAction(
   async (
     user: AuthenticatedUser | null,
-    username: string,
     name: string,
     surname: string,
     password: string,
@@ -96,20 +103,16 @@ export const RegisterUser = maybeAuthenticatedAction(
 
       const isExist = await db.user.findFirst({
         where: {
-          OR: [{ username }, { email }],
+          OR: [{ email }],
         },
       });
 
       if (isExist) {
-        if (isExist.username === username) {
-          return { error: "Username already exists", field: "username" };
-        }
         return { error: "Email already exists", field: "email" };
       }
 
       const newUser = await db.user.create({
         data: {
-          username,
           name,
           surname,
           password: hashedPassword,
@@ -138,14 +141,14 @@ export const RegisterUser = maybeAuthenticatedAction(
           name: newUser.name,
           surname: newUser.surname,
           email: newUser.email,
-          username: newUser.username,
           avatarUrl: newUser.avatarUrl,
           companyId: newUser.companyId,
         },
       };
     } catch (error) {
       console.error("Failed to create user:", error);
-      const message = error instanceof Error ? error.message : "Internal server error";
+      const message =
+        error instanceof Error ? error.message : "Internal server error";
       return { error: message, field: "general" };
     }
   }
@@ -217,13 +220,13 @@ export const LoginUser = maybeAuthenticatedAction(
           name: foundUser.name,
           surname: foundUser.surname,
           email: foundUser.email,
-          username: foundUser.username,
           companyId: foundUser.companyId,
         },
       };
     } catch (error) {
       console.error("Critical Login Error:", error);
-      const message = error instanceof Error ? error.message : "Internal server error";
+      const message =
+        error instanceof Error ? error.message : "Internal server error";
       return { error: message };
     }
   }
@@ -264,7 +267,6 @@ export const LogoutUser = authenticatedAction(async () => {
 export const updateUser = authenticatedAction(
   async (
     user,
-    username: string,
     name: string,
     surname: string,
     password: string, // Password should be hashed if it's being updated
@@ -277,7 +279,7 @@ export const updateUser = authenticatedAction(
 
       // Check if we are updating ourselves or if we are admin
       const foundUser = await db.user.upsert({
-        where: { username },
+        where: { email },
         update: {
           name,
           surname,
@@ -288,7 +290,6 @@ export const updateUser = authenticatedAction(
           // password: password ? await bcrypt.hash(password, 10) : undefined,
         },
         create: {
-          username,
           name,
           surname,
           password: await bcrypt.hash(password, 10), // Password must be hashed on creation
@@ -310,7 +311,6 @@ export const createUserForCompany = authenticatedAction(
   async (
     user,
     userData: {
-      username: string;
       name: string;
       surname: string;
       email: string;
@@ -333,14 +333,11 @@ export const createUserForCompany = authenticatedAction(
 
       const isExist = await db.user.findFirst({
         where: {
-          OR: [{ username: userData.username }, { email: userData.email }],
+          OR: [{ email: userData.email }],
         },
       });
 
       if (isExist) {
-        if (isExist.username === userData.username) {
-          throw new Error("Username already exists");
-        }
         throw new Error("Email already exists");
       }
 
@@ -351,7 +348,6 @@ export const createUserForCompany = authenticatedAction(
 
       const newUser = await db.user.create({
         data: {
-          username: userData.username,
           name: userData.name,
           surname: userData.surname,
           email: userData.email,
@@ -442,7 +438,6 @@ export const searchPlatformUsers = authenticatedAction(
             { name: { contains: query, mode: "insensitive" } },
             { surname: { contains: query, mode: "insensitive" } },
             { email: { contains: query, mode: "insensitive" } },
-            { username: { contains: query, mode: "insensitive" } },
           ],
         },
         take: 10,

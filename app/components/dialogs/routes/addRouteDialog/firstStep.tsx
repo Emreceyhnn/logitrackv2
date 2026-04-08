@@ -9,8 +9,9 @@ import {
   useTheme,
   MenuItem,
 } from "@mui/material";
+import { useFormikContext } from "formik";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
-import { AddRouteStep1 } from "@/app/lib/type/add-route";
+import { RouteFormValues } from "@/app/lib/type/routes";
 import { MobileDateTimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import RouteIcon from "@mui/icons-material/Route";
@@ -19,15 +20,13 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 
 interface FirstRouteDialogStepProps {
-  state: AddRouteStep1;
-  updateStep1: (data: Partial<AddRouteStep1>) => void;
   shipments?: ShipmentWithRelations[];
   onShipmentSelect?: (id: string) => void;
 }
 
-const FirstRouteDialogStep = (props: FirstRouteDialogStepProps) => {
-  const { state, updateStep1, shipments = [], onShipmentSelect } = props;
+const FirstRouteDialogStep = ({ shipments = [], onShipmentSelect }: FirstRouteDialogStepProps) => {
   const theme = useTheme();
+  const { values, setFieldValue, handleBlur, touched, errors } = useFormikContext<RouteFormValues>();
 
   return (
     <Box>
@@ -101,8 +100,11 @@ const FirstRouteDialogStep = (props: FirstRouteDialogStepProps) => {
             <CustomTextArea
               name="name"
               placeholder="e.g. Morning Delivery - North"
-              value={state.name}
-              onChange={(e) => updateStep1({ name: e.target.value })}
+              value={values.name}
+              onBlur={handleBlur}
+              error={touched.name && Boolean(errors.name)}
+              helperText={touched.name ? (errors.name as string) : undefined}
+              onChange={(e) => setFieldValue("name", e.target.value)}
             />
           </Stack>
 
@@ -117,14 +119,16 @@ const FirstRouteDialogStep = (props: FirstRouteDialogStepProps) => {
                   Expected Start Time
                 </Typography>
                 <MobileDateTimePicker
-                  value={state.startTime ? dayjs(state.startTime) : null}
+                  value={values.startTime ? dayjs(values.startTime) : null}
                   onChange={(val) =>
-                    updateStep1({ startTime: val ? val.toDate() : null })
+                    setFieldValue("startTime", val ? val.toDate() : null)
                   }
                   slotProps={{
                     textField: {
                       fullWidth: true,
                       placeholder: "Select Date & Time",
+                      error: touched.startTime && Boolean(errors.startTime),
+                      helperText: touched.startTime ? (errors.startTime as string) : undefined,
                     },
                   }}
                 />
@@ -140,15 +144,17 @@ const FirstRouteDialogStep = (props: FirstRouteDialogStepProps) => {
                   Expected End Time
                 </Typography>
                 <MobileDateTimePicker
-                  value={state.endTime ? dayjs(state.endTime) : null}
+                  value={values.endTime ? dayjs(values.endTime) : null}
                   onChange={(val) =>
-                    updateStep1({ endTime: val ? val.toDate() : null })
+                    setFieldValue("endTime", val ? val.toDate() : null)
                   }
-                  minDateTime={state.startTime ? dayjs(state.startTime) : dayjs()}
+                  minDateTime={values.startTime ? dayjs(values.startTime) : dayjs()}
                   slotProps={{
                     textField: {
                       fullWidth: true,
                       placeholder: "Select Date & Time",
+                      error: touched.endTime && Boolean(errors.endTime),
+                      helperText: touched.endTime ? (errors.endTime as string) : undefined,
                     },
                   }}
                 />

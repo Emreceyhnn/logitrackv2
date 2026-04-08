@@ -17,7 +17,7 @@ const ACTIVITY_THROTTLE_MS = 5 * 60 * 1000; // 5 minutes — don't update lastAc
 // ─── Cookie Configuration ───────────────────────────────────────────────────
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
+  secure: process.env.NODE_ENV === "production" && !process.env.LOCAL_TESTING,
   path: "/",
   sameSite: "lax" as const,
 };
@@ -35,7 +35,7 @@ export type SessionUser = {
 
 export interface SessionJWTPayload extends jwt.JwtPayload {
   id: string;
-  username?: string | null;
+
   role?: string | null;
   companyId?: string | null;
 }
@@ -44,14 +44,14 @@ export interface SessionJWTPayload extends jwt.JwtPayload {
 
 function generateAccessToken(user: {
   id: string;
-  username?: string | null;
+
   roleId?: string | null;
   companyId?: string | null;
 }): string {
   return jwt.sign(
     {
       id: user.id,
-      username: user.username,
+
       role: user.roleId,
       companyId: user.companyId ?? null,
       jti: crypto.randomUUID(), // Ensure every token is uniquely hashable
@@ -83,7 +83,7 @@ function hashToken(token: string): string {
 export async function createSession(
   user: {
     id: string;
-    username?: string | null;
+
     roleId?: string | null;
     companyId?: string | null;
     name?: string | null;
@@ -98,7 +98,9 @@ export async function createSession(
   const refreshToken = generateRefreshToken();
 
   const tokenHash = hashToken(accessToken);
-  const expiresAt = new Date(Date.now() + 60 * 1000);
+  const expiresAt = new Date(
+    Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000
+  );
 
   // Create session in DB
   try {
@@ -118,12 +120,12 @@ export async function createSession(
 
     cookieStore.set("token", accessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: 15 * 60, // 15 minutes in seconds
+      maxAge: 15 * 60, // 15 minutes (seconds)
     });
 
     cookieStore.set("refreshToken", refreshToken, {
       ...COOKIE_OPTIONS,
-      maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
+      maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60, // 7 days (seconds)
     });
 
     return { accessToken, sessionId: session.id };
@@ -272,7 +274,7 @@ export async function refreshSession(): Promise<boolean> {
         user: {
           select: {
             id: true,
-            username: true,
+
             roleId: true,
             companyId: true,
             status: true,
@@ -309,12 +311,12 @@ export async function refreshSession(): Promise<boolean> {
     // Set new cookies
     cookieStore.set("token", newAccessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: 15 * 60,
+      maxAge: 15 * 60, // 15 minutes (seconds)
     });
 
     cookieStore.set("refreshToken", newRefreshToken, {
       ...COOKIE_OPTIONS,
-      maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
+      maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60, // 7 days (seconds)
     });
 
     // Log the refresh event

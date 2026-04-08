@@ -16,13 +16,20 @@ import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import CloseIcon from "@mui/icons-material/Close";
 import TagIcon from "@mui/icons-material/Tag";
 import PinIcon from "@mui/icons-material/Pin";
-import { FirstStepProps } from "@/app/lib/type/vehicle";
-import { VehicleType } from "@prisma/client";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useMemo } from "react";
+import { useFormikContext } from "formik";
+import { VehicleFormValues } from "@/app/lib/type/vehicle";
 
-const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
+const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) => {
   /* -------------------------------- variables ------------------------------- */
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
+  
   const theme = useTheme();
-  const data = state.data.step1;
+  const { values, errors, touched, setFieldValue, handleBlur, handleChange: formikHandleChange } = useFormikContext<VehicleFormValues>();
 
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
@@ -52,19 +59,20 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
   };
 
   /* -------------------------------- handlers -------------------------------- */
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setFieldValue("photo", file);
     onFileSelect?.(file);
   };
 
   const handleRemove = () => {
-    actions.updateStep1({ photo: undefined });
+    setFieldValue("photo", undefined);
   };
 
   const photoPreview =
-    data.photo instanceof File ? URL.createObjectURL(data.photo) : data.photo;
+    values.photo instanceof File ? URL.createObjectURL(values.photo) : values.photo;
 
   return (
     <Box sx={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 4 }}>
@@ -141,7 +149,7 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
                 type="file"
                 hidden
                 accept="image/svg+xml,image/png,image/jpeg,image/gif"
-                onChange={handleChange}
+                onChange={handleFileChange}
               />
 
               <Box
@@ -211,10 +219,14 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
         <Stack direction="row" spacing={2}>
           <TextField
             fullWidth
-            label="Fleet Number (Optional)"
-            placeholder="e.g. V-001 (Leave blank to auto-generate)"
-            value={data.fleetNo}
-            onChange={(e) => actions.updateStep1({ fleetNo: e.target.value })}
+            name="fleetNo"
+            label={dict.vehicles.fields.plate + " (Optional)"} // Should add fleetNo to dict
+            placeholder="e.g. V-001"
+            value={values.fleetNo}
+            onChange={formikHandleChange}
+            onBlur={handleBlur}
+            error={touched.fleetNo && Boolean(errors.fleetNo)}
+            helperText={touched.fleetNo && (errors.fleetNo as string)}
             sx={textFieldSx}
             InputProps={{
               startAdornment: (
@@ -226,10 +238,14 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
           />
           <TextField
             fullWidth
-            label="License Plate"
+            name="plate"
+            label={dict.vehicles.fields.plate}
             placeholder="ABC-1234"
-            value={data.plate}
-            onChange={(e) => actions.updateStep1({ plate: e.target.value })}
+            value={values.plate}
+            onChange={formikHandleChange}
+            onBlur={handleBlur}
+            error={touched.plate && Boolean(errors.plate)}
+            helperText={touched.plate && (errors.plate as string)}
             sx={textFieldSx}
             InputProps={{
               startAdornment: (
@@ -244,11 +260,13 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
         <TextField
           fullWidth
           select
-          label="Vehicle Type"
-          value={data.type}
-          onChange={(e) =>
-            actions.updateStep1({ type: e.target.value as VehicleType })
-          }
+          name="type"
+          label={dict.vehicles.fields.type}
+          value={values.type}
+          onChange={formikHandleChange}
+          onBlur={handleBlur}
+          error={touched.type && Boolean(errors.type)}
+          helperText={touched.type && (errors.type as string)}
           sx={textFieldSx}
         >
           <MenuItem value="TRUCK">Heavy Duty Truck</MenuItem>
@@ -258,18 +276,26 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
         <Stack direction="row" spacing={2}>
           <TextField
             fullWidth
-            label="Make / Brand"
+            name="brand"
+            label={dict.vehicles.fields.brand || "Brand"}
             placeholder="e.g. Volvo"
-            value={data.brand}
-            onChange={(e) => actions.updateStep1({ brand: e.target.value })}
+            value={values.brand}
+            onChange={formikHandleChange}
+            onBlur={handleBlur}
+            error={touched.brand && Boolean(errors.brand)}
+            helperText={touched.brand && (errors.brand as string)}
             sx={textFieldSx}
           />
           <TextField
             fullWidth
-            label="Model"
+            name="model"
+            label={dict.vehicles.fields.model}
             placeholder="e.g. FH16"
-            value={data.model}
-            onChange={(e) => actions.updateStep1({ model: e.target.value })}
+            value={values.model}
+            onChange={formikHandleChange}
+            onBlur={handleBlur}
+            error={touched.model && Boolean(errors.model)}
+            helperText={touched.model && (errors.model as string)}
             sx={textFieldSx}
           />
         </Stack>
@@ -277,29 +303,28 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
         <Stack direction="row" spacing={2}>
           <TextField
             fullWidth
-            label="Manufacturing Year"
+            name="year"
+            label={dict.vehicles.fields.year}
             type="number"
             placeholder="e.g. 2023"
-            value={data.year}
-            onChange={(e) =>
-              actions.updateStep1({
-                year: e.target.value === "" ? "" : Number(e.target.value),
-              })
-            }
+            value={values.year}
+            onChange={formikHandleChange}
+            onBlur={handleBlur}
+            error={touched.year && Boolean(errors.year)}
+            helperText={touched.year && (errors.year as string)}
             sx={textFieldSx}
           />
           <TextField
             fullWidth
-            label="Next Service Interval"
+            name="nextServiceKm"
+            label={dict.vehicles.fields.service}
             type="number"
             placeholder="e.g. 50000"
-            value={data.nextServiceKm}
-            onChange={(e) =>
-              actions.updateStep1({
-                nextServiceKm:
-                  e.target.value === "" ? "" : Number(e.target.value),
-              })
-            }
+            value={values.nextServiceKm}
+            onChange={formikHandleChange}
+            onBlur={handleBlur}
+            error={touched.nextServiceKm && Boolean(errors.nextServiceKm)}
+            helperText={touched.nextServiceKm && (errors.nextServiceKm as string)}
             sx={textFieldSx}
             InputProps={{
               endAdornment: (
@@ -315,14 +340,14 @@ const FirstStep = ({ state, actions, onFileSelect }: FirstStepProps) => {
 
         <TextField
           fullWidth
-          label="Current Odometer Reading"
+          name="odometerKm"
+          label={dict.vehicles.fields.odometer}
           type="number"
-          value={data.odometerKm}
-          onChange={(e) =>
-            actions.updateStep1({
-              odometerKm: e.target.value === "" ? "" : Number(e.target.value),
-            })
-          }
+          value={values.odometerKm}
+          onChange={formikHandleChange}
+          onBlur={handleBlur}
+          error={touched.odometerKm && Boolean(errors.odometerKm)}
+          helperText={touched.odometerKm && (errors.odometerKm as string)}
           sx={textFieldSx}
           InputProps={{
             endAdornment: (

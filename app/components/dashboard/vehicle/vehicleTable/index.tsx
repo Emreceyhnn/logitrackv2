@@ -14,8 +14,8 @@ import type { VehicleTableProps, VehicleWithRelations } from "@/app/lib/type/veh
 import BuildIcon from "@mui/icons-material/Build";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useState } from "react";
-import CustomToast from "@/app/components/toast";
 import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
+import { toast } from "sonner";
 
 const STATUS_OPTIONS = Object.values(VehicleStatus).map((s) => ({
   label: s.replace(/_/g, " "),
@@ -43,36 +43,22 @@ const VEHICLE_FILTERS = [
 ];
 
 const VehicleTable = ({ state, actions }: VehicleTableProps) => {
-  const { vehicles, loading = false, filters } = state;
-  const { selectVehicle, onEdit, onDelete, updateFilters, onUpdateSuccess } = actions;
+  const { vehicles, loading = false, filters, meta: apiMeta } = state;
+  const { selectVehicle, onEdit, onDelete, updateFilters, onUpdateSuccess, setPage, setLimit } = actions;
 
-  const [toast, setToast] = useState<{
-    open: boolean;
-    type: "success" | "error" | "info" | "warning";
-    message: string;
-  }>({
-    open: false,
-    type: "success",
-    message: "",
-  });
+  const [localPage, setLocalPage] = useState(1);
+  const [localLimit, setLocalLimit] = useState(10);
 
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-
-  const showToast = (
-    type: "success" | "error" | "info" | "warning",
-    message: string
-  ) => {
-    setToast({ open: true, type, message });
-  };
 
   const handleStatusUpdate = useCallback(async (vehicleId: string, newStatus: VehicleStatus) => {
     try {
       setActionLoading(vehicleId);
       await updateVehicleStatus(vehicleId, newStatus);
-      showToast("success", `Vehicle status updated to ${newStatus.replace(/_/g, " ")}`);
+      toast.success(`Vehicle status updated to ${newStatus.replace(/_/g, " ")}`);
       onUpdateSuccess?.();
     } catch (error) {
-      showToast("error", "Failed to update vehicle status");
+      toast.error("Failed to update vehicle status");
       console.error(error);
     } finally {
       setActionLoading(null);
@@ -216,16 +202,34 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
     [filters]
   );
 
+  /* --------------------------------- pagination mock / logic --------------------------------- */
+  const meta = apiMeta || {
+    page: localPage,
+    limit: localLimit,
+    total: vehicles.length,
+  };
+
+  const paginatedVehicles = apiMeta
+    ? vehicles
+    : vehicles.slice((meta.page - 1) * meta.limit, meta.page * meta.limit);
+
+  const handlePageChange = (newPage: number) => {
+    if (setPage) setPage(newPage);
+    else setLocalPage(newPage);
+  };
+
+  const handleLimitChange = (newLimit: number) => {
+    if (setLimit) setLimit(newLimit);
+    else {
+      setLocalLimit(newLimit);
+      setLocalPage(1);
+    }
+  };
+
   return (
     <>
-      <CustomToast
-        open={toast.open}
-        type={toast.type}
-        message={toast.message}
-        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
-      />
       <DataTable<VehicleWithRelations>
-        rows={vehicles}
+        rows={paginatedVehicles}
         columns={columns}
         loading={loading || !!actionLoading}
         emptyMessage="No vehicles found"
@@ -236,6 +240,11 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         activeFilters={activeFilters}
         onFilterChange={handleFilterChange}
         rowActions={rowActions}
+        meta={meta}
+        onPageChange={handlePageChange}
+        onLimitChange={handleLimitChange}
+        wrapCard={true}
+        tableTitle="Vehicle List"
       />
     </>
   );

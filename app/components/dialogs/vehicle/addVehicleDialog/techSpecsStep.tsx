@@ -15,12 +15,20 @@ import ShutterSpeedIcon from "@mui/icons-material/ShutterSpeed";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TuneIcon from "@mui/icons-material/Tune";
-import { TechSpecsStepProps } from "@/app/lib/type/vehicle";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useMemo } from "react";
+import { useFormikContext } from "formik";
+import { VehicleFormValues } from "@/app/lib/type/vehicle";
 
-const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
+const TechSpecsStep = () => {
   /* -------------------------------- variables ------------------------------- */
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
+  
   const theme = useTheme();
-  const data = state.data.step2;
+  const { values, errors, touched, handleBlur, handleChange } = useFormikContext<VehicleFormValues>();
 
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
@@ -59,18 +67,18 @@ const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
             color="text.secondary"
             mb={1}
           >
-            Max Load Capacity
+            {dict.vehicles.fields.capacity}
           </Typography>
           <TextField
             fullWidth
+            name="maxLoadKg"
             type="number"
             placeholder="0"
-            value={data.maxLoadKg}
-            onChange={(e) =>
-              actions.updateStep2({
-                maxLoadKg: e.target.value === "" ? "" : Number(e.target.value),
-              })
-            }
+            value={values.maxLoadKg}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.maxLoadKg && Boolean(errors.maxLoadKg)}
+            helperText={touched.maxLoadKg && (errors.maxLoadKg as string)}
             sx={textFieldSx}
             InputProps={{
               startAdornment: (
@@ -95,17 +103,20 @@ const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
             color="text.secondary"
             mb={1}
           >
-            Fuel Type
+            {dict.vehicles.fields.fuelType}
           </Typography>
           <TextField
             fullWidth
             select
-            value={data.fuelType}
-            onChange={(e) => actions.updateStep2({ fuelType: e.target.value })}
-            placeholder="Select fuel type"
+            name="fuelType"
+            value={values.fuelType}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.fuelType && Boolean(errors.fuelType)}
+            helperText={touched.fuelType && (errors.fuelType as string)}
             sx={textFieldSx}
           >
-            <MenuItem value="">Select fuel type</MenuItem>
+            <MenuItem value="">{dict.common.search}</MenuItem>
             <MenuItem value="DIESEL">Diesel</MenuItem>
             <MenuItem value="GASOLINE">Gasoline</MenuItem>
             <MenuItem value="ELECTRIC">Electric</MenuItem>
@@ -122,18 +133,18 @@ const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
             color="text.secondary"
             mb={1}
           >
-            Current Fuel Level
+            {dict.vehicles.fields.fuelLevel}
           </Typography>
           <TextField
             fullWidth
+            name="fuelLevel"
             type="number"
             placeholder="50"
-            value={data.fuelLevel}
-            onChange={(e) =>
-              actions.updateStep2({
-                fuelLevel: e.target.value === "" ? "" : Number(e.target.value),
-              })
-            }
+            value={values.fuelLevel}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.fuelLevel && Boolean(errors.fuelLevel)}
+            helperText={touched.fuelLevel && (errors.fuelLevel as string)}
             sx={textFieldSx}
             InputProps={{
               startAdornment: (
@@ -164,15 +175,14 @@ const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
           </Typography>
           <TextField
             fullWidth
+            name="avgFuelConsumption"
             type="number"
             placeholder="e.g. 12.5"
-            value={data.avgFuelConsumption}
-            onChange={(e) =>
-              actions.updateStep2({
-                avgFuelConsumption:
-                  e.target.value === "" ? "" : Number(e.target.value),
-              })
-            }
+            value={values.avgFuelConsumption}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.avgFuelConsumption && Boolean(errors.avgFuelConsumption)}
+            helperText={touched.avgFuelConsumption && (errors.avgFuelConsumption as string)}
             sx={textFieldSx}
             InputProps={{
               startAdornment: (
@@ -204,11 +214,13 @@ const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
           </Typography>
           <TextField
             fullWidth
+            name="engineSize"
             placeholder="e.g. 4.0L V8"
-            value={data.engineSize}
-            onChange={(e) =>
-              actions.updateStep2({ engineSize: e.target.value })
-            }
+            value={values.engineSize}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.engineSize && Boolean(errors.engineSize)}
+            helperText={touched.engineSize && (errors.engineSize as string)}
             sx={textFieldSx}
             InputProps={{
               startAdornment: (
@@ -228,15 +240,17 @@ const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
             color="text.secondary"
             mb={1}
           >
-            Transmission
+            {dict.vehicles.fields.transmission || "Transmission"}
           </Typography>
           <TextField
             fullWidth
             select
-            value={data.transmission}
-            onChange={(e) =>
-              actions.updateStep2({ transmission: e.target.value })
-            }
+            name="transmission"
+            value={values.transmission}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.transmission && Boolean(errors.transmission)}
+            helperText={touched.transmission && (errors.transmission as string)}
             sx={textFieldSx}
             InputProps={{
               startAdornment: (
@@ -246,7 +260,7 @@ const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
               ),
             }}
           >
-            <MenuItem value="">Select transmission</MenuItem>
+            <MenuItem value="">{dict.common.search}</MenuItem>
             <MenuItem value="AUTOMATIC">Automatic</MenuItem>
             <MenuItem value="MANUAL">Manual</MenuItem>
             <MenuItem value="AMULTI">Semi-Automatic</MenuItem>
@@ -266,10 +280,14 @@ const TechSpecsStep = ({ state, actions }: TechSpecsStepProps) => {
         <TextField
           fullWidth
           multiline
+          name="techNotes"
           rows={3}
-          placeholder="Any specific technical details or modifications..."
-          value={data.techNotes}
-          onChange={(e) => actions.updateStep2({ techNotes: e.target.value })}
+          placeholder="..."
+          value={values.techNotes}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.techNotes && Boolean(errors.techNotes)}
+          helperText={touched.techNotes && (errors.techNotes as string)}
           sx={{
             ...textFieldSx,
             "& .MuiOutlinedInput-root": {

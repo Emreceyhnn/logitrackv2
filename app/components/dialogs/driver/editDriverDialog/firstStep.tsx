@@ -1,3 +1,5 @@
+"use client";
+
 import {
   alpha,
   Box,
@@ -8,7 +10,6 @@ import {
   useTheme,
   IconButton,
 } from "@mui/material";
-import CustomTextArea from "@/app/components/inputs/customTextArea";
 import BadgeIcon from "@mui/icons-material/Badge";
 import CategoryIcon from "@mui/icons-material/Category";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -17,34 +18,30 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import PhoneIcon from "@mui/icons-material/Phone";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
-import { EditDriverPageActions, EditDriverStep1 } from "@/app/lib/type/driver";
 import { useRef, ChangeEvent } from "react";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import { useFormikContext } from "formik";
+import { EditDriverFormValues } from "@/app/lib/type/driver";
+import CustomTextArea from "@/app/components/inputs/customTextArea";
 
-interface FirstEditDriverDialogStepProps {
-  state: EditDriverStep1;
-  actions: EditDriverPageActions;
-}
-
-const FirstEditDriverDialogStep = ({
-  state,
-  actions,
-}: FirstEditDriverDialogStepProps) => {
+const FirstEditDriverDialogStep = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { values, errors, touched, setFieldValue, handleBlur, handleChange } = 
+    useFormikContext<EditDriverFormValues>();
 
   /* -------------------------------- handlers -------------------------------- */
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      actions.updateStep1({ licencePhoto: e.target.files[0] });
+      setFieldValue("licencePhoto", e.target.files[0]);
     }
   };
 
   const removeFile = (e: React.MouseEvent) => {
     e.stopPropagation();
-    actions.updateStep1({ licencePhoto: null });
+    setFieldValue("licencePhoto", null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -59,15 +56,16 @@ const FirstEditDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                Employee ID (Optional)
+                Employee ID
               </Typography>
               <CustomTextArea
                 name="employeeId"
-                placeholder="Leave blank to auto-generate (e.g. EMP-1234)"
-                value={state.employeeId}
-                onChange={(e) =>
-                  actions.updateStep1({ employeeId: e.target.value })
-                }
+                placeholder="e.g. EMP-1234"
+                value={values.employeeId}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.employeeId && Boolean(errors.employeeId)}
+                helperText={touched.employeeId ? (errors.employeeId as string) : undefined}
               >
                 <BadgeOutlinedIcon fontSize="small" />
               </CustomTextArea>
@@ -85,8 +83,11 @@ const FirstEditDriverDialogStep = ({
               <CustomTextArea
                 name="phone"
                 placeholder="e.g. +1 555 123 4567"
-                value={state.phone}
-                onChange={(e) => actions.updateStep1({ phone: e.target.value })}
+                value={values.phone}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.phone && Boolean(errors.phone)}
+                helperText={touched.phone ? (errors.phone as string) : undefined}
               >
                 <PhoneIcon fontSize="small" />
               </CustomTextArea>
@@ -107,12 +108,13 @@ const FirstEditDriverDialogStep = ({
                 License Number
               </Typography>
               <CustomTextArea
-                name="licenseNo"
+                name="licenseNumber"
                 placeholder="e.g. DL-485920394"
-                value={state.licenseNo}
-                onChange={(e) =>
-                  actions.updateStep1({ licenseNo: e.target.value })
-                }
+                value={values.licenseNumber}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.licenseNumber && Boolean(errors.licenseNumber)}
+                helperText={touched.licenseNumber ? (errors.licenseNumber as string) : undefined}
               >
                 <BadgeIcon fontSize="small" />
               </CustomTextArea>
@@ -131,10 +133,11 @@ const FirstEditDriverDialogStep = ({
               <CustomTextArea
                 name="licenseType"
                 placeholder="Select class"
-                value={state.licenseType}
-                onChange={(e) =>
-                  actions.updateStep1({ licenseType: e.target.value })
-                }
+                value={values.licenseType}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.licenseType && Boolean(errors.licenseType)}
+                helperText={touched.licenseType ? (errors.licenseType as string) : undefined}
               >
                 <CategoryIcon fontSize="small" />
               </CustomTextArea>
@@ -151,16 +154,18 @@ const FirstEditDriverDialogStep = ({
                 Expiration Date
               </Typography>
               <DatePicker
-                value={state.licenseExpiry ? dayjs(state.licenseExpiry) : null}
+                value={values.licenseExpiry ? dayjs(values.licenseExpiry) : null}
                 onChange={(val) =>
-                  actions.updateStep1({
-                    licenseExpiry: val ? val.toDate() : null,
-                  })
+                  setFieldValue("licenseExpiry", val ? val.toDate() : null)
                 }
                 slotProps={{
                   textField: {
                     fullWidth: true,
                     placeholder: "Select Date",
+                    error: touched.licenseExpiry && Boolean(errors.licenseExpiry),
+                    helperText: touched.licenseExpiry && (errors.licenseExpiry as string),
+                    onBlur: handleBlur,
+                    name: "licenseExpiry",
                   },
                 }}
               />
@@ -170,7 +175,7 @@ const FirstEditDriverDialogStep = ({
 
         <Stack spacing={1.5}>
           <Typography variant="body2" fontWeight={500} color="text.secondary">
-            Physical License Scan
+            Update Physical License Scan (Optional)
           </Typography>
           <input
             type="file"
@@ -199,7 +204,7 @@ const FirstEditDriverDialogStep = ({
                 0.2
               );
               if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                actions.updateStep1({ licencePhoto: e.dataTransfer.files[0] });
+                setFieldValue("licencePhoto", e.dataTransfer.files[0]);
               }
             }}
             sx={{
@@ -219,7 +224,7 @@ const FirstEditDriverDialogStep = ({
               },
             }}
           >
-            {!state.licencePhoto ? (
+            {!values.licencePhoto ? (
               <>
                 <Box
                   sx={{
@@ -236,7 +241,7 @@ const FirstEditDriverDialogStep = ({
                   <CloudUploadIcon color="primary" />
                 </Box>
                 <Typography variant="body2" fontWeight={600} color="white">
-                  Click to upload new license scan or drag and drop
+                  Click to upload new scan or drag and drop
                 </Typography>
                 <Typography
                   variant="caption"
@@ -277,10 +282,10 @@ const FirstEditDriverDialogStep = ({
                     color="white"
                     noWrap
                   >
-                    {state.licencePhoto.name}
+                    {values.licencePhoto.name}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {(state.licencePhoto.size / (1024 * 1024)).toFixed(2)} MB
+                    {(values.licencePhoto.size / (1024 * 1024)).toFixed(2)} MB
                   </Typography>
                 </Box>
                 <IconButton
@@ -309,8 +314,7 @@ const FirstEditDriverDialogStep = ({
             color="text.secondary"
             sx={{ lineHeight: 1.5 }}
           >
-            Please ensure all text and the driver&apos;s photo are clearly visible.
-            Compliance checks are automated.
+            Only upload if you need to update the existing driver license scan.
           </Typography>
         </Stack>
       </Stack>

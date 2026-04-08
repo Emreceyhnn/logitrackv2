@@ -1,6 +1,12 @@
 "use client";
 
-import { Box, Stack, Typography, InputAdornment, IconButton } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Typography,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import { Field, FieldProps } from "formik";
 import { useState } from "react";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -17,25 +23,14 @@ export default function Step2Security() {
         <Typography variant="h5" sx={{ color: "#fff", fontWeight: 600, mb: 1 }}>
           Security
         </Typography>
-        <Typography sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}>
-          Choose a unique username and a strong password.
+        <Typography
+          sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}
+        >
+          Choose a strong password.
         </Typography>
       </Box>
 
       <Stack spacing={2}>
-        <Field name="username">
-          {({ field, meta }: FieldProps) => (
-            <StyledTextFieldAuth
-              {...field}
-              type="text"
-              placeholder="Username"
-              fullWidth
-              error={meta.touched && Boolean(meta.error)}
-              helperText={meta.touched && meta.error}
-            />
-          )}
-        </Field>
-        
         <Field name="password">
           {({ field, meta }: FieldProps) => (
             <StyledTextFieldAuth
@@ -48,8 +43,15 @@ export default function Step2Security() {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)} sx={{ color: "rgba(255, 255, 255, 0.5)" }}>
-                      {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      sx={{ color: "rgba(255, 255, 255, 0.5)" }}
+                    >
+                      {showPassword ? (
+                        <VisibilityIcon />
+                      ) : (
+                        <VisibilityOffIcon />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -70,8 +72,15 @@ export default function Step2Security() {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton onClick={() => setShowRepeatPassword(!showRepeatPassword)} sx={{ color: "rgba(255, 255, 255, 0.5)" }}>
-                      {showRepeatPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                    <IconButton
+                      onClick={() => setShowRepeatPassword(!showRepeatPassword)}
+                      sx={{ color: "rgba(255, 255, 255, 0.5)" }}
+                    >
+                      {showRepeatPassword ? (
+                        <VisibilityIcon />
+                      ) : (
+                        <VisibilityOffIcon />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),

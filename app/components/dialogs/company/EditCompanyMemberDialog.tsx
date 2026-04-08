@@ -23,17 +23,11 @@ import {
 } from "@mui/icons-material";
 import { useForm, Controller, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { CompanyMember } from "@/app/lib/type/company";
 import { updateCompanyMember } from "@/app/lib/controllers/company";
 import { UserStatus } from "@prisma/client";
+import { editCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
 
-const schema = yup.object({
-  name: yup.string().required("Name is required"),
-  surname: yup.string().required("Surname is required"),
-  roleId: yup.string().required("Role is required"),
-  status: yup.string().required("Status is required"),
-}).required();
 
 interface EditCompanyMemberDialogProps {
   open: boolean;
@@ -63,7 +57,7 @@ export default function EditCompanyMemberDialog({
     reset,
     formState: { isSubmitting, errors },
   } = useForm<FormData>({
-    resolver: yupResolver(schema) as unknown as Resolver<FormData>,
+    resolver: yupResolver(editCompanyMemberValidationSchema) as unknown as Resolver<FormData>,
     defaultValues: {
       name: "",
       surname: "",

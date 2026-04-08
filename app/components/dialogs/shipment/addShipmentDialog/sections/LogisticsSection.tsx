@@ -8,7 +8,8 @@ import {
   useTheme,
   MenuItem,
 } from "@mui/material";
-import { AddShipmentLogistics } from "@/app/lib/type/add-shipment";
+import { useFormikContext } from "formik";
+import { ShipmentFormValues } from "@/app/lib/type/shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
@@ -17,20 +18,18 @@ import WarehouseIcon from "@mui/icons-material/Warehouse";
 import PersonIcon from "@mui/icons-material/Person";
 
 interface LogisticsSectionProps {
-  state: AddShipmentLogistics;
-  updateLogistics: (data: Partial<AddShipmentLogistics>) => void;
   warehouses: WarehouseWithRelations[];
   customers: CustomerWithRelations[];
 }
 
 const LogisticsSection = ({
-  state,
-  updateLogistics,
   warehouses,
   customers,
 }: LogisticsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const { values, setFieldValue, handleBlur, touched, errors } =
+    useFormikContext<ShipmentFormValues>();
 
   return (
     <Box>
@@ -63,20 +62,21 @@ const LogisticsSection = ({
                 name="originWarehouseId"
                 select
                 placeholder="Search origin warehouse..."
-                value={state.originWarehouseId}
+                value={values.originWarehouseId}
+                onBlur={handleBlur}
+                error={touched.originWarehouseId && Boolean(errors.originWarehouseId)}
+                helperText={touched.originWarehouseId ? (errors.originWarehouseId as string) : undefined}
                 onChange={(e) => {
                   const warehouseId = e.target.value;
                   const selectedWarehouse = warehouses.find(
                     (w) => w.id === warehouseId
                   );
                   if (selectedWarehouse) {
-                    updateLogistics({
-                      originWarehouseId: warehouseId,
-                      originLat: selectedWarehouse.lat ?? undefined,
-                      originLng: selectedWarehouse.lng ?? undefined,
-                    });
+                    setFieldValue("originWarehouseId", warehouseId);
+                    setFieldValue("originLat", selectedWarehouse.lat ?? undefined);
+                    setFieldValue("originLng", selectedWarehouse.lng ?? undefined);
                   } else {
-                    updateLogistics({ originWarehouseId: warehouseId });
+                    setFieldValue("originWarehouseId", warehouseId);
                   }
                 }}
               >
@@ -106,20 +106,21 @@ const LogisticsSection = ({
               <AddressAutocomplete
                 placeholder="Search destination..."
                 name="destination"
-                value={state.destination}
+                value={values.destination}
+                onBlur={handleBlur}
+                error={touched.destination && Boolean(errors.destination)}
+                helperText={touched.destination ? (errors.destination as string) : undefined}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  updateLogistics({ destination: e.target.value })
+                  setFieldValue("destination", e.target.value)
                 }
                 onAddressSelect={(data: {
                   formattedAddress: string;
                   lat: number;
                   lng: number;
                 }) => {
-                  updateLogistics({
-                    destination: data.formattedAddress,
-                    destinationLat: data.lat,
-                    destinationLng: data.lng,
-                  });
+                  setFieldValue("destination", data.formattedAddress);
+                  setFieldValue("destinationLat", data.lat);
+                  setFieldValue("destinationLng", data.lng);
                 }}
               />
             </Stack>
@@ -138,15 +139,16 @@ const LogisticsSection = ({
                 name="customerId"
                 select
                 placeholder="Select customer"
-                value={state.customerId}
+                value={values.customerId}
+                onBlur={handleBlur}
+                error={touched.customerId && Boolean(errors.customerId)}
+                helperText={touched.customerId ? (errors.customerId as string) : undefined}
                 onChange={(e) => {
                   const customerId = e.target.value;
                   if (!customerId) {
-                    updateLogistics({ 
-                      customerId: "",
-                      customerLocationId: "",
-                      contactEmail: "",
-                    });
+                    setFieldValue("customerId", "");
+                    setFieldValue("customerLocationId", "");
+                    setFieldValue("contactEmail", "");
                     return;
                   }
 
@@ -155,14 +157,12 @@ const LogisticsSection = ({
                   );
                   const defaultLoc = selectedCustomer?.locations?.find((l) => l.isDefault) || selectedCustomer?.locations?.[0];
                   
-                  updateLogistics({ 
-                    customerId,
-                    customerLocationId: defaultLoc?.id || "",
-                    destination: defaultLoc?.address || state.destination,
-                    destinationLat: defaultLoc?.lat ?? state.destinationLat,
-                    destinationLng: defaultLoc?.lng ?? state.destinationLng,
-                    contactEmail: selectedCustomer?.email || state.contactEmail,
-                  });
+                  setFieldValue("customerId", customerId);
+                  setFieldValue("customerLocationId", defaultLoc?.id || "");
+                  setFieldValue("destination", defaultLoc?.address || values.destination);
+                  setFieldValue("destinationLat", defaultLoc?.lat ?? values.destinationLat);
+                  setFieldValue("destinationLng", defaultLoc?.lng ?? values.destinationLng);
+                  setFieldValue("contactEmail", selectedCustomer?.email || values.contactEmail);
                 }}
               >
                 <MenuItem value="">
@@ -197,27 +197,28 @@ const LogisticsSection = ({
                 name="customerLocationId"
                 select
                 placeholder="Select depot"
-                disabled={!state.customerId}
-                value={state.customerLocationId}
+                disabled={!values.customerId}
+                value={values.customerLocationId}
+                onBlur={handleBlur}
+                error={touched.customerLocationId && Boolean(errors.customerLocationId)}
+                helperText={touched.customerLocationId ? (errors.customerLocationId as string) : undefined}
                 onChange={(e) => {
                   const locationId = e.target.value;
-                  const selectedCustomer = customers.find(c => c.id === state.customerId);
+                  const selectedCustomer = customers.find(c => c.id === values.customerId);
                   const selectedLoc = selectedCustomer?.locations?.find(l => l.id === locationId);
                   
                   if (selectedLoc) {
-                    updateLogistics({
-                      customerLocationId: locationId,
-                      destination: selectedLoc.address,
-                      destinationLat: selectedLoc.lat ?? undefined,
-                      destinationLng: selectedLoc.lng ?? undefined,
-                    });
+                    setFieldValue("customerLocationId", locationId);
+                    setFieldValue("destination", selectedLoc.address);
+                    setFieldValue("destinationLat", selectedLoc.lat ?? undefined);
+                    setFieldValue("destinationLng", selectedLoc.lng ?? undefined);
                   } else {
-                    updateLogistics({ customerLocationId: locationId });
+                    setFieldValue("customerLocationId", locationId);
                   }
                 }}
               >
-                {state.customerId ? (
-                  customers.find(c => c.id === state.customerId)?.locations?.map((l) => (
+                {values.customerId ? (
+                  customers.find(c => c.id === values.customerId)?.locations?.map((l) => (
                     <MenuItem key={l.id} value={l.id}>
                       <Typography variant="body2">
                         {l.name} {l.isDefault ? "(Default)" : ""}
@@ -243,9 +244,12 @@ const LogisticsSection = ({
               <CustomTextArea
                 name="contactEmail"
                 placeholder="client@example.com"
-                value={state.contactEmail}
+                value={values.contactEmail}
+                onBlur={handleBlur}
+                error={touched.contactEmail && Boolean(errors.contactEmail)}
+                helperText={touched.contactEmail ? (errors.contactEmail as string) : undefined}
                 onChange={(e) =>
-                  updateLogistics({ contactEmail: e.target.value })
+                  setFieldValue("contactEmail", e.target.value)
                 }
               />
             </Stack>
@@ -263,9 +267,12 @@ const LogisticsSection = ({
               <CustomTextArea
                 name="billingAccount"
                 select
-                value={state.billingAccount}
+                value={values.billingAccount}
+                onBlur={handleBlur}
+                error={touched.billingAccount && Boolean(errors.billingAccount)}
+                helperText={touched.billingAccount ? (errors.billingAccount as string) : undefined}
                 onChange={(e) =>
-                  updateLogistics({ billingAccount: e.target.value })
+                  setFieldValue("billingAccount", e.target.value)
                 }
               >
                 <MenuItem value="Standard Billing (Net 30)">

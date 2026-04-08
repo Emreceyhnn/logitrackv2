@@ -19,9 +19,13 @@ import PaymentsIcon from "@mui/icons-material/Payments";
 import LanguageIcon from "@mui/icons-material/Language";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
+import { useFormikContext } from "formik";
+import { CompanyFormData } from "@/app/lib/type/create-company";
+
 export default function Step2Regional({ state, actions }: CompanyStepProps) {
   const theme = useTheme();
   const { formData } = state;
+  const { errors, touched, handleBlur } = useFormikContext<CompanyFormData>();
 
   return (
     <Box>
@@ -45,13 +49,14 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
           <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
             Principal Timezone *
           </Typography>
-          <FormControl fullWidth>
+          <FormControl fullWidth error={touched.timezone && !!errors.timezone}>
             <Select
               name="timezone"
               value={formData.timezone}
               onChange={(e) =>
                 actions.updateFormData({ timezone: e.target.value as string })
               }
+              onBlur={handleBlur}
               startAdornment={
                 <PublicIcon
                   sx={{ mr: 1, color: alpha(theme.palette.text.primary, 0.3), fontSize: 20 }}
@@ -70,6 +75,11 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
               <MenuItem value="TR">Turkey Standard Time (GMT+03:00)</MenuItem>
               <MenuItem value="CET">Central European Time (GMT+01:00)</MenuItem>
             </Select>
+            {touched.timezone && errors.timezone && (
+               <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                 {errors.timezone}
+               </Typography>
+            )}
           </FormControl>
         </Box>
 
@@ -78,13 +88,14 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
             <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
               Functional Currency
             </Typography>
-            <FormControl fullWidth>
+            <FormControl fullWidth error={touched.currency && !!errors.currency}>
               <Select
                 name="currency"
                 value={formData.currency}
                 onChange={(e) =>
                   actions.updateFormData({ currency: e.target.value as string })
                 }
+                onBlur={handleBlur}
                 startAdornment={
                   <PaymentsIcon
                     sx={{ mr: 1, color: alpha(theme.palette.text.primary, 0.3), fontSize: 20 }}
@@ -103,19 +114,25 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                 <MenuItem value="TRY">TRY - Turkish Lira</MenuItem>
                 <MenuItem value="GBP">GBP - British Pound</MenuItem>
               </Select>
+              {touched.currency && errors.currency && (
+                <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                  {errors.currency}
+                </Typography>
+              )}
             </FormControl>
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
               System Language
             </Typography>
-            <FormControl fullWidth>
+            <FormControl fullWidth error={touched.language && !!errors.language}>
               <Select
                 name="language"
                 value={formData.language}
                 onChange={(e) =>
                   actions.updateFormData({ language: e.target.value as string })
                 }
+                onBlur={handleBlur}
                 startAdornment={
                   <LanguageIcon
                     sx={{ mr: 1, color: alpha(theme.palette.text.primary, 0.3), fontSize: 20 }}
@@ -132,6 +149,11 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                 <MenuItem value="EN">English (Global Standart)</MenuItem>
                 <MenuItem value="TR">Turkish (Türkiye Opsiyonu)</MenuItem>
               </Select>
+              {touched.language && errors.language && (
+                <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                  {errors.language}
+                </Typography>
+              )}
             </FormControl>
           </Grid>
         </Grid>

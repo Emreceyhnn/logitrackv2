@@ -22,6 +22,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import { motion, AnimatePresence } from "framer-motion";
+import { Formik } from "formik";
+import { createCompanyValidationSchema } from "@/app/lib/validationSchema";
 import {
   CompanyFormData,
   CreateCompanyDialogProps,
@@ -49,10 +51,8 @@ export default function CreateCompanyDialog({
 }: CreateCompanyDialogProps) {
   const theme = useTheme();
 
-  /* ---------------------------------- State --------------------------------- */
   const [activeStep, setActiveStep] = useState(0);
   const [direction, setDirection] = useState(0); // For framer-motion slide direction
-  const [formData, setFormData] = useState<CompanyFormData>(initialFormData);
   const [loading, setLoading] = useState(false);
 
   /* -------------------------------- Handlers -------------------------------- */
@@ -65,23 +65,11 @@ export default function CreateCompanyDialog({
     setActiveStep((prev) => prev - 1);
   };
 
-  const updateFormData = (data: Partial<CompanyFormData>) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-  };
-
-  const resetDialog = () => {
-    setActiveStep(0);
-    setDirection(0);
-    setFormData(initialFormData);
-    setLoading(false);
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (values: CompanyFormData) => {
     setLoading(true);
     try {
-      let logoUrl = formData.logo;
+      let logoUrl = values.logo;
 
-      // Handle logo upload if it's a base64 string
       if (logoUrl && logoUrl.startsWith("data:image")) {
         const uploadResult = await uploadImageAction(
           logoUrl,
@@ -91,12 +79,11 @@ export default function CreateCompanyDialog({
         logoUrl = uploadResult.url;
       }
 
-      await createCompany(formData.name, logoUrl || "");
+      await createCompany(values.name, logoUrl || "");
 
       toast.success("Company created successfully!");
       onSuccess?.();
       onClose();
-      resetDialog();
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Failed to create company";
@@ -104,17 +91,6 @@ export default function CreateCompanyDialog({
     } finally {
       setLoading(false);
     }
-  };
-
-  const stepProps = {
-    state: { activeStep, formData, loading, error: null },
-    actions: {
-      handleNext,
-      handleBack,
-      updateFormData,
-      submit: handleSubmit,
-      reset: resetDialog,
-    },
   };
 
   const variants = {
@@ -150,149 +126,233 @@ export default function CreateCompanyDialog({
         },
       }}
     >
-      <Box sx={{ p: 4, pb: 0 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ mb: 3 }}
-        >
-          <Stack spacing={0.5}>
-            <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.02em" }}>
-              {activeStep === 0
-                ? "Company Identity"
-                : "Regional Ecosystem"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Configure your organization&apos;s core profile and presence
-            </Typography>
-          </Stack>
-          <IconButton
-            onClick={onClose}
-            sx={{
-              color: "text.secondary",
-              bgcolor: alpha(theme.palette.text.secondary, 0.05),
-              "&:hover": { 
-                bgcolor: alpha(theme.palette.error.main, 0.1),
-                color: theme.palette.error.main 
-              },
-            }}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Stack>
-
-        <Stepper
-          activeStep={activeStep}
-          sx={{
-            "& .MuiStepLabel-label": {
-              color: alpha(theme.palette.text.primary, 0.4),
-              fontWeight: 700,
-              fontSize: "0.75rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            },
-            "& .MuiStepLabel-label.Mui-active": {
-              color: theme.palette.primary.main,
-            },
-            "& .MuiStepLabel-label.Mui-completed": {
-              color: alpha(theme.palette.text.primary, 0.8),
-            },
-            "& .MuiStepIcon-root": { color: alpha(theme.palette.divider, 0.1) },
-            "& .MuiStepIcon-root.Mui-active": {
-              color: theme.palette.primary.main,
-            },
-            "& .MuiStepIcon-root.Mui-completed": {
-              color: theme.palette.primary.main,
-            },
-          }}
-        >
-          <Step>
-            <StepLabel>Branding & Legal</StepLabel>
-          </Step>
-          <Step>
-            <StepLabel>Localization & Scope</StepLabel>
-          </Step>
-        </Stepper>
-      </Box>
-
-      <DialogContent sx={{ mt: 2, pb: 4, minHeight: 320, overflow: "hidden" }}>
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={activeStep}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 },
-            }}
-          >
-            {activeStep === 0 && <Step1Branding {...stepProps} />}
-            {activeStep === 1 && <Step2Regional {...stepProps} />}
-          </motion.div>
-        </AnimatePresence>
-      </DialogContent>
-
-      <DialogActions
-        sx={{
-          p: 4,
-          pt: 1,
-          borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
-          justifyContent: "space-between",
-          bgcolor: alpha(theme.palette.background.paper, 0.4),
-        }}
+      <Formik
+        initialValues={initialFormData}
+        validationSchema={createCompanyValidationSchema}
+        onSubmit={handleSubmit}
+        validateOnMount
       >
-        <Button
-          onClick={activeStep === 0 ? onClose : handleBack}
-          sx={{
-            color: "text.secondary",
-            textTransform: "none",
-            fontWeight: 700,
-            borderRadius: 2,
-            px: 3,
-            "&:hover": { bgcolor: alpha(theme.palette.text.secondary, 0.1) }
-          }}
-          startIcon={activeStep > 0 ? <NavigateBeforeIcon /> : null}
-        >
-          {activeStep === 0 ? "Discard" : "Back"}
-        </Button>
+        {({
+          values,
+          errors,
+          setFieldValue,
+          submitForm,
+        }) => (
+          <>
+            <Box sx={{ p: 4, pb: 0 }}>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ mb: 3 }}
+              >
+                <Stack spacing={0.5}>
+                  <Typography
+                    variant="h6"
+                    fontWeight={800}
+                    sx={{ letterSpacing: "-0.02em" }}
+                  >
+                    {activeStep === 0
+                      ? "Company Identity"
+                      : "Regional Ecosystem"}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Configure your organization&apos;s core profile and
+                    presence
+                  </Typography>
+                </Stack>
+                <IconButton
+                  onClick={onClose}
+                  sx={{
+                    color: "text.secondary",
+                    bgcolor: alpha(theme.palette.text.secondary, 0.05),
+                    "&:hover": {
+                      bgcolor: alpha(theme.palette.error.main, 0.1),
+                      color: theme.palette.error.main,
+                    },
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Stack>
 
-        <Button
-          variant="contained"
-          onClick={activeStep === 1 ? handleSubmit : handleNext}
-          disabled={loading || (activeStep === 0 && !formData.name)}
-          endIcon={
-            loading ? (
-              <CircularProgress size={16} color="inherit" />
-            ) : activeStep === 1 ? (
-              <CheckIcon />
-            ) : (
-              <NavigateNextIcon />
-            )
-          }
-          sx={{
-            borderRadius: 2,
-            textTransform: "none",
-            px: 4,
-            minWidth: 160,
-            py: 1.2,
-            fontWeight: 800,
-            boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.25)}`,
-            "&:hover": {
-               boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.35)}`,
-            }
-          }}
-        >
-          {loading
-            ? "Finalizing..."
-            : activeStep === 1
-              ? "Publish Portfolio"
-              : "Next Objective"}
-        </Button>
-      </DialogActions>
+              <Stepper
+                activeStep={activeStep}
+                sx={{
+                  "& .MuiStepLabel-label": {
+                    color: alpha(theme.palette.text.primary, 0.4),
+                    fontWeight: 700,
+                    fontSize: "0.75rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  },
+                  "& .MuiStepLabel-label.Mui-active": {
+                    color: theme.palette.primary.main,
+                  },
+                  "& .MuiStepLabel-label.Mui-completed": {
+                    color: alpha(theme.palette.text.primary, 0.8),
+                  },
+                  "& .MuiStepIcon-root": {
+                    color: alpha(theme.palette.divider, 0.1),
+                  },
+                  "& .MuiStepIcon-root.Mui-active": {
+                    color: theme.palette.primary.main,
+                  },
+                  "& .MuiStepIcon-root.Mui-completed": {
+                    color: theme.palette.primary.main,
+                  },
+                }}
+              >
+                <Step>
+                  <StepLabel>Branding & Legal</StepLabel>
+                </Step>
+                <Step>
+                  <StepLabel>Localization & Scope</StepLabel>
+                </Step>
+              </Stepper>
+            </Box>
+
+            <DialogContent
+              sx={{ mt: 2, pb: 4, minHeight: 320, overflow: "hidden" }}
+            >
+              <AnimatePresence mode="wait" custom={direction}>
+                <motion.div
+                  key={activeStep}
+                  custom={direction}
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{
+                    x: { type: "spring", stiffness: 300, damping: 30 },
+                    opacity: { duration: 0.2 },
+                  }}
+                >
+                  {activeStep === 0 && (
+                    <Step1Branding
+                      state={{
+                        activeStep,
+                        formData: values,
+                        loading,
+                        error: null,
+                      }}
+                      actions={{
+                        handleNext,
+                        handleBack,
+                        updateFormData: (data) => {
+                          Object.keys(data).forEach((key) => {
+                            setFieldValue(key, data[key as keyof typeof data]);
+                          });
+                        },
+                        submit: submitForm,
+                        reset: () => {},
+                      }}
+                    />
+                  )}
+                  {activeStep === 1 && (
+                    <Step2Regional
+                      state={{
+                        activeStep,
+                        formData: values,
+                        loading,
+                        error: null,
+                      }}
+                      actions={{
+                        handleNext,
+                        handleBack,
+                        updateFormData: (data) => {
+                          Object.keys(data).forEach((key) => {
+                            setFieldValue(key, data[key as keyof typeof data]);
+                          });
+                        },
+                        submit: submitForm,
+                        reset: () => {},
+                      }}
+                    />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </DialogContent>
+
+            <DialogActions
+              sx={{
+                p: 4,
+                pt: 1,
+                borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+                justifyContent: "space-between",
+                bgcolor: alpha(theme.palette.background.paper, 0.4),
+              }}
+            >
+              <Button
+                onClick={activeStep === 0 ? onClose : handleBack}
+                sx={{
+                  color: "text.secondary",
+                  textTransform: "none",
+                  fontWeight: 700,
+                  borderRadius: 2,
+                  px: 3,
+                  "&:hover": {
+                    bgcolor: alpha(theme.palette.text.secondary, 0.1),
+                  },
+                }}
+                startIcon={activeStep > 0 ? <NavigateBeforeIcon /> : null}
+              >
+                {activeStep === 0 ? "Discard" : "Back"}
+              </Button>
+
+              <Button
+                variant="contained"
+                onClick={() => {
+                  if (activeStep === 0) {
+                    // Check if name and industry are valid for first step
+                    if (!errors.name && !errors.industry && values.name) {
+                      handleNext();
+                    } else {
+                      toast.error("Please fill in required fields correctly");
+                    }
+                  } else {
+                    submitForm();
+                  }
+                }}
+                disabled={loading}
+                endIcon={
+                  loading ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : activeStep === 1 ? (
+                    <CheckIcon />
+                  ) : (
+                    <NavigateNextIcon />
+                  )
+                }
+                sx={{
+                  borderRadius: 2,
+                  textTransform: "none",
+                  px: 4,
+                  minWidth: 160,
+                  py: 1.2,
+                  fontWeight: 800,
+                  boxShadow: `0 8px 20px ${alpha(
+                    theme.palette.primary.main,
+                    0.25
+                  )}`,
+                  "&:hover": {
+                    boxShadow: `0 12px 24px ${alpha(
+                      theme.palette.primary.main,
+                      0.35
+                    )}`,
+                  },
+                }}
+              >
+                {loading
+                  ? "Finalizing..."
+                  : activeStep === 1
+                    ? "Publish Portfolio"
+                    : "Next Objective"}
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Formik>
     </Dialog>
   );
 }

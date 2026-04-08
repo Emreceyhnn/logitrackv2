@@ -10,13 +10,14 @@ import {
 } from "@mui/material";
 import { Field, Form, Formik } from "formik";
 import type { FormikHelpers, FieldProps } from "formik";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import AuthButton from "../ui/AuthButton";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 import { LoginUser } from "@/app/lib/controllers/users";
 import { loginValidationSchema } from "@/app/lib/validationSchema";
 
@@ -30,6 +31,9 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleSubmit = async (
@@ -50,9 +54,9 @@ export default function LoginForm() {
       if (res && "user" in res && res.user) {
         router.refresh();
         if (res.user.companyId) {
-          router.push("/overview");
+          router.push(`/${lang}/overview`);
         } else {
-          router.push("/onboarding");
+          router.push(`/${lang}`);
         }
       }
     } catch (error: unknown) {
@@ -82,10 +86,16 @@ export default function LoginForm() {
       borderRadius={"24px"}
     >
       <Box p={{ xs: "30px", sm: "50px" }}>
-        <Stack direction="row" spacing={3} mb={6} alignItems="center" justifyContent="center">
+        <Stack
+          direction="row"
+          spacing={3}
+          mb={6}
+          alignItems="center"
+          justifyContent="center"
+        >
           <Typography
             component={Link}
-            href={"/auth/sign-up"}
+            href={`/${lang}/auth/sign-up`}
             sx={{
               fontWeight: 500,
               fontSize: "24px",
@@ -95,10 +105,10 @@ export default function LoginForm() {
               transition: "color 0.2s ease",
               "&:hover": {
                 color: "rgba(255, 255, 255, 0.6)",
-              }
+              },
             }}
           >
-            Register
+            {dict.auth.register}
           </Typography>
 
           <Typography
@@ -117,10 +127,10 @@ export default function LoginForm() {
                 height: 2,
                 bgcolor: "#38bdf8",
                 borderRadius: 2,
-              }
+              },
             }}
           >
-            Login
+            {dict.auth.login}
           </Typography>
         </Stack>
 
@@ -132,11 +142,16 @@ export default function LoginForm() {
           <Form>
             <Stack spacing={3}>
               <Box mb={2}>
-                <Typography variant="h5" sx={{ color: "#fff", fontWeight: 600, mb: 1 }}>
-                  Welcome Back
+                <Typography
+                  variant="h5"
+                  sx={{ color: "#fff", fontWeight: 600, mb: 1 }}
+                >
+                  {dict.auth.welcome}
                 </Typography>
-                <Typography sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}>
-                  Please enter your details to access your account.
+                <Typography
+                  sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}
+                >
+                  {dict.auth.signInDescription}
                 </Typography>
               </Box>
 
@@ -145,7 +160,7 @@ export default function LoginForm() {
                   <StyledTextFieldAuth
                     {...field}
                     type="email"
-                    placeholder="Email Address"
+                    placeholder={dict.auth.email}
                     fullWidth
                     error={meta.touched && Boolean(meta.error)}
                     helperText={meta.touched && meta.error}
@@ -158,14 +173,17 @@ export default function LoginForm() {
                   <StyledTextFieldAuth
                     {...field}
                     type={showPassword ? "text" : "password"}
-                    placeholder="Password"
+                    placeholder={dict.auth.password}
                     fullWidth
                     error={meta.touched && Boolean(meta.error)}
                     helperText={meta.touched && meta.error}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <IconButton onClick={handleShowPassword} sx={{ color: "rgba(255, 255, 255, 0.5)" }}>
+                          <IconButton
+                            onClick={handleShowPassword}
+                            sx={{ color: "rgba(255, 255, 255, 0.5)" }}
+                          >
                             {showPassword ? (
                               <VisibilityIcon />
                             ) : (
@@ -182,17 +200,17 @@ export default function LoginForm() {
               <AuthButton
                 type="submit"
                 loading={loading}
-                loadingText="Logging In..."
+                loadingText={dict.auth.loggingIn}
                 sx={{
                   mt: 2,
                   bgcolor: "#38bdf8",
                   color: "#000",
                   "&:hover": {
                     bgcolor: "#0ea5e9",
-                  }
+                  },
                 }}
               >
-                Log In Now
+                {dict.auth.logInNow}
               </AuthButton>
 
               <Typography
@@ -200,7 +218,13 @@ export default function LoginForm() {
                 align="center"
                 sx={{ color: "rgba(255, 255, 255, 0.4)", mt: 2 }}
               >
-                Forgot your password? <Link href="#" style={{ color: "#38bdf8", textDecoration: "none" }}>Reset it</Link>
+                {dict.auth.forgotPasswordPrompt}{" "}
+                <Link
+                  href="#"
+                  style={{ color: "#38bdf8", textDecoration: "none" }}
+                >
+                  {dict.auth.resetIt}
+                </Link>
               </Typography>
             </Stack>
           </Form>

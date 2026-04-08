@@ -102,7 +102,6 @@ interface RegisterFormValues {
   name: string;
   surname: string;
   email: string;
-  username: string;
   password: string;
   repeatPassword: string;
   avatarUrl: string;
@@ -138,7 +137,6 @@ export default function SignUpStepper() {
     setLoading(true);
     try {
       const res = await RegisterUser(
-        values.username,
         values.name,
         values.surname,
         values.password,
@@ -150,10 +148,7 @@ export default function SignUpStepper() {
         console.error("Registration failed:", res.error);
 
         if (typeof res.error === "string") {
-          if (res.field === "username") {
-            setActiveStep(1);
-            actions.setFieldError("username", res.error);
-          } else if (res.field === "email") {
+          if (res.field === "email") {
             setActiveStep(0);
             actions.setFieldError("email", res.error);
           } else {
@@ -163,7 +158,7 @@ export default function SignUpStepper() {
         }
       } else if (res && "user" in res) {
         router.refresh();
-        router.push("/");
+        router.push("/en");
       }
     } catch (error: unknown) {
       console.error("Critical Registration crash:", error);
@@ -210,7 +205,6 @@ export default function SignUpStepper() {
           name: "",
           surname: "",
           email: "",
-          username: "",
           password: "",
           repeatPassword: "",
           avatarUrl: "",

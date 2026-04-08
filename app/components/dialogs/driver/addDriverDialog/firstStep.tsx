@@ -1,3 +1,5 @@
+"use client";
+
 import {
   alpha,
   Box,
@@ -7,8 +9,8 @@ import {
   Stack,
   Typography,
   useTheme,
+  IconButton,
 } from "@mui/material";
-import CustomTextArea from "@/app/components/inputs/customTextArea";
 import UserIcon from "@mui/icons-material/Person";
 import BadgeIcon from "@mui/icons-material/Badge";
 import CategoryIcon from "@mui/icons-material/Category";
@@ -18,38 +20,43 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import PhoneIcon from "@mui/icons-material/Phone";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
-import { IconButton } from "@mui/material";
-import { AddDriverStep1, EligibleUser } from "@/app/lib/type/driver";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useMemo } from "react";
 import { useRef, ChangeEvent } from "react";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import { useFormikContext } from "formik";
+import { DriverFormValues, EligibleUser } from "@/app/lib/type/driver";
+import CustomTextArea from "@/app/components/inputs/customTextArea";
 
 interface FirstDriverDialogStepProps {
-  state: AddDriverStep1;
-  updateStep1: (data: Partial<AddDriverStep1>) => void;
   eligibleUsers: EligibleUser[];
 }
 
 const FirstDriverDialogStep = ({
-  state,
-  updateStep1,
   eligibleUsers,
 }: FirstDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
+  
   const theme = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const { values, errors, touched, setFieldValue, handleBlur, handleChange } = 
+    useFormikContext<DriverFormValues>();
 
   /* -------------------------------- handlers -------------------------------- */
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      updateStep1({ licencePhoto: e.target.files[0] });
+      setFieldValue("licencePhoto", e.target.files[0]);
     }
   };
 
   const removeFile = (e: React.MouseEvent) => {
     e.stopPropagation();
-    updateStep1({ licencePhoto: null });
+    setFieldValue("licencePhoto", null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -60,16 +67,19 @@ const FirstDriverDialogStep = ({
           <Stack direction={"row"} spacing={1} alignItems="center">
             <UserIcon fontSize="small" sx={{ color: "text.secondary" }} />
             <Typography variant="body2" fontWeight={500} color="text.secondary">
-              Select Company Member
+              {dict.sidebar.company}
             </Typography>
           </Stack>
           <CustomTextArea
             name="userId"
             placeholder={
-              eligibleUsers.length === 0 ? "No users found" : "Select Company Member"
+              eligibleUsers.length === 0 ? dict.common.noData : dict.sidebar.company
             }
-            value={state.userId}
-            onChange={(e) => updateStep1({ userId: e.target.value })}
+            value={values.userId}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.userId && Boolean(errors.userId)}
+            helperText={touched.userId ? (errors.userId as string) : undefined}
             select={eligibleUsers.length > 0}
             disabled={eligibleUsers.length === 0}
           >
@@ -79,14 +89,6 @@ const FirstDriverDialogStep = ({
               </MenuItem>
             ))}
           </CustomTextArea>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ opacity: 0.7 }}
-          >
-            Only users currently in your organization who aren&apos;t already
-            drivers appear here
-          </Typography>
         </Stack>
 
         <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1) }} />
@@ -104,8 +106,11 @@ const FirstDriverDialogStep = ({
               <CustomTextArea
                 name="employeeId"
                 placeholder="e.g. EMP-1234"
-                value={state.employeeId}
-                onChange={(e) => updateStep1({ employeeId: e.target.value })}
+                value={values.employeeId}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.employeeId && Boolean(errors.employeeId)}
+                helperText={touched.employeeId ? (errors.employeeId as string) : undefined}
               >
                 <BadgeOutlinedIcon fontSize="small" />
               </CustomTextArea>
@@ -118,13 +123,16 @@ const FirstDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                Phone Number
+                {dict.drivers.fields.phoneNumber}
               </Typography>
               <CustomTextArea
                 name="phone"
                 placeholder="e.g. +1 555 123 4567"
-                value={state.phone}
-                onChange={(e) => updateStep1({ phone: e.target.value })}
+                value={values.phone}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.phone && Boolean(errors.phone)}
+                helperText={touched.phone ? (errors.phone as string) : undefined}
               >
                 <PhoneIcon fontSize="small" />
               </CustomTextArea>
@@ -142,13 +150,16 @@ const FirstDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                License Number
+                {dict.drivers.fields.licenseNumber}
               </Typography>
               <CustomTextArea
-                name="licenseNo"
+                name="licenseNumber"
                 placeholder="e.g. DL-485920394"
-                value={state.licenseNo}
-                onChange={(e) => updateStep1({ licenseNo: e.target.value })}
+                value={values.licenseNumber}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.licenseNumber && Boolean(errors.licenseNumber)}
+                helperText={touched.licenseNumber ? (errors.licenseNumber as string) : undefined}
               >
                 <BadgeIcon fontSize="small" />
               </CustomTextArea>
@@ -167,8 +178,11 @@ const FirstDriverDialogStep = ({
               <CustomTextArea
                 name="licenseType"
                 placeholder="Select class"
-                value={state.licenseType}
-                onChange={(e) => updateStep1({ licenseType: e.target.value })}
+                value={values.licenseType}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.licenseType && Boolean(errors.licenseType)}
+                helperText={touched.licenseType ? (errors.licenseType as string) : undefined}
               >
                 <CategoryIcon fontSize="small" />
               </CustomTextArea>
@@ -182,19 +196,21 @@ const FirstDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                Expiration Date
+                {dict.common.date}
               </Typography>
               <DatePicker
-                value={state.licenseExpiry ? dayjs(state.licenseExpiry) : null}
+                value={values.licenseExpiry ? dayjs(values.licenseExpiry) : null}
                 onChange={(val) =>
-                  updateStep1({
-                    licenseExpiry: val ? val.toDate() : null,
-                  })
+                  setFieldValue("licenseExpiry", val ? val.toDate() : null)
                 }
                 slotProps={{
                   textField: {
                     fullWidth: true,
-                    placeholder: "Select Date",
+                    placeholder: dict.common.date,
+                    error: touched.licenseExpiry && Boolean(errors.licenseExpiry),
+                    helperText: touched.licenseExpiry && (errors.licenseExpiry as string),
+                    onBlur: handleBlur,
+                    name: "licenseExpiry",
                   },
                 }}
               />
@@ -233,7 +249,7 @@ const FirstDriverDialogStep = ({
                 0.2
               );
               if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                updateStep1({ licencePhoto: e.dataTransfer.files[0] });
+                setFieldValue("licencePhoto", e.dataTransfer.files[0]);
               }
             }}
             sx={{
@@ -253,7 +269,7 @@ const FirstDriverDialogStep = ({
               },
             }}
           >
-            {!state.licencePhoto ? (
+            {!values.licencePhoto ? (
               <>
                 <Box
                   sx={{
@@ -270,7 +286,7 @@ const FirstDriverDialogStep = ({
                   <CloudUploadIcon color="primary" />
                 </Box>
                 <Typography variant="body2" fontWeight={600} color="white">
-                  Click to upload or drag and drop
+                  {dict.landing.hero.discover}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -311,10 +327,10 @@ const FirstDriverDialogStep = ({
                     color="white"
                     noWrap
                   >
-                    {state.licencePhoto.name}
+                    {values.licencePhoto.name}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {(state.licencePhoto.size / (1024 * 1024)).toFixed(2)} MB
+                    {(values.licencePhoto.size / (1024 * 1024)).toFixed(2)} MB
                   </Typography>
                 </Box>
                 <IconButton
@@ -343,8 +359,7 @@ const FirstDriverDialogStep = ({
             color="text.secondary"
             sx={{ lineHeight: 1.5 }}
           >
-            Please ensure all text and the driver&apos;s photo are clearly
-            visible. Compliance checks are automated.
+            Please ensure all data is clearly visible.
           </Typography>
         </Stack>
       </Stack>

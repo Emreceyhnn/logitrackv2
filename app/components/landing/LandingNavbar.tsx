@@ -46,7 +46,7 @@ export default function LandingNavbar() {
             justifyContent: "space-between",
           }}
         >
-          <Link href="/" style={{ textDecoration: "none" }}>
+          <Link href="/en" style={{ textDecoration: "none" }}>
             <Stack direction="row" spacing={1.5} alignItems="center">
               <Box
                 sx={{

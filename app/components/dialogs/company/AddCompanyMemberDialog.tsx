@@ -34,6 +34,8 @@ import {
 import { toast } from "sonner";
 import { searchPlatformUsers } from "@/app/lib/controllers/users";
 import { addCompanyUser } from "@/app/lib/controllers/company";
+import { addCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
+import { ValidationError } from "yup";
 
 interface SearchedUser {
   id: string;
@@ -74,6 +76,7 @@ export default function AddCompanyMemberDialog({
     useState<DriverStateData>(initialDriverData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   /* ---------------------------------- Handlers ------------------------------- */
   const handleDriverDataChange = (
@@ -91,6 +94,7 @@ export default function AddCompanyMemberDialog({
     setDriverData(initialDriverData);
     setLoading(false);
     setError(null);
+    setValidationErrors({});
   };
 
   const handleSubmit = async () => {
@@ -98,16 +102,31 @@ export default function AddCompanyMemberDialog({
 
     setLoading(true);
     setError(null);
+    setValidationErrors({});
+
     try {
+      if (selectedRole === "role_driver") {
+        await addCompanyMemberValidationSchema.validate(driverData, { abortEarly: false });
+      }
+
       await addCompanyUser(selectedUserId, selectedRole);
       toast.success("Member added successfully!");
       onSuccess?.();
       onClose();
       resetDialog();
     } catch (err: unknown) {
-      setError("Failed to add member");
-      const message = err instanceof Error ? err.message : "An error occurred";
-      toast.error(message);
+      if (err instanceof ValidationError) {
+        const errors: Record<string, string> = {};
+        err.inner.forEach((e) => {
+          if (e.path) errors[e.path] = e.message;
+        });
+        setValidationErrors(errors);
+        toast.error("Please correct the validation errors.");
+      } else {
+        setError("Failed to add member");
+        const message = err instanceof Error ? err.message : "An error occurred";
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -375,6 +394,8 @@ export default function AddCompanyMemberDialog({
                   onChange={(e) =>
                     handleDriverDataChange("employeeId", e.target.value)
                   }
+                  error={!!validationErrors.employeeId}
+                  helperText={validationErrors.employeeId}
                   required
                 />
                 <TextField
@@ -385,6 +406,8 @@ export default function AddCompanyMemberDialog({
                   onChange={(e) =>
                     handleDriverDataChange("phone", e.target.value)
                   }
+                  error={!!validationErrors.phone}
+                  helperText={validationErrors.phone}
                   required
                 />
                 <TextField

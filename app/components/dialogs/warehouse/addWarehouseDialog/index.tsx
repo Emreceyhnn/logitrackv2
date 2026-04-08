@@ -25,7 +25,7 @@ import {
 } from "@/app/lib/type/add-warehouse";
 import { createWarehouse } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/lib/hooks/useUser";
-import CustomToast from "@/app/components/toast";
+
 import BasicInfoSection from "./sections/BasicInfoSection";
 import LocationSection from "./sections/LocationSection";
 import CapacitySection from "./sections/CapacitySection";
@@ -128,7 +128,9 @@ const AddWarehouseDialog = ({
           state.data.location.managerId || undefined,
           state.data.capacity.capacityPallets,
           state.data.capacity.capacityVolumeM3,
-          state.data.basicInfo.is247 ? "24/7" : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
+          state.data.basicInfo.is247
+            ? "24/7"
+            : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
           state.data.capacity.specifications
         );
 
@@ -169,12 +171,6 @@ const AddWarehouseDialog = ({
 
   return (
     <GoogleMapsProvider>
-      <CustomToast
-        open={toast.open}
-        type={toast.type}
-        message={toast.message}
-        onClose={() => setToast((t) => ({ ...t, open: false }))}
-      />
       <Dialog
         open={open}
         onClose={actions.closeDialog}
@@ -231,7 +227,9 @@ const AddWarehouseDialog = ({
               "& .MuiStepLabel-label.Mui-completed": {
                 color: alpha("#fff", 0.7),
               },
-              "& .MuiStepIcon-root": { color: alpha(theme.palette.divider, 0.1) },
+              "& .MuiStepIcon-root": {
+                color: alpha(theme.palette.divider, 0.1),
+              },
               "& .MuiStepIcon-root.Mui-active": {
                 color: theme.palette.primary.main,
               },
@@ -283,8 +281,7 @@ const AddWarehouseDialog = ({
             variant="contained"
             disabled={
               state.isLoading ||
-              (state.currentStep === 1 &&
-                !state.data.basicInfo.name) ||
+              (state.currentStep === 1 && !state.data.basicInfo.name) ||
               (state.currentStep === 2 &&
                 (!state.data.location.address || !state.data.location.city))
             }

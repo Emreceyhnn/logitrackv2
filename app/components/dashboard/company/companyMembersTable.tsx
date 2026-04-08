@@ -1,41 +1,27 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import {
   Avatar,
   Chip,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Typography,
-  IconButton,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-  Divider,
   alpha,
   useTheme,
 } from "@mui/material";
-import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import InfoIcon from "@mui/icons-material/Info";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DataTable from "@/app/components/ui/DataTable";
+import type { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTable";
 import { CompanyPageProps, CompanyMember } from "@/app/lib/type/company";
-import { useState } from "react";
 import CompanyMemberDetailsDialog from "../../dialogs/company/CompanyMemberDetailsDialog";
 import EditCompanyMemberDialog from "../../dialogs/company/EditCompanyMemberDialog";
 import DeleteConfirmationDialog from "../../dialogs/deleteConfirmationDialog";
-import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 function StatusChip({ status }: { status: string }) {
   const normalized = status.toUpperCase();
-  const colorMap: Record<string, "success" | "error" | "warning" | "default"> =
-  {
+  const colorMap: Record<string, "success" | "error" | "warning" | "default"> = {
     ACTIVE: "success",
     INACTIVE: "error",
     SUSPENDED: "warning",
@@ -68,23 +54,23 @@ export default function CompanyMembersTable({
   const [selectedMember, setSelectedMember] = useState<CompanyMember | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  // Local pagination
+  const [localPage, setLocalPage] = useState(1);
+  const [localLimit, setLocalLimit] = useState(10);
 
-  if (loading) {
-     return <TableSkeleton title="Team Members" rows={5} columns={6} />;
-  }
+  const paginatedMembers = members.slice(
+    (localPage - 1) * localLimit,
+    localPage * localLimit
+  );
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, member: CompanyMember) => {
-    setAnchorEl(event.currentTarget);
+  const meta = {
+    page: localPage,
+    limit: localLimit,
+    total: members.length,
+  };
+
+  const handleAction = (action: "details" | "edit" | "delete", member: CompanyMember) => {
     setSelectedMember(member);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleAction = (action: "details" | "edit" | "delete") => {
-    handleMenuClose();
     if (action === "details") setDetailsOpen(true);
     if (action === "edit") setEditOpen(true);
     if (action === "delete") setDeleteOpen(true);
@@ -103,131 +89,102 @@ export default function CompanyMembersTable({
     }
   };
 
+  const columns: DataTableColumn<CompanyMember>[] = useMemo(() => [
+    {
+      key: "member",
+      label: "Member",
+      render: (row) => (
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          <Avatar
+            src={row.avatarUrl ?? undefined}
+            sx={{ width: 32, height: 32, fontSize: 13, bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main }}
+          >
+            {!row.avatarUrl && `${row.name[0]}${row.surname[0]}`}
+          </Avatar>
+          <Typography fontSize={13} fontWeight={600}>
+            {row.name} {row.surname}
+          </Typography>
+        </Stack>
+      ),
+    },
+    {
+      key: "email",
+      label: "Email",
+      render: (row) => (
+        <Typography fontSize={13} color="text.secondary">
+          {row.email}
+        </Typography>
+      ),
+    },
+    {
+      key: "role",
+      label: "Role",
+      render: (row) => (
+        row.roleName ? (
+          <Chip
+            label={row.roleName}
+            size="small"
+            variant="outlined"
+            sx={{ fontSize: 11, fontWeight: 600 }}
+          />
+        ) : (
+          <Typography fontSize={13} color="text.disabled">—</Typography>
+        )
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (row) => <StatusChip status={row.status} />,
+    },
+    {
+      key: "joined",
+      label: "Joined",
+      render: (row) => (
+        <Typography fontSize={13} color="text.secondary">
+          {new Date(row.createdAt).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
+        </Typography>
+      ),
+    },
+  ], [theme]);
+
+  const rowActions: DataTableRowAction<CompanyMember>[] = useMemo(() => [
+    {
+      label: "Details",
+      icon: <InfoIcon fontSize="small" color="info" />,
+      onClick: (row) => handleAction("details", row),
+    },
+    {
+      label: "Edit",
+      icon: <EditIcon fontSize="small" />,
+      onClick: (row) => handleAction("edit", row),
+    },
+    {
+      label: "Delete",
+      icon: <DeleteIcon fontSize="small" />,
+      onClick: (row) => handleAction("delete", row),
+      color: "error",
+    },
+  ], []);
+
   return (
     <>
-      <TableContainer sx={{ p: 0 }}>
-        <Table size="small">
-          <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }}>Member</TableCell>
-              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }}>Email</TableCell>
-              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }}>Role</TableCell>
-              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }}>Joined</TableCell>
-              <TableCell sx={{ fontWeight: 600, borderColor: alpha(theme.palette.divider, 0.1) }} align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
-            {members.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-                  <Stack py={4} alignItems="center" spacing={1}>
-                    <PeopleOutlineIcon
-                      sx={{ fontSize: 36, color: "text.disabled" }}
-                    />
-                    <Typography color="text.secondary" fontSize={14}>
-                      No members found
-                    </Typography>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ) : (
-              members.map((member) => (
-                <TableRow
-                  key={member.id}
-                  hover
-                  sx={{ "& td": { borderColor: alpha(theme.palette.divider, 0.1) } }}
-                >
-                  <TableCell>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Avatar
-                        src={member.avatarUrl ?? undefined}
-                        sx={{ width: 32, height: 32, fontSize: 13, bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main }}
-                      >
-                        {!member.avatarUrl &&
-                          `${member.name[0]}${member.surname[0]}`}
-                      </Avatar>
-                      <Typography fontSize={13} fontWeight={600}>
-                        {member.name} {member.surname}
-                      </Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell>
-                    <Typography fontSize={13} color="text.secondary">
-                      {member.email}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    {member.roleName ? (
-                      <Chip
-                        label={member.roleName}
-                        size="small"
-                        variant="outlined"
-                        sx={{ fontSize: 11, fontWeight: 600 }}
-                      />
-                    ) : (
-                      <Typography fontSize={13} color="text.disabled">
-                        —
-                      </Typography>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <StatusChip status={member.status} />
-                  </TableCell>
-                  <TableCell>
-                    <Typography fontSize={13} color="text.secondary">
-                      {new Date(member.createdAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton size="small" onClick={(e) => handleMenuOpen(e, member)}>
-                      <MoreVertIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Action Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        PaperProps={{
-          sx: {
-            minWidth: 150,
-            borderRadius: 2,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-            bgcolor: "#0B0F19",
-          },
-        }}
-      >
-        <MenuItem onClick={() => handleAction("details")}>
-          <ListItemIcon><InfoIcon fontSize="small" color="info" /></ListItemIcon>
-          <ListItemText primary="Details" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
-        </MenuItem>
-        <MenuItem onClick={() => handleAction("edit")}>
-          <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
-          <ListItemText primary="Edit" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
-        </MenuItem>
-        <Divider sx={{ my: 0.5, borderColor: alpha(theme.palette.divider, 0.1) }} />
-        <MenuItem onClick={() => handleAction("delete")} sx={{ color: "error.main" }}>
-          <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
-          <ListItemText primary="Delete" primaryTypographyProps={{ variant: "body2", fontWeight: 600 }} />
-        </MenuItem>
-      </Menu>
-
-      {/* Dialogs */}
+      <DataTable<CompanyMember>
+        rows={paginatedMembers}
+        columns={columns}
+        loading={loading}
+        emptyMessage="No members found"
+        meta={meta}
+        onPageChange={setLocalPage}
+        onLimitChange={(lim) => { setLocalLimit(lim); setLocalPage(1); }}
+        rowActions={rowActions}
+        wrapCard={true}
+        tableTitle="Team Members"
+      />
       
       <CompanyMemberDetailsDialog 
         open={detailsOpen} 

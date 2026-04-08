@@ -1,124 +1,51 @@
-import {
-  Snackbar,
-  Box,
-  IconButton,
-  Typography,
-  LinearProgress,
-} from "@mui/material";
-import { CheckCircle, Error, Warning, Info, Close } from "@mui/icons-material";
+"use client";
 
-interface ToastParams {
-  open: boolean;
-  onClose: () => void;
-  type: "error" | "info" | "success" | "warning";
-  message: string;
-}
+import { useTheme, alpha } from "@mui/material/styles";
+import { Toaster as Sonner, type ToasterProps } from "sonner";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import InfoIcon from "@mui/icons-material/Info";
+import ErrorIcon from "@mui/icons-material/Error";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
-export default function CustomToast(params: ToastParams) {
-  const { open, onClose, type, message } = params;
-
-  const toastConfig = {
-    success: {
-      icon: <CheckCircle />,
-      iconColor: "#10b981",
-      borderColor: "#10b981",
-      bgColor: "#f0fdf4",
-    },
-    error: {
-      icon: <Error />,
-      iconColor: "#ef4444",
-      borderColor: "#ef4444",
-      bgColor: "#fef2f2",
-    },
-    warning: {
-      icon: <Warning />,
-      iconColor: "#f59e0b",
-      borderColor: "#f59e0b",
-      bgColor: "#fffbeb",
-    },
-    info: {
-      icon: <Info />,
-      iconColor: "#3b82f6",
-      borderColor: "#3b82f6",
-      bgColor: "#eff6ff",
-    },
-  };
-
-  const config = toastConfig[type];
+const Toaster = ({ ...props }: ToasterProps) => {
+  const theme = useTheme();
 
   return (
-    <Snackbar
-      open={open}
-      autoHideDuration={3000}
-      onClose={onClose}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-    >
-      <Box
-        sx={{
-          position: "relative",
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
-          backgroundColor: config.bgColor,
-          borderLeft: `5px solid ${config.borderColor}`,
+    <Sonner
+      theme={theme.palette.mode as ToasterProps["theme"]}
+      className="toaster group"
+      icons={{
+        success: (
+          <CheckCircleIcon
+            sx={{ color: theme.palette.success.main, fontSize: 20 }}
+          />
+        ),
+        info: (
+          <InfoIcon sx={{ color: theme.palette.info.main, fontSize: 20 }} />
+        ),
+        warning: (
+          <WarningAmberIcon
+            sx={{ color: theme.palette.warning.main, fontSize: 20 }}
+          />
+        ),
+        error: (
+          <ErrorIcon sx={{ color: theme.palette.error.main, fontSize: 20 }} />
+        ),
+      }}
+      toastOptions={{
+        style: {
+          // MUI Palette renklerini doğrudan CSS değişkenlerine atıyoruz
+          background: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+          border: `1px solid ${theme.palette.divider}`,
           borderRadius: "8px",
-          padding: "12px 16px",
-          minWidth: "320px",
-          maxWidth: "400px",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-          overflow: "hidden",
-        }}
-      >
-        <Box
-          sx={{
-            color: config.iconColor,
-            display: "flex",
-            alignItems: "center",
-            fontSize: "24px",
-          }}
-        >
-          {config.icon}
-        </Box>
-
-        <Typography
-          sx={{
-            flex: 1,
-            fontSize: "14px",
-            fontWeight: 500,
-            color: "#1f2937",
-          }}
-        >
-          {message}
-        </Typography>
-
-        <IconButton
-          size="small"
-          onClick={onClose}
-          sx={{
-            color: "#9ca3af",
-            padding: "4px",
-            "&:hover": {
-              backgroundColor: "rgba(0, 0, 0, 0.04)",
-            },
-          }}
-        >
-          <Close fontSize="small" />
-        </IconButton>
-
-        <LinearProgress
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: "3px",
-            backgroundColor: "rgba(0, 0, 0, 0.05)",
-            "& .MuiLinearProgress-bar": {
-              backgroundColor: config.borderColor,
-            },
-          }}
-        />
-      </Box>
-    </Snackbar>
+          boxShadow: theme.shadows[3],
+          fontFamily: theme.typography.fontFamily,
+        },
+      }}
+      {...props}
+    />
   );
-}
+};
+
+export { Toaster };

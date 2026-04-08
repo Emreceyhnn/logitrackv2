@@ -1,5 +1,8 @@
 "use client";
 
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useMemo, useState } from "react";
 import {
   Box,
   Stack,
@@ -14,33 +17,34 @@ import { AddInventoryItemDetails } from "@/app/lib/type/add-inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
-import { useState } from "react";
 
 interface ItemDetailsSectionProps {
   state: AddInventoryItemDetails;
   updateItemDetails: (data: Partial<AddInventoryItemDetails>) => void;
 }
 
-const CATEGORIES = [
-  "Electronics",
-  "Machinery",
-  "Spare Parts",
-  "Raw Materials",
-  "Finished Goods",
-  "Packaging",
-  "Office Supplies",
-  "Others",
-];
-
 const ItemDetailsSection = ({
   state,
   updateItemDetails,
 }: ItemDetailsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
   const theme = useTheme();
 
+  const CATEGORIES = useMemo(() => [
+    "Electronics",
+    "Machinery",
+    "Spare Parts",
+    "Raw Materials",
+    "Finished Goods",
+    "Packaging",
+    "Office Supplies",
+    "Others",
+  ], []);
+
   /* ---------------------------------- state --------------------------------- */
-  // Use local state for string values to handle decimals (e.g. "0.") and empty states smoothly
   const [localUnitValue, setLocalUnitValue] = useState(state.unitValue === 0 ? "" : state.unitValue?.toString() || "");
   const [localWeight, setLocalWeight] = useState(state.weightKg === 0 ? "" : state.weightKg?.toString() || "");
   const [localVolume, setLocalVolume] = useState(state.volumeM3 === 0 ? "" : state.volumeM3?.toString() || "");
@@ -57,11 +61,10 @@ const ItemDetailsSection = ({
       <Stack spacing={4}>
         <Stack spacing={0.5}>
           <Typography variant="subtitle1" fontWeight={700} color="white">
-            Product Identity
+            {dict.inventory.header}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Provide the fundamental identification details for the new inventory
-            item.
+            Provide the fundamental identification details for the new inventory item.
           </Typography>
         </Stack>
 
@@ -72,11 +75,11 @@ const ItemDetailsSection = ({
               color="text.secondary"
               fontWeight={600}
             >
-              SKU (Stock Keeping Unit)
+              {dict.inventory.fields.sku} (Stock Keeping Unit)
             </Typography>
             <CustomTextArea
               name="sku"
-              placeholder="e.g. PJ-2024-X100 (Leave blank to auto-generate)"
+              placeholder="e.g. PJ-2024-X100"
               value={state.sku}
               onChange={(e) => updateItemDetails({ sku: e.target.value })}
             />
@@ -88,7 +91,7 @@ const ItemDetailsSection = ({
               color="text.secondary"
               fontWeight={600}
             >
-              ITEM NAME *
+              {dict.inventory.fields.name} *
             </Typography>
             <CustomTextArea
               name="name"
@@ -104,16 +107,17 @@ const ItemDetailsSection = ({
               color="text.secondary"
               fontWeight={600}
             >
-              CATEGORY *
+              Category *
             </Typography>
             <CustomTextArea
               name="category"
               select
               value={state.category}
+              placeholder={dict.common.noData}
               onChange={(e) => updateItemDetails({ category: e.target.value })}
             >
               <MenuItem value="" disabled>
-                Select a category
+                {dict.common.search}
               </MenuItem>
               {CATEGORIES.map((cat) => (
                 <MenuItem key={cat} value={cat}>
@@ -123,26 +127,84 @@ const ItemDetailsSection = ({
             </CustomTextArea>
           </Stack>
 
-          <Stack spacing={1}>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              fontWeight={600}
-            >
-              UNIT PRICE *
-            </Typography>
-            <CustomTextArea
-              name="unitValue"
-              type="number"
-              placeholder="0.00"
-              value={localUnitValue}
-              onChange={(e) => handleNumChange("unitValue", e.target.value, setLocalUnitValue)}
-            />
-          </Stack>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Stack spacing={1}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  fontWeight={600}
+                >
+                  {dict.inventory.fields.unitValue} *
+                </Typography>
+                <CustomTextArea
+                  name="unitValue"
+                  type="number"
+                  placeholder="0.00"
+                  value={localUnitValue}
+                  onChange={(e) => handleNumChange("unitValue", e.target.value, setLocalUnitValue)}
+                />
+              </Stack>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Stack spacing={1}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  fontWeight={600}
+                >
+                  Weight (KG)
+                </Typography>
+                <CustomTextArea
+                  name="weightKg"
+                  type="number"
+                  placeholder="0.00"
+                  value={localWeight}
+                  onChange={(e) => handleNumChange("weightKg", e.target.value, setLocalWeight)}
+                />
+              </Stack>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Stack spacing={1}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  fontWeight={600}
+                >
+                  Volume (M³)
+                </Typography>
+                <CustomTextArea
+                  name="volumeM3"
+                  type="number"
+                  placeholder="0.000"
+                  value={localVolume}
+                  onChange={(e) => handleNumChange("volumeM3", e.target.value, setLocalVolume)}
+                />
+              </Stack>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Stack spacing={1}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  fontWeight={600}
+                >
+                  Pallets
+                </Typography>
+                <CustomTextArea
+                  name="palletCount"
+                  type="number"
+                  placeholder="0.0"
+                  value={localPalletCount}
+                  onChange={(e) => handleNumChange("palletCount", e.target.value, setLocalPalletCount)}
+                />
+              </Stack>
+            </Grid>
+          </Grid>
 
           <Stack spacing={1.5}>
             <Typography variant="caption" color="text.secondary" fontWeight={600}>
-              PRODUCT IMAGE *
+              Product Image
             </Typography>
             <Box
               sx={{
@@ -227,7 +289,7 @@ const ItemDetailsSection = ({
                       sx={{ fontSize: 40, color: alpha("#fff", 0.2), mb: 1 }}
                     />
                     <Typography variant="body2" color="text.secondary">
-                      Drop image or click to upload
+                      {dict.landing.hero.discover}
                     </Typography>
                     <Typography variant="caption" color="text.disabled">
                       PNG, JPG, WebP (Max 10MB)
@@ -237,87 +299,6 @@ const ItemDetailsSection = ({
               )}
             </Box>
           </Stack>
-
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Stack spacing={1}>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  fontWeight={600}
-                >
-                  WEIGHT PER UNIT (KG)
-                </Typography>
-                <CustomTextArea
-                  name="weightKg"
-                  type="number"
-                  placeholder="0.00"
-                  value={localWeight}
-                  onChange={(e) => handleNumChange("weightKg", e.target.value, setLocalWeight)}
-                />
-              </Stack>
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Stack spacing={1}>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  fontWeight={600}
-                >
-                  VOLUME PER UNIT (M³)
-                </Typography>
-                <CustomTextArea
-                  name="volumeM3"
-                  type="number"
-                  placeholder="0.000"
-                  value={localVolume}
-                  onChange={(e) => handleNumChange("volumeM3", e.target.value, setLocalVolume)}
-                />
-              </Stack>
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Stack spacing={1}>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  fontWeight={600}
-                >
-                  PALLETS PER UNIT
-                </Typography>
-                <CustomTextArea
-                  name="palletCount"
-                  type="number"
-                  placeholder="0.0"
-                  value={localPalletCount}
-                  onChange={(e) => handleNumChange("palletCount", e.target.value, setLocalPalletCount)}
-                />
-              </Stack>
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Stack spacing={1}>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  fontWeight={600}
-                >
-                  DEFAULT CARGO TYPE
-                </Typography>
-                <CustomTextArea
-                  name="cargoType"
-                  select
-                  value={state.cargoType || "General Cargo"}
-                  onChange={(e) =>
-                    updateItemDetails({ cargoType: e.target.value })
-                  }
-                >
-                  <MenuItem value="General Cargo">General Cargo</MenuItem>
-                  <MenuItem value="Perishable">Perishable</MenuItem>
-                  <MenuItem value="Fragile">Fragile</MenuItem>
-                  <MenuItem value="Liquid">Liquid</MenuItem>
-                </CustomTextArea>
-              </Stack>
-            </Grid>
-          </Grid>
         </Stack>
       </Stack>
     </Box>

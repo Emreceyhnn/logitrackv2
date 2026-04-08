@@ -1,6 +1,6 @@
 import { Box, Button, Card, Stack, Typography, Table, TableBody, TableCell, TableHead, TableRow, Divider, CardActionArea, alpha } from "@mui/material";
 import { Issue, MaintenanceRecord } from "@prisma/client";
-import { VehicleWithRelations } from "@/app/lib/type/vehicle.d";
+import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import AddIcon from "@mui/icons-material/Add";
 import { PriorityChip } from "../../../chips/priorityChips";
 import { useState } from "react";

@@ -8,20 +8,20 @@ import {
   useTheme,
   MenuItem,
 } from "@mui/material";
-import { AddShipmentCargo } from "@/app/lib/type/add-shipment";
+import { useFormikContext } from "formik";
+import { ShipmentFormValues } from "@/app/lib/type/shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import MonitorWeightIcon from "@mui/icons-material/MonitorWeight";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import InventoryIcon from "@mui/icons-material/Inventory";
 
-interface CargoSectionProps {
-  state: AddShipmentCargo;
-  updateCargo: (data: Partial<AddShipmentCargo>) => void;
-}
+interface CargoSectionProps {}
 
-const CargoSection = ({ state, updateCargo }: CargoSectionProps) => {
+const CargoSection = ({}: CargoSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const { values, setFieldValue, handleBlur, touched, errors } =
+    useFormikContext<ShipmentFormValues>();
 
   return (
     <Box>
@@ -54,11 +54,12 @@ const CargoSection = ({ state, updateCargo }: CargoSectionProps) => {
                 name="weightKg"
                 type="number"
                 placeholder="0.00"
-                value={state.weightKg.toString()}
+                value={values.weightKg.toString()}
+                onBlur={handleBlur}
+                error={touched.weightKg && Boolean(errors.weightKg)}
+                helperText={touched.weightKg ? (errors.weightKg as string) : undefined}
                 onChange={(e) =>
-                  updateCargo({
-                    weightKg: parseFloat(e.target.value) || 0,
-                  })
+                  setFieldValue("weightKg", parseFloat(e.target.value) || 0)
                 }
               >
                 <MonitorWeightIcon
@@ -81,11 +82,12 @@ const CargoSection = ({ state, updateCargo }: CargoSectionProps) => {
                 name="volumeM3"
                 type="number"
                 placeholder="0.00"
-                value={state.volumeM3.toString()}
+                value={values.volumeM3.toString()}
+                onBlur={handleBlur}
+                error={touched.volumeM3 && Boolean(errors.volumeM3)}
+                helperText={touched.volumeM3 ? (errors.volumeM3 as string) : undefined}
                 onChange={(e) =>
-                  updateCargo({
-                    volumeM3: parseFloat(e.target.value) || 0,
-                  })
+                  setFieldValue("volumeM3", parseFloat(e.target.value) || 0)
                 }
               >
                 <ViewInArIcon sx={{ fontSize: 18, color: "text.secondary" }} />
@@ -106,11 +108,12 @@ const CargoSection = ({ state, updateCargo }: CargoSectionProps) => {
                 name="palletCount"
                 type="number"
                 placeholder="Qty"
-                value={state.palletCount.toString()}
+                value={values.palletCount.toString()}
+                onBlur={handleBlur}
+                error={touched.palletCount && Boolean(errors.palletCount)}
+                helperText={touched.palletCount ? (errors.palletCount as string) : undefined}
                 onChange={(e) =>
-                  updateCargo({
-                    palletCount: parseInt(e.target.value) || 0,
-                  })
+                  setFieldValue("palletCount", parseInt(e.target.value) || 0)
                 }
               >
                 <InventoryIcon sx={{ fontSize: 18, color: "text.secondary" }} />
@@ -130,8 +133,11 @@ const CargoSection = ({ state, updateCargo }: CargoSectionProps) => {
               <CustomTextArea
                 name="cargoType"
                 select
-                value={state.cargoType}
-                onChange={(e) => updateCargo({ cargoType: e.target.value })}
+                value={values.cargoType}
+                onBlur={handleBlur}
+                error={touched.cargoType && Boolean(errors.cargoType)}
+                helperText={touched.cargoType ? (errors.cargoType as string) : undefined}
+                onChange={(e) => setFieldValue("cargoType", e.target.value)}
               >
                 <MenuItem value="General Cargo">General Cargo</MenuItem>
                 <MenuItem value="Perishable">Perishable</MenuItem>

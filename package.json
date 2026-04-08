@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
-    "start": "next start",
+    "build": "prisma generate && next build && xcopy /E /I /Y public .next\\standalone\\public && xcopy /E /I /Y .next\\static .next\\standalone\\.next\\static",
+    "start": "dotenv -e .env -- node .next/standalone/server.js",
     "lint": "eslint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
@@ -24,7 +24,6 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/x-charts": "^8.26.0",
-    "@mui/x-data-grid": "^8.27.0",
     "@mui/x-date-pickers": "^8.26.0",
     "@prisma/client": "^5.10.2",
     "@react-google-maps/api": "^2.20.8",
@@ -47,7 +46,6 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.1",
-    "react-hot-toast": "^2.6.0",
     "sonner": "^2.0.7",
     "yup": "^1.7.1"
   },

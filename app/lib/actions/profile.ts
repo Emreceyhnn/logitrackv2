@@ -13,7 +13,7 @@ export const getMyProfile = authenticatedAction(async (user) => {
       name: true,
       surname: true,
       email: true,
-      username: true,
+
       avatarUrl: true,
       roleId: true,
       companyId: true,
@@ -26,36 +26,21 @@ export const getMyProfile = authenticatedAction(async (user) => {
   return found;
 });
 
-// ─── Update Profile (name, surname, username, avatarUrl) ──────────────────
 export const updateMyProfile = authenticatedAction(
   async (
     user,
     data: {
       name: string;
       surname: string;
-      username: string;
       avatarUrl?: string | null;
     }
   ) => {
-    // Check username uniqueness if changed
-    if (data.username) {
-      const existing = await db.user.findFirst({
-        where: {
-          username: data.username,
-          NOT: { id: user.id },
-        },
-      });
-      if (existing) {
-        return { error: "Username already taken" };
-      }
-    }
-
     const updated = await db.user.update({
       where: { id: user.id },
       data: {
         name: data.name,
         surname: data.surname,
-        username: data.username || null,
+
         avatarUrl: data.avatarUrl,
       },
       select: {
@@ -63,7 +48,6 @@ export const updateMyProfile = authenticatedAction(
         name: true,
         surname: true,
         email: true,
-        username: true,
         avatarUrl: true,
       },
     });

@@ -16,24 +16,24 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
-import { useState } from "react";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useMemo, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import FirstStep from "./firstStep";
 import TechSpecsStep from "./techSpecsStep";
 import DocumentsStep from "./documentsStep";
 import {
   AddVehiclePageProps,
-  AddVehiclePageState,
-  AddVehiclePageActions,
-  VehicleStep1Data,
-  VehicleStep2Data,
-  VehicleStep3Data,
+  VehicleFormValues,
 } from "@/app/lib/type/vehicle";
 import { createVehicle, uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
 import { uploadImageAction } from "@/app/lib/actions/upload";
-import CustomToast from "@/app/components/toast";
+import { Formik, FormikHelpers } from "formik";
+import { addVehicleValidationSchema } from "@/app/lib/validationSchema";
+import { toast } from "sonner";
 
-const initialStep1: VehicleStep1Data = {
+const initialValues: VehicleFormValues = {
   fleetNo: "",
   plate: "",
   type: "",
@@ -42,9 +42,6 @@ const initialStep1: VehicleStep1Data = {
   year: "",
   odometerKm: "",
   nextServiceKm: "",
-};
-
-const initialStep2: VehicleStep2Data = {
   maxLoadKg: "",
   fuelType: "",
   fuelLevel: 50,
@@ -52,9 +49,6 @@ const initialStep2: VehicleStep2Data = {
   engineSize: "",
   transmission: "",
   techNotes: "",
-};
-
-const initialStep3: VehicleStep3Data = {
   registrationExpiry: null,
   inspectionExpiry: null,
   nextServiceDueKm: "",
@@ -68,347 +62,291 @@ const AddVehicleDialog = ({
   onSuccess,
 }: AddVehiclePageProps) => {
   /* ---------------------------------- State --------------------------------- */
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
+  
   const theme = useTheme();
-  const [state, setState] = useState<AddVehiclePageState>({
-    currentStep: 1,
-    data: {
-      step1: initialStep1,
-      step2: initialStep2,
-      step3: initialStep3,
-    },
-    isLoading: false,
-    error: null,
-    isSuccess: false,
-  });
+  const [currentStep, setCurrentStep] = useState(1);
+  const [error, setError] = useState<string | null>(null);
 
-  const [toast, setToast] = useState<{
-    open: boolean;
-    type: "success" | "error" | "info" | "warning";
-    message: string;
-  }>({
-    open: false,
-    type: "success",
-    message: "",
-  });
+  const closeDialog = () => {
+    onClose();
+    setTimeout(() => {
+      setCurrentStep(1);
+      setError(null);
+    }, 300);
+  };
 
-  const showToast = (
-    type: "success" | "error" | "info" | "warning",
-    message: string
+  const handleSubmit = async (
+    values: VehicleFormValues,
+    { setSubmitting, resetForm }: FormikHelpers<VehicleFormValues>
   ) => {
-    setToast({ open: true, type, message });
+    try {
+      // Logic for documents validation
+      const requiredTypes = ["REGISTRATION", "INSPECTION", "INSURANCE"];
+      const uploadedTypes = values.documents.map(d => d.type);
+      const missingTypes = requiredTypes.filter(t => !uploadedTypes.includes(t));
+
+      if (missingTypes.length > 0) {
+        throw new Error(dict.toasts.errorGeneric);
+      }
+
+      setError(null);
+
+      const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+        });
+      };
+
+      let photoUrl = values.photo;
+      if (values.photo instanceof File) {
+        const base64 = await fileToBase64(values.photo);
+        const uploadResult = await uploadImageAction(base64, "vehicles");
+        photoUrl = uploadResult.url;
+      }
+
+      const payload = {
+        fleetNo: values.fleetNo || undefined,
+        plate: values.plate,
+        type: values.type,
+        brand: values.brand,
+        model: values.model,
+        year: Number(values.year),
+        odometerKm: Number(values.odometerKm),
+        photo: (photoUrl as string) || undefined,
+        maxLoadKg: Number(values.maxLoadKg),
+        fuelType: values.fuelType,
+        avgFuelConsumption: Number(values.avgFuelConsumption),
+        fuelLevel: Number(values.fuelLevel),
+        engineSize: values.engineSize,
+        transmission: values.transmission,
+        techNotes: values.techNotes,
+        registrationExpiry: values.registrationExpiry ? values.registrationExpiry.toDate() : undefined,
+        inspectionExpiry: values.inspectionExpiry ? values.inspectionExpiry.toDate() : undefined,
+        nextServiceKm: Number(values.nextServiceKm) || Number(values.nextServiceDueKm),
+        enableAlerts: values.enableExpiryAlerts,
+      };
+
+      const createdVehicle = await createVehicle(payload as any);
+
+      const docPromises = values.documents
+        .filter(doc => doc.file)
+        .map(async (doc) => {
+          const base64 = await fileToBase64(doc.file!);
+          const uploadResult = await uploadImageAction(base64, "documents", `vehicles/${createdVehicle.id}`);
+          
+          return uploadVehicleDocument(createdVehicle.id, {
+            type: doc.type || "OTHER",
+            name: doc.name,
+            url: uploadResult.url,
+            status: "ACTIVE",
+            expiryDate: values.registrationExpiry ? values.registrationExpiry.toDate() : undefined,
+          });
+        });
+
+      if (docPromises.length > 0) {
+        await Promise.all(docPromises);
+      }
+
+      toast.success(dict.toasts.successAdd);
+      onSuccess?.();
+      closeDialog();
+      resetForm();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : dict.toasts.errorGeneric;
+      setError(message);
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  /* -------------------------------- Handlers -------------------------------- */
-  const actions: AddVehiclePageActions = {
-    updateStep1: (data) =>
-      setState((prev) => ({
-        ...prev,
-        data: { ...prev.data, step1: { ...prev.data.step1, ...data } },
-      })),
-    updateStep2: (data) =>
-      setState((prev) => ({
-        ...prev,
-        data: { ...prev.data, step2: { ...prev.data.step2, ...data } },
-      })),
-    updateStep3: (data) =>
-      setState((prev) => ({
-        ...prev,
-        data: { ...prev.data, step3: { ...prev.data.step3, ...data } },
-      })),
-    setStep: (step) => setState((prev) => ({ ...prev, currentStep: step })),
-    nextStep: () =>
-      setState((prev) => ({ ...prev, currentStep: prev.currentStep + 1 })),
-    prevStep: () =>
-      setState((prev) => ({ ...prev, currentStep: prev.currentStep - 1 })),
-    reset: () =>
-      setState({
-        currentStep: 1,
-        data: {
-          step1: initialStep1,
-          step2: initialStep2,
-          step3: initialStep3,
-        },
-        isLoading: false,
-        error: null,
-        isSuccess: false,
-      }),
-    closeDialog: () => {
-      if (!state.isLoading) {
-        onClose();
-        setTimeout(actions.reset, 300);
-      }
-    },
-    handleSubmit: async () => {
-      try {
-        // Validation: Mandatory documents (REGISTRATION, INSPECTION, INSURANCE)
-        const requiredTypes = ["REGISTRATION", "INSPECTION", "INSURANCE"];
-        const uploadedTypes = state.data.step3.documents.map(d => d.type);
-        const missingTypes = requiredTypes.filter(t => !uploadedTypes.includes(t));
-
-        if (missingTypes.length > 0) {
-          const missingLabels = missingTypes.map(t => 
-            t === "REGISTRATION" ? "Registration (Ruhsat)" :
-            t === "INSPECTION" ? "Inspection (Muayene)" :
-            t === "INSURANCE" ? "Insurance (Sigorta)" : t
-          );
-          throw new Error(`Please upload required documents: ${missingLabels.join(", ")}`);
-        }
-
-        setState((prev) => ({ ...prev, isLoading: true, error: null }));
-
-        const fileToBase64 = (file: File): Promise<string> => {
-          return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = (error) => reject(error);
-          });
-        };
-
-        let photoUrl = state.data.step1.photo;
-        if (state.data.step1.photo instanceof File) {
-          const base64 = await fileToBase64(state.data.step1.photo);
-          const uploadResult = await uploadImageAction(
-            base64,
-            "vehicles"
-          );
-          photoUrl = uploadResult.url;
-        }
-
-        const payload = {
-          fleetNo: state.data.step1.fleetNo,
-          plate: state.data.step1.plate,
-          type: state.data.step1.type,
-          brand: state.data.step1.brand,
-          model: state.data.step1.model,
-          year: state.data.step1.year,
-          odometerKm: state.data.step1.odometerKm,
-          photo: (photoUrl as string) || undefined,
-          maxLoadKg: state.data.step2.maxLoadKg,
-          fuelType: state.data.step2.fuelType,
-          avgFuelConsumption: state.data.step2.avgFuelConsumption,
-          fuelLevel: state.data.step2.fuelLevel,
-          engineSize: state.data.step2.engineSize,
-          transmission: state.data.step2.transmission,
-          techNotes: state.data.step2.techNotes,
-          registrationExpiry: state.data.step3.registrationExpiry?.toDate(),
-          inspectionExpiry: state.data.step3.inspectionExpiry?.toDate(),
-          nextServiceKm:
-            state.data.step1.nextServiceKm || state.data.step3.nextServiceDueKm,
-          enableAlerts: state.data.step3.enableExpiryAlerts,
-        };
-
-        const createdVehicle = await createVehicle(payload);
-
-        // 4. Upload and Save Documents (Step 3)
-        const docPromises = state.data.step3.documents
-          .filter(doc => doc.file)
-          .map(async (doc) => {
-            const base64 = await fileToBase64(doc.file!);
-            const uploadResult = await uploadImageAction(
-              base64, 
-              "documents", 
-              `vehicles/${createdVehicle.id}`
-            );
-            
-            return uploadVehicleDocument(createdVehicle.id, {
-              type: doc.type || "OTHER",
-              name: doc.name,
-              url: uploadResult.url,
-              status: "ACTIVE",
-              expiryDate: state.data.step3.registrationExpiry?.toDate(), // Fallback or logic if needed
-            });
-          });
-
-        if (docPromises.length > 0) {
-          await Promise.all(docPromises);
-        }
-
-        setState((prev) => ({ ...prev, isSuccess: true, isLoading: false }));
-        showToast("success", "Vehicle added successfully");
-
-        setTimeout(() => {
-          onClose();
-          onSuccess?.();
-          actions.reset();
-        }, 1500);
-      } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : "Failed to create vehicle";
-        setState((prev) => ({ ...prev, isLoading: false, error: message }));
-        showToast("error", message);
-      }
-    },
-  };
-
-  const steps = ["General Info", "Tech Specs", "Documents"];
+  const steps = [
+    dict.vehicles.dialogs.steps.general,
+    dict.vehicles.dialogs.steps.specs,
+    dict.vehicles.dialogs.steps.docs
+  ];
 
   return (
-    <>
-      <CustomToast
-        open={toast.open}
-        type={toast.type}
-        message={toast.message}
-        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
-      />
-      <Dialog
-      open={open}
-      onClose={actions.closeDialog}
-      maxWidth="md"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: 4,
-          bgcolor: "#0B1019",
-          backgroundImage: "none",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-        },
-      }}
+    <Formik
+      initialValues={initialValues}
+      validationSchema={addVehicleValidationSchema}
+      onSubmit={handleSubmit}
     >
-      <Box sx={{ p: 3, pb: 0 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography variant="h6" fontWeight={700} color="white">
-            Add New Vehicle
-          </Typography>
-          <IconButton
-            onClick={actions.closeDialog}
-            size="small"
-            sx={{ color: "text.secondary" }}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Stack>
-      </Box>
-
-      <DialogContent sx={{ p: 3 }}>
-        <Box sx={{ mb: 4, px: 2 }}>
-          <Stepper
-            activeStep={state.currentStep - 1}
-            sx={{
-              "& .MuiStepConnector-line": {
-                borderColor: alpha(theme.palette.divider, 0.1),
-              },
-            }}
-          >
-            {steps.map((label, index) => (
-              <Step key={label}>
-                <StepLabel
-                  StepIconProps={{
-                    sx: {
-                      "&.Mui-active": { color: theme.palette.primary.main },
-                      "&.Mui-completed": { color: theme.palette.primary.main },
-                    },
-                  }}
-                >
-                  <Typography
-                    variant="caption"
-                    fontWeight={600}
-                    color={
-                      state.currentStep - 1 >= index
-                        ? "white"
-                        : "text.secondary"
-                    }
-                  >
-                    {label}
-                  </Typography>
-                </StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        </Box>
-
-        <Divider
-          sx={{ mb: 4, borderColor: alpha(theme.palette.divider, 0.05) }}
-        />
-
-        <Box sx={{ minHeight: 400 }}>
-          {state.currentStep === 1 && (
-            <FirstStep 
-              state={state} 
-              actions={actions} 
-              onFileSelect={(file) => actions.updateStep1({ photo: file })} 
-            />
-          )}
-          {state.currentStep === 2 && (
-            <TechSpecsStep state={state} actions={actions} />
-          )}
-
-          {state.currentStep === 3 && (
-            <DocumentsStep state={state} actions={actions} />
-          )}
-        </Box>
-
-        <Box
-          sx={{
-            mt: 4,
-            pt: 3,
-            borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+      {({ isSubmitting, submitForm, setFieldValue }) => (
+        <Dialog
+          open={open}
+          onClose={closeDialog}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 4,
+              bgcolor: "#0B1019",
+              backgroundImage: "none",
+              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            },
           }}
         >
-          <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button
-              variant="text"
-              onClick={actions.closeDialog}
-              sx={{
-                color: "text.secondary",
-                textTransform: "none",
-                fontWeight: 600,
-              }}
+          <Box sx={{ p: 3, pb: 0 }}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
             >
-              Cancel
-            </Button>
-            {state.currentStep > 1 && (
-              <Button
-                variant="outlined"
-                onClick={actions.prevStep}
-                sx={{
-                  textTransform: "none",
-                  borderRadius: 2,
-                  borderColor: alpha(theme.palette.divider, 0.2),
-                  color: "white",
-                  fontWeight: 600,
+              <Typography variant="h6" fontWeight={700} color="white">
+                {dict.vehicles.dialogs.addTitle}
+              </Typography>
+              <IconButton
+                onClick={closeDialog}
+                size="small"
+                sx={{ color: "text.secondary" }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Stack>
+
+            {error && (
+              <Box 
+                sx={{ 
+                  mt: 2, 
+                  p: 2, 
+                  borderRadius: 2, 
+                  bgcolor: alpha(theme.palette.error.main, 0.1),
+                  border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`
                 }}
               >
-                Back
-              </Button>
+                <Typography variant="caption" color="error.light">
+                  {error}
+                </Typography>
+              </Box>
             )}
-            <Button
-              variant="contained"
-              onClick={
-                state.currentStep === 3
-                  ? actions.handleSubmit
-                  : actions.nextStep
-              }
-              disabled={state.isLoading}
-              endIcon={
-                state.isLoading ? (
-                  <CircularProgress size={16} color="inherit" />
-                ) : null
-              }
+          </Box>
+
+          <DialogContent sx={{ p: 3 }}>
+            <Box sx={{ mb: 4, px: 2 }}>
+              <Stepper
+                activeStep={currentStep - 1}
+                sx={{
+                  "& .MuiStepConnector-line": {
+                    borderColor: alpha(theme.palette.divider, 0.1),
+                  },
+                }}
+              >
+                {steps.map((label, index) => (
+                  <Step key={label}>
+                    <StepLabel
+                      StepIconProps={{
+                        sx: {
+                          "&.Mui-active": { color: theme.palette.primary.main },
+                          "&.Mui-completed": { color: theme.palette.primary.main },
+                        },
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        fontWeight={600}
+                        color={
+                          currentStep - 1 >= index
+                            ? "white"
+                            : "text.secondary"
+                        }
+                      >
+                        {label}
+                      </Typography>
+                    </StepLabel>
+                  </Step>
+                ))}
+              </Stepper>
+            </Box>
+
+            <Divider
+              sx={{ mb: 4, borderColor: alpha(theme.palette.divider, 0.05) }}
+            />
+
+            <Box sx={{ minHeight: 400 }}>
+              {currentStep === 1 && (
+                <FirstStep 
+                  onFileSelect={(file) => setFieldValue("photo", file)} 
+                />
+              )}
+              {currentStep === 2 && <TechSpecsStep />}
+              {currentStep === 3 && <DocumentsStep />}
+            </Box>
+
+            <Box
               sx={{
-                textTransform: "none",
-                px: state.currentStep === 3 ? 3 : 4,
-                borderRadius: 2,
-                boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
-                fontWeight: 700,
-                minWidth: 140,
+                mt: 4,
+                pt: 3,
+                borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
               }}
             >
-              {state.isLoading
-                ? "Saving..."
-                : state.currentStep === 3
-                  ? "Complete & Save Vehicle"
-                  : "Next Step"}
-            </Button>
-          </Stack>
-        </Box>
-      </DialogContent>
-    </Dialog>
-    </>
+              <Stack direction="row" spacing={2} justifyContent="flex-end">
+                <Button
+                  variant="text"
+                  onClick={closeDialog}
+                  sx={{
+                    color: "text.secondary",
+                    textTransform: "none",
+                    fontWeight: 600,
+                  }}
+                >
+                  {dict.common.cancel}
+                </Button>
+                {currentStep > 1 && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setCurrentStep((prev) => prev - 1)}
+                    sx={{
+                      textTransform: "none",
+                      borderRadius: 2,
+                      borderColor: alpha(theme.palette.divider, 0.2),
+                      color: "white",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {dict.common.back}
+                  </Button>
+                )}
+                <Button
+                  variant="contained"
+                  onClick={
+                    currentStep === 3
+                      ? submitForm
+                      : () => setCurrentStep((prev) => prev + 1)
+                  }
+                  disabled={isSubmitting}
+                  endIcon={
+                    isSubmitting ? (
+                      <CircularProgress size={16} color="inherit" />
+                    ) : null
+                  }
+                  sx={{
+                    textTransform: "none",
+                    px: currentStep === 3 ? 3 : 4,
+                    borderRadius: 2,
+                    boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+                    fontWeight: 700,
+                    minWidth: 140,
+                  }}
+                >
+                  {isSubmitting
+                    ? dict.toasts.loading
+                    : currentStep === 3
+                      ? dict.common.save
+                      : dict.common.next}
+                </Button>
+              </Stack>
+            </Box>
+          </DialogContent>
+        </Dialog>
+      )}
+    </Formik>
   );
 };
 

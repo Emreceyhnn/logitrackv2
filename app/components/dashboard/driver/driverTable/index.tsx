@@ -1,25 +1,20 @@
 "use client";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  TableSortLabel,
-  alpha,
-  useTheme,
-} from "@mui/material";
-import RowActions from "./menu";
+
+import { useMemo, useState } from "react";
+import DataTable from "@/app/components/ui/DataTable";
+import type { DataTableColumn, DataTableRowAction, DataTableFilter } from "@/app/lib/type/dataTable";
 import { StatusChip } from "@/app/components/chips/statusChips";
-import { DriverTableProps } from "@/app/lib/type/driver";
-import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
+import { DriverTableProps, DriverWithRelations } from "@/app/lib/type/driver";
+import { DriverStatus } from "@prisma/client";
+import ContentPasteIcon from "@mui/icons-material/ContentPaste";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Typography } from "@mui/material";
 
 const DriverTable = ({
   drivers,
   loading = false,
-  meta,
+  meta: apiMeta,
   onDriverSelect,
   onEdit,
   onDelete,
@@ -28,177 +23,173 @@ const DriverTable = ({
   sortField,
   sortOrder,
   onRequestSort,
+  filters,
+  onFilterChange,
 }: DriverTableProps) => {
-  const theme = useTheme();
 
-  /* -------------------------------- handlers -------------------------------- */
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    onPageChange(newPage + 1); // MUI uses 0-indexed, our API uses 1-indexed
-  };
-  const createSortHandler = (property: string) => () => {
-    if (onRequestSort) onRequestSort(property);
+  const [localPage, setLocalPage] = useState(1);
+  const [localLimit, setLocalLimit] = useState(10);
+
+  const meta = useMemo(() => apiMeta || {
+    page: localPage,
+    limit: localLimit,
+    total: drivers.length,
+  }, [apiMeta, localPage, localLimit, drivers.length]);
+
+  const paginatedDrivers = apiMeta
+    ? drivers
+    : drivers.slice((meta.page - 1) * meta.limit, meta.page * meta.limit);
+
+  const handlePageChange = (newPage: number) => {
+    if (onPageChange) onPageChange(newPage);
+    else setLocalPage(newPage);
   };
 
-  if (loading) {
-    return <TableSkeleton title="Driver List" rows={10} columns={8} />;
-  }
+  const handleLimitChange = (newLimit: number) => {
+    if (onLimitChange) onLimitChange(newLimit);
+    else {
+      setLocalLimit(newLimit);
+      setLocalPage(1);
+    }
+  };
+
+  const columns: DataTableColumn<DriverWithRelations>[] = useMemo(() => [
+    {
+      key: "id",
+      label: "#",
+      width: 50,
+      render: (row) => {
+        const idx = drivers.findIndex((d) => d.id === row.id);
+        const base = meta ? (meta.page - 1) * meta.limit : 0;
+        return base + idx + 1;
+      },
+    },
+    {
+      key: "name",
+      label: "Name",
+      sortable: true,
+      render: (row) => (
+        <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>
+          {row.user.name} {row.user.surname}
+        </Typography>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      sortable: true,
+      render: (row) => <StatusChip status={row.status} />,
+    },
+    {
+      key: "phone",
+      label: "Phone",
+      sortable: true,
+      render: (row) => row.phone,
+    },
+    {
+      key: "vehicle",
+      label: "Vehicle",
+      sortable: true,
+      render: (row) => row.currentVehicle ? row.currentVehicle.plate : "No assigned vehicle",
+    },
+    {
+      key: "homeBaseWarehouse",
+      label: "Homebase",
+      sortable: true,
+      render: (row) => row.homeBaseWarehouse ? row.homeBaseWarehouse.name : "Not assigned",
+    },
+    {
+      key: "licenseType",
+      label: "License",
+      sortable: true,
+      render: (row) => row.licenseType,
+    },
+    {
+      key: "safetyScore",
+      label: "Safety Score",
+      align: "right",
+      sortable: true,
+      render: (row) => row.safetyScore,
+    },
+  ], [drivers, meta]);
+
+  const rowActions: DataTableRowAction<DriverWithRelations>[] = useMemo(() => [
+    {
+      label: "Details",
+      icon: <ContentPasteIcon fontSize="small" />,
+      onClick: (row) => onDriverSelect(row.id),
+    },
+    {
+      label: "Edit",
+      icon: <EditIcon fontSize="small" />,
+      onClick: (row) => onEdit(row),
+    },
+    {
+      label: "Delete",
+      icon: <DeleteIcon fontSize="small" />,
+      onClick: (row) => onDelete(row.id),
+      color: "error",
+    },
+  ], [onDriverSelect, onEdit, onDelete]);
+
+  const activeFilters: Record<string, string[]> = {};
+  if (filters?.status && filters.status.length > 0) activeFilters["status"] = filters.status;
+  if (filters?.hasVehicle === true) activeFilters["hasVehicle"] = ["assigned"];
+  else if (filters?.hasVehicle === false) activeFilters["hasVehicle"] = ["unassigned"];
+
+  const handleFilterChange = (key: string, values: string[]) => {
+    if (!onFilterChange) return;
+    if (key === "status") onFilterChange({ status: values as DriverStatus[] });
+    if (key === "hasVehicle") {
+      if (values[0] === "assigned") onFilterChange({ hasVehicle: true });
+      else if (values[0] === "unassigned") onFilterChange({ hasVehicle: false });
+      else onFilterChange({ hasVehicle: undefined });
+    }
+  };
+
+  const DRIVER_FILTERS: DataTableFilter[] = [
+    {
+      key: "status",
+      label: "Status",
+      options: Object.values(DriverStatus).map((s) => ({
+        label: s.replace(/_/g, " "),
+        value: s,
+      })),
+      multiple: true,
+    },
+    {
+      key: "hasVehicle",
+      label: "Vehicle",
+      options: [
+        { label: "Assigned", value: "assigned" },
+        { label: "Unassigned", value: "unassigned" }
+      ],
+      multiple: false,
+    }
+  ];
 
   return (
-    <TableContainer sx={{ p: 0 }}>
-      <Table size="small">
-        <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
-          <TableRow>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              #
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              <TableSortLabel
-                active={sortField === "name"}
-                direction={sortField === "name" ? sortOrder : "asc"}
-                onClick={createSortHandler("name")}
-              >
-                Name
-              </TableSortLabel>
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              <TableSortLabel
-                active={sortField === "status"}
-                direction={sortField === "status" ? sortOrder : "asc"}
-                onClick={createSortHandler("status")}
-              >
-                Status
-              </TableSortLabel>
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              <TableSortLabel
-                active={sortField === "phone"}
-                direction={sortField === "phone" ? sortOrder : "asc"}
-                onClick={createSortHandler("phone")}
-              >
-                Phone
-              </TableSortLabel>
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              <TableSortLabel
-                active={sortField === "vehicle"}
-                direction={sortField === "vehicle" ? sortOrder : "asc"}
-                onClick={createSortHandler("vehicle")}
-              >
-                Vehicle
-              </TableSortLabel>
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              <TableSortLabel
-                active={sortField === "homeBaseWarehouse"}
-                direction={
-                  sortField === "homeBaseWarehouse" ? sortOrder : "asc"
-                }
-                onClick={createSortHandler("homeBaseWarehouse")}
-              >
-                Homebase
-              </TableSortLabel>
-            </TableCell>
-            <TableCell sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}>
-              <TableSortLabel
-                active={sortField === "licenseType"}
-                direction={sortField === "licenseType" ? sortOrder : "asc"}
-                onClick={createSortHandler("licenseType")}
-              >
-                License
-              </TableSortLabel>
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}
-            >
-              <TableSortLabel
-                active={sortField === "safetyScore"}
-                direction={sortField === "safetyScore" ? sortOrder : "asc"}
-                onClick={createSortHandler("safetyScore")}
-              >
-                Safety Score
-              </TableSortLabel>
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}
-            >
-              Actions
-            </TableCell>
-          </TableRow>
-        </TableHead>
-
-        <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
-          {drivers.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={9}
-                align="center"
-                sx={{ py: 3, borderColor: alpha(theme.palette.divider, 0.1) }}
-              >
-                No drivers found
-              </TableCell>
-            </TableRow>
-          ) : (
-            drivers.map((d, index) => (
-              <TableRow
-                key={d.id}
-                hover
-                sx={{
-                  "& td": { borderColor: alpha(theme.palette.divider, 0.1) },
-                }}
-              >
-                <TableCell>
-                  {index + 1 + (meta.page - 1) * meta.limit}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 500 }}>
-                  {d.user.name} {d.user.surname}
-                </TableCell>
-                <TableCell>
-                  <StatusChip status={d.status} />
-                </TableCell>
-                <TableCell>{d.phone}</TableCell>
-                <TableCell>
-                  {d.currentVehicle
-                    ? d.currentVehicle.plate
-                    : "No assigned vehicle"}
-                </TableCell>
-                <TableCell>
-                  {d.homeBaseWarehouse
-                    ? d.homeBaseWarehouse.name
-                    : "Not assigned"}
-                </TableCell>
-                <TableCell>{d.licenseType}</TableCell>
-                <TableCell align="right">{d.safetyScore}</TableCell>
-                <TableCell align="right">
-                  <RowActions
-                    id={d.id}
-                    handleOpenDetails={() => onDriverSelect(d.id)}
-                    handleEdit={() => onEdit(d)}
-                    handleDelete={() => onDelete(d.id)}
-                  />
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 50]}
-        component="div"
-        count={meta?.total || 0}
-        rowsPerPage={meta?.limit || 10}
-        page={(meta?.page || 1) - 1}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={(e) => {
-          const newLimit = parseInt(e.target.value, 10);
-          if (onLimitChange) onLimitChange(newLimit);
-        }}
-      />
-    </TableContainer>
+    <DataTable<DriverWithRelations>
+      rows={paginatedDrivers}
+      columns={columns}
+      loading={loading}
+      emptyMessage="No drivers found"
+      meta={meta}
+      onPageChange={handlePageChange}
+      onLimitChange={handleLimitChange}
+      rowActions={rowActions}
+      sortField={sortField}
+      sortOrder={sortOrder}
+      onRequestSort={onRequestSort}
+      wrapCard={true}
+      tableTitle="Driver List"
+      searchValue={filters?.search || ""}
+      searchPlaceholder="Search drivers..."
+      onSearchChange={(search) => onFilterChange && onFilterChange({ search })}
+      filters={DRIVER_FILTERS}
+      activeFilters={activeFilters}
+      onFilterChange={handleFilterChange}
+    />
   );
 };
 

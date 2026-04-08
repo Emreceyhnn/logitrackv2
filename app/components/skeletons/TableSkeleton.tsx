@@ -59,14 +59,14 @@ export default function TableSkeleton({
               {Array.from(new Array(columns)).map((_, colIndex) => (
                 <TableCell
                   key={colIndex}
-                  sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}
+                  sx={{ borderColor: alpha(theme.palette.divider, 0.1), py: 1.5 }}
                 >
                   <Skeleton
                     animation="wave"
                     variant={colIndex === 1 ? "rounded" : "text"}
                     width={colIndex === 1 ? 80 : "80%"}
-                    height={colIndex === 1 ? 24 : undefined}
-                    sx={{ bgcolor: alpha(theme.palette.text.primary, 0.05) }}
+                    height={colIndex === 1 ? 24 : 24}
+                    sx={{ bgcolor: alpha(theme.palette.text.primary, 0.05), borderRadius: 1 }}
                   />
                 </TableCell>
               ))}

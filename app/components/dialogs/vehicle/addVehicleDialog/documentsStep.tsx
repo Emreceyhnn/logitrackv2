@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent } from "react";
+import { ChangeEvent, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -15,6 +15,8 @@ import {
   Select,
   FormControl,
 } from "@mui/material";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import SecurityIcon from "@mui/icons-material/Security";
@@ -26,21 +28,26 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { DocumentsStepProps } from "@/app/lib/type/vehicle";
+import { useFormikContext } from "formik";
+import { VehicleFormValues } from "@/app/lib/type/vehicle";
 
-const DOCUMENT_TYPES = [
-  { value: "REGISTRATION", label: "Registration", icon: <BadgeIcon />, required: true },
-  { value: "INSURANCE", label: "Insurance", icon: <VerifiedUserIcon />, required: true },
-  { value: "LICENSE", label: "License/Permit", icon: <LocalLibraryIcon /> },
-  { value: "INSPECTION", label: "Inspection", icon: <SecurityIcon />, required: true },
-  { value: "MAINTENANCE", label: "Maintenance", icon: <BuildIcon /> },
-  { value: "OTHER", label: "Other", icon: <AssignmentIcon /> },
-];
-
-const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
+const DocumentsStep = () => {
   /* -------------------------------- variables ------------------------------- */
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
+  
   const theme = useTheme();
-  const data = state.data.step3;
+  const { values, setFieldValue } = useFormikContext<VehicleFormValues>();
+
+  const DOCUMENT_TYPES = useMemo(() => [
+    { value: "REGISTRATION", label: "Registration", icon: <BadgeIcon />, required: true },
+    { value: "INSURANCE", label: "Insurance", icon: <VerifiedUserIcon />, required: true },
+    { value: "LICENSE", label: "License/Permit", icon: <LocalLibraryIcon /> },
+    { value: "INSPECTION", label: "Inspection", icon: <SecurityIcon />, required: true },
+    { value: "MAINTENANCE", label: "Maintenance", icon: <BuildIcon /> },
+    { value: "OTHER", label: "Other", icon: <AssignmentIcon /> },
+  ], []);
 
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
@@ -90,22 +97,22 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
         uploadedAt: new Date().toLocaleDateString(),
         file: file,
       }));
-      actions.updateStep3({
-        documents: [...data.documents, ...newFiles],
-      });
+      setFieldValue("documents", [...values.documents, ...newFiles]);
     }
   };
 
   const updateFileType = (id: string, type: string) => {
-    actions.updateStep3({
-      documents: data.documents.map((d) => (d.id === id ? { ...d, type } : d)),
-    });
+    setFieldValue(
+      "documents",
+      values.documents.map((d) => (d.id === id ? { ...d, type } : d))
+    );
   };
 
   const removeFile = (id: string) => {
-    actions.updateStep3({
-      documents: data.documents.filter((d) => d.id !== id),
-    });
+    setFieldValue(
+      "documents",
+      values.documents.filter((d) => d.id !== id)
+    );
   };
 
   return (
@@ -122,10 +129,8 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
           <Box>
             <Typography sx={labelSx}>Registration Expiry Date</Typography>
             <DatePicker
-              value={data.registrationExpiry}
-              onChange={(val) =>
-                actions.updateStep3({ registrationExpiry: val })
-              }
+              value={values.registrationExpiry}
+              onChange={(val) => setFieldValue("registrationExpiry", val)}
               slotProps={{
                 textField: {
                   fullWidth: true,
@@ -147,8 +152,8 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
           <Box>
             <Typography sx={labelSx}>Inspection Expiry Date</Typography>
             <DatePicker
-              value={data.inspectionExpiry}
-              onChange={(val) => actions.updateStep3({ inspectionExpiry: val })}
+              value={values.inspectionExpiry}
+              onChange={(val) => setFieldValue("inspectionExpiry", val)}
               slotProps={{
                 textField: {
                   fullWidth: true,
@@ -180,9 +185,9 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
             }}
           >
             <Switch
-              checked={data.enableExpiryAlerts}
+              checked={values.enableExpiryAlerts}
               onChange={(e) =>
-                actions.updateStep3({ enableExpiryAlerts: e.target.checked })
+                setFieldValue("enableExpiryAlerts", e.target.checked)
               }
               color="primary"
               size="small"
@@ -211,7 +216,7 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
           variant="h6"
           sx={{ color: "white", mb: 3, fontWeight: 600 }}
         >
-          Vehicle Documents
+          {dict.common.documents}
         </Typography>
 
         <Box sx={{ mb: 3 }}>
@@ -220,7 +225,7 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
           </Typography>
           <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
             {DOCUMENT_TYPES.filter(t => t.required).map(t => {
-              const isUploaded = data.documents.some(d => d.type === t.value);
+              const isUploaded = values.documents.some((d) => d.type === t.value);
               return (
                 <Chip
                   key={t.value}
@@ -291,7 +296,7 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
               sx={{ color: "white", fontWeight: 600, mb: 0.5 }}
             >
               <span style={{ color: theme.palette.primary.main }}>
-                Click to upload
+                {dict.landing.hero.discover}
               </span>{" "}
               or drag and drop
             </Typography>
@@ -301,7 +306,7 @@ const DocumentsStep = ({ state, actions }: DocumentsStepProps) => {
           </Box>
 
           <Stack spacing={2} sx={{ mt: 3 }}>
-            {data.documents.map((doc) => {
+            {values.documents.map((doc) => {
               const typeInfo =
                 DOCUMENT_TYPES.find((t) => t.value === doc.type) ||
                 DOCUMENT_TYPES[5];

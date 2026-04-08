@@ -1,13 +1,27 @@
 "use client";
 
-import { alpha, Avatar, Box, Button, Chip, Dialog, DialogContent, IconButton, Stack, Tab, Tabs, Typography, useTheme } from "@mui/material";
+import {
+  alpha,
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogContent,
+  IconButton,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useState } from "react";
 import OverviewTab from "./overviewTab";
 import DocumentsTab from "./documentsTab";
 import MaintenanceTab from "./maintenance";
 import CloseIcon from "@mui/icons-material/Close";
-import CustomToast from "@/app/components/toast";
+
 import BuildIcon from "@mui/icons-material/Build";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
@@ -62,7 +76,14 @@ function a11yProps(index: number) {
 }
 
 const VehicleDialog = (params: VehicleDialogParams) => {
-  const { open, onClose, vehicleData, onDeleteSuccess, onUpdateSuccess, initialTab } = params;
+  const {
+    open,
+    onClose,
+    vehicleData,
+    onDeleteSuccess,
+    onUpdateSuccess,
+    initialTab,
+  } = params;
 
   /* --------------------------------- states --------------------------------- */
   const [value, setValue] = useState(initialTab ?? 0);
@@ -119,7 +140,10 @@ const VehicleDialog = (params: VehicleDialogParams) => {
     try {
       setStatusLoading(true);
       await updateVehicleStatus(vehicleData.id, newStatus);
-      showToast("success", `Vehicle status updated to ${newStatus.replace(/_/g, " ")}`);
+      showToast(
+        "success",
+        `Vehicle status updated to ${newStatus.replace(/_/g, " ")}`
+      );
       onUpdateSuccess?.();
     } catch (error) {
       showToast("error", "Failed to update vehicle status");
@@ -134,8 +158,11 @@ const VehicleDialog = (params: VehicleDialogParams) => {
 
   const statusMeta = getStatusMeta(vehicleData?.status);
   const [colorKey, colorVariant] = statusMeta.color.split(".");
-  const paletteColor = theme.palette[colorKey as keyof typeof theme.palette] as unknown as Record<string, string>;
-  const statusColor = paletteColor?.[colorVariant] || theme.palette.text.primary;
+  const paletteColor = theme.palette[
+    colorKey as keyof typeof theme.palette
+  ] as unknown as Record<string, string>;
+  const statusColor =
+    paletteColor?.[colorVariant] || theme.palette.text.primary;
 
   return (
     <Dialog
@@ -170,19 +197,24 @@ const VehicleDialog = (params: VehicleDialogParams) => {
               variant="rounded"
               src={vehicleData?.photo || undefined}
               sx={{
-                bgcolor: vehicleData?.photo ? 'transparent' : alpha(statusColor, 0.1),
+                bgcolor: vehicleData?.photo
+                  ? "transparent"
+                  : alpha(statusColor, 0.1),
                 color: statusColor,
                 width: 72,
                 height: 72,
                 fontSize: "2rem",
                 fontWeight: 800,
                 borderRadius: 2,
-                border: vehicleData?.photo ? `2px solid ${alpha(statusColor, 0.5)}` : `1px solid ${alpha(statusColor, 0.2)}`,
+                border: vehicleData?.photo
+                  ? `2px solid ${alpha(statusColor, 0.5)}`
+                  : `1px solid ${alpha(statusColor, 0.2)}`,
               }}
             >
-              {!vehicleData?.photo && (vehicleData?.model?.charAt(0) || (
-                <LocalShippingIcon fontSize="large" />
-              ))}
+              {!vehicleData?.photo &&
+                (vehicleData?.model?.charAt(0) || (
+                  <LocalShippingIcon fontSize="large" />
+                ))}
             </Avatar>
             <Stack spacing={0.5}>
               <Stack direction="row" spacing={1} alignItems="center">
@@ -269,13 +301,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           </Stack>
         </Stack>
       </Box>
-
-      <CustomToast
-        open={toast.open}
-        type={toast.type}
-        message={toast.message}
-        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
-      />
 
       <DialogContent sx={{ p: 0 }}>
         <Stack>

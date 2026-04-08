@@ -17,8 +17,11 @@ import {
   Contrast as AppearanceIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import CustomToast from "@/app/components/toast";
-import type { SettingsPageState, SettingsPageActions } from "@/app/lib/type/settings";
+
+import type {
+  SettingsPageState,
+  SettingsPageActions,
+} from "@/app/lib/type/settings";
 
 // Extracted Components
 import SettingsHeader from "./components/SettingsHeader";
@@ -39,7 +42,12 @@ export default function SettingsDialog({ open, onClose }: Props) {
     isLoading: false,
     isSaving: false,
     error: null,
-    regional: { language: "EN", currency: "USD", timezone: "UTC", dateFormat: "MM/DD/YYYY" },
+    regional: {
+      language: "EN",
+      currency: "USD",
+      timezone: "UTC",
+      dateFormat: "MM/DD/YYYY",
+    },
     notifications: {
       emailShipmentUpdates: true,
       emailMaintenanceAlerts: true,
@@ -50,8 +58,14 @@ export default function SettingsDialog({ open, onClose }: Props) {
     appearance: { mode: "dark" },
   });
 
-  const [toast, setToast] = useState<{ open: boolean; type: "success" | "error"; message: string }>({
-    open: false, type: "success", message: "",
+  const [toast, setToast] = useState<{
+    open: boolean;
+    type: "success" | "error";
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    message: "",
   });
 
   const showToast = useCallback((type: "success" | "error", msg: string) => {
@@ -59,10 +73,26 @@ export default function SettingsDialog({ open, onClose }: Props) {
   }, []);
 
   const actions: SettingsPageActions = {
-    setActiveTab: useCallback((tab) => setState((s) => ({ ...s, activeTab: tab })), []),
-    updateRegional: useCallback((d) => setState((s) => ({ ...s, regional: { ...s.regional, ...d } })), []),
-    updateNotifications: useCallback((d) => setState((s) => ({ ...s, notifications: { ...s.notifications, ...d } })), []),
-    updateAppearance: useCallback((d) => setState((s) => ({ ...s, appearance: { ...s.appearance, ...d } })), []),
+    setActiveTab: useCallback(
+      (tab) => setState((s) => ({ ...s, activeTab: tab })),
+      []
+    ),
+    updateRegional: useCallback(
+      (d) => setState((s) => ({ ...s, regional: { ...s.regional, ...d } })),
+      []
+    ),
+    updateNotifications: useCallback(
+      (d) =>
+        setState((s) => ({
+          ...s,
+          notifications: { ...s.notifications, ...d },
+        })),
+      []
+    ),
+    updateAppearance: useCallback(
+      (d) => setState((s) => ({ ...s, appearance: { ...s.appearance, ...d } })),
+      []
+    ),
     saveRegional: useCallback(async () => {
       setState((s) => ({ ...s, isSaving: true }));
       await new Promise((r) => setTimeout(r, 600));
@@ -85,13 +115,6 @@ export default function SettingsDialog({ open, onClose }: Props) {
 
   return (
     <>
-      <CustomToast 
-        open={toast.open} 
-        type={toast.type} 
-        message={toast.message} 
-        onClose={() => setToast((t) => ({ ...t, open: false }))} 
-      />
-
       <Dialog
         open={open}
         onClose={onClose}
@@ -125,13 +148,13 @@ export default function SettingsDialog({ open, onClose }: Props) {
                 gap: 1,
                 transition: "all 0.2s",
                 "&.Mui-selected": { color: "white" },
-                "&:hover": { color: alpha("#fff", 0.6) }
+                "&:hover": { color: alpha("#fff", 0.6) },
               },
               "& .MuiTabs-indicator": {
                 bgcolor: theme.palette.primary.main,
                 borderRadius: "3px 3px 0 0",
                 height: 3,
-                boxShadow: `0 0 12px ${alpha(theme.palette.primary.main, 0.5)}`
+                boxShadow: `0 0 12px ${alpha(theme.palette.primary.main, 0.5)}`,
               },
             }}
           >
@@ -149,14 +172,20 @@ export default function SettingsDialog({ open, onClose }: Props) {
               initial={{ opacity: 0, y: 10, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.98 }}
-              transition={{ 
-                  duration: 0.25,
-                  ease: "easeOut"
+              transition={{
+                duration: 0.25,
+                ease: "easeOut",
               }}
             >
-              {state.activeTab === 0 && <RegionalTab state={state} actions={actions} />}
-              {state.activeTab === 1 && <NotificationsTab state={state} actions={actions} />}
-              {state.activeTab === 2 && <AppearanceTab state={state} actions={actions} />}
+              {state.activeTab === 0 && (
+                <RegionalTab state={state} actions={actions} />
+              )}
+              {state.activeTab === 1 && (
+                <NotificationsTab state={state} actions={actions} />
+              )}
+              {state.activeTab === 2 && (
+                <AppearanceTab state={state} actions={actions} />
+              )}
             </motion.div>
           </AnimatePresence>
         </DialogContent>

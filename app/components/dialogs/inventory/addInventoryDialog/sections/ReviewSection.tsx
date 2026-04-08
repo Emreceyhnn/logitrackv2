@@ -10,6 +10,9 @@ import {
   useTheme,
   Avatar,
 } from "@mui/material";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useMemo } from "react";
 import {
   AddInventoryItemDetails,
   AddInventoryStorageLevels,
@@ -56,6 +59,9 @@ const InfoRow = ({
 );
 
 const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
   const theme = useTheme();
 
   return (
@@ -92,7 +98,7 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
               {itemDetails.name}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {itemDetails.category} • SKU: {itemDetails.sku || "Auto-generated"}
+              {itemDetails.category} • SKU: {itemDetails.sku || dict.common.noData}
             </Typography>
           </Box>
         </Box>
@@ -103,15 +109,15 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
               <Stack direction="row" spacing={1} alignItems="center">
                 <InfoIcon sx={{ fontSize: "1rem", color: theme.palette.primary.main }} />
                 <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ letterSpacing: 1 }}>
-                  PRICING \u0026 DETAILS
+                   {dict.vehicles.dialogs.steps.general.toUpperCase()}
                 </Typography>
               </Stack>
               <Box>
-                <InfoRow label="Unit Price" value={`${itemDetails.unitValue || 0} TRY`} />
+                <InfoRow label={dict.inventory.fields.unitValue} value={`${itemDetails.unitValue || 0} TRY`} />
                 <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
-                <InfoRow label="Weight" value={`${itemDetails.weightKg || 0} Kg`} />
+                <InfoRow label={dict.inventory.fields.weight} value={`${itemDetails.weightKg || 0} Kg`} />
                 <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
-                <InfoRow label="Volume" value={`${itemDetails.volumeM3 || 0} M³`} />
+                <InfoRow label={dict.inventory.fields.volume} value={`${itemDetails.volumeM3 || 0} M³`} />
               </Box>
             </Stack>
           </Grid>
@@ -121,15 +127,15 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
               <Stack direction="row" spacing={1} alignItems="center">
                 <WarehouseIcon sx={{ fontSize: "1rem", color: theme.palette.primary.main }} />
                 <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ letterSpacing: 1 }}>
-                  STORAGE \u0026 STOCK
+                  {dict.inventory.header.toUpperCase()}
                 </Typography>
               </Stack>
               <Box>
-                <InfoRow label="Initial Stock" value={storageLevels.initialQuantity || 0} />
+                <InfoRow label={dict.inventory.fields.quantity} value={storageLevels.initialQuantity || 0} />
                 <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
-                <InfoRow label="Min. Alert Level" value={storageLevels.minStockLevel || 0} />
+                <InfoRow label={dict.inventory.fields.minStock} value={storageLevels.minStockLevel || 0} />
                 <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
-                <InfoRow label="Pallets" value={itemDetails.palletCount || 0} />
+                <InfoRow label={dict.inventory.fields.pallets} value={itemDetails.palletCount || 0} />
               </Box>
             </Stack>
           </Grid>
@@ -148,7 +154,7 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
         >
           <LocalShippingIcon sx={{ color: theme.palette.info.main, fontSize: "1.1rem" }} />
           <Typography variant="caption" color="text.secondary">
-            Shipping parameters are calculated based on unit weight and volume per pallet.
+            {dict.common.lastUpdated}
           </Typography>
         </Box>
       </Stack>

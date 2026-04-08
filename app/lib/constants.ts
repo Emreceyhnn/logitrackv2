@@ -1,7 +1,16 @@
-export const PUBLIC_ROUTES = ["/", "/about", "/features", "/how-it-works", "/pricing"];
+// Supported locales
+export const LOCALES = ["tr", "en"] as const;
+export type Locale = (typeof LOCALES)[number];
+export const DEFAULT_LOCALE: Locale = "tr";
 
-export const AUTH_ROUTES = ["/auth/sign-in", "/auth/sign-up", "/auth/forgot-password"];
+// Auth routes (WITHOUT lang prefix — middleware strips the lang segment before matching)
+export const AUTH_ROUTES = [
+  "/auth/sign-in",
+  "/auth/sign-up",
+  "/auth/forgot-password",
+];
 
+// Protected routes require authentication (WITHOUT lang prefix)
 export const PROTECTED_ROUTES = [
   "/overview",
   "/vehicle",
@@ -19,6 +28,7 @@ export const PROTECTED_ROUTES = [
   "/onboarding",
 ];
 
+// Company-required routes (user must have a company set up)
 export const COMPANY_REQUIRED_ROUTES = [
   "/overview",
   "/vehicle",
@@ -38,3 +48,8 @@ export const COMPANY_REQUIRED_ROUTES = [
 export const DEFAULT_REDIRECT_AFTER_LOGIN = "/overview";
 export const ONBOARDING_ROUTE = "/onboarding";
 export const SIGN_IN_ROUTE = "/auth/sign-in";
+
+/** Helper: build a locale-prefixed path, e.g. localePath("tr", "/overview") → "/tr/overview" */
+export function localePath(locale: string, path: string): string {
+  return `/${locale}${path.startsWith("/") ? path : `/${path}`}`;
+}

@@ -1,7 +1,8 @@
 "use client";
 
 import { alpha, Box, Grid, Stack, Typography, useTheme } from "@mui/material";
-import { AddRouteStep2 } from "@/app/lib/type/add-route";
+import { useFormikContext } from "formik";
+import { RouteFormValues } from "@/app/lib/type/routes";
 import ExploreIcon from "@mui/icons-material/Explore";
 import ElectricBoltIcon from "@mui/icons-material/ElectricBolt";
 import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
@@ -9,26 +10,19 @@ import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvid
 import { useMemo } from "react";
 import { DirectionsMap } from "@/app/components/googleMaps/DirectionsMap";
 
-interface SecondRouteDialogStepProps {
-  state: AddRouteStep2;
-  updateStep2: (data: Partial<AddRouteStep2>) => void;
-}
-
-const SecondRouteDialogStep = ({
-  state,
-  updateStep2,
-}: SecondRouteDialogStepProps) => {
+const SecondRouteDialogStep = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const { values, setFieldValue, touched, errors } = useFormikContext<RouteFormValues>();
 
   /* ------------------------------- constant ------------------------------- */
   const origin = useMemo(
-    () => (state.startLat && state.startLng ? { lat: state.startLat, lng: state.startLng } : state.startAddress),
-    [state.startLat, state.startLng, state.startAddress]
+    () => (values.startLat && values.startLng ? { lat: values.startLat, lng: values.startLng } : values.startAddress),
+    [values.startLat, values.startLng, values.startAddress]
   );
   const destination = useMemo(
-    () => (state.endLat && state.endLng ? { lat: state.endLat, lng: state.endLng } : state.endAddress),
-    [state.endLat, state.endLng, state.endAddress]
+    () => (values.endLat && values.endLng ? { lat: values.endLat, lng: values.endLng } : values.endAddress),
+    [values.endLat, values.endLng, values.endAddress]
   );
 
   return (
@@ -82,7 +76,7 @@ const SecondRouteDialogStep = ({
                     Start Address
                   </Typography>
                   <AddressAutocomplete
-                    value={state.startAddress}
+                    value={values.startAddress}
                     onAddressSelect={({
                       lat,
                       lng,
@@ -92,12 +86,12 @@ const SecondRouteDialogStep = ({
                       lng: number;
                       formattedAddress: string;
                     }) => {
-                      updateStep2({
-                        startLat: lat,
-                        startLng: lng,
-                        startAddress: formattedAddress,
-                      });
+                      setFieldValue("startLat", lat);
+                      setFieldValue("startLng", lng);
+                      setFieldValue("startAddress", formattedAddress);
                     }}
+                    error={touched.startAddress && Boolean(errors.startAddress)}
+                    helperText={touched.startAddress ? (errors.startAddress as string) : undefined}
                   />
                 </Stack>
 
@@ -120,7 +114,7 @@ const SecondRouteDialogStep = ({
                     End Address
                   </Typography>
                   <AddressAutocomplete
-                    value={state.endAddress}
+                    value={values.endAddress}
                     onAddressSelect={({
                       lat,
                       lng,
@@ -130,12 +124,12 @@ const SecondRouteDialogStep = ({
                       lng: number;
                       formattedAddress: string;
                     }) => {
-                      updateStep2({
-                        endLat: lat,
-                        endLng: lng,
-                        endAddress: formattedAddress,
-                      });
+                      setFieldValue("endLat", lat);
+                      setFieldValue("endLng", lng);
+                      setFieldValue("endAddress", formattedAddress);
                     }}
+                    error={touched.endAddress && Boolean(errors.endAddress)}
+                    helperText={touched.endAddress ? (errors.endAddress as string) : undefined}
                   />
                 </Stack>
 
@@ -157,7 +151,7 @@ const SecondRouteDialogStep = ({
                       Distance (km)
                     </Typography>
                     <Typography variant="h6" fontWeight={700} color="white">
-                      {state.distanceKm > 0 ? state.distanceKm : "--"}
+                      {values.distanceKm > 0 ? values.distanceKm.toFixed(1) : "--"}
                     </Typography>
                   </Box>
                   <Box
@@ -177,7 +171,7 @@ const SecondRouteDialogStep = ({
                       Duration (min)
                     </Typography>
                     <Typography variant="h6" fontWeight={700} color="white">
-                      {state.durationMin > 0 ? state.durationMin : "--"}
+                      {values.durationMin > 0 ? values.durationMin : "--"}
                     </Typography>
                   </Box>
                 </Stack>
@@ -230,9 +224,10 @@ const SecondRouteDialogStep = ({
                 <DirectionsMap
                   origin={origin}
                   destination={destination}
-                  onRouteInfoUpdate={(data: Partial<AddRouteStep2>) =>
-                    updateStep2(data)
-                  }
+                  onRouteInfoUpdate={(data: { distanceKm?: number; durationMin?: number }) => {
+                    if (data.distanceKm !== undefined) setFieldValue("distanceKm", data.distanceKm);
+                    if (data.durationMin !== undefined) setFieldValue("durationMin", data.durationMin);
+                  }}
                 />
               </Box>
             </Grid>

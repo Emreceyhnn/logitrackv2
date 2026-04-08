@@ -16,14 +16,17 @@ import {
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useMemo } from "react";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState, ChangeEvent } from "react";
+import { useFormikContext } from "formik";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import {
   AddDriverDocument,
-  AddDriverStep1,
-  AddDriverStep2,
+  DriverFormValues,
   EligibleUser,
 } from "@/app/lib/type/driver";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
@@ -39,27 +42,27 @@ import FlashOnIcon from "@mui/icons-material/FlashOn";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import BadgeIcon from "@mui/icons-material/Badge";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 interface SecondDriverDialogStepProps {
-  state: AddDriverStep2;
-  updateStep2: (data: Partial<AddDriverStep2>) => void;
-  step1Data: AddDriverStep1;
   setStep: (step: number) => void;
   eligibleUsers: EligibleUser[];
 }
 
 const SecondDriverDialogStep = ({
-  state,
-  updateStep2,
-  step1Data,
   setStep,
   eligibleUsers,
 }: SecondDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
+  
   const theme = useTheme();
   const { user } = useUser();
+  const { values, errors, touched, setFieldValue, handleBlur, handleChange } = 
+    useFormikContext<DriverFormValues>();
 
   /* --------------------------------- states --------------------------------- */
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -99,31 +102,26 @@ const SecondDriverDialogStep = ({
           uploadedAt: new Date().toLocaleDateString(),
         };
       });
-      updateStep2({
-        documents: [...state.documents, ...newDocs],
-      });
+      setFieldValue("documents", [...values.documents, ...newDocs]);
     }
   };
 
   const updateDocExpiry = (id: string, date: Dayjs | null) => {
-    updateStep2({
-      documents: state.documents.map((doc) =>
-        doc.id === id ? { ...doc, expiryDate: date ? date.toDate() : null } : doc
-      ),
-    });
+    const updatedDocs = values.documents.map((doc) =>
+      doc.id === id ? { ...doc, expiryDate: date ? date.toDate() : null } : doc
+    );
+    setFieldValue("documents", updatedDocs);
   };
 
   const removeDoc = (id: string) => {
-    const docToRemove = state.documents.find(d => d.id === id);
+    const docToRemove = values.documents.find(d => d.id === id);
     if (docToRemove?.previewUrl) {
       URL.revokeObjectURL(docToRemove.previewUrl);
     }
-    updateStep2({
-      documents: state.documents.filter((doc) => doc.id !== id),
-    });
+    setFieldValue("documents", values.documents.filter((doc) => doc.id !== id));
   };
 
-  const selectedUser = eligibleUsers.find((u) => u.id === step1Data.userId);
+  const selectedUser = eligibleUsers.find((u) => u.id === values.userId);
 
   return (
     <Grid container spacing={3}>
@@ -154,15 +152,16 @@ const SecondDriverDialogStep = ({
                   color="text.secondary"
                   sx={{ mb: 1, display: "block", fontWeight: 500 }}
                 >
-                  Home Base Warehouse
+                  {dict.inventory.fields.warehouse}
                 </Typography>
                 <CustomTextArea
                   name="homeWareHouseId"
-                  placeholder="Select warehouse"
-                  value={state.homeWareHouseId}
-                  onChange={(e) =>
-                    updateStep2({ homeWareHouseId: e.target.value })
-                  }
+                  placeholder={dict.inventory.fields.warehouse}
+                  value={values.homeWareHouseId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.homeWareHouseId && Boolean(errors.homeWareHouseId)}
+                  helperText={touched.homeWareHouseId ? (errors.homeWareHouseId as string) : undefined}
                   select
                 >
                   {warehouses.map((w) => (
@@ -178,18 +177,19 @@ const SecondDriverDialogStep = ({
                   color="text.secondary"
                   sx={{ mb: 1, display: "block", fontWeight: 500 }}
                 >
-                  Current Vehicle Assignment
+                  Vehicle Assignment
                 </Typography>
                 <CustomTextArea
                   name="currentVehicleId"
-                  placeholder="No vehicle assigned (Floating)"
-                  value={state.currentVehicleId}
-                  onChange={(e) =>
-                    updateStep2({ currentVehicleId: e.target.value })
-                  }
+                  placeholder={dict.common.noData}
+                  value={values.currentVehicleId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.currentVehicleId && Boolean(errors.currentVehicleId)}
+                  helperText={touched.currentVehicleId ? (errors.currentVehicleId as string) : undefined}
                   select
                 >
-                  <MenuItem value="">No vehicle assigned (Floating)</MenuItem>
+                  <MenuItem value="">{dict.common.noData}</MenuItem>
                   {vehicles.map((v) => (
                     <MenuItem key={v.id} value={v.id}>
                       {v.plate} ({v.brand} {v.model})
@@ -214,7 +214,7 @@ const SecondDriverDialogStep = ({
                 <FlashOnIcon fontSize="small" />
               </Box>
               <Typography variant="subtitle1" fontWeight={700} color="white">
-                Driver Configuration
+                {dict.common.settings}
               </Typography>
             </Stack>
 
@@ -230,25 +230,25 @@ const SecondDriverDialogStep = ({
               {[
                 {
                   id: "OFF_DUTY",
-                  label: "Off Duty",
+                  label: dict.drivers.offDuty,
                   icon: <PowerSettingsNewIcon />,
                 },
-                { id: "ON_JOB", label: "On Duty", icon: <FlashOnIcon /> },
+                { id: "ON_JOB", label: dict.drivers.onDuty, icon: <FlashOnIcon /> },
               ].map((status) => (
                 <Box
                   key={status.id}
-                  onClick={() => updateStep2({ status: status.id as DriverStatus })}
+                  onClick={() => setFieldValue("status", status.id as DriverStatus)}
                   sx={{
                     flex: 1,
                     p: 2,
                     borderRadius: 3,
                     border: `1px solid ${
-                      state.status === status.id
+                      values.status === status.id
                         ? theme.palette.primary.main
                         : alpha(theme.palette.divider, 0.1)
                     }`,
                     bgcolor:
-                      state.status === status.id
+                      values.status === status.id
                         ? alpha(theme.palette.primary.main, 0.05)
                         : "transparent",
                     cursor: "pointer",
@@ -264,7 +264,7 @@ const SecondDriverDialogStep = ({
                   <Box
                     sx={{
                       color:
-                        state.status === status.id
+                        values.status === status.id
                           ? theme.palette.primary.main
                           : "text.secondary",
                     }}
@@ -275,7 +275,7 @@ const SecondDriverDialogStep = ({
                     variant="body2"
                     fontWeight={600}
                     color={
-                      state.status === status.id ? "white" : "text.secondary"
+                      values.status === status.id ? "white" : "text.secondary"
                     }
                   >
                     {status.label}
@@ -298,9 +298,7 @@ const SecondDriverDialogStep = ({
                 sx={{ color: theme.palette.primary.main, mt: 0.3 }}
               />
               <Typography variant="caption" color="text.secondary">
-                By setting the status to <strong>Off Duty</strong>, the driver
-                will not receive new route assignments until they manually check
-                in via the mobile app.
+                Please review your assignments before saving.
               </Typography>
             </Box>
 
@@ -313,9 +311,9 @@ const SecondDriverDialogStep = ({
                 Hazmat Certified
               </Typography>
               <Switch
-                checked={state.hazmatCertified}
+                checked={values.hazmatCertified}
                 onChange={(e) =>
-                  updateStep2({ hazmatCertified: e.target.checked })
+                  setFieldValue("hazmatCertified", e.target.checked)
                 }
                 color="primary"
               />
@@ -327,20 +325,21 @@ const SecondDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                Language Proficiency (comma separated)
+                Language Proficiency
               </Typography>
               <CustomTextArea
                 name="languages"
-                placeholder="e.g. EN, ES"
-                value={state.languages.join(", ")}
+                placeholder="e.g. EN, TR"
+                value={values.languages.join(", ")}
                 onChange={(e) =>
-                  updateStep2({
-                    languages: e.target.value
+                  setFieldValue("languages", 
+                    e.target.value
                       .split(",")
                       .map((lang) => lang.trim())
-                      .filter(Boolean),
-                  })
+                      .filter(Boolean)
+                  )
                 }
+                onBlur={handleBlur}
               />
             </Stack>
           </Stack>
@@ -359,7 +358,7 @@ const SecondDriverDialogStep = ({
                 <CloudUploadIcon fontSize="small" />
               </Box>
               <Typography variant="subtitle1" fontWeight={700} color="white">
-                Documents & Certification
+                {dict.common.documents}
               </Typography>
             </Stack>
 
@@ -394,7 +393,7 @@ const SecondDriverDialogStep = ({
                 <CloudUploadIcon />
               </Box>
               <Typography variant="body2" fontWeight={600} color="white">
-                Add medical records, training certificates, or other docs
+                {dict.landing.hero.discover}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 PNG, JPG (MAX 10MB)
@@ -403,7 +402,7 @@ const SecondDriverDialogStep = ({
 
             <Stack spacing={1.5}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                {state.documents.map((doc) => (
+                {values.documents.map((doc) => (
                   <Stack
                     key={doc.id}
                     spacing={1.5}
@@ -448,7 +447,7 @@ const SecondDriverDialogStep = ({
                           {doc.name}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {doc.size} • Added {doc.uploadedAt}
+                          {doc.size}
                         </Typography>
                       </Box>
                       <IconButton
@@ -466,7 +465,7 @@ const SecondDriverDialogStep = ({
                         color="text.secondary"
                         sx={{ mb: 1, display: "block", fontWeight: 500 }}
                       >
-                        Expiry Date (Optional)
+                        {dict.common.date}
                       </Typography>
                       <DatePicker
                         value={doc.expiryDate ? dayjs(doc.expiryDate) : null}
@@ -475,7 +474,7 @@ const SecondDriverDialogStep = ({
                           textField: {
                             fullWidth: true,
                             size: "small",
-                            placeholder: "Not set",
+                            placeholder: dict.common.noData,
                             sx: {
                               "& .MuiOutlinedInput-root": {
                                 backgroundColor: alpha(theme.palette.background.paper, 0.1),
@@ -524,7 +523,7 @@ const SecondDriverDialogStep = ({
                 onClick={() => setStep(1)}
                 sx={{ opacity: 0.7, textTransform: "none" }}
               >
-                Edit Info
+                {dict.common.edit}
               </Button>
             </Stack>
 
@@ -551,10 +550,10 @@ const SecondDriverDialogStep = ({
                 <Typography variant="body1" fontWeight={700} color="white">
                   {selectedUser
                     ? `${selectedUser.name} ${selectedUser.surname}`
-                    : "No user selected"}
+                    : dict.common.noData}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {step1Data.licenseType || "No license class set"}
+                  {values.licenseType || dict.common.noData}
                 </Typography>
               </Stack>
             </Stack>
@@ -569,10 +568,10 @@ const SecondDriverDialogStep = ({
                 />
                 <Box>
                   <Typography variant="caption" color="text.secondary">
-                    Phone
+                    {dict.drivers.fields.phoneNumber}
                   </Typography>
                   <Typography variant="body2" color="white">
-                    {step1Data.phone || "Not provided"}
+                    {values.phone || dict.common.noData}
                   </Typography>
                 </Box>
               </Stack>
@@ -583,10 +582,10 @@ const SecondDriverDialogStep = ({
                 />
                 <Box>
                   <Typography variant="caption" color="text.secondary">
-                    Email
+                    {dict.auth.email}
                   </Typography>
                   <Typography variant="body2" color="white" noWrap>
-                    {selectedUser?.email || "No email info"}
+                    {selectedUser?.email || dict.common.noData}
                   </Typography>
                 </Box>
               </Stack>
@@ -597,15 +596,15 @@ const SecondDriverDialogStep = ({
                 />
                 <Box>
                   <Typography variant="caption" color="text.secondary">
-                    License Detail
+                    {dict.drivers.fields.licenseNumber}
                   </Typography>
                   <Typography variant="body2" color="white">
-                    LIC: {step1Data.licenseNo || "N/A"}
+                    LIC: {values.licenseNumber || "N/A"}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     EXP:{" "}
-                    {step1Data.licenseExpiry
-                      ? new Date(step1Data.licenseExpiry).toLocaleDateString()
+                    {values.licenseExpiry
+                      ? new Date(values.licenseExpiry).toLocaleDateString()
                       : "N/A"}
                   </Typography>
                 </Box>
@@ -620,9 +619,9 @@ const SecondDriverDialogStep = ({
                   Language Proficiency
                 </Typography>
                 <Typography variant="caption" color="white" fontWeight={600}>
-                  {state.languages.length > 0
-                    ? state.languages.join(", ")
-                    : "None"}
+                  {values.languages.length > 0
+                    ? values.languages.join(", ")
+                    : dict.common.noData}
                 </Typography>
               </Stack>
               <Stack direction="row" justifyContent="space-between">
@@ -632,11 +631,11 @@ const SecondDriverDialogStep = ({
                 <Typography
                   variant="caption"
                   color={
-                    state.hazmatCertified ? "success.main" : "text.secondary"
+                    values.hazmatCertified ? "success.main" : "text.secondary"
                   }
                   fontWeight={600}
                 >
-                  {state.hazmatCertified ? "YES" : "NO"}
+                  {values.hazmatCertified ? dict.common.success : dict.common.noData}
                 </Typography>
               </Stack>
             </Stack>
@@ -655,16 +654,14 @@ const SecondDriverDialogStep = ({
                 color="text.secondary"
                 sx={{ fontWeight: 600, display: "block", mb: 0.5 }}
               >
-                Next Steps
+                Information
               </Typography>
               <Typography
                 variant="caption"
                 color="text.secondary"
                 sx={{ lineHeight: 1.4, display: "block" }}
               >
-                Upon saving, {selectedUser?.name || "the driver"} will receive
-                an invitation email with login credentials for the FleetManager
-                Mobile app.
+                All data is subject to verification.
               </Typography>
             </Box>
           </Stack>

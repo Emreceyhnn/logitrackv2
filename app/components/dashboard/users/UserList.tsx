@@ -1,57 +1,50 @@
 "use client";
 
-import {
-  IconButton,
-  Chip,
-  Box,
-  alpha,
-  useTheme,
-} from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { UserListProps } from "@/app/lib/type/users";
+import { useMemo, useState } from "react";
+import { Chip, Box } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import { UserListProps, UserWithRelations } from "@/app/lib/type/users";
 import CustomCard from "../../cards/card";
-import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
+import DataTable from "@/app/components/ui/DataTable";
+import type { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTable";
 
 const UserList = ({ users, loading, onSelect }: UserListProps) => {
-  const theme = useTheme();
-  
-  const columns: GridColDef[] = [
+  const [localPage, setLocalPage] = useState(1);
+  const [localLimit, setLocalLimit] = useState(10);
+
+  const paginatedUsers = users.slice(
+    (localPage - 1) * localLimit,
+    localPage * localLimit
+  );
+
+  const meta = {
+    page: localPage,
+    limit: localLimit,
+    total: users.length,
+  };
+
+  const columns: DataTableColumn<UserWithRelations>[] = useMemo(() => [
     {
-      field: "username",
-      headerName: "Username",
-      flex: 1,
-      minWidth: 120,
+      key: "fullName",
+      label: "Full Name",
+      sortable: true,
+      sortKey: "name",
+      render: (row) => `${row.name || ""} ${row.surname || ""}`.trim(),
     },
     {
-      field: "fullName",
-      headerName: "Full Name",
-      flex: 1.5,
-      minWidth: 150,
-      valueGetter: (value, row) =>
-        `${row.name || ""} ${row.surname || ""}`.trim(),
+      key: "email",
+      label: "Email",
+      sortable: true,
+      render: (row) => row.email,
     },
     {
-      field: "email",
-      headerName: "Email",
-      flex: 1.5,
-      minWidth: 180,
-    },
-    {
-      field: "role",
-      headerName: "Role",
-      flex: 1,
-      minWidth: 120,
-      renderCell: (params) => {
-        const roleName = params.row.role?.name || "User";
-        let color:
-          | "default"
-          | "primary"
-          | "secondary"
-          | "error"
-          | "info"
-          | "success"
-          | "warning" = "default";
+      key: "role",
+      label: "Role",
+      sortable: true,
+      sortKey: "roleId",
+      render: (row) => {
+        const roleName = row.role?.name || "User";
+        let color: "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" = "default";
 
         if (roleName.toLowerCase().includes("admin")) color = "error";
         else if (roleName.toLowerCase().includes("manager")) color = "warning";
@@ -68,53 +61,28 @@ const UserList = ({ users, loading, onSelect }: UserListProps) => {
         );
       },
     },
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 80,
-      sortable: false,
-      renderCell: (params) => (
-        <IconButton
-          size="small"
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect(params.row.id);
-          }}
-        >
-          <EditIcon fontSize="small" />
-        </IconButton>
-      ),
-    },
-  ];
+  ], []);
 
-  if (loading) {
-    return <TableSkeleton title="Users List" rows={10} columns={5} />;
-  }
+  const rowActions: DataTableRowAction<UserWithRelations>[] = useMemo(() => [
+    {
+      label: "Edit",
+      icon: <EditIcon fontSize="small" />,
+      onClick: (row) => onSelect(row.id),
+    },
+  ], [onSelect]);
 
   return (
-    <CustomCard sx={{ p: 0, overflow: "hidden", height: 600 }}>
-      <Box sx={{ p: 0, height: "100%" }}>
-        <DataGrid
-          rows={users}
+    <CustomCard sx={{ p: 0, overflow: "hidden" }}>
+      <Box sx={{ p: 0 }}>
+        <DataTable<UserWithRelations>
+          rows={paginatedUsers}
           columns={columns}
-          getRowId={(row) => row.id}
-          sx={{
-            border: "none",
-            "& .MuiDataGrid-columnHeaders": {
-              bgcolor: alpha(theme.palette.primary.main, 0.03),
-            },
-            "& .MuiDataGrid-row:hover": {
-              bgcolor: alpha(theme.palette.primary.main, 0.04),
-              cursor: "pointer",
-            },
-            "& .MuiDataGrid-cell": {
-              borderColor: alpha(theme.palette.divider, 0.1),
-            },
-            "& .MuiDataGrid-columnSeparator": {
-              display: "none",
-            },
-          }}
-          onRowClick={(params) => onSelect(params.row.id)}
+          loading={loading}
+          emptyMessage="No users found."
+          meta={meta}
+          onPageChange={setLocalPage}
+          onLimitChange={(lim) => { setLocalLimit(lim); setLocalPage(1); }}
+          rowActions={rowActions}
         />
       </Box>
     </CustomCard>

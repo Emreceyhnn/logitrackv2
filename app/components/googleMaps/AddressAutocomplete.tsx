@@ -18,6 +18,9 @@ interface AddressAutocompleteProps {
   placeholder?: string;
   name?: string;
   disabled?: boolean;
+  error?: boolean;
+  helperText?: string;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
 
 export const AddressAutocomplete = ({
@@ -27,6 +30,9 @@ export const AddressAutocomplete = ({
   placeholder = "Search for an address...",
   name = "address",
   disabled = false,
+  error = false,
+  helperText,
+  onBlur,
 }: AddressAutocompleteProps) => {
   const [address, setAddress] = useState(value);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -96,6 +102,9 @@ export const AddressAutocomplete = ({
         onChange={handleInputChange}
         placeholder={placeholder}
         disabled={disabled}
+        error={error}
+        helperText={helperText}
+        onBlur={onBlur}
         sx={textFieldStyles}
         variant="outlined"
       />

@@ -1,7 +1,10 @@
 "use server";
 
 import { supabase } from "../supabase";
-import { authenticatedAction, maybeAuthenticatedAction } from "../auth-middleware";
+import {
+  authenticatedAction,
+  maybeAuthenticatedAction,
+} from "../auth-middleware";
 
 type UploadBucket =
   | "vehicles"
@@ -81,7 +84,7 @@ export const uploadImageAction = maybeAuthenticatedAction(
     const buffer = Buffer.from(base64Part, "base64");
 
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    const ext = mimeType.split("/")[1];
+    const ext = mimeType.split("/en")[1];
     const filePath = folder
       ? `${folder}/${fileName}.${ext}`
       : `${fileName}.${ext}`;
@@ -118,8 +121,8 @@ export const getSignedUrlAction = authenticatedAction(
   ): Promise<SignedUrlResult> => {
     validateFileUrl(fileUrl);
 
-    const urlParts = fileUrl.split("/");
-    const path = urlParts.slice(urlParts.indexOf(bucket) + 1).join("/");
+    const urlParts = fileUrl.split("/en");
+    const path = urlParts.slice(urlParts.indexOf(bucket) + 1).join("/en");
 
     if (!path) {
       return { success: true, url: fileUrl, signed: false };

@@ -21,11 +21,31 @@ export const createCompany = authenticatedAction(
 
     // Ensure core roles exist
     const defaultRoles = [
-      { id: "role_admin", name: "Administrator", description: "Full system access" },
-      { id: "role_manager", name: "Manager", description: "Company management access" },
-      { id: "role_dispatcher", name: "Dispatcher", description: "Shipment and route management" },
-      { id: "role_driver", name: "Driver", description: "Limited access for drivers" },
-      { id: "role_warehouse", name: "Warehouse", description: "Warehouse and inventory management" },
+      {
+        id: "role_admin",
+        name: "Administrator",
+        description: "Full system access",
+      },
+      {
+        id: "role_manager",
+        name: "Manager",
+        description: "Company management access",
+      },
+      {
+        id: "role_dispatcher",
+        name: "Dispatcher",
+        description: "Shipment and route management",
+      },
+      {
+        id: "role_driver",
+        name: "Driver",
+        description: "Limited access for drivers",
+      },
+      {
+        id: "role_warehouse",
+        name: "Warehouse",
+        description: "Warehouse and inventory management",
+      },
     ];
 
     for (const r of defaultRoles) {
@@ -56,7 +76,6 @@ export const createCompany = authenticatedAction(
     await revokeSession(user.sessionId);
     await createSession({
       id: user.id,
-      username: updatedUser.email,
       roleId: updatedUser.roleId,
       companyId: newCompany.id,
     });
@@ -403,9 +422,15 @@ export const addCompanyUser = authenticatedAction(
       const standardRoles: Record<string, { name: string; desc: string }> = {
         role_admin: { name: "Administrator", desc: "Full system access" },
         role_manager: { name: "Manager", desc: "Company management access" },
-        role_dispatcher: { name: "Dispatcher", desc: "Shipment and route management" },
+        role_dispatcher: {
+          name: "Dispatcher",
+          desc: "Shipment and route management",
+        },
         role_driver: { name: "Driver", desc: "Limited access for drivers" },
-        role_warehouse: { name: "Warehouse", desc: "Warehouse and inventory management" },
+        role_warehouse: {
+          name: "Warehouse",
+          desc: "Warehouse and inventory management",
+        },
         role_default: { name: "Default", desc: "Standard system access" },
       };
 
@@ -441,7 +466,11 @@ export const addCompanyUser = authenticatedAction(
 );
 
 export const updateCompanyMember = authenticatedAction(
-  async (user, targetUserId: string, data: { name: string; surname: string; roleId: string; status: UserStatus }) => {
+  async (
+    user,
+    targetUserId: string,
+    data: { name: string; surname: string; roleId: string; status: UserStatus }
+  ) => {
     const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
@@ -452,9 +481,15 @@ export const updateCompanyMember = authenticatedAction(
       const standardRoles: Record<string, { name: string; desc: string }> = {
         role_admin: { name: "Administrator", desc: "Full system access" },
         role_manager: { name: "Manager", desc: "Company management access" },
-        role_dispatcher: { name: "Dispatcher", desc: "Shipment and route management" },
+        role_dispatcher: {
+          name: "Dispatcher",
+          desc: "Shipment and route management",
+        },
         role_driver: { name: "Driver", desc: "Limited access for drivers" },
-        role_warehouse: { name: "Warehouse", desc: "Warehouse and inventory management" },
+        role_warehouse: {
+          name: "Warehouse",
+          desc: "Warehouse and inventory management",
+        },
         role_default: { name: "Default", desc: "Standard system access" },
       };
 

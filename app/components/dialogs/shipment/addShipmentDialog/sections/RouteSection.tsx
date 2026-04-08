@@ -11,7 +11,8 @@ import {
   MenuItem,
   Card,
 } from "@mui/material";
-import { AddShipmentRoute } from "@/app/lib/type/add-shipment";
+import { useFormikContext } from "formik";
+import { ShipmentFormValues } from "@/app/lib/type/shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import RouteIcon from "@mui/icons-material/Route";
@@ -19,16 +20,16 @@ import PersonIcon from "@mui/icons-material/Person";
 import EventIcon from "@mui/icons-material/Event";
 
 interface RouteSectionProps {
-  state: AddShipmentRoute;
-  updateRoute: (data: Partial<AddShipmentRoute>) => void;
   routes: RouteWithRelations[];
 }
 
-const RouteSection = ({ state, updateRoute, routes }: RouteSectionProps) => {
+const RouteSection = ({ routes }: RouteSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const { values, setFieldValue, handleBlur, touched, errors } =
+    useFormikContext<ShipmentFormValues>();
 
-  const selectedRoute = routes.find((r) => r.id === state.assignedRouteId);
+  const selectedRoute = routes.find((r) => r.id === values.assignedRouteId);
 
   return (
     <Box>
@@ -81,9 +82,12 @@ const RouteSection = ({ state, updateRoute, routes }: RouteSectionProps) => {
                 name="assignedRouteId"
                 select
                 placeholder="Select route..."
-                value={state.assignedRouteId || ""}
+                value={values.assignedRouteId || ""}
+                onBlur={handleBlur}
+                error={touched.assignedRouteId && Boolean(errors.assignedRouteId)}
+                helperText={touched.assignedRouteId ? (errors.assignedRouteId as string) : undefined}
                 onChange={(e) =>
-                  updateRoute({ assignedRouteId: e.target.value })
+                  setFieldValue("assignedRouteId", e.target.value)
                 }
               >
                 <MenuItem value="">Unassigned</MenuItem>

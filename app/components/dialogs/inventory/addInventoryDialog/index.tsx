@@ -17,6 +17,9 @@ import {
   StepLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useMemo } from "react";
 import { useState } from "react";
 import {
   AddInventoryDialogProps,
@@ -51,6 +54,9 @@ const AddInventoryDialog = ({
 }: AddInventoryDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
 
   /* --------------------------------- states --------------------------------- */
   const [itemDetails, setItemDetails] =
@@ -100,12 +106,12 @@ const AddInventoryDialog = ({
         itemDetails.unitValue || 0
       );
 
-      toast.success("Item added to inventory successfully");
+      toast.success(dict.toasts.successAdd);
       onSuccess?.();
       closeDialog();
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Failed to add inventory item";
+        err instanceof Error ? err.message : dict.common.errorOccurred;
       setError(message);
       setIsLoading(false);
       toast.error(message);
@@ -126,7 +132,11 @@ const AddInventoryDialog = ({
     setTimeout(() => resetForm(), 300);
   };
 
-  const steps = ["Item Details", "Warehouse Info", "Review"];
+  const steps = [
+    dict.vehicles.dialogs.steps.general,
+    dict.vehicles.dialogs.steps.specs,
+    dict.landing.hero.discover
+  ];
 
   return (
     <Dialog
@@ -169,7 +179,7 @@ const AddInventoryDialog = ({
               </Typography>
             </Box>
             <Typography variant="h6" fontWeight={700} color="white">
-              Add Inventory
+              {dict.inventory.addInventory}
             </Typography>
           </Stack>
           <IconButton onClick={closeDialog} sx={{ color: "text.secondary" }}>
@@ -276,7 +286,7 @@ const AddInventoryDialog = ({
             fontWeight: 600,
           }}
         >
-          {currentStep === 1 ? "Cancel" : "Back"}
+          {currentStep === 1 ? dict.common.cancel : dict.common.back}
         </Button>
 
         <Button
@@ -309,12 +319,12 @@ const AddInventoryDialog = ({
           }
         >
           {isLoading
-            ? "Adding..."
+            ? dict.common.save
             : currentStep === 1
-              ? "Next Step →"
+              ? `${dict.common.next} →`
               : currentStep === 2
-                ? "Review Selection →"
-                : "Add to Inventory"}
+                ? `${dict.common.next} →`
+                : dict.common.save}
         </Button>
       </DialogActions>
     </Dialog>

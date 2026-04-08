@@ -14,9 +14,12 @@ interface VehicleCapacityChartProps {
   loading?: boolean;
 }
 
-const VehicleCapacityChart = ({ data, loading = false }: VehicleCapacityChartProps) => {
+const VehicleCapacityChart = ({
+  data,
+  loading = false,
+}: VehicleCapacityChartProps) => {
   if (loading || !data) {
-     return <AnalyticsSkeleton title="Vehicle Max Load Capacity" />;
+    return <AnalyticsSkeleton title="Vehicle Max Load Capacity" height={270} showSubtitle={false} />;
   }
 
   return (

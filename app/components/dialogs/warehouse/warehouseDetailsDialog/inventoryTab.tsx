@@ -57,6 +57,8 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
         items={inventory}
         loading={loading}
         onSelect={(id) => console.log("Selected inventory item:", id)}
+        onEdit={(id) => console.log("Edit inventory item:", id)}
+        onDelete={(id) => console.log("Delete inventory item:", id)}
       />
     </Box>
   );

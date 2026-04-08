@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Typography } from "@mui/material";
 import DataTable from "@/app/components/ui/DataTable";
 import type { DataTableColumn, DataTableFilter, DataTableRowAction } from "@/app/lib/type/dataTable";
@@ -38,6 +38,20 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] =
     useState<ShipmentWithRelations | null>(null);
+
+  /* --------------------------------- pagination fallback --------------------------------- */
+  const [localPage, setLocalPage] = useState(1);
+  const [localLimit, setLocalLimit] = useState(10);
+
+  const meta = useMemo(() => ({
+    page: localPage,
+    limit: localLimit,
+    total: shipments.length,
+  }), [localPage, localLimit, shipments.length]);
+
+  const paginatedShipments = useMemo(() => {
+    return shipments.slice((meta.page - 1) * meta.limit, meta.page * meta.limit);
+  }, [shipments, meta.page, meta.limit]);
 
   /* --------------------------------- handlers --------------------------------- */
   const handleOpenDetails = useCallback(
@@ -143,7 +157,7 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
   return (
     <>
       <DataTable<ShipmentWithRelations>
-        rows={shipments}
+        rows={paginatedShipments}
         columns={columns}
         loading={loading}
         emptyMessage="No shipments found"
@@ -154,6 +168,11 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
         activeFilters={activeFilters}
         onFilterChange={handleFilterChange}
         rowActions={rowActions}
+        meta={meta}
+        onPageChange={setLocalPage}
+        onLimitChange={(lim) => { setLocalLimit(lim); setLocalPage(1); }}
+        wrapCard={true}
+        tableTitle="Shipment List"
       />
 
       <ShipmentDetailDialog

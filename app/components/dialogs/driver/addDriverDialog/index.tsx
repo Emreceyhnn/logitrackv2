@@ -18,32 +18,32 @@ import {
   useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Formik, FormikHelpers } from "formik";
 import {
   AddDriverDialogProps,
-  AddDriverStep1,
-  AddDriverStep2,
+  DriverFormValues,
   EligibleUser,
 } from "@/app/lib/type/driver";
 import { DriverStatus } from "@prisma/client";
 import { toast } from "sonner";
 import { createDriver, getEligibleUsersForDriver } from "@/app/lib/controllers/driver";
 import { uploadImageAction } from "@/app/lib/actions/upload";
+import { addDriverValidationSchema } from "@/app/lib/validationSchema";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useMemo } from "react";
 import FirstDriverDialogStep from "./firstStep";
 import SecondDriverDialogStep from "./secondStep";
-import { useEffect } from "react";
 
-const initialStep1: AddDriverStep1 = {
+const initialValues: DriverFormValues = {
   userId: "",
   phone: "",
   employeeId: "",
-  licenseNo: "",
+  licenseNumber: "",
   licenseExpiry: null,
   licenseType: "",
   licencePhoto: null,
-};
-
-const initialStep2: AddDriverStep2 = {
   homeWareHouseId: "",
   currentVehicleId: "",
   status: "OFF_DUTY",
@@ -58,14 +58,11 @@ const AddDriverDialog = ({
   onSuccess,
 }: AddDriverDialogProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
   const theme = useTheme();
-
-  /* --------------------------------- states --------------------------------- */
-  const [step1, setStep1] = useState<AddDriverStep1>(initialStep1);
-  const [step2, setStep2] = useState<AddDriverStep2>(initialStep2);
   const [currentStep, setCurrentStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [eligibleUsers, setEligibleUsers] = useState<EligibleUser[]>([]);
 
   /* ------------------------------- lifecycles ------------------------------- */
@@ -84,15 +81,13 @@ const AddDriverDialog = ({
   }, [open]);
 
   /* -------------------------------- handlers --------------------------------- */
-  const updateStep1 = (data: Partial<AddDriverStep1>) =>
-    setStep1((prev) => ({ ...prev, ...data }));
-  const updateStep2 = (data: Partial<AddDriverStep2>) =>
-    setStep2((prev) => ({ ...prev, ...data }));
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (
+    values: DriverFormValues,
+    { setSubmitting, setStatus, resetForm }: FormikHelpers<DriverFormValues>
+  ) => {
     try {
-      setIsLoading(true);
-      setError(null);
+      setSubmitting(true);
+      setStatus(null);
 
       const fileToBase64 = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
@@ -105,25 +100,25 @@ const AddDriverDialog = ({
 
       // 1. Upload Licence Photo if exists
       let licensePhotoUrl = "";
-      if (step1.licencePhoto) {
-        const base64 = await fileToBase64(step1.licencePhoto);
+      if (values.licencePhoto) {
+        const base64 = await fileToBase64(values.licencePhoto);
         const uploadResult = await uploadImageAction(
           base64,
           "documents",
-          `drivers/${step1.userId}/license`
+          `drivers/${values.userId}/license`
         );
         licensePhotoUrl = uploadResult.url;
       }
 
       // 2. Upload additional documents if exist
       const uploadedDocs = await Promise.all(
-        step2.documents.map(async (doc) => {
+        values.documents.map(async (doc) => {
           if (doc.file) {
             const base64 = await fileToBase64(doc.file);
             const uploadResult = await uploadImageAction(
               base64,
               "documents",
-              `drivers/${step1.userId}/docs`
+              `drivers/${values.userId}/docs`
             );
             return {
               name: doc.name,
@@ -137,59 +132,51 @@ const AddDriverDialog = ({
       );
 
       const payload = {
-        userId: step1.userId,
-        phone: step1.phone,
-        employeeId: step1.employeeId,
-        licenseNumber: step1.licenseNo,
-        licenseExpiry: step1.licenseExpiry,
-        licenseType: step1.licenseType,
-        status: step2.status as DriverStatus,
-        currentVehicleId: step2.currentVehicleId || null,
-        homeBaseWarehouseId: step2.homeWareHouseId || null,
-        languages: step2.languages,
-        hazmatCertified: step2.hazmatCertified,
+        userId: values.userId,
+        phone: values.phone,
+        employeeId: values.employeeId,
+        licenseNumber: values.licenseNumber,
+        licenseExpiry: values.licenseExpiry,
+        licenseType: values.licenseType,
+        status: values.status as DriverStatus,
+        currentVehicleId: values.currentVehicleId || null,
+        homeBaseWarehouseId: values.homeWareHouseId || null,
+        languages: values.languages,
+        hazmatCertified: values.hazmatCertified,
         licensePhotoUrl,
-        documents: (uploadedDocs.filter((d) => d !== null) as { name: string; type: string; url: string; expiryDate?: Date }[]),
+        documents: (uploadedDocs.filter((d) => d !== null) as {
+          name: string;
+          type: string;
+          url: string;
+          expiryDate?: Date;
+        }[]),
       };
 
       await createDriver(payload);
 
-      toast.success("Driver added successfully");
+      toast.success(dict.common.saveSuccess || "Driver added successfully");
 
       setTimeout(() => {
         onClose();
         onSuccess?.();
         resetForm();
+        setCurrentStep(1);
       }, 1500);
     } catch (err: unknown) {
       const message = (err as Error).message || "Failed to create driver";
-      setError(message);
+      setStatus(message);
       toast.error(message);
     } finally {
-      setIsLoading(false);
+      setSubmitting(false);
     }
   };
 
-  const resetForm = () => {
-    setStep1(initialStep1);
-    setStep2(initialStep2);
-    setCurrentStep(1);
-    setIsLoading(false);
-    setError(null);
-  };
-
-  const closeDialog = () => {
-    if (!isLoading) {
-      onClose();
-    }
-  };
-
-  const steps = ["DRIVER CREDENTIALS", "ASSIGNMENT & SETTINGS"];
+  const steps = [dict.drivers.fields.firstName + " & " + dict.drivers.fields.lastName, dict.common.settings];
 
   return (
     <Dialog
       open={open}
-      onClose={closeDialog}
+      onClose={() => !onSuccess && onClose()}
       maxWidth="md"
       fullWidth
       PaperProps={{
@@ -201,134 +188,182 @@ const AddDriverDialog = ({
         },
       }}
     >
-      <Box sx={{ p: 3, pb: 0 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Stack spacing={0.5}>
-            <Typography variant="h6" fontWeight={600} color="white">
-              Add New Driver
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Onboard a new operator to your fleet management system
-            </Typography>
-          </Stack>
-          <IconButton
-            onClick={closeDialog}
-            size="small"
-            sx={{ color: "text.secondary" }}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Stack>
-      </Box>
-      <DialogContent>
-        <Box sx={{ mb: 4, px: 2 }}>
-          <Stepper
-            activeStep={currentStep - 1}
-            sx={{
-              "& .MuiStepConnector-line": {
-                borderColor: alpha(theme.palette.divider, 0.1),
-              },
-            }}
-          >
-            {steps.map((label, index) => (
-              <Step key={label}>
-                <StepLabel
-                  StepIconProps={{
-                    sx: {
-                      "&.Mui-active": { color: theme.palette.primary.main },
-                      "&.Mui-completed": { color: theme.palette.primary.main },
-                    },
+      <Formik
+        initialValues={initialValues}
+        validationSchema={addDriverValidationSchema}
+        onSubmit={handleSubmit}
+        validateOnMount
+      >
+        {({
+          handleSubmit: formikSubmit,
+          isSubmitting,
+          status,
+          validateForm,
+          setFieldTouched,
+        }) => {
+          const handleNext = async () => {
+            const errors = await validateForm();
+            // Fields to check for Step 1
+            const step1Fields = [
+              "userId",
+              "phone",
+              "employeeId",
+              "licenseNumber",
+              "licenseType",
+              "licenseExpiry",
+            ];
+            
+            const hasStep1Errors = step1Fields.some(
+              (field) => !!(errors as Record<string, string>)[field]
+            );
+
+            if (hasStep1Errors) {
+              step1Fields.forEach((field) => setFieldTouched(field, true));
+              toast.error(dict.common.errorOccurred || "Please fill in all required fields correctly");
+              return;
+            }
+            setCurrentStep(2);
+          };
+
+          return (
+            <>
+              <Box sx={{ p: 3, pb: 0 }}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Stack spacing={0.5}>
+                    <Typography variant="h6" fontWeight={600} color="white">
+                      {dict.drivers.dialogs.addTitle}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {dict.drivers.subtitle}
+                    </Typography>
+                  </Stack>
+                  <IconButton
+                    onClick={() => onClose()}
+                    size="small"
+                    sx={{ color: "text.secondary" }}
+                    disabled={isSubmitting}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              </Box>
+              <DialogContent>
+                <Box sx={{ mb: 4, px: 2 }}>
+                  <Stepper
+                    activeStep={currentStep - 1}
+                    sx={{
+                      "& .MuiStepConnector-line": {
+                        borderColor: alpha(theme.palette.divider, 0.1),
+                      },
+                    }}
+                  >
+                    {steps.map((label, index) => (
+                      <Step key={label}>
+                        <StepLabel
+                          StepIconProps={{
+                            sx: {
+                              "&.Mui-active": { color: theme.palette.primary.main },
+                              "&.Mui-completed": {
+                                color: theme.palette.primary.main,
+                              },
+                            },
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            fontWeight={600}
+                            color={
+                              currentStep - 1 >= index
+                                ? "text.primary"
+                                : "text.secondary"
+                            }
+                          >
+                            {label}
+                          </Typography>
+                        </StepLabel>
+                      </Step>
+                    ))}
+                  </Stepper>
+                </Box>
+                <Divider
+                  sx={{ mb: 4, borderColor: alpha(theme.palette.divider, 0.05) }}
+                />
+
+                <Box sx={{ minHeight: 400 }}>
+                  {status && (
+                    <Box
+                      mb={3}
+                      p={2}
+                      sx={{
+                        bgcolor: alpha(theme.palette.error.main, 0.1),
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Typography variant="caption" color="error">
+                        {status}
+                      </Typography>
+                    </Box>
+                  )}
+                  {currentStep === 1 && (
+                    <FirstDriverDialogStep eligibleUsers={eligibleUsers} />
+                  )}
+                  {currentStep === 2 && (
+                    <SecondDriverDialogStep
+                      eligibleUsers={eligibleUsers}
+                      setStep={setCurrentStep}
+                    />
+                  )}
+                </Box>
+              </DialogContent>
+              <DialogActions sx={{ p: 3, pt: 0, justifyContent: "space-between" }}>
+                <Button
+                  onClick={
+                    currentStep === 1 ? () => onClose() : () => setCurrentStep(1)
+                  }
+                  disabled={isSubmitting}
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { bgcolor: alpha(theme.palette.divider, 0.05) },
                   }}
                 >
-                  <Typography
-                    variant="caption"
-                    fontWeight={600}
-                    color={
-                      currentStep - 1 >= index
-                        ? "text.primary"
-                        : "text.secondary"
-                    }
-                  >
-                    {label}
-                  </Typography>
-                </StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        </Box>
-        <Divider
-          sx={{ mb: 4, borderColor: alpha(theme.palette.divider, 0.05) }}
-        />
-
-        <Box sx={{ minHeight: 400 }}>
-          {error && (
-            <Box
-              mb={3}
-              p={2}
-              sx={{
-                bgcolor: alpha(theme.palette.error.main, 0.1),
-                borderRadius: 2,
-              }}
-            >
-              <Typography variant="caption" color="error">
-                {error}
-              </Typography>
-            </Box>
-          )}
-          {currentStep === 1 && (
-            <FirstDriverDialogStep state={step1} updateStep1={updateStep1} eligibleUsers={eligibleUsers} />
-          )}
-          {currentStep === 2 && (
-            <SecondDriverDialogStep
-              state={step2}
-              updateStep2={updateStep2}
-              step1Data={step1}
-              setStep={setCurrentStep}
-              eligibleUsers={eligibleUsers}
-            />
-          )}
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ p: 3, pt: 0, justifyContent: "space-between" }}>
-        <Button
-          onClick={currentStep === 1 ? closeDialog : () => setCurrentStep(1)}
-          disabled={isLoading}
-          sx={{
-            color: "text.secondary",
-            "&:hover": { bgcolor: alpha(theme.palette.divider, 0.05) },
-          }}
-        >
-          {currentStep === 1 ? "Cancel" : "Back to Credentials"}
-        </Button>
-        <Button
-          variant="contained"
-          onClick={currentStep === 1 ? () => setCurrentStep(2) : handleSubmit}
-          disabled={
-            isLoading ||
-            (currentStep === 1 &&
-              (!step1.userId || !step1.phone))
-          }
-          startIcon={
-            isLoading && <CircularProgress size={16} color="inherit" />
-          }
-          sx={{
-            borderRadius: 2,
-            px: 4,
-            fontWeight: 600,
-            boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
-          }}
-        >
-          {isLoading
-            ? "Saving..."
-            : currentStep === 1
-              ? "Next: Assignment"
-              : "Complete Onboarding"}
-        </Button>
-      </DialogActions>
+                  {currentStep === 1 ? dict.common.cancel : dict.common.back}
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={
+                    currentStep === 1 ? handleNext : () => formikSubmit()
+                  }
+                  disabled={isSubmitting}
+                  startIcon={
+                    isSubmitting && (
+                      <CircularProgress size={16} color="inherit" />
+                    )
+                  }
+                  sx={{
+                    borderRadius: 2,
+                    px: 4,
+                    fontWeight: 600,
+                    boxShadow: `0 8px 16px ${alpha(
+                      theme.palette.primary.main,
+                      0.2
+                    )}`,
+                  }}
+                >
+                  {isSubmitting
+                    ? (dict.common.saving || "Saving...")
+                    : currentStep === 1
+                    ? (dict.common.next || "Next")
+                    : (dict.common.save || "Save")}
+                </Button>
+              </DialogActions>
+            </>
+          );
+        }}
+      </Formik>
     </Dialog>
   );
 };

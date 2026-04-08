@@ -9,9 +9,11 @@ import {
   useTheme,
   MenuItem,
 } from "@mui/material";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useMemo, useState, useEffect } from "react";
 import { AddInventoryStorageLevels } from "@/app/lib/type/add-inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
-import { useState, useEffect } from "react";
 import { Warehouse } from "@prisma/client";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/lib/hooks/useUser";
@@ -27,6 +29,9 @@ const StorageLevelsSection = ({
   updateStorageLevels,
 }: StorageLevelsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
   const theme = useTheme();
   const { user } = useUser();
 
@@ -96,7 +101,7 @@ const StorageLevelsSection = ({
                 }
               >
                 <MenuItem value="" disabled>
-                  Select a facility...
+                  {dict.common.noData}
                 </MenuItem>
                 {warehouses.map((w) => (
                   <MenuItem key={w.id} value={w.id}>

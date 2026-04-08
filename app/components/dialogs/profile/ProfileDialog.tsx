@@ -12,14 +12,18 @@ import {
   alpha,
   CircularProgress,
 } from "@mui/material";
-import {
-  Person as PersonIcon,
-  Lock as LockIcon,
-} from "@mui/icons-material";
+import { Person as PersonIcon, Lock as LockIcon } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import CustomToast from "@/app/components/toast";
-import { getMyProfile, updateMyProfile, changeMyPassword } from "@/app/lib/actions/profile";
-import type { ProfilePageState, ProfilePageActions } from "@/app/lib/type/profile";
+
+import {
+  getMyProfile,
+  updateMyProfile,
+  changeMyPassword,
+} from "@/app/lib/actions/profile";
+import type {
+  ProfilePageState,
+  ProfilePageActions,
+} from "@/app/lib/type/profile";
 
 // Extracted Components
 import ProfileHeader from "./components/ProfileHeader";
@@ -40,17 +44,32 @@ export default function ProfileDialog({ open, onClose }: Props) {
     isLoading: true,
     isSaving: false,
     error: null,
-    profileForm: { name: "", surname: "", email: "", username: "", avatarUrl: null },
+    profileForm: {
+      name: "",
+      surname: "",
+      email: "",
+
+      avatarUrl: null,
+    },
     passwordForm: { currentPassword: "", newPassword: "", confirmPassword: "" },
   });
 
-  const [toast, setToast] = useState<{ open: boolean; type: "success" | "error"; message: string }>({
-    open: false, type: "success", message: "",
+  const [toast, setToast] = useState<{
+    open: boolean;
+    type: "success" | "error";
+    message: string;
+  }>({
+    open: false,
+    type: "success",
+    message: "",
   });
 
-  const showToast = useCallback((type: "success" | "error", message: string) => {
-    setToast({ open: true, type, message });
-  }, []);
+  const showToast = useCallback(
+    (type: "success" | "error", message: string) => {
+      setToast({ open: true, type, message });
+    },
+    []
+  );
 
   const loadProfile = useCallback(async () => {
     setState((s) => ({ ...s, isLoading: true }));
@@ -58,15 +77,26 @@ export default function ProfileDialog({ open, onClose }: Props) {
       const p = await getMyProfile();
       setState((s) => ({
         ...s,
-        user: { ...p, lastLoginAt: p.lastLoginAt?.toISOString() ?? null, createdAt: p.createdAt.toISOString() },
+        user: {
+          ...p,
+          lastLoginAt: p.lastLoginAt?.toISOString() ?? null,
+          createdAt: p.createdAt.toISOString(),
+        },
         profileForm: {
-          name: p.name, surname: p.surname, email: p.email,
-          username: p.username ?? "", avatarUrl: p.avatarUrl,
+          name: p.name,
+          surname: p.surname,
+          email: p.email,
+
+          avatarUrl: p.avatarUrl,
         },
         isLoading: false,
       }));
     } catch {
-      setState((s) => ({ ...s, isLoading: false, error: "Failed to load database Profile." }));
+      setState((s) => ({
+        ...s,
+        isLoading: false,
+        error: "Failed to load database Profile.",
+      }));
     }
   }, []);
 
@@ -75,22 +105,39 @@ export default function ProfileDialog({ open, onClose }: Props) {
   }, [open, loadProfile]);
 
   const actions: ProfilePageActions = {
-    setActiveTab: useCallback((tab) => setState((s) => ({ ...s, activeTab: tab })), []),
-    updateProfileForm: useCallback((data) => setState((s) => ({ ...s, profileForm: { ...s.profileForm, ...data } })), []),
-    updatePasswordForm: useCallback((data) => setState((s) => ({ ...s, passwordForm: { ...s.passwordForm, ...data } })), []),
+    setActiveTab: useCallback(
+      (tab) => setState((s) => ({ ...s, activeTab: tab })),
+      []
+    ),
+    updateProfileForm: useCallback(
+      (data) =>
+        setState((s) => ({ ...s, profileForm: { ...s.profileForm, ...data } })),
+      []
+    ),
+    updatePasswordForm: useCallback(
+      (data) =>
+        setState((s) => ({
+          ...s,
+          passwordForm: { ...s.passwordForm, ...data },
+        })),
+      []
+    ),
     saveProfile: useCallback(async () => {
       setState((s) => ({ ...s, isSaving: true }));
       try {
         const r = await updateMyProfile({
           name: state.profileForm.name,
           surname: state.profileForm.surname,
-          username: state.profileForm.username,
+
           avatarUrl: state.profileForm.avatarUrl,
         });
         if ("error" in r) showToast("error", String(r.error));
         else showToast("success", "Profile synchronized successfully.");
-      } catch { showToast("error", "Network synchronization error."); }
-      finally { setState((s) => ({ ...s, isSaving: false })); }
+      } catch {
+        showToast("error", "Network synchronization error.");
+      } finally {
+        setState((s) => ({ ...s, isSaving: false }));
+      }
     }, [state.profileForm, showToast]),
     changePassword: useCallback(async () => {
       setState((s) => ({ ...s, isSaving: true }));
@@ -102,10 +149,20 @@ export default function ProfileDialog({ open, onClose }: Props) {
         if ("error" in r) showToast("error", String(r.error));
         else {
           showToast("success", "Credentials updated!");
-          setState((s) => ({ ...s, passwordForm: { currentPassword: "", newPassword: "", confirmPassword: "" } }));
+          setState((s) => ({
+            ...s,
+            passwordForm: {
+              currentPassword: "",
+              newPassword: "",
+              confirmPassword: "",
+            },
+          }));
         }
-      } catch { showToast("error", "Verification failure."); }
-      finally { setState((s) => ({ ...s, isSaving: false })); }
+      } catch {
+        showToast("error", "Verification failure.");
+      } finally {
+        setState((s) => ({ ...s, isSaving: false }));
+      }
     }, [state.passwordForm, showToast]),
     refresh: loadProfile,
   };
@@ -117,13 +174,6 @@ export default function ProfileDialog({ open, onClose }: Props) {
 
   return (
     <>
-      <CustomToast 
-        open={toast.open} 
-        type={toast.type} 
-        message={toast.message} 
-        onClose={() => setToast((t) => ({ ...t, open: false }))} 
-      />
-
       <Dialog
         open={open}
         onClose={onClose}
@@ -157,13 +207,13 @@ export default function ProfileDialog({ open, onClose }: Props) {
                 gap: 1,
                 transition: "all 0.2s",
                 "&.Mui-selected": { color: "white" },
-                "&:hover": { color: alpha("#fff", 0.6) }
+                "&:hover": { color: alpha("#fff", 0.6) },
               },
               "& .MuiTabs-indicator": {
                 bgcolor: theme.palette.primary.main,
                 borderRadius: "3px 3px 0 0",
                 height: 3,
-                boxShadow: `0 0 12px ${alpha(theme.palette.primary.main, 0.5)}`
+                boxShadow: `0 0 12px ${alpha(theme.palette.primary.main, 0.5)}`,
               },
             }}
           >
@@ -176,9 +226,29 @@ export default function ProfileDialog({ open, onClose }: Props) {
 
         <DialogContent sx={{ px: 3, pt: 3.5, pb: 4, minHeight: 420 }}>
           {state.isLoading ? (
-            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" py={10} gap={2}>
-              <CircularProgress size={40} thickness={4.5} sx={{ color: theme.palette.primary.main }} />
-              <Box sx={{ color: alpha("#fff", 0.3), fontWeight: 600, fontSize: "0.8rem", letterSpacing: 1 }}>SYNCHRONIZING...</Box>
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              py={10}
+              gap={2}
+            >
+              <CircularProgress
+                size={40}
+                thickness={4.5}
+                sx={{ color: theme.palette.primary.main }}
+              />
+              <Box
+                sx={{
+                  color: alpha("#fff", 0.3),
+                  fontWeight: 600,
+                  fontSize: "0.8rem",
+                  letterSpacing: 1,
+                }}
+              >
+                SYNCHRONIZING...
+              </Box>
             </Box>
           ) : (
             <AnimatePresence mode="wait">
@@ -187,13 +257,17 @@ export default function ProfileDialog({ open, onClose }: Props) {
                 initial={{ opacity: 0, y: 10, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                transition={{ 
-                    duration: 0.25,
-                    ease: "easeOut"
+                transition={{
+                  duration: 0.25,
+                  ease: "easeOut",
                 }}
               >
-                {state.activeTab === 0 && <ProfileTab state={state} actions={actions} />}
-                {state.activeTab === 1 && <SecurityTab state={state} actions={actions} />}
+                {state.activeTab === 0 && (
+                  <ProfileTab state={state} actions={actions} />
+                )}
+                {state.activeTab === 1 && (
+                  <SecurityTab state={state} actions={actions} />
+                )}
               </motion.div>
             </AnimatePresence>
           )}

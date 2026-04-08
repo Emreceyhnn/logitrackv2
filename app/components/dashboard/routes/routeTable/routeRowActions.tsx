@@ -19,7 +19,6 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { useState, useCallback } from "react";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
 import { RouteStatus } from "@prisma/client";
-import CustomToast from "@/app/components/toast";
 
 interface RouteRowActionsProps {
   id: string;
@@ -68,7 +67,8 @@ const RouteRowActions = ({
       showToast("success", `Route updated to ${newStatus}`);
       onRefresh?.();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to update route";
+      const message =
+        error instanceof Error ? error.message : "Failed to update route";
       showToast("error", message);
     } finally {
       setLoading(false);
@@ -77,14 +77,8 @@ const RouteRowActions = ({
 
   return (
     <>
-      <CustomToast
-        open={toastState.open}
-        type={toastState.type}
-        message={toastState.message}
-        onClose={() => setToastState((t) => ({ ...t, open: false }))}
-      />
-      <IconButton 
-        size="small" 
+      <IconButton
+        size="small"
         onClick={(e) => setAnchorEl(e.currentTarget)}
         disabled={loading}
       >
@@ -119,9 +113,14 @@ const RouteRowActions = ({
           sx={{ py: 1.5 }}
         >
           <ListItemIcon>
-            <ContentPasteIcon fontSize="small" sx={{ color: "text.secondary" }} />
+            <ContentPasteIcon
+              fontSize="small"
+              sx={{ color: "text.secondary" }}
+            />
           </ListItemIcon>
-          <ListItemText primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}>
+          <ListItemText
+            primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}
+          >
             Details
           </ListItemText>
         </MenuItem>
@@ -129,16 +128,18 @@ const RouteRowActions = ({
         {status === "PLANNED" && (
           <MenuItem
             onClick={() => handleStatusChange("ACTIVE")}
-            sx={{ 
+            sx={{
               py: 1.5,
               color: theme.palette.success.main,
-              "&:hover": { bgcolor: alpha(theme.palette.success.main, 0.1) }
+              "&:hover": { bgcolor: alpha(theme.palette.success.main, 0.1) },
             }}
           >
             <ListItemIcon>
               <PlayArrowIcon fontSize="small" sx={{ color: "inherit" }} />
             </ListItemIcon>
-            <ListItemText primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}>
+            <ListItemText
+              primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
+            >
               Activate Route
             </ListItemText>
           </MenuItem>
@@ -147,16 +148,18 @@ const RouteRowActions = ({
         {status === "ACTIVE" && (
           <MenuItem
             onClick={() => handleStatusChange("COMPLETED")}
-            sx={{ 
+            sx={{
               py: 1.5,
               color: theme.palette.primary.main,
-              "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) }
+              "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) },
             }}
           >
             <ListItemIcon>
               <CheckCircleIcon fontSize="small" sx={{ color: "inherit" }} />
             </ListItemIcon>
-            <ListItemText primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}>
+            <ListItemText
+              primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
+            >
               Complete Route
             </ListItemText>
           </MenuItem>
@@ -173,7 +176,9 @@ const RouteRowActions = ({
             <ListItemIcon>
               <EditIcon fontSize="small" sx={{ color: "text.secondary" }} />
             </ListItemIcon>
-            <ListItemText primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}>
+            <ListItemText
+              primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}
+            >
               Edit
             </ListItemText>
           </MenuItem>
@@ -185,16 +190,18 @@ const RouteRowActions = ({
               setAnchorEl(null);
               handleDelete(id);
             }}
-            sx={{ 
+            sx={{
               py: 1.5,
               color: theme.palette.error.main,
-              "&:hover": { bgcolor: alpha(theme.palette.error.main, 0.1) }
+              "&:hover": { bgcolor: alpha(theme.palette.error.main, 0.1) },
             }}
           >
             <ListItemIcon>
               <DeleteIcon fontSize="small" sx={{ color: "inherit" }} />
             </ListItemIcon>
-            <ListItemText primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}>
+            <ListItemText
+              primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}
+            >
               Delete
             </ListItemText>
           </MenuItem>

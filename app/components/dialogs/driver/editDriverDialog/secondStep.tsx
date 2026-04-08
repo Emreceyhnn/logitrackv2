@@ -19,18 +19,18 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState, ChangeEvent } from "react";
+import { useFormikContext } from "formik";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import {
-  EditDriverPageActions,
-  EditDriverStep1,
-  EditDriverStep2,
-  DriverWithRelations,
+  AddDriverDocument,
+  EditDriverFormValues,
 } from "@/app/lib/type/driver";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { Warehouse, DriverStatus } from "@prisma/client";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
+import { DriverWithRelations } from "@/app/lib/type/driver";
 
 import WarehouseIcon from "@mui/icons-material/HomeRepairService";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -40,24 +40,21 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import BadgeIcon from "@mui/icons-material/Badge";
-import HotelIcon from "@mui/icons-material/Hotel";
 
 interface SecondEditDriverDialogStepProps {
-  state: EditDriverStep2;
-  actions: EditDriverPageActions;
-  step1Data: EditDriverStep1;
-  driver: DriverWithRelations | null;
+  setStep: (step: number) => void;
+  driver: DriverWithRelations;
 }
 
 const SecondEditDriverDialogStep = ({
-  state,
-  actions,
-  step1Data,
+  setStep,
   driver,
 }: SecondEditDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
+  const { values, errors, touched, setFieldValue, handleBlur, handleChange } = 
+    useFormikContext<EditDriverFormValues>();
 
   /* --------------------------------- states --------------------------------- */
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -84,10 +81,10 @@ const SecondEditDriverDialogStep = ({
   /* -------------------------------- handlers -------------------------------- */
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newDocs = Array.from(e.target.files).map((file: File) => {
+      const newDocs: AddDriverDocument[] = Array.from(e.target.files).map((file: File) => {
         const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
         return {
-          id: Math.random().toString(36).substr(2, 9),
+          id: crypto.randomUUID(),
           name: file.name,
           type: "OTHER",
           expiryDate: null,
@@ -97,28 +94,23 @@ const SecondEditDriverDialogStep = ({
           uploadedAt: new Date().toLocaleDateString(),
         };
       });
-      actions.updateStep2({
-        documents: [...state.documents, ...newDocs],
-      });
+      setFieldValue("documents", [...values.documents, ...newDocs]);
     }
   };
 
   const updateDocExpiry = (id: string, date: Dayjs | null) => {
-    actions.updateStep2({
-      documents: state.documents.map((doc) =>
-        doc.id === id ? { ...doc, expiryDate: date ? date.toDate() : null } : doc
-      ),
-    });
+    const updatedDocs = values.documents.map((doc) =>
+      doc.id === id ? { ...doc, expiryDate: date ? date.toDate() : null } : doc
+    );
+    setFieldValue("documents", updatedDocs);
   };
 
   const removeDoc = (id: string) => {
-    const docToRemove = state.documents.find(d => d.id === id);
+    const docToRemove = values.documents.find(d => d.id === id);
     if (docToRemove?.previewUrl) {
       URL.revokeObjectURL(docToRemove.previewUrl);
     }
-    actions.updateStep2({
-      documents: state.documents.filter((doc) => doc.id !== id),
-    });
+    setFieldValue("documents", values.documents.filter((doc) => doc.id !== id));
   };
 
   return (
@@ -155,12 +147,12 @@ const SecondEditDriverDialogStep = ({
                 <CustomTextArea
                   name="homeWareHouseId"
                   placeholder="Select warehouse"
-                  value={state.homeWareHouseId}
-                  onChange={(e) =>
-                    actions.updateStep2({ homeWareHouseId: e.target.value })
-                  }
+                  value={values.homeWareHouseId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.homeWareHouseId && Boolean(errors.homeWareHouseId)}
+                  helperText={touched.homeWareHouseId ? (errors.homeWareHouseId as string) : undefined}
                   select
-                  disabled // Editing driver warehouse assignment not currently supported in updateDriver api
                 >
                   {warehouses.map((w) => (
                     <MenuItem key={w.id} value={w.id}>
@@ -180,12 +172,12 @@ const SecondEditDriverDialogStep = ({
                 <CustomTextArea
                   name="currentVehicleId"
                   placeholder="No vehicle assigned (Floating)"
-                  value={state.currentVehicleId}
-                  onChange={(e) =>
-                    actions.updateStep2({ currentVehicleId: e.target.value })
-                  }
+                  value={values.currentVehicleId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.currentVehicleId && Boolean(errors.currentVehicleId)}
+                  helperText={touched.currentVehicleId ? (errors.currentVehicleId as string) : undefined}
                   select
-                  disabled // Editing vehicle assignment should be done via vehicle assignment actions
                 >
                   <MenuItem value="">No vehicle assigned (Floating)</MenuItem>
                   {vehicles.map((v) => (
@@ -193,16 +185,6 @@ const SecondEditDriverDialogStep = ({
                       {v.plate} ({v.brand} {v.model})
                     </MenuItem>
                   ))}
-                  {driver?.currentVehicle &&
-                    !vehicles.find(
-                      (v) => v.id === driver.currentVehicle?.id
-                    ) && (
-                      <MenuItem value={driver.currentVehicle.id}>
-                        {driver.currentVehicle.plate} (
-                        {driver.currentVehicle.brand}{" "}
-                        {driver.currentVehicle.model})
-                      </MenuItem>
-                    )}
                 </CustomTextArea>
               </Grid>
             </Grid>
@@ -231,7 +213,7 @@ const SecondEditDriverDialogStep = ({
               color="text.secondary"
               sx={{ mb: 1, display: "block", fontWeight: 500 }}
             >
-              Operational Status
+              Current Operational Status
             </Typography>
 
             <Stack direction="row" spacing={2}>
@@ -242,29 +224,27 @@ const SecondEditDriverDialogStep = ({
                   icon: <PowerSettingsNewIcon />,
                 },
                 { id: "ON_JOB", label: "On Duty", icon: <FlashOnIcon /> },
-                { id: "ON_LEAVE", label: "On Leave", icon: <HotelIcon /> },
               ].map((status) => (
                 <Box
                   key={status.id}
-                  onClick={() => actions.updateStep2({ status: status.id as DriverStatus })}
+                  onClick={() => setFieldValue("status", status.id as DriverStatus)}
                   sx={{
                     flex: 1,
                     p: 2,
                     borderRadius: 3,
                     border: `1px solid ${
-                      state.status === status.id
+                      values.status === status.id
                         ? theme.palette.primary.main
                         : alpha(theme.palette.divider, 0.1)
                     }`,
                     bgcolor:
-                      state.status === status.id
+                      values.status === status.id
                         ? alpha(theme.palette.primary.main, 0.05)
                         : "transparent",
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
-                    gap: 1.5,
-                    px: 1,
+                    gap: 2,
                     transition: "all 0.2s ease",
                     "&:hover": {
                       borderColor: theme.palette.primary.main,
@@ -274,7 +254,7 @@ const SecondEditDriverDialogStep = ({
                   <Box
                     sx={{
                       color:
-                        state.status === status.id
+                        values.status === status.id
                           ? theme.palette.primary.main
                           : "text.secondary",
                     }}
@@ -285,7 +265,7 @@ const SecondEditDriverDialogStep = ({
                     variant="body2"
                     fontWeight={600}
                     color={
-                      state.status === status.id ? "white" : "text.secondary"
+                      values.status === status.id ? "white" : "text.secondary"
                     }
                   >
                     {status.label}
@@ -294,12 +274,7 @@ const SecondEditDriverDialogStep = ({
               ))}
             </Stack>
 
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              sx={{ pt: 1 }}
-            >
+            <Stack direction="row" spacing={2} alignItems="center">
               <Typography
                 variant="body2"
                 fontWeight={500}
@@ -308,9 +283,9 @@ const SecondEditDriverDialogStep = ({
                 Hazmat Certified
               </Typography>
               <Switch
-                checked={state.hazmatCertified}
+                checked={values.hazmatCertified}
                 onChange={(e) =>
-                  actions.updateStep2({ hazmatCertified: e.target.checked })
+                  setFieldValue("hazmatCertified", e.target.checked)
                 }
                 color="primary"
               />
@@ -327,15 +302,16 @@ const SecondEditDriverDialogStep = ({
               <CustomTextArea
                 name="languages"
                 placeholder="e.g. EN, ES"
-                value={state.languages ? state.languages.join(", ") : ""}
+                value={values.languages.join(", ")}
                 onChange={(e) =>
-                  actions.updateStep2({
-                    languages: e.target.value
+                  setFieldValue("languages", 
+                    e.target.value
                       .split(",")
                       .map((lang) => lang.trim())
-                      .filter(Boolean),
-                  })
+                      .filter(Boolean)
+                  )
                 }
+                onBlur={handleBlur}
               />
             </Stack>
           </Stack>
@@ -354,7 +330,7 @@ const SecondEditDriverDialogStep = ({
                 <CloudUploadIcon fontSize="small" />
               </Box>
               <Typography variant="subtitle1" fontWeight={700} color="white">
-                Documents & Certification
+                New Documents & Certification
               </Typography>
             </Stack>
 
@@ -389,7 +365,7 @@ const SecondEditDriverDialogStep = ({
                 <CloudUploadIcon />
               </Box>
               <Typography variant="body2" fontWeight={600} color="white">
-                Add medical records, training certificates, or other docs
+                Upload updated certificates or new records
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 PNG, JPG (MAX 10MB)
@@ -398,7 +374,7 @@ const SecondEditDriverDialogStep = ({
 
             <Stack spacing={1.5}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                {state.documents.map((doc) => (
+                {values.documents.map((doc) => (
                   <Stack
                     key={doc.id}
                     spacing={1.5}
@@ -516,7 +492,7 @@ const SecondEditDriverDialogStep = ({
               </Typography>
               <Button
                 size="small"
-                onClick={() => actions.setStep(1)}
+                onClick={() => setStep(1)}
                 sx={{ opacity: 0.7, textTransform: "none" }}
               >
                 Edit Info
@@ -538,18 +514,14 @@ const SecondEditDriverDialogStep = ({
                   fontWeight: 800,
                 }}
               >
-                {driver?.user
-                  ? `${driver.user.name[0]}${driver.user.surname[0]}`
-                  : "??"}
+                {driver.user.name[0]}{driver.user.surname[0]}
               </Box>
               <Stack spacing={0.5}>
                 <Typography variant="body1" fontWeight={700} color="white">
-                  {driver?.user
-                    ? `${driver.user.name} ${driver.user.surname}`
-                    : "Unknown User"}
+                  {driver.user.name} {driver.user.surname}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {step1Data.licenseType || "No license class set"}
+                  {values.licenseType || "No license class set"}
                 </Typography>
               </Stack>
             </Stack>
@@ -567,7 +539,7 @@ const SecondEditDriverDialogStep = ({
                     Phone
                   </Typography>
                   <Typography variant="body2" color="white">
-                    {step1Data.phone || "Not provided"}
+                    {values.phone || "Not provided"}
                   </Typography>
                 </Box>
               </Stack>
@@ -581,7 +553,7 @@ const SecondEditDriverDialogStep = ({
                     Email
                   </Typography>
                   <Typography variant="body2" color="white" noWrap>
-                    {driver?.user?.email || "No email info"}
+                    {driver.user.email}
                   </Typography>
                 </Box>
               </Stack>
@@ -595,12 +567,12 @@ const SecondEditDriverDialogStep = ({
                     License Detail
                   </Typography>
                   <Typography variant="body2" color="white">
-                    LIC: {step1Data.licenseNo || "N/A"}
+                    LIC: {values.licenseNumber || "N/A"}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     EXP:{" "}
-                    {step1Data.licenseExpiry
-                      ? new Date(step1Data.licenseExpiry).toLocaleDateString()
+                    {values.licenseExpiry
+                      ? new Date(values.licenseExpiry).toLocaleDateString()
                       : "N/A"}
                   </Typography>
                 </Box>
@@ -615,8 +587,8 @@ const SecondEditDriverDialogStep = ({
                   Language Proficiency
                 </Typography>
                 <Typography variant="caption" color="white" fontWeight={600}>
-                  {state.languages && state.languages.length > 0
-                    ? state.languages.join(", ")
+                  {values.languages.length > 0
+                    ? values.languages.join(", ")
                     : "None"}
                 </Typography>
               </Stack>
@@ -627,14 +599,40 @@ const SecondEditDriverDialogStep = ({
                 <Typography
                   variant="caption"
                   color={
-                    state.hazmatCertified ? "success.main" : "text.secondary"
+                    values.hazmatCertified ? "success.main" : "text.secondary"
                   }
                   fontWeight={600}
                 >
-                  {state.hazmatCertified ? "YES" : "NO"}
+                  {values.hazmatCertified ? "YES" : "NO"}
                 </Typography>
               </Stack>
             </Stack>
+
+            <Box
+              sx={{
+                mt: 2,
+                p: 2,
+                borderRadius: 2,
+                bgcolor: alpha(theme.palette.info.main, 0.05),
+                border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
+              }}
+            >
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ fontWeight: 600, display: "block", mb: 0.5 }}
+              >
+                Verification
+              </Typography>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ lineHeight: 1.4, display: "block" }}
+              >
+                Changes will take effect immediately upon saving. The driver
+                will see updated settings on their mobile dashboard.
+              </Typography>
+            </Box>
           </Stack>
         </Card>
       </Grid>

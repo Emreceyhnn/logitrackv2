@@ -16,9 +16,13 @@ import { CompanyStepProps } from "@/app/lib/type/create-company";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 
+import { useFormikContext } from "formik";
+import { CompanyFormData } from "@/app/lib/type/create-company";
+
 export default function Step1Branding({ state, actions }: CompanyStepProps) {
   const theme = useTheme();
   const { formData } = state;
+  const { errors, touched, handleBlur } = useFormikContext<CompanyFormData>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (
@@ -67,6 +71,9 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
             name="name"
             value={formData.name}
             onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.name && !!errors.name}
+            helperText={touched.name && errors.name}
             autoFocus
             sx={{
               "& .MuiOutlinedInput-root": {
@@ -182,13 +189,14 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
           <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
             Core Industry
           </Typography>
-          <FormControl fullWidth>
+          <FormControl fullWidth error={touched.industry && !!errors.industry}>
             <Select
               name="industry"
               value={formData.industry}
               onChange={(e) =>
                 actions.updateFormData({ industry: e.target.value as string })
               }
+              onBlur={handleBlur}
               displayEmpty
               startAdornment={
                 <BusinessCenterIcon sx={{ mr: 1, color: alpha(theme.palette.text.primary, 0.3), fontSize: 20 }} />
@@ -209,6 +217,11 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
               <MenuItem value="manufacturing">Industrial Manufacturing</MenuItem>
               <MenuItem value="retail">Retail & Enterprise</MenuItem>
             </Select>
+            {touched.industry && errors.industry && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
+                {errors.industry}
+              </Typography>
+            )}
           </FormControl>
         </Box>
       </Stack>

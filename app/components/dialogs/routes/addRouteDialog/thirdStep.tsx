@@ -12,7 +12,8 @@ import {
   Card,
   CircularProgress,
 } from "@mui/material";
-import { AddRouteStep3 } from "@/app/lib/type/add-route";
+import { useFormikContext } from "formik";
+import { RouteFormValues } from "@/app/lib/type/routes";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -25,17 +26,10 @@ import { useEffect, useState } from "react";
 import { getDrivers } from "@/app/lib/controllers/driver";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 
-interface ThirdRouteDialogStepProps {
-  state: AddRouteStep3;
-  updateStep3: (data: Partial<AddRouteStep3>) => void;
-}
-
-const ThirdRouteDialogStep = ({
-  state,
-  updateStep3,
-}: ThirdRouteDialogStepProps) => {
+const ThirdRouteDialogStep = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const { values, setFieldValue, handleBlur, touched, errors } = useFormikContext<RouteFormValues>();
 
   /* --------------------------------- states --------------------------------- */
   const [drivers, setDrivers] = useState<DriverWithRelations[]>([]);
@@ -62,31 +56,27 @@ const ThirdRouteDialogStep = ({
     fetchData();
   }, []);
 
-  const selectedDriver = drivers.find((d) => d.id === state.driverId);
-  const selectedVehicle = vehicles.find((v) => v.id === state.vehicleId);
+  const selectedDriver = drivers.find((d) => d.id === values.driverId);
+  const selectedVehicle = vehicles.find((v) => v.id === values.vehicleId);
 
   const handleDriverChange = (driverId: string) => {
     const driver = drivers.find((d) => d.id === driverId);
-    const updates: Partial<AddRouteStep3> = { driverId };
+    setFieldValue("driverId", driverId);
     
     // Auto-fill vehicle if the driver has one assigned and current vehicle is empty
-    if (driver?.currentVehicle?.id && !state.vehicleId) {
-      updates.vehicleId = driver.currentVehicle.id;
+    if (driver?.currentVehicle?.id && !values.vehicleId) {
+      setFieldValue("vehicleId", driver.currentVehicle.id);
     }
-    
-    updateStep3(updates);
   };
 
   const handleVehicleChange = (vehicleId: string) => {
     const vehicle = vehicles.find((v) => v.id === vehicleId);
-    const updates: Partial<AddRouteStep3> = { vehicleId };
+    setFieldValue("vehicleId", vehicleId);
     
     // Auto-fill driver if the vehicle has one assigned and current driver is empty
-    if (vehicle?.driver?.id && !state.driverId) {
-      updates.driverId = vehicle.driver.id;
+    if (vehicle?.driver?.id && !values.driverId) {
+      setFieldValue("driverId", vehicle.driver.id);
     }
-    
-    updateStep3(updates);
   };
 
   return (
@@ -129,8 +119,11 @@ const ThirdRouteDialogStep = ({
               <CustomTextArea
                 name="driverId"
                 select
-                value={state.driverId}
+                value={values.driverId}
+                onBlur={handleBlur}
                 onChange={(e) => handleDriverChange(e.target.value)}
+                error={touched.driverId && Boolean(errors.driverId)}
+                helperText={touched.driverId ? (errors.driverId as string) : undefined}
                 sx={{
                   "& .MuiSelect-select": {
                     display: "flex",
@@ -145,17 +138,20 @@ const ThirdRouteDialogStep = ({
                     Loading drivers...
                   </MenuItem>
                 ) : (
-                  drivers.map((driver) => (
-                    <MenuItem key={driver.id} value={driver.id}>
-                      <Avatar
-                        src={driver.user.avatarUrl || undefined}
-                        sx={{ width: 24, height: 24 }}
-                      />
-                      <Typography variant="body2">
-                        {driver.user.name} {driver.user.surname}
-                      </Typography>
-                    </MenuItem>
-                  ))
+                  [
+                    <MenuItem key="none" value="">Unassigned</MenuItem>,
+                    ...drivers.map((driver) => (
+                      <MenuItem key={driver.id} value={driver.id}>
+                        <Avatar
+                          src={driver.user.avatarUrl || undefined}
+                          sx={{ width: 24, height: 24 }}
+                        />
+                        <Typography variant="body2">
+                          {driver.user.name} {driver.user.surname}
+                        </Typography>
+                      </MenuItem>
+                    ))
+                  ]
                 )}
               </CustomTextArea>
             </Stack>
@@ -173,8 +169,11 @@ const ThirdRouteDialogStep = ({
               <CustomTextArea
                 name="vehicleId"
                 select
-                value={state.vehicleId}
+                value={values.vehicleId}
+                onBlur={handleBlur}
                 onChange={(e) => handleVehicleChange(e.target.value)}
+                error={touched.vehicleId && Boolean(errors.vehicleId)}
+                helperText={touched.vehicleId ? (errors.vehicleId as string) : undefined}
                 sx={{
                   "& .MuiSelect-select": {
                     display: "flex",
@@ -189,16 +188,19 @@ const ThirdRouteDialogStep = ({
                     Loading vehicles...
                   </MenuItem>
                 ) : (
-                  vehicles.map((vehicle) => (
-                    <MenuItem key={vehicle.id} value={vehicle.id}>
-                      <LocalShippingIcon
-                        sx={{ fontSize: 18, color: "text.secondary" }}
-                      />
-                      <Typography variant="body2">
-                        {vehicle.plate} ({vehicle.brand} {vehicle.model})
-                      </Typography>
-                    </MenuItem>
-                  ))
+                   [
+                    <MenuItem key="none" value="">Unassigned</MenuItem>,
+                    ...vehicles.map((vehicle) => (
+                      <MenuItem key={vehicle.id} value={vehicle.id}>
+                        <LocalShippingIcon
+                          sx={{ fontSize: 18, color: "text.secondary" }}
+                        />
+                        <Typography variant="body2">
+                          {vehicle.plate} ({vehicle.brand} {vehicle.model})
+                        </Typography>
+                      </MenuItem>
+                    ))
+                   ]
                 )}
               </CustomTextArea>
             </Stack>

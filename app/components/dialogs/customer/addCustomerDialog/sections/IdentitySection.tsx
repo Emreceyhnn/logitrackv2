@@ -6,10 +6,7 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import CategoryIcon from "@mui/icons-material/Category";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 
-interface IdentitySectionProps {
-  state: AddCustomerIdentity;
-  updateIdentity: (data: Partial<AddCustomerIdentity>) => void;
-}
+import { useFormikContext } from "formik";
 
 const INDUSTRIES = [
   "Logistics & Transportation",
@@ -36,7 +33,9 @@ const LabelWithIcon = ({ icon: Icon, label }: { icon: React.ComponentType<SvgIco
   </Stack>
 );
 
-const IdentitySection = ({ state, updateIdentity }: IdentitySectionProps) => {
+const IdentitySection = () => {
+  const { values, errors, touched, setFieldValue, handleBlur } = useFormikContext<AddCustomerIdentity>();
+
   return (
     <Box sx={{ py: 1 }}>
       <Stack spacing={4}>
@@ -47,10 +46,13 @@ const IdentitySection = ({ state, updateIdentity }: IdentitySectionProps) => {
               <CustomTextArea
                 name="name"
                 placeholder="e.g. Global Logistics Solutions Ltd."
-                value={state.name}
+                value={values.name}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  updateIdentity({ name: e.target.value })
+                  setFieldValue("name", e.target.value)
                 }
+                onBlur={handleBlur}
+                error={touched.name && Boolean(errors.name)}
+                helperText={touched.name ? (errors.name as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     bgcolor: alpha("#fff", 0.02),
@@ -68,10 +70,13 @@ const IdentitySection = ({ state, updateIdentity }: IdentitySectionProps) => {
               <CustomTextArea
                 name="code"
                 placeholder="e.g. CUST-01 (or leave blank)"
-                value={state.code}
+                value={values.code}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  updateIdentity({ code: e.target.value })
+                  setFieldValue("code", e.target.value)
                 }
+                onBlur={handleBlur}
+                error={touched.code && Boolean(errors.code)}
+                helperText={touched.code ? (errors.code as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     bgcolor: alpha("#fff", 0.02),
@@ -87,10 +92,13 @@ const IdentitySection = ({ state, updateIdentity }: IdentitySectionProps) => {
               <CustomTextArea
                 name="taxId"
                 placeholder="e.g. GB123456789"
-                value={state.taxId}
+                value={values.taxId}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  updateIdentity({ taxId: e.target.value })
+                  setFieldValue("taxId", e.target.value)
                 }
+                onBlur={handleBlur}
+                error={touched.taxId && Boolean(errors.taxId)}
+                helperText={touched.taxId ? (errors.taxId as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     bgcolor: alpha("#fff", 0.02),
@@ -106,10 +114,13 @@ const IdentitySection = ({ state, updateIdentity }: IdentitySectionProps) => {
               <CustomTextArea
                 name="industry"
                 select
-                value={state.industry}
+                value={values.industry}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  updateIdentity({ industry: e.target.value })
+                  setFieldValue("industry", e.target.value)
                 }
+                onBlur={handleBlur}
+                error={touched.industry && Boolean(errors.industry)}
+                helperText={touched.industry ? (errors.industry as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     bgcolor: alpha("#fff", 0.02),

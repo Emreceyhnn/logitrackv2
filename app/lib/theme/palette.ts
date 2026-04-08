@@ -66,6 +66,11 @@ export const palettes = {
       cyan: "#38bdf8",
       purple: "#a855f7",
     },
+    error: {
+      main: "#F44336",
+      light: "#E57373",
+      dark: "#D32F2F",
+    },
   },
   light: {
     mode: "light" as PaletteMode,
@@ -131,6 +136,11 @@ export const palettes = {
       violet: "#8b5cf6",
       cyan: "#38bdf8",
       purple: "#a855f7",
+    },
+    error: {
+      main: "#E53E3E", // Premium Red
+      light: "#FC8181",
+      dark: "#C53030",
     },
   },
 };

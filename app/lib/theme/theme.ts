@@ -218,6 +218,7 @@ export const getTheme = (mode: ThemeMode) =>
         },
         styleOverrides: {
           root: {
+            marginBottom: "20px",
             "& .MuiOutlinedInput-root": {
               borderRadius: 8,
               backgroundColor: "rgba(255, 255, 255, 0.03)",
@@ -230,6 +231,22 @@ export const getTheme = (mode: ThemeMode) =>
               "&.Mui-focused fieldset": {
                 borderColor: palettes[mode].primary.main,
               },
+            },
+          },
+        },
+      },
+      MuiFormHelperText: {
+        styleOverrides: {
+          root: {
+            position: "absolute",
+            bottom: "-18px",
+            marginLeft: "2px",
+            fontSize: "0.75rem",
+            fontWeight: 400,
+            lineHeight: 1,
+            whiteSpace: "nowrap",
+            "&.Mui-error": {
+              color: palettes[mode === "dark" ? "dark" : "light"].error.light,
             },
           },
         },

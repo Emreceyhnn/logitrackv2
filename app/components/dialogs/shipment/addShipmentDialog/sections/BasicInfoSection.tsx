@@ -11,25 +11,20 @@ import {
   MenuItem,
   ButtonGroup,
 } from "@mui/material";
-import {
-  AddShipmentBasicInfo,
-  ShipmentPriority,
-} from "@/app/lib/type/add-shipment";
+import { useFormikContext } from "formik";
+import { ShipmentFormValues } from "@/app/lib/type/shipment";
+import { ShipmentPriority } from "@prisma/client";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 
-interface BasicInfoSectionProps {
-  state: AddShipmentBasicInfo;
-  updateBasicInfo: (data: Partial<AddShipmentBasicInfo>) => void;
-}
+interface BasicInfoSectionProps {}
 
-const BasicInfoSection = ({
-  state,
-  updateBasicInfo,
-}: BasicInfoSectionProps) => {
+const BasicInfoSection = ({}: BasicInfoSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const { values, setFieldValue, handleBlur, touched, errors } =
+    useFormikContext<ShipmentFormValues>();
 
   const priorities: {
     label: string;
@@ -39,6 +34,7 @@ const BasicInfoSection = ({
     { label: "Low", value: "LOW", color: theme.palette.success.main },
     { label: "Medium", value: "MEDIUM", color: theme.palette.warning.main },
     { label: "High", value: "HIGH", color: theme.palette.error.main },
+    { label: "Critical", value: "CRITICAL", color: theme.palette.error.dark },
   ];
 
   return (
@@ -71,10 +67,11 @@ const BasicInfoSection = ({
               <CustomTextArea
                 name="referenceNumber"
                 placeholder="e.g. SHP-8752-XP (Leave blank to auto-generate)"
-                value={state.referenceNumber}
-                onChange={(e) =>
-                  updateBasicInfo({ referenceNumber: e.target.value })
-                }
+                value={values.referenceNumber}
+                onChange={(e) => setFieldValue("referenceNumber", e.target.value)}
+                onBlur={handleBlur}
+                error={touched.referenceNumber && Boolean(errors.referenceNumber)}
+                helperText={touched.referenceNumber ? (errors.referenceNumber as string) : undefined}
               />
             </Stack>
           </Grid>
@@ -91,9 +88,9 @@ const BasicInfoSection = ({
               <CustomTextArea
                 name="ref2"
                 placeholder="PO-9821"
-                value={state.referenceNumber}
+                value={values.referenceNumber}
                 onChange={(e) =>
-                  updateBasicInfo({ referenceNumber: e.target.value })
+                  setFieldValue("referenceNumber", e.target.value)
                 }
               />
             </Stack>
@@ -115,15 +112,15 @@ const BasicInfoSection = ({
                 {priorities.map((p) => (
                   <Button
                     key={p.value}
-                    onClick={() => updateBasicInfo({ priority: p.value })}
+                    onClick={() => setFieldValue("priority", p.value)}
                     sx={{
                       py: 1.5,
                       bgcolor:
-                        state.priority === p.value
+                        values.priority === p.value
                           ? alpha(p.color, 0.1)
                           : alpha("#1A202C", 0.5),
                       color:
-                        state.priority === p.value ? p.color : "text.secondary",
+                        values.priority === p.value ? p.color : "text.secondary",
                       borderColor: alpha(theme.palette.divider, 0.1),
                       borderWidth: "1px !important",
                       fontWeight: 600,
@@ -151,8 +148,11 @@ const BasicInfoSection = ({
               <CustomTextArea
                 name="type"
                 select
-                value={state.type}
-                onChange={(e) => updateBasicInfo({ type: e.target.value })}
+                value={values.type}
+                onChange={(e) => setFieldValue("type", e.target.value)}
+                onBlur={handleBlur}
+                error={touched.type && Boolean(errors.type)}
+                helperText={touched.type ? (errors.type as string) : undefined}
               >
                 <MenuItem value="Standard Freight">Standard Freight</MenuItem>
                 <MenuItem value="Express">Express</MenuItem>
@@ -172,16 +172,16 @@ const BasicInfoSection = ({
               </Typography>
               <DateTimePicker
                 label="SLA Deadline"
-                value={state.slaDeadline ? dayjs(state.slaDeadline) : null}
+                value={values.slaDeadline ? dayjs(values.slaDeadline) : null}
                 onChange={(val) =>
-                  updateBasicInfo({
-                    slaDeadline: val ? val.toDate() : null,
-                  })
+                  setFieldValue("slaDeadline", val ? val.toDate() : null)
                 }
                 slotProps={{
                   textField: {
                     fullWidth: true,
                     placeholder: "Select Date & Time",
+                    error: touched.slaDeadline && Boolean(errors.slaDeadline),
+                    helperText: touched.slaDeadline ? (errors.slaDeadline as string) : undefined,
                   },
                 }}
               />

@@ -21,6 +21,7 @@ interface Props {
   disabled?: boolean;
   error?: boolean;
   helperText?: string;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
 
 const CustomTextArea = ({
@@ -36,6 +37,7 @@ const CustomTextArea = ({
   disabled = false,
   error = false,
   helperText,
+  onBlur,
 }: Props) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
@@ -79,6 +81,7 @@ const CustomTextArea = ({
       select={select}
       error={error}
       helperText={helperText}
+      onBlur={onBlur}
       sx={[baseStyles, ...(Array.isArray(sx) ? sx : [sx])]}
       SelectProps={
         select

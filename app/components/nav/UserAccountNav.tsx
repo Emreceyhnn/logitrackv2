@@ -47,7 +47,7 @@ const menuPaperSx = {
     transition: "all 0.2s",
     "&:hover": {
       bgcolor: alpha("#fff", 0.05),
-    }
+    },
   },
   "& .MuiAvatar-root": { width: 32, height: 32, ml: -0.5, mr: 1 },
   "&::before": {
@@ -69,7 +69,6 @@ const menuPaperSx = {
 export default function UserAccountNav() {
   const theme = useTheme();
 
-  
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
     id: string;
@@ -121,11 +120,13 @@ export default function UserAccountNav() {
   const handleLogout = async () => {
     handleMenuClose();
     await logoutAction();
-    window.location.href = "/";
+    window.location.href = "/en";
   };
 
   if (loading) {
-    return <CircularProgress size={20} sx={{ color: theme.palette.primary.main }} />;
+    return (
+      <CircularProgress size={20} sx={{ color: theme.palette.primary.main }} />
+    );
   }
 
   if (!user) return null;
@@ -145,11 +146,11 @@ export default function UserAccountNav() {
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           bgcolor: alpha("#fff", 0.02),
           border: `1px solid ${alpha("#fff", 0.03)}`,
-          "&:hover": { 
+          "&:hover": {
             bgcolor: alpha(theme.palette.primary.main, 0.08),
             borderColor: alpha(theme.palette.primary.main, 0.2),
             transform: "translateY(-1px)",
-            boxShadow: `0 4px 20px ${alpha("#000", 0.3)}`
+            boxShadow: `0 4px 20px ${alpha("#000", 0.3)}`,
           },
         }}
       >
@@ -165,13 +166,26 @@ export default function UserAccountNav() {
             fontSize: "0.75rem",
           }}
         >
-          {user.name?.[0]}{user.surname?.[0]}
+          {user.name?.[0]}
+          {user.surname?.[0]}
         </Avatar>
         <Stack spacing={-0.5} sx={{ display: { xs: "none", sm: "flex" } }}>
-          <Typography variant="body2" fontWeight={800} color="white" sx={{ fontSize: "0.85rem" }}>
+          <Typography
+            variant="body2"
+            fontWeight={800}
+            color="white"
+            sx={{ fontSize: "0.85rem" }}
+          >
             {user.name} {user.surname}
           </Typography>
-          <Typography variant="caption" sx={{ color: alpha("#fff", 0.35), fontWeight: 600, fontSize: "0.65rem" }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: alpha("#fff", 0.35),
+              fontWeight: 600,
+              fontSize: "0.65rem",
+            }}
+          >
             Administrator
           </Typography>
         </Stack>
@@ -187,18 +201,27 @@ export default function UserAccountNav() {
       >
         <MenuItem onClick={handleOpenProfile} sx={{ gap: 1.5 }}>
           <ListItemIcon sx={{ minWidth: "auto !important" }}>
-            <PersonIcon fontSize="small" sx={{ color: theme.palette.primary.main }} />
+            <PersonIcon
+              fontSize="small"
+              sx={{ color: theme.palette.primary.main }}
+            />
           </ListItemIcon>
           Profile
         </MenuItem>
         <MenuItem onClick={handleOpenSettings} sx={{ gap: 1.5 }}>
           <ListItemIcon sx={{ minWidth: "auto !important" }}>
-            <SettingsIcon fontSize="small" sx={{ color: theme.palette.primary.main }} />
+            <SettingsIcon
+              fontSize="small"
+              sx={{ color: theme.palette.primary.main }}
+            />
           </ListItemIcon>
           Settings
         </MenuItem>
         <Divider sx={{ borderColor: alpha("#ffffff", 0.06), my: 0.5 }} />
-        <MenuItem onClick={handleLogout} sx={{ color: "#f43f5e !important", gap: 1.5 }}>
+        <MenuItem
+          onClick={handleLogout}
+          sx={{ color: "#f43f5e !important", gap: 1.5 }}
+        >
           <ListItemIcon sx={{ minWidth: "auto !important" }}>
             <LogoutIcon fontSize="small" sx={{ color: "inherit" }} />
           </ListItemIcon>
@@ -207,7 +230,10 @@ export default function UserAccountNav() {
       </Menu>
 
       <ProfileDialog open={profileOpen} onClose={() => setProfileOpen(false)} />
-      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsDialog
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
     </>
   );
 }

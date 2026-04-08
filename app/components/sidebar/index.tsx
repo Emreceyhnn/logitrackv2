@@ -14,13 +14,18 @@ import AnalyticsIcon from "@mui/icons-material/Analytics";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { SidebarList } from "./listItem";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useMemo } from "react";
 import { clearAuthCookies } from "@/app/lib/controllers/session";
 
 const SideBar = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const router = useRouter();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
 
   const handleLogout = async () => {
     try {
@@ -31,9 +36,9 @@ const SideBar = () => {
     }
   };
 
-  const sideBarItemsParents = [
+  const sideBarItemsParents = useMemo(() => [
     {
-      title: "Overview",
+      title: dict.sidebar.overview,
       icon: (
         <MonitorIcon
           sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
@@ -41,33 +46,46 @@ const SideBar = () => {
       ),
     },
     {
-      title: "Operation",
+      title: dict.sidebar.operation,
       icon: (
         <PrecisionManufacturingIcon
           sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
         />
       ),
-      subTitles: ["Vehicles", "Drivers", "Routes", "Shipments"],
+      subTitles: [
+        dict.sidebar.vehicles,
+        dict.sidebar.drivers,
+        dict.sidebar.routes,
+        dict.sidebar.shipments
+      ],
     },
     {
-      title: "Management",
+      title: dict.sidebar.management,
       icon: (
         <KeyboardCommandKeyIcon
           sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
         />
       ),
-      subTitles: ["Warehouses", "Inventory", "Customers", "Company"],
+      subTitles: [
+        dict.sidebar.warehouses,
+        dict.sidebar.inventory,
+        dict.sidebar.customers,
+        dict.sidebar.company
+      ],
     },
     {
-      title: "Analytics",
+      title: dict.sidebar.analytics,
       icon: (
         <AnalyticsIcon
           sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
         />
       ),
-      subTitles: ["Reports", "Analytics"],
+      subTitles: [
+        dict.sidebar.reports,
+        dict.sidebar.analytics
+      ],
     },
-  ];
+  ], [dict, theme]);
 
   return (
     <Box
@@ -90,7 +108,7 @@ const SideBar = () => {
               textTransform: "uppercase",
             }}
           >
-            Logitrack
+            {dict.common.logitrack}
           </Typography>
         </Stack>
         <Divider />
@@ -127,7 +145,7 @@ const SideBar = () => {
                   color: theme?.palette?.icon?.secondary,
                 }}
               />
-              <Typography>Need Help</Typography>
+              <Typography>{dict.common.needHelp}</Typography>
             </IconButton>
             <IconButton
               onClick={handleLogout}
@@ -156,7 +174,7 @@ const SideBar = () => {
                   color: theme?.palette?.icon?.secondary,
                 }}
               />
-              <Typography>Log Out</Typography>
+              <Typography>{dict.common.logout}</Typography>
             </IconButton>
           </Stack>
         </Stack>

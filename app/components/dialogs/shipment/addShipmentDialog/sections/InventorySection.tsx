@@ -20,11 +20,9 @@ import {
   ListItemButton,
   IconButton,
 } from "@mui/material";
-import {
-  AddShipmentInventory,
-  InventoryShipmentItem,
-  AddShipmentCargo,
-} from "@/app/lib/type/add-shipment";
+import { useFormikContext } from "formik";
+import { ShipmentFormValues } from "@/app/lib/type/shipment";
+import { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import AddIcon from "@mui/icons-material/Add";
@@ -33,45 +31,22 @@ import InventoryIcon from "@mui/icons-material/Inventory";
 import { useState } from "react";
 
 interface InventorySectionProps {
-  state: AddShipmentInventory;
-  addInventoryItem: (item: InventoryShipmentItem) => void;
-  removeInventoryItem: (id: string) => void;
-  updateInventory: (data: Partial<AddShipmentInventory>) => void;
-  updateCargo: (data: Partial<AddShipmentCargo>) => void;
   availableInventory: InventoryWithRelations[];
   isLoadingInventory: boolean;
 }
 
 const InventorySection = ({
-  state,
-  addInventoryItem,
-  removeInventoryItem,
-  updateInventory,
-  updateCargo,
   availableInventory,
   isLoadingInventory,
 }: InventorySectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const { values, setFieldValue } = useFormikContext<ShipmentFormValues>();
 
   /* --------------------------------- states --------------------------------- */
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   /* -------------------------------- handlers -------------------------------- */
-  const handleAddItem = () => {
-    const newItem: InventoryShipmentItem = {
-      id: crypto.randomUUID(),
-      sku: "",
-      name: "",
-      quantity: 1,
-      unit: "Each",
-      weightKg: 0,
-      volumeM3: 0,
-      palletCount: 1, // Default to 1 to avoid division by zero
-    };
-    addInventoryItem(newItem);
-  };
-
   const calculateTotals = (items: InventoryShipmentItem[]) => {
     return items.reduce(
       (acc, item) => {
@@ -104,6 +79,21 @@ const InventorySection = ({
     );
   };
 
+  const handleAddItem = () => {
+    const newItem: InventoryShipmentItem = {
+      id: crypto.randomUUID(),
+      sku: "",
+      name: "",
+      quantity: 1,
+      unit: "Each",
+      weightKg: 0,
+      volumeM3: 0,
+      palletCount: 1,
+    };
+    const newItems = [...values.inventoryItems, newItem];
+    setFieldValue("inventoryItems", newItems);
+  };
+
   const selectProduct = (product: InventoryWithRelations) => {
     const newItem: InventoryShipmentItem = {
       id: crypto.randomUUID(),
@@ -114,41 +104,47 @@ const InventorySection = ({
       unit: product.unit === "Pallet" ? "Pallet" : "Each",
       weightKg: product.weightKg || 0,
       volumeM3: product.volumeM3 || 0,
-      palletCount: product.palletCount || 1, // Get from DB, default to 1 if missing
+      palletCount: product.palletCount || 1,
       cargoType: product.cargoType || "General Cargo",
     };
 
-    const newItems = [...state.items, newItem];
-    addInventoryItem(newItem);
+    const newItems = [...values.inventoryItems, newItem];
+    setFieldValue("inventoryItems", newItems);
 
     // Auto-fill cargo details
     const totals = calculateTotals(newItems);
-    updateCargo({
-      ...totals,
-      cargoType: newItem.cargoType || "General Cargo",
-    });
+    setFieldValue("weightKg", totals.weightKg);
+    setFieldValue("volumeM3", totals.volumeM3);
+    setFieldValue("palletCount", Math.ceil(totals.palletCount));
+    if (newItem.cargoType) {
+      setFieldValue("cargoType", newItem.cargoType);
+    }
 
     setIsPickerOpen(false);
   };
 
   const updateItem = (id: string, updates: Partial<InventoryShipmentItem>) => {
-    const updatedItems = state.items.map((item) =>
+    const updatedItems = values.inventoryItems.map((item) =>
       item.id === id ? { ...item, ...updates } : item
     );
-    updateInventory({ items: updatedItems });
+    setFieldValue("inventoryItems", updatedItems);
 
     // Recalculate cargo
     const totals = calculateTotals(updatedItems);
-    updateCargo(totals);
+    setFieldValue("weightKg", totals.weightKg);
+    setFieldValue("volumeM3", totals.volumeM3);
+    setFieldValue("palletCount", Math.ceil(totals.palletCount));
   };
 
   const handleRemove = (id: string) => {
-    const updatedItems = state.items.filter((item) => item.id !== id);
-    removeInventoryItem(id);
+    const updatedItems = values.inventoryItems.filter((item) => item.id !== id);
+    setFieldValue("inventoryItems", updatedItems);
 
     // Recalculate cargo
     const totals = calculateTotals(updatedItems);
-    updateCargo(totals);
+    setFieldValue("weightKg", totals.weightKg);
+    setFieldValue("volumeM3", totals.volumeM3);
+    setFieldValue("palletCount", Math.ceil(totals.palletCount));
   };
 
   return (
@@ -207,7 +203,7 @@ const InventorySection = ({
           </Stack>
         </Stack>
 
-        {state.items.length === 0 ? (
+        {values.inventoryItems.length === 0 ? (
           <Box
             sx={{
               p: 4,
@@ -239,7 +235,7 @@ const InventorySection = ({
               <Grid size={{ xs: 0.5 }} />
             </Grid>
 
-            {state.items.map((item) => (
+            {values.inventoryItems.map((item) => (
               <Box key={item.id}>
                 <Grid container spacing={1.5} alignItems="center" sx={{ px: 1, mb: 0.5 }}>
                   <Grid size={{ xs: 3 }}>
