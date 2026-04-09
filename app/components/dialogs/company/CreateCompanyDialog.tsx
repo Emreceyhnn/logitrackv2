@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Box,
   Button,
@@ -33,6 +33,8 @@ import Step2Regional from "./Step2Regional";
 import { toast } from "sonner";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { createCompany } from "@/app/lib/controllers/company";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 const initialFormData: CompanyFormData = {
   name: "",
@@ -50,6 +52,8 @@ export default function CreateCompanyDialog({
   onSuccess,
 }: CreateCompanyDialogProps) {
   const theme = useTheme();
+  const { lang } = useParams();
+  const dict = useMemo(() => getDictionary(lang as string), [lang]);
 
   const [activeStep, setActiveStep] = useState(0);
   const [direction, setDirection] = useState(0); // For framer-motion slide direction
@@ -81,12 +85,12 @@ export default function CreateCompanyDialog({
 
       await createCompany(values.name, logoUrl || "");
 
-      toast.success("Company created successfully!");
+      toast.success(dict.toasts.successAdd);
       onSuccess?.();
       onClose();
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Failed to create company";
+        err instanceof Error ? err.message : dict.toasts.errorGeneric;
       toast.error(message);
     } finally {
       setLoading(false);
@@ -110,6 +114,11 @@ export default function CreateCompanyDialog({
     }),
   };
 
+  const steps = [
+    dict.company.dialogs.steps.branding,
+    dict.company.dialogs.steps.regional
+  ];
+
   return (
     <Dialog
       open={open}
@@ -128,7 +137,7 @@ export default function CreateCompanyDialog({
     >
       <Formik
         initialValues={initialFormData}
-        validationSchema={createCompanyValidationSchema}
+        validationSchema={useMemo(() => createCompanyValidationSchema(dict), [dict])}
         onSubmit={handleSubmit}
         validateOnMount
       >
@@ -153,12 +162,11 @@ export default function CreateCompanyDialog({
                     sx={{ letterSpacing: "-0.02em" }}
                   >
                     {activeStep === 0
-                      ? "Company Identity"
-                      : "Regional Ecosystem"}
+                      ? dict.company.dialogs.identityTitle
+                      : dict.company.dialogs.regionalTitle}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Configure your organization&apos;s core profile and
-                    presence
+                    {dict.company.dialogs.identitySubtitle}
                   </Typography>
                 </Stack>
                 <IconButton
@@ -203,17 +211,16 @@ export default function CreateCompanyDialog({
                   },
                 }}
               >
-                <Step>
-                  <StepLabel>Branding & Legal</StepLabel>
-                </Step>
-                <Step>
-                  <StepLabel>Localization & Scope</StepLabel>
-                </Step>
+                {steps.map((label) => (
+                  <Step key={label}>
+                    <StepLabel>{label}</StepLabel>
+                  </Step>
+                ))}
               </Stepper>
             </Box>
 
             <DialogContent
-              sx={{ mt: 2, pb: 4, minHeight: 320, overflow: "hidden" }}
+              sx={{ mt: 2, pb: 4, minHeight: 400, overflow: "hidden" }}
             >
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
@@ -297,7 +304,7 @@ export default function CreateCompanyDialog({
                 }}
                 startIcon={activeStep > 0 ? <NavigateBeforeIcon /> : null}
               >
-                {activeStep === 0 ? "Discard" : "Back"}
+                {activeStep === 0 ? dict.common.cancel : dict.common.back}
               </Button>
 
               <Button
@@ -308,7 +315,7 @@ export default function CreateCompanyDialog({
                     if (!errors.name && !errors.industry && values.name) {
                       handleNext();
                     } else {
-                      toast.error("Please fill in required fields correctly");
+                      toast.error(dict.validation.genericFormError);
                     }
                   } else {
                     submitForm();
@@ -344,10 +351,10 @@ export default function CreateCompanyDialog({
                 }}
               >
                 {loading
-                  ? "Finalizing..."
+                  ? dict.toasts.loading
                   : activeStep === 1
-                    ? "Publish Portfolio"
-                    : "Next Objective"}
+                    ? dict.common.save
+                    : dict.common.next}
               </Button>
             </DialogActions>
           </>

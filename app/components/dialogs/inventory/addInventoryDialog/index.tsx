@@ -133,9 +133,9 @@ const AddInventoryDialog = ({
   };
 
   const steps = [
-    dict.vehicles.dialogs.steps.general,
-    dict.vehicles.dialogs.steps.specs,
-    dict.landing.hero.discover
+    dict.inventory.dialogs.steps.details,
+    dict.inventory.dialogs.steps.storage,
+    dict.inventory.dialogs.steps.review
   ];
 
   return (
@@ -178,9 +178,14 @@ const AddInventoryDialog = ({
                 📦
               </Typography>
             </Box>
-            <Typography variant="h6" fontWeight={700} color="white">
-              {dict.inventory.addInventory}
-            </Typography>
+            <Stack spacing={0.5}>
+              <Typography variant="h6" fontWeight={700} color="white">
+                {dict.inventory.dialogs.addTitle}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {dict.inventory.dialogs.addSubtitle}
+              </Typography>
+            </Stack>
           </Stack>
           <IconButton onClick={closeDialog} sx={{ color: "text.secondary" }}>
             <CloseIcon />

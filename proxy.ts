@@ -27,7 +27,7 @@ function getLocaleFromPathname(pathname: string): {
   return { locale: DEFAULT_LOCALE, restPath: pathname };
 }
 
-export default async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip static/internal paths
@@ -47,8 +47,14 @@ export default async function middleware(request: NextRequest) {
   );
 
   if (!hasLocalePrefix) {
+    // Priority: 1. Cookie, 2. Default
+    const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+    const locale = (cookieLocale && (LOCALES as readonly string[]).includes(cookieLocale))
+      ? cookieLocale as Locale
+      : DEFAULT_LOCALE;
+
     const url = request.nextUrl.clone();
-    url.pathname = `/${DEFAULT_LOCALE}${pathname === "/" ? "" : pathname}`;
+    url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
     return NextResponse.redirect(url);
   }
 

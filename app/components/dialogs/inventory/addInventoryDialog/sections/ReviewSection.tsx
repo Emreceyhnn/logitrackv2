@@ -109,7 +109,7 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
               <Stack direction="row" spacing={1} alignItems="center">
                 <InfoIcon sx={{ fontSize: "1rem", color: theme.palette.primary.main }} />
                 <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ letterSpacing: 1 }}>
-                   {dict.vehicles.dialogs.steps.general.toUpperCase()}
+                   {dict.inventory.dialogs.steps.details.toUpperCase()}
                 </Typography>
               </Stack>
               <Box>

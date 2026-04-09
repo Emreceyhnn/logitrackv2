@@ -19,7 +19,9 @@ import {
 import BusinessIcon from "@mui/icons-material/Business";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 import { AddCustomerDialogProps } from "@/app/lib/type/add-customer";
 import { toast } from "sonner";
 import { createCustomer } from "@/app/lib/controllers/customer";
@@ -53,6 +55,9 @@ const AddCustomerDialog = ({
   /* ---------------------------------- State --------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -132,7 +137,7 @@ const AddCustomerDialog = ({
       >
         <Formik
           initialValues={initialValues}
-          validationSchema={addCustomerValidationSchema}
+          validationSchema={useMemo(() => addCustomerValidationSchema(dict), [dict])}
           onSubmit={handleSubmit}
         >
           {({

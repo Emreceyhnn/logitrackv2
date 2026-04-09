@@ -11,8 +11,14 @@ import Link from "next/link";
 import { getUserSession } from "@/app/lib/actions/auth";
 import CreateCompanyDialog from "../dialogs/company/CreateCompanyDialog";
 import UserAccountNav from "../nav/UserAccountNav";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 export default function LandingHeaderAuth() {
+  const params = useParams();
+  const lang = (params?.lang as string) || "tr";
+  const dict = getDictionary(lang);
+  
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
     id: string;
@@ -57,7 +63,7 @@ export default function LandingHeaderAuth() {
             <Button
               variant="contained"
               component={Link}
-              href="/overview"
+              href={`/${lang}/overview`}
               sx={{
                 textTransform: "none",
                 fontWeight: 700,
@@ -73,7 +79,7 @@ export default function LandingHeaderAuth() {
                 transition: "all 0.2s"
               }}
             >
-              Dashboard
+              {dict.navbar.dashboard}
             </Button>
           ) : (
             <Button
@@ -94,7 +100,7 @@ export default function LandingHeaderAuth() {
                 transition: "all 0.2s"
               }}
             >
-              Setup Org
+              {dict.navbar.setupOrg}
             </Button>
           )}
         </Stack>
@@ -113,7 +119,7 @@ export default function LandingHeaderAuth() {
       <Button
         variant="text"
         component={Link}
-        href="/auth/sign-in"
+        href={`/${lang}/auth/sign-in`}
         sx={{
           color: alpha("#e2e8f0", 0.8),
           fontWeight: 600,
@@ -121,12 +127,12 @@ export default function LandingHeaderAuth() {
           "&:hover": { color: "#38bdf8" },
         }}
       >
-        Sign In
+        {dict.navbar.signIn}
       </Button>
       <Button
         variant="contained"
         component={Link}
-        href="/auth/sign-up"
+        href={`/${lang}/auth/sign-up`}
         sx={{
           textTransform: "none",
           fontWeight: 700,
@@ -142,7 +148,7 @@ export default function LandingHeaderAuth() {
           transition: "all 0.2s"
         }}
       >
-        Start Pro
+        {dict.navbar.startPro}
       </Button>
     </Stack>
   );

@@ -11,8 +11,14 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import LandingHeaderAuth from "./LandingHeaderAuth";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 export default function LandingNavbar() {
+  const params = useParams();
+  const lang = (params?.lang as string) || "tr";
+  const dict = getDictionary(lang);
+
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 50,
@@ -46,7 +52,7 @@ export default function LandingNavbar() {
             justifyContent: "space-between",
           }}
         >
-          <Link href="/en" style={{ textDecoration: "none" }}>
+          <Link href={`/${lang}`} style={{ textDecoration: "none" }}>
             <Stack direction="row" spacing={1.5} alignItems="center">
               <Box
                 sx={{
@@ -78,7 +84,7 @@ export default function LandingNavbar() {
                   display: { xs: "none", sm: "block" },
                 }}
               >
-                LOGI-TRACK
+                {dict.common.logitrack.toUpperCase()}
               </Typography>
             </Stack>
           </Link>
@@ -90,10 +96,10 @@ export default function LandingNavbar() {
             sx={{ display: { xs: "none", md: "flex" } }}
           >
             {[
-              { label: "Features", href: "/features" },
-              { label: "Pricing", href: "/pricing" },
-              { label: "About", href: "/about" },
-              { label: "How It Works", href: "/how-it-works" },
+              { label: dict.navbar.features, href: `/${lang}/features` },
+              { label: dict.navbar.pricing, href: `/${lang}/pricing` },
+              { label: dict.navbar.about, href: `/${lang}/about` },
+              { label: dict.navbar.howItWorks, href: `/${lang}/how-it-works` },
             ].map((item) => (
               <Typography
                 key={item.label}

@@ -6,18 +6,20 @@ import {
   Dialog,
   DialogContent,
   DialogActions,
-  IconButton,
+  StepLabel,
+  useTheme,
   Stack,
   Typography,
-  useTheme,
-  Button,
-  CircularProgress,
+  IconButton,
   Stepper,
   Step,
-  StepLabel,
+  Button,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState, useEffect, useRef } from "react";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   EditWarehouseDialogProps,
   EditWarehousePageActions,
@@ -63,6 +65,8 @@ const EditWarehouseDialog = ({
 }: EditWarehouseDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
+  const { lang } = useParams();
+  const dict = useMemo(() => getDictionary(lang as string), [lang]);
   const isInitialized = useRef<string | null>(null);
 
   const [state, setState] = useState<EditWarehousePageState>({
@@ -176,7 +180,7 @@ const EditWarehouseDialog = ({
         actions.closeDialog();
       } catch (err: unknown) {
         const errorMessage =
-          err instanceof Error ? err.message : "Failed to update warehouse";
+          err instanceof Error ? err.message : dict.toasts.errorGeneric;
         setState((prev) => ({
           ...prev,
           isLoading: false,
@@ -192,7 +196,11 @@ const EditWarehouseDialog = ({
     },
   };
 
-  const steps = ["Basic Info", "Location", "Capacity"];
+  const steps = [
+    dict.warehouses.dialogs.steps.basicInfo,
+    dict.warehouses.dialogs.steps.location,
+    dict.warehouses.dialogs.steps.capacity,
+  ];
 
   if (!warehouseData) return null;
 
@@ -223,13 +231,14 @@ const EditWarehouseDialog = ({
             <Stack spacing={0.5}>
               <Typography variant="h6" fontWeight={700} color="white">
                 {state.currentStep === 1
-                  ? "Edit Warehouse Details"
+                  ? dict.warehouses.dialogs.editTitle
                   : state.currentStep === 2
-                    ? "Facility Location"
-                    : "Operational Capacity"}
+                    ? dict.warehouses.dialogs.locationTitle
+                    : dict.warehouses.dialogs.capacityTitle}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Step {state.currentStep}: {steps[state.currentStep - 1]}
+                {dict.common.step} {state.currentStep}:{" "}
+                {steps[state.currentStep - 1]}
               </Typography>
             </Stack>
             <IconButton
@@ -301,7 +310,7 @@ const EditWarehouseDialog = ({
             }
             sx={{ color: "text.secondary", textTransform: "none" }}
           >
-            {state.currentStep === 1 ? "Cancel" : "Back"}
+            {state.currentStep === 1 ? dict.common.cancel : dict.common.back}
           </Button>
 
           <Button
@@ -329,10 +338,10 @@ const EditWarehouseDialog = ({
             }
           >
             {state.isLoading
-              ? "Saving..."
+              ? dict.toasts.loading
               : state.currentStep < 3
-                ? "Next Step"
-                : "Save Changes"}
+                ? dict.common.next
+                : dict.warehouses.dialogs.updateButton}
           </Button>
         </DialogActions>
       </Dialog>

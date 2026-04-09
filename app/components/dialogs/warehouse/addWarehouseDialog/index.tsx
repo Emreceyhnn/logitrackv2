@@ -17,7 +17,8 @@ import {
   StepLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState } from "react";
+import { toast } from "sonner";
+import { useState, useMemo } from "react";
 import {
   AddWarehouseDialogProps,
   AddWarehousePageActions,
@@ -25,6 +26,8 @@ import {
 } from "@/app/lib/type/add-warehouse";
 import { createWarehouse } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/lib/hooks/useUser";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 import BasicInfoSection from "./sections/BasicInfoSection";
 import LocationSection from "./sections/LocationSection";
@@ -62,6 +65,8 @@ const AddWarehouseDialog = ({
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
+  const { lang } = useParams();
+  const dict = useMemo(() => getDictionary(lang as string), [lang]);
 
   /* --------------------------------- states --------------------------------- */
   const [state, setState] = useState<AddWarehousePageState>({
@@ -117,16 +122,18 @@ const AddWarehouseDialog = ({
           state.data.capacity.specifications
         );
 
+        toast.success(dict.toasts.successAdd);
         onSuccess?.();
         actions.closeDialog();
       } catch (err: unknown) {
         const errorMessage =
-          err instanceof Error ? err.message : "Failed to create warehouse";
+          err instanceof Error ? err.message : dict.toasts.errorGeneric;
         setState((prev) => ({
           ...prev,
           isLoading: false,
           error: errorMessage,
         }));
+        toast.error(errorMessage);
       }
     },
     closeDialog: () => {
@@ -148,7 +155,11 @@ const AddWarehouseDialog = ({
     },
   };
 
-  const steps = ["Basic Info", "Location", "Capacity"];
+  const steps = [
+    dict.warehouses.dialogs.steps.basicInfo,
+    dict.warehouses.dialogs.steps.location,
+    dict.warehouses.dialogs.steps.capacity
+  ];
 
   return (
     <GoogleMapsProvider>
@@ -177,13 +188,13 @@ const AddWarehouseDialog = ({
             <Stack spacing={0.5}>
               <Typography variant="h6" fontWeight={700} color="white">
                 {state.currentStep === 1
-                  ? "Add New Warehouse"
+                  ? dict.warehouses.dialogs.addTitle
                   : state.currentStep === 2
-                    ? "Facility Location"
-                    : "Operational Capacity"}
+                    ? dict.warehouses.dialogs.locationTitle
+                    : dict.warehouses.dialogs.capacityTitle}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Step {state.currentStep}: {steps[state.currentStep - 1]}
+                {dict.common.step} {state.currentStep}: {steps[state.currentStep - 1]}
               </Typography>
             </Stack>
             <IconButton
@@ -255,7 +266,7 @@ const AddWarehouseDialog = ({
             }
             sx={{ color: "text.secondary", textTransform: "none" }}
           >
-            {state.currentStep === 1 ? "Cancel" : "Back"}
+            {state.currentStep === 1 ? dict.common.cancel : dict.common.back}
           </Button>
 
           <Button
@@ -283,10 +294,10 @@ const AddWarehouseDialog = ({
             }
           >
             {state.isLoading
-              ? "Creating..."
+              ? dict.toasts.loading
               : state.currentStep < 3
-                ? "Next Step"
-                : "Create Warehouse"}
+                ? dict.common.next
+                : dict.warehouses.dialogs.createButton}
           </Button>
         </DialogActions>
       </Dialog>

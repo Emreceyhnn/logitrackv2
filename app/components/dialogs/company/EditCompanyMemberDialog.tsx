@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,8 @@ import {
 import { useForm, Controller, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { CompanyMember } from "@/app/lib/type/company";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 import { updateCompanyMember } from "@/app/lib/controllers/company";
 import { UserStatus } from "@prisma/client";
 import { editCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
@@ -50,6 +52,9 @@ export default function EditCompanyMemberDialog({
   onSuccess,
 }: EditCompanyMemberDialogProps) {
   const theme = useTheme();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
   
   const {
     control,
@@ -57,7 +62,7 @@ export default function EditCompanyMemberDialog({
     reset,
     formState: { isSubmitting, errors },
   } = useForm<FormData>({
-    resolver: yupResolver(editCompanyMemberValidationSchema) as unknown as Resolver<FormData>,
+    resolver: yupResolver(useMemo(() => editCompanyMemberValidationSchema(dict), [dict])) as unknown as Resolver<FormData>,
     defaultValues: {
       name: "",
       surname: "",

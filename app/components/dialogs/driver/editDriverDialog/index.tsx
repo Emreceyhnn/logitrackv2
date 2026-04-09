@@ -18,7 +18,7 @@ import {
   useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Formik, FormikHelpers } from "formik";
 import {
   EditDriverDialogProps,
@@ -31,6 +31,8 @@ import { uploadImageAction } from "@/app/lib/actions/upload";
 import { editDriverValidationSchema } from "@/app/lib/validationSchema";
 import FirstEditDriverDialogStep from "./firstStep";
 import SecondEditDriverDialogStep from "./secondStep";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 const EditDriverDialog = ({
   open,
@@ -41,6 +43,8 @@ const EditDriverDialog = ({
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(1);
+  const { lang } = useParams();
+  const dict = useMemo(() => getDictionary(lang as string), [lang]);
 
   if (!driver) return null;
 
@@ -134,7 +138,7 @@ const EditDriverDialog = ({
 
       await updateDriver(driver.id, payload);
 
-      toast.success("Driver updated successfully");
+      toast.success(dict.toasts.successUpdate);
 
       setTimeout(() => {
         onClose();
@@ -142,7 +146,7 @@ const EditDriverDialog = ({
         setCurrentStep(1);
       }, 1500);
     } catch (err: unknown) {
-      const message = (err as Error).message || "Failed to update driver";
+      const message = err instanceof Error ? err.message : dict.toasts.errorGeneric;
       setStatus(message);
       toast.error(message);
     } finally {
@@ -150,7 +154,10 @@ const EditDriverDialog = ({
     }
   };
 
-  const steps = ["DRIVER CREDENTIALS", "ASSIGNMENT & SETTINGS"];
+  const steps = [
+    dict.drivers.dialogs.steps.credentials,
+    dict.drivers.dialogs.steps.assignment
+  ];
 
   return (
     <Dialog
@@ -169,7 +176,7 @@ const EditDriverDialog = ({
     >
       <Formik
         initialValues={initialValues}
-        validationSchema={editDriverValidationSchema}
+        validationSchema={useMemo(() => editDriverValidationSchema(dict), [dict])}
         onSubmit={handleSubmit}
         enableReinitialize
       >
@@ -196,7 +203,7 @@ const EditDriverDialog = ({
 
             if (hasStep1Errors) {
               step1Fields.forEach((field) => setFieldTouched(field, true));
-              toast.error("Please fill in all required fields correctly");
+              toast.error(dict.validation.genericFormError);
               return;
             }
             setCurrentStep(2);
@@ -212,10 +219,10 @@ const EditDriverDialog = ({
                 >
                   <Stack spacing={0.5}>
                     <Typography variant="h6" fontWeight={600} color="white">
-                      Edit Driver: {driver.user.name} {driver.user.surname}
+                      {dict.drivers.dialogs.editTitle}: {driver.user.name} {driver.user.surname}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Update operator details and settings
+                      {dict.drivers.dialogs.editSubtitle}
                     </Typography>
                   </Stack>
                   <IconButton
@@ -305,7 +312,7 @@ const EditDriverDialog = ({
                     "&:hover": { bgcolor: alpha(theme.palette.divider, 0.05) },
                   }}
                 >
-                  {currentStep === 1 ? "Cancel" : "Back to Credentials"}
+                  {currentStep === 1 ? dict.common.cancel : dict.common.back}
                 </Button>
                 <Button
                   variant="contained"
@@ -329,10 +336,10 @@ const EditDriverDialog = ({
                   }}
                 >
                   {isSubmitting
-                    ? "Saving..."
+                    ? dict.toasts.loading
                     : currentStep === 1
-                    ? "Next: Assignment"
-                    : "Save Changes"}
+                    ? dict.common.next
+                    : dict.common.save}
                 </Button>
               </DialogActions>
             </>

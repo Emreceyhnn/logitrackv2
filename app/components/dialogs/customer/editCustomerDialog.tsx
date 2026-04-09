@@ -25,6 +25,9 @@ import { useUser } from "@/app/lib/hooks/useUser";
 import IdentitySection from "./addCustomerDialog/sections/IdentitySection";
 import ContactSection from "./addCustomerDialog/sections/ContactSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+import { useMemo } from "react";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 interface EditCustomerDialogProps {
   open: boolean;
@@ -44,6 +47,10 @@ export default function EditCustomerDialog({
 }: EditCustomerDialogProps) {
   const { user } = useUser();
   const theme = useTheme();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+  const dict = useMemo(() => getDictionary(lang), [lang]);
+
   const [isPending, startTransition] = useTransition();
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -100,7 +107,7 @@ export default function EditCustomerDialog({
     <GoogleMapsProvider>
       <Formik
         initialValues={customerInitialValues}
-        validationSchema={editCustomerValidationSchema}
+        validationSchema={useMemo(() => editCustomerValidationSchema(dict), [dict])}
         onSubmit={handleSubmit}
         enableReinitialize
       >

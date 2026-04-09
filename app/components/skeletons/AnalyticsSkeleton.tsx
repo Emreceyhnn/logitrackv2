@@ -1,4 +1,3 @@
-"use client";
 import { Box, Skeleton, Stack, Typography, Divider } from "@mui/material";
 import CustomCard from "../cards/card";
 

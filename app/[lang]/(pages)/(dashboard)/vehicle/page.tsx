@@ -5,7 +5,11 @@ import VehicleCapacityChart from "@/app/components/dashboard/vehicle/maxLoad";
 import VehicleTable from "@/app/components/dashboard/vehicle/vehicleTable";
 import AddVehicleDialog from "@/app/components/dialogs/vehicle/addVehicleDialog";
 import VehicleDialog from "@/app/components/dialogs/vehicle/vehicleDetailsDialog";
-import { useVehicles, useVehiclesDashboardData, useVehicleMutations } from "@/app/hooks/useVehicles";
+import {
+  useVehicles,
+  useVehiclesDashboardData,
+  useVehicleMutations,
+} from "@/app/hooks/useVehicles";
 import {
   VehiclePageActions,
   VehiclePageState,
@@ -59,19 +63,20 @@ function VehicleContent() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [actionVehicle, setActionVehicle] = useState<VehicleWithRelations | null>(null);
+  const [actionVehicle, setActionVehicle] =
+    useState<VehicleWithRelations | null>(null);
 
   /* ---------------------------------- HOOKS --------------------------------- */
-  const { 
-    data: vehicles = [], 
+  const {
+    data: vehicles = [],
     isLoading: isVehiclesLoading,
-    refetch: refetchVehicles 
+    refetch: refetchVehicles,
   } = useVehicles(state.filters);
 
-  const { 
-    data: dashboardData, 
+  const {
+    data: dashboardData,
     isLoading: isDashboardLoading,
-    refetch: refetchDashboard 
+    refetch: refetchDashboard,
   } = useVehiclesDashboardData();
 
   const { deleteVehicle: deleteMutation } = useVehicleMutations();
@@ -170,44 +175,47 @@ function VehicleContent() {
   );
 
   /* ----------------------------------- KPI ---------------------------------- */
-  const kpiItems = useMemo(() => [
-    {
-      label: dict.vehicles.totalVehicles,
-      value: dashboardData?.vehiclesKpis?.totalVehicles ?? 0,
-      icon: <LocalShipping sx={{ fontSize: 22 }} />,
-      color: theme.palette.primary.main,
-    },
-    {
-      label: dict.vehicles.available,
-      value: dashboardData?.vehiclesKpis?.available ?? 0,
-      icon: <CheckCircle sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.emerald,
-    },
-    {
-      label: dict.vehicles.inService,
-      value: dashboardData?.vehiclesKpis?.inService ?? 0,
-      icon: <Build sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.amber,
-    },
-    {
-      label: dict.vehicles.onTrip,
-      value: dashboardData?.vehiclesKpis?.onTrip ?? 0,
-      icon: <DirectionsCar sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.sky,
-    },
-    {
-      label: dict.vehicles.openIssues,
-      value: dashboardData?.vehiclesKpis?.openIssues ?? 0,
-      icon: <ReportProblem sx={{ fontSize: 22 }} />,
-      color: theme.palette.error.main,
-    },
-    {
-      label: dict.vehicles.docsExpiring,
-      value: dashboardData?.vehiclesKpis?.docsDueSoon ?? 0,
-      icon: <Description sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.amber,
-    },
-  ], [dashboardData, theme, dict]);
+  const kpiItems = useMemo(
+    () => [
+      {
+        label: dict.vehicles.kpis.totalVehicles,
+        value: dashboardData?.vehiclesKpis?.totalVehicles ?? 0,
+        icon: <LocalShipping sx={{ fontSize: 22 }} />,
+        color: theme.palette.primary.main,
+      },
+      {
+        label: dict.vehicles.kpis.available,
+        value: dashboardData?.vehiclesKpis?.available ?? 0,
+        icon: <CheckCircle sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.emerald,
+      },
+      {
+        label: dict.vehicles.kpis.inService,
+        value: dashboardData?.vehiclesKpis?.inService ?? 0,
+        icon: <Build sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.amber,
+      },
+      {
+        label: dict.vehicles.kpis.onTrip,
+        value: dashboardData?.vehiclesKpis?.onTrip ?? 0,
+        icon: <DirectionsCar sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.sky,
+      },
+      {
+        label: dict.vehicles.kpis.openIssues,
+        value: dashboardData?.vehiclesKpis?.openIssues ?? 0,
+        icon: <ReportProblem sx={{ fontSize: 22 }} />,
+        color: theme.palette.error.main,
+      },
+      {
+        label: dict.vehicles.kpis.docsExpiring,
+        value: dashboardData?.vehiclesKpis?.docsDueSoon ?? 0,
+        icon: <Description sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.amber,
+      },
+    ],
+    [dashboardData, theme, dict]
+  );
 
   /* --------------------------------- RENDER --------------------------------- */
   return (
@@ -242,13 +250,15 @@ function VehicleContent() {
 
       <Stack mt={2}>
         <VehicleTable
-          state={{
-            ...state,
-            vehicles,
-            dashboardData: dashboardData ?? null,
-            loading,
-            error: null,
-          } as VehiclePageState}
+          state={
+            {
+              ...state,
+              vehicles,
+              dashboardData: dashboardData ?? null,
+              loading,
+              error: null,
+            } as VehiclePageState
+          }
           actions={{
             ...actions,
             onEdit: handleEdit,

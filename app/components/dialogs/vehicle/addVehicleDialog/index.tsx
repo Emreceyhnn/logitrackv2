@@ -190,7 +190,7 @@ const AddVehicleDialog = ({
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={addVehicleValidationSchema}
+      validationSchema={useMemo(() => addVehicleValidationSchema(dict), [dict])}
       onSubmit={handleSubmit}
     >
       {({ isSubmitting, submitForm, setFieldValue }) => (

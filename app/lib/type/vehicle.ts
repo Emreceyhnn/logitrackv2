@@ -207,9 +207,7 @@ export interface VehicleStep3Data {
 }
 
 export interface VehicleFormValues
-  extends VehicleStep1Data,
-    VehicleStep2Data,
-    VehicleStep3Data {}
+  extends VehicleStep1Data, VehicleStep2Data, VehicleStep3Data {}
 
 export interface AddVehiclePageState {
   currentStep: number;

@@ -24,6 +24,7 @@
       "date": "Date",
       "next": "Next",
       "back": "Back",
+      "step": "Step",
       "saveSuccess": "Saved successfully",
       "errorOccurred": "An error occurred",
       "settings": "Settings",
@@ -60,7 +61,7 @@
       "login": "Login",
       "register": "Register",
       "noAccount": "Don't have an account?",
-      "signUp": "Sign Up",
+      "signUp": "SignUp",
       "loggingIn": "Logging In...",
       "logInNow": "Log In Now",
       "createAccount": "Create Account",
@@ -70,6 +71,8 @@
       "forgotPasswordPrompt": "Forgot your password?"
     },
     "landing": {
+      "metaTitle": "LogiTrack – AI Logistics Management Platform",
+      "metaDescription": "Orchestrate every shipment with live intelligence. Synchronize dispatch, fleets, and customer promises in one immersive dashboard.",
       "hero": {
         "badge": "AI logistics control tower",
         "trusted": "Trusted worldwide",
@@ -136,6 +139,34 @@
       },
       "trusted": "Trusted by industry leaders"
     },
+    "navbar": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "about": "About",
+      "howItWorks": "How It Works",
+      "dashboard": "Dashboard",
+      "setupOrg": "Setup Org",
+      "signIn": "Sign In",
+      "signUp": "Sign Up",
+      "startPro": "Start Pro"
+    },
+    "languages": {
+      "en": "English",
+      "tr": "Turkish"
+    },
+    "validation": {
+      "required": "{field} is required",
+      "email": "Invalid email address",
+      "min": "{field} must be at least {min} characters",
+      "max": "{field} must be at most {max} characters",
+      "matches": "{field} format is invalid",
+      "oneOf": "Please select a valid {field}",
+      "number": "{field} must be a number",
+      "integer": "{field} must be a whole number",
+      "positive": "{field} must be a positive number",
+      "url": "Invalid URL",
+      "genericFormError": "Please fill in required fields correctly"
+    },
     "overview": {
       "title": "Overview",
       "activeShipments": "Active Shipments",
@@ -159,21 +190,38 @@
       "title": "Vehicle Fleet Management",
       "subtitle": "Track, manage and optimize your logistics fleet in real-time.",
       "addVehicle": "Add Vehicle",
+      "vehicleTable": "Vehicle Table",
+      "maxLoadCapacityChart": "Vehicle Max Load Capacity Chart",
+      "expiringSoonCalendar": "Expiring Soon Calendar",
+      "vehicleDialogs": "Vehicle Dialogs",
       "dialogs": {
         "addTitle": "Add New Vehicle",
         "editTitle": "Edit Vehicle Details",
+        "reportIssueTitle": "Report Vehicle Issue",
+        "vehicleLabel": "Vehicle",
+        "coreDetails": "Core Details",
+        "issueTitle": "Issue Title",
+        "issuePlaceholder": "Describe the technical disruption...",
+        "priorityLevel": "Priority Level",
+        "extendedDescription": "Extended Description",
+        "details": "Details",
+        "detailsPlaceholder": "Provide additional context...",
+        "submitIssue": "Submit Issue",
         "steps": {
           "general": "General Info",
           "specs": "Tech Specs",
           "docs": "Documents"
         }
       },
-      "totalVehicles": "Total Vehicles",
-      "available": "Available Vehicle",
-      "inService": "Vehicle in Service",
-      "onTrip": "Vehicles On Trip",
-      "openIssues": "Open Issues",
-      "docsExpiring": "Document Expiring",
+      "kpis": {
+        "totalVehicles": "Total Vehicles",
+        "available": "Available Vehicle",
+        "inService": "Vehicle in Service",
+        "onTrip": "Vehicles On Trip",
+        "openIssues": "Open Issues",
+        "docsExpiring": "Document Expiring"
+      },
+      "vehicleList": "Vehicle List",
       "deleteTitle": "Delete Vehicle?",
       "deleteDesc": "Are you sure you want to delete this vehicle? This will permanently remove the vehicle and all associated data.",
       "fields": {
@@ -196,7 +244,13 @@
       "subtitle": "Manage your fleet drivers, monitor performance and license status.",
       "addDriver": "Add Driver",
       "dialogs": {
-        "addTitle": "Add New Driver"
+        "addTitle": "Add New Driver",
+        "editTitle": "Edit Driver Details",
+        "editSubtitle": "Update driver information, license details and assignments",
+        "steps": {
+          "credentials": "Credentials",
+          "assignment": "Assignment"
+        }
       },
       "totalDrivers": "Total Fleet Drivers",
       "onDuty": "On Duty",
@@ -211,6 +265,10 @@
         "lastName": "Last Name",
         "licenseNumber": "License Number",
         "phoneNumber": "Phone Number",
+        "phone": "Phone",
+        "employeeId": "Employee ID",
+        "licenseType": "License Type",
+        "licenseExpiry": "License Expiry",
         "status": "Status"
       }
     },
@@ -223,7 +281,14 @@
       "totalValue": "TOTAL VALUE",
       "addInventory": "Add Inventory",
       "dialogs": {
-        "addTitle": "Add New Item"
+        "addTitle": "Add New Item",
+        "editTitle": "Edit Item Details",
+        "addSubtitle": "Configure your warehouse stock item",
+        "steps": {
+          "details": "Item Details",
+          "storage": "Storage Levels",
+          "review": "Review & Confirm"
+        }
       },
       "deleteTitle": "Delete Item",
       "deleteDesc": "Are you sure you want to delete this item?",
@@ -245,7 +310,90 @@
       "completed": "Completed",
       "pending": "Pending",
       "delayed": "Delayed",
-      "track": "Track Shipment"
+      "track": "Track Shipment",
+      "dialogs": {
+        "addTitle": "Create New Shipment",
+        "editTitle": "Edit Shipment Details",
+        "editSubtitle": "Modify shipment parameters and update logistics status",
+        "addSubtitle": "Create a new logitrack shipment and define parameters",
+        "cargoTitle": "Cargo & Load Details",
+        "steps": {
+          "logistics": "Logistics & Priority",
+          "route": "Route & Customer",
+          "inventory": "Inventory & Load",
+          "cargo": "Cargo Details"
+        }
+      }
+    },
+    "routes": {
+      "title": "Route Planning",
+      "active": "Active Routes",
+      "total": "Total Routes",
+      "completed": "Completed",
+      "delayed": "Delayed",
+      "addRoute": "Add Route",
+      "dialogs": {
+        "addTitle": "Plan New Route",
+        "editTitle": "Edit Route Details",
+        "prefilledFrom": "Prefilled from Shipment",
+        "addSubtitle": "Define timing, endpoints and assign assets for this route",
+        "editSubtitle": "Modify route parameters and logistics state",
+        "deliveryLabel": "Delivery",
+        "steps": {
+          "timing": "Timing & Assets",
+          "points": "Start & End Points",
+          "schedule": "Schedule",
+          "locations": "Locations",
+          "assignments": "Assignments"
+        }
+      }
+    },
+    "warehouses": {
+      "title": "Warehouse Network",
+      "addWarehouse": "Add Warehouse",
+      "dialogs": {
+        "addTitle": "Add New Warehouse",
+        "editTitle": "Edit Warehouse Details",
+        "locationTitle": "Facility Location",
+        "capacityTitle": "Operational Capacity",
+        "createButton": "Create Warehouse",
+        "updateButton": "Save Changes",
+        "steps": {
+          "basicInfo": "Basic Info",
+          "location": "Location",
+          "capacity": "Capacity"
+        }
+      }
+    },
+    "company": {
+      "title": "Company Management",
+      "addMember": "Add Member",
+      "createCompany": "Create Company",
+      "roles": {
+        "admin": "Administrator",
+        "manager": "Manager",
+        "dispatcher": "Dispatcher",
+        "warehouse": "Warehouse Staff",
+        "default": "Default Member",
+        "driver": "Fleet Driver"
+      },
+      "dialogs": {
+        "addMemberTitle": "Add New Member",
+        "addMemberSubtitle": "Invite a new member to your organization and assign a role",
+        "identityTitle": "Company Identity",
+        "regionalTitle": "Regional Ecosystem",
+        "identitySubtitle": "Configure your organization's core profile and presence",
+        "searchPlaceholder": "Search by name or email...",
+        "searchResults": "Search Results",
+        "assignRole": "Assign Organizational Role",
+        "invitationNote": "Members will receive an invitation to join your company infrastructure.",
+        "driverDetailsRequired": "Driver Profile Requirements",
+        "addToCompany": "Add to Company",
+        "steps": {
+          "branding": "Branding & Legal",
+          "regional": "Localization & Scope"
+        }
+      }
     },
     "toasts": {
       "successAdd": "Successfully added!",
@@ -282,6 +430,7 @@
       "date": "Tarih",
       "next": "İleri",
       "back": "Geri",
+      "step": "Adım",
       "saveSuccess": "Başarıyla kaydedildi",
       "errorOccurred": "Bir hata oluştu",
       "settings": "Ayarlar",
@@ -328,6 +477,8 @@
       "forgotPasswordPrompt": "Şifrenizi mi unuttunuz?"
     },
     "landing": {
+      "metaTitle": "LogiTrack – AI Lojistik Yönetim Platformu",
+      "metaDescription": "Her sevkiyatı canlı zeka ile yönetin. Sevkiyatı, filoları ve müşteri sözlerini tek bir etkileyici panelde senkronize edin.",
       "hero": {
         "badge": "Yapay zeka lojistik kontrol kulesi",
         "trusted": "Dünya çapında güveniliyor",
@@ -394,6 +545,34 @@
       },
       "trusted": "Sektör liderleri tarafından güveniliyor"
     },
+    "navbar": {
+      "features": "Özellikler",
+      "pricing": "Fiyatlandırma",
+      "about": "Hakkımızda",
+      "howItWorks": "Nasıl Çalışır",
+      "dashboard": "Panel",
+      "setupOrg": "Organizasyonu Kur",
+      "signIn": "Giriş Yap",
+      "signUp": "Kayıt Ol",
+      "startPro": "Hemen Başla"
+    },
+    "languages": {
+      "en": "İngilizce",
+      "tr": "Türkçe"
+    },
+    "validation": {
+      "required": "{field} gereklidir",
+      "email": "Geçersiz e-posta adresi",
+      "min": "{field} en az {min} karakter olmalıdır",
+      "max": "{field} en fazla {max} karakter olmalıdır",
+      "matches": "{field} biçimi geçersiz",
+      "oneOf": "Lütfen geçerli bir {field} seçin",
+      "number": "{field} bir sayı olmalıdır",
+      "integer": "{field} tam sayı olmalıdır",
+      "positive": "{field} pozitif bir sayı olmalıdır",
+      "url": "Geçersiz URL",
+      "genericFormError": "Lütfen gerekli alanları doğru şekilde doldurun"
+    },
     "overview": {
       "title": "Genel Bakış",
       "activeShipments": "Aktif Sevkiyatlar",
@@ -417,21 +596,38 @@
       "title": "Araç Yönetimi",
       "subtitle": "Filo araçlarınızı, bakımlarınızı ve uygunluk durumunuzu izleyin.",
       "addVehicle": "Araç Ekle",
+      "vehicleTable": "Araç Tablosu",
+      "maxLoadCapacityChart": "Araç Maks. Yük Kapasitesi Grafiği",
+      "expiringSoonCalendar": "Yaklaşan Süre Takvimi",
+      "vehicleDialogs": "Araç Diyalogları",
       "dialogs": {
         "addTitle": "Yeni Araç Ekle",
         "editTitle": "Araç Detaylarını Düzenle",
+        "reportIssueTitle": "Araç Sorunu Bildir",
+        "vehicleLabel": "Araç",
+        "coreDetails": "Temel Detaylar",
+        "issueTitle": "Sorun Başlığı",
+        "issuePlaceholder": "Teknik aksaklığı tarif edin...",
+        "priorityLevel": "Öncelik Seviyesi",
+        "extendedDescription": "Genişletilmiş Açıklama",
+        "details": "Detaylar",
+        "detailsPlaceholder": "Ek bağlam sağlayın...",
+        "submitIssue": "Sorun Bildir",
         "steps": {
           "general": "Genel Bilgiler",
           "specs": "Teknik Özellikler",
           "docs": "Belgeler"
         }
       },
-      "totalVehicles": "Toplam Araç",
-      "available": "Müsait Araç",
-      "inService": "Servisteki Araç",
-      "onTrip": "Seferdeki Araçlar",
-      "openIssues": "Açık Sorunlar",
-      "docsExpiring": "Süresi Dolan Belgeler",
+      "kpis": {
+        "totalVehicles": "Toplam Araç",
+        "available": "Müsait Araç",
+        "inService": "Servisteki Araç",
+        "onTrip": "Seferdeki Araçlar",
+        "openIssues": "Açık Sorunlar",
+        "docsExpiring": "Süresi Dolan Belgeler"
+      },
+      "vehicleList": "Araç Listesi",
       "deleteTitle": "Aracı Sil?",
       "deleteDesc": "Bu aracı silmek istediğinize emin misiniz? Bu işlem aracı ve tüm ilişkili verileri kalıcı olarak silecektir.",
       "fields": {
@@ -454,7 +650,13 @@
       "subtitle": "Sürücülerinizi yönetin, performans ve ehliyet durumlarını izleyin.",
       "addDriver": "Sürücü Ekle",
       "dialogs": {
-        "addTitle": "Yeni Sürücü Ekle"
+        "addTitle": "Yeni Sürücü Ekle",
+        "editTitle": "Sürücü Detaylarını Düzenle",
+        "editSubtitle": "Sürücü bilgilerini, ehliyet detaylarını ve atamalarını güncelleyin",
+        "steps": {
+          "credentials": "Kimlik Bilgileri",
+          "assignment": "Atama"
+        }
       },
       "totalDrivers": "Toplam Filo Sürücüsü",
       "onDuty": "Görevde",
@@ -469,6 +671,10 @@
         "lastName": "Soyad",
         "licenseNumber": "Ehliyet No",
         "phoneNumber": "Telefon",
+        "phone": "Telefon",
+        "employeeId": "Çalışan No",
+        "licenseType": "Ehliyet Tipi",
+        "licenseExpiry": "Ehliyet Geçerlilik",
         "status": "Durum"
       }
     },
@@ -481,7 +687,14 @@
       "totalValue": "TOPLAM DEĞER",
       "addInventory": "Envanter Ekle",
       "dialogs": {
-        "addTitle": "Yeni Ürün Ekle"
+        "addTitle": "Yeni Ürün Ekle",
+        "editTitle": "Ürün Detaylarını Düzenle",
+        "addSubtitle": "Depo stok kaleminizi yapılandırın",
+        "steps": {
+          "details": "Ürün Detayları",
+          "storage": "Stok Seviyeleri",
+          "review": "Gözden Geçir ve Onayla"
+        }
       },
       "deleteTitle": "Öğeyi Sil",
       "deleteDesc": "Bu öğeyi silmek istediğinize emin misiniz?",
@@ -503,7 +716,90 @@
       "completed": "Tamamlandı",
       "pending": "Bekliyor",
       "delayed": "Gecikti",
-      "track": "Sevkiyat Takip"
+      "track": "Sevkiyat Takip",
+      "dialogs": {
+        "addTitle": "Yeni Sevkiyat Oluştur",
+        "editTitle": "Sevkiyat Detaylarını Düzenle",
+        "editSubtitle": "Sevkiyat parametrelerini düzenleyin ve lojistik durumunu güncelleyin",
+        "addSubtitle": "Yeni bir sevkiyat oluşturun ve parametreleri tanımlayın",
+        "cargoTitle": "Kargo ve Yük Detayları",
+        "steps": {
+          "logistics": "Lojistik ve Öncelik",
+          "route": "Rota ve Müşteri",
+          "inventory": "Envanter ve Yük",
+          "cargo": "Kargo Detayları"
+        }
+      }
+    },
+    "routes": {
+      "title": "Rota Planlama",
+      "active": "Aktif Rotalar",
+      "total": "Toplam Rotalar",
+      "completed": "Tamamlandı",
+      "delayed": "Gecikti",
+      "addRoute": "Rota Ekle",
+      "dialogs": {
+        "addTitle": "Yeni Rota Planla",
+        "editTitle": "Rota Detaylarını Düzenle",
+        "prefilledFrom": "Sevkiyattan önceden yüklendi",
+        "addSubtitle": "Bu rota için zamanlamayı, bitiş noktalarını ve varlıkları tanımlayın",
+        "editSubtitle": "Rota parametrelerini ve lojistik durumunu düzenleyin",
+        "deliveryLabel": "Teslimat",
+        "steps": {
+          "timing": "Zamanlama ve Varlıklar",
+          "points": "Başlangıç ve Bitiş Noktaları",
+          "schedule": "Planlama",
+          "locations": "Konumlar",
+          "assignments": "Atamalar"
+        }
+      }
+    },
+    "warehouses": {
+      "title": "Depo Ağı",
+      "addWarehouse": "Depo Ekle",
+      "dialogs": {
+        "addTitle": "Yeni Depo Ekle",
+        "editTitle": "Depo Detaylarını Düzenle",
+        "locationTitle": "Tesis Konumu",
+        "capacityTitle": "Operasyonel Kapasite",
+        "createButton": "Depo Oluştur",
+        "updateButton": "Değişiklikleri Kaydet",
+        "steps": {
+          "basicInfo": "Temel Bilgiler",
+          "location": "Konum",
+          "capacity": "Kapasite"
+        }
+      }
+    },
+    "company": {
+      "title": "Şirket Yönetimi",
+      "addMember": "Üye Ekle",
+      "createCompany": "Şirket Oluştur",
+      "roles": {
+        "admin": "Yönetici",
+        "manager": "Müdür",
+        "dispatcher": "Sevkiyat Sorumlusu",
+        "warehouse": "Depo Personeli",
+        "default": "Varsayılan Üye",
+        "driver": "Filo Sürücüsü"
+      },
+      "dialogs": {
+        "addMemberTitle": "Yeni Üye Ekle",
+        "addMemberSubtitle": "Organizasyonunuza yeni bir üye davet edin ve rol atayın",
+        "identityTitle": "Şirket Kimliği",
+        "regionalTitle": "Bölgesel Ekosistem",
+        "identitySubtitle": "Organizasyonunuzun temel profilini ve varlığını yapılandırın",
+        "searchPlaceholder": "İsim veya e-posta ile ara...",
+        "searchResults": "Arama Sonuçları",
+        "assignRole": "Organizasyonel Rol Ata",
+        "invitationNote": "Üyeler, şirket altyapınıza katılmak için bir davet alacaktır.",
+        "driverDetailsRequired": "Sürücü Profili Gereksinimleri",
+        "addToCompany": "Şirkete Ekle",
+        "steps": {
+          "branding": "Markalaşma ve Yasal",
+          "regional": "Yerelleştirme ve Kapsam"
+        }
+      }
     },
     "toasts": {
       "successAdd": "Başarıyla eklendi!",

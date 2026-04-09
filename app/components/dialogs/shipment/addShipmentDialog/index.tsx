@@ -19,7 +19,7 @@ import {
   StepLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AddShipmentDialogProps } from "@/app/lib/type/add-shipment";
 import { toast } from "sonner";
 import { createShipment } from "@/app/lib/controllers/shipments";
@@ -42,6 +42,8 @@ import CargoSection from "./sections/CargoSection";
 import InventorySection from "./sections/InventorySection";
 import RouteSection from "./sections/RouteSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 const initialValues: ShipmentFormValues = {
   referenceNumber: "",
@@ -86,6 +88,8 @@ const AddShipmentDialog = ({
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
+  const { lang } = useParams();
+  const dict = useMemo(() => getDictionary(lang as string), [lang]);
 
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
@@ -169,15 +173,14 @@ const AddShipmentDialog = ({
         values.billingAccount
       );
 
-      toast.success("Shipment created successfully");
+      toast.success(dict.toasts.successAdd);
       setTimeout(() => {
         onClose();
         onSuccess?.();
         setCurrentStep(1);
       }, 1500);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Failed to create shipment";
+      const message = err instanceof Error ? err.message : dict.toasts.errorGeneric;
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -191,11 +194,16 @@ const AddShipmentDialog = ({
     }
   };
 
+  const steps = [
+    dict.shipments.dialogs.steps.logistics,
+    dict.shipments.dialogs.steps.cargo
+  ];
+
   return (
     <GoogleMapsProvider>
       <Formik
         initialValues={initialValues}
-        validationSchema={addShipmentValidationSchema}
+        validationSchema={useMemo(() => addShipmentValidationSchema(dict), [dict])}
         onSubmit={onSubmit}
         enableReinitialize
       >
@@ -223,7 +231,7 @@ const AddShipmentDialog = ({
             if (!hasErrors) {
               setCurrentStep(2);
             } else {
-              toast.error("Please fix the errors in Step 1 first.");
+              toast.error(dict.validation.genericFormError);
             }
           };
 
@@ -254,11 +262,11 @@ const AddShipmentDialog = ({
                     <Stack spacing={0.5}>
                       <Typography variant="h6" fontWeight={700} color="white">
                         {currentStep === 1
-                          ? "Create Shipment"
-                          : "Cargo & Inventory Details"}
+                          ? dict.shipments.dialogs.addTitle
+                          : dict.shipments.dialogs.cargoTitle}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Initialize transport record and logistics data
+                        {dict.shipments.dialogs.addSubtitle}
                       </Typography>
                     </Stack>
                     <IconButton
@@ -293,12 +301,11 @@ const AddShipmentDialog = ({
                       },
                     }}
                   >
-                    <Step>
-                      <StepLabel>Logistics & Basic Info</StepLabel>
-                    </Step>
-                    <Step>
-                      <StepLabel>Cargo & Inventory</StepLabel>
-                    </Step>
+                    {steps.map((label) => (
+                      <Step key={label}>
+                        <StepLabel>{label}</StepLabel>
+                      </Step>
+                    ))}
                   </Stepper>
                 </Box>
 
@@ -351,7 +358,7 @@ const AddShipmentDialog = ({
                     }
                     sx={{ color: "text.secondary", textTransform: "none" }}
                   >
-                    {currentStep === 1 ? "Cancel" : "Back"}
+                    {currentStep === 1 ? dict.common.cancel : dict.common.back}
                   </Button>
 
                   <Button
@@ -372,10 +379,10 @@ const AddShipmentDialog = ({
                     }
                   >
                     {isLoading
-                      ? "Creating..."
+                      ? dict.toasts.loading
                       : currentStep === 1
-                        ? "Next Step"
-                        : "Create Shipment"}
+                        ? dict.common.next
+                        : dict.common.save}
                   </Button>
                 </DialogActions>
               </Dialog>

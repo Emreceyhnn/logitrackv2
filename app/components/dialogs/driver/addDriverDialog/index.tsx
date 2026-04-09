@@ -190,7 +190,7 @@ const AddDriverDialog = ({
     >
       <Formik
         initialValues={initialValues}
-        validationSchema={addDriverValidationSchema}
+        validationSchema={useMemo(() => addDriverValidationSchema(dict), [dict])}
         onSubmit={handleSubmit}
         validateOnMount
       >

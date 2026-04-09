@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
 import {
   Box,
   Button,
@@ -21,6 +21,7 @@ import Step3Profile from "./step3Profile";
 import { RegisterUser } from "@/app/lib/controllers/users";
 import AuthButton from "../../ui/AuthButton";
 import { signUpValidationSchema } from "@/app/lib/validationSchema";
+import { getDictionary } from "@/app/lib/language/language";
 
 /* --------------------------------- STYLES --------------------------------- */
 
@@ -111,6 +112,10 @@ export default function SignUpStepper() {
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { lang } = useParams();
+  const dict = getDictionary(lang as string);
+
+  const schemas = useMemo(() => signUpValidationSchema(dict), [dict]);
 
   const isLastStep = activeStep === steps.length - 1;
 
@@ -158,7 +163,7 @@ export default function SignUpStepper() {
         }
       } else if (res && "user" in res) {
         router.refresh();
-        router.push("/en");
+        router.push(`/${lang}`);
       }
     } catch (error: unknown) {
       console.error("Critical Registration crash:", error);
@@ -209,7 +214,7 @@ export default function SignUpStepper() {
           repeatPassword: "",
           avatarUrl: "",
         }}
-        validationSchema={signUpValidationSchema[activeStep]}
+        validationSchema={schemas[activeStep]}
         onSubmit={handleNext}
       >
         {({ handleSubmit }) => (

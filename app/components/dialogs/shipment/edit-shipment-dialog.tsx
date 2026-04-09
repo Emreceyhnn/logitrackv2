@@ -20,12 +20,11 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { updateShipment } from "@/app/lib/controllers/shipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getCustomers } from "@/app/lib/controllers/customer";
-import { getInventory } from "@/app/lib/controllers/inventory";
 import { getRoutes } from "@/app/lib/controllers/routes";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
@@ -45,6 +44,8 @@ import CargoSection from "./addShipmentDialog/sections/CargoSection";
 import InventorySection from "./addShipmentDialog/sections/InventorySection";
 import RouteSection from "./addShipmentDialog/sections/RouteSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 interface EditShipmentDialogProps {
   open: boolean;
@@ -62,6 +63,9 @@ const EditShipmentDialog = ({
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
+  const { lang } = useParams();
+  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+  const validationSchema = useMemo(() => editShipmentValidationSchema(dict), [dict]);
 
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
@@ -95,23 +99,6 @@ const EditShipmentDialog = ({
       fetchData();
     }
   }, [open, user]);
-
-  const handleFetchInventory = async (warehouseId: string) => {
-    if (!warehouseId || !user) {
-      setAvailableInventory([]);
-      return;
-    }
-    setIsLoadingInventory(true);
-    try {
-      const inv = await getInventory(warehouseId);
-      setAvailableInventory(inv);
-    } catch (error) {
-      console.error("Failed to fetch warehouse inventory", error);
-      setAvailableInventory([]);
-    } finally {
-      setIsLoadingInventory(false);
-    }
-  };
 
   const getInitialValues = (): ShipmentFormValues => {
     if (!shipment) {
@@ -160,7 +147,7 @@ const EditShipmentDialog = ({
       palletCount: shipment.palletCount || 0,
       cargoType: shipment.cargoType || "General Cargo",
       assignedRouteId: shipment.routeId || null,
-      inventoryItems: [], // Note: usually inventory items are handled separately or fetched if needed
+      inventoryItems: [],
     };
   };
 
@@ -207,14 +194,14 @@ const EditShipmentDialog = ({
         customerLocationId: values.customerLocationId,
       });
 
-      toast.success("Shipment updated successfully");
+      toast.success(dict.toasts.successUpdate);
       setTimeout(() => {
         onClose();
         onSuccess?.();
       }, 1500);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Failed to update shipment";
+        err instanceof Error ? err.message : dict.toasts.errorGeneric;
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -228,13 +215,18 @@ const EditShipmentDialog = ({
     }
   };
 
+  const steps = useMemo(() => [
+    dict.shipments.dialogs.steps.logistics,
+    dict.shipments.dialogs.steps.cargo
+  ], [dict]);
+
   if (!shipment) return null;
 
   return (
     <GoogleMapsProvider>
       <Formik
         initialValues={getInitialValues()}
-        validationSchema={editShipmentValidationSchema}
+        validationSchema={validationSchema}
         onSubmit={onSubmit}
         enableReinitialize
       >
@@ -261,14 +253,14 @@ const EditShipmentDialog = ({
             if (!hasErrors) {
               setCurrentStep(2);
             } else {
-              toast.error("Please fix the errors before proceeding.");
+              toast.error(dict.validation.genericFormError);
             }
           };
 
           return (
             <>
               <FormikInventorySync
-                onWarehouseChange={handleFetchInventory}
+                onWarehouseChange={() => {}} 
                 open={open}
               />
               <Dialog
@@ -309,11 +301,10 @@ const EditShipmentDialog = ({
                     </Box>
                     <Stack spacing={0.5}>
                       <Typography variant="h6" fontWeight={700} color="white">
-                        Edit Shipment
+                        {dict.shipments.dialogs.editTitle}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Update transport record and logistics data for{" "}
-                        {shipment.trackingId}
+                        {dict.shipments.dialogs.editSubtitle} {shipment.trackingId}
                       </Typography>
                     </Stack>
                   </Stack>
@@ -349,12 +340,11 @@ const EditShipmentDialog = ({
                     },
                   }}
                 >
-                  <Step>
-                    <StepLabel>Logistics & Basic Info</StepLabel>
-                  </Step>
-                  <Step>
-                    <StepLabel>Cargo & Inventory</StepLabel>
-                  </Step>
+                  {steps.map((label) => (
+                    <Step key={label}>
+                      <StepLabel>{label}</StepLabel>
+                    </Step>
+                  ))}
                 </Stepper>
               </Box>
 
@@ -407,7 +397,7 @@ const EditShipmentDialog = ({
                   }
                   sx={{ color: "text.secondary", textTransform: "none" }}
                 >
-                  {currentStep === 1 ? "Cancel" : "Back"}
+                  {currentStep === 1 ? dict.common.cancel : dict.common.back}
                 </Button>
 
                 <Button
@@ -428,10 +418,10 @@ const EditShipmentDialog = ({
                   }
                 >
                   {isLoading
-                    ? "Saving..."
+                    ? dict.toasts.loading
                     : currentStep === 1
-                      ? "Next Step"
-                      : "Save Changes"}
+                      ? dict.common.next
+                      : dict.common.save}
                 </Button>
               </DialogActions>
               </Dialog>

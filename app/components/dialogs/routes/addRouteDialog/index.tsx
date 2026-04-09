@@ -18,7 +18,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AddRouteDialogProps } from "@/app/lib/type/add-route";
 import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { toast } from "sonner";
@@ -34,6 +34,8 @@ import { RouteFormValues } from "@/app/lib/type/routes";
 import FirstRouteDialogStep from "./firstStep";
 import SecondRouteDialogStep from "./secondStep";
 import ThirdRouteDialogStep from "./thirdStep";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 const initialValues: RouteFormValues = {
   name: "",
@@ -56,6 +58,8 @@ const initialValues: RouteFormValues = {
 const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
+  const { lang } = useParams();
+  const dict = useMemo(() => getDictionary(lang as string), [lang]);
 
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
@@ -116,7 +120,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
         }
       );
 
-      toast.success("Route created successfully");
+      toast.success(dict.toasts.successAdd);
       setTimeout(() => {
         onClose();
         onSuccess?.();
@@ -124,7 +128,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
       }, 1500);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Failed to create route";
+        err instanceof Error ? err.message : dict.toasts.errorGeneric;
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -138,13 +142,17 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
     }
   };
 
-  const steps = ["Schedule", "Locations", "Assignments"];
+  const steps = [
+    dict.routes.dialogs.steps.schedule,
+    dict.routes.dialogs.steps.locations,
+    dict.routes.dialogs.steps.assignments
+  ];
 
   return (
     <GoogleMapsProvider>
       <Formik
         initialValues={initialValues}
-        validationSchema={addRouteValidationSchema}
+        validationSchema={useMemo(() => addRouteValidationSchema(dict), [dict])}
         onSubmit={onSubmit}
         enableReinitialize
       >
@@ -198,7 +206,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
 
               setFieldValue(
                 "name",
-                `Delivery: ${shipment.customer?.name || "Shipment"} - ${shipment.trackingId}`
+                `${dict.routes.dialogs.deliveryLabel}: ${shipment.customer?.name || "Shipment"} - ${shipment.trackingId}`
               );
               if (hasDeadline) {
                 setFieldValue(
@@ -207,7 +215,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                 );
               }
 
-              toast.info(`Pre-filled from shipment ${shipment.trackingId}`);
+              toast.info(`${dict.routes.dialogs.prefilledFrom} ${shipment.trackingId}`);
             }
           };
 
@@ -228,7 +236,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
             if (!hasErrors) {
               setCurrentStep((prev) => prev + 1);
             } else {
-              toast.error("Please fix errors before proceeding.");
+              toast.error(dict.validation.genericFormError);
             }
           };
 
@@ -255,10 +263,10 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                 >
                   <Stack spacing={0.5}>
                     <Typography variant="h6" fontWeight={600} color="white">
-                      Add New Route
+                      {dict.routes.dialogs.addTitle}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Configure your new delivery route details and schedule
+                      {dict.routes.dialogs.addSubtitle}
                     </Typography>
                   </Stack>
                   <IconButton
@@ -345,7 +353,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                     "&:hover": { bgcolor: alpha(theme.palette.divider, 0.05) },
                   }}
                 >
-                  {currentStep === 1 ? "Cancel" : "Back"}
+                  {currentStep === 1 ? dict.common.cancel : dict.common.back}
                 </Button>
                 <Button
                   variant="contained"
@@ -366,10 +374,10 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   }}
                 >
                   {isLoading
-                    ? "Creating..."
+                    ? dict.toasts.loading
                     : currentStep === steps.length
-                      ? "Create Route"
-                      : "Next Step"}
+                      ? dict.common.save
+                      : dict.common.next}
                 </Button>
               </DialogActions>
             </Dialog>

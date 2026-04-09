@@ -17,12 +17,14 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createVehicleIssue } from "@/app/lib/controllers/vehicle";
 import { vehicleReportIssueValidationSchema } from "@/app/lib/validationSchema";
 import { getPriorityColor } from "@/app/lib/priorityColor";
 import { ValidationError } from "yup";
 import { IssuePriority } from "@prisma/client";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 interface ReportIssueDialogProps {
   open: boolean;
@@ -47,6 +49,8 @@ const ReportIssueDialog = ({
 }: ReportIssueDialogProps) => {
   /* ---------------------------------- theme --------------------------------- */
   const theme = useTheme();
+  const { lang } = useParams();
+  const dict = useMemo(() => getDictionary(lang as string), [lang]);
 
   /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState<IssueFormData>({
@@ -99,7 +103,8 @@ const ReportIssueDialog = ({
 
   const handleSubmit = async () => {
     try {
-      await vehicleReportIssueValidationSchema.validate(formData, {
+      const schema = vehicleReportIssueValidationSchema(dict);
+      await schema.validate(formData, {
         abortEarly: false,
       });
       setFieldErrors({});
@@ -130,10 +135,10 @@ const ReportIssueDialog = ({
           }
         });
         setFieldErrors(errors);
-        setError("Please fix the validation errors below");
+        setError(dict.validation.genericFormError);
       } else {
         console.error("Failed to create issue:", err);
-        const errorMessage = err instanceof Error ? err.message : "Failed to create issue. Please try again.";
+        const errorMessage = err instanceof Error ? err.message : dict.toasts.errorGeneric;
         setError(errorMessage);
       }
     } finally {
@@ -197,10 +202,10 @@ const ReportIssueDialog = ({
             </Box>
             <Box>
               <Typography variant="h6" fontWeight={700} color="white">
-                Report Issue
+                {dict.vehicles.dialogs.reportIssueTitle}
               </Typography>
               <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
-                Vehicle: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>{vehiclePlate}</span>
+                {dict.vehicles.dialogs.vehicleLabel}: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>{vehiclePlate}</span>
               </Typography>
             </Box>
           </Stack>
@@ -223,19 +228,19 @@ const ReportIssueDialog = ({
                 border: `1px solid ${alpha(success ? theme.palette.success.main : theme.palette.error.main, 0.2)}`,
               }}
             >
-              {success ? "Issue reported successfully!" : error}
+              {success ? dict.toasts.successAdd : error}
             </Alert>
           )}
 
           <Box>
             <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
-              Core Details
+              {dict.vehicles.dialogs.coreDetails}
             </Typography>
             <Stack spacing={2.5}>
               <TextField
                 fullWidth
-                label="Issue Title"
-                placeholder="Brief description of the problem"
+                label={dict.vehicles.dialogs.issueTitle}
+                placeholder={dict.vehicles.dialogs.issuePlaceholder}
                 value={formData.title}
                 onChange={(e) => handleChange("title", e.target.value)}
                 required
@@ -249,7 +254,7 @@ const ReportIssueDialog = ({
               <TextField
                 fullWidth
                 select
-                label="Priority Level"
+                label={dict.vehicles.dialogs.priorityLevel}
                 value={formData.priority}
                 onChange={(e) => handleChange("priority", e.target.value)}
                 required
@@ -313,12 +318,12 @@ const ReportIssueDialog = ({
 
           <Box>
             <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
-              Extended Description
+              {dict.vehicles.dialogs.extendedDescription}
             </Typography>
             <TextField
               fullWidth
-              label="Details"
-              placeholder="Provide context, symptoms, or location of the issue..."
+              label={dict.vehicles.dialogs.details}
+              placeholder={dict.vehicles.dialogs.detailsPlaceholder}
               value={formData.description}
               onChange={(e) => handleChange("description", e.target.value)}
               disabled={loading}
@@ -351,7 +356,7 @@ const ReportIssueDialog = ({
               fontWeight: 600 
             }}
           >
-            Cancel
+            {dict.common.cancel}
           </Button>
           <Button
             variant="contained"
@@ -369,9 +374,9 @@ const ReportIssueDialog = ({
             {loading ? (
               <Stack direction="row" spacing={1} alignItems="center">
                 <CircularProgress size={16} color="inherit" />
-                <span>Submitting...</span>
+                <span>{dict.toasts.loading}</span>
               </Stack>
-            ) : "Submit Issue"}
+            ) : dict.vehicles.dialogs.submitIssue}
           </Button>
         </Stack>
       </Box>

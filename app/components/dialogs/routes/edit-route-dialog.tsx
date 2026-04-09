@@ -18,7 +18,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { updateRoute } from "@/app/lib/controllers/routes";
 import { useUser } from "@/app/lib/hooks/useUser";
@@ -29,6 +29,8 @@ import { RouteWithRelations, RouteFormValues } from "@/app/lib/type/routes";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { Formik, Form } from "formik";
 import { editRouteValidationSchema } from "@/app/lib/validationSchema";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 interface EditRouteDialogProps {
   open: boolean;
@@ -40,6 +42,8 @@ interface EditRouteDialogProps {
 const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
+  const { lang } = useParams();
+  const dict = useMemo(() => getDictionary(lang as string), [lang]);
 
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
@@ -108,13 +112,13 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
         vehicle: values.vehicleId ? { connect: { id: values.vehicleId } } : { disconnect: true },
       });
 
-      toast.success("Route updated successfully");
+      toast.success(dict.toasts.successUpdate);
       setTimeout(() => {
         onClose();
         onSuccess?.();
       }, 1500);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to update route";
+      const message = err instanceof Error ? err.message : dict.toasts.errorGeneric;
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -128,7 +132,11 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
     }
   };
 
-  const steps = ["Schedule", "Locations", "Assignments"];
+  const steps = [
+    dict.routes.dialogs.steps.schedule,
+    dict.routes.dialogs.steps.locations,
+    dict.routes.dialogs.steps.assignments
+  ];
 
   if (!route) return null;
 
@@ -136,7 +144,7 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
     <GoogleMapsProvider>
       <Formik
         initialValues={getInitialValues()}
-        validationSchema={editRouteValidationSchema}
+        validationSchema={useMemo(() => editRouteValidationSchema(dict), [dict])}
         onSubmit={onSubmit}
         enableReinitialize
       >
@@ -156,7 +164,7 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
             if (!hasErrors) {
               setCurrentStep(prev => prev + 1);
             } else {
-              toast.error("Please fix errors before proceeding.");
+              toast.error(dict.validation.genericFormError);
             }
           };
 
@@ -179,10 +187,10 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Stack spacing={0.5}>
                     <Typography variant="h6" fontWeight={600} color="white">
-                      Edit Route
+                      {dict.routes.dialogs.editTitle}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Update your delivery route details and schedule
+                      {dict.routes.dialogs.editSubtitle}
                     </Typography>
                   </Stack>
                   <IconButton onClick={closeDialog} size="small" sx={{ color: "text.secondary" }}>
@@ -220,7 +228,7 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
                   disabled={isLoading}
                   sx={{ color: "text.secondary", "&:hover": { bgcolor: alpha(theme.palette.divider, 0.05) } }}
                 >
-                  {currentStep === 1 ? "Cancel" : "Back"}
+                  {currentStep === 1 ? dict.common.cancel : dict.common.back}
                 </Button>
                 <Button
                   variant="contained"
@@ -229,7 +237,7 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
                   startIcon={isLoading && <CircularProgress size={16} color="inherit" />}
                   sx={{ borderRadius: 2, px: 4, fontWeight: 600, boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}` }}
                 >
-                  {isLoading ? "Updating..." : currentStep === steps.length ? "Update Route" : "Next Step"}
+                  {isLoading ? dict.toasts.loading : currentStep === steps.length ? dict.common.save : dict.common.next}
                 </Button>
               </DialogActions>
             </Dialog>

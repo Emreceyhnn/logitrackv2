@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Button,
@@ -36,6 +36,8 @@ import { searchPlatformUsers } from "@/app/lib/controllers/users";
 import { addCompanyUser } from "@/app/lib/controllers/company";
 import { addCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
 import { ValidationError } from "yup";
+import { useParams } from "next/navigation";
+import { getDictionary } from "@/app/lib/language/language";
 
 interface SearchedUser {
   id: string;
@@ -43,14 +45,6 @@ interface SearchedUser {
   email: string;
   avatar: string | null;
 }
-
-const roles = [
-  { id: "role_admin", label: "ADMIN - Full organizational access" },
-  { id: "role_manager", label: "MANAGER - Manage department operations" },
-  { id: "role_dispatcher", label: "DISPATCHER - Manage routes and fleet" },
-  { id: "role_warehouse", label: "WAREHOUSE - Manage inventory" },
-  { id: "role_default", label: "DEFAULT - Standard user access" },
-];
 
 const initialDriverData: DriverStateData = {
   employeeId: "",
@@ -66,6 +60,17 @@ export default function AddCompanyMemberDialog({
   onSuccess,
 }: AddMemberDialogProps) {
   const theme = useTheme();
+  const { lang } = useParams();
+  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+
+  const roles = useMemo(() => [
+    { id: "role_admin", label: dict.company.roles.admin },
+    { id: "role_manager", label: dict.company.roles.manager },
+    { id: "role_dispatcher", label: dict.company.roles.dispatcher },
+    { id: "role_warehouse", label: dict.company.roles.warehouse },
+    { id: "role_default", label: dict.company.roles.default },
+    { id: "role_driver", label: dict.company.roles.driver },
+  ], [dict]);
 
   /* ---------------------------------- State --------------------------------- */
   const [searchQuery, setSearchQuery] = useState("");
@@ -106,11 +111,12 @@ export default function AddCompanyMemberDialog({
 
     try {
       if (selectedRole === "role_driver") {
-        await addCompanyMemberValidationSchema.validate(driverData, { abortEarly: false });
+        const schema = addCompanyMemberValidationSchema(dict);
+        await schema.validate(driverData, { abortEarly: false });
       }
 
       await addCompanyUser(selectedUserId, selectedRole);
-      toast.success("Member added successfully!");
+      toast.success(dict.toasts.successAdd);
       onSuccess?.();
       onClose();
       resetDialog();
@@ -121,10 +127,10 @@ export default function AddCompanyMemberDialog({
           if (e.path) errors[e.path] = e.message;
         });
         setValidationErrors(errors);
-        toast.error("Please correct the validation errors.");
+        toast.error(dict.validation.genericFormError);
       } else {
-        setError("Failed to add member");
-        const message = err instanceof Error ? err.message : "An error occurred";
+        setError(dict.toasts.errorGeneric);
+        const message = err instanceof Error ? err.message : dict.toasts.errorGeneric;
         toast.error(message);
       }
     } finally {
@@ -182,10 +188,10 @@ export default function AddCompanyMemberDialog({
       >
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
-            Add Member
+            {dict.company.dialogs.addMemberTitle}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Search and add existing platform users to your organization.
+            {dict.company.dialogs.addMemberSubtitle}
           </Typography>
         </Box>
         <IconButton
@@ -204,7 +210,7 @@ export default function AddCompanyMemberDialog({
           {/* Search Box */}
           <TextField
             fullWidth
-            placeholder="Search users by name or email..."
+            placeholder={dict.company.dialogs.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
@@ -249,7 +255,7 @@ export default function AddCompanyMemberDialog({
                 display: "block",
               }}
             >
-              Search Results
+              {dict.company.dialogs.searchResults}
             </Typography>
             <Stack spacing={1}>
               {results.map((user) => {
@@ -330,7 +336,7 @@ export default function AddCompanyMemberDialog({
                 display: "block",
               }}
             >
-              Assign Organization Role
+              {dict.company.dialogs.assignRole}
             </Typography>
             <FormControl fullWidth>
               <Select
@@ -360,7 +366,7 @@ export default function AddCompanyMemberDialog({
               color="text.secondary"
               sx={{ mt: 1, display: "block", opacity: 0.7 }}
             >
-              Selected user will receive an invitation to join your company.
+              {dict.company.dialogs.invitationNote}
             </Typography>
           </Box>
 
@@ -383,13 +389,13 @@ export default function AddCompanyMemberDialog({
                   display: "block",
                 }}
               >
-                Driver Details Required
+                {dict.company.dialogs.driverDetailsRequired}
               </Typography>
               <Stack spacing={2}>
                 <TextField
                   fullWidth
                   size="small"
-                  label="Employee ID *"
+                  label={dict.drivers.fields.employeeId + " *"}
                   value={driverData.employeeId}
                   onChange={(e) =>
                     handleDriverDataChange("employeeId", e.target.value)
@@ -401,7 +407,7 @@ export default function AddCompanyMemberDialog({
                 <TextField
                   fullWidth
                   size="small"
-                  label="Phone Number *"
+                  label={dict.drivers.fields.phone + " *"}
                   value={driverData.phone}
                   onChange={(e) =>
                     handleDriverDataChange("phone", e.target.value)
@@ -413,7 +419,7 @@ export default function AddCompanyMemberDialog({
                 <TextField
                   fullWidth
                   size="small"
-                  label="License Type"
+                  label={dict.drivers.fields.licenseType}
                   placeholder="e.g. CDL-A"
                   value={driverData.licenseType}
                   onChange={(e) =>
@@ -423,14 +429,14 @@ export default function AddCompanyMemberDialog({
                 <TextField
                   fullWidth
                   size="small"
-                  label="License Number"
+                  label={dict.drivers.fields.licenseNumber}
                   value={driverData.licenseNumber}
                   onChange={(e) =>
                     handleDriverDataChange("licenseNumber", e.target.value)
                   }
                 />
                 <DatePicker
-                  label="License Expiry"
+                  label={dict.drivers.fields.licenseExpiry}
                   value={driverData.licenseExpiry ? dayjs(driverData.licenseExpiry) : null}
                   onChange={(val) =>
                     handleDriverDataChange("licenseExpiry", val ? val.toISOString().split("T")[0] : "")
@@ -457,7 +463,7 @@ export default function AddCompanyMemberDialog({
             fontWeight: 600,
           }}
         >
-          Cancel
+          {dict.common.cancel}
         </Button>
         <Button
           variant="contained"
@@ -477,7 +483,7 @@ export default function AddCompanyMemberDialog({
             boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
           }}
         >
-          {loading ? "Adding..." : "Add to Company"}
+          {loading ? dict.toasts.loading : dict.company.dialogs.addToCompany}
         </Button>
       </DialogActions>
     </Dialog>

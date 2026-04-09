@@ -4,13 +4,19 @@ import { useCallback, useMemo } from "react";
 import { Typography } from "@mui/material";
 import { VehicleStatus, VehicleType } from "@prisma/client";
 import DataTable from "@/app/components/ui/DataTable";
-import type { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTable";
+import type {
+  DataTableColumn,
+  DataTableRowAction,
+} from "@/app/lib/type/dataTable";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import DriverAvatar from "@/app/components/avatar";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import type { VehicleTableProps, VehicleWithRelations } from "@/app/lib/type/vehicle";
+import type {
+  VehicleTableProps,
+  VehicleWithRelations,
+} from "@/app/lib/type/vehicle";
 import BuildIcon from "@mui/icons-material/Build";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useState } from "react";
@@ -44,26 +50,39 @@ const VEHICLE_FILTERS = [
 
 const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   const { vehicles, loading = false, filters, meta: apiMeta } = state;
-  const { selectVehicle, onEdit, onDelete, updateFilters, onUpdateSuccess, setPage, setLimit } = actions;
+  const {
+    selectVehicle,
+    onEdit,
+    onDelete,
+    updateFilters,
+    onUpdateSuccess,
+    setPage,
+    setLimit,
+  } = actions;
 
   const [localPage, setLocalPage] = useState(1);
   const [localLimit, setLocalLimit] = useState(10);
 
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const handleStatusUpdate = useCallback(async (vehicleId: string, newStatus: VehicleStatus) => {
-    try {
-      setActionLoading(vehicleId);
-      await updateVehicleStatus(vehicleId, newStatus);
-      toast.success(`Vehicle status updated to ${newStatus.replace(/_/g, " ")}`);
-      onUpdateSuccess?.();
-    } catch (error) {
-      toast.error("Failed to update vehicle status");
-      console.error(error);
-    } finally {
-      setActionLoading(null);
-    }
-  }, [onUpdateSuccess]);
+  const handleStatusUpdate = useCallback(
+    async (vehicleId: string, newStatus: VehicleStatus) => {
+      try {
+        setActionLoading(vehicleId);
+        await updateVehicleStatus(vehicleId, newStatus);
+        toast.success(
+          `Vehicle status updated to ${newStatus.replace(/_/g, " ")}`
+        );
+        onUpdateSuccess?.();
+      } catch (error) {
+        toast.error("Failed to update vehicle status");
+        console.error(error);
+      } finally {
+        setActionLoading(null);
+      }
+    },
+    [onUpdateSuccess]
+  );
 
   /* --------------------------------- handlers --------------------------------- */
   const handleSearchChange = useCallback(
@@ -171,7 +190,8 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         label: "Set Maintenance",
         icon: <BuildIcon fontSize="small" />,
         onClick: (row) => handleStatusUpdate(row.id, "MAINTENANCE"),
-        hidden: (row) => row.status === "MAINTENANCE" || row.status === "ON_TRIP",
+        hidden: (row) =>
+          row.status === "MAINTENANCE" || row.status === "ON_TRIP",
       },
       {
         label: "Return to Service",

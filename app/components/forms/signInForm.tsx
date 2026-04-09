@@ -137,7 +137,10 @@ export default function LoginForm() {
         <Formik<LoginFormValues>
           initialValues={{ email: "", password: "" }}
           onSubmit={handleSubmit}
-          validationSchema={loginValidationSchema}
+          validationSchema={useMemo(
+            () => loginValidationSchema(dict),
+            [dict]
+          )}
         >
           <Form>
             <Stack spacing={3}>

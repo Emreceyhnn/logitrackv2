@@ -30,7 +30,7 @@ const SideBar = () => {
   const handleLogout = async () => {
     try {
       await clearAuthCookies();
-      router.push("/auth/sign-in");
+      router.push(`/${lang}/auth/sign-in`);
     } catch (error) {
       console.error("Logout failed:", error);
     }

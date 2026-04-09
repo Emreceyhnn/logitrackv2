@@ -17,11 +17,6 @@ interface NotificationPayload {
   metadata?: Record<string, unknown>;
 }
 
-/**
- * Sends a real-time notification via Firebase RTDB.
- * Supports individual inbox, company-wide groups, or role-based groups.
- * No Prisma dependency for delivery.
- */
 export const createNotification = async (
   target: NotificationTarget,
   payload: NotificationPayload
@@ -29,7 +24,6 @@ export const createNotification = async (
   try {
     let path = "";
 
-    // Determine the target path in Firebase
     if (target.isGlobal) {
       path = "notifications/groups/everyone";
     } else if (target.userId) {
@@ -43,12 +37,14 @@ export const createNotification = async (
     }
 
     if (!path) {
-      throw new Error("Invalid notification target. Must provide isGlobal, userId, or companyId.");
+      throw new Error(
+        "Invalid notification target. Must provide isGlobal, userId, or companyId."
+      );
     }
 
-    // Generate a unique key for the notification
     const notificationKey = push(ref(firebase, path)).key;
-    if (!notificationKey) throw new Error("Failed to generate notification key");
+    if (!notificationKey)
+      throw new Error("Failed to generate notification key");
 
     const notificationData = {
       ...payload,

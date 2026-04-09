@@ -19,8 +19,11 @@ import {
   Person as PersonIcon,
   Logout as LogoutIcon,
 } from "@mui/icons-material";
+import { useParams } from "next/navigation";
 
 import { getUserSession, logoutAction } from "@/app/lib/actions/auth";
+import { getDictionary } from "@/app/lib/language/language";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 // Dialogs
 import ProfileDialog from "../dialogs/profile/ProfileDialog";
@@ -68,6 +71,9 @@ const menuPaperSx = {
 
 export default function UserAccountNav() {
   const theme = useTheme();
+  const params = useParams();
+  const lang = (params?.lang as string) || "tr";
+  const dict = getDictionary(lang);
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
@@ -120,7 +126,7 @@ export default function UserAccountNav() {
   const handleLogout = async () => {
     handleMenuClose();
     await logoutAction();
-    window.location.href = "/en";
+    window.location.href = `/${lang}`;
   };
 
   if (loading) {
@@ -133,63 +139,66 @@ export default function UserAccountNav() {
 
   return (
     <>
-      <Box
-        onClick={handleMenuOpen}
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 1.5,
-          cursor: "pointer",
-          padding: "6px 12px",
-          borderRadius: 3,
-          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          bgcolor: alpha("#fff", 0.02),
-          border: `1px solid ${alpha("#fff", 0.03)}`,
-          "&:hover": {
-            bgcolor: alpha(theme.palette.primary.main, 0.08),
-            borderColor: alpha(theme.palette.primary.main, 0.2),
-            transform: "translateY(-1px)",
-            boxShadow: `0 4px 20px ${alpha("#000", 0.3)}`,
-          },
-        }}
-      >
-        <Avatar
-          src={user.avatarUrl || undefined}
+      <Stack direction="row" spacing={1} alignItems="center">
+        <LanguageSwitcher />
+        <Box
+          onClick={handleMenuOpen}
           sx={{
-            width: 32,
-            height: 32,
-            border: `2px solid ${alpha(theme.palette.primary.main, 0.4)}`,
-            bgcolor: alpha(theme.palette.primary.main, 0.1),
-            color: theme.palette.primary.main,
-            fontWeight: 800,
-            fontSize: "0.75rem",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 1.5,
+            cursor: "pointer",
+            padding: "6px 12px",
+            borderRadius: 3,
+            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            bgcolor: alpha("#fff", 0.02),
+            border: `1px solid ${alpha("#fff", 0.03)}`,
+            "&:hover": {
+              bgcolor: alpha(theme.palette.primary.main, 0.08),
+              borderColor: alpha(theme.palette.primary.main, 0.2),
+              transform: "translateY(-1px)",
+              boxShadow: `0 4px 20px ${alpha("#000", 0.3)}`,
+            },
           }}
         >
-          {user.name?.[0]}
-          {user.surname?.[0]}
-        </Avatar>
-        <Stack spacing={-0.5} sx={{ display: { xs: "none", sm: "flex" } }}>
-          <Typography
-            variant="body2"
-            fontWeight={800}
-            color="white"
-            sx={{ fontSize: "0.85rem" }}
-          >
-            {user.name} {user.surname}
-          </Typography>
-          <Typography
-            variant="caption"
+          <Avatar
+            src={user.avatarUrl || undefined}
             sx={{
-              color: alpha("#fff", 0.35),
-              fontWeight: 600,
-              fontSize: "0.65rem",
+              width: 32,
+              height: 32,
+              border: `2px solid ${alpha(theme.palette.primary.main, 0.4)}`,
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              color: theme.palette.primary.main,
+              fontWeight: 800,
+              fontSize: "0.75rem",
             }}
           >
-            Administrator
-          </Typography>
-        </Stack>
-      </Box>
+            {user.name?.[0]}
+            {user.surname?.[0]}
+          </Avatar>
+          <Stack spacing={-0.5} sx={{ display: { xs: "none", sm: "flex" } }}>
+            <Typography
+              variant="body2"
+              fontWeight={800}
+              color="white"
+              sx={{ fontSize: "0.85rem" }}
+            >
+              {user.name} {user.surname}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: alpha("#fff", 0.35),
+                fontWeight: 600,
+                fontSize: "0.65rem",
+              }}
+            >
+              {dict.sidebar.management}
+            </Typography>
+          </Stack>
+        </Box>
+      </Stack>
 
       <Menu
         anchorEl={anchorEl}
@@ -206,7 +215,7 @@ export default function UserAccountNav() {
               sx={{ color: theme.palette.primary.main }}
             />
           </ListItemIcon>
-          Profile
+          {dict.common.settings}
         </MenuItem>
         <MenuItem onClick={handleOpenSettings} sx={{ gap: 1.5 }}>
           <ListItemIcon sx={{ minWidth: "auto !important" }}>
@@ -215,7 +224,7 @@ export default function UserAccountNav() {
               sx={{ color: theme.palette.primary.main }}
             />
           </ListItemIcon>
-          Settings
+          {dict.common.settings}
         </MenuItem>
         <Divider sx={{ borderColor: alpha("#ffffff", 0.06), my: 0.5 }} />
         <MenuItem
@@ -225,7 +234,7 @@ export default function UserAccountNav() {
           <ListItemIcon sx={{ minWidth: "auto !important" }}>
             <LogoutIcon fontSize="small" sx={{ color: "inherit" }} />
           </ListItemIcon>
-          Logout
+          {dict.common.logout}
         </MenuItem>
       </Menu>
 
