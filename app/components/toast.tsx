@@ -34,7 +34,6 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       toastOptions={{
         style: {
-          // MUI Palette renklerini doğrudan CSS değişkenlerine atıyoruz
           background: theme.palette.background.paper,
           color: theme.palette.text.primary,
           border: `1px solid ${theme.palette.divider}`,

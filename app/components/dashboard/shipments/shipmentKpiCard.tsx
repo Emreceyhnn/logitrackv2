@@ -8,44 +8,47 @@ import InventoryIcon from "@mui/icons-material/Inventory";
 import { ShipmentKpiCardProps } from "@/app/lib/type/shipment";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 import { motion } from "framer-motion";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useMemo } from "react";
 
 const ShipmentKpiCard = ({ state }: ShipmentKpiCardProps) => {
+  const dict = useDictionary();
   const { stats, loading } = state;
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  if (loading) {
-    return <KpiSkeleton count={4} />;
-  }
-
   const values = stats || { total: 0, active: 0, delayed: 0, inTransit: 0 };
 
-  const kpiItems = [
+  const kpiItems = useMemo(() => [
     {
-      label: "Total Shipments",
+      label: dict.shipments.dashboard.totalShipments,
       value: values.total,
       icon: <InventoryIcon />,
       color: theme.palette.primary.main,
     },
     {
-      label: "Active Shipments",
+      label: dict.shipments.dashboard.activeShipments,
       value: values.active,
       icon: <LocalShippingIcon />,
       color: "#0ea5e9", // Sky
     },
     {
-      label: "Delayed Shipments",
+      label: dict.shipments.dashboard.delayedShipments,
       value: values.delayed,
       icon: <AccessTimeIcon />,
       color: theme.palette.error.main,
     },
     {
-      label: "In Transit",
+      label: dict.shipments.dashboard.inTransit,
       value: values.inTransit,
       icon: <DirectionsBoatIcon />,
       color: "#10b981", // Emerald
     },
-  ];
+  ], [values, theme, dict]);
+
+  if (loading) {
+    return <KpiSkeleton count={4} />;
+  }
 
   const container = {
     hidden: { opacity: 0 },

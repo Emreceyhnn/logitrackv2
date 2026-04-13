@@ -31,6 +31,7 @@ import { useUser } from "@/app/lib/hooks/useUser";
 import { Warehouse, DriverStatus } from "@prisma/client";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { DriverWithRelations } from "@/app/lib/type/driver";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import WarehouseIcon from "@mui/icons-material/HomeRepairService";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -52,6 +53,7 @@ const SecondEditDriverDialogStep = ({
 }: SecondEditDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
   const { user } = useUser();
   const { values, errors, touched, setFieldValue, handleBlur, handleChange } = 
     useFormikContext<EditDriverFormValues>();
@@ -131,7 +133,7 @@ const SecondEditDriverDialogStep = ({
                 <WarehouseIcon fontSize="small" />
               </Box>
               <Typography variant="subtitle1" fontWeight={700} color="white">
-                Operational Assignment
+                {dict.drivers.labels.operationalAssignment}
               </Typography>
             </Stack>
 
@@ -142,11 +144,11 @@ const SecondEditDriverDialogStep = ({
                   color="text.secondary"
                   sx={{ mb: 1, display: "block", fontWeight: 500 }}
                 >
-                  Home Base Warehouse
+                  {dict.drivers.fields.homeWarehouse}
                 </Typography>
                 <CustomTextArea
                   name="homeWareHouseId"
-                  placeholder="Select warehouse"
+                  placeholder={dict.common.select}
                   value={values.homeWareHouseId}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -167,11 +169,11 @@ const SecondEditDriverDialogStep = ({
                   color="text.secondary"
                   sx={{ mb: 1, display: "block", fontWeight: 500 }}
                 >
-                  Current Vehicle Assignment
+                  {dict.drivers.labels.vehicleAssignment}
                 </Typography>
                 <CustomTextArea
                   name="currentVehicleId"
-                  placeholder="No vehicle assigned (Floating)"
+                  placeholder={dict.common.noData}
                   value={values.currentVehicleId}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -179,7 +181,7 @@ const SecondEditDriverDialogStep = ({
                   helperText={touched.currentVehicleId ? (errors.currentVehicleId as string) : undefined}
                   select
                 >
-                  <MenuItem value="">No vehicle assigned (Floating)</MenuItem>
+                  <MenuItem value="">{dict.common.noData}</MenuItem>
                   {vehicles.map((v) => (
                     <MenuItem key={v.id} value={v.id}>
                       {v.plate} ({v.brand} {v.model})
@@ -204,7 +206,7 @@ const SecondEditDriverDialogStep = ({
                 <FlashOnIcon fontSize="small" />
               </Box>
               <Typography variant="subtitle1" fontWeight={700} color="white">
-                Driver Configuration
+                {dict.common.settings}
               </Typography>
             </Stack>
 
@@ -213,17 +215,17 @@ const SecondEditDriverDialogStep = ({
               color="text.secondary"
               sx={{ mb: 1, display: "block", fontWeight: 500 }}
             >
-              Current Operational Status
+              {dict.drivers.labels.initialStatus}
             </Typography>
 
             <Stack direction="row" spacing={2}>
               {[
                 {
                   id: "OFF_DUTY",
-                  label: "Off Duty",
+                  label: dict.drivers.offDuty,
                   icon: <PowerSettingsNewIcon />,
                 },
-                { id: "ON_JOB", label: "On Duty", icon: <FlashOnIcon /> },
+                { id: "ON_JOB", label: dict.drivers.onDuty, icon: <FlashOnIcon /> },
               ].map((status) => (
                 <Box
                   key={status.id}
@@ -280,7 +282,7 @@ const SecondEditDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                Hazmat Certified
+                {dict.drivers.fields.hazmat}
               </Typography>
               <Switch
                 checked={values.hazmatCertified}
@@ -297,7 +299,7 @@ const SecondEditDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                Language Proficiency (comma separated)
+                {dict.drivers.fields.languageProficiency}
               </Typography>
               <CustomTextArea
                 name="languages"
@@ -330,7 +332,7 @@ const SecondEditDriverDialogStep = ({
                 <CloudUploadIcon fontSize="small" />
               </Box>
               <Typography variant="subtitle1" fontWeight={700} color="white">
-                New Documents & Certification
+                {dict.drivers.fields.additionalDocs}
               </Typography>
             </Stack>
 
@@ -365,7 +367,7 @@ const SecondEditDriverDialogStep = ({
                 <CloudUploadIcon />
               </Box>
               <Typography variant="body2" fontWeight={600} color="white">
-                Upload updated certificates or new records
+                {dict.landing.hero.discover}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 PNG, JPG (MAX 10MB)
@@ -419,7 +421,7 @@ const SecondEditDriverDialogStep = ({
                           {doc.name}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {doc.size} • Added {doc.uploadedAt}
+                          {doc.size} • {dict.common.success} {doc.uploadedAt}
                         </Typography>
                       </Box>
                       <IconButton
@@ -437,7 +439,7 @@ const SecondEditDriverDialogStep = ({
                         color="text.secondary"
                         sx={{ mb: 1, display: "block", fontWeight: 500 }}
                       >
-                        Expiry Date (Optional)
+                        {dict.drivers.fields.licenseExpiry} ({dict.common.optional})
                       </Typography>
                       <DatePicker
                         value={doc.expiryDate ? dayjs(doc.expiryDate) : null}
@@ -446,7 +448,7 @@ const SecondEditDriverDialogStep = ({
                           textField: {
                             fullWidth: true,
                             size: "small",
-                            placeholder: "Not set",
+                            placeholder: dict.common.noData,
                             sx: {
                               "& .MuiOutlinedInput-root": {
                                 backgroundColor: alpha(theme.palette.background.paper, 0.1),
@@ -488,14 +490,14 @@ const SecondEditDriverDialogStep = ({
               alignItems="center"
             >
               <Typography variant="subtitle2" fontWeight={700} color="white">
-                PROFILE SUMMARY
+                {dict.drivers.labels.profileSummary}
               </Typography>
               <Button
                 size="small"
                 onClick={() => setStep(1)}
                 sx={{ opacity: 0.7, textTransform: "none" }}
               >
-                Edit Info
+                {dict.common.edit}
               </Button>
             </Stack>
 
@@ -521,7 +523,7 @@ const SecondEditDriverDialogStep = ({
                   {driver.user.name} {driver.user.surname}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {values.licenseType || "No license class set"}
+                  {values.licenseType || dict.common.noData}
                 </Typography>
               </Stack>
             </Stack>
@@ -536,10 +538,10 @@ const SecondEditDriverDialogStep = ({
                 />
                 <Box>
                   <Typography variant="caption" color="text.secondary">
-                    Phone
+                    {dict.drivers.fields.phoneNumber}
                   </Typography>
                   <Typography variant="body2" color="white">
-                    {values.phone || "Not provided"}
+                    {values.phone || dict.common.noData}
                   </Typography>
                 </Box>
               </Stack>
@@ -550,7 +552,7 @@ const SecondEditDriverDialogStep = ({
                 />
                 <Box>
                   <Typography variant="caption" color="text.secondary">
-                    Email
+                    {dict.auth.email}
                   </Typography>
                   <Typography variant="body2" color="white" noWrap>
                     {driver.user.email}
@@ -564,7 +566,7 @@ const SecondEditDriverDialogStep = ({
                 />
                 <Box>
                   <Typography variant="caption" color="text.secondary">
-                    License Detail
+                    {dict.drivers.fields.licenseNumber}
                   </Typography>
                   <Typography variant="body2" color="white">
                     LIC: {values.licenseNumber || "N/A"}
@@ -584,17 +586,17 @@ const SecondEditDriverDialogStep = ({
             <Stack spacing={1.5}>
               <Stack direction="row" justifyContent="space-between">
                 <Typography variant="caption" color="text.secondary">
-                  Language Proficiency
+                  {dict.drivers.fields.languageProficiency}
                 </Typography>
                 <Typography variant="caption" color="white" fontWeight={600}>
                   {values.languages.length > 0
                     ? values.languages.join(", ")
-                    : "None"}
+                    : dict.common.noData}
                 </Typography>
               </Stack>
               <Stack direction="row" justifyContent="space-between">
                 <Typography variant="caption" color="text.secondary">
-                  Hazmat Certified
+                  {dict.drivers.fields.hazmat}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -603,7 +605,7 @@ const SecondEditDriverDialogStep = ({
                   }
                   fontWeight={600}
                 >
-                  {values.hazmatCertified ? "YES" : "NO"}
+                  {values.hazmatCertified ? dict.common.success : dict.common.noData}
                 </Typography>
               </Stack>
             </Stack>
@@ -622,15 +624,14 @@ const SecondEditDriverDialogStep = ({
                 color="text.secondary"
                 sx={{ fontWeight: 600, display: "block", mb: 0.5 }}
               >
-                Verification
+                {dict.drivers.labels.information}
               </Typography>
               <Typography
                 variant="caption"
                 color="text.secondary"
                 sx={{ lineHeight: 1.4, display: "block" }}
               >
-                Changes will take effect immediately upon saving. The driver
-                will see updated settings on their mobile dashboard.
+                {dict.drivers.labels.verificationDesc}
               </Typography>
             </Box>
           </Stack>

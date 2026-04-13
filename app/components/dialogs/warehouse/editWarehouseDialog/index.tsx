@@ -17,9 +17,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useState, useEffect, useRef } from "react";
 import {
   EditWarehouseDialogProps,
   EditWarehousePageActions,
@@ -65,8 +64,7 @@ const EditWarehouseDialog = ({
 }: EditWarehouseDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
-  const { lang } = useParams();
-  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+  const dict = useDictionary();
   const isInitialized = useRef<string | null>(null);
 
   const [state, setState] = useState<EditWarehousePageState>({

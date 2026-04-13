@@ -12,11 +12,13 @@ import {
   ListItemText,
   ListItemIcon,
 } from "@mui/material";
+import { alpha } from "@mui/material";
 import WarningIcon from "@mui/icons-material/Warning";
 import ErrorIcon from "@mui/icons-material/Error";
 import InfoIcon from "@mui/icons-material/Info";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { getPriorityColor } from "@/app/lib/priorityColor";
+import { getStatusMeta } from "@/app/lib/priorityColor";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface CheckIssue {
   id: string;
@@ -35,6 +37,8 @@ interface VehicleIssuesCardProps {
 }
 
 export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
+  const dict = useDictionary();
+
   /* ------------------------------- components ------------------------------- */
   const getStatusIcon = (status: string) => {
     switch (status.toUpperCase()) {
@@ -52,8 +56,8 @@ export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
   return (
     <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <CardHeader
-        title="Open Vehicle Issues"
-        subheader={`${issues.length} active issues`}
+        title={dict.vehicles.dashboard.openIssues}
+        subheader={dict.vehicles.dashboard.activeIssues.replace("{count}", issues.length.toString())}
       />
       <CardContent sx={{ flexGrow: 1, overflow: "auto" }}>
         {issues.length === 0 ? (
@@ -64,12 +68,14 @@ export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
             height="100%"
           >
             <Typography variant="body2" color="text.secondary">
-              No open issues
+              {dict.vehicles.dashboard.noOpenIssues}
             </Typography>
           </Box>
         ) : (
           <List>
-            {issues.map((issue) => (
+            {issues.map((issue) => {
+              const meta = getStatusMeta(issue.priority, dict);
+              return (
               <ListItem key={issue.id} divider>
                 <ListItemIcon>{getStatusIcon(issue.status)}</ListItemIcon>
                 <ListItemText
@@ -81,9 +87,14 @@ export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
                     >
                       <Typography variant="subtitle2">{issue.title}</Typography>
                       <Chip
-                        label={issue.priority}
+                        label={meta.label}
                         size="small"
-                        color={getPriorityColor(issue.priority)}
+                        sx={{
+                          bgcolor: alpha(meta.color, 0.1),
+                          color: meta.color,
+                          fontWeight: 600,
+                          fontSize: '0.65rem'
+                        }}
                         variant="outlined"
                       />
                     </Box>
@@ -92,7 +103,7 @@ export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
                     <>
                       <Typography variant="caption" display="block">
                         {issue.vehicle?.plate
-                          ? `Vehicle: ${issue.vehicle.plate}`
+                          ? `${dict.vehicles.fields.plate}: ${issue.vehicle.plate}`
                           : ""}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
@@ -102,7 +113,7 @@ export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
                   }
                 />
               </ListItem>
-            ))}
+            )})}
           </List>
         )}
       </CardContent>

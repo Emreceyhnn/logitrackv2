@@ -19,15 +19,13 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { CustomerWithRelations, CustomerFormValues } from "@/app/lib/type/customer";
 import { updateCustomer } from "@/app/lib/controllers/customer";
-import { useTransition, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { useUser } from "@/app/lib/hooks/useUser";
 import IdentitySection from "./addCustomerDialog/sections/IdentitySection";
 import ContactSection from "./addCustomerDialog/sections/ContactSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
-import { useMemo } from "react";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface EditCustomerDialogProps {
   open: boolean;
@@ -47,9 +45,7 @@ export default function EditCustomerDialog({
 }: EditCustomerDialogProps) {
   const { user } = useUser();
   const theme = useTheme();
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
+  const dict = useDictionary();
 
   const [isPending, startTransition] = useTransition();
   const [currentStep, setCurrentStep] = useState(1);
@@ -70,11 +66,11 @@ export default function EditCustomerDialog({
           phone: values.phone,
           locations: values.locations.filter(l => l.address.trim() !== "")
         });
-        toast.success("Customer updated successfully");
+        toast.success(dict.customers.dialogs.successUpdate);
         onSuccess();
         onClose();
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Failed to update customer";
+        const message = err instanceof Error ? err.message : dict.customers.dialogs.errorUpdate;
         setError(message);
         console.error(err);
         toast.error(message);
@@ -84,7 +80,7 @@ export default function EditCustomerDialog({
 
   if (!customer) return null;
 
-  const steps = ["Company Identity", "Contact Details"];
+  const steps = [dict.customers.dialogs.steps.identity, dict.customers.dialogs.steps.contact];
 
   const customerInitialValues = {
     name: customer.name || "",
@@ -100,7 +96,7 @@ export default function EditCustomerDialog({
       lat: loc.lat ?? undefined,
       lng: loc.lng ?? undefined,
       isDefault: loc.isDefault
-    })) || [{ name: "Main Office", address: "", lat: undefined, lng: undefined, isDefault: true }],
+    })) || [{ name: dict.customers.fields.mainOffice, address: "", lat: undefined, lng: undefined, isDefault: true }],
   };
 
   return (
@@ -147,10 +143,10 @@ export default function EditCustomerDialog({
                     </Box>
                     <Stack spacing={0.2}>
                       <Typography variant="h6" fontWeight={700} color="white">
-                        Edit Customer
+                        {dict.customers.dialogs.editTitle}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Update details for {customer.name}
+                        {dict.customers.dialogs.editSubtitle.replace("{name}", customer.name)}
                       </Typography>
                     </Stack>
                   </Stack>
@@ -218,7 +214,7 @@ export default function EditCustomerDialog({
                   onClick={currentStep === 1 ? onClose : () => setCurrentStep(1)}
                   sx={{ color: "text.secondary", textTransform: "none", fontWeight: 600 }}
                 >
-                  {currentStep === 1 ? "Cancel" : "Back"}
+                  {currentStep === 1 ? dict.common.cancel : dict.common.back}
                 </Button>
 
                 <Button
@@ -236,7 +232,7 @@ export default function EditCustomerDialog({
                   }}
                   startIcon={isPending && <CircularProgress size={16} color="inherit" />}
                 >
-                  {isPending ? "Updating..." : currentStep < 2 ? "Next Step →" : "Save Changes"}
+                  {isPending ? dict.common.updating : currentStep < 2 ? dict.common.nextStep : dict.common.saveChanges}
                 </Button>
               </DialogActions>
             </Form>

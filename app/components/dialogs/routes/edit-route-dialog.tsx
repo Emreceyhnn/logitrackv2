@@ -29,8 +29,7 @@ import { RouteWithRelations, RouteFormValues } from "@/app/lib/type/routes";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { Formik, Form } from "formik";
 import { editRouteValidationSchema } from "@/app/lib/validationSchema";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface EditRouteDialogProps {
   open: boolean;
@@ -42,8 +41,7 @@ interface EditRouteDialogProps {
 const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
-  const { lang } = useParams();
-  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+  const dict = useDictionary();
 
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);

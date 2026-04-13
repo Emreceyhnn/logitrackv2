@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { getInventory } from "@/app/lib/controllers/inventory";
@@ -12,6 +13,7 @@ interface InventoryTabProps {
 }
 
 const InventoryTab = ({ warehouse }: InventoryTabProps) => {
+  const dict = useDictionary();
   const [inventory, setInventory] = useState<InventoryWithRelations[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,10 +47,10 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
       <Box mb={3} display="flex" justifyContent="space-between" alignItems="center">
         <Box>
           <Typography variant="h6" fontWeight={600} color="white">
-            Current Inventory
+            {dict.warehouses.dialogs.details.currentInventory}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Items stored in {warehouse.name}
+            {dict.warehouses.dialogs.details.itemsStoredIn} {warehouse.name}
           </Typography>
         </Box>
       </Box>

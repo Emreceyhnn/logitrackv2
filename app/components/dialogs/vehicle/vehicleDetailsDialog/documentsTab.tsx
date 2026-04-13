@@ -23,6 +23,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "sonner";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { getSignedUrlAction } from "@/app/lib/actions/upload";
 import { deleteDocument } from "@/app/lib/controllers/documents";
 import { StatusChip } from "../../../chips/statusChips";
@@ -41,6 +42,7 @@ interface DocumentsTabProps {
 
 const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
   const theme = useTheme();
+  const dict = useDictionary();
   /* --------------------------------- states --------------------------------- */
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -54,7 +56,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
   const [isDeletingDoc, setIsDeletingDoc] = useState(false);
 
   if (!vehicle) {
-    return <Typography color="text.secondary">No vehicle selected</Typography>;
+    return <Typography color="text.secondary">{dict.common.noData}</Typography>;
   }
 
   /* -------------------------------- handlers -------------------------------- */
@@ -66,7 +68,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
 
   const handleViewDoc = async (url: string, title: string) => {
     if (!url) {
-      toast.error("Döküman bağlantısı bulunamadı");
+      toast.error(dict.toasts.errorNoConnection);
       return;
     }
 
@@ -77,11 +79,11 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
         setSelectedDoc({ url: result.url, title });
         setViewerOpen(true);
       } else {
-        toast.error("Dosya erişim yetkisi alınamadı");
+        toast.error(dict.toasts.errorNoPermission);
       }
     } catch (error) {
       console.error("View doc error:", error);
-      toast.error("Dosya yüklenirken bir hata oluştu");
+      toast.error(dict.toasts.errorUpload);
     } finally {
       setLoadingDoc(false);
     }
@@ -97,12 +99,12 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
     try {
       setIsDeletingDoc(true);
       await deleteDocument(docToDelete.id);
-      toast.success("Döküman başarıyla silindi");
+      toast.success(dict.toasts.successDocumentDelete);
       setDeleteConfirmOpen(false);
       onUpdate?.();
     } catch (error) {
       console.error("Delete doc error:", error);
-      toast.error("Döküman silinirken bir hata oluştu");
+      toast.error(dict.toasts.errorDocumentDelete);
     } finally {
       setIsDeletingDoc(false);
       setDocToDelete(null);
@@ -173,7 +175,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 <CheckCircleIcon sx={{ width: 18, height: 19 }} />
               </Box>
               <Typography sx={{ fontSize: 22, color: "text.secondary" }}>
-                Active
+                {dict.common.active}
               </Typography>
               <Typography
                 sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
@@ -208,7 +210,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 <QueryBuilderIcon sx={{ width: 18, height: 19 }} />
               </Box>
               <Typography sx={{ fontSize: 22, color: "text.secondary" }}>
-                Expiring
+                {dict.common.expiring}
               </Typography>
               <Typography
                 sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
@@ -245,7 +247,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 <WarningIcon sx={{ width: 18, height: 19 }} />
               </Box>
               <Typography sx={{ fontSize: 22, color: "text.secondary" }}>
-                Missing
+                {dict.common.missing}
               </Typography>
               <Typography
                 sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
@@ -280,14 +282,14 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 <FileUploadIcon sx={{ width: 18, height: 19 }} />
               </Box>
               <Typography sx={{ fontSize: 22, color: "text.secondary" }}>
-                Upload
+                {dict.common.upload}
               </Typography>
               <Typography
                 sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
               >
                 {lastUploadDate.getTime() > 0
                   ? lastUploadDate.toLocaleDateString()
-                  : "N/A"}
+                  : dict.common.na}
               </Typography>
             </Card>
           </Stack>
@@ -302,7 +304,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
             onClick={() => setUploadDialogOpen(true)}
             startIcon={<FileUploadIcon />}
           >
-            Upload New Document
+            {dict.common.uploadNew}
           </Button>
         </Stack>
         <Stack sx={{ flexGrow: 2 }}>
@@ -326,7 +328,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       borderBottomColor: alpha("#ffffff", 0.05),
                     }}
                   >
-                    Document Type
+                    {dict.common.docType}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -334,7 +336,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       borderBottomColor: alpha("#ffffff", 0.05),
                     }}
                   >
-                    Status
+                    {dict.common.status}
                   </TableCell>
                   <TableCell
                     sx={{
@@ -342,7 +344,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       borderBottomColor: alpha("#ffffff", 0.05),
                     }}
                   >
-                    Expiry Date
+                    {dict.common.expiryDate}
                   </TableCell>
                   <TableCell
                     align="center"
@@ -351,7 +353,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       borderBottomColor: alpha("#ffffff", 0.05),
                     }}
                   >
-                    Actions
+                    {dict.common.actions}
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -365,7 +367,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       sx={{ borderBottom: "none" }}
                     >
                       <Typography variant="body2" color="text.secondary">
-                        No documents found
+                        {dict.common.noDocuments}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -391,7 +393,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                               color: "white",
                             }}
                           >
-                            {v.type}
+                            {dict.vehicles.docTypes[v.type as keyof typeof dict.vehicles.docTypes] || v.type}
                           </Typography>
                           <Typography
                             variant="caption"
@@ -416,7 +418,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       >
                         {v.expiryDate
                           ? new Date(v.expiryDate).toLocaleDateString()
-                          : "N/A"}
+                          : dict.common.na}
                       </TableCell>
                       <TableCell
                         align="center"
@@ -480,8 +482,8 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
         open={deleteConfirmOpen}
         onClose={() => !isDeletingDoc && setDeleteConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Document?"
-        description={`Are you sure you want to delete ${docToDelete?.name}? The file and its metadata will be permanently removed.`}
+        title={dict.common.deleteDocumentTitle}
+        description={dict.common.deleteDocumentDesc}
         loading={isDeletingDoc}
       />
 

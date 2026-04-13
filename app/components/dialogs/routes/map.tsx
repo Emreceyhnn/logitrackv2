@@ -21,6 +21,8 @@ interface MapRoutesDialogCardProps {
   }) => void;
 }
 
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
 const MapRoutesDialogCard = ({
   origin,
   destination,
@@ -28,6 +30,7 @@ const MapRoutesDialogCard = ({
   addrB,
   onRouteInfoUpdate,
 }: MapRoutesDialogCardProps) => {
+  const dict = useDictionary();
   const isRoute = !!((origin || addrA) && (destination || addrB));
 
   return (
@@ -60,7 +63,7 @@ const MapRoutesDialogCard = ({
           color="white"
           sx={{ letterSpacing: "0.05em" }}
         >
-          {isRoute ? "MISSION ROUTE" : "LIVE TELEMETRY MAP"}
+          {isRoute ? dict.routes.details.missionRoute : dict.routes.details.liveTelemetryMap}
         </Typography>
       </Box>
     </Box>

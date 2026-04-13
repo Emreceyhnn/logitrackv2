@@ -1,6 +1,8 @@
 import { Box, Divider, Stack, Typography } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function Footer() {
+  const dict = useDictionary();
   return (
     <Box
       component="footer"
@@ -24,47 +26,47 @@ export default function Footer() {
               textTransform: "uppercase",
             }}
           >
-            Logitrack
+            {dict.common.logitrack}
           </Typography>
           <Typography color="text.secondary" fontSize={14}>
-            Smart logistics tracking and fleet visibility platform.
+            {dict.footer.description}
           </Typography>
         </Stack>
 
         <Stack direction="row" spacing={8}>
           <Stack spacing={1}>
-            <Typography fontWeight={600}>Product</Typography>
+            <Typography fontWeight={600}>{dict.footer.product}</Typography>
             <Typography variant="body2" color="text.secondary">
-              Features
+              {dict.footer.features}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Pricing
+              {dict.footer.pricing}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Roadmap
-            </Typography>
-          </Stack>
-
-          <Stack spacing={1}>
-            <Typography fontWeight={600}>Company</Typography>
-            <Typography variant="body2" color="text.secondary">
-              About
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Blog
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Careers
+              {dict.footer.roadmap}
             </Typography>
           </Stack>
 
           <Stack spacing={1}>
-            <Typography fontWeight={600}>Legal</Typography>
+            <Typography fontWeight={600}>{dict.footer.company}</Typography>
             <Typography variant="body2" color="text.secondary">
-              Privacy Policy
+              {dict.footer.about}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Terms of Service
+              {dict.footer.blog}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {dict.footer.careers}
+            </Typography>
+          </Stack>
+
+          <Stack spacing={1}>
+            <Typography fontWeight={600}>{dict.footer.legal}</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {dict.footer.privacyPolicy}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {dict.footer.termsOfService}
             </Typography>
           </Stack>
         </Stack>
@@ -79,11 +81,11 @@ export default function Footer() {
         spacing={2}
       >
         <Typography variant="body2" color="text.secondary">
-          © {new Date().getFullYear()} Logitrack. All rights reserved.
+          © {new Date().getFullYear()} {dict.common.logitrack}. {dict.footer.rights}
         </Typography>
 
         <Typography variant="body2" color="text.secondary">
-          Built for modern logistics.
+          {dict.footer.builtFor}
         </Typography>
       </Stack>
     </Box>

@@ -16,6 +16,7 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
@@ -43,6 +44,7 @@ const EditVehicleDialog = ({
   vehicle,
 }: EditVehicleDialogProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const dict = useDictionary();
   const theme = useTheme();
 
   /* --------------------------------- states --------------------------------- */
@@ -158,7 +160,7 @@ const EditVehicleDialog = ({
 
       await updateVehicle(vehicle.id, updateData as Parameters<typeof updateVehicle>[1]);
 
-      toast.success("Vehicle updated successfully");
+      toast.success(dict.toasts.successUpdate);
 
       // Give a tiny delay for DB sequence processing
       setTimeout(() => {
@@ -167,7 +169,7 @@ const EditVehicleDialog = ({
       }, 500);
       
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to update vehicle";
+      const errorMessage = err instanceof Error ? err.message : dict.toasts.errorGeneric;
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -176,7 +178,7 @@ const EditVehicleDialog = ({
     }
   };
 
-  const steps = ["General Info", "Tech Specs"];
+  const steps = [dict.vehicles.dialogs.steps.general, dict.vehicles.dialogs.steps.specs];
 
   return (
     <Formik
@@ -197,7 +199,7 @@ const EditVehicleDialog = ({
             setError(null);
           } else {
              // Let user see errors
-             setError("Please fill required fields in General Info correctly.");
+             setError(dict.common.genericFormError || "Please fill required fields in General Info correctly.");
           }
         };
 
@@ -224,7 +226,7 @@ const EditVehicleDialog = ({
               >
                 <Stack direction="row" spacing={2} alignItems="center">
                   <Typography variant="h6" fontWeight={600} color="white">
-                    Edit Vehicle: {vehicle?.plate}
+                    {dict.vehicles.dialogs.editTitle}: {vehicle?.plate}
                   </Typography>
                 </Stack>
                 <IconButton
@@ -318,7 +320,7 @@ const EditVehicleDialog = ({
                     onClick={closeDialog}
                     sx={{ color: "text.secondary", textTransform: "none" }}
                   >
-                    Cancel
+                    {dict.common.cancel}
                   </Button>
                   {currentStep > 1 && (
                     <Button
@@ -335,7 +337,7 @@ const EditVehicleDialog = ({
                         color: "white",
                       }}
                     >
-                      Back
+                      {dict.common.back}
                     </Button>
                   )}
                   <Button
@@ -364,11 +366,11 @@ const EditVehicleDialog = ({
                     }}
                   >
                     {isSubmitting ? (
-                      "Updating..."
+                      dict.toasts.saving
                     ) : currentStep === 2 ? (
-                      "Update Vehicle"
+                      dict.common.save
                     ) : (
-                      "Next Step →"
+                      dict.common.next + " →"
                     )}
                   </Button>
                 </Stack>

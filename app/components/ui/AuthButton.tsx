@@ -9,7 +9,6 @@ import {
   Box,
 } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
-import React from "react";
 
 interface AuthButtonProps extends ButtonProps {
   loading?: boolean;

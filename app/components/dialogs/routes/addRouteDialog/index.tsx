@@ -34,8 +34,7 @@ import { RouteFormValues } from "@/app/lib/type/routes";
 import FirstRouteDialogStep from "./firstStep";
 import SecondRouteDialogStep from "./secondStep";
 import ThirdRouteDialogStep from "./thirdStep";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const initialValues: RouteFormValues = {
   name: "",
@@ -58,8 +57,7 @@ const initialValues: RouteFormValues = {
 const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
-  const { lang } = useParams();
-  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+  const dict = useDictionary();
 
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
@@ -206,7 +204,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
 
               setFieldValue(
                 "name",
-                `${dict.routes.dialogs.deliveryLabel}: ${shipment.customer?.name || "Shipment"} - ${shipment.trackingId}`
+                `${dict.routes.dialogs.deliveryLabel}: ${shipment.customer?.name || dict.routes.details.delivery} - ${shipment.trackingId}`
               );
               if (hasDeadline) {
                 setFieldValue(

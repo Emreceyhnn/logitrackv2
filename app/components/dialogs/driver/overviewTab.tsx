@@ -19,6 +19,7 @@ import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import { useState } from "react";
 import DriverHistoryDialog from "./DriverHistoryDialog";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface OverviewTabProps {
   driver?: DriverWithRelations;
@@ -83,10 +84,11 @@ const KPICard = ({
 
 const OverviewTab = ({ driver }: OverviewTabProps) => {
   const theme = useTheme();
+  const dict = useDictionary();
   const [historyOpen, setHistoryOpen] = useState(false);
 
   if (!driver) {
-    return <Typography color="text.secondary">No driver selected</Typography>;
+    return <Typography color="text.secondary">{dict.drivers.noDriverSelected}</Typography>;
   }
 
   return (
@@ -115,7 +117,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, sm: 4 }}>
           <KPICard
-            title="Driver Rating"
+            title={dict.drivers.labels.rating}
             value={`${driver.rating != null ? driver.rating : "-"} / 5`}
             icon={<StarIcon fontSize="small" />}
             color={theme.palette.warning.main}
@@ -124,7 +126,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
           <KPICard
-            title="Efficiency Score"
+            title={dict.drivers.labels.efficiency}
             value={
               driver.efficiencyScore != null
                 ? `${driver.efficiencyScore}%`
@@ -137,7 +139,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
           <KPICard
-            title="Safety Score"
+            title={dict.drivers.labels.safety}
             value={driver.safetyScore != null ? `${driver.safetyScore}%` : "-"}
             icon={<MedicalServicesIcon fontSize="small" />}
             color={theme.palette.success.main}
@@ -166,7 +168,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                 sx={{ color: "text.secondary" }}
               />
               <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                License Expiry
+                {dict.drivers.fields.licenseExpiry}
               </Typography>
             </Stack>
             <Typography variant="h6" fontWeight={700} color="white">
@@ -190,7 +192,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             }}
           >
             <Typography variant="body2" color="text.secondary" fontWeight={600}>
-              Status
+              {dict.drivers.fields.status}
             </Typography>
             <Typography
               variant="h6"
@@ -204,7 +206,11 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                       : "warning.main",
               }}
             >
-              {driver.status.replace("_", " ")}
+              {driver.status === "ON_JOB" 
+                ? dict.drivers.onDuty 
+                : driver.status === "OFF_DUTY" 
+                  ? dict.drivers.offDuty 
+                  : driver.status.replace("_", " ")}
             </Typography>
           </Card>
         </Grid>
@@ -227,11 +233,11 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                 sx={{ color: "text.secondary" }}
               />
               <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                Base
+                {dict.drivers.labels.base}
               </Typography>
             </Stack>
             <Typography variant="h6" fontWeight={700} color="white" noWrap>
-              {driver.homeBaseWarehouse?.name || "Not Set"}
+              {driver.homeBaseWarehouse?.name || dict.common.noData}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               ID: {driver.homeBaseWarehouse?.code || "N/A"}
@@ -253,7 +259,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
           }}
         >
-          Contact Driver
+          {dict.drivers.labels.contactDriver}
         </Button>
         <Button
           variant="outlined"
@@ -273,7 +279,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             },
           }}
         >
-          View Full History
+          {dict.drivers.labels.viewHistory}
         </Button>
       </Stack>
 

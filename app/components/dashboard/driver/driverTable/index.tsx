@@ -10,6 +10,7 @@ import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Typography } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const DriverTable = ({
   drivers,
@@ -26,7 +27,7 @@ const DriverTable = ({
   filters,
   onFilterChange,
 }: DriverTableProps) => {
-
+  const dict = useDictionary();
   const [localPage, setLocalPage] = useState(1);
   const [localLimit, setLocalLimit] = useState(10);
 
@@ -56,7 +57,7 @@ const DriverTable = ({
   const columns: DataTableColumn<DriverWithRelations>[] = useMemo(() => [
     {
       key: "id",
-      label: "#",
+      label: dict.drivers.table.columns.idx,
       width: 50,
       render: (row) => {
         const idx = drivers.findIndex((d) => d.id === row.id);
@@ -66,7 +67,7 @@ const DriverTable = ({
     },
     {
       key: "name",
-      label: "Name",
+      label: dict.drivers.table.columns.name,
       sortable: true,
       render: (row) => (
         <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>
@@ -76,61 +77,61 @@ const DriverTable = ({
     },
     {
       key: "status",
-      label: "Status",
+      label: dict.drivers.table.columns.status,
       sortable: true,
       render: (row) => <StatusChip status={row.status} />,
     },
     {
       key: "phone",
-      label: "Phone",
+      label: dict.drivers.table.columns.phone,
       sortable: true,
       render: (row) => row.phone,
     },
     {
       key: "vehicle",
-      label: "Vehicle",
+      label: dict.drivers.table.columns.vehicle,
       sortable: true,
-      render: (row) => row.currentVehicle ? row.currentVehicle.plate : "No assigned vehicle",
+      render: (row) => row.currentVehicle ? row.currentVehicle.plate : dict.drivers.table.noVehicle,
     },
     {
       key: "homeBaseWarehouse",
-      label: "Homebase",
+      label: dict.drivers.table.columns.homebase,
       sortable: true,
-      render: (row) => row.homeBaseWarehouse ? row.homeBaseWarehouse.name : "Not assigned",
+      render: (row) => row.homeBaseWarehouse ? row.homeBaseWarehouse.name : dict.drivers.table.notAssigned,
     },
     {
       key: "licenseType",
-      label: "License",
+      label: dict.drivers.table.columns.license,
       sortable: true,
       render: (row) => row.licenseType,
     },
     {
       key: "safetyScore",
-      label: "Safety Score",
+      label: dict.drivers.table.columns.safetyScore,
       align: "right",
       sortable: true,
       render: (row) => row.safetyScore,
     },
-  ], [drivers, meta]);
+  ], [drivers, meta, dict]);
 
   const rowActions: DataTableRowAction<DriverWithRelations>[] = useMemo(() => [
     {
-      label: "Details",
+      label: dict.drivers.actions.details,
       icon: <ContentPasteIcon fontSize="small" />,
       onClick: (row) => onDriverSelect(row.id),
     },
     {
-      label: "Edit",
+      label: dict.drivers.actions.edit,
       icon: <EditIcon fontSize="small" />,
       onClick: (row) => onEdit(row),
     },
     {
-      label: "Delete",
+      label: dict.drivers.actions.delete,
       icon: <DeleteIcon fontSize="small" />,
       onClick: (row) => onDelete(row.id),
       color: "error",
     },
-  ], [onDriverSelect, onEdit, onDelete]);
+  ], [onDriverSelect, onEdit, onDelete, dict]);
 
   const activeFilters: Record<string, string[]> = {};
   if (filters?.status && filters.status.length > 0) activeFilters["status"] = filters.status;
@@ -147,10 +148,10 @@ const DriverTable = ({
     }
   };
 
-  const DRIVER_FILTERS: DataTableFilter[] = [
+  const DRIVER_FILTERS: DataTableFilter[] = useMemo(() => [
     {
       key: "status",
-      label: "Status",
+      label: dict.drivers.filters.status,
       options: Object.values(DriverStatus).map((s) => ({
         label: s.replace(/_/g, " "),
         value: s,
@@ -159,21 +160,21 @@ const DriverTable = ({
     },
     {
       key: "hasVehicle",
-      label: "Vehicle",
+      label: dict.drivers.filters.vehicle,
       options: [
-        { label: "Assigned", value: "assigned" },
-        { label: "Unassigned", value: "unassigned" }
+        { label: dict.drivers.filters.assigned, value: "assigned" },
+        { label: dict.drivers.filters.unassigned, value: "unassigned" }
       ],
       multiple: false,
     }
-  ];
+  ], [dict]);
 
   return (
     <DataTable<DriverWithRelations>
       rows={paginatedDrivers}
       columns={columns}
       loading={loading}
-      emptyMessage="No drivers found"
+      emptyMessage={dict.drivers.table.noDrivers}
       meta={meta}
       onPageChange={handlePageChange}
       onLimitChange={handleLimitChange}
@@ -182,9 +183,9 @@ const DriverTable = ({
       sortOrder={sortOrder}
       onRequestSort={onRequestSort}
       wrapCard={true}
-      tableTitle="Driver List"
+      tableTitle={dict.drivers.table.title}
       searchValue={filters?.search || ""}
-      searchPlaceholder="Search drivers..."
+      searchPlaceholder={dict.drivers.table.searchPlaceholder}
       onSearchChange={(search) => onFilterChange && onFilterChange({ search })}
       filters={DRIVER_FILTERS}
       activeFilters={activeFilters}

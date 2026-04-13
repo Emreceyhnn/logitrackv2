@@ -22,7 +22,7 @@ import {
 import { useParams } from "next/navigation";
 
 import { getUserSession, logoutAction } from "@/app/lib/actions/auth";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 // Dialogs
@@ -73,7 +73,7 @@ export default function UserAccountNav() {
   const theme = useTheme();
   const params = useParams();
   const lang = (params?.lang as string) || "tr";
-  const dict = getDictionary(lang);
+  const dict = useDictionary();
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{

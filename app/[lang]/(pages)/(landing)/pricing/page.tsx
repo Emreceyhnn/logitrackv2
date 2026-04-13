@@ -16,6 +16,7 @@ import {
 import { keyframes } from "@mui/system";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -28,58 +29,39 @@ const glow = keyframes`
   100% { box-shadow: 0 0 20px rgba(56,189,248,0.2); }
 `;
 
-const pricingTiers = [
-  {
-    title: "Starter",
-    priceMonthly: 49,
-    priceYearly: 39,
-    description: "Perfect for local fleet owners and individual operators.",
-    features: [
-      "Live GPS Tracking",
-      "5 Active Routes",
-      "Basic WMS Integration",
-      "Email Support",
-      "Mobile App Access"
-    ],
-    buttonText: "Start Free Trial",
-    highlight: false,
-  },
-  {
-    title: "Pro",
-    priceMonthly: 199,
-    priceYearly: 159,
-    description: "Optimized for regional logistics and growing teams.",
-    features: [
-      "AI Route Optimization",
-      "Unlimited Active Routes",
-      "Predictive ETAs",
-      "24/7 Priority Support",
-      "Advanced Analytics",
-      "Driver Performance Scores"
-    ],
-    buttonText: "Start Free Trial",
-    highlight: true,
-  },
-  {
-    title: "Enterprise",
-    priceMonthly: null,
-    priceYearly: null,
-    description: "Custom solutions for global supply chain leaders.",
-    features: [
-      "Full Telematics Integration",
-      "Custom SLA Monitoring",
-      "Dedicated Account Manager",
-      "White-Label Options",
-      "On-Premise Deployment",
-      "Infinite Custom Connectors"
-    ],
-    buttonText: "Contact Sales",
-    highlight: false,
-  }
-];
-
 export default function PricingPage() {
   const [isYearly, setIsYearly] = useState(false);
+  const dict = useDictionary();
+
+  const pricingTiers = [
+    {
+      title: dict.landing.pricing.tiers.starter.title,
+      priceMonthly: 49,
+      priceYearly: 39,
+      description: dict.landing.pricing.tiers.starter.description,
+      features: dict.landing.pricing.tiers.starter.features,
+      buttonText: dict.landing.pricing.tiers.starter.cta,
+      highlight: false,
+    },
+    {
+      title: dict.landing.pricing.tiers.pro.title,
+      priceMonthly: 199,
+      priceYearly: 159,
+      description: dict.landing.pricing.tiers.pro.description,
+      features: dict.landing.pricing.tiers.pro.features,
+      buttonText: dict.landing.pricing.tiers.pro.cta,
+      highlight: true,
+    },
+    {
+      title: dict.landing.pricing.tiers.enterprise.title,
+      priceMonthly: null,
+      priceYearly: null,
+      description: dict.landing.pricing.tiers.enterprise.description,
+      features: dict.landing.pricing.tiers.enterprise.features,
+      buttonText: dict.landing.pricing.tiers.enterprise.cta,
+      highlight: false,
+    }
+  ];
 
   return (
     <Box
@@ -93,7 +75,6 @@ export default function PricingPage() {
         overflow: "hidden",
       }}
     >
-
       <Box
         sx={{
           position: "absolute",
@@ -107,7 +88,6 @@ export default function PricingPage() {
         }}
       />
 
-
       <Container
         maxWidth="lg"
         sx={{
@@ -117,10 +97,9 @@ export default function PricingPage() {
           pb: { xs: 12, md: 20 },
         }}
       >
-
         <Stack spacing={4} alignItems="center" textAlign="center" mb={10} sx={{ animation: `${fadeIn} 0.8s ease-out` }}>
           <Chip
-            label="Pricing Plans"
+            label={dict.landing.pricing.badge}
             sx={{
               borderRadius: "999px",
               px: 2,
@@ -143,13 +122,12 @@ export default function PricingPage() {
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
-          >
-            Predictable Pricing for <br /> Unpredictable Logistics.
-          </Typography>
+            dangerouslySetInnerHTML={{ __html: dict.landing.pricing.title }}
+          />
 
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography variant="body2" sx={{ color: !isYearly ? "#38bdf8" : alpha("#cbd5f5", 0.6), fontWeight: 600 }}>
-              Monthly
+              {dict.landing.pricing.monthly}
             </Typography>
             <Switch
               checked={isYearly}
@@ -161,10 +139,10 @@ export default function PricingPage() {
             />
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography variant="body2" sx={{ color: isYearly ? "#38bdf8" : alpha("#cbd5f5", 0.6), fontWeight: 600 }}>
-                Yearly
+                {dict.landing.pricing.yearly}
               </Typography>
               <Chip
-                label="Save 20%"
+                label={dict.landing.pricing.save}
                 size="small"
                 sx={{
                   bgcolor: alpha("#10b981", 0.1),
@@ -177,7 +155,6 @@ export default function PricingPage() {
             </Stack>
           </Stack>
         </Stack>
-
 
         <Grid container spacing={4} alignItems="center">
           {pricingTiers.map((tier, idx) => (
@@ -201,7 +178,7 @@ export default function PricingPage() {
               >
                 {tier.highlight && (
                   <Chip
-                    label="Most Popular"
+                    label={dict.landing.pricing.mostPopular}
                     sx={{
                       position: "absolute",
                       top: -16,
@@ -224,11 +201,11 @@ export default function PricingPage() {
 
                 <Stack direction="row" alignItems="flex-end" spacing={1} mb={4}>
                   <Typography variant="h3" fontWeight={900}>
-                    {tier.priceMonthly === null ? "Custom" : `$${isYearly ? tier.priceYearly : tier.priceMonthly}`}
+                    {tier.priceMonthly === null ? dict.landing.pricing.custom : `$${isYearly ? tier.priceYearly : tier.priceMonthly}`}
                   </Typography>
                   {tier.priceMonthly !== null && (
                     <Typography variant="body2" sx={{ color: alpha("#cbd5f5", 0.4), mb: 1 }}>
-                      /mo
+                      {dict.landing.pricing.perMonth}
                     </Typography>
                   )}
                 </Stack>
@@ -269,7 +246,6 @@ export default function PricingPage() {
           ))}
         </Grid>
 
-
         <Box
           sx={{
             mt: 15,
@@ -283,12 +259,10 @@ export default function PricingPage() {
           <Stack spacing={3} alignItems="center">
             <BoltRoundedIcon sx={{ fontSize: 48, color: "#38bdf8" }} />
             <Typography variant="h4" fontWeight={900}>
-              Enterprise-Grade Security & Performance
+              {dict.landing.pricing.infrastructure.title}
             </Typography>
             <Typography variant="body1" sx={{ color: alpha("#cbd5f5", 0.7), maxWidth: 800, mx: "auto", lineHeight: 1.8 }}>
-              Need more than 10,000 routes per month? Our Global infrastructure handles millions of telemetry events
-              per second with 99.99% uptime. Contact our engineering team for custom integration solutions
-              and volume-based pricing.
+              {dict.landing.pricing.infrastructure.description}
             </Typography>
             <Button
               variant="text"
@@ -298,12 +272,11 @@ export default function PricingPage() {
                 "&:hover": { background: alpha("#38bdf8", 0.1) }
               }}
             >
-              Learn about our Infrastructure →
+              {dict.landing.pricing.infrastructure.cta}
             </Button>
           </Stack>
         </Box>
       </Container>
-
 
       <Box
         sx={{
@@ -314,8 +287,8 @@ export default function PricingPage() {
         }}
       >
         <Typography variant="body2" sx={{ color: alpha("#cbd5f5", 0.4) }}>
-          © {new Date().getFullYear()} LogiTrack Intelligence Systems. All plans subject to our TOS. <br />
-          Enterprise customers get dedicated support channels.
+          {dict.landing.pricing.footer.tos.replace("{year}", new Date().getFullYear().toString())} <br />
+          {dict.landing.pricing.footer.support}
         </Typography>
       </Box>
     </Box>

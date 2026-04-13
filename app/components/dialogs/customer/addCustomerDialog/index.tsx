@@ -20,8 +20,7 @@ import BusinessIcon from "@mui/icons-material/Business";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useMemo, useState } from "react";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { AddCustomerDialogProps } from "@/app/lib/type/add-customer";
 import { toast } from "sonner";
 import { createCustomer } from "@/app/lib/controllers/customer";
@@ -55,9 +54,7 @@ const AddCustomerDialog = ({
   /* ---------------------------------- State --------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
+  const dict = useDictionary();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -93,13 +90,13 @@ const AddCustomerDialog = ({
         values.locations.filter((l) => l.address.trim() !== "")
       );
 
-      toast.success("Customer created successfully");
+      toast.success(dict.customers.dialogs.successAdd);
       onSuccess?.();
       closeDialog();
       resetForm();
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Failed to create customer";
+        err instanceof Error ? err.message : dict.customers.dialogs.errorAdd;
       setError(message);
       toast.error(message);
     } finally {
@@ -107,7 +104,7 @@ const AddCustomerDialog = ({
     }
   };
 
-  const steps = ["Company Identity", "Contact Details"];
+  const steps = [dict.customers.dialogs.steps.identity, dict.customers.dialogs.steps.contact];
 
   return (
     <GoogleMapsProvider>
@@ -171,10 +168,10 @@ const AddCustomerDialog = ({
                     </Box>
                     <Box>
                       <Typography variant="h6" fontWeight={700} color="white" lineHeight={1.2}>
-                        Add Customer
+                        {dict.customers.dialogs.addTitle}
                       </Typography>
                       <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                        REGISTER A NEW PARTNER
+                        {dict.customers.registerNewPartner}
                       </Typography>
                     </Box>
                   </Stack>
@@ -295,7 +292,7 @@ const AddCustomerDialog = ({
                     "&:hover": { color: "white", bgcolor: alpha("#fff", 0.05) }
                   }}
                 >
-                  {currentStep === 1 ? "Cancel" : "Back"}
+                  {currentStep === 1 ? dict.common.cancel : dict.common.back}
                 </Button>
 
                 <Button
@@ -312,7 +309,7 @@ const AddCustomerDialog = ({
                         setCurrentStep(2);
                       } else {
                         // Formik will show errors automatically since fields were likely touched or validateOnBlur is true
-                        toast.error("Please fill required fields correctly");
+                        toast.error(dict.common.fillRequired);
                       }
                     } else {
                       formikSubmit();
@@ -343,10 +340,10 @@ const AddCustomerDialog = ({
                   }
                 >
                   {isSubmitting
-                    ? "Creating..."
+                    ? dict.common.creating
                     : currentStep < 2
-                      ? "Next Details"
-                      : "Register Customer"}
+                      ? dict.common.nextStep
+                      : dict.customers.addCustomer}
                 </Button>
               </DialogActions>
             </>

@@ -18,6 +18,7 @@ import { RouteWithRelations } from "@/app/lib/type/routes";
 import RouteIcon from "@mui/icons-material/Route";
 import PersonIcon from "@mui/icons-material/Person";
 import EventIcon from "@mui/icons-material/Event";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface RouteSectionProps {
   routes: RouteWithRelations[];
@@ -25,6 +26,7 @@ interface RouteSectionProps {
 
 const RouteSection = ({ routes }: RouteSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const dict = useDictionary();
   const theme = useTheme();
   const { values, setFieldValue, handleBlur, touched, errors } =
     useFormikContext<ShipmentFormValues>();
@@ -49,7 +51,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
               }}
             />
             <Typography variant="subtitle2" fontWeight={700} color="white">
-              Route Management
+              {dict.shipments.dialogs.sections.routeManagement}
             </Typography>
           </Stack>
           <Button
@@ -64,7 +66,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
               borderRadius: 2,
             }}
           >
-            Assign to Existing Route
+            {dict.shipments.dialogs.buttons.assignToExistingRoute}
           </Button>
         </Stack>
 
@@ -76,12 +78,12 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                ROUTE ID
+                {dict.shipments.dialogs.fields.routeId}
               </Typography>
               <CustomTextArea
                 name="assignedRouteId"
                 select
-                placeholder="Select route..."
+                placeholder={dict.shipments.dialogs.fields.routePlaceholder}
                 value={values.assignedRouteId || ""}
                 onBlur={handleBlur}
                 error={touched.assignedRouteId && Boolean(errors.assignedRouteId)}
@@ -90,7 +92,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                   setFieldValue("assignedRouteId", e.target.value)
                 }
               >
-                <MenuItem value="">Unassigned</MenuItem>
+                <MenuItem value="">{dict.shipments.dialogs.fields.unassigned}</MenuItem>
                 {routes.map((r) => (
                   <MenuItem key={r.id} value={r.id}>
                     <Stack direction="row" spacing={1} alignItems="center">
@@ -126,7 +128,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                         color="text.secondary"
                         fontWeight={600}
                       >
-                        ASSIGNED DRIVER
+                        {dict.shipments.dialogs.fields.assignedDriver}
                       </Typography>
                       <Stack direction="row" spacing={1} alignItems="center">
                         <PersonIcon
@@ -153,7 +155,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                         color="text.secondary"
                         fontWeight={600}
                       >
-                        EST. DEPARTURE
+                        {dict.shipments.dialogs.fields.estDeparture}
                       </Typography>
                       <Stack direction="row" spacing={1} alignItems="center">
                         <EventIcon
@@ -164,7 +166,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                             ? new Date(
                                 selectedRoute.startTime
                               ).toLocaleTimeString()
-                            : "Pending Assignment"}
+                            : dict.shipments.dialogs.fields.pendingAssignment}
                         </Typography>
                       </Stack>
                     </Stack>
@@ -185,7 +187,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                 }}
               >
                 <Typography variant="caption" color="text.secondary">
-                  READ ONLY PREVIEW - No route selected
+                  {dict.shipments.dialogs.fields.readOnlyPreview}
                 </Typography>
               </Box>
             )}

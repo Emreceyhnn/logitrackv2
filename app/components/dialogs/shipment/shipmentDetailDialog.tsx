@@ -18,6 +18,7 @@ import { StatusChip } from "@/app/components/chips/statusChips";
 import DriverCard from "../../cards/driverCard";
 import MapRoutesDialogCard from "../routes/map";
 import { DriverWithRelations } from "@/app/lib/type/driver";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface ShipmentDetailDialogProps {
   // Renamed interface
@@ -32,6 +33,7 @@ export default function ShipmentDetailDialog({
   shipment,
 }: ShipmentDetailDialogProps) {
   const theme = useTheme();
+  const dict = useDictionary();
 
   if (!shipment) return null;
 
@@ -95,7 +97,7 @@ export default function ShipmentDetailDialog({
               <StatusChip status={shipment.status} />
             </Stack>
             <Typography variant="caption" color="text.secondary">
-              SYSTEM CONSIGNMENT ID: {shipment.id.substring(0, 8).toUpperCase()}
+              {dict.shipments.details.systemConsignmentId}: {shipment.id.substring(0, 8).toUpperCase()}
             </Typography>
           </Stack>
           <IconButton
@@ -132,7 +134,7 @@ export default function ShipmentDetailDialog({
                   color="text.secondary"
                   sx={{ textTransform: "uppercase", mb: 2, display: "block" }}
                 >
-                  Assignment Details
+                  {dict.shipments.details.assignmentDetails}
                 </Typography>
                 {shipment.driver ? (
                   <DriverCard
@@ -149,7 +151,7 @@ export default function ShipmentDetailDialog({
                     }}
                   >
                     <Typography variant="body2" color="text.secondary">
-                      No Driver Assigned
+                      {dict.shipments.details.noDriverAssigned}
                     </Typography>
                   </Paper>
                 )}
@@ -163,7 +165,7 @@ export default function ShipmentDetailDialog({
                   color="text.secondary"
                   sx={{ textTransform: "uppercase", mb: 2, display: "block" }}
                 >
-                  Mission Path
+                  {dict.shipments.details.missionPath}
                 </Typography>
                 <Box sx={{ position: "relative", pl: 4 }}>
                   {/* Vertical Line */}
@@ -207,10 +209,10 @@ export default function ShipmentDetailDialog({
                         fontWeight={700}
                         color="white"
                       >
-                        Pickup Origin
+                        {dict.shipments.details.pickupOrigin}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {shipment.origin || "Not specified"}
+                        {shipment.origin || dict.common.noData}
                       </Typography>
                     </Box>
 
@@ -232,10 +234,10 @@ export default function ShipmentDetailDialog({
                         fontWeight={700}
                         color="white"
                       >
-                        Final Delivery
+                        {dict.shipments.details.finalDelivery}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {shipment.destination || "Not specified"}
+                        {shipment.destination || dict.common.noData}
                       </Typography>
                     </Box>
                   </Stack>
@@ -250,7 +252,7 @@ export default function ShipmentDetailDialog({
                   color="text.secondary"
                   sx={{ textTransform: "uppercase", mb: 2, display: "block" }}
                 >
-                  Consignment Specs
+                  {dict.shipments.details.consignmentSpecs}
                 </Typography>
                 <Box
                   sx={{
@@ -268,12 +270,12 @@ export default function ShipmentDetailDialog({
                     }}
                   >
                     <Typography variant="caption" color="text.secondary">
-                      Quantity
+                      {dict.shipments.details.quantity}
                     </Typography>
                     <Typography variant="h6" fontWeight={800} color="white">
                       {shipment.itemsCount || 0}
                       <Typography component="span" variant="caption" ml={0.5}>
-                        units
+                        {dict.shipments.details.units}
                       </Typography>
                     </Typography>
                   </Box>
@@ -287,12 +289,12 @@ export default function ShipmentDetailDialog({
                       }}
                     >
                       <Typography variant="caption" color="text.secondary">
-                        Gross Weight
+                        {dict.shipments.details.grossWeight}
                       </Typography>
                       <Typography variant="h6" fontWeight={800} color="white">
                         {shipment.weightKg}
                         <Typography component="span" variant="caption" ml={0.5}>
-                          kg
+                          {dict.shipments.details.kg}
                         </Typography>
                       </Typography>
                     </Box>
@@ -309,7 +311,7 @@ export default function ShipmentDetailDialog({
                     color="text.secondary"
                     sx={{ textTransform: "uppercase", mb: 1, display: "block" }}
                   >
-                    Customer Entity
+                    {dict.shipments.details.customerEntity}
                   </Typography>
                   <Stack
                     direction="row"
@@ -341,7 +343,7 @@ export default function ShipmentDetailDialog({
                         {shipment.customer.name}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Client Partner
+                        {dict.shipments.details.clientPartner}
                       </Typography>
                     </Box>
                   </Stack>
@@ -376,12 +378,12 @@ export default function ShipmentDetailDialog({
             >
               <Stack alignItems="center">
                 <Typography variant="caption" color="text.secondary">
-                  MILEAGE
+                  {dict.shipments.details.mileage}
                 </Typography>
                 <Typography variant="subtitle1" fontWeight={800} color="white">
                   {shipment.route?.distanceKm
                     ? `${shipment.route.distanceKm} km`
-                    : "TBD"}
+                    : dict.shipments.details.tbd}
                 </Typography>
               </Stack>
               <Divider
@@ -391,12 +393,12 @@ export default function ShipmentDetailDialog({
               />
               <Stack alignItems="center">
                 <Typography variant="caption" color="text.secondary">
-                  DURATION
+                  {dict.shipments.details.duration}
                 </Typography>
                 <Typography variant="subtitle1" fontWeight={800} color="white">
                   {shipment.route?.durationMin
                     ? `${shipment.route.durationMin} min`
-                    : "TBD"}
+                    : dict.shipments.details.tbd}
                 </Typography>
               </Stack>
               <Divider
@@ -406,12 +408,12 @@ export default function ShipmentDetailDialog({
               />
               <Stack alignItems="center">
                 <Typography variant="caption" color="text.secondary">
-                  FLEET ID
+                  {dict.shipments.details.fleetId}
                 </Typography>
                 <Typography variant="subtitle1" fontWeight={800} color="white">
                   {shipment.route?.id
                     ? `RT-${shipment.route.id.substring(0, 4).toUpperCase()}`
-                    : "NO UNIT"}
+                    : dict.shipments.details.noUnit}
                 </Typography>
               </Stack>
             </Box>

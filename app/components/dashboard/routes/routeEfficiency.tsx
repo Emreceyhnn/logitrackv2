@@ -10,6 +10,7 @@ import {
 import CustomCard from "../../cards/card";
 import WarningIcon from "@mui/icons-material/Warning";
 import { RouteNotification, RouteEfficiencyStats } from "@/app/lib/type/routes";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface RouteEfficiencyProps {
   data: RouteEfficiencyStats | null;
@@ -17,6 +18,8 @@ interface RouteEfficiencyProps {
 }
 
 const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
+  const dict = useDictionary();
+
   if (loading || !data) {
     return (
       <CustomCard
@@ -25,7 +28,7 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
         <Typography
           sx={{ fontSize: 16, fontWeight: 600, color: "text.secondary" }}
         >
-          ROUTE EFFICIENCY
+          {dict.routes.dashboard.routeEfficiency.toUpperCase()}
         </Typography>
         <Stack spacing={3}>
           {[1, 2, 3].map((i) => (
@@ -62,17 +65,17 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
       <Typography
         sx={{ fontSize: 16, fontWeight: 600, color: "text.secondary" }}
       >
-        ROUTE EFFICIENCY
+        {dict.routes.dashboard.routeEfficiency.toUpperCase()}
       </Typography>
       <Stack spacing={1}>
         <Stack direction={"row"} justifyContent={"space-between"}>
           <Typography sx={{ fontSize: 14 }}>
-            Fuel Consumption (L/100km)
+            {dict.routes.dashboard.fuelConsumption}
           </Typography>
           <Typography
             sx={{ fontSize: 14, fontWeight: 700, color: "info.main" }}
           >
-            {data.fuelConsumption.toFixed(2)} avg
+            {dict.routes.dashboard.avg.replace("{count}", data.fuelConsumption.toFixed(2))}
           </Typography>
         </Stack>
         <LinearProgress
@@ -90,7 +93,7 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
       </Stack>
       <Stack spacing={1}>
         <Stack direction={"row"} justifyContent={"space-between"}>
-          <Typography sx={{ fontSize: 14 }}>On-Time Performance</Typography>
+          <Typography sx={{ fontSize: 14 }}>{dict.routes.dashboard.onTimePerformance}</Typography>
           <Typography
             sx={{ fontSize: 14, fontWeight: 700, color: "success.main" }}
           >
@@ -112,7 +115,7 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
       </Stack>
       <Stack spacing={1}>
         <Stack direction={"row"} justifyContent={"space-between"}>
-          <Typography sx={{ fontSize: 14 }}>Vehicle Utilization</Typography>
+          <Typography sx={{ fontSize: 14 }}>{dict.routes.dashboard.vehicleUtilization}</Typography>
           <Typography
             sx={{ fontSize: 14, fontWeight: 700, color: "warning.main" }}
           >
@@ -137,7 +140,7 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
         <Typography
           sx={{ fontSize: 16, fontWeight: 600, color: "text.secondary" }}
         >
-          RECENT NOTIFICATION
+          {dict.routes.dashboard.recentNotifications.toUpperCase()}
         </Typography>
         <Stack spacing={1} maxHeight={104} overflow={"auto"}>
           {data.recentNotifications.length > 0 ? (
@@ -152,7 +155,7 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
                   <WarningIcon sx={{ color: "error.main" }} />
                   <Stack>
                     <Typography sx={{ fontSize: 18, fontWeight: 400 }}>
-                      {notif.title || "Notification"}
+                      {notif.title || dict.routes.dashboard.notification}
                     </Typography>
                     <Typography
                       sx={{
@@ -175,7 +178,7 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
                 fontStyle: "italic",
               }}
             >
-              No recent notifications
+              {dict.routes.dashboard.noNotifications}
             </Typography>
           )}
         </Stack>

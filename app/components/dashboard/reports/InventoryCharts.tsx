@@ -3,12 +3,14 @@
 import { PieChart } from "@mui/x-charts/PieChart";
 import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
 import { InventoryCategoryStats } from "@/app/lib/type/reports";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface InventoryChartsProps {
   data: InventoryCategoryStats;
 }
 
 export default function InventoryCharts({ data }: InventoryChartsProps) {
+  const dict = useDictionary();
   const theme = useTheme();
 
   if (!data) return null;
@@ -60,10 +62,10 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
         >
           <Stack spacing={0.5} sx={{ mb: 3 }}>
             <Typography variant="h6" fontWeight={700}>
-              Inventory Value
+              {dict.dashboard.reports.charts.inventory.valueTitle}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Value distribution by category
+              {dict.dashboard.reports.charts.inventory.valueSubtitle}
             </Typography>
           </Stack>
 
@@ -82,7 +84,7 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
                   data:
                     valuePieData.length > 0
                       ? valuePieData
-                      : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
+                      : [{ id: 0, value: 1, label: dict.common.noData, color: "#ccc" }],
                   highlightScope: { fade: "global", highlight: "item" },
                   faded: {
                     innerRadius: 30,
@@ -119,10 +121,10 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
         >
           <Stack spacing={0.5} sx={{ mb: 3 }}>
             <Typography variant="h6" fontWeight={700}>
-              SKU Count
+              {dict.dashboard.reports.charts.inventory.countTitle}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Items count by category
+              {dict.dashboard.reports.charts.inventory.countSubtitle}
             </Typography>
           </Stack>
 
@@ -141,7 +143,7 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
                   data:
                     countPieData.length > 0
                       ? countPieData
-                      : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
+                      : [{ id: 0, value: 1, label: dict.common.noData, color: "#ccc" }],
                   highlightScope: { fade: "global", highlight: "item" },
                   faded: {
                     innerRadius: 30,

@@ -19,6 +19,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useState, useEffect } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateIssue } from "@/app/lib/controllers/vehicle";
 import { getPriorityColor } from "@/app/lib/priorityColor";
 import { Issue, IssueStatus, IssuePriority } from "@prisma/client";
@@ -36,6 +37,7 @@ export default function IssueDetailDialog({
   issue,
   onUpdate,
 }: IssueDetailDialogProps) {
+  const dict = useDictionary();
   /* ---------------------------------- theme --------------------------------- */
   const theme = useTheme();
 
@@ -68,7 +70,7 @@ export default function IssueDetailDialog({
       onClose();
     } catch (err) {
       console.error(err);
-      setError("Failed to update issue");
+      setError(dict.vehicles.dialogs.failedToUpdateIssue || "Failed to update issue");
     } finally {
       setLoading(false);
     }
@@ -133,10 +135,10 @@ export default function IssueDetailDialog({
             </Box>
             <Box>
               <Typography variant="h6" fontWeight={700} color="white">
-                Issue Details
+                {dict.vehicles.dialogs.issueDetails}
               </Typography>
               <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
-                Reference ID: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>#{issue.id.slice(-6).toUpperCase()}</span>
+                {dict.vehicles.dialogs.referenceId}: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>#{issue.id.slice(-6).toUpperCase()}</span>
               </Typography>
             </Box>
           </Stack>
@@ -166,7 +168,7 @@ export default function IssueDetailDialog({
           <Stack spacing={3}>
             <Box>
               <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
-                Incident Title
+                {dict.vehicles.dialogs.incidentTitle}
               </Typography>
               <Typography variant="h5" color="white" fontWeight={700}>
                 {issue.title}
@@ -175,7 +177,7 @@ export default function IssueDetailDialog({
 
             <Box>
               <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
-                Problem Description
+                {dict.vehicles.dialogs.problemDesc}
               </Typography>
               <Box 
                 sx={{ 
@@ -186,7 +188,7 @@ export default function IssueDetailDialog({
                 }}
               >
                 <Typography variant="body2" color="rgba(255,255,255,0.7)" sx={{ lineHeight: 1.6 }}>
-                  {issue.description || "No supplemental details provided for this issue."}
+                  {issue.description || dict.vehicles.dialogs.noSupplementalDetails}
                 </Typography>
               </Box>
             </Box>
@@ -194,7 +196,7 @@ export default function IssueDetailDialog({
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <Box>
                 <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 0.5, display: "block", textTransform: "uppercase" }}>
-                  Reported On
+                  {dict.vehicles.dialogs.reportedOn}
                 </Typography>
                 <Typography variant="body2" color="white">
                   {new Date(issue.createdAt).toLocaleDateString("en-US", {
@@ -210,14 +212,14 @@ export default function IssueDetailDialog({
 
             <Box>
               <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 2, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
-                Configuration & Status
+                {dict.vehicles.dialogs.configurationStatus}
               </Typography>
               <Stack direction="row" spacing={2.5}>
                 <FormControl fullWidth sx={selectSx}>
-                  <InputLabel shrink sx={{ color: alpha("#fff", 0.4) }}>Status</InputLabel>
+                  <InputLabel shrink sx={{ color: alpha("#fff", 0.4) }}>{dict.vehicles.fields.status}</InputLabel>
                   <Select
                     value={status}
-                    label="Status"
+                    label={dict.vehicles.fields.status}
                     notched
                     onChange={(e) => setStatus(e.target.value)}
                     sx={{ height: 48 }}
@@ -231,18 +233,18 @@ export default function IssueDetailDialog({
                       }
                     }}
                   >
-                    <MenuItem value={IssueStatus.OPEN}>Open</MenuItem>
-                    <MenuItem value={IssueStatus.IN_PROGRESS}>In Progress</MenuItem>
-                    <MenuItem value={IssueStatus.RESOLVED}>Resolved</MenuItem>
-                    <MenuItem value={IssueStatus.CLOSED}>Closed</MenuItem>
+                    <MenuItem value={IssueStatus.OPEN}>{dict.vehicles.statuses.OPEN || "Open"}</MenuItem>
+                    <MenuItem value={IssueStatus.IN_PROGRESS}>{dict.vehicles.statuses.IN_PROGRESS}</MenuItem>
+                    <MenuItem value={IssueStatus.RESOLVED}>{dict.vehicles.statuses.RESOLVED || "Resolved"}</MenuItem>
+                    <MenuItem value={IssueStatus.CLOSED}>{dict.vehicles.statuses.CLOSED || "Closed"}</MenuItem>
                   </Select>
                 </FormControl>
 
                 <FormControl fullWidth sx={selectSx}>
-                  <InputLabel shrink sx={{ color: alpha("#fff", 0.4) }}>Priority</InputLabel>
+                  <InputLabel shrink sx={{ color: alpha("#fff", 0.4) }}>{dict.vehicles.fields.priority}</InputLabel>
                   <Select
                     value={priority}
-                    label="Priority"
+                    label={dict.vehicles.fields.priority}
                     notched
                     onChange={(e) => setPriority(e.target.value)}
                     sx={{ height: 48 }}
@@ -261,7 +263,7 @@ export default function IssueDetailDialog({
                       return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                           <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: mainColor, boxShadow: `0 0 10px ${alpha(mainColor, 0.5)}` }} />
-                          <Typography variant="body2" color="white">{value as string}</Typography>
+                          <Typography variant="body2" color="white">{dict.vehicles.priorities[value as keyof typeof dict.vehicles.priorities] || value as string}</Typography>
                         </Box>
                       );
                     }}
@@ -270,7 +272,7 @@ export default function IssueDetailDialog({
                       <MenuItem key={p as string} value={p} sx={{ py: 1.5 }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                           <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: getPriorityColor(p as string) }} />
-                          <Typography variant="body2">{p as string}</Typography>
+                          <Typography variant="body2">{dict.vehicles.priorities[p as keyof typeof dict.vehicles.priorities] || p as string}</Typography>
                         </Box>
                       </MenuItem>
                     ))}
@@ -294,7 +296,7 @@ export default function IssueDetailDialog({
               px: 3
             }}
           >
-            Cancel
+            {dict.common.cancel}
           </Button>
           <Button
             variant="contained"
@@ -312,9 +314,9 @@ export default function IssueDetailDialog({
             {loading ? (
               <Stack direction="row" spacing={1} alignItems="center">
                 <CircularProgress size={16} color="inherit" />
-                <span>Saving Changes...</span>
+                <span>{dict.vehicles.dialogs.savingChanges}</span>
               </Stack>
-            ) : "Update Issue"}
+            ) : dict.vehicles.dialogs.updateIssue}
           </Button>
         </Stack>
       </Box>

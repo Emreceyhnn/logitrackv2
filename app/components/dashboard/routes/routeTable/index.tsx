@@ -16,6 +16,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
 import { RouteStatus } from "@prisma/client";
 import { toast } from "sonner";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface ExtendedRouteTableProps extends RouteTableProps {
   onRefresh?: () => void;
@@ -33,6 +34,7 @@ const RouteTable = ({
   onDelete,
   onRefresh,
 }: ExtendedRouteTableProps) => {
+  const dict = useDictionary();
 
   /* --------------------------------- states --------------------------------- */
   const [openDetails, setOpenDetails] = useState(false);
@@ -83,20 +85,20 @@ const RouteTable = ({
     setActionLoading(id);
     try {
       await updateRouteStatus(id, newStatus);
-      toast.success(`Route updated to ${newStatus}`);
+      toast.success(dict.routes.toasts.updateSuccess.replace("{status}", newStatus));
       onRefresh?.();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to update route";
+      const message = error instanceof Error ? error.message : dict.routes.toasts.updateError;
       toast.error(message);
     } finally {
       setActionLoading(null);
     }
-  }, [onRefresh]);
+  }, [onRefresh, dict]);
 
   const columns: DataTableColumn<RouteWithRelations>[] = useMemo(() => [
     {
       key: "routeId",
-      label: "Route Id",
+      label: dict.routes.table.columns.routeId,
       render: (row) => (
         <Typography variant="body2" fontWeight={600}>
           {row.name || row.id}
@@ -105,46 +107,46 @@ const RouteTable = ({
     },
     {
       key: "vehiclePlate",
-      label: "Vehicle Plate",
-      render: (row) => row.vehicle?.plate || "Unassigned",
+      label: dict.routes.table.columns.vehiclePlate,
+      render: (row) => row.vehicle?.plate || dict.common.unassigned,
     },
     {
       key: "origin",
-      label: "Origin",
-      render: (row) => row.startAddress || "N/A",
+      label: dict.routes.table.columns.origin,
+      render: (row) => row.startAddress || dict.common.na,
     },
     {
       key: "destination",
-      label: "Destination",
-      render: (row) => row.endAddress || "N/A",
+      label: dict.routes.table.columns.destination,
+      render: (row) => row.endAddress || dict.common.na,
     },
     {
       key: "eta",
-      label: "ETA",
-      render: (row) => (row.endTime ? new Date(row.endTime).toLocaleString() : "N/A"),
+      label: dict.routes.table.columns.eta,
+      render: (row) => (row.endTime ? new Date(row.endTime).toLocaleString() : dict.common.na),
     },
     {
       key: "status",
-      label: "Status",
+      label: dict.routes.table.columns.status,
       render: (row) => <StatusChip status={row.status} />,
     },
-  ], []);
+  ], [dict]);
 
   const rowActions: DataTableRowAction<RouteWithRelations>[] = useMemo(() => {
     const actions: DataTableRowAction<RouteWithRelations>[] = [
       {
-        label: "Details",
+        label: dict.common.details,
         icon: <ContentPasteIcon fontSize="small" />,
         onClick: (row) => handleOpenDetails(row.id),
       },
       {
-        label: "Activate Route",
+        label: dict.routes.table.actions.activate,
         icon: <PlayArrowIcon fontSize="small" />,
         onClick: (row) => handleStatusChange(row.id, "ACTIVE"),
         hidden: (row) => row.status !== "PLANNED",
       },
       {
-        label: "Complete Route",
+        label: dict.routes.table.actions.complete,
         icon: <CheckCircleIcon fontSize="small" />,
         onClick: (row) => handleStatusChange(row.id, "COMPLETED"),
         hidden: (row) => row.status !== "ACTIVE",
@@ -153,7 +155,7 @@ const RouteTable = ({
 
     if (onEdit) {
       actions.push({
-        label: "Edit",
+        label: dict.common.edit,
         icon: <EditIcon fontSize="small" />,
         onClick: (row) => onEdit(row.id),
       });
@@ -161,7 +163,7 @@ const RouteTable = ({
 
     if (onDelete) {
       actions.push({
-        label: "Delete",
+        label: dict.common.delete,
         icon: <DeleteIcon fontSize="small" />,
         onClick: (row) => onDelete(row.id),
         color: "error",
@@ -169,7 +171,7 @@ const RouteTable = ({
     }
 
     return actions;
-  }, [handleOpenDetails, handleStatusChange, onEdit, onDelete]);
+  }, [handleOpenDetails, handleStatusChange, onEdit, onDelete, dict]);
 
   return (
     <>
@@ -178,12 +180,12 @@ const RouteTable = ({
         columns={columns}
         rowActions={rowActions}
         loading={loading || !!actionLoading}
-        emptyMessage="No routes found."
+        emptyMessage={dict.routes.table.noRoutes}
         meta={meta}
         onPageChange={handleChangePage}
         onLimitChange={handleLimitChange}
         wrapCard={true}
-        tableTitle="Route List"
+        tableTitle={dict.routes.table.title}
       />
       
       <RouteDetailsDialog

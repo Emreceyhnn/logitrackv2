@@ -1,24 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Button,
-  Stack,
-  CircularProgress,
-  alpha,
-} from "@mui/material";
+import { Button, Stack, CircularProgress, alpha } from "@mui/material";
 import Link from "next/link";
 import { getUserSession } from "@/app/lib/actions/auth";
 import CreateCompanyDialog from "../dialogs/company/CreateCompanyDialog";
 import UserAccountNav from "../nav/UserAccountNav";
 import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function LandingHeaderAuth() {
   const params = useParams();
   const lang = (params?.lang as string) || "tr";
-  const dict = getDictionary(lang);
-  
+  const dict = useDictionary();
+
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
     id: string;
@@ -58,7 +53,6 @@ export default function LandingHeaderAuth() {
         <Stack direction="row" spacing={2} alignItems="center">
           <UserAccountNav />
 
-          {/* CTA buttons */}
           {user.companyId ? (
             <Button
               variant="contained"
@@ -72,11 +66,11 @@ export default function LandingHeaderAuth() {
                 borderRadius: "999px",
                 background: "linear-gradient(135deg, #22d3ee, #2563eb)",
                 boxShadow: "0 12px 30px rgba(37, 99, 235, 0.35)",
-                "&:hover": { 
-                    background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
-                    transform: "scale(1.02)"
+                "&:hover": {
+                  background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
+                  transform: "scale(1.02)",
                 },
-                transition: "all 0.2s"
+                transition: "all 0.2s",
               }}
             >
               {dict.navbar.dashboard}
@@ -93,11 +87,11 @@ export default function LandingHeaderAuth() {
                 borderRadius: "999px",
                 background: "linear-gradient(135deg, #22d3ee, #2563eb)",
                 boxShadow: "0 12px 30px rgba(37, 99, 235, 0.35)",
-                "&:hover": { 
-                    background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
-                    transform: "scale(1.02)"
+                "&:hover": {
+                  background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
+                  transform: "scale(1.02)",
                 },
-                transition: "all 0.2s"
+                transition: "all 0.2s",
               }}
             >
               {dict.navbar.setupOrg}
@@ -141,11 +135,11 @@ export default function LandingHeaderAuth() {
           borderRadius: "999px",
           background: "linear-gradient(135deg, #22d3ee, #2563eb)",
           boxShadow: "0 12px 30px rgba(37, 99, 235, 0.35)",
-          "&:hover": { 
-              background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
-              transform: "scale(1.02)"
+          "&:hover": {
+            background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
+            transform: "scale(1.02)",
           },
-          transition: "all 0.2s"
+          transition: "all 0.2s",
         }}
       >
         {dict.navbar.startPro}

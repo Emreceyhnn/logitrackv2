@@ -7,17 +7,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 
 import { useFormikContext } from "formik";
-
-const INDUSTRIES = [
-  "Logistics & Transportation",
-  "Retail & E-commerce",
-  "Manufacturing",
-  "Pharmaceuticals",
-  "Automotive",
-  "Aviation",
-  "Technology",
-  "Other",
-];
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const LabelWithIcon = ({ icon: Icon, label }: { icon: React.ComponentType<SvgIconProps>, label: string }) => (
   <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
@@ -34,7 +24,19 @@ const LabelWithIcon = ({ icon: Icon, label }: { icon: React.ComponentType<SvgIco
 );
 
 const IdentitySection = () => {
+  const dict = useDictionary();
   const { values, errors, touched, setFieldValue, handleBlur } = useFormikContext<AddCustomerIdentity>();
+
+  const INDUSTRIES = [
+    { value: "Logistics & Transportation", label: dict.customers.industries.logistics },
+    { value: "Retail & E-commerce", label: dict.customers.industries.retail },
+    { value: "Manufacturing", label: dict.customers.industries.manufacturing },
+    { value: "Pharmaceuticals", label: dict.customers.industries.pharmaceuticals },
+    { value: "Automotive", label: dict.customers.industries.automotive },
+    { value: "Aviation", label: dict.customers.industries.aviation },
+    { value: "Technology", label: dict.customers.industries.technology },
+    { value: "Other", label: dict.customers.industries.other },
+  ];
 
   return (
     <Box sx={{ py: 1 }}>
@@ -42,10 +44,10 @@ const IdentitySection = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12 }}>
             <Stack spacing={0}>
-              <LabelWithIcon icon={BusinessIcon} label="Full Legal Company Name *" />
+              <LabelWithIcon icon={BusinessIcon} label={`${dict.customers.fields.companyName} *`} />
               <CustomTextArea
                 name="name"
-                placeholder="e.g. Global Logistics Solutions Ltd."
+                placeholder={dict.common.na}
                 value={values.name}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFieldValue("name", e.target.value)
@@ -66,10 +68,10 @@ const IdentitySection = () => {
 
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={0}>
-              <LabelWithIcon icon={BadgeIcon} label="Customer Code" />
+              <LabelWithIcon icon={BadgeIcon} label={dict.customers.fields.customerCode} />
               <CustomTextArea
                 name="code"
-                placeholder="e.g. CUST-01 (or leave blank)"
+                placeholder={dict.common.optional}
                 value={values.code}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFieldValue("code", e.target.value)
@@ -88,10 +90,10 @@ const IdentitySection = () => {
 
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={0}>
-              <LabelWithIcon icon={ReceiptIcon} label="Tax ID / VAT No" />
+              <LabelWithIcon icon={ReceiptIcon} label={dict.customers.fields.taxId} />
               <CustomTextArea
                 name="taxId"
-                placeholder="e.g. GB123456789"
+                placeholder={dict.common.na}
                 value={values.taxId}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFieldValue("taxId", e.target.value)
@@ -110,7 +112,7 @@ const IdentitySection = () => {
 
           <Grid size={{ xs: 12 }}>
             <Stack spacing={0}>
-              <LabelWithIcon icon={CategoryIcon} label="Industry Vertical" />
+              <LabelWithIcon icon={CategoryIcon} label={dict.customers.fields.industry} />
               <CustomTextArea
                 name="industry"
                 select
@@ -128,11 +130,11 @@ const IdentitySection = () => {
                 }}
               >
                 <MenuItem value="" disabled>
-                  Select an industry
+                  {dict.customers.fields.selectIndustry}
                 </MenuItem>
                 {INDUSTRIES.map((ind) => (
-                  <MenuItem key={ind} value={ind}>
-                    {ind}
+                  <MenuItem key={ind.value} value={ind.value}>
+                    {ind.label}
                   </MenuItem>
                 ))}
               </CustomTextArea>

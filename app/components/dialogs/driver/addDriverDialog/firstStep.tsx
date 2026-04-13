@@ -20,9 +20,7 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import PhoneIcon from "@mui/icons-material/Phone";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
-import { useMemo } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useRef, ChangeEvent } from "react";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
@@ -38,10 +36,7 @@ const FirstDriverDialogStep = ({
   eligibleUsers,
 }: FirstDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
-  
+  const dict = useDictionary();
   const theme = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { values, errors, touched, setFieldValue, handleBlur, handleChange } = 
@@ -67,13 +62,13 @@ const FirstDriverDialogStep = ({
           <Stack direction={"row"} spacing={1} alignItems="center">
             <UserIcon fontSize="small" sx={{ color: "text.secondary" }} />
             <Typography variant="body2" fontWeight={500} color="text.secondary">
-              {dict.sidebar.company}
+              {dict.drivers.fields.selectUser}
             </Typography>
           </Stack>
           <CustomTextArea
             name="userId"
             placeholder={
-              eligibleUsers.length === 0 ? dict.common.noData : dict.sidebar.company
+              eligibleUsers.length === 0 ? dict.common.noData : dict.drivers.fields.selectUser
             }
             value={values.userId}
             onChange={handleChange}
@@ -101,7 +96,7 @@ const FirstDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                Employee ID
+                {dict.drivers.fields.employeeId}
               </Typography>
               <CustomTextArea
                 name="employeeId"
@@ -173,11 +168,11 @@ const FirstDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                License Class / Type
+                {dict.drivers.fields.licenseType}
               </Typography>
               <CustomTextArea
                 name="licenseType"
-                placeholder="Select class"
+                placeholder={dict.common.select}
                 value={values.licenseType}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -196,7 +191,7 @@ const FirstDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                {dict.common.date}
+                {dict.drivers.fields.licenseExpiry}
               </Typography>
               <DatePicker
                 value={values.licenseExpiry ? dayjs(values.licenseExpiry) : null}
@@ -220,7 +215,7 @@ const FirstDriverDialogStep = ({
 
         <Stack spacing={1.5}>
           <Typography variant="body2" fontWeight={500} color="text.secondary">
-            Physical License Scan
+            {dict.drivers.labels.physicalLicense}
           </Typography>
           <input
             type="file"
@@ -286,7 +281,7 @@ const FirstDriverDialogStep = ({
                   <CloudUploadIcon color="primary" />
                 </Box>
                 <Typography variant="body2" fontWeight={600} color="white">
-                  {dict.landing.hero.discover}
+                  {dict.drivers.fields.licensePhoto}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -359,7 +354,7 @@ const FirstDriverDialogStep = ({
             color="text.secondary"
             sx={{ lineHeight: 1.5 }}
           >
-            Please ensure all data is clearly visible.
+            {dict.drivers.labels.ensureVisible}
           </Typography>
         </Stack>
       </Stack>

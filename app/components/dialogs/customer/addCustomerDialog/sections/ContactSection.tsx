@@ -12,6 +12,7 @@ import ExploreIcon from "@mui/icons-material/Explore";
 
 import { useFormikContext, FieldArray, getIn } from "formik";
 import { CustomerFormValues, CustomerFormLocation } from "@/app/lib/type/customer";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const LabelWithIcon = ({ icon: Icon, label }: { icon: React.ComponentType<SvgIconProps>, label: string }) => (
   <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
@@ -29,6 +30,7 @@ const LabelWithIcon = ({ icon: Icon, label }: { icon: React.ComponentType<SvgIco
 
 const ContactSection = () => {
   const theme = useTheme();
+  const dict = useDictionary();
   const { values, errors, touched, setFieldValue, handleBlur } = useFormikContext<CustomerFormValues>();
 
   return (
@@ -37,10 +39,10 @@ const ContactSection = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={0}>
-              <LabelWithIcon icon={EmailIcon} label="Primary Email" />
+              <LabelWithIcon icon={EmailIcon} label={dict.customers.primaryEmail} />
               <CustomTextArea
                 name="email"
-                placeholder="e.g. logistics@client.com"
+                placeholder={dict.common.na}
                 value={values.email}
                 onChange={(e) => setFieldValue("email", e.target.value)}
                 onBlur={handleBlur}
@@ -56,10 +58,10 @@ const ContactSection = () => {
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={0}>
-              <LabelWithIcon icon={PhoneIcon} label="Phone Number" />
+              <LabelWithIcon icon={PhoneIcon} label={dict.customers.phoneNumber} />
               <CustomTextArea
                 name="phone"
-                placeholder="e.g. +44 20 7123 4567"
+                placeholder={dict.common.na}
                 value={values.phone}
                 onChange={(e) => setFieldValue("phone", e.target.value)}
                 onBlur={handleBlur}
@@ -81,10 +83,10 @@ const ContactSection = () => {
               <Stack direction="row" justifyContent="space-between" alignItems="flex-end">
                 <Box>
                   <Typography variant="subtitle1" fontWeight={700} color="white">
-                    Operating Locations
+                    {dict.customers.operatingLocations}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                    ADD OFFICES, HUBS OR WAREHOUSES
+                    {dict.customers.addOfficesHubs}
                   </Typography>
                 </Box>
                 <Button
@@ -92,7 +94,7 @@ const ContactSection = () => {
                   variant="outlined"
                   startIcon={<AddIcon />}
                   onClick={() => push({
-                    name: `Location ${values.locations.length + 1}`,
+                    name: `${dict.customers.fields.name} ${values.locations.length + 1}`,
                     address: "",
                     lat: undefined,
                     lng: undefined,
@@ -111,7 +113,7 @@ const ContactSection = () => {
                     px: 2,
                   }}
                 >
-                  Add Location
+                  {dict.customers.addLocation}
                 </Button>
               </Stack>
 
@@ -166,10 +168,10 @@ const ContactSection = () => {
                       <Grid container spacing={3}>
                         <Grid size={{ xs: 12, md: 5 }}>
                           <Stack spacing={0}>
-                            <LabelWithIcon icon={MapIcon} label="Name" />
+                            <LabelWithIcon icon={MapIcon} label={dict.customers.fields.name} />
                             <CustomTextArea
                               name={`locations[${index}].name`}
-                              placeholder="e.g. Headquarters"
+                              placeholder={dict.common.na}
                               value={loc.name}
                               onChange={(e) => setFieldValue(`locations[${index}].name`, e.target.value)}
                               onBlur={handleBlur}
@@ -180,10 +182,10 @@ const ContactSection = () => {
                         </Grid>
                         <Grid size={{ xs: 12, md: 7 }}>
                           <Stack spacing={0}>
-                            <LabelWithIcon icon={LocationOnIcon} label="Full Address" />
+                            <LabelWithIcon icon={LocationOnIcon} label={dict.customers.fields.address} />
                             <AddressAutocomplete
                               name={`locations[${index}].address`}
-                              placeholder="Street, City, Country..."
+                              placeholder={dict.common.na}
                               value={loc.address}
                               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                 setFieldValue(`locations[${index}].address`, e.target.value)
@@ -205,10 +207,10 @@ const ContactSection = () => {
                         </Grid>
                         <Grid size={{ xs: 12, md: 6 }}>
                           <Stack spacing={0}>
-                            <LabelWithIcon icon={ExploreIcon} label="Lat Boundary" />
+                            <LabelWithIcon icon={ExploreIcon} label={dict.customers.fields.lat} />
                             <CustomTextArea
                               name={`locations[${index}].lat`}
-                              placeholder="Coordinate Latitude"
+                              placeholder={dict.common.na}
                               value={loc.lat !== undefined ? String(loc.lat) : ""}
                               onChange={(e) => {
                                 const val = parseFloat(e.target.value);
@@ -220,10 +222,10 @@ const ContactSection = () => {
                         </Grid>
                         <Grid size={{ xs: 12, md: 6 }}>
                           <Stack spacing={0}>
-                            <LabelWithIcon icon={ExploreIcon} label="Lng Boundary" />
+                            <LabelWithIcon icon={ExploreIcon} label={dict.customers.fields.lng} />
                             <CustomTextArea
                               name={`locations[${index}].lng`}
-                              placeholder="Coordinate Longitude"
+                              placeholder={dict.common.na}
                               value={loc.lng !== undefined ? String(loc.lng) : ""}
                               onChange={(e) => {
                                 const val = parseFloat(e.target.value);

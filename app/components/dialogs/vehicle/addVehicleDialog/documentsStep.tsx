@@ -15,8 +15,7 @@ import {
   Select,
   FormControl,
 } from "@mui/material";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import SecurityIcon from "@mui/icons-material/Security";
@@ -33,21 +32,18 @@ import { VehicleFormValues } from "@/app/lib/type/vehicle";
 
 const DocumentsStep = () => {
   /* -------------------------------- variables ------------------------------- */
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
-  
+  const dict = useDictionary();
   const theme = useTheme();
   const { values, setFieldValue } = useFormikContext<VehicleFormValues>();
 
   const DOCUMENT_TYPES = useMemo(() => [
-    { value: "REGISTRATION", label: "Registration", icon: <BadgeIcon />, required: true },
-    { value: "INSURANCE", label: "Insurance", icon: <VerifiedUserIcon />, required: true },
-    { value: "LICENSE", label: "License/Permit", icon: <LocalLibraryIcon /> },
-    { value: "INSPECTION", label: "Inspection", icon: <SecurityIcon />, required: true },
-    { value: "MAINTENANCE", label: "Maintenance", icon: <BuildIcon /> },
-    { value: "OTHER", label: "Other", icon: <AssignmentIcon /> },
-  ], []);
+    { value: "REGISTRATION", label: dict.vehicles.docTypes.REGISTRATION, icon: <BadgeIcon />, required: true },
+    { value: "INSURANCE", label: dict.vehicles.docTypes.INSURANCE, icon: <VerifiedUserIcon />, required: true },
+    { value: "LICENSE", label: dict.vehicles.docTypes.LICENSE, icon: <LocalLibraryIcon /> },
+    { value: "INSPECTION", label: dict.vehicles.docTypes.INSPECTION, icon: <SecurityIcon />, required: true },
+    { value: "MAINTENANCE", label: dict.vehicles.docTypes.MAINTENANCE, icon: <BuildIcon /> },
+    { value: "OTHER", label: dict.vehicles.docTypes.OTHER, icon: <AssignmentIcon /> },
+  ], [dict]);
 
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
@@ -122,12 +118,12 @@ const DocumentsStep = () => {
           variant="h6"
           sx={{ color: "white", mb: 3, fontWeight: 600 }}
         >
-          Compliance Dates
+          {dict.vehicles.dialogs.complianceDates}
         </Typography>
 
         <Stack spacing={3}>
           <Box>
-            <Typography sx={labelSx}>Registration Expiry Date</Typography>
+            <Typography sx={labelSx}>{dict.vehicles.dialogs.registrationExpiry}</Typography>
             <DatePicker
               value={values.registrationExpiry}
               onChange={(val) => setFieldValue("registrationExpiry", val)}
@@ -150,7 +146,7 @@ const DocumentsStep = () => {
           </Box>
 
           <Box>
-            <Typography sx={labelSx}>Inspection Expiry Date</Typography>
+            <Typography sx={labelSx}>{dict.vehicles.dialogs.inspectionExpiry}</Typography>
             <DatePicker
               value={values.inspectionExpiry}
               onChange={(val) => setFieldValue("inspectionExpiry", val)}
@@ -198,13 +194,13 @@ const DocumentsStep = () => {
                 variant="body2"
                 sx={{ color: "white", fontWeight: 600 }}
               >
-                Enable Expiry Alerts
+                {dict.vehicles.dialogs.enableAlerts}
               </Typography>
               <Typography
                 variant="caption"
                 sx={{ color: "text.secondary", display: "block", mt: 0.5 }}
               >
-                Notify fleet managers 30 days before documents expire.
+                {dict.vehicles.dialogs.alertsDesc}
               </Typography>
             </Box>
           </Box>
@@ -221,7 +217,7 @@ const DocumentsStep = () => {
 
         <Box sx={{ mb: 3 }}>
           <Typography variant="caption" sx={{ color: "text.secondary", mb: 1.5, display: "block", fontWeight: 700, textTransform: "uppercase" }}>
-            Required Documents
+            {dict.vehicles.dialogs.requiredDocs}
           </Typography>
           <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
             {DOCUMENT_TYPES.filter(t => t.required).map(t => {
@@ -257,7 +253,7 @@ const DocumentsStep = () => {
             variant="subtitle2"
             sx={{ color: "white", mb: 2, fontWeight: 600 }}
           >
-            Upload Files
+            {dict.vehicles.dialogs.uploadFiles}
           </Typography>
 
           <Box
@@ -296,12 +292,12 @@ const DocumentsStep = () => {
               sx={{ color: "white", fontWeight: 600, mb: 0.5 }}
             >
               <span style={{ color: theme.palette.primary.main }}>
-                {dict.landing.hero.discover}
+                {dict.common.upload}
               </span>{" "}
-              or drag and drop
+              {dict.vehicles.dialogs.dragAndDrop}
             </Typography>
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              DOCX, JPG or PNG (MAX. 10MB)
+              {dict.vehicles.dialogs.fileFormats}
             </Typography>
           </Box>
 

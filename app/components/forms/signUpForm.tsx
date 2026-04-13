@@ -2,9 +2,14 @@
 
 import Link from "next/link";
 import { Box, Stack, Typography } from "@mui/material";
+import { useParams } from "next/navigation";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import SignUpStepper from "./register/signUpStepper";
 
 export default function RegisterForm() {
+  const { lang } = useParams();
+  const dict = useDictionary();
+
   return (
     <Box
       maxWidth={{ sm: 600, xs: "95%" }}
@@ -35,15 +40,15 @@ export default function RegisterForm() {
                 height: 2,
                 bgcolor: "#38bdf8",
                 borderRadius: 2,
-              }
+              },
             }}
           >
-            Register
+            {dict.auth.register}
           </Typography>
 
           <Typography
             component={Link}
-            href={"/auth/sign-in"}
+            href={`/${lang}/auth/sign-in`}
             sx={{
               fontWeight: 500,
               fontSize: "24px",
@@ -53,10 +58,10 @@ export default function RegisterForm() {
               transition: "color 0.2s ease",
               "&:hover": {
                 color: "rgba(255, 255, 255, 0.6)",
-              }
+              },
             }}
           >
-            Login
+            {dict.auth.login}
           </Typography>
         </Stack>
 

@@ -1,62 +1,29 @@
 import { Chip } from "@mui/material";
 
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { getStatusMeta } from "@/app/lib/priorityColor";
+import { alpha } from "@mui/material";
+
 export const PriorityChip = ({ status }: { status: string }) => {
-  /* -------------------------------- functions ------------------------------- */
-  const getPriorityColor = (status: string) => {
-    const normalizedStatus = status.toUpperCase();
-
-    if (["HIGH"].includes(normalizedStatus)) {
-      return {
-        bgColor: "rgba(246, 116, 116, 0.12)",
-        color: "rgba(246, 116, 116, 1)",
-        borderColor: "rgba(246, 116, 116, 0.9)",
-      };
-    }
-
-    if (["MEDIUM", "NORMAL"].includes(normalizedStatus)) {
-      return {
-        bgColor: "rgba(238, 207, 43, 0.12)",
-        color: "rgba(238, 207, 43, 1)",
-        borderColor: "rgba(238, 207, 43, 0.9)",
-      };
-    }
-
-    if (["LOW"].includes(normalizedStatus)) {
-      return {
-        bgColor: "rgba(55, 187, 245, 0.12)",
-        color: "rgba(55, 187, 245, 1)",
-        borderColor: "rgba(55, 187, 245, 0.9)",
-      };
-    }
-
-    return { bgColor: "#f5f5f5", color: "#616161" };
-  };
-
-  /* -------------------------------- formatter ------------------------------- */
-  const formatStatusText = (status: string) => {
-    return status
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-  };
+  const dict = useDictionary();
+  const meta = getStatusMeta(status, dict);
 
   return (
     <Chip
       variant="filled"
       size="small"
-      label={formatStatusText(status)}
+      label={meta.label}
       sx={{
         borderRadius: "4px",
-        p: "2px 4px",
+        height: "22px",
         fontSize: "0.75rem",
-        fontWeight: 500,
-        lineHeight: 1.5,
-        letterSpacing: "0.02857em",
-        textTransform: "none",
-        backgroundColor: getPriorityColor(status).bgColor,
-        color: getPriorityColor(status).color,
-        border: "2px solid transparent",
-        borderColor: getPriorityColor(status).borderColor,
+        fontWeight: 600,
+        backgroundColor: alpha(meta.color, 0.1),
+        color: meta.color,
+        border: `1px solid ${alpha(meta.color, 0.2)}`,
+        "& .MuiChip-label": {
+          px: 1,
+        }
       }}
     />
   );

@@ -16,6 +16,7 @@ import {
   Save as SaveIcon,
   EmailOutlined as EmailOutlinedIcon,
 } from "@mui/icons-material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import type {
   SettingsPageState,
   SettingsPageActions,
@@ -32,6 +33,7 @@ export default function NotificationsTab({
   actions,
 }: NotificationsTabProps) {
   const theme = useTheme();
+  const dict = useDictionary();
 
   return (
     <Stack spacing={3.5}>
@@ -53,29 +55,29 @@ export default function NotificationsTab({
             fontWeight={850}
             sx={{ color: alpha("#fff", 0.6), letterSpacing: 1.2 }}
           >
-            EMAIL CHANNELS
+            {dict.settings.dialogs.notifications.emailChannels}
           </Typography>
         </Stack>
         <Stack spacing={1.5}>
           <NotificationRow
-            label="Fleet Status Reports"
-            description="Automated updates for active shipment transitions"
+            label={dict.settings.dialogs.notifications.fleetStatus}
+            description={dict.settings.dialogs.notifications.fleetStatusDesc}
             checked={state.notifications.emailShipmentUpdates}
             onChange={(v) =>
               actions.updateNotifications({ emailShipmentUpdates: v })
             }
           />
           <NotificationRow
-            label="Preventive Maintenance"
-            description="Proactive reminders for scheduled vehicle service"
+            label={dict.settings.dialogs.notifications.preventiveMaintenance}
+            description={dict.settings.dialogs.notifications.preventiveMaintenanceDesc}
             checked={state.notifications.emailMaintenanceAlerts}
             onChange={(v) =>
               actions.updateNotifications({ emailMaintenanceAlerts: v })
             }
           />
           <NotificationRow
-            label="Executive KPI Summaries"
-            description="Analytics digest delivered every Monday morning"
+            label={dict.settings.dialogs.notifications.executiveKpi}
+            description={dict.settings.dialogs.notifications.executiveKpiDesc}
             checked={state.notifications.emailWeeklyReports}
             onChange={(v) =>
               actions.updateNotifications({ emailWeeklyReports: v })
@@ -104,21 +106,21 @@ export default function NotificationsTab({
             fontWeight={850}
             sx={{ color: alpha("#fff", 0.6), letterSpacing: 1.2 }}
           >
-            REAL-TIME SIGNALS
+            {dict.settings.dialogs.notifications.realTimeSignals}
           </Typography>
         </Stack>
         <Stack spacing={1.5}>
           <NotificationRow
-            label="Dynamic Routing"
-            description="Instant alerts for newly assigned logistics paths"
+            label={dict.settings.dialogs.notifications.dynamicRouting}
+            description={dict.settings.dialogs.notifications.dynamicRoutingDesc}
             checked={state.notifications.pushNewAssignments}
             onChange={(v) =>
               actions.updateNotifications({ pushNewAssignments: v })
             }
           />
           <NotificationRow
-            label="Network Anomalies"
-            description="Critical alerts regarding logistics delays or disruptions"
+            label={dict.settings.dialogs.notifications.networkAnomalies}
+            description={dict.settings.dialogs.notifications.networkAnomaliesDesc}
             checked={state.notifications.pushDelayAlerts}
             onChange={(v) =>
               actions.updateNotifications({ pushDelayAlerts: v })
@@ -154,7 +156,7 @@ export default function NotificationsTab({
             transition: "all 0.2s",
           }}
         >
-          {state.isSaving ? "Synchronizing..." : "Update Webhooks"}
+          {state.isSaving ? dict.common.synchronizing : dict.settings.dialogs.notifications.updateWebhooks}
         </Button>
       </Box>
     </Stack>

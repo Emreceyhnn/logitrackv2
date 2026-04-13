@@ -23,32 +23,10 @@ import { useState } from "react";
 import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
 import { toast } from "sonner";
 
-const STATUS_OPTIONS = Object.values(VehicleStatus).map((s) => ({
-  label: s.replace(/_/g, " "),
-  value: s,
-}));
-
-const TYPE_OPTIONS = Object.values(VehicleType).map((t) => ({
-  label: t.replace(/_/g, " "),
-  value: t,
-}));
-
-const VEHICLE_FILTERS = [
-  {
-    key: "status",
-    label: "Status",
-    options: STATUS_OPTIONS,
-    multiple: true,
-  },
-  {
-    key: "type",
-    label: "Type",
-    options: TYPE_OPTIONS,
-    multiple: true,
-  },
-];
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const VehicleTable = ({ state, actions }: VehicleTableProps) => {
+  const dict = useDictionary();
   const { vehicles, loading = false, filters, meta: apiMeta } = state;
   const {
     selectVehicle,
@@ -70,19 +48,46 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
       try {
         setActionLoading(vehicleId);
         await updateVehicleStatus(vehicleId, newStatus);
+        const statusLabel = dict.vehicles.statuses[newStatus as keyof typeof dict.vehicles.statuses] || newStatus.replace(/_/g, " ");
         toast.success(
-          `Vehicle status updated to ${newStatus.replace(/_/g, " ")}`
+          `${dict.toasts.successUpdate || "Updated"} - ${statusLabel}`
         );
         onUpdateSuccess?.();
       } catch (error) {
-        toast.error("Failed to update vehicle status");
+        toast.error(dict.toasts.errorGeneric || "Failed to update vehicle status");
         console.error(error);
       } finally {
         setActionLoading(null);
       }
     },
-    [onUpdateSuccess]
+    [onUpdateSuccess, dict]
   );
+
+  /* ---------------------------------- data ---------------------------------- */
+  const STATUS_OPTIONS = useMemo(() => Object.values(VehicleStatus).map((s) => ({
+    label: dict.vehicles.statuses[s as keyof typeof dict.vehicles.statuses] || s.replace(/_/g, " "),
+    value: s,
+  })), [dict]);
+
+  const TYPE_OPTIONS = useMemo(() => Object.values(VehicleType).map((t) => ({
+    label: dict.vehicles.types[t as keyof typeof dict.vehicles.types] || t.replace(/_/g, " "),
+    value: t,
+  })), [dict]);
+
+  const VEHICLE_FILTERS = useMemo(() => [
+    {
+      key: "status",
+      label: dict.vehicles.fields.status,
+      options: STATUS_OPTIONS,
+      multiple: true,
+    },
+    {
+      key: "type",
+      label: dict.vehicles.fields.type,
+      options: TYPE_OPTIONS,
+      multiple: true,
+    },
+  ], [dict, STATUS_OPTIONS, TYPE_OPTIONS]);
 
   /* --------------------------------- handlers --------------------------------- */
   const handleSearchChange = useCallback(
@@ -117,7 +122,7 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
       },
       {
         key: "plate",
-        label: "Plate",
+        label: dict.vehicles.fields.plate,
         render: (row) => (
           <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>
             {row.plate}
@@ -126,23 +131,23 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
       },
       {
         key: "brandModel",
-        label: "Brand / Model",
+        label: dict.vehicles.fields.brandModel,
         render: (row) => `${row.brand} – ${row.model} / ${row.year}`,
       },
       {
         key: "status",
-        label: "Status",
+        label: dict.vehicles.fields.status,
         render: (row) => <StatusChip status={row.status} />,
       },
       {
         key: "odometer",
-        label: "Odometer",
+        label: dict.vehicles.fields.odometer,
         render: (row) =>
-          row.odometerKm ? `${row.odometerKm.toLocaleString()} km` : "N/A",
+          row.odometerKm ? `${row.odometerKm.toLocaleString()} ${dict.common.km}` : dict.common.na,
       },
       {
         key: "driver",
-        label: "Driver",
+        label: dict.vehicles.fields.driver,
         render: (row) =>
           row.driver?.user ? (
             <DriverAvatar
@@ -154,59 +159,59 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
             />
           ) : (
             <Typography variant="caption" color="text.secondary">
-              Not Assigned
+              {dict.vehicles.statuses.notAssigned || "Not Assigned"}
             </Typography>
           ),
       },
       {
         key: "type",
-        label: "Type",
-        render: (row) => row.type.replace(/_/g, " "),
+        label: dict.vehicles.fields.type,
+        render: (row) => dict.vehicles.types[row.type as keyof typeof dict.vehicles.types] || row.type.replace(/_/g, " "),
       },
       {
         key: "fuelLevel",
-        label: "Fuel Level",
+        label: dict.vehicles.fields.fuelLevel,
         align: "right",
         render: (row) => `${row.fuelLevel ?? 0}%`,
       },
     ],
-    [vehicles]
+    [vehicles, dict]
   );
 
   /* --------------------------------- row actions --------------------------------- */
   const rowActions: DataTableRowAction<VehicleWithRelations>[] = useMemo(
     () => [
       {
-        label: "Details",
+        label: dict.vehicles.dialogs.details,
         icon: <ContentPasteIcon fontSize="small" />,
         onClick: (row) => selectVehicle(row.id),
       },
       {
-        label: "Edit",
+        label: dict.common.edit,
         icon: <EditIcon fontSize="small" />,
         onClick: (row) => onEdit(row.id),
       },
       {
-        label: "Set Maintenance",
+        label: dict.vehicles.dialogs.setMaintenance,
         icon: <BuildIcon fontSize="small" />,
         onClick: (row) => handleStatusUpdate(row.id, "MAINTENANCE"),
         hidden: (row) =>
           row.status === "MAINTENANCE" || row.status === "ON_TRIP",
       },
       {
-        label: "Return to Service",
+        label: dict.vehicles.dialogs.returnToService,
         icon: <CheckCircleOutlineIcon fontSize="small" />,
         onClick: (row) => handleStatusUpdate(row.id, "AVAILABLE"),
         hidden: (row) => row.status !== "MAINTENANCE",
       },
       {
-        label: "Delete",
+        label: dict.common.delete,
         icon: <DeleteIcon fontSize="small" />,
         onClick: (row) => onDelete(row.id),
         color: "error",
       },
     ],
-    [selectVehicle, onEdit, onDelete, handleStatusUpdate]
+    [selectVehicle, onEdit, onDelete, handleStatusUpdate, dict]
   );
 
   /* --------------------------------- active filters --------------------------------- */
@@ -252,9 +257,9 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         rows={paginatedVehicles}
         columns={columns}
         loading={loading || !!actionLoading}
-        emptyMessage="No vehicles found"
+        emptyMessage={dict.vehicles.table.emptyMessage}
         searchValue={filters.search ?? ""}
-        searchPlaceholder="Search vehicles..."
+        searchPlaceholder={dict.vehicles.table.searchPlaceholder}
         onSearchChange={handleSearchChange}
         filters={VEHICLE_FILTERS}
         activeFilters={activeFilters}
@@ -264,7 +269,7 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         onPageChange={handlePageChange}
         onLimitChange={handleLimitChange}
         wrapCard={true}
-        tableTitle="Vehicle List"
+        tableTitle={dict.vehicles.table.title}
       />
     </>
   );

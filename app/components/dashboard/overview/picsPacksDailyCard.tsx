@@ -6,19 +6,21 @@ import { PicksAndPacksData } from "@/app/lib/type/overview";
 import InventoryIcon from '@mui/icons-material/Inventory';
 import CategoryIcon from '@mui/icons-material/Category';
 import CallMergeIcon from '@mui/icons-material/CallMerge';
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface PicksPacksDailyCardProps {
   values: PicksAndPacksData | null;
 }
 
 const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
+  const dict = useDictionary();
   const theme = useTheme();
   const { picks, packs } = values || { picks: 0, packs: 0 };
 
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", height: "100%", maxHeight: 360, display: "flex", flexDirection: "column" }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-        Warehouse Throughput
+        {dict.dashboard.overview.warehouseThroughput.title}
       </Typography>
       <Divider />
       
@@ -42,7 +44,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
             </Box>
             <Box flexGrow={1}>
               <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                Items Picked Today
+                {dict.dashboard.overview.warehouseThroughput.itemsPicked}
               </Typography>
               <Typography variant="h5" fontWeight={700} color="text.primary">
                 {picks.toLocaleString()}
@@ -73,7 +75,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
             </Box>
             <Box flexGrow={1}>
               <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                Items Packed Today
+                {dict.dashboard.overview.warehouseThroughput.itemsPacked}
               </Typography>
               <Typography variant="h5" fontWeight={700} color="text.primary">
                 {packs.toLocaleString()}
@@ -87,7 +89,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
         <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
           <CallMergeIcon sx={{ fontSize: 18, color: "text.secondary" }} />
           <Typography variant="body2" fontWeight={600} color="text.secondary">
-            Net Difference: <span style={{ color: picks > packs ? theme.palette.warning.main : theme.palette.success.main }}>{Math.abs(picks - packs)}</span>
+            {dict.dashboard.overview.warehouseThroughput.netDifference}: <span style={{ color: picks > packs ? theme.palette.warning.main : theme.palette.success.main }}>{Math.abs(picks - packs)}</span>
           </Typography>
         </Stack>
       </Box>

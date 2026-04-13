@@ -14,9 +14,11 @@ import CustomTextArea from "@/app/components/inputs/customTextArea";
 import MonitorWeightIcon from "@mui/icons-material/MonitorWeight";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import InventoryIcon from "@mui/icons-material/Inventory";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const CargoSection = () => {
   /* -------------------------------- variables ------------------------------- */
+  const dict = useDictionary();
   const theme = useTheme();
   const { values, setFieldValue, handleBlur, touched, errors } =
     useFormikContext<ShipmentFormValues>();
@@ -34,7 +36,7 @@ const CargoSection = () => {
             }}
           />
           <Typography variant="subtitle2" fontWeight={700} color="white">
-            Cargo Details
+            {dict.shipments.dialogs.sections.cargoDetails}
           </Typography>
         </Stack>
 
@@ -46,7 +48,7 @@ const CargoSection = () => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                WEIGHT (KG)
+                {dict.shipments.dialogs.fields.weight}
               </Typography>
               <CustomTextArea
                 name="weightKg"
@@ -74,7 +76,7 @@ const CargoSection = () => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                VOLUME (M³)
+                {dict.shipments.dialogs.fields.volume}
               </Typography>
               <CustomTextArea
                 name="volumeM3"
@@ -100,7 +102,7 @@ const CargoSection = () => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                PALLETS
+                {dict.shipments.dialogs.fields.palletCount}
               </Typography>
               <CustomTextArea
                 name="palletCount"
@@ -126,7 +128,7 @@ const CargoSection = () => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                CARGO TYPE
+                {dict.shipments.dialogs.fields.cargoType}
               </Typography>
               <CustomTextArea
                 name="cargoType"

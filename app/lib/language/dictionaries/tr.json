@@ -1,0 +1,1698 @@
+{
+  "common": {
+    "logitrack": "LogiTrack",
+    "needHelp": "Yardım mı lazım?",
+    "logout": "Çıkış Yap",
+    "lastUpdated": "Son Güncelleme",
+    "refresh": "Yenile",
+    "refreshDashboard": "Paneli Yenile",
+    "loading": "Yükleniyor...",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "uploading": "Yükleniyor...",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "search": "Ara...",
+    "filter": "Filtrele",
+    "export": "Dışa Aktar",
+    "import": "İçe Aktar",
+    "apply": "Uygula",
+    "reset": "Sıfırla",
+    "actions": "İşlemler",
+    "status": "Durum",
+    "date": "Tarih",
+    "next": "İleri",
+    "back": "Geri",
+    "step": "Adım",
+    "saveSuccess": "Başarıyla kaydedildi",
+    "errorOccurred": "Bir hata oluştu",
+    "settings": "Ayarlar",
+    "documents": "Belgeler",
+    "noData": "Veri bulunamadı.",
+    "success": "Başarılı",
+    "error": "Hata",
+    "warning": "Uyarı",
+    "info": "Bilgi",
+    "confirm": "Onayla",
+    "submit": "Gönder",
+    "all": "Hepsi",
+    "active": "Aktif",
+    "expiring": "Süresi Doluyor",
+    "missing": "Eksik",
+    "upload": "Yükle",
+    "uploadNew": "Yeni Doküman Yükle",
+    "docType": "Doküman Tipi",
+    "expiryDate": "Geçerlilik Tarihi",
+    "noDocuments": "Doküman bulunamadı.",
+    "months": {
+      "jan": "Oca",
+      "feb": "Şub",
+      "mar": "Mar",
+      "apr": "Nis",
+      "may": "May",
+      "jun": "Haz",
+      "jul": "Tem",
+      "aug": "Ağu",
+      "sep": "Eyl",
+      "oct": "Eki",
+      "nov": "Kas",
+      "dec": "Ara"
+    },
+    "units": {
+      "kg": "kg",
+      "m3": "m³",
+      "pallets": "Palet"
+    },
+    "updatePreferences": "Tercihleri Güncelle",
+    "synchronizing": "Senkronize ediliyor...",
+    "thisActionCannotBeUndone": "Bu işlem geri alınamaz",
+    "confirmDelete": "Silmeyi Onayla",
+    "deleting": "Siliniyor...",
+    "updating": "Güncelleniyor...",
+    "optional": "Opsiyonel",
+    "na": "Yok",
+    "start": "Başlat",
+    "complete": "Tamamla",
+    "fillAllFields": "Lütfen tüm zorunlu alanları doldurun.",
+    "deleteDocumentTitle": "Belgeyi Sil?",
+    "deleteDocumentDesc": "Bu belgeyi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+    "select": "Seçiniz",
+    "fillRequired": "Lütfen gerekli alanları doğru şekilde doldurun.",
+    "close": "Kapat",
+    "nextStep": "Sonraki Adım",
+    "saveChanges": "Değişiklikleri Kaydet",
+    "creating": "Oluşturuluyor...",
+    "recent": "Son",
+    "noEmail": "E-posta Yok",
+    "noPhone": "Telefon Yok",
+    "contactInfo": "İletişim Bilgileri",
+    "details": "Detaylar",
+    "kg": "kg",
+    "km": "km",
+    "m3": "m³",
+    "unassigned": "Atanmadı"
+  },
+  "sidebar": {
+    "overview": "Genel Bakış",
+    "operation": "Operasyon",
+    "vehicles": "Araçlar",
+    "drivers": "Sürücüler",
+    "routes": "Rotalar",
+    "shipments": "Sevkiyatlar",
+    "management": "Yönetim",
+    "warehouses": "Depolar",
+    "inventory": "Envanter",
+    "customers": "Müşteriler",
+    "company": "Şirket",
+    "analytics": "Analitik",
+    "reports": "Raporlar"
+  },
+  "auth": {
+    "signIn": "Giriş Yap",
+    "signInDescription": "Hesabınıza erişmek için lütfen bilgilerinizi girin.",
+    "email": "E-posta Adresi",
+    "password": "Şifre",
+    "forgotPassword": "Şifremi Unuttum",
+    "login": "Giriş",
+    "register": "Kayıt Ol",
+    "noAccount": "Hesabınız yok mu?",
+    "signUp": "Kayıt Ol",
+    "loggingIn": "Giriş Yapılıyor...",
+    "logInNow": "Şimdi Giriş Yap",
+    "createAccount": "Hesap Oluştur",
+    "welcome": "Tekrar Hoşgeldiniz",
+    "resetIt": "Sıfırla",
+    "error": "Kimlik doğrulama başarısız",
+    "forgotPasswordPrompt": "Şifrenizi mi unuttunuz?",
+    "personalInfo": "Kişisel Bilgiler",
+    "security": "Güvenlik",
+    "review": "İnceleme",
+    "finalTouches": "Son Rötuşlar",
+    "signInDescription": "Hesabınıza erişmek için lütfen kimlik bilgilerinizi girin.",
+    "signUpDescription": "Başlamak için lütfen temel bilgilerinizi sağlayın.",
+    "securityDescription": "Güçlü bir şifre seçin.",
+    "profileDescription": "Neredeyse bitti! LogiTrack ekibine katılmak için profilinizi tamamlayın.",
+    "firstName": "Ad",
+    "lastName": "Soyad",
+    "repeatPassword": "Şifre Tekrarı",
+    "uploading": "Yükleniyor...",
+    "changePhoto": "Fotoğrafı Değiştir",
+    "uploadProfilePicture": "Profil Resmi Yükle",
+    "termsAgreement": "\"Kaydı Tamamla\" butonuna tıklayarak Hizmet Şartlarımızı ve Gizlilik Politikamızı kabul etmiş olursunuz. Hesabınız oluşturulacak ve kontrol paneline yönlendirileceksiniz.",
+    "registering": "Kaydediliyor...",
+    "continuing": "Devam ediliyor...",
+    "completeRegistration": "Kaydı Tamamla",
+    "continue": "Devam Et",
+    "unexpectedError": "Beklenmedik bir ağ hatası oluştu.",
+    "loginFailed": "Giriş başarısız"
+  },
+  "landing": {
+    "metaTitle": "LogiTrack – AI Lojistik Yönetim Platformu",
+    "metaDescription": "Her sevkiyatı canlı zeka ile yönetin. Sevkiyatı, filoları ve müşteri sözlerini tek bir etkileyici panelde senkronize edin.",
+    "hero": {
+      "badge": "Yapay zeka lojistik kontrol kulesi",
+      "trusted": "Dünya çapında güveniliyor",
+      "title": "Her sevkiyatı canlı zeka ile yönetin.",
+      "description": "Sevkiyatı, filoları ve müşteri sözlerini tek bir etkileyici panelde senkronize edin. Sorunları gerçekleşmeden önce tahmin edin ve rotaları yapay zeka ile optimize edin.",
+      "discover": "Keşfet",
+      "demo": "Demo İste",
+      "metrics": {
+        "activeRoutes": "Aktif Rotalar",
+        "vehicles": "Araçlar",
+        "slaStability": "SLA Stabilitesi",
+        "slaTrend": "Son 30 günde +%14",
+        "predictiveEtaReady": "Tahmin Edici ETA Hazır",
+        "lastUpdate": "Son güncelleme 45 saniye önce"
+      }
+    },
+    "stats": {
+      "onTime": "Zamanında teslimat oranı",
+      "monitored": "İzlenen sevkiyat",
+      "live": "Canlı optimizasyon aktif",
+      "updateFreq": "Her 15 saniyede bir rota güncellemesi"
+    },
+    "features": {
+      "overline": "Temel Özellikler",
+      "title": "Uçtan uca görünürlük için ihtiyacınız olan her şey.",
+      "description": "Karmaşık lojistik operasyonları için tasarlanmış akıllı iş akışlarıyla sevkiyatı, sürücüleri ve müşteri güncellemelerini koordine edin.",
+      "smartRoute": {
+        "title": "Akıllı Rota Planlama",
+        "desc": "Gecikmeleri azaltmak için canlı trafik ve depo kapasitesi verileriyle teslimatları optimize edin."
+      },
+      "predictiveEta": {
+        "title": "Tahmin Edici ETA",
+        "desc": "Yapay zeka destekli planlama modelleriyle varış sürelerini doğru bir şekilde tahmin edin."
+      },
+      "driverPerf": {
+        "title": "Sürücü Performansı",
+        "desc": "Kullanım, güvenlik metrikleri ve uyumluluğu birleşik bir panelden takip edin."
+      },
+      "exceptionAlerts": {
+        "title": "İstisna Uyarıları",
+        "desc": "Otomatik bildirimler ve iş akışlarıyla aksamalara anında tepki verin."
+      }
+    },
+    "workflow": {
+      "step": "Adım",
+      "title1": "Filonuzu Bağlayın",
+      "desc1": "Telematik, TMS ve WMS veri kaynaklarını dakikalar içinde hazır konektörlerle entegre edin.",
+      "title2": "Operasyonları Görselleştirin",
+      "desc2": "Uyarlanabilir paneller ve ısı haritalarıyla her sevkiyatı ve varlığı gerçek zamanlı izleyin.",
+      "title3": "Kararları Otomatikleştirin",
+      "desc3": "Sorunlar büyümeden önce proaktif iş akışlarını, uyarıları ve müşteri güncellemelerini tetikleyin.",
+      "title4": "Rotaları Optimize Edin",
+      "desc4": "Yakıt maliyetlerini, rölanti süresini ve gecikmeleri en aza indirmek için yapay zeka destekli rota optimizasyonundan yararlanın.",
+      "title5": "Performansı Analiz Edin",
+      "desc5": "Analitik araçlarla teslimat doğruluğu, sürücü verimliliği ve sevkiyat başına maliyet gibi KPI'ları değerlendirin.",
+      "title6": "Sorunsuz Ölçeklendirin",
+      "desc6": "Modüler entegrasyonlar ve ölçeklenebilir altyapı ile lojistik ağınızı güvenle genişletin."
+    },
+    "cta": {
+      "title": "Lojistik operasyonlarınızı modernize etmeye hazır mısınız?",
+      "description": "Gerçek zamanlı görünürlük, tahmin edici zeka ve olağanüstü müşteri deneyimlerinin kilidini açmak için Logi-Track ile ortak olun.",
+      "trial": "Ücretsiz Denemeye Başla",
+      "sales": "Satışla Konuş"
+    },
+    "trusted": "Sektör liderleri tarafından güveniliyor",
+    "pricing": {
+      "badge": "Fiyatlandırma Planları",
+      "title": "Öngörülemeyen Lojistik İçin <br /> Öngörülebilir Fiyatlandırma.",
+      "monthly": "Aylık",
+      "yearly": "Yıllık",
+      "save": "20% Tasarruf Edin",
+      "mostPopular": "En Popüler",
+      "custom": "Özel",
+      "perMonth": "/ay",
+      "tiers": {
+        "starter": {
+          "title": "Başlangıç",
+          "description": "Yerel filo sahipleri ve bireysel operatörler için mükemmel.",
+          "features": [
+            "Canlı GPS Takibi",
+            "5 Aktif Rota",
+            "Temel WMS Entegrasyonu",
+            "E-posta Desteği",
+            "Mobil Uygulama Erişimi"
+          ],
+          "cta": "Ücretsiz Denemeyi Başlat"
+        },
+        "pro": {
+          "title": "Profesyonel",
+          "description": "Bölgesel lojistik ve büyüyen ekipler için optimize edildi.",
+          "features": [
+            "Yapay Zeka Rota Optimizasyonu",
+            "Sınırsız Aktif Rota",
+            "Tahmin Edici ETA'lar",
+            "7/24 Öncelikli Destek",
+            "Gelişmiş Analitik",
+            "Sürücü Performans Puanları"
+          ],
+          "cta": "Ücretsiz Denemeyi Başlat"
+        },
+        "enterprise": {
+          "title": "Kurumsal",
+          "description": "Küresel tedarik zinciri liderleri için özel çözümler.",
+          "features": [
+            "Tam Telematik Entegrasyonu",
+            "Özel SLA İzleme",
+            "Özel Hesap Yöneticisi",
+            "Beyaz Etiket Seçenekleri",
+            "Yerinde Kurulum",
+            "Sınırsız Özel Konektörler"
+          ],
+          "cta": "Satışla İletişime Geçin"
+        }
+      },
+      "infrastructure": {
+        "title": "Kurumsal Düzeyde Güvenlik ve Performans",
+        "description": "Ayda 10.000'den fazla rotaya mı ihtiyacınız var? Küresel altyapımız saniyede milyonlarca telemetri olayını %99,99 çalışma süresiyle işler. Özel entegrasyon çözümleri ve hacme dayalı fiyatlandırma için mühendislik ekibimizle iletişime geçin.",
+        "cta": "Altyapımız Hakkında Bilgi Edinin →"
+      },
+      "footer": {
+        "tos": "© {year} LogiTrack Intelligence Systems. Tüm planlar Kullanım Koşullarımıza tabidir.",
+        "support": "Kurumsal müşteriler özel destek kanalları alır."
+      }
+    }
+  },
+  "navbar": {
+    "features": "Özellikler",
+    "pricing": "Fiyatlandırma",
+    "about": "Hakkımızda",
+    "howItWorks": "Nasıl Çalışır",
+    "dashboard": "Panel",
+    "setupOrg": "Organizasyonu Kur",
+    "signIn": "Giriş Yap",
+    "signUp": "Kayıt Ol",
+    "startPro": "Hemen Başla"
+  },
+  "languages": {
+    "en": "İngilizce",
+    "tr": "Türkçe"
+  },
+  "validation": {
+    "required": "{field} gereklidir",
+    "email": "Geçersiz e-posta adresi",
+    "min": "{field} en az {min} karakter olmalıdır",
+    "max": "{field} en fazla {max} karakter olmalıdır",
+    "matches": "{field} biçimi geçersiz",
+    "oneOf": "Lütfen geçerli bir {field} seçin",
+    "number": "{field} bir sayı olmalıdır",
+    "integer": "{field} tam sayı olmalıdır",
+    "positive": "{field} pozitif bir sayı olmalıdır",
+    "url": "Geçersiz URL",
+    "genericFormError": "Lütfen gerekli alanları doğru şekilde doldurun"
+  },
+  "overview": {
+    "title": "Genel Bakış",
+    "activeShipments": "Aktif Sevkiyatlar",
+    "delayedShipments": "Geciken Sevkiyatlar",
+    "vehiclesOnTrip": "Seferdeki Araçlar",
+    "vehiclesInService": "Servisteki Araçlar",
+    "availableVehicles": "Müsait Araçlar",
+    "activeDrivers": "Aktif Sürücüler",
+    "warehouses": "Depolar",
+    "inventorySkus": "Envanter Kalemleri",
+    "actionRequired": "Aksiyon Gerekenler",
+    "fuelByVehicle": "Araç Bazlı Yakıt",
+    "shipmentStatus": "Sevkiyat Durumu",
+    "dailyOperations": "Günlük Operasyonlar",
+    "warehouseCapacity": "Depo Kapasitesi",
+    "picksAndPacks": "Günlük Toplama/Paketleme",
+    "shipmentVolume": "Sevkiyat Hacmi",
+    "lowStock": "Düşük Stoklu Ürünler"
+  },
+  "vehicles": {
+    "title": "Araç Filosu Yönetimi",
+    "subtitle": "Lojistik filonuzu gerçek zamanlı olarak izleyin, yönetin ve optimize edin.",
+    "addVehicle": "Araç Ekle",
+    "vehicleTable": "Araç Tablosu",
+    "maxLoadCapacityChart": "Araç Maks. Yük Kapasitesi Grafiği",
+    "expiringSoonCalendar": "Yaklaşan Süre Takvimi",
+    "vehicleDialogs": "Araç Diyalogları",
+    "specs": {
+      "plate": "Plaka",
+      "fleetNo": "Filo Numarası",
+      "brand": "Marka",
+      "model": "Model",
+      "type": "Araç Tipi",
+      "capacity": "Kapasite (kg)",
+      "year": "Yıl",
+      "odometer": "Kilometre (km)",
+      "fuelType": "Yakıt Tipi",
+      "fuelLevel": "Yakıt Seviyesi",
+      "avgFuelConsumption": "Ort. Yakıt Tüketimi",
+      "engineSize": "Motor Hacmi",
+      "service": "Bir Sonraki Servis (km)",
+      "transmission": "Şanzıman",
+      "status": "Mevcut Durum",
+      "techNotes": "Ek Teknik Notlar"
+    },
+    "types": {
+      "TRUCK": "Ağır Vasıta",
+      "VAN": "Hafif Ticari",
+      "PICKUP": "Pikap",
+      "MOTORCYCLE": "Motosiklet",
+      "CAR": "Binek Araç"
+    },
+    "serviceTypes": {
+      "ROUTINE_MAINTENANCE": "Rutin Bakım",
+      "REPAIR": "Onarım",
+      "INSPECTION": "Muayene",
+      "TIRE_CHANGE": "Lastik Değişimi",
+      "OIL_CHANGE": "Yağ Değişimi",
+      "OTHER": "Diğer"
+    },
+    "statuses": {
+      "AVAILABLE": "Müsait",
+      "ON_TRIP": "Seferde",
+      "MAINTENANCE": "Bakımda",
+      "COMPLETED": "Tamamlandı",
+      "IN_PROGRESS": "Devam Ediyor",
+      "SCHEDULED": "Planlandı",
+      "CANCELLED": "İptal Edildi",
+      "OPEN": "Açık",
+      "RESOLVED": "Çözüldü",
+      "CLOSED": "Kapalı",
+      "IN_SERVICE": "Serviste",
+      "notAssigned": "Atanmadı"
+    },
+    "priorities": {
+      "LOW": "Düşük",
+      "MEDIUM": "Orta",
+      "HIGH": "Yüksek",
+      "CRITICAL": "Kritik"
+    },
+    "fuelTypes": {
+      "DIESEL": "Dizel",
+      "GASOLINE": "Benzin",
+      "ELECTRIC": "Elektrikli",
+      "HYBRID": "Hibrit"
+    },
+    "fields": {
+      "plate": "Plaka",
+      "brandModel": "Marka / Model",
+      "odometer": "Kilometre",
+      "driver": "Sürücü",
+      "type": "Tip",
+      "status": "Durum",
+      "fuelLevel": "YAKIT SEVİYESİ",
+      "fleetNo": "Filo No",
+      "brand": "Marka",
+      "model": "Model",
+      "year": "Yıl",
+      "service": "Servis",
+      "cost": "Maliyet"
+    },
+    "transmissionTypes": {
+      "AUTOMATIC": "Otomatik",
+      "MANUAL": "Manuel",
+      "AMULTI": "Yarı Otomatik"
+    },
+    "docTypes": {
+      "REGISTRATION": "Ruhsat",
+      "INSURANCE": "Sigorta",
+      "LICENSE": "Lisans/İzin",
+      "INSPECTION": "Muayene",
+      "MAINTENANCE": "Bakım",
+      "OTHER": "Diğer"
+    },
+    "dialogs": {
+      "addTitle": "Yeni Araç Ekle",
+      "editTitle": "Araç Detaylarını Düzenle",
+      "reportIssueTitle": "Araç Sorunu Bildir",
+      "vehicleLabel": "Araç",
+      "coreDetails": "Temel Detaylar",
+      "issueTitle": "Sorun Başlığı",
+      "issuePlaceholder": "Teknik aksaklığı tarif edin...",
+      "priorityLevel": "Öncelik Seviyesi",
+      "extendedDescription": "Genişletilmiş Açıklama",
+      "details": "Detaylar",
+      "detailsPlaceholder": "Ek bağlam sağlayın...",
+      "submitIssue": "Sorun Bildir",
+      "photo": "Araç Fotoğrafı",
+      "clickToUpload": "Yüklemek için tıklayın",
+      "uploadNotes": "SVG, PNG, JPG veya GIF",
+      "dragAndDrop": "veya sürükleyip bırakın",
+      "fileFormats": "DOCX, JPG veya PNG (MAKS. 10MB)",
+      "complianceDates": "Uyumluluk Tarihleri",
+      "registrationExpiry": "Ruhsat Geçerlilik Tarihi",
+      "inspectionExpiry": "Muayene Geçerlilik Tarihi",
+      "enableAlerts": "Süre Sonu Uyarılarını Etkinleştir",
+      "alertsDesc": "Belgelerin süresi dolmadan 30 gün önce filo yöneticilerini bilgilendir.",
+      "requiredDocs": "Gerekli Belgeler",
+      "uploadFiles": "Dosya Yükle",
+      "assignDriver": "Sürücü Ata",
+      "selectDriver": "Sürücü Seç",
+      "assignmentDate": "Atama Tarihi",
+      "maintenanceRecord": "Yeni Bakım Kaydı",
+      "serviceType": "Servis Tipi",
+      "cost": "Toplam Maliyet",
+      "description": "Açıklama",
+      "returnToService": "Servise Döndür",
+      "setMaintenance": "Bakıma Al",
+      "preview": "Araç Önizleme",
+      "kmLeft": "km kaldı",
+      "vehicleStatus": "Araç Durumu",
+      "manageAvailability": "Genel uygunluğu yönetin",
+      "openIssues": "Açık Sorunlar",
+      "reportIssue": "Sorun Bildir",
+      "noOpenIssues": "Açık sorun bulunmadı.",
+      "reportedOn": "Bildirildi:",
+      "recentMaintenance": "Son Bakımlar",
+      "addRecord": "Kayıt Ekle",
+      "noMaintenanceFound": "Bakım kaydı bulunamadı.",
+      "liveStatus": "CANLI",
+      "noSignal": "SINYAL YOK",
+      "noGpsData": "Görüntülenebilir GPS verisi yok",
+      "noGpsDesc": "Araç veri iletmeye başladığında konum burada görünecektir.",
+      "updated": "Güncellendi",
+      "dbFallback": "Son bilinen konum gösteriliyor — canlı sinyal henüz aktif değil",
+      "secondsAgo": "sn önce",
+      "minutesAgo": "dk önce",
+      "hoursAgo": "sa önce",
+      "manageDriver": "Sürücü Yönetimi",
+      "currentAssignment": "Mevcut Atama",
+      "unassign": "Atamayı Kaldır",
+      "noDriverAssigned": "Atanmış sürücü bulunmamaktadır.",
+      "assignNewDriver": "Yeni Sürücü Ata",
+      "selectDriver": "Uygun bir sürücü seçin",
+      "noDriversFound": "Uygun sürücü bulunamadı",
+      "assigning": "Atanıyor...",
+      "assignDriver": "Sürücü Ata",
+      "rating": "Puan",
+      "failedToLoadDrivers": "Sürücüler yüklenemedi",
+      "failedToAssign": "Sürücü atanamadı",
+      "failedToUnassign": "Sürücü ataması kaldırılamadı",
+      "issueDetails": "Sorun Detayları",
+      "referenceId": "Referans No",
+      "incidentTitle": "Olay Başlığı",
+      "problemDesc": "Problem Açıklaması",
+      "noSupplementalDetails": "Bu sorun için ek detay belirtilmemiş.",
+      "configurationStatus": "Yapılandırma ve Durum",
+      "savingChanges": "Değişiklikler Kaydediliyor...",
+      "updateIssue": "Sorunu Güncelle",
+      "maintenanceDetails": "Bakım Detayları",
+      "servicedOn": "Servis Tarihi",
+      "technicianNotes": "Teknisyen Notları",
+      "costInformation": "Maliyet Bilgisi",
+      "updateRecord": "Kaydı Güncelle",
+      "reportNewIssue": "Yeni Sorun Bildir",
+      "issueSubject": "Sorun Konusu",
+      "tellUsMore": "Durum hakkında daha fazla bilgi verin...",
+      "submitting": "Gönderiliyor...",
+      "submitIssue": "Sorunu Bildir",
+      "reportedOn": "Bildirildiği Tarih",
+      "configurationStatus": "Yapılandırma Durumu",
+      "noSupplementalDetails": "Açıklama belirtilmedi.",
+      "maintenanceDetailsDesc": "Bu bakım kaydının durumunu görüntüleyin ve yönetin.",
+      "maintenanceStatus": "Bakım Durumu",
+      "configuration": "Yapılandırma",
+      "additionalInfo": "Ek Bilgi",
+      "technicianNotesDesc": "Yapılan işlemi kısaca açıklayın...",
+      "failedToUpdateIssue": "Sorun güncellenemedi",
+      "failedToUpdateRecord": "Bakım kaydı güncellenemedi",
+      "addMaintenanceRecord": "Bakım Kaydı Ekle",
+      "addMaintenanceDesc": "Bu araç için servis ve bakım olaylarını kaydedin.",
+      "saveRecord": "Kaydı Kaydet",
+      "saving": "Kaydediliyor...",
+      "failedToCreateRecord": "Bakım kaydı oluşturulamadı",
+      "uploadDocumentTitle": "Belge Yükle",
+      "uploadDocumentDesc": "Bu araca yeni uygunluk veya servis kayıtları ekleyin.",
+      "selectOrDragFile": "Dosya seçin veya sürükleyin",
+      "startUpload": "Yüklemeyi Başlat",
+      "failedToUploadDocument": "Belge yüklenemedi",
+      "docName": "Belge Adı",
+      "docNamePlaceholder": "Örn. Q1 Bakım Makbuzu",
+      "fileFormats": "JPG veya PNG (Maks. 10MB)",
+      "preview": "Önizleme",
+      "configuration": "Yapılandırma",
+      "fileAttachment": "Dosya Eki",
+      "expiryDate": "Geçerlilik Tarihi"
+    },
+    "tabs": {
+      "overview": "Genel Bakış",
+      "documents": "Belgeler",
+      "maintenance": "Bakım",
+      "map": "Canlı Harita"
+    },
+    "steps": {
+      "general": "Genel Bilgiler",
+      "specs": "Teknik Özellikler",
+      "docs": "Belgeler"
+    },
+    "table": {
+      "title": "Araç Listesi",
+      "searchPlaceholder": "Araç ara...",
+      "emptyMessage": "Araç bulunamadı"
+    },
+    "kpis": {
+      "totalVehicles": "Toplam Araç",
+      "available": "Müsait",
+      "inService": "Bakımda",
+      "onTrip": "Seferde",
+      "openIssues": "Açık Sorunlar",
+      "docsExpiring": "Süresi Dolanlar"
+    },
+    "dashboard": {
+      "expiringSoon": "Süresi Yaklaşanlar",
+      "maxLoadCapacity": "Araç Maksimum Yük Kapasitesi",
+      "vehiclePlate": "Araç Plakasını",
+      "capacityUnits": "Kapasite Birimleri (Palet, m³)",
+      "maxWeightKg": "Maks. Ağırlık (kg)",
+      "openIssues": "Açık Araç Sorunları",
+      "activeIssues": "{count} aktif sorun",
+      "noOpenIssues": "Açık sorun bulunamadı"
+    },
+    "vehicleList": "Araç Listesi",
+    "deleteTitle": "Aracı Sil?",
+    "deleteDesc": "Bu aracı silmek istediğinize emin misiniz? Bu işlem aracı ve tüm ilişkili verileri kalıcı olarak silecektir."
+  },
+  "drivers": {
+    "title": "Sürücü Yönetimi",
+    "subtitle": "Sürücülerinizi yönetin, performans ve ehliyet durumlarını izleyin.",
+    "addDriver": "Sürücü Ekle",
+    "totalDrivers": "Toplam Filo Sürücüsü",
+    "onDuty": "Görevde",
+    "offDuty": "İstirahatte",
+    "complianceIssues": "Uyumluluk Sorunları",
+    "dashboard": {
+      "performance": "Sürücü Performansı",
+      "ratings": "Sürücü Puanları",
+      "ratingsLabel": "Puan (0-5)",
+      "weeklyHours": "Haftalık Çalışma Saatleri",
+      "hours": "Saat",
+      "hoursThisWeek": "Bu haftaki saatler"
+    },
+    "card": {
+      "license": "Ehliyet: {type}",
+      "vehicle": "Araç: {plate}",
+      "noVehicle": "Araç Yok"
+    },
+    "table": {
+      "title": "Sürücü Listesi",
+      "noDrivers": "Sürücü bulunamadı",
+      "searchPlaceholder": "Sürücü ara...",
+      "columns": {
+        "idx": "#",
+        "name": "Ad Soyad",
+        "status": "Durum",
+        "phone": "Telefon",
+        "vehicle": "Araç",
+        "homebase": "Merkez Depo",
+        "license": "Ehliyet",
+        "safetyScore": "Güvenlik Puanı"
+      },
+      "noVehicle": "Araç atanmadı",
+      "notAssigned": "Atanmadı"
+    },
+    "actions": {
+      "details": "Detaylar",
+      "edit": "Düzenle",
+      "delete": "Sil"
+    },
+    "filters": {
+      "status": "Durum",
+      "vehicle": "Araç",
+      "vehicleAssignment": "Araç Ataması",
+      "all": "Tümü",
+      "assigned": "Atanmış",
+      "unassigned": "Atanmamış"
+    },
+    "labels": {
+      "rating": "Sürücü Puanı",
+      "efficiency": "Verimlilik Skoru",
+      "safety": "Güvenlik Skoru",
+      "licenseStatus": "Ehliyet Durumu",
+      "compliant": "Uyumlu",
+      "actionRequired": "İşlem Gerekiyor",
+      "officialDocuments": "Resmi Belgeler",
+      "noExpiry": "Geçerlilik tarihi yok",
+      "expiryPrefix": "Geçerlilik: ",
+      "noDocsUploaded": "Belge Yüklenmedi",
+      "noDocsDesc": "Bu sürücü için sisteme kayıtlı herhangi bir resmi belge bulunmamaktadır.",
+      "contactDriver": "Sürücü ile İletişime Geç",
+      "viewHistory": "Tam Geçmişi Görüntüle",
+      "driverHistory": "Sürücü Geçmişi",
+      "activityLog": "{name} için aktivite günlüğü",
+      "completedJobs": "Tamamlanan İşler",
+      "permissions": "İzinler",
+      "recentActivities": "Son Aktiviteler",
+      "noActivities": "Bu sürücü için aktivite bulunamadı.",
+      "base": "Merkez",
+      "operationalAssignment": "Operasyonel Atama",
+      "vehicleAssignment": "Araç Ataması",
+      "initialStatus": "Başlangıç Operasyonel Durumu",
+      "reviewAssignment": "Lütfen kaydetmeden önce atamalarınızı gözden geçirin.",
+      "profileSummary": "PROFİL ÖZETİ",
+      "information": "Bilgilendirme",
+      "verificationDesc": "Tüm veriler doğrulamaya tabidir.",
+      "physicalLicense": "Fiziksel Ehliyet Taraması",
+      "ensureVisible": "Lütfen tüm verilerin açıkça göründüğünden emin olun."
+    },
+    "dialogs": {
+      "addTitle": "Yeni Sürücü Ekle",
+      "editTitle": "Sürücü Detaylarını Düzenle",
+      "editSubtitle": "Sürücü bilgilerini, ehliyet detaylarını ve atamalarını güncelleyin",
+      "steps": {
+        "credentials": "Kimlik Bilgileri",
+        "assignment": "Atama"
+      }
+    },
+    "fields": {
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "licenseNumber": "Ehliyet No",
+      "phoneNumber": "Telefon",
+      "phone": "Telefon",
+      "employeeId": "Çalışan No",
+      "licenseType": "Ehliyet Tipi",
+      "licenseExpiry": "Ehliyet Geçerlilik",
+      "status": "Durum",
+      "selectUser": "Sürücü Kullanıcısını Seçin",
+      "licensePhoto": "Ehliyet Fotoğrafı",
+      "hazmat": "Tehlikeli Madde Sertifikası",
+      "homeWarehouse": "Bağlı Olduğu Depo",
+      "assignedVehicle": "Atanan Araç",
+      "activeLanguages": "Bildiği Diller",
+      "additionalDocs": "Ek Belgeler",
+      "languageProficiency": "Dil Yeterliliği"
+    },
+    "tabs": {
+      "overview": "Genel Bakış",
+      "documents": "Belgeler",
+      "personalInfo": "Kişisel Bilgiler",
+      "operationalInfo": "Operasyonel Bilgiler"
+    }
+  },
+  "customers": {
+    "title": "Müşteri Yönetimi",
+    "addCustomer": "Müşteri Ekle",
+    "registerNewPartner": "YENİ ORTAK KAYDET",
+    "operatingLocations": "Faaliyet Lokasyonları",
+    "addOfficesHubs": "OFİS, MERKEZ VEYA DEPO EKLEYİN",
+    "addLocation": "Lokasyon Ekle",
+    "primaryEmail": "Birincil E-posta",
+    "phoneNumber": "Telefon Numarası",
+    "registeredLocations": "Kayıtlı Lokasyonlar",
+    "noLocations": "Kayıtlı lokasyon bulunmadı",
+    "totalShipments": "TOPLAM SEVKİYAT",
+    "recentShipments": "Son Sevkiyatlar",
+    "noRecentShipments": "Son sevkiyat bulunamadı",
+    "records": "Kayıt",
+    "customerNotFound": "Müşteri bulunamadı",
+    "industryGeneral": "Genel",
+    "list": {
+      "noAddress": "Adres belirtilmedi",
+      "na": "N/A",
+      "shipmentsCount": "{count} Sevkiyat",
+      "noCustomers": "Müşteri bulunamadı"
+    },
+    "actions": {
+      "details": "Detaylar",
+      "edit": "Düzenle",
+      "delete": "Sil"
+    },
+    "dialogs": {
+      "addTitle": "Müşteri Ekle",
+      "editTitle": "Müşteri Düzenle",
+      "editSubtitle": "{name} için bilgileri güncelle",
+      "steps": {
+        "identity": "Şirket Kimliği",
+        "contact": "İletişim Detayları"
+      },
+      "successAdd": "Müşteri başarıyla oluşturuldu.",
+      "successUpdate": "Müşteri başarıyla güncellendi.",
+      "errorAdd": "Müşteri oluşturulamadı.",
+      "errorUpdate": "Müşteri güncellenemedi."
+    },
+    "fields": {
+      "companyName": "Tam Yasal Şirket Adı",
+      "customerCode": "Müşteri Kodu",
+      "taxId": "Vergi No / KDV No",
+      "industry": "Sektör",
+      "name": "Ad",
+      "address": "Tam Adres",
+      "lat": "Enlem Sınırı",
+      "lng": "Boylam Sınırı",
+      "isDefault": "Varsayılan",
+      "mainOffice": "Merkez Ofis",
+      "selectIndustry": "Bir sektör seçin"
+    },
+    "industries": {
+      "logistics": "Lojistik ve Taşımacılık",
+      "retail": "Perakende ve E-ticaret",
+      "manufacturing": "Üretim",
+      "pharmaceuticals": "İlaç",
+      "automotive": "Otomotiv",
+      "aviation": "Havacılık",
+      "technology": "Teknoloji",
+      "other": "Diğer"
+    }
+  },
+  "inventory": {
+    "title": "Envanter Yönetimi",
+    "header": "Envanter Listesi",
+    "totalItems": "TOPLAM ÜRÜN",
+    "lowStock": "DÜŞÜK STOK",
+    "outOfStock": "STOKTA YOK",
+    "totalValue": "TOPLAM DEĞER",
+    "addInventory": "Envanter Ekle",
+    "status": {
+      "inStock": "STOKTA",
+      "lowStock": "DÜŞÜK STOK",
+      "outOfStock": "STOKTA YOK"
+    },
+    "dialogs": {
+      "addTitle": "Yeni Ürün Ekle",
+      "editTitle": "Ürün Detaylarını Düzenle",
+      "addSubtitle": "Depo stok kaleminizi yapılandırın",
+      "overview": "Genel Bakış",
+      "history": "Envanter Geçmişi",
+      "stockLevels": "Stok Seviyeleri",
+      "available": "MEVCUT",
+      "safetyStock": "GÜVENLİK STOĞU",
+      "locationData": "Konum Verileri",
+      "warehouseCode": "Depo Kodu",
+      "cargoType": "Yük Tipi",
+      "physicalSpecs": "Fiziksel Özellikler",
+      "intelTitle": "Mimari Zeka",
+      "intelDesc": "Gerçek zamanlı stok izleme aktif. Miktar {minStock} birimin altına düştüğünde yeniden stoklama iş akışları tetiklenecektir.",
+      "noHistory": "Henüz hareket geçmişi kaydedilmemiştir.",
+      "historyFields": {
+        "type": "TİP",
+        "quantity": "MİKTAR",
+        "user": "KULLANICI",
+        "date": "TARİH",
+        "system": "Sistem"
+      },
+      "closeView": "Görünümü Kapat",
+      "modifySpecs": "Özellikleri Değiştir",
+      "editItem": "Öğeyi Düzenle",
+      "productInfo": "Ürün Kimliği & Stok",
+      "productImage": "ÜRÜN GÖRSELİ",
+      "clickToChange": "Görseli değiştirmek için tıklayın",
+      "skuOptional": "SKU (Opsiyonel)",
+      "skuPlaceholder": "Otomatik oluşturmak için boş bırakın",
+      "safetyThreshold": "Güvenlik Eşiği",
+      "auditWarning": "Manuel stok ayarlamaları denetim günlüğünde izlenir ve sevkiyat dağıtım uygunluğunu etkiler.",
+      "loadParams": "Yük Parametreleri",
+      "unitWeight": "Birim Ağırlık",
+      "totalVolume": "Toplam Hacim",
+      "discardChanges": "Değişiklikleri At",
+      "commitUpdate": "Güncellemeyi Onayla",
+      "storageAndLevels": "Depolama ve Seviyeler",
+      "storageDesc": "Bu envanterin nerede saklanacağını ve stok eşiklerini tanımlayın.",
+      "warehouseLocation": "Depo Konumu",
+      "selectFacility": "TESİS SEÇİN *",
+      "stockConfig": "Stok Yapılandırması",
+      "initialQuantity": "BAŞLANGIÇ MİKTARI",
+      "minStockAlert": "MİN. STOK SEVİYESİ (UYARI)",
+      "movementDetails": "HAREKET DETAYLARI",
+      "putawayDesc": "Bu işlem PUTAWAY (Yerleştirme) olarak kategorize edilmiştir. Başlangıç stoğu seçilen depoya derhal kaydedilecek ve sisteme işlenecektir.",
+      "detailsDesc": "Yeni envanter öğesi için temel kimlik detaylarını sağlayın.",
+      "categoryLabel": "Kategori *",
+      "steps": {
+        "details": "Ürün Detayları",
+        "storage": "Stok Seviyeleri",
+        "review": "Gözden Geçir ve Onayla"
+      }
+    },
+    "deleteTitle": "Öğeyi Sil",
+    "deleteDesc": "Bu öğeyi silmek istediğinize emin misiniz?",
+    "fields": {
+      "name": "Ürün Adı",
+      "sku": "SKU",
+      "quantity": "Miktar",
+      "warehouse": "Depo",
+      "minStock": "Min. Stok Seviyesi",
+      "unitValue": "Birim Değer",
+      "weight": "Ağırlık",
+      "volume": "Hacim",
+      "pallets": "Palet Sayısı"
+    },
+    "categories": {
+      "electronics": "Elektronik",
+      "machinery": "Makine",
+      "spareParts": "Yedek Parça",
+      "rawMaterials": "Hammadde",
+      "finishedGoods": "Mamul Ürünler",
+      "packaging": "Paketleme",
+      "officeSupplies": "Ofis Malzemeleri",
+      "others": "Diğerleri"
+    }
+  },
+  "company": {
+    "title": "Şirket Profili",
+    "info": {
+      "created": "{date} tarihinde oluşturuldu",
+      "active": "Aktif"
+    },
+    "members": {
+      "title": "Ekip Üyeleri",
+      "columns": {
+        "member": "Üye",
+        "email": "E-posta",
+        "role": "Rol",
+        "status": "Durum",
+        "joined": "Katılım"
+      },
+      "actions": {
+        "details": "Detaylar",
+        "edit": "Düzenle",
+        "delete": "Sil"
+      },
+      "empty": "Üye bulunamadı",
+      "deleteDialog": {
+        "title": "Üyeyi Kaldır?",
+        "description": "{name} kullanıcısını şirketten çıkarmak istediğinizden emin misiniz? Bu işlem erişimini anında sonlandıracaktır."
+      },
+      "statuses": {
+        "active": "AKTİF",
+        "inactive": "PASİF",
+        "suspended": "ASKIYA ALINDI"
+      }
+    },
+    "addMember": "Üye Ekle",
+    "createCompany": "Şirket Oluştur",
+    "roles": {
+      "admin": "Yönetici",
+      "manager": "Müdür",
+      "dispatcher": "Sevkiyat Sorumlusu",
+      "warehouse": "Depo Personeli",
+      "default": "Varsayılan Üye",
+      "driver": "Filo Sürücüsü"
+    },
+    "dialogs": {
+      "addMemberTitle": "Yeni Üye Ekle",
+      "addMemberSubtitle": "Organizasyonunuza yeni bir üye davet edin ve rol atayın",
+      "identityTitle": "Şirket Kimliği",
+      "regionalTitle": "Bölgesel Ekosistem",
+      "identitySubtitle": "Organizasyonunuzun temel profilini ve varlığını yapılandırın",
+      "searchPlaceholder": "İsim veya e-posta ile ara...",
+      "searchResults": "Arama Sonuçları",
+      "assignRole": "Organizasyonel Rol Ata",
+      "invitationNote": "Üyeler, şirket altyapınıza katılmak için bir davet alacaktır.",
+      "driverDetailsRequired": "Sürücü Profili Gereksinimleri",
+      "addToCompany": "Şirkete Ekle",
+      "steps": {
+        "branding": "Markalaşma ve Yasal",
+        "regional": "Yerelleştirme ve Kapsam",
+        "globalConfig": "KÜRESEL YAPILANDIRMA",
+        "regionalEcosystem": "Bölgesel Ekosistem",
+        "regionalDesc": "Ekibinizin zaman, yerel ticaret ve veri görünürlüğü ile nasıl etkileşim kuracağını yapılandırın.",
+        "timezone": "Ana Zaman Dilimi *",
+        "currency": "İşlevsel Para Birimi",
+        "language": "Sistem Dili",
+        "integrity": "Referans Bütünlüğü ve Kapsam",
+        "standardize": "Bu ön ayarlar tüm operasyonel birimleri otomatik olarak standartlaştırır. Alt birimler (depolar, filolar) gerektiğinde bunları ayrı ayrı geçersiz kılabilir.",
+        "overrides": "Dinamik bölgesel geçersiz kılmaları etkinleştir"
+      },
+      "localizationDesc": "Platform yerelleştirmesi, para birimlerinin, zaman damgalarının ve sayıların panelinizde ve raporlarınızda küresel olarak nasıl görüntülendiğini etkiler.",
+      "interfaceLanguage": "Arayüz Dili",
+      "defaultCurrency": "Varsayılan Para Birimi",
+      "activeTimezone": "Aktif Zaman Dilimi",
+      "dateTimeFormat": "Tarih-Saat Formatı"
+    },
+    "sidebar": {
+      "currentStep": "Mevcut Adım",
+      "stepProgress": "{current} / {total} Adım",
+      "loggedInAs": "Oturum açan",
+      "primaryAdmin": "Birincil Yönetici"
+    },
+    "branding": {
+      "title": "Marka Kimliği",
+      "subtitle": "Organizasyonunuzun LogiTrack ekosisteminde nasıl görüneceğini tanımlayın.",
+      "legalName": "Yasal Şirket Adı *",
+      "legalNamePlaceholder": "Örn. Global Lojistik A.Ş.",
+      "legalNameDesc": "Bu, faturalandırma ve idari görevler için birincil kimliğiniz olacaktır.",
+      "digitalIdentity": "Dijital Kimlik (Logo)",
+      "changeLogo": "Logoyu Değiştir",
+      "uploadAssets": "Marka Varlıklarını Yükle",
+      "uploadFormat": "PNG, JPG veya SVG. Maksimum boyut 5MB.",
+      "industry": "Ana Sektör",
+      "industryPlaceholder": "Sektör alanını seçin..."
+    },
+    "memberDetails": {
+      "title": "Üye Detayları",
+      "contactInfo": "İletişim Bilgileri",
+      "emailAddress": "E-posta Adresi",
+      "joinedSince": "Katılım Tarihi",
+      "adminData": "İdari Veriler",
+      "adminDataDesc": "Kullanıcı erişimi organizasyon yöneticisi tarafından yönetilir. Bu üye şu anda LogiTrack platformunda {role} izinlerine sahiptir.",
+      "closeView": "Görünümü Kapat",
+      "noRole": "Rol Yok"
+    },
+    "editMember": {
+      "title": "Üyeyi Düzenle",
+      "subtitle": "{name} için izinleri ve profili değiştirin",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "systemRole": "Sistem Rolü",
+      "accountStatus": "Hesap Durumu",
+      "saving": "Kaydediliyor...",
+      "statuses": {
+        "ACTIVE": "Aktif",
+        "INACTIVE": "Pasif",
+        "SUSPENDED": "Askıya Alındı"
+      }
+    }
+  },
+  "shipments": {
+    "title": "Sevkiyat Yönetimi",
+    "active": "Aktif Sevkiyatlar",
+    "completed": "Tamamlandı",
+    "pending": "Bekliyor",
+    "delayed": "Gecikti",
+    "track": "Sevkiyat Takibi",
+    "statuses": {
+      "PENDING": "Beklemede",
+      "IN_TRANSIT": "Yolda",
+      "DELIVERED": "Teslim Edildi",
+      "DELAYED": "Gecikmiş",
+      "CANCELLED": "İptal Edildi",
+      "PROCESSING": "İşleniyor"
+    },
+    "dashboard": {
+      "statusOverview": "Durum Özeti",
+      "liveBreakdown": "Sevkiyat durumlarının canlı dağılımı",
+      "volumeTrend": "Hacim Trendi",
+      "dailyVolume": "Günlük sevkiyat oluşturma hacmi (Son 7 Gün)",
+      "shipments": "Sevkiyatlar",
+      "units": "{count} birim",
+      "noData": "Veri Yok",
+      "totalShipments": "Toplam Sevkiyat",
+      "activeShipments": "Aktif Sevkiyatlar",
+      "delayedShipments": "Geciken Sevkiyatlar",
+      "inTransit": "Taşıma Aşamasında"
+    },
+    "table": {
+      "title": "Sevkiyat Listesi",
+      "searchPlaceholder": "Sevkiyat ara...",
+      "noShipments": "Sevkiyat bulunamadı",
+      "columns": {
+        "code": "Kod",
+        "status": "Durum",
+        "customer": "Müşteri",
+        "created": "Oluşturulma",
+        "destination": "Hedef",
+        "driver": "Sürücü",
+        "route": "Rota",
+        "items": "Ürünler"
+      }
+    },
+    "details": {
+      "title": "Sevkiyat Detayları",
+      "systemConsignmentId": "SİSTEM SEVKİYAT KİMLİĞİ",
+      "assignmentDetails": "Atama Detayları",
+      "noDriverAssigned": "Sürücü Atanmadı",
+      "missionPath": "Görev Yolu",
+      "pickupOrigin": "Alım Noktası",
+      "finalDelivery": "Son Teslimat",
+      "consignmentSpecs": "Sevkiyat Özellikleri",
+      "quantity": "Miktar",
+      "units": "adet",
+      "grossWeight": "Brüt Ağırlık",
+      "kg": "kg",
+      "customerEntity": "Müşteri Kuruluşu",
+      "clientPartner": "Müşteri Ortağı",
+      "mileage": "MESAFE",
+      "duration": "SÜRE",
+      "fleetId": "FİLO KİMLİĞİ",
+      "noUnit": "BİRİM YOK",
+      "tbd": "Belirlenmedi"
+    },
+    "dialogs": {
+      "addTitle": "Yeni Sevkiyat Oluştur",
+      "editTitle": "Sevkiyat Detaylarını Düzenle",
+      "editSubtitle": "Sevkiyat parametrelerini düzenleyin ve lojistik durumunu güncelleyin",
+      "addSubtitle": "Yeni bir sevkiyat oluşturun ve parametreleri tanımlayın",
+      "cargoTitle": "Kargo ve Yük Detayları",
+      "steps": {
+        "logistics": "Lojistik ve Öncelik",
+        "route": "Rota ve Müşteri",
+        "inventory": "Envanter ve Yük",
+        "cargo": "Kargo Detayları"
+      },
+      "sections": {
+        "basicInfo": "Temel Bilgiler",
+        "logisticsParties": "Lojistik ve Taraflar",
+        "cargoDetails": "Kargo Detayları",
+        "inventoryDetail": "Envanter Detayı",
+        "routeManagement": "Rota Yönetimi"
+      },
+      "fields": {
+        "shipmentIdRef": "SEVKİYAT KİMLİĞİ / REF (Opsiyonel)",
+        "shipmentIdPlaceholder": "Örn. SHP-8752-XP (Otomatik oluşturmak için boş bırakın)",
+        "referenceNumber": "REFERANS NUMARASI",
+        "priorityLevel": "ÖNCELİK SEVİYESİ",
+        "type": "TİP",
+        "slaDeadline": "SLA TERMİNİ",
+        "slaPlaceholder": "Tarih ve Saat Seçin",
+        "weight": "AĞIRLIK (KG)",
+        "volume": "HACİM (M³)",
+        "palletCount": "PALET",
+        "cargoType": "KARGO TİPİ",
+        "originWarehouse": "ÇIKIŞ DEPOSU",
+        "originPlaceholder": "Çıkış deposu ara...",
+        "destination": "VARIŞ NOKTASI",
+        "destinationPlaceholder": "Varış noktası ara...",
+        "customerClient": "MÜŞTERİ / ALICI",
+        "customerPlaceholder": "Müşteri seçin",
+        "customerLocation": "MÜŞTERİ KONUMU (DEPO)",
+        "locationPlaceholder": "Depo seçin",
+        "selectCustomerFirst": "Önce bir müşteri seçin",
+        "contactEmail": "İLETİŞİM E-POSTASI",
+        "billingAccount": "FATURA HESABI",
+        "routeId": "ROTA KİMLİĞİ",
+        "routePlaceholder": "Rota seçin...",
+        "assignedDriver": "ATANAN SÜRÜCÜ",
+        "estDeparture": "TAHMİNİ KALKIŞ",
+        "unassigned": "Atanmadı",
+        "pendingAssignment": "Atama Bekliyor",
+        "readOnlyPreview": "SALT OKUNUR ÖNİZLEME - Rota seçilmedi",
+        "noItemsAdded": "Öğe eklenmedi.",
+        "skuId": "SKU KİMLİĞİ",
+        "itemName": "ÖĞE ADI",
+        "qty": "MİKTAR",
+        "unit": "BİRİM",
+        "calculatedPallets": "Hesaplanan Paletler",
+        "rowWeight": "Satır Ağırlığı",
+        "warehouseInventory": "Depo Envanteri",
+        "manual": "Manuel",
+        "warehouse": "Depo"
+      },
+      "buttons": {
+        "assignToExistingRoute": "Mevcut Rotaya Ata"
+      },
+      "types": {
+        "standardFreight": "Standart Navlun",
+        "express": "Ekspres",
+        "hazardous": "Tehlikeli Madde",
+        "generalCargo": "Genel Kargo",
+        "each": "Adet",
+        "box": "Koli",
+        "pallet": "Palet",
+        "standardBilling": "Standart Fatura (Net 30)"
+      }
+    }
+  },
+  "routes": {
+    "title": "Rota Planlama",
+    "active": "Aktif Rotalar",
+    "total": "Toplam Rotalar",
+    "completed": "Tamamlandı",
+    "delayed": "Gecikti",
+    "dashboard": {
+      "routeEfficiency": "Rota Verimliliği",
+      "fuelConsumption": "Yakıt Tüketimi (L/100km)",
+      "avg": "{count} ort.",
+      "onTimePerformance": "Zamanında Performans",
+      "vehicleUtilization": "Araç Kullanım Oranı",
+      "recentNotifications": "Son Bildirimler",
+      "noNotifications": "Son bildirim bulunamadı",
+      "notification": "Bildirim"
+    },
+    "table": {
+      "title": "Rota Listesi",
+      "noRoutes": "Rota bulunamadı.",
+      "columns": {
+        "routeId": "Rota No",
+        "vehiclePlate": "Araç Plakası",
+        "origin": "Çıkış Noktası",
+        "destination": "Hedef Noktası",
+        "eta": "Tahmini Varış",
+        "status": "Durum"
+      },
+      "actions": {
+        "activate": "Rotayı Başlat",
+        "complete": "Rotayı Tamamla"
+      }
+    },
+    "toasts": {
+      "updateSuccess": "Rota {status} olarak güncellendi",
+      "updateError": "Rota güncellenemedi",
+      "statusSuccess": "Rota durumu başarıyla güncellendi"
+    },
+    "statuses": {
+      "PENDING": "Beklemede",
+      "PROCESSING": "İşleniyor",
+      "ASSIGNED": "Atandı",
+      "PLANNED": "Planlandı",
+      "ACTIVE": "Aktif",
+      "IN_TRANSIT": "Yolda",
+      "DELIVERED": "Teslim Edildi",
+      "DELAYED": "Gecikti",
+      "CANCELLED": "İptal Edildi",
+      "CANCELED": "İptal Edildi",
+      "COMPLETED": "Tamamlandı",
+      "FAILED": "Hata"
+    },
+    "addRoute": "Rota Ekle",
+    "details": {
+      "origin": "Başlangıç",
+      "destination": "Varış",
+      "delivery": "Teslimat",
+      "distance": "MESAFE",
+      "stops": "DURAKLAR",
+      "liveProgress": "Canlı İlerleme",
+      "missionRoute": "GÖREV ROTASI",
+      "liveTelemetryMap": "CANLI TELEMETRİ HARİTASI",
+      "liveTelemetry": "CANLI TELEMETRİ",
+      "distTravelled": "KAT EDİLEN MESAFE",
+      "remaining": "Kalan",
+      "fuelLevel": "Yakıt seviyesi"
+    },
+    "dialogs": {
+      "addTitle": "Yeni Rota Planla",
+      "editTitle": "Rota Detaylarını Düzenle",
+      "prefilledFrom": "Sevkiyattan önceden yüklendi",
+      "addSubtitle": "Bu rota için zamanlamayı, bitiş noktalarını ve varlıkları tanımlayın",
+      "editSubtitle": "Rota parametrelerini ve lojistik durumunu düzenleyin",
+      "deliveryLabel": "Teslimat",
+      "basicDetails": "Adım 1: Temel Detaylar ve Planlama",
+      "basicDetailsDesc": "Bu detaylar rotanın çerçevesini ve önceliğini belirlemeye yardımcı olur.",
+      "quickStart": "Hızlı Başlangıç: Sevkiyat Seçin",
+      "chooseShipment": "Konumları önceden doldurmak için bir sevkiyat seçin...",
+      "selectUnassigned": "Atanmamış bir sevkiyat seçin",
+      "prefillNote": "Bir sevkiyat seçmek, Rota Adını ve Varış Noktasını otomatik olarak dolduracaktır.",
+      "routeName": "Rota Adı",
+      "routeNamePlaceholder": "Örn. Sabah Teslimatı - Kuzey",
+      "expectedStart": "Beklenen Başlangıç Zamanı",
+      "selectDateTime": "Tarih ve Saat Seçin",
+      "expectedEnd": "Beklenen Bitiş Zamanı",
+      "timingGuidance": "Doğru başlangıç ve bitiş zamanlarını ayarlamak, sistemin teslimat pencerelerini hesaplamasına ve rota planlama aşamasında yakıt verimliliğini optimize etmesine yardımcı olur.",
+      "locationDetails": "Adım 2: Konum Detayları",
+      "locationDetailsDesc": "Rota metriklerini hesaplamak için başlangıç ve varış noktalarını girin.",
+      "startAddress": "Başlangıç Adresi",
+      "endAddress": "Varış Adresi",
+      "distanceKmLabel": "Mesafe (km)",
+      "durationMinLabel": "Süre (dk)",
+      "optimizationTip": "Optimizasyon İpucu:",
+      "optimizationDesc": "Bu rota şu anda ana otoyollardan kaçınıyor. Trafikten veya yoğun alanlardan kaçınmak için haritadaki çizgiyi sürükleyerek yolu ayarlayabilirsiniz.",
+      "assignmentsTitle": "Adım 3: Atamalar",
+      "assignmentsDesc": "Bu rotaya uygun bir sürücü ve araç atayın.",
+      "driverAssignment": "Sürücü Ataması",
+      "loadingDrivers": "Sürücüler yükleniyor...",
+      "unassigned": "Atanmadı",
+      "vehicleAssignment": "Araç Ataması",
+      "loadingVehicles": "Araçlar yükleniyor...",
+      "assignmentSummary": "ATAMA ÖZETİ",
+      "driverShift": "Sürücü Vardiyası",
+      "shiftStart": "Vardiya Başlangıcı",
+      "noDriverSelected": "Sürücü seçilmedi",
+      "statusOnDuty": "Durum: Görevde",
+      "vehicleMaintenance": "Araç Bakımı",
+      "nextService": "Sonraki Servis",
+      "in": "içinde",
+      "noVehicleSelected": "Araç seçilmedi",
+      "healthGood": "Sağlık: İyi",
+      "compliance": "Uyumluluk",
+      "hazmatCertified": "Hazmat ve ELD Sertifikalı",
+      "statusAllClear": "Durum: Sorun Yok",
+      "steps": {
+        "timing": "Zamanlama ve Varlıklar",
+        "points": "Başlangıç ve Bitiş Noktaları",
+        "schedule": "Planlama",
+        "locations": "Konumlar",
+        "assignments": "Atamalar"
+      }
+    }
+  },
+  "warehouses": {
+    "title": "Depo Ağı",
+    "addWarehouse": "Depo Ekle",
+    "dialogs": {
+      "addTitle": "Yeni Depo Ekle",
+      "editTitle": "Depo Detaylarını Düzenle",
+      "locationTitle": "Tesis Konumu",
+      "capacityTitle": "Operasyonel Kapasite",
+      "createButton": "Depo Oluştur",
+      "updateButton": "Değişiklikleri Kaydet",
+      "steps": {
+        "basicInfo": "Temel Bilgiler",
+        "location": "Konum",
+        "capacity": "Kapasite"
+      },
+      "details": {
+        "overview": "Genel Bakış",
+        "inventory": "Envanter",
+        "locationDetails": "Konum Bilgileri",
+        "address": "Adres",
+        "cityCountry": "Şehir / Ülke",
+        "operations": "Operasyonlar",
+        "facilityType": "Tesis Tipi",
+        "operatingHours": "Çalışma Saatleri",
+        "manager": "Yönetici",
+        "notAssigned": "Atanmadı",
+        "uniqueSkus": "Benzersiz SKU'lar",
+        "capacityUtilization": "Kapasite Kullanımı",
+        "palletStorage": "Palet Depolama",
+        "standardEuroPallets": "Standart ve Euro Paletler",
+        "used": "Kullanılan",
+        "totalCapacity": "Toplam Kapasite",
+        "volumeCapacity": "Hacim Kapasitesi",
+        "totalCubicMeters": "Toplam metreküp (m³)",
+        "m3Used": "m³ Kullanılan",
+        "m3TotalCapacity": "m³ Toplam Kapasite",
+        "facilityCapabilities": "Tesis Yetenekleri",
+        "managedFacility": "Yönetimli Tesis",
+        "standardStorage": "Standart Depolama",
+        "currentInventory": "Mevcut Envanter",
+        "itemsStoredIn": "İçinde depolanan ürünler"
+      },
+      "fields": {
+        "identity": "Tesis Kimliği",
+        "name": "Depo Adı",
+        "namePlaceholder": "Örn. Kuzey Doğu Dağıtım Merkezi",
+        "code": "Depo Kodu (Opsiyonel)",
+        "codePlaceholder": "Örn. WH-001 (Otomatik oluşturmak için boş bırakın)",
+        "type": "Depo Tipi",
+        "typeStandard": "Standart Depo",
+        "typeDistribution": "Dağıtım Merkezi",
+        "typeCrossDock": "Cross-Docking Tesisi",
+        "operatingHours": "Çalışma Saatleri",
+        "is247": "7/24 OPERASYON",
+        "openingTime": "AÇILIŞ SAATİ",
+        "closingTime": "KAPANIŞ SAATİ",
+        "facilityAddress": "Tesis Adresi",
+        "streetAddress": "SOKAK ADRESİ",
+        "streetPlaceholder": "Örn. 123 Lojistik Yolu, Sanayi Bölgesi",
+        "city": "ŞEHİR",
+        "cityPlaceholder": "Örn. İstanbul",
+        "country": "ÜLKE",
+        "countryPlaceholder": "Örn. Türkiye",
+        "postalCode": "POSTA KODU",
+        "postalPlaceholder": "Örn. 34000",
+        "manager": "DEPO YÖNETİCİSİ",
+        "unassigned": "Atanmadı",
+        "locationPreview": "Konum Önizleme",
+        "mapPending": "Harita entegrasyonu kesin koordinatlar bekleniyor",
+        "palletPositions": "TOPLAM PALET POZİSYONU",
+        "palletPositionsPlaceholder": "Örn. 5000",
+        "volume": "KARGO HACMİ (M3)",
+        "volumePlaceholder": "Örn. 100000",
+        "specifications": "Tesis Özellikleri",
+        "guidance": "Operasyonel Rehber Notlar",
+        "guidanceText": "Hazardous materyal sertifikalarının güncel olduğundan ve tesisin yerel güvenlik standartlarına uygun olduğundan emin olun."
+      },
+      "specs": {
+        "coldStorage": "Soğuk Hava Deposu",
+        "hazardous": "Tehlikeli Maddeler",
+        "bonded": "Gümrüklü Depo",
+        "crossDocking": "Cross-Docking",
+        "highSecurity": "Yüksek Güvenlik",
+        "lashing": "Lashing/Yükleme"
+      }
+    }
+  },
+  "inventory": {
+    "title": "Envanter",
+    "subtitle": "Envanter kalemlerini verimli bir şekilde yönetin, takip edin ve analiz edin",
+    "searchPlaceholder": "Ürün, SKU ara...",
+    "addInventory": "Envanter Ekle",
+    "filter": "Filtrele",
+    "filters": "Filtreler",
+    "noItems": "Envanter kalemi bulunamadı",
+    "table": {
+      "productName": "Ürün Adı",
+      "sku": "SKU",
+      "category": "Kategori",
+      "stockLevel": "Stok Seviyesi",
+      "unitPrice": "Birim Fiyat",
+      "warehouses": "Depolar"
+    },
+    "actions": {
+      "details": "Detaylar",
+      "edit": "Düzenle",
+      "delete": "Sil"
+    },
+    "category": {
+      "general": "Genel"
+    },
+    "status": {
+      "inStock": "Stokta",
+      "lowStock": "Düşük Stok",
+      "outOfStock": "Stokta Yok",
+      "low": "Düşük",
+      "out": "Yok"
+    }
+  },
+  "toasts": {
+    "successAdd": "Başarıyla eklendi!",
+    "successUpdate": "Başarıyla güncellendi!",
+    "successDelete": "Başarıyla silindi!",
+    "errorGeneric": "Bir şeyler yanlış gitti.",
+    "errorAuth": "Geçersiz kimlik bilgileri.",
+    "loading": "Lütfen bekleyin...",
+    "saving": "Kaydediliyor...",
+    "successDocumentDelete": "Döküman başarıyla silindi!",
+    "errorDocumentDelete": "Döküman silinirken bir hata oluştu.",
+    "errorNoConnection": "Döküman bağlantısı bulunamadı.",
+    "errorNoPermission": "Dosya erişim yetkisi alınamadı.",
+    "errorUpload": "Dosya yüklenirken bir hata oluştu."
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "catchUp": "Hepsini Okundu Say",
+    "initializing": "Akış başlatılıyor...",
+    "systemClear": "Sistem temiz."
+  },
+  "maps": {
+    "searchAddress": "Adres ara...",
+    "calculatingRoute": "Rota hesaplanıyor...",
+    "unableCalculateRoute": "Rota hesaplanamadı. Lütfen adresleri doğrulayın.",
+    "apiError": "Harita API Yapılandırma Hatası",
+    "apiErrorDesc": "Google Haritalar servisi yüklenemedi. Bu durum geçersiz bir API anahtarından veya ağ kısıtlamasından kaynaklanıyor olabilir.",
+    "initializing": "HARİTA SERVİSLERİ BAŞLATILIYOR...",
+    "clickToMark": "Bir yer işaretlemek için haritada herhangi bir yere tıklayın.",
+    "demo": {
+      "title": "Google Haritalar Entegrasyon Bileşenleri",
+      "subtitle": "Modüler ve üretime hazır Google Haritalar React bileşenleri.",
+      "addressTitle": "1. Adres Girişi ve İşaretleyici",
+      "addressDesc": "Bir adres arayın ve harita üzerinde görün.",
+      "pickerTitle": "2. Harita Seçici",
+      "pickerDesc": "Herhangi bir noktayı seçmek için haritaya tıklayın.",
+      "routeTitle": "3. Rota Yol Tarifi",
+      "routeDesc": "Seyahat rotalarını mesafe ve süre ile görselleştirme.",
+      "lat": "Enlem",
+      "lng": "Boylam",
+      "address": "Adres",
+      "picked": "Seçildi",
+      "selected": "Seçili"
+    }
+  },
+  "footer": {
+    "description": "Akıllı lojistik takip ve filo görünürlük platformu.",
+    "product": "Ürün",
+    "features": "Özellikler",
+    "pricing": "Fiyatlandırma",
+    "roadmap": "Yol Haritası",
+    "company": "Şirket",
+    "about": "Hakkımızda",
+    "blog": "Blog",
+    "careers": "Kariyer",
+    "legal": "Yasal",
+    "privacyPolicy": "Gizlilik Politikası",
+    "termsOfService": "Kullanım Koşulları",
+    "rights": "Tüm hakları saklıdır.",
+    "builtFor": "Modern lojistik için tasarlandı."
+  },
+  "settings": {
+    "dialogs": {
+      "systemConfiguration": "Sistem Yapılandırması",
+      "adjustRegional": "Bölgesel işaretçileri ve küresel tercihleri ayarlayın",
+      "tabs": {
+        "appearance": "Görünüm",
+        "notifications": "Bildirimler",
+        "regional": "Bölgesel",
+        "localization": "Yerelleştirme",
+        "signals": "Sinyaller",
+        "visualEngine": "Görsel Motor"
+      },
+      "success": {
+        "regional": "Bölgesel işaretçiler küresel olarak senkronize edildi.",
+        "notifications": "Bildirim webhookları güncellendi!"
+      },
+      "appearance": {
+        "desc": "Görünüm ayarları, LogiTrack uygulamasının tamamındaki renk matrislerini ve yüzey gölgelerini dinamik olarak değiştirir.",
+        "modes": {
+          "polar": "Polar",
+          "nebula": "Nebula",
+          "adaptive": "Adaptif",
+          "polarDesc": "Yüksek kontrastlı arayüz",
+          "nebulaDesc": "Derin uzay estetiği",
+          "adaptiveDesc": "İşletim sistemiyle senkronize",
+          "projectionActive": "PROJEKSİYON AKTİF"
+        }
+      },
+      "notifications": {
+        "emailChannels": "E-POSTA KANALLARI",
+        "realTimeSignals": "GERÇEK ZAMANLI SİNYALLER",
+        "fleetStatus": "Filo Durum Raporları",
+        "fleetStatusDesc": "Aktif sevkiyat geçişleri için otomatik güncellemeler",
+        "preventiveMaintenance": "Önleyici Bakım",
+        "preventiveMaintenanceDesc": "Planlanmış araç servisleri için proaktif hatırlatıcılar",
+        "executiveKpi": "Yönetici KPI Özetleri",
+        "executiveKpiDesc": "Her Pazartesi sabahı iletilen analitik özeti",
+        "dynamicRouting": "Dinamik Rotalama",
+        "dynamicRoutingDesc": "Yeni atanan lojistik yolları için anlık uyarılar",
+        "networkAnomalies": "Ağ Anomalileri",
+        "networkAnomaliesDesc": "Lojistik gecikmeleri veya kesintileriyle ilgili kritik uyarılar",
+        "updateWebhooks": "Webhookları Güncelle"
+      },
+      "regional": {
+        "currencies": {
+          "dollar": "Dolar",
+          "euro": "Euro",
+          "lira": "Lira",
+          "pound": "Pound"
+        },
+        "timezones": {
+          "universal": "Evrensel Zaman (UTC)",
+          "istanbul": "İstanbul (GMT+3)",
+          "centralEurope": "Merkezi Avrupa (GMT+1)",
+          "easternTime": "Doğu Saati (GMT-5)",
+          "pacificTime": "Pasifik Saati (GMT-8)",
+          "tokyoSeoul": "Tokyo/Seul (GMT+9)"
+        },
+        "dateFormats": {
+          "standard": "Standart (AA/GG/YY)",
+          "international": "Uluslararası (GG/AA/YY)"
+        }
+      }
+    }
+  },
+  "documentViewer": {
+    "pdfDocument": "PDF Dokümanı",
+    "imageFile": "Resim Dosyası",
+    "openInNewTab": "Yeni Sekmede Aç",
+    "downloadFile": "Dosyayı İndir",
+    "loading": "Doküman güvenli bir şekilde yükleniyor...",
+    "previewUnavailable": "Önizleme Kullanılamıyor",
+    "previewError": "Yüksek güvenlikli dokümanlar veya belirli dosya formatları tarayıcı içi görüntüleyicide görünmeyebilir.",
+    "openInSecureViewer": "Güvenli Görüntüleyicide Aç"
+  },
+  "profile": {
+    "title": "Profilim",
+    "subtitle": "Kişisel bilgilerinizi ve tercihlerinizi yönetin",
+    "tabs": {
+      "account": "Hesap Bilgileri",
+      "security": "Kimlik Bilgileri"
+    },
+    "status": {
+      "synchronizing": "SENKRONİZE EDİLİYOR...",
+      "finalizing": "Tamamlanıyor...",
+      "upgrading": "Yükseltiliyor..."
+    },
+    "messages": {
+      "loadError": "Profil yüklenemedi.",
+      "saveSuccess": "Profil başarıyla senkronize edildi.",
+      "networkError": "Ağ senkronizasyon hatası.",
+      "passwordSuccess": "Kimlik bilgileri güncellendi!",
+      "verificationError": "Doğrulama hatası."
+    },
+    "account": {
+      "verifiedMember": "Doğrulanmış Üye",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "adminEmail": "Yönetici E-postası",
+      "emailHelper": "Değiştirilemez hesap tanımlayıcı. Değişiklikler için BT ile iletişime geçin.",
+      "syncButton": "Profili Senkronize Et"
+    },
+    "security": {
+      "bannerTitle": "Güvenlik En İyi Uygulamaları",
+      "bannerDesc": "Hesabınızı korumak için büyük harf, sayı ve özel semboller içeren en az 12 karakter öneriyoruz.",
+      "currentPassword": "Mevcut Şifre",
+      "newPassword": "Yeni Güvenli Şifre",
+      "confirmPassword": "Yeni Şifreyi Onayla",
+      "entropyLevel": "Entropi Seviyesi",
+      "matchError": "Doğrulama başarısız. Şifreler tam olarak eşleşmelidir.",
+      "updateButton": "Kimlik Bilgilerini Güncelle",
+      "strengths": {
+        "vulnerable": "Savunmasız",
+        "acceptable": "Kabul Edilebilir",
+        "robust": "Güçlü"
+      }
+    }
+  },
+  "dashboard": {
+    "header": {
+      "internalConsole": "Dahili Konsol"
+    },
+    "fleet": {
+      "status": "Filo Durumu",
+      "activeUnits": "Aktif Birimler",
+      "totalFleet": "Toplam Filo",
+      "fleetId": "Filo ID",
+      "currentOperator": "Mevcut operatör",
+      "noDriver": "Sürücü atanmadı",
+      "signal": "SİNYAL",
+      "live": "CANLI",
+      "syncing": "EŞİTLENİYOR",
+      "kmh": "KM/S"
+    },
+    "warehouse": {
+      "capacityUtilization": "Kapasite Kullanımı",
+      "pallets": "Palet",
+      "recentMovements": "Son Stok Hareketleri",
+      "loadingMovements": "Hareketler yükleniyor...",
+      "noMovements": "Henüz son hareket kaydedilmedi.",
+      "warehouse": "DEPO",
+      "itemSku": "ÜRÜN / SKU",
+      "type": "TÜR",
+      "quantity": "MİKTAR",
+      "timestamp": "ZAMAN DAMGASI",
+      "listTitle": "Depo Listesi",
+      "noWarehouses": "Depo bulunamadı",
+      "code": "Kod",
+      "name": "Ad",
+      "typeCity": "Tür / Şehir",
+      "capacityPallets": "Kapasite (Palet)",
+      "capacityVolume": "Kapasite (Hacim)",
+      "utilized": "%{percent} Kullanıldı",
+      "space": "%{percent} Alan",
+      "operatingHours": "Çalışma Saatleri",
+      "viewDetails": "Detayları Görüntüle",
+      "editWarehouse": "Depoyu Düzenle",
+      "deleteFactory": "Fabrikayı Sil"
+    },
+    "overview": {
+      "actionRequired": {
+        "title": "Aksiyon Gerekli",
+        "pendingCount": "{count} bekleyen",
+        "allClear": "Her şey yolunda! Acil aksiyon gerekmiyor."
+      },
+      "dailyOperations": {
+        "title": "Bugünkü Operasyonlar",
+        "plannedRoutes": "Planlanan Rotalar",
+        "completedDeliveries": "Tamamlanan Teslimatlar",
+        "failedDeliveries": "Başarısız Teslimatlar",
+        "avgDuration": "Ort. Süre (Dakika)",
+        "fuelConsumed": "Tüketilen Yakıt (L)"
+      },
+      "fuelConsumption": {
+        "title": "Yakıt Tüketimi (30 Gün)",
+        "noLogs": "Son 30 güne ait yakıt kaydı bulunamadı"
+      },
+      "inventoryAlerts": {
+        "title": "Düşük Stok Uyarıları",
+        "itemCount": "{count} Ürün",
+        "healthy": "Envanter seviyeleri sağlıklı",
+        "table": {
+          "item": "Ürün",
+          "warehouse": "Depo",
+          "qty": "Adet",
+          "min": "Min"
+        }
+      },
+      "shipmentVolume": {
+        "title": "7 Günlük Sevkiyat Hacmi",
+        "noHistory": "Sevkiyat geçmişi bulunamadı",
+        "shipmentsCount": "{count} sevkiyat"
+      },
+      "warehouseThroughput": {
+        "title": "Depo İşlem Hacmi",
+        "itemsPicked": "Bugün Toplanan Ürünler",
+        "itemsPacked": "Bugün Paketlenen Ürünler",
+        "netDifference": "Net Fark"
+      },
+      "shipmentsByStatus": {
+        "title": "Duruma Göre Sevkiyatlar",
+        "noShipments": "Sevkiyat bulunamadı",
+        "total": "Toplam"
+      },
+      "warehouseUtilization": {
+        "title": "Depo Doluluk Oranı",
+        "noWarehouses": "Depo bulunamadı",
+        "palletsUnit": "{used} / {total} palet",
+        "volumeUnit": "{used} / {total} m³"
+      }
+    },
+    "users": {
+      "fullName": "Ad Soyad",
+      "email": "E-posta",
+      "role": "Rol",
+      "noUsers": "Kullanıcı bulunamadı.",
+      "userList": "Kullanıcı Listesi"
+    }
+  },
+  "reports": {
+    "title": "Raporlar ve Analitik",
+    "metrics": {
+      "totalShipments": "Toplam Sevkiyat",
+      "onTimeRate": "Zamanında Teslimat Oranı",
+      "avgDeliveryTime": "Ort. Teslimat Süresi",
+      "pendingOrders": "Bekleyen Siparişler",
+      "activeVehicles": "Aktif Araçlar",
+      "avgFuelCons": "Ort. Yakıt Tüketimi",
+      "maintenanceCost": "Bakım Maliyeti",
+      "totalDistance": "Toplam Mesafe",
+      "totalInventoryValue": "Toplam Envanter Değeri",
+      "stockTurnover": "Stok Devir Hızı",
+      "deadStock": "Ölü Stok",
+      "lowStockSKUs": "Düşük Stoklu Ürünler",
+      "daysUnits": "{count} Gün"
+    },
+    "charts": {
+      "fleet": {
+        "noData": "Filo verisi bulunamadı",
+        "highMaintenance": "En Yüksek Bakım Maliyetleri",
+        "maintenanceCostLabel": "Bakım Maliyeti ($)",
+        "consumptionVsOdometer": "Yakıt Tüketimi - Kilometre İlişkisi",
+        "fleetLabel": "Filo",
+        "odometerLabel": "Kilometre (km)",
+        "consumptionLabel": "Tüketim (L/100km)"
+      },
+      "inventory": {
+        "valueTitle": "Envanter Değeri",
+        "valueSubtitle": "Kategoriye göre değer dağılımı",
+        "countTitle": "Ürün Sayısı (SKU)",
+        "countSubtitle": "Kategoriye göre ürün sayısı"
+      },
+      "shipment": {
+        "analyticsTitle": "Sevkiyat Analitiği",
+        "volumeByRoute": "Rotaya Göre Hacim",
+        "volumeByRouteSubtitle": "Rota koduna göre toplam sevkiyatlar"
+      }
+    }
+  },
+  "analytics": {
+    "title": "İş Analitiği",
+    "subtitle": "Operasyonel performans ve finansal trendlerin yönetici özeti",
+    "periods": {
+      "last7Days": "Son 7 Gün",
+      "last30Days": "Son 30 Gün",
+      "lastQuarter": "Son Çeyrek",
+      "yearToDate": "Yılbaşından Bugüne"
+    },
+    "exportReport": "Raporu Dışa Aktar",
+    "costs": {
+      "title": "Operasyonel Maliyet Trendleri",
+      "subtitle": "Son 6 Ay",
+      "breakdown": "Maliyet Dağılımı",
+      "categories": {
+        "fuel": "Yakıt",
+        "maintenance": "Bakım",
+        "overhead": "Genel Giderler",
+        "salaries": "Sürücü Maaşları",
+        "insuranceOps": "Sigorta/Operasyon"
+      }
+    },
+    "forecasting": {
+      "title": "Talep Tahmini",
+      "aiPowered": "Yapay Zeka Destekli",
+      "subtitle": "Gelecek 3 hafta için tahmini sevkiyat hacmi",
+      "actualVolume": "Gerçek Hacim",
+      "predicted": "Tahmini"
+    },
+    "performance": {
+      "onTimeDelivery": "Zamanında Teslimat",
+      "fleetUtilization": "Filo Kullanımı",
+      "customerSatisfaction": "Müşteri Memnuniyeti",
+      "target": "Hedef: %{value}",
+      "realTime": "Gerçek zamanlı metrik",
+      "reviews": "{count} Değerlendirmeye Dayalı"
+    }
+  }
+}

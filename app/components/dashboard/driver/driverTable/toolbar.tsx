@@ -12,6 +12,7 @@ import {
   Stack,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import ClearIcon from "@mui/icons-material/Clear";
 import { DriverStatus } from "@prisma/client";
 import { DriverFilters } from "@/app/lib/type/driver";
@@ -26,6 +27,7 @@ export default function DriverTableToolbar({
   filters,
   onFilterChange,
 }: DriverTableToolbarProps) {
+  const dict = useDictionary();
   /* --------------------------------- states --------------------------------- */
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
@@ -63,7 +65,7 @@ export default function DriverTableToolbar({
     >
       <TextField
         size="small"
-        placeholder="Search drivers..."
+        placeholder={dict.drivers.table.searchPlaceholder}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         InputProps={{
@@ -84,12 +86,12 @@ export default function DriverTableToolbar({
       />
 
       <FormControl size="small" sx={{ minWidth: 150 }}>
-        <InputLabel>Status</InputLabel>
+        <InputLabel>{dict.drivers.filters.status}</InputLabel>
         <Select
           multiple
           value={filters.status || []}
           onChange={handleStatusChange}
-          label="Status"
+          label={dict.drivers.filters.status}
           renderValue={(selected) => (selected as string[]).join(", ")}
         >
           {Object.values(DriverStatus).map((status) => (
@@ -101,10 +103,10 @@ export default function DriverTableToolbar({
       </FormControl>
 
       <FormControl size="small" sx={{ minWidth: 150 }}>
-        <InputLabel>Vehicle Assignment</InputLabel>
+        <InputLabel>{dict.drivers.filters.vehicleAssignment}</InputLabel>
         <Select
           value={vehicleFilterValue}
-          label="Vehicle Assignment"
+          label={dict.drivers.filters.vehicleAssignment}
           onChange={(e) => {
             const val = e.target.value;
             if (val === "all") onFilterChange({ hasVehicle: undefined });
@@ -112,9 +114,9 @@ export default function DriverTableToolbar({
             else onFilterChange({ hasVehicle: false });
           }}
         >
-          <MenuItem value="all">All</MenuItem>
-          <MenuItem value="assigned">Assigned</MenuItem>
-          <MenuItem value="unassigned">Unassigned</MenuItem>
+          <MenuItem value="all">{dict.drivers.filters.all}</MenuItem>
+          <MenuItem value="assigned">{dict.drivers.filters.assigned}</MenuItem>
+          <MenuItem value="unassigned">{dict.drivers.filters.unassigned}</MenuItem>
         </Select>
       </FormControl>
     </Stack>

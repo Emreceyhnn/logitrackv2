@@ -11,6 +11,7 @@ import {
 import { useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
@@ -27,6 +28,7 @@ const LogisticsSection = ({
   customers,
 }: LogisticsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const dict = useDictionary();
   const theme = useTheme();
   const { values, setFieldValue, handleBlur, touched, errors } =
     useFormikContext<ShipmentFormValues>();
@@ -44,7 +46,7 @@ const LogisticsSection = ({
             }}
           />
           <Typography variant="subtitle2" fontWeight={700} color="white">
-            Logistics & Parties
+            {dict.shipments.dialogs.sections.logisticsParties}
           </Typography>
         </Stack>
 
@@ -56,12 +58,12 @@ const LogisticsSection = ({
                 color="text.secondary"
                 fontWeight={600}
               >
-                ORIGIN WAREHOUSE
+                {dict.shipments.dialogs.fields.originWarehouse}
               </Typography>
               <CustomTextArea
                 name="originWarehouseId"
                 select
-                placeholder="Search origin warehouse..."
+                placeholder={dict.shipments.dialogs.fields.originPlaceholder}
                 value={values.originWarehouseId}
                 onBlur={handleBlur}
                 error={touched.originWarehouseId && Boolean(errors.originWarehouseId)}
@@ -101,10 +103,10 @@ const LogisticsSection = ({
                 color="text.secondary"
                 fontWeight={600}
               >
-                DESTINATION
+                {dict.shipments.dialogs.fields.destination}
               </Typography>
               <AddressAutocomplete
-                placeholder="Search destination..."
+                placeholder={dict.shipments.dialogs.fields.destinationPlaceholder}
                 name="destination"
                 value={values.destination}
                 onBlur={handleBlur}
@@ -133,12 +135,12 @@ const LogisticsSection = ({
                 color="text.secondary"
                 fontWeight={600}
               >
-                CUSTOMER / CLIENT
+                {dict.shipments.dialogs.fields.customerClient}
               </Typography>
               <CustomTextArea
                 name="customerId"
                 select
-                placeholder="Select customer"
+                placeholder={dict.shipments.dialogs.fields.customerPlaceholder}
                 value={values.customerId}
                 onBlur={handleBlur}
                 error={touched.customerId && Boolean(errors.customerId)}
@@ -239,7 +241,7 @@ const LogisticsSection = ({
                 color="text.secondary"
                 fontWeight={600}
               >
-                CONTACT EMAIL
+                {dict.shipments.dialogs.fields.contactEmail}
               </Typography>
               <CustomTextArea
                 name="contactEmail"
@@ -262,7 +264,7 @@ const LogisticsSection = ({
                 color="text.secondary"
                 fontWeight={600}
               >
-                BILLING ACCOUNT
+                {dict.shipments.dialogs.fields.billingAccount}
               </Typography>
               <CustomTextArea
                 name="billingAccount"

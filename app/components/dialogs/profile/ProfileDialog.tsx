@@ -20,7 +20,8 @@ import {
   updateMyProfile,
   changeMyPassword,
 } from "@/app/lib/actions/profile";
-import type {
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import {
   ProfilePageState,
   ProfilePageActions,
 } from "@/app/lib/type/profile";
@@ -38,6 +39,7 @@ interface Props {
 
 export default function ProfileDialog({ open, onClose }: Props) {
   const theme = useTheme();
+  const dict = useDictionary();
 
   const [state, setState] = useState<ProfilePageState>({
     user: null,
@@ -84,10 +86,10 @@ export default function ProfileDialog({ open, onClose }: Props) {
       setState((s) => ({
         ...s,
         isLoading: false,
-        error: "Failed to load database Profile.",
+        error: dict.profile.messages.loadError,
       }));
     }
-  }, []);
+  }, [dict.profile.messages.loadError]);
 
   useEffect(() => {
     if (open) loadProfile();
@@ -121,13 +123,13 @@ export default function ProfileDialog({ open, onClose }: Props) {
           avatarUrl: state.profileForm.avatarUrl,
         });
         if ("error" in r) showToast("error", String(r.error));
-        else showToast("success", "Profile synchronized successfully.");
+        else showToast("success", dict.profile.messages.saveSuccess);
       } catch {
-        showToast("error", "Network synchronization error.");
+        showToast("error", dict.profile.messages.networkError);
       } finally {
         setState((s) => ({ ...s, isSaving: false }));
       }
-    }, [state.profileForm, showToast]),
+    }, [state.profileForm, showToast, dict.profile.messages.saveSuccess, dict.profile.messages.networkError]),
     changePassword: useCallback(async () => {
       setState((s) => ({ ...s, isSaving: true }));
       try {
@@ -137,7 +139,7 @@ export default function ProfileDialog({ open, onClose }: Props) {
         });
         if ("error" in r) showToast("error", String(r.error));
         else {
-          showToast("success", "Credentials updated!");
+          showToast("success", dict.profile.messages.passwordSuccess);
           setState((s) => ({
             ...s,
             passwordForm: {
@@ -148,17 +150,17 @@ export default function ProfileDialog({ open, onClose }: Props) {
           }));
         }
       } catch {
-        showToast("error", "Verification failure.");
+        showToast("error", dict.profile.messages.verificationError);
       } finally {
         setState((s) => ({ ...s, isSaving: false }));
       }
-    }, [state.passwordForm, showToast]),
+    }, [state.passwordForm, showToast, dict.profile.messages.passwordSuccess, dict.profile.messages.verificationError]),
     refresh: loadProfile,
   };
 
   const tabs = [
-    { label: "Account Info", icon: <PersonIcon sx={{ fontSize: 16 }} /> },
-    { label: "Credentials", icon: <LockIcon sx={{ fontSize: 16 }} /> },
+    { label: dict.profile.tabs.account, icon: <PersonIcon sx={{ fontSize: 16 }} /> },
+    { label: dict.profile.tabs.security, icon: <LockIcon sx={{ fontSize: 16 }} /> },
   ];
 
   return (
@@ -236,7 +238,7 @@ export default function ProfileDialog({ open, onClose }: Props) {
                   letterSpacing: 1,
                 }}
               >
-                SYNCHRONIZING...
+                {dict.profile.status.synchronizing}
               </Box>
             </Box>
           ) : (

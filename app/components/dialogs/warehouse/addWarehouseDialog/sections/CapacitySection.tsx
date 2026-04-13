@@ -9,6 +9,7 @@ import {
   useTheme,
   Button,
 } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   AddWarehouseCapacity,
   AddWarehousePageActions,
@@ -26,24 +27,28 @@ interface CapacitySectionProps {
   actions: AddWarehousePageActions;
 }
 
-const SPECIFICATIONS = [
-  { label: "Cold Storage", icon: <AcUnitIcon fontSize="small" /> },
-  { label: "Hazardous Materials", icon: <WarningAmberIcon fontSize="small" /> },
-  { label: "Bonded Warehouse", icon: <GavelIcon fontSize="small" /> },
-  { label: "Cross-Docking", icon: <LocalShippingIcon fontSize="small" /> },
-  { label: "High Security", icon: <SecurityIcon fontSize="small" /> },
-  { label: "Lashing/Loading", icon: <InventoryIcon fontSize="small" /> },
+const SPECIFICATIONS = (dict: any) => [
+  { label: dict.warehouses.dialogs.specs.coldStorage, value: "Cold Storage", icon: <AcUnitIcon fontSize="small" /> },
+  { label: dict.warehouses.dialogs.specs.hazardous, value: "Hazardous Materials", icon: <WarningAmberIcon fontSize="small" /> },
+  { label: dict.warehouses.dialogs.specs.bonded, value: "Bonded Warehouse", icon: <GavelIcon fontSize="small" /> },
+  { label: dict.warehouses.dialogs.specs.crossDocking, value: "Cross-Docking", icon: <LocalShippingIcon fontSize="small" /> },
+  { label: dict.warehouses.dialogs.specs.highSecurity, value: "High Security", icon: <SecurityIcon fontSize="small" /> },
+  { label: dict.warehouses.dialogs.specs.lashing, value: "Lashing/Loading", icon: <InventoryIcon fontSize="small" /> },
 ];
 
 const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const dict = useDictionary();
   const theme = useTheme();
 
+  const f = dict.warehouses.dialogs.fields;
+  const specItems = SPECIFICATIONS(dict);
+
   /* -------------------------------- handlers -------------------------------- */
-  const toggleSpec = (spec: string) => {
-    const newSpecs = state.specifications.includes(spec)
-      ? state.specifications.filter((s) => s !== spec)
-      : [...state.specifications, spec];
+  const toggleSpec = (specValue: string) => {
+    const newSpecs = state.specifications.includes(specValue)
+      ? state.specifications.filter((s) => s !== specValue)
+      : [...state.specifications, specValue];
     actions.updateCapacity({ specifications: newSpecs });
   };
 
@@ -61,7 +66,7 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
             }}
           />
           <Typography variant="subtitle1" fontWeight={700} color="white">
-            Operational Capacity
+            {dict.warehouses.dialogs.capacityTitle}
           </Typography>
         </Stack>
 
@@ -73,12 +78,12 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                TOTAL PALLET POSITIONS
+                {f.palletPositions}
               </Typography>
               <CustomTextArea
                 name="capacityPallets"
                 type="number"
-                placeholder="e.g. 5000"
+                placeholder={f.palletPositionsPlaceholder}
                 value={state.capacityPallets.toString()}
                 onChange={(e) =>
                   actions.updateCapacity({
@@ -95,12 +100,12 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                CARGO VOLUME (M3)
+                {f.volume}
               </Typography>
               <CustomTextArea
                 name="capacityVolumeM3"
                 type="number"
-                placeholder="e.g. 100000"
+                placeholder={f.volumePlaceholder}
                 value={state.capacityVolumeM3.toString()}
                 onChange={(e) =>
                   actions.updateCapacity({
@@ -123,18 +128,18 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
               }}
             />
             <Typography variant="subtitle1" fontWeight={700} color="white">
-              Facility Specifications
+              {f.specifications}
             </Typography>
           </Stack>
 
           <Grid container spacing={2}>
-            {SPECIFICATIONS.map((spec) => {
-              const isActive = state.specifications.includes(spec.label);
+            {specItems.map((spec) => {
+              const isActive = state.specifications.includes(spec.value);
               return (
-                <Grid size={{ xs: 6, sm: 4 }} key={spec.label}>
+                <Grid size={{ xs: 6, sm: 4 }} key={spec.value}>
                   <Button
                     fullWidth
-                    onClick={() => toggleSpec(spec.label)}
+                    onClick={() => toggleSpec(spec.value)}
                     sx={{
                       height: 80,
                       borderRadius: 3,
@@ -195,11 +200,10 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
             color="info.main"
             sx={{ display: "block", mb: 0.5, fontWeight: 700 }}
           >
-            Operational Guidance Notes
+            {f.guidance}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Ensure that hazardous material certifications are up-to-date and
-            facility complies with local safety standards before finalizing.
+            {f.guidanceText}
           </Typography>
         </Box>
       </Stack>

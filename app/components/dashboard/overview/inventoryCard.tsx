@@ -18,19 +18,21 @@ import CustomCard from "../../cards/card";
 import { LowStockItemStat } from "@/app/lib/type/overview";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import ErrorIcon from '@mui/icons-material/Error';
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface AlertInventoryCardProps {
   inventory: LowStockItemStat[];
 }
 
 const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
+  const dict = useDictionary();
   const theme = useTheme();
 
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", height: "100%", display: "flex", flexDirection: "column" }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" p={2}>
         <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
-          Low Stock Alerts
+          {dict.dashboard.overview.inventoryAlerts.title}
         </Typography>
         {inventory.length > 0 && (
           <Box
@@ -48,7 +50,7 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
             }}
           >
             <ErrorIcon sx={{ fontSize: 14 }} />
-            {inventory.length} Items
+            {dict.dashboard.overview.inventoryAlerts.itemCount.replace("{count}", inventory.length.toString())}
           </Box>
         )}
       </Stack>
@@ -58,17 +60,25 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
         {inventory.length === 0 ? (
           <Stack alignItems="center" justifyContent="center" height="100%" minHeight={150} spacing={2} sx={{ opacity: 0.5 }}>
             <InventoryIcon sx={{ fontSize: 40 }} />
-            <Typography variant="body2">Inventory levels are healthy</Typography>
+            <Typography variant="body2">{dict.dashboard.overview.inventoryAlerts.healthy}</Typography>
           </Stack>
         ) : (
           <TableContainer sx={{ p: 0 }}>
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>Item</TableCell>
-                  <TableCell sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>Warehouse</TableCell>
-                  <TableCell align="right" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>Qty</TableCell>
-                  <TableCell align="right" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>Min</TableCell>
+                  <TableCell sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>
+                    {dict.dashboard.overview.inventoryAlerts.table.item}
+                  </TableCell>
+                  <TableCell sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>
+                    {dict.dashboard.overview.inventoryAlerts.table.warehouse}
+                  </TableCell>
+                  <TableCell align="right" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>
+                    {dict.dashboard.overview.inventoryAlerts.table.qty}
+                  </TableCell>
+                  <TableCell align="right" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>
+                    {dict.dashboard.overview.inventoryAlerts.table.min}
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>

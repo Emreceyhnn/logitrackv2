@@ -3,6 +3,7 @@
 import { BarChart } from "@mui/x-charts/BarChart";
 import { Card, Stack, Typography, Box, useTheme } from "@mui/material";
 import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface ShipmentChartData {
   statusCounts: { status: string; count: number }[];
@@ -16,10 +17,11 @@ interface ShipmentChartsProps {
 
 export default function ShipmentCharts({ data, loading = false }: ShipmentChartsProps) {
   /* -------------------------------- variables ------------------------------- */
+  const dict = useDictionary();
   const theme = useTheme();
 
   if (loading || !data) {
-    return <AnalyticsSkeleton title="Shipment Analytics" />;
+    return <AnalyticsSkeleton title={dict.dashboard.reports.charts.shipment.analyticsTitle} />;
   }
 
   const statusMap: Record<string, number> = {};
@@ -54,10 +56,10 @@ export default function ShipmentCharts({ data, loading = false }: ShipmentCharts
         >
           <Stack spacing={0.5} sx={{ mb: 3, width: "100%" }}>
             <Typography variant="h6" fontWeight={700}>
-              Volume by Route
+              {dict.dashboard.reports.charts.shipment.volumeByRoute}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Total shipments per route code
+              {dict.dashboard.reports.charts.shipment.volumeByRouteSubtitle}
             </Typography>
           </Stack>
 
@@ -68,7 +70,7 @@ export default function ShipmentCharts({ data, loading = false }: ShipmentCharts
               series={[
                 {
                   dataKey: "count",
-                  label: "Shipments",
+                  label: dict.shipments.dashboard.totalShipments,
                   color: theme.palette.primary.main,
                 },
               ]}

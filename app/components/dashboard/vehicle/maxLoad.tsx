@@ -14,14 +14,18 @@ interface VehicleCapacityChartProps {
   loading?: boolean;
 }
 
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
 const VehicleCapacityChart = ({
   data,
   loading = false,
 }: VehicleCapacityChartProps) => {
+  const dict = useDictionary();
+
   if (loading || !data) {
     return (
       <AnalyticsSkeleton
-        title="Vehicle Max Load Capacity"
+        title={dict.vehicles.dashboard.maxLoadCapacity}
         height={270}
         showSubtitle={false}
       />
@@ -31,7 +35,7 @@ const VehicleCapacityChart = ({
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", flexGrow: 1 }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-        Vehicle Max Load Capacity
+        {dict.vehicles.dashboard.maxLoadCapacity}
       </Typography>
       <Divider />
       <Stack>
@@ -41,7 +45,7 @@ const VehicleCapacityChart = ({
             {
               scaleType: "band",
               data: data?.map((v) => v.plate),
-              label: "Vehicle Plate",
+              label: dict.vehicles.dashboard.vehiclePlate,
 
               labelStyle: { fill: "#6b7280" },
             },
@@ -49,14 +53,14 @@ const VehicleCapacityChart = ({
           yAxis={[
             {
               id: "primary",
-              label: "Small Capacity Units (Pallets, m³)",
+              label: dict.vehicles.dashboard.capacityUnits,
               min: 0,
               max: 100,
             },
 
             {
               id: "secondary",
-              label: "Max Weight (kg)",
+              label: dict.vehicles.dashboard.maxWeightKg,
               position: "right",
               min: 0,
               max: 25000,
@@ -65,7 +69,7 @@ const VehicleCapacityChart = ({
           series={[
             {
               yAxisId: "secondary",
-              label: "Max Weight (kg)",
+              label: dict.vehicles.dashboard.maxWeightKg,
               data: data?.map((v) => v.maxLoadKg),
               color: "#ff9800",
             },

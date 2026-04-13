@@ -21,7 +21,7 @@ import Step3Profile from "./step3Profile";
 import { RegisterUser } from "@/app/lib/controllers/users";
 import AuthButton from "../../ui/AuthButton";
 import { signUpValidationSchema } from "@/app/lib/validationSchema";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 /* --------------------------------- STYLES --------------------------------- */
 
@@ -97,7 +97,7 @@ function ColorlibStepIcon(props: {
   );
 }
 
-const steps = ["Personal", "Security", "Review"];
+// Removed hardcoded steps array
 
 interface RegisterFormValues {
   name: string;
@@ -109,11 +109,12 @@ interface RegisterFormValues {
 }
 
 export default function SignUpStepper() {
+  const dict = useDictionary();
+  const steps = [dict.auth.personalInfo, dict.auth.security, dict.auth.review];
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { lang } = useParams();
-  const dict = getDictionary(lang as string);
 
   const schemas = useMemo(() => signUpValidationSchema(dict), [dict]);
 
@@ -167,7 +168,7 @@ export default function SignUpStepper() {
       }
     } catch (error: unknown) {
       console.error("Critical Registration crash:", error);
-      actions.setFieldError("email", "An unexpected network error occurred.");
+      actions.setFieldError("email", dict.auth.unexpectedError);
       setActiveStep(0);
     } finally {
       setLoading(false);
@@ -241,14 +242,14 @@ export default function SignUpStepper() {
                     },
                   }}
                 >
-                  Back
+                  {dict.common.back}
                 </Button>
               )}
 
               <AuthButton
                 type="submit"
                 loading={loading}
-                loadingText={isLastStep ? "Registering..." : "Continuing..."}
+                loadingText={isLastStep ? dict.auth.registering : dict.auth.continuing}
                 sx={{
                   bgcolor: "#38bdf8",
                   color: "#000",
@@ -257,7 +258,7 @@ export default function SignUpStepper() {
                   },
                 }}
               >
-                {isLastStep ? "Complete Registration" : "Continue"}
+                {isLastStep ? dict.auth.completeRegistration : dict.auth.continue}
               </AuthButton>
             </Stack>
           </Form>

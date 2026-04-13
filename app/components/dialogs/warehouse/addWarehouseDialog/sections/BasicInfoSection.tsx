@@ -10,6 +10,7 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { WarehouseType } from "@prisma/client";
 import {
   AddWarehouseBasicInfo,
@@ -24,7 +25,10 @@ interface BasicInfoSectionProps {
 
 const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const dict = useDictionary();
   const theme = useTheme();
+
+  const f = dict.warehouses.dialogs.fields;
 
   return (
     <Box>
@@ -40,7 +44,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
             }}
           />
           <Typography variant="subtitle1" fontWeight={700} color="white">
-            Facility Identity
+            {f.identity}
           </Typography>
         </Stack>
 
@@ -52,11 +56,11 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                WAREHOUSE NAME *
+                {f.name} *
               </Typography>
               <CustomTextArea
                 name="name"
-                placeholder="e.g. North East Distribution Hub"
+                placeholder={f.namePlaceholder}
                 value={state.name}
                 onChange={(e) =>
                   actions.updateBasicInfo({ name: e.target.value })
@@ -71,11 +75,11 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                WAREHOUSE CODE
+                {f.code}
               </Typography>
               <CustomTextArea
                 name="code"
-                placeholder="e.g. WH-001 (Leave blank to auto-generate)"
+                placeholder={f.codePlaceholder}
                 value={state.code}
                 onChange={(e) =>
                   actions.updateBasicInfo({ code: e.target.value })
@@ -91,7 +95,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                WAREHOUSE TYPE
+                {f.type}
               </Typography>
               <CustomTextArea
                 name="type"
@@ -101,11 +105,11 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                   actions.updateBasicInfo({ type: e.target.value as WarehouseType })
                 }
               >
-                <MenuItem value="WAREHOUSE">Standard Warehouse</MenuItem>
+                <MenuItem value="WAREHOUSE">{f.typeStandard}</MenuItem>
                 <MenuItem value="DISTRIBUTION_CENTER">
-                  Distribution Center
+                  {f.typeDistribution}
                 </MenuItem>
-                <MenuItem value="CROSSDOCK">Cross-Docking Facility</MenuItem>
+                <MenuItem value="CROSSDOCK">{f.typeCrossDock}</MenuItem>
               </CustomTextArea>
             </Stack>
           </Grid>
@@ -127,7 +131,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 }}
               />
               <Typography variant="subtitle1" fontWeight={700} color="white">
-                Operating Hours
+                {f.operatingHours}
               </Typography>
             </Stack>
             <FormControlLabel
@@ -146,7 +150,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                   fontWeight={600}
                   color="text.secondary"
                 >
-                  24/7 OPERATION
+                  {f.is247}
                 </Typography>
               }
               sx={{ color: "text.secondary" }}
@@ -162,7 +166,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                     color="text.secondary"
                     fontWeight={600}
                   >
-                    OPENING TIME
+                    {dict.warehouses.dialogs.fields.openingTime}
                   </Typography>
                   <CustomTextArea
                     name="openingTime"
@@ -181,7 +185,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                     color="text.secondary"
                     fontWeight={600}
                   >
-                    CLOSING TIME
+                    {dict.warehouses.dialogs.fields.closingTime}
                   </Typography>
                   <CustomTextArea
                     name="closingTime"

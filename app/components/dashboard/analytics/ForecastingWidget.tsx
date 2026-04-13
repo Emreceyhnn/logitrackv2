@@ -1,6 +1,7 @@
 "use client";
 
 import { LineChart } from "@mui/x-charts/LineChart";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { Stack, Typography, Paper, useTheme, Chip, Box } from "@mui/material";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
@@ -17,6 +18,7 @@ interface ForecastingWidgetProps {
 export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
 
   const weeks = data?.weeks || ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12"];
   const actualsSeries = data?.actuals || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -33,10 +35,10 @@ export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
         <Box>
           <Stack direction="row" alignItems="center" spacing={1}>
             <Typography variant="h6" fontWeight={600}>
-              Demand Forecast
+              {dict.analytics.forecasting.title}
             </Typography>
             <Chip
-              label="AI Powered"
+              label={dict.analytics.forecasting.aiPowered}
               size="small"
               color="secondary"
               icon={<TrendingUpIcon />}
@@ -44,7 +46,7 @@ export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
             />
           </Stack>
           <Typography variant="body2" color="text.secondary">
-            Predicted shipment volume for next 3 weeks
+            {dict.analytics.forecasting.subtitle}
           </Typography>
         </Box>
       </Stack>
@@ -54,13 +56,13 @@ export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
         series={[
           {
             data: actualsSeries,
-            label: "Actual Volume",
+            label: dict.analytics.forecasting.actualVolume,
             color: theme.palette.primary.main,
             showMark: true,
           },
           {
             data: predictedSeries,
-            label: "Predicted",
+            label: dict.analytics.forecasting.predicted,
             color: theme.palette.secondary.main,
             showMark: true,
           },

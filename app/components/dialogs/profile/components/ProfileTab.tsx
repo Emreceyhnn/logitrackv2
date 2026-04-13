@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useRef } from "react";
 import {
   Box,
@@ -21,6 +19,7 @@ import {
   Save as SaveIcon,
   AdminPanelSettings as AdminIcon,
 } from "@mui/icons-material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import type {
   ProfilePageState,
   ProfilePageActions,
@@ -33,6 +32,7 @@ interface ProfileTabProps {
 
 export default function ProfileTab({ state, actions }: ProfileTabProps) {
   const theme = useTheme();
+  const dict = useDictionary();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,7 +162,7 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
                 }}
               />
             }
-            label="Verified Member"
+            label={dict.profile.account.verifiedMember}
             sx={{
               bgcolor: alpha(theme.palette.primary.main, 0.12),
               color: theme.palette.primary.main,
@@ -179,7 +179,7 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
       <Stack spacing={2.5}>
         <Stack direction="row" spacing={2.5}>
           <TextField
-            label="First Name"
+            label={dict.profile.account.firstName}
             value={state.profileForm.name}
             onChange={(e) =>
               actions.updateProfileForm({ name: e.target.value })
@@ -189,7 +189,7 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             sx={fieldSx}
           />
           <TextField
-            label="Last Name"
+            label={dict.profile.account.lastName}
             value={state.profileForm.surname}
             onChange={(e) =>
               actions.updateProfileForm({ surname: e.target.value })
@@ -201,7 +201,7 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
         </Stack>
 
         <TextField
-          label="Administrative Email"
+          label={dict.profile.account.adminEmail}
           value={state.profileForm.email}
           disabled
           fullWidth
@@ -215,7 +215,7 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
               </InputAdornment>
             ),
           }}
-          helperText="Immutable account identifier. Contact IT for changes."
+          helperText={dict.profile.account.emailHelper}
           sx={{
             ...fieldSx,
             "& .MuiOutlinedInput-root": {
@@ -264,7 +264,7 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             transition: "all 0.2s",
           }}
         >
-          {state.isSaving ? "Finalizing..." : "Synchronize Profile"}
+          {state.isSaving ? dict.profile.status.finalizing : dict.profile.account.syncButton}
         </Button>
       </Box>
     </Stack>

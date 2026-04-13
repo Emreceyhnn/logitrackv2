@@ -17,14 +17,13 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { createVehicleIssue } from "@/app/lib/controllers/vehicle";
 import { vehicleReportIssueValidationSchema } from "@/app/lib/validationSchema";
 import { getPriorityColor } from "@/app/lib/priorityColor";
 import { ValidationError } from "yup";
 import { IssuePriority } from "@prisma/client";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface ReportIssueDialogProps {
   open: boolean;
@@ -49,8 +48,7 @@ const ReportIssueDialog = ({
 }: ReportIssueDialogProps) => {
   /* ---------------------------------- theme --------------------------------- */
   const theme = useTheme();
-  const { lang } = useParams();
-  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+  const dict = useDictionary();
 
   /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState<IssueFormData>({

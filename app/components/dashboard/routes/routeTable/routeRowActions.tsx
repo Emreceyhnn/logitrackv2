@@ -19,7 +19,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { useState } from "react";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
 import { RouteStatus } from "@prisma/client";
-
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
 
 interface RouteRowActionsProps {
@@ -39,6 +39,7 @@ const RouteRowActions = ({
   handleDelete,
   onRefresh,
 }: RouteRowActionsProps) => {
+  const dict = useDictionary();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [loading, setLoading] = useState(false);
@@ -49,11 +50,11 @@ const RouteRowActions = ({
     setLoading(true);
     try {
       await updateRouteStatus(id, newStatus);
-      toast.success("Route status updated successfully");
+      toast.success(dict.routes.toasts.statusSuccess);
       onRefresh?.();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to update route";
+        error instanceof Error ? error.message : dict.routes.toasts.updateError;
       toast.error(message);
     } finally {
       setLoading(false);
@@ -106,7 +107,7 @@ const RouteRowActions = ({
           <ListItemText
             primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}
           >
-            Details
+            {dict.common.details}
           </ListItemText>
         </MenuItem>
 
@@ -125,7 +126,7 @@ const RouteRowActions = ({
             <ListItemText
               primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
             >
-              Activate Route
+              {dict.routes.table.actions.activate}
             </ListItemText>
           </MenuItem>
         )}
@@ -145,7 +146,7 @@ const RouteRowActions = ({
             <ListItemText
               primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
             >
-              Complete Route
+              {dict.routes.table.actions.complete}
             </ListItemText>
           </MenuItem>
         )}
@@ -164,7 +165,7 @@ const RouteRowActions = ({
             <ListItemText
               primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}
             >
-              Edit
+              {dict.common.edit}
             </ListItemText>
           </MenuItem>
         )}
@@ -187,7 +188,7 @@ const RouteRowActions = ({
             <ListItemText
               primaryTypographyProps={{ variant: "body2", fontWeight: 500 }}
             >
-              Delete
+              {dict.common.delete}
             </ListItemText>
           </MenuItem>
         )}

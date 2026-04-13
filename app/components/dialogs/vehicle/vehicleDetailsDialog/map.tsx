@@ -7,9 +7,8 @@ import CustomCard from "../../../cards/card";
 import { useVehicleTracking } from "@/app/hooks/useVehicleTracking";
 import { Box, Stack, Typography, Chip, alpha, Skeleton } from "@mui/material";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
-import SatelliteAltIcon from "@mui/icons-material/SatelliteAlt";
-import SpeedIcon from "@mui/icons-material/Speed";
 import SignalWifiOffIcon from "@mui/icons-material/SignalWifiOff";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface MapVehicleOverviewCardProps {
   /** The vehicle ID — used to subscribe to Firebase RTDB */
@@ -22,17 +21,7 @@ interface MapVehicleOverviewCardProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const formatAge = (timestamp: number | undefined): string => {
-  if (!timestamp) return "Unknown";
-  const diffMs = Date.now() - timestamp;
-  const diffSec = Math.round(diffMs / 1000);
-  if (diffSec < 60) return `${diffSec}s ago`;
-  const diffMin = Math.round(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
-  return `${Math.round(diffMin / 60)}h ago`;
-};
-
-const isLive = (timestamp: number | undefined): boolean => {
+const isLive = (timestamp: number| undefined): boolean => {
   if (!timestamp) return false;
   return Date.now() - timestamp < 30_000; // live if updated in last 30s
 };
@@ -44,6 +33,18 @@ const MapVehicleOverviewCard = ({
   name,
   dbLocation,
 }: MapVehicleOverviewCardProps) => {
+  const dict = useDictionary();
+
+  const formatAge = (timestamp: number | undefined): string => {
+    if (!timestamp) return dict.common.na;
+    const diffMs = Date.now() - timestamp;
+    const diffSec = Math.round(diffMs / 1000);
+    if (diffSec < 60) return `${diffSec}${dict.vehicles.dialogs.secondsAgo}`;
+    const diffMin = Math.round(diffSec / 60);
+    if (diffMin < 60) return `${diffMin}${dict.vehicles.dialogs.minutesAgo}`;
+    return `${Math.round(diffMin / 60)}${dict.vehicles.dialogs.hoursAgo}`;
+  };
+
   // Subscribe to Firebase RTDB — fires on every location push from the device
   const { location: liveLocation, loading } = useVehicleTracking(id);
 
@@ -106,7 +107,7 @@ const MapVehicleOverviewCard = ({
                 }}
               />
             }
-            label="LIVE"
+            label={dict.vehicles.dialogs.liveStatus}
             size="small"
             sx={{
               bgcolor: alpha("#4ade80", 0.15),
@@ -122,7 +123,7 @@ const MapVehicleOverviewCard = ({
         ) : (
           <Chip
             icon={<SignalWifiOffIcon sx={{ fontSize: "0.85rem !important", color: "#94a3b8" }} />}
-            label="NO SIGNAL"
+            label={dict.vehicles.dialogs.noSignal}
             size="small"
             sx={{
               bgcolor: alpha("#1e293b", 0.8),
@@ -164,10 +165,10 @@ const MapVehicleOverviewCard = ({
         >
           <SatelliteAltIcon sx={{ fontSize: 48, color: alpha("#94a3b8", 0.3) }} />
           <Typography variant="body2" sx={{ color: "#64748b", fontWeight: 500 }}>
-            No GPS data available
+            {dict.vehicles.dialogs.noGpsData}
           </Typography>
           <Typography variant="caption" sx={{ color: "#475569", textAlign: "center", px: 2 }}>
-            Location will appear here once the vehicle<br />starts transmitting GPS data.
+            {dict.vehicles.dialogs.noGpsDesc}
           </Typography>
         </Stack>
       )}
@@ -217,7 +218,7 @@ const MapVehicleOverviewCard = ({
               variant="caption"
               sx={{ color: "#475569", fontSize: "0.62rem", ml: "auto !important" }}
             >
-              Updated {formatAge(liveLocation.lastUpdated)}
+              {dict.vehicles.dialogs.updated} {formatAge(liveLocation.lastUpdated)}
             </Typography>
           </Stack>
         </Box>
@@ -243,7 +244,7 @@ const MapVehicleOverviewCard = ({
             variant="caption"
             sx={{ color: "#64748b", fontSize: "0.65rem" }}
           >
-            Showing last known DB position — live signal not yet active
+            {dict.vehicles.dialogs.dbFallback}
           </Typography>
         </Box>
       )}

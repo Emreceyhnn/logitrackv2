@@ -25,6 +25,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import BadgeIcon from "@mui/icons-material/Badge";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
 interface TabPanelProps {
@@ -67,6 +68,7 @@ function a11yProps(index: number) {
 
 const DriverDialog = (params: DriverDialogParams) => {
   const { open, onClose, driverData, onEdit, onDelete, initialTab } = params;
+  const dict = useDictionary();
 
   /* --------------------------------- states --------------------------------- */
   const [value, setValue] = useState(initialTab ?? 0);
@@ -81,14 +83,19 @@ const DriverDialog = (params: DriverDialogParams) => {
 
   if (!driverData) return null;
 
-  const statusMeta = getStatusMeta(driverData.status);
-  const colorParts = statusMeta.color.split(".");
-  const colorKey = colorParts[0] as keyof typeof theme.palette;
-  const colorVariant = colorParts[1] || "main";
+  const statusMeta = getStatusMeta(driverData.status, dict);
   
-  const statusColor =
-    (theme.palette[colorKey] as unknown as Record<string, string>)?.[colorVariant] ||
-    theme.palette.text.primary;
+  const getStatusColor = () => {
+    if (statusMeta.color.includes(".")) {
+      const colorParts = statusMeta.color.split(".");
+      const colorKey = colorParts[0] as keyof typeof theme.palette;
+      const colorVariant = colorParts[1] || "main";
+      return (theme.palette[colorKey] as unknown as Record<string, string>)?.[colorVariant] || theme.palette.text.primary;
+    }
+    return statusMeta.color;
+  };
+
+  const statusColor = getStatusColor();
 
   return (
     <Dialog
@@ -165,7 +172,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                   {driverData.user.name} {driverData.user.surname}
                 </Typography>
                 <Chip
-                  label={statusMeta.text}
+                  label={statusMeta.label}
                   size="small"
                   sx={{
                     height: 24,
@@ -234,7 +241,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                   },
                 }}
               >
-                Edit
+                {dict.common.edit}
               </Button>
             )}
             {onDelete && (
@@ -255,7 +262,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                   },
                 }}
               >
-                Delete
+                {dict.common.delete}
               </Button>
             )}
             <IconButton
@@ -311,8 +318,8 @@ const DriverDialog = (params: DriverDialogParams) => {
                 },
               }}
             >
-              <Tab label="Overview" {...a11yProps(0)} />
-              <Tab label="Documents" {...a11yProps(1)} />
+              <Tab label={dict.drivers.tabs.overview} {...a11yProps(0)} />
+              <Tab label={dict.drivers.tabs.documents} {...a11yProps(1)} />
             </Tabs>
           </Box>
           <Box sx={{ p: 4, minHeight: 400 }}>

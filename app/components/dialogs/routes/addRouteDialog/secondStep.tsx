@@ -10,9 +10,12 @@ import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvid
 import { useMemo } from "react";
 import { DirectionsMap } from "@/app/components/googleMaps/DirectionsMap";
 
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
 const SecondRouteDialogStep = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
   const { values, setFieldValue, touched, errors } = useFormikContext<RouteFormValues>();
 
   /* ------------------------------- constant ------------------------------- */
@@ -45,11 +48,10 @@ const SecondRouteDialogStep = () => {
             </Box>
             <Stack spacing={0.5}>
               <Typography variant="subtitle1" fontWeight={700} color="white">
-                Step 2: Location Details
+                {dict.routes.dialogs.locationDetails}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Enter the starting point and destination to calculate the route
-                metrics.
+                {dict.routes.dialogs.locationDetailsDesc}
               </Typography>
             </Stack>
           </Stack>
@@ -73,7 +75,7 @@ const SecondRouteDialogStep = () => {
                         bgcolor: "success.main",
                       }}
                     />
-                    Start Address
+                    {dict.routes.dialogs.startAddress}
                   </Typography>
                   <AddressAutocomplete
                     value={values.startAddress}
@@ -111,7 +113,7 @@ const SecondRouteDialogStep = () => {
                         bgcolor: "error.main",
                       }}
                     />
-                    End Address
+                    {dict.routes.dialogs.endAddress}
                   </Typography>
                   <AddressAutocomplete
                     value={values.endAddress}
@@ -148,7 +150,7 @@ const SecondRouteDialogStep = () => {
                       color="text.secondary"
                       display="block"
                     >
-                      Distance (km)
+                      {dict.routes.dialogs.distanceKmLabel}
                     </Typography>
                     <Typography variant="h6" fontWeight={700} color="white">
                       {values.distanceKm > 0 ? values.distanceKm.toFixed(1) : "--"}
@@ -168,7 +170,7 @@ const SecondRouteDialogStep = () => {
                       color="text.secondary"
                       display="block"
                     >
-                      Duration (min)
+                      {dict.routes.dialogs.durationMinLabel}
                     </Typography>
                     <Typography variant="h6" fontWeight={700} color="white">
                       {values.durationMin > 0 ? values.durationMin : "--"}
@@ -201,11 +203,9 @@ const SecondRouteDialogStep = () => {
                       fontWeight={700}
                       color="info.main"
                     >
-                      Optimization Tip:
+                      {dict.routes.dialogs.optimizationTip}
                     </Typography>{" "}
-                    This route currently avoids major highways. You can adjust
-                    the path by dragging the line on the map to avoid traffic or
-                    congested areas.
+                    {dict.routes.dialogs.optimizationDesc}
                   </Typography>
                 </Box>
               </Stack>

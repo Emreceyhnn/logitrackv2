@@ -19,7 +19,7 @@ import { Box, Stack, Typography, Button, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useCallback, useEffect, useState, useMemo, Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import {
@@ -43,9 +43,8 @@ export default function VehiclePage() {
 function VehicleContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
   const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
 
   const searchParams = useSearchParams();
   const vehicleIdFromUrl = searchParams.get("id");
@@ -307,8 +306,8 @@ function VehicleContent() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Vehicle?"
-        description={`Are you sure you want to delete ${actionVehicle?.plate}? This will permanently remove the vehicle and all associated data from the system.`}
+        title={dict.common.confirmDelete}
+        description={`${dict.common.deleteDocumentDesc || "Are you sure you want to delete this item?"} (${actionVehicle?.plate})`}
         loading={deleteMutation.isPending}
       />
     </Box>

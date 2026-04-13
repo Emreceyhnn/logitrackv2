@@ -4,9 +4,11 @@ import React from "react";
 import { Box, Stack, Typography, useTheme, alpha } from "@mui/material";
 import UserAccountNav from "../nav/UserAccountNav";
 import NotificationBell from "../notifications/NotificationBell";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function DashboardHeader() {
   const theme = useTheme();
+  const dict = useDictionary();
 
   return (
     <Box
@@ -41,7 +43,7 @@ export default function DashboardHeader() {
                 textTransform: "uppercase"
             }}
         >
-          Internal Console
+          {dict.dashboard.header.internalConsole}
         </Typography>
       </Stack>
 

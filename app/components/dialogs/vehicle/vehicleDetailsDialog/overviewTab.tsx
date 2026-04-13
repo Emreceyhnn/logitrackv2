@@ -11,10 +11,10 @@ import {
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ConstructionIcon from "@mui/icons-material/Construction";
-import OilBarrelIcon from "@mui/icons-material/OilBarrel";
 import MapVehicleOverviewCard from "./map";
 import { useState } from "react";
 import AssignDriverDialog from "../assignDriverDialog";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface OverviewTabProps {
   vehicle?: VehicleWithRelations;
@@ -22,11 +22,12 @@ interface OverviewTabProps {
 }
 
 const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
+  const dict = useDictionary();
   /* --------------------------------- states --------------------------------- */
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
   if (!vehicle) {
-    return <Typography color="text.secondary">No vehicle selected</Typography>;
+    return <Typography color="text.secondary">{dict.common.noResults || "No vehicle selected"}</Typography>;
   }
 
   /* -------------------------------- handlers -------------------------------- */
@@ -80,7 +81,7 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 }}
               >
                 <Typography variant="caption" sx={{ color: "white", fontWeight: 600, opacity: 0.8 }}>
-                  VEHICLE PREVIEW
+                  {dict.vehicles.dialogs.preview}
                 </Typography>
               </Box>
             </Card>
@@ -102,7 +103,7 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
-                Fuel Level
+                {dict.vehicles.fields.fuelLevel}
               </Typography>
               <Typography sx={{ fontSize: 20, color: "white" }}>
                 %{vehicle.fuelLevel}
@@ -136,7 +137,7 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
-                Odometer
+                {dict.vehicles.fields.odometer}
               </Typography>
               <Typography sx={{ fontSize: 20, color: "white" }}>
                 {vehicle.odometerKm?.toLocaleString("en-US")} km
@@ -167,15 +168,15 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
-                Next Service
+                {dict.vehicles.fields.service}
               </Typography>
               <Typography sx={{ fontSize: 20, color: "white" }}>
                 {vehicle?.nextServiceKm && vehicle?.odometerKm
                   ? (vehicle.nextServiceKm - vehicle.odometerKm).toLocaleString(
                       "en-US"
                     )
-                  : "N/A"}{" "}
-                km left
+                  : dict.common.na}{" "}
+                {dict.vehicles.dialogs.kmLeft}
               </Typography>
               <ConstructionIcon
                 sx={{
@@ -201,7 +202,7 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
-                Fuel Consumption
+                {dict.vehicles.fields.avgFuelConsumption}
               </Typography>
               <Typography sx={{ fontSize: 20, color: "white" }}>
                 {vehicle?.avgFuelConsumption?.toLocaleString("en-US")} L/100km
@@ -226,7 +227,7 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
               }}
               onClick={() => setAssignDialogOpen(true)}
             >
-              {vehicle.driver ? "Manage Driver" : "Assign Driver"}
+              {vehicle.driver ? dict.drivers.dialogs.editTitle : dict.vehicles.dialogs.assignDriver}
             </Button>
             {/* Removed non-functional 'Get Vehicle Data' button */}
           </Stack>

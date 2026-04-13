@@ -17,7 +17,7 @@ import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import AuthButton from "../ui/AuthButton";
 
 import { useRouter, useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { LoginUser } from "@/app/lib/controllers/users";
 import { loginValidationSchema } from "@/app/lib/validationSchema";
 
@@ -33,7 +33,7 @@ export default function LoginForm() {
   const router = useRouter();
   const params = useParams();
   const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
+  const dict = useDictionary();
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleSubmit = async (
@@ -61,7 +61,7 @@ export default function LoginForm() {
       }
     } catch (error: unknown) {
       console.error("Login failed:", error);
-      const message = error instanceof Error ? error.message : "Login failed";
+      const message = error instanceof Error ? error.message : dict.auth.loginFailed;
       actions.setFieldError("email", message);
       actions.setFieldError("password", message);
     } finally {

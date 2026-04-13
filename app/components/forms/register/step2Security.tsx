@@ -12,8 +12,10 @@ import { useState } from "react";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function Step2Security() {
+  const dict = useDictionary();
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
 
@@ -21,12 +23,12 @@ export default function Step2Security() {
     <Stack spacing={3}>
       <Box>
         <Typography variant="h5" sx={{ color: "#fff", fontWeight: 600, mb: 1 }}>
-          Security
+          {dict.auth.security}
         </Typography>
         <Typography
           sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}
         >
-          Choose a strong password.
+          {dict.auth.securityDescription}
         </Typography>
       </Box>
 
@@ -36,7 +38,7 @@ export default function Step2Security() {
             <StyledTextFieldAuth
               {...field}
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder={dict.auth.password}
               fullWidth
               error={meta.touched && Boolean(meta.error)}
               helperText={meta.touched && meta.error}
@@ -65,7 +67,7 @@ export default function Step2Security() {
             <StyledTextFieldAuth
               {...field}
               type={showRepeatPassword ? "text" : "password"}
-              placeholder="Repeat Password"
+              placeholder={dict.auth.repeatPassword}
               fullWidth
               error={meta.touched && Boolean(meta.error)}
               helperText={meta.touched && meta.error}

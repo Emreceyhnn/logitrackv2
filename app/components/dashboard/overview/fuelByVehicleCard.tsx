@@ -4,12 +4,14 @@ import CustomCard from "../../cards/card";
 import { BarChart } from "@mui/x-charts";
 import { FuelStat } from "@/app/lib/type/overview";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface FuelByVehicleCardProps {
   values: FuelStat[];
 }
 
 const FuelByVehicleCard = ({ values }: FuelByVehicleCardProps) => {
+  const dict = useDictionary();
   const theme = useTheme();
 
   if (!values) return null;
@@ -17,7 +19,7 @@ const FuelByVehicleCard = ({ values }: FuelByVehicleCardProps) => {
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", height: "100%", display: "flex", flexDirection: "column" }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-        Fuel Consumption (30 Days)
+        {dict.dashboard.overview.fuelConsumption.title}
       </Typography>
       <Divider />
       
@@ -25,7 +27,7 @@ const FuelByVehicleCard = ({ values }: FuelByVehicleCardProps) => {
         {values.length === 0 ? (
           <Stack alignItems="center" spacing={2} sx={{ opacity: 0.5 }}>
             <LocalGasStationIcon sx={{ fontSize: 48 }} />
-            <Typography variant="body2">No fuel logs found for the last 30 days</Typography>
+            <Typography variant="body2">{dict.dashboard.overview.fuelConsumption.noLogs}</Typography>
           </Stack>
         ) : (
           <BarChart

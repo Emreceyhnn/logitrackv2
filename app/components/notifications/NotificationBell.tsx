@@ -26,6 +26,7 @@ import {
 import { getUserSession } from "@/app/lib/actions/auth";
 import { useNotifications } from "@/app/hooks/useNotifications";
 import { NotificationType } from "@/app/lib/notifications";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const COLORS = {
   info: "#38bdf8",
@@ -49,6 +50,7 @@ const getStatusColor = (t: NotificationType) => {
 };
 
 export default function NotificationBell() {
+  const dict = useDictionary();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [user, setUser] = useState<{
@@ -59,7 +61,6 @@ export default function NotificationBell() {
 
   const open = Boolean(anchorEl);
 
-  // Fetch active session context
   useEffect(() => {
     const fetchSession = async () => {
       try {
@@ -78,7 +79,6 @@ export default function NotificationBell() {
     fetchSession();
   }, []);
 
-  // Hook into real-time streams
   const {
     notifications,
     unreadCount,
@@ -98,7 +98,7 @@ export default function NotificationBell() {
 
   return (
     <>
-      <Tooltip title="Notifications">
+      <Tooltip title={dict.notifications.title}>
         <IconButton
           onClick={handleOpen}
           sx={{
@@ -178,7 +178,7 @@ export default function NotificationBell() {
             color="#fff"
             sx={{ letterSpacing: "-0.02em" }}
           >
-            Notifications
+            {dict.notifications.title}
           </Typography>
           {unreadCount > 0 && (
             <Button
@@ -193,7 +193,7 @@ export default function NotificationBell() {
                 "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) },
               }}
             >
-              Catch Up
+              {dict.notifications.catchUp}
             </Button>
           )}
         </Box>
@@ -204,14 +204,14 @@ export default function NotificationBell() {
           {loading ? (
             <Box sx={{ py: 6, textAlign: "center" }}>
               <Typography variant="body2" color="rgba(255,255,255,0.4)">
-                Initializing stream...
+                {dict.notifications.initializing}
               </Typography>
             </Box>
           ) : notifications.length === 0 ? (
             <Box sx={{ py: 6, textAlign: "center", opacity: 0.3 }}>
               <NotifIcon sx={{ fontSize: 40, mb: 1, color: "#fff" }} />
               <Typography variant="body2" color="#fff">
-                System clear.
+                {dict.notifications.systemClear}
               </Typography>
             </Box>
           ) : (

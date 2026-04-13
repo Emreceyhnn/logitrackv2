@@ -13,6 +13,7 @@ import {
 import LanguageIcon from "@mui/icons-material/Language";
 import CheckIcon from "@mui/icons-material/Check";
 import { useRouter, usePathname, useParams } from "next/navigation";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const LanguageSwitcher = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -21,11 +22,12 @@ const LanguageSwitcher = () => {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
+  const dict = useDictionary();
   const currentLang = (params?.lang as string) || "tr";
 
   const languages = [
-    { code: "tr", label: "Türkçe", flag: "🇹🇷" },
-    { code: "en", label: "English", flag: "🇺🇸" },
+    { code: "tr", label: dict.languages.tr, flag: "🇹🇷" },
+    { code: "en", label: dict.languages.en, flag: "🇺🇸" },
   ];
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -39,7 +41,6 @@ const LanguageSwitcher = () => {
   const handleLanguageChange = (lang: string) => {
     if (lang === currentLang) return;
 
-    // Replace the language segment in the pathname
     const segments = pathname.split("/");
     segments[1] = lang;
     const newPathname = segments.join("/");
@@ -65,7 +66,10 @@ const LanguageSwitcher = () => {
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
       >
-        <LanguageIcon fontSize="small" sx={{ color: theme.palette.text.secondary }} />
+        <LanguageIcon
+          fontSize="small"
+          sx={{ color: theme.palette.text.secondary }}
+        />
       </IconButton>
       <Menu
         anchorEl={anchorEl}
@@ -134,7 +138,10 @@ const LanguageSwitcher = () => {
               }}
             />
             {currentLang === lang.code && (
-              <CheckIcon fontSize="small" sx={{ color: theme.palette.primary.main }} />
+              <CheckIcon
+                fontSize="small"
+                sx={{ color: theme.palette.primary.main }}
+              />
             )}
           </MenuItem>
         ))}

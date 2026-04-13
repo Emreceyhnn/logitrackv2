@@ -12,12 +12,12 @@ import Image from "next/image";
 import Link from "next/link";
 import LandingHeaderAuth from "./LandingHeaderAuth";
 import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function LandingNavbar() {
   const params = useParams();
   const lang = (params?.lang as string) || "tr";
-  const dict = getDictionary(lang);
+  const dict = useDictionary();
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,

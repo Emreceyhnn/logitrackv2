@@ -15,6 +15,7 @@ import {
   Warning as WarningIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface DeleteConfirmationDialogProps {
   open: boolean;
@@ -33,6 +34,7 @@ export default function DeleteConfirmationDialog({
   description,
   loading = false,
 }: DeleteConfirmationDialogProps) {
+  const dict = useDictionary();
   const theme = useTheme();
 
   return (
@@ -74,7 +76,7 @@ export default function DeleteConfirmationDialog({
                 variant="caption"
                 sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}
               >
-                This action cannot be undone
+                {dict.common.thisActionCannotBeUndone}
               </Typography>
             </Box>
           </Stack>
@@ -119,7 +121,7 @@ export default function DeleteConfirmationDialog({
               "&:hover": { color: "white", bgcolor: alpha("#fff", 0.05) },
             }}
           >
-            Cancel
+            {dict.common.cancel}
           </Button>
           <Button
             variant="contained"
@@ -139,7 +141,7 @@ export default function DeleteConfirmationDialog({
               },
             }}
           >
-            {loading ? "Deleting..." : "Confirm Delete"}
+            {loading ? dict.common.deleting : dict.common.confirmDelete}
           </Button>
         </Stack>
       </Box>

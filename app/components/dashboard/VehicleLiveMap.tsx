@@ -21,6 +21,7 @@ import { MapWithMarker, MarkerData } from "../googleMaps/MapWithMarker";
 import { useAllVehiclesTracking } from "@/app/hooks/useVehicleTracking";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const COLORS = {
   panel: "rgba(15, 23, 42, 0.8)",
@@ -36,6 +37,7 @@ export const VehicleLiveMap = () => {
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const { vehicleLocations } = useAllVehiclesTracking();
   const [initialLoading, setInitialLoading] = useState(true);
+  const dict = useDictionary();
 
   // Fetch initial vehicle data (plate, driver, etc.)
   useEffect(() => {
@@ -111,15 +113,15 @@ export const VehicleLiveMap = () => {
           minWidth: 200
         }}>
           <Typography variant="subtitle2" sx={{ color: COLORS.textSecondary, mb: 1, fontWeight: 700, textTransform: "uppercase", fontSize: 10 }}>
-            Fleet Status
+            {dict.dashboard.fleet.status}
           </Typography>
           <Stack spacing={1}>
             <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="body2" sx={{ color: COLORS.textPrimary }}>Active Units</Typography>
+              <Typography variant="body2" sx={{ color: COLORS.textPrimary }}>{dict.dashboard.fleet.activeUnits}</Typography>
               <Chip label={Object.keys(vehicleLocations).length} size="small" sx={{ bgcolor: COLORS.success, color: "black", fontWeight: 700, height: 20 }} />
             </Box>
             <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="body2" sx={{ color: COLORS.textPrimary }}>Total Fleet</Typography>
+              <Typography variant="body2" sx={{ color: COLORS.textPrimary }}>{dict.dashboard.fleet.totalFleet}</Typography>
               <Typography variant="body2" sx={{ color: COLORS.accent, fontWeight: 700 }}>{vehicles.length}</Typography>
             </Box>
           </Stack>
@@ -155,7 +157,7 @@ export const VehicleLiveMap = () => {
                   {selectedVehicle.brand} {selectedVehicle.model}
                 </Typography>
                 <Typography variant="caption" sx={{ color: COLORS.textSecondary }}>
-                  Fleet ID: {selectedVehicle.fleetNo}
+                  {dict.dashboard.fleet.fleetId}: {selectedVehicle.fleetNo}
                 </Typography>
               </Box>
               <IconButton size="small" onClick={() => setSelectedVehicleId(null)} sx={{ color: COLORS.textSecondary }}>
@@ -175,14 +177,14 @@ export const VehicleLiveMap = () => {
                         {selectedVehicle.driver.user.name} {selectedVehicle.driver.user.surname}
                       </Typography>
                       <Typography variant="caption" sx={{ color: COLORS.textSecondary }}>
-                        Current operator
+                        {dict.dashboard.fleet.currentOperator}
                       </Typography>
                     </Box>
                   </Stack>
                 </Box>
               ) : (
                 <Typography variant="caption" sx={{ color: COLORS.textSecondary, fontStyle: "italic" }}>
-                  No driver assigned
+                  {dict.dashboard.fleet.noDriver}
                 </Typography>
               )}
 
@@ -192,10 +194,10 @@ export const VehicleLiveMap = () => {
                   <Typography variant="h6" sx={{ color: COLORS.textPrimary, fontWeight: 800, lineHeight: 1 }}>
                     {selectedLive?.speed?.toFixed(0) || "0"}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: COLORS.textSecondary }}>KM/H</Typography>
+                  <Typography variant="caption" sx={{ color: COLORS.textSecondary }}>{dict.dashboard.fleet.kmh}</Typography>
                 </Box>
                 <Box sx={{ flex: 1, p: 1.5, bgcolor: "rgba(0,0,0,0.2)", borderRadius: 2, textAlign: "center" }}>
-                  <Typography variant="caption" sx={{ color: COLORS.textSecondary, display: "block", mb: 0.5 }}>SIGNAL</Typography>
+                  <Typography variant="caption" sx={{ color: COLORS.textSecondary, display: "block", mb: 0.5 }}>{dict.dashboard.fleet.signal}</Typography>
                   <Box sx={{ 
                     width: 8, 
                     height: 8, 
@@ -206,7 +208,7 @@ export const VehicleLiveMap = () => {
                     boxShadow: selectedLive ? `0 0 10px ${COLORS.success}` : "none"
                   }} />
                   <Typography variant="body2" sx={{ color: COLORS.textPrimary, fontWeight: 700 }}>
-                    {selectedLive ? "LIVE" : "SYNCING"}
+                    {selectedLive ? dict.dashboard.fleet.live : dict.dashboard.fleet.syncing}
                   </Typography>
                 </Box>
               </Stack>

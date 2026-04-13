@@ -30,6 +30,7 @@ import { InventoryEditProps, InventoryWithRelations } from "@/app/lib/type/inven
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const schema = yup.object({
   sku: yup.string().optional(),
@@ -58,13 +59,27 @@ export default function InventoryEditDialog({
   onUpdate,
 }: InventoryEditProps) {
   const theme = useTheme();
+  const dict = useDictionary();
+
+  // Redefine schema with localized messages if needed, but for now let's keep it simple
+  // or wrap it in a useMemo with dict. Since dict is reactive.
+  const validationSchema = React.useMemo(() => yup.object({
+    sku: yup.string().optional(),
+    imageUrl: yup.string().optional().nullable(),
+    quantity: yup.number().typeError(dict.common.noData).required(dict.common.noData).min(0, dict.common.noData),
+    minStock: yup.number().typeError(dict.common.noData).required(dict.common.noData).min(0, dict.common.noData),
+    weightKg: yup.number().nullable().transform((v) => (v === "" || isNaN(v) ? null : v)),
+    volumeM3: yup.number().nullable().transform((v) => (v === "" || isNaN(v) ? null : v)),
+    palletCount: yup.number().nullable().transform((v) => (v === "" || isNaN(v) ? null : v)),
+  }), [dict]);
+
   const {
     control,
     handleSubmit,
     reset,
     formState: { isSubmitting, errors },
   } = useForm<FormData>({
-    resolver: yupResolver(schema) as unknown as Resolver<FormData>,
+    resolver: yupResolver(validationSchema) as unknown as Resolver<FormData>,
     defaultValues: {
       sku: "",
       imageUrl: "",
@@ -105,6 +120,11 @@ export default function InventoryEditDialog({
         volumeM3: item.volumeM3 ?? 0,
         palletCount: item.palletCount ?? 0,
       });
+      setLocalQuantity(item.quantity.toString());
+      setLocalMinStock(item.minStock.toString());
+      setLocalWeight(item.weightKg?.toString() || "");
+      setLocalVolume(item.volumeM3?.toString() || "");
+      setLocalPalletCount(item.palletCount?.toString() || "");
     }
   }, [item, isOpen, reset]);
 
@@ -197,7 +217,7 @@ export default function InventoryEditDialog({
             </Box>
             <Box>
               <Typography variant="h6" fontWeight={700} color="white">
-                Edit Item
+                {dict.inventory.dialogs.editItem}
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: -0.5 }}>
                 {item.name} • {item.warehouse.name}
@@ -220,14 +240,14 @@ export default function InventoryEditDialog({
               <Stack direction="row" spacing={1} alignItems="center" mb={2}>
                 <InventoryIcon sx={{ color: theme.palette.primary.main, fontSize: "1.2rem" }} />
                 <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ letterSpacing: "1px", textTransform: "uppercase" }}>
-                  Product Identity \u0026 Stock
+                  {dict.inventory.dialogs.productInfo}
                 </Typography>
               </Stack>
               
               <Grid container spacing={3}>
                 <Grid size={{ xs: 12 }}>
                   <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ display: "block", mb: 1.5 }}>
-                    PRODUCT IMAGE
+                    {dict.inventory.dialogs.productImage}
                   </Typography>
                   <Controller
                     name="imageUrl"
@@ -315,7 +335,7 @@ export default function InventoryEditDialog({
                                 sx={{ fontSize: 32, color: alpha("#fff", 0.2), mb: 1 }}
                               />
                               <Typography variant="caption" color="text.secondary">
-                                Click to change image
+                                {dict.inventory.dialogs.clickToChange}
                               </Typography>
                             </label>
                           </>
@@ -331,8 +351,8 @@ export default function InventoryEditDialog({
                     render={({ field }) => (
                       <TextField
                         {...field}
-                        label="SKU (Optional)"
-                        placeholder="Leave blank to auto-generate"
+                        label={dict.inventory.dialogs.skuOptional}
+                        placeholder={dict.inventory.dialogs.skuPlaceholder}
                         fullWidth
                         sx={textFieldSx}
                       />
@@ -346,7 +366,7 @@ export default function InventoryEditDialog({
                     render={({ field }) => (
                       <TextField
                         {...field}
-                        label="Available Quantity"
+                        label={dict.inventory.fields.quantity}
                         type="number"
                         fullWidth
                         value={localQuantity}
@@ -365,7 +385,7 @@ export default function InventoryEditDialog({
                     render={({ field }) => (
                       <TextField
                         {...field}
-                        label="Safety Threshold"
+                        label={dict.inventory.dialogs.safetyThreshold}
                         type="number"
                         fullWidth
                         value={localMinStock}
@@ -393,7 +413,7 @@ export default function InventoryEditDialog({
               >
                 <WarningIcon color="warning" sx={{ fontSize: "1.1rem" }} />
                 <Typography variant="caption" color="warning.light" sx={{ fontWeight: 600, lineHeight: 1.4 }}>
-                  Manual stock adjustments are tracked in the audit log and affect shipment dispatch availability.
+                  {dict.inventory.dialogs.auditWarning}
                 </Typography>
               </Box>
             </Box>
@@ -403,7 +423,7 @@ export default function InventoryEditDialog({
               <Stack direction="row" spacing={1} alignItems="center" mb={2}>
                 <SettingsIcon sx={{ color: theme.palette.secondary.main, fontSize: "1.2rem" }} />
                 <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ letterSpacing: "1px", textTransform: "uppercase" }}>
-                  Load Parameters
+                  {dict.inventory.dialogs.loadParams}
                 </Typography>
               </Stack>
 
@@ -415,7 +435,7 @@ export default function InventoryEditDialog({
                     render={({ field }) => (
                       <TextField
                         {...field}
-                        label="Unit Weight"
+                        label={dict.inventory.dialogs.unitWeight}
                         type="number"
                         fullWidth
                         value={localWeight}
@@ -435,7 +455,7 @@ export default function InventoryEditDialog({
                     render={({ field }) => (
                       <TextField
                         {...field}
-                        label="Total Volume"
+                        label={dict.inventory.dialogs.totalVolume}
                         type="number"
                         fullWidth
                         value={localVolume}
@@ -455,7 +475,7 @@ export default function InventoryEditDialog({
                     render={({ field }) => (
                       <TextField
                         {...field}
-                        label="Pallets"
+                        label={dict.inventory.fields.pallets}
                         type="number"
                         fullWidth
                         value={localPalletCount}
@@ -478,7 +498,7 @@ export default function InventoryEditDialog({
               onClick={onClose} 
               sx={{ px: 3, fontWeight: 600, color: "text.secondary", textTransform: "none", "&:hover": { color: "white" } }}
             >
-              Discard Changes
+              {dict.inventory.dialogs.discardChanges}
             </Button>
             <Button
               type="submit"
@@ -493,7 +513,7 @@ export default function InventoryEditDialog({
                 py: 1.2,
               }}
             >
-              {isSubmitting ? "Saving..." : "Commit Update"}
+              {isSubmitting ? dict.common.saving : dict.inventory.dialogs.commitUpdate}
             </Button>
           </Stack>
         </Box>

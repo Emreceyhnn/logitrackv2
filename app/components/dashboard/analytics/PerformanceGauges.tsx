@@ -1,6 +1,7 @@
 "use client";
 
 import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { Stack, Typography, Grid, Paper, useTheme, Box } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import SpeedIcon from "@mui/icons-material/Speed";
@@ -20,6 +21,7 @@ interface PerformanceGaugesProps {
 export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
 
   const onTimeRate = data?.onTimeRate ?? 0;
   const fleetUtilization = data?.fleetUtilization ?? 0;
@@ -47,7 +49,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
           >
             <CheckCircleIcon color="success" />
             <Typography variant="h6" fontWeight={600}>
-              On-Time Delivery
+              {dict.analytics.performance.onTimeDelivery}
             </Typography>
           </Stack>
           <Box sx={{ width: "100%", height: 200 }}>
@@ -69,7 +71,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
             />
           </Box>
           <Typography variant="body2" color="text.secondary" align="center">
-            Target: 95%{" "}
+            {dict.analytics.performance.target.replace("{value}", "95")}{" "}
             {onTimeRate < 95 && (
               <Typography component="span" color="error.main" fontWeight="bold">
                 ({(onTimeRate - 95).toFixed(1)}%)
@@ -98,7 +100,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
           >
             <SpeedIcon color="primary" />
             <Typography variant="h6" fontWeight={600}>
-              Fleet Utilization
+              {dict.analytics.performance.fleetUtilization}
             </Typography>
           </Stack>
           <Box sx={{ width: "100%", height: 200 }}>
@@ -119,7 +121,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
             />
           </Box>
           <Typography variant="body2" color="text.secondary" align="center">
-            Real-time metric
+            {dict.analytics.performance.realTime}
           </Typography>
         </Paper>
       </Grid>
@@ -143,7 +145,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
           >
             <SentimentSatisfiedAltIcon color="secondary" />
             <Typography variant="h6" fontWeight={600}>
-              Customer Satisfaction
+              {dict.analytics.performance.customerSatisfaction}
             </Typography>
           </Stack>
           <Box sx={{ width: "100%", height: 200 }}>
@@ -165,7 +167,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
             />
           </Box>
           <Typography variant="body2" color="text.secondary" align="center">
-            Based on {satisfactionCount} Reviews
+            {dict.analytics.performance.reviews.replace("{count}", satisfactionCount.toString())}
           </Typography>
         </Paper>
       </Grid>

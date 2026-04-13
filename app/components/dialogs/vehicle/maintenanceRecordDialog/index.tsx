@@ -25,6 +25,7 @@ import TireRepairIcon from "@mui/icons-material/TireRepair";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useState } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { addMaintenanceRecord } from "@/app/lib/controllers/vehicle";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
@@ -43,6 +44,7 @@ export default function MaintenanceRecordDialog({
   vehicleId,
   onSuccess,
 }: MaintenanceRecordDialogProps) {
+  const dict = useDictionary();
   /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState({
     type: "",
@@ -57,7 +59,7 @@ export default function MaintenanceRecordDialog({
   /* -------------------------------- handlers -------------------------------- */
   const handleSubmit = async () => {
     if (!formData.type || !formData.date || !formData.cost) {
-      setError("Please fill in all required fields.");
+      setError(dict.common.fillAllFields);
       return;
     }
 
@@ -77,7 +79,7 @@ export default function MaintenanceRecordDialog({
       handleClose();
     } catch (err) {
       console.error(err);
-      setError("Failed to create maintenance record");
+      setError(dict.vehicles.dialogs.failedToCreateRecord || "Failed to create maintenance record");
     } finally {
       setLoading(false);
     }
@@ -124,19 +126,19 @@ export default function MaintenanceRecordDialog({
   };
 
   const SERVICE_TYPES = [
-    { value: "ROUTINE_MAINTENANCE", label: "Routine Maintenance", icon: <SettingsIcon sx={{ fontSize: 18 }} /> },
-    { value: "REPAIR", label: "Repair", icon: <BuildIcon sx={{ fontSize: 18 }} /> },
-    { value: "INSPECTION", label: "Inspection", icon: <SearchIcon sx={{ fontSize: 18 }} /> },
-    { value: "TIRE_CHANGE", label: "Tire Change", icon: <TireRepairIcon sx={{ fontSize: 18 }} /> },
-    { value: "OIL_CHANGE", label: "Oil Change", icon: <OpacityIcon sx={{ fontSize: 18 }} /> },
-    { value: "OTHER", label: "Other", icon: <AssignmentIcon sx={{ fontSize: 18 }} /> },
+    { value: "ROUTINE_MAINTENANCE", label: dict.vehicles.serviceTypes.ROUTINE_MAINTENANCE, icon: <SettingsIcon sx={{ fontSize: 18 }} /> },
+    { value: "REPAIR", label: dict.vehicles.serviceTypes.REPAIR, icon: <BuildIcon sx={{ fontSize: 18 }} /> },
+    { value: "INSPECTION", label: dict.vehicles.serviceTypes.INSPECTION, icon: <SearchIcon sx={{ fontSize: 18 }} /> },
+    { value: "TIRE_CHANGE", label: dict.vehicles.serviceTypes.TIRE_CHANGE, icon: <TireRepairIcon sx={{ fontSize: 18 }} /> },
+    { value: "OIL_CHANGE", label: dict.vehicles.serviceTypes.OIL_CHANGE, icon: <OpacityIcon sx={{ fontSize: 18 }} /> },
+    { value: "OTHER", label: dict.vehicles.serviceTypes.OTHER, icon: <AssignmentIcon sx={{ fontSize: 18 }} /> },
   ];
 
   const MAINTENANCE_STATUSES = [
-    { value: "SCHEDULED", label: "Scheduled", color: "#F6AD55" },
-    { value: "IN_PROGRESS", label: "In Progress", color: "#4299E1" },
-    { value: "COMPLETED", label: "Completed", color: "#48BB78" },
-    { value: "CANCELLED", label: "Cancelled", color: "#F56565" },
+    { value: "SCHEDULED", label: dict.vehicles.statuses.SCHEDULED, color: "#F6AD55" },
+    { value: "IN_PROGRESS", label: dict.vehicles.statuses.IN_PROGRESS, color: "#4299E1" },
+    { value: "COMPLETED", label: dict.vehicles.statuses.COMPLETED, color: "#48BB78" },
+    { value: "CANCELLED", label: dict.vehicles.statuses.CANCELLED, color: "#F56565" },
   ];
 
   return (
@@ -157,14 +159,14 @@ export default function MaintenanceRecordDialog({
       <Box sx={{ p: 3, pb: 2 }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Typography variant="h6" fontWeight={700} color="white">
-            Add Maintenance Record
+            {dict.vehicles.dialogs.addMaintenanceRecord}
           </Typography>
           <IconButton onClick={handleClose} size="small" sx={{ color: "text.secondary" }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
         <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
-          Log service and maintenance events for this vehicle.
+          {dict.vehicles.dialogs.addMaintenanceDesc || "Log service and maintenance events for this vehicle."}
         </Typography>
       </Box>
 
@@ -187,14 +189,14 @@ export default function MaintenanceRecordDialog({
 
           <Box>
             <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
-              Configuration
+              {dict.vehicles.dialogs.configuration}
             </Typography>
             <Stack spacing={2.5}>
               <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: alpha("#fff", 0.4) }}>Maintenance Status</InputLabel>
+                <InputLabel sx={{ color: alpha("#fff", 0.4) }}>{dict.vehicles.dialogs.maintenanceStatus}</InputLabel>
                 <Select
                   value={formData.status}
-                  label="Maintenance Status"
+                  label={dict.vehicles.dialogs.maintenanceStatus}
                   onChange={(e) =>
                     setFormData({ ...formData, status: e.target.value })
                   }
@@ -226,10 +228,10 @@ export default function MaintenanceRecordDialog({
               </FormControl>
 
               <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: alpha("#fff", 0.4) }}>Service Type</InputLabel>
+                <InputLabel sx={{ color: alpha("#fff", 0.4) }}>{dict.vehicles.fields.serviceType}</InputLabel>
                 <Select
                   value={formData.type}
-                  label="Service Type"
+                  label={dict.vehicles.fields.serviceType}
                   onChange={(e) =>
                     setFormData({ ...formData, type: e.target.value })
                   }
@@ -256,7 +258,7 @@ export default function MaintenanceRecordDialog({
               </FormControl>
 
               <DatePicker
-                label="Service Date"
+                label={dict.vehicles.dialogs.servicedOn}
                 value={formData.date}
                 onChange={(newValue) =>
                   setFormData({ ...formData, date: newValue || dayjs() })
@@ -271,7 +273,7 @@ export default function MaintenanceRecordDialog({
               />
 
               <TextField
-                label="Cost"
+                label={dict.vehicles.fields.cost}
                 type="number"
                 placeholder="0.00"
                 value={formData.cost}
@@ -294,11 +296,11 @@ export default function MaintenanceRecordDialog({
 
           <Box>
             <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
-              Additional Information
+              {dict.vehicles.dialogs.additionalInfo}
             </Typography>
             <TextField
-              label="Description / Notes"
-              placeholder="Briefly describe the work performed..."
+              label={dict.vehicles.dialogs.technicianNotes}
+              placeholder={dict.vehicles.dialogs.technicianNotesDesc || "Briefly describe the work performed..."}
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
@@ -331,7 +333,7 @@ export default function MaintenanceRecordDialog({
               fontWeight: 600 
             }}
           >
-            Cancel
+            {dict.common.cancel}
           </Button>
           <Button
             variant="contained"
@@ -349,9 +351,9 @@ export default function MaintenanceRecordDialog({
             {loading ? (
               <Stack direction="row" spacing={1} alignItems="center">
                 <CircularProgress size={16} color="inherit" />
-                <span>Saving...</span>
+                <span>{dict.common.saving}</span>
               </Stack>
-            ) : "Save Record"}
+            ) : dict.vehicles.dialogs.saveRecord}
           </Button>
         </Stack>
       </Box>

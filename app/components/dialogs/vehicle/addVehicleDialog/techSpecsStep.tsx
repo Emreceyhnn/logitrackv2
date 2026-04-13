@@ -15,18 +15,13 @@ import ShutterSpeedIcon from "@mui/icons-material/ShutterSpeed";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TuneIcon from "@mui/icons-material/Tune";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
-import { useMemo } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useFormikContext } from "formik";
 import { VehicleFormValues } from "@/app/lib/type/vehicle";
 
 const TechSpecsStep = () => {
   /* -------------------------------- variables ------------------------------- */
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
-  
+  const dict = useDictionary();
   const theme = useTheme();
   const { values, errors, touched, handleBlur, handleChange } = useFormikContext<VehicleFormValues>();
 
@@ -117,10 +112,10 @@ const TechSpecsStep = () => {
             sx={textFieldSx}
           >
             <MenuItem value="">{dict.common.search}</MenuItem>
-            <MenuItem value="DIESEL">Diesel</MenuItem>
-            <MenuItem value="GASOLINE">Gasoline</MenuItem>
-            <MenuItem value="ELECTRIC">Electric</MenuItem>
-            <MenuItem value="HYBRID">Hybrid</MenuItem>
+            <MenuItem value="DIESEL">{dict.vehicles.fuelTypes.DIESEL}</MenuItem>
+            <MenuItem value="GASOLINE">{dict.vehicles.fuelTypes.GASOLINE}</MenuItem>
+            <MenuItem value="ELECTRIC">{dict.vehicles.fuelTypes.ELECTRIC}</MenuItem>
+            <MenuItem value="HYBRID">{dict.vehicles.fuelTypes.HYBRID}</MenuItem>
           </TextField>
         </Box>
       </Stack>
@@ -171,7 +166,7 @@ const TechSpecsStep = () => {
             color="text.secondary"
             mb={1}
           >
-            Avg. Fuel Consumption
+            {dict.vehicles.fields.avgFuelConsumption}
           </Typography>
           <TextField
             fullWidth
@@ -210,7 +205,7 @@ const TechSpecsStep = () => {
             color="text.secondary"
             mb={1}
           >
-            Engine Size
+            {dict.vehicles.fields.engineSize}
           </Typography>
           <TextField
             fullWidth
@@ -261,9 +256,9 @@ const TechSpecsStep = () => {
             }}
           >
             <MenuItem value="">{dict.common.search}</MenuItem>
-            <MenuItem value="AUTOMATIC">Automatic</MenuItem>
-            <MenuItem value="MANUAL">Manual</MenuItem>
-            <MenuItem value="AMULTI">Semi-Automatic</MenuItem>
+            <MenuItem value="AUTOMATIC">{dict.vehicles.transmissionTypes.AUTOMATIC}</MenuItem>
+            <MenuItem value="MANUAL">{dict.vehicles.transmissionTypes.MANUAL}</MenuItem>
+            <MenuItem value="AMULTI">{dict.vehicles.transmissionTypes.AMULTI}</MenuItem>
           </TextField>
         </Box>
       </Stack>
@@ -275,7 +270,7 @@ const TechSpecsStep = () => {
           color="text.secondary"
           mb={1}
         >
-          Additional Technical Notes
+          {dict.vehicles.fields.techNotes}
         </Typography>
         <TextField
           fullWidth

@@ -3,8 +3,11 @@ import CustomCard from "./card";
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import CustomRating from "../rating";
 import ChatIcon from "@mui/icons-material/Chat";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const DriverCard = (params: DriverWithRelations | null) => {
+  const dict = useDictionary();
+
   return (
     <CustomCard>
       <Stack spacing={2} p={2}>
@@ -32,7 +35,7 @@ const DriverCard = (params: DriverWithRelations | null) => {
                   borderRadius: "3px",
                 }}
               >
-                {params?.employeeId || "N/A"}
+                {params?.employeeId || dict.common.na}
               </Typography>
               {params?.licenseType && (
                 <Typography
@@ -42,14 +45,17 @@ const DriverCard = (params: DriverWithRelations | null) => {
                     color: "text.secondary",
                   }}
                 >
-                  License: {params.licenseType}
+                  {dict.drivers.card.license.replace("{type}", params.licenseType)}
                 </Typography>
               )}
             </Stack>
             <Typography
               sx={{ fontSize: 12, fontWeight: 400, color: "text.secondary" }}
             >
-              Vehicle: {params?.currentVehicle?.plate || "No Vehicle"}
+              {dict.drivers.card.vehicle.replace(
+                "{plate}",
+                params?.currentVehicle?.plate || dict.drivers.card.noVehicle
+              )}
             </Typography>
           </Stack>
         </Stack>
@@ -64,7 +70,7 @@ const DriverCard = (params: DriverWithRelations | null) => {
           fullWidth
         >
           <ChatIcon sx={{ width: 18, height: 18 }} />
-          Contact Driver
+          {dict.drivers.labels.contactDriver}
         </Button>
       </Stack>
     </CustomCard>

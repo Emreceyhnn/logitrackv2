@@ -10,7 +10,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState, useMemo, Suspense, useCallback } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   DriverPageActions,
   DriverWithRelations,
@@ -45,9 +45,8 @@ export default function DriverPage() {
 function DriverContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
   const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
   const searchParams = useSearchParams();
   const driverIdFromUrl = searchParams.get("id");
   const tabFromUrl = searchParams.get("tab");

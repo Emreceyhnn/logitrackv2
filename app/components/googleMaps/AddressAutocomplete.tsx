@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Autocomplete } from "@react-google-maps/api";
 import { TextField, alpha, useTheme } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface AddressData {
   formattedAddress: string;
@@ -34,9 +35,10 @@ export const AddressAutocomplete = ({
   helperText,
   onBlur,
 }: AddressAutocompleteProps) => {
+  const theme = useTheme();
+  const dict = useDictionary();
   const [address, setAddress] = useState(value);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const theme = useTheme();
 
   useEffect(() => {
     setAddress(value);
@@ -100,7 +102,7 @@ export const AddressAutocomplete = ({
         name={name}
         value={address}
         onChange={handleInputChange}
-        placeholder={placeholder}
+        placeholder={placeholder || dict.maps.searchAddress}
         disabled={disabled}
         error={error}
         helperText={helperText}

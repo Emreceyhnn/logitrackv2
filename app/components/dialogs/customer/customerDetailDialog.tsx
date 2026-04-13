@@ -42,6 +42,7 @@ const CustomerDetailDialog = ({
 }: CustomerDetailDialogParams) => {
   /* --------------------------------- states --------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
   const [customer, setCustomer] = useState<CustomerWithRelations | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +59,7 @@ const CustomerDetailDialog = ({
           const message =
             err instanceof Error
               ? err.message
-              : "Failed to fetch customer details";
+              : dict.customers.dialogs.errorAdd; // Use errorAdd as generic error
           setError(message);
           console.error(err);
         } finally {
@@ -70,7 +71,7 @@ const CustomerDetailDialog = ({
       setCustomer(null);
       setError(null);
     }
-  }, [open, customerId]);
+  }, [open, customerId, dict]);
 
   if (!customerId) return null;
 
@@ -99,12 +100,12 @@ const CustomerDetailDialog = ({
           <Typography color="error" gutterBottom>
             {error}
           </Typography>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose}>{dict.common.close}</Button>
         </Box>
       ) : !customer ? (
         <Box p={5} textAlign="center">
-          <Typography color="text.secondary">Customer not found</Typography>
-          <Button onClick={onClose}>Close</Button>
+          <Typography color="text.secondary">{dict.customers.customerNotFound}</Typography>
+          <Button onClick={onClose}>{dict.common.close}</Button>
         </Box>
       ) : (
         <>
@@ -148,7 +149,7 @@ const CustomerDetailDialog = ({
                   </Stack>
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Chip
-                      label={customer.industry || "General"}
+                      label={customer.industry || dict.customers.industryGeneral}
                       size="small"
                       sx={{
                         height: 24,
@@ -173,8 +174,6 @@ const CustomerDetailDialog = ({
               </Stack>
 
               <Stack direction="row" spacing={1}>
-
-
                 <IconButton
                   onClick={onClose}
                   size="small"
@@ -227,7 +226,7 @@ const CustomerDetailDialog = ({
                       display="block"
                       mb={2}
                     >
-                      Contact Info
+                      {dict.common.contactInfo}
                     </Typography>
 
                     <Paper
@@ -256,13 +255,13 @@ const CustomerDetailDialog = ({
                               fontWeight={700}
                               color="white"
                             >
-                              {customer.email || "No Email"}
+                              {customer.email || dict.common.noEmail}
                             </Typography>
                             <Typography
                               variant="caption"
                               color="text.secondary"
                             >
-                              {customer.phone || "No Phone"}
+                              {customer.phone || dict.common.noPhone}
                             </Typography>
                           </Box>
                         </Stack>
@@ -279,7 +278,7 @@ const CustomerDetailDialog = ({
                               sx={{ fontSize: "1rem" }}
                             />
                             <Typography variant="body2">
-                              {customer.phone || "N/A"}
+                              {customer.phone || dict.common.na}
                             </Typography>
                           </Stack>
                           <Stack
@@ -299,7 +298,7 @@ const CustomerDetailDialog = ({
                                 color: alpha("#fff", 0.7),
                               }}
                             >
-                              {customer.email || "N/A"}
+                              {customer.email || dict.common.na}
                             </Typography>
                           </Stack>
                         </Stack>
@@ -317,7 +316,7 @@ const CustomerDetailDialog = ({
                       display="block"
                       mb={2}
                     >
-                      Registered Locations
+                      {dict.customers.registeredLocations}
                     </Typography>
                     <Stack spacing={2}>
                       {customer.locations && customer.locations.length > 0 ? (
@@ -346,21 +345,21 @@ const CustomerDetailDialog = ({
                                 </Typography>
                                 {loc.isDefault && (
                                   <Chip
-                                    label="Primary"
+                                    label={dict.customers.fields.isDefault}
                                     size="small"
                                     sx={{ height: 16, fontSize: '0.6rem', bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main }}
                                   />
                                 )}
                               </Stack>
                               <Typography variant="body2" fontWeight={500} mt={0.5}>
-                                {loc.address || "No address provided"}
+                                {loc.address || dict.customers.noLocations}
                               </Typography>
                             </Box>
                           </Stack>
                         ))
                       ) : (
                         <Typography variant="body2" color="text.secondary" fontStyle="italic">
-                          No locations recorded
+                          {dict.customers.noLocations}
                         </Typography>
                       )}
                     </Stack>
@@ -377,9 +376,9 @@ const CustomerDetailDialog = ({
                         fontWeight={600}
                         color="text.secondary"
                       >
-                        TAX ID:{" "}
+                        {dict.customers.fields.taxId.split(" / ")[0]}:{" "}
                         <Box component="span" color="white">
-                          {customer.taxId || "N/A"}
+                          {customer.taxId || dict.common.na}
                         </Box>
                       </Typography>
                     </Stack>
@@ -412,16 +411,12 @@ const CustomerDetailDialog = ({
                             fontWeight={600}
                             color="text.secondary"
                           >
-                            TOTAL SHIPMENTS
+                            {dict.customers.totalShipments}
                           </Typography>
                           <LocalShippingIcon fontSize="small" color="primary" />
                         </Stack>
                         <Typography variant="h5" fontWeight={700}>
-                          {/* We don't have shipment count in single fetch unless included. 
-                          The controller includes `shipments` array (limit 5). 
-                          We can use checking shipments length or another count if provided.
-                      */}
-                          {customer.shipments?.length || 0} (Recent)
+                          {customer.shipments?.length || 0} ({dict.common.recent || "Recent"})
                         </Typography>
                       </Stack>
                     </Paper>
@@ -442,10 +437,10 @@ const CustomerDetailDialog = ({
                       fontWeight={700}
                       letterSpacing={1.2}
                     >
-                      Recent Shipments
+                      {dict.customers.recentShipments}
                     </Typography>
                     <Chip
-                      label={`${customer.shipments?.length || 0} Records`}
+                      label={`${customer.shipments?.length || 0} ${dict.customers.records}`}
                       size="small"
                       sx={{ height: 20, fontSize: "0.65rem", fontWeight: 600 }}
                     />
@@ -477,26 +472,29 @@ const CustomerDetailDialog = ({
                           <Typography variant="body2" fontWeight={600}>
                             {shipment.trackingId}
                           </Typography>
-                          <Chip label={shipment.status} size="small" />
+                          <Chip 
+                            label={(dict.routes?.statuses as Record<string, string>)?.[shipment.status] || shipment.status} 
+                            size="small" 
+                          />
                         </Stack>
                         <Typography variant="caption" color="text.secondary">
                           {(shipment.origin as { address?: string })?.address ||
                             (typeof shipment.origin === "string"
                               ? shipment.origin
-                              : "N/A")}{" "}
+                              : dict.common.na)}{" "}
                           {" -> "}
                           {(shipment.destination as { address?: string })
                             ?.address ||
                             (typeof shipment.destination === "string"
                               ? shipment.destination
-                              : "N/A")}
+                              : dict.common.na)}
                         </Typography>
                       </Paper>
                     ))}
                     {(!customer.shipments ||
                       customer.shipments.length === 0) && (
                         <Typography variant="body2" color="text.secondary">
-                          No recent shipments
+                          {dict.customers.noRecentShipments}
                         </Typography>
                       )}
                   </Box>

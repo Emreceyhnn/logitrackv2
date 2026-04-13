@@ -17,6 +17,7 @@ import {
   Contrast as AppearanceIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import type {
   SettingsPageState,
@@ -37,6 +38,7 @@ interface Props {
 
 export default function SettingsDialog({ open, onClose }: Props) {
   const theme = useTheme();
+  const dict = useDictionary();
 
   const [state, setState] = useState<SettingsPageState>({
     activeTab: 0,
@@ -89,20 +91,20 @@ export default function SettingsDialog({ open, onClose }: Props) {
       setState((s) => ({ ...s, isSaving: true }));
       await new Promise((r) => setTimeout(r, 600));
       setState((s) => ({ ...s, isSaving: false }));
-      showToast("success", "Regional markers synchronized globally.");
-    }, [showToast]),
+      showToast("success", dict.settings.dialogs.success.regional);
+    }, [showToast, dict.settings.dialogs.success.regional]),
     saveNotifications: useCallback(async () => {
       setState((s) => ({ ...s, isSaving: true }));
       await new Promise((r) => setTimeout(r, 600));
       setState((s) => ({ ...s, isSaving: false }));
-      showToast("success", "Notification webhooks updated!");
-    }, [showToast]),
+      showToast("success", dict.settings.dialogs.success.notifications);
+    }, [showToast, dict.settings.dialogs.success.notifications]),
   };
 
   const tabs = [
-    { label: "Localization", icon: <LanguageIcon sx={{ fontSize: 16 }} /> },
-    { label: "Signals", icon: <NotifIcon sx={{ fontSize: 16 }} /> },
-    { label: "Visual Engine", icon: <AppearanceIcon sx={{ fontSize: 16 }} /> },
+    { label: dict.settings.dialogs.tabs.localization, icon: <LanguageIcon sx={{ fontSize: 16 }} /> },
+    { label: dict.settings.dialogs.tabs.signals, icon: <NotifIcon sx={{ fontSize: 16 }} /> },
+    { label: dict.settings.dialogs.tabs.visualEngine, icon: <AppearanceIcon sx={{ fontSize: 16 }} /> },
   ];
 
   return (

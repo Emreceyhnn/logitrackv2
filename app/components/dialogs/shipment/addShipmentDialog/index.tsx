@@ -42,8 +42,7 @@ import CargoSection from "./sections/CargoSection";
 import InventorySection from "./sections/InventorySection";
 import RouteSection from "./sections/RouteSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const initialValues: ShipmentFormValues = {
   referenceNumber: "",
@@ -88,8 +87,7 @@ const AddShipmentDialog = ({
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
-  const { lang } = useParams();
-  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+  const dict = useDictionary();
 
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);

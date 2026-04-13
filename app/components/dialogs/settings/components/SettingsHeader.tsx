@@ -3,6 +3,7 @@
 import React from "react";
 import { Box, Stack, Typography, IconButton, useTheme, alpha } from "@mui/material";
 import { Close as CloseIcon, Settings as SettingsIcon } from "@mui/icons-material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface HeaderProps {
   onClose: () => void;
@@ -10,6 +11,7 @@ interface HeaderProps {
 
 export default function SettingsHeader({ onClose }: HeaderProps) {
   const theme = useTheme();
+  const dict = useDictionary();
 
   return (
     <Box sx={{ px: 3, pt: 3, pb: 0 }}>
@@ -32,10 +34,10 @@ export default function SettingsHeader({ onClose }: HeaderProps) {
           </Box>
           <Box>
             <Typography variant="subtitle1" fontWeight={800} color="white" sx={{ letterSpacing: -0.2 }}>
-              System Configuration
+              {dict.settings.dialogs.systemConfiguration}
             </Typography>
             <Typography variant="caption" sx={{ color: alpha("#fff", 0.45), fontWeight: 500 }}>
-              Adjust regional markers & global preferences
+              {dict.settings.dialogs.adjustRegional}
             </Typography>
           </Box>
         </Stack>

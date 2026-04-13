@@ -13,6 +13,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { useState } from "react";
 import OverviewTab from "./overviewTab";
@@ -70,6 +71,7 @@ const WarehouseDetailsDialog = ({
   onEditSuccess,
 }: WarehouseDialogParams) => {
   /* --------------------------------- states --------------------------------- */
+  const dict = useDictionary();
   const [value, setValue] = useState(0);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const theme = useTheme();
@@ -192,8 +194,8 @@ const WarehouseDetailsDialog = ({
               onChange={handleChange}
               aria-label="warehouse details tabs"
             >
-              <Tab label="Overview" {...a11yProps(0)} />
-              <Tab label="Inventory" {...a11yProps(1)} />
+              <Tab label={dict.warehouses.dialogs.details.overview} {...a11yProps(0)} />
+              <Tab label={dict.warehouses.dialogs.details.inventory} {...a11yProps(1)} />
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>

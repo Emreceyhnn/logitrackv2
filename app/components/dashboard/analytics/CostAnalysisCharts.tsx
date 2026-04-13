@@ -2,6 +2,7 @@
 
 import { PieChart } from "@mui/x-charts/PieChart";
 import { LineChart } from "@mui/x-charts/LineChart";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { Stack, Typography, Grid, Paper, useTheme, Box } from "@mui/material";
 
 interface CostData {
@@ -19,22 +20,33 @@ interface CostAnalysisChartsProps {
 export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
   /* ------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
 
-  const months = data?.months || ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+  const monthsArray = [
+    dict.common.months.jan,
+    dict.common.months.feb,
+    dict.common.months.mar,
+    dict.common.months.apr,
+    dict.common.months.may,
+    dict.common.months.jun,
+  ];
+
+  const months = data?.months || monthsArray;
   const fuelCosts = data?.fuel || [0, 0, 0, 0, 0, 0];
   const maintenanceCosts = data?.maintenance || [0, 0, 0, 0, 0, 0];
   const overheadCosts = data?.overhead || [0, 0, 0, 0, 0, 0];
 
   const defaultCostDistribution = [
-    { id: 0, value: 35, label: "Fuel", color: theme.palette.error.main },
-    { id: 1, value: 25, label: "Maintenance", color: theme.palette.warning.main },
-    { id: 2, value: 30, label: "Driver Salaries", color: theme.palette.info.main },
-    { id: 3, value: 10, label: "Insurance/Ops", color: theme.palette.success.main },
+    { id: 0, value: 35, label: dict.analytics.costs.categories.fuel, color: theme.palette.error.main },
+    { id: 1, value: 25, label: dict.analytics.costs.categories.maintenance, color: theme.palette.warning.main },
+    { id: 2, value: 30, label: dict.analytics.costs.categories.salaries, color: theme.palette.info.main },
+    { id: 3, value: 10, label: dict.analytics.costs.categories.insuranceOps, color: theme.palette.success.main },
   ];
 
   const costDistribution = data?.distribution.map((d, i) => ({
     ...d,
-    color: d.color || defaultCostDistribution[i % 4].color
+    color: d.color || defaultCostDistribution[i % 4].color,
+    label: d.label || defaultCostDistribution[i % 4].label
   })) || defaultCostDistribution;
 
   return (
@@ -48,10 +60,10 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
             mb={2}
           >
             <Typography variant="h6" fontWeight={600}>
-              Operational Cost Trends
+              {dict.analytics.costs.title}
             </Typography>
             <Typography variant="subtitle2" color="text.secondary">
-              Last 6 Months
+              {dict.analytics.costs.subtitle}
             </Typography>
           </Stack>
 
@@ -60,7 +72,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
             series={[
               {
                 data: fuelCosts,
-                label: "Fuel",
+                label: dict.analytics.costs.categories.fuel,
                 area: true,
                 stack: "total",
                 showMark: false,
@@ -68,7 +80,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
               },
               {
                 data: maintenanceCosts,
-                label: "Maintenance",
+                label: dict.analytics.costs.categories.maintenance,
                 area: true,
                 stack: "total",
                 showMark: false,
@@ -76,7 +88,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
               },
               {
                 data: overheadCosts,
-                label: "Overhead",
+                label: dict.analytics.costs.categories.overhead,
                 area: true,
                 stack: "total",
                 showMark: false,
@@ -92,7 +104,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
       <Grid size={{ xs: 12, lg: 4 }}>
         <Paper sx={{ p: 3, borderRadius: 3, height: "100%" }}>
           <Typography variant="h6" fontWeight={600} gutterBottom>
-            Cost Breakdown
+            {dict.analytics.costs.breakdown}
           </Typography>
           <Box
             sx={{

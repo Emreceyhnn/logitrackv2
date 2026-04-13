@@ -12,9 +12,9 @@ import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import PendingIcon from "@mui/icons-material/Pending";
-import CancelIcon from "@mui/icons-material/Cancel";
 import { VehicleStatus, IssueStatus } from "@prisma/client";
 import { MenuItem, Select, FormControl } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface MaintenanceTabProps {
   vehicle?: VehicleWithRelations;
@@ -22,6 +22,7 @@ interface MaintenanceTabProps {
 }
 
 const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
+  const dict = useDictionary();
   /* --------------------------------- states --------------------------------- */
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
@@ -31,7 +32,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null); 
 
   if (!vehicle) {
-    return <Typography color="text.secondary">No vehicle selected</Typography>;
+    return <Typography color="text.secondary">{dict.common.noData}</Typography>;
   }
 
   /* -------------------------------- handlers -------------------------------- */
@@ -106,7 +107,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             <Typography
               sx={{ fontSize: 16, fontWeight: 300, color: "text.secondary" }}
             >
-              Vehicle Status
+              {dict.vehicles.dialogs.vehicleStatus}
             </Typography>
             <Box sx={{ 
               width: 10, 
@@ -137,15 +138,15 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                 }
               }}
             >
-                <MenuItem value={VehicleStatus.AVAILABLE}>AVAILABLE</MenuItem>
-                <MenuItem value={VehicleStatus.ON_TRIP}>ON TRIP</MenuItem>
-                <MenuItem value={VehicleStatus.MAINTENANCE}>MAINTENANCE</MenuItem>
+                <MenuItem value={VehicleStatus.AVAILABLE}>{dict.vehicles.statuses.AVAILABLE}</MenuItem>
+                <MenuItem value={VehicleStatus.ON_TRIP}>{dict.vehicles.statuses.ON_TRIP}</MenuItem>
+                <MenuItem value={VehicleStatus.MAINTENANCE}>{dict.vehicles.statuses.MAINTENANCE}</MenuItem>
             </Select>
           </FormControl>
           <Typography
             sx={{ fontSize: 12, fontWeight: 200, color: "text.secondary", mt: 0.5 }}
           >
-            Manage overall availability
+            {dict.vehicles.dialogs.manageAvailability}
           </Typography>
           <Divider sx={{ mt: 1, color: "text.disabled" }} />
           <Stack
@@ -157,14 +158,14 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             <Typography
               sx={{ fontSize: 13, fontWeight: 600, color: "text.secondary" }}
             >
-              NEXT SERVICE
+              {dict.vehicles.fields.service}
             </Typography>
             <Typography
               sx={{ fontSize: 13, fontWeight: 300, color: "info.main" }}
             >
               {vehicle.nextServiceKm && vehicle.odometerKm
-                ? `${(vehicle.nextServiceKm - vehicle.odometerKm).toLocaleString()} km left`
-                : "N/A"}
+                ? `${(vehicle.nextServiceKm - vehicle.odometerKm).toLocaleString()} ${dict.vehicles.dialogs.kmLeft}`
+                : dict.common.na}
             </Typography>
           </Stack>
         </Card>
@@ -185,7 +186,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             justifyContent={"space-between"}
           >
             <Typography sx={{ fontSize: 18, fontWeight: 600, color: "white" }}>
-              Open Issues
+              {dict.vehicles.dialogs.openIssues}
             </Typography>
             <Button
               variant="contained"
@@ -198,13 +199,13 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
               }}
               onClick={() => setReportDialogOpen(true)}
             >
-              + Report Issue
+              + {dict.vehicles.dialogs.reportIssue}
             </Button>
           </Stack>
           <Stack maxHeight={190} overflow={"auto"} spacing={2} mt={2}>
             {openIssues.length === 0 ? (
               <Typography variant="body2" color="text.secondary" align="center">
-                No open issues.
+                {dict.vehicles.dialogs.noOpenIssues}
               </Typography>
             ) : (
               openIssues.map((i, index) => (
@@ -247,7 +248,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                             color: "text.secondary",
                           }}
                         >
-                          Reported on{" "}
+                          {dict.vehicles.dialogs.reportedOn}{" "}
                           {new Date(i.createdAt).toLocaleDateString()}
                         </Typography>
                       </Stack>
@@ -281,24 +282,15 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             mb={2}
           >
             <Typography sx={{ fontSize: 18, fontWeight: 600, color: "white" }}>
-              Recent Maintenance
+              {dict.vehicles.dialogs.recentMaintenance}
             </Typography>
             <Button
               variant="outlined"
               size="small"
               startIcon={<AddIcon />}
               onClick={() => setMaintenanceDialogOpen(true)}
-              sx={{
-                color: "white",
-                borderColor: alpha("#ffffff", 0.1),
-                textTransform: "none",
-                "&:hover": {
-                  borderColor: alpha("#ffffff", 0.3),
-                  bgcolor: alpha("#ffffff", 0.05),
-                },
-              }}
             >
-              Add Record
+              {dict.vehicles.dialogs.addRecord}
             </Button>
           </Stack>
           <Box sx={{ overflowX: "auto", overflowY: "auto", flex: 1 }}>
@@ -359,14 +351,14 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
               </TableHead>
 
               <TableBody>
-                {maintenanceHistory.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center">
-                      <Typography variant="body2" color="text.secondary">
-                        No maintenance records found.
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
+                  {maintenanceHistory.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        <Typography variant="body2" color="text.secondary">
+                          {dict.vehicles.dialogs.noMaintenanceFound}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
                 ) : (
                   maintenanceHistory.map((v, index) => (
                     <TableRow
@@ -415,7 +407,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                           borderBottomColor: alpha("#ffffff", 0.05),
                         }}
                       >
-                        {v.description?.split(":")[1] || "N/A"}
+                        {v.description?.split(":")[1] || dict.common.na}
                       </TableCell>
                       <TableCell
                         align="left"
@@ -450,7 +442,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                               textTransform: "uppercase"
                             }}
                           >
-                            {v.status || "COMPLETED"}
+                            {dict.vehicles.statuses[v.status as keyof typeof dict.vehicles.statuses] || v.status || dict.vehicles.statuses.COMPLETED}
                           </Typography>
                         </Box>
                       </TableCell>

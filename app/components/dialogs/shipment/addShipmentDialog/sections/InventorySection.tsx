@@ -2,7 +2,6 @@
 
 import {
   alpha,
-  Box,
   Button,
   Grid,
   Stack,
@@ -19,6 +18,7 @@ import {
   ListItemText,
   ListItemButton,
   IconButton,
+  Box,
 } from "@mui/material";
 import { useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
@@ -26,6 +26,7 @@ import { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import AddIcon from "@mui/icons-material/Add";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import { useState } from "react";
@@ -40,6 +41,7 @@ const InventorySection = ({
   isLoadingInventory,
 }: InventorySectionProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const dict = useDictionary();
   const theme = useTheme();
   const { values, setFieldValue } = useFormikContext<ShipmentFormValues>();
 
@@ -165,7 +167,7 @@ const InventorySection = ({
               }}
             />
             <Typography variant="subtitle2" fontWeight={700} color="white">
-              Inventory Detail
+              {dict.shipments.dialogs.sections.inventoryDetail}
             </Typography>
           </Stack>
           <Stack direction="row" spacing={1}>
@@ -186,7 +188,7 @@ const InventorySection = ({
                 textTransform: "none",
               }}
             >
-              Warehouse
+               {dict.shipments.dialogs.fields.warehouse}
             </Button>
             <Button
               startIcon={<AddIcon />}
@@ -198,7 +200,7 @@ const InventorySection = ({
                 textTransform: "none",
               }}
             >
-              Manual
+               {dict.shipments.dialogs.fields.manual}
             </Button>
           </Stack>
         </Stack>
@@ -214,23 +216,23 @@ const InventorySection = ({
             }}
           >
             <Typography variant="body2" color="text.secondary">
-              No items added.
+              {dict.shipments.dialogs.fields.noItemsAdded}
             </Typography>
           </Box>
         ) : (
           <Stack spacing={1}>
             <Grid container spacing={1.5} sx={{ mb: 1, px: 1 }}>
               <Grid size={{ xs: 3 }}>
-                <Typography variant="caption" fontWeight={700} color="text.secondary">SKU ID</Typography>
+                <Typography variant="caption" fontWeight={700} color="text.secondary">{dict.shipments.dialogs.fields.skuId}</Typography>
               </Grid>
               <Grid size={{ xs: 5.5 }}>
-                <Typography variant="caption" fontWeight={700} color="text.secondary">ITEM NAME</Typography>
+                <Typography variant="caption" fontWeight={700} color="text.secondary">{dict.shipments.dialogs.fields.itemName}</Typography>
               </Grid>
               <Grid size={{ xs: 1.5 }}>
-                <Typography variant="caption" fontWeight={700} color="text.secondary">QTY</Typography>
+                <Typography variant="caption" fontWeight={700} color="text.secondary">{dict.shipments.dialogs.fields.qty}</Typography>
               </Grid>
               <Grid size={{ xs: 1.5 }}>
-                <Typography variant="caption" fontWeight={700} color="text.secondary">UNIT</Typography>
+                <Typography variant="caption" fontWeight={700} color="text.secondary">{dict.shipments.dialogs.fields.unit}</Typography>
               </Grid>
               <Grid size={{ xs: 0.5 }} />
             </Grid>
@@ -269,9 +271,9 @@ const InventorySection = ({
                       value={item.unit}
                       onChange={(e) => updateItem(item.id, { unit: e.target.value as InventoryShipmentItem["unit"] })}
                     >
-                      <MenuItem value="Each">Each</MenuItem>
-                      <MenuItem value="Box">Box</MenuItem>
-                      <MenuItem value="Pallet">Pallet</MenuItem>
+                      <MenuItem value="Each">{dict.shipments.dialogs.types.each}</MenuItem>
+                      <MenuItem value="Box">{dict.shipments.dialogs.types.box}</MenuItem>
+                      <MenuItem value="Pallet">{dict.shipments.dialogs.types.pallet}</MenuItem>
                     </CustomTextArea>
                   </Grid>
                   <Grid size={{ xs: 0.5 }}>
@@ -288,10 +290,10 @@ const InventorySection = ({
                 {/* Row Feedback */}
                 <Stack direction="row" spacing={3} sx={{ px: 1.5, mb: 1.5 }}>
                     <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "10px" }}>
-                       Calculated Pallets: <b>{(item.unit === "Pallet" ? item.quantity : (item.palletCount && item.palletCount > 0 ? item.quantity / item.palletCount : 0)).toFixed(2)}</b>
+                       {dict.shipments.dialogs.fields.calculatedPallets}: <b>{(item.unit === "Pallet" ? item.quantity : (item.palletCount && item.palletCount > 0 ? item.quantity / item.palletCount : 0)).toFixed(2)}</b>
                     </Typography>
                     <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "10px" }}>
-                       Row Weight: <b>{(item.unit === "Pallet" ? (item.weightKg || 0) * (item.palletCount || 0) * item.quantity : (item.weightKg || 0) * item.quantity).toFixed(2)} KG</b>
+                       {dict.shipments.dialogs.fields.rowWeight}: <b>{(item.unit === "Pallet" ? (item.weightKg || 0) * (item.palletCount || 0) * item.quantity : (item.weightKg || 0) * item.quantity).toFixed(2)} KG</b>
                     </Typography>
                 </Stack>
               </Box>
@@ -315,7 +317,7 @@ const InventorySection = ({
         }}
       >
         <DialogTitle sx={{ color: "white", fontWeight: 700 }}>
-          Warehouse Inventory
+          {dict.shipments.dialogs.fields.warehouseInventory}
         </DialogTitle>
         <DialogContent
           dividers
@@ -349,7 +351,7 @@ const InventorySection = ({
             onClick={() => setIsPickerOpen(false)}
             sx={{ color: "text.secondary" }}
           >
-            Cancel
+            {dict.common.cancel || "Cancel"}
           </Button>
         </DialogActions>
       </Dialog>

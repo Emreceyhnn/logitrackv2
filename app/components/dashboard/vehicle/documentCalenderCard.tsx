@@ -18,9 +18,12 @@ interface VehicleDocumentCalenderCardProps {
   data?: VehicleDocument[];
 }
 
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
 const DocumentCalenderCard = ({
   data = [],
 }: VehicleDocumentCalenderCardProps) => {
+  const dict = useDictionary();
   const DocumentDay = (props: PickersDayProps) => {
     const { day, ...other } = props;
 
@@ -49,7 +52,7 @@ const DocumentCalenderCard = ({
   return (
     <CustomCard sx={{ padding: "0 0 6px 0" }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-        Expiring Soon
+        {dict.vehicles.dashboard.expiringSoon}
       </Typography>
       <Divider />
       <LocalizationProvider dateAdapter={AdapterDayjs}>

@@ -4,28 +4,30 @@ import { Box, Stack, Typography, alpha, useTheme } from "@mui/material";
 import BusinessIcon from "@mui/icons-material/Business";
 import LanguageIcon from "@mui/icons-material/Language";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface SidebarProps {
   activeStep: number;
 }
 
-const steps = [
-  {
-    id: 0,
-    label: "Branding",
-    subtitle: "Name & Visual Identity",
-    icon: <BusinessIcon />,
-  },
-  {
-    id: 1,
-    label: "Regional Settings",
-    subtitle: "Regional & Operational",
-    icon: <LanguageIcon />,
-  },
-];
-
 export default function Sidebar({ activeStep }: SidebarProps) {
   const theme = useTheme();
+  const dict = useDictionary();
+
+  const steps = [
+    {
+      id: 0,
+      label: dict.company.dialogs.steps.branding,
+      subtitle: dict.company.branding.title,
+      icon: <BusinessIcon />,
+    },
+    {
+      id: 1,
+      label: dict.company.dialogs.steps.regional,
+      subtitle: dict.company.dialogs.regionalTitle,
+      icon: <LanguageIcon />,
+    },
+  ];
 
   return (
     <Box
@@ -48,13 +50,15 @@ export default function Sidebar({ activeStep }: SidebarProps) {
             letterSpacing: 1,
           }}
         >
-          Current Step
+          {dict.company.sidebar.currentStep}
         </Typography>
         <Typography
           variant="h6"
           sx={{ color: "text.primary", fontWeight: 800 }}
         >
-          {activeStep + 1} of {steps.length} Steps
+          {dict.company.sidebar.stepProgress
+            .replace("{current}", (activeStep + 1).toString())
+            .replace("{total}", steps.length.toString())}
         </Typography>
         <Box
           sx={{
@@ -145,7 +149,7 @@ export default function Sidebar({ activeStep }: SidebarProps) {
           variant="caption"
           sx={{ color: "text.secondary", display: "block", mb: 1 }}
         >
-          Logged in as
+          {dict.company.sidebar.loggedInAs}
         </Typography>
         <Stack direction="row" spacing={1} alignItems="center">
           <Box
@@ -161,7 +165,7 @@ export default function Sidebar({ activeStep }: SidebarProps) {
               Emre Ceyhun
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Primary Admin
+              {dict.company.sidebar.primaryAdmin}
             </Typography>
           </Box>
         </Stack>

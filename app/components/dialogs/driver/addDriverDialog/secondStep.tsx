@@ -16,9 +16,7 @@ import {
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
-import { useMemo } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState, ChangeEvent } from "react";
@@ -55,10 +53,7 @@ const SecondDriverDialogStep = ({
   eligibleUsers,
 }: SecondDriverDialogStepProps) => {
   /* -------------------------------- variables ------------------------------- */
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
-  
+  const dict = useDictionary();
   const theme = useTheme();
   const { user } = useUser();
   const { values, errors, touched, setFieldValue, handleBlur, handleChange } = 
@@ -141,7 +136,7 @@ const SecondDriverDialogStep = ({
                 <WarehouseIcon fontSize="small" />
               </Box>
               <Typography variant="subtitle1" fontWeight={700} color="white">
-                Operational Assignment
+                {dict.drivers.labels.operationalAssignment}
               </Typography>
             </Stack>
 
@@ -152,11 +147,11 @@ const SecondDriverDialogStep = ({
                   color="text.secondary"
                   sx={{ mb: 1, display: "block", fontWeight: 500 }}
                 >
-                  {dict.inventory.fields.warehouse}
+                  {dict.drivers.fields.homeWarehouse}
                 </Typography>
                 <CustomTextArea
                   name="homeWareHouseId"
-                  placeholder={dict.inventory.fields.warehouse}
+                  placeholder={dict.drivers.fields.homeWarehouse}
                   value={values.homeWareHouseId}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -177,7 +172,7 @@ const SecondDriverDialogStep = ({
                   color="text.secondary"
                   sx={{ mb: 1, display: "block", fontWeight: 500 }}
                 >
-                  Vehicle Assignment
+                  {dict.drivers.labels.vehicleAssignment}
                 </Typography>
                 <CustomTextArea
                   name="currentVehicleId"
@@ -223,7 +218,7 @@ const SecondDriverDialogStep = ({
               color="text.secondary"
               sx={{ mb: 1, display: "block", fontWeight: 500 }}
             >
-              Initial Operational Status
+              {dict.drivers.labels.initialStatus}
             </Typography>
 
             <Stack direction="row" spacing={2}>
@@ -298,7 +293,7 @@ const SecondDriverDialogStep = ({
                 sx={{ color: theme.palette.primary.main, mt: 0.3 }}
               />
               <Typography variant="caption" color="text.secondary">
-                Please review your assignments before saving.
+                {dict.drivers.labels.reviewAssignment}
               </Typography>
             </Box>
 
@@ -308,7 +303,7 @@ const SecondDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                Hazmat Certified
+                {dict.drivers.fields.hazmat}
               </Typography>
               <Switch
                 checked={values.hazmatCertified}
@@ -325,7 +320,7 @@ const SecondDriverDialogStep = ({
                 fontWeight={500}
                 color="text.secondary"
               >
-                Language Proficiency
+                {dict.drivers.fields.languageProficiency}
               </Typography>
               <CustomTextArea
                 name="languages"
@@ -358,7 +353,7 @@ const SecondDriverDialogStep = ({
                 <CloudUploadIcon fontSize="small" />
               </Box>
               <Typography variant="subtitle1" fontWeight={700} color="white">
-                {dict.common.documents}
+                {dict.drivers.fields.additionalDocs}
               </Typography>
             </Stack>
 
@@ -516,7 +511,7 @@ const SecondDriverDialogStep = ({
               alignItems="center"
             >
               <Typography variant="subtitle2" fontWeight={700} color="white">
-                PROFILE SUMMARY
+                {dict.drivers.labels.profileSummary}
               </Typography>
               <Button
                 size="small"
@@ -616,7 +611,7 @@ const SecondDriverDialogStep = ({
             <Stack spacing={1.5}>
               <Stack direction="row" justifyContent="space-between">
                 <Typography variant="caption" color="text.secondary">
-                  Language Proficiency
+                  {dict.drivers.fields.languageProficiency}
                 </Typography>
                 <Typography variant="caption" color="white" fontWeight={600}>
                   {values.languages.length > 0
@@ -626,7 +621,7 @@ const SecondDriverDialogStep = ({
               </Stack>
               <Stack direction="row" justifyContent="space-between">
                 <Typography variant="caption" color="text.secondary">
-                  Hazmat Certified
+                  {dict.drivers.fields.hazmat}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -654,14 +649,14 @@ const SecondDriverDialogStep = ({
                 color="text.secondary"
                 sx={{ fontWeight: 600, display: "block", mb: 0.5 }}
               >
-                Information
+                {dict.drivers.labels.information}
               </Typography>
               <Typography
                 variant="caption"
                 color="text.secondary"
                 sx={{ lineHeight: 1.4, display: "block" }}
               >
-                All data is subject to verification.
+                {dict.drivers.labels.verificationDesc}
               </Typography>
             </Box>
           </Stack>

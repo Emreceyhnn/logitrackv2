@@ -10,9 +10,7 @@ import {
   useTheme,
   Avatar,
 } from "@mui/material";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
-import { useMemo } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   AddInventoryItemDetails,
   AddInventoryStorageLevels,
@@ -59,9 +57,7 @@ const InfoRow = ({
 );
 
 const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
+  const dict = useDictionary();
   const theme = useTheme();
 
   return (
@@ -98,7 +94,7 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
               {itemDetails.name}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {itemDetails.category} • SKU: {itemDetails.sku || dict.common.noData}
+              {itemDetails.category} • {dict.inventory.fields.sku}: {itemDetails.sku || dict.common.noData}
             </Typography>
           </Box>
         </Box>

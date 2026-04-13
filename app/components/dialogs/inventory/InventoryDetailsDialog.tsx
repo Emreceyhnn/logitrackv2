@@ -42,6 +42,7 @@ import {
 } from "@mui/icons-material";
 import { InventoryDetailsProps, InventoryMovement } from "@/app/lib/type/inventory";
 import { getInventoryMovements } from "@/app/lib/controllers/inventory";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -71,6 +72,7 @@ export default function InventoryDetailsDialog({
   onEdit,
 }: InventoryDetailsProps) {
   const theme = useTheme();
+  const dict = useDictionary();
   const [tabValue, setTabValue] = useState(0);
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(false);
@@ -97,7 +99,11 @@ export default function InventoryDetailsDialog({
   if (!item) return null;
 
   const isLowStock = item.quantity <= item.minStock;
-  const statusLabel = item.quantity === 0 ? "OUT OF STOCK" : isLowStock ? "LOW STOCK" : "IN STOCK";
+  const statusLabel = 
+    item.quantity === 0 ? dict.inventory.status.outOfStock : 
+    isLowStock ? dict.inventory.status.lowStock : 
+    dict.inventory.status.inStock;
+    
   const statusColor = item.quantity === 0 ? "error" : isLowStock ? "warning" : "success";
 
   const getMovementIcon = (type: string) => {
@@ -165,7 +171,7 @@ export default function InventoryDetailsDialog({
                 />
               </Stack>
               <Typography variant="body2" color="text.secondary">
-                SKU: {item.sku} • {item.warehouse.name}
+                {dict.inventory.fields.sku}: {item.sku} • {item.warehouse.name}
               </Typography>
             </Stack>
           </Stack>
@@ -200,8 +206,8 @@ export default function InventoryDetailsDialog({
             }
           }}
         >
-          <Tab icon={<OverviewIcon sx={{ fontSize: "1.1rem" }} />} iconPosition="start" label="Overview" />
-          <Tab icon={<HistoryIcon sx={{ fontSize: "1.1rem" }} />} iconPosition="start" label="Inventory History" />
+          <Tab icon={<OverviewIcon sx={{ fontSize: "1.1rem" }} />} iconPosition="start" label={dict.inventory.dialogs.overview} />
+          <Tab icon={<HistoryIcon sx={{ fontSize: "1.1rem" }} />} iconPosition="start" label={dict.inventory.dialogs.history} />
         </Tabs>
       </Box>
 
@@ -215,7 +221,7 @@ export default function InventoryDetailsDialog({
             <Grid size={{ xs: 12, md: 5 }}>
               <Box sx={{ p: 4, borderRight: { md: `1px solid ${alpha(theme.palette.divider, 0.1)}` }, bgcolor: alpha(theme.palette.background.default, 0.2), height: "100%" }}>
                 <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ letterSpacing: "1px", textTransform: "uppercase" }}>
-                  Stock Levels
+                  {dict.inventory.dialogs.stockLevels}
                 </Typography>
                 
                 <Stack spacing={2} mt={2}>
@@ -225,7 +231,7 @@ export default function InventoryDetailsDialog({
                         <InventoryIcon />
                       </Avatar>
                       <Box>
-                        <Typography variant="caption" color="text.secondary" fontWeight={600}>AVAILABLE</Typography>
+                        <Typography variant="caption" color="text.secondary" fontWeight={600}>{dict.inventory.dialogs.available}</Typography>
                         <Typography variant="h5" fontWeight={800} color="white">{item.quantity.toLocaleString()}</Typography>
                       </Box>
                     </Stack>
@@ -237,7 +243,7 @@ export default function InventoryDetailsDialog({
                         <WarehouseIcon />
                       </Avatar>
                       <Box>
-                        <Typography variant="caption" color="text.secondary" fontWeight={600}>SAFETY STOCK</Typography>
+                        <Typography variant="caption" color="text.secondary" fontWeight={600}>{dict.inventory.dialogs.safetyStock}</Typography>
                         <Typography variant="h5" fontWeight={800} color="white">{item.minStock.toLocaleString()}</Typography>
                       </Box>
                     </Stack>
@@ -249,7 +255,7 @@ export default function InventoryDetailsDialog({
                         <InventoryIcon />
                       </Avatar>
                       <Box>
-                        <Typography variant="caption" color="text.secondary" fontWeight={600}>UNIT VALUE</Typography>
+                        <Typography variant="caption" color="text.secondary" fontWeight={600}>{dict.inventory.fields.unitValue.toUpperCase()}</Typography>
                         <Typography variant="h5" fontWeight={800} color="white">
                           {item.unitValue?.toLocaleString() || "0"}
                         </Typography>
@@ -260,15 +266,15 @@ export default function InventoryDetailsDialog({
 
                 <Box mt={4}>
                   <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ letterSpacing: "1px", textTransform: "uppercase" }}>
-                    Location Data
+                    {dict.inventory.dialogs.locationData}
                   </Typography>
                   <Stack spacing={1} mt={1.5}>
                     <Box display="flex" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">Warehouse Code</Typography>
+                      <Typography variant="body2" color="text.secondary">{dict.inventory.dialogs.warehouseCode}</Typography>
                       <Typography variant="body2" fontWeight={600} color="white">{item.warehouse.code}</Typography>
                     </Box>
                     <Box display="flex" justifyContent="space-between">
-                      <Typography variant="body2" color="text.secondary">Cargo Type</Typography>
+                      <Typography variant="body2" color="text.secondary">{dict.inventory.dialogs.cargoType}</Typography>
                       <Typography variant="body2" fontWeight={600} color="white">{item.cargoType || "General"}</Typography>
                     </Box>
                   </Stack>
@@ -280,37 +286,37 @@ export default function InventoryDetailsDialog({
             <Grid size={{ xs: 12, md: 7 }}>
               <Box sx={{ p: 4 }}>
                 <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ letterSpacing: "1px", textTransform: "uppercase" }}>
-                  Physical Specifications
+                  {dict.inventory.dialogs.physicalSpecs}
                 </Typography>
 
                 <Grid container spacing={3} mt={1}>
                   <Grid size={4}>
                     <Paper variant="outlined" sx={{ p: 2, textAlign: "center", borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.02), borderColor: alpha(theme.palette.divider, 0.1) }}>
                       <ScaleIcon sx={{ color: "primary.main", mb: 1 }} />
-                      <Typography variant="caption" display="block" color="text.secondary">WEIGHT</Typography>
+                      <Typography variant="caption" display="block" color="text.secondary">{dict.inventory.fields.weight.toUpperCase()}</Typography>
                       <Typography variant="h6" fontWeight={800} color="white">{item.weightKg}kg</Typography>
                     </Paper>
                   </Grid>
                   <Grid size={4}>
                     <Paper variant="outlined" sx={{ p: 2, textAlign: "center", borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.02), borderColor: alpha(theme.palette.divider, 0.1) }}>
                       <VolumeIcon sx={{ color: "secondary.main", mb: 1 }} />
-                      <Typography variant="caption" display="block" color="text.secondary">VOLUME</Typography>
+                      <Typography variant="caption" display="block" color="text.secondary">{dict.inventory.fields.volume.toUpperCase()}</Typography>
                       <Typography variant="h6" fontWeight={800} color="white">{item.volumeM3}m³</Typography>
                     </Paper>
                   </Grid>
                   <Grid size={4}>
                     <Paper variant="outlined" sx={{ p: 2, textAlign: "center", borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.02), borderColor: alpha(theme.palette.divider, 0.1) }}>
                       <PalletIcon sx={{ color: "success.main", mb: 1 }} />
-                      <Typography variant="caption" display="block" color="text.secondary">PALLETS</Typography>
+                      <Typography variant="caption" display="block" color="text.secondary">{dict.inventory.fields.pallets.toUpperCase()}</Typography>
                       <Typography variant="h6" fontWeight={800} color="white">{item.palletCount}</Typography>
                     </Paper>
                   </Grid>
                 </Grid>
 
                 <Box sx={{ mt: 4, p: 2, borderRadius: 3, bgcolor: alpha(theme.palette.info.main, 0.05), border: `1px solid ${alpha(theme.palette.info.main, 0.1)}` }}>
-                  <Typography variant="caption" fontWeight={700} color="info.light" sx={{ display: "block", mb: 0.5 }}>Architectural Intelligence</Typography>
+                  <Typography variant="caption" fontWeight={700} color="info.light" sx={{ display: "block", mb: 0.5 }}>{dict.inventory.dialogs.intelTitle}</Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem", lineHeight: 1.5 }}>
-                    Real-time stock monitoring is active. Re-stock workflows will trigger when quantity drops below {item.minStock} units.
+                    {dict.inventory.dialogs.intelDesc.replace("{minStock}", item.minStock.toString())}
                   </Typography>
                 </Box>
               </Box>
@@ -328,17 +334,17 @@ export default function InventoryDetailsDialog({
             ) : movements.length === 0 ? (
               <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 300, color: "text.secondary" }}>
                 <HistoryIcon sx={{ fontSize: 48, opacity: 0.2, mb: 1 }} />
-                <Typography variant="body2">No movement history recorded yet.</Typography>
+                <Typography variant="body2">{dict.inventory.dialogs.noHistory}</Typography>
               </Box>
             ) : (
               <TableContainer sx={{ maxHeight: 400 }}>
                 <Table stickyHeader size="small">
                   <TableHead>
                     <TableRow sx={{ "& th": { bgcolor: alpha(theme.palette.background.paper, 0.1), color: "text.secondary", fontWeight: 700, fontSize: "0.7rem", borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}` } }}>
-                      <TableCell>TYPE</TableCell>
-                      <TableCell align="right">QUANTITY</TableCell>
-                      <TableCell>USER</TableCell>
-                      <TableCell align="right">DATE</TableCell>
+                      <TableCell>{dict.inventory.dialogs.historyFields.type}</TableCell>
+                      <TableCell align="right">{dict.inventory.dialogs.historyFields.quantity}</TableCell>
+                      <TableCell>{dict.inventory.dialogs.historyFields.user}</TableCell>
+                      <TableCell align="right">{dict.inventory.dialogs.historyFields.date}</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -356,7 +362,7 @@ export default function InventoryDetailsDialog({
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Typography variant="caption">{move.user ? `${move.user.name} ${move.user.surname}` : "System"}</Typography>
+                          <Typography variant="caption">{move.user ? `${move.user.name} ${move.user.surname}` : dict.inventory.dialogs.historyFields.system}</Typography>
                         </TableCell>
                         <TableCell align="right">
                           <Typography variant="caption">{new Date(move.date).toLocaleString()}</Typography>
@@ -377,7 +383,7 @@ export default function InventoryDetailsDialog({
             onClick={onClose} 
             sx={{ px: 3, fontWeight: 600, color: "text.secondary", textTransform: "none", "&:hover": { color: "white" } }}
           >
-            Close View
+            {dict.inventory.dialogs.closeView}
           </Button>
           <Button
             startIcon={<EditIcon />}
@@ -391,7 +397,7 @@ export default function InventoryDetailsDialog({
               boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
             }}
           >
-            Modify Specs
+            {dict.inventory.dialogs.modifySpecs}
           </Button>
         </Stack>
       </Box>

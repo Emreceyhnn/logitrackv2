@@ -4,6 +4,7 @@ import "@/app/style/globals.css";
 import Providers from "@/app/lib/theme/themeProviders";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getDictionary } from "@/app/lib/language/language";
+import { DictionaryProvider } from "@/app/lib/language/DictionaryContext";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -22,7 +23,7 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  const dict = getDictionary(lang);
+  const dict = await getDictionary(lang);
 
   return {
     title: dict.landing.metaTitle || "LogiTrack – AI Lojistik Yönetim Platformu",
@@ -38,11 +39,16 @@ export default async function LangLayout({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
+  const dict = await getDictionary(lang);
 
   return (
     <html lang={lang}>
       <body className={poppins.variable}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <DictionaryProvider dict={dict}>
+            {children}
+          </DictionaryProvider>
+        </Providers>
         <SpeedInsights />
       </body>
     </html>

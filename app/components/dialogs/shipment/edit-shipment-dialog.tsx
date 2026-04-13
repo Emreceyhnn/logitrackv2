@@ -44,8 +44,7 @@ import CargoSection from "./addShipmentDialog/sections/CargoSection";
 import InventorySection from "./addShipmentDialog/sections/InventorySection";
 import RouteSection from "./addShipmentDialog/sections/RouteSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface EditShipmentDialogProps {
   open: boolean;
@@ -63,8 +62,7 @@ const EditShipmentDialog = ({
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
-  const { lang } = useParams();
-  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+  const dict = useDictionary();
   const validationSchema = useMemo(() => editShipmentValidationSchema(dict), [dict]);
 
   /* --------------------------------- states --------------------------------- */

@@ -2,7 +2,7 @@
 
 import { useCallback, useState, useMemo, Suspense } from "react";
 import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
 import InventoryHeader from "@/app/components/dashboard/inventory/InventoryHeader";
@@ -36,9 +36,9 @@ export default function InventoryPage() {
 function InventoryContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
   const params = useParams();
   const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
 
   /* ---------------------------------- STATE --------------------------------- */
   const [filters, setFilters] = useState<Record<string, string>>({});

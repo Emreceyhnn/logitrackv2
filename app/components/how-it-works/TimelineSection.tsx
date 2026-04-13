@@ -2,62 +2,50 @@
 
 import { Box, Stack, Typography, alpha, useTheme } from "@mui/material";
 import { motion } from "framer-motion";
-
-const steps = [
-  {
-    step: "01",
-    title: "Connect Your Fleet",
-    description:
-      "Integrate telematics, TMS, and WMS data sources in minutes with our prebuilt high-performance connectors.",
-    color: "#38bdf8",
-  },
-  {
-    step: "02",
-    title: "Visualize Operations",
-    description:
-      "Monitor every shipment and asset in real time with adaptive dashboards, heatmaps, and live GPS tracking.",
-    color: "#6366f1",
-  },
-  {
-    step: "03",
-    title: "Automate Decisions",
-    description:
-      "Trigger proactive workflows and automated alerts before potential delays or issues escalate.",
-    color: "#a855f7",
-  },
-  {
-    step: "04",
-    title: "Optimize Routes",
-    description:
-      "Leverage AI-driven optimization to minimize fuel costs, reduce idle time, and maximize driver efficiency.",
-    color: "#38bdf8",
-  },
-  {
-    step: "05",
-    title: "Analyze Performance",
-    description:
-      "Evaluate critical KPIs like delivery accuracy and cost per shipment with our advanced analytics suite.",
-    color: "#6366f1",
-  },
-  {
-    step: "06",
-    title: "Scale Seamlessly",
-    description:
-      "Expand your logistics network globally with modular integrations and scalable cloud infrastructure.",
-    color: "#a855f7",
-  },
-];
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function TimelineSection() {
   const theme = useTheme();
+  const dict = useDictionary();
 
-  const coloredSteps = steps.map((step) => {
-    let color = step.color;
-    if (step.color === "#38bdf8") color = theme.palette.kpi.cyan;
-    if (step.color === "#6366f1") color = theme.palette.kpi.indigo;
-    if (step.color === "#a855f7") color = theme.palette.kpi.purple;
-    return { ...step, color };
-  });
+  const steps = [
+    {
+      step: "01",
+      title: dict.landing.workflow.title1,
+      description: dict.landing.workflow.desc1,
+      color: theme.palette.kpi.cyan,
+    },
+    {
+      step: "02",
+      title: dict.landing.workflow.title2,
+      description: dict.landing.workflow.desc2,
+      color: theme.palette.kpi.indigo,
+    },
+    {
+      step: "03",
+      title: dict.landing.workflow.title3,
+      description: dict.landing.workflow.desc3,
+      color: theme.palette.kpi.purple,
+    },
+    {
+      step: "04",
+      title: dict.landing.workflow.title4,
+      description: dict.landing.workflow.desc4,
+      color: theme.palette.kpi.cyan,
+    },
+    {
+      step: "05",
+      title: dict.landing.workflow.title5,
+      description: dict.landing.workflow.desc5,
+      color: theme.palette.kpi.indigo,
+    },
+    {
+      step: "06",
+      title: dict.landing.workflow.title6,
+      description: dict.landing.workflow.desc6,
+      color: theme.palette.kpi.purple,
+    },
+  ];
 
   return (
     <Box sx={{ position: "relative", py: 10 }}>
@@ -75,7 +63,7 @@ export default function TimelineSection() {
       />
 
       <Stack spacing={8}>
-        {coloredSteps.map((item, index) => (
+        {steps.map((item, index) => (
           <Box
             key={item.step}
             component={motion.div}
@@ -132,7 +120,7 @@ export default function TimelineSection() {
                     fontSize: "14px",
                   }}
                 >
-                  STEP {item.step}
+                  {dict.common.step.toUpperCase()} {item.step}
                 </Typography>
                 <Typography
                   variant="h5"

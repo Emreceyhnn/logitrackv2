@@ -18,7 +18,7 @@ import {
   useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Formik, FormikHelpers } from "formik";
 import {
   AddDriverDialogProps,
@@ -30,9 +30,7 @@ import { toast } from "sonner";
 import { createDriver, getEligibleUsersForDriver } from "@/app/lib/controllers/driver";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { addDriverValidationSchema } from "@/app/lib/validationSchema";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
-import { useMemo } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import FirstDriverDialogStep from "./firstStep";
 import SecondDriverDialogStep from "./secondStep";
 
@@ -58,9 +56,7 @@ const AddDriverDialog = ({
   onSuccess,
 }: AddDriverDialogProps) => {
   /* -------------------------------- variables ------------------------------- */
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
+  const dict = useDictionary();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(1);
   const [eligibleUsers, setEligibleUsers] = useState<EligibleUser[]>([]);
@@ -154,7 +150,7 @@ const AddDriverDialog = ({
 
       await createDriver(payload);
 
-      toast.success(dict.common.saveSuccess || "Driver added successfully");
+      toast.success(dict.common.saveSuccess);
 
       setTimeout(() => {
         onClose();
@@ -163,7 +159,7 @@ const AddDriverDialog = ({
         setCurrentStep(1);
       }, 1500);
     } catch (err: unknown) {
-      const message = (err as Error).message || "Failed to create driver";
+      const message = (err as Error).message || dict.common.errorOccurred;
       setStatus(message);
       toast.error(message);
     } finally {
@@ -171,7 +167,7 @@ const AddDriverDialog = ({
     }
   };
 
-  const steps = [dict.drivers.fields.firstName + " & " + dict.drivers.fields.lastName, dict.common.settings];
+  const steps = [dict.drivers.tabs.personalInfo, dict.drivers.tabs.operationalInfo];
 
   return (
     <Dialog

@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { getSignedUrlAction } from "@/app/lib/actions/upload";
 import DocumentViewerDialog from "../shared/DocumentViewerDialog";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import { DriverWithRelations } from "@/app/lib/type/driver";
 
@@ -29,6 +30,7 @@ interface DocumentsTabProps {
 
 const DocumentsTab = ({ driver }: DocumentsTabProps) => {
   const theme = useTheme();
+  const dict = useDictionary();
 
   /* --------------------------------- states --------------------------------- */
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -39,7 +41,7 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
   } | null>(null);
 
   if (!driver) {
-    return <Typography color="text.secondary">No driver selected</Typography>;
+    return <Typography color="text.secondary">{dict.drivers.noDriverSelected}</Typography>;
   }
 
   const hasValidLicense =
@@ -50,7 +52,7 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
   /* -------------------------------- handlers -------------------------------- */
   const handleViewDoc = async (url: string, title: string) => {
     if (!url) {
-      toast.error("Document link not found");
+      toast.error(dict.toasts.errorGeneric);
       return;
     }
 
@@ -61,11 +63,11 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
         setSelectedDoc({ url: result.url, title });
         setViewerOpen(true);
       } else {
-        toast.error("Failed to get file access permission");
+        toast.error(dict.toasts.errorGeneric);
       }
     } catch (error) {
       console.error("View doc error:", error);
-      toast.error("An error occurred while loading the file");
+      toast.error(dict.common.errorOccurred);
     } finally {
       setLoadingDoc(false);
     }
@@ -149,14 +151,14 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                License Status
+                {dict.drivers.labels.licenseStatus}
               </Typography>
               <Typography
                 variant="h6"
                 fontWeight={700}
                 color={hasValidLicense ? "success.main" : "error.main"}
               >
-                {hasValidLicense ? "Compliant" : "Action Required"}
+                {hasValidLicense ? dict.drivers.labels.compliant : dict.drivers.labels.actionRequired}
               </Typography>
             </Stack>
           </Card>
@@ -176,7 +178,7 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                 <InsertDriveFileOutlinedIcon fontSize="small" />
               </Box>
               <Typography variant="subtitle1" fontWeight={700} color="white">
-                Official Documents
+                {dict.drivers.labels.officialDocuments}
               </Typography>
             </Stack>
 
@@ -222,8 +224,8 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {doc.expiryDate
-                          ? `Expiry: ${new Date(doc.expiryDate).toLocaleDateString()}`
-                          : "No expiry date"}
+                          ? `${dict.drivers.labels.expiryPrefix}${new Date(doc.expiryDate).toLocaleDateString()}`
+                          : dict.drivers.labels.noExpiry}
                       </Typography>
                     </Box>
                     <Stack direction="row" spacing={1}>
@@ -280,10 +282,10 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                   />
                   <Box>
                     <Typography variant="body2" color="white" fontWeight={600}>
-                      No Documents Uploaded
+                      {dict.drivers.labels.noDocsUploaded}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      This driver does not have any official documents registered in the system.
+                      {dict.drivers.labels.noDocsDesc}
                     </Typography>
                   </Box>
                 </Box>

@@ -14,8 +14,11 @@ interface Params {
   liveDistanceKm?: number;
 }
 
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
 const RoutesTelemetryCards = (params: Params) => {
   const theme = useTheme();
+  const dict = useDictionary();
   const { route, liveDistanceKm } = params;
   if (!route) return null;
 
@@ -31,7 +34,7 @@ const RoutesTelemetryCards = (params: Params) => {
   return (
     <Stack spacing={2} px={2}>
       <Typography variant="subtitle2" fontWeight={700} color="white">
-        LIVE TELEMETRY
+        {dict.routes.details.liveTelemetry}
       </Typography>
       <Stack direction={"row"} spacing={2}>
         <Box
@@ -47,7 +50,7 @@ const RoutesTelemetryCards = (params: Params) => {
             <Typography
               sx={{ fontSize: 14, fontWeight: 600, color: "text.secondary" }}
             >
-              DIST. TRAVELLED
+              {dict.routes.details.distTravelled}
             </Typography>
             <Stack direction={"row"} spacing={1} alignItems={"center"}>
               <Typography variant="h5" fontWeight={600} color="white">
@@ -74,7 +77,7 @@ const RoutesTelemetryCards = (params: Params) => {
             <Typography
               sx={{ fontSize: 14, fontWeight: 600, color: "text.secondary" }}
             >
-              Remaining
+              {dict.routes.details.remaining}
             </Typography>
             <Stack direction={"row"} spacing={1} alignItems={"center"}>
               <Typography variant="h5" fontWeight={600} color="white">
@@ -102,7 +105,7 @@ const RoutesTelemetryCards = (params: Params) => {
             <Typography
               sx={{ fontSize: 14, fontWeight: 600, color: "text.secondary" }}
             >
-              Fuel level
+              {dict.routes.details.fuelLevel}
             </Typography>
             <Typography
               sx={{ fontSize: 14, fontWeight: 600, color: "info.main" }}

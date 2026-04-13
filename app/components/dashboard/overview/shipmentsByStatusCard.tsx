@@ -6,6 +6,9 @@ import { useDrawingArea } from "@mui/x-charts/hooks";
 import { styled } from "@mui/material/styles";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useMemo } from "react";
+
 interface ShipmentOnStatusCardProps {
   values: string[];
 }
@@ -28,7 +31,7 @@ const StyledSubText = styled("text")(({ theme }) => ({
   pointerEvents: "none"
 }));
 
-function PieCenterLabel({ total }: { total: number }) {
+function PieCenterLabel({ total, label }: { total: number; label: string }) {
   const { width, height, left, top } = useDrawingArea();
   return (
     <>
@@ -36,44 +39,48 @@ function PieCenterLabel({ total }: { total: number }) {
         {total}
       </StyledText>
       <StyledSubText x={left + width / 2} y={top + height / 2 + 12}>
-        Total
+        {label}
       </StyledSubText>
     </>
   );
 }
 
 const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
+  const dict = useDictionary();
   const theme = useTheme();
 
+  const data = useMemo(() => {
+    if (!values) return [];
+
+    const config: Record<string, { label: string; color: string }> = {
+      IN_TRANSIT: { label: dict.shipments.statuses.IN_TRANSIT, color: theme.palette.info.main },
+      DELAYED: { label: dict.shipments.statuses.DELAYED, color: theme.palette.error.main },
+      PLANNED: { label: dict.shipments.statuses.PENDING, color: theme.palette.secondary.main },
+      DELIVERED: { label: dict.shipments.statuses.DELIVERED, color: theme.palette.success.main },
+      PROCESSING: { label: dict.shipments.statuses.PROCESSING, color: theme.palette.warning.main },
+      CANCELLED: { label: dict.shipments.statuses.CANCELLED, color: theme.palette.grey[500] },
+    };
+
+    const statusCounts = values.reduce<Record<string, number>>((acc, s) => {
+      acc[s] = (acc[s] || 0) + 1;
+      return acc;
+    }, {});
+
+    return Object.entries(statusCounts).map(([key, value], index) => ({
+      id: index,
+      label: config[key]?.label || key,
+      value,
+      color: config[key]?.color || theme.palette.grey[300],
+    }));
+  }, [values, dict, theme]);
+
   if (!values) return null;
-
-  const config: Record<string, { label: string; color: string }> = {
-    IN_TRANSIT: { label: "In Transit", color: theme.palette.info.main },
-    DELAYED: { label: "Delayed", color: theme.palette.error.main },
-    PLANNED: { label: "Planned", color: theme.palette.secondary.main },
-    DELIVERED: { label: "Delivered", color: theme.palette.success.main },
-    PROCESSING: { label: "Processing", color: theme.palette.warning.main },
-    CANCELLED: { label: "Cancelled", color: theme.palette.grey[500] },
-  };
-
-  const statusCounts = values.reduce<Record<string, number>>((acc, s) => {
-    acc[s] = (acc[s] || 0) + 1;
-    return acc;
-  }, {});
-
-  const data = Object.entries(statusCounts).map(([key, value], index) => ({
-    id: index,
-    label: config[key]?.label || key,
-    value,
-    color: config[key]?.color || theme.palette.grey[300],
-  }));
-
   const total = values.length;
 
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", height: "100%", display: "flex", flexDirection: "column" }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-        Shipments by Status
+        {dict.dashboard.overview.shipmentsByStatus.title}
       </Typography>
       <Divider />
       
@@ -81,7 +88,7 @@ const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
         {total === 0 ? (
           <Stack alignItems="center" spacing={2} sx={{ opacity: 0.5 }}>
             <LocalShippingIcon sx={{ fontSize: 48 }} />
-            <Typography variant="body2">No shipments found</Typography>
+            <Typography variant="body2">{dict.dashboard.overview.shipmentsByStatus.noShipments}</Typography>
           </Stack>
         ) : (
           <Box sx={{ position: "relative", width: "100%", height: 260, display: "flex", justifyContent: "center" }}>
@@ -104,7 +111,7 @@ const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
               }}
               margin={{ top: 10, bottom: 60, left: 10, right: 10 }}
             >
-              <PieCenterLabel total={total} />
+              <PieCenterLabel total={total} label={dict.dashboard.overview.shipmentsByStatus.total} />
             </PieChart>
           </Box>
         )}

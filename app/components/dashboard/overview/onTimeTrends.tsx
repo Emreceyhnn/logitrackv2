@@ -5,12 +5,14 @@ import { BarChart } from "@mui/x-charts";
 import CustomCard from "../../cards/card";
 import { ShipmentDayStat } from "@/app/lib/type/overview";
 import ViewTimelineIcon from '@mui/icons-material/ViewTimeline';
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface ShipmentVolumeCardProps {
   values: ShipmentDayStat[];
 }
 
 const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
+  const dict = useDictionary();
   const theme = useTheme();
 
   if (!values) return null;
@@ -18,7 +20,7 @@ const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", height: "100%", display: "flex", flexDirection: "column" }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-        7-Day Shipment Volume
+        {dict.dashboard.overview.shipmentVolume.title}
       </Typography>
       <Divider />
       
@@ -26,7 +28,7 @@ const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
         {values.length === 0 ? (
           <Stack alignItems="center" spacing={2} sx={{ opacity: 0.5 }}>
             <ViewTimelineIcon sx={{ fontSize: 48 }} />
-            <Typography variant="body2">No shipment history available</Typography>
+            <Typography variant="body2">{dict.dashboard.overview.shipmentVolume.noHistory}</Typography>
           </Stack>
         ) : (
           <BarChart
@@ -43,7 +45,7 @@ const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
               { 
                 data: values.map(v => v.count),
                 color: theme.palette.primary.main,
-                valueFormatter: (value: number | null) => `${value || 0} shipments`
+                valueFormatter: (value: number | null) => dict.dashboard.overview.shipmentVolume.shipmentsCount.replace("{count}", (value || 0).toString())
               }
             ]}
             height={280}

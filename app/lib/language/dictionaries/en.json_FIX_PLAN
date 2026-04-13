@@ -1,0 +1,28 @@
+{
+  "common": {
+    "logitrack": "LogiTrack",
+    "needHelp": "Need Help?",
+    ... [OMITTED FOR BREVITY] ...
+  },
+  "dashboard": {
+    "header": {
+      "internalConsole": "Internal Console"
+    },
+    ... [OMITTED] ...
+    "warehouse": {
+      ...
+    }
+  },
+  "reports": {
+    ...
+  },
+  "analytics": {
+    ...
+  },
+  "overview": {
+    ...
+  },
+  "users": {
+    ...
+  }
+}

@@ -24,6 +24,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useEffect, useState, useCallback } from "react";
 import { getDriverHistory } from "@/app/lib/controllers/driver";
 import { DriverHistory } from "@/app/lib/type/driver";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface DriverHistoryDialogProps {
   open: boolean;
@@ -92,6 +93,7 @@ export default function DriverHistoryDialog({
   driverName,
 }: DriverHistoryDialogProps) {
   const theme = useTheme();
+  const dict = useDictionary();
   const [history, setHistory] = useState<DriverHistory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,11 +106,11 @@ export default function DriverHistoryDialog({
       setHistory(data);
     } catch (err) {
       console.error("Load history error:", err);
-      setError("Failed to load driver history");
+      setError(dict.common.errorOccurred);
     } finally {
       setLoading(false);
     }
-  }, [driverId]);
+  }, [driverId, dict]);
 
   useEffect(() => {
     if (open && driverId) {
@@ -148,10 +150,10 @@ export default function DriverHistoryDialog({
             </Box>
             <Box>
               <Typography variant="h6" fontWeight={700} color="white">
-                Driver History
+                {dict.drivers.labels.driverHistory}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Activity log for {driverName}
+                {dict.drivers.labels.activityLog.replace("{name}", driverName)}
               </Typography>
             </Box>
           </Stack>
@@ -178,13 +180,13 @@ export default function DriverHistoryDialog({
             {/* KPI Summary */}
             <Stack direction="row" spacing={2}>
               <KPICard
-                label="Completed Jobs"
+                label={dict.drivers.labels.completedJobs}
                 value={history?.completedShipments || 0}
                 icon={<CheckCircleIcon fontSize="small" />}
                 color={theme.palette.success.main}
               />
               <KPICard
-                label="Permissions"
+                label={dict.drivers.labels.permissions}
                 value={history?.activePermissions || 0}
                 icon={<BadgeIcon fontSize="small" />}
                 color={theme.palette.info.main}
@@ -196,7 +198,7 @@ export default function DriverHistoryDialog({
             {/* Timeline */}
             <Box>
               <Typography variant="subtitle2" fontWeight={700} color="white" sx={{ mb: 3 }}>
-                Recent Activities
+                {dict.drivers.labels.recentActivities}
               </Typography>
               
               <Stack spacing={0}>
@@ -255,7 +257,7 @@ export default function DriverHistoryDialog({
                 ) : (
                   <Box sx={{ py: 4, textAlign: "center" }}>
                     <Typography variant="body2" color="text.secondary">
-                      No activities found for this driver.
+                      {dict.drivers.labels.noActivities}
                     </Typography>
                   </Box>
                 )}

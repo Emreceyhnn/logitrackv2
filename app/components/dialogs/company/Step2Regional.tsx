@@ -18,12 +18,14 @@ import PublicIcon from "@mui/icons-material/Public";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import LanguageIcon from "@mui/icons-material/Language";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import { useFormikContext } from "formik";
 import { CompanyFormData } from "@/app/lib/type/create-company";
 
 export default function Step2Regional({ state, actions }: CompanyStepProps) {
   const theme = useTheme();
+  const dict = useDictionary();
   const { formData } = state;
   const { errors, touched, handleBlur } = useFormikContext<CompanyFormData>();
 
@@ -34,20 +36,20 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
           variant="overline"
           sx={{ color: "primary.main", fontWeight: 800, letterSpacing: "0.1em" }}
         >
-          GLOBAL CONFIGURATION
+          {dict.company.dialogs.steps.globalConfig}
         </Typography>
         <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, letterSpacing: "-0.01em" }}>
-          Regional Ecosystem
+          {dict.company.dialogs.steps.regionalEcosystem}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Configure how your team interacts with time, local commerce, and data visibility.
+          {dict.company.dialogs.steps.regionalDesc}
         </Typography>
       </Box>
 
       <Stack spacing={4}>
         <Box>
           <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
-            Principal Timezone *
+            {dict.company.dialogs.steps.timezone}
           </Typography>
           <FormControl fullWidth error={touched.timezone && !!errors.timezone}>
             <Select
@@ -86,7 +88,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, sm: 6 }}>
             <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
-              Functional Currency
+              {dict.company.dialogs.steps.currency}
             </Typography>
             <FormControl fullWidth error={touched.currency && !!errors.currency}>
               <Select
@@ -123,7 +125,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
-              System Language
+              {dict.company.dialogs.steps.language}
             </Typography>
             <FormControl fullWidth error={touched.language && !!errors.language}>
               <Select
@@ -146,8 +148,8 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                   }
                 }}
               >
-                <MenuItem value="EN">English (Global Standart)</MenuItem>
-                <MenuItem value="TR">Turkish (Türkiye Opsiyonu)</MenuItem>
+                <MenuItem value="EN">{dict.languages.en}</MenuItem>
+                <MenuItem value="TR">{dict.languages.tr}</MenuItem>
               </Select>
               {touched.language && errors.language && (
                 <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>
@@ -175,13 +177,13 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
           <InfoOutlinedIcon sx={{ color: theme.palette.primary.main, mt: 0.5 }} />
           <Box>
             <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 0.5 }}>
-              Referential Integrity & Scope
+              {dict.company.dialogs.steps.integrity}
             </Typography>
             <Typography
               variant="caption"
               sx={{ color: alpha(theme.palette.text.secondary, 0.7), display: "block", mb: 2, lineHeight: 1.5 }}
             >
-              These presets automatically standardize all operational units. Sub-entities (warehouses, fleets) can still override these individually when needed.
+              {dict.company.dialogs.steps.standardize}
             </Typography>
             <FormControlLabel
               control={
@@ -200,7 +202,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
               }
               label={
                 <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                  Enable dynamic regional overrides
+                  {dict.company.dialogs.steps.overrides}
                 </Typography>
               }
             />

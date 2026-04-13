@@ -36,8 +36,7 @@ import { searchPlatformUsers } from "@/app/lib/controllers/users";
 import { addCompanyUser } from "@/app/lib/controllers/company";
 import { addCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
 import { ValidationError } from "yup";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface SearchedUser {
   id: string;
@@ -60,8 +59,7 @@ export default function AddCompanyMemberDialog({
   onSuccess,
 }: AddMemberDialogProps) {
   const theme = useTheme();
-  const { lang } = useParams();
-  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+  const dict = useDictionary();
 
   const roles = useMemo(() => [
     { id: "role_admin", label: dict.company.roles.admin },

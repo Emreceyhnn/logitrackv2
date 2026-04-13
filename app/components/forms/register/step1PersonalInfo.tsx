@@ -3,16 +3,18 @@
 import { Box, Stack, Typography } from "@mui/material";
 import { Field, FieldProps } from "formik";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function Step1PersonalInfo() {
+  const dict = useDictionary();
   return (
     <Stack spacing={3}>
       <Box>
         <Typography variant="h5" sx={{ color: "#fff", fontWeight: 600, mb: 1 }}>
-          Personal Information
+          {dict.auth.personalInfo}
         </Typography>
         <Typography sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}>
-          Please provide your basic details to get started.
+          {dict.auth.signUpDescription}
         </Typography>
       </Box>
 
@@ -22,7 +24,7 @@ export default function Step1PersonalInfo() {
             <StyledTextFieldAuth
               {...field}
               type="text"
-              placeholder="First Name"
+              placeholder={dict.auth.firstName}
               fullWidth
               error={meta.touched && Boolean(meta.error)}
               helperText={meta.touched && meta.error}
@@ -34,7 +36,7 @@ export default function Step1PersonalInfo() {
             <StyledTextFieldAuth
               {...field}
               type="text"
-              placeholder="Last Name"
+              placeholder={dict.auth.lastName}
               fullWidth
               error={meta.touched && Boolean(meta.error)}
               helperText={meta.touched && meta.error}
@@ -46,7 +48,7 @@ export default function Step1PersonalInfo() {
             <StyledTextFieldAuth
               {...field}
               type="email"
-              placeholder="Email Address"
+              placeholder={dict.auth.email}
               fullWidth
               error={meta.touched && Boolean(meta.error)}
               helperText={meta.touched && meta.error}

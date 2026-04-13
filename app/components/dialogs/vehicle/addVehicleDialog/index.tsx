@@ -16,8 +16,7 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useMemo, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import FirstStep from "./firstStep";
@@ -86,10 +85,7 @@ const AddVehicleDialog = ({
   onSuccess,
 }: AddVehiclePageProps) => {
   /* ---------------------------------- State --------------------------------- */
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
-  
+  const dict = useDictionary();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);

@@ -2,12 +2,14 @@ import { Box, Divider, LinearProgress, Stack, Typography, alpha, useTheme } from
 import CustomCard from "../../cards/card";
 import { WarehouseCapacityStat } from "@/app/lib/type/overview";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface WarehouseCapacityCardProps {
   values: WarehouseCapacityStat[];
 }
 
 const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
+  const dict = useDictionary();
   const theme = useTheme();
 
   if (!values) return null;
@@ -15,7 +17,7 @@ const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
   return (
     <CustomCard sx={{ padding: "0 0 6px 0", height: "100%", maxHeight: 360, display: "flex", flexDirection: "column" }}>
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-        Warehouse Utilization
+        {dict.dashboard.overview.warehouseUtilization.title}
       </Typography>
       <Divider />
       
@@ -23,7 +25,7 @@ const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
         {values.length === 0 ? (
           <Stack alignItems="center" justifyContent="center" height="100%" minHeight={150} spacing={2} sx={{ opacity: 0.5 }}>
             <WarehouseIcon sx={{ fontSize: 40 }} />
-            <Typography variant="body2">No warehouses found</Typography>
+            <Typography variant="body2">{dict.dashboard.overview.warehouseUtilization.noWarehouses}</Typography>
           </Stack>
         ) : (
           <Stack spacing={2.5}>
@@ -63,10 +65,14 @@ const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
                   
                   <Stack direction="row" justifyContent="space-between">
                     <Typography variant="caption" color="text.secondary">
-                      {w.palletUsed.toLocaleString()} / {w.palletCapacity.toLocaleString()} pallets
+                      {dict.dashboard.overview.warehouseUtilization.palletsUnit
+                        .replace("{used}", w.palletUsed.toLocaleString())
+                        .replace("{total}", w.palletCapacity.toLocaleString())}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {w.volumeUsed.toLocaleString()} / {w.volumeCapacity.toLocaleString()} m³
+                      {dict.dashboard.overview.warehouseUtilization.volumeUnit
+                        .replace("{used}", w.volumeUsed.toLocaleString())
+                        .replace("{total}", w.volumeCapacity.toLocaleString())}
                     </Typography>
                   </Stack>
                 </Stack>

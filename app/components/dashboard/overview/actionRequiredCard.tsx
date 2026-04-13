@@ -9,12 +9,14 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { ReactNode } from "react";
 import { ActionRequiredItems } from "@/app/lib/type/overview";
 import { useRouter } from "next/navigation";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface ActionRequiredCardProps {
   alerts?: ActionRequiredItems[];
 }
 
 const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
+  const dict = useDictionary();
   const theme = useTheme();
   const router = useRouter();
 
@@ -110,7 +112,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     <CustomCard sx={{ padding: "0 0 6px 0", height: "100%", maxHeight: 360, display: "flex", flexDirection: "column" }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" p={2}>
         <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
-          Action Required
+          {dict.dashboard.overview.actionRequired.title}
         </Typography>
         {alerts.length > 0 && (
           <Box
@@ -124,7 +126,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
               fontWeight: 700,
             }}
           >
-            {alerts.length} pending
+            {dict.dashboard.overview.actionRequired.pendingCount.replace("{count}", alerts.length.toString())}
           </Box>
         )}
       </Stack>
@@ -137,7 +139,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
               <CheckCircleOutlineIcon sx={{ fontSize: 48 }} />
             </Box>
             <Typography variant="body2" color="text.secondary" align="center">
-              All clear! No urgent actions required.
+              {dict.dashboard.overview.actionRequired.allClear}
             </Typography>
           </Stack>
         ) : (

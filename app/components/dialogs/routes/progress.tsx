@@ -10,15 +10,18 @@ import {
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import CircleIcon from "@mui/icons-material/Circle";
 
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
 export default function RouteProgress({
   route,
 }: {
   route: RouteWithRelations;
 }) {
+  const dict = useDictionary();
   // Derive stops from Route fields and Shipments
   const stops = [
     {
-      locationName: route.startAddress || "Origin",
+      locationName: route.startAddress || dict.routes.details.origin,
       status: "COMPLETED",
       time: route.startTime
         ? new Date(route.startTime).toLocaleTimeString([], {
@@ -28,12 +31,12 @@ export default function RouteProgress({
         : "",
     },
     ...(route.shipments?.map((s) => ({
-      locationName: `Delivery: ${s.destination}`,
+      locationName: `${dict.routes.details.delivery}: ${s.destination}`,
       status: s.status === "DELIVERED" ? "COMPLETED" : "PENDING",
       time: "-",
     })) || []),
     {
-      locationName: route.endAddress || "Destination",
+      locationName: route.endAddress || dict.routes.details.destination,
       status: route.status === "COMPLETED" ? "COMPLETED" : "PENDING",
       time: route.endTime
         ? new Date(route.endTime).toLocaleTimeString([], {
@@ -50,7 +53,7 @@ export default function RouteProgress({
   return (
     <Box>
       <Typography variant="subtitle2" fontWeight={700} mb={2} color="white">
-        Live Progress
+        {dict.routes.details.liveProgress}
       </Typography>
       <Stepper activeStep={currentStep} orientation="vertical">
         {stops.map((step, index) => (

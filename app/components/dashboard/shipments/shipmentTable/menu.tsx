@@ -11,6 +11,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useState } from "react";
 
 interface DetailsMenuParams {
@@ -21,6 +22,7 @@ interface DetailsMenuParams {
 }
 
 const RowActions = (params: DetailsMenuParams) => {
+  const dict = useDictionary();
   /* --------------------------------- states --------------------------------- */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -52,7 +54,7 @@ const RowActions = (params: DetailsMenuParams) => {
           <ListItemIcon>
             <ContentPasteIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Details</ListItemText>
+          <ListItemText>{dict.common.details}</ListItemText>
         </MenuItem>
 
         {params.handleEdit && (
@@ -65,7 +67,7 @@ const RowActions = (params: DetailsMenuParams) => {
             <ListItemIcon>
               <EditIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Edit</ListItemText>
+            <ListItemText>{dict.common.edit}</ListItemText>
           </MenuItem>
         )}
 
@@ -80,7 +82,7 @@ const RowActions = (params: DetailsMenuParams) => {
             <ListItemIcon sx={{ color: "error.main" }}>
               <DeleteIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Delete</ListItemText>
+            <ListItemText>{dict.common.delete}</ListItemText>
           </MenuItem>
         )}
       </Menu>

@@ -24,10 +24,12 @@ import dayjs from "dayjs";
 import { useFormikContext } from "formik";
 import { EditDriverFormValues } from "@/app/lib/type/driver";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const FirstEditDriverDialogStep = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { values, errors, touched, setFieldValue, handleBlur, handleChange } = 
     useFormikContext<EditDriverFormValues>();
@@ -56,7 +58,7 @@ const FirstEditDriverDialogStep = () => {
                 fontWeight={500}
                 color="text.secondary"
               >
-                Employee ID
+                {dict.drivers.fields.employeeId}
               </Typography>
               <CustomTextArea
                 name="employeeId"
@@ -78,7 +80,7 @@ const FirstEditDriverDialogStep = () => {
                 fontWeight={500}
                 color="text.secondary"
               >
-                Phone Number
+                {dict.drivers.fields.phoneNumber}
               </Typography>
               <CustomTextArea
                 name="phone"
@@ -105,7 +107,7 @@ const FirstEditDriverDialogStep = () => {
                 fontWeight={500}
                 color="text.secondary"
               >
-                License Number
+                {dict.drivers.fields.licenseNumber}
               </Typography>
               <CustomTextArea
                 name="licenseNumber"
@@ -128,11 +130,11 @@ const FirstEditDriverDialogStep = () => {
                 fontWeight={500}
                 color="text.secondary"
               >
-                License Class / Type
+                {dict.drivers.fields.licenseType}
               </Typography>
               <CustomTextArea
                 name="licenseType"
-                placeholder="Select class"
+                placeholder={dict.common.select}
                 value={values.licenseType}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -151,7 +153,7 @@ const FirstEditDriverDialogStep = () => {
                 fontWeight={500}
                 color="text.secondary"
               >
-                Expiration Date
+                {dict.drivers.fields.licenseExpiry}
               </Typography>
               <DatePicker
                 value={values.licenseExpiry ? dayjs(values.licenseExpiry) : null}
@@ -161,7 +163,7 @@ const FirstEditDriverDialogStep = () => {
                 slotProps={{
                   textField: {
                     fullWidth: true,
-                    placeholder: "Select Date",
+                    placeholder: dict.common.date,
                     error: touched.licenseExpiry && Boolean(errors.licenseExpiry),
                     helperText: touched.licenseExpiry && (errors.licenseExpiry as string),
                     onBlur: handleBlur,
@@ -175,7 +177,7 @@ const FirstEditDriverDialogStep = () => {
 
         <Stack spacing={1.5}>
           <Typography variant="body2" fontWeight={500} color="text.secondary">
-            Update Physical License Scan (Optional)
+            {dict.drivers.labels.physicalLicense} ({dict.common.optional})
           </Typography>
           <input
             type="file"
@@ -241,7 +243,7 @@ const FirstEditDriverDialogStep = () => {
                   <CloudUploadIcon color="primary" />
                 </Box>
                 <Typography variant="body2" fontWeight={600} color="white">
-                  Click to upload new scan or drag and drop
+                  {dict.drivers.fields.licensePhoto}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -314,7 +316,7 @@ const FirstEditDriverDialogStep = () => {
             color="text.secondary"
             sx={{ lineHeight: 1.5 }}
           >
-            Only upload if you need to update the existing driver license scan.
+            {dict.drivers.labels.ensureVisible}
           </Typography>
         </Stack>
       </Stack>

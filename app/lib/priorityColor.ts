@@ -17,27 +17,61 @@ export const getPriorityColor = (priority: string): ChipProps["color"] => {
   }
 };
 
-export const getStatusMeta = (status?: string) => {
-  switch (status) {
-    case "ON_TRIP":
-    case "OFF_DUTY":
-      return {
-        color: "info.main",
-        text: status === "ON_TRIP" ? "On Trip" : "Off Duty",
-      };
+export const getStatusMeta = (status?: string, dict?: any) => {
+  const s = status?.toUpperCase() || "";
+  
+  // Helpers to get text from dict
+  const getDictLabel = (key: string) => {
+    return (
+      dict?.vehicles?.statuses?.[key] || 
+      dict?.vehicles?.priorities?.[key] || 
+      dict?.common?.[key] || 
+      key.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())
+    );
+  };
+
+  const label = getDictLabel(s);
+
+  switch (s) {
     case "AVAILABLE":
+    case "COMPLETED":
+    case "VALID":
+    case "ON_DUTY":
     case "ON_JOB":
-      return {
-        color: "success.main",
-        text: status === "AVAILABLE" ? "Available" : "On Job",
-      };
+    case "DELIVERED":
+    case "SUCCESS":
+    case "ON_TRIP":
+      return { color: "#48BB78", label }; // Success Green
+    case "IN_PROGRESS":
+    case "IN_TRANSIT":
+    case "PICKED_UP":
     case "IN_SERVICE":
-    case "ON_LEAVE":
-      return {
-        color: "warning.main",
-        text: status === "IN_SERVICE" ? "In Service" : "On Leave",
-      };
+    case "IDLE":
+    case "PROCESSING":
+      return { color: "#4299E1", label }; // Primary Blue
+    case "MAINTENANCE":
+    case "SCHEDULED":
+    case "PENDING":
+    case "DUE_SOON":
+    case "WARNING":
+    case "PLANNED":
+    case "ASSIGNED":
+    case "OFF_DUTY":
+    case "LOW":
+    case "MEDIUM":
+    case "OPEN":
+      return { color: "#F6AD55", label }; // Warning Orange/Amber
+    case "ERROR":
+    case "EXPIRED":
+    case "HIGH":
+    case "FAILED":
+    case "CRITICAL":
+    case "DELAYED":
+    case "CANCELLED":
+    case "CLOSED":
+    case "RESOLVED":
+      return { color: "#F56565", label }; // Error Red
     default:
-      return { color: "text.primary", text: status ?? "-" };
+      return { color: "#718096", label: label || "-" }; // Neutral Grey
   }
 };

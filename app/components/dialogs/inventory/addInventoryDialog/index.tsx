@@ -17,9 +17,7 @@ import {
   StepLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
-import { useMemo } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useState } from "react";
 import {
   AddInventoryDialogProps,
@@ -54,9 +52,7 @@ const AddInventoryDialog = ({
 }: AddInventoryDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
+  const dict = useDictionary();
 
   /* --------------------------------- states --------------------------------- */
   const [itemDetails, setItemDetails] =

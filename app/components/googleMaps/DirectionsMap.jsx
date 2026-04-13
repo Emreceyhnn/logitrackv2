@@ -6,6 +6,7 @@ import {
   DirectionsRenderer,
   Marker,
 } from "@react-google-maps/api";
+import { useDictionary } from "../../lib/language/DictionaryContext";
 
 const containerStyle = {
   width: "100%",
@@ -14,6 +15,7 @@ const containerStyle = {
 };
 
 export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
+  const dict = useDictionary();
   const [response, setResponse] = useState(null);
   const [errorCount, setErrorCount] = useState(0);
   const [isRequesting, setIsRequesting] = useState(false);
@@ -124,7 +126,7 @@ export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
       {isRequesting && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/10 backdrop-blur-[1px]">
           <div className="bg-white/90 px-4 py-2 rounded-lg shadow-lg text-sm font-medium text-gray-800 border border-white/20">
-            Calculating route...
+            {dict.maps.calculatingRoute}
           </div>
         </div>
       )}
@@ -152,7 +154,7 @@ export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
       {errorCount > 0 && (
         <div className="absolute bottom-4 left-4 right-4 z-10">
           <div className="bg-red-500/90 text-white text-xs font-medium px-3 py-2 rounded-md shadow-lg backdrop-blur-sm">
-            Unable to calculate directions. Please verify addresses.
+            {dict.maps.unableCalculateRoute}
           </div>
         </div>
       )}

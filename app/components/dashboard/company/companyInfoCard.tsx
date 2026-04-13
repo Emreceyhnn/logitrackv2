@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import BusinessIcon from "@mui/icons-material/Business";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { CompanyPageProps } from "@/app/lib/type/company";
 
 interface CompanyInfoCardProps {
@@ -19,10 +20,11 @@ interface CompanyInfoCardProps {
 }
 
 export default function CompanyInfoCard({ props }: CompanyInfoCardProps) {
+  const dict = useDictionary();
   const { state } = props;
   const profile = state.data?.profile ?? null;
   const formattedDate = profile?.createdAt
-    ? new Date(profile.createdAt).toLocaleDateString("en-US", {
+    ? new Date(profile.createdAt).toLocaleDateString(dict.common.logitrack === "LogiTrack" ? "en-US" : "tr-TR", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -65,7 +67,7 @@ export default function CompanyInfoCard({ props }: CompanyInfoCardProps) {
                     sx={{ fontSize: 14, color: "text.secondary" }}
                   />
                   <Typography fontSize={13} color="text.secondary">
-                    Created {formattedDate}
+                    {dict.company.info.created.replace("{date}", formattedDate ?? "")}
                   </Typography>
                 </Stack>
               </>
@@ -75,7 +77,7 @@ export default function CompanyInfoCard({ props }: CompanyInfoCardProps) {
           {profile !== null && (
             <Box>
               <Chip
-                label="Active"
+                label={dict.company.info.active}
                 color="success"
                 size="small"
                 sx={{ fontWeight: 600 }}

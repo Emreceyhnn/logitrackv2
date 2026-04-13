@@ -15,6 +15,7 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
 import { RouteWithRelations } from "@/app/lib/type/routes";
@@ -36,19 +37,22 @@ interface RouteDialogProps {
   route: RouteWithRelations | null;
 }
 
-const getStatusMeta = (status?: string) => {
-  switch (status) {
+const getStatusMeta = (status?: string, dict?: any) => {
+  const s = status?.toUpperCase();
+  const label = dict?.routes?.statuses?.[s as string] || status || "-";
+  
+  switch (s) {
     case "ACTIVE":
-      return { color: "success.main", text: "Active" };
+      return { color: "success.main", label };
     case "COMPLETED":
-      return { color: "info.main", text: "Completed" };
+      return { color: "info.main", label };
     case "PENDING":
     case "PLANNED":
-      return { color: "warning.main", text: "Planned" };
+      return { color: "warning.main", label };
     case "CANCELED":
-      return { color: "error.main", text: "Canceled" };
+      return { color: "error.main", label };
     default:
-      return { color: "text.primary", text: status ?? "-" };
+      return { color: "text.primary", label };
   }
 };
 
@@ -57,6 +61,7 @@ export default function RouteDialog({
   onClose,
   route,
 }: RouteDialogProps) {
+  const dict = useDictionary();
   const theme = useTheme();
 
   /* --------------------------------- states --------------------------------- */
@@ -75,24 +80,31 @@ export default function RouteDialog({
     setStatusLoading(true);
     try {
       await updateRouteStatus(route.id, newStatus);
-      toast.success(`Route status successfully updated to ${newStatus}`);
+      toast.success(dict.toasts.successUpdate || "Successfully updated!");
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to update status";
+        error instanceof Error ? error.message : dict.toasts.errorGeneric;
       toast.error(message);
     } finally {
       setStatusLoading(false);
     }
   };
 
-  const statusMeta = getStatusMeta(route.status || "PENDING");
-  const [colorKey, colorVariant] = statusMeta.color.split(".");
-  const palette = theme.palette as unknown as Record<
-    string,
-    Record<string, string>
-  >;
-  const statusColor =
-    palette[colorKey]?.[colorVariant] || theme.palette.text.primary;
+  const statusMeta = getStatusMeta(route.status || "PENDING", dict);
+  
+  const getStatusColor = () => {
+    if (statusMeta.color.includes(".")) {
+      const [colorKey, colorVariant] = statusMeta.color.split(".");
+      const palette = theme.palette as unknown as Record<
+        string,
+        Record<string, string>
+      >;
+      return palette[colorKey]?.[colorVariant] || theme.palette.text.primary;
+    }
+    return statusMeta.color;
+  };
+
+  const statusColor = getStatusColor();
 
   const mapOrigin =
     route.startLat && route.startLng
@@ -166,10 +178,10 @@ export default function RouteDialog({
                     fontWeight={800}
                     sx={{ color: "white", letterSpacing: "-0.02em" }}
                   >
-                    Route #{route.id.slice(-6).toUpperCase()}
+                    {dict.routes.title} #{route.id.slice(-6).toUpperCase()}
                   </Typography>
                   <Chip
-                    label={statusMeta.text}
+                    label={statusMeta.label}
                     sx={{
                       height: 24,
                       fontWeight: 700,
@@ -188,7 +200,7 @@ export default function RouteDialog({
                   sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
                 >
                   <PlaceIcon sx={{ fontSize: 16 }} />
-                  {route.name || "Freight Delivery Mission"}
+                  {route.name || dict.routes.dialogs.deliveryLabel}
                 </Typography>
               </Stack>
             </Stack>
@@ -211,7 +223,7 @@ export default function RouteDialog({
                       height: 36,
                     }}
                   >
-                    Start Route
+                    {dict.common.start}
                   </Button>
                   <Button
                     variant="outlined"
@@ -231,7 +243,7 @@ export default function RouteDialog({
                       height: 36,
                     }}
                   >
-                    Cancel
+                    {dict.common.cancel}
                   </Button>
                 </>
               )}
@@ -259,7 +271,7 @@ export default function RouteDialog({
                       height: 36,
                     }}
                   >
-                    Complete Route
+                    {dict.common.complete}
                   </Button>
                   <Button
                     variant="text"
@@ -277,7 +289,7 @@ export default function RouteDialog({
                       height: 36,
                     }}
                   >
-                    Cancel Route
+                    {dict.common.cancel}
                   </Button>
                 </>
               )}
@@ -318,7 +330,7 @@ export default function RouteDialog({
                     color="rgba(255,255,255,0.3)"
                     fontWeight={700}
                   >
-                    Assigned Driver
+                    {dict.routes.dialogs.driverAssignment}
                   </Typography>
                   {route.driver ? (
                     <DriverCard
@@ -355,7 +367,7 @@ export default function RouteDialog({
                     />
                   ) : (
                     <Typography variant="body2" color="text.secondary">
-                      Unassigned
+                      {dict.common.na}
                     </Typography>
                   )}
                 </Stack>
@@ -384,7 +396,7 @@ export default function RouteDialog({
                       display="block"
                       mb={0.5}
                     >
-                      DISTANCE
+                      {dict.routes.details.distance}
                     </Typography>
                     <Typography variant="h6" fontWeight={700} color="white">
                       {liveMetrics?.distanceKm ||
@@ -409,7 +421,7 @@ export default function RouteDialog({
                       display="block"
                       mb={0.5}
                     >
-                      STOPS
+                      {dict.routes.details.stops}
                     </Typography>
                     <Typography variant="h6" fontWeight={700} color="white">
                       {route.stops?.length || route.shipments?.length

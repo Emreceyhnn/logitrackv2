@@ -33,8 +33,7 @@ import Step2Regional from "./Step2Regional";
 import { toast } from "sonner";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { createCompany } from "@/app/lib/controllers/company";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const initialFormData: CompanyFormData = {
   name: "",
@@ -52,8 +51,7 @@ export default function CreateCompanyDialog({
   onSuccess,
 }: CreateCompanyDialogProps) {
   const theme = useTheme();
-  const { lang } = useParams();
-  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+  const dict = useDictionary();
 
   const [activeStep, setActiveStep] = useState(0);
   const [direction, setDirection] = useState(0); // For framer-motion slide direction

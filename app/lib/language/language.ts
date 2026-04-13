@@ -1,17 +1,17 @@
-import languages from "./languages.json";
+const dictionaries = {
+  en: () => import("./dictionaries/en.json").then((module) => module.default),
+  tr: () => import("./dictionaries/tr.json").then((module) => module.default),
+};
 
-// 1. JSON yapısına göre otomatik bir tip oluşturuyoruz
-export type Dictionary = (typeof languages)["en"];
+export type Locale = keyof typeof dictionaries;
+export type Dictionary = Awaited<ReturnType<(typeof dictionaries)["en"]>>;
 
-// 2. Desteklenen dilleri tip olarak belirliyoruz
-export type Locale = keyof typeof languages;
+export async function getDictionary(lang: string): Promise<Dictionary> {
+  const targetLang = (dictionaries.hasOwnProperty(lang) ? lang : "en") as Locale;
 
-export function getDictionary(lang: string): Dictionary {
-  // Eğer gelen dil JSON içinde yoksa varsayılan olarak 'en' döndür
-  const targetLang = (languages.hasOwnProperty(lang) ? lang : "en") as Locale;
-
-  return languages[targetLang] as Dictionary;
+  return dictionaries[targetLang]();
 }
+
 
 /**
  * Mesaj içerisindeki değişkenleri (örn: {field}) gerçek değerlerle değiştirir.

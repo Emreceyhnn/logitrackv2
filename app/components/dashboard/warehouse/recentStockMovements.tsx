@@ -13,6 +13,7 @@ import { InventoryMovementWithRelations } from "@/app/lib/type/warehouse";
 import HistoryIcon from '@mui/icons-material/History';
 import DataTable from "@/app/components/ui/DataTable";
 import type { DataTableColumn } from "@/app/lib/type/dataTable";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface RecentStockMovementsProps {
   movements: InventoryMovementWithRelations[];
@@ -24,6 +25,7 @@ const RecentStockMovements = ({
   loading,
 }: RecentStockMovementsProps) => {
   const theme = useTheme();
+  const dict = useDictionary();
   
   // Local pagination
   const [localPage, setLocalPage] = useState(1);
@@ -52,7 +54,7 @@ const RecentStockMovements = ({
   const columns: DataTableColumn<InventoryMovementWithRelations>[] = useMemo(() => [
     {
       key: "warehouse",
-      label: "WAREHOUSE",
+      label: dict.dashboard.warehouse.warehouse,
       render: (row) => (
         <Typography variant="body2" fontWeight={800} color="text.primary">
           {row.warehouse?.code}
@@ -61,7 +63,7 @@ const RecentStockMovements = ({
     },
     {
       key: "itemSku",
-      label: "ITEM / SKU",
+      label: dict.dashboard.warehouse.itemSku,
       render: (row) => (
         <>
           <Typography variant="body2" fontWeight={600}>
@@ -75,7 +77,7 @@ const RecentStockMovements = ({
     },
     {
       key: "type",
-      label: "TYPE",
+      label: dict.dashboard.warehouse.type,
       render: (row) => {
         const isPick = row.type === "PICK";
         return (
@@ -97,7 +99,7 @@ const RecentStockMovements = ({
     },
     {
       key: "quantity",
-      label: "QUANTITY",
+      label: dict.dashboard.warehouse.quantity,
       render: (row) => {
         const isPick = row.type === "PICK";
         return (
@@ -114,7 +116,7 @@ const RecentStockMovements = ({
     },
     {
       key: "timestamp",
-      label: "TIMESTAMP",
+      label: dict.dashboard.warehouse.timestamp,
       align: "right",
       render: (row) => {
         const date = new Date(row.date);
@@ -136,7 +138,7 @@ const RecentStockMovements = ({
 
   if (loading) return (
     <CustomCard sx={{ flex: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Typography color="text.secondary">Loading movements...</Typography>
+      <Typography color="text.secondary">{dict.dashboard.warehouse.loadingMovements}</Typography>
     </CustomCard>
   );
 
@@ -154,7 +156,7 @@ const RecentStockMovements = ({
             <HistoryIcon fontSize="small" />
           </Box>
           <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.02em" }}>
-            Recent Stock Movements
+            {dict.dashboard.warehouse.recentMovements}
           </Typography>
         </Stack>
       </Box>
@@ -163,7 +165,7 @@ const RecentStockMovements = ({
         <DataTable<InventoryMovementWithRelations>
           rows={paginatedMovements}
           columns={columns}
-          emptyMessage="No recent movements recorded yet."
+          emptyMessage={dict.dashboard.warehouse.noMovements}
           meta={meta}
           onPageChange={handlePageChange}
           onLimitChange={handleLimitChange}

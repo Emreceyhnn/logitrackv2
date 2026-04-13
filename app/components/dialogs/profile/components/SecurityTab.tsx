@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from "react";
 import {
   Box,
@@ -19,6 +17,7 @@ import {
   VisibilityOff,
   Security as SecurityIcon,
 } from "@mui/icons-material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import type {
   ProfilePageState,
   ProfilePageActions,
@@ -31,6 +30,7 @@ interface SecurityTabProps {
 
 export default function SecurityTab({ state, actions }: SecurityTabProps) {
   const theme = useTheme();
+  const dict = useDictionary();
   const [show, setShow] = useState({
     current: false,
     newP: false,
@@ -45,9 +45,9 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
 
   const strengthMap = {
     none: { color: alpha("#fff", 0.1), width: "0%", label: "" },
-    weak: { color: "#f43f5e", width: "33%", label: "Vulnerable" },
-    medium: { color: "#f59e0b", width: "66%", label: "Acceptable" },
-    strong: { color: "#10b981", width: "100%", label: "Robust" },
+    weak: { color: theme.palette.error.main, width: "33%", label: dict.profile.security.strengths.vulnerable },
+    medium: { color: theme.palette.warning.main, width: "66%", label: dict.profile.security.strengths.acceptable },
+    strong: { color: theme.palette.success.main, width: "100%", label: dict.profile.security.strengths.robust },
   };
 
   const fieldSx = {
@@ -73,7 +73,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
     },
     "& .MuiInputLabel-root.Mui-focused": { color: theme.palette.primary.main },
     "& .MuiFormHelperText-root.Mui-error": {
-      color: "#f43f5e",
+      color: theme.palette.error.main,
       fontWeight: 600,
     },
   };
@@ -116,7 +116,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
             fontWeight={800}
             sx={{ color: theme.palette.primary.main, mb: 0.5 }}
           >
-            Security Best Practices
+            {dict.profile.security.bannerTitle}
           </Typography>
           <Typography
             variant="caption"
@@ -126,15 +126,14 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
               lineHeight: 1.5,
             }}
           >
-            We recommend a minimum of 12 characters including uppercase,
-            numbers, and specialized symbols to protect your account.
+            {dict.profile.security.bannerDesc}
           </Typography>
         </Box>
       </Box>
 
       <Stack spacing={2.5}>
         <TextField
-          label="Current Password"
+          label={dict.profile.security.currentPassword}
           size="small"
           fullWidth
           type={show.current ? "text" : "password"}
@@ -169,7 +168,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
 
         <Box>
           <TextField
-            label="New Secure Password"
+            label={dict.profile.security.newPassword}
             size="small"
             fullWidth
             type={show.newP ? "text" : "password"}
@@ -217,17 +216,17 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                     textTransform: "uppercase",
                   }}
                 >
-                  Entropy Level
+                  {dict.profile.security.entropyLevel}
                 </Typography>
                 <Typography
                   variant="caption"
                   sx={{
-                    color: strengthMap[strength].color,
+                    color: strengthMap[strength as keyof typeof strengthMap].color,
                     fontWeight: 800,
                     fontSize: "0.65rem",
                   }}
                 >
-                  {strengthMap[strength].label}
+                  {strengthMap[strength as keyof typeof strengthMap].label}
                 </Typography>
               </Stack>
               <Box
@@ -241,11 +240,11 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                 <Box
                   sx={{
                     height: "100%",
-                    width: strengthMap[strength].width,
-                    bgcolor: strengthMap[strength].color,
+                    width: strengthMap[strength as keyof typeof strengthMap].width,
+                    bgcolor: strengthMap[strength as keyof typeof strengthMap].color,
                     borderRadius: 2,
                     transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                    boxShadow: `0 0 8px ${alpha(strengthMap[strength].color, 0.4)}`,
+                    boxShadow: `0 0 8px ${alpha(strengthMap[strength as keyof typeof strengthMap].color, 0.4)}`,
                   }}
                 />
               </Box>
@@ -254,7 +253,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
         </Box>
 
         <TextField
-          label="Confirm New Password"
+          label={dict.profile.security.confirmPassword}
           size="small"
           fullWidth
           type={show.confirm ? "text" : "password"}
@@ -267,7 +266,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
           }
           helperText={
             state.passwordForm.confirmPassword.length > 0 && !passwordMatch
-              ? "Verification failed. Passwords must match exactly."
+              ? dict.profile.security.matchError
               : ""
           }
           sx={fieldSx}
@@ -334,7 +333,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
             },
           }}
         >
-          {state.isSaving ? "Upgrading..." : "Update Credentials"}
+          {state.isSaving ? dict.profile.status.upgrading : dict.profile.security.updateButton}
         </Button>
       </Box>
     </Stack>

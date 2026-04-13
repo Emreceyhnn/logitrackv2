@@ -8,6 +8,7 @@ import { WarehouseTableProps, WarehouseWithRelations } from "@/app/lib/type/ware
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const WarehouseListTable = ({
   warehouses,
@@ -21,6 +22,7 @@ const WarehouseListTable = ({
   onLimitChange,
 }: WarehouseTableProps) => {
   const theme = useTheme();
+  const dict = useDictionary();
 
   // Local pagination if API meta isn't provided
   const [localPage, setLocalPage] = useState(1);
@@ -52,7 +54,7 @@ const WarehouseListTable = ({
   const columns: DataTableColumn<WarehouseWithRelations>[] = useMemo(() => [
     {
       key: "code",
-      label: "Code",
+      label: dict.dashboard.warehouse.code,
       sortable: true,
       render: (row) => (
         <Typography variant="body2" fontWeight={800} color="primary.main">
@@ -62,7 +64,7 @@ const WarehouseListTable = ({
     },
     {
       key: "name",
-      label: "Name",
+      label: dict.dashboard.warehouse.name,
       sortable: true,
       render: (row) => (
         <>
@@ -77,7 +79,7 @@ const WarehouseListTable = ({
     },
     {
       key: "type",
-      label: "Type / City",
+      label: dict.dashboard.warehouse.typeCity,
       sortable: true,
       render: (row) => (
         <Stack spacing={0.5}>
@@ -105,7 +107,7 @@ const WarehouseListTable = ({
     },
     {
       key: "capacityPallet",
-      label: "Capacity (Pallets)",
+      label: dict.dashboard.warehouse.capacityPallets,
       width: "20%",
       render: (row) => {
         const usedPallets = (row._count?.inventory || 0) * 10;
@@ -115,7 +117,7 @@ const WarehouseListTable = ({
           <Stack spacing={1}>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Typography variant="caption" fontWeight={700} color="text.secondary">
-                {palletPct.toFixed(0)}% Utilized
+                {dict.dashboard.warehouse.utilized.replace("{percent}", palletPct.toFixed(0))}
               </Typography>
               <Typography variant="caption" sx={{ fontFamily: "monospace", opacity: 0.6 }}>
                 {usedPallets.toLocaleString()} / {totalPallets.toLocaleString()}
@@ -141,7 +143,7 @@ const WarehouseListTable = ({
     },
     {
       key: "capacityVolume",
-      label: "Capacity (Volume)",
+      label: dict.dashboard.warehouse.capacityVolume,
       width: "20%",
       render: (row) => {
         const usedVolume = (row._count?.inventory || 0) * 5;
@@ -151,7 +153,7 @@ const WarehouseListTable = ({
           <Stack spacing={1}>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Typography variant="caption" fontWeight={700} color="text.secondary">
-                {volumePct.toFixed(0)}% Space
+                {dict.dashboard.warehouse.space.replace("{percent}", volumePct.toFixed(0))}
               </Typography>
               <Typography variant="caption" sx={{ fontFamily: "monospace", opacity: 0.6 }}>
                 {usedVolume.toLocaleString()} / {totalVolume.toLocaleString()} m³
@@ -177,7 +179,7 @@ const WarehouseListTable = ({
     },
     {
       key: "operatingHours",
-      label: "Operating Hours",
+      label: dict.dashboard.warehouse.operatingHours,
       align: "right",
       render: (row) => {
         const oh = row.operatingHours || "24/7";
@@ -193,17 +195,17 @@ const WarehouseListTable = ({
 
   const rowActions: DataTableRowAction<WarehouseWithRelations>[] = useMemo(() => [
     {
-      label: "View Details",
+      label: dict.dashboard.warehouse.viewDetails,
       icon: <VisibilityIcon fontSize="small" />,
       onClick: (row) => { if (onDetails) onDetails(row.id); else onSelect(row.id); },
     },
     {
-      label: "Edit Warehouse",
+      label: dict.dashboard.warehouse.editWarehouse,
       icon: <EditIcon fontSize="small" />,
       onClick: (row) => { if (onEdit) onEdit(row.id); },
     },
     {
-      label: "Delete Factory",
+      label: dict.dashboard.warehouse.deleteFactory,
       icon: <DeleteIcon fontSize="small" />,
       onClick: (row) => { if (onDelete) onDelete(row.id); },
       color: "error",
@@ -215,13 +217,13 @@ const WarehouseListTable = ({
       rows={paginatedWarehouses}
       columns={columns}
       loading={loading}
-      emptyMessage="No warehouses found"
+      emptyMessage={dict.dashboard.warehouse.noWarehouses}
       meta={currentMeta}
       onPageChange={handlePageChange}
       onLimitChange={handleLimitChange}
       rowActions={rowActions}
       wrapCard={true}
-      tableTitle="Warehouse List"
+      tableTitle={dict.dashboard.warehouse.listTitle}
     />
   );
 };

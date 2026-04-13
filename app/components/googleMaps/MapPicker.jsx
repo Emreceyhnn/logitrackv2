@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
+import { useDictionary } from "../../lib/language/DictionaryContext";
 
 const containerStyle = {
   width: "100%",
@@ -8,6 +9,7 @@ const containerStyle = {
 };
 
 export const MapPicker = ({ onLocationSelect, initialCenter }) => {
+  const dict = useDictionary();
   const [marker, setMarker] = useState(null);
   const center = useMemo(() => initialCenter || { lat: 41.0082, lng: 28.9784 }, [initialCenter]);
 
@@ -32,7 +34,7 @@ export const MapPicker = ({ onLocationSelect, initialCenter }) => {
         {marker && <MarkerF position={marker} />}
       </GoogleMap>
       <div className="p-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 italic">
-        Click anywhere on the map to mark a location.
+        {dict.maps.clickToMark}
       </div>
     </div>
   );

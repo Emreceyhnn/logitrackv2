@@ -31,8 +31,9 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import type { SelectChangeEvent } from "@mui/material";
+import { SelectChangeEvent } from "@mui/material";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 import CustomCard from "@/app/components/cards/card";
 import type {
@@ -40,10 +41,6 @@ import type {
   DataTableFilter,
   DataTableRowAction,
 } from "@/app/lib/type/dataTable";
-
-// ---------------------------------------------------------------------------
-// Internal: RowMenu
-// ---------------------------------------------------------------------------
 
 interface RowMenuProps<TRow> {
   row: TRow;
@@ -85,7 +82,10 @@ function RowMenu<TRow>({ row, actions }: RowMenuProps<TRow>) {
         }}
       >
         {actions
-          .filter((action: DataTableRowAction<TRow>) => !action.hidden || !action.hidden(row))
+          .filter(
+            (action: DataTableRowAction<TRow>) =>
+              !action.hidden || !action.hidden(row)
+          )
           .map((action: DataTableRowAction<TRow>, idx: number) => (
             <MenuItem
               key={idx}
@@ -142,10 +142,10 @@ function DataTableToolbar({
   onFilterChange,
 }: DataTableToolbarProps) {
   const theme = useTheme();
+  const dict = useDictionary();
   const [localSearch, setLocalSearch] = useState(searchValue);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Sync internal state when external searchValue changes (e.g. reset)
   useEffect(() => {
     setLocalSearch(searchValue);
   }, [searchValue]);
@@ -168,7 +168,10 @@ function DataTableToolbar({
   ) => {
     const { value } = event.target;
     if (isMultiple) {
-      onFilterChange(key, typeof value === "string" ? value.split(",") : value as string[]);
+      onFilterChange(
+        key,
+        typeof value === "string" ? value.split(",") : (value as string[])
+      );
     } else {
       onFilterChange(key, value ? [value as string] : []);
     }
@@ -190,7 +193,6 @@ function DataTableToolbar({
         bgcolor: alpha(theme.palette.background.paper, 0.6),
       }}
     >
-      {/* Search */}
       <TextField
         placeholder={searchPlaceholder}
         size="small"
@@ -215,13 +217,11 @@ function DataTableToolbar({
         }}
       />
 
-      {/* Dynamic filter dropdowns */}
       {filters.map((filter) => {
         const isMultiple = filter.multiple !== false;
         const selectedArr = activeFilters[filter.key] ?? [];
-        
-        // Single select needs a string, multi select needs an array
-        const selectValue = isMultiple ? selectedArr : (selectedArr[0] || "");
+
+        const selectValue = isMultiple ? selectedArr : selectedArr[0] || "";
 
         return (
           <FormControl key={filter.key} size="small" sx={{ minWidth: 160 }}>
@@ -232,11 +232,15 @@ function DataTableToolbar({
               onChange={(e) => handleFilterChange(filter.key, e, isMultiple)}
               input={<OutlinedInput label={filter.label} />}
               renderValue={(sel) => {
-                const arr = isMultiple ? (sel as string[]) : (sel ? [sel as string] : []);
+                const arr = isMultiple
+                  ? (sel as string[])
+                  : sel
+                    ? [sel as string]
+                    : [];
                 if (arr.length === 0) {
                   return (
                     <Typography variant="caption" color="text.secondary">
-                      All
+                      {dict.common.all}
                     </Typography>
                   );
                 }
@@ -264,7 +268,14 @@ function DataTableToolbar({
             >
               {!isMultiple && (
                 <MenuItem value="">
-                  <ListItemText primary="All" slotProps={{ primary: { sx: { fontSize: 13, fontStyle: "italic", opacity: 0.7 } } }} />
+                  <ListItemText
+                    primary={dict.common.all}
+                    slotProps={{
+                      primary: {
+                        sx: { fontSize: 13, fontStyle: "italic", opacity: 0.7 },
+                      },
+                    }}
+                  />
                 </MenuItem>
               )}
               {filter.options.map((opt) => (
@@ -291,7 +302,6 @@ function DataTableToolbar({
         );
       })}
 
-      {/* Active filter count badge */}
       {totalActive > 0 && (
         <Typography
           variant="caption"
@@ -304,10 +314,6 @@ function DataTableToolbar({
     </Stack>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Main: DataTable
-// ---------------------------------------------------------------------------
 
 function DataTable<TRow extends { id: string }>({
   rows,
@@ -331,6 +337,11 @@ function DataTable<TRow extends { id: string }>({
   wrapCard = false,
 }: DataTableProps<TRow>) {
   const theme = useTheme();
+  const dict = useDictionary();
+
+  const finalEmptyMessage = emptyMessage === "No records found" ? dict.common.noData : emptyMessage;
+  const finalSearchPlaceholder = searchPlaceholder === "Search..." ? dict.common.search : searchPlaceholder;
+
   const colCount =
     columns.length + (rowActions && rowActions.length > 0 ? 1 : 0);
 
@@ -341,10 +352,19 @@ function DataTable<TRow extends { id: string }>({
     <>
       {tableTitle && wrapCard && (
         <>
-          <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2, pb: showToolbar ? 1 : 2 }}>
+          <Typography
+            sx={{
+              fontSize: 18,
+              fontWeight: 600,
+              p: 2,
+              pb: showToolbar ? 1 : 2,
+            }}
+          >
             {tableTitle}
           </Typography>
-          {!showToolbar && <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1) }} />}
+          {!showToolbar && (
+            <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1) }} />
+          )}
         </>
       )}
 
@@ -352,7 +372,7 @@ function DataTable<TRow extends { id: string }>({
         <>
           <DataTableToolbar
             searchValue={searchValue}
-            searchPlaceholder={searchPlaceholder}
+            searchPlaceholder={finalSearchPlaceholder}
             onSearchChange={onSearchChange ?? (() => {})}
             filters={filters}
             activeFilters={activeFilters}
@@ -367,15 +387,18 @@ function DataTable<TRow extends { id: string }>({
       ) : (
         <TableContainer sx={{ p: 0 }}>
           <Table size="small">
-            {/* ── Head ─────────────────────────────────────────────────── */}
-            <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
+            <TableHead
+              sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}
+            >
               <TableRow>
                 {columns.map((col) => (
                   <TableCell
                     key={col.key}
                     align={col.align ?? "left"}
                     width={col.width}
-                    sortDirection={sortField === (col.sortKey || col.key) ? sortOrder : false}
+                    sortDirection={
+                      sortField === (col.sortKey || col.key) ? sortOrder : false
+                    }
                     sx={{
                       borderColor: alpha(theme.palette.divider, 0.1),
                       fontWeight: 600,
@@ -387,9 +410,14 @@ function DataTable<TRow extends { id: string }>({
                     {col.sortable ? (
                       <TableSortLabel
                         active={sortField === (col.sortKey || col.key)}
-                        direction={sortField === (col.sortKey || col.key) ? sortOrder : "asc"}
+                        direction={
+                          sortField === (col.sortKey || col.key)
+                            ? sortOrder
+                            : "asc"
+                        }
                         onClick={() => {
-                          if (onRequestSort) onRequestSort(col.sortKey || col.key);
+                          if (onRequestSort)
+                            onRequestSort(col.sortKey || col.key);
                         }}
                       >
                         {col.label}
@@ -409,7 +437,6 @@ function DataTable<TRow extends { id: string }>({
               </TableRow>
             </TableHead>
 
-            {/* ── Body ─────────────────────────────────────────────────── */}
             <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
               {rows.length === 0 ? (
                 <TableRow>
@@ -434,7 +461,7 @@ function DataTable<TRow extends { id: string }>({
                         color="text.secondary"
                         sx={{ fontSize: 13 }}
                       >
-                        {emptyMessage}
+                        {finalEmptyMessage}
                       </Typography>
                     </Box>
                   </TableCell>

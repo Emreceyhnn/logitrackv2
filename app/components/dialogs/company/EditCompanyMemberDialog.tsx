@@ -24,8 +24,7 @@ import {
 import { useForm, Controller, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { CompanyMember } from "@/app/lib/type/company";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateCompanyMember } from "@/app/lib/controllers/company";
 import { UserStatus } from "@prisma/client";
 import { editCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
@@ -52,10 +51,7 @@ export default function EditCompanyMemberDialog({
   onSuccess,
 }: EditCompanyMemberDialogProps) {
   const theme = useTheme();
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
-  
+  const dict = useDictionary();
   const {
     control,
     handleSubmit,
@@ -148,10 +144,10 @@ export default function EditCompanyMemberDialog({
             </Box>
             <Box>
               <Typography variant="h6" fontWeight={700} color="white">
-                Edit Member
+                {dict.company.editMember.title}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Modify permissions and profile for {member.name}
+                {dict.company.editMember.subtitle.replace("{name}", member.name)}
               </Typography>
             </Box>
           </Stack>
@@ -174,7 +170,7 @@ export default function EditCompanyMemberDialog({
                    render={({ field }) => (
                      <TextField
                        {...field}
-                       label="First Name"
+                       label={dict.company.editMember.firstName}
                        fullWidth
                        error={!!errors.name}
                        helperText={errors.name?.message}
@@ -190,7 +186,7 @@ export default function EditCompanyMemberDialog({
                    render={({ field }) => (
                      <TextField
                        {...field}
-                       label="Last Name"
+                       label={dict.company.editMember.lastName}
                        fullWidth
                        error={!!errors.surname}
                        helperText={errors.surname?.message}
@@ -208,22 +204,22 @@ export default function EditCompanyMemberDialog({
                  <TextField
                    {...field}
                    select
-                   label="System Role"
+                   label={dict.company.editMember.systemRole}
                    fullWidth
                    error={!!errors.roleId}
                    helperText={errors.roleId?.message}
                    sx={textFieldSx}
                  >
-                   <MenuItem value="role_default">Default (Standard User)</MenuItem>
-                   <MenuItem value="role_admin">Administrator</MenuItem>
-                   <MenuItem value="role_manager">Manager</MenuItem>
-                   <MenuItem value="role_dispatcher">Dispatcher</MenuItem>
-                   <MenuItem value="role_warehouse">Warehouse</MenuItem>
-                   <MenuItem value="role_driver">Driver</MenuItem>
+                   <MenuItem value="role_default">{dict.company.roles.default}</MenuItem>
+                   <MenuItem value="role_admin">{dict.company.roles.admin}</MenuItem>
+                   <MenuItem value="role_manager">{dict.company.roles.manager}</MenuItem>
+                   <MenuItem value="role_dispatcher">{dict.company.roles.dispatcher}</MenuItem>
+                   <MenuItem value="role_warehouse">{dict.company.roles.warehouse}</MenuItem>
+                   <MenuItem value="role_driver">{dict.company.roles.driver}</MenuItem>
                  </TextField>
                )}
              />
-
+ 
             <Controller
               name="status"
               control={control}
@@ -231,30 +227,30 @@ export default function EditCompanyMemberDialog({
                 <TextField
                   {...field}
                   select
-                  label="Account Status"
+                  label={dict.company.editMember.accountStatus}
                   fullWidth
-                  error={!!errors.status}
-                  helperText={errors.status?.message}
+                   error={!!errors.status}
+                   helperText={errors.status?.message}
                   sx={textFieldSx}
                 >
-                  <MenuItem value="ACTIVE">Active</MenuItem>
-                  <MenuItem value="INACTIVE">Inactive</MenuItem>
-                  <MenuItem value="SUSPENDED">Suspended</MenuItem>
+                   <MenuItem value="ACTIVE">{dict.company.editMember.statuses.ACTIVE}</MenuItem>
+                   <MenuItem value="INACTIVE">{dict.company.editMember.statuses.INACTIVE}</MenuItem>
+                   <MenuItem value="SUSPENDED">{dict.company.editMember.statuses.SUSPENDED}</MenuItem>
                 </TextField>
               )}
             />
           </Stack>
         </DialogContent>
-
+ 
         <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1) }} />
-
+ 
         <Box sx={{ p: 3, px: 4, bgcolor: alpha(theme.palette.background.default, 0.1) }}>
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             <Button 
               onClick={onClose}
               sx={{ px: 3, fontWeight: 600, color: "text.secondary", textTransform: "none" }}
             >
-              Cancel
+              {dict.common.cancel}
             </Button>
             <Button
               type="submit"
@@ -269,7 +265,7 @@ export default function EditCompanyMemberDialog({
                 boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
               }}
             >
-              {isSubmitting ? "Saving..." : "Save Changes"}
+              {isSubmitting ? dict.company.editMember.saving : dict.common.save}
             </Button>
           </Stack>
         </Box>

@@ -10,6 +10,7 @@ import {
   useTheme,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DataTable from "@/app/components/ui/DataTable";
@@ -19,16 +20,23 @@ import CompanyMemberDetailsDialog from "../../dialogs/company/CompanyMemberDetai
 import EditCompanyMemberDialog from "../../dialogs/company/EditCompanyMemberDialog";
 import DeleteConfirmationDialog from "../../dialogs/deleteConfirmationDialog";
 
-function StatusChip({ status }: { status: string }) {
+function StatusChip({ status, dict }: { status: string, dict: any }) {
   const normalized = status.toUpperCase();
   const colorMap: Record<string, "success" | "error" | "warning" | "default"> = {
     ACTIVE: "success",
     INACTIVE: "error",
     SUSPENDED: "warning",
   };
+  
+  const labelMap: Record<string, string> = {
+    ACTIVE: dict.company.members.statuses.active,
+    INACTIVE: dict.company.members.statuses.inactive,
+    SUSPENDED: dict.company.members.statuses.suspended,
+  };
+
   return (
     <Chip
-      label={normalized}
+      label={labelMap[normalized] ?? normalized}
       color={colorMap[normalized] ?? "default"}
       size="small"
       sx={{ fontWeight: 600, fontSize: 11 }}
@@ -43,6 +51,7 @@ interface CompanyMembersTableProps {
 export default function CompanyMembersTable({
   props,
 }: CompanyMembersTableProps) {
+  const dict = useDictionary();
   const { state, actions } = props;
   const theme = useTheme();
   const members = state.data?.members ?? [];
@@ -92,7 +101,7 @@ export default function CompanyMembersTable({
   const columns: DataTableColumn<CompanyMember>[] = useMemo(() => [
     {
       key: "member",
-      label: "Member",
+      label: dict.company.members.columns.member,
       render: (row) => (
         <Stack direction="row" spacing={1.5} alignItems="center">
           <Avatar
@@ -109,7 +118,7 @@ export default function CompanyMembersTable({
     },
     {
       key: "email",
-      label: "Email",
+      label: dict.company.members.columns.email,
       render: (row) => (
         <Typography fontSize={13} color="text.secondary">
           {row.email}
@@ -118,7 +127,7 @@ export default function CompanyMembersTable({
     },
     {
       key: "role",
-      label: "Role",
+      label: dict.company.members.columns.role,
       render: (row) => (
         row.roleName ? (
           <Chip
@@ -134,15 +143,15 @@ export default function CompanyMembersTable({
     },
     {
       key: "status",
-      label: "Status",
-      render: (row) => <StatusChip status={row.status} />,
+      label: dict.company.members.columns.status,
+      render: (row) => <StatusChip status={row.status} dict={dict} />,
     },
     {
       key: "joined",
-      label: "Joined",
+      label: dict.company.members.columns.joined,
       render: (row) => (
         <Typography fontSize={13} color="text.secondary">
-          {new Date(row.createdAt).toLocaleDateString("en-US", {
+          {new Date(row.createdAt).toLocaleDateString(dict.common.logitrack === "LogiTrack" ? "en-US" : "tr-TR", {
             year: "numeric",
             month: "short",
             day: "numeric",
@@ -150,26 +159,26 @@ export default function CompanyMembersTable({
         </Typography>
       ),
     },
-  ], [theme]);
+  ], [theme, dict]);
 
   const rowActions: DataTableRowAction<CompanyMember>[] = useMemo(() => [
     {
-      label: "Details",
+      label: dict.company.members.actions.details,
       icon: <InfoIcon fontSize="small" color="info" />,
       onClick: (row) => handleAction("details", row),
     },
     {
-      label: "Edit",
+      label: dict.company.members.actions.edit,
       icon: <EditIcon fontSize="small" />,
       onClick: (row) => handleAction("edit", row),
     },
     {
-      label: "Delete",
+      label: dict.company.members.actions.delete,
       icon: <DeleteIcon fontSize="small" />,
       onClick: (row) => handleAction("delete", row),
       color: "error",
     },
-  ], []);
+  ], [dict]);
 
   return (
     <>
@@ -177,13 +186,13 @@ export default function CompanyMembersTable({
         rows={paginatedMembers}
         columns={columns}
         loading={loading}
-        emptyMessage="No members found"
+        emptyMessage={dict.company.members.empty}
         meta={meta}
         onPageChange={setLocalPage}
         onLimitChange={(lim) => { setLocalLimit(lim); setLocalPage(1); }}
         rowActions={rowActions}
         wrapCard={true}
-        tableTitle="Team Members"
+        tableTitle={dict.company.members.title}
       />
       
       <CompanyMemberDetailsDialog 
@@ -203,8 +212,8 @@ export default function CompanyMembersTable({
         open={deleteOpen} 
         onClose={() => setDeleteOpen(false)} 
         onConfirm={handleDeleteConfirm}
-        title="Remove Member?"
-        description={`Are you sure you want to remove ${selectedMember?.name} from the company? This will revoke their access immediately.`}
+        title={dict.company.members.deleteDialog.title}
+        description={dict.company.members.deleteDialog.description.replace("{name}", selectedMember?.name ?? "")}
         loading={deleteLoading}
       />
     </>

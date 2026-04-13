@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { toast } from "sonner";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   AddWarehouseDialogProps,
   AddWarehousePageActions,
@@ -26,8 +26,7 @@ import {
 } from "@/app/lib/type/add-warehouse";
 import { createWarehouse } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/lib/hooks/useUser";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import BasicInfoSection from "./sections/BasicInfoSection";
 import LocationSection from "./sections/LocationSection";
@@ -65,8 +64,7 @@ const AddWarehouseDialog = ({
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
-  const { lang } = useParams();
-  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+  const dict = useDictionary();
 
   /* --------------------------------- states --------------------------------- */
   const [state, setState] = useState<AddWarehousePageState>({

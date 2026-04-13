@@ -15,6 +15,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useState } from "react";
 import OverviewTab from "./overviewTab";
@@ -84,6 +85,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
     onUpdateSuccess,
     initialTab,
   } = params;
+  const dict = useDictionary();
 
   /* --------------------------------- states --------------------------------- */
   const [value, setValue] = useState(initialTab ?? 0);
@@ -136,13 +138,20 @@ const VehicleDialog = (params: VehicleDialogParams) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const statusMeta = getStatusMeta(vehicleData?.status);
-  const [colorKey, colorVariant] = statusMeta.color.split(".");
-  const paletteColor = theme.palette[
-    colorKey as keyof typeof theme.palette
-  ] as unknown as Record<string, string>;
-  const statusColor =
-    paletteColor?.[colorVariant] || theme.palette.text.primary;
+  const statusMeta = getStatusMeta(vehicleData?.status, dict);
+  
+  const getStatusColor = () => {
+    if (statusMeta.color.includes(".")) {
+      const [colorKey, colorVariant] = statusMeta.color.split(".");
+      const paletteColor = theme.palette[
+        colorKey as keyof typeof theme.palette
+      ] as unknown as Record<string, string>;
+      return paletteColor?.[colorVariant] || theme.palette.text.primary;
+    }
+    return statusMeta.color;
+  };
+
+  const statusColor = getStatusColor();
 
   return (
     <Dialog
@@ -246,7 +255,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                   bgcolor: alpha(theme.palette.success.main, 0.05),
                 }}
               >
-                Return to Service
+                {dict.vehicles.dialogs.returnToService}
               </Button>
             ) : (
               vehicleData?.status === "AVAILABLE" && (
@@ -264,7 +273,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                     bgcolor: alpha(theme.palette.warning.main, 0.05),
                   }}
                 >
-                  Set Maintenance
+                  {dict.vehicles.dialogs.setMaintenance}
                 </Button>
               )
             )}
@@ -295,9 +304,9 @@ const VehicleDialog = (params: VehicleDialogParams) => {
               onChange={handleChange}
               aria-label="basic tabs example"
             >
-              <Tab label="Overview" {...a11yProps(0)} />
-              <Tab label="Documents" {...a11yProps(1)} />
-              <Tab label="Maintenance" {...a11yProps(2)} />
+              <Tab label={dict.vehicles.dialogs.tabs.overview} {...a11yProps(0)} />
+              <Tab label={dict.vehicles.dialogs.tabs.documents} {...a11yProps(1)} />
+              <Tab label={dict.vehicles.dialogs.tabs.maintenance} {...a11yProps(2)} />
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
@@ -325,10 +334,10 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           >
             <Box>
               <Typography variant="body2" fontWeight={600} color="text.primary">
-                Delete Vehicle
+                {dict.common.delete} {dict.vehicles.dialogs.vehicleLabel}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                Permanently remove this vehicle from the system
+                {dict.common.thisActionCannotBeUndone}
               </Typography>
             </Box>
             <Button
@@ -345,7 +354,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                 },
               }}
             >
-              Delete Vehicle
+              {dict.common.delete}
             </Button>
           </Stack>
         </Box>
@@ -355,8 +364,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
         open={deleteConfirmOpen}
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
-        title="Delete Vehicle?"
-        description={`Are you sure you want to delete ${vehicleData?.plate}? This will permanently remove all associated telemetry, documents, and maintenance records from the system.`}
+        title={dict.vehicles.deleteTitle}
+        description={dict.vehicles.deleteDesc}
         loading={isDeleting}
       />
     </Dialog>

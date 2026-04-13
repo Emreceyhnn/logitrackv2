@@ -24,6 +24,7 @@ import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import BuildIcon from "@mui/icons-material/Build";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useState } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Dayjs } from "dayjs";
@@ -42,6 +43,7 @@ export default function UploadDocumentDialog({
   vehicleId,
   onSuccess,
 }: UploadDocumentDialogProps) {
+  const dict = useDictionary();
   /* --------------------------------- states --------------------------------- */
   const [type, setType] = useState("");
   const [name, setName] = useState("");
@@ -75,7 +77,7 @@ export default function UploadDocumentDialog({
 
   const handleSubmit = async () => {
     if (!type || !name || !file) {
-      setError("Please fill in all required fields and select a file.");
+      setError(dict.common.fillAllFields);
       return;
     }
 
@@ -111,7 +113,7 @@ export default function UploadDocumentDialog({
       handleClose();
     } catch (err: unknown) {
       console.error(err);
-      const errorMessage = err instanceof Error ? err.message : "Failed to upload document";
+      const errorMessage = err instanceof Error ? err.message : dict.vehicles.dialogs.failedToUploadDocument || "Failed to upload document";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -159,32 +161,32 @@ export default function UploadDocumentDialog({
   const DOCUMENT_TYPES = [
     {
       value: "REGISTRATION",
-      label: "Registration",
+      label: dict.vehicles.docTypes.REGISTRATION,
       icon: <BadgeIcon sx={{ fontSize: 18 }} />,
     },
     {
       value: "INSURANCE",
-      label: "Insurance",
+      label: dict.vehicles.docTypes.INSURANCE,
       icon: <VerifiedUserIcon sx={{ fontSize: 18 }} />,
     },
     {
       value: "LICENSE",
-      label: "License/Permit",
+      label: dict.vehicles.docTypes.LICENSE,
       icon: <LocalLibraryIcon sx={{ fontSize: 18 }} />,
     },
     {
       value: "INSPECTION",
-      label: "Inspection",
+      label: dict.vehicles.docTypes.INSPECTION,
       icon: <BadgeIcon sx={{ fontSize: 18 }} />,
     },
     {
       value: "MAINTENANCE",
-      label: "Maintenance",
+      label: dict.vehicles.docTypes.MAINTENANCE,
       icon: <BuildIcon sx={{ fontSize: 18 }} />,
     },
     {
       value: "OTHER",
-      label: "Other",
+      label: dict.vehicles.docTypes.OTHER,
       icon: <AssignmentIcon sx={{ fontSize: 18 }} />,
     },
   ];
@@ -211,7 +213,7 @@ export default function UploadDocumentDialog({
           alignItems="center"
         >
           <Typography variant="h6" fontWeight={700} color="white">
-            Upload Document
+            {dict.vehicles.dialogs.uploadDocumentTitle}
           </Typography>
           <IconButton
             onClick={handleClose}
@@ -225,7 +227,7 @@ export default function UploadDocumentDialog({
           variant="caption"
           sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}
         >
-          Add new compliance or service records to this vehicle.
+          {dict.vehicles.dialogs.uploadDocumentDesc}
         </Typography>
       </Box>
 
@@ -258,16 +260,14 @@ export default function UploadDocumentDialog({
                 letterSpacing: 1,
               }}
             >
-              Configuration
+              {dict.vehicles.dialogs.configuration}
             </Typography>
             <Stack spacing={2.5}>
               <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: alpha("#fff", 0.4) }}>
-                  Document Type
-                </InputLabel>
+                <InputLabel sx={{ color: alpha("#fff", 0.4) }}>{dict.common.docType}</InputLabel>
                 <Select
                   value={type}
-                  label="Document Type"
+                  label={dict.common.docType}
                   onChange={(e) => setType(e.target.value)}
                   MenuProps={{
                     PaperProps: {
@@ -307,8 +307,8 @@ export default function UploadDocumentDialog({
               </FormControl>
 
               <TextField
-                label="Document Name"
-                placeholder="e.g. Q1 Maintenance Receipt"
+                label={dict.vehicles.dialogs.docName}
+                placeholder={dict.vehicles.dialogs.docNamePlaceholder}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 fullWidth
@@ -317,7 +317,7 @@ export default function UploadDocumentDialog({
               />
 
               <DatePicker
-                label="Expiry Date"
+                label={dict.vehicles.dialogs.expiryDate}
                 value={expiryDate}
                 onChange={(newValue) => setExpiryDate(newValue)}
                 slotProps={{
@@ -343,7 +343,7 @@ export default function UploadDocumentDialog({
                 letterSpacing: 1,
               }}
             >
-              File Attachment
+              {dict.vehicles.dialogs.fileAttachment}
             </Typography>
             <Button
               component="label"
@@ -368,10 +368,10 @@ export default function UploadDocumentDialog({
             >
               <Stack spacing={0.5} alignItems="center">
                 <Typography variant="body2" fontWeight={600} color="white">
-                  {file ? file.name : "Select or drag file"}
+                  {file ? file.name : dict.vehicles.dialogs.selectOrDragFile}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  JPG or PNG (Max. 10MB)
+                  {dict.vehicles.dialogs.fileFormats}
                 </Typography>
               </Stack>
               <input
@@ -396,7 +396,7 @@ export default function UploadDocumentDialog({
                   letterSpacing: 1,
                 }}
               >
-                Preview
+                {dict.vehicles.dialogs.preview}
               </Typography>
               <Box
                 sx={{
@@ -445,7 +445,7 @@ export default function UploadDocumentDialog({
               fontWeight: 600,
             }}
           >
-            Cancel
+            {dict.common.cancel}
           </Button>
           <Button
             variant="contained"
@@ -463,10 +463,10 @@ export default function UploadDocumentDialog({
             {loading ? (
               <Stack direction="row" spacing={1} alignItems="center">
                 <CircularProgress size={16} color="inherit" />
-                <span>Uploading...</span>
+                <span>{dict.common.uploading}</span>
               </Stack>
             ) : (
-              "Start Upload"
+              dict.vehicles.dialogs.startUpload
             )}
           </Button>
         </Stack>

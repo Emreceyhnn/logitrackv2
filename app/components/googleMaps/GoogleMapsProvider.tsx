@@ -2,6 +2,7 @@ import { useJsApiLoader, Libraries } from "@react-google-maps/api";
 import React from "react";
 import { Box, CircularProgress, Typography, alpha, useTheme } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const libraries: Libraries = ["places"];
 
@@ -11,6 +12,7 @@ interface GoogleMapsProviderProps {
 
 export const GoogleMapsProvider = ({ children }: GoogleMapsProviderProps) => {
   const theme = useTheme();
+  const dict = useDictionary();
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries,
@@ -32,10 +34,10 @@ export const GoogleMapsProvider = ({ children }: GoogleMapsProviderProps) => {
         <WarningAmberIcon color="error" />
         <Box>
           <Typography variant="subtitle2" color="error" fontWeight={700}>
-            Maps API Configuration Error
+            {dict.maps.apiError}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            The Google Maps service could not be loaded. This may be due to an invalid API key or network restricted access.
+            {dict.maps.apiErrorDesc}
           </Typography>
         </Box>
       </Box>
@@ -56,7 +58,7 @@ export const GoogleMapsProvider = ({ children }: GoogleMapsProviderProps) => {
       >
         <CircularProgress size={32} thickness={5} sx={{ color: theme.palette.primary.main }} />
         <Typography variant="caption" color="text.secondary" fontWeight={600}>
-          INITIALIZING MAP SERVICES...
+          {dict.maps.initializing}
         </Typography>
       </Box>
     );

@@ -20,6 +20,7 @@ import {
   Save as SaveIcon,
   ScheduleOutlined as TimezoneIcon,
 } from "@mui/icons-material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import type { SettingsPageState, SettingsPageActions } from "@/app/lib/type/settings";
 import { selectSxFactory, inputLabelSx } from "./SettingsStyles";
 
@@ -30,6 +31,7 @@ interface RegionalTabProps {
 
 export default function RegionalTab({ state, actions }: RegionalTabProps) {
   const theme = useTheme();
+  const dict = useDictionary();
   const ssX = selectSxFactory(theme);
 
   return (
@@ -41,61 +43,61 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
         border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`
       }}>
         <Typography variant="caption" sx={{ color: alpha("#fff", 0.45), fontWeight: 550, lineHeight: 1.6 }}>
-          Platform localization affects how currencies, timestamps, and numbers are rendered globally across your dashboard and reports.
+          {dict.company.dialogs.localizationDesc}
         </Typography>
       </Box>
 
       <Stack spacing={2.5}>
         <Stack direction="row" spacing={2.5}>
           <FormControl fullWidth size="small" sx={inputLabelSx}>
-            <InputLabel>Interface Language</InputLabel>
-            <Select value={state.regional.language} label="Interface Language"
+            <InputLabel>{dict.company.dialogs.interfaceLanguage}</InputLabel>
+            <Select value={state.regional.language} label={dict.company.dialogs.interfaceLanguage}
               onChange={(e) => actions.updateRegional({ language: e.target.value as "EN" | "TR" })}
               startAdornment={<LanguageIcon sx={{ mr: 1, fontSize: 18, color: alpha(theme.palette.primary.main, 0.5) }} />}
               sx={ssX}
             >
-              <MenuItem value="EN">🇺🇸 English (Global)</MenuItem>
-              <MenuItem value="TR">🇹🇷 Türkçe</MenuItem>
+              <MenuItem value="EN">🇺🇸 {dict.languages.en} (Global)</MenuItem>
+              <MenuItem value="TR">🇹🇷 {dict.languages.tr}</MenuItem>
             </Select>
           </FormControl>
 
           <FormControl fullWidth size="small" sx={inputLabelSx}>
-            <InputLabel>Default Currency</InputLabel>
-            <Select value={state.regional.currency} label="Default Currency"
+            <InputLabel>{dict.company.dialogs.defaultCurrency}</InputLabel>
+            <Select value={state.regional.currency} label={dict.company.dialogs.defaultCurrency}
               onChange={(e) => actions.updateRegional({ currency: e.target.value as "USD" | "EUR" | "TRY" | "GBP" })}
               startAdornment={<PaymentsIcon sx={{ mr: 1, fontSize: 18, color: alpha(theme.palette.primary.main, 0.5) }} />}
               sx={ssX}
             >
-              <MenuItem value="USD">$ USD - Dollar</MenuItem>
-              <MenuItem value="EUR">€ EUR - Euro</MenuItem>
-              <MenuItem value="TRY">₺ TRY - Lira</MenuItem>
-              <MenuItem value="GBP">£ GBP - Pound</MenuItem>
+              <MenuItem value="USD">$ USD - {dict.settings.dialogs.regional.currencies.dollar}</MenuItem>
+              <MenuItem value="EUR">€ EUR - {dict.settings.dialogs.regional.currencies.euro}</MenuItem>
+              <MenuItem value="TRY">₺ TRY - {dict.settings.dialogs.regional.currencies.lira}</MenuItem>
+              <MenuItem value="GBP">£ GBP - {dict.settings.dialogs.regional.currencies.pound}</MenuItem>
             </Select>
           </FormControl>
         </Stack>
 
         <Stack direction="row" spacing={2.5}>
           <FormControl fullWidth size="small" sx={inputLabelSx}>
-            <InputLabel>Active Timezone</InputLabel>
-            <Select value={state.regional.timezone} label="Active Timezone"
+            <InputLabel>{dict.company.dialogs.activeTimezone}</InputLabel>
+            <Select value={state.regional.timezone} label={dict.company.dialogs.activeTimezone}
               onChange={(e) => actions.updateRegional({ timezone: e.target.value })}
               startAdornment={<TimezoneIcon sx={{ mr: 1, fontSize: 18, color: alpha(theme.palette.primary.main, 0.5) }} />}
               sx={ssX}
             >
-              <MenuItem value="UTC">UTC (Universal Coordinate)</MenuItem>
-              <MenuItem value="Europe/Istanbul">Istanbul (GMT+3)</MenuItem>
-              <MenuItem value="Europe/Berlin">Central Europe (GMT+1)</MenuItem>
-              <MenuItem value="America/New_York">Eastern Time (GMT-5)</MenuItem>
-              <MenuItem value="America/Los_Angeles">Pacific Time (GMT-8)</MenuItem>
-              <MenuItem value="Asia/Tokyo">Tokyo/Seoul (GMT+9)</MenuItem>
+              <MenuItem value="UTC">UTC ({dict.settings.dialogs.regional.timezones.universal})</MenuItem>
+              <MenuItem value="Europe/Istanbul">{dict.settings.dialogs.regional.timezones.istanbul} (GMT+3)</MenuItem>
+              <MenuItem value="Europe/Berlin">{dict.settings.dialogs.regional.timezones.centralEurope} (GMT+1)</MenuItem>
+              <MenuItem value="America/New_York">{dict.settings.dialogs.regional.timezones.easternTime} (GMT-5)</MenuItem>
+              <MenuItem value="America/Los_Angeles">{dict.settings.dialogs.regional.timezones.pacificTime} (GMT-8)</MenuItem>
+              <MenuItem value="Asia/Tokyo">{dict.settings.dialogs.regional.timezones.tokyoSeoul} (GMT+9)</MenuItem>
             </Select>
           </FormControl>
 
           <FormControl fullWidth size="small" sx={inputLabelSx}>
-            <InputLabel>Date-Time Format</InputLabel>
-            <Select value={state.regional.dateFormat} label="Date-Time Format" onChange={(e) => actions.updateRegional({ dateFormat: e.target.value })} sx={ssX}>
-              <MenuItem value="MM/DD/YYYY">Standard (MM/DD/YY)</MenuItem>
-              <MenuItem value="DD/MM/YYYY">International (DD/MM/YY)</MenuItem>
+            <InputLabel>{dict.company.dialogs.dateTimeFormat}</InputLabel>
+            <Select value={state.regional.dateFormat} label={dict.company.dialogs.dateTimeFormat} onChange={(e) => actions.updateRegional({ dateFormat: e.target.value })} sx={ssX}>
+              <MenuItem value="MM/DD/YYYY">{dict.settings.dialogs.regional.dateFormats.standard}</MenuItem>
+              <MenuItem value="DD/MM/YYYY">{dict.settings.dialogs.regional.dateFormats.international}</MenuItem>
               <MenuItem value="YYYY-MM-DD">ISO-8601 (YYYY-MM-DD)</MenuItem>
             </Select>
           </FormControl>
@@ -123,7 +125,7 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
                 transition: "all 0.2s"
             }}
         >
-          {state.isSaving ? "Synchronizing..." : "Update Preferences"}
+          {state.isSaving ? dict.common.synchronizing : dict.common.updatePreferences}
         </Button>
       </Box>
     </Stack>

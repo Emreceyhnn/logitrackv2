@@ -4,9 +4,11 @@ import { useState, useRef } from "react";
 import { Box, Stack, Typography, Avatar, CircularProgress } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useFormikContext } from "formik";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 
 export default function Step3Profile() {
+  const dict = useDictionary();
   const { values, setFieldValue } = useFormikContext<{ avatarUrl: string }>();
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,10 +44,10 @@ export default function Step3Profile() {
     <Stack spacing={3} alignItems="center">
       <Box sx={{ width: "100%", textAlign: "left" }}>
         <Typography variant="h5" sx={{ color: "#fff", fontWeight: 600, mb: 1 }}>
-          Final Touches
+          {dict.auth.finalTouches}
         </Typography>
         <Typography sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}>
-          Almost there! Complete your profile to join the LogiTrack team.
+          {dict.auth.profileDescription}
         </Typography>
       </Box>
 
@@ -87,7 +89,7 @@ export default function Step3Profile() {
             textAlign: "center",
           }}
         >
-          {uploading ? "Uploading..." : values.avatarUrl ? "Change Photo" : "Upload Profile Picture"}
+          {uploading ? dict.auth.uploading : values.avatarUrl ? dict.auth.changePhoto : dict.auth.uploadProfilePicture}
         </Typography>
       </Box>
 
@@ -101,7 +103,7 @@ export default function Step3Profile() {
         }}
       >
         <Typography variant="body2" sx={{ color: "rgba(255, 255, 255, 0.8)", lineHeight: 1.6 }}>
-          By clicking &quot;Complete Registration&quot;, you agree to our Terms of Service and Privacy Policy. Your account will be created and you&apos;re redirected to the dashboard.
+          {dict.auth.termsAgreement}
         </Typography>
       </Box>
     </Stack>

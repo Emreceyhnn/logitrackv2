@@ -21,8 +21,7 @@ import PicksPacksDailyCard from "@/app/components/dashboard/overview/picsPacksDa
 import ShipmentVolumeCard from "@/app/components/dashboard/overview/onTimeTrends";
 import OverviewMapCard from "@/app/components/dashboard/overview/overViewMapCard";
 import { useState, useMemo } from "react";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useOverviewData } from "@/app/hooks/useOverview";
 import { MapData } from "@/app/lib/type/overview";
@@ -39,9 +38,7 @@ import KpiCards from "@/app/components/cards/KpiCards";
 export default function OverviewPage() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
+  const dict = useDictionary();
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const { data, isLoading, refetch } = useOverviewData();

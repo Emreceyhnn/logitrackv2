@@ -11,6 +11,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import InfoIcon from "@mui/icons-material/Info";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import DataTable from "@/app/components/ui/DataTable";
 import type { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTable";
@@ -51,7 +52,7 @@ const InventoryTable = ({
   onPageChange,
   onLimitChange,
 }: InventoryTableProps) => {
-
+  const dict = useDictionary();
   const [localPage, setLocalPage] = useState(1);
   const [localLimit, setLocalLimit] = useState(10);
 
@@ -81,7 +82,7 @@ const InventoryTable = ({
   const columns: DataTableColumn<InventoryWithRelations>[] = useMemo(() => [
     {
       key: "productName",
-      label: "Product Name",
+      label: dict.inventory.table.productName,
       sortable: true,
       sortKey: "name",
       render: (row) => (
@@ -109,18 +110,18 @@ const InventoryTable = ({
     },
     {
       key: "sku",
-      label: "SKU",
+      label: dict.inventory.table.sku,
       sortable: true,
       render: (row) => row.sku,
     },
     {
       key: "category",
-      label: "Category",
-      render: () => <Chip label="General" size="small" variant="outlined" />,
+      label: dict.inventory.table.category,
+      render: () => <Chip label={dict.inventory.category.general} size="small" variant="outlined" />,
     },
     {
       key: "stockLevel",
-      label: "Stock Level",
+      label: dict.inventory.table.stockLevel,
       sortable: true,
       sortKey: "quantity",
       render: (row) => {
@@ -139,8 +140,8 @@ const InventoryTable = ({
               variant="body2"
               sx={{ color: `${getStockColor(status)}.main`, fontWeight: 500 }}
             >
-              {row.quantity} {status === "LOW_STOCK" && "(Low)"}{" "}
-              {status === "OUT_OF_STOCK" && "(Out)"}
+              {row.quantity} {status === "LOW_STOCK" && `(${dict.inventory.status.low})`}{" "}
+              {status === "OUT_OF_STOCK" && `(${dict.inventory.status.out})`}
             </Typography>
           </Stack>
         );
@@ -148,47 +149,47 @@ const InventoryTable = ({
     },
     {
       key: "unitPrice",
-      label: "Unit Price",
+      label: dict.inventory.table.unitPrice,
       sortable: true,
       sortKey: "unitValue",
       render: (row) => formatPrice(row.unitValue || 0),
     },
     {
       key: "warehouse",
-      label: "Warehouses",
+      label: dict.inventory.table.warehouses,
       render: (row) => (
         <Stack direction="row" spacing={0.5}>
           <Chip label={row.warehouse.code} size="small" sx={{ fontSize: "0.7rem", height: 20 }} />
         </Stack>
       ),
     },
-  ], []);
+  ], [dict]);
 
   const rowActions: DataTableRowAction<InventoryWithRelations>[] = useMemo(() => [
     {
-      label: "Details",
+      label: dict.inventory.actions.details,
       icon: <InfoIcon fontSize="small" color="info" />,
       onClick: (row) => onSelect(row.id),
     },
     {
-      label: "Edit",
+      label: dict.inventory.actions.edit,
       icon: <EditIcon fontSize="small" />,
       onClick: (row) => onEdit(row),
     },
     {
-      label: "Delete",
+      label: dict.inventory.actions.delete,
       icon: <DeleteIcon fontSize="small" />,
       onClick: (row) => { if (onDelete) onDelete(row.id); },
       color: "error",
     },
-  ], [onSelect, onEdit, onDelete]);
+  ], [onSelect, onEdit, onDelete, dict]);
 
   return (
     <DataTable<InventoryWithRelations>
       rows={paginatedItems}
       columns={columns}
       loading={loading}
-      emptyMessage="No inventory items found"
+      emptyMessage={dict.inventory.noItems}
       meta={currentMeta}
       onPageChange={handlePageChange}
       onLimitChange={handleLimitChange}

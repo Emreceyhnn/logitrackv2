@@ -10,11 +10,13 @@ import {
   MenuItem,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 export default function AnalyticsHeader() {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
 
   return (
     <Stack
@@ -30,10 +32,10 @@ export default function AnalyticsHeader() {
           fontWeight={700}
           sx={{ color: theme.palette.text.primary }}
         >
-          Business Analytics
+          {dict.analytics.title}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Executive overview of operational performance and financial trends
+          {dict.analytics.subtitle}
         </Typography>
       </Box>
 
@@ -42,7 +44,7 @@ export default function AnalyticsHeader() {
           select
           defaultValue="30"
           size="small"
-          sx={{ width: 150 }}
+          sx={{ width: 170 }}
           slotProps={{
             input: {
               startAdornment: (
@@ -54,10 +56,10 @@ export default function AnalyticsHeader() {
             },
           }}
         >
-          <MenuItem value="7">Last 7 Days</MenuItem>
-          <MenuItem value="30">Last 30 Days</MenuItem>
-          <MenuItem value="90">Last Quarter</MenuItem>
-          <MenuItem value="365">Year to Date</MenuItem>
+          <MenuItem value="7">{dict.analytics.periods.last7Days}</MenuItem>
+          <MenuItem value="30">{dict.analytics.periods.last30Days}</MenuItem>
+          <MenuItem value="90">{dict.analytics.periods.lastQuarter}</MenuItem>
+          <MenuItem value="365">{dict.analytics.periods.yearToDate}</MenuItem>
         </TextField>
 
         <Button
@@ -65,7 +67,7 @@ export default function AnalyticsHeader() {
           startIcon={<DownloadIcon />}
           sx={{ textTransform: "none", fontWeight: 600 }}
         >
-          Export Report
+          {dict.analytics.exportReport}
         </Button>
       </Stack>
     </Stack>

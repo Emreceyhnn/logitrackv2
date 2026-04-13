@@ -19,8 +19,11 @@ import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import { useFormikContext } from "formik";
 import { CompanyFormData } from "@/app/lib/type/create-company";
 
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
 export default function Step1Branding({ state, actions }: CompanyStepProps) {
   const theme = useTheme();
+  const dict = useDictionary();
   const { formData } = state;
   const { errors, touched, handleBlur } = useFormikContext<CompanyFormData>();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,21 +56,21 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
     <Box>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, letterSpacing: "-0.01em" }}>
-          Brand Persona
+          {dict.company.branding.title}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Define how your organization appears across the LogiTrack ecosystem.
+          {dict.company.branding.subtitle}
         </Typography>
       </Box>
 
       <Stack spacing={4}>
         <Box>
           <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
-            Legal Entity Name *
+            {dict.company.branding.legalName}
           </Typography>
           <TextField
             fullWidth
-            placeholder="e.g. Global Logistics Inc."
+            placeholder={dict.company.branding.legalNamePlaceholder}
             name="name"
             value={formData.name}
             onChange={handleChange}
@@ -90,13 +93,13 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
             variant="caption"
             sx={{ mt: 1, display: "block", color: alpha(theme.palette.text.secondary, 0.6) }}
           >
-            This will be your primary identifier for billing and administrative tasks.
+            {dict.company.branding.legalNameDesc}
           </Typography>
         </Box>
 
         <Box>
           <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
-            Digital Identity (Logo)
+            {dict.company.branding.digitalIdentity}
           </Typography>
           <Box
             onClick={handleClickUpload}
@@ -156,7 +159,7 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
                   "&:hover": { opacity: 1 }
                 }}>
                   <Typography variant="button" sx={{ color: "#fff", fontWeight: 700 }}>
-                    Change Logo
+                    {dict.company.branding.changeLogo}
                   </Typography>
                 </Box>
               </Box>
@@ -175,10 +178,10 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
                   <CloudUploadIcon sx={{ color: theme.palette.primary.main }} />
                 </Box>
                 <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                  Upload Brand Assets
+                  {dict.company.branding.uploadAssets}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  PNG, JPG or SVG. Max size 5MB.
+                  {dict.company.branding.uploadFormat}
                 </Typography>
               </Stack>
             )}
@@ -187,7 +190,7 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
 
         <Box>
           <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
-            Core Industry
+            {dict.company.branding.industry}
           </Typography>
           <FormControl fullWidth error={touched.industry && !!errors.industry}>
             <Select
@@ -210,12 +213,12 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
               }}
             >
               <MenuItem value="" disabled>
-                Select industry domain...
+                {dict.company.branding.industryPlaceholder}
               </MenuItem>
-              <MenuItem value="logistics">Logistics & Supply Chain</MenuItem>
-              <MenuItem value="E-Commerce">E-Commerce & Delivery</MenuItem>
-              <MenuItem value="manufacturing">Industrial Manufacturing</MenuItem>
-              <MenuItem value="retail">Retail & Enterprise</MenuItem>
+              <MenuItem value="logistics">{dict.industries.logistics}</MenuItem>
+              <MenuItem value="E-Commerce">{dict.industries.ecommerce}</MenuItem>
+              <MenuItem value="manufacturing">{dict.industries.manufacturing}</MenuItem>
+              <MenuItem value="retail">{dict.industries.retail}</MenuItem>
             </Select>
             {touched.industry && errors.industry && (
               <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5 }}>

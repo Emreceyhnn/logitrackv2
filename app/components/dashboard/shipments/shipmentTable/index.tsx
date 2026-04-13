@@ -9,30 +9,34 @@ import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDeta
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import type {
+import {
   ShipmentTableProps,
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
 import { ShipmentStatus } from "@prisma/client";
-
-// Shipment status is now a Prisma enum.
-const SHIPMENT_STATUS_VALUES = Object.values(ShipmentStatus) as ShipmentStatus[];
-
-const SHIPMENT_FILTERS: DataTableFilter[] = [
-  {
-    key: "status",
-    label: "Status",
-    options: SHIPMENT_STATUS_VALUES.map((s: ShipmentStatus) => ({
-      label: s.replace(/_/g, " "),
-      value: s as string,
-    })),
-    multiple: false,
-  },
-];
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
+  const dict = useDictionary();
   const { shipments, loading = false, filters } = state;
   const { selectShipment, onEdit, onDelete, updateFilters } = actions;
+
+  // Localized statuses for the filter
+  const SHIPMENT_STATUS_VALUES = Object.values(ShipmentStatus) as ShipmentStatus[];
+  const SHIPMENT_FILTERS: DataTableFilter[] = useMemo(() => [
+    {
+      key: "status",
+      label: dict.shipments.table.columns.status,
+      options: SHIPMENT_STATUS_VALUES.map((s: ShipmentStatus) => {
+        const statusKey = s.toUpperCase();
+        return {
+          label: dict.routes.statuses[statusKey as keyof typeof dict.routes.statuses] || s.replace(/_/g, " "),
+          value: s as string,
+        };
+      }),
+      multiple: false,
+    },
+  ], [dict]);
 
   /* --------------------------------- dialog state --------------------------------- */
   const [detailOpen, setDetailOpen] = useState(false);
@@ -83,7 +87,7 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
   const columns: DataTableColumn<ShipmentWithRelations>[] = [
     {
       key: "trackingId",
-      label: "Code",
+      label: dict.shipments.table.columns.code,
       render: (row) => (
         <Typography variant="body2" sx={{ fontWeight: 500, fontSize: 13 }}>
           {row.trackingId}
@@ -92,27 +96,27 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
     },
     {
       key: "status",
-      label: "Status",
+      label: dict.shipments.table.columns.status,
       render: (row) => <StatusChip status={row.status} />,
     },
     {
       key: "customer",
-      label: "Customer",
+      label: dict.shipments.table.columns.customer,
       render: (row) => row.customer?.name ?? "-",
     },
     {
       key: "createdAt",
-      label: "Created",
+      label: dict.shipments.table.columns.created,
       render: (row) => new Date(row.createdAt).toLocaleDateString(),
     },
     {
       key: "destination",
-      label: "Destination",
+      label: dict.shipments.table.columns.destination,
       render: (row) => row.destination,
     },
     {
       key: "driver",
-      label: "Driver",
+      label: dict.shipments.table.columns.driver,
       render: (row) =>
         row.driver?.user.name
           ? `${row.driver.user.name} ${row.driver.user.surname}`
@@ -120,12 +124,12 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
     },
     {
       key: "route",
-      label: "Route",
+      label: dict.shipments.table.columns.route,
       render: (row) => row.route?.name ?? row.routeId ?? "-",
     },
     {
       key: "items",
-      label: "Items",
+      label: dict.shipments.table.columns.items,
       align: "right",
       render: (row) => row.itemsCount,
     },
@@ -134,17 +138,17 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
   /* --------------------------------- row actions --------------------------------- */
   const rowActions: DataTableRowAction<ShipmentWithRelations>[] = [
     {
-      label: "Details",
+      label: dict.common.details,
       icon: <ContentPasteIcon fontSize="small" />,
       onClick: handleOpenDetails,
     },
     {
-      label: "Edit",
+      label: dict.common.edit,
       icon: <EditIcon fontSize="small" />,
       onClick: (row) => onEdit(row.id),
     },
     {
-      label: "Delete",
+      label: dict.common.delete,
       icon: <DeleteIcon fontSize="small" />,
       onClick: (row) => onDelete(row.id),
       color: "error",
@@ -160,9 +164,9 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
         rows={paginatedShipments}
         columns={columns}
         loading={loading}
-        emptyMessage="No shipments found"
+        emptyMessage={dict.shipments.table.noShipments}
         searchValue={filters.search ?? ""}
-        searchPlaceholder="Search shipments..."
+        searchPlaceholder={dict.shipments.table.searchPlaceholder}
         onSearchChange={handleSearchChange}
         filters={SHIPMENT_FILTERS}
         activeFilters={activeFilters}
@@ -172,7 +176,7 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
         onPageChange={setLocalPage}
         onLimitChange={(lim) => { setLocalLimit(lim); setLocalPage(1); }}
         wrapCard={true}
-        tableTitle="Shipment List"
+        tableTitle={dict.shipments.table.title}
       />
 
       <ShipmentDetailDialog

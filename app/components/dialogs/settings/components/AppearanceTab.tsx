@@ -17,6 +17,7 @@ import {
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useThemeMode } from "@/app/lib/theme/themeContext";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import type { SettingsPageState, SettingsPageActions, AppearanceMode } from "@/app/lib/type/settings";
 
 interface AppearanceTabProps {
@@ -26,12 +27,13 @@ interface AppearanceTabProps {
 
 export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
   const theme = useTheme();
+  const dict = useDictionary();
   const { setMode } = useThemeMode();
 
   const modes: { value: AppearanceMode; label: string; icon: React.ElementType; desc: string }[] = [
-    { value: "light", label: "Polar", icon: LightMode, desc: "High contrast UI" },
-    { value: "dark", label: "Nebula", icon: DarkMode, desc: "Deep space aesthetic" },
-    { value: "system", label: "Adaptive", icon: DesktopMac, desc: "Synchronized with OS" },
+    { value: "light", label: dict.settings.dialogs.appearance.modes.polar, icon: LightMode, desc: dict.settings.dialogs.appearance.modes.polarDesc },
+    { value: "dark", label: dict.settings.dialogs.appearance.modes.nebula, icon: DarkMode, desc: dict.settings.dialogs.appearance.modes.nebulaDesc },
+    { value: "system", label: dict.settings.dialogs.appearance.modes.adaptive, icon: DesktopMac, desc: dict.settings.dialogs.appearance.modes.adaptiveDesc },
   ];
 
   const handleChange = (mode: AppearanceMode) => {
@@ -48,7 +50,7 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
         border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`
       }}>
         <Typography variant="caption" sx={{ color: alpha("#fff", 0.45), fontWeight: 550, lineHeight: 1.6 }}>
-            The appearance settings dynamically transform the color matrices and surface shaders across the entire LogiTrack application.
+            {dict.settings.dialogs.appearance.desc}
         </Typography>
       </Box>
 
@@ -113,7 +115,7 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
                         animate={{ opacity: 1, y: 0 }}
                     >
                         <Chip
-                            label="PROJECTION ACTIVE" size="small"
+                            label={dict.settings.dialogs.appearance.modes.projectionActive} size="small"
                             icon={<CheckIcon sx={{ fontSize: 13, color: "inherit !important" }} />}
                             sx={{
                                 bgcolor: alpha(theme.palette.primary.main, 0.15),

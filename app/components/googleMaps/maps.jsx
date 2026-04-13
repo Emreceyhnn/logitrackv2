@@ -4,8 +4,10 @@ import { AddressAutocomplete } from "./AddressAutocomplete";
 import { MapWithMarker } from "./MapWithMarker";
 import { DirectionsMap } from "./DirectionsMap";
 import { MapPicker } from "./MapPicker";
+import { useDictionary } from "../../lib/language/DictionaryContext";
 
 const GoogleMapDemo = () => {
+  const dict = useDictionary();
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [pickedLocation, setPickedLocation] = useState(null);
 
@@ -19,10 +21,10 @@ const GoogleMapDemo = () => {
         <div className="max-w-6xl mx-auto space-y-8">
           <header className="text-center space-y-2">
             <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-              Google Maps Integration Components
+              {dict.maps.demo.title}
             </h1>
             <p className="text-gray-500">
-              Modular and production-ready React components for Google Maps.
+              {dict.maps.demo.subtitle}
             </p>
           </header>
 
@@ -31,18 +33,19 @@ const GoogleMapDemo = () => {
             <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
               <div className="space-y-1">
                 <h2 className="text-xl font-bold text-gray-800">
-                  1. Address Input & Marker
+                  {dict.maps.demo.addressTitle}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Search for an address and see it on the map.
+                  {dict.maps.demo.addressDesc}
                 </p>
               </div>
               <AddressAutocomplete onAddressSelect={setSelectedAddress} />
               {selectedAddress && (
                 <div className="p-3 bg-green-50 rounded-lg text-xs font-mono text-green-700">
-                  Lat: {selectedAddress.lat.toFixed(6)}, Lng:{" "}
+                  {dict.maps.demo.lat}: {selectedAddress.lat.toFixed(6)}, {dict.maps.demo.lng}:{" "}
                   {selectedAddress.lng.toFixed(6)}
-                  Address:{selectedAddress.formattedAddress}
+                  <br />
+                  {dict.maps.demo.address}: {selectedAddress.formattedAddress}
                 </div>
               )}
               <MapWithMarker
@@ -59,7 +62,7 @@ const GoogleMapDemo = () => {
                             lat: selectedAddress.lat,
                             lng: selectedAddress.lng,
                           },
-                          label: "Selected",
+                          label: dict.maps.demo.selected,
                         },
                       ]
                     : []
@@ -71,16 +74,16 @@ const GoogleMapDemo = () => {
             <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
               <div className="space-y-1">
                 <h2 className="text-xl font-bold text-gray-800">
-                  2. Map Picker
+                  {dict.maps.demo.pickerTitle}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Click on the map to select any point.
+                  {dict.maps.demo.pickerDesc}
                 </p>
               </div>
               <MapPicker onLocationSelect={setPickedLocation} />
               {pickedLocation && (
                 <div className="p-3 bg-blue-50 rounded-lg text-xs font-mono text-blue-700">
-                  Picked: {pickedLocation.lat.toFixed(6)},{" "}
+                  {dict.maps.demo.picked}: {pickedLocation.lat.toFixed(6)},{" "}
                   {pickedLocation.lng.toFixed(6)}
                 </div>
               )}
@@ -90,10 +93,10 @@ const GoogleMapDemo = () => {
             <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6 md:col-span-2">
               <div className="space-y-1">
                 <h2 className="text-xl font-bold text-gray-800">
-                  3. Route Directions
+                  {dict.maps.demo.routeTitle}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Visualizing travel routes with distance and duration.
+                  {dict.maps.demo.routeDesc}
                 </p>
               </div>
               <DirectionsMap origin={origin} destination={destination} />

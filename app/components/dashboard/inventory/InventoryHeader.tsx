@@ -11,6 +11,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface InventoryHeaderProps {
   onSearch: (value: string) => void;
@@ -23,6 +24,8 @@ const InventoryHeader = ({
   onFilterClick,
   onAddClick,
 }: InventoryHeaderProps) => {
+  const dict = useDictionary();
+
   return (
     <Stack
       direction={{ xs: "column", md: "row" }}
@@ -33,16 +36,16 @@ const InventoryHeader = ({
     >
       <Stack spacing={0.5}>
         <Typography variant="h4" fontWeight={700}>
-          Inventory
+          {dict.inventory.title}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Manage, track, and analyze inventory items efficiently
+          {dict.inventory.subtitle}
         </Typography>
       </Stack>
 
       <Stack direction="row" spacing={2} alignItems="center">
         <TextField
-          placeholder="Search product, SKU..."
+          placeholder={dict.inventory.searchPlaceholder}
           size="small"
           onChange={(e) => onSearch(e.target.value)}
           slotProps={{
@@ -57,14 +60,14 @@ const InventoryHeader = ({
           sx={{ width: { xs: "100%", md: 300 } }}
         />
 
-        <Tooltip title="Filters">
+        <Tooltip title={dict.inventory.filters}>
           <Button
             variant="outlined"
             startIcon={<FilterListIcon />}
             onClick={onFilterClick}
             sx={{ height: 40 }}
           >
-            Filter
+            {dict.inventory.filter}
           </Button>
         </Tooltip>
 
@@ -79,7 +82,7 @@ const InventoryHeader = ({
             px: 3,
           }}
         >
-          Add Inventory
+          {dict.inventory.addInventory}
         </Button>
       </Stack>
     </Stack>

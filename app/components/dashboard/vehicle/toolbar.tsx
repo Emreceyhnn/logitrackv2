@@ -19,10 +19,13 @@ import { VehicleToolbarProps } from "@/app/lib/type/vehicle";
 const STATUS_OPTIONS = Object.values(VehicleStatus);
 const TYPE_OPTIONS = Object.values(VehicleType);
 
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
 export default function VehicleToolbar({
   state,
   actions,
 }: VehicleToolbarProps) {
+  const dict = useDictionary();
   const { filters } = state;
   const { updateFilters: onFilterChange } = actions;
   /* --------------------------------- states --------------------------------- */
@@ -70,7 +73,7 @@ export default function VehicleToolbar({
       sx={{ p: 2, bgcolor: "background.paper", borderRadius: 2, mb: 2 }}
     >
       <TextField
-        placeholder="Search vehicles..."
+        placeholder={dict.vehicles.table.searchPlaceholder}
         size="small"
         fullWidth
         value={searchTerm}
@@ -86,36 +89,38 @@ export default function VehicleToolbar({
       />
 
       <FormControl size="small" sx={{ minWidth: 200 }}>
-        <InputLabel>Status</InputLabel>
+        <InputLabel id="status-filter-label">{dict.vehicles.fields.status}</InputLabel>
         <Select
+          labelId="status-filter-label"
           multiple
           value={filters.status || []}
           onChange={handleStatusChange}
-          input={<OutlinedInput label="Status" />}
-          renderValue={(selected) => (selected as string[]).join(", ")}
+          input={<OutlinedInput label={dict.vehicles.fields.status} />}
+          renderValue={(selected) => (selected as string[]).map(s => dict.vehicles.statuses[s as keyof typeof dict.vehicles.statuses] || s).join(", ")}
         >
           {STATUS_OPTIONS.map((status) => (
             <MenuItem key={status} value={status}>
               <Checkbox checked={(filters.status || []).indexOf(status) > -1} />
-              <ListItemText primary={status} />
+              <ListItemText primary={dict.vehicles.statuses[status as keyof typeof dict.vehicles.statuses] || status} />
             </MenuItem>
           ))}
         </Select>
       </FormControl>
 
       <FormControl size="small" sx={{ minWidth: 200 }}>
-        <InputLabel>Type</InputLabel>
+        <InputLabel id="type-filter-label">{dict.vehicles.fields.type}</InputLabel>
         <Select
+          labelId="type-filter-label"
           multiple
           value={filters.type || []}
           onChange={handleTypeChange}
-          input={<OutlinedInput label="Type" />}
-          renderValue={(selected) => (selected as string[]).join(", ")}
+          input={<OutlinedInput label={dict.vehicles.fields.type} />}
+          renderValue={(selected) => (selected as string[]).map(t => dict.vehicles.types[t as keyof typeof dict.vehicles.types] || t).join(", ")}
         >
           {TYPE_OPTIONS.map((type) => (
             <MenuItem key={type} value={type}>
               <Checkbox checked={(filters.type || []).indexOf(type) > -1} />
-              <ListItemText primary={type} />
+              <ListItemText primary={dict.vehicles.types[type as keyof typeof dict.vehicles.types] || type} />
             </MenuItem>
           ))}
         </Select>

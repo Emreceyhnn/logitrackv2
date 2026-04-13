@@ -18,15 +18,21 @@ import RouteIcon from "@mui/icons-material/Route";
 import BoltIcon from "@mui/icons-material/Bolt";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { ShipmentWithRelations } from "@/app/lib/type/shipment";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface FirstRouteDialogStepProps {
   shipments?: ShipmentWithRelations[];
   onShipmentSelect?: (id: string) => void;
 }
 
-const FirstRouteDialogStep = ({ shipments = [], onShipmentSelect }: FirstRouteDialogStepProps) => {
+const FirstRouteDialogStep = ({
+  shipments = [],
+  onShipmentSelect,
+}: FirstRouteDialogStepProps) => {
   const theme = useTheme();
-  const { values, setFieldValue, handleBlur, touched, errors } = useFormikContext<RouteFormValues>();
+  const dict = useDictionary();
+  const { values, setFieldValue, handleBlur, touched, errors } =
+    useFormikContext<RouteFormValues>();
 
   return (
     <Box>
@@ -47,10 +53,10 @@ const FirstRouteDialogStep = ({ shipments = [], onShipmentSelect }: FirstRouteDi
           </Box>
           <Stack spacing={0.5}>
             <Typography variant="subtitle1" fontWeight={700} color="white">
-              Step 1: Basic Details & Schedule
+              {dict.routes.dialogs.basicDetails}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              These details help define the framework and priority of the route.
+              {dict.routes.dialogs.basicDetailsDesc}
             </Typography>
           </Stack>
         </Stack>
@@ -67,18 +73,18 @@ const FirstRouteDialogStep = ({ shipments = [], onShipmentSelect }: FirstRouteDi
                   fontWeight={600}
                   color="warning.main"
                 >
-                  Quick Start: Select Shipment
+                  {dict.routes.dialogs.quickStart}
                 </Typography>
               </Stack>
               <CustomTextArea
                 name="shipmentSelect"
                 select
-                placeholder="Choose a shipment to pre-fill locations..."
+                placeholder={dict.routes.dialogs.chooseShipment}
                 value=""
                 onChange={(e) => onShipmentSelect(e.target.value)}
               >
                 <MenuItem value="" disabled>
-                  Select an unassigned shipment
+                  {dict.routes.dialogs.selectUnassigned}
                 </MenuItem>
                 {shipments.map((s) => (
                   <MenuItem key={s.id} value={s.id}>
@@ -87,19 +93,18 @@ const FirstRouteDialogStep = ({ shipments = [], onShipmentSelect }: FirstRouteDi
                 ))}
               </CustomTextArea>
               <Typography variant="caption" color="text.secondary">
-                Selecting a shipment will automatically fill the Route Name and
-                Destination.
+                {dict.routes.dialogs.prefillNote}
               </Typography>
             </Stack>
           )}
 
           <Stack spacing={1.5}>
             <Typography variant="body2" fontWeight={600} color="text.secondary">
-              Route Name
+              {dict.routes.dialogs.routeName}
             </Typography>
             <CustomTextArea
               name="name"
-              placeholder="e.g. Morning Delivery - North"
+              placeholder={dict.routes.dialogs.routeNamePlaceholder}
               value={values.name}
               onBlur={handleBlur}
               error={touched.name && Boolean(errors.name)}
@@ -116,7 +121,7 @@ const FirstRouteDialogStep = ({ shipments = [], onShipmentSelect }: FirstRouteDi
                   fontWeight={600}
                   color="text.secondary"
                 >
-                  Expected Start Time
+                  {dict.routes.dialogs.expectedStart}
                 </Typography>
                 <MobileDateTimePicker
                   value={values.startTime ? dayjs(values.startTime) : null}
@@ -126,9 +131,11 @@ const FirstRouteDialogStep = ({ shipments = [], onShipmentSelect }: FirstRouteDi
                   slotProps={{
                     textField: {
                       fullWidth: true,
-                      placeholder: "Select Date & Time",
+                      placeholder: dict.routes.dialogs.selectDateTime,
                       error: touched.startTime && Boolean(errors.startTime),
-                      helperText: touched.startTime ? (errors.startTime as string) : undefined,
+                      helperText: touched.startTime
+                        ? (errors.startTime as string)
+                        : undefined,
                     },
                   }}
                 />
@@ -141,20 +148,24 @@ const FirstRouteDialogStep = ({ shipments = [], onShipmentSelect }: FirstRouteDi
                   fontWeight={600}
                   color="text.secondary"
                 >
-                  Expected End Time
+                  {dict.routes.dialogs.expectedEnd}
                 </Typography>
                 <MobileDateTimePicker
                   value={values.endTime ? dayjs(values.endTime) : null}
                   onChange={(val) =>
                     setFieldValue("endTime", val ? val.toDate() : null)
                   }
-                  minDateTime={values.startTime ? dayjs(values.startTime) : dayjs()}
+                  minDateTime={
+                    values.startTime ? dayjs(values.startTime) : dayjs()
+                  }
                   slotProps={{
                     textField: {
                       fullWidth: true,
-                      placeholder: "Select Date & Time",
+                      placeholder: dict.routes.dialogs.selectDateTime,
                       error: touched.endTime && Boolean(errors.endTime),
-                      helperText: touched.endTime ? (errors.endTime as string) : undefined,
+                      helperText: touched.endTime
+                        ? (errors.endTime as string)
+                        : undefined,
                     },
                   }}
                 />
@@ -182,9 +193,7 @@ const FirstRouteDialogStep = ({ shipments = [], onShipmentSelect }: FirstRouteDi
             color="text.secondary"
             sx={{ lineHeight: 1.5 }}
           >
-            Setting accurate start and end times helps the system calculate
-            delivery windows and optimize fuel efficiency during the route
-            planning phase.
+            {dict.routes.dialogs.timingGuidance}
           </Typography>
         </Box>
       </Stack>

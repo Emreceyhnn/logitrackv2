@@ -21,6 +21,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import StarIcon from "@mui/icons-material/Star";
 import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
 import { useEffect, useState } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   assignDriverToVehicle,
   getAvailableDrivers,
@@ -45,6 +46,7 @@ export default function AssignDriverDialog({
   currentDriver,
   onSuccess,
 }: AssignDriverDialogProps) {
+  const dict = useDictionary();
   /* --------------------------------- states --------------------------------- */
   const [drivers, setDrivers] = useState<DriverWithUser[]>([]);
   const [selectedDriverId, setSelectedDriverId] = useState<string>("");
@@ -69,7 +71,7 @@ export default function AssignDriverDialog({
       setDrivers(data);
     } catch (err) {
       console.error(err);
-      setError("Failed to load available drivers");
+      setError(dict.vehicles.dialogs.failedToLoadDrivers);
     } finally {
       setLoading(false);
     }
@@ -85,7 +87,7 @@ export default function AssignDriverDialog({
       onClose();
     } catch (err) {
       console.error(err);
-      setError("Failed to assign driver");
+      setError(dict.vehicles.dialogs.failedToAssign);
     } finally {
       setActionLoading(false);
     }
@@ -99,7 +101,7 @@ export default function AssignDriverDialog({
       onClose();
     } catch (err) {
       console.error(err);
-      setError("Failed to unassign driver");
+      setError(dict.vehicles.dialogs.failedToUnassign);
     } finally {
       setActionLoading(false);
     }
@@ -151,14 +153,14 @@ export default function AssignDriverDialog({
       <Box sx={{ p: 3, pb: 2 }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Typography variant="h6" fontWeight={700} color="white">
-            Manage Driver
+            {dict.vehicles.dialogs.manageDriver}
           </Typography>
           <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
         <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
-          Vehicle: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>{vehiclePlate}</span>
+          {dict.vehicles.fields.plate}: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>{vehiclePlate}</span>
         </Typography>
       </Box>
 
@@ -185,7 +187,7 @@ export default function AssignDriverDialog({
               variant="caption" 
               sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}
             >
-              Current Assignment
+              {dict.vehicles.dialogs.currentAssignment}
             </Typography>
             {currentDriver && currentDriver.user ? (
               <Box
@@ -230,7 +232,7 @@ export default function AssignDriverDialog({
                     <Stack direction="row" spacing={1} alignItems="center">
                       <StarIcon sx={{ fontSize: 14, color: "#FFB400" }} />
                       <Typography variant="caption" color="text.secondary">
-                        {currentDriver.rating || "N/A"}/5 Rating
+                        {currentDriver.rating || dict.common.na}/5 {dict.vehicles.dialogs.rating}
                       </Typography>
                     </Stack>
                   </Box>
@@ -252,7 +254,7 @@ export default function AssignDriverDialog({
                       }
                     }}
                   >
-                    Unassign
+                    {dict.vehicles.dialogs.unassign}
                   </Button>
                 </Stack>
               </Box>
@@ -271,7 +273,7 @@ export default function AssignDriverDialog({
               >
                 <EmojiPeopleIcon sx={{ color: alpha("#fff", 0.2), fontSize: 32 }} />
                 <Typography variant="body2" sx={{ color: alpha("#fff", 0.4), fontWeight: 500 }}>
-                  No driver currently assigned.
+                  {dict.vehicles.dialogs.noDriverAssigned}
                 </Typography>
               </Box>
             )}
@@ -282,7 +284,7 @@ export default function AssignDriverDialog({
               variant="caption" 
               sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}
             >
-              Assign New Driver
+              {dict.vehicles.dialogs.assignNewDriver}
             </Typography>
             {loading ? (
               <Box display="flex" justifyContent="center" p={4}>
@@ -290,10 +292,10 @@ export default function AssignDriverDialog({
               </Box>
             ) : (
               <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: alpha("#fff", 0.4) }}>Select an available driver</InputLabel>
+                <InputLabel sx={{ color: alpha("#fff", 0.4) }}>{dict.vehicles.dialogs.selectDriver}</InputLabel>
                 <Select
                   value={selectedDriverId}
-                  label="Select an available driver"
+                  label={dict.vehicles.dialogs.selectDriver}
                   onChange={(e) => setSelectedDriverId(e.target.value)}
                   MenuProps={{
                     PaperProps: {
@@ -311,7 +313,7 @@ export default function AssignDriverDialog({
                 >
                   {drivers.length === 0 ? (
                     <MenuItem disabled value="" sx={{ color: "text.secondary" }}>
-                      No available drivers found
+                      {dict.vehicles.dialogs.noDriversFound}
                     </MenuItem>
                   ) : (
                     drivers.map((driver) => (
@@ -330,7 +332,7 @@ export default function AssignDriverDialog({
                             <Stack direction="row" spacing={0.5} alignItems="center">
                               <StarIcon sx={{ fontSize: 10, color: "#FFB400" }} />
                               <Typography variant="caption" color="text.secondary">
-                                {driver.rating}/5
+                                {driver.rating}/{dict.vehicles.dialogs.rating}
                               </Typography>
                             </Stack>
                           </Box>
@@ -356,7 +358,7 @@ export default function AssignDriverDialog({
               fontWeight: 600 
             }}
           >
-            Cancel
+            {dict.common.cancel}
           </Button>
           <Button
             variant="contained"
@@ -374,9 +376,9 @@ export default function AssignDriverDialog({
             {actionLoading ? (
               <Stack direction="row" spacing={1} alignItems="center">
                 <CircularProgress size={16} color="inherit" />
-                <span>Assigning...</span>
+                <span>{dict.vehicles.dialogs.assigning}</span>
               </Stack>
-            ) : "Assign Driver"}
+            ) : dict.vehicles.dialogs.assignDriver}
           </Button>
         </Stack>
       </Box>

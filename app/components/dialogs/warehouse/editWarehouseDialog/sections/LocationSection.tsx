@@ -9,6 +9,7 @@ import {
   useTheme,
   MenuItem,
 } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   EditWarehouseLocation,
   EditWarehousePageActions,
@@ -33,8 +34,11 @@ interface LocationSectionProps {
 }
 
 const LocationSection = ({ state, actions }: LocationSectionProps) => {
+  const dict = useDictionary();
   const theme = useTheme();
   const [managers, setManagers] = useState<Manager[]>([]);
+
+  const f = dict.warehouses.dialogs.fields;
 
   useEffect(() => {
     const fetchManagers = async () => {
@@ -69,7 +73,7 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
             }}
           />
           <Typography variant="subtitle1" fontWeight={700} color="white">
-            Facility Address
+            {f.facilityAddress}
           </Typography>
         </Stack>
 
@@ -81,11 +85,11 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                STREET ADDRESS
+                {f.streetAddress}
               </Typography>
               <AddressAutocomplete
                 name="address"
-                placeholder="e.g. 123 Logistics Way, Industrial District"
+                placeholder={f.streetPlaceholder}
                 value={state.address}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   actions.updateLocation({ address: e.target.value })
@@ -123,11 +127,11 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                CITY
+                {f.city}
               </Typography>
               <CustomTextArea
                 name="city"
-                placeholder="e.g. Manchester"
+                placeholder={f.cityPlaceholder}
                 value={state.city}
                 onChange={(e) =>
                   actions.updateLocation({ city: e.target.value })
@@ -142,11 +146,11 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                COUNTRY
+                {f.country}
               </Typography>
               <CustomTextArea
                 name="country"
-                placeholder="e.g. United Kingdom"
+                placeholder={f.countryPlaceholder}
                 value={state.country}
                 onChange={(e) =>
                   actions.updateLocation({ country: e.target.value })
@@ -161,11 +165,11 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                POSTAL CODE
+                {f.postalCode}
               </Typography>
               <CustomTextArea
                 name="postalCode"
-                placeholder="e.g. M1 1AA"
+                placeholder={f.postalPlaceholder}
                 value={state.postalCode}
                 onChange={(e) =>
                   actions.updateLocation({ postalCode: e.target.value })
@@ -180,7 +184,7 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                WAREHOUSE MANAGER
+                {f.manager}
               </Typography>
               <CustomTextArea
                 name="managerId"
@@ -190,7 +194,7 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
                   actions.updateLocation({ managerId: e.target.value })
                 }
               >
-                <MenuItem value="">Unassigned</MenuItem>
+                <MenuItem value="">{f.unassigned}</MenuItem>
                 {managers.map((m) => (
                   <MenuItem key={m.id} value={m.id}>
                     {m.name} {m.surname} ({m.role?.name})
@@ -217,7 +221,7 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
               }}
             />
             <Typography variant="subtitle1" fontWeight={700} color="white">
-              Location Preview
+              {f.locationPreview}
             </Typography>
           </Stack>
           <Box
@@ -247,7 +251,7 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
               }}
             />
             <Typography variant="body2" color="text.secondary">
-              Map integration pending exact coordinates
+              {f.mapPending}
             </Typography>
           </Box>
         </Box>

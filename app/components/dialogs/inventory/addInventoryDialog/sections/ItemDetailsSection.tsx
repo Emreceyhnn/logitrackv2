@@ -1,7 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useMemo, useState } from "react";
 import {
   Box,
@@ -28,21 +27,19 @@ const ItemDetailsSection = ({
   updateItemDetails,
 }: ItemDetailsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
+  const dict = useDictionary();
   const theme = useTheme();
 
   const CATEGORIES = useMemo(() => [
-    "Electronics",
-    "Machinery",
-    "Spare Parts",
-    "Raw Materials",
-    "Finished Goods",
-    "Packaging",
-    "Office Supplies",
-    "Others",
-  ], []);
+    { value: "Electronics", label: dict.inventory.categories.electronics },
+    { value: "Machinery", label: dict.inventory.categories.machinery },
+    { value: "Spare Parts", label: dict.inventory.categories.spareParts },
+    { value: "Raw Materials", label: dict.inventory.categories.rawMaterials },
+    { value: "Finished Goods", label: dict.inventory.categories.finishedGoods },
+    { value: "Packaging", label: dict.inventory.categories.packaging },
+    { value: "Office Supplies", label: dict.inventory.categories.officeSupplies },
+    { value: "Others", label: dict.inventory.categories.others },
+  ], [dict]);
 
   /* ---------------------------------- state --------------------------------- */
   const [localUnitValue, setLocalUnitValue] = useState(state.unitValue === 0 ? "" : state.unitValue?.toString() || "");
@@ -64,7 +61,7 @@ const ItemDetailsSection = ({
             {dict.inventory.header}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Provide the fundamental identification details for the new inventory item.
+            {dict.inventory.dialogs.detailsDesc}
           </Typography>
         </Stack>
 
@@ -75,7 +72,7 @@ const ItemDetailsSection = ({
               color="text.secondary"
               fontWeight={600}
             >
-              {dict.inventory.fields.sku} (Stock Keeping Unit)
+              {dict.inventory.fields.sku} ({dict.inventory.fields.sku})
             </Typography>
             <CustomTextArea
               name="sku"
@@ -107,7 +104,7 @@ const ItemDetailsSection = ({
               color="text.secondary"
               fontWeight={600}
             >
-              Category *
+              {dict.inventory.dialogs.categoryLabel}
             </Typography>
             <CustomTextArea
               name="category"
@@ -120,8 +117,8 @@ const ItemDetailsSection = ({
                 {dict.common.search}
               </MenuItem>
               {CATEGORIES.map((cat) => (
-                <MenuItem key={cat} value={cat}>
-                  {cat}
+                <MenuItem key={cat.value} value={cat.value}>
+                  {cat.label}
                 </MenuItem>
               ))}
             </CustomTextArea>
@@ -153,7 +150,7 @@ const ItemDetailsSection = ({
                   color="text.secondary"
                   fontWeight={600}
                 >
-                  Weight (KG)
+                  {dict.inventory.fields.weight} (KG)
                 </Typography>
                 <CustomTextArea
                   name="weightKg"
@@ -171,7 +168,7 @@ const ItemDetailsSection = ({
                   color="text.secondary"
                   fontWeight={600}
                 >
-                  Volume (M³)
+                  {dict.inventory.fields.volume} (M³)
                 </Typography>
                 <CustomTextArea
                   name="volumeM3"
@@ -189,7 +186,7 @@ const ItemDetailsSection = ({
                   color="text.secondary"
                   fontWeight={600}
                 >
-                  Pallets
+                  {dict.inventory.fields.pallets}
                 </Typography>
                 <CustomTextArea
                   name="palletCount"
@@ -204,7 +201,7 @@ const ItemDetailsSection = ({
 
           <Stack spacing={1.5}>
             <Typography variant="caption" color="text.secondary" fontWeight={600}>
-              Product Image
+              {dict.inventory.dialogs.productImage}
             </Typography>
             <Box
               sx={{

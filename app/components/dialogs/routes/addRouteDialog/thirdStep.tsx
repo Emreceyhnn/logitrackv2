@@ -26,9 +26,12 @@ import { useEffect, useState } from "react";
 import { getDrivers } from "@/app/lib/controllers/driver";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
 const ThirdRouteDialogStep = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
   const { values, setFieldValue, handleBlur, touched, errors } = useFormikContext<RouteFormValues>();
 
   /* --------------------------------- states --------------------------------- */
@@ -98,10 +101,10 @@ const ThirdRouteDialogStep = () => {
           </Box>
           <Stack spacing={0.5}>
             <Typography variant="subtitle1" fontWeight={700} color="white">
-              Step 3: Assignments
+              {dict.routes.dialogs.assignmentsTitle}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Assign an available driver and vehicle to this route.
+              {dict.routes.dialogs.assignmentsDesc}
             </Typography>
           </Stack>
         </Stack>
@@ -114,7 +117,7 @@ const ThirdRouteDialogStep = () => {
                 fontWeight={600}
                 color="text.secondary"
               >
-                Driver Assignment
+                {dict.routes.dialogs.driverAssignment}
               </Typography>
               <CustomTextArea
                 name="driverId"
@@ -135,11 +138,11 @@ const ThirdRouteDialogStep = () => {
                 {loadingItems ? (
                   <MenuItem disabled>
                     <CircularProgress size={16} sx={{ mr: 1 }} />
-                    Loading drivers...
+                    {dict.routes.dialogs.loadingDrivers}
                   </MenuItem>
                 ) : (
                   [
-                    <MenuItem key="none" value="">Unassigned</MenuItem>,
+                    <MenuItem key="none" value="">{dict.routes.dialogs.unassigned}</MenuItem>,
                     ...drivers.map((driver) => (
                       <MenuItem key={driver.id} value={driver.id}>
                         <Avatar
@@ -164,7 +167,7 @@ const ThirdRouteDialogStep = () => {
                 fontWeight={600}
                 color="text.secondary"
               >
-                Vehicle Assignment
+                {dict.routes.dialogs.vehicleAssignment}
               </Typography>
               <CustomTextArea
                 name="vehicleId"
@@ -185,11 +188,11 @@ const ThirdRouteDialogStep = () => {
                 {loadingItems ? (
                   <MenuItem disabled>
                     <CircularProgress size={16} sx={{ mr: 1 }} />
-                    Loading vehicles...
+                    {dict.routes.dialogs.loadingVehicles}
                   </MenuItem>
                 ) : (
                    [
-                    <MenuItem key="none" value="">Unassigned</MenuItem>,
+                    <MenuItem key="none" value="">{dict.routes.dialogs.unassigned}</MenuItem>,
                     ...vehicles.map((vehicle) => (
                       <MenuItem key={vehicle.id} value={vehicle.id}>
                         <LocalShippingIcon
@@ -221,7 +224,7 @@ const ThirdRouteDialogStep = () => {
             color="text.secondary"
             sx={{ fontWeight: 700, mb: 2, display: "block" }}
           >
-            ASSIGNMENT SUMMARY
+            {dict.routes.dialogs.assignmentSummary}
           </Typography>
 
           <Grid container spacing={3}>
@@ -230,13 +233,13 @@ const ThirdRouteDialogStep = () => {
                 <Stack direction="row" spacing={1} alignItems="center">
                   <EventAvailableIcon fontSize="small" color="primary" />
                   <Typography variant="caption" fontWeight={600} color="white">
-                    Driver Shift
+                    {dict.routes.dialogs.driverShift}
                   </Typography>
                 </Stack>
                 <Typography variant="caption" color="text.secondary">
                   {selectedDriver
-                    ? "Shift Start: 08:30 AM"
-                    : "No driver selected"}
+                    ? `${dict.routes.dialogs.shiftStart}: 08:30 AM`
+                    : dict.routes.dialogs.noDriverSelected}
                 </Typography>
                 {selectedDriver && (
                   <Typography
@@ -244,7 +247,7 @@ const ThirdRouteDialogStep = () => {
                     color="success.main"
                     fontWeight={600}
                   >
-                    Status: On Duty
+                    {dict.routes.dialogs.statusOnDuty}
                   </Typography>
                 )}
               </Stack>
@@ -255,13 +258,13 @@ const ThirdRouteDialogStep = () => {
                 <Stack direction="row" spacing={1} alignItems="center">
                   <BuildIcon fontSize="small" color="primary" />
                   <Typography variant="caption" fontWeight={600} color="white">
-                    Vehicle Maintenance
+                    {dict.routes.dialogs.vehicleMaintenance}
                   </Typography>
                 </Stack>
                 <Typography variant="caption" color="text.secondary">
                   {selectedVehicle
-                    ? `Next Service: in ${selectedVehicle.nextServiceKm || 0} km`
-                    : "No vehicle selected"}
+                    ? `${dict.routes.dialogs.nextService}: ${dict.routes.dialogs.in} ${selectedVehicle.nextServiceKm || 0} km`
+                    : dict.routes.dialogs.noVehicleSelected}
                 </Typography>
                 {selectedVehicle && (
                   <Typography
@@ -269,7 +272,7 @@ const ThirdRouteDialogStep = () => {
                     color="success.main"
                     fontWeight={600}
                   >
-                    Health: Good
+                    {dict.routes.dialogs.healthGood}
                   </Typography>
                 )}
               </Stack>
@@ -280,18 +283,18 @@ const ThirdRouteDialogStep = () => {
                 <Stack direction="row" spacing={1} alignItems="center">
                   <GppGoodIcon fontSize="small" color="primary" />
                   <Typography variant="caption" fontWeight={600} color="white">
-                    Compliance
+                    {dict.routes.dialogs.compliance}
                   </Typography>
                 </Stack>
                 <Typography variant="caption" color="text.secondary">
-                  Hazmat & ELD Certified
+                  {dict.routes.dialogs.hazmatCertified}
                 </Typography>
                 <Typography
                   variant="caption"
                   color="success.main"
                   fontWeight={600}
                 >
-                  Status: All Clear
+                  {dict.routes.dialogs.statusAllClear}
                 </Typography>
               </Stack>
             </Grid>

@@ -10,6 +10,7 @@ import {
 import CustomCard from "../../cards/card";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface CapacityUtilizationProps {
   warehouses: WarehouseWithRelations[];
@@ -21,15 +22,16 @@ const CapacityUtilization = ({
   loading = false,
 }: CapacityUtilizationProps) => {
   const theme = useTheme();
+  const dict = useDictionary();
 
   if (loading) {
-    return <AnalyticsSkeleton title="Capacity Utilization" height={300} />;
+    return <AnalyticsSkeleton title={dict.dashboard.warehouse.capacityUtilization} height={300} />;
   }
 
   return (
     <CustomCard sx={{ flex: 2 }}>
       <Typography variant="h6" fontWeight={800} sx={{ mb: 4, letterSpacing: "-0.02em" }}>
-        Capacity Utilization
+        {dict.dashboard.warehouse.capacityUtilization}
       </Typography>
 
       <Box
@@ -112,7 +114,7 @@ const CapacityUtilization = ({
                   {warehouse.name}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {usedPallets.toLocaleString()} / {totalPallets.toLocaleString()} Pallets
+                  {usedPallets.toLocaleString()} / {totalPallets.toLocaleString()} {dict.dashboard.warehouse.pallets}
                 </Typography>
               </Stack>
             </Stack>

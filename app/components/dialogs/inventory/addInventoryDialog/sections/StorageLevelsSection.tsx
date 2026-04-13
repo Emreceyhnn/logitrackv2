@@ -9,9 +9,8 @@ import {
   useTheme,
   MenuItem,
 } from "@mui/material";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
-import { useMemo, useState, useEffect } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useState, useEffect } from "react";
 import { AddInventoryStorageLevels } from "@/app/lib/type/add-inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { Warehouse } from "@prisma/client";
@@ -29,9 +28,7 @@ const StorageLevelsSection = ({
   updateStorageLevels,
 }: StorageLevelsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
+  const dict = useDictionary();
   const theme = useTheme();
   const { user } = useUser();
 
@@ -67,10 +64,10 @@ const StorageLevelsSection = ({
       <Stack spacing={4}>
         <Stack spacing={0.5}>
           <Typography variant="subtitle1" fontWeight={700} color="white">
-            Storage & Levels
+            {dict.inventory.dialogs.storageAndLevels}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Define where this inventory will be stored and its stock thresholds.
+            {dict.inventory.dialogs.storageDesc}
           </Typography>
         </Stack>
 
@@ -81,7 +78,7 @@ const StorageLevelsSection = ({
                 <InfoOutlinedIcon fontSize="small" />
               </Box>
               <Typography variant="subtitle2" fontWeight={700} color="white">
-                Warehouse Location
+                {dict.inventory.dialogs.warehouseLocation}
               </Typography>
             </Stack>
             <Stack spacing={1}>
@@ -90,7 +87,7 @@ const StorageLevelsSection = ({
                 color="text.secondary"
                 fontWeight={600}
               >
-                SELECT FACILITY *
+                {dict.inventory.dialogs.selectFacility}
               </Typography>
               <CustomTextArea
                 name="warehouseId"
@@ -118,7 +115,7 @@ const StorageLevelsSection = ({
                 <InfoOutlinedIcon fontSize="small" />
               </Box>
               <Typography variant="subtitle2" fontWeight={700} color="white">
-                Stock Configuration
+                {dict.inventory.dialogs.stockConfig}
               </Typography>
             </Stack>
             <Grid container spacing={3}>
@@ -129,7 +126,7 @@ const StorageLevelsSection = ({
                     color="text.secondary"
                     fontWeight={600}
                   >
-                    INITIAL QUANTITY
+                    {dict.inventory.dialogs.initialQuantity}
                   </Typography>
                   <CustomTextArea
                     name="initialQuantity"
@@ -147,7 +144,7 @@ const StorageLevelsSection = ({
                     color="text.secondary"
                     fontWeight={600}
                   >
-                    MIN. STOCK LEVEL (ALERT)
+                    {dict.inventory.dialogs.minStockAlert}
                   </Typography>
                   <CustomTextArea
                     name="minStockLevel"
@@ -176,22 +173,14 @@ const StorageLevelsSection = ({
             </Box>
             <Stack spacing={0.5}>
               <Typography variant="caption" fontWeight={700} color="white">
-                MOVEMENT DETAILS
+                {dict.inventory.dialogs.movementDetails}
               </Typography>
               <Typography
                 variant="caption"
                 color="text.secondary"
                 sx={{ lineHeight: 1.5 }}
               >
-                This transaction is categorized as{" "}
-                <Box
-                  component="span"
-                  sx={{ color: theme.palette.primary.main, fontWeight: 700 }}
-                >
-                  PUTAWAY
-                </Box>
-                . The initial stock will be immediately registered to the
-                selected warehouse and logged in the Prisma ledger.
+                {dict.inventory.dialogs.putawayDesc}
               </Typography>
             </Stack>
           </Box>

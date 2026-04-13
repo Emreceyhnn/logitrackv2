@@ -1,5 +1,6 @@
 "use client";
 import { Box, Stack, Typography, useTheme, Divider } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { BarChart } from "@mui/x-charts/BarChart";
 import CustomCard from "../../cards/card";
 import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
@@ -18,15 +19,16 @@ interface DriverPerformanceChartsProps {
 const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceChartsProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
 
   if (loading || !data) {
     return (
       <Stack direction={{ xs: "column", md: "row" }} spacing={2} mt={2}>
         <Box flex={1}>
-          <AnalyticsSkeleton title="Driver Ratings" />
+          <AnalyticsSkeleton title={dict.drivers.dashboard.ratings} />
         </Box>
         <Box flex={1}>
-          <AnalyticsSkeleton title="Weekly Working Hours" />
+          <AnalyticsSkeleton title={dict.drivers.dashboard.weeklyHours} />
         </Box>
       </Stack>
     );
@@ -42,7 +44,7 @@ const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceCha
         <CustomCard sx={{ height: "100%", p: 2 }}>
           <Stack spacing={2}>
             <Typography variant="h6" fontWeight={600} sx={{ p: 1 }}>
-              Driver Ratings
+              {dict.drivers.dashboard.ratings}
             </Typography>
             <Divider />
             <BarChart
@@ -56,7 +58,7 @@ const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceCha
               ]}
               yAxis={[
                 {
-                  label: "Rating (0-5)",
+                  label: dict.drivers.dashboard.ratingsLabel,
                   labelStyle: { fill: theme.palette.text.secondary },
                 },
               ]}
@@ -64,7 +66,7 @@ const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceCha
                 {
                   data: ratings,
                   color: theme.palette.primary.main,
-                  label: "Rating (0-5)",
+                  label: dict.drivers.dashboard.ratingsLabel,
                   highlightScope: { highlight: "item", fade: "global" },
                 },
               ]}
@@ -82,7 +84,7 @@ const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceCha
         <CustomCard sx={{ height: "100%", p: 2 }}>
           <Stack spacing={2}>
             <Typography variant="h6" fontWeight={600} sx={{ p: 1 }}>
-              Weekly Working Hours
+              {dict.drivers.dashboard.weeklyHours}
             </Typography>
             <Divider />
             <BarChart
@@ -96,7 +98,7 @@ const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceCha
               ]}
               yAxis={[
                 {
-                  label: "Hours",
+                  label: dict.drivers.dashboard.hours,
                   labelStyle: { fill: theme.palette.text.secondary },
                 },
               ]}
@@ -104,7 +106,7 @@ const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceCha
                 {
                   data: workingHours,
                   color: theme.palette.secondary.main,
-                  label: "Hours this week",
+                  label: dict.drivers.dashboard.hoursThisWeek,
                   highlightScope: { highlight: "item", fade: "global" },
                 },
               ]}

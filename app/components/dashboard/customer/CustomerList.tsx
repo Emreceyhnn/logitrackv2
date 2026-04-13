@@ -23,6 +23,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   CustomerWithRelations,
   CustomerListProps,
@@ -37,6 +38,7 @@ const CustomerList = ({
   onEdit,
   onDelete,
 }: CustomerListProps) => {
+  const dict = useDictionary();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [menuCustomer, setMenuCustomer] =
     useState<CustomerWithRelations | null>(null);
@@ -186,7 +188,7 @@ const CustomerList = ({
                   color="text.secondary"
                   sx={{ display: "block", mt: 0.5 }}
                 >
-                  {customer.code} • {customer.industry || "General"}
+                  {customer.code} • {customer.industry || dict.customers.industryGeneral}
                 </Typography>
               </Box>
             </Stack>
@@ -198,22 +200,22 @@ const CustomerList = ({
                 />
                 <Typography variant="body2" color="text.secondary" noWrap>
                   {customer.locations && customer.locations.length > 0
-                    ? customer.locations.find((l: import("@prisma/client").CustomerLocation) => l.isDefault)?.address ||
+                    ? customer.locations.find((l: any) => l.isDefault)?.address ||
                       customer.locations[0].address
-                    : "No address provided"}
+                    : dict.customers.list.noAddress}
                 </Typography>
               </Stack>
               <Stack direction="row" spacing={1} alignItems="center">
                 <PhoneIcon sx={{ fontSize: 16, color: "text.secondary" }} />
                 <Typography variant="body2" color="text.secondary">
-                  {customer.phone || "N/A"}
+                  {customer.phone || dict.customers.list.na}
                 </Typography>
               </Stack>
             </Stack>
 
             <Stack direction="row" spacing={1} sx={{ mt: 1.5 }}>
               <Chip
-                label={`${customer._count?.shipments ?? 0} Shipments`}
+                label={dict.customers.list.shipmentsCount.replace("{count}", (customer._count?.shipments ?? 0).toString())}
                 size="small"
                 variant="outlined"
                 sx={{
@@ -228,7 +230,7 @@ const CustomerList = ({
         ))}
         {customers.length === 0 && (
           <Box p={4} textAlign="center">
-            <Typography color="text.secondary">No customers found</Typography>
+            <Typography color="text.secondary">{dict.customers.list.noCustomers}</Typography>
           </Box>
         )}
       </Box>
@@ -255,7 +257,7 @@ const CustomerList = ({
             <InfoIcon fontSize="small" color="info" />
           </ListItemIcon>
           <ListItemText
-            primary="Details"
+            primary={dict.customers.actions.details}
             primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
           />
         </MenuItem>
@@ -264,23 +266,23 @@ const CustomerList = ({
             <EditIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText
-            primary="Edit"
+            primary={dict.customers.actions.edit}
             primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
           />
         </MenuItem>
         <Divider sx={{ my: 0.5, borderColor: alpha(theme.palette.divider, 0.1) }} />
         <MenuItem
-          onClick={() => handleAction("delete")}
-          sx={{ color: "error.main" }}
-        >
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" color="error" />
-          </ListItemIcon>
-          <ListItemText
-            primary="Delete"
-            primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
-          />
-        </MenuItem>
+            onClick={() => handleAction("delete")}
+            sx={{ color: "error.main" }}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" color="error" />
+            </ListItemIcon>
+            <ListItemText
+              primary={dict.customers.actions.delete}
+              primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
+            />
+          </MenuItem>
       </Menu>
     </CustomCard>
   );

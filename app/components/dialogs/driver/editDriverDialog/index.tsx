@@ -31,8 +31,7 @@ import { uploadImageAction } from "@/app/lib/actions/upload";
 import { editDriverValidationSchema } from "@/app/lib/validationSchema";
 import FirstEditDriverDialogStep from "./firstStep";
 import SecondEditDriverDialogStep from "./secondStep";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const EditDriverDialog = ({
   open,
@@ -43,8 +42,7 @@ const EditDriverDialog = ({
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(1);
-  const { lang } = useParams();
-  const dict = useMemo(() => getDictionary(lang as string), [lang]);
+  const dict = useDictionary();
 
   if (!driver) return null;
 
@@ -138,7 +136,7 @@ const EditDriverDialog = ({
 
       await updateDriver(driver.id, payload);
 
-      toast.success(dict.toasts.successUpdate);
+      toast.success(dict.common.saveSuccess);
 
       setTimeout(() => {
         onClose();
@@ -146,7 +144,7 @@ const EditDriverDialog = ({
         setCurrentStep(1);
       }, 1500);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : dict.toasts.errorGeneric;
+      const message = err instanceof Error ? err.message : dict.common.errorOccurred;
       setStatus(message);
       toast.error(message);
     } finally {
@@ -154,10 +152,7 @@ const EditDriverDialog = ({
     }
   };
 
-  const steps = [
-    dict.drivers.dialogs.steps.credentials,
-    dict.drivers.dialogs.steps.assignment
-  ];
+  const steps = [dict.drivers.tabs.personalInfo, dict.drivers.tabs.operationalInfo];
 
   return (
     <Dialog

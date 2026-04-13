@@ -16,18 +16,13 @@ import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import CloseIcon from "@mui/icons-material/Close";
 import TagIcon from "@mui/icons-material/Tag";
 import PinIcon from "@mui/icons-material/Pin";
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
-import { useMemo } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useFormikContext } from "formik";
 import { VehicleFormValues } from "@/app/lib/type/vehicle";
 
 const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) => {
   /* -------------------------------- variables ------------------------------- */
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
-  
+  const dict = useDictionary();
   const theme = useTheme();
   const { values, errors, touched, setFieldValue, handleBlur, handleChange: formikHandleChange } = useFormikContext<VehicleFormValues>();
 
@@ -78,7 +73,7 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
     <Box sx={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 4 }}>
       <Stack spacing={2}>
         <Typography variant="subtitle2" fontWeight={600} color="text.secondary">
-          Vehicle Photo
+          {dict.vehicles.dialogs.photo}
         </Typography>
         <Box
           sx={(theme) => ({
@@ -165,10 +160,10 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
               </Box>
 
               <Typography variant="body2" fontWeight={500} color="white">
-                Click to upload
+                {dict.vehicles.dialogs.clickToUpload}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                SVG, PNG, JPG or GIF
+                {dict.vehicles.dialogs.uploadNotes}
               </Typography>
             </Box>
           )}
@@ -220,7 +215,7 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
           <TextField
             fullWidth
             name="fleetNo"
-            label={dict.vehicles.fields.plate + " (Optional)"} // Should add fleetNo to dict
+            label={dict.vehicles.fields.fleetNo + " (" + dict.common.optional + ")"} 
             placeholder="e.g. V-001"
             value={values.fleetNo}
             onChange={formikHandleChange}
@@ -269,8 +264,8 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
           helperText={touched.type && (errors.type as string)}
           sx={textFieldSx}
         >
-          <MenuItem value="TRUCK">Heavy Duty Truck</MenuItem>
-          <MenuItem value="VAN">Light Delivery Van</MenuItem>
+          <MenuItem value="TRUCK">{dict.vehicles.types.TRUCK}</MenuItem>
+          <MenuItem value="VAN">{dict.vehicles.types.VAN}</MenuItem>
         </TextField>
 
         <Stack direction="row" spacing={2}>

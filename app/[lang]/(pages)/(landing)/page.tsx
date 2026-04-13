@@ -1,8 +1,7 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { getDictionary } from "@/app/lib/language/language";
 import { useMemo } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import Image from "next/image";
 import {
   Box,
@@ -62,9 +61,7 @@ const pulse = keyframes`
 `;
 
 export default function LandingPage() {
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
-  const dict = useMemo(() => getDictionary(lang), [lang]);
+  const dict = useDictionary();
 
   const featureCards = useMemo(() => [
     {

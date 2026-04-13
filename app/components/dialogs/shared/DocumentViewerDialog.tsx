@@ -18,8 +18,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import DownloadIcon from "@mui/icons-material/Download";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { ErrorOutline as ErrorOutlineIcon } from "@mui/icons-material";
 import { useState } from "react";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface DocumentViewerDialogProps {
   open: boolean;
@@ -37,6 +38,7 @@ export default function DocumentViewerDialog({
   fileType,
 }: DocumentViewerDialogProps) {
   const theme = useTheme();
+  const dict = useDictionary();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -117,13 +119,13 @@ export default function DocumentViewerDialog({
                 {title}
               </Typography>
               <Typography variant="caption" sx={{ color: alpha("#fff", 0.5) }}>
-                {isPdf ? "PDF Document" : "Image File"}
+                {isPdf ? dict.documentViewer.pdfDocument : dict.documentViewer.imageFile}
               </Typography>
             </Box>
           </Stack>
 
           <Stack direction="row" spacing={1.5}>
-            <Tooltip title="Open in New Tab">
+            <Tooltip title={dict.documentViewer.openInNewTab}>
               <IconButton
                 component="a"
                 href={url}
@@ -143,7 +145,7 @@ export default function DocumentViewerDialog({
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Download File">
+            <Tooltip title={dict.documentViewer.downloadFile}>
               <IconButton
                 component="a"
                 href={url}
@@ -212,7 +214,7 @@ export default function DocumentViewerDialog({
               color="text.secondary"
               sx={{ opacity: 0.7 }}
             >
-              Securely loading document...
+              {dict.documentViewer.loading}
             </Typography>
           </Box>
         )}
@@ -238,15 +240,14 @@ export default function DocumentViewerDialog({
             />
             <Box>
               <Typography variant="h6" color="white" gutterBottom>
-                Preview Unavailable
+                {dict.documentViewer.previewUnavailable}
               </Typography>
               <Typography
                 variant="body2"
                 color="text.secondary"
                 sx={{ maxWidth: 400 }}
               >
-                High-security documents or specific file formats may not be
-                visible in the embedded browser viewer.
+                {dict.documentViewer.previewError}
               </Typography>
             </Box>
             <Button
@@ -262,7 +263,7 @@ export default function DocumentViewerDialog({
                 boxShadow: theme.shadows[10],
               }}
             >
-              Open in Secure Viewer
+              {dict.documentViewer.openInSecureViewer}
             </Button>
           </Box>
         )}

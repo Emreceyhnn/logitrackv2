@@ -5,28 +5,36 @@ import { PieChart } from "@mui/x-charts/PieChart";
 import { useMemo } from "react";
 import { ShipmentAnalyticsProps } from "@/app/lib/type/shipment";
 import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function ShipmentAnalytics({
   state,
 }: ShipmentAnalyticsProps) {
+  const dict = useDictionary();
   const { volumeHistory, statusDistribution, loading } = state;
   const theme = useTheme();
 
   const pieData = useMemo(() => {
-    return statusDistribution.map((item, index) => ({
-      id: index,
-      value: item.count,
-      label: item.status.replace("_", " "),
-      color:
-        item.status === "DELIVERED"
-          ? theme.palette.success.main
-          : item.status === "IN_TRANSIT"
-            ? theme.palette.info.main
-            : item.status === "DELAYED"
-              ? theme.palette.error.main
-              : theme.palette.warning.main,
-    }));
-  }, [statusDistribution, theme]);
+    return statusDistribution.map((item, index) => {
+      // Localize status if possible, otherwise fallback to formatting
+      const statusKey = item.status.toUpperCase();
+      const localizedStatus = dict.routes.statuses[statusKey as keyof typeof dict.routes.statuses] || item.status.replace("_", " ");
+
+      return {
+        id: index,
+        value: item.count,
+        label: localizedStatus,
+        color:
+          item.status === "DELIVERED"
+            ? theme.palette.success.main
+            : item.status === "IN_TRANSIT"
+              ? theme.palette.info.main
+              : item.status === "DELAYED"
+                ? theme.palette.error.main
+                : theme.palette.warning.main,
+      };
+    });
+  }, [statusDistribution, theme, dict]);
 
   const barData = useMemo(() => {
     return volumeHistory.map((item) => ({
@@ -39,10 +47,10 @@ export default function ShipmentAnalytics({
     return (
       <Stack direction={{ xs: "column", md: "row" }} spacing={3} mt={2}>
         <Box sx={{ flex: 1 }}>
-          <AnalyticsSkeleton title="Status Overview" />
+          <AnalyticsSkeleton title={dict.shipments.dashboard.statusOverview} />
         </Box>
         <Box sx={{ flex: 1 }}>
-          <AnalyticsSkeleton title="Volume Trend" />
+          <AnalyticsSkeleton title={dict.shipments.dashboard.volumeTrend} />
         </Box>
       </Stack>
     );
@@ -74,10 +82,10 @@ export default function ShipmentAnalytics({
         >
           <Stack spacing={0.5} sx={{ mb: 3 }}>
             <Typography variant="h6" fontWeight={700}>
-              Status Overview
+              {dict.shipments.dashboard.statusOverview}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Live breakdown of shipment statuses
+              {dict.shipments.dashboard.liveBreakdown}
             </Typography>
           </Stack>
 
@@ -96,7 +104,7 @@ export default function ShipmentAnalytics({
                   data:
                     pieData.length > 0
                       ? pieData
-                      : [{ id: 0, value: 1, label: "No Data", color: "#ccc" }],
+                      : [{ id: 0, value: 1, label: dict.shipments.dashboard.noData, color: "#ccc" }],
                   innerRadius: 60,
                   outerRadius: 100,
                   paddingAngle: 5,
@@ -136,10 +144,10 @@ export default function ShipmentAnalytics({
         >
           <Stack spacing={0.5} sx={{ mb: 3 }}>
             <Typography variant="h6" fontWeight={700}>
-              Volume Trend
+              {dict.shipments.dashboard.volumeTrend}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Daily shipment creation volume (Last 7 Days)
+              {dict.shipments.dashboard.dailyVolume}
             </Typography>
           </Stack>
 
@@ -158,9 +166,9 @@ export default function ShipmentAnalytics({
               series={[
                 {
                   dataKey: "volume",
-                  label: "Shipments",
+                  label: dict.shipments.dashboard.shipments,
                   color: theme.palette.primary.main,
-                  valueFormatter: (v) => `${v} units`,
+                  valueFormatter: (v) => dict.shipments.dashboard.units.replace("{count}", String(v)),
                 },
               ]}
               height={300}

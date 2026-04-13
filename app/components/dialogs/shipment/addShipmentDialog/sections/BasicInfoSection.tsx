@@ -17,9 +17,11 @@ import { ShipmentPriority } from "@prisma/client";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const BasicInfoSection = () => {
   /* -------------------------------- variables ------------------------------- */
+  const dict = useDictionary();
   const theme = useTheme();
   const { values, setFieldValue, handleBlur, touched, errors } =
     useFormikContext<ShipmentFormValues>();
@@ -29,10 +31,10 @@ const BasicInfoSection = () => {
     value: ShipmentPriority;
     color: string;
   }[] = [
-    { label: "Low", value: "LOW", color: theme.palette.success.main },
-    { label: "Medium", value: "MEDIUM", color: theme.palette.warning.main },
-    { label: "High", value: "HIGH", color: theme.palette.error.main },
-    { label: "Critical", value: "CRITICAL", color: theme.palette.error.dark },
+    { label: dict.vehicles.priorities.LOW, value: "LOW", color: theme.palette.success.main },
+    { label: dict.vehicles.priorities.MEDIUM, value: "MEDIUM", color: theme.palette.warning.main },
+    { label: dict.vehicles.priorities.HIGH, value: "HIGH", color: theme.palette.error.main },
+    { label: dict.vehicles.priorities.CRITICAL, value: "CRITICAL", color: theme.palette.error.dark },
   ];
 
   return (
@@ -48,7 +50,7 @@ const BasicInfoSection = () => {
             }}
           />
           <Typography variant="subtitle2" fontWeight={700} color="white">
-            Basic Information
+            {dict.shipments.dialogs.sections.basicInfo}
           </Typography>
         </Stack>
 
@@ -60,11 +62,11 @@ const BasicInfoSection = () => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                SHIPMENT ID / REF (Optional)
+                {dict.shipments.dialogs.fields.shipmentIdRef}
               </Typography>
               <CustomTextArea
                 name="referenceNumber"
-                placeholder="e.g. SHP-8752-XP (Leave blank to auto-generate)"
+                placeholder={dict.shipments.dialogs.fields.shipmentIdPlaceholder}
                 value={values.referenceNumber}
                 onChange={(e) => setFieldValue("referenceNumber", e.target.value)}
                 onBlur={handleBlur}
@@ -81,7 +83,7 @@ const BasicInfoSection = () => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                REFERENCE NUMBER
+                {dict.shipments.dialogs.fields.referenceNumber}
               </Typography>
               <CustomTextArea
                 name="ref2"
@@ -101,7 +103,7 @@ const BasicInfoSection = () => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                PRIORITY LEVEL
+                {dict.shipments.dialogs.fields.priorityLevel}
               </Typography>
               <ButtonGroup
                 fullWidth
@@ -141,7 +143,7 @@ const BasicInfoSection = () => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                TYPE
+                {dict.shipments.dialogs.fields.type}
               </Typography>
               <CustomTextArea
                 name="type"
@@ -152,9 +154,9 @@ const BasicInfoSection = () => {
                 error={touched.type && Boolean(errors.type)}
                 helperText={touched.type ? (errors.type as string) : undefined}
               >
-                <MenuItem value="Standard Freight">Standard Freight</MenuItem>
-                <MenuItem value="Express">Express</MenuItem>
-                <MenuItem value="Hazardous">Hazardous</MenuItem>
+                <MenuItem value="Standard Freight">{dict.shipments.dialogs.types.standardFreight}</MenuItem>
+                <MenuItem value="Express">{dict.shipments.dialogs.types.express}</MenuItem>
+                <MenuItem value="Hazardous">{dict.shipments.dialogs.types.hazardous}</MenuItem>
               </CustomTextArea>
             </Stack>
           </Grid>
@@ -166,10 +168,10 @@ const BasicInfoSection = () => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                SLA DEADLINE
+                {dict.shipments.dialogs.fields.slaDeadline}
               </Typography>
               <DateTimePicker
-                label="SLA Deadline"
+                label={dict.shipments.dialogs.fields.slaDeadline}
                 value={values.slaDeadline ? dayjs(values.slaDeadline) : null}
                 onChange={(val) =>
                   setFieldValue("slaDeadline", val ? val.toDate() : null)
@@ -177,7 +179,7 @@ const BasicInfoSection = () => {
                 slotProps={{
                   textField: {
                     fullWidth: true,
-                    placeholder: "Select Date & Time",
+                    placeholder: dict.shipments.dialogs.fields.slaPlaceholder,
                     error: touched.slaDeadline && Boolean(errors.slaDeadline),
                     helperText: touched.slaDeadline ? (errors.slaDeadline as string) : undefined,
                   },

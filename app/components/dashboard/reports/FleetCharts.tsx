@@ -4,18 +4,20 @@ import { Paper, Typography, Box, useTheme } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { ScatterChart } from "@mui/x-charts/ScatterChart";
 import { FleetVehicleStats } from "@/app/lib/type/reports";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface FleetChartsProps {
   data: FleetVehicleStats[];
 }
 
 export default function FleetCharts({ data }: FleetChartsProps) {
+  const dict = useDictionary();
   const theme = useTheme();
 
   if (!data || data.length === 0) {
     return (
       <Box p={3}>
-        <Typography color="text.secondary">No fleet data available</Typography>
+        <Typography color="text.secondary">{dict.dashboard.reports.charts.fleet.noData}</Typography>
       </Box>
     );
   }
@@ -41,7 +43,7 @@ export default function FleetCharts({ data }: FleetChartsProps) {
     <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
       <Paper sx={{ p: 3, flex: 1, minWidth: 300, borderRadius: 3 }}>
         <Typography variant="h6" fontWeight={700} mb={2}>
-          Highest Maintenance Costs
+          {dict.dashboard.reports.charts.fleet.highMaintenance}
         </Typography>
         <BarChart
           dataset={maintenanceData}
@@ -49,7 +51,7 @@ export default function FleetCharts({ data }: FleetChartsProps) {
           series={[
             {
               dataKey: "cost",
-              label: "Maintenance Cost ($)",
+              label: dict.dashboard.reports.charts.fleet.maintenanceCostLabel,
               color: theme.palette.error.main,
             },
           ]}
@@ -59,17 +61,17 @@ export default function FleetCharts({ data }: FleetChartsProps) {
 
       <Paper sx={{ p: 3, flex: 1, minWidth: 300, borderRadius: 3 }}>
         <Typography variant="h6" fontWeight={700} mb={2}>
-          Fuel Consumption vs Odometer
+          {dict.dashboard.reports.charts.fleet.consumptionVsOdometer}
         </Typography>
         <ScatterChart
           series={[
             {
-              label: "Fleet",
+              label: dict.dashboard.reports.charts.fleet.fleetLabel,
               data: scatterData.map((d) => ({ x: d.x, y: d.y, id: d.id })),
             },
           ]}
-          xAxis={[{ label: "Odometer (km)" }]}
-          yAxis={[{ label: "Consumption (L/100km)" }]}
+          xAxis={[{ label: dict.dashboard.reports.charts.fleet.odometerLabel }]}
+          yAxis={[{ label: dict.dashboard.reports.charts.fleet.consumptionLabel }]}
           height={300}
         />
       </Paper>

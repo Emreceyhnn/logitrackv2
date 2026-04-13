@@ -21,6 +21,7 @@ import {
   Event as EventIcon,
 } from "@mui/icons-material";
 import { CompanyMember } from "@/app/lib/type/company";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface CompanyMemberDetailsDialogProps {
   open: boolean;
@@ -34,6 +35,7 @@ export default function CompanyMemberDetailsDialog({
   member,
 }: CompanyMemberDetailsDialogProps) {
   const theme = useTheme();
+  const dict = useDictionary();
 
   if (!member) return null;
 
@@ -76,7 +78,7 @@ export default function CompanyMemberDetailsDialog({
               </Typography>
               <Stack direction="row" spacing={1} alignItems="center">
                 <Chip
-                  label={member.roleName || "No Role"}
+                  label={member.roleName || dict.company.memberDetails.noRole}
                   size="small"
                   sx={{
                     bgcolor: alpha(theme.palette.secondary.main, 0.1),
@@ -107,7 +109,7 @@ export default function CompanyMemberDetailsDialog({
           <Grid size={12}>
             <Box sx={{ p: 3, borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.03), border: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
               <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ letterSpacing: 1, textTransform: "uppercase", mb: 2, display: "block" }}>
-                Contact Information
+                {dict.company.memberDetails.contactInfo}
               </Typography>
               <Stack spacing={2}>
                 <Stack direction="row" spacing={2} alignItems="center">
@@ -115,7 +117,7 @@ export default function CompanyMemberDetailsDialog({
                     <EmailIcon sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="caption" color="text.secondary">Email Address</Typography>
+                    <Typography variant="caption" color="text.secondary">{dict.company.memberDetails.emailAddress}</Typography>
                     <Typography variant="body2" color="white" fontWeight={500}>{member.email}</Typography>
                   </Box>
                 </Stack>
@@ -124,9 +126,9 @@ export default function CompanyMemberDetailsDialog({
                     <EventIcon sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="caption" color="text.secondary">Joined Since</Typography>
+                    <Typography variant="caption" color="text.secondary">{dict.company.memberDetails.joinedSince}</Typography>
                     <Typography variant="body2" color="white" fontWeight={500}>
-                      {new Date(member.createdAt).toLocaleDateString("en-US", {
+                      {new Date(member.createdAt).toLocaleDateString(dict.languages.tr ? "tr-TR" : "en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
@@ -141,11 +143,16 @@ export default function CompanyMemberDetailsDialog({
           <Grid size={12}>
              <Box sx={{ p: 3, borderRadius: 3, bgcolor: alpha(theme.palette.warning.main, 0.03), border: `1px solid ${alpha(theme.palette.warning.main, 0.05)}` }}>
               <Typography variant="caption" fontWeight={800} color="warning.light" sx={{ letterSpacing: 1, textTransform: "uppercase", mb: 1.5, display: "block" }}>
-                Administrative Data
+                {dict.company.memberDetails.adminData}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.85rem", lineHeight: 1.6 }}>
-                User access is managed by the organization administrator. This member currently has <strong>{member.roleName || "read-only"}</strong> permissions within the <strong>LogiTrack</strong> platform.
-              </Typography>
+              <Typography 
+                variant="body2" 
+                color="text.secondary" 
+                sx={{ fontSize: "0.85rem", lineHeight: 1.6 }}
+                dangerouslySetInnerHTML={{ 
+                  __html: dict.company.memberDetails.adminDataDesc.replace("{role}", `<strong>${member.roleName || "read-only"}</strong>`) 
+                }} 
+              />
             </Box>
           </Grid>
         </Grid>
@@ -169,7 +176,7 @@ export default function CompanyMemberDetailsDialog({
               }
             }}
           >
-            Close View
+            {dict.company.memberDetails.closeView}
           </Button>
         </Box>
       </DialogContent>
