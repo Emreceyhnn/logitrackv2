@@ -31,15 +31,17 @@ import AltRouteIcon from "@mui/icons-material/AltRoute";
 import PlaceIcon from "@mui/icons-material/Place";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
+import { Dictionary } from "@/app/lib/language/language";
+
 interface RouteDialogProps {
   open: boolean;
   onClose: () => void;
   route: RouteWithRelations | null;
 }
 
-const getStatusMeta = (status?: string, dict?: any) => {
+const getStatusMeta = (status?: string, dict?: Dictionary) => {
   const s = status?.toUpperCase();
-  const label = dict?.routes?.statuses?.[s as string] || status || "-";
+  const label = (dict?.routes?.statuses as unknown as Record<string, string>)?.[s as string] || status || "-";
   
   switch (s) {
     case "ACTIVE":

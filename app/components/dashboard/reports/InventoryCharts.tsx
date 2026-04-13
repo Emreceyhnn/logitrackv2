@@ -62,10 +62,10 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
         >
           <Stack spacing={0.5} sx={{ mb: 3 }}>
             <Typography variant="h6" fontWeight={700}>
-              {dict.dashboard.reports.charts.inventory.valueTitle}
+              {dict.reports.charts.inventory.valueTitle}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {dict.dashboard.reports.charts.inventory.valueSubtitle}
+              {dict.reports.charts.inventory.valueSubtitle}
             </Typography>
           </Stack>
 
@@ -121,10 +121,10 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
         >
           <Stack spacing={0.5} sx={{ mb: 3 }}>
             <Typography variant="h6" fontWeight={700}>
-              {dict.dashboard.reports.charts.inventory.countTitle}
+              {dict.reports.charts.inventory.countTitle}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {dict.dashboard.reports.charts.inventory.countSubtitle}
+              {dict.reports.charts.inventory.countSubtitle}
             </Typography>
           </Stack>
 

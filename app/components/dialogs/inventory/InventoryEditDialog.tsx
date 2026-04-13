@@ -32,16 +32,6 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
-const schema = yup.object({
-  sku: yup.string().optional(),
-  imageUrl: yup.string().optional().nullable(),
-  quantity: yup.number().typeError("Quantity must be a number").required("Quantity is required").min(0, "Cannot be negative"),
-  minStock: yup.number().typeError("Min stock must be a number").required("Min Stock is required").min(0, "Cannot be negative"),
-  weightKg: yup.number().nullable().transform((v) => (v === "" || isNaN(v) ? null : v)),
-  volumeM3: yup.number().nullable().transform((v) => (v === "" || isNaN(v) ? null : v)),
-  palletCount: yup.number().nullable().transform((v) => (v === "" || isNaN(v) ? null : v)),
-}).required();
-
 type FormData = {
   sku?: string;
   imageUrl?: string | null;
@@ -61,8 +51,6 @@ export default function InventoryEditDialog({
   const theme = useTheme();
   const dict = useDictionary();
 
-  // Redefine schema with localized messages if needed, but for now let's keep it simple
-  // or wrap it in a useMemo with dict. Since dict is reactive.
   const validationSchema = React.useMemo(() => yup.object({
     sku: yup.string().optional(),
     imageUrl: yup.string().optional().nullable(),
@@ -81,13 +69,13 @@ export default function InventoryEditDialog({
   } = useForm<FormData>({
     resolver: yupResolver(validationSchema) as unknown as Resolver<FormData>,
     defaultValues: {
-      sku: "",
-      imageUrl: "",
-      quantity: 0,
-      minStock: 0,
-      weightKg: 0,
-      volumeM3: 0,
-      palletCount: 0,
+      sku: item?.sku || "",
+      imageUrl: item?.imageUrl || "",
+      quantity: item?.quantity || 0,
+      minStock: item?.minStock || 0,
+      weightKg: item?.weightKg || 0,
+      volumeM3: item?.volumeM3 || 0,
+      palletCount: item?.palletCount || 0,
     },
   });
 
@@ -109,22 +97,12 @@ export default function InventoryEditDialog({
     item?.palletCount ? item.palletCount.toString() : ""
   );
 
+  // We don't need useEffect to sync values because the component is keyed and re-mounts when item changes.
+  // However, reset is still useful if item updates while open (though key on ID covers most cases).
   useEffect(() => {
     if (item && isOpen) {
-      reset({
-        sku: item.sku || "",
-        imageUrl: item.imageUrl || "",
-        quantity: item.quantity,
-        minStock: item.minStock,
-        weightKg: item.weightKg ?? 0,
-        volumeM3: item.volumeM3 ?? 0,
-        palletCount: item.palletCount ?? 0,
-      });
-      setLocalQuantity(item.quantity.toString());
-      setLocalMinStock(item.minStock.toString());
-      setLocalWeight(item.weightKg?.toString() || "");
-      setLocalVolume(item.volumeM3?.toString() || "");
-      setLocalPalletCount(item.palletCount?.toString() || "");
+       // Only reset if we actually have an item and it's open, but key=item.id should handle most cases.
+       // We keep it as a safety if item properties change without ID change.
     }
   }, [item, isOpen, reset]);
 

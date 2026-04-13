@@ -79,7 +79,7 @@ const UserList = ({ users, loading, onSelect }: UserListProps) => {
         );
       },
     },
-  ], []);
+  ], [dict]);
 
   const rowActions: DataTableRowAction<UserWithRelations>[] = useMemo(() => [
     {
@@ -87,7 +87,7 @@ const UserList = ({ users, loading, onSelect }: UserListProps) => {
       icon: <EditIcon fontSize="small" />,
       onClick: (row) => onSelect(row.id),
     },
-  ], [onSelect]);
+  ], [onSelect, dict]);
 
   return (
     <CustomCard sx={{ p: 0, overflow: "hidden" }}>

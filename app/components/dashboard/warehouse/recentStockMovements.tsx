@@ -134,7 +134,7 @@ const RecentStockMovements = ({
         );
       },
     },
-  ], [theme]);
+  ], [theme, dict]);
 
   if (loading) return (
     <CustomCard sx={{ flex: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

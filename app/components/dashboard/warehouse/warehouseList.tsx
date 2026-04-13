@@ -191,7 +191,7 @@ const WarehouseListTable = ({
         );
       },
     },
-  ], [theme]);
+  ], [theme, dict]);
 
   const rowActions: DataTableRowAction<WarehouseWithRelations>[] = useMemo(() => [
     {
@@ -210,7 +210,7 @@ const WarehouseListTable = ({
       onClick: (row) => { if (onDelete) onDelete(row.id); },
       color: "error",
     },
-  ], [onDetails, onSelect, onEdit, onDelete]);
+  ], [onDetails, onSelect, onEdit, onDelete, dict]);
 
   return (
     <DataTable<WarehouseWithRelations>

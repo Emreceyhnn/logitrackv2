@@ -20,7 +20,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import PersonIcon from "@mui/icons-material/Person";
 import StarIcon from "@mui/icons-material/Star";
 import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   assignDriverToVehicle,
@@ -54,17 +54,8 @@ export default function AssignDriverDialog({
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /* -------------------------------- lifecycle ------------------------------- */
-  useEffect(() => {
-    if (open) {
-      fetchDrivers();
-      setSelectedDriverId("");
-      setError(null);
-    }
-  }, [open]);
-
   /* --------------------------------- actions -------------------------------- */
-  const fetchDrivers = async () => {
+  const fetchDrivers = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getAvailableDrivers();
@@ -75,7 +66,16 @@ export default function AssignDriverDialog({
     } finally {
       setLoading(false);
     }
-  };
+  }, [dict.vehicles.dialogs.failedToLoadDrivers]);
+
+  /* -------------------------------- lifecycle ------------------------------- */
+  useEffect(() => {
+    if (open) {
+      fetchDrivers();
+      setSelectedDriverId("");
+      setError(null);
+    }
+  }, [open, fetchDrivers]);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleAssign = async () => {

@@ -200,7 +200,7 @@ const CustomerList = ({
                 />
                 <Typography variant="body2" color="text.secondary" noWrap>
                   {customer.locations && customer.locations.length > 0
-                    ? customer.locations.find((l: any) => l.isDefault)?.address ||
+                    ? customer.locations.find((l) => l.isDefault)?.address ||
                       customer.locations[0].address
                     : dict.customers.list.noAddress}
                 </Typography>

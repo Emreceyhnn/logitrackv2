@@ -17,7 +17,7 @@ export default function FleetCharts({ data }: FleetChartsProps) {
   if (!data || data.length === 0) {
     return (
       <Box p={3}>
-        <Typography color="text.secondary">{dict.dashboard.reports.charts.fleet.noData}</Typography>
+        <Typography color="text.secondary">{dict.reports.charts.fleet.noData}</Typography>
       </Box>
     );
   }
@@ -43,7 +43,7 @@ export default function FleetCharts({ data }: FleetChartsProps) {
     <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
       <Paper sx={{ p: 3, flex: 1, minWidth: 300, borderRadius: 3 }}>
         <Typography variant="h6" fontWeight={700} mb={2}>
-          {dict.dashboard.reports.charts.fleet.highMaintenance}
+          {dict.reports.charts.fleet.highMaintenance}
         </Typography>
         <BarChart
           dataset={maintenanceData}
@@ -51,7 +51,7 @@ export default function FleetCharts({ data }: FleetChartsProps) {
           series={[
             {
               dataKey: "cost",
-              label: dict.dashboard.reports.charts.fleet.maintenanceCostLabel,
+              label: dict.reports.charts.fleet.maintenanceCostLabel,
               color: theme.palette.error.main,
             },
           ]}
@@ -61,17 +61,17 @@ export default function FleetCharts({ data }: FleetChartsProps) {
 
       <Paper sx={{ p: 3, flex: 1, minWidth: 300, borderRadius: 3 }}>
         <Typography variant="h6" fontWeight={700} mb={2}>
-          {dict.dashboard.reports.charts.fleet.consumptionVsOdometer}
+          {dict.reports.charts.fleet.consumptionVsOdometer}
         </Typography>
         <ScatterChart
           series={[
             {
-              label: dict.dashboard.reports.charts.fleet.fleetLabel,
+              label: dict.reports.charts.fleet.fleetLabel,
               data: scatterData.map((d) => ({ x: d.x, y: d.y, id: d.id })),
             },
           ]}
-          xAxis={[{ label: dict.dashboard.reports.charts.fleet.odometerLabel }]}
-          yAxis={[{ label: dict.dashboard.reports.charts.fleet.consumptionLabel }]}
+          xAxis={[{ label: dict.reports.charts.fleet.odometerLabel }]}
+          yAxis={[{ label: dict.reports.charts.fleet.consumptionLabel }]}
           height={300}
         />
       </Paper>

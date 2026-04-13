@@ -137,7 +137,7 @@ export default function ReportSummaryCards({
       case 0:
         return [
           {
-            title: dict.dashboard.reports.metrics.totalShipments,
+            title: dict.reports.metrics.totalShipments,
             value: metrics?.totalShipments.toLocaleString() || "0",
             change: "+12%",
             positive: true,
@@ -145,7 +145,7 @@ export default function ReportSummaryCards({
             color: theme.palette.primary.main,
           },
           {
-            title: dict.dashboard.reports.metrics.onTimeRate,
+            title: dict.reports.metrics.onTimeRate,
             value: `${metrics?.onTimeRate.toFixed(1)}%` || "0%",
             change: "+2.1%",
             positive: true,
@@ -153,15 +153,15 @@ export default function ReportSummaryCards({
             color: theme.palette.success.main,
           },
           {
-            title: dict.dashboard.reports.metrics.avgDeliveryTime,
-            value: dict.dashboard.reports.metrics.daysUnits.replace("{count}", "2.3"),
+            title: dict.reports.metrics.avgDeliveryTime,
+            value: dict.reports.metrics.daysUnits.replace("{count}", "2.3"),
             change: "-5%",
             positive: true,
             icon: <TrendingUpIcon />,
             color: theme.palette.info.main,
           },
           {
-            title: dict.dashboard.reports.metrics.pendingOrders,
+            title: dict.reports.metrics.pendingOrders,
             value: "42", // Mock
             change: "+8%",
             positive: false,
@@ -172,7 +172,7 @@ export default function ReportSummaryCards({
       case 1:
         return [
           {
-            title: dict.dashboard.reports.metrics.activeVehicles,
+            title: dict.reports.metrics.activeVehicles,
             value: metrics?.activeVehicles.toString() || "0",
             change: "0%",
             positive: true,
@@ -180,7 +180,7 @@ export default function ReportSummaryCards({
             color: theme.palette.primary.main,
           },
           {
-            title: dict.dashboard.reports.metrics.avgFuelCons,
+            title: dict.reports.metrics.avgFuelCons,
             value: "22L/100km", // Mock
             change: "-1.2%",
             positive: true,
@@ -188,7 +188,7 @@ export default function ReportSummaryCards({
             color: theme.palette.success.main,
           },
           {
-            title: dict.dashboard.reports.metrics.maintenanceCost,
+            title: dict.reports.metrics.maintenanceCost,
             value: "$4,250", // Mock
             change: "+15%",
             positive: false,
@@ -196,7 +196,7 @@ export default function ReportSummaryCards({
             color: theme.palette.error.main,
           },
           {
-            title: dict.dashboard.reports.metrics.totalDistance,
+            title: dict.reports.metrics.totalDistance,
             value: "125k km", // Mock
             change: "+10%",
             positive: true,
@@ -207,7 +207,7 @@ export default function ReportSummaryCards({
       case 2:
         return [
           {
-            title: dict.dashboard.reports.metrics.totalInventoryValue,
+            title: dict.reports.metrics.totalInventoryValue,
             value: `$${(metrics?.totalInventoryValue || 0).toLocaleString()}`,
             change: "+5.4%",
             positive: true,
@@ -215,7 +215,7 @@ export default function ReportSummaryCards({
             color: theme.palette.success.main,
           },
           {
-            title: dict.dashboard.reports.metrics.stockTurnover,
+            title: dict.reports.metrics.stockTurnover,
             value: "4.2", // Mock
             change: "+0.3",
             positive: true,
@@ -223,7 +223,7 @@ export default function ReportSummaryCards({
             color: theme.palette.info.main,
           },
           {
-            title: dict.dashboard.reports.metrics.deadStock,
+            title: dict.reports.metrics.deadStock,
             value: "$12k", // Mock
             change: "-2%",
             positive: true,
@@ -231,7 +231,7 @@ export default function ReportSummaryCards({
             color: theme.palette.error.main,
           },
           {
-            title: dict.dashboard.reports.metrics.lowStockSKUs,
+            title: dict.reports.metrics.lowStockSKUs,
             value: "15", // Mock
             change: "+3",
             positive: false,

@@ -18,7 +18,7 @@ import {
   useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Formik, FormikHelpers } from "formik";
 import {
   AddDriverDialogProps,

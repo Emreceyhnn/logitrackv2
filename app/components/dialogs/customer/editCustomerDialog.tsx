@@ -78,6 +78,7 @@ export default function EditCustomerDialog({
     });
   };
 
+  const validationSchema = useMemo(() => editCustomerValidationSchema(dict), [dict]);
   if (!customer) return null;
 
   const steps = [dict.customers.dialogs.steps.identity, dict.customers.dialogs.steps.contact];
@@ -103,7 +104,7 @@ export default function EditCustomerDialog({
     <GoogleMapsProvider>
       <Formik
         initialValues={customerInitialValues}
-        validationSchema={useMemo(() => editCustomerValidationSchema(dict), [dict])}
+        validationSchema={validationSchema}
         onSubmit={handleSubmit}
         enableReinitialize
       >

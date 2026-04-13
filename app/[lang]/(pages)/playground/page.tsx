@@ -74,7 +74,7 @@ export default async function Playground({
             <Typography variant="body2" color="#38bdf8">
               <strong>Why useMemo?</strong> In Client Components, <code>useMemo</code> is 
               typically used to prevent expensive re-calculations of UI data that depends 
-              on the dictionary. It isn't "wrong", but in Next.js App Router, we aim to 
+              on the dictionary. It isn&apos;t &quot;wrong&quot;, but in Next.js App Router, we aim to 
               do as much as possible in Server Components (above) to keep the client 
               bundle small.
             </Typography>

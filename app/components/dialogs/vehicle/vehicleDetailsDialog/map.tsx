@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import CustomCard from "../../../cards/card";
@@ -8,6 +8,8 @@ import { useVehicleTracking } from "@/app/hooks/useVehicleTracking";
 import { Box, Stack, Typography, Chip, alpha, Skeleton } from "@mui/material";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import SignalWifiOffIcon from "@mui/icons-material/SignalWifiOff";
+import SatelliteAltIcon from "@mui/icons-material/SatelliteAlt";
+import SpeedIcon from "@mui/icons-material/Speed";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface MapVehicleOverviewCardProps {
@@ -19,11 +21,9 @@ interface MapVehicleOverviewCardProps {
   dbLocation?: { lat: number; lng: number } | null;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const isLive = (timestamp: number| undefined): boolean => {
+const isLive = (timestamp: number | undefined, now: number): boolean => {
   if (!timestamp) return false;
-  return Date.now() - timestamp < 30_000; // live if updated in last 30s
+  return now - timestamp < 30_000; // live if updated in last 30s
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -34,10 +34,19 @@ const MapVehicleOverviewCard = ({
   dbLocation,
 }: MapVehicleOverviewCardProps) => {
   const dict = useDictionary();
+  const [now, setNow] = useState(0);
 
-  const formatAge = (timestamp: number | undefined): string => {
+  useEffect(() => {
+    const t = Date.now();
+    const timer = setTimeout(() => {
+      setNow(t);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const formatAge = (timestamp: number | undefined, currentNow: number): string => {
     if (!timestamp) return dict.common.na;
-    const diffMs = Date.now() - timestamp;
+    const diffMs = currentNow - timestamp;
     const diffSec = Math.round(diffMs / 1000);
     if (diffSec < 60) return `${diffSec}${dict.vehicles.dialogs.secondsAgo}`;
     const diffMin = Math.round(diffSec / 60);
@@ -57,7 +66,7 @@ const MapVehicleOverviewCard = ({
     [liveLocation, dbLocation]
   );
 
-  const hasLiveSignal = isLive(liveLocation?.lastUpdated);
+  const hasLiveSignal = useMemo(() => isLive(liveLocation?.lastUpdated, now), [liveLocation?.lastUpdated, now]);
 
   const markers = useMemo(
     () =>
@@ -218,7 +227,7 @@ const MapVehicleOverviewCard = ({
               variant="caption"
               sx={{ color: "#475569", fontSize: "0.62rem", ml: "auto !important" }}
             >
-              {dict.vehicles.dialogs.updated} {formatAge(liveLocation.lastUpdated)}
+              {dict.vehicles.dialogs.updated} {formatAge(liveLocation.lastUpdated, now)}
             </Typography>
           </Stack>
         </Box>

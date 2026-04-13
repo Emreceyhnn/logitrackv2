@@ -17,15 +17,17 @@ export const getPriorityColor = (priority: string): ChipProps["color"] => {
   }
 };
 
-export const getStatusMeta = (status?: string, dict?: any) => {
+import { Dictionary } from "./language/language";
+
+export const getStatusMeta = (status?: string, dict?: Dictionary) => {
   const s = status?.toUpperCase() || "";
   
   // Helpers to get text from dict
   const getDictLabel = (key: string) => {
     return (
-      dict?.vehicles?.statuses?.[key] || 
-      dict?.vehicles?.priorities?.[key] || 
-      dict?.common?.[key] || 
+      (dict?.vehicles?.statuses as unknown as Record<string, string>)?.[key] || 
+      (dict?.vehicles?.priorities as unknown as Record<string, string>)?.[key] || 
+      (dict?.common as unknown as Record<string, string>)?.[key] || 
       key.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())
     );
   };

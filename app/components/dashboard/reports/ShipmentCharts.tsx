@@ -21,7 +21,7 @@ export default function ShipmentCharts({ data, loading = false }: ShipmentCharts
   const theme = useTheme();
 
   if (loading || !data) {
-    return <AnalyticsSkeleton title={dict.dashboard.reports.charts.shipment.analyticsTitle} />;
+    return <AnalyticsSkeleton title={dict.reports.charts.shipment.analyticsTitle} />;
   }
 
   const statusMap: Record<string, number> = {};
@@ -56,10 +56,10 @@ export default function ShipmentCharts({ data, loading = false }: ShipmentCharts
         >
           <Stack spacing={0.5} sx={{ mb: 3, width: "100%" }}>
             <Typography variant="h6" fontWeight={700}>
-              {dict.dashboard.reports.charts.shipment.volumeByRoute}
+              {dict.reports.charts.shipment.volumeByRoute}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {dict.dashboard.reports.charts.shipment.volumeByRouteSubtitle}
+              {dict.reports.charts.shipment.volumeByRouteSubtitle}
             </Typography>
           </Stack>
 

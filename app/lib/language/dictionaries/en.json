@@ -402,7 +402,15 @@
       "model": "Model",
       "year": "Year",
       "service": "Service",
-      "cost": "Cost"
+      "cost": "Cost",
+      "capacity": "Capacity",
+      "fuelType": "Fuel Type",
+      "avgFuelConsumption": "Avg. Fuel Consumption",
+      "engineSize": "Engine Size",
+      "transmission": "Transmission",
+      "techNotes": "Technical Notes",
+      "priority": "Priority",
+      "serviceType": "Service Type"
     },
     "transmissionTypes": {
       "AUTOMATIC": "Automatic",
@@ -528,18 +536,18 @@
       "preview": "Preview",
       "configuration": "Configuration",
       "fileAttachment": "File Attachment",
-      "expiryDate": "Expiry Date"
-    },
-    "tabs": {
-      "overview": "Overview",
-      "documents": "Documents",
-      "maintenance": "Maintenance",
-      "map": "Live Map"
-    },
-    "steps": {
-      "general": "General Info",
-      "specs": "Tech Specs",
-      "docs": "Documents"
+      "expiryDate": "Expiry Date",
+      "steps": {
+        "general": "General Info",
+        "specs": "Tech Specs",
+        "docs": "Documents"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "documents": "Documents",
+        "maintenance": "Maintenance",
+        "map": "Live Map"
+      }
     },
     "table": {
       "title": "Vehicle List",
@@ -743,30 +751,54 @@
       "isDefault": "Default",
       "mainOffice": "Main Office",
       "selectIndustry": "Select an industry"
-    },
-    "industries": {
-      "logistics": "Logistics & Transportation",
-      "retail": "Retail & E-commerce",
-      "manufacturing": "Manufacturing",
-      "pharmaceuticals": "Pharmaceuticals",
-      "automotive": "Automotive",
-      "aviation": "Aviation",
-      "technology": "Technology",
-      "other": "Other"
     }
+  },
+  "industries": {
+    "logistics": "Logistics & Transportation",
+    "retail": "Retail & E-commerce",
+    "ecommerce": "E-commerce",
+    "manufacturing": "Manufacturing",
+    "pharmaceuticals": "Pharmaceuticals",
+    "automotive": "Automotive",
+    "aviation": "Aviation",
+    "technology": "Technology",
+    "other": "Other"
   },
   "inventory": {
     "title": "Inventory Management",
+    "subtitle": "Manage, track, and analyze inventory items efficiently",
     "header": "Inventory List",
     "totalItems": "TOTAL ITEMS",
     "lowStock": "LOW STOCK",
     "outOfStock": "OUT OF STOCK",
     "totalValue": "TOTAL VALUE",
     "addInventory": "Add Inventory",
+    "searchPlaceholder": "Search product, SKU...",
+    "filter": "Filter",
+    "filters": "Filters",
+    "noItems": "No inventory items found",
+    "table": {
+      "productName": "Product Name",
+      "sku": "SKU",
+      "category": "Category",
+      "stockLevel": "Stock Level",
+      "unitPrice": "Unit Price",
+      "warehouses": "Warehouses"
+    },
+    "actions": {
+      "details": "Details",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "category": {
+      "general": "General"
+    },
     "status": {
       "inStock": "IN STOCK",
       "lowStock": "LOW STOCK",
-      "outOfStock": "OUT OF STOCK"
+      "outOfStock": "OUT OF STOCK",
+      "low": "Low",
+      "out": "Out"
     },
     "dialogs": {
       "addTitle": "Add New Item",
@@ -1310,38 +1342,6 @@
         "highSecurity": "High Security",
         "lashing": "Lashing/Loading"
       }
-    }
-  },
-  "inventory": {
-    "title": "Inventory",
-    "subtitle": "Manage, track, and analyze inventory items efficiently",
-    "searchPlaceholder": "Search product, SKU...",
-    "addInventory": "Add Inventory",
-    "filter": "Filter",
-    "filters": "Filters",
-    "noItems": "No inventory items found",
-    "table": {
-      "productName": "Product Name",
-      "sku": "SKU",
-      "category": "Category",
-      "stockLevel": "Stock Level",
-      "unitPrice": "Unit Price",
-      "warehouses": "Warehouses"
-    },
-    "actions": {
-      "details": "Details",
-      "edit": "Edit",
-      "delete": "Delete"
-    },
-    "category": {
-      "general": "General"
-    },
-    "status": {
-      "inStock": "In Stock",
-      "lowStock": "Low Stock",
-      "outOfStock": "Out of Stock",
-      "low": "Low",
-      "out": "Out"
     }
   },
   "toasts": {

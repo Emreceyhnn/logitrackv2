@@ -44,6 +44,7 @@ const EditDriverDialog = ({
   const [currentStep, setCurrentStep] = useState(1);
   const dict = useDictionary();
 
+  const validationSchema = useMemo(() => editDriverValidationSchema(dict), [dict]);
   if (!driver) return null;
 
   const initialValues: EditDriverFormValues = {
@@ -171,7 +172,7 @@ const EditDriverDialog = ({
     >
       <Formik
         initialValues={initialValues}
-        validationSchema={useMemo(() => editDriverValidationSchema(dict), [dict])}
+        validationSchema={validationSchema}
         onSubmit={handleSubmit}
         enableReinitialize
       >

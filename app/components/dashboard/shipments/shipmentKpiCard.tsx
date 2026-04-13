@@ -17,34 +17,35 @@ const ShipmentKpiCard = ({ state }: ShipmentKpiCardProps) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const values = stats || { total: 0, active: 0, delayed: 0, inTransit: 0 };
-
-  const kpiItems = useMemo(() => [
-    {
-      label: dict.shipments.dashboard.totalShipments,
-      value: values.total,
-      icon: <InventoryIcon />,
-      color: theme.palette.primary.main,
-    },
-    {
-      label: dict.shipments.dashboard.activeShipments,
-      value: values.active,
-      icon: <LocalShippingIcon />,
-      color: "#0ea5e9", // Sky
-    },
-    {
-      label: dict.shipments.dashboard.delayedShipments,
-      value: values.delayed,
-      icon: <AccessTimeIcon />,
-      color: theme.palette.error.main,
-    },
-    {
-      label: dict.shipments.dashboard.inTransit,
-      value: values.inTransit,
-      icon: <DirectionsBoatIcon />,
-      color: "#10b981", // Emerald
-    },
-  ], [values, theme, dict]);
+  const kpiItems = useMemo(() => {
+    const values = stats || { total: 0, active: 0, delayed: 0, inTransit: 0 };
+    return [
+      {
+        label: dict.shipments.dashboard.totalShipments,
+        value: values.total,
+        icon: <InventoryIcon />,
+        color: theme.palette.primary.main,
+      },
+      {
+        label: dict.shipments.dashboard.activeShipments,
+        value: values.active,
+        icon: <LocalShippingIcon />,
+        color: "#0ea5e9", // Sky
+      },
+      {
+        label: dict.shipments.dashboard.delayedShipments,
+        value: values.delayed,
+        icon: <AccessTimeIcon />,
+        color: theme.palette.error.main,
+      },
+      {
+        label: dict.shipments.dashboard.inTransit,
+        value: values.inTransit,
+        icon: <DirectionsBoatIcon />,
+        color: "#10b981", // Emerald
+      },
+    ];
+  }, [stats, theme, dict]);
 
   if (loading) {
     return <KpiSkeleton count={4} />;

@@ -27,7 +27,9 @@ interface CapacitySectionProps {
   actions: AddWarehousePageActions;
 }
 
-const SPECIFICATIONS = (dict: any) => [
+import { Dictionary } from "@/app/lib/language/language";
+
+const SPECIFICATIONS = (dict: Dictionary) => [
   { label: dict.warehouses.dialogs.specs.coldStorage, value: "Cold Storage", icon: <AcUnitIcon fontSize="small" /> },
   { label: dict.warehouses.dialogs.specs.hazardous, value: "Hazardous Materials", icon: <WarningAmberIcon fontSize="small" /> },
   { label: dict.warehouses.dialogs.specs.bonded, value: "Bonded Warehouse", icon: <GavelIcon fontSize="small" /> },

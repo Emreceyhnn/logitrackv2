@@ -402,7 +402,15 @@
       "model": "Model",
       "year": "Yıl",
       "service": "Servis",
-      "cost": "Maliyet"
+      "cost": "Maliyet",
+      "capacity": "Kapasite",
+      "fuelType": "Yakıt Tipi",
+      "avgFuelConsumption": "Ort. Yakıt Tüketimi",
+      "engineSize": "Motor Hacmi",
+      "transmission": "Şanzıman",
+      "techNotes": "Teknik Notlar",
+      "priority": "Öncelik",
+      "serviceType": "Servis Tipi"
     },
     "transmissionTypes": {
       "AUTOMATIC": "Otomatik",
@@ -528,18 +536,18 @@
       "preview": "Önizleme",
       "configuration": "Yapılandırma",
       "fileAttachment": "Dosya Eki",
-      "expiryDate": "Geçerlilik Tarihi"
-    },
-    "tabs": {
-      "overview": "Genel Bakış",
-      "documents": "Belgeler",
-      "maintenance": "Bakım",
-      "map": "Canlı Harita"
-    },
-    "steps": {
-      "general": "Genel Bilgiler",
-      "specs": "Teknik Özellikler",
-      "docs": "Belgeler"
+      "expiryDate": "Geçerlilik Tarihi",
+      "steps": {
+        "general": "Genel Bilgiler",
+        "specs": "Teknik Özellikler",
+        "docs": "Belgeler"
+      },
+      "tabs": {
+        "overview": "Genel Bakış",
+        "documents": "Belgeler",
+        "maintenance": "Bakım",
+        "map": "Canlı Harita"
+      }
     },
     "table": {
       "title": "Araç Listesi",
@@ -619,6 +627,11 @@
       "assigned": "Atanmış",
       "unassigned": "Atanmamış"
     },
+    "safetyRating": "Ort. Güvenlik Puanı",
+    "efficiencyRating": "Verimlilik Puanı",
+    "deleteTitle": "Sürücüyü Sil",
+    "deleteDesc": "Bu sürücüyü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "noDriverSelected": "Sürücü seçilmedi",
     "labels": {
       "rating": "Sürücü Puanı",
       "efficiency": "Verimlilik Skoru",
@@ -738,30 +751,54 @@
       "isDefault": "Varsayılan",
       "mainOffice": "Merkez Ofis",
       "selectIndustry": "Bir sektör seçin"
-    },
-    "industries": {
-      "logistics": "Lojistik ve Taşımacılık",
-      "retail": "Perakende ve E-ticaret",
-      "manufacturing": "Üretim",
-      "pharmaceuticals": "İlaç",
-      "automotive": "Otomotiv",
-      "aviation": "Havacılık",
-      "technology": "Teknoloji",
-      "other": "Diğer"
     }
+  },
+  "industries": {
+    "logistics": "Lojistik ve Taşımacılık",
+    "retail": "Perakende ve E-ticaret",
+    "ecommerce": "E-ticaret",
+    "manufacturing": "Üretim",
+    "pharmaceuticals": "İlaç",
+    "automotive": "Otomotiv",
+    "aviation": "Havacılık",
+    "technology": "Teknoloji",
+    "other": "Diğer"
   },
   "inventory": {
     "title": "Envanter Yönetimi",
+    "subtitle": "Envanter öğelerini verimli bir şekilde yönetin, izleyin ve analiz edin",
     "header": "Envanter Listesi",
     "totalItems": "TOPLAM ÜRÜN",
     "lowStock": "DÜŞÜK STOK",
     "outOfStock": "STOKTA YOK",
     "totalValue": "TOPLAM DEĞER",
     "addInventory": "Envanter Ekle",
+    "searchPlaceholder": "Ürün, SKU ara...",
+    "filter": "Filtre",
+    "filters": "Filtreler",
+    "noItems": "Envanter öğesi bulunamadı",
+    "table": {
+      "productName": "Ürün Adı",
+      "sku": "SKU",
+      "category": "Kategori",
+      "stockLevel": "Stok Seviyesi",
+      "unitPrice": "Birim Fiyat",
+      "warehouses": "Depolar"
+    },
+    "actions": {
+      "details": "Detaylar",
+      "edit": "Düzenle",
+      "delete": "Sil"
+    },
+    "category": {
+      "general": "Genel"
+    },
     "status": {
       "inStock": "STOKTA",
       "lowStock": "DÜŞÜK STOK",
-      "outOfStock": "STOKTA YOK"
+      "outOfStock": "STOKTA YOK",
+      "low": "Düşük",
+      "out": "Yok"
     },
     "dialogs": {
       "addTitle": "Yeni Ürün Ekle",
@@ -1016,6 +1053,7 @@
       "kg": "kg",
       "customerEntity": "Müşteri Kuruluşu",
       "clientPartner": "Müşteri Ortağı",
+      "description": "Açıklama",
       "mileage": "MESAFE",
       "duration": "SÜRE",
       "fleetId": "FİLO KİMLİĞİ",
@@ -1306,38 +1344,7 @@
       }
     }
   },
-  "inventory": {
-    "title": "Envanter",
-    "subtitle": "Envanter kalemlerini verimli bir şekilde yönetin, takip edin ve analiz edin",
-    "searchPlaceholder": "Ürün, SKU ara...",
-    "addInventory": "Envanter Ekle",
-    "filter": "Filtrele",
-    "filters": "Filtreler",
-    "noItems": "Envanter kalemi bulunamadı",
-    "table": {
-      "productName": "Ürün Adı",
-      "sku": "SKU",
-      "category": "Kategori",
-      "stockLevel": "Stok Seviyesi",
-      "unitPrice": "Birim Fiyat",
-      "warehouses": "Depolar"
-    },
-    "actions": {
-      "details": "Detaylar",
-      "edit": "Düzenle",
-      "delete": "Sil"
-    },
-    "category": {
-      "general": "Genel"
-    },
-    "status": {
-      "inStock": "Stokta",
-      "lowStock": "Düşük Stok",
-      "outOfStock": "Stokta Yok",
-      "low": "Düşük",
-      "out": "Yok"
-    }
-  },
+
   "toasts": {
     "successAdd": "Başarıyla eklendi!",
     "successUpdate": "Başarıyla güncellendi!",

@@ -25,6 +25,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useEffect, useState } from "react";
 import { getCustomerById } from "@/app/lib/controllers/customer";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface CustomerDetailDialogParams {
   open: boolean;

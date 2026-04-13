@@ -28,14 +28,14 @@ const IdentitySection = () => {
   const { values, errors, touched, setFieldValue, handleBlur } = useFormikContext<AddCustomerIdentity>();
 
   const INDUSTRIES = [
-    { value: "Logistics & Transportation", label: dict.customers.industries.logistics },
-    { value: "Retail & E-commerce", label: dict.customers.industries.retail },
-    { value: "Manufacturing", label: dict.customers.industries.manufacturing },
-    { value: "Pharmaceuticals", label: dict.customers.industries.pharmaceuticals },
-    { value: "Automotive", label: dict.customers.industries.automotive },
-    { value: "Aviation", label: dict.customers.industries.aviation },
-    { value: "Technology", label: dict.customers.industries.technology },
-    { value: "Other", label: dict.customers.industries.other },
+    { value: "Logistics & Transportation", label: dict.industries.logistics },
+    { value: "Retail & E-commerce", label: dict.industries.retail },
+    { value: "Manufacturing", label: dict.industries.manufacturing },
+    { value: "Pharmaceuticals", label: dict.industries.pharmaceuticals },
+    { value: "Automotive", label: dict.industries.automotive },
+    { value: "Aviation", label: dict.industries.aviation },
+    { value: "Technology", label: dict.industries.technology },
+    { value: "Other", label: dict.industries.other },
   ];
 
   return (

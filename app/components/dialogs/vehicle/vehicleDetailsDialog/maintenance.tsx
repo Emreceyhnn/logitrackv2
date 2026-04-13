@@ -12,6 +12,7 @@ import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import PendingIcon from "@mui/icons-material/Pending";
+import CancelIcon from "@mui/icons-material/Cancel";
 import { VehicleStatus, IssueStatus } from "@prisma/client";
 import { MenuItem, Select, FormControl } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";

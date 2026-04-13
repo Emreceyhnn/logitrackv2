@@ -20,7 +20,9 @@ import CompanyMemberDetailsDialog from "../../dialogs/company/CompanyMemberDetai
 import EditCompanyMemberDialog from "../../dialogs/company/EditCompanyMemberDialog";
 import DeleteConfirmationDialog from "../../dialogs/deleteConfirmationDialog";
 
-function StatusChip({ status, dict }: { status: string, dict: any }) {
+import { Dictionary } from "@/app/lib/language/language";
+
+function StatusChip({ status, dict }: { status: string, dict: Dictionary }) {
   const normalized = status.toUpperCase();
   const colorMap: Record<string, "success" | "error" | "warning" | "default"> = {
     ACTIVE: "success",

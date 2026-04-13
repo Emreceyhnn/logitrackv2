@@ -27,7 +27,6 @@ import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getCustomers } from "@/app/lib/controllers/customer";
 import { getRoutes } from "@/app/lib/controllers/routes";
 import { useUser } from "@/app/lib/hooks/useUser";
-import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { RouteWithRelations } from "@/app/lib/type/routes";
@@ -68,10 +67,6 @@ const EditShipmentDialog = ({
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingInventory, setIsLoadingInventory] = useState(false);
-  const [availableInventory, setAvailableInventory] = useState<
-    InventoryWithRelations[]
-  >([]);
 
   const [warehouses, setWarehouses] = useState<WarehouseWithRelations[]>([]);
   const [customers, setCustomers] = useState<CustomerWithRelations[]>([]);
@@ -373,8 +368,8 @@ const EditShipmentDialog = ({
                         sx={{ borderColor: alpha(theme.palette.divider, 0.05) }}
                       />
                       <InventorySection
-                        availableInventory={availableInventory}
-                        isLoadingInventory={isLoadingInventory}
+                        availableInventory={[]}
+                        isLoadingInventory={false}
                       />
                     </Stack>
                   )}

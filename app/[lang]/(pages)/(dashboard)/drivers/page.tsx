@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState, useMemo, Suspense, useCallback } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   DriverPageActions,
@@ -46,7 +46,6 @@ function DriverContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
-  const params = useParams();
   const searchParams = useSearchParams();
   const driverIdFromUrl = searchParams.get("id");
   const tabFromUrl = searchParams.get("tab");

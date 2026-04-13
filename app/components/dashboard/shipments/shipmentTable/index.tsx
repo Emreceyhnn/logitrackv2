@@ -22,21 +22,23 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
   const { selectShipment, onEdit, onDelete, updateFilters } = actions;
 
   // Localized statuses for the filter
-  const SHIPMENT_STATUS_VALUES = Object.values(ShipmentStatus) as ShipmentStatus[];
-  const SHIPMENT_FILTERS: DataTableFilter[] = useMemo(() => [
-    {
-      key: "status",
-      label: dict.shipments.table.columns.status,
-      options: SHIPMENT_STATUS_VALUES.map((s: ShipmentStatus) => {
-        const statusKey = s.toUpperCase();
-        return {
-          label: dict.routes.statuses[statusKey as keyof typeof dict.routes.statuses] || s.replace(/_/g, " "),
-          value: s as string,
-        };
-      }),
-      multiple: false,
-    },
-  ], [dict]);
+  const SHIPMENT_FILTERS: DataTableFilter[] = useMemo(() => {
+    const SHIPMENT_STATUS_VALUES = Object.values(ShipmentStatus) as ShipmentStatus[];
+    return [
+      {
+        key: "status",
+        label: dict.shipments.table.columns.status,
+        options: SHIPMENT_STATUS_VALUES.map((s: ShipmentStatus) => {
+          const statusKey = s.toUpperCase();
+          return {
+            label: dict.routes.statuses[statusKey as keyof typeof dict.routes.statuses] || s.replace(/_/g, " "),
+            value: s as string,
+          };
+        }),
+        multiple: false,
+      },
+    ];
+  }, [dict]);
 
   /* --------------------------------- dialog state --------------------------------- */
   const [detailOpen, setDetailOpen] = useState(false);

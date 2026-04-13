@@ -218,7 +218,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
               </Stack>
               <Stack direction="row" spacing={2} alignItems="center">
                 <Chip
-                  label={statusMeta.text}
+                  label={statusMeta.label}
                   size="small"
                   sx={{
                     height: 24,

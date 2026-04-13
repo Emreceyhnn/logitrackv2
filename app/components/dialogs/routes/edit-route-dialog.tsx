@@ -136,13 +136,14 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
     dict.routes.dialogs.steps.assignments
   ];
 
+  const validationSchema = useMemo(() => editRouteValidationSchema(dict), [dict]);
   if (!route) return null;
 
   return (
     <GoogleMapsProvider>
       <Formik
         initialValues={getInitialValues()}
-        validationSchema={useMemo(() => editRouteValidationSchema(dict), [dict])}
+        validationSchema={validationSchema}
         onSubmit={onSubmit}
         enableReinitialize
       >

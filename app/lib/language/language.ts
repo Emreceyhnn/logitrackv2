@@ -16,7 +16,7 @@ export async function getDictionary(lang: string): Promise<Dictionary> {
 /**
  * Mesaj içerisindeki değişkenleri (örn: {field}) gerçek değerlerle değiştirir.
  */
-export function formatMessage(template: string, values: Record<string, any>): string {
+export function formatMessage(template: string, values: Record<string, string | number | boolean>): string {
   return template.replace(/{(\w+)}/g, (match, key) => {
     return values[key] !== undefined ? String(values[key]) : match;
   });

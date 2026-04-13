@@ -18,7 +18,7 @@ import {
 import { Box, Stack, Typography, Button, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useCallback, useEffect, useState, useMemo, Suspense } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
@@ -44,7 +44,7 @@ function VehicleContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
-  const params = useParams();
+
 
   const searchParams = useSearchParams();
   const vehicleIdFromUrl = searchParams.get("id");

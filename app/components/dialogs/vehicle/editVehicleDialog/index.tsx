@@ -199,7 +199,7 @@ const EditVehicleDialog = ({
             setError(null);
           } else {
              // Let user see errors
-             setError(dict.common.genericFormError || "Please fill required fields in General Info correctly.");
+             setError(dict.validation.genericFormError || "Please fill required fields in General Info correctly.");
           }
         };
 
