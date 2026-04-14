@@ -23,6 +23,7 @@ import { Formik, FormikHelpers } from "formik";
 import {
   EditDriverDialogProps,
   EditDriverFormValues,
+  AddDriverDocument,
 } from "@/app/lib/type/driver";
 import { DriverStatus } from "@prisma/client";
 import { toast } from "sonner";
@@ -59,7 +60,15 @@ const EditDriverDialog = ({
     status: driver.status,
     languages: driver.languages || [],
     hazmatCertified: driver.hazmatCertified || false,
-    documents: [],
+    documents: driver.documents.map((doc) => ({
+      id: doc.id,
+      name: doc.name,
+      type: doc.type,
+      expiryDate: doc.expiryDate ? new Date(doc.expiryDate) : null,
+      file: null,
+      url: doc.url,
+      uploadedAt: new Date(doc.createdAt).toLocaleDateString(),
+    })) as AddDriverDocument[],
   };
 
   /* -------------------------------- handlers --------------------------------- */

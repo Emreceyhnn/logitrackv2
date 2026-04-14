@@ -70,6 +70,24 @@ const CustomerList = ({
     handleMenuClose();
   };
 
+  const getIndustryLabel = (industry: string | null) => {
+    if (!industry) return dict.customers.industryGeneral;
+    const mapping: Record<string, keyof typeof dict.industries> = {
+      "Logistics & Transportation": "logistics",
+      "Retail & E-commerce": "retail",
+      "E-commerce": "ecommerce",
+      "Manufacturing": "manufacturing",
+      "Pharmaceuticals": "pharmaceuticals",
+      "Automotive": "automotive",
+      "Aviation": "aviation",
+      "Technology": "technology",
+      "Other": "other"
+    };
+
+    const key = mapping[industry];
+    return key ? dict.industries[key] : industry;
+  };
+
   const theme = useTheme();
 
   if (loading) {
@@ -188,7 +206,7 @@ const CustomerList = ({
                   color="text.secondary"
                   sx={{ display: "block", mt: 0.5 }}
                 >
-                  {customer.code} • {customer.industry || dict.customers.industryGeneral}
+                  {customer.code} • {getIndustryLabel(customer.industry)}
                 </Typography>
               </Box>
             </Stack>

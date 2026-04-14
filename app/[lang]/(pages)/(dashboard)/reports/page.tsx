@@ -12,6 +12,7 @@ import InventoryCharts from "@/app/components/dashboard/reports/InventoryCharts"
 import ReportSummaryCards from "@/app/components/dashboard/reports/ReportSummaryCards";
 import { getReportsDataAction } from "@/app/lib/controllers/reports";
 import { ReportsPageState } from "@/app/lib/type/reports";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -36,6 +37,8 @@ function CustomTabPanel(props: TabPanelProps) {
 }
 
 export default function ReportsPage() {
+  const dict = useDictionary();
+
   /* --------------------------------- states --------------------------------- */
   const [state, setState] = useState<ReportsPageState>({
     data: null,
@@ -71,10 +74,10 @@ export default function ReportsPage() {
           fontWeight={800}
           sx={{ mb: 1, letterSpacing: "-0.02em" }}
         >
-          Operational Reports
+          {dict.reports.title}
         </Typography>
         <Typography variant="h6" color="text.secondary" fontWeight={400}>
-          Data-driven insights for shipments, fleet, and inventory
+          {dict.reports.subtitle}
         </Typography>
       </Box>
 
@@ -95,17 +98,17 @@ export default function ReportsPage() {
           <Tab
             icon={<LocalShippingIcon />}
             iconPosition="start"
-            label="Shipment Analytics"
+            label={dict.reports.tabs.shipment}
           />
           <Tab
             icon={<DirectionsCarIcon />}
             iconPosition="start"
-            label="Fleet Efficiency"
+            label={dict.reports.tabs.fleet}
           />
           <Tab
             icon={<InventoryIcon />}
             iconPosition="start"
-            label="Inventory Valuation"
+            label={dict.reports.tabs.inventory}
           />
         </Tabs>
       </Box>

@@ -19,7 +19,7 @@ import {
   StepLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { AddShipmentDialogProps } from "@/app/lib/type/add-shipment";
 import { toast } from "sonner";
 import { createShipment } from "@/app/lib/controllers/shipments";
@@ -122,7 +122,7 @@ const AddShipmentDialog = ({
   }, [open, user]);
 
   /* -------------------------------- handlers --------------------------------- */
-  const handleFetchInventory = async (warehouseId: string) => {
+  const handleFetchInventory = useCallback(async (warehouseId: string) => {
     if (!warehouseId || !user) {
       setAvailableInventory([]);
       return;
@@ -137,7 +137,7 @@ const AddShipmentDialog = ({
     } finally {
       setIsLoadingInventory(false);
     }
-  };
+  }, [user]);
 
   const onSubmit = async (values: ShipmentFormValues) => {
     if (!user) return;

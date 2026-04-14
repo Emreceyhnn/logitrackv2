@@ -29,11 +29,13 @@ import {
 } from "@/app/lib/type/customer";
 import { useCustomers, useCustomerMutations } from "@/app/hooks/useCustomers";
 import { useUser } from "@/app/lib/hooks/useUser";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
 
 export default function CustomersPage() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const { user } = useUser();
+  const dict = useDictionary();
 
   /* ---------------------------------- STATE --------------------------------- */
   const [filters, setFilters] = useState<{ search: string }>({ search: "" });
@@ -70,11 +72,11 @@ export default function CustomersPage() {
     if (!actionCustomer || !user) return;
     try {
       await deleteMutation.mutateAsync(actionCustomer.id);
-      toast.success("Customer deleted successfully");
+      toast.success(dict.customers.dialogs.successDelete || "Customer deleted successfully");
       setDeleteOpen(false);
       setDetailOpen(false);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to delete customer";
+      const message = error instanceof Error ? error.message : (dict.customers.dialogs.errorDelete || "Failed to delete customer");
       toast.error(message);
     }
   };
@@ -127,7 +129,7 @@ export default function CustomersPage() {
           <Stack direction="row" spacing={1} alignItems="center">
             <TextField
               fullWidth
-              placeholder="Search customers..."
+              placeholder={dict.customers.searchPlaceholder}
               size="small"
               value={filters.search || ""}
               onChange={(e) =>
@@ -150,7 +152,7 @@ export default function CustomersPage() {
               onClick={() => setAddOpen(true)}
               sx={{ whiteSpace: "nowrap", minWidth: "auto" }}
             >
-              Add
+              {dict.common.add}
             </Button>
           </Stack>
         </Paper>
@@ -193,7 +195,7 @@ export default function CustomersPage() {
             borderRadius={1}
             zIndex={1}
           >
-            <Typography variant="caption">No geo-data available</Typography>
+            <Typography variant="caption">{dict.customers.noGeoData}</Typography>
           </Box>
         )}
       </Card>
@@ -221,8 +223,8 @@ export default function CustomersPage() {
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Customer?"
-        description={`Are you sure you want to delete ${actionCustomer?.name || "this customer"}? This action cannot be undone.`}
+        title={dict.customers.deleteTitle}
+        description={dict.customers.deleteDesc.replace("{name}", actionCustomer?.name || (dict.common.this || "this"))}
         loading={deleteMutation.isPending}
       />
     </Box>

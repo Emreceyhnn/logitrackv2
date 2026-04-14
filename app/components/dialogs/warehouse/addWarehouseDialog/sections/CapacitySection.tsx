@@ -30,12 +30,12 @@ interface CapacitySectionProps {
 import { Dictionary } from "@/app/lib/language/language";
 
 const SPECIFICATIONS = (dict: Dictionary) => [
-  { label: dict.warehouses.dialogs.specs.coldStorage, value: "Cold Storage", icon: <AcUnitIcon fontSize="small" /> },
-  { label: dict.warehouses.dialogs.specs.hazardous, value: "Hazardous Materials", icon: <WarningAmberIcon fontSize="small" /> },
-  { label: dict.warehouses.dialogs.specs.bonded, value: "Bonded Warehouse", icon: <GavelIcon fontSize="small" /> },
-  { label: dict.warehouses.dialogs.specs.crossDocking, value: "Cross-Docking", icon: <LocalShippingIcon fontSize="small" /> },
-  { label: dict.warehouses.dialogs.specs.highSecurity, value: "High Security", icon: <SecurityIcon fontSize="small" /> },
-  { label: dict.warehouses.dialogs.specs.lashing, value: "Lashing/Loading", icon: <InventoryIcon fontSize="small" /> },
+  { label: dict.warehouses.categories.specs.coldStorage, value: "Cold Storage", icon: <AcUnitIcon fontSize="small" /> },
+  { label: dict.warehouses.categories.specs.hazardous, value: "Hazardous Materials", icon: <WarningAmberIcon fontSize="small" /> },
+  { label: dict.warehouses.categories.specs.bonded, value: "Bonded Warehouse", icon: <GavelIcon fontSize="small" /> },
+  { label: dict.warehouses.categories.specs.crossDocking, value: "Cross-Docking", icon: <LocalShippingIcon fontSize="small" /> },
+  { label: dict.warehouses.categories.specs.highSecurity, value: "High Security", icon: <SecurityIcon fontSize="small" /> },
+  { label: dict.warehouses.categories.specs.lashing, value: "Lashing/Loading", icon: <InventoryIcon fontSize="small" /> },
 ];
 
 const CapacitySection = ({ state, actions }: CapacitySectionProps) => {

@@ -1,3 +1,4 @@
+"use client";
 import {
   Card,
   Box,
@@ -10,6 +11,7 @@ import {
 } from "@mui/material";
 import { ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface StatCardProps {
   title: string;
@@ -34,6 +36,7 @@ const StatCard = ({
   sx,
 }: StatCardProps) => {
   const theme = useTheme();
+  const dict = useDictionary();
 
   return (
     <motion.div
@@ -223,7 +226,7 @@ const StatCard = ({
             <Box component="span" sx={{ fontSize: "1rem" }}>{trend.isUp ? "↑" : "↓"}</Box>
             {trend.value}%
             <Typography component="span" sx={{ color: alpha(theme.palette.text.primary, 0.35), fontWeight: 600, ml: 0.5, fontSize: "0.7rem", letterSpacing: "0.02em" }}>
-              FROM LAST MONTH
+              {dict?.common?.fromLastMonth || "FROM LAST MONTH"}
             </Typography>
           </Box>
         )}

@@ -11,6 +11,7 @@ import {
   SIGN_IN_ROUTE,
   Locale
 } from "@/app/lib/constants";
+import { getCanonicalPath } from "@/app/lib/language/navigation";
 
 function getLocaleFromPathname(pathname: string): {
   locale: Locale;
@@ -56,6 +57,16 @@ export default async function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
     return NextResponse.redirect(url);
+  }
+
+  // Handle URL translation for languages other than English (e.g., Turkish)
+  if (locale === 'tr') {
+    const canonicalPath = getCanonicalPath(restPath || "/", 'tr');
+    if (canonicalPath !== (restPath || "/")) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${locale}${canonicalPath}`;
+      return NextResponse.rewrite(url);
+    }
   }
 
   const token = request.cookies.get("token")?.value;

@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { Typography } from "@mui/material";
-import { VehicleStatus, VehicleType } from "@prisma/client";
+import { VehicleStatus, VehicleType } from "@/app/lib/type/enums";
 import DataTable from "@/app/components/ui/DataTable";
 import type {
   DataTableColumn,
@@ -194,14 +194,14 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
       {
         label: dict.vehicles.dialogs.setMaintenance,
         icon: <BuildIcon fontSize="small" />,
-        onClick: (row) => handleStatusUpdate(row.id, "MAINTENANCE"),
+        onClick: (row) => handleStatusUpdate(row.id, "MAINTENANCE" as VehicleStatus),
         hidden: (row) =>
           row.status === "MAINTENANCE" || row.status === "ON_TRIP",
       },
       {
         label: dict.vehicles.dialogs.returnToService,
         icon: <CheckCircleOutlineIcon fontSize="small" />,
-        onClick: (row) => handleStatusUpdate(row.id, "AVAILABLE"),
+        onClick: (row) => handleStatusUpdate(row.id, "AVAILABLE" as VehicleStatus),
         hidden: (row) => row.status !== "MAINTENANCE",
       },
       {

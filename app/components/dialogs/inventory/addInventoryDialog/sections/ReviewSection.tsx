@@ -25,6 +25,8 @@ interface ReviewSectionProps {
   storageLevels: AddInventoryStorageLevels;
 }
 
+import { useParams } from "next/navigation";
+
 const InfoRow = ({
   label,
   value,
@@ -59,6 +61,16 @@ const InfoRow = ({
 const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
   const dict = useDictionary();
   const theme = useTheme();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat(lang === "tr" ? "tr-TR" : "en-US", {
+      style: "currency",
+      currency: lang === "tr" ? "TRY" : "USD",
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
 
   return (
     <Box>
@@ -109,11 +121,11 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
                 </Typography>
               </Stack>
               <Box>
-                <InfoRow label={dict.inventory.fields.unitValue} value={`${itemDetails.unitValue || 0} TRY`} />
+                <InfoRow label={dict.inventory.fields.unitValue} value={formatPrice(itemDetails.unitValue || 0)} />
                 <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
-                <InfoRow label={dict.inventory.fields.weight} value={`${itemDetails.weightKg || 0} Kg`} />
+                <InfoRow label={dict.inventory.fields.weight} value={`${itemDetails.weightKg || 0} ${dict.common.units.kg}`} />
                 <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
-                <InfoRow label={dict.inventory.fields.volume} value={`${itemDetails.volumeM3 || 0} M³`} />
+                <InfoRow label={dict.inventory.fields.volume} value={`${itemDetails.volumeM3 || 0} ${dict.common.units.m3}`} />
               </Box>
             </Stack>
           </Grid>

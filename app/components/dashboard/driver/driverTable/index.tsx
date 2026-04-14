@@ -153,7 +153,14 @@ const DriverTable = ({
       key: "status",
       label: dict.drivers.filters.status,
       options: Object.values(DriverStatus).map((s) => ({
-        label: s.replace(/_/g, " "),
+        label:
+          s === "ON_JOB"
+            ? dict.drivers.onDuty
+            : s === "OFF_DUTY"
+            ? dict.drivers.offDuty
+            : s === "ON_LEAVE"
+            ? dict.drivers.onLeave
+            : (s as string).replace(/_/g, " "),
         value: s,
       })),
       multiple: true,

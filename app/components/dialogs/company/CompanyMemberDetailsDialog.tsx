@@ -89,7 +89,9 @@ export default function CompanyMemberDetailsDialog({
                   }}
                 />
                 <Chip
-                  label={member.status}
+                  label={
+                    (dict.company.editMember.statuses as Record<string, string>)[member.status] || member.status
+                  }
                   size="small"
                   color={member.status === "ACTIVE" ? "success" : "warning"}
                   variant="outlined"
@@ -128,7 +130,7 @@ export default function CompanyMemberDetailsDialog({
                   <Box>
                     <Typography variant="caption" color="text.secondary">{dict.company.memberDetails.joinedSince}</Typography>
                     <Typography variant="body2" color="white" fontWeight={500}>
-                      {new Date(member.createdAt).toLocaleDateString(dict.languages.tr ? "tr-TR" : "en-US", {
+                      {new Date(member.createdAt).toLocaleDateString(dict.common.logitrack === "LogiTrack" ? "en-US" : "tr-TR", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",

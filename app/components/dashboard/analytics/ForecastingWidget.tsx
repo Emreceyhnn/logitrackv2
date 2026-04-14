@@ -20,7 +20,10 @@ export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
   const theme = useTheme();
   const dict = useDictionary();
 
-  const weeks = data?.weeks || ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12"];
+  const weekPrefix = dict.analytics.forecasting.weekPrefix;
+  const generateWeeks = () => Array.from({ length: 13 }, (_, i) => `${weekPrefix}${i + 1}`);
+  
+  const weeks = data?.weeks?.map(w => w.replace("W", weekPrefix)) || generateWeeks();
   const actualsSeries = data?.actuals || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   const predictedSeries = data?.predicted || [null, null, null, null, null, null, null, null, null, null, null, null];
 

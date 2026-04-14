@@ -174,7 +174,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             <Typography variant="h6" fontWeight={700} color="white">
               {driver.licenseExpiry
                 ? new Date(driver.licenseExpiry).toLocaleDateString()
-                : "N/A"}
+                : dict.common.na}
             </Typography>
           </Card>
         </Grid>
@@ -240,7 +240,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
               {driver.homeBaseWarehouse?.name || dict.common.noData}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              ID: {driver.homeBaseWarehouse?.code || "N/A"}
+              ID: {driver.homeBaseWarehouse?.code || dict.common.na}
             </Typography>
           </Card>
         </Grid>

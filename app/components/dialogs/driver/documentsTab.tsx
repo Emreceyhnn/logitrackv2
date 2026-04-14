@@ -213,15 +213,15 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                     >
                       <InsertDriveFileOutlinedIcon />
                     </Box>
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography
-                        variant="body1"
-                        fontWeight={600}
-                        color="white"
-                        noWrap
-                      >
-                        {doc.name} - {doc.type}
-                      </Typography>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography
+                          variant="body1"
+                          fontWeight={600}
+                          color="white"
+                          noWrap
+                        >
+                          {doc.name === "License Scan" ? dict.drivers.labels.physicalLicense : doc.name} - {(dict.vehicles.docTypes as Record<string, string>)?.[doc.type] || doc.type}
+                        </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {doc.expiryDate
                           ? `${dict.drivers.labels.expiryPrefix}${new Date(doc.expiryDate).toLocaleDateString()}`

@@ -8,6 +8,7 @@ import CreateCompanyDialog from "../dialogs/company/CreateCompanyDialog";
 import UserAccountNav from "../nav/UserAccountNav";
 import { useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { getLocalizedPath } from "@/app/lib/language/navigation";
 
 export default function LandingHeaderAuth() {
   const params = useParams();
@@ -57,7 +58,7 @@ export default function LandingHeaderAuth() {
             <Button
               variant="contained"
               component={Link}
-              href={`/${lang}/overview`}
+              href={`/${lang}${getLocalizedPath("/overview", lang)}`}
               sx={{
                 textTransform: "none",
                 fontWeight: 700,
@@ -113,7 +114,7 @@ export default function LandingHeaderAuth() {
       <Button
         variant="text"
         component={Link}
-        href={`/${lang}/auth/sign-in`}
+        href={`/${lang}${getLocalizedPath("/auth/sign-in", lang)}`}
         sx={{
           color: alpha("#e2e8f0", 0.8),
           fontWeight: 600,
@@ -126,7 +127,7 @@ export default function LandingHeaderAuth() {
       <Button
         variant="contained"
         component={Link}
-        href={`/${lang}/auth/sign-up`}
+        href={`/${lang}${getLocalizedPath("/auth/sign-up", lang)}`}
         sx={{
           textTransform: "none",
           fontWeight: 700,

@@ -18,7 +18,7 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
   // Convert Record to Array for charts
   const categories = Object.keys(data);
   const chartData = categories.map((cat) => ({
-    category: cat,
+    category: (dict.reports.charts.inventoryCategories as Record<string, string>)[cat] || cat,
     value: data[cat].value,
     count: data[cat].count,
   }));

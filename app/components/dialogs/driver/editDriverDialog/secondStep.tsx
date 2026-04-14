@@ -14,8 +14,6 @@ import {
   Button,
   Switch,
 } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState, ChangeEvent } from "react";
@@ -29,6 +27,7 @@ import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { Warehouse, DriverStatus } from "@prisma/client";
+import { VehicleStatus } from "@/app/lib/type/enums";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -69,7 +68,7 @@ const SecondEditDriverDialogStep = ({
       try {
         const [wData, vData] = await Promise.all([
           getWarehouses(),
-          getVehicles({ status: ["AVAILABLE"] }),
+          getVehicles({ status: [VehicleStatus.AVAILABLE] }),
         ]);
         setWarehouses(wData);
         setVehicles(vData);
@@ -375,7 +374,6 @@ const SecondEditDriverDialogStep = ({
             </Box>
 
             <Stack spacing={1.5}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
                 {values.documents.map((doc) => (
                   <Stack
                     key={doc.id}
@@ -466,7 +464,6 @@ const SecondEditDriverDialogStep = ({
                     </Box>
                   </Stack>
                 ))}
-              </LocalizationProvider>
             </Stack>
           </Stack>
         </Stack>
@@ -569,13 +566,13 @@ const SecondEditDriverDialogStep = ({
                     {dict.drivers.fields.licenseNumber}
                   </Typography>
                   <Typography variant="body2" color="white">
-                    LIC: {values.licenseNumber || "N/A"}
+                    {dict.drivers.fields.licenseNumber}: {values.licenseNumber || dict.common.na}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    EXP:{" "}
+                    {dict.drivers.fields.licenseExpiry}:{" "}
                     {values.licenseExpiry
                       ? new Date(values.licenseExpiry).toLocaleDateString()
-                      : "N/A"}
+                      : dict.drivers.labels.noExpiry}
                   </Typography>
                 </Box>
               </Stack>

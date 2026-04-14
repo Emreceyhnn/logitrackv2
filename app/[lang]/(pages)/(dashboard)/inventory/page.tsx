@@ -26,8 +26,9 @@ import { useTheme } from "@mui/material/styles";
 import KpiCards from "@/app/components/cards/KpiCards";
 
 export default function InventoryPage() {
+  const dict = useDictionary();
   return (
-    <Suspense fallback={<Box p={4}>Loading...</Box>}>
+    <Suspense fallback={<Box p={4}>{dict.common.loading}</Box>}>
       <InventoryContent />
     </Suspense>
   );
@@ -221,8 +222,8 @@ function InventoryContent() {
         open={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Item"
-        description={`Are you sure you want to delete ${selectedItem?.name}?`}
+        title={dict.inventory.deleteTitle}
+        description={dict.inventory.deleteDesc.replace("{name}", selectedItem?.name || "")}
         loading={deleteMutation.isPending}
       />
     </Box>

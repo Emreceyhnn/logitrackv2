@@ -1,7 +1,9 @@
 import {
-  Issue,
   VehicleStatus,
   VehicleType,
+} from "./enums";
+import {
+  Issue,
   Document,
   MaintenanceRecord,
   Route,

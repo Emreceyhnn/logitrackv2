@@ -17,6 +17,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { VehicleStatus } from "@/app/lib/type/enums";
 import { useEffect, useState } from "react";
 import { AddFuelLogDialogProps } from "@/app/lib/type/fuel";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
@@ -72,7 +73,7 @@ const AddFuelLogDialog = ({
       const fetchData = async () => {
         try {
           const [vRes, dRes] = await Promise.all([
-            getVehicles({ status: ["AVAILABLE"] }),
+            getVehicles({ status: [VehicleStatus.AVAILABLE] }),
             getDrivers(1, 100),
           ]);
           setVehicles(vRes || []);

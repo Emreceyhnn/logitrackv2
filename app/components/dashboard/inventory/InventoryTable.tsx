@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import {
   Typography,
   Avatar,
@@ -18,6 +18,8 @@ import type { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTab
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { InventoryTableProps } from "@/app/lib/type/inventory";
 
+import { useParams } from "next/navigation";
+
 // Helper to derive status for UI
 const getStatus = (quantity: number, minStock: number) => {
   if (quantity === 0) return "OUT_OF_STOCK";
@@ -31,17 +33,6 @@ const getStockColor = (status: string) => {
   return "error";
 };
 
-const formatPrice = (price: number) => {
-  try {
-    return new Intl.NumberFormat("en-TR", {
-      style: "currency",
-      currency: "TRY",
-    }).format(price);
-  } catch {
-    return `₺${price.toFixed(2)}`;
-  }
-};
-
 const InventoryTable = ({
   items,
   loading = false,
@@ -53,8 +44,22 @@ const InventoryTable = ({
   onLimitChange,
 }: InventoryTableProps) => {
   const dict = useDictionary();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [localPage, setLocalPage] = useState(1);
   const [localLimit, setLocalLimit] = useState(10);
+
+  const formatPrice = useCallback((price: number) => {
+    try {
+      return new Intl.NumberFormat(lang === "tr" ? "tr-TR" : "en-US", {
+        style: "currency",
+        currency: lang === "tr" ? "TRY" : "USD",
+        maximumFractionDigits: 0,
+      }).format(price);
+    } catch {
+      return lang === "tr" ? `₺${price.toFixed(0)}` : `$${price.toFixed(0)}`;
+    }
+  }, [lang]);
 
   const currentMeta = meta || {
     page: localPage,
@@ -163,7 +168,7 @@ const InventoryTable = ({
         </Stack>
       ),
     },
-  ], [dict]);
+  ], [dict, formatPrice]);
 
   const rowActions: DataTableRowAction<InventoryWithRelations>[] = useMemo(() => [
     {

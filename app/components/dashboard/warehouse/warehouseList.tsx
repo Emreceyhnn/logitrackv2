@@ -97,7 +97,7 @@ const WarehouseListTable = ({
               width: "fit-content",
             }}
           >
-            {row.type.replace("_", " ")}
+            {dict.warehouses.categories.types[row.type as keyof typeof dict.warehouses.categories.types] || row.type}
           </Typography>
           <Typography variant="body2" fontWeight={600} color="text.secondary">
             {row.city}

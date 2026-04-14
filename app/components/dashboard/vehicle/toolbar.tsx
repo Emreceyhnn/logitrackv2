@@ -11,7 +11,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { VehicleStatus, VehicleType } from "@prisma/client";
+import { VehicleStatus, VehicleType } from "@/app/lib/type/enums";
 import { useState, useEffect } from "react";
 import { SelectChangeEvent } from "@mui/material";
 import { VehicleToolbarProps } from "@/app/lib/type/vehicle";

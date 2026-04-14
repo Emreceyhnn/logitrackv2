@@ -9,7 +9,7 @@ import {
   VehicleDocumentConverter,
   VehicleKpiConverter,
 } from "./utils/vehicleUtils";
-import { VehicleFilters, VehicleWithRelations } from "../type/vehicle";
+import { VehicleFilters, VehicleWithRelations, VehicleDashboardProps } from "../type/vehicle";
 
 export const createVehicle = authenticatedAction(
   async (user, vehicleData: Record<string, unknown>) => {
@@ -76,6 +76,20 @@ export const createVehicle = authenticatedAction(
       if (!type) throw new Error("Vehicle type is required");
 
       const vehicleFleetNo = fleetNo?.toString() || `FLEET-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
+      const existingVehicle = await db.vehicle.findFirst({
+        where: {
+          OR: [
+            { plate: plate.toString() },
+            { fleetNo: vehicleFleetNo }
+          ]
+        }
+      });
+
+      if (existingVehicle) {
+        const conflictField = existingVehicle.plate === plate.toString() ? "Plate" : "Fleet Number";
+        throw new Error(`${conflictField} already exists in the system.`);
+      }
 
       const newVehicle = await db.vehicle.create({
         data: {
@@ -261,6 +275,24 @@ export const updateVehicle = authenticatedAction(
         updateData.fleetNo = `FLEET-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
       }
 
+      // Check for conflicts if plate or fleetNo are being updated
+      if (updateData.plate || updateData.fleetNo) {
+        const conflictCheck = await db.vehicle.findFirst({
+          where: {
+            OR: [
+              updateData.plate ? { plate: updateData.plate as string } : undefined,
+              updateData.fleetNo ? { fleetNo: updateData.fleetNo as string } : undefined
+            ].filter((condition): condition is { plate: string } | { fleetNo: string } => condition !== undefined),
+            NOT: { id: vehicleId }
+          }
+        });
+
+        if (conflictCheck) {
+          const conflictField = conflictCheck.plate === updateData.plate ? "Plate" : "Fleet Number";
+          throw new Error(`${conflictField} already exists in another vehicle.`);
+        }
+      }
+
       const updatedVehicle = await db.vehicle.update({
         where: { id: vehicleId },
         data: updateData,
@@ -442,7 +474,7 @@ export const updateVehicleStatus = authenticatedAction(
 
       const updatedVehicle = await db.vehicle.update({
         where: { id: vehicleId },
-        data: { status },
+        data: { status: status as VehicleStatus },
       });
 
       return updatedVehicle;
@@ -583,9 +615,9 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
       },
     });
 
-    const vehiclesKpis = VehicleKpiConverter(vehicles);
-    const vehiclesCapacity = VehicleCapacityConverter(vehicles);
-    const expiringDocs = VehicleDocumentConverter(vehicles);
+    const vehiclesKpis = VehicleKpiConverter(vehicles as unknown as VehicleDashboardProps[]);
+    const vehiclesCapacity = VehicleCapacityConverter(vehicles as unknown as VehicleDashboardProps[]);
+    const expiringDocs = VehicleDocumentConverter(vehicles as unknown as VehicleDashboardProps[]);
 
     return { vehiclesKpis, vehiclesCapacity, expiringDocs };
   } catch (error) {

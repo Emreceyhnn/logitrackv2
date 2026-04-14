@@ -105,11 +105,11 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                   actions.updateBasicInfo({ type: e.target.value as WarehouseType })
                 }
               >
-                <MenuItem value="WAREHOUSE">{f.typeStandard}</MenuItem>
+                <MenuItem value="WAREHOUSE">{dict.warehouses.categories.types.WAREHOUSE}</MenuItem>
                 <MenuItem value="DISTRIBUTION_CENTER">
-                  {f.typeDistribution}
+                  {dict.warehouses.categories.types.DISTRIBUTION_CENTER}
                 </MenuItem>
-                <MenuItem value="CROSSDOCK">{f.typeCrossDock}</MenuItem>
+                <MenuItem value="CROSSDOCK">{dict.warehouses.categories.types.CROSSDOCK}</MenuItem>
               </CustomTextArea>
             </Stack>
           </Grid>

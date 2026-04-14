@@ -13,6 +13,7 @@ import { alpha, keyframes } from "@mui/system";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import SpeedRoundedIcon from "@mui/icons-material/SpeedRounded";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 
 const float = keyframes`
@@ -22,6 +23,9 @@ const float = keyframes`
 `;
 
 export default function AboutPage() {
+  const dict = useDictionary();
+  const aDict = dict.landing.aboutPage;
+
   return (
     <Box
       sx={{
@@ -59,7 +63,7 @@ export default function AboutPage() {
 
         <Stack spacing={4} alignItems="center" textAlign="center" mb={12}>
           <Chip
-            label="Our Mission"
+            label={aDict.mission.badge}
             sx={{
               borderRadius: "999px",
               px: 2,
@@ -84,7 +88,7 @@ export default function AboutPage() {
               maxWidth: 800,
             }}
           >
-            Orchestrating the Future of Global Trade.
+            {aDict.mission.title}
           </Typography>
           <Typography
             variant="h5"
@@ -95,8 +99,7 @@ export default function AboutPage() {
               lineHeight: 1.6,
             }}
           >
-            At LogiTrack, we don’t just track shipments—we synchronize entire supply chains.
-            Our mission is to transform fragmented logistics data into live intelligence.
+            {aDict.mission.subtitle}
           </Typography>
         </Stack>
 
@@ -111,15 +114,13 @@ export default function AboutPage() {
         >
           <Box sx={{ flex: 1 }}>
             <Typography variant="overline" sx={{ color: "#38bdf8", letterSpacing: 3, fontWeight: 700 }}>
-              The LogiTrack Vision
+              {aDict.vision.overline}
             </Typography>
             <Typography variant="h3" sx={{ fontWeight: 800, mt: 2, mb: 4 }}>
-              Eliminating the blind spots in modern logistics.
+              {aDict.vision.title}
             </Typography>
             <Typography variant="body1" sx={{ color: alpha("#cbd5f5", 0.9), fontSize: "1.1rem", lineHeight: 1.8 }}>
-              Born from the intersection of AI innovation and operational expertise, LogiTrack was built to
-              solve the most complex challenges in freight and warehouse management. We envision a world
-              where every vehicle, warehouse, and shipment is part of a unified, self-optimizing ecosystem.
+              {aDict.vision.description}
             </Typography>
           </Box>
           <Box
@@ -164,7 +165,7 @@ export default function AboutPage() {
             fontWeight={800}
             mb={8}
           >
-            Our Core Pillars
+            {aDict.pillars.title}
           </Typography>
           <Stack
             direction={{ xs: "column", md: "row" }}
@@ -173,18 +174,18 @@ export default function AboutPage() {
             {[
               {
                 icon: <BoltRoundedIcon sx={{ fontSize: 40, color: "#38bdf8" }} />,
-                title: "Predictive Resilience",
-                description: "We anticipate disruptions before they escalate. Our AI models analyze live traffic and capacity to keep your SLA at 98%+."
+                title: aDict.pillars.items.resilience.title,
+                description: aDict.pillars.items.resilience.description
               },
               {
                 icon: <VisibilityRoundedIcon sx={{ fontSize: 40, color: "#a855f7" }} />,
-                title: "Radical Transparency",
-                description: "Empowering every stakeholder with a single source of truth. From the driver’s cab to the C-suite, total visibility is standard."
+                title: aDict.pillars.items.transparency.title,
+                description: aDict.pillars.items.transparency.description
               },
               {
                 icon: <SpeedRoundedIcon sx={{ fontSize: 40, color: "#22d3ee" }} />,
-                title: "Scalable Efficiency",
-                description: "Built to grow with your network. Whether managing a local fleet or a global supply chain, our infrastructure scales seamlessly."
+                title: aDict.pillars.items.efficiency.title,
+                description: aDict.pillars.items.efficiency.description
               }
             ].map((pillar, idx) => (
               <Box
@@ -240,7 +241,7 @@ export default function AboutPage() {
             }}
           />
           <Typography variant="h4" fontWeight={800} mb={3}>
-            Why We Do It
+            {aDict.why.title}
           </Typography>
           <Typography
             variant="h6"
@@ -252,8 +253,7 @@ export default function AboutPage() {
               lineHeight: 1.6,
             }}
           >
-            In an era of instant expectations, logistics is no longer a back-office function—it is a competitive advantage.
-            LogiTrack provides the tools to turn that advantage into a market-leading reality.
+            {aDict.why.subtitle}
           </Typography>
         </Box>
       </Container>
@@ -268,7 +268,7 @@ export default function AboutPage() {
         }}
       >
         <Typography variant="body2" sx={{ color: alpha("#cbd5f5", 0.4) }}>
-          © {new Date().getFullYear()} LogiTrack Intelligence Systems. All rights reserved.
+          {aDict.footer.copyright.replace("{year}", new Date().getFullYear().toString())}
         </Typography>
       </Box>
     </Box>

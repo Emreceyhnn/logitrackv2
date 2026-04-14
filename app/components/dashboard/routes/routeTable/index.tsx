@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Typography } from "@mui/material";
 import DataTable from "@/app/components/ui/DataTable";
 import type { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTable";
@@ -16,6 +16,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
 import { RouteStatus } from "@prisma/client";
 import { toast } from "sonner";
+import { getStatusMeta } from "@/app/lib/priorityColor";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface ExtendedRouteTableProps extends RouteTableProps {
@@ -51,6 +52,15 @@ const RouteTable = ({
     return { page: localPage, limit: localLimit, total: routes.length };
   }, [pagination, localPage, localLimit, routes.length]);
 
+  useEffect(() => {
+    if (selectedRoute) {
+      const updated = routes.find((r) => r.id === selectedRoute.id);
+      if (updated && updated !== selectedRoute) {
+        setSelectedRoute(updated);
+      }
+    }
+  }, [routes, selectedRoute]);
+
   const paginatedRoutes = pagination
     ? routes
     : routes.slice((meta.page - 1) * meta.limit, meta.page * meta.limit);
@@ -85,7 +95,9 @@ const RouteTable = ({
     setActionLoading(id);
     try {
       await updateRouteStatus(id, newStatus);
-      toast.success(dict.routes.toasts.updateSuccess.replace("{status}", newStatus));
+      const statusLabel = getStatusMeta(newStatus, dict).label || "";
+      const successMsg = dict.routes.toasts.updateSuccess || "Route updated to {status}";
+      toast.success(successMsg.replace("{status}", statusLabel));
       onRefresh?.();
     } catch (error) {
       const message = error instanceof Error ? error.message : dict.routes.toasts.updateError;
@@ -191,6 +203,7 @@ const RouteTable = ({
       <RouteDetailsDialog
         open={openDetails}
         onClose={handleCloseDetails}
+        onSuccess={onRefresh}
         route={selectedRoute}
       />
     </>

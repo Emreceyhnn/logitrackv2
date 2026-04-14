@@ -22,7 +22,9 @@ import { useState, useEffect } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateIssue } from "@/app/lib/controllers/vehicle";
 import { getPriorityColor } from "@/app/lib/priorityColor";
-import { Issue, IssueStatus, IssuePriority } from "@prisma/client";
+import { IssueStatus, IssuePriority } from "@/app/lib/type/enums";
+import type { Issue } from "@prisma/client";
+
 
 interface IssueDetailDialogProps {
   open: boolean;
@@ -50,8 +52,8 @@ export default function IssueDetailDialog({
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (issue) {
-      setStatus(issue.status);
-      setPriority(issue.priority);
+      setStatus(issue.status as IssueStatus);
+      setPriority(issue.priority as IssuePriority);
     }
   }, [issue]);
 

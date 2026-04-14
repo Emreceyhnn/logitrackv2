@@ -30,10 +30,12 @@ import {
   Inventory,
 } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function ShipmentPage() {
+  const dict = useDictionary();
   return (
-    <Suspense fallback={<Box p={4}>Loading...</Box>}>
+    <Suspense fallback={<Box p={4}>{dict.common.loading}</Box>}>
       <ShipmentContent />
     </Suspense>
   );
@@ -42,6 +44,7 @@ export default function ShipmentPage() {
 function ShipmentContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
   const searchParams = useSearchParams();
   const shipmentIdFromUrl = searchParams.get("id");
 
@@ -159,25 +162,25 @@ function ShipmentContent() {
 
   const kpiItems = [
     {
-      label: "Total Shipments",
+      label: dict.shipments.dashboard.totalShipments,
       value: state.stats?.total || 0,
       icon: <Inventory sx={{ fontSize: 22 }} />,
       color: theme.palette.primary.main,
     },
     {
-      label: "Active Shipments",
+      label: dict.shipments.dashboard.activeShipments,
       value: state.stats?.active || 0,
       icon: <LocalShipping sx={{ fontSize: 22 }} />,
       color: "#0ea5e9", // Sky
     },
     {
-      label: "Delayed Shipments",
+      label: dict.shipments.dashboard.delayedShipments,
       value: state.stats?.delayed || 0,
       icon: <AccessTime sx={{ fontSize: 22 }} />,
       color: theme.palette.error.main,
     },
     {
-      label: "In Transit",
+      label: dict.shipments.dashboard.inTransit,
       value: state.stats?.inTransit || 0,
       icon: <DirectionsBoat sx={{ fontSize: 22 }} />,
       color: "#10b981", // Emerald
@@ -196,10 +199,10 @@ function ShipmentContent() {
           <Typography
             sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
           >
-            Shipments Management
+            {dict.shipments.title}
           </Typography>
           <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
-            Manage your shipments, monitor performance and status.
+            {dict.shipments.subtitle}
           </Typography>
         </Box>
         <Button
@@ -208,7 +211,7 @@ function ShipmentContent() {
           onClick={() => setAddDialogOpen(true)}
           sx={{ textTransform: "none", borderRadius: 2 }}
         >
-          Add Shipment
+          {dict.shipments.addShipment}
         </Button>
       </Stack>
 
@@ -250,10 +253,11 @@ function ShipmentContent() {
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Shipment?"
-        description={`Are you sure you want to delete shipment ${
+        title={dict.shipments.deleteTitle}
+        description={dict.shipments.deleteDesc.replace(
+          "{id}",
           actionShipment?.trackingId || ""
-        }?`}
+        )}
         loading={deleteMutation.isPending}
       />
     </Box>

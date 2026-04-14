@@ -11,7 +11,9 @@
     "saving": "Saving...",
     "uploading": "Uploading...",
     "cancel": "Cancel",
+    "add": "Add",
     "delete": "Delete",
+    "this": "this",
     "edit": "Edit",
     "search": "Search...",
     "filter": "Filter",
@@ -28,8 +30,11 @@
     "saveSuccess": "Saved successfully",
     "errorOccurred": "An error occurred",
     "settings": "Settings",
+    "profile": "Profile",
+    "fromLastMonth": "FROM LAST MONTH",
     "documents": "Documents",
     "noData": "No data found.",
+    "na": "N/A",
     "success": "Success",
     "error": "Error",
     "warning": "Warning",
@@ -91,7 +96,13 @@
     "kg": "kg",
     "km": "km",
     "m3": "m³",
-    "unassigned": "Unassigned"
+    "unassigned": "Unassigned",
+    "pagination": {
+      "rowsPerPage": "Rows per page:",
+      "of": "of"
+    },
+    "filtersActive": "{count} filters active",
+    "moreThan": "more than {count}"
   },
   "sidebar": {
     "overview": "Overview",
@@ -215,6 +226,13 @@
       "sales": "Talk to Sales"
     },
     "trusted": "Trusted by industry leaders",
+    "trustedLogos": [
+      "Global Cargo",
+      "Oceanic",
+      "Alpha Freight",
+      "Continental",
+      "ExpressWay"
+    ],
     "pricing": {
       "badge": "Pricing Plans",
       "title": "Predictable Pricing for <br /> Unpredictable Logistics.",
@@ -273,6 +291,160 @@
         "tos": "© {year} LogiTrack Intelligence Systems. All plans subject to our TOS.",
         "support": "Enterprise customers get dedicated support channels."
       }
+    },
+    "featuresPage": {
+      "badge": "Product Capabilities",
+      "heroTitle": "Engineering the <br /> Modern Supply Chain.",
+      "heroSubtitle": "From predictive telemetry to autonomous warehouse orchestration, explore the tools redefining what it means to be a global logistics leader.",
+      "items": {
+        "routeOptimization": {
+          "title": "AI Route Optimization",
+          "description": "Our proprietary AI engine processes live traffic, weather, and fleet capacity to generate the most fuel-efficient routes in real-time.",
+          "tag": "Predictive",
+          "details": [
+            "Live Traffic Integration",
+            "Load Balancing",
+            "Carbon Offset Tracking"
+          ]
+        },
+        "warehouse": {
+          "title": "Warehouse Intelligence",
+          "description": "Optimize pick-paths and vertical space utilization with automated WMS synchronization. Scale from 1 to 100 warehouses with ease.",
+          "tag": "Automated",
+          "details": [
+            "Space Optimization",
+            "Inventory Velocity",
+            "Cross-Docking Ready"
+          ]
+        },
+        "telemetry": {
+          "title": "Real-Time Telemetry",
+          "description": "Monitor vehicle health, driver safety, and fuel consumption via integrated telematics. Convert raw data into actionable insights.",
+          "tag": "Hardware-Agnostic",
+          "details": [
+            "Driver Scorecards",
+            "Predictive Maintenance",
+            "Cold Chain Monitoring"
+          ]
+        },
+        "alerts": {
+          "title": "Smart Exception Alerts",
+          "description": "Stop reacting to disasters. Our anomaly detection system flags potential delays before they happen, suggesting proactive rerouting.",
+          "tag": "Proactive",
+          "details": [
+            "Delay Forecasting",
+            "Dynamic ETA Adjustments",
+            "Multi-Channel Alerts"
+          ]
+        },
+        "compliance": {
+          "title": "Enterprise Compliance",
+          "description": "Automatic audit logs, geofencing, and chain-of-custody tracking. Built to meet the strictest logistics security standards.",
+          "tag": "Secured",
+          "details": [
+            "E-Signatures",
+            "Geofence Enforcement",
+            "Audit-Ready Logs"
+          ]
+        },
+        "api": {
+          "title": "API-First Architecture",
+          "description": "Integrate with SAP, Oracle, or custom legacy systems in hours, not weeks, using our robust SDK and webhook infrastructure.",
+          "tag": "Modular",
+          "details": [
+            "REST & GraphQL APIs",
+            "Robust Webhooks",
+            "Custom ERP Integration"
+          ]
+        }
+      },
+      "infrastructure": {
+        "overline": "Unified Infrastructure",
+        "title": "One Dashboard. Infinite Control.",
+        "description": "Our features aren't standalone tools—they are part of a deeply integrated ecosystem. When your warehouse updates, your fleet reacts. When traffic spikes, your customer knows. That is the Logi-Track advantage.",
+        "stats": [
+          "Cloud Native",
+          "AI Optimized",
+          "256-bit AES Encryption",
+          "99.9% SLA",
+          "PCI-DSS Compliant"
+        ]
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved.",
+        "builtFor": "Built for the enterprise, optimized for the road.",
+        "links": {
+          "privacy": "Privacy",
+          "terms": "Terms",
+          "security": "Security",
+          "status": "Status"
+        }
+      }
+    },
+    "aboutPage": {
+      "mission": {
+        "badge": "Our Mission",
+        "title": "Orchestrating the Future of Global Trade.",
+        "subtitle": "At LogiTrack, we don’t just track shipments—we synchronize entire supply chains. Our mission is to transform fragmented logistics data into live intelligence."
+      },
+      "vision": {
+        "overline": "The LogiTrack Vision",
+        "title": "Eliminating the blind spots in modern logistics.",
+        "description": "Born from the intersection of AI innovation and operational expertise, LogiTrack was built to solve the most complex challenges in freight and warehouse management. We envision a world where every vehicle, warehouse, and shipment is part of a unified, self-optimizing ecosystem."
+      },
+      "pillars": {
+        "title": "Our Core Pillars",
+        "items": {
+          "resilience": {
+            "title": "Predictive Resilience",
+            "description": "We anticipate disruptions before they escalate. Our AI models analyze live traffic and capacity to keep your SLA at 98%+."
+          },
+          "transparency": {
+            "title": "Radical Transparency",
+            "description": "Empowering every stakeholder with a single source of truth. From the driver’s cab to the C-suite, total visibility is standard."
+          },
+          "efficiency": {
+            "title": "Scalable Efficiency",
+            "description": "Built to grow with your network. Whether managing a local fleet or a global supply chain, our infrastructure scales seamlessly."
+          }
+        }
+      },
+      "why": {
+        "title": "Why We Do It",
+        "subtitle": "In an era of instant expectations, logistics is no longer a back-office function—it is a competitive advantage. LogiTrack provides the tools to turn that advantage into a market-leading reality."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "howItWorksPage": {
+      "hero": {
+        "overline": "OUR PROCESS",
+        "title": "How LogiTrack Works",
+        "subtitle": "A comprehensive, end-to-end logistics orchestration platform designed to scale with your business needs."
+      },
+      "cta": {
+        "title": "Ready to Optimize?",
+        "subtitle": "Join hundreds of companies that have modernized their logistics with LogiTrack.",
+        "getStarted": "Get Started Free",
+        "bookDemo": "Book a Demo"
+      },
+      "footer": {
+        "rights": "© {year} Logi-Track. All rights reserved.",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "help": "Help Center"
+      }
+    },
+    "footer": {
+      "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved.",
+      "builtFor": "Built for the enterprise, optimized for the road.",
+      "links": {
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "security": "Security",
+        "status": "Status"
+      }
     }
   },
   "navbar": {
@@ -288,7 +460,7 @@
   },
   "languages": {
     "en": "English",
-    "tr": "Turkish"
+    "tr": "Türkçe"
   },
   "validation": {
     "required": "{field} is required",
@@ -583,6 +755,7 @@
     "totalDrivers": "Total Fleet Drivers",
     "onDuty": "On Duty",
     "offDuty": "Off Duty",
+    "onLeave": "On Leave",
     "complianceIssues": "Compliance Issues",
     "dashboard": {
       "performance": "Driver Performance",
@@ -689,7 +862,13 @@
       "assignedVehicle": "Assigned Vehicle",
       "activeLanguages": "Known Languages",
       "additionalDocs": "Additional Documents",
-      "languageProficiency": "Language Proficiency"
+      "languageProficiency": "Language Proficiency",
+      "placeholders": {
+        "employeeId": "e.g. EMP-1234",
+        "phone": "e.g. +1 555 123 4567",
+        "license": "e.g. DL-485920394",
+        "licenseFormat": "PNG, JPG OR HEIC (MAX 10MB)"
+      }
     },
     "tabs": {
       "overview": "Overview",
@@ -700,6 +879,10 @@
   },
   "customers": {
     "title": "Customer Management",
+    "searchPlaceholder": "Search customers...",
+    "noGeoData": "No geo-data available",
+    "deleteTitle": "Delete Customer?",
+    "deleteDesc": "Are you sure you want to delete {name}? This action cannot be undone.",
     "addCustomer": "Add Customer",
     "registerNewPartner": "REGISTER A NEW PARTNER",
     "operatingLocations": "Operating Locations",
@@ -736,8 +919,10 @@
       },
       "successAdd": "Customer created successfully.",
       "successUpdate": "Customer updated successfully.",
+      "successDelete": "Customer deleted successfully.",
       "errorAdd": "Failed to create customer.",
-      "errorUpdate": "Failed to update customer."
+      "errorUpdate": "Failed to update customer.",
+      "errorDelete": "Failed to delete customer."
     },
     "fields": {
       "companyName": "Full Legal Company Name",
@@ -829,6 +1014,7 @@
       "productInfo": "Product Identity & Stock",
       "productImage": "PRODUCT IMAGE",
       "clickToChange": "Click to change image",
+      "clickToUpload": "Click to upload product image",
       "skuOptional": "SKU (Optional)",
       "skuPlaceholder": "Leave blank to auto-generate",
       "safetyThreshold": "Safety Threshold",
@@ -856,7 +1042,7 @@
       }
     },
     "deleteTitle": "Delete Item",
-    "deleteDesc": "Are you sure you want to delete this item?",
+    "deleteDesc": "Are you sure you want to delete {name}?",
     "fields": {
       "name": "Item Name",
       "sku": "SKU",
@@ -880,7 +1066,16 @@
     }
   },
   "company": {
-    "title": "Company Profile",
+    "title": "Company",
+    "overview": "Overview of your organisation, resources, and team members.",
+    "kpi": {
+      "totalUsers": "Total Users",
+      "vehicles": "Vehicles",
+      "drivers": "Drivers",
+      "warehouses": "Warehouses",
+      "customers": "Customers",
+      "shipments": "Shipments"
+    },
     "info": {
       "created": "Created {date}",
       "active": "Active"
@@ -905,9 +1100,9 @@
         "description": "Are you sure you want to remove {name} from the company? This will revoke their access immediately."
       },
       "statuses": {
-        "active": "ACTIVE",
-        "inactive": "INACTIVE",
-        "suspended": "SUSPENDED"
+        "active": "Active",
+        "inactive": "Inactive",
+        "suspended": "Suspended"
       }
     },
     "addMember": "Add Member",
@@ -997,11 +1192,15 @@
   },
   "shipments": {
     "title": "Shipment Management",
+    "subtitle": "Manage your shipments, monitor performance and status.",
+    "addShipment": "Add Shipment",
     "active": "Active Shipments",
     "completed": "Completed",
     "pending": "Pending",
     "delayed": "Delayed",
     "track": "Track Shipment",
+    "deleteTitle": "Delete Shipment?",
+    "deleteDesc": "Are you sure you want to delete shipment {id}?",
     "statuses": {
       "PENDING": "Pending",
       "IN_TRANSIT": "In Transit",
@@ -1137,10 +1336,13 @@
   },
   "routes": {
     "title": "Route Planning",
+    "subtitle": "Optimize and manage your fleet's active delivery paths.",
     "active": "Active Routes",
     "total": "Total Routes",
     "completed": "Completed",
-    "delayed": "Delayed",
+    "inProgress": "In Progress",
+    "completedToday": "Completed Today",
+    "delayed": "Delayed Routes",
     "dashboard": {
       "routeEfficiency": "Route Efficiency",
       "fuelConsumption": "Fuel Consumption (L/100km)",
@@ -1187,6 +1389,7 @@
       "FAILED": "Failed"
     },
     "addRoute": "Add Route",
+    "deleteDesc": "Are you sure you want to delete this route?",
     "details": {
       "origin": "Origin",
       "destination": "Destination",
@@ -1258,8 +1461,33 @@
     }
   },
   "warehouses": {
-    "title": "Warehouse Network",
+    "title": "Warehouse Management",
+    "subtitle": "Manage your warehouses, monitor performance and license status.",
     "addWarehouse": "Add Warehouse",
+    "deleteTitle": "Delete Warehouse?",
+    "deleteDesc": "Are you sure you want to delete {name}? This action cannot be undone.",
+    "kpi": {
+      "totalWarehouses": "TOTAL WAREHOUSES",
+      "inventorySkus": "INVENTORY SKUS",
+      "totalItems": "TOTAL ITEMS",
+      "palletCapacity": "PALLET CAPACITY",
+      "stockedVolume": "STOCKED VOLUME"
+    },
+    "categories": {
+      "types": {
+        "WAREHOUSE": "Standard Warehouse",
+        "DISTRIBUTION_CENTER": "Distribution Center",
+        "CROSSDOCK": "Cross-Docking Facility"
+      },
+      "specs": {
+        "coldStorage": "Cold Storage",
+        "hazardous": "Hazardous Materials",
+        "bonded": "Bonded Warehouse",
+        "crossDocking": "Cross-Docking",
+        "highSecurity": "High Security",
+        "lashing": "Lashing/Loading"
+      }
+    },
     "dialogs": {
       "addTitle": "Add New Warehouse",
       "editTitle": "Edit Warehouse Details",
@@ -1306,9 +1534,6 @@
         "code": "Warehouse Code (Optional)",
         "codePlaceholder": "e.g. WH-001 (Leave blank to auto-generate)",
         "type": "Warehouse Type",
-        "typeStandard": "Standard Warehouse",
-        "typeDistribution": "Distribution Center",
-        "typeCrossDock": "Cross-Docking Facility",
         "operatingHours": "Operating Hours",
         "is247": "24/7 Operation",
         "openingTime": "Opening Time",
@@ -1333,14 +1558,6 @@
         "specifications": "Facility Specifications",
         "guidance": "Operational Guidance Notes",
         "guidanceText": "Ensure that hazardous material certifications are up-to-date and facility complies with local safety standards before finalizing."
-      },
-      "specs": {
-        "coldStorage": "Cold Storage",
-        "hazardous": "Hazardous Materials",
-        "bonded": "Bonded Warehouse",
-        "crossDocking": "Cross-Docking",
-        "highSecurity": "High Security",
-        "lashing": "Lashing/Loading"
       }
     }
   },
@@ -1402,7 +1619,10 @@
     "privacyPolicy": "Privacy Policy",
     "termsOfService": "Terms of Service",
     "rights": "All rights reserved.",
-    "builtFor": "Built for modern logistics."
+    "builtFor": "Built for modern logistics.",
+    "copyright": "© {year} LogiTrack. All rights reserved.",
+    "security": "Security",
+    "status": "Status"
   },
   "settings": {
     "dialogs": {
@@ -1624,7 +1844,13 @@
     }
   },
   "reports": {
-    "title": "Reports & Analytics",
+    "title": "Operational Reports",
+    "subtitle": "Data-driven insights for shipments, fleet, and inventory",
+    "tabs": {
+      "shipment": "Shipment Analytics",
+      "fleet": "Fleet Efficiency",
+      "inventory": "Inventory Valuation"
+    },
     "metrics": {
       "totalShipments": "Total Shipments",
       "onTimeRate": "On-Time Rate",
@@ -1660,6 +1886,12 @@
         "analyticsTitle": "Shipment Analytics",
         "volumeByRoute": "Volume by Route",
         "volumeByRouteSubtitle": "Total shipments per route code"
+      },
+      "inventoryCategories": {
+        "Electronics": "Electronics",
+        "Furniture": "Furniture",
+        "Apparel": "Apparel",
+        "Industrial": "Industrial"
       }
     }
   },
@@ -1689,6 +1921,7 @@
       "title": "Demand Forecast",
       "aiPowered": "AI Powered",
       "subtitle": "Predicted shipment volume for next 3 weeks",
+      "weekPrefix": "W",
       "actualVolume": "Actual Volume",
       "predicted": "Predicted"
     },

@@ -1,4 +1,6 @@
 import dayjs from "dayjs";
+import "dayjs/locale/tr";
+import "dayjs/locale/en";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
@@ -6,6 +8,8 @@ import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import type { PickersDayProps } from "@mui/x-date-pickers/PickersDay";
 import { Badge, Divider, Tooltip, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
+import { useParams } from "next/navigation";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface VehicleDocument {
   id: string;
@@ -18,12 +22,13 @@ interface VehicleDocumentCalenderCardProps {
   data?: VehicleDocument[];
 }
 
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
-
 const DocumentCalenderCard = ({
   data = [],
 }: VehicleDocumentCalenderCardProps) => {
   const dict = useDictionary();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
+
   const DocumentDay = (props: PickersDayProps) => {
     const { day, ...other } = props;
 
@@ -35,10 +40,14 @@ const DocumentCalenderCard = ({
       return <PickersDay day={day} {...other} />;
     }
 
+    const getLocalizedDocType = (type: string) => {
+      return (dict.vehicles.docTypes as Record<string, string>)?.[type] || type;
+    };
+
     return (
       <Tooltip
         title={docsForDay
-          .map((d) => `${d.documentType} - ${d.plate}`)
+          .map((d) => `${getLocalizedDocType(d.documentType)} - ${d.plate}`)
           .join(", ")}
         arrow
       >
@@ -55,7 +64,7 @@ const DocumentCalenderCard = ({
         {dict.vehicles.dashboard.expiringSoon}
       </Typography>
       <Divider />
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
         <DateCalendar
           referenceDate={dayjs()}
           views={["year", "month", "day"]}

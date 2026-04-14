@@ -10,19 +10,22 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useRouter, usePathname } from "next/navigation";
+import { getLocalizedPath } from "@/app/lib/language/navigation";
 
 export type SidebarItem = {
   title: string;
   icon: ReactNode;
-  subTitles?: string[];
+  subTitles?: { title: string; href: string }[];
+  href?: string;
 };
 
 export type Params = {
   items: SidebarItem[];
+  lang: string;
 };
 
 export function SidebarList(params: Params) {
-  const { items } = params;
+  const { items, lang } = params;
 
   /* --------------------------------- states --------------------------------- */
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -36,33 +39,17 @@ export function SidebarList(params: Params) {
   };
 
   const handleNavigate = (path: string) => {
-    router.push(path);
+    // Ensure path starts with lang
+    const localizedPath = getLocalizedPath(path, lang);
+    const fullPath = `/${lang}${localizedPath}`;
+    router.push(fullPath);
   };
 
-  const getRoute = (title: string) => {
-    const routes: Record<string, string> = {
-      Overview: "/overview",
-      Vehicles: "/vehicle",
-      Drivers: "/drivers",
-      Routes: "/routes",
-      Shipments: "/shipments",
-      Management: "/management",
-      Warehouses: "/warehouses",
-      Inventory: "/inventory",
-      Customers: "/customers",
-      Reports: "/reports",
-      Analytics: "/analytics",
-      Users: "/users",
-      Roles: "/roles",
-      Settings: "/settings",
-      Company: "/company",
-    };
-    return routes[title] || "#";
-  };
-
-  const isActive = (title: string) => {
-    const route = getRoute(title);
-    return pathname === route;
+  const isActive = (href?: string) => {
+    if (!href) return false;
+    const localizedPath = getLocalizedPath(href, lang);
+    const fullPath = `/${lang}${localizedPath}`;
+    return pathname === fullPath;
   };
 
   return (
@@ -80,7 +67,8 @@ export function SidebarList(params: Params) {
         const hasChildren = Boolean(item.subTitles?.length);
         const isOpen = openKey === item.title;
         const activeItem =
-          isActive(item.title) || item.subTitles?.some((sub) => isActive(sub));
+          isActive(item.href) ||
+          item.subTitles?.some((sub) => isActive(sub.href));
 
         return (
           <div key={item.title} style={{ width: "100%" }}>
@@ -88,7 +76,7 @@ export function SidebarList(params: Params) {
               onClick={() =>
                 hasChildren
                   ? handleToggle(item.title)
-                  : handleNavigate(getRoute(item.title))
+                  : handleNavigate(item.href || "#")
               }
               sx={{
                 px: 3,
@@ -139,11 +127,11 @@ export function SidebarList(params: Params) {
               <Collapse in={isOpen} timeout="auto" unmountOnExit>
                 <List disablePadding sx={{ width: "100%" }}>
                   {item?.subTitles?.map((sub) => {
-                    const subActive = isActive(sub);
+                    const subActive = isActive(sub.href);
                     return (
                       <ListItemButton
-                        key={sub}
-                        onClick={() => handleNavigate(getRoute(sub))}
+                        key={sub.title}
+                        onClick={() => handleNavigate(sub.href)}
                         sx={{
                           pl: 7,
                           py: 0.75,
@@ -159,7 +147,7 @@ export function SidebarList(params: Params) {
                         }}
                       >
                         <ListItemText
-                          primary={sub}
+                          primary={sub.title}
                           primaryTypographyProps={{
                             fontSize: 13,
                             fontWeight: subActive ? 700 : 500,

@@ -36,6 +36,7 @@ import { Dictionary } from "@/app/lib/language/language";
 interface RouteDialogProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
   route: RouteWithRelations | null;
 }
 
@@ -61,6 +62,7 @@ const getStatusMeta = (status?: string, dict?: Dictionary) => {
 export default function RouteDialog({
   open,
   onClose,
+  onSuccess,
   route,
 }: RouteDialogProps) {
   const dict = useDictionary();
@@ -83,6 +85,7 @@ export default function RouteDialog({
     try {
       await updateRouteStatus(route.id, newStatus);
       toast.success(dict.toasts.successUpdate || "Successfully updated!");
+      onSuccess?.();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : dict.toasts.errorGeneric;
@@ -340,7 +343,7 @@ export default function RouteDialog({
                         id: route.driver.id,
                         status: route.driver.status || "ON_JOB",
                         phone: route.driver.phone || "",
-                        employeeId: route.driver.employeeId || "N/A",
+                        employeeId: route.driver.employeeId || dict.common.na,
                         licenseNumber: route.driver.licenseNumber || "",
                         licenseType: route.driver.licenseType || "",
                         licenseExpiry: route.driver.licenseExpiry || null,

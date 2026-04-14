@@ -72,7 +72,7 @@ const ItemDetailsSection = ({
               color="text.secondary"
               fontWeight={600}
             >
-              {dict.inventory.fields.sku} ({dict.inventory.fields.sku})
+              {dict.inventory.fields.sku}
             </Typography>
             <CustomTextArea
               name="sku"
@@ -286,7 +286,7 @@ const ItemDetailsSection = ({
                       sx={{ fontSize: 40, color: alpha("#fff", 0.2), mb: 1 }}
                     />
                     <Typography variant="body2" color="text.secondary">
-                      {dict.landing.hero.discover}
+                      {dict.inventory.dialogs.clickToUpload}
                     </Typography>
                     <Typography variant="caption" color="text.disabled">
                       PNG, JPG, WebP (Max 10MB)

@@ -215,7 +215,7 @@ export default function UserAccountNav() {
               sx={{ color: theme.palette.primary.main }}
             />
           </ListItemIcon>
-          {dict.common.settings}
+          {dict?.common?.profile || "Profile"}
         </MenuItem>
         <MenuItem onClick={handleOpenSettings} sx={{ gap: 1.5 }}>
           <ListItemIcon sx={{ minWidth: "auto !important" }}>

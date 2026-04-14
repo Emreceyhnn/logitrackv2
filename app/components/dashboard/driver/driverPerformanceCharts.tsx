@@ -52,7 +52,7 @@ const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceCha
                 {
                   scaleType: "band",
                   data: driverNames,
-                  label: "Driver",
+                  label: dict.sidebar.drivers,
                   tickLabelStyle: { fill: theme.palette.text.secondary },
                 },
               ]}
@@ -92,7 +92,7 @@ const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceCha
                 {
                   scaleType: "band",
                   data: driverNames,
-                  label: "Driver",
+                  label: dict.sidebar.drivers,
                   tickLabelStyle: { fill: theme.palette.text.secondary },
                 },
               ]}

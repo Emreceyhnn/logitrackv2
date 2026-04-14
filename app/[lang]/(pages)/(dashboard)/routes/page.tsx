@@ -4,7 +4,7 @@ import RoutesMainMap from "@/app/components/dashboard/routes/routesMainMap";
 import RouteEfficiency from "@/app/components/dashboard/routes/routeEfficiency";
 import RouteTable from "@/app/components/dashboard/routes/routeTable";
 import { Box, Button, Stack, Typography, useTheme } from "@mui/material";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import {
   RoutesPageActions,
@@ -26,9 +26,11 @@ import { useUser } from "@/app/lib/hooks/useUser";
 import AddRouteDialog from "@/app/components/dialogs/routes/addRouteDialog";
 import { AltRoute, Loop, CheckCircle, Warning } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function RoutesPage() {
   /* -------------------------------- VARIABLES ------------------------------- */
+  const dict = useDictionary();
   const { user } = useUser();
   const theme = useTheme();
 
@@ -69,6 +71,8 @@ export default function RoutesPage() {
   } = useRouteLocations();
 
   const { deleteRoute: deleteMutation } = useRouteMutations();
+  
+  const routes = useMemo(() => routesData?.routes || [], [routesData?.routes]);
 
   const loading =
     isRoutesLoading ||
@@ -143,25 +147,25 @@ export default function RoutesPage() {
   /* --------------------------------- KPI --------------------------------- */
   const kpiItems = [
     {
-      label: "Active Routes",
+      label: dict.routes.active,
       value: stats?.active || 0,
       icon: <AltRoute sx={{ fontSize: 22 }} />,
       color: theme.palette.primary.main,
     },
     {
-      label: "In Progress",
+      label: dict.routes.inProgress,
       value: stats?.inProgress || 0,
       icon: <Loop sx={{ fontSize: 22 }} />,
       color: "#0ea5e9", // Sky
     },
     {
-      label: "Completed Today",
+      label: dict.routes.completedToday,
       value: stats?.completedToday || 0,
       icon: <CheckCircle sx={{ fontSize: 22 }} />,
       color: "#10b981", // Emerald
     },
     {
-      label: "Delayed Routes",
+      label: dict.routes.delayed,
       value: stats?.delayed || 0,
       icon: <Warning sx={{ fontSize: 22 }} />,
       color: theme.palette.error.main,
@@ -180,10 +184,10 @@ export default function RoutesPage() {
           <Typography
             sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
           >
-            Routes Management
+            {dict.routes.title}
           </Typography>
           <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
-            Manage your routes, monitor performance and status.
+            {dict.routes.subtitle}
           </Typography>
         </Box>
         <Button
@@ -192,7 +196,7 @@ export default function RoutesPage() {
           onClick={() => setAddDialogOpen(true)}
           sx={{ textTransform: "none", borderRadius: 2 }}
         >
-          Add Route
+          {dict.routes.addRoute}
         </Button>
       </Stack>
       <KpiCards kpis={kpiItems} loading={loading} />
@@ -206,7 +210,7 @@ export default function RoutesPage() {
       </Stack>
       <Stack mt={2}>
         <RouteTable
-          routes={routesData?.routes || []}
+          routes={routes}
           loading={loading}
           pagination={{
             page: pagination.page,
@@ -232,8 +236,8 @@ export default function RoutesPage() {
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Route?"
-        description={`Are you sure you want to delete route ${actionRoute?.name || actionRoute?.id}?`}
+        title={dict.common.delete}
+        description={dict.routes.deleteDesc}
         loading={deleteMutation.isPending}
       />
       <AddRouteDialog open={addDialogOpen} onClose={handleCloseAdd} />

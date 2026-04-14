@@ -22,12 +22,14 @@ import {
   LocalShipping,
 } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function CompanyPage() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
 
   /* ---------------------------------- HOOKS --------------------------------- */
+  const dict = useDictionary();
   const {
     data: result,
     isLoading: loading,
@@ -77,37 +79,37 @@ export default function CompanyPage() {
   /* --------------------------------- KPI --------------------------------- */
   const kpis = [
     {
-      label: "Total Users",
+      label: dict.company.kpi.totalUsers,
       value: state.data?.stats?.users ?? 0,
       icon: <People sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.indigo,
     },
     {
-      label: "Vehicles",
+      label: dict.company.kpi.vehicles,
       value: state.data?.stats?.vehicles ?? 0,
       icon: <DirectionsCar sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.sky,
     },
     {
-      label: "Drivers",
+      label: dict.company.kpi.drivers,
       value: state.data?.stats?.drivers ?? 0,
       icon: <Badge sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.emerald,
     },
     {
-      label: "Warehouses",
+      label: dict.company.kpi.warehouses,
       value: state.data?.stats?.warehouses ?? 0,
       icon: <Warehouse sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.amber,
     },
     {
-      label: "Customers",
+      label: dict.company.kpi.customers,
       value: state.data?.stats?.customers ?? 0,
       icon: <Groups sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.pink,
     },
     {
-      label: "Shipments",
+      label: dict.company.kpi.shipments,
       value: state.data?.stats?.shipments ?? 0,
       icon: <LocalShipping sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.violet,
@@ -126,10 +128,10 @@ export default function CompanyPage() {
           <Typography
             sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
           >
-            Company
+            {dict.company.title}
           </Typography>
           <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
-            Overview of your organisation, resources, and team members.
+            {dict.company.overview}
           </Typography>
         </Box>
         <Button
@@ -138,7 +140,7 @@ export default function CompanyPage() {
           onClick={() => setAddMemberOpen(true)}
           sx={{ textTransform: "none", borderRadius: 2 }}
         >
-          Add Member
+          {dict.company.addMember}
         </Button>
       </Stack>
 

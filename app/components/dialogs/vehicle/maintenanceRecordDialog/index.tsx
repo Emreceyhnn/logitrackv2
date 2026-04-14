@@ -29,7 +29,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { addMaintenanceRecord } from "@/app/lib/controllers/vehicle";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
-import { MaintenanceStatus } from "@prisma/client";
+import { MaintenanceStatus } from "@/app/lib/type/enums";
 
 interface MaintenanceRecordDialogProps {
   open: boolean;

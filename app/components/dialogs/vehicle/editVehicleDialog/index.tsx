@@ -27,7 +27,7 @@ import { VehicleWithRelations, VehicleFormValues } from "@/app/lib/type/vehicle"
 import { updateVehicle } from "@/app/lib/controllers/vehicle";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { toast } from "sonner";
-import { VehicleType } from "@prisma/client";
+import { VehicleType } from "@/app/lib/type/enums";
 import { Formik, FormikHelpers } from "formik";
 
 export interface EditVehicleDialogProps {

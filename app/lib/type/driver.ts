@@ -49,6 +49,8 @@ export interface DriverWithRelations {
     url: string;
     expiryDate: Date | null;
     status: string;
+    createdAt: Date;
+    updatedAt: Date;
   }[];
 
   createdAt: Date;

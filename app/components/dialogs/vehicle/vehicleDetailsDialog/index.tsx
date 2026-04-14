@@ -26,7 +26,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import BuildIcon from "@mui/icons-material/Build";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
-import { VehicleStatus } from "@prisma/client";
+import { VehicleStatus } from "@/app/lib/type/enums";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -247,7 +247,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                 color="success"
                 startIcon={<CheckCircleIcon />}
                 disabled={statusLoading}
-                onClick={() => handleStatusUpdate("AVAILABLE")}
+                onClick={() => handleStatusUpdate(VehicleStatus.AVAILABLE)}
                 sx={{
                   borderRadius: 2,
                   textTransform: "none",
@@ -265,7 +265,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                   color="warning"
                   startIcon={<BuildIcon />}
                   disabled={statusLoading}
-                  onClick={() => handleStatusUpdate("MAINTENANCE")}
+                  onClick={() => handleStatusUpdate("MAINTENANCE" as VehicleStatus)}
                   sx={{
                     borderRadius: 2,
                     textTransform: "none",

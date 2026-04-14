@@ -14,6 +14,7 @@ import LanguageIcon from "@mui/icons-material/Language";
 import CheckIcon from "@mui/icons-material/Check";
 import { useRouter, usePathname, useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { getLocalizedPath, getCanonicalPath } from "@/app/lib/language/navigation";
 
 const LanguageSwitcher = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -42,8 +43,19 @@ const LanguageSwitcher = () => {
     if (lang === currentLang) return;
 
     const segments = pathname.split("/");
-    segments[1] = lang;
-    const newPathname = segments.join("/");
+    const pathWithoutLang = segments.slice(2).join("/"); // skip empty and lang
+    
+    // 1. Get canonical path (English-like) from current localized path
+    const canonical = getCanonicalPath(pathWithoutLang, currentLang);
+    
+    // 2. Get localized path for target language
+    const localized = getLocalizedPath(canonical, lang);
+
+    const newPathname = `/${lang}${localized}`;
+
+    // Set cookie for persistence
+    // eslint-disable-next-line react-hooks/immutability
+    document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000; SameSite=Lax`;
 
     router.push(newPathname);
     handleClose();

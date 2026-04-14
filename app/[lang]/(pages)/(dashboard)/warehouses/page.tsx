@@ -23,6 +23,7 @@ import EditWarehouseDialog from "@/app/components/dialogs/warehouse/editWarehous
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useTheme } from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import {
   Warehouse as WarehouseIcon,
@@ -36,6 +37,7 @@ import KpiCards from "@/app/components/cards/KpiCards";
 export default function WarehousePage() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
 
   /* --------------------------------- STATES --------------------------------- */
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(
@@ -108,10 +110,10 @@ export default function WarehousePage() {
     if (!warehouseToDeleteId) return;
     try {
       await deleteMutation.mutateAsync(warehouseToDeleteId);
-      toast.success("Warehouse deleted successfully");
+      toast.success(dict.toasts.successDelete || "Warehouse deleted successfully");
       setDeleteDialogOpen(false);
     } catch (error) {
-      toast.error("Failed to delete warehouse");
+      toast.error(dict.toasts.errorGeneric || "Failed to delete warehouse");
       console.error(error);
     } finally {
       setWarehouseToDeleteId(null);
@@ -125,35 +127,35 @@ export default function WarehousePage() {
   /* --------------------------------- KPI --------------------------------- */
   const kpiItems = [
     {
-      label: "TOTAL WAREHOUSES",
+      label: dict.warehouses.kpi.totalWarehouses,
       value: stats?.totalWarehouses || 0,
       icon: <WarehouseIcon sx={{ fontSize: 22 }} />,
       color: theme.palette.primary.main,
       trend: { value: 2, isUp: true },
     },
     {
-      label: "INVENTORY SKUS",
+      label: dict.warehouses.kpi.inventorySkus,
       value: stats?.totalSkus.toLocaleString() || 0,
       icon: <Inventory2 sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.cyan,
       trend: { value: 12, isUp: true },
     },
     {
-      label: "TOTAL ITEMS",
+      label: dict.warehouses.kpi.totalItems,
       value: stats?.totalItems.toLocaleString() || 0,
       icon: <ListAlt sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.violet,
       trend: { value: 8, isUp: true },
     },
     {
-      label: "PALLET CAPACITY",
+      label: dict.warehouses.kpi.palletCapacity,
       value: stats?.totalCapacityPallets.toLocaleString() || 0,
       icon: <Category sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.amber,
       trend: { value: 5, isUp: true },
     },
     {
-      label: "STOCKED VOLUME",
+      label: dict.warehouses.kpi.stockedVolume,
       value: `${stats?.totalCapacityVolume.toLocaleString() || 0} M³`,
       icon: <Storage sx={{ fontSize: 22 }} />,
       color: theme.palette.kpi.emerald,
@@ -173,10 +175,10 @@ export default function WarehousePage() {
           <Typography
             sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
           >
-            Warehouse Management
+            {dict.warehouses.title}
           </Typography>
           <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
-            Manage your warehouses, monitor performance and license status.
+            {dict.warehouses.subtitle}
           </Typography>
         </Box>
         <Button
@@ -185,7 +187,7 @@ export default function WarehousePage() {
           onClick={() => setAddDialogOpen(true)}
           sx={{ textTransform: "none", borderRadius: 2 }}
         >
-          Add Warehouse
+          {dict.warehouses.addWarehouse}
         </Button>
       </Stack>
 
@@ -253,8 +255,8 @@ export default function WarehousePage() {
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Warehouse?"
-        description={`Are you sure you want to delete ${warehouseToDelete?.name || "this warehouse"}? This action cannot be undone.`}
+        title={dict.warehouses.deleteTitle}
+        description={dict.warehouses.deleteDesc.replace("{name}", warehouseToDelete?.name || "")}
         loading={deleteMutation.isPending}
       />
     </Box>

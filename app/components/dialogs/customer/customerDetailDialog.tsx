@@ -74,6 +74,25 @@ const CustomerDetailDialog = ({
     }
   }, [open, customerId, dict]);
 
+  const getIndustryLabel = (industry: string | null) => {
+    if (!industry) return dict.customers.industryGeneral;
+    // Common mapping for database values to dictionary keys
+    const mapping: Record<string, keyof typeof dict.industries> = {
+      "Logistics & Transportation": "logistics",
+      "Retail & E-commerce": "retail",
+      "E-commerce": "ecommerce",
+      "Manufacturing": "manufacturing",
+      "Pharmaceuticals": "pharmaceuticals",
+      "Automotive": "automotive",
+      "Aviation": "aviation",
+      "Technology": "technology",
+      "Other": "other"
+    };
+
+    const key = mapping[industry];
+    return key ? dict.industries[key] : industry;
+  };
+
   if (!customerId) return null;
 
   return (
@@ -150,7 +169,7 @@ const CustomerDetailDialog = ({
                   </Stack>
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Chip
-                      label={customer.industry || dict.customers.industryGeneral}
+                      label={getIndustryLabel(customer.industry)}
                       size="small"
                       sx={{
                         height: 24,
@@ -417,7 +436,7 @@ const CustomerDetailDialog = ({
                           <LocalShippingIcon fontSize="small" color="primary" />
                         </Stack>
                         <Typography variant="h5" fontWeight={700}>
-                          {customer.shipments?.length || 0} ({dict.common.recent || "Recent"})
+                          {customer.shipments?.length || 0} ({dict.common.recent})
                         </Typography>
                       </Stack>
                     </Paper>

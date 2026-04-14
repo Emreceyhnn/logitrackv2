@@ -65,6 +65,8 @@ function CustomTabPanel(props: TabPanelProps) {
   );
 }
 
+import { useParams } from "next/navigation";
+
 export default function InventoryDetailsDialog({
   isOpen,
   onClose,
@@ -73,7 +75,17 @@ export default function InventoryDetailsDialog({
 }: InventoryDetailsProps) {
   const theme = useTheme();
   const dict = useDictionary();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
   const [tabValue, setTabValue] = useState(0);
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat(lang === "tr" ? "tr-TR" : "en-US", {
+      style: "currency",
+      currency: lang === "tr" ? "TRY" : "USD",
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(false);
 
@@ -257,7 +269,7 @@ export default function InventoryDetailsDialog({
                       <Box>
                         <Typography variant="caption" color="text.secondary" fontWeight={600}>{dict.inventory.fields.unitValue.toUpperCase()}</Typography>
                         <Typography variant="h5" fontWeight={800} color="white">
-                          {item.unitValue?.toLocaleString() || "0"}
+                          {formatPrice(item.unitValue || 0)}
                         </Typography>
                       </Box>
                     </Stack>
@@ -275,7 +287,9 @@ export default function InventoryDetailsDialog({
                     </Box>
                     <Box display="flex" justifyContent="space-between">
                       <Typography variant="body2" color="text.secondary">{dict.inventory.dialogs.cargoType}</Typography>
-                      <Typography variant="body2" fontWeight={600} color="white">{item.cargoType || "General"}</Typography>
+                      <Typography variant="body2" fontWeight={600} color="white">
+                        {item.cargoType === "General" || !item.cargoType ? dict.inventory.category.general : item.cargoType}
+                      </Typography>
                     </Box>
                   </Stack>
                 </Box>

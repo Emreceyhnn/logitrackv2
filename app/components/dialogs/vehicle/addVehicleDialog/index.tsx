@@ -26,7 +26,7 @@ import {
   AddVehiclePageProps,
   VehicleFormValues,
 } from "@/app/lib/type/vehicle";
-import { VehicleType } from "@prisma/client";
+import { VehicleType } from "@/app/lib/type/enums";
 import { createVehicle, uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { fileToBase64 } from "@/app/lib/utils/fileUtils";

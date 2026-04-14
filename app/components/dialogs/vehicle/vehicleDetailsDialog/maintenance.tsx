@@ -1,5 +1,6 @@
 import { Box, Button, Card, Stack, Typography, Table, TableBody, TableCell, TableHead, TableRow, Divider, CardActionArea, alpha } from "@mui/material";
-import { Issue, MaintenanceRecord } from "@prisma/client";
+import type { Issue, MaintenanceRecord } from "@prisma/client";
+import { VehicleStatus, IssueStatus } from "@/app/lib/type/enums";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import AddIcon from "@mui/icons-material/Add";
 import { PriorityChip } from "../../../chips/priorityChips";
@@ -13,7 +14,6 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import PendingIcon from "@mui/icons-material/Pending";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { VehicleStatus, IssueStatus } from "@prisma/client";
 import { MenuItem, Select, FormControl } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 

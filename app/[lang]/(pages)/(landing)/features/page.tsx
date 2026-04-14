@@ -16,6 +16,7 @@ import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded";
 import AnalyticsRoundedIcon from "@mui/icons-material/AnalyticsRounded";
 import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
 import SecurityRoundedIcon from "@mui/icons-material/SecurityRounded";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -28,52 +29,55 @@ const float = keyframes`
   100% { transform: translateY(0px); }
 `;
 
-const features = [
-  {
-    icon: <MapRoundedIcon sx={{ fontSize: 40, color: "#38bdf8" }} />,
-    title: "AI Route Optimization",
-    description: "Our proprietary AI engine processes live traffic, weather, and fleet capacity to generate the most fuel-efficient routes in real-time.",
-    tag: "Predictive",
-    details: ["Live Traffic Integration", "Load Balancing", "Carbon Offset Tracking"]
-  },
-  {
-    icon: <Inventory2RoundedIcon sx={{ fontSize: 40, color: "#a855f7" }} />,
-    title: "Warehouse Intelligence",
-    description: "Optimize pick-paths and vertical space utilization with automated WMS synchronization. Scale from 1 to 100 warehouses with ease.",
-    tag: "Automated",
-    details: ["Space Optimization", "Inventory Velocity", "Cross-Docking Ready"]
-  },
-  {
-    icon: <AnalyticsRoundedIcon sx={{ fontSize: 40, color: "#22d3ee" }} />,
-    title: "Real-Time Telemetry",
-    description: "Monitor vehicle health, driver safety, and fuel consumption via integrated telematics. Convert raw data into actionable insights.",
-    tag: "Hardware-Agnostic",
-    details: ["Driver Scorecards", "Predictive Maintenance", "Cold Chain Monitoring"]
-  },
-  {
-    icon: <NotificationsActiveRoundedIcon sx={{ fontSize: 40, color: "#f472b6" }} />,
-    title: "Smart Exception Alerts",
-    description: "Stop reacting to disasters. Our anomaly detection system flags potential delays before they happen, suggesting proactive rerouting.",
-    tag: "Proactive",
-    details: ["Delay Forecasting", "Dynamic ETA Adjustments", "Multi-Channel Alerts"]
-  },
-  {
-    icon: <SecurityRoundedIcon sx={{ fontSize: 40, color: "#10b981" }} />,
-    title: "Enterprise Compliance",
-    description: "Automatic audit logs, geofencing, and chain-of-custody tracking. Built to meet the strictest logistics security standards.",
-    tag: "Secured",
-    details: ["E-Signatures", "Geofence Enforcement", "Audit-Ready Logs"]
-  },
-  {
-    icon: <BoltRoundedIcon sx={{ fontSize: 40, color: "#fbbf24" }} />,
-    title: "API-First Architecture",
-    description: "Integrate with SAP, Oracle, or custom legacy systems in hours, not weeks, using our robust SDK and webhook infrastructure.",
-    tag: "Modular",
-    details: ["REST & GraphQL APIs", "Robust Webhooks", "Custom ERP Integration"]
-  }
-];
-
 export default function FeaturesPage() {
+  const dict = useDictionary();
+  const fDict = dict.landing.featuresPage;
+
+  const features = [
+    {
+      icon: <MapRoundedIcon sx={{ fontSize: 40, color: "#38bdf8" }} />,
+      title: fDict.items.routeOptimization.title,
+      description: fDict.items.routeOptimization.description,
+      tag: fDict.items.routeOptimization.tag,
+      details: fDict.items.routeOptimization.details
+    },
+    {
+      icon: <Inventory2RoundedIcon sx={{ fontSize: 40, color: "#a855f7" }} />,
+      title: fDict.items.warehouse.title,
+      description: fDict.items.warehouse.description,
+      tag: fDict.items.warehouse.tag,
+      details: fDict.items.warehouse.details
+    },
+    {
+      icon: <AnalyticsRoundedIcon sx={{ fontSize: 40, color: "#22d3ee" }} />,
+      title: fDict.items.telemetry.title,
+      description: fDict.items.telemetry.description,
+      tag: fDict.items.telemetry.tag,
+      details: fDict.items.telemetry.details
+    },
+    {
+      icon: <NotificationsActiveRoundedIcon sx={{ fontSize: 40, color: "#f472b6" }} />,
+      title: fDict.items.alerts.title,
+      description: fDict.items.alerts.description,
+      tag: fDict.items.alerts.tag,
+      details: fDict.items.alerts.details
+    },
+    {
+      icon: <SecurityRoundedIcon sx={{ fontSize: 40, color: "#10b981" }} />,
+      title: fDict.items.compliance.title,
+      description: fDict.items.compliance.description,
+      tag: fDict.items.compliance.tag,
+      details: fDict.items.compliance.details
+    },
+    {
+      icon: <BoltRoundedIcon sx={{ fontSize: 40, color: "#fbbf24" }} />,
+      title: fDict.items.api.title,
+      description: fDict.items.api.description,
+      tag: fDict.items.api.tag,
+      details: fDict.items.api.details
+    }
+  ];
+
   return (
     <Box
       sx={{
@@ -125,7 +129,7 @@ export default function FeaturesPage() {
 
         <Stack spacing={4} alignItems="center" textAlign="center" mb={15} sx={{ animation: `${fadeIn} 0.8s ease-out` }}>
           <Chip
-            label="Product Capabilities"
+            label={fDict.badge}
             sx={{
               borderRadius: "999px",
               px: 2,
@@ -148,9 +152,8 @@ export default function FeaturesPage() {
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
-          >
-            Engineering the <br /> Modern Supply Chain.
-          </Typography>
+            dangerouslySetInnerHTML={{ __html: fDict.heroTitle }}
+          />
           <Typography
             variant="h5"
             sx={{
@@ -160,8 +163,7 @@ export default function FeaturesPage() {
               lineHeight: 1.6,
             }}
           >
-            From predictive telemetry to autonomous warehouse orchestration, explore the tools
-            redefining what it means to be a global logistics leader.
+            {fDict.heroSubtitle}
           </Typography>
         </Stack>
 
@@ -246,19 +248,17 @@ export default function FeaturesPage() {
           }}
         >
           <Typography variant="overline" sx={{ color: "#38bdf8", letterSpacing: 4, fontWeight: 800 }}>
-            Unified Infrastructure
+            {fDict.infrastructure.overline}
           </Typography>
           <Typography variant="h3" sx={{ fontWeight: 900, mt: 3, mb: 4 }}>
-            One Dashboard. Infinite Control.
+            {fDict.infrastructure.title}
           </Typography>
           <Typography variant="body1" sx={{ color: alpha("#cbd5f5", 0.7), maxWidth: 900, mx: "auto", mb: 6, lineHeight: 1.8 }}>
-            Our features aren&apos;t standalone tools—they are part of a deeply integrated ecosystem.
-            When your warehouse updates, your fleet reacts. When traffic spikes, your customer knows.
-            That is the Logi-Track advantage.
+            {fDict.infrastructure.description}
           </Typography>
 
           <Grid container spacing={2} justifyContent="center">
-            {["Cloud Native", "AI Optimized", "256-bit AES Encryption", "99.9% SLA", "PCI-DSS Compliant"].map((stat, sIdx) => (
+            {fDict.infrastructure.stats.map((stat, sIdx) => (
               <Grid key={sIdx}>
                 <Box
                   sx={{
@@ -289,8 +289,8 @@ export default function FeaturesPage() {
         }}
       >
         <Typography variant="body2" sx={{ color: alpha("#cbd5f5", 0.4) }}>
-          © {new Date().getFullYear()} LogiTrack Intelligence Systems. All rights reserved. <br />
-          Built for the enterprise, optimized for the road.
+          {fDict.footer.copyright.replace("{year}", new Date().getFullYear().toString())} <br />
+          {fDict.footer.builtFor}
         </Typography>
       </Box>
     </Box>

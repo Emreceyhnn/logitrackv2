@@ -3,8 +3,12 @@
 import { Box, Container, Typography, Stack, Button } from "@mui/material";
 import TimelineSection from "@/app/components/how-it-works/TimelineSection";
 import Link from "next/link";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function HowItWorksPage() {
+  const dict = useDictionary();
+  const hDict = dict.landing.howItWorksPage;
+
   return (
     <Box
       sx={{
@@ -54,7 +58,7 @@ export default function HowItWorksPage() {
               mb: 2,
             }}
           >
-            OUR PROCESS
+            {hDict.hero.overline}
           </Typography>
           <Typography
             variant="h2"
@@ -66,7 +70,7 @@ export default function HowItWorksPage() {
               WebkitTextFillColor: "transparent",
             }}
           >
-            How LogiTrack Works
+            {hDict.hero.title}
           </Typography>
           <Typography
             variant="h6"
@@ -78,8 +82,7 @@ export default function HowItWorksPage() {
               mx: "auto",
             }}
           >
-            A comprehensive, end-to-end logistics orchestration platform
-            designed to scale with your business needs.
+            {hDict.hero.subtitle}
           </Typography>
         </Container>
 
@@ -103,11 +106,10 @@ export default function HowItWorksPage() {
           />
           <Container maxWidth="sm">
             <Typography variant="h3" fontWeight={800} mb={3}>
-              Ready to Optimize?
+              {hDict.cta.title}
             </Typography>
             <Typography sx={{ color: "rgba(255, 255, 255, 0.6)", mb: 5 }}>
-              Join hundreds of companies that have modernized their logistics
-              with LogiTrack.
+              {hDict.cta.subtitle}
             </Typography>
             <Stack direction="row" spacing={2} justifyContent="center">
               <Button
@@ -124,7 +126,7 @@ export default function HowItWorksPage() {
                   "&:hover": { bgcolor: "#0ea5e9" },
                 }}
               >
-                Get Started Free
+                {hDict.cta.getStarted}
               </Button>
               <Button
                 variant="outlined"
@@ -137,7 +139,7 @@ export default function HowItWorksPage() {
                   "&:hover": { borderColor: "#38bdf8" },
                 }}
               >
-                Book a Demo
+                {hDict.cta.bookDemo}
               </Button>
             </Stack>
           </Container>
@@ -154,10 +156,10 @@ export default function HowItWorksPage() {
                 variant="body2"
                 sx={{ color: "rgba(255, 255, 255, 0.4)" }}
               >
-                © 2026 Logi-Track. All rights reserved.
+                {hDict.footer.rights.replace("{year}", new Date().getFullYear().toString())}
               </Typography>
               <Stack direction="row" spacing={4}>
-                {["Privacy Policy", "Terms of Service", "Help Center"].map(
+                {[hDict.footer.privacy, hDict.footer.terms, hDict.footer.help].map(
                   (item) => (
                     <Typography
                       key={item}

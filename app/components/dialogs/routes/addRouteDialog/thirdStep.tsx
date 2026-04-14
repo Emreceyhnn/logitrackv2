@@ -25,6 +25,7 @@ import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useEffect, useState } from "react";
 import { getDrivers } from "@/app/lib/controllers/driver";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
+import { VehicleStatus } from "@/app/lib/type/enums";
 
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
@@ -46,7 +47,7 @@ const ThirdRouteDialogStep = () => {
       try {
         const [driversRes, vehiclesRes] = await Promise.all([
           getDrivers(1, 100),
-          getVehicles({ status: ["AVAILABLE"] }),
+          getVehicles({ status: [VehicleStatus.AVAILABLE] }),
         ]);
         setDrivers(driversRes.data);
         setVehicles(vehiclesRes);

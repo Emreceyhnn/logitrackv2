@@ -22,7 +22,7 @@ import { createVehicleIssue } from "@/app/lib/controllers/vehicle";
 import { vehicleReportIssueValidationSchema } from "@/app/lib/validationSchema";
 import { getPriorityColor } from "@/app/lib/priorityColor";
 import { ValidationError } from "yup";
-import { IssuePriority } from "@prisma/client";
+import { IssuePriority } from "@/app/lib/type/enums";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface ReportIssueDialogProps {
@@ -278,7 +278,7 @@ const ReportIssueDialog = ({
                           }}
                         />
                         <Typography variant="body2" color="white" fontWeight={500}>
-                          {value as string}
+                          {dict.vehicles.priorities[value as keyof typeof dict.vehicles.priorities]}
                         </Typography>
                       </Box>
                     );
@@ -306,7 +306,7 @@ const ReportIssueDialog = ({
                           bgcolor: getPriorityColor(p as string),
                         }}
                       />
-                      <Typography variant="body2">{p as string}</Typography>
+                      <Typography variant="body2">{dict.vehicles.priorities[p as keyof typeof dict.vehicles.priorities]}</Typography>
                     </Box>
                   </MenuItem>
                 ))}

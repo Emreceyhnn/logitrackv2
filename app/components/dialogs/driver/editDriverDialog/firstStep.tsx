@@ -62,7 +62,7 @@ const FirstEditDriverDialogStep = () => {
               </Typography>
               <CustomTextArea
                 name="employeeId"
-                placeholder="e.g. EMP-1234"
+                placeholder={dict.drivers.fields.placeholders.employeeId}
                 value={values.employeeId}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -84,7 +84,7 @@ const FirstEditDriverDialogStep = () => {
               </Typography>
               <CustomTextArea
                 name="phone"
-                placeholder="e.g. +1 555 123 4567"
+                placeholder={dict.drivers.fields.placeholders.phone}
                 value={values.phone}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -111,7 +111,7 @@ const FirstEditDriverDialogStep = () => {
               </Typography>
               <CustomTextArea
                 name="licenseNumber"
-                placeholder="e.g. DL-485920394"
+                placeholder={dict.drivers.fields.placeholders.license}
                 value={values.licenseNumber}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -250,7 +250,7 @@ const FirstEditDriverDialogStep = () => {
                   color="text.secondary"
                   sx={{ mt: 0.5 }}
                 >
-                  PNG, JPG OR HEIC (MAX 10MB)
+                  {dict.drivers.fields.placeholders.licenseFormat}
                 </Typography>
               </>
             ) : (

@@ -308,7 +308,7 @@ function DataTableToolbar({
           color="text.secondary"
           sx={{ whiteSpace: "nowrap" }}
         >
-          {totalActive} filter{totalActive > 1 ? "s" : ""} active
+          {dict.common.filtersActive.replace("{count}", totalActive.toString())}
         </Typography>
       )}
     </Stack>
@@ -517,6 +517,14 @@ function DataTable<TRow extends { id: string }>({
             const newLimit = parseInt(e.target.value, 10);
             if (onLimitChange) onLimitChange(newLimit);
           }}
+          labelRowsPerPage={dict.common.pagination.rowsPerPage}
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} ${dict.common.pagination.of} ${
+              count !== -1
+                ? count
+                : dict.common.moreThan.replace("{count}", to.toString())
+            }`
+          }
           sx={{
             borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
           }}

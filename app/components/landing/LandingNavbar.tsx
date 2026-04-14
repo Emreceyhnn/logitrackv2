@@ -13,6 +13,7 @@ import Link from "next/link";
 import LandingHeaderAuth from "./LandingHeaderAuth";
 import { useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { getLocalizedPath } from "@/app/lib/language/navigation";
 
 export default function LandingNavbar() {
   const params = useParams();
@@ -96,10 +97,10 @@ export default function LandingNavbar() {
             sx={{ display: { xs: "none", md: "flex" } }}
           >
             {[
-              { label: dict.navbar.features, href: `/${lang}/features` },
-              { label: dict.navbar.pricing, href: `/${lang}/pricing` },
-              { label: dict.navbar.about, href: `/${lang}/about` },
-              { label: dict.navbar.howItWorks, href: `/${lang}/how-it-works` },
+              { label: dict.navbar.features, href: `/${lang}${getLocalizedPath("/features", lang)}` },
+              { label: dict.navbar.pricing, href: `/${lang}${getLocalizedPath("/pricing", lang)}` },
+              { label: dict.navbar.about, href: `/${lang}${getLocalizedPath("/about", lang)}` },
+              { label: dict.navbar.howItWorks, href: `/${lang}${getLocalizedPath("/how-it-works", lang)}` },
             ].map((item) => (
               <Typography
                 key={item.label}

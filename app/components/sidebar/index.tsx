@@ -18,6 +18,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useMemo } from "react";
 import { clearAuthCookies } from "@/app/lib/controllers/session";
+import { getLocalizedPath } from "@/app/lib/language/navigation";
 
 const SideBar = () => {
   /* -------------------------------- variables ------------------------------- */
@@ -30,7 +31,8 @@ const SideBar = () => {
   const handleLogout = async () => {
     try {
       await clearAuthCookies();
-      router.push(`/${lang}/auth/sign-in`);
+      const logoutPath = getLocalizedPath("/auth/sign-in", lang);
+      router.push(`/${lang}${logoutPath}`);
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -40,6 +42,7 @@ const SideBar = () => {
     () => [
       {
         title: dict.sidebar.overview,
+        href: "/overview",
         icon: (
           <MonitorIcon
             sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
@@ -54,10 +57,10 @@ const SideBar = () => {
           />
         ),
         subTitles: [
-          dict.sidebar.vehicles,
-          dict.sidebar.drivers,
-          dict.sidebar.routes,
-          dict.sidebar.shipments,
+          { title: dict.sidebar.vehicles, href: "/vehicle" },
+          { title: dict.sidebar.drivers, href: "/drivers" },
+          { title: dict.sidebar.routes, href: "/routes" },
+          { title: dict.sidebar.shipments, href: "/shipments" },
         ],
       },
       {
@@ -68,10 +71,10 @@ const SideBar = () => {
           />
         ),
         subTitles: [
-          dict.sidebar.warehouses,
-          dict.sidebar.inventory,
-          dict.sidebar.customers,
-          dict.sidebar.company,
+          { title: dict.sidebar.warehouses, href: "/warehouses" },
+          { title: dict.sidebar.inventory, href: "/inventory" },
+          { title: dict.sidebar.customers, href: "/customers" },
+          { title: dict.sidebar.company, href: "/company" },
         ],
       },
       {
@@ -81,7 +84,10 @@ const SideBar = () => {
             sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
           />
         ),
-        subTitles: [dict.sidebar.reports, dict.sidebar.analytics],
+        subTitles: [
+          { title: dict.sidebar.reports, href: "/reports" },
+          { title: dict.sidebar.analytics, href: "/analytics" },
+        ],
       },
     ],
     [dict, theme]
@@ -114,7 +120,7 @@ const SideBar = () => {
         <Divider />
 
         <Stack justifyContent={"start"} alignItems={"start"} height={"100%"}>
-          <SidebarList items={sideBarItemsParents} />
+          <SidebarList items={sideBarItemsParents} lang={lang} />
           <Stack
             justifyContent={"start"}
             px={2}

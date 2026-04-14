@@ -11,7 +11,9 @@
     "saving": "Kaydediliyor...",
     "uploading": "Yükleniyor...",
     "cancel": "İptal",
+    "add": "Ekle",
     "delete": "Sil",
+    "this": "bu",
     "edit": "Düzenle",
     "search": "Ara...",
     "filter": "Filtrele",
@@ -28,8 +30,11 @@
     "saveSuccess": "Başarıyla kaydedildi",
     "errorOccurred": "Bir hata oluştu",
     "settings": "Ayarlar",
+    "profile": "Profil",
+    "fromLastMonth": "GEÇEN AYA GÖRE",
     "documents": "Belgeler",
     "noData": "Veri bulunamadı.",
+    "na": "Yok",
     "success": "Başarılı",
     "error": "Hata",
     "warning": "Uyarı",
@@ -91,7 +96,13 @@
     "kg": "kg",
     "km": "km",
     "m3": "m³",
-    "unassigned": "Atanmadı"
+    "unassigned": "Atanmadı",
+    "pagination": {
+      "rowsPerPage": "Sayfa başına satır:",
+      "of": "üzerinden"
+    },
+    "filtersActive": "{count} aktif filtre",
+    "moreThan": "{count} taneden fazla"
   },
   "sidebar": {
     "overview": "Genel Bakış",
@@ -215,6 +226,13 @@
       "sales": "Satışla Konuş"
     },
     "trusted": "Sektör liderleri tarafından güveniliyor",
+    "trustedLogos": [
+      "Global Kargo",
+      "Okyanus Lojistik",
+      "Alpha Lojistik",
+      "Kıtasal Lojistik",
+      "Hızlı Yol"
+    ],
     "pricing": {
       "badge": "Fiyatlandırma Planları",
       "title": "Öngörülemeyen Lojistik İçin <br /> Öngörülebilir Fiyatlandırma.",
@@ -273,6 +291,160 @@
         "tos": "© {year} LogiTrack Intelligence Systems. Tüm planlar Kullanım Koşullarımıza tabidir.",
         "support": "Kurumsal müşteriler özel destek kanalları alır."
       }
+    },
+    "featuresPage": {
+      "badge": "Ürün Yetenekleri",
+      "heroTitle": "Modern Tedarik Zincirini <br /> İnşa Ediyoruz.",
+      "heroSubtitle": "Tahmin edici telemetriden otonom depo yönetimine kadar, küresel bir lojistik lideri olmanın ne demek olduğunu yeniden tanımlayan araçları keşfedin.",
+      "items": {
+        "routeOptimization": {
+          "title": "Yapay Zeka Rota Optimizasyonu",
+          "description": "Özel yapay zeka motorumuz, gerçek zamanlı olarak en yakıt verimli rotaları oluşturmak için canlı trafik, hava durumu ve filo kapasitesini işler.",
+          "tag": "Tahmin Edici",
+          "details": [
+            "Canlı Trafik Entegrasyonu",
+            "Yük Dengeleme",
+            "Karbon Ayak İzi Takibi"
+          ]
+        },
+        "warehouse": {
+          "title": "Depo Zekası",
+          "description": "Otomatik WMS senkronizasyonu ile toplama yollarını ve dikey alan kullanımını optimize edin. 1'den 100 depoya kolayca ölçeklendirin.",
+          "tag": "Otomatik",
+          "details": [
+            "Alan Optimizasyonu",
+            "Envanter Hızı",
+            "Cross-Docking Hazır"
+          ]
+        },
+        "telemetry": {
+          "title": "Gerçek Zamanlı Telemetri",
+          "description": "Entegre telematikler aracılığıyla araç sağlığını, sürücü güvenliğini ve yakıt tüketimini izleyin. Ham verileri uygulanabilir içgörülere dönüştürün.",
+          "tag": "Donanım Bağımsız",
+          "details": [
+            "Sürücü Karne Sistemi",
+            "Kestirimci Bakım",
+            "Soğuk Zincir İzleme"
+          ]
+        },
+        "alerts": {
+          "title": "Akıllı İstisna Uyarıları",
+          "description": "Felaketlere tepki vermeyi bırakın. Anomal tespit sistemimiz, potansiyel gecikmeleri gerçekleşmeden önce işaretler ve proaktif yeniden rota oluşturmayı önerir.",
+          "tag": "Proaktif",
+          "details": [
+            "Gecikme Tahmini",
+            "Dinamik ETA Ayarlamaları",
+            "Çok Kanallı Uyarılar"
+          ]
+        },
+        "compliance": {
+          "title": "Kurumsal Uyumluluk",
+          "description": "Otomatik denetim günlükleri, coğrafi çit (geofencing) ve gözetim zinciri takibi. En katı lojistik güvenlik standartlarını karşılamak için tasarlandı.",
+          "tag": "Güvenli",
+          "details": [
+            "E-İmzalar",
+            "Geofence Uygulaması",
+            "Denetime Hazır Günlükler"
+          ]
+        },
+        "api": {
+          "title": "Önce-API Mimarisi",
+          "description": "SAP, Oracle veya özel eski sistemlerle saatler içinde entegre olun; güçlü SDK ve webhook altyapımızla haftalar sürmez.",
+          "tag": "Modüler",
+          "details": [
+            "REST & GraphQL API'leri",
+            "Güçlü Webhook'lar",
+            "Özel ERP Entegrasyonu"
+          ]
+        }
+      },
+      "infrastructure": {
+        "overline": "Birleşik Altyapı",
+        "title": "Tek Panel. Sonsuz Kontrol.",
+        "description": "Özelliklerimiz bağımsız araçlar değildir; derinlemesine entegre edilmiş bir ekosistemin parçasıdırlar. Deponuz güncellendiğinde filonuz tepki verir. Trafik arttığında müşteriniz bilir. İşte Logi-Track avantajı.",
+        "stats": [
+          "Bulut Yerli",
+          "AI Optimize",
+          "256-bit AES Şifreleme",
+          "%99.9 SLA",
+          "PCI-DSS Uyumlu"
+        ]
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır.",
+        "builtFor": "Kurumlar için inşa edildi, yollar için optimize edildi.",
+        "links": {
+          "privacy": "Gizlilik",
+          "terms": "Şartlar",
+          "security": "Güvenlik",
+          "status": "Durum"
+        }
+      }
+    },
+    "aboutPage": {
+      "mission": {
+        "badge": "Misyonumuz",
+        "title": "Küresel Ticaretin Geleceğini Yönetiyoruz.",
+        "subtitle": "LogiTrack'te sadece sevkiyatları izlemiyoruz; tüm tedarik zincirlerini senkronize ediyoruz. Misyonumuz, parçalanmış lojistik verilerini canlı istihbarata dönüştürmektir."
+      },
+      "vision": {
+        "overline": "LogiTrack Vizyonu",
+        "title": "Modern lojistikteki kör noktaları ortadan kaldırmak.",
+        "description": "Yapay zeka inovasyonu ile operasyonel uzmanlığın kesişim noktasından doğan LogiTrack, navlun ve depo yönetimindeki en karmaşık zorlukları çözmek için kuruldu. Her aracın, deponun ve sevkiyatın birleşik, kendi kendini optimize eden bir ekosistemin parçası olduğu bir dünya hayal ediyoruz."
+      },
+      "pillars": {
+        "title": "Temel Direklerimiz",
+        "items": {
+          "resilience": {
+            "title": "Öngörülü Esneklik",
+            "description": "Aksamaları büyümeden öngörüyoruz. Yapay zeka modellerimiz, SLA'nızı %98'in üzerinde tutmak için canlı trafiği ve kapasiteyi analiz eder."
+          },
+          "transparency": {
+            "title": "Radikal Şeffaflık",
+            "description": "Her paydaşı tek bir doğruluk kaynağı ile güçlendiriyoruz. Sürücü kabininden yönetim kuruluna kadar tam görünürlük standarttır."
+          },
+          "efficiency": {
+            "title": "Ölçeklenebilir Verimlilik",
+            "description": "Ağınızla birlikte büyümek üzere tasarlandı. İster yerel bir filoyu ister küresel bir tedarik zincirini yönetin, altyapımız sorunsuz bir şekilde ölçeklenir."
+          }
+        }
+      },
+      "why": {
+        "title": "Neden Yapıyoruz?",
+        "subtitle": "Anlık beklentilerin olduğu bir çağda lojistik artık bir arka ofis işlevi değil; rekabet avantajıdır. LogiTrack, bu avantajı pazar lideri bir gerçekliğe dönüştürecek araçları sağlar."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+      }
+    },
+    "howItWorksPage": {
+      "hero": {
+        "overline": "SÜRECİMİZ",
+        "title": "LogiTrack Nasıl Çalışır?",
+        "subtitle": "İş ihtiyaçlarınızla birlikte ölçeklenmek üzere tasarlanmış kapsamlı, uçtan uca lojistik yönetim platformu."
+      },
+      "cta": {
+        "title": "Optimize Etmeye Hazır mısınız?",
+        "subtitle": "Lojistiğini LogiTrack ile modernize eden yüzlerce şirkete katılın.",
+        "getStarted": "Ücretsiz Başlayın",
+        "bookDemo": "Demo Randevusu Al"
+      },
+      "footer": {
+        "rights": "© {year} Logi-Track. Tüm hakları saklıdır.",
+        "privacy": "Gizlilik Politikası",
+        "terms": "Kullanım Koşulları",
+        "help": "Yardım Merkezi"
+      }
+    },
+    "footer": {
+      "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır.",
+      "builtFor": "Kurumlar için inşa edildi, yollar için optimize edildi.",
+      "links": {
+        "privacy": "Gizlilik",
+        "terms": "Şartlar",
+        "security": "Güvenlik",
+        "status": "Durum"
+      }
     }
   },
   "navbar": {
@@ -287,7 +459,7 @@
     "startPro": "Hemen Başla"
   },
   "languages": {
-    "en": "İngilizce",
+    "en": "English",
     "tr": "Türkçe"
   },
   "validation": {
@@ -583,6 +755,7 @@
     "totalDrivers": "Toplam Filo Sürücüsü",
     "onDuty": "Görevde",
     "offDuty": "İstirahatte",
+    "onLeave": "İzinli",
     "complianceIssues": "Uyumluluk Sorunları",
     "dashboard": {
       "performance": "Sürücü Performansı",
@@ -689,7 +862,13 @@
       "assignedVehicle": "Atanan Araç",
       "activeLanguages": "Bildiği Diller",
       "additionalDocs": "Ek Belgeler",
-      "languageProficiency": "Dil Yeterliliği"
+      "languageProficiency": "Dil Yeterliliği",
+      "placeholders": {
+        "employeeId": "ör. EMP-1234",
+        "phone": "ör. +90 555 123 4567",
+        "license": "ör. EH-485920394",
+        "licenseFormat": "PNG, JPG VEYA HEIC (MAKS. 10MB)"
+      }
     },
     "tabs": {
       "overview": "Genel Bakış",
@@ -700,6 +879,10 @@
   },
   "customers": {
     "title": "Müşteri Yönetimi",
+    "searchPlaceholder": "Müşterileri ara...",
+    "noGeoData": "Coğrafi veri yok",
+    "deleteTitle": "Müşteriyi Sil?",
+    "deleteDesc": "{name} adlı müşteriyi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
     "addCustomer": "Müşteri Ekle",
     "registerNewPartner": "YENİ ORTAK KAYDET",
     "operatingLocations": "Faaliyet Lokasyonları",
@@ -736,8 +919,10 @@
       },
       "successAdd": "Müşteri başarıyla oluşturuldu.",
       "successUpdate": "Müşteri başarıyla güncellendi.",
+      "successDelete": "Müşteri başarıyla silindi.",
       "errorAdd": "Müşteri oluşturulamadı.",
-      "errorUpdate": "Müşteri güncellenemedi."
+      "errorUpdate": "Müşteri güncellenemedi.",
+      "errorDelete": "Müşteri silinemedi."
     },
     "fields": {
       "companyName": "Tam Yasal Şirket Adı",
@@ -829,6 +1014,7 @@
       "productInfo": "Ürün Kimliği & Stok",
       "productImage": "ÜRÜN GÖRSELİ",
       "clickToChange": "Görseli değiştirmek için tıklayın",
+      "clickToUpload": "Ürün görseli yüklemek için tıklayın",
       "skuOptional": "SKU (Opsiyonel)",
       "skuPlaceholder": "Otomatik oluşturmak için boş bırakın",
       "safetyThreshold": "Güvenlik Eşiği",
@@ -856,7 +1042,7 @@
       }
     },
     "deleteTitle": "Öğeyi Sil",
-    "deleteDesc": "Bu öğeyi silmek istediğinize emin misiniz?",
+    "deleteDesc": "{name} öğesini silmek istediğinize emin misiniz?",
     "fields": {
       "name": "Ürün Adı",
       "sku": "SKU",
@@ -880,7 +1066,16 @@
     }
   },
   "company": {
-    "title": "Şirket Profili",
+    "title": "Şirket",
+    "overview": "Organizasyonunuz, kaynaklarınız ve ekip üyelerinizin özeti.",
+    "kpi": {
+      "totalUsers": "Toplam Kullanıcı",
+      "vehicles": "Araçlar",
+      "drivers": "Sürücüler",
+      "warehouses": "Depolar",
+      "customers": "Müşteriler",
+      "shipments": "Sevkiyatlar"
+    },
     "info": {
       "created": "{date} tarihinde oluşturuldu",
       "active": "Aktif"
@@ -905,9 +1100,9 @@
         "description": "{name} kullanıcısını şirketten çıkarmak istediğinizden emin misiniz? Bu işlem erişimini anında sonlandıracaktır."
       },
       "statuses": {
-        "active": "AKTİF",
-        "inactive": "PASİF",
-        "suspended": "ASKIYA ALINDI"
+        "active": "Aktif",
+        "inactive": "Pasif",
+        "suspended": "Askıya Alındı"
       }
     },
     "addMember": "Üye Ekle",
@@ -997,11 +1192,15 @@
   },
   "shipments": {
     "title": "Sevkiyat Yönetimi",
+    "subtitle": "Sevkiyatlarınızı yönetin, performansı ve durumu izleyin.",
+    "addShipment": "Sevkiyat Ekle",
     "active": "Aktif Sevkiyatlar",
     "completed": "Tamamlandı",
     "pending": "Bekliyor",
     "delayed": "Gecikti",
     "track": "Sevkiyat Takibi",
+    "deleteTitle": "Sevkiyatı Sil?",
+    "deleteDesc": "{id} numaralı sevkiyatı silmek istediğinizden emin misiniz?",
     "statuses": {
       "PENDING": "Beklemede",
       "IN_TRANSIT": "Yolda",
@@ -1137,10 +1336,13 @@
   },
   "routes": {
     "title": "Rota Planlama",
+    "subtitle": "Filonuzun aktif teslimat yollarını optimize edin ve yönetin.",
     "active": "Aktif Rotalar",
     "total": "Toplam Rotalar",
     "completed": "Tamamlandı",
-    "delayed": "Gecikti",
+    "inProgress": "İşlemdekiler",
+    "completedToday": "Bugün Tamamlananlar",
+    "delayed": "Geciken Rotalar",
     "dashboard": {
       "routeEfficiency": "Rota Verimliliği",
       "fuelConsumption": "Yakıt Tüketimi (L/100km)",
@@ -1187,6 +1389,7 @@
       "FAILED": "Hata"
     },
     "addRoute": "Rota Ekle",
+    "deleteDesc": "Bu rotayı silmek istediğinizden emin misiniz?",
     "details": {
       "origin": "Başlangıç",
       "destination": "Varış",
@@ -1258,8 +1461,33 @@
     }
   },
   "warehouses": {
-    "title": "Depo Ağı",
+    "title": "Depo Yönetimi",
+    "subtitle": "Depolarınızı yönetin, performansı ve lisans durumunu izleyin.",
     "addWarehouse": "Depo Ekle",
+    "deleteTitle": "Depoyu Sil?",
+    "deleteDesc": "{name} deposunu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "kpi": {
+      "totalWarehouses": "TOPLAM DEPO",
+      "inventorySkus": "ENVANTER SKU SAYISI",
+      "totalItems": "TOPLAM ÜRÜN",
+      "palletCapacity": "PALET KAPASİTESİ",
+      "stockedVolume": "STOKLANMIŞ HACİM"
+    },
+    "categories": {
+      "types": {
+        "WAREHOUSE": "Standart Depo",
+        "DISTRIBUTION_CENTER": "Dağıtım Merkezi",
+        "CROSSDOCK": "Cross-Dock Tesisi"
+      },
+      "specs": {
+        "coldStorage": "Soğuk Hava Deposu",
+        "hazardous": "Tehlikeli Maddeler",
+        "bonded": "Gümrüklü Depo",
+        "crossDocking": "Cross-Docking",
+        "highSecurity": "Yüksek Güvenlik",
+        "lashing": "Lashing/Yükleme"
+      }
+    },
     "dialogs": {
       "addTitle": "Yeni Depo Ekle",
       "editTitle": "Depo Detaylarını Düzenle",
@@ -1306,9 +1534,6 @@
         "code": "Depo Kodu (Opsiyonel)",
         "codePlaceholder": "Örn. WH-001 (Otomatik oluşturmak için boş bırakın)",
         "type": "Depo Tipi",
-        "typeStandard": "Standart Depo",
-        "typeDistribution": "Dağıtım Merkezi",
-        "typeCrossDock": "Cross-Docking Tesisi",
         "operatingHours": "Çalışma Saatleri",
         "is247": "7/24 OPERASYON",
         "openingTime": "AÇILIŞ SAATİ",
@@ -1333,14 +1558,6 @@
         "specifications": "Tesis Özellikleri",
         "guidance": "Operasyonel Rehber Notlar",
         "guidanceText": "Hazardous materyal sertifikalarının güncel olduğundan ve tesisin yerel güvenlik standartlarına uygun olduğundan emin olun."
-      },
-      "specs": {
-        "coldStorage": "Soğuk Hava Deposu",
-        "hazardous": "Tehlikeli Maddeler",
-        "bonded": "Gümrüklü Depo",
-        "crossDocking": "Cross-Docking",
-        "highSecurity": "Yüksek Güvenlik",
-        "lashing": "Lashing/Yükleme"
       }
     }
   },
@@ -1403,7 +1620,10 @@
     "privacyPolicy": "Gizlilik Politikası",
     "termsOfService": "Kullanım Koşulları",
     "rights": "Tüm hakları saklıdır.",
-    "builtFor": "Modern lojistik için tasarlandı."
+    "builtFor": "Modern lojistik için tasarlandı.",
+    "copyright": "© {year} LogiTrack. Tüm hakları saklıdır.",
+    "security": "Güvenlik",
+    "status": "Durum"
   },
   "settings": {
     "dialogs": {
@@ -1525,7 +1745,7 @@
   },
   "dashboard": {
     "header": {
-      "internalConsole": "Dahili Konsol"
+      "internalConsole": "Genel Bakış"
     },
     "fleet": {
       "status": "Filo Durumu",
@@ -1625,7 +1845,13 @@
     }
   },
   "reports": {
-    "title": "Raporlar ve Analitik",
+    "title": "Operasyonel Raporlar",
+    "subtitle": "Sevkiyat, filo ve envanter için veriye dayalı içgörüler",
+    "tabs": {
+      "shipment": "Sevkiyat Analitiği",
+      "fleet": "Filo Verimliliği",
+      "inventory": "Envanter Değerlemesi"
+    },
     "metrics": {
       "totalShipments": "Toplam Sevkiyat",
       "onTimeRate": "Zamanında Teslimat Oranı",
@@ -1661,6 +1887,12 @@
         "analyticsTitle": "Sevkiyat Analitiği",
         "volumeByRoute": "Rotaya Göre Hacim",
         "volumeByRouteSubtitle": "Rota koduna göre toplam sevkiyatlar"
+      },
+      "inventoryCategories": {
+        "Electronics": "Elektronik",
+        "Furniture": "Mobilya",
+        "Apparel": "Giyim",
+        "Industrial": "Endüstriyel"
       }
     }
   },
@@ -1690,6 +1922,7 @@
       "title": "Talep Tahmini",
       "aiPowered": "Yapay Zeka Destekli",
       "subtitle": "Gelecek 3 hafta için tahmini sevkiyat hacmi",
+      "weekPrefix": "H",
       "actualVolume": "Gerçek Hacim",
       "predicted": "Tahmini"
     },

@@ -24,10 +24,16 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
   
   // Helpers to get text from dict
   const getDictLabel = (key: string) => {
+    // Special mapping for driver statuses
+    if (key === "ON_JOB") return dict?.drivers?.onDuty;
+    if (key === "OFF_DUTY") return dict?.drivers?.offDuty;
+    if (key === "ON_LEAVE") return dict?.drivers?.onLeave;
+
     return (
-      (dict?.vehicles?.statuses as unknown as Record<string, string>)?.[key] || 
-      (dict?.vehicles?.priorities as unknown as Record<string, string>)?.[key] || 
-      (dict?.common as unknown as Record<string, string>)?.[key] || 
+      (dict?.vehicles?.statuses as unknown as Record<string, string>)?.[key] ||
+      (dict?.routes?.statuses as unknown as Record<string, string>)?.[key] ||
+      (dict?.vehicles?.priorities as unknown as Record<string, string>)?.[key] ||
+      (dict?.common as unknown as Record<string, string>)?.[key] ||
       key.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())
     );
   };
@@ -59,6 +65,7 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     case "PLANNED":
     case "ASSIGNED":
     case "OFF_DUTY":
+    case "ON_LEAVE":
     case "LOW":
     case "MEDIUM":
     case "OPEN":

@@ -31,7 +31,8 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
     dict.common.months.jun,
   ];
 
-  const months = data?.months || monthsArray;
+  // We ignore data.months if it's returning short English names to force localization
+  const months = monthsArray; 
   const fuelCosts = data?.fuel || [0, 0, 0, 0, 0, 0];
   const maintenanceCosts = data?.maintenance || [0, 0, 0, 0, 0, 0];
   const overheadCosts = data?.overhead || [0, 0, 0, 0, 0, 0];
@@ -43,10 +44,19 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
     { id: 3, value: 10, label: dict.analytics.costs.categories.insuranceOps, color: theme.palette.success.main },
   ];
 
+  const translateLabel = (label: string) => {
+    const key = label.toLowerCase();
+    if (key === "fuel") return dict.analytics.costs.categories.fuel;
+    if (key === "maintenance") return dict.analytics.costs.categories.maintenance;
+    if (key === "driver salaries") return dict.analytics.costs.categories.salaries;
+    if (key === "insurance/ops") return dict.analytics.costs.categories.insuranceOps;
+    return label;
+  };
+
   const costDistribution = data?.distribution.map((d, i) => ({
     ...d,
-    color: d.color || defaultCostDistribution[i % 4].color,
-    label: d.label || defaultCostDistribution[i % 4].label
+    color: d.color || (defaultCostDistribution[i % 4]?.color ?? theme.palette.primary.main),
+    label: translateLabel(d.label)
   })) || defaultCostDistribution;
 
   return (

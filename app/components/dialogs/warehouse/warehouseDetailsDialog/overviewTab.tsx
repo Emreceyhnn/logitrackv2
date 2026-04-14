@@ -147,7 +147,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                       fontSize: "0.65rem",
                     }}
                   >
-                    {warehouse.type.replace("_", " ")}
+                    {dict.warehouses.categories.types[warehouse.type as keyof typeof dict.warehouses.categories.types] || warehouse.type}
                   </Typography>
                 </Box>
               </Box>
@@ -367,12 +367,41 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               </Stack>
             )}
             
-            {warehouse.specifications?.map((spec, index) => (
-              <Stack key={index} direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2, bgcolor: alpha(theme.palette.divider, 0.05), color: "text.secondary", px: 2, py: 1.5, borderRadius: 2, border: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
-                <BusinessCenterIcon />
-                <Typography variant="button" fontWeight={600}>{spec}</Typography>
-              </Stack>
-            ))}
+            {warehouse.specifications?.map((spec, index) => {
+              const specKeyMap: Record<string, string> = {
+                "Cold Storage": "coldStorage",
+                "Hazardous Materials": "hazardous",
+                "Bonded Warehouse": "bonded",
+                "Cross-Docking": "crossDocking",
+                "High Security": "highSecurity",
+                "Lashing/Loading": "lashing",
+              };
+              const key = specKeyMap[spec] || spec;
+              return (
+                <Stack
+                  key={index}
+                  direction="row"
+                  alignItems="center"
+                  spacing={1.5}
+                  sx={{
+                    mb: 2,
+                    bgcolor: alpha(theme.palette.divider, 0.05),
+                    color: "text.secondary",
+                    px: 2,
+                    py: 1.5,
+                    borderRadius: 2,
+                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  }}
+                >
+                  <BusinessCenterIcon />
+                  <Typography variant="button" fontWeight={600}>
+                    {dict.warehouses.categories.specs[
+                      key as keyof typeof dict.warehouses.categories.specs
+                    ] || spec}
+                  </Typography>
+                </Stack>
+              );
+            })}
 
             {(!warehouse.specifications || warehouse.specifications.length === 0) && (
               <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2, bgcolor: alpha(theme.palette.divider, 0.05), color: "text.secondary", px: 2, py: 1.5, borderRadius: 2, border: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>

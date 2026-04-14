@@ -115,13 +115,7 @@ export default function LandingPage() {
     },
   ], [dict]);
 
-  const trustedLogos = [
-    "Global Cargo",
-    "Oceanic",
-    "Alpha Freight",
-    "Continental",
-    "ExpressWay",
-  ];
+  const trustedLogos = dict.landing.trustedLogos;
 
   const heroVideoSrc = "/landing-hero.mp4";
   const heroVideoPoster = "/sign-up.webp";
@@ -796,10 +790,15 @@ export default function LandingPage() {
               variant="body2"
               sx={{ color: alpha("#94a3b8", 0.7), fontWeight: 500 }}
             >
-              © {new Date().getFullYear()} Logi-Track AI. All rights reserved.
+              {(dict.footer?.copyright || "© {year} LogiTrack. All rights reserved.").replace("{year}", new Date().getFullYear().toString())}
             </Typography>
             <Stack direction="row" spacing={3}>
-              {["Privacy", "Terms", "Security", "Status"].map((link) => (
+              {[
+                dict.footer?.privacyPolicy || "Privacy",
+                dict.footer?.termsOfService || "Terms",
+                dict.footer?.security || "Security",
+                dict.footer?.status || "Status",
+              ].map((link) => (
                 <Typography
                   key={link}
                   variant="caption"

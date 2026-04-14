@@ -35,8 +35,9 @@ import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmatio
 import KpiCards from "@/app/components/cards/KpiCards";
 
 export default function DriverPage() {
+  const dict = useDictionary();
   return (
-    <Suspense fallback={<Box p={4}>Loading...</Box>}>
+    <Suspense fallback={<Box p={4}>{dict.common.loading}</Box>}>
       <DriverContent />
     </Suspense>
   );
@@ -308,8 +309,8 @@ function DriverContent() {
 
       <DeleteConfirmationDialog
         open={isDeleteOpen}
-        title="Delete Driver"
-        description="Are you sure you want to delete this driver? This action cannot be undone."
+        title={dict.drivers.deleteTitle}
+        description={dict.drivers.deleteDesc}
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={confirmDelete}
         loading={deleteMutation.isPending}

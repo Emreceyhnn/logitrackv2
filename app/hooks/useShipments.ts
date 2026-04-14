@@ -18,6 +18,7 @@ import {
   ShipmentStatusData,
 } from "@/app/lib/type/shipment";
 import { Prisma, ShipmentStatus, ShipmentPriority } from "@prisma/client";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export const shipmentKeys = {
   all: ["shipments"] as const,
@@ -87,6 +88,7 @@ export function useShipmentStatusDistribution() {
 
 export function useShipmentMutations() {
   const queryClient = useQueryClient();
+  const dict = useDictionary();
 
   const handleSuccess = (message: string) => {
     queryClient.invalidateQueries({ queryKey: shipmentKeys.all });
@@ -122,8 +124,8 @@ export function useShipmentMutations() {
         data.contactEmail || "",
         data.billingAccount || ""
       ),
-    onSuccess: () => handleSuccess("Shipment created successfully"),
-    onError: (error: Error) => handleError("Failed to create shipment", error),
+    onSuccess: () => handleSuccess(dict.toasts.successAdd),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const updateMutation = useMutation({
@@ -133,14 +135,14 @@ export function useShipmentMutations() {
       const { company, history, customer, driver, route, ...updateData } = data;
       return updateShipment(id, updateData as Prisma.ShipmentUpdateInput);
     },
-    onSuccess: () => handleSuccess("Shipment updated successfully"),
-    onError: (error: Error) => handleError("Failed to update shipment", error),
+    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteShipment(id),
-    onSuccess: () => handleSuccess("Shipment deleted successfully"),
-    onError: (error) => handleError("Failed to delete shipment", error),
+    onSuccess: () => handleSuccess(dict.toasts.successDelete),
+    onError: (error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const updateStatusMutation = useMutation({
@@ -155,8 +157,8 @@ export function useShipmentMutations() {
       location?: string;
       description?: string;
     }) => updateShipmentStatus(id, status, location, description),
-    onSuccess: () => handleSuccess("Shipment status updated successfully"),
-    onError: (error) => handleError("Failed to update shipment status", error),
+    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
+    onError: (error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   return {
