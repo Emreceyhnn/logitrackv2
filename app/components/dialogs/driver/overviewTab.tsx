@@ -38,12 +38,12 @@ const KPICard = ({
   theme: Theme;
 }) => {
   const resolveAlpha = (targetColor: string) => {
-    if (targetColor === theme.palette.primary.main) return (theme.palette.primary as any)._alpha;
-    if (targetColor === theme.palette.success.main) return (theme.palette.success as any)._alpha;
-    if (targetColor === theme.palette.error.main) return (theme.palette.error as any)._alpha;
-    if (targetColor === theme.palette.warning.main) return (theme.palette.warning as any)._alpha;
-    if (targetColor === theme.palette.info.main) return (theme.palette.info as any)._alpha;
-    return (theme.palette.primary as any)._alpha;
+    if (targetColor === theme.palette.primary.main) return theme.palette.primary._alpha;
+    if (targetColor === theme.palette.success.main) return theme.palette.success._alpha;
+    if (targetColor === theme.palette.error.main) return theme.palette.error._alpha;
+    if (targetColor === theme.palette.warning.main) return theme.palette.warning._alpha;
+    if (targetColor === theme.palette.info.main) return theme.palette.info._alpha;
+    return theme.palette.primary._alpha;
   };
 
   const statusAlpha = resolveAlpha(color);
@@ -53,8 +53,8 @@ const KPICard = ({
       sx={{
         p: 2.5,
         borderRadius: 3,
-        bgcolor: (theme.palette.background as any).paper_alpha.main_30,
-        border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+        bgcolor: theme.palette.background.paper_alpha.main_30,
+        border: `1px solid ${theme.palette.divider_alpha.main_10}`,
         display: "flex",
         flexDirection: "column",
         gap: 2,
@@ -114,14 +114,14 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
           width: 6,
         },
         "&::-webkit-scrollbar-track": {
-          backgroundColor: (theme.palette.background as any).paper_alpha.main_10,
+          backgroundColor: theme.palette.background.paper_alpha.main_10,
           borderRadius: 4,
         },
         "&::-webkit-scrollbar-thumb": {
-          backgroundColor: (theme.palette.text as any).secondary_alpha.main_20,
+          backgroundColor: theme.palette.text.secondary_alpha.main_20,
           borderRadius: 4,
           "&:hover": {
-            backgroundColor: (theme.palette.text as any).secondary_alpha.main_40,
+            backgroundColor: theme.palette.text.secondary_alpha.main_40,
           },
         },
       }}
@@ -166,8 +166,8 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             sx={{
               p: 2.5,
               borderRadius: 3,
-              bgcolor: (theme.palette.background as any).paper_alpha.main_30,
-              border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+              bgcolor: theme.palette.background.paper_alpha.main_30,
+              border: `1px solid ${theme.palette.divider_alpha.main_10}`,
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
@@ -195,8 +195,8 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             sx={{
               p: 2.5,
               borderRadius: 3,
-              bgcolor: (theme.palette.background as any).paper_alpha.main_30,
-              border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+              bgcolor: theme.palette.background.paper_alpha.main_30,
+              border: `1px solid ${theme.palette.divider_alpha.main_10}`,
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
@@ -231,8 +231,8 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             sx={{
               p: 2.5,
               borderRadius: 3,
-              bgcolor: (theme.palette.background as any).paper_alpha.main_30,
-              border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+              bgcolor: theme.palette.background.paper_alpha.main_30,
+              border: `1px solid ${theme.palette.divider_alpha.main_10}`,
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
@@ -268,7 +268,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             py: 1.5,
             fontWeight: 600,
             textTransform: "none",
-            boxShadow: `0 8px 16px ${(theme.palette.primary as any)._alpha.main_20}`,
+            boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
           }}
         >
           {dict.drivers.labels.contactDriver}
@@ -283,11 +283,11 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             py: 1.5,
             fontWeight: 600,
             textTransform: "none",
-            borderColor: (theme.palette as any).divider_alpha.main_20,
+            borderColor: theme.palette.divider_alpha.main_20,
             color: "white",
             "&:hover": {
-              borderColor: (theme.palette as any).divider_alpha.main_50,
-              bgcolor: (theme.palette.background as any).paper_alpha.main_50,
+              borderColor: theme.palette.divider_alpha.main_50,
+              bgcolor: theme.palette.background.paper_alpha.main_50,
             },
           }}
         >

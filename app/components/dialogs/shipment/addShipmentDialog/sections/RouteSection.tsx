@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  alpha,
+  
   Box,
   Button,
   Grid,
@@ -60,7 +60,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
             onClick={() => {}}
             sx={{
               color: theme.palette.primary.main,
-              borderColor: (theme.palette.primary as any)._alpha.main_30,
+              borderColor: theme.palette.primary._alpha.main_30,
               fontWeight: 600,
               textTransform: "none",
               borderRadius: 2,
@@ -115,8 +115,8 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                 sx={{
                   p: 2,
                   borderRadius: 2,
-                  bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
-                  border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                  bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+                  border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                   backgroundImage: "none",
                 }}
               >
@@ -182,8 +182,8 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                   alignItems: "center",
                   justifyContent: "center",
                   borderRadius: 2,
-                  bgcolor: (theme.palette as any).divider_alpha.main_02,
-                  border: `1px dashed ${(theme.palette as any).divider_alpha.main_10}`,
+                  bgcolor: theme.palette.divider_alpha.main_02,
+                  border: `1px dashed ${theme.palette.divider_alpha.main_10}`,
                 }}
               >
                 <Typography variant="caption" color="text.secondary">

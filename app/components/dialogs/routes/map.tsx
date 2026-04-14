@@ -48,12 +48,12 @@ const MapRoutesDialogCard = ({
           position: "absolute",
           top: 16,
           left: 16,
-          bgcolor: (theme.palette.background as any).midnight._alpha.main_80,
+          bgcolor: theme.palette.background.midnight._alpha.main_80,
           backdropFilter: "blur(8px)",
           px: 1.5,
           py: 0.75,
           borderRadius: "8px",
-          border: `1px solid ${(theme.palette.common as any).white_alpha.main_10}`,
+          border: `1px solid ${theme.palette.common.white_alpha.main_10}`,
           zIndex: 1,
         }}
       >

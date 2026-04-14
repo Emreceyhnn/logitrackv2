@@ -55,7 +55,7 @@ export default function TimelineSection() {
           left: { xs: "20px", md: "50%" },
           top: 0,
           bottom: 0,
-          background: `linear-gradient(to bottom, transparent, ${(theme.palette as any).kpi_alpha.cyan.main_30}, ${(theme.palette as any).kpi_alpha.indigo.main_30}, transparent)`,
+          background: `linear-gradient(to bottom, transparent, ${theme.palette.kpi.cyan_alpha.main_30}, ${theme.palette.kpi.indigo_alpha.main_30}, transparent)`,
           transform: { md: "translateX(-50%)" },
           zIndex: 0,
         }}
@@ -99,13 +99,13 @@ export default function TimelineSection() {
                   borderRadius: "24px",
                   bgcolor: "rgba(8, 12, 24, 0.75)",
                   backdropFilter: "blur(20px)",
-                  border: `1px solid ${((theme.palette as any).kpi_alpha[index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple"]).main_20}`,
-                  boxShadow: `0 8px 32px 0 ${((theme.palette as any).kpi_alpha[index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple"]).main_05}`,
+                  border: `1px solid ${theme.palette.kpi[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_20}`,
+                  boxShadow: `0 8px 32px 0 ${theme.palette.kpi[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_05}`,
                   transition: "all 0.3s ease",
                   "&:hover": {
                     transform: "translateY(-5px)",
-                    border: `1px solid ${((theme.palette as any).kpi_alpha[index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple"]).main_40}`,
-                    boxShadow: `0 12px 40px 0 ${((theme.palette as any).kpi_alpha[index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple"]).main_10}`,
+                    border: `1px solid ${theme.palette.kpi[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_40}`,
+                    boxShadow: `0 12px 40px 0 ${theme.palette.kpi[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_10}`,
                   },
                 }}
               >

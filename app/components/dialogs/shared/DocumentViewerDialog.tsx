@@ -8,7 +8,7 @@ import {
   Box,
   Typography,
   Stack,
-  alpha,
+  
   Button,
   CircularProgress,
   useTheme,
@@ -80,15 +80,15 @@ export default function DocumentViewerDialog({
           display: "flex",
           flexDirection: "column",
           boxShadow: "0 24px 48px rgba(0,0,0,0.5)",
-          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
         },
       }}
     >
       <DialogTitle
         sx={{
           p: 2.5,
-          borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
-          bgcolor: (theme.palette.background as any).midnight._alpha.main_80,
+          borderBottom: `1px solid ${theme.palette.divider_alpha.main_10}`,
+          bgcolor: theme.palette.background.midnight._alpha.main_80,
           backdropFilter: "blur(10px)",
           zIndex: 10,
         }}
@@ -103,7 +103,7 @@ export default function DocumentViewerDialog({
               sx={{
                 p: 1,
                 borderRadius: 1.5,
-                bgcolor: (theme.palette.primary as any)._alpha.main_10,
+                bgcolor: theme.palette.primary._alpha.main_10,
                 color: theme.palette.primary.main,
                 display: "flex",
               }}
@@ -118,7 +118,7 @@ export default function DocumentViewerDialog({
               >
                 {title}
               </Typography>
-              <Typography variant="caption" sx={{ color: (theme.palette.common as any).white_alpha.main_50 }}>
+              <Typography variant="caption" sx={{ color: theme.palette.common.white_alpha.main_50 }}>
                 {isPdf ? dict.documentViewer.pdfDocument : dict.documentViewer.imageFile}
               </Typography>
             </Box>
@@ -132,12 +132,12 @@ export default function DocumentViewerDialog({
                 target="_blank"
                 size="small"
                 sx={{
-                  color: (theme.palette.common as any).white_alpha.main_70,
-                  border: `1px solid ${(theme.palette.common as any).white_alpha.main_10}`,
+                  color: theme.palette.common.white_alpha.main_70,
+                  border: `1px solid ${theme.palette.common.white_alpha.main_10}`,
                   "&:hover": {
                     color: "primary.main",
                     borderColor: "primary.main",
-                    bgcolor: (theme.palette.primary as any)._alpha.main_05,
+                    bgcolor: theme.palette.primary._alpha.main_05,
                   },
                 }}
               >
@@ -153,12 +153,12 @@ export default function DocumentViewerDialog({
                 target="_blank"
                 size="small"
                 sx={{
-                  color: (theme.palette.common as any).white_alpha.main_70,
-                  border: `1px solid ${(theme.palette.common as any).white_alpha.main_10}`,
+                  color: theme.palette.common.white_alpha.main_70,
+                  border: `1px solid ${theme.palette.common.white_alpha.main_10}`,
                   "&:hover": {
                     color: "success.main",
                     borderColor: "success.main",
-                    bgcolor: (theme.palette.success as any)._alpha.main_05,
+                    bgcolor: theme.palette.success._alpha.main_05,
                   },
                 }}
               >
@@ -170,10 +170,10 @@ export default function DocumentViewerDialog({
               onClick={onClose}
               size="small"
               sx={{
-                color: (theme.palette.common as any).white_alpha.main_70,
+                color: theme.palette.common.white_alpha.main_70,
                 "&:hover": {
                   color: "error.main",
-                  bgcolor: (theme.palette.error as any)._alpha.main_10,
+                  bgcolor: theme.palette.error._alpha.main_10,
                 },
               }}
             >
@@ -236,7 +236,7 @@ export default function DocumentViewerDialog({
             }}
           >
             <ErrorOutlineIcon
-              sx={{ fontSize: 64, color: (theme.palette.error as any)._alpha.main_50 }}
+              sx={{ fontSize: 64, color: theme.palette.error._alpha.main_50 }}
             />
             <Box>
               <Typography variant="h6" color="white" gutterBottom>

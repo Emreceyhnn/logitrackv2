@@ -6,7 +6,7 @@ import {
   ListItemText,
   Collapse,
   useTheme,
-  alpha,
+  
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useRouter, usePathname } from "next/navigation";
@@ -82,13 +82,13 @@ export function SidebarList(params: Params) {
                 px: 3,
                 py: 1,
                 bgcolor: activeItem
-                  ? (theme.palette.primary as any)._alpha.main_08
+                  ? theme.palette.primary._alpha.main_08
                   : "transparent",
                 color: activeItem
                   ? theme.palette.primary.main
                   : "text.secondary",
                 "&:hover": {
-                  bgcolor: (theme.palette.primary as any)._alpha.main_04,
+                  bgcolor: theme.palette.primary._alpha.main_04,
                 },
                 borderRight: activeItem
                   ? `3px solid ${theme.palette.primary.main}`
@@ -139,7 +139,7 @@ export function SidebarList(params: Params) {
                             ? theme.palette.primary.main
                             : "text.secondary",
                           bgcolor: subActive
-                            ? (theme.palette.primary as any)._alpha.main_05
+                            ? theme.palette.primary._alpha.main_05
                             : "transparent",
                           "&:hover": {
                             color: theme.palette.primary.main,

@@ -12,7 +12,7 @@ import {
   Divider,
   Box,
   useTheme,
-  alpha,
+  
 } from "@mui/material";
 import {
   Settings as SettingsIcon,
@@ -37,9 +37,9 @@ export default function UserAccountNav() {
     filter: "drop-shadow(0px 8px 16px rgba(0,0,0,0.4))",
     mt: 1.5,
     borderRadius: 3,
-    bgcolor: (theme.palette.background as any).midnight._alpha.main_95,
+    bgcolor: theme.palette.background.midnight._alpha.main_95,
     backdropFilter: "blur(12px)",
-    border: `1px solid ${(theme.palette.common as any).white_alpha.main_08}`,
+    border: `1px solid ${theme.palette.common.white_alpha.main_08}`,
     color: "white",
     padding: "4px",
     "& .MuiMenuItem-root": {
@@ -52,7 +52,7 @@ export default function UserAccountNav() {
       fontWeight: 600,
       transition: "all 0.2s",
       "&:hover": {
-        bgcolor: (theme.palette.common as any).white_alpha.main_05,
+        bgcolor: theme.palette.common.white_alpha.main_05,
       },
     },
     "& .MuiAvatar-root": { width: 32, height: 32, ml: -0.5, mr: 1 },
@@ -67,8 +67,8 @@ export default function UserAccountNav() {
       bgcolor: "#0B1019",
       transform: "translateY(-50%) rotate(45deg)",
       zIndex: 0,
-      borderLeft: `1px solid ${(theme.palette.common as any).white_alpha.main_08}`,
-      borderTop: `1px solid ${(theme.palette.common as any).white_alpha.main_08}`,
+      borderLeft: `1px solid ${theme.palette.common.white_alpha.main_08}`,
+      borderTop: `1px solid ${theme.palette.common.white_alpha.main_08}`,
     },
   };
   const params = useParams();
@@ -152,13 +152,13 @@ export default function UserAccountNav() {
             padding: "6px 12px",
             borderRadius: 3,
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            bgcolor: (theme.palette.common as any).white_alpha.main_02,
-            border: `1px solid ${(theme.palette.common as any).white_alpha.main_03}`,
+            bgcolor: theme.palette.common.white_alpha.main_02,
+            border: `1px solid ${theme.palette.common.white_alpha.main_03}`,
             "&:hover": {
-              bgcolor: (theme.palette.primary as any)._alpha.main_08,
-              borderColor: (theme.palette.primary as any)._alpha.main_20,
+              bgcolor: theme.palette.primary._alpha.main_08,
+              borderColor: theme.palette.primary._alpha.main_20,
               transform: "translateY(-1px)",
-              boxShadow: `0 4px 20px ${(theme.palette.common as any).black_alpha.main_30}`,
+              boxShadow: `0 4px 20px ${theme.palette.common.black_alpha.main_30}`,
             },
           }}
         >
@@ -167,8 +167,8 @@ export default function UserAccountNav() {
             sx={{
               width: 32,
               height: 32,
-              border: `2px solid ${(theme.palette.primary as any)._alpha.main_40}`,
-              bgcolor: (theme.palette.primary as any)._alpha.main_10,
+              border: `2px solid ${theme.palette.primary._alpha.main_40}`,
+              bgcolor: theme.palette.primary._alpha.main_10,
               color: theme.palette.primary.main,
               fontWeight: 800,
               fontSize: "0.75rem",
@@ -189,7 +189,7 @@ export default function UserAccountNav() {
             <Typography
               variant="caption"
               sx={{
-                color: (theme.palette.common as any).white_alpha.main_35,
+                color: theme.palette.common.white_alpha.main_35,
                 fontWeight: 600,
                 fontSize: "0.65rem",
               }}
@@ -226,7 +226,7 @@ export default function UserAccountNav() {
           </ListItemIcon>
           {dict.common.settings}
         </MenuItem>
-        <Divider sx={{ borderColor: (theme.palette.common as any).white_alpha.main_06, my: 0.5 }} />
+        <Divider sx={{ borderColor: theme.palette.common.white_alpha.main_06, my: 0.5 }} />
         <MenuItem
           onClick={handleLogout}
           sx={{ color: "#f43f5e !important", gap: 1.5 }}

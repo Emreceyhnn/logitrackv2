@@ -120,8 +120,8 @@ const MapVehicleOverviewCard = ({
             label={dict.vehicles.dialogs.liveStatus}
             size="small"
             sx={{
-              bgcolor: (theme.palette.success as any)._alpha.main_15,
-              border: `1px solid ${(theme.palette.success as any)._alpha.main_40}`,
+              bgcolor: theme.palette.success._alpha.main_15,
+              border: `1px solid ${theme.palette.success._alpha.main_40}`,
               color: "#4ade80",
               fontWeight: 700,
               fontSize: "0.65rem",
@@ -136,8 +136,8 @@ const MapVehicleOverviewCard = ({
             label={dict.vehicles.dialogs.noSignal}
             size="small"
             sx={{
-              bgcolor: (theme.palette.kpi as any).slateDark_alpha.main_80,
-              border: `1px solid ${(theme.palette.kpi as any).slateGray_alpha.main_20}`,
+              bgcolor: theme.palette.kpi.slateDark_alpha.main_80,
+              border: `1px solid ${theme.palette.kpi.slateGray_alpha.main_20}`,
               color: "#94a3b8",
               fontWeight: 600,
               fontSize: "0.65rem",
@@ -169,11 +169,11 @@ const MapVehicleOverviewCard = ({
           spacing={1.5}
           sx={{
             minHeight: 320,
-            bgcolor: (theme.palette.kpi as any).slateDeep_alpha.main_80,
+            bgcolor: theme.palette.kpi.slateDeep_alpha.main_80,
             borderRadius: 2,
           }}
         >
-          <SatelliteAltIcon sx={{ fontSize: 48, color: (theme.palette.kpi as any).slateGray_alpha.main_30 }} />
+          <SatelliteAltIcon sx={{ fontSize: 48, color: theme.palette.kpi.slateGray_alpha.main_30 }} />
           <Typography variant="body2" sx={{ color: "#64748b", fontWeight: 500 }}>
             {dict.vehicles.dialogs.noGpsData}
           </Typography>

@@ -14,6 +14,7 @@ import {
   Button,
   useTheme,
   Tooltip,
+  Theme,
 } from "@mui/material";
 import {
   Notifications as NotifIcon,
@@ -48,7 +49,7 @@ const getStatusColor = (t: NotificationType) => {
   }
 };
 
-const resolveStatusAlpha = (theme: any, t: NotificationType) => {
+const resolveStatusAlpha = (theme: Theme, t: NotificationType) => {
   switch (t) {
     case "SUCCESS":
       return theme.palette.success._alpha;
@@ -115,17 +116,17 @@ export default function NotificationBell() {
           onClick={handleOpen}
           sx={{
             color:
-              unreadCount > 0 ? theme.palette.primary.main : (theme.palette.common as any).white_alpha.main_60,
+              unreadCount > 0 ? theme.palette.primary.main : theme.palette.common.white_alpha.main_60,
             bgcolor: unreadCount > 0 
-              ? (theme.palette.primary as any)._alpha.main_05 
-              : (theme.palette.common as any).white_alpha.main_05,
+              ? theme.palette.primary._alpha.main_05 
+              : theme.palette.common.white_alpha.main_05,
             border: `1px solid ${unreadCount > 0 
-              ? (theme.palette.primary as any)._alpha.main_10 
-              : (theme.palette.common as any).white_alpha.main_10}`,
+              ? theme.palette.primary._alpha.main_10 
+              : theme.palette.common.white_alpha.main_10}`,
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             "&:hover": {
-              bgcolor: (theme.palette.primary as any)._alpha.main_10,
-              borderColor: (theme.palette.primary as any)._alpha.main_30,
+              bgcolor: theme.palette.primary._alpha.main_10,
+              borderColor: theme.palette.primary._alpha.main_30,
               transform: "translateY(-1px)",
             },
           }}
@@ -203,7 +204,7 @@ export default function NotificationBell() {
                 fontWeight: 700,
                 color: theme.palette.primary.main,
                 fontSize: "0.75rem",
-                "&:hover": { bgcolor: (theme.palette.primary as any)._alpha.main_10 },
+                "&:hover": { bgcolor: theme.palette.primary._alpha.main_10 },
               }}
             >
               {dict.notifications.catchUp}
@@ -238,13 +239,13 @@ export default function NotificationBell() {
                     borderRadius: 3,
                     transition: "all 0.2s",
                     position: "relative",
-                    bgcolor: notif.isRead ? "transparent" : (theme.palette.common as any).white_alpha.main_03,
+                    bgcolor: notif.isRead ? "transparent" : theme.palette.common.white_alpha.main_03,
                     border: "1px solid",
                     borderColor: notif.isRead
                       ? "transparent"
                       : "rgba(255,255,255,0.06)",
                     "&:hover": {
-                      bgcolor: (theme.palette.common as any).white_alpha.main_05,
+                      bgcolor: theme.palette.common.white_alpha.main_05,
                       borderColor: resolveStatusAlpha(theme, notif.type).main_30,
                     },
                   }}
@@ -306,7 +307,7 @@ export default function NotificationBell() {
                     <Typography
                       variant="body2"
                       sx={{
-                        color: (theme.palette.common as any).white_alpha.main_60,
+                        color: theme.palette.common.white_alpha.main_60,
                         fontSize: "0.75rem",
                         lineHeight: 1.4,
                         mb: 1,
@@ -317,7 +318,7 @@ export default function NotificationBell() {
                     <Typography
                       variant="caption"
                       sx={{
-                        color: (theme.palette.common as any).white_alpha.main_30,
+                        color: theme.palette.common.white_alpha.main_30,
                         fontSize: "0.65rem",
                         fontWeight: 700,
                       }}

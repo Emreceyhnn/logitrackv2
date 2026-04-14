@@ -11,7 +11,7 @@ import {
   Stack,
   Alert,
   CircularProgress,
-  alpha,
+  
   IconButton,
   Typography,
   useTheme,
@@ -135,14 +135,14 @@ export default function UploadDocumentDialog({
 
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: (theme.palette.text as any).darkBlue._alpha.main_50,
+      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
       borderRadius: 2,
       height: 48,
       "& fieldset": {
-        borderColor: (theme.palette as any).divider_alpha.main_10,
+        borderColor: theme.palette.divider_alpha.main_10,
       },
       "&:hover fieldset": {
-        borderColor: (theme.palette.primary as any)._alpha.main_30,
+        borderColor: theme.palette.primary._alpha.main_30,
       },
       "&.Mui-focused fieldset": {
         borderColor: theme.palette.primary.main,
@@ -202,7 +202,7 @@ export default function UploadDocumentDialog({
           borderRadius: 4,
           bgcolor: "#0B1019",
           backgroundImage: "none",
-          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
         },
       }}
     >
@@ -225,7 +225,7 @@ export default function UploadDocumentDialog({
         </Stack>
         <Typography
           variant="caption"
-          sx={{ color: (theme.palette.common as any).white_alpha.main_40, mt: 0.5, display: "block" }}
+          sx={{ color: theme.palette.common.white_alpha.main_40, mt: 0.5, display: "block" }}
         >
           {dict.vehicles.dialogs.uploadDocumentDesc}
         </Typography>
@@ -239,9 +239,9 @@ export default function UploadDocumentDialog({
               variant="filled"
               sx={{
                 borderRadius: 2,
-                bgcolor: (theme.palette.error as any)._alpha.main_10,
+                bgcolor: theme.palette.error._alpha.main_10,
                 color: theme.palette.error.light,
-                border: `1px solid ${(theme.palette.error as any)._alpha.main_20}`,
+                border: `1px solid ${theme.palette.error._alpha.main_20}`,
               }}
             >
               {error}
@@ -264,7 +264,7 @@ export default function UploadDocumentDialog({
             </Typography>
             <Stack spacing={2.5}>
               <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: (theme.palette.common as any).white_alpha.main_40 }}>{dict.common.docType}</InputLabel>
+                <InputLabel sx={{ color: theme.palette.common.white_alpha.main_40 }}>{dict.common.docType}</InputLabel>
                 <Select
                   value={type}
                   label={dict.common.docType}
@@ -274,7 +274,7 @@ export default function UploadDocumentDialog({
                       sx: {
                         bgcolor: "#1A202C",
                         backgroundImage: "none",
-                        border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                        border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                         mt: 1,
                       },
                     },
@@ -355,13 +355,13 @@ export default function UploadDocumentDialog({
                 borderRadius: 3,
                 borderStyle: "dashed",
                 borderWidth: 2,
-                borderColor: (theme.palette.primary as any)._alpha.main_30,
-                bgcolor: (theme.palette.primary as any)._alpha.main_02,
+                borderColor: theme.palette.primary._alpha.main_30,
+                bgcolor: theme.palette.primary._alpha.main_02,
                 flexDirection: "column",
                 gap: 1,
                 textTransform: "none",
                 "&:hover": {
-                  bgcolor: (theme.palette.primary as any)._alpha.main_05,
+                  bgcolor: theme.palette.primary._alpha.main_05,
                   borderColor: theme.palette.primary.main,
                 },
               }}
@@ -404,11 +404,11 @@ export default function UploadDocumentDialog({
                   height: 160,
                   borderRadius: 3,
                   overflow: "hidden",
-                  border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                  border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  bgcolor: (theme.palette.common as any).black_alpha.main_20,
+                  bgcolor: theme.palette.common.black_alpha.main_20,
                   position: "relative",
                 }}
               >
@@ -432,7 +432,7 @@ export default function UploadDocumentDialog({
         sx={{
           p: 3,
           pt: 2,
-          borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
+          borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`,
         }}
       >
         <Stack direction="row" spacing={2} justifyContent="flex-end">
@@ -455,7 +455,7 @@ export default function UploadDocumentDialog({
               textTransform: "none",
               borderRadius: 2,
               px: 4,
-              boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_20}`,
+              boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
               fontWeight: 700,
               minWidth: 140,
             }}

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Stack, Typography, useTheme, alpha } from "@mui/material";
+import { Box, Stack, Typography, useTheme } from "@mui/material";
 import UserAccountNav from "../nav/UserAccountNav";
 import NotificationBell from "../notifications/NotificationBell";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -19,9 +19,9 @@ export default function DashboardHeader() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        bgcolor: (theme.palette.background as any).default_alpha.main_40,
+        bgcolor: theme.palette.background.default_alpha.main_40,
         backdropFilter: "blur(12px) saturate(150%)",
-        borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_08}`,
+        borderBottom: `1px solid ${theme.palette.divider_alpha.main_08}`,
         position: "sticky",
         top: 0,
         zIndex: theme.zIndex.appBar,
@@ -34,7 +34,7 @@ export default function DashboardHeader() {
             fontWeight={800} 
             sx={{ 
                 color: theme.palette.primary.main,
-                bgcolor: (theme.palette.primary as any)._alpha.main_10,
+                bgcolor: theme.palette.primary._alpha.main_10,
                 px: 1.5,
                 py: 0.5,
                 borderRadius: 1.5,

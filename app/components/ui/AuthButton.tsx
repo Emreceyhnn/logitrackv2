@@ -4,7 +4,7 @@ import {
   Button,
   ButtonProps,
   CircularProgress,
-  alpha,
+  
   useTheme,
   Box,
 } from "@mui/material";
@@ -43,10 +43,10 @@ const AuthButton = ({
           bgcolor: theme.palette.primary.dark,
         },
         "&.Mui-disabled": {
-          bgcolor: (theme.palette.primary as any)._alpha.main_50,
-          color: (theme.palette.common as any).white_alpha.main_50,
+          bgcolor: theme.palette.primary._alpha.main_50,
+          color: theme.palette.common.white_alpha.main_50,
         },
-        boxShadow: `0 8px 16px ${(theme.palette.primary as any)._alpha.main_25}`,
+        boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_25}`,
         transition: "all 0.2s ease-in-out",
         ...sx,
       }}

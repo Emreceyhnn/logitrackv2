@@ -1,6 +1,6 @@
 import { useJsApiLoader, Libraries } from "@react-google-maps/api";
 import React from "react";
-import { Box, CircularProgress, Typography, alpha, useTheme } from "@mui/material";
+import { Box, CircularProgress, Typography,  useTheme } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
@@ -23,8 +23,8 @@ export const GoogleMapsProvider = ({ children }: GoogleMapsProviderProps) => {
       <Box
         sx={{
           p: 3,
-          bgcolor: (theme.palette.error as any)._alpha.main_05,
-          border: `1px solid ${(theme.palette.error as any)._alpha.main_20}`,
+          bgcolor: theme.palette.error._alpha.main_05,
+          border: `1px solid ${theme.palette.error._alpha.main_20}`,
           borderRadius: 2,
           display: "flex",
           alignItems: "center",

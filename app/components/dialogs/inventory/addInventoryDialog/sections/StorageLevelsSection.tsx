@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  alpha,
+  
   Box,
   Grid,
   Stack,
@@ -162,8 +162,8 @@ const StorageLevelsSection = ({
             sx={{
               p: 2.5,
               borderRadius: 3,
-              bgcolor: (theme.palette.primary as any)._alpha.main_05,
-              border: `1px solid ${(theme.palette.primary as any)._alpha.main_10}`,
+              bgcolor: theme.palette.primary._alpha.main_05,
+              border: `1px solid ${theme.palette.primary._alpha.main_10}`,
               display: "flex",
               gap: 2,
             }}

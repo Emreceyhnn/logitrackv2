@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  alpha,
+  
   Box,
   Dialog,
   DialogContent,
@@ -171,7 +171,7 @@ const AddWarehouseDialog = ({
             bgcolor: "#0B0F19",
             backgroundImage: "none",
             borderRadius: 4,
-            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
             maxHeight: "90vh",
           },
         }}
@@ -208,17 +208,17 @@ const AddWarehouseDialog = ({
             sx={{
               mb: 4,
               "& .MuiStepLabel-label": {
-                color: (theme.palette.common as any).white_alpha.main_50,
+                color: theme.palette.common.white_alpha.main_50,
                 fontWeight: 600,
               },
               "& .MuiStepLabel-label.Mui-active": {
                 color: theme.palette.primary.main,
               },
               "& .MuiStepLabel-label.Mui-completed": {
-                color: (theme.palette.common as any).white_alpha.main_70,
+                color: theme.palette.common.white_alpha.main_70,
               },
               "& .MuiStepIcon-root": {
-                color: (theme.palette as any).divider_alpha.main_10,
+                color: theme.palette.divider_alpha.main_10,
               },
               "& .MuiStepIcon-root.Mui-active": {
                 color: theme.palette.primary.main,
@@ -252,7 +252,7 @@ const AddWarehouseDialog = ({
           sx={{
             p: 3,
             pt: 1,
-            borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
+            borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`,
             justifyContent: "space-between",
           }}
         >
@@ -285,7 +285,7 @@ const AddWarehouseDialog = ({
               borderRadius: 2,
               textTransform: "none",
               fontWeight: 600,
-              boxShadow: `0 8px 16px ${(theme.palette.primary as any)._alpha.main_20}`,
+              boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
             }}
             startIcon={
               state.isLoading && <CircularProgress size={16} color="inherit" />

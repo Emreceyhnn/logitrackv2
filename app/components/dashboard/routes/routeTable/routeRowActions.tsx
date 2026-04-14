@@ -6,7 +6,7 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
-  alpha,
+  
   useTheme,
   CircularProgress,
 } from "@mui/material";
@@ -85,7 +85,7 @@ const RouteRowActions = ({
             backgroundImage: "none",
             borderRadius: "12px",
             minWidth: 180,
-            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
             boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.4)",
             mt: 0.5,
           },
@@ -117,7 +117,7 @@ const RouteRowActions = ({
             sx={{
               py: 1.5,
               color: theme.palette.success.main,
-              "&:hover": { bgcolor: (theme.palette.success as any)._alpha.main_10 },
+              "&:hover": { bgcolor: theme.palette.success._alpha.main_10 },
             }}
           >
             <ListItemIcon>
@@ -137,7 +137,7 @@ const RouteRowActions = ({
             sx={{
               py: 1.5,
               color: theme.palette.primary.main,
-              "&:hover": { bgcolor: (theme.palette.primary as any)._alpha.main_10 },
+              "&:hover": { bgcolor: theme.palette.primary._alpha.main_10 },
             }}
           >
             <ListItemIcon>
@@ -179,7 +179,7 @@ const RouteRowActions = ({
             sx={{
               py: 1.5,
               color: theme.palette.error.main,
-              "&:hover": { bgcolor: (theme.palette.error as any)._alpha.main_10 },
+              "&:hover": { bgcolor: theme.palette.error._alpha.main_10 },
             }}
           >
             <ListItemIcon>

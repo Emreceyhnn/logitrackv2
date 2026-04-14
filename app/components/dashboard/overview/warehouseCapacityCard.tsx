@@ -1,4 +1,4 @@
-import { Box, Divider, LinearProgress, Stack, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Divider, LinearProgress, Stack, Typography,  useTheme } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { WarehouseCapacityStat } from "@/app/lib/type/overview";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
@@ -54,7 +54,7 @@ const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
                     variant="determinate"
                     sx={{
                       height: 8,
-                      bgcolor: (theme.palette as any).divider_alpha.main_10,
+                      bgcolor: theme.palette.divider_alpha.main_10,
                       borderRadius: 4,
                       "& .MuiLinearProgress-bar": {
                         borderRadius: 4,

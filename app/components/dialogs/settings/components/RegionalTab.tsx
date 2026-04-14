@@ -12,7 +12,7 @@ import {
   InputLabel,
   CircularProgress,
   useTheme,
-  alpha,
+  
 } from "@mui/material";
 import {
   Language as LanguageIcon,
@@ -40,10 +40,10 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
       <Box sx={{ 
         p: 2, 
         borderRadius: 2.5, 
-        bgcolor: (theme.palette.primary as any)._alpha.main_04,
-        border: `1px solid ${(theme.palette.primary as any)._alpha.main_10}`
+        bgcolor: theme.palette.primary._alpha.main_04,
+        border: `1px solid ${theme.palette.primary._alpha.main_10}`
       }}>
-        <Typography variant="caption" sx={{ color: (theme.palette.common as any).white_alpha.main_45, fontWeight: 550, lineHeight: 1.6 }}>
+        <Typography variant="caption" sx={{ color: theme.palette.common.white_alpha.main_45, fontWeight: 550, lineHeight: 1.6 }}>
           {dict.company.dialogs.localizationDesc}
         </Typography>
       </Box>
@@ -54,7 +54,7 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
             <InputLabel>{dict.company.dialogs.interfaceLanguage}</InputLabel>
             <Select value={state.regional.language} label={dict.company.dialogs.interfaceLanguage}
               onChange={(e) => actions.updateRegional({ language: e.target.value as "EN" | "TR" })}
-              startAdornment={<LanguageIcon sx={{ mr: 1, fontSize: 18, color: (theme.palette.primary as any)._alpha.main_50 }} />}
+              startAdornment={<LanguageIcon sx={{ mr: 1, fontSize: 18, color: theme.palette.primary._alpha.main_50 }} />}
               sx={ssX}
             >
               <MenuItem value="EN">🇺🇸 {dict.languages.en} (Global)</MenuItem>
@@ -66,7 +66,7 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
             <InputLabel>{dict.company.dialogs.defaultCurrency}</InputLabel>
             <Select value={state.regional.currency} label={dict.company.dialogs.defaultCurrency}
               onChange={(e) => actions.updateRegional({ currency: e.target.value as "USD" | "EUR" | "TRY" | "GBP" })}
-              startAdornment={<PaymentsIcon sx={{ mr: 1, fontSize: 18, color: (theme.palette.primary as any)._alpha.main_50 }} />}
+              startAdornment={<PaymentsIcon sx={{ mr: 1, fontSize: 18, color: theme.palette.primary._alpha.main_50 }} />}
               sx={ssX}
             >
               <MenuItem value="USD">$ USD - {dict.settings.dialogs.regional.currencies.dollar}</MenuItem>
@@ -82,7 +82,7 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
             <InputLabel>{dict.company.dialogs.activeTimezone}</InputLabel>
             <Select value={state.regional.timezone} label={dict.company.dialogs.activeTimezone}
               onChange={(e) => actions.updateRegional({ timezone: e.target.value })}
-              startAdornment={<TimezoneIcon sx={{ mr: 1, fontSize: 18, color: (theme.palette.primary as any)._alpha.main_50 }} />}
+              startAdornment={<TimezoneIcon sx={{ mr: 1, fontSize: 18, color: theme.palette.primary._alpha.main_50 }} />}
               sx={ssX}
             >
               <MenuItem value="UTC">UTC ({dict.settings.dialogs.regional.timezones.universal})</MenuItem>
@@ -117,10 +117,10 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
                 borderRadius: 2.5, 
                 px: 4,
                 py: 1,
-                boxShadow: `0 8px 32px ${(theme.palette.primary as any)._alpha.main_25}`,
+                boxShadow: `0 8px 32px ${theme.palette.primary._alpha.main_25}`,
                 background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                 "&:hover": {
-                    boxShadow: `0 12px 40px ${(theme.palette.primary as any)._alpha.main_35}`,
+                    boxShadow: `0 12px 40px ${theme.palette.primary._alpha.main_35}`,
                     transform: "translateY(-1px)"
                 },
                 transition: "all 0.2s"

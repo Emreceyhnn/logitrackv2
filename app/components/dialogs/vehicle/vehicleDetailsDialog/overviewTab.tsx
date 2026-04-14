@@ -54,10 +54,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
               sx={{
                 borderRadius: "12px",
                 overflow: "hidden",
-                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
+                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
                 position: "relative",
               }}
             >
@@ -98,10 +98,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
+                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
@@ -132,10 +132,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
+                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
@@ -163,10 +163,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
+                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
@@ -197,10 +197,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
+                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
@@ -225,7 +225,7 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 borderRadius: "8px",
                 bgcolor: theme.palette.primary.main,
                 textTransform: "none",
-                "&:hover": { bgcolor: (theme.palette.primary as any)._alpha.main_90 },
+                "&:hover": { bgcolor: theme.palette.primary._alpha.main_90 },
               }}
               onClick={() => setAssignDialogOpen(true)}
             >

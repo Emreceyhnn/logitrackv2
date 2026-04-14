@@ -211,9 +211,9 @@ const EditVehicleDialog = ({
             PaperProps={{
               sx: {
                 borderRadius: 4,
-                bgcolor: (theme.palette.background as any).midnight.main,
+                bgcolor: theme.palette.background.midnight.main,
                 backgroundImage: "none",
-                border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                border: `1px solid ${theme.palette.divider_alpha.main_10}`,
               },
             }}
           >
@@ -243,8 +243,8 @@ const EditVehicleDialog = ({
                     mt: 2, 
                     p: 2, 
                     borderRadius: 2, 
-                    bgcolor: (theme.palette.error as any)._alpha.main_10,
-                    border: `1px solid ${(theme.palette.error as any)._alpha.main_20}`
+                    bgcolor: theme.palette.error._alpha.main_10,
+                    border: `1px solid ${theme.palette.error._alpha.main_20}`
                   }}
                 >
                   <Typography variant="caption" color="error.light">
@@ -260,7 +260,7 @@ const EditVehicleDialog = ({
                   activeStep={currentStep - 1}
                   sx={{
                     "& .MuiStepConnector-line": {
-                      borderColor: (theme.palette as any).divider_alpha.main_10,
+                      borderColor: theme.palette.divider_alpha.main_10,
                     },
                   }}
                 >
@@ -292,7 +292,7 @@ const EditVehicleDialog = ({
               </Box>
 
               <Divider
-                sx={{ mb: 4, borderColor: (theme.palette as any).divider_alpha.main_05 }}
+                sx={{ mb: 4, borderColor: theme.palette.divider_alpha.main_05 }}
               />
 
               <Box sx={{ minHeight: 400 }}>
@@ -310,7 +310,7 @@ const EditVehicleDialog = ({
                 sx={{
                   mt: 4,
                   pt: 3,
-                  borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
+                  borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`,
                 }}
               >
                 <Stack direction="row" spacing={2} justifyContent="flex-end">
@@ -332,7 +332,7 @@ const EditVehicleDialog = ({
                       sx={{
                         textTransform: "none",
                         borderRadius: 2,
-                        borderColor: (theme.palette as any).divider_alpha.main_20,
+                        borderColor: theme.palette.divider_alpha.main_20,
                         color: "white",
                       }}
                     >
@@ -359,7 +359,7 @@ const EditVehicleDialog = ({
                       boxShadow: "none",
                       bgcolor: theme.palette.primary.main,
                       "&:hover": {
-                        bgcolor: (theme.palette.primary as any)._alpha.main_90,
+                        bgcolor: theme.palette.primary._alpha.main_90,
                         boxShadow: "none",
                       },
                     }}

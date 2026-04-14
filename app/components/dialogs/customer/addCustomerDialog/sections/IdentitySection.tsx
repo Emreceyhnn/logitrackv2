@@ -58,9 +58,9 @@ const IdentitySection = () => {
                 helperText={touched.name ? (errors.name as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
-                    "&:hover": { bgcolor: (theme.palette.common as any).white_alpha.main_04 },
-                    "&.Mui-focused": { bgcolor: (theme.palette.common as any).white_alpha.main_04 },
+                    bgcolor: theme.palette.common.white_alpha.main_02,
+                    "&:hover": { bgcolor: theme.palette.common.white_alpha.main_04 },
+                    "&.Mui-focused": { bgcolor: theme.palette.common.white_alpha.main_04 },
                   }
                 }}
               />
@@ -82,7 +82,7 @@ const IdentitySection = () => {
                 helperText={touched.code ? (errors.code as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
+                    bgcolor: theme.palette.common.white_alpha.main_02,
                   }
                 }}
               />
@@ -104,7 +104,7 @@ const IdentitySection = () => {
                 helperText={touched.taxId ? (errors.taxId as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
+                    bgcolor: theme.palette.common.white_alpha.main_02,
                   }
                 }}
               />
@@ -126,7 +126,7 @@ const IdentitySection = () => {
                 helperText={touched.industry ? (errors.industry as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
+                    bgcolor: theme.palette.common.white_alpha.main_02,
                   }
                 }}
               >

@@ -5,7 +5,7 @@ import {
   Box,
   Typography,
   Stack,
-  alpha,
+  
   useTheme,
   InputAdornment,
   Switch,
@@ -48,14 +48,14 @@ const DocumentsStep = () => {
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: (theme.palette.text as any).darkBlue._alpha.main_50,
+      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
       borderRadius: 2,
       height: 48,
       "& fieldset": {
-        borderColor: (theme.palette as any).divider_alpha.main_10,
+        borderColor: theme.palette.divider_alpha.main_10,
       },
       "&:hover fieldset": {
-        borderColor: (theme.palette.primary as any)._alpha.main_30,
+        borderColor: theme.palette.primary._alpha.main_30,
       },
       "&.Mui-focused fieldset": {
         borderColor: theme.palette.primary.main,
@@ -68,7 +68,7 @@ const DocumentsStep = () => {
       color: "white",
       fontSize: "0.9rem",
       "&::placeholder": {
-        color: (theme.palette.common as any).white_alpha.main_30,
+        color: theme.palette.common.white_alpha.main_30,
         opacity: 1,
       },
     },
@@ -173,8 +173,8 @@ const DocumentsStep = () => {
               p: 2,
               mt: 2,
               borderRadius: 3,
-              border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
-              bgcolor: (theme.palette as any).divider_alpha.main_02,
+              border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+              bgcolor: theme.palette.divider_alpha.main_02,
               display: "flex",
               alignItems: "flex-start",
               gap: 2,
@@ -229,9 +229,9 @@ const DocumentsStep = () => {
                   size="small"
                   icon={isUploaded ? <CheckCircleIcon sx={{ fontSize: '14px !important' }} /> : undefined}
                   sx={{
-                    bgcolor: isUploaded ? (theme.palette.success as any)._alpha.main_10 : (theme.palette.error as any)._alpha.main_10,
+                    bgcolor: isUploaded ? theme.palette.success._alpha.main_10 : theme.palette.error._alpha.main_10,
                     color: isUploaded ? theme.palette.success.light : theme.palette.error.light,
-                    border: `1px solid ${isUploaded ? (theme.palette.success as any)._alpha.main_20 : (theme.palette.error as any)._alpha.main_20}`,
+                    border: `1px solid ${isUploaded ? theme.palette.success._alpha.main_20 : theme.palette.error._alpha.main_20}`,
                     fontWeight: 600,
                     px: 0.5,
                   }}
@@ -245,8 +245,8 @@ const DocumentsStep = () => {
           sx={{
             p: 3,
             borderRadius: 3,
-            bgcolor: (theme.palette as any).divider_alpha.main_02,
-            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+            bgcolor: theme.palette.divider_alpha.main_02,
+            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           }}
         >
           <Typography
@@ -265,12 +265,12 @@ const DocumentsStep = () => {
               justifyContent: "center",
               p: 4,
               borderRadius: 2,
-              border: `2px dashed ${(theme.palette.primary as any)._alpha.main_30}`,
-              bgcolor: (theme.palette.primary as any)._alpha.main_02,
+              border: `2px dashed ${theme.palette.primary._alpha.main_30}`,
+              bgcolor: theme.palette.primary._alpha.main_02,
               cursor: "pointer",
               transition: "all 0.2s",
               "&:hover": {
-                bgcolor: (theme.palette.primary as any)._alpha.main_05,
+                bgcolor: theme.palette.primary._alpha.main_05,
                 borderColor: theme.palette.primary.main,
               },
             }}
@@ -280,7 +280,7 @@ const DocumentsStep = () => {
               sx={{
                 p: 1.5,
                 borderRadius: 2,
-                bgcolor: (theme.palette.primary as any)._alpha.main_10,
+                bgcolor: theme.palette.primary._alpha.main_10,
                 color: theme.palette.primary.main,
                 mb: 2,
               }}
@@ -312,12 +312,12 @@ const DocumentsStep = () => {
                   sx={{
                     p: 2,
                     borderRadius: 3,
-                    bgcolor: (theme.palette.text as any).darkBlue._alpha.main_60,
-                    border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                    bgcolor: theme.palette.text.darkBlue._alpha.main_60,
+                    border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                     transition: "all 0.2s",
                     "&:hover": {
-                      borderColor: (theme.palette.primary as any)._alpha.main_40,
-                      bgcolor: (theme.palette.text as any).darkBlue._alpha.main_80,
+                      borderColor: theme.palette.primary._alpha.main_40,
+                      bgcolor: theme.palette.text.darkBlue._alpha.main_80,
                     },
                   }}
                 >
@@ -326,7 +326,7 @@ const DocumentsStep = () => {
                       sx={{
                         p: 1.2,
                         borderRadius: 2,
-                        bgcolor: (theme.palette.primary as any)._alpha.main_10,
+                        bgcolor: theme.palette.primary._alpha.main_10,
                         color: theme.palette.primary.main,
                         display: "flex",
                         alignItems: "center",
@@ -359,10 +359,10 @@ const DocumentsStep = () => {
                       size="small"
                       onClick={() => removeFile(doc.id)}
                       sx={{
-                        color: (theme.palette.common as any).white_alpha.main_30,
+                        color: theme.palette.common.white_alpha.main_30,
                         "&:hover": {
                           color: theme.palette.error.main,
-                          bgcolor: (theme.palette.error as any)._alpha.main_10,
+                          bgcolor: theme.palette.error._alpha.main_10,
                         },
                       }}
                     >
@@ -378,14 +378,14 @@ const DocumentsStep = () => {
                         sx={{
                           height: 36,
                           borderRadius: 1.5,
-                          bgcolor: (theme.palette.common as any).black_alpha.main_20,
+                          bgcolor: theme.palette.common.black_alpha.main_20,
                           color: "white",
                           fontSize: "0.8rem",
                           "& .MuiOutlinedInput-notchedOutline": {
-                            borderColor: (theme.palette as any).divider_alpha.main_10,
+                            borderColor: theme.palette.divider_alpha.main_10,
                           },
                           "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: (theme.palette.primary as any)._alpha.main_30,
+                            borderColor: theme.palette.primary._alpha.main_30,
                           },
                         }}
                       >

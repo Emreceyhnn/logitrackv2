@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  alpha,
+  
   Box,
   Grid,
   Stack,
@@ -229,8 +229,8 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
               width: "100%",
               height: 200,
               borderRadius: 3,
-              bgcolor: (theme.palette as any).divider_alpha.main_05,
-              border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+              bgcolor: theme.palette.divider_alpha.main_05,
+              border: `1px solid ${theme.palette.divider_alpha.main_10}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

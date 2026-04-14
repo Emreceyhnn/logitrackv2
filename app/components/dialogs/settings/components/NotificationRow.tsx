@@ -27,11 +27,11 @@ export default function NotificationRow({
         py: 2,
         borderRadius: 3,
         border: `1px solid ${checked ? "#ffffff14" : "#ffffff0a"}`,
-        bgcolor: checked ? (theme.palette.primary as any)._alpha.main_05 : (theme.palette.common as any).white_alpha.main_02,
+        bgcolor: checked ? theme.palette.primary._alpha.main_05 : theme.palette.common.white_alpha.main_02,
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         "&:hover": {
-          bgcolor: checked ? (theme.palette.primary as any)._alpha.main_08 : (theme.palette.common as any).white_alpha.main_03,
-          borderColor: checked ? (theme.palette.primary as any)._alpha.main_30 : (theme.palette.primary as any)._alpha.main_10,
+          bgcolor: checked ? theme.palette.primary._alpha.main_08 : theme.palette.common.white_alpha.main_03,
+          borderColor: checked ? theme.palette.primary._alpha.main_30 : theme.palette.primary._alpha.main_10,
         }
       }}
     >
@@ -39,7 +39,7 @@ export default function NotificationRow({
         <Typography variant="body2" fontWeight={750} color="white" sx={{ mb: 0.25 }}>
           {label}
         </Typography>
-        <Typography variant="caption" sx={{ color: (theme.palette.common as any).white_alpha.main_35, fontWeight: 500 }}>
+        <Typography variant="caption" sx={{ color: theme.palette.common.white_alpha.main_35, fontWeight: 500 }}>
           {description}
         </Typography>
       </Box>
@@ -55,9 +55,9 @@ export default function NotificationRow({
                   opacity: 0.3
               }
           },
-          "& .MuiSwitch-track": { bgcolor: (theme.palette.common as any).white_alpha.main_10 },
+          "& .MuiSwitch-track": { bgcolor: theme.palette.common.white_alpha.main_10 },
           "& .MuiSwitch-thumb": {
-              boxShadow: checked ? `0 0 10px ${(theme.palette.primary as any)._alpha.main_60}` : "none"
+              boxShadow: checked ? `0 0 10px ${theme.palette.primary._alpha.main_60}` : "none"
           }
         }}
       />

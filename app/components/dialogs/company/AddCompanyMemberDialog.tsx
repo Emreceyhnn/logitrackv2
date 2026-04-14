@@ -11,7 +11,7 @@ import {
   TextField,
   Typography,
   IconButton,
-  alpha,
+  
   useTheme,
   Stack,
   Avatar,
@@ -167,10 +167,10 @@ export default function AddCompanyMemberDialog({
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: (theme.palette.background as any).default_alpha.main_98,
+          bgcolor: theme.palette.background.default_alpha.main_98,
           backdropFilter: "blur(20px)",
           backgroundImage: "none",
-          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           boxShadow: theme.shadows[24],
         },
       }}
@@ -196,7 +196,7 @@ export default function AddCompanyMemberDialog({
           onClick={onClose}
           sx={{
             color: "text.secondary",
-            bgcolor: (theme.palette.text as any).secondary_alpha.main_05,
+            bgcolor: theme.palette.text.secondary_alpha.main_05,
           }}
         >
           <CloseIcon fontSize="small" />
@@ -218,7 +218,7 @@ export default function AddCompanyMemberDialog({
                 </InputAdornment>
               ),
               sx: {
-                bgcolor: (theme.palette.background as any).paper_alpha.main_40,
+                bgcolor: theme.palette.background.paper_alpha.main_40,
                 borderRadius: 2,
               },
             }}
@@ -231,12 +231,12 @@ export default function AddCompanyMemberDialog({
                 variant="caption"
                 sx={{
                   color: "error.main",
-                  bgcolor: (theme.palette.error as any)._alpha.main_05,
+                  bgcolor: theme.palette.error._alpha.main_05,
                   p: 1.5,
                   borderRadius: 2,
                   mb: 2,
                   display: "block",
-                  border: `1px solid ${(theme.palette.error as any)._alpha.main_10}`,
+                  border: `1px solid ${theme.palette.error._alpha.main_10}`,
                 }}
               >
                 {error}
@@ -271,15 +271,15 @@ export default function AddCompanyMemberDialog({
                       alignItems: "center",
                       gap: 2,
                       cursor: "pointer",
-                      border: `1px solid ${isSelected ? theme.palette.primary.main : (theme.palette as any).divider_alpha.main_05}`,
+                      border: `1px solid ${isSelected ? theme.palette.primary.main : theme.palette.divider_alpha.main_05}`,
                       bgcolor: isSelected
-                        ? (theme.palette.primary as any)._alpha.main_05
+                        ? theme.palette.primary._alpha.main_05
                         : "transparent",
                       transition: "all 0.2s ease",
                       "&:hover": {
                         bgcolor: isSelected
-                          ? (theme.palette.primary as any)._alpha.main_08
-                          : (theme.palette.text as any).primary_alpha.main_02,
+                          ? theme.palette.primary._alpha.main_08
+                          : theme.palette.text.primary_alpha.main_02,
                       },
                     }}
                   >
@@ -321,8 +321,8 @@ export default function AddCompanyMemberDialog({
             sx={{
               p: 2,
               borderRadius: 3,
-              bgcolor: (theme.palette.primary as any)._alpha.main_02,
-              border: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
+              bgcolor: theme.palette.primary._alpha.main_02,
+              border: `1px solid ${theme.palette.divider_alpha.main_05}`,
             }}
           >
             <Typography
@@ -342,7 +342,7 @@ export default function AddCompanyMemberDialog({
                 onChange={(e) => setSelectedRole(e.target.value)}
                 IconComponent={KeyboardArrowDownIcon}
                 sx={{
-                  bgcolor: (theme.palette.background as any).paper_alpha.main_40,
+                  bgcolor: theme.palette.background.paper_alpha.main_40,
                   borderRadius: 2,
                   "& .MuiSelect-select": {
                     py: 1.5,
@@ -374,8 +374,8 @@ export default function AddCompanyMemberDialog({
               sx={{
                 p: 2,
                 borderRadius: 3,
-                bgcolor: (theme.palette.warning as any)._alpha.main_05,
-                border: `1px solid ${(theme.palette.warning as any)._alpha.main_20}`,
+                bgcolor: theme.palette.warning._alpha.main_05,
+                border: `1px solid ${theme.palette.warning._alpha.main_20}`,
               }}
             >
               <Typography
@@ -478,7 +478,7 @@ export default function AddCompanyMemberDialog({
             textTransform: "none",
             px: 4,
             transition: "all 0.3s ease",
-            boxShadow: `0 8px 16px ${(theme.palette.primary as any)._alpha.main_20}`,
+            boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
           }}
         >
           {loading ? dict.toasts.loading : dict.company.dialogs.addToCompany}

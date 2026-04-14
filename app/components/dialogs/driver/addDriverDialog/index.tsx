@@ -177,9 +177,9 @@ const AddDriverDialog = ({
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: (theme.palette.background as any).midnight.main,
+          bgcolor: theme.palette.background.midnight.main,
           backgroundImage: "none",
-          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
         },
       }}
     >
@@ -252,7 +252,7 @@ const AddDriverDialog = ({
                     activeStep={currentStep - 1}
                     sx={{
                       "& .MuiStepConnector-line": {
-                        borderColor: (theme.palette as any).divider_alpha.main_10,
+                        borderColor: theme.palette.divider_alpha.main_10,
                       },
                     }}
                   >
@@ -285,7 +285,7 @@ const AddDriverDialog = ({
                   </Stepper>
                 </Box>
                 <Divider
-                  sx={{ mb: 4, borderColor: (theme.palette as any).divider_alpha.main_05 }}
+                  sx={{ mb: 4, borderColor: theme.palette.divider_alpha.main_05 }}
                 />
 
                 <Box sx={{ minHeight: 400 }}>
@@ -294,7 +294,7 @@ const AddDriverDialog = ({
                       mb={3}
                       p={2}
                       sx={{
-                        bgcolor: (theme.palette.error as any)._alpha.main_10,
+                        bgcolor: theme.palette.error._alpha.main_10,
                         borderRadius: 2,
                       }}
                     >
@@ -322,7 +322,7 @@ const AddDriverDialog = ({
                   disabled={isSubmitting}
                   sx={{
                     color: "text.secondary",
-                    "&:hover": { bgcolor: (theme.palette as any).divider_alpha.main_05 },
+                    "&:hover": { bgcolor: theme.palette.divider_alpha.main_05 },
                   }}
                 >
                   {currentStep === 1 ? dict.common.cancel : dict.common.back}
@@ -342,7 +342,7 @@ const AddDriverDialog = ({
                     borderRadius: 2,
                     px: 4,
                     fontWeight: 600,
-                    boxShadow: `0 8px 16px ${(theme.palette.primary as any)._alpha.main_20}`,
+                    boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
                   }}
                 >
                   {isSubmitting

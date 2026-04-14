@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Divider, Stack, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Divider, Stack, Typography,  useTheme } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { PicksAndPacksData } from "@/app/lib/type/overview";
 import InventoryIcon from '@mui/icons-material/Inventory';
@@ -36,7 +36,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
                 width: 48,
                 height: 48,
                 borderRadius: "12px",
-                bgcolor: (theme.palette.info as any)._alpha.main_10,
+                bgcolor: theme.palette.info._alpha.main_10,
                 color: theme.palette.info.main,
               }}
             >
@@ -54,7 +54,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
 
           {/* Connective Line */}
           <Box sx={{ pl: 3, mt: -1, mb: -1 }}>
-            <Box sx={{ width: 2, height: 24, bgcolor: (theme.palette as any).divider_alpha.main_50 }} />
+            <Box sx={{ width: 2, height: 24, bgcolor: theme.palette.divider_alpha.main_50 }} />
           </Box>
 
           {/* Packs Row */}
@@ -67,7 +67,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
                 width: 48,
                 height: 48,
                 borderRadius: "12px",
-                bgcolor: (theme.palette.success as any)._alpha.main_10,
+                bgcolor: theme.palette.success._alpha.main_10,
                 color: theme.palette.success.main,
               }}
             >

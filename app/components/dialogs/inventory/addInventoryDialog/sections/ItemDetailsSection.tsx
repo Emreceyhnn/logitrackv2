@@ -10,7 +10,7 @@ import {
   MenuItem,
   Grid,
   IconButton,
-  alpha,
+  
 } from "@mui/material";
 import { AddInventoryItemDetails } from "@/app/lib/type/add-inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
@@ -208,8 +208,8 @@ const ItemDetailsSection = ({
                 width: "100%",
                 height: 160,
                 borderRadius: 2,
-                border: `2px dashed ${(theme.palette as any).divider_alpha.main_10}`,
-                bgcolor: (theme.palette.background as any).paper_alpha.main_05,
+                border: `2px dashed ${theme.palette.divider_alpha.main_10}`,
+                bgcolor: theme.palette.background.paper_alpha.main_05,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -219,7 +219,7 @@ const ItemDetailsSection = ({
                 overflow: "hidden",
                 "&:hover": {
                   borderColor: theme.palette.primary.main,
-                  bgcolor: (theme.palette.primary as any)._alpha.main_02,
+                  bgcolor: theme.palette.primary._alpha.main_02,
                 },
               }}
             >
@@ -242,7 +242,7 @@ const ItemDetailsSection = ({
                       position: "absolute",
                       top: 8,
                       right: 8,
-                      bgcolor: (theme.palette.error as any)._alpha.main_80,
+                      bgcolor: theme.palette.error._alpha.main_80,
                       color: "white",
                       "&:hover": { bgcolor: theme.palette.error.main },
                     }}
@@ -283,7 +283,7 @@ const ItemDetailsSection = ({
                     }}
                   >
                     <AddPhotoAlternateIcon
-                      sx={{ fontSize: 40, color: (theme.palette.common as any).white_alpha.main_20, mb: 1 }}
+                      sx={{ fontSize: 40, color: theme.palette.common.white_alpha.main_20, mb: 1 }}
                     />
                     <Typography variant="body2" color="text.secondary">
                       {dict.inventory.dialogs.clickToUpload}

@@ -5,7 +5,7 @@ import {
   Stack,
   Toolbar,
   Typography,
-  alpha,
+  
   useScrollTrigger,
   useTheme,
 } from "@mui/material";
@@ -46,10 +46,10 @@ export default function LandingNavbar() {
             px: { xs: 2, md: 4 },
             borderRadius: "24px",
             background: trigger
-              ? (theme.palette.background as any).deepNavy?.main_85
-              : (theme.palette.background as any).slateDeep?.main_40,
+              ? theme.palette.background.deepNavy?.main_85
+              : theme.palette.background.slateDeep?.main_40,
             backdropFilter: "blur(20px)",
-            border: `1px solid ${trigger ? (theme.palette.background as any).cyan?.main_20 : (theme.palette.background as any).slateLight?.main_10}`,
+            border: `1px solid ${trigger ? theme.palette.background.cyan?.main_20 : theme.palette.background.slateLight?.main_10}`,
             boxShadow: trigger ? "0 20px 40px rgba(0,0,0,0.4)" : "none",
             transition: "all 0.4s ease",
             justifyContent: "space-between",
@@ -112,9 +112,9 @@ export default function LandingNavbar() {
                 sx={{
                   fontWeight: 600,
                   textDecoration: "none",
-                  color: (theme.palette.background as any).lavender?.main_70,
+                  color: theme.palette.background.lavender?.main_70,
                   transition: "all 0.2s ease",
-                  "&:hover": { color: (theme.palette.background as any).cyan?.main },
+                  "&:hover": { color: theme.palette.background.cyan?.main },
                 }}
               >
                 {item.label}

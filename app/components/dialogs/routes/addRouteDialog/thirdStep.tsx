@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  alpha,
+  
   Box,
   Grid,
   Stack,
@@ -92,7 +92,7 @@ const ThirdRouteDialogStep = () => {
               width: 40,
               height: 40,
               borderRadius: "50%",
-              bgcolor: (theme.palette.primary as any)._alpha.main_10,
+              bgcolor: theme.palette.primary._alpha.main_10,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -215,8 +215,8 @@ const ThirdRouteDialogStep = () => {
           sx={{
             p: 3,
             borderRadius: 3,
-            bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
-            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+            bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
             backgroundImage: "none",
           }}
         >

@@ -64,7 +64,7 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
 
       <Stack spacing={4}>
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: (theme.palette.text as any).primary_alpha.main_70 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
             {dict.company.branding.legalName}
           </Typography>
           <TextField
@@ -79,31 +79,31 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
             autoFocus
             sx={{
               "& .MuiOutlinedInput-root": {
-                bgcolor: (theme.palette.background as any).paper_alpha.main_50,
+                bgcolor: theme.palette.background.paper_alpha.main_50,
                 borderRadius: 3,
-                border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                 "&.Mui-focused": {
-                  boxShadow: `0 0 0 3px ${(theme.palette.primary as any)._alpha.main_10}`,
+                  boxShadow: `0 0 0 3px ${theme.palette.primary._alpha.main_10}`,
                 }
               },
             }}
           />
           <Typography
             variant="caption"
-            sx={{ mt: 1, display: "block", color: (theme.palette.text as any).secondary_alpha.main_60 }}
+            sx={{ mt: 1, display: "block", color: theme.palette.text.secondary_alpha.main_60 }}
           >
             {dict.company.branding.legalNameDesc}
           </Typography>
         </Box>
 
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: (theme.palette.text as any).primary_alpha.main_70 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
             {dict.company.branding.digitalIdentity}
           </Typography>
           <Box
             onClick={handleClickUpload}
             sx={{
-              border: `2px dashed ${formData.logo ? (theme.palette.primary as any)._alpha.main_40 : (theme.palette.primary as any)._alpha.main_15}`,
+              border: `2px dashed ${formData.logo ? theme.palette.primary._alpha.main_40 : theme.palette.primary._alpha.main_15}`,
               borderRadius: 4,
               p: formData.logo ? 2 : 5,
               textAlign: "center",
@@ -112,11 +112,11 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
               position: "relative",
               overflow: "hidden",
               bgcolor: formData.logo 
-                ? (theme.palette.background as any).paper_alpha.main_30
-                : (theme.palette.primary as any)._alpha.main_02,
+                ? theme.palette.background.paper_alpha.main_30
+                : theme.palette.primary._alpha.main_02,
               "&:hover": {
                 borderColor: theme.palette.primary.main,
-                bgcolor: (theme.palette.primary as any)._alpha.main_05,
+                bgcolor: theme.palette.primary._alpha.main_05,
                 transform: "translateY(-2px)",
               },
             }}
@@ -165,7 +165,7 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
                   width: 50, 
                   height: 50, 
                   borderRadius: "50%", 
-                  bgcolor: (theme.palette.primary as any)._alpha.main_10, 
+                  bgcolor: theme.palette.primary._alpha.main_10, 
                   display: "flex", 
                   alignItems: "center", 
                   justifyContent: "center",
@@ -185,7 +185,7 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
         </Box>
 
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: (theme.palette.text as any).primary_alpha.main_70 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: theme.palette.text.primary_alpha.main_70 }}>
             {dict.company.branding.industry}
           </Typography>
           <FormControl fullWidth error={touched.industry && !!errors.industry}>
@@ -198,13 +198,13 @@ export default function Step1Branding({ state, actions }: CompanyStepProps) {
               onBlur={handleBlur}
               displayEmpty
               startAdornment={
-                <BusinessCenterIcon sx={{ mr: 1, color: (theme.palette.text as any).primary_alpha.main_30, fontSize: 20 }} />
+                <BusinessCenterIcon sx={{ mr: 1, color: theme.palette.text.primary_alpha.main_30, fontSize: 20 }} />
               }
               sx={{
-                bgcolor: (theme.palette.background as any).paper_alpha.main_50,
+                bgcolor: theme.palette.background.paper_alpha.main_50,
                 borderRadius: 3,
                 "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: (theme.palette as any).divider_alpha.main_10,
+                  borderColor: theme.palette.divider_alpha.main_10,
                 }
               }}
             >

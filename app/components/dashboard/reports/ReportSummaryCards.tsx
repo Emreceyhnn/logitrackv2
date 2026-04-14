@@ -33,16 +33,16 @@ const MetricCard = ({
 
   // Helper to resolve color to theme alpha tokens
   const resolveAlpha = (targetColor: string) => {
-    if (targetColor === theme.palette.primary.main) return (theme.palette.primary as any)._alpha;
-    if (targetColor === theme.palette.success.main) return (theme.palette.success as any)._alpha;
-    if (targetColor === theme.palette.error.main) return (theme.palette.error as any)._alpha;
-    if (targetColor === theme.palette.warning.main) return (theme.palette.warning as any)._alpha;
-    if (targetColor === theme.palette.info.main) return (theme.palette.info as any)._alpha;
-    return (theme.palette.primary as any)._alpha;
+    if (targetColor === theme.palette.primary.main) return theme.palette.primary._alpha;
+    if (targetColor === theme.palette.success.main) return theme.palette.success._alpha;
+    if (targetColor === theme.palette.error.main) return theme.palette.error._alpha;
+    if (targetColor === theme.palette.warning.main) return theme.palette.warning._alpha;
+    if (targetColor === theme.palette.info.main) return theme.palette.info._alpha;
+    return theme.palette.primary._alpha;
   };
 
   const statusAlpha = resolveAlpha(color);
-  const changeAlpha = positive ? (theme.palette.success as any)._alpha : (theme.palette.error as any)._alpha;
+  const changeAlpha = positive ? theme.palette.success._alpha : theme.palette.error._alpha;
 
   return (
     <Card

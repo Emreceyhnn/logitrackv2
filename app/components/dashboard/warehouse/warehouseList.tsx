@@ -89,7 +89,7 @@ const WarehouseListTable = ({
               px: 1,
               py: 0.2,
               borderRadius: 1,
-              bgcolor: (theme.palette.primary as any)._alpha.main_10,
+              bgcolor: theme.palette.primary._alpha.main_10,
               color: theme.palette.primary.main,
               fontWeight: 800,
               fontSize: "0.6rem",
@@ -129,11 +129,11 @@ const WarehouseListTable = ({
               sx={{
                 height: 6,
                 borderRadius: 3,
-                bgcolor: (theme.palette as any).divider_alpha.main_05,
+                bgcolor: theme.palette.divider_alpha.main_05,
                 "& .MuiLinearProgress-bar": {
                   bgcolor: palletPct > 85 ? "error.main" : "primary.main",
                   borderRadius: 3,
-                  boxShadow: `0 0 8px ${palletPct > 85 ? (theme.palette.error as any)._alpha.main_40 : (theme.palette.primary as any)._alpha.main_40}`,
+                  boxShadow: `0 0 8px ${palletPct > 85 ? theme.palette.error._alpha.main_40 : theme.palette.primary._alpha.main_40}`,
                 },
               }}
             />
@@ -165,11 +165,11 @@ const WarehouseListTable = ({
               sx={{
                 height: 6,
                 borderRadius: 3,
-                bgcolor: (theme.palette as any).divider_alpha.main_05,
+                bgcolor: theme.palette.divider_alpha.main_05,
                 "& .MuiLinearProgress-bar": {
                   bgcolor: "success.main",
                   borderRadius: 3,
-                  boxShadow: `0 0 8px ${(theme.palette.success as any)._alpha.main_40}`,
+                  boxShadow: `0 0 8px ${theme.palette.success._alpha.main_40}`,
                 },
               }}
             />

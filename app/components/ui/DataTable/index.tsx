@@ -23,7 +23,7 @@ import {
   Select,
   OutlinedInput,
   Checkbox,
-  alpha,
+  
   useTheme,
   Divider,
   Box,
@@ -190,7 +190,7 @@ function DataTableToolbar({
       sx={{
         px: 2,
         py: 1.5,
-        bgcolor: (theme.palette.background as any).paper_alpha.main_60,
+        bgcolor: theme.palette.background.paper_alpha.main_60,
       }}
     >
       <TextField
@@ -363,7 +363,7 @@ function DataTable<TRow extends { id: string }>({
             {tableTitle}
           </Typography>
           {!showToolbar && (
-            <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }} />
+            <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
           )}
         </>
       )}
@@ -378,7 +378,7 @@ function DataTable<TRow extends { id: string }>({
             activeFilters={activeFilters}
             onFilterChange={onFilterChange ?? (() => {})}
           />
-          <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }} />
+          <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
         </>
       )}
 
@@ -399,7 +399,7 @@ function DataTable<TRow extends { id: string }>({
                     sortDirection={
                       sortField === (col.sortKey || col.key) ? sortOrder : false
                     }
-                    sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }}
+                    sx={{ borderColor: theme.palette.divider_alpha.main_10 }}
                   >
                     {col.sortable ? (
                       <TableSortLabel
@@ -425,7 +425,7 @@ function DataTable<TRow extends { id: string }>({
                 {rowActions && rowActions.length > 0 && (
                   <TableCell
                     align="right"
-                    sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }}
+                    sx={{ borderColor: theme.palette.divider_alpha.main_10 }}
                   />
                 )}
               </TableRow>
@@ -439,7 +439,7 @@ function DataTable<TRow extends { id: string }>({
                     align="center"
                     sx={{
                       py: 6,
-                      borderColor: (theme.palette as any).divider_alpha.main_10,
+                      borderColor: theme.palette.divider_alpha.main_10,
                     }}
                   >
                     <Box
@@ -468,7 +468,7 @@ function DataTable<TRow extends { id: string }>({
                     sx={{
                       cursor: "default",
                       "& td": {
-                        borderColor: (theme.palette as any).divider_alpha.main_10,
+                        borderColor: theme.palette.divider_alpha.main_10,
                         fontSize: 13,
                       },
                       transition: "background-color 0.15s",
@@ -520,7 +520,7 @@ function DataTable<TRow extends { id: string }>({
             }`
           }
           sx={{
-            borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+            borderTop: `1px solid ${theme.palette.divider_alpha.main_10}`,
           }}
         />
       )}

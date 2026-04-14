@@ -117,16 +117,16 @@ const BasicInfoSection = () => {
                       bgcolor:
                         values.priority === p.value
                           ? (theme.palette[p.value === "LOW" ? "success" : p.value === "MEDIUM" ? "warning" : "error"] as any)._alpha.main_10
-                          : (theme.palette.text as any).darkBlue._alpha.main_50,
+                          : theme.palette.text.darkBlue._alpha.main_50,
                       color:
                         values.priority === p.value ? p.color : "text.secondary",
-                      borderColor: (theme.palette as any).divider_alpha.main_10,
+                      borderColor: theme.palette.divider_alpha.main_10,
                       borderWidth: "1px !important",
                       fontWeight: 600,
                       "&:hover": {
                         bgcolor: values.priority === p.value 
                           ? (theme.palette[p.value === "LOW" ? "success" : p.value === "MEDIUM" ? "warning" : "error"] as any)._alpha.main_20
-                          : (theme.palette.text as any).darkBlue._alpha.main_60,
+                          : theme.palette.text.darkBlue._alpha.main_60,
                       },
                     }}
                   >

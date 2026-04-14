@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  alpha,
+  
   Box,
   Dialog,
   DialogContent,
@@ -249,7 +249,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   borderRadius: 4,
                   bgcolor: "#0B1019",
                   backgroundImage: "none",
-                  border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                  border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                 },
               }}
             >
@@ -282,7 +282,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                     activeStep={currentStep - 1}
                     sx={{
                       "& .MuiStepConnector-line": {
-                        borderColor: (theme.palette as any).divider_alpha.main_10,
+                        borderColor: theme.palette.divider_alpha.main_10,
                       },
                     }}
                   >
@@ -319,7 +319,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                 <Divider
                   sx={{
                     mb: 4,
-                    borderColor: (theme.palette as any).divider_alpha.main_05,
+                    borderColor: theme.palette.divider_alpha.main_05,
                   }}
                 />
 
@@ -348,7 +348,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   disabled={isLoading}
                   sx={{
                     color: "text.secondary",
-                    "&:hover": { bgcolor: (theme.palette as any).divider_alpha.main_05 },
+                    "&:hover": { bgcolor: theme.palette.divider_alpha.main_05 },
                   }}
                 >
                   {currentStep === 1 ? dict.common.cancel : dict.common.back}
@@ -368,7 +368,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                     borderRadius: 2,
                     px: 4,
                     fontWeight: 600,
-                    boxShadow: `0 8px 16px ${(theme.palette.primary as any)._alpha.main_20}`,
+                    boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
                   }}
                 >
                   {isLoading

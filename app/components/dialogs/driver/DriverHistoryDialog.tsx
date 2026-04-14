@@ -52,12 +52,12 @@ const KPICard = ({ label, value, icon, color }: { label: string; value: number; 
   const theme = useTheme();
   
   const resolveAlpha = (targetColor: string) => {
-    if (targetColor === theme.palette.primary.main) return (theme.palette.primary as any)._alpha;
-    if (targetColor === theme.palette.success.main) return (theme.palette.success as any)._alpha;
-    if (targetColor === theme.palette.error.main) return (theme.palette.error as any)._alpha;
-    if (targetColor === theme.palette.warning.main) return (theme.palette.warning as any)._alpha;
-    if (targetColor === theme.palette.info.main) return (theme.palette.info as any)._alpha;
-    return (theme.palette.primary as any)._alpha;
+    if (targetColor === theme.palette.primary.main) return theme.palette.primary._alpha;
+    if (targetColor === theme.palette.success.main) return theme.palette.success._alpha;
+    if (targetColor === theme.palette.error.main) return theme.palette.error._alpha;
+    if (targetColor === theme.palette.warning.main) return theme.palette.warning._alpha;
+    if (targetColor === theme.palette.info.main) return theme.palette.info._alpha;
+    return theme.palette.primary._alpha;
   };
 
   const statusAlpha = resolveAlpha(color);
@@ -141,19 +141,19 @@ export default function DriverHistoryDialog({
           borderRadius: 4,
           bgcolor: "#0B1019",
           backgroundImage: "none",
-          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           maxHeight: "85vh",
         },
       }}
     >
-      <DialogTitle sx={{ p: 3, pb: 2, borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_05}` }}>
+      <DialogTitle sx={{ p: 3, pb: 2, borderBottom: `1px solid ${theme.palette.divider_alpha.main_05}` }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Stack direction="row" spacing={2} alignItems="center">
             <Box
               sx={{
                 p: 1.25,
                 borderRadius: 2,
-                bgcolor: (theme.palette.primary as any)._alpha.main_10,
+                bgcolor: theme.palette.primary._alpha.main_10,
                 color: theme.palette.primary.main,
                 display: "flex",
               }}
@@ -205,7 +205,7 @@ export default function DriverHistoryDialog({
               />
             </Stack>
 
-            <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_05 }} />
+            <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
 
             {/* Timeline */}
             <Box>
@@ -226,7 +226,7 @@ export default function DriverHistoryDialog({
                             top: 40,
                             bottom: -15,
                             width: 2,
-                            bgcolor: (theme.palette as any).divider_alpha.main_05,
+                            bgcolor: theme.palette.divider_alpha.main_05,
                             zIndex: 0,
                           }}
                         />
@@ -238,8 +238,8 @@ export default function DriverHistoryDialog({
                             width: 42,
                             height: 42,
                             borderRadius: "50%",
-                            bgcolor: (theme.palette.background as any).paper_alpha.main_30,
-                            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                            bgcolor: theme.palette.background.paper_alpha.main_30,
+                            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",

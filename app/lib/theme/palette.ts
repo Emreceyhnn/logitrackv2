@@ -177,28 +177,17 @@ export const palettes = {
     },
     kpi: {
       indigo: "#6366f1",
+      indigo_alpha: { main_10: "#6366f11A", main_20: "#6366f133", main_30: "#6366f14D" },
       sky: "#0ea5e9",
+      sky_alpha: { main_20: "#0ea5e933", main_40: "#0ea5e966" },
       emerald: "#10b981",
+      emerald_alpha: { main_10: "#10b9811A", main_40: "#10b98166" },
       amber: "#f59e0b",
+      amber_alpha: { main_10: "#f59e0b1A" },
       pink: "#ec4899",
       violet: "#8b5cf6",
       cyan: "#38bdf8",
-      purple: "#a855f7",
-      slateLight: "#cbd5f5",
-      slateDark: "#1e293b",
-      slateDeep: "#0f172a",
-      slateDeepest: "#0b1120",
-      slateGray: "#94a3b8",
-      lavender: "#e2e8f0",
-    },
-    kpi_alpha: {
-      indigo: { main_10: "#6366f11A", main_20: "#6366f133", main_30: "#6366f14D" },
-      sky: { main_20: "#0ea5e933", main_40: "#0ea5e966" },
-      emerald: { main_10: "#10b9811A", main_40: "#10b98166" },
-      amber: { main_10: "#f59e0b1A" },
-      teal: { main_10: "#14b8a61A", main_20: "#14b8a633" },
-      deepPurple: { main_10: "#8b5cf61A", main_20: "#8b5cf633" },
-      cyan: { 
+      cyan_alpha: { 
         main_05: "#38bdf80D",
         main_08: "#38bdf814",
         main_10: "#38bdf81A", 
@@ -215,8 +204,10 @@ export const palettes = {
         main_80: "#38bdf8CC",
         main_85: "#38bdf8D9",
       },
-      purple: { main_10: "#a855f71A", main_30: "#a855f74D" },
-      slateLight: {
+      purple: "#a855f7",
+      purple_alpha: { main_10: "#a855f71A", main_30: "#a855f74D" },
+      slateLight: "#cbd5f5",
+      slateLight_alpha: {
         main_05: "#cbd5f50D",
         main_10: "#cbd5f51A",
         main_40: "#cbd5f566",
@@ -228,25 +219,29 @@ export const palettes = {
         main_85: "#cbd5f5D9",
         main_90: "#cbd5f5E6",
       },
-      slateDark: {
+      slateDark: "#1e293b",
+      slateDark_alpha: {
         main_20: "#1e293b33",
         main_40: "#1e293b66",
         main_60: "#1e293b99",
         main_65: "#1e293bA6",
         main_70: "#1e293bB3",
       },
-      slateDeep: {
+      slateDeep: "#0f172a",
+      slateDeep_alpha: {
         main_35: "#0f172a59",
         main_40: "#0f172a66",
         main_50: "#0f172a80",
         main_60: "#0f172a99",
         main_90: "#0f172aE6",
       },
-      slateDeepest: {
+      slateDeepest: "#0b1120",
+      slateDeepest_alpha: {
         main_50: "#0b112080",
         main_80: "#0b1120CC",
       },
-      slateGray: {
+      slateGray: "#94a3b8",
+      slateGray_alpha: {
         main_07: "#94a3b812",
         main_15: "#94a3b826",
         main_40: "#94a3b866",
@@ -254,15 +249,21 @@ export const palettes = {
         main_70: "#94a3b8B3",
         main_75: "#94a3b8BF",
       },
-      lavender: {
+      lavender: "#e2e8f0",
+      lavender_alpha: {
         main_65: "#e2e8f0A6",
         main_70: "#e2e8f0B3",
         main_75: "#e2e8f0BF",
         main_80: "#e2e8f0CC",
         main_85: "#e2e8f0D9",
         main_90: "#e2e8f0E6",
-      }
+      },
+      teal: "#14b8a6",
+      teal_alpha: { main_10: "#14b8a61A", main_20: "#14b8a633" },
+      deepPurple: "#8b5cf6",
+      deepPurple_alpha: { main_10: "#8b5cf61A", main_20: "#8b5cf633" },
     },
+
     error: {
       main: "#F44336",
       light: "#E57373",
@@ -512,28 +513,17 @@ export const palettes = {
     },
     kpi: {
       indigo: "#6366f1",
+      indigo_alpha: { main_10: "#6366f11A", main_20: "#6366f133", main_30: "#6366f14D" },
       sky: "#0ea5e9",
+      sky_alpha: { main_20: "#0ea5e933", main_40: "#0ea5e966" },
       emerald: "#10b981",
+      emerald_alpha: { main_10: "#10b9811A", main_40: "#10b98166" },
       amber: "#f59e0b",
+      amber_alpha: { main_10: "#f59e0b1A" },
       pink: "#ec4899",
       violet: "#8b5cf6",
       cyan: "#38bdf8",
-      purple: "#a855f7",
-      slateLight: "#cbd5f5",
-      slateDark: "#1e293b",
-      slateDeep: "#0f172a",
-      slateDeepest: "#0b1120",
-      slateGray: "#94a3b8",
-      lavender: "#e2e8f0",
-    },
-    kpi_alpha: {
-      indigo: { main_10: "#6366f11A", main_20: "#6366f133", main_30: "#6366f14D" },
-      sky: { main_20: "#0ea5e933", main_40: "#0ea5e966" },
-      emerald: { main_10: "#10b9811A", main_40: "#10b98166" },
-      amber: { main_10: "#f59e0b1A" },
-      teal: { main_10: "#14b8a61A", main_20: "#14b8a633" },
-      deepPurple: { main_10: "#8b5cf61A", main_20: "#8b5cf633" },
-      cyan: { 
+      cyan_alpha: { 
         main_05: "#38bdf80D",
         main_08: "#38bdf814",
         main_10: "#38bdf81A", 
@@ -550,8 +540,10 @@ export const palettes = {
         main_80: "#38bdf8CC",
         main_85: "#38bdf8D9",
       },
-      purple: { main_10: "#a855f71A", main_30: "#a855f74D" },
-      slateLight: {
+      purple: "#a855f7",
+      purple_alpha: { main_10: "#a855f71A", main_30: "#a855f74D" },
+      slateLight: "#cbd5f5",
+      slateLight_alpha: {
         main_05: "#cbd5f50D",
         main_10: "#cbd5f51A",
         main_40: "#cbd5f566",
@@ -563,25 +555,29 @@ export const palettes = {
         main_85: "#cbd5f5D9",
         main_90: "#cbd5f5E6",
       },
-      slateDark: {
+      slateDark: "#1e293b",
+      slateDark_alpha: {
         main_20: "#1e293b33",
         main_40: "#1e293b66",
         main_60: "#1e293b99",
         main_65: "#1e293bA6",
         main_70: "#1e293bB3",
       },
-      slateDeep: {
+      slateDeep: "#0f172a",
+      slateDeep_alpha: {
         main_35: "#0f172a59",
         main_40: "#0f172a66",
         main_50: "#0f172a80",
         main_60: "#0f172a99",
         main_90: "#0f172aE6",
       },
-      slateDeepest: {
+      slateDeepest: "#0b1120",
+      slateDeepest_alpha: {
         main_50: "#0b112080",
         main_80: "#0b1120CC",
       },
-      slateGray: {
+      slateGray: "#94a3b8",
+      slateGray_alpha: {
         main_07: "#94a3b812",
         main_15: "#94a3b826",
         main_40: "#94a3b866",
@@ -589,15 +585,21 @@ export const palettes = {
         main_70: "#94a3b8B3",
         main_75: "#94a3b8BF",
       },
-      lavender: {
+      lavender: "#e2e8f0",
+      lavender_alpha: {
         main_65: "#e2e8f0A6",
         main_70: "#e2e8f0B3",
         main_75: "#e2e8f0BF",
         main_80: "#e2e8f0CC",
         main_85: "#e2e8f0D9",
         main_90: "#e2e8f0E6",
-      }
+      },
+      teal: "#14b8a6",
+      teal_alpha: { main_10: "#14b8a61A", main_20: "#14b8a633" },
+      deepPurple: "#8b5cf6",
+      deepPurple_alpha: { main_10: "#8b5cf61A", main_20: "#8b5cf633" },
     },
+
     error: {
       main: "#E53E3E",
       light: "#FC8181",

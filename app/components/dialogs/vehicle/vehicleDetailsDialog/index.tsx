@@ -13,6 +13,7 @@ import {
   Tabs,
   Typography,
   useTheme,
+  PaletteColor,
 } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
@@ -137,10 +138,12 @@ const VehicleDialog = (params: VehicleDialogParams) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const statusMeta = getStatusMeta(vehicleData?.status, dict) as any;
+  const statusMeta = getStatusMeta(vehicleData?.status, dict);
   
-  const statusColor = (theme.palette[statusMeta.paletteKey as keyof typeof theme.palette] as any)?.main || statusMeta.color;
-  const statusAlpha = (theme.palette[statusMeta.paletteKey as keyof typeof theme.palette] as any)?._alpha || (theme.palette.primary as any)._alpha;
+  const paletteKey = statusMeta.paletteKey as keyof typeof theme.palette;
+  const paletteColor = theme.palette[paletteKey] as PaletteColor;
+  const statusColor = paletteColor?.main || statusMeta.color;
+  const statusAlpha = paletteColor?._alpha || theme.palette.primary._alpha;
 
   return (
     <Dialog
@@ -151,9 +154,9 @@ const VehicleDialog = (params: VehicleDialogParams) => {
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: (theme.palette.background as any).midnight.main,
+          bgcolor: theme.palette.background.midnight.main,
           backgroundImage: "none",
-          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           overflow: "hidden",
         },
       }}
@@ -161,8 +164,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
       <Box
         sx={{
           p: 3,
-          bgcolor: (theme.palette.background as any).midnight.main,
-          borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          bgcolor: theme.palette.background.midnight.main,
+          borderBottom: `1px solid ${theme.palette.divider_alpha.main_10}`,
         }}
       >
         <Stack
@@ -241,7 +244,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                   borderRadius: 2,
                   textTransform: "none",
                   fontWeight: 600,
-                  bgcolor: (theme.palette.success as any)._alpha.main_05,
+                  bgcolor: theme.palette.success._alpha.main_05,
                 }}
               >
                 {dict.vehicles.dialogs.returnToService}
@@ -259,7 +262,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                     borderRadius: 2,
                     textTransform: "none",
                     fontWeight: 600,
-                    bgcolor: (theme.palette.warning as any)._alpha.main_05,
+                    bgcolor: theme.palette.warning._alpha.main_05,
                   }}
                 >
                   {dict.vehicles.dialogs.setMaintenance}
@@ -285,7 +288,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           <Box
             sx={{
               borderBottom: 1,
-              borderColor: (theme.palette as any).divider_alpha.main_10,
+              borderColor: theme.palette.divider_alpha.main_10,
             }}
           >
             <Tabs
@@ -312,8 +315,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
         <Box
           sx={{
             p: 3,
-            borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
-            bgcolor: (theme.palette.error as any)._alpha.main_05,
+            borderTop: `1px solid ${theme.palette.divider_alpha.main_10}`,
+            bgcolor: theme.palette.error._alpha.main_05,
           }}
         >
           <Stack
@@ -339,7 +342,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                 borderWidth: 1.5,
                 "&:hover": {
                   borderWidth: 1.5,
-                  bgcolor: (theme.palette.error as any)._alpha.main_05,
+                  bgcolor: theme.palette.error._alpha.main_05,
                 },
               }}
             >

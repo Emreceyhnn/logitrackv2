@@ -6,7 +6,7 @@ import {
   TextField,
   MenuItem,
   Stack,
-  alpha,
+  
   useTheme,
   InputAdornment,
 } from "@mui/material";
@@ -28,13 +28,13 @@ const TechSpecsStep = () => {
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: (theme.palette.text as any).darkBlue._alpha.main_50,
+      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
       borderRadius: 2,
       "& fieldset": {
-        borderColor: (theme.palette as any).divider_alpha.main_10,
+        borderColor: theme.palette.divider_alpha.main_10,
       },
       "&:hover fieldset": {
-        borderColor: (theme.palette.primary as any)._alpha.main_30,
+        borderColor: theme.palette.primary._alpha.main_30,
       },
       "&.Mui-focused fieldset": {
         borderColor: theme.palette.primary.main,

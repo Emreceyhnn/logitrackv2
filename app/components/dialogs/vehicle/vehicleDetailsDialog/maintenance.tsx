@@ -1,4 +1,4 @@
-import { Box, Button, Card, Stack, Typography, Table, TableBody, TableCell, TableHead, TableRow, Divider, CardActionArea, useTheme } from "@mui/material";
+import { Box, Button, Card, Stack, Typography, Table, TableBody, TableCell, TableHead, TableRow, Divider, CardActionArea, useTheme, PaletteColor } from "@mui/material";
 import type { Issue, MaintenanceRecord } from "@prisma/client";
 import { VehicleStatus, IssueStatus } from "@/app/lib/type/enums";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
@@ -67,14 +67,15 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   };
 
   const resolveMaintenanceAlpha = (status: string) => {
-    const themeAny = theme as any;
+    let paletteKey: keyof typeof theme.palette = "success";
     switch (status) {
-      case "COMPLETED": return themeAny.palette.success._alpha;
-      case "IN_PROGRESS": return themeAny.palette.info._alpha;
-      case "SCHEDULED": return themeAny.palette.warning._alpha;
-      case "CANCELLED": return themeAny.palette.error._alpha;
-      default: return themeAny.palette.success._alpha;
+      case "COMPLETED": paletteKey = "success"; break;
+      case "IN_PROGRESS": paletteKey = "info"; break;
+      case "SCHEDULED": paletteKey = "warning"; break;
+      case "CANCELLED": paletteKey = "error"; break;
+      default: paletteKey = "success"; break;
     }
+    return (theme.palette[paletteKey] as PaletteColor)._alpha;
   };
 
   const getStatusIcon = (status: string) => {
@@ -106,10 +107,10 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             flexDirection: "column",
             borderRadius: "8px",
             justifyContent: "space-evenly",
-            bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
+            bgcolor: theme.palette.text.darkBlue._alpha.main_50,
             backgroundImage: "none",
             boxShadow: "none",
-            border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+            border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
           }}
         >
           <Stack
@@ -139,14 +140,14 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                 fontWeight: 700,
                 "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                 "& .MuiSelect-select": { paddingLeft: 0 },
-                "& .MuiSvgIcon-root": { color: (theme.palette.common as any).white_alpha.main_30 }
+                "& .MuiSvgIcon-root": { color: theme.palette.common.white_alpha.main_30 }
               }}
               MenuProps={{
                 PaperProps: {
                   sx: {
                     bgcolor: "#1A202C",
                     backgroundImage: "none",
-                    border: `1px solid ${(theme.palette.common as any).white_alpha.main_10}`,
+                    border: `1px solid ${theme.palette.common.white_alpha.main_10}`,
                   }
                 }
               }}
@@ -187,10 +188,10 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             p: 2,
             flex: 2,
             borderRadius: "8px",
-            bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
+            bgcolor: theme.palette.text.darkBlue._alpha.main_50,
             backgroundImage: "none",
             boxShadow: "none",
-            border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+            border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
           }}
         >
           <Stack
@@ -208,7 +209,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                 boxShadow: "none",
                 bgcolor: theme.palette.primary.main,
                 textTransform: "none",
-                "&:hover": { bgcolor: (theme.palette.primary as any)._alpha.main_90 },
+                "&:hover": { bgcolor: theme.palette.primary._alpha.main_90 },
               }}
               onClick={() => setReportDialogOpen(true)}
             >
@@ -226,7 +227,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                   key={index}
                   sx={{
                     borderRadius: "8px",
-                    bgcolor: (theme.palette.common as any).white_alpha.main_03,
+                    bgcolor: theme.palette.common.white_alpha.main_03,
                     overflow: "hidden",
                     backgroundImage: "none",
                     boxShadow: "none",
@@ -236,7 +237,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     onClick={() => handleIssueClick(i)}
                     sx={{
                       p: 2,
-                      "&:hover": { bgcolor: (theme.palette.common as any).white_alpha.main_05 },
+                      "&:hover": { bgcolor: theme.palette.common.white_alpha.main_05 },
                     }}
                   >
                     <Stack direction="row" alignItems="center" gap={2}>
@@ -281,10 +282,10 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             display: "flex",
             flexDirection: "column",
             borderRadius: "8px",
-            bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
+            bgcolor: theme.palette.text.darkBlue._alpha.main_50,
             backgroundImage: "none",
             boxShadow: "none",
-            border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+            border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
             maxHeight: 350,
           }}
         >
@@ -314,8 +315,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     align="left"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
-                      bgcolor: (theme.palette.background as any).midnight.main, // Match card bg for sticky header
+                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      bgcolor: theme.palette.background.midnight.main, // Match card bg for sticky header
                     }}
                   >
                     DATE
@@ -324,8 +325,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     align="left"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
-                      bgcolor: (theme.palette.background as any).midnight.main,
+                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      bgcolor: theme.palette.background.midnight.main,
                     }}
                   >
                     SERVICE TYPE
@@ -334,8 +335,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     align="left"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
-                      bgcolor: (theme.palette.background as any).midnight.main,
+                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      bgcolor: theme.palette.background.midnight.main,
                     }}
                   >
                     TECHNICIAN
@@ -344,8 +345,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     align="left"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
-                      bgcolor: (theme.palette.background as any).midnight.main,
+                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      bgcolor: theme.palette.background.midnight.main,
                     }}
                   >
                     COST
@@ -354,8 +355,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     align="left"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
-                      bgcolor: (theme.palette.background as any).midnight.main,
+                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      bgcolor: theme.palette.background.midnight.main,
                     }}
                   >
                     STATUS
@@ -383,7 +384,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                       sx={{
                         "&:last-child td, &:last-child th": { border: 0 },
                         "&:hover": {
-                          bgcolor: (theme.palette.common as any).white_alpha.main_02,
+                          bgcolor: theme.palette.common.white_alpha.main_02,
                           cursor: "pointer",
                         },
                         transition: "background-color 0.2s",
@@ -393,7 +394,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                         align="left"
                         sx={{
                           color: "white",
-                          borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
+                          borderBottomColor: theme.palette.common.white_alpha.main_05,
                         }}
                       >
                         <Typography sx={{ fontSize: 12 }}>
@@ -408,7 +409,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                         align="left"
                         sx={{
                           color: "white",
-                          borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
+                          borderBottomColor: theme.palette.common.white_alpha.main_05,
                         }}
                       >
                         <Typography sx={{ fontSize: 12 }}>{v.type}</Typography>
@@ -417,7 +418,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                         align="left"
                         sx={{
                           color: "white",
-                          borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
+                          borderBottomColor: theme.palette.common.white_alpha.main_05,
                         }}
                       >
                         {v.description?.split(":")[1] || dict.common.na}
@@ -426,12 +427,12 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                         align="left"
                         sx={{
                           color: "white",
-                          borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
+                          borderBottomColor: theme.palette.common.white_alpha.main_05,
                         }}
                       >{`$${v.cost}`}</TableCell>
                       <TableCell
                         align="left"
-                        sx={{ borderBottomColor: (theme.palette.common as any).white_alpha.main_05 }}
+                        sx={{ borderBottomColor: theme.palette.common.white_alpha.main_05 }}
                       >
                         <Box
                           sx={{

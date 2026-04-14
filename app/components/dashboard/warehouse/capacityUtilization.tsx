@@ -60,7 +60,7 @@ const CapacityUtilization = ({
                   size={140}
                   thickness={3}
                   sx={{
-                    color: (theme.palette as any).divider_alpha.main_05,
+                    color: theme.palette.divider_alpha.main_05,
                   }}
                 />
                 <CircularProgress
@@ -72,7 +72,7 @@ const CapacityUtilization = ({
                     color: mainColor,
                     position: "absolute",
                     left: 0,
-                    filter: `drop-shadow(0 0 8px ${isCritical ? (theme.palette.error as any)._alpha.main_40 : (theme.palette.primary as any)._alpha.main_40})`,
+                    filter: `drop-shadow(0 0 8px ${isCritical ? theme.palette.error._alpha.main_40 : theme.palette.primary._alpha.main_40})`,
                     [`& .MuiCircularProgress-circle`]: {
                       strokeLinecap: "round",
                     },
@@ -99,7 +99,7 @@ const CapacityUtilization = ({
                     sx={{ 
                       textTransform: "uppercase", 
                       fontWeight: 700,
-                      color: (theme.palette.text as any).primary_alpha.main_40,
+                      color: theme.palette.text.primary_alpha.main_40,
                       letterSpacing: "0.1em",
                       fontSize: "0.65rem"
                     }}

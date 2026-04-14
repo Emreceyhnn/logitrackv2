@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Box, Skeleton, alpha, useTheme } from "@mui/material";
+import { Box, Skeleton,  useTheme } from "@mui/material";
 import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { MapRouteData } from "@/app/lib/type/routes";
@@ -36,7 +36,7 @@ const RoutesMainMap = ({ mapData, loading }: RoutesMainMapProps) => {
           flexGrow: 3,
           borderRadius: "16px",
           overflow: "hidden",
-          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
         }}
       >
         <Skeleton variant="rectangular" width="100%" height="100%" sx={{ minHeight: 400 }} />

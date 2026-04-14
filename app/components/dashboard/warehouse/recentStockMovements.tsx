@@ -84,13 +84,13 @@ const RecentStockMovements = ({
             label={row.type}
             size="small"
             sx={{
-              bgcolor: isPick ? (theme.palette.warning as any)._alpha.main_10 : (theme.palette.success as any)._alpha.main_10,
+              bgcolor: isPick ? theme.palette.warning._alpha.main_10 : theme.palette.success._alpha.main_10,
               color: isPick ? theme.palette.warning.main : theme.palette.success.main,
               fontWeight: 800,
               borderRadius: "8px",
               fontSize: "0.65rem",
               height: 24,
-              border: `1px solid ${isPick ? (theme.palette.warning as any)._alpha.main_10 : (theme.palette.success as any)._alpha.main_10}`,
+              border: `1px solid ${isPick ? theme.palette.warning._alpha.main_10 : theme.palette.success._alpha.main_10}`,
             }}
           />
         );
@@ -148,7 +148,7 @@ const RecentStockMovements = ({
           <Box sx={{ 
             p: 1, 
             borderRadius: '12px', 
-            bgcolor: (theme.palette.primary as any)._alpha.main_10,
+            bgcolor: theme.palette.primary._alpha.main_10,
             color: theme.palette.primary.main,
             display: 'flex'
           }}>
@@ -160,7 +160,7 @@ const RecentStockMovements = ({
         </Stack>
       </Box>
 
-      <Box sx={{ borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}` }}>
+      <Box sx={{ borderTop: `1px solid ${theme.palette.divider_alpha.main_05}` }}>
         <DataTable<InventoryMovementWithRelations>
           rows={paginatedMovements}
           columns={columns}

@@ -28,13 +28,13 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: (theme.palette.text as any).darkBlue._alpha.main_50,
+      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
       borderRadius: 2,
       "& fieldset": {
-        borderColor: (theme.palette as any).divider_alpha.main_10,
+        borderColor: theme.palette.divider_alpha.main_10,
       },
       "&:hover fieldset": {
-        borderColor: (theme.palette.primary as any)._alpha.main_30,
+        borderColor: theme.palette.primary._alpha.main_30,
       },
       "&.Mui-focused fieldset": {
         borderColor: theme.palette.primary.main,
@@ -78,7 +78,7 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
           sx={(theme) => ({
             width: "100%",
             aspectRatio: "1/1",
-            border: `2px dashed ${photoPreview ? "transparent" : (theme.palette as any).divider_alpha.main_10}`,
+            border: `2px dashed ${photoPreview ? "transparent" : theme.palette.divider_alpha.main_10}`,
             borderRadius: 3,
             display: "flex",
             flexDirection: "column",
@@ -91,10 +91,10 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
             "&:hover": {
               borderColor: photoPreview
                 ? "none"
-                : (theme.palette.primary as any)._alpha.main_30,
+                : theme.palette.primary._alpha.main_30,
               bgcolor: photoPreview
                 ? "none"
-                : (theme.palette.primary as any)._alpha.main_02,
+                : theme.palette.primary._alpha.main_02,
             },
           })}
         >
@@ -116,7 +116,7 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
                   position: "absolute",
                   top: 8,
                   right: 8,
-                  bgcolor: (theme.palette.error as any)._alpha.main_80,
+                  bgcolor: theme.palette.error._alpha.main_80,
                   color: "white",
                   "&:hover": {
                     bgcolor: theme.palette.error.main,
@@ -150,7 +150,7 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
                 sx={(theme) => ({
                   p: 2,
                   borderRadius: "50%",
-                  bgcolor: (theme.palette.primary as any)._alpha.main_10,
+                  bgcolor: theme.palette.primary._alpha.main_10,
                   color: theme.palette.primary.main,
                   mb: 1.5,
                 })}
@@ -174,11 +174,11 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
               width: 56,
               height: 56,
               borderRadius: 1,
-              bgcolor: (theme.palette as any).divider_alpha.main_10,
+              bgcolor: theme.palette.divider_alpha.main_10,
               overflow: "hidden",
               border: photoPreview
                 ? `2px solid ${theme.palette.primary.main}`
-                : `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                : `1px solid ${theme.palette.divider_alpha.main_10}`,
             }}
           >
             {photoPreview ? (

@@ -11,7 +11,7 @@ import {
   Avatar,
   Chip,
   Grid,
-  alpha,
+  
   useTheme,
   Button,
 } from "@mui/material";
@@ -50,7 +50,7 @@ export default function CompanyMemberDetailsDialog({
           bgcolor: "#0B0F19",
           backgroundImage: "none",
           borderRadius: 4,
-          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           overflow: "hidden",
         },
       }}
@@ -65,7 +65,7 @@ export default function CompanyMemberDetailsDialog({
                 height: 80,
                 fontSize: "2rem",
                 fontWeight: 700,
-                bgcolor: (theme.palette.primary as any)._alpha.main_10,
+                bgcolor: theme.palette.primary._alpha.main_10,
                 color: theme.palette.primary.main,
                 borderRadius: 3,
               }}
@@ -81,11 +81,11 @@ export default function CompanyMemberDetailsDialog({
                   label={member.roleName || dict.company.memberDetails.noRole}
                   size="small"
                   sx={{
-                    bgcolor: (theme.palette.secondary as any)._alpha.main_10,
+                    bgcolor: theme.palette.secondary._alpha.main_10,
                     color: theme.palette.secondary.light,
                     fontWeight: 700,
                     fontSize: "0.7rem",
-                    border: `1px solid ${(theme.palette.secondary as any)._alpha.main_20}`,
+                    border: `1px solid ${theme.palette.secondary._alpha.main_20}`,
                   }}
                 />
                 <Chip
@@ -109,13 +109,13 @@ export default function CompanyMemberDetailsDialog({
       <DialogContent sx={{ mt: 4, p: 4, pt: 0 }}>
         <Grid container spacing={4}>
           <Grid size={12}>
-            <Box sx={{ p: 3, borderRadius: 3, bgcolor: (theme.palette.background as any).paper_alpha.main_03, border: `1px solid ${(theme.palette as any).divider_alpha.main_05}` }}>
+            <Box sx={{ p: 3, borderRadius: 3, bgcolor: theme.palette.background.paper_alpha.main_03, border: `1px solid ${theme.palette.divider_alpha.main_05}` }}>
               <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ letterSpacing: 1, textTransform: "uppercase", mb: 2, display: "block" }}>
                 {dict.company.memberDetails.contactInfo}
               </Typography>
               <Stack spacing={2}>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar sx={{ width: 32, height: 32, bgcolor: (theme.palette.info as any)._alpha.main_10, color: theme.palette.info.main }}>
+                  <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.info._alpha.main_10, color: theme.palette.info.main }}>
                     <EmailIcon sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
@@ -124,7 +124,7 @@ export default function CompanyMemberDetailsDialog({
                   </Box>
                 </Stack>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar sx={{ width: 32, height: 32, bgcolor: (theme.palette.success as any)._alpha.main_10, color: theme.palette.success.main }}>
+                  <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.success._alpha.main_10, color: theme.palette.success.main }}>
                     <EventIcon sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
@@ -143,7 +143,7 @@ export default function CompanyMemberDetailsDialog({
           </Grid>
 
           <Grid size={12}>
-             <Box sx={{ p: 3, borderRadius: 3, bgcolor: (theme.palette.warning as any)._alpha.main_03, border: `1px solid ${(theme.palette.warning as any)._alpha.main_05}` }}>
+             <Box sx={{ p: 3, borderRadius: 3, bgcolor: theme.palette.warning._alpha.main_03, border: `1px solid ${theme.palette.warning._alpha.main_05}` }}>
               <Typography variant="caption" fontWeight={800} color="warning.light" sx={{ letterSpacing: 1, textTransform: "uppercase", mb: 1.5, display: "block" }}>
                 {dict.company.memberDetails.adminData}
               </Typography>
@@ -159,7 +159,7 @@ export default function CompanyMemberDetailsDialog({
           </Grid>
         </Grid>
 
-        <Box sx={{ mt: 4, pt: 3, borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_10}` }}>
+        <Box sx={{ mt: 4, pt: 3, borderTop: `1px solid ${theme.palette.divider_alpha.main_10}` }}>
            <Button
             fullWidth
             variant="outlined"
@@ -170,11 +170,11 @@ export default function CompanyMemberDetailsDialog({
               fontWeight: 700,
               textTransform: "none",
               color: "text.secondary",
-              borderColor: (theme.palette as any).divider_alpha.main_20,
+              borderColor: theme.palette.divider_alpha.main_20,
               "&:hover": {
                 borderColor: "white",
                 color: "white",
-                bgcolor: (theme.palette.common as any).white_alpha.main_02
+                bgcolor: theme.palette.common.white_alpha.main_02
               }
             }}
           >

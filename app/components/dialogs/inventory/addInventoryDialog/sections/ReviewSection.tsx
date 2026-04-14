@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  alpha,
+  
   Box,
   Divider,
   Grid,
@@ -80,8 +80,8 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
           sx={{
             p: 2.5,
             borderRadius: 3,
-            bgcolor: (theme.palette.primary as any)._alpha.main_05,
-            border: `1px solid ${(theme.palette.primary as any)._alpha.main_10}`,
+            bgcolor: theme.palette.primary._alpha.main_05,
+            border: `1px solid ${theme.palette.primary._alpha.main_10}`,
             display: "flex",
             alignItems: "center",
             gap: 2,
@@ -96,7 +96,7 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
           ) : (
             <Avatar
               variant="rounded"
-              sx={{ width: 64, height: 64, borderRadius: 2, bgcolor: (theme.palette.primary as any)._alpha.main_10, color: theme.palette.primary.main }}
+              sx={{ width: 64, height: 64, borderRadius: 2, bgcolor: theme.palette.primary._alpha.main_10, color: theme.palette.primary.main }}
             >
               <InventoryIcon sx={{ fontSize: 32 }} />
             </Avatar>
@@ -122,9 +122,9 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
               </Stack>
               <Box>
                 <InfoRow label={dict.inventory.fields.unitValue} value={formatPrice(itemDetails.unitValue || 0)} />
-                <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_05 }} />
+                <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
                 <InfoRow label={dict.inventory.fields.weight} value={`${itemDetails.weightKg || 0} ${dict.common.units.kg}`} />
-                <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_05 }} />
+                <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
                 <InfoRow label={dict.inventory.fields.volume} value={`${itemDetails.volumeM3 || 0} ${dict.common.units.m3}`} />
               </Box>
             </Stack>
@@ -140,9 +140,9 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
               </Stack>
               <Box>
                 <InfoRow label={dict.inventory.fields.quantity} value={storageLevels.initialQuantity || 0} />
-                <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_05 }} />
+                <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
                 <InfoRow label={dict.inventory.fields.minStock} value={storageLevels.minStockLevel || 0} />
-                <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_05 }} />
+                <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
                 <InfoRow label={dict.inventory.fields.pallets} value={itemDetails.palletCount || 0} />
               </Box>
             </Stack>
@@ -153,8 +153,8 @@ const ReviewSection = ({ itemDetails, storageLevels }: ReviewSectionProps) => {
           sx={{
             p: 2,
             borderRadius: 2,
-            bgcolor: (theme.palette.info as any)._alpha.main_03,
-            border: `1px solid ${(theme.palette.info as any)._alpha.main_05}`,
+            bgcolor: theme.palette.info._alpha.main_03,
+            border: `1px solid ${theme.palette.info._alpha.main_05}`,
             display: "flex",
             alignItems: "center",
             gap: 1.5,

@@ -1,4 +1,4 @@
-import { Box, Divider, List, ListItem, Stack, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Divider, List, ListItem, Stack, Typography,  useTheme } from "@mui/material";
 import CustomCard from "../../cards/card";
 import DirectionsIcon from "@mui/icons-material/Directions";
 import PlaceIcon from "@mui/icons-material/Place";
@@ -25,35 +25,35 @@ const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {
         value: values.plannedRoutes,
         icon: <DirectionsIcon sx={{ fontSize: 20 }} />,
         color: theme.palette.primary.main,
-        bgColor: (theme.palette.primary as any)._alpha.main_10,
+        bgColor: theme.palette.primary._alpha.main_10,
       },
       {
         label: dict.dashboard.overview.dailyOperations.completedDeliveries,
         value: values.completedDeliveries,
         icon: <PlaceIcon sx={{ fontSize: 20 }} />,
         color: theme.palette.success.main,
-        bgColor: (theme.palette.success as any)._alpha.main_10,
+        bgColor: theme.palette.success._alpha.main_10,
       },
       {
         label: dict.dashboard.overview.dailyOperations.failedDeliveries,
         value: values.failedDeliveries,
         icon: <ErrorOutlineIcon sx={{ fontSize: 20 }} />,
         color: theme.palette.error.main,
-        bgColor: (theme.palette.error as any)._alpha.main_10,
+        bgColor: theme.palette.error._alpha.main_10,
       },
       {
         label: dict.dashboard.overview.dailyOperations.avgDuration,
         value: values.avgDeliveryTimeMin || "--",
         icon: <AccessTimeIcon sx={{ fontSize: 20 }} />,
         color: theme.palette.warning.main,
-        bgColor: (theme.palette.warning as any)._alpha.main_10,
+        bgColor: theme.palette.warning._alpha.main_10,
       },
       {
         label: dict.dashboard.overview.dailyOperations.fuelConsumed,
         value: values.fuelConsumedLiters,
         icon: <LocalGasStationIcon sx={{ fontSize: 20 }} />,
         color: theme.palette.info.main,
-        bgColor: (theme.palette.info as any)._alpha.main_10,
+        bgColor: theme.palette.info._alpha.main_10,
       },
     ];
   }, [values, dict, theme]);
@@ -78,9 +78,9 @@ const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {
                 justifyContent: "space-between",
                 p: 1.5,
                 borderRadius: 2,
-                bgcolor: (theme.palette.background as any).default_alpha.main_60,
-                boxShadow: `0 2px 8px ${(theme.palette.common as any).black_alpha.main_04}`,
-                border: `1px solid ${(theme.palette as any).divider_alpha.main_50}`,
+                bgcolor: theme.palette.background.default_alpha.main_60,
+                boxShadow: `0 2px 8px ${theme.palette.common.black_alpha.main_04}`,
+                border: `1px solid ${theme.palette.divider_alpha.main_50}`,
               }}
             >
               <Stack direction="row" spacing={2} alignItems="center">

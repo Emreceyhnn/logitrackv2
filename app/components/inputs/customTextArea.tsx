@@ -1,5 +1,5 @@
 import {
-  alpha,
+  
   InputAdornment,
   SxProps,
   TextField,
@@ -45,13 +45,13 @@ const CustomTextArea = ({
   /* ---------------------------------- style --------------------------------- */
   const baseStyles: SxProps<Theme> = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: (theme.palette.text as any).darkBlue._alpha.main_50,
+      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
       borderRadius: 2,
       "& fieldset": {
-        borderColor: (theme.palette as any).divider_alpha.main_10,
+        borderColor: theme.palette.divider_alpha.main_10,
       },
       "&:hover fieldset": {
-        borderColor: (theme.palette.primary as any)._alpha.main_30,
+        borderColor: theme.palette.primary._alpha.main_30,
       },
       "&.Mui-focused fieldset": {
         borderColor: theme.palette.primary.main,
@@ -94,7 +94,7 @@ const CustomTextArea = ({
                     bgcolor: "#1A202C",
                     backgroundImage: "none",
                     borderRadius: 2,
-                    border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                    border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                     boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.8)",
                     "& .MuiMenuItem-root": {
                       fontSize: "0.875rem",
@@ -102,15 +102,15 @@ const CustomTextArea = ({
                       px: 2,
                       transition: "all 0.2s ease",
                       "&:hover": {
-                        bgcolor: (theme.palette.primary as any)._alpha.main_08,
+                        bgcolor: theme.palette.primary._alpha.main_08,
                         color: theme.palette.primary.main,
                       },
                       "&.Mui-selected": {
-                        bgcolor: (theme.palette.primary as any)._alpha.main_12,
+                        bgcolor: theme.palette.primary._alpha.main_12,
                         color: theme.palette.primary.main,
                         fontWeight: 600,
                         "&:hover": {
-                          bgcolor: (theme.palette.primary as any)._alpha.main_18,
+                          bgcolor: theme.palette.primary._alpha.main_18,
                         },
                       },
                     },

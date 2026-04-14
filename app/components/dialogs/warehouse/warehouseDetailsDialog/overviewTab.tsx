@@ -54,8 +54,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: (theme.palette as any).kpi_alpha.indigo.main_10,
-              borderColor: (theme.palette as any).kpi_alpha.indigo.main_20,
+              bgcolor: theme.palette.kpi.indigo_alpha.main_10,
+              borderColor: theme.palette.kpi.indigo_alpha.main_20,
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -66,8 +66,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: (theme.palette as any).kpi_alpha.indigo.main_20,
-                  color: (theme.palette as any).kpi.indigo,
+                  bgcolor: theme.palette.kpi.indigo_alpha.main_20,
+                  color: theme.palette.kpi.indigo,
                 }}
               >
                 <MapIcon />
@@ -104,8 +104,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: (theme.palette as any).kpi_alpha.teal.main_10,
-              borderColor: (theme.palette as any).kpi_alpha.teal.main_20,
+              bgcolor: theme.palette.kpi.teal_alpha.main_10,
+              borderColor: theme.palette.kpi.teal_alpha.main_20,
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -116,8 +116,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: (theme.palette as any).kpi_alpha.teal.main_20,
-                  color: (theme.palette as any).kpi.emerald,
+                  bgcolor: theme.palette.kpi.teal_alpha.main_20,
+                  color: theme.palette.kpi.emerald,
                 }}
               >
                 <BusinessCenterIcon />
@@ -138,7 +138,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                       px: 1,
                       py: 0.3,
                       borderRadius: 1,
-                      bgcolor: (theme.palette.primary as any)._alpha.main_10,
+                      bgcolor: theme.palette.primary._alpha.main_10,
                       color: theme.palette.primary.main,
                       fontWeight: 700,
                       textTransform: "uppercase",
@@ -178,8 +178,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: (theme.palette as any).kpi_alpha.deepPurple.main_10,
-              borderColor: (theme.palette as any).kpi_alpha.deepPurple.main_20,
+              bgcolor: theme.palette.kpi.deepPurple_alpha.main_10,
+              borderColor: theme.palette.kpi.deepPurple_alpha.main_20,
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -190,8 +190,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: (theme.palette as any).kpi_alpha.deepPurple.main_20,
-                  color: (theme.palette as any).kpi.violet,
+                  bgcolor: theme.palette.kpi.deepPurple_alpha.main_20,
+                  color: theme.palette.kpi.violet,
                 }}
               >
                 <InventoryIcon />
@@ -229,7 +229,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: (theme.palette.primary as any)._alpha.main_10,
+                  bgcolor: theme.palette.primary._alpha.main_10,
                   color: theme.palette.primary.main,
                 }}
               >
@@ -255,7 +255,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   height: 12,
                   borderRadius: 6,
-                  bgcolor: (theme.palette as any).divider_alpha.main_10,
+                  bgcolor: theme.palette.divider_alpha.main_10,
                   "& .MuiLinearProgress-bar": { display: "none" }
                 }}
               />
@@ -293,7 +293,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: (theme.palette.success as any)._alpha.main_10,
+                  bgcolor: theme.palette.success._alpha.main_10,
                   color: theme.palette.success.main,
                 }}
               >
@@ -319,7 +319,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   height: 12,
                   borderRadius: 6,
-                  bgcolor: (theme.palette as any).divider_alpha.main_10,
+                  bgcolor: theme.palette.divider_alpha.main_10,
                   "& .MuiLinearProgress-bar": { display: "none" }
                 }}
               />
@@ -353,13 +353,13 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
 
         {/* Feature Flags */}
         <Grid size={{ xs: 12 }}>
-          <Divider sx={{ my: 2, borderColor: (theme.palette as any).divider_alpha.main_10 }} />
+          <Divider sx={{ my: 2, borderColor: theme.palette.divider_alpha.main_10 }} />
           <Typography variant="h6" fontWeight={600} color="white" mb={2}>
             {t.facilityCapabilities}
           </Typography>
           <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
              {warehouse.manager && (
-              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2, bgcolor: (theme.palette.info as any)._alpha.main_10, color: theme.palette.info.light, px: 2, py: 1.5, borderRadius: 2, border: `1px solid ${(theme.palette.info as any)._alpha.main_20}` }}>
+              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2, bgcolor: theme.palette.info._alpha.main_10, color: theme.palette.info.light, px: 2, py: 1.5, borderRadius: 2, border: `1px solid ${theme.palette.info._alpha.main_20}` }}>
                 <ThermostatIcon />
                 <Typography variant="button" fontWeight={600}>{t.managedFacility}</Typography>
               </Stack>
@@ -383,12 +383,12 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   spacing={1.5}
                   sx={{
                     mb: 2,
-                    bgcolor: (theme.palette as any).divider_alpha.main_05,
+                    bgcolor: theme.palette.divider_alpha.main_05,
                     color: "text.secondary",
                     px: 2,
                     py: 1.5,
                     borderRadius: 2,
-                    border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                    border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                   }}
                 >
                   <BusinessCenterIcon />
@@ -402,7 +402,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
             })}
 
             {(!warehouse.specifications || warehouse.specifications.length === 0) && (
-              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2, bgcolor: (theme.palette as any).divider_alpha.main_05, color: "text.secondary", px: 2, py: 1.5, borderRadius: 2, border: `1px solid ${(theme.palette as any).divider_alpha.main_10}` }}>
+              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2, bgcolor: theme.palette.divider_alpha.main_05, color: "text.secondary", px: 2, py: 1.5, borderRadius: 2, border: `1px solid ${theme.palette.divider_alpha.main_10}` }}>
                 <BusinessCenterIcon />
                 <Typography variant="button" fontWeight={600}>{t.standardStorage}</Typography>
               </Stack>

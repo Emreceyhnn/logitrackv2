@@ -1,4 +1,4 @@
-import { Box, Divider, List, ListItem, ListItemButton, Stack, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Divider, List, ListItem, ListItemButton, Stack, Typography,  useTheme } from "@mui/material";
 import CustomCard from "../../cards/card";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
@@ -30,7 +30,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     SHIPMENT_DELAY: (
       <Box
         sx={{
-          bgcolor: (theme.palette.error as any)._alpha.main_10,
+          bgcolor: theme.palette.error._alpha.main_10,
           color: theme.palette.error.main,
           width: 32,
           height: 32,
@@ -46,7 +46,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     vehicle: (
       <Box
         sx={{
-          bgcolor: (theme.palette.warning as any)._alpha.main_10,
+          bgcolor: theme.palette.warning._alpha.main_10,
           color: theme.palette.warning.main,
           width: 32,
           height: 32,
@@ -62,7 +62,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     driver: (
       <Box
         sx={{
-          bgcolor: (theme.palette.secondary as any)._alpha.main_10,
+          bgcolor: theme.palette.secondary._alpha.main_10,
           color: theme.palette.secondary.main,
           width: 32,
           height: 32,
@@ -78,7 +78,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     DOCUMENT_DUE: (
       <Box
         sx={{
-          bgcolor: (theme.palette.info as any)._alpha.main_10,
+          bgcolor: theme.palette.info._alpha.main_10,
           color: theme.palette.info.main,
           width: 32,
           height: 32,
@@ -94,7 +94,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     warehouse: (
       <Box
         sx={{
-          bgcolor: (theme.palette.success as any)._alpha.main_10,
+          bgcolor: theme.palette.success._alpha.main_10,
           color: theme.palette.success.main,
           width: 32,
           height: 32,
@@ -117,7 +117,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
         {alerts.length > 0 && (
           <Box
             sx={{
-              bgcolor: (theme) => (theme.palette.error as any)._alpha.main_10,
+              bgcolor: (theme) => theme.palette.error._alpha.main_10,
               color: "error.main",
               px: 1,
               py: 0.25,

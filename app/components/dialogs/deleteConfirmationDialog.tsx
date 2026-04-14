@@ -6,7 +6,7 @@ import {
   Button,
   Typography,
   Box,
-  alpha,
+  
   useTheme,
   Stack,
   IconButton,
@@ -48,7 +48,7 @@ export default function DeleteConfirmationDialog({
           bgcolor: "#0B1019",
           backgroundImage: "none",
           borderRadius: 4,
-          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           overflow: "hidden",
         },
       }}
@@ -59,7 +59,7 @@ export default function DeleteConfirmationDialog({
           <Stack direction="row" spacing={2} alignItems="center">
             <Box
               sx={{
-                bgcolor: (theme.palette.error as any)._alpha.main_10,
+                bgcolor: theme.palette.error._alpha.main_10,
                 color: theme.palette.error.main,
                 p: 1.25,
                 borderRadius: 2,
@@ -74,7 +74,7 @@ export default function DeleteConfirmationDialog({
               </Typography>
               <Typography
                 variant="caption"
-                sx={{ color: (theme.palette.common as any).white_alpha.main_40, mt: 0.5, display: "block" }}
+                sx={{ color: theme.palette.common.white_alpha.main_40, mt: 0.5, display: "block" }}
               >
                 {dict.common.thisActionCannotBeUndone}
               </Typography>
@@ -83,7 +83,7 @@ export default function DeleteConfirmationDialog({
           <IconButton
             onClick={onClose}
             size="small"
-            sx={{ color: (theme.palette.common as any).white_alpha.main_30, "&:hover": { color: "white" } }}
+            sx={{ color: theme.palette.common.white_alpha.main_30, "&:hover": { color: "white" } }}
             disabled={loading}
           >
             <CloseIcon fontSize="small" />
@@ -105,8 +105,8 @@ export default function DeleteConfirmationDialog({
         sx={{
           p: 3,
           pt: 2,
-          bgcolor: (theme.palette.background as any).default_alpha.main_10,
-          borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
+          bgcolor: theme.palette.background.default_alpha.main_10,
+          borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`,
         }}
       >
         <Stack direction="row" spacing={2} justifyContent="flex-end">
@@ -118,7 +118,7 @@ export default function DeleteConfirmationDialog({
               textTransform: "none",
               fontWeight: 600,
               px: 2,
-              "&:hover": { color: "white", bgcolor: (theme.palette.common as any).white_alpha.main_05 },
+              "&:hover": { color: "white", bgcolor: theme.palette.common.white_alpha.main_05 },
             }}
           >
             {dict.common.cancel}
@@ -134,10 +134,10 @@ export default function DeleteConfirmationDialog({
               px: 3,
               fontWeight: 700,
               minWidth: 100,
-              boxShadow: `0 8px 24px ${(theme.palette.error as any)._alpha.main_20}`,
+              boxShadow: `0 8px 24px ${theme.palette.error._alpha.main_20}`,
               "&:hover": {
                 bgcolor: theme.palette.error.dark,
-                boxShadow: `0 12px 32px ${(theme.palette.error as any)._alpha.main_30}`,
+                boxShadow: `0 12px 32px ${theme.palette.error._alpha.main_30}`,
               },
             }}
           >

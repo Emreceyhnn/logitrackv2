@@ -11,7 +11,7 @@ import {
   Box,
   IconButton,
   Stack,
-  alpha,
+  
   useTheme,
   Divider,
   MenuItem,
@@ -98,14 +98,14 @@ export default function EditCompanyMemberDialog({
 
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      bgcolor: (theme.palette.background as any).paper_alpha.main_05,
+      bgcolor: theme.palette.background.paper_alpha.main_05,
       borderRadius: 2.5,
       color: "white",
-      "& fieldset": { borderColor: (theme.palette as any).divider_alpha.main_10 },
-      "&:hover fieldset": { borderColor: (theme.palette.primary as any)._alpha.main_30 },
+      "& fieldset": { borderColor: theme.palette.divider_alpha.main_10 },
+      "&:hover fieldset": { borderColor: theme.palette.primary._alpha.main_30 },
       "&.Mui-focused fieldset": { borderColor: theme.palette.primary.main },
     },
-    "& .MuiInputLabel-root": { color: (theme.palette.common as any).white_alpha.main_50 },
+    "& .MuiInputLabel-root": { color: theme.palette.common.white_alpha.main_50 },
     "& .MuiInputLabel-root.Mui-focused": { color: theme.palette.primary.main },
   };
 
@@ -120,7 +120,7 @@ export default function EditCompanyMemberDialog({
           bgcolor: "#0B0F19",
           backgroundImage: "none",
           borderRadius: 4, 
-          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           overflow: "hidden",
         }
       }}
@@ -136,7 +136,7 @@ export default function EditCompanyMemberDialog({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                bgcolor: (theme.palette.primary as any)._alpha.main_10,
+                bgcolor: theme.palette.primary._alpha.main_10,
                 color: theme.palette.primary.main,
               }}
             >
@@ -157,7 +157,7 @@ export default function EditCompanyMemberDialog({
         </Stack>
       </Box>
  
-       <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }} />
+       <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
  
        <form onSubmit={handleSubmit(onSubmit)}>
          <DialogContent sx={{ p: 4 }}>
@@ -242,9 +242,9 @@ export default function EditCompanyMemberDialog({
           </Stack>
         </DialogContent>
  
-        <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }} />
+        <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
  
-        <Box sx={{ p: 3, px: 4, bgcolor: (theme.palette.background as any).default_alpha.main_10 }}>
+        <Box sx={{ p: 3, px: 4, bgcolor: theme.palette.background.default_alpha.main_10 }}>
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             <Button 
               onClick={onClose}
@@ -262,7 +262,7 @@ export default function EditCompanyMemberDialog({
                 borderRadius: 2, 
                 fontWeight: 700,
                 textTransform: "none",
-                boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_20}`,
+                boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
               }}
             >
               {isSubmitting ? dict.company.editMember.saving : dict.common.save}

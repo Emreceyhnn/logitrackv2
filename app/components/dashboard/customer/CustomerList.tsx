@@ -15,7 +15,7 @@ import {
   Divider,
   Skeleton,
   useTheme,
-  alpha,
+  
 } from "@mui/material";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -107,32 +107,32 @@ const CustomerList = ({
             variant="text"
             width={120}
             height={32}
-            sx={{ bgcolor: (theme.palette.text as any).primary_alpha.main_10, mb: 1 }}
+            sx={{ bgcolor: theme.palette.text.primary_alpha.main_10, mb: 1 }}
           />
           <Skeleton
             variant="text"
             width={80}
             height={20}
-            sx={{ bgcolor: (theme.palette.text as any).primary_alpha.main_05, mb: 2 }}
+            sx={{ bgcolor: theme.palette.text.primary_alpha.main_05, mb: 2 }}
           />
-          <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_10, mb: 1 }} />
+          <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10, mb: 1 }} />
         </Box>
         <Box sx={{ flex: 1, overflowY: "auto", p: 0 }}>
           {Array.from(new Array(5)).map((_, index) => (
             <Box
               key={index}
-              sx={{ p: 2, borderBottom: "1px solid", borderColor: (theme.palette as any).divider_alpha.main_10 }}
+              sx={{ p: 2, borderBottom: "1px solid", borderColor: theme.palette.divider_alpha.main_10 }}
             >
               <Stack direction="row" spacing={2} alignItems="center">
-                <Skeleton variant="rounded" width={40} height={40} sx={{ bgcolor: (theme.palette.text as any).primary_alpha.main_05 }} />
+                <Skeleton variant="rounded" width={40} height={40} sx={{ bgcolor: theme.palette.text.primary_alpha.main_05 }} />
                 <Box sx={{ flex: 1 }}>
-                  <Skeleton width="60%" height={24} sx={{ bgcolor: (theme.palette.text as any).primary_alpha.main_10 }} />
-                  <Skeleton width="40%" height={16} sx={{ bgcolor: (theme.palette.text as any).primary_alpha.main_05 }} />
+                  <Skeleton width="60%" height={24} sx={{ bgcolor: theme.palette.text.primary_alpha.main_10 }} />
+                  <Skeleton width="40%" height={16} sx={{ bgcolor: theme.palette.text.primary_alpha.main_05 }} />
                 </Box>
               </Stack>
               <Stack spacing={1} sx={{ mt: 2 }}>
-                <Skeleton width="80%" height={16} sx={{ bgcolor: (theme.palette.text as any).primary_alpha.main_05 }} />
-                <Skeleton width="50%" height={16} sx={{ bgcolor: (theme.palette.text as any).primary_alpha.main_05 }} />
+                <Skeleton width="80%" height={16} sx={{ bgcolor: theme.palette.text.primary_alpha.main_05 }} />
+                <Skeleton width="50%" height={16} sx={{ bgcolor: theme.palette.text.primary_alpha.main_05 }} />
               </Stack>
             </Box>
           ))}
@@ -151,11 +151,11 @@ const CustomerList = ({
             sx={{
               p: 2,
               borderBottom: "1px solid",
-              borderColor: (theme.palette as any).divider_alpha.main_10,
+              borderColor: theme.palette.divider_alpha.main_10,
               cursor: "pointer",
               bgcolor:
-                selectedId === customer.id ? (theme.palette.primary as any)._alpha.main_08 : "transparent",
-              "&:hover": { bgcolor: (theme.palette.primary as any)._alpha.main_04 },
+                selectedId === customer.id ? theme.palette.primary._alpha.main_08 : "transparent",
+              "&:hover": { bgcolor: theme.palette.primary._alpha.main_04 },
               transition: "background-color 0.2s",
             }}
           >
@@ -168,7 +168,7 @@ const CustomerList = ({
               <Avatar
                 variant="rounded"
                 sx={{
-                  bgcolor: (theme.palette.secondary as any)._alpha.main_10,
+                  bgcolor: theme.palette.secondary._alpha.main_10,
                   color: theme.palette.secondary.main,
                   width: 40,
                   height: 40,
@@ -240,7 +240,7 @@ const CustomerList = ({
                   height: 20,
                   fontSize: "0.65rem",
                   fontWeight: 600,
-                  borderColor: (theme.palette as any).divider_alpha.main_10,
+                  borderColor: theme.palette.divider_alpha.main_10,
                 }}
               />
             </Stack>
@@ -265,7 +265,7 @@ const CustomerList = ({
             borderRadius: 2,
             mt: 0.5,
             boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
             bgcolor: "#0B0F19",
           },
         }}
@@ -288,7 +288,7 @@ const CustomerList = ({
             primaryTypographyProps={{ variant: "body2", fontWeight: 600 }}
           />
         </MenuItem>
-        <Divider sx={{ my: 0.5, borderColor: (theme.palette as any).divider_alpha.main_10 }} />
+        <Divider sx={{ my: 0.5, borderColor: theme.palette.divider_alpha.main_10 }} />
         <MenuItem
             onClick={() => handleAction("delete")}
             sx={{ color: "error.main" }}

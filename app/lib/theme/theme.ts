@@ -1,4 +1,4 @@
-import { createTheme, alpha } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
 import type {} from "@mui/x-date-pickers/themeAugmentation";
 import { palettes } from "./palette";
 
@@ -62,21 +62,38 @@ declare module "@mui/material/styles" {
     };
     kpi: {
       indigo: string;
+      indigo_alpha: Record<string, string>;
       sky: string;
+      sky_alpha: Record<string, string>;
       emerald: string;
+      emerald_alpha: Record<string, string>;
       amber: string;
+      amber_alpha: Record<string, string>;
       pink: string;
+      pink_alpha: Record<string, string>;
       violet: string;
+      violet_alpha: Record<string, string>;
       cyan: string;
+      cyan_alpha: Record<string, string>;
       purple: string;
+      purple_alpha: Record<string, string>;
       slateLight: string;
+      slateLight_alpha: Record<string, string>;
       slateDark: string;
+      slateDark_alpha: Record<string, string>;
       slateDeep: string;
+      slateDeep_alpha: Record<string, string>;
       slateDeepest: string;
+      slateDeepest_alpha: Record<string, string>;
       slateGray: string;
+      slateGray_alpha: Record<string, string>;
       lavender: string;
+      lavender_alpha: Record<string, string>;
+      teal: string;
+      teal_alpha: Record<string, string>;
+      deepPurple: string;
+      deepPurple_alpha: Record<string, string>;
     };
-    kpi_alpha: Record<string, Record<string, string>>;
   }
 
   interface PaletteOptions {
@@ -106,21 +123,38 @@ declare module "@mui/material/styles" {
     };
     kpi?: {
       indigo?: string;
+      indigo_alpha?: Record<string, string>;
       sky?: string;
+      sky_alpha?: Record<string, string>;
       emerald?: string;
+      emerald_alpha?: Record<string, string>;
       amber?: string;
+      amber_alpha?: Record<string, string>;
       pink?: string;
+      pink_alpha?: Record<string, string>;
       violet?: string;
+      violet_alpha?: Record<string, string>;
       cyan?: string;
+      cyan_alpha?: Record<string, string>;
       purple?: string;
+      purple_alpha?: Record<string, string>;
       slateLight?: string;
+      slateLight_alpha?: Record<string, string>;
       slateDark?: string;
+      slateDark_alpha?: Record<string, string>;
       slateDeep?: string;
+      slateDeep_alpha?: Record<string, string>;
       slateDeepest?: string;
+      slateDeepest_alpha?: Record<string, string>;
       slateGray?: string;
+      slateGray_alpha?: Record<string, string>;
       lavender?: string;
+      lavender_alpha?: Record<string, string>;
+      teal?: string;
+      teal_alpha?: Record<string, string>;
+      deepPurple?: string;
+      deepPurple_alpha?: Record<string, string>;
     };
-    kpi_alpha?: Record<string, Record<string, string>>;
   }
 
   interface BreakpointOverrides {
@@ -136,7 +170,7 @@ export type ThemeMode = "light" | "dark";
 
 export const getTheme = (mode: ThemeMode) =>
   createTheme({
-    palette: (palettes[mode] ?? palettes.dark) as any,
+    palette: (palettes[mode] ?? palettes.dark) as PaletteOptions,
 
     breakpoints: {
       values: {

@@ -9,7 +9,7 @@ import {
   Tabs,
   Tab,
   useTheme,
-  alpha,
+  
 } from "@mui/material";
 import {
   Language as LanguageIcon,
@@ -117,11 +117,11 @@ export default function SettingsDialog({ open, onClose }: Props) {
         PaperProps={{
           sx: {
             borderRadius: 5,
-            bgcolor: (theme.palette.background as any).midnight._alpha.main_85,
+            bgcolor: theme.palette.background.midnight._alpha.main_85,
             backdropFilter: "blur(24px) saturate(180%)",
             backgroundImage: "none",
-            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
-            boxShadow: `0 24px 64px ${(theme.palette.common as any).black_alpha.main_60}`,
+            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+            boxShadow: `0 24px 64px ${theme.palette.common.black_alpha.main_60}`,
           },
         }}
       >
@@ -138,17 +138,17 @@ export default function SettingsDialog({ open, onClose }: Props) {
                 fontWeight: 700,
                 fontSize: "0.82rem",
                 minHeight: 44,
-                color: (theme.palette.common as any).white_alpha.main_30,
+                color: theme.palette.common.white_alpha.main_30,
                 gap: 1,
                 transition: "all 0.2s",
                 "&.Mui-selected": { color: "white" },
-                "&:hover": { color: (theme.palette.common as any).white_alpha.main_60 },
+                "&:hover": { color: theme.palette.common.white_alpha.main_60 },
               },
               "& .MuiTabs-indicator": {
                 bgcolor: theme.palette.primary.main,
                 borderRadius: "3px 3px 0 0",
                 height: 3,
-                boxShadow: `0 0 12px ${(theme.palette.primary as any)._alpha.main_50}`,
+                boxShadow: `0 0 12px ${theme.palette.primary._alpha.main_50}`,
               },
             }}
           >
@@ -156,7 +156,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
               <Tab key={i} label={t.label} icon={t.icon} iconPosition="start" />
             ))}
           </Tabs>
-          <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_08 }} />
+          <Divider sx={{ borderColor: theme.palette.divider_alpha.main_08 }} />
         </Box>
 
         <DialogContent sx={{ px: 3, pt: 3.5, pb: 4, minHeight: 400 }}>

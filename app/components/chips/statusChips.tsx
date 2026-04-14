@@ -1,15 +1,18 @@
-import { Chip, useTheme } from "@mui/material";
-
+import { Chip, useTheme, PaletteColor } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { getStatusMeta } from "@/app/lib/priorityColor";
+import { getStatusMeta } from "@/app/lib/statusColor";
 
 export const StatusChip = ({ status }: { status: string }) => {
   const dict = useDictionary();
   const theme = useTheme();
-  const meta = getStatusMeta(status, dict) as any;
+  const meta = getStatusMeta(status, dict);
 
-  const statusColor = (theme.palette[meta.paletteKey as keyof typeof theme.palette] as any)?.main || meta.color;
-  const statusAlpha = (theme.palette[meta.paletteKey as keyof typeof theme.palette] as any)?._alpha || (theme.palette.primary as any)._alpha;
+  // Safely access the palette color dynamically
+  const paletteKey = meta.paletteKey as keyof typeof theme.palette;
+  const paletteColor = theme.palette[paletteKey] as PaletteColor;
+
+  const statusColor = paletteColor?.main || meta.color;
+  const statusAlpha = paletteColor?._alpha || theme.palette.primary._alpha;
 
   return (
     <Chip
@@ -21,9 +24,9 @@ export const StatusChip = ({ status }: { status: string }) => {
         height: "22px",
         fontSize: "0.75rem",
         fontWeight: 600,
-        backgroundColor: statusAlpha.main_10,
+        backgroundColor: statusAlpha?.main_10 || "rgba(0,0,0,0.1)",
         color: statusColor,
-        border: `1px solid ${statusAlpha.main_20}`,
+        border: `1px solid ${statusAlpha?.main_20 || "rgba(0,0,0,0.1)"}`,
         "& .MuiChip-label": {
           px: 1,
         }

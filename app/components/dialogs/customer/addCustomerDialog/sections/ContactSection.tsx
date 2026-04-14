@@ -1,4 +1,4 @@
-import { alpha, Box, Button, Grid, IconButton, Stack, Typography, useTheme, SvgIconProps } from "@mui/material";
+import {  Box, Button, Grid, IconButton, Stack, Typography, useTheme, SvgIconProps } from "@mui/material";
 
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
@@ -50,7 +50,7 @@ const ContactSection = () => {
                 helperText={touched.email ? (errors.email as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
+                    bgcolor: theme.palette.common.white_alpha.main_02,
                   }
                 }}
               />
@@ -69,7 +69,7 @@ const ContactSection = () => {
                 helperText={touched.phone ? (errors.phone as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
+                    bgcolor: theme.palette.common.white_alpha.main_02,
                   }
                 }}
               />
@@ -101,11 +101,11 @@ const ContactSection = () => {
                     isDefault: values.locations.length === 0,
                   })}
                   sx={{
-                    borderColor: (theme.palette.primary as any)._alpha.main_30,
+                    borderColor: theme.palette.primary._alpha.main_30,
                     color: "primary.main",
                     "&:hover": { 
                       borderColor: theme.palette.primary.main,
-                      bgcolor: (theme.palette.primary as any)._alpha.main_05 
+                      bgcolor: theme.palette.primary._alpha.main_05 
                     },
                     borderRadius: 2,
                     textTransform: "none",
@@ -128,14 +128,14 @@ const ContactSection = () => {
                       sx={{
                         p: 3,
                         borderRadius: 4,
-                        border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
-                        bgcolor: (theme.palette.common as any).white_alpha.main_01,
-                        backgroundImage: `linear-gradient(135deg, ${(theme.palette.common as any).white_alpha.main_02} 0%, transparent 100%)`,
+                        border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                        bgcolor: theme.palette.common.white_alpha.main_01,
+                        backgroundImage: `linear-gradient(135deg, ${theme.palette.common.white_alpha.main_02} 0%, transparent 100%)`,
                         position: "relative",
                         transition: "all 0.3s ease",
                         "&:hover": {
-                          border: `1px solid ${(theme.palette.primary as any)._alpha.main_20}`,
-                          bgcolor: (theme.palette.common as any).white_alpha.main_02,
+                          border: `1px solid ${theme.palette.primary._alpha.main_20}`,
+                          bgcolor: theme.palette.common.white_alpha.main_02,
                         }
                       }}
                     >
@@ -153,11 +153,11 @@ const ContactSection = () => {
                             position: "absolute",
                             top: 12,
                             right: 12,
-                            color: (theme.palette.error as any)._alpha.main_50,
-                            bgcolor: (theme.palette.error as any)._alpha.main_05,
+                            color: theme.palette.error._alpha.main_50,
+                            bgcolor: theme.palette.error._alpha.main_05,
                             "&:hover": { 
                               color: theme.palette.error.main,
-                              bgcolor: (theme.palette.error as any)._alpha.main_10,
+                              bgcolor: theme.palette.error._alpha.main_10,
                             },
                           }}
                         >

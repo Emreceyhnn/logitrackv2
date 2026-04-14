@@ -110,7 +110,7 @@ export default function RouteDialog({
 
   const statusColor = getStatusColor();
   const paletteKey = statusMeta.color.split('.')[0] as any;
-  const statusAlpha = (theme.palette[paletteKey as keyof typeof theme.palette] as any)?._alpha || (theme.palette.primary as any)._alpha;
+  const statusAlpha = (theme.palette[paletteKey as keyof typeof theme.palette] as any)?._alpha || theme.palette.primary._alpha;
 
   const mapOrigin =
     route.startLat && route.startLng
@@ -140,7 +140,7 @@ export default function RouteDialog({
             borderRadius: "24px",
             bgcolor: "#0B1019",
             backgroundImage: "none",
-            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
             overflow: "hidden",
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
           },
@@ -150,7 +150,7 @@ export default function RouteDialog({
           sx={{
             p: 3,
             background: `linear-gradient(135deg, ${statusAlpha.main_10} 0%, transparent 100%)`,
-            borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
+            borderBottom: `1px solid ${theme.palette.divider_alpha.main_05}`,
             position: "relative",
           }}
         >
@@ -233,7 +233,7 @@ export default function RouteDialog({
                       color: theme.palette.error.main,
                       borderColor: theme.palette.error.main,
                       "&:hover": {
-                        bgcolor: (theme.palette.error as any)._alpha.main_05,
+                        bgcolor: theme.palette.error._alpha.main_05,
                         borderColor: theme.palette.error.dark,
                       },
                       borderRadius: "10px",
@@ -278,10 +278,10 @@ export default function RouteDialog({
                     onClick={() => handleStatusChange("CANCELED")}
                     disabled={statusLoading}
                     sx={{
-                      color: (theme.palette.common as any).white_alpha.main_50,
+                      color: theme.palette.common.white_alpha.main_50,
                       "&:hover": {
                         color: theme.palette.error.main,
-                        bgcolor: (theme.palette.error as any)._alpha.main_05,
+                        bgcolor: theme.palette.error._alpha.main_05,
                       },
                       borderRadius: "10px",
                       textTransform: "none",
@@ -298,7 +298,7 @@ export default function RouteDialog({
                 onClick={onClose}
                 sx={{
                   color: "rgba(255,255,255,0.4)",
-                  "&:hover": { color: "white", bgcolor: (theme.palette.common as any).white_alpha.main_05 },
+                  "&:hover": { color: "white", bgcolor: theme.palette.common.white_alpha.main_05 },
                 }}
               >
                 <CloseIcon />
@@ -316,9 +316,9 @@ export default function RouteDialog({
             <Box
               sx={{
                 width: { xs: "100%", md: "400px" },
-                borderRight: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
+                borderRight: `1px solid ${theme.palette.divider_alpha.main_05}`,
                 p: 3,
-                bgcolor: (theme.palette.common as any).white_alpha.main_01,
+                bgcolor: theme.palette.common.white_alpha.main_01,
                 overflowY: "auto",
               }}
             >
@@ -372,12 +372,12 @@ export default function RouteDialog({
                   )}
                 </Stack>
 
-                <Divider sx={{ borderColor: (theme.palette.common as any).white_alpha.main_05 }} />
+                <Divider sx={{ borderColor: theme.palette.common.white_alpha.main_05 }} />
 
                 {/* Progress Section */}
                 <RouteProgress route={route} />
 
-                <Divider sx={{ borderColor: (theme.palette.common as any).white_alpha.main_05 }} />
+                <Divider sx={{ borderColor: theme.palette.common.white_alpha.main_05 }} />
 
                 {/* Stats Grid */}
                 <Stack direction="row" spacing={2}>
@@ -386,8 +386,8 @@ export default function RouteDialog({
                       flex: 1,
                       p: 2,
                       borderRadius: "16px",
-                      bgcolor: (theme.palette.common as any).white_alpha.main_03,
-                      border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+                      bgcolor: theme.palette.common.white_alpha.main_03,
+                      border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
                     }}
                   >
                     <Typography
@@ -411,8 +411,8 @@ export default function RouteDialog({
                       flex: 1,
                       p: 2,
                       borderRadius: "16px",
-                      bgcolor: (theme.palette.common as any).white_alpha.main_03,
-                      border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+                      bgcolor: theme.palette.common.white_alpha.main_03,
+                      border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
                     }}
                   >
                     <Typography
@@ -472,9 +472,9 @@ export default function RouteDialog({
               <Box
                 sx={{
                   p: 2,
-                  background: `linear-gradient(to top, #0B1019 0%, ${(theme.palette.background as any).midnight._alpha.main_80} 100%)`,
+                  background: `linear-gradient(to top, #0B1019 0%, ${theme.palette.background.midnight._alpha.main_80} 100%)`,
                   backdropFilter: "blur(8px)",
-                  borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                  borderTop: `1px solid ${theme.palette.divider_alpha.main_10}`,
                 }}
               >
                 <RoutesTelemetryCards

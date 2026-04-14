@@ -39,35 +39,35 @@ const StatCard = ({
   // Helper to resolve color to theme alpha tokens
   const resolveAlpha = (targetColor: string) => {
     // Check if it's a known KPI color
-    if (targetColor.toLowerCase() === '#38bdf8') return (theme.palette as any).kpi_alpha.cyan;
-    if (targetColor.toLowerCase() === '#6366f1') return (theme.palette as any).kpi_alpha.indigo;
-    if (targetColor.toLowerCase() === '#10b981') return (theme.palette as any).kpi_alpha.emerald;
-    if (targetColor.toLowerCase() === '#f59e0b') return (theme.palette as any).kpi_alpha.amber;
-    if (targetColor.toLowerCase() === '#ec4899') return (theme.palette as any).kpi_alpha.pink;
-    if (targetColor.toLowerCase() === '#8b5cf6') return (theme.palette as any).kpi_alpha.violet;
-    if (targetColor.toLowerCase() === '#0ea5e9') return (theme.palette as any).kpi_alpha.sky;
-    if (targetColor.toLowerCase() === '#a855f7') return (theme.palette as any).kpi_alpha.purple;
-    if (targetColor.toLowerCase() === '#cbd5f5') return (theme.palette as any).kpi_alpha.slateLight;
-    if (targetColor.toLowerCase() === '#1e293b') return (theme.palette as any).kpi_alpha.slateDark;
-    if (targetColor.toLowerCase() === '#0f172a') return (theme.palette as any).kpi_alpha.slateDeep;
-    if (targetColor.toLowerCase() === '#0b1120') return (theme.palette as any).kpi_alpha.slateDeepest;
-    if (targetColor.toLowerCase() === '#94a3b8') return (theme.palette as any).kpi_alpha.slateGray;
-    if (targetColor.toLowerCase() === '#e2e8f0') return (theme.palette as any).kpi_alpha.lavender;
+    if (targetColor.toLowerCase() === '#38bdf8') return theme.palette.kpi.cyan_alpha;
+    if (targetColor.toLowerCase() === '#6366f1') return theme.palette.kpi.indigo_alpha;
+    if (targetColor.toLowerCase() === '#10b981') return theme.palette.kpi.emerald_alpha;
+    if (targetColor.toLowerCase() === '#f59e0b') return theme.palette.kpi.amber_alpha;
+    if (targetColor.toLowerCase() === '#ec4899') return theme.palette.kpi.pink_alpha || theme.palette.primary._alpha;
+    if (targetColor.toLowerCase() === '#8b5cf6') return theme.palette.kpi.violet_alpha || theme.palette.primary._alpha;
+    if (targetColor.toLowerCase() === '#0ea5e9') return theme.palette.kpi.sky_alpha;
+    if (targetColor.toLowerCase() === '#a855f7') return theme.palette.kpi.purple_alpha;
+    if (targetColor.toLowerCase() === '#cbd5f5') return theme.palette.kpi.slateLight_alpha;
+    if (targetColor.toLowerCase() === '#1e293b') return theme.palette.kpi.slateDark_alpha;
+    if (targetColor.toLowerCase() === '#0f172a') return theme.palette.kpi.slateDeep_alpha;
+    if (targetColor.toLowerCase() === '#0b1120') return theme.palette.kpi.slateDeepest_alpha;
+    if (targetColor.toLowerCase() === '#94a3b8') return theme.palette.kpi.slateGray_alpha;
+    if (targetColor.toLowerCase() === '#e2e8f0') return theme.palette.kpi.lavender_alpha;
     
     // Core palette matches
-    if (targetColor === theme.palette.primary.main) return (theme.palette.primary as any)._alpha;
-    if (targetColor === theme.palette.secondary.main) return (theme.palette.secondary as any)._alpha;
-    if (targetColor === theme.palette.success.main) return (theme.palette.success as any)._alpha;
-    if (targetColor === theme.palette.error.main) return (theme.palette.error as any)._alpha;
-    if (targetColor === theme.palette.warning.main) return (theme.palette.warning as any)._alpha;
-    if (targetColor === theme.palette.info.main) return (theme.palette.info as any)._alpha;
+    if (targetColor === theme.palette.primary.main) return theme.palette.primary._alpha;
+    if (targetColor === theme.palette.secondary.main) return theme.palette.secondary._alpha;
+    if (targetColor === theme.palette.success.main) return theme.palette.success._alpha;
+    if (targetColor === theme.palette.error.main) return theme.palette.error._alpha;
+    if (targetColor === theme.palette.warning.main) return theme.palette.warning._alpha;
+    if (targetColor === theme.palette.info.main) return theme.palette.info._alpha;
 
     // Fallback to primary alpha
-    return (theme.palette.primary as any)._alpha;
+    return theme.palette.primary._alpha;
   };
 
   const statusAlpha = resolveAlpha(color);
-  const trendColorAlpha = trend ? (trend.isUp ? (theme.palette.success as any)._alpha : (theme.palette.error as any)._alpha) : null;
+  const trendColorAlpha = trend ? (trend.isUp ? theme.palette.success._alpha : theme.palette.error._alpha) : null;
 
   return (
     <motion.div
@@ -95,15 +95,15 @@ const StatCard = ({
           cursor: onClick ? "pointer" : "default",
           
           // Glassmorphism 2.0
-          background: `linear-gradient(135deg, ${(theme.palette.background as any).paper_alpha.main_90} 0%, ${(theme.palette.background as any).paper_alpha.main_70} 100%)`,
+          background: `linear-gradient(135deg, ${theme.palette.background.paper_alpha.main_90} 0%, ${theme.palette.background.paper_alpha.main_70} 100%)`,
           backdropFilter: "blur(20px)",
           border: `1px solid ${statusAlpha.main_15}`,
           
           // Outer and Inner Shadows (Depth)
           boxShadow: `
-            0 10px 40px -10px ${(theme.palette.common as any).black_alpha.main_30},
+            0 10px 40px -10px ${theme.palette.common.black_alpha.main_30},
             inset 0 0 20px 0 ${statusAlpha.main_05},
-            inset 0 1px 1px 0 ${(theme.palette.common as any).white_alpha.main_10}
+            inset 0 1px 1px 0 ${theme.palette.common.white_alpha.main_10}
           `,
           
           "&::before": {
@@ -157,7 +157,7 @@ const StatCard = ({
               <Typography
                 variant="overline"
                 sx={{
-                  color: (theme.palette.text as any).primary_alpha.main_40,
+                  color: theme.palette.text.primary_alpha.main_40,
                   fontWeight: 900,
                   letterSpacing: "0.15em",
                   fontSize: "0.65rem",
@@ -256,7 +256,7 @@ const StatCard = ({
             >
             <Box component="span" sx={{ fontSize: "1rem" }}>{trend.isUp ? "↑" : "↓"}</Box>
             {trend.value}%
-            <Typography component="span" sx={{ color: (theme.palette.text as any).primary_alpha.main_35, fontWeight: 600, ml: 0.5, fontSize: "0.7rem", letterSpacing: "0.02em" }}>
+            <Typography component="span" sx={{ color: theme.palette.text.primary_alpha.main_35, fontWeight: 600, ml: 0.5, fontSize: "0.7rem", letterSpacing: "0.02em" }}>
               {dict?.common?.fromLastMonth || "FROM LAST MONTH"}
             </Typography>
           </Box>

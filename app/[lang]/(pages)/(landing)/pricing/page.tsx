@@ -105,8 +105,8 @@ export default function PricingPage() {
               borderRadius: "999px",
               px: 2,
               py: 0.5,
-              bgcolor: (theme.palette.kpi as any).cyan_alpha.main_10,
-              border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_30}`,
+              bgcolor: theme.palette.kpi.cyan_alpha.main_10,
+              border: `1px solid ${theme.palette.kpi.cyan_alpha.main_30}`,
               color: "#38bdf8",
               fontWeight: 700,
               letterSpacing: 1,
@@ -127,7 +127,7 @@ export default function PricingPage() {
           />
 
           <Stack direction="row" spacing={2} alignItems="center">
-            <Typography variant="body2" sx={{ color: !isYearly ? "#38bdf8" : (theme.palette.kpi as any).slateLight_alpha.main_60, fontWeight: 600 }}>
+            <Typography variant="body2" sx={{ color: !isYearly ? "#38bdf8" : theme.palette.kpi.slateLight_alpha.main_60, fontWeight: 600 }}>
               {dict.landing.pricing.monthly}
             </Typography>
             <Switch
@@ -139,16 +139,16 @@ export default function PricingPage() {
               }}
             />
             <Stack direction="row" spacing={1} alignItems="center">
-              <Typography variant="body2" sx={{ color: isYearly ? "#38bdf8" : (theme.palette.kpi as any).slateLight_alpha.main_60, fontWeight: 600 }}>
+              <Typography variant="body2" sx={{ color: isYearly ? "#38bdf8" : theme.palette.kpi.slateLight_alpha.main_60, fontWeight: 600 }}>
                 {dict.landing.pricing.yearly}
               </Typography>
               <Chip
                 label={dict.landing.pricing.save}
                 size="small"
                 sx={{
-                  bgcolor: (theme.palette.success as any)._alpha.main_10,
-                  color: (theme.palette.kpi as any).emerald,
-                  border: `1px solid ${(theme.palette.success as any)._alpha.main_30}`,
+                  bgcolor: theme.palette.success._alpha.main_10,
+                  color: theme.palette.kpi.emerald,
+                  border: `1px solid ${theme.palette.success._alpha.main_30}`,
                   fontSize: "0.65rem",
                   fontWeight: 800
                 }}
@@ -164,16 +164,16 @@ export default function PricingPage() {
                 sx={{
                   p: 5,
                   borderRadius: 8,
-                  bgcolor: tier.highlight ? (theme.palette.kpi as any).slateDark_alpha.main_60 : (theme.palette.kpi as any).slateDark_alpha.main_40,
+                  bgcolor: tier.highlight ? theme.palette.kpi.slateDark_alpha.main_60 : theme.palette.kpi.slateDark_alpha.main_40,
                   backdropFilter: "blur(12px)",
-                  border: `1px solid ${tier.highlight ? (theme.palette.kpi as any).cyan_alpha.main_40 : (theme.palette.kpi as any).slateLight_alpha.main_10}`,
+                  border: `1px solid ${tier.highlight ? theme.palette.kpi.cyan_alpha.main_40 : theme.palette.kpi.slateLight_alpha.main_10}`,
                   position: "relative",
                   transition: "all 0.3s ease",
                   animation: tier.highlight ? `${glow} 3s infinite ease-in-out` : "none",
                   "&:hover": {
                     transform: "translateY(-10px)",
-                    borderColor: (theme.palette.kpi as any).cyan_alpha.main_60,
-                    bgcolor: (theme.palette.kpi as any).slateDark_alpha.main_70,
+                    borderColor: theme.palette.kpi.cyan_alpha.main_60,
+                    bgcolor: theme.palette.kpi.slateDark_alpha.main_70,
                   }
                 }}
               >
@@ -196,7 +196,7 @@ export default function PricingPage() {
                 <Typography variant="h5" fontWeight={800} mb={1}>
                   {tier.title}
                 </Typography>
-                <Typography variant="body2" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_60, mb: 4, height: 40 }}>
+                <Typography variant="body2" sx={{ color: theme.palette.kpi.slateLight_alpha.main_60, mb: 4, height: 40 }}>
                   {tier.description}
                 </Typography>
 
@@ -205,19 +205,19 @@ export default function PricingPage() {
                     {tier.priceMonthly === null ? dict.landing.pricing.custom : `$${isYearly ? tier.priceYearly : tier.priceMonthly}`}
                   </Typography>
                   {tier.priceMonthly !== null && (
-                    <Typography variant="body2" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_40, mb: 1 }}>
+                    <Typography variant="body2" sx={{ color: theme.palette.kpi.slateLight_alpha.main_40, mb: 1 }}>
                       {dict.landing.pricing.perMonth}
                     </Typography>
                   )}
                 </Stack>
 
-                <Divider sx={{ borderColor: (theme.palette.kpi as any).slateLight_alpha.main_05, mb: 4 }} />
+                <Divider sx={{ borderColor: theme.palette.kpi.slateLight_alpha.main_05, mb: 4 }} />
 
                 <Stack spacing={2} mb={5}>
                   {tier.features.map((feature, fIdx) => (
                     <Stack direction="row" spacing={1.5} alignItems="center" key={fIdx}>
                       <CheckCircleRoundedIcon sx={{ fontSize: 18, color: "#38bdf8", opacity: 0.8 }} />
-                      <Typography variant="body2" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_80 }}>
+                      <Typography variant="body2" sx={{ color: theme.palette.kpi.slateLight_alpha.main_80 }}>
                         {feature}
                       </Typography>
                     </Stack>
@@ -234,9 +234,9 @@ export default function PricingPage() {
                     fontWeight: 700,
                     fontSize: "1rem",
                     background: tier.highlight ? "linear-gradient(135deg, #38bdf8, #6366f1)" : "transparent",
-                    borderColor: (theme.palette.kpi as any).cyan_alpha.main_40,
+                    borderColor: theme.palette.kpi.cyan_alpha.main_40,
                     "&:hover": {
-                      background: tier.highlight ? "linear-gradient(135deg, #0ea5e9, #4f46e5)" : (theme.palette.kpi as any).cyan_alpha.main_10,
+                      background: tier.highlight ? "linear-gradient(135deg, #0ea5e9, #4f46e5)" : theme.palette.kpi.cyan_alpha.main_10,
                     }
                   }}
                 >
@@ -252,7 +252,7 @@ export default function PricingPage() {
             mt: 15,
             p: { xs: 5, md: 8 },
             borderRadius: 8,
-            border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_20}`,
+            border: `1px solid ${theme.palette.kpi.cyan_alpha.main_20}`,
             background: "linear-gradient(135deg, #1e293b66 0%, #1e293b1a 100%)",
             textAlign: "center",
           }}
@@ -262,7 +262,7 @@ export default function PricingPage() {
             <Typography variant="h4" fontWeight={900}>
               {dict.landing.pricing.infrastructure.title}
             </Typography>
-            <Typography variant="body1" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_70, maxWidth: 800, mx: "auto", lineHeight: 1.8 }}>
+            <Typography variant="body1" sx={{ color: theme.palette.kpi.slateLight_alpha.main_70, maxWidth: 800, mx: "auto", lineHeight: 1.8 }}>
               {dict.landing.pricing.infrastructure.description}
             </Typography>
             <Button
@@ -270,7 +270,7 @@ export default function PricingPage() {
               sx={{
                 color: "#38bdf8",
                 fontWeight: 700,
-                "&:hover": { background: (theme.palette.kpi as any).cyan_alpha.main_10 }
+                "&:hover": { background: theme.palette.kpi.cyan_alpha.main_10 }
               }}
             >
               {dict.landing.pricing.infrastructure.cta}
@@ -282,12 +282,12 @@ export default function PricingPage() {
       <Box
         sx={{
           py: 8,
-          borderTop: `1px solid ${(theme.palette.kpi as any).slateLight_alpha.main_05}`,
+          borderTop: `1px solid ${theme.palette.kpi.slateLight_alpha.main_05}`,
           textAlign: "center",
-          bgcolor: (theme.palette.kpi as any).slateDeepest_alpha.main_50,
+          bgcolor: theme.palette.kpi.slateDeepest_alpha.main_50,
         }}
       >
-        <Typography variant="body2" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_40 }}>
+        <Typography variant="body2" sx={{ color: theme.palette.kpi.slateLight_alpha.main_40 }}>
           {dict.landing.pricing.footer.tos.replace("{year}", new Date().getFullYear().toString())} <br />
           {dict.landing.pricing.footer.support}
         </Typography>

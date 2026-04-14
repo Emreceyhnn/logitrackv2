@@ -13,6 +13,7 @@ import {
   Tabs,
   Typography,
   useTheme,
+  PaletteColor,
 } from "@mui/material";
 
 import { DriverWithRelations } from "@/app/lib/type/driver";
@@ -82,10 +83,12 @@ const DriverDialog = (params: DriverDialogParams) => {
 
   if (!driverData) return null;
 
-  const statusMeta = getStatusMeta(driverData.status, dict) as any;
+  const statusMeta = getStatusMeta(driverData.status, dict);
   
-  const statusColor = (theme.palette[statusMeta.paletteKey as keyof typeof theme.palette] as any)?.main || statusMeta.color;
-  const statusAlpha = (theme.palette[statusMeta.paletteKey as keyof typeof theme.palette] as any)?._alpha || (theme.palette.primary as any)._alpha;
+  const paletteKey = statusMeta.paletteKey as keyof typeof theme.palette;
+  const paletteColor = theme.palette[paletteKey] as PaletteColor;
+  const statusColor = paletteColor?.main || statusMeta.color;
+  const statusAlpha = paletteColor?._alpha || theme.palette.primary._alpha;
 
   return (
     <Dialog
@@ -96,9 +99,9 @@ const DriverDialog = (params: DriverDialogParams) => {
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: (theme.palette.background as any).midnight.main,
+          bgcolor: theme.palette.background.midnight.main,
           backgroundImage: "none",
-          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           overflow: "hidden",
         },
       }}
@@ -106,8 +109,8 @@ const DriverDialog = (params: DriverDialogParams) => {
       <Box
         sx={{
           p: 4,
-          background: `linear-gradient(135deg, ${statusAlpha.main_15} 0%, ${(theme.palette.background as any).paper_alpha.main_00} 100%)`,
-          borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
+          background: `linear-gradient(135deg, ${statusAlpha.main_15} 0%, ${theme.palette.background.paper_alpha.main_00} 100%)`,
+          borderBottom: `1px solid ${theme.palette.divider_alpha.main_05}`,
         }}
       >
         <Stack
@@ -120,7 +123,7 @@ const DriverDialog = (params: DriverDialogParams) => {
               sx={{
                 p: 0.5,
                 borderRadius: 4,
-                bgcolor: (theme.palette.common as any).white_alpha.main_03,
+                bgcolor: theme.palette.common.white_alpha.main_03,
                 border: `1px solid ${statusAlpha.main_15}`,
                 boxShadow: `0 0 0 4px ${statusAlpha.main_02}`,
               }}
@@ -136,7 +139,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                   fontSize: "2.2rem",
                   fontWeight: 800,
                   borderRadius: 3,
-                  boxShadow: `0 8px 16px ${(theme.palette.common as any).black_alpha.main_30}`,
+                  boxShadow: `0 8px 16px ${theme.palette.common.black_alpha.main_30}`,
                   border: `1px solid ${statusAlpha.main_30}`,
                   background: !driverData.user.avatarUrl
                     ? `linear-gradient(135deg, ${statusAlpha.main_20} 0%, ${statusAlpha.main_05} 100%)`
@@ -242,7 +245,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                   borderColor: "error.main",
                   color: "error.main",
                   "&:hover": {
-                    bgcolor: (theme.palette.error as any)._alpha.main_10,
+                    bgcolor: theme.palette.error._alpha.main_10,
                   },
                 }}
               >
@@ -253,9 +256,9 @@ const DriverDialog = (params: DriverDialogParams) => {
               onClick={onClose}
               size="small"
               sx={{
-                bgcolor: (theme.palette.text as any).secondary_alpha.main_10,
+                bgcolor: theme.palette.text.secondary_alpha.main_10,
                 "&:hover": {
-                  bgcolor: (theme.palette.text as any).secondary_alpha.main_20,
+                  bgcolor: theme.palette.text.secondary_alpha.main_20,
                 },
               }}
             >
@@ -265,14 +268,14 @@ const DriverDialog = (params: DriverDialogParams) => {
         </Stack>
       </Box>
 
-      <DialogContent sx={{ p: 0, bgcolor: (theme.palette.background as any).midnight.main }}>
+      <DialogContent sx={{ p: 0, bgcolor: theme.palette.background.midnight.main }}>
         <Stack>
           <Box
             sx={{
               px: 4,
               pt: 2,
-              borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
-              bgcolor: (theme.palette.background as any).paper_alpha.main_20,
+              borderBottom: `1px solid ${theme.palette.divider_alpha.main_05}`,
+              bgcolor: theme.palette.background.paper_alpha.main_20,
             }}
           >
             <Tabs

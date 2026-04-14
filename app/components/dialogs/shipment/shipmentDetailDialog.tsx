@@ -1,5 +1,5 @@
 import {
-  alpha,
+  
   Avatar,
   Box,
   Dialog,
@@ -70,7 +70,7 @@ export default function ShipmentDetailDialog({
           bgcolor: "#0B1019",
           backgroundImage: "none",
           overflow: "hidden",
-          border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+          border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
           maxHeight: "90vh",
         },
       }}
@@ -79,8 +79,8 @@ export default function ShipmentDetailDialog({
       <Box
         sx={{
           p: 3,
-          background: `linear-gradient(to right, ${(theme.palette.primary as any)._alpha.main_15}, transparent)`,
-          borderBottom: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+          background: `linear-gradient(to right, ${theme.palette.primary._alpha.main_15}, transparent)`,
+          borderBottom: `1px solid ${theme.palette.common.white_alpha.main_05}`,
           position: "relative",
         }}
       >
@@ -104,8 +104,8 @@ export default function ShipmentDetailDialog({
             onClick={onClose}
             sx={{
               color: "text.secondary",
-              bgcolor: (theme.palette.common as any).white_alpha.main_05,
-              "&:hover": { bgcolor: (theme.palette.common as any).white_alpha.main_10 },
+              bgcolor: theme.palette.common.white_alpha.main_05,
+              "&:hover": { bgcolor: theme.palette.common.white_alpha.main_10 },
             }}
           >
             <CloseIcon fontSize="small" />
@@ -119,8 +119,8 @@ export default function ShipmentDetailDialog({
           <Box
             sx={{
               width: { xs: "100%", md: "400px" },
-              borderRight: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
-              bgcolor: (theme.palette.background as any).midnight._alpha.main_40,
+              borderRight: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+              bgcolor: theme.palette.background.midnight._alpha.main_40,
               overflowY: "auto",
               p: 3,
             }}
@@ -144,8 +144,8 @@ export default function ShipmentDetailDialog({
                   <Paper
                     sx={{
                       p: 2,
-                      bgcolor: (theme.palette.common as any).white_alpha.main_02,
-                      border: `1px dashed ${(theme.palette.common as any).white_alpha.main_10}`,
+                      bgcolor: theme.palette.common.white_alpha.main_02,
+                      border: `1px dashed ${theme.palette.common.white_alpha.main_10}`,
                       borderRadius: 2,
                       textAlign: "center",
                     }}
@@ -176,7 +176,7 @@ export default function ShipmentDetailDialog({
                       top: 10,
                       bottom: 10,
                       width: 2,
-                      bgcolor: (theme.palette.primary as any)._alpha.main_20,
+                      bgcolor: theme.palette.primary._alpha.main_20,
                       "&::after": {
                         content: '""',
                         position: "absolute",
@@ -265,8 +265,8 @@ export default function ShipmentDetailDialog({
                     sx={{
                       p: 2,
                       borderRadius: 2,
-                      bgcolor: (theme.palette.common as any).white_alpha.main_03,
-                      border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+                      bgcolor: theme.palette.common.white_alpha.main_03,
+                      border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
                     }}
                   >
                     <Typography variant="caption" color="text.secondary">
@@ -284,8 +284,8 @@ export default function ShipmentDetailDialog({
                       sx={{
                         p: 2,
                         borderRadius: 2,
-                        bgcolor: (theme.palette.common as any).white_alpha.main_03,
-                        border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+                        bgcolor: theme.palette.common.white_alpha.main_03,
+                        border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
                       }}
                     >
                       <Typography variant="caption" color="text.secondary">
@@ -319,8 +319,8 @@ export default function ShipmentDetailDialog({
                     sx={{
                       p: 2,
                       borderRadius: 2,
-                      bgcolor: (theme.palette.primary as any)._alpha.main_05,
-                      border: `1px solid ${(theme.palette.primary as any)._alpha.main_10}`,
+                      bgcolor: theme.palette.primary._alpha.main_05,
+                      border: `1px solid ${theme.palette.primary._alpha.main_10}`,
                     }}
                   >
                     <Avatar
@@ -366,11 +366,11 @@ export default function ShipmentDetailDialog({
                 bottom: 24,
                 left: 24,
                 right: 24,
-                bgcolor: (theme.palette.background as any).midnight._alpha.main_80,
+                bgcolor: theme.palette.background.midnight._alpha.main_80,
                 backdropFilter: "blur(12px)",
                 borderRadius: 3,
                 p: 2,
-                border: `1px solid ${(theme.palette.common as any).white_alpha.main_10}`,
+                border: `1px solid ${theme.palette.common.white_alpha.main_10}`,
                 display: "flex",
                 justifyContent: "space-around",
                 zIndex: 1,
@@ -389,7 +389,7 @@ export default function ShipmentDetailDialog({
               <Divider
                 orientation="vertical"
                 flexItem
-                sx={{ borderColor: (theme.palette.common as any).white_alpha.main_10 }}
+                sx={{ borderColor: theme.palette.common.white_alpha.main_10 }}
               />
               <Stack alignItems="center">
                 <Typography variant="caption" color="text.secondary">
@@ -404,7 +404,7 @@ export default function ShipmentDetailDialog({
               <Divider
                 orientation="vertical"
                 flexItem
-                sx={{ borderColor: (theme.palette.common as any).white_alpha.main_10 }}
+                sx={{ borderColor: theme.palette.common.white_alpha.main_10 }}
               />
               <Stack alignItems="center">
                 <Typography variant="caption" color="text.secondary">
