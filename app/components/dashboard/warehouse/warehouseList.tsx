@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Typography, Stack, LinearProgress, alpha, useTheme } from "@mui/material";
+import { Typography, Stack, LinearProgress, useTheme } from "@mui/material";
 import DataTable from "@/app/components/ui/DataTable";
 import type { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTable";
 import { WarehouseTableProps, WarehouseWithRelations } from "@/app/lib/type/warehouse";
@@ -89,7 +89,7 @@ const WarehouseListTable = ({
               px: 1,
               py: 0.2,
               borderRadius: 1,
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              bgcolor: (theme.palette.primary as any)._alpha.main_10,
               color: theme.palette.primary.main,
               fontWeight: 800,
               fontSize: "0.6rem",
@@ -129,11 +129,11 @@ const WarehouseListTable = ({
               sx={{
                 height: 6,
                 borderRadius: 3,
-                bgcolor: alpha(theme.palette.divider, 0.05),
+                bgcolor: (theme.palette as any).divider_alpha.main_05,
                 "& .MuiLinearProgress-bar": {
                   bgcolor: palletPct > 85 ? "error.main" : "primary.main",
                   borderRadius: 3,
-                  boxShadow: `0 0 8px ${alpha(palletPct > 85 ? theme.palette.error.main : theme.palette.primary.main, 0.4)}`,
+                  boxShadow: `0 0 8px ${palletPct > 85 ? (theme.palette.error as any)._alpha.main_40 : (theme.palette.primary as any)._alpha.main_40}`,
                 },
               }}
             />
@@ -165,11 +165,11 @@ const WarehouseListTable = ({
               sx={{
                 height: 6,
                 borderRadius: 3,
-                bgcolor: alpha(theme.palette.divider, 0.05),
+                bgcolor: (theme.palette as any).divider_alpha.main_05,
                 "& .MuiLinearProgress-bar": {
                   bgcolor: "success.main",
                   borderRadius: 3,
-                  boxShadow: `0 0 8px ${alpha(theme.palette.success.main, 0.4)}`,
+                  boxShadow: `0 0 8px ${(theme.palette.success as any)._alpha.main_40}`,
                 },
               }}
             />

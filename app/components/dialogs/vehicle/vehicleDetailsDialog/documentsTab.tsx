@@ -154,10 +154,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: alpha("#1A202C", 0.5),
+                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${alpha("#ffffff", 0.05)}`,
+                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
               }}
             >
               <Box
@@ -189,10 +189,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: alpha("#1A202C", 0.5),
+                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${alpha("#ffffff", 0.05)}`,
+                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
               }}
             >
               <Box
@@ -226,10 +226,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: alpha("#1A202C", 0.5),
+                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${alpha("#ffffff", 0.05)}`,
+                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
               }}
             >
               <Box
@@ -261,10 +261,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: alpha("#1A202C", 0.5),
+                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${alpha("#ffffff", 0.05)}`,
+                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
               }}
             >
               <Box
@@ -299,7 +299,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
               borderRadius: "8px",
               bgcolor: "#246BFD",
               textTransform: "none",
-              "&:hover": { bgcolor: alpha("#246BFD", 0.9) },
+              "&:hover": { bgcolor: (theme.palette.primary as any)._alpha.main_90 },
             }}
             onClick={() => setUploadDialogOpen(true)}
             startIcon={<FileUploadIcon />}
@@ -313,10 +313,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
               p: 2,
               borderRadius: "8px",
               gap: 2,
-              bgcolor: alpha("#1A202C", 0.5),
+              bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
               backgroundImage: "none",
               boxShadow: "none",
-              border: `1px solid ${alpha("#ffffff", 0.05)}`,
+              border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
             }}
           >
             <Table size="small">
@@ -325,7 +325,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   <TableCell
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: alpha("#ffffff", 0.05),
+                      borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
                     }}
                   >
                     {dict.common.docType}
@@ -333,7 +333,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   <TableCell
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: alpha("#ffffff", 0.05),
+                      borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
                     }}
                   >
                     {dict.common.status}
@@ -341,7 +341,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   <TableCell
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: alpha("#ffffff", 0.05),
+                      borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
                     }}
                   >
                     {dict.common.expiryDate}
@@ -350,7 +350,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                     align="center"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: alpha("#ffffff", 0.05),
+                      borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
                     }}
                   >
                     {dict.common.actions}
@@ -378,12 +378,12 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       hover
                       sx={{
                         cursor: "pointer",
-                        "&:hover": { bgcolor: alpha("#ffffff", 0.02) },
+                        "&:hover": { bgcolor: (theme.palette.common as any).white_alpha.main_02 },
                       }}
                       onClick={() => handleViewDoc(v.url, v.name)}
                     >
                       <TableCell
-                        sx={{ borderBottomColor: alpha("#ffffff", 0.05) }}
+                        sx={{ borderBottomColor: (theme.palette.common as any).white_alpha.main_05 }}
                       >
                         <Stack>
                           <Typography
@@ -406,14 +406,14 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                         </Stack>
                       </TableCell>
                       <TableCell
-                        sx={{ borderBottomColor: alpha("#ffffff", 0.05) }}
+                        sx={{ borderBottomColor: (theme.palette.common as any).white_alpha.main_05 }}
                       >
                         <StatusChip status={v.status} />
                       </TableCell>
                       <TableCell
                         sx={{
                           color: "white",
-                          borderBottomColor: alpha("#ffffff", 0.05),
+                          borderBottomColor: (theme.palette.common as any).white_alpha.main_05,
                         }}
                       >
                         {v.expiryDate
@@ -422,7 +422,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       </TableCell>
                       <TableCell
                         align="center"
-                        sx={{ borderBottomColor: alpha("#ffffff", 0.05) }}
+                        sx={{ borderBottomColor: (theme.palette.common as any).white_alpha.main_05 }}
                       >
                         <Stack
                           direction="row"
@@ -457,10 +457,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                               handleDeleteClick(v.id, v.name);
                             }}
                             sx={{
-                              color: alpha(theme.palette.error.main, 0.7),
+                              color: (theme.palette.error as any)._alpha.main_70,
                               "&:hover": {
                                 color: theme.palette.error.main,
-                                bgcolor: alpha(theme.palette.error.main, 0.1),
+                                bgcolor: (theme.palette.error as any)._alpha.main_10,
                               },
                             }}
                           >

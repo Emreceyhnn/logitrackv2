@@ -41,8 +41,8 @@ const RoutesTelemetryCards = (params: Params) => {
           sx={{
             p: 3,
             borderRadius: 3,
-            bgcolor: alpha(theme.palette.divider, 0.05),
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            bgcolor: (theme.palette as any).divider_alpha.main_05,
+            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
             flex: 1,
           }}
         >
@@ -68,8 +68,8 @@ const RoutesTelemetryCards = (params: Params) => {
           sx={{
             p: 3,
             borderRadius: 3,
-            bgcolor: alpha(theme.palette.divider, 0.05),
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            bgcolor: (theme.palette as any).divider_alpha.main_05,
+            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
             flex: 1,
           }}
         >
@@ -96,8 +96,8 @@ const RoutesTelemetryCards = (params: Params) => {
         sx={{
           p: 3,
           borderRadius: 3,
-          bgcolor: alpha(theme.palette.divider, 0.05),
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          bgcolor: (theme.palette as any).divider_alpha.main_05,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
         }}
       >
         <Stack spacing={1}>

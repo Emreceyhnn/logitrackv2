@@ -49,14 +49,14 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     case "DELIVERED":
     case "SUCCESS":
     case "ON_TRIP":
-      return { color: "#48BB78", label }; // Success Green
+      return { color: "#48BB78", paletteKey: "success", label }; // Success Green
     case "IN_PROGRESS":
     case "IN_TRANSIT":
     case "PICKED_UP":
     case "IN_SERVICE":
     case "IDLE":
     case "PROCESSING":
-      return { color: "#4299E1", label }; // Primary Blue
+      return { color: "#4299E1", paletteKey: "info", label }; // info Blue (mapped from primary for consistency)
     case "MAINTENANCE":
     case "SCHEDULED":
     case "PENDING":
@@ -69,7 +69,7 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     case "LOW":
     case "MEDIUM":
     case "OPEN":
-      return { color: "#F6AD55", label }; // Warning Orange/Amber
+      return { color: "#F6AD55", paletteKey: "warning", label }; // Warning Orange/Amber
     case "ERROR":
     case "EXPIRED":
     case "HIGH":
@@ -79,8 +79,8 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     case "CANCELLED":
     case "CLOSED":
     case "RESOLVED":
-      return { color: "#F56565", label }; // Error Red
+      return { color: "#F56565", paletteKey: "error", label }; // Error Red
     default:
-      return { color: "#718096", label: label || "-" }; // Neutral Grey
+      return { color: "#718096", paletteKey: "secondary", label: label || "-" }; // Neutral Grey
   }
 };

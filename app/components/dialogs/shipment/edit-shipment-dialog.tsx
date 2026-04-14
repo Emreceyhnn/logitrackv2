@@ -266,7 +266,7 @@ const EditShipmentDialog = ({
                   borderRadius: 4,
                   bgcolor: "#0B1019",
                   backgroundImage: "none",
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                 },
               }}
             >
@@ -286,7 +286,7 @@ const EditShipmentDialog = ({
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        bgcolor: alpha(theme.palette.warning.main, 0.1),
+                        bgcolor: (theme.palette.warning as any)._alpha.main_10,
                         color: theme.palette.warning.main,
                       }}
                     >
@@ -313,17 +313,17 @@ const EditShipmentDialog = ({
                   activeStep={currentStep - 1}
                   sx={{
                     "& .MuiStepLabel-label": {
-                      color: alpha("#fff", 0.5),
+                      color: (theme.palette.common as any).white_alpha.main_50,
                       fontWeight: 600,
                     },
                     "& .MuiStepLabel-label.Mui-active": {
                       color: theme.palette.primary.main,
                     },
                     "& .MuiStepLabel-label.Mui-completed": {
-                      color: alpha("#fff", 0.7),
+                      color: (theme.palette.common as any).white_alpha.main_70,
                     },
                     "& .MuiStepIcon-root": {
-                      color: alpha(theme.palette.divider, 0.1),
+                      color: (theme.palette as any).divider_alpha.main_10,
                     },
                     "& .MuiStepIcon-root.Mui-active": {
                       color: theme.palette.primary.main,
@@ -347,7 +347,7 @@ const EditShipmentDialog = ({
                     <Stack spacing={6}>
                       <BasicInfoSection />
                       <Divider
-                        sx={{ borderColor: alpha(theme.palette.divider, 0.05) }}
+                        sx={{ borderColor: (theme.palette as any).divider_alpha.main_05 }}
                       />
                       <LogisticsSection
                         warehouses={warehouses}
@@ -365,7 +365,7 @@ const EditShipmentDialog = ({
                         </Grid>
                       </Grid>
                       <Divider
-                        sx={{ borderColor: alpha(theme.palette.divider, 0.05) }}
+                        sx={{ borderColor: (theme.palette as any).divider_alpha.main_05 }}
                       />
                       <InventorySection
                         availableInventory={[]}
@@ -380,7 +380,7 @@ const EditShipmentDialog = ({
                 sx={{
                   p: 3,
                   pt: 1,
-                  borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+                  borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
                   justifyContent: "space-between",
                 }}
               >
@@ -404,7 +404,7 @@ const EditShipmentDialog = ({
                     borderRadius: 2,
                     textTransform: "none",
                     fontWeight: 600,
-                    boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
+                    boxShadow: `0 8px 16px ${(theme.palette.primary as any)._alpha.main_20}`,
                   }}
                   startIcon={
                     isLoading && <CircularProgress size={16} color="inherit" />

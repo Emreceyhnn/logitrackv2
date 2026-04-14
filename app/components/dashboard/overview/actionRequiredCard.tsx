@@ -30,7 +30,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     SHIPMENT_DELAY: (
       <Box
         sx={{
-          bgcolor: alpha(theme.palette.error.main, 0.1),
+          bgcolor: (theme.palette.error as any)._alpha.main_10,
           color: theme.palette.error.main,
           width: 32,
           height: 32,
@@ -46,7 +46,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     vehicle: (
       <Box
         sx={{
-          bgcolor: alpha(theme.palette.warning.main, 0.1),
+          bgcolor: (theme.palette.warning as any)._alpha.main_10,
           color: theme.palette.warning.main,
           width: 32,
           height: 32,
@@ -62,7 +62,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     driver: (
       <Box
         sx={{
-          bgcolor: alpha(theme.palette.secondary.main, 0.1),
+          bgcolor: (theme.palette.secondary as any)._alpha.main_10,
           color: theme.palette.secondary.main,
           width: 32,
           height: 32,
@@ -78,7 +78,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     DOCUMENT_DUE: (
       <Box
         sx={{
-          bgcolor: alpha(theme.palette.info.main, 0.1),
+          bgcolor: (theme.palette.info as any)._alpha.main_10,
           color: theme.palette.info.main,
           width: 32,
           height: 32,
@@ -94,7 +94,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     warehouse: (
       <Box
         sx={{
-          bgcolor: alpha(theme.palette.success.main, 0.1),
+          bgcolor: (theme.palette.success as any)._alpha.main_10,
           color: theme.palette.success.main,
           width: 32,
           height: 32,
@@ -117,7 +117,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
         {alerts.length > 0 && (
           <Box
             sx={{
-              bgcolor: (theme) => alpha(theme.palette.error.main, 0.1),
+              bgcolor: (theme) => (theme.palette.error as any)._alpha.main_10,
               color: "error.main",
               px: 1,
               py: 0.25,

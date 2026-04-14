@@ -43,7 +43,7 @@ export default function NotificationsTab({
             sx={{
               p: 0.8,
               borderRadius: 1.5,
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              bgcolor: (theme.palette.primary as any)._alpha.main_10,
             }}
           >
             <EmailOutlinedIcon
@@ -53,7 +53,7 @@ export default function NotificationsTab({
           <Typography
             variant="caption"
             fontWeight={850}
-            sx={{ color: alpha("#fff", 0.6), letterSpacing: 1.2 }}
+            sx={{ color: (theme.palette.common as any).white_alpha.main_60, letterSpacing: 1.2 }}
           >
             {dict.settings.dialogs.notifications.emailChannels}
           </Typography>
@@ -86,7 +86,7 @@ export default function NotificationsTab({
         </Stack>
       </Box>
 
-      <Divider sx={{ borderColor: alpha("#fff", 0.05) }} />
+      <Divider sx={{ borderColor: (theme.palette.common as any).white_alpha.main_05 }} />
 
       <Box>
         <Stack direction="row" alignItems="center" gap={1} mb={2}>
@@ -94,7 +94,7 @@ export default function NotificationsTab({
             sx={{
               p: 0.8,
               borderRadius: 1.5,
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              bgcolor: (theme.palette.primary as any)._alpha.main_10,
             }}
           >
             <NotifIcon
@@ -104,7 +104,7 @@ export default function NotificationsTab({
           <Typography
             variant="caption"
             fontWeight={850}
-            sx={{ color: alpha("#fff", 0.6), letterSpacing: 1.2 }}
+            sx={{ color: (theme.palette.common as any).white_alpha.main_60, letterSpacing: 1.2 }}
           >
             {dict.settings.dialogs.notifications.realTimeSignals}
           </Typography>
@@ -148,9 +148,9 @@ export default function NotificationsTab({
             px: 4,
             py: 1,
             background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-            boxShadow: `0 8px 32px ${alpha(theme.palette.primary.main, 0.25)}`,
+            boxShadow: `0 8px 32px ${(theme.palette.primary as any)._alpha.main_25}`,
             "&:hover": {
-              boxShadow: `0 12px 40px ${alpha(theme.palette.primary.main, 0.35)}`,
+              boxShadow: `0 12px 40px ${(theme.palette.primary as any)._alpha.main_35}`,
               transform: "translateY(-1px)",
             },
             transition: "all 0.2s",

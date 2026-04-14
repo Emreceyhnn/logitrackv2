@@ -157,7 +157,7 @@ const AddFuelLogDialog = ({
           borderRadius: 3,
           bgcolor: "#0B1019",
           backgroundImage: "none",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
         },
       }}
     >
@@ -191,7 +191,7 @@ const AddFuelLogDialog = ({
               onChange={(e) => updateForm({ vehicleId: e.target.value })}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  bgcolor: alpha("#1A202C", 0.5),
+                  bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                   borderRadius: 1.5,
                 },
               }}
@@ -210,7 +210,7 @@ const AddFuelLogDialog = ({
               onChange={(e) => updateForm({ driverId: e.target.value })}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  bgcolor: alpha("#1A202C", 0.5),
+                  bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                   borderRadius: 1.5,
                 },
               }}
@@ -232,7 +232,7 @@ const AddFuelLogDialog = ({
               onChange={(e) => updateForm({ volumeLiter: e.target.value })}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  bgcolor: alpha("#1A202C", 0.5),
+                  bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                   borderRadius: 1.5,
                 },
               }}
@@ -245,7 +245,7 @@ const AddFuelLogDialog = ({
               onChange={(e) => updateForm({ cost: e.target.value })}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  bgcolor: alpha("#1A202C", 0.5),
+                  bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                   borderRadius: 1.5,
                 },
               }}
@@ -261,7 +261,7 @@ const AddFuelLogDialog = ({
               onChange={(e) => updateForm({ odometerKm: e.target.value })}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  bgcolor: alpha("#1A202C", 0.5),
+                  bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                   borderRadius: 1.5,
                 },
               }}
@@ -274,7 +274,7 @@ const AddFuelLogDialog = ({
               onChange={(e) => updateForm({ fuelType: e.target.value })}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  bgcolor: alpha("#1A202C", 0.5),
+                  bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                   borderRadius: 1.5,
                 },
               }}
@@ -295,7 +295,7 @@ const AddFuelLogDialog = ({
             placeholder="Shell, Station #123, etc."
             sx={{
               "& .MuiOutlinedInput-root": {
-                bgcolor: alpha("#1A202C", 0.5),
+                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                 borderRadius: 1.5,
               },
             }}
@@ -327,7 +327,7 @@ const AddFuelLogDialog = ({
                 sx={{
                   textTransform: "none",
                   borderRadius: 2,
-                  borderColor: alpha(theme.palette.divider, 0.2),
+                  borderColor: (theme.palette as any).divider_alpha.main_20,
                   color: "white",
                   px: 3,
                 }}
@@ -347,7 +347,7 @@ const AddFuelLogDialog = ({
                     height: 48,
                     borderRadius: 1,
                     overflow: "hidden",
-                    border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+                    border: `1px solid ${(theme.palette as any).divider_alpha.main_20}`,
                   }}
                 >
                   <Box
@@ -386,7 +386,7 @@ const AddFuelLogDialog = ({
             minWidth: 120,
             textTransform: "none",
             fontWeight: 700,
-            boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+            boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_20}`,
           }}
           startIcon={loading && <CircularProgress size={16} color="inherit" />}
         >

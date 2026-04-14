@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, Stack, Typography, useTheme, Box, alpha } from "@mui/material";
+import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
@@ -31,6 +31,19 @@ const MetricCard = ({
 }: MetricCardProps) => {
   const theme = useTheme();
 
+  // Helper to resolve color to theme alpha tokens
+  const resolveAlpha = (targetColor: string) => {
+    if (targetColor === theme.palette.primary.main) return (theme.palette.primary as any)._alpha;
+    if (targetColor === theme.palette.success.main) return (theme.palette.success as any)._alpha;
+    if (targetColor === theme.palette.error.main) return (theme.palette.error as any)._alpha;
+    if (targetColor === theme.palette.warning.main) return (theme.palette.warning as any)._alpha;
+    if (targetColor === theme.palette.info.main) return (theme.palette.info as any)._alpha;
+    return (theme.palette.primary as any)._alpha;
+  };
+
+  const statusAlpha = resolveAlpha(color);
+  const changeAlpha = positive ? (theme.palette.success as any)._alpha : (theme.palette.error as any)._alpha;
+
   return (
     <Card
       sx={{
@@ -59,7 +72,7 @@ const MetricCard = ({
             sx={{
               p: 1.5,
               borderRadius: "12px",
-              bgcolor: alpha(color, 0.1),
+              bgcolor: statusAlpha.main_10,
               color: color,
               display: "flex",
               alignItems: "center",
@@ -74,12 +87,7 @@ const MetricCard = ({
               fontWeight={700}
               sx={{
                 color: positive ? "success.main" : "error.main",
-                bgcolor: alpha(
-                  positive
-                    ? theme.palette.success.main
-                    : theme.palette.error.main,
-                  0.1
-                ),
+                bgcolor: changeAlpha.main_10,
                 px: 1,
                 py: 0.5,
                 borderRadius: "6px",

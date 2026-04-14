@@ -108,7 +108,7 @@ export default function CompanyMembersTable({
         <Stack direction="row" spacing={1.5} alignItems="center">
           <Avatar
             src={row.avatarUrl ?? undefined}
-            sx={{ width: 32, height: 32, fontSize: 13, bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main }}
+            sx={{ width: 32, height: 32, fontSize: 13, bgcolor: (theme.palette.primary as any)._alpha.main_10, color: theme.palette.primary.main }}
           >
             {!row.avatarUrl && `${row.name[0]}${row.surname[0]}`}
           </Avatar>

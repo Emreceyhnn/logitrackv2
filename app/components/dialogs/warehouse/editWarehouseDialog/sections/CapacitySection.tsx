@@ -143,9 +143,9 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                     sx={{
                       height: 80,
                       borderRadius: 3,
-                      border: `1px solid ${isActive ? theme.palette.primary.main : alpha(theme.palette.divider, 0.1)}`,
+                      border: `1px solid ${isActive ? theme.palette.primary.main : (theme.palette as any).divider_alpha.main_10}`,
                       bgcolor: isActive
-                        ? alpha(theme.palette.primary.main, 0.05)
+                        ? (theme.palette.primary as any)._alpha.main_05
                         : "transparent",
                       display: "flex",
                       flexDirection: "column",
@@ -155,11 +155,11 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                       transition: "all 0.2s ease-in-out",
                       "&:hover": {
                         bgcolor: isActive
-                          ? alpha(theme.palette.primary.main, 0.1)
-                          : alpha(theme.palette.divider, 0.05),
+                          ? (theme.palette.primary as any)._alpha.main_10
+                          : (theme.palette as any).divider_alpha.main_05,
                         borderColor: isActive
                           ? theme.palette.primary.main
-                          : alpha(theme.palette.divider, 0.2),
+                          : (theme.palette as any).divider_alpha.main_20,
                         transform: "translateY(-2px)",
                       },
                     }}
@@ -191,8 +191,8 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
           sx={{
             p: 2.5,
             borderRadius: 3,
-            bgcolor: alpha(theme.palette.info.main, 0.05),
-            border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
+            bgcolor: (theme.palette.info as any)._alpha.main_05,
+            border: `1px solid ${(theme.palette.info as any)._alpha.main_10}`,
           }}
         >
           <Typography

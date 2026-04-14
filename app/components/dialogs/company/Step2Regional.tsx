@@ -48,7 +48,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
 
       <Stack spacing={4}>
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: (theme.palette.text as any).primary_alpha.main_70 }}>
             {dict.company.dialogs.steps.timezone}
           </Typography>
           <FormControl fullWidth error={touched.timezone && !!errors.timezone}>
@@ -61,14 +61,14 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
               onBlur={handleBlur}
               startAdornment={
                 <PublicIcon
-                  sx={{ mr: 1, color: alpha(theme.palette.text.primary, 0.3), fontSize: 20 }}
+                  sx={{ mr: 1, color: (theme.palette.text as any).primary_alpha.main_30, fontSize: 20 }}
                 />
               }
               sx={{
-                bgcolor: alpha(theme.palette.background.paper, 0.5),
+                bgcolor: (theme.palette.background as any).paper_alpha.main_50,
                 borderRadius: 3,
                 "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: alpha(theme.palette.divider, 0.1),
+                  borderColor: (theme.palette as any).divider_alpha.main_10,
                 }
               }}
             >
@@ -87,7 +87,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
 
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
+            <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: (theme.palette.text as any).primary_alpha.main_70 }}>
               {dict.company.dialogs.steps.currency}
             </Typography>
             <FormControl fullWidth error={touched.currency && !!errors.currency}>
@@ -100,14 +100,14 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                 onBlur={handleBlur}
                 startAdornment={
                   <PaymentsIcon
-                    sx={{ mr: 1, color: alpha(theme.palette.text.primary, 0.3), fontSize: 20 }}
+                    sx={{ mr: 1, color: (theme.palette.text as any).primary_alpha.main_30, fontSize: 20 }}
                   />
                 }
                 sx={{
-                  bgcolor: alpha(theme.palette.background.paper, 0.5),
+                  bgcolor: (theme.palette.background as any).paper_alpha.main_50,
                   borderRadius: 3,
                   "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: alpha(theme.palette.divider, 0.1),
+                    borderColor: (theme.palette as any).divider_alpha.main_10,
                   }
                 }}
               >
@@ -124,7 +124,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
             </FormControl>
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: alpha(theme.palette.text.primary, 0.7) }}>
+            <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, color: (theme.palette.text as any).primary_alpha.main_70 }}>
               {dict.company.dialogs.steps.language}
             </Typography>
             <FormControl fullWidth error={touched.language && !!errors.language}>
@@ -137,14 +137,14 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                 onBlur={handleBlur}
                 startAdornment={
                   <LanguageIcon
-                    sx={{ mr: 1, color: alpha(theme.palette.text.primary, 0.3), fontSize: 20 }}
+                    sx={{ mr: 1, color: (theme.palette.text as any).primary_alpha.main_30, fontSize: 20 }}
                   />
                 }
                 sx={{
-                  bgcolor: alpha(theme.palette.background.paper, 0.5),
+                  bgcolor: (theme.palette.background as any).paper_alpha.main_50,
                   borderRadius: 3,
                   "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: alpha(theme.palette.divider, 0.1),
+                    borderColor: (theme.palette as any).divider_alpha.main_10,
                   }
                 }}
               >
@@ -164,13 +164,13 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
           sx={{
             p: 3,
             borderRadius: 4,
-            bgcolor: alpha(theme.palette.primary.main, 0.04),
-            border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+            bgcolor: (theme.palette.primary as any)._alpha.main_04,
+            border: `1px solid ${(theme.palette.primary as any)._alpha.main_15}`,
             display: "flex",
             gap: 2.5,
             transition: "0.2s",
             "&:hover": {
-               bgcolor: alpha(theme.palette.primary.main, 0.06),
+               bgcolor: (theme.palette.primary as any)._alpha.main_06,
             }
           }}
         >
@@ -181,7 +181,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
             </Typography>
             <Typography
               variant="caption"
-              sx={{ color: alpha(theme.palette.text.secondary, 0.7), display: "block", mb: 2, lineHeight: 1.5 }}
+              sx={{ color: (theme.palette.text as any).secondary_alpha.main_70, display: "block", mb: 2, lineHeight: 1.5 }}
             >
               {dict.company.dialogs.steps.standardize}
             </Typography>
@@ -195,7 +195,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                     })
                   }
                   sx={{ 
-                    color: alpha(theme.palette.primary.main, 0.5),
+                    color: (theme.palette.primary as any)._alpha.main_50,
                     "&.Mui-checked": { color: theme.palette.primary.main }
                   }}
                 />

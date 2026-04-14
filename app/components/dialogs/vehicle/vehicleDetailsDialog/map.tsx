@@ -5,7 +5,7 @@ import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import CustomCard from "../../../cards/card";
 import { useVehicleTracking } from "@/app/hooks/useVehicleTracking";
-import { Box, Stack, Typography, Chip, alpha, Skeleton } from "@mui/material";
+import { Box, Stack, Typography, Chip, Skeleton, useTheme } from "@mui/material";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import SignalWifiOffIcon from "@mui/icons-material/SignalWifiOff";
 import SatelliteAltIcon from "@mui/icons-material/SatelliteAlt";
@@ -33,6 +33,7 @@ const MapVehicleOverviewCard = ({
   name,
   dbLocation,
 }: MapVehicleOverviewCardProps) => {
+  const theme = useTheme();
   const dict = useDictionary();
   const [now, setNow] = useState(0);
 
@@ -97,7 +98,7 @@ const MapVehicleOverviewCard = ({
         }}
       >
         {loading ? (
-          <Skeleton variant="rounded" width={90} height={26} sx={{ bgcolor: "rgba(255,255,255,0.08)" }} />
+          <Skeleton variant="rounded" width={90} height={26} sx={{ bgcolor: "#ffffff14" }} />
         ) : hasLiveSignal ? (
           <Chip
             icon={
@@ -119,8 +120,8 @@ const MapVehicleOverviewCard = ({
             label={dict.vehicles.dialogs.liveStatus}
             size="small"
             sx={{
-              bgcolor: alpha("#4ade80", 0.15),
-              border: `1px solid ${alpha("#4ade80", 0.4)}`,
+              bgcolor: (theme.palette.success as any)._alpha.main_15,
+              border: `1px solid ${(theme.palette.success as any)._alpha.main_40}`,
               color: "#4ade80",
               fontWeight: 700,
               fontSize: "0.65rem",
@@ -135,8 +136,8 @@ const MapVehicleOverviewCard = ({
             label={dict.vehicles.dialogs.noSignal}
             size="small"
             sx={{
-              bgcolor: alpha("#1e293b", 0.8),
-              border: `1px solid ${alpha("#94a3b8", 0.2)}`,
+              bgcolor: (theme.palette.kpi as any).slateDark_alpha.main_80,
+              border: `1px solid ${(theme.palette.kpi as any).slateGray_alpha.main_20}`,
               color: "#94a3b8",
               fontWeight: 600,
               fontSize: "0.65rem",
@@ -154,7 +155,7 @@ const MapVehicleOverviewCard = ({
           variant="rectangular"
           width="100%"
           height="100%"
-          sx={{ minHeight: 320, bgcolor: "rgba(255,255,255,0.04)" }}
+          sx={{ minHeight: 320, bgcolor: "#ffffff0a" }}
         />
       ) : activeLocation ? (
         <GoogleMapsProvider>
@@ -168,11 +169,11 @@ const MapVehicleOverviewCard = ({
           spacing={1.5}
           sx={{
             minHeight: 320,
-            bgcolor: alpha("#0f172a", 0.8),
+            bgcolor: (theme.palette.kpi as any).slateDeep_alpha.main_80,
             borderRadius: 2,
           }}
         >
-          <SatelliteAltIcon sx={{ fontSize: 48, color: alpha("#94a3b8", 0.3) }} />
+          <SatelliteAltIcon sx={{ fontSize: 48, color: (theme.palette.kpi as any).slateGray_alpha.main_30 }} />
           <Typography variant="body2" sx={{ color: "#64748b", fontWeight: 500 }}>
             {dict.vehicles.dialogs.noGpsData}
           </Typography>
@@ -192,7 +193,7 @@ const MapVehicleOverviewCard = ({
             right: 0,
             px: 2,
             py: 1.5,
-            background: "linear-gradient(to top, rgba(11,16,25,0.95) 0%, rgba(11,16,25,0.7) 50%, transparent 100%)",
+            background: "linear-gradient(to top, #0b1019f2 0%, #0b1019b3 50%, transparent 100%)",
             zIndex: 10,
             pointerEvents: "none",
           }}
@@ -243,7 +244,7 @@ const MapVehicleOverviewCard = ({
             right: 0,
             px: 2,
             py: 1,
-            background: "rgba(11,16,25,0.85)",
+            background: "#0b1019d9",
             zIndex: 10,
             pointerEvents: "none",
             backdropFilter: "blur(4px)",

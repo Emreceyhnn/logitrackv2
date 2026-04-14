@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  alpha,
   Box,
   Dialog,
   DialogTitle,
@@ -50,14 +49,27 @@ const ActivityIcon = ({ type }: { type: string }) => {
 };
 
 const KPICard = ({ label, value, icon, color }: { label: string; value: number; icon: React.ReactNode; color: string }) => {
+  const theme = useTheme();
+  
+  const resolveAlpha = (targetColor: string) => {
+    if (targetColor === theme.palette.primary.main) return (theme.palette.primary as any)._alpha;
+    if (targetColor === theme.palette.success.main) return (theme.palette.success as any)._alpha;
+    if (targetColor === theme.palette.error.main) return (theme.palette.error as any)._alpha;
+    if (targetColor === theme.palette.warning.main) return (theme.palette.warning as any)._alpha;
+    if (targetColor === theme.palette.info.main) return (theme.palette.info as any)._alpha;
+    return (theme.palette.primary as any)._alpha;
+  };
+
+  const statusAlpha = resolveAlpha(color);
+
   return (
     <Box
       sx={{
         flex: 1,
         p: 2,
         borderRadius: 3,
-        bgcolor: alpha(color, 0.05),
-        border: `1px solid ${alpha(color, 0.15)}`,
+        bgcolor: statusAlpha.main_05,
+        border: `1px solid ${statusAlpha.main_15}`,
         display: "flex",
         alignItems: "center",
         gap: 2,
@@ -67,7 +79,7 @@ const KPICard = ({ label, value, icon, color }: { label: string; value: number; 
         sx={{
           p: 1.5,
           borderRadius: 2,
-          bgcolor: alpha(color, 0.1),
+          bgcolor: statusAlpha.main_10,
           color: color,
           display: "flex",
         }}
@@ -129,19 +141,19 @@ export default function DriverHistoryDialog({
           borderRadius: 4,
           bgcolor: "#0B1019",
           backgroundImage: "none",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
           maxHeight: "85vh",
         },
       }}
     >
-      <DialogTitle sx={{ p: 3, pb: 2, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
+      <DialogTitle sx={{ p: 3, pb: 2, borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_05}` }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Stack direction="row" spacing={2} alignItems="center">
             <Box
               sx={{
                 p: 1.25,
                 borderRadius: 2,
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                bgcolor: (theme.palette.primary as any)._alpha.main_10,
                 color: theme.palette.primary.main,
                 display: "flex",
               }}
@@ -193,7 +205,7 @@ export default function DriverHistoryDialog({
               />
             </Stack>
 
-            <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
+            <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_05 }} />
 
             {/* Timeline */}
             <Box>
@@ -214,7 +226,7 @@ export default function DriverHistoryDialog({
                             top: 40,
                             bottom: -15,
                             width: 2,
-                            bgcolor: alpha(theme.palette.divider, 0.05),
+                            bgcolor: (theme.palette as any).divider_alpha.main_05,
                             zIndex: 0,
                           }}
                         />
@@ -226,8 +238,8 @@ export default function DriverHistoryDialog({
                             width: 42,
                             height: 42,
                             borderRadius: "50%",
-                            bgcolor: alpha(theme.palette.background.paper, 0.3),
-                            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                            bgcolor: (theme.palette.background as any).paper_alpha.main_30,
+                            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",

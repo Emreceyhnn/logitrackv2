@@ -4,13 +4,13 @@ import { Theme, alpha } from "@mui/material";
 
 export const selectSxFactory = (theme: Theme) => ({
   borderRadius: 2.5,
-  bgcolor: alpha("#ffffff", 0.03),
+  bgcolor: (theme.palette.common as any).white_alpha.main_03,
   color: "white",
   transition: "all 0.2s",
-  "& .MuiOutlinedInput-notchedOutline": { borderColor: alpha(theme.palette.divider, 0.08) },
-  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: alpha(theme.palette.primary.main, 0.3) },
+  "& .MuiOutlinedInput-notchedOutline": { borderColor: (theme.palette as any).divider_alpha.main_08 },
+  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: (theme.palette.primary as any)._alpha.main_30 },
   "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: theme.palette.primary.main },
-  "& .MuiSvgIcon-root": { color: alpha("#fff", 0.3) },
+  "& .MuiSvgIcon-root": { color: (theme.palette.common as any).white_alpha.main_30 },
   "& .MuiSelect-select": { 
     display: "flex", 
     alignItems: "center", 
@@ -20,11 +20,11 @@ export const selectSxFactory = (theme: Theme) => ({
   },
 });
 
-export const inputLabelSx = {
+export const inputLabelSxFactory = (theme: Theme) => ({
   "& .MuiInputLabel-root": { 
-    color: alpha("#fff", 0.4),
+    color: (theme.palette.common as any).white_alpha.main_40,
     fontSize: "0.85rem",
     fontWeight: 600
   },
   "& .MuiInputLabel-root.Mui-focused": { color: "primary.main" },
-};
+});

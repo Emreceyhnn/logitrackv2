@@ -173,11 +173,11 @@ export default function ProfileDialog({ open, onClose }: Props) {
         PaperProps={{
           sx: {
             borderRadius: 5,
-            bgcolor: alpha("#0B1019", 0.85),
+            bgcolor: (theme.palette.background as any).midnight._alpha.main_85,
             backdropFilter: "blur(24px) saturate(180%)",
             backgroundImage: "none",
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-            boxShadow: `0 24px 64px ${alpha("#000", 0.6)}`,
+            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+            boxShadow: `0 24px 64px ${(theme.palette.common as any).black_alpha.main_60}`,
           },
         }}
       >
@@ -194,17 +194,17 @@ export default function ProfileDialog({ open, onClose }: Props) {
                 fontWeight: 700,
                 fontSize: "0.85rem",
                 minHeight: 44,
-                color: alpha("#fff", 0.3),
+                color: (theme.palette.common as any).white_alpha.main_30,
                 gap: 1,
                 transition: "all 0.2s",
                 "&.Mui-selected": { color: "white" },
-                "&:hover": { color: alpha("#fff", 0.6) },
+                "&:hover": { color: (theme.palette.common as any).white_alpha.main_60 },
               },
               "& .MuiTabs-indicator": {
                 bgcolor: theme.palette.primary.main,
                 borderRadius: "3px 3px 0 0",
                 height: 3,
-                boxShadow: `0 0 12px ${alpha(theme.palette.primary.main, 0.5)}`,
+                boxShadow: `0 0 12px ${(theme.palette.primary as any)._alpha.main_50}`,
               },
             }}
           >
@@ -212,7 +212,7 @@ export default function ProfileDialog({ open, onClose }: Props) {
               <Tab key={i} label={t.label} icon={t.icon} iconPosition="start" />
             ))}
           </Tabs>
-          <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.08) }} />
+          <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_08 }} />
         </Box>
 
         <DialogContent sx={{ px: 3, pt: 3.5, pb: 4, minHeight: 420 }}>
@@ -232,7 +232,7 @@ export default function ProfileDialog({ open, onClose }: Props) {
               />
               <Box
                 sx={{
-                  color: alpha("#fff", 0.3),
+                  color: (theme.palette.common as any).white_alpha.main_30,
                   fontWeight: 600,
                   fontSize: "0.8rem",
                   letterSpacing: 1,

@@ -66,13 +66,13 @@ export const AddressAutocomplete = ({
 
   const textFieldStyles = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: alpha("#1A202C", 0.5),
+      backgroundColor: (theme.palette.text as any).darkBlue._alpha.main_50,
       borderRadius: 2,
       "& fieldset": {
-        borderColor: alpha(theme.palette.divider, 0.1),
+        borderColor: (theme.palette as any).divider_alpha.main_10,
       },
       "&:hover fieldset": {
-        borderColor: alpha(theme.palette.primary.main, 0.3),
+        borderColor: (theme.palette.primary as any)._alpha.main_30,
       },
       "&.Mui-focused fieldset": {
         borderColor: theme.palette.primary.main,

@@ -14,7 +14,6 @@ import {
   Divider,
   Avatar,
   useTheme,
-  alpha,
   Grid,
   Tabs,
   Tab,
@@ -137,7 +136,7 @@ export default function InventoryDetailsDialog({
           bgcolor: "#0B0F19",
           backgroundImage: "none",
           borderRadius: 4,
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
           overflow: "hidden",
         },
       }}
@@ -150,7 +149,7 @@ export default function InventoryDetailsDialog({
               variant="rounded"
               src={item.imageUrl || undefined}
               sx={{
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                bgcolor: (theme.palette.primary as any)._alpha.main_10,
                 color: theme.palette.primary.main,
                 width: 64,
                 height: 64,
@@ -176,9 +175,9 @@ export default function InventoryDetailsDialog({
                     fontWeight: 700, 
                     height: 20,
                     fontSize: "0.65rem",
-                    bgcolor: alpha(theme.palette[statusColor].main, 0.15),
+                    bgcolor: (theme.palette[statusColor as "success" | "warning" | "error"] as any)._alpha.main_10,
                     color: theme.palette[statusColor].light,
-                    border: `1px solid ${alpha(theme.palette[statusColor].main, 0.2)}`
+                    border: `1px solid ${(theme.palette[statusColor as "success" | "warning" | "error"] as any)._alpha.main_20}`
                   }}
                 />
               </Stack>
@@ -200,7 +199,7 @@ export default function InventoryDetailsDialog({
             mt: 3,
             minHeight: 40,
             "& .MuiTab-root": {
-              color: alpha("#fff", 0.4),
+              color: (theme.palette.common as any).white_alpha.main_40,
               fontSize: "0.75rem",
               fontWeight: 700,
               textTransform: "uppercase",
@@ -223,7 +222,7 @@ export default function InventoryDetailsDialog({
         </Tabs>
       </Box>
 
-      <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1) }} />
+      <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }} />
 
       <DialogContent sx={{ p: 0, minHeight: 400 }}>
         {/* Overview Tab */}
@@ -231,15 +230,15 @@ export default function InventoryDetailsDialog({
           <Grid container>
             {/* Left Metrics */}
             <Grid size={{ xs: 12, md: 5 }}>
-              <Box sx={{ p: 4, borderRight: { md: `1px solid ${alpha(theme.palette.divider, 0.1)}` }, bgcolor: alpha(theme.palette.background.default, 0.2), height: "100%" }}>
+              <Box sx={{ p: 4, borderRight: { md: `1px solid ${(theme.palette as any).divider_alpha.main_10}` }, bgcolor: (theme.palette.background as any).default_alpha.main_20, height: "100%" }}>
                 <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ letterSpacing: "1px", textTransform: "uppercase" }}>
                   {dict.inventory.dialogs.stockLevels}
                 </Typography>
                 
                 <Stack spacing={2} mt={2}>
-                  <Paper variant="outlined" sx={{ p: 2, bgcolor: alpha(theme.palette.background.paper, 0.05), borderColor: alpha(theme.palette.divider, 0.1), borderRadius: 3 }}>
+                  <Paper variant="outlined" sx={{ p: 2, bgcolor: (theme.palette.background as any).paper_alpha.main_05, borderColor: (theme.palette as any).divider_alpha.main_10, borderRadius: 3 }}>
                     <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main }}>
+                      <Avatar sx={{ bgcolor: (theme.palette.primary as any)._alpha.main_10, color: theme.palette.primary.main }}>
                         <InventoryIcon />
                       </Avatar>
                       <Box>
@@ -249,9 +248,9 @@ export default function InventoryDetailsDialog({
                     </Stack>
                   </Paper>
 
-                  <Paper variant="outlined" sx={{ p: 2, bgcolor: alpha(theme.palette.background.paper, 0.05), borderColor: alpha(theme.palette.divider, 0.1), borderRadius: 3 }}>
+                  <Paper variant="outlined" sx={{ p: 2, bgcolor: (theme.palette.background as any).paper_alpha.main_05, borderColor: (theme.palette as any).divider_alpha.main_10, borderRadius: 3 }}>
                     <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar sx={{ bgcolor: alpha(theme.palette.warning.main, 0.1), color: theme.palette.warning.light }}>
+                      <Avatar sx={{ bgcolor: (theme.palette.warning as any)._alpha.main_10, color: theme.palette.warning.light }}>
                         <WarehouseIcon />
                       </Avatar>
                       <Box>
@@ -261,9 +260,9 @@ export default function InventoryDetailsDialog({
                     </Stack>
                   </Paper>
 
-                  <Paper variant="outlined" sx={{ p: 2, bgcolor: alpha(theme.palette.success.main, 0.05), borderColor: alpha(theme.palette.success.main, 0.1), borderRadius: 3 }}>
+                  <Paper variant="outlined" sx={{ p: 2, bgcolor: (theme.palette.success as any)._alpha.main_05, borderColor: (theme.palette.success as any)._alpha.main_10, borderRadius: 3 }}>
                     <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar sx={{ bgcolor: alpha(theme.palette.success.main, 0.1), color: theme.palette.success.light }}>
+                      <Avatar sx={{ bgcolor: (theme.palette.success as any)._alpha.main_10, color: theme.palette.success.light }}>
                         <InventoryIcon />
                       </Avatar>
                       <Box>
@@ -305,21 +304,21 @@ export default function InventoryDetailsDialog({
 
                 <Grid container spacing={3} mt={1}>
                   <Grid size={4}>
-                    <Paper variant="outlined" sx={{ p: 2, textAlign: "center", borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.02), borderColor: alpha(theme.palette.divider, 0.1) }}>
+                    <Paper variant="outlined" sx={{ p: 2, textAlign: "center", borderRadius: 3, bgcolor: (theme.palette.background as any).paper_alpha.main_02, borderColor: (theme.palette as any).divider_alpha.main_10 }}>
                       <ScaleIcon sx={{ color: "primary.main", mb: 1 }} />
                       <Typography variant="caption" display="block" color="text.secondary">{dict.inventory.fields.weight.toUpperCase()}</Typography>
                       <Typography variant="h6" fontWeight={800} color="white">{item.weightKg}kg</Typography>
                     </Paper>
                   </Grid>
                   <Grid size={4}>
-                    <Paper variant="outlined" sx={{ p: 2, textAlign: "center", borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.02), borderColor: alpha(theme.palette.divider, 0.1) }}>
+                    <Paper variant="outlined" sx={{ p: 2, textAlign: "center", borderRadius: 3, bgcolor: (theme.palette.background as any).paper_alpha.main_02, borderColor: (theme.palette as any).divider_alpha.main_10 }}>
                       <VolumeIcon sx={{ color: "secondary.main", mb: 1 }} />
                       <Typography variant="caption" display="block" color="text.secondary">{dict.inventory.fields.volume.toUpperCase()}</Typography>
                       <Typography variant="h6" fontWeight={800} color="white">{item.volumeM3}m³</Typography>
                     </Paper>
                   </Grid>
                   <Grid size={4}>
-                    <Paper variant="outlined" sx={{ p: 2, textAlign: "center", borderRadius: 3, bgcolor: alpha(theme.palette.background.paper, 0.02), borderColor: alpha(theme.palette.divider, 0.1) }}>
+                    <Paper variant="outlined" sx={{ p: 2, textAlign: "center", borderRadius: 3, bgcolor: (theme.palette.background as any).paper_alpha.main_02, borderColor: (theme.palette as any).divider_alpha.main_10 }}>
                       <PalletIcon sx={{ color: "success.main", mb: 1 }} />
                       <Typography variant="caption" display="block" color="text.secondary">{dict.inventory.fields.pallets.toUpperCase()}</Typography>
                       <Typography variant="h6" fontWeight={800} color="white">{item.palletCount}</Typography>
@@ -327,7 +326,7 @@ export default function InventoryDetailsDialog({
                   </Grid>
                 </Grid>
 
-                <Box sx={{ mt: 4, p: 2, borderRadius: 3, bgcolor: alpha(theme.palette.info.main, 0.05), border: `1px solid ${alpha(theme.palette.info.main, 0.1)}` }}>
+                <Box sx={{ mt: 4, p: 2, borderRadius: 3, bgcolor: (theme.palette.info as any)._alpha.main_05, border: `1px solid ${(theme.palette.info as any)._alpha.main_10}` }}>
                   <Typography variant="caption" fontWeight={700} color="info.light" sx={{ display: "block", mb: 0.5 }}>{dict.inventory.dialogs.intelTitle}</Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.75rem", lineHeight: 1.5 }}>
                     {dict.inventory.dialogs.intelDesc.replace("{minStock}", item.minStock.toString())}
@@ -354,7 +353,7 @@ export default function InventoryDetailsDialog({
               <TableContainer sx={{ maxHeight: 400 }}>
                 <Table stickyHeader size="small">
                   <TableHead>
-                    <TableRow sx={{ "& th": { bgcolor: alpha(theme.palette.background.paper, 0.1), color: "text.secondary", fontWeight: 700, fontSize: "0.7rem", borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}` } }}>
+                    <TableRow sx={{ "& th": { bgcolor: (theme.palette.background as any).paper_alpha.main_10, color: "text.secondary", fontWeight: 700, fontSize: "0.7rem", borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_10}` } }}>
                       <TableCell>{dict.inventory.dialogs.historyFields.type}</TableCell>
                       <TableCell align="right">{dict.inventory.dialogs.historyFields.quantity}</TableCell>
                       <TableCell>{dict.inventory.dialogs.historyFields.user}</TableCell>
@@ -363,7 +362,7 @@ export default function InventoryDetailsDialog({
                   </TableHead>
                   <TableBody>
                     {movements.map((move) => (
-                      <TableRow key={move.id} sx={{ "& td": { color: "text.secondary", borderColor: alpha(theme.palette.divider, 0.05) } }}>
+                      <TableRow key={move.id} sx={{ "& td": { color: "text.secondary", borderColor: (theme.palette as any).divider_alpha.main_05 } }}>
                         <TableCell>
                           <Stack direction="row" spacing={1} alignItems="center">
                             {getMovementIcon(move.type)}
@@ -391,7 +390,7 @@ export default function InventoryDetailsDialog({
         </CustomTabPanel>
       </DialogContent>
 
-      <Box sx={{ p: 3, px: 4, bgcolor: alpha(theme.palette.background.default, 0.1), borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
+      <Box sx={{ p: 3, px: 4, bgcolor: (theme.palette.background as any).default_alpha.main_10, borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_10}` }}>
         <Stack direction="row" spacing={2} justifyContent="flex-end">
           <Button 
             onClick={onClose} 
@@ -408,7 +407,7 @@ export default function InventoryDetailsDialog({
               borderRadius: 2, 
               fontWeight: 700,
               textTransform: "none",
-              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+              boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_20}`,
             }}
           >
             {dict.inventory.dialogs.modifySpecs}

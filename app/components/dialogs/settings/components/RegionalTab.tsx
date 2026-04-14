@@ -22,7 +22,7 @@ import {
 } from "@mui/icons-material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import type { SettingsPageState, SettingsPageActions } from "@/app/lib/type/settings";
-import { selectSxFactory, inputLabelSx } from "./SettingsStyles";
+import { selectSxFactory, inputLabelSxFactory } from "./SettingsStyles";
 
 interface RegionalTabProps {
   state: SettingsPageState;
@@ -33,27 +33,28 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
   const theme = useTheme();
   const dict = useDictionary();
   const ssX = selectSxFactory(theme);
+  const ilSX = inputLabelSxFactory(theme);
 
   return (
     <Stack spacing={3}>
       <Box sx={{ 
         p: 2, 
         borderRadius: 2.5, 
-        bgcolor: alpha(theme.palette.primary.main, 0.04),
-        border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`
+        bgcolor: (theme.palette.primary as any)._alpha.main_04,
+        border: `1px solid ${(theme.palette.primary as any)._alpha.main_10}`
       }}>
-        <Typography variant="caption" sx={{ color: alpha("#fff", 0.45), fontWeight: 550, lineHeight: 1.6 }}>
+        <Typography variant="caption" sx={{ color: (theme.palette.common as any).white_alpha.main_45, fontWeight: 550, lineHeight: 1.6 }}>
           {dict.company.dialogs.localizationDesc}
         </Typography>
       </Box>
 
       <Stack spacing={2.5}>
         <Stack direction="row" spacing={2.5}>
-          <FormControl fullWidth size="small" sx={inputLabelSx}>
+          <FormControl fullWidth size="small" sx={ilSX}>
             <InputLabel>{dict.company.dialogs.interfaceLanguage}</InputLabel>
             <Select value={state.regional.language} label={dict.company.dialogs.interfaceLanguage}
               onChange={(e) => actions.updateRegional({ language: e.target.value as "EN" | "TR" })}
-              startAdornment={<LanguageIcon sx={{ mr: 1, fontSize: 18, color: alpha(theme.palette.primary.main, 0.5) }} />}
+              startAdornment={<LanguageIcon sx={{ mr: 1, fontSize: 18, color: (theme.palette.primary as any)._alpha.main_50 }} />}
               sx={ssX}
             >
               <MenuItem value="EN">🇺🇸 {dict.languages.en} (Global)</MenuItem>
@@ -61,11 +62,11 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
             </Select>
           </FormControl>
 
-          <FormControl fullWidth size="small" sx={inputLabelSx}>
+          <FormControl fullWidth size="small" sx={ilSX}>
             <InputLabel>{dict.company.dialogs.defaultCurrency}</InputLabel>
             <Select value={state.regional.currency} label={dict.company.dialogs.defaultCurrency}
               onChange={(e) => actions.updateRegional({ currency: e.target.value as "USD" | "EUR" | "TRY" | "GBP" })}
-              startAdornment={<PaymentsIcon sx={{ mr: 1, fontSize: 18, color: alpha(theme.palette.primary.main, 0.5) }} />}
+              startAdornment={<PaymentsIcon sx={{ mr: 1, fontSize: 18, color: (theme.palette.primary as any)._alpha.main_50 }} />}
               sx={ssX}
             >
               <MenuItem value="USD">$ USD - {dict.settings.dialogs.regional.currencies.dollar}</MenuItem>
@@ -77,11 +78,11 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
         </Stack>
 
         <Stack direction="row" spacing={2.5}>
-          <FormControl fullWidth size="small" sx={inputLabelSx}>
+          <FormControl fullWidth size="small" sx={ilSX}>
             <InputLabel>{dict.company.dialogs.activeTimezone}</InputLabel>
             <Select value={state.regional.timezone} label={dict.company.dialogs.activeTimezone}
               onChange={(e) => actions.updateRegional({ timezone: e.target.value })}
-              startAdornment={<TimezoneIcon sx={{ mr: 1, fontSize: 18, color: alpha(theme.palette.primary.main, 0.5) }} />}
+              startAdornment={<TimezoneIcon sx={{ mr: 1, fontSize: 18, color: (theme.palette.primary as any)._alpha.main_50 }} />}
               sx={ssX}
             >
               <MenuItem value="UTC">UTC ({dict.settings.dialogs.regional.timezones.universal})</MenuItem>
@@ -93,7 +94,7 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
             </Select>
           </FormControl>
 
-          <FormControl fullWidth size="small" sx={inputLabelSx}>
+          <FormControl fullWidth size="small" sx={ilSX}>
             <InputLabel>{dict.company.dialogs.dateTimeFormat}</InputLabel>
             <Select value={state.regional.dateFormat} label={dict.company.dialogs.dateTimeFormat} onChange={(e) => actions.updateRegional({ dateFormat: e.target.value })} sx={ssX}>
               <MenuItem value="MM/DD/YYYY">{dict.settings.dialogs.regional.dateFormats.standard}</MenuItem>
@@ -116,10 +117,10 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
                 borderRadius: 2.5, 
                 px: 4,
                 py: 1,
-                boxShadow: `0 8px 32px ${alpha(theme.palette.primary.main, 0.25)}`,
+                boxShadow: `0 8px 32px ${(theme.palette.primary as any)._alpha.main_25}`,
                 background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
                 "&:hover": {
-                    boxShadow: `0 12px 40px ${alpha(theme.palette.primary.main, 0.35)}`,
+                    boxShadow: `0 12px 40px ${(theme.palette.primary as any)._alpha.main_35}`,
                     transform: "translateY(-1px)"
                 },
                 transition: "all 0.2s"

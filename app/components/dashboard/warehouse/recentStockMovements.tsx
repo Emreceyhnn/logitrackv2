@@ -5,7 +5,6 @@ import {
   Typography,
   Box,
   useTheme,
-  alpha,
   Stack
 } from "@mui/material";
 import CustomCard from "../../cards/card";
@@ -85,13 +84,13 @@ const RecentStockMovements = ({
             label={row.type}
             size="small"
             sx={{
-              bgcolor: alpha(isPick ? theme.palette.warning.main : theme.palette.success.main, 0.1),
+              bgcolor: isPick ? (theme.palette.warning as any)._alpha.main_10 : (theme.palette.success as any)._alpha.main_10,
               color: isPick ? theme.palette.warning.main : theme.palette.success.main,
               fontWeight: 800,
               borderRadius: "8px",
               fontSize: "0.65rem",
               height: 24,
-              border: `1px solid ${alpha(isPick ? theme.palette.warning.main : theme.palette.success.main, 0.1)}`,
+              border: `1px solid ${isPick ? (theme.palette.warning as any)._alpha.main_10 : (theme.palette.success as any)._alpha.main_10}`,
             }}
           />
         );
@@ -149,7 +148,7 @@ const RecentStockMovements = ({
           <Box sx={{ 
             p: 1, 
             borderRadius: '12px', 
-            bgcolor: alpha(theme.palette.primary.main, 0.1),
+            bgcolor: (theme.palette.primary as any)._alpha.main_10,
             color: theme.palette.primary.main,
             display: 'flex'
           }}>
@@ -161,7 +160,7 @@ const RecentStockMovements = ({
         </Stack>
       </Box>
 
-      <Box sx={{ borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
+      <Box sx={{ borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}` }}>
         <DataTable<InventoryMovementWithRelations>
           rows={paginatedMovements}
           columns={columns}

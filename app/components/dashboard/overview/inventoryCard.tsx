@@ -40,7 +40,7 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
               display: "flex",
               alignItems: "center",
               gap: 0.5,
-              bgcolor: alpha(theme.palette.error.main, 0.1),
+              bgcolor: (theme.palette.error as any)._alpha.main_10,
               color: "error.main",
               px: 1,
               py: 0.25,
@@ -67,16 +67,16 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>
+                  <TableCell sx={{ bgcolor: (theme.palette.primary as any)._alpha.main_03, borderColor: (theme.palette as any).divider_alpha.main_10, fontSize: "0.75rem", fontWeight: 700 }}>
                     {dict.dashboard.overview.inventoryAlerts.table.item}
                   </TableCell>
-                  <TableCell sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>
+                  <TableCell sx={{ bgcolor: (theme.palette.primary as any)._alpha.main_03, borderColor: (theme.palette as any).divider_alpha.main_10, fontSize: "0.75rem", fontWeight: 700 }}>
                     {dict.dashboard.overview.inventoryAlerts.table.warehouse}
                   </TableCell>
-                  <TableCell align="right" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>
+                  <TableCell align="right" sx={{ bgcolor: (theme.palette.primary as any)._alpha.main_03, borderColor: (theme.palette as any).divider_alpha.main_10, fontSize: "0.75rem", fontWeight: 700 }}>
                     {dict.dashboard.overview.inventoryAlerts.table.qty}
                   </TableCell>
-                  <TableCell align="right" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03), borderColor: alpha(theme.palette.divider, 0.1), fontSize: "0.75rem", fontWeight: 700 }}>
+                  <TableCell align="right" sx={{ bgcolor: (theme.palette.primary as any)._alpha.main_03, borderColor: (theme.palette as any).divider_alpha.main_10, fontSize: "0.75rem", fontWeight: 700 }}>
                     {dict.dashboard.overview.inventoryAlerts.table.min}
                   </TableCell>
                 </TableRow>
@@ -86,7 +86,7 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
                   <TableRow 
                     key={index} 
                     hover
-                    sx={{ "& td": { borderColor: alpha(theme.palette.divider, 0.1) } }}
+                    sx={{ "& td": { borderColor: (theme.palette as any).divider_alpha.main_10 } }}
                   >
                     <TableCell>
                       <Typography variant="body2" fontWeight={600} color="text.primary">

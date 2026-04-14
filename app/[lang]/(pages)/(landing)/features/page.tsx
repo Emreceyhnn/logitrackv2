@@ -8,6 +8,7 @@ import {
   Chip,
   Grid,
   alpha,
+  useTheme,
 } from "@mui/material";
 import { keyframes } from "@mui/system";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
@@ -30,6 +31,7 @@ const float = keyframes`
 `;
 
 export default function FeaturesPage() {
+  const theme = useTheme();
   const dict = useDictionary();
   const fDict = dict.landing.featuresPage;
 
@@ -98,7 +100,7 @@ export default function FeaturesPage() {
           left: "5%",
           width: "40vw",
           height: "40vw",
-          background: "radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%)",
+          background: "radial-gradient(circle, #38bdf81a 0%, transparent 70%)",
           filter: "blur(80px)",
           zIndex: 0,
         }}
@@ -110,7 +112,7 @@ export default function FeaturesPage() {
           right: "5%",
           width: "30vw",
           height: "30vw",
-          background: "radial-gradient(circle, rgba(168,85,247,0.1) 0%, transparent 70%)",
+          background: "radial-gradient(circle, #a855f71a 0%, transparent 70%)",
           filter: "blur(80px)",
           zIndex: 0,
         }}
@@ -134,8 +136,8 @@ export default function FeaturesPage() {
               borderRadius: "999px",
               px: 2,
               py: 0.5,
-              bgcolor: alpha("#38bdf8", 0.1),
-              border: `1px solid ${alpha("#38bdf8", 0.3)}`,
+              bgcolor: (theme.palette.kpi as any).cyan_alpha.main_10,
+              border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_30}`,
               color: "#38bdf8",
               fontWeight: 700,
               letterSpacing: 1,
@@ -157,7 +159,7 @@ export default function FeaturesPage() {
           <Typography
             variant="h5"
             sx={{
-              color: alpha("#cbd5f5", 0.7),
+              color: (theme.palette.kpi as any).slateLight_alpha.main_70,
               maxWidth: 800,
               fontWeight: 300,
               lineHeight: 1.6,
@@ -175,17 +177,17 @@ export default function FeaturesPage() {
                   height: "100%",
                   p: 5,
                   borderRadius: 6,
-                  background: "rgba(30, 41, 59, 0.4)",
+                  background: "#1e293b66",
                   backdropFilter: "blur(12px)",
-                  border: `1px solid ${alpha("#38bdf8", 0.15)}`,
+                  border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_15}`,
                   transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
                   animation: `${fadeIn} 0.6s ease-out backwards`,
                   animationDelay: `${idx * 0.1}s`,
                   "&:hover": {
                     transform: "translateY(-12px) scale(1.02)",
-                    borderColor: alpha("#38bdf8", 0.4),
-                    background: "rgba(30, 41, 59, 0.6)",
-                    boxShadow: `0 40px 80px -20px ${alpha("#000", 0.5)}`,
+                    borderColor: (theme.palette.kpi as any).cyan_alpha.main_40,
+                    background: "#1e293b99",
+                    boxShadow: `0 40px 80px -20px ${(theme.palette.common as any).black_alpha.main_50}`,
                     "& .feature-icon": {
                       animation: `${float} 2s ease-in-out infinite`,
                     }
@@ -201,9 +203,9 @@ export default function FeaturesPage() {
                       label={feature.tag}
                       size="small"
                       sx={{
-                        bgcolor: alpha("#38bdf8", 0.05),
-                        color: alpha("#38bdf8", 0.8),
-                        border: `1px solid ${alpha("#38bdf8", 0.2)}`,
+                        bgcolor: (theme.palette.kpi as any).cyan_alpha.main_05,
+                        color: (theme.palette.kpi as any).cyan_alpha.main_80,
+                        border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_20}`,
                         fontSize: "0.65rem",
                         fontWeight: 700,
                         textTransform: "uppercase",
@@ -213,17 +215,17 @@ export default function FeaturesPage() {
                     <Typography variant="h5" fontWeight={800} mb={2}>
                       {feature.title}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: alpha("#cbd5f5", 0.6), lineHeight: 1.8 }}>
+                    <Typography variant="body2" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_60, lineHeight: 1.8 }}>
                       {feature.description}
                     </Typography>
                   </Box>
 
-                  <Box sx={{ pt: 2, borderTop: `1px solid ${alpha("#cbd5f5", 0.05)}` }}>
+                  <Box sx={{ pt: 2, borderTop: `1px solid ${(theme.palette.kpi as any).slateLight_alpha.main_05}` }}>
                     <Stack spacing={1}>
                       {feature.details.map((detail, dIdx) => (
                         <Stack direction="row" spacing={1.5} alignItems="center" key={dIdx}>
                           <Box sx={{ width: 6, height: 6, borderRadius: "50%", bgcolor: "#38bdf8" }} />
-                          <Typography variant="caption" sx={{ color: alpha("#cbd5f5", 0.8), fontWeight: 500 }}>
+                          <Typography variant="caption" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_80, fontWeight: 500 }}>
                             {detail}
                           </Typography>
                         </Stack>
@@ -242,8 +244,8 @@ export default function FeaturesPage() {
             mt: 20,
             p: 8,
             borderRadius: 8,
-            border: `1px solid ${alpha("#38bdf8", 0.2)}`,
-            background: "linear-gradient(180deg, rgba(30, 41, 59, 0.2) 0%, rgba(30, 41, 59, 0) 100%)",
+            border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_20}`,
+            background: "linear-gradient(180deg, #1e293b33 0%, #1e293b00 100%)",
             textAlign: "center",
           }}
         >
@@ -253,7 +255,7 @@ export default function FeaturesPage() {
           <Typography variant="h3" sx={{ fontWeight: 900, mt: 3, mb: 4 }}>
             {fDict.infrastructure.title}
           </Typography>
-          <Typography variant="body1" sx={{ color: alpha("#cbd5f5", 0.7), maxWidth: 900, mx: "auto", mb: 6, lineHeight: 1.8 }}>
+          <Typography variant="body1" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_70, maxWidth: 900, mx: "auto", mb: 6, lineHeight: 1.8 }}>
             {fDict.infrastructure.description}
           </Typography>
 
@@ -265,8 +267,8 @@ export default function FeaturesPage() {
                     px: 3,
                     py: 1.5,
                     borderRadius: 999,
-                    border: `1px solid ${alpha("#cbd5f5", 0.1)}`,
-                    bgcolor: alpha("#0f172a", 0.4),
+                    border: `1px solid ${(theme.palette.kpi as any).slateLight_alpha.main_10}`,
+                    bgcolor: (theme.palette.kpi as any).slateDeep_alpha.main_40,
                   }}
                 >
                   <Typography variant="caption" sx={{ fontWeight: 700, opacity: 0.8 }}>
@@ -283,12 +285,12 @@ export default function FeaturesPage() {
       <Box
         sx={{
           py: 10,
-          borderTop: `1px solid ${alpha("#cbd5f5", 0.05)}`,
+          borderTop: `1px solid ${(theme.palette.kpi as any).slateLight_alpha.main_05}`,
           textAlign: "center",
-          bgcolor: alpha("#0b1120", 0.5),
+          bgcolor: (theme.palette.kpi as any).slateDeepest_alpha.main_50,
         }}
       >
-        <Typography variant="body2" sx={{ color: alpha("#cbd5f5", 0.4) }}>
+        <Typography variant="body2" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_40 }}>
           {fDict.footer.copyright.replace("{year}", new Date().getFullYear().toString())} <br />
           {fDict.footer.builtFor}
         </Typography>

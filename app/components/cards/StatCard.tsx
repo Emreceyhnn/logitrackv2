@@ -1,11 +1,9 @@
-"use client";
 import {
   Card,
   Box,
   Stack,
   Typography,
   useTheme,
-  alpha,
   SxProps,
   Theme,
 } from "@mui/material";
@@ -38,6 +36,39 @@ const StatCard = ({
   const theme = useTheme();
   const dict = useDictionary();
 
+  // Helper to resolve color to theme alpha tokens
+  const resolveAlpha = (targetColor: string) => {
+    // Check if it's a known KPI color
+    if (targetColor.toLowerCase() === '#38bdf8') return (theme.palette as any).kpi_alpha.cyan;
+    if (targetColor.toLowerCase() === '#6366f1') return (theme.palette as any).kpi_alpha.indigo;
+    if (targetColor.toLowerCase() === '#10b981') return (theme.palette as any).kpi_alpha.emerald;
+    if (targetColor.toLowerCase() === '#f59e0b') return (theme.palette as any).kpi_alpha.amber;
+    if (targetColor.toLowerCase() === '#ec4899') return (theme.palette as any).kpi_alpha.pink;
+    if (targetColor.toLowerCase() === '#8b5cf6') return (theme.palette as any).kpi_alpha.violet;
+    if (targetColor.toLowerCase() === '#0ea5e9') return (theme.palette as any).kpi_alpha.sky;
+    if (targetColor.toLowerCase() === '#a855f7') return (theme.palette as any).kpi_alpha.purple;
+    if (targetColor.toLowerCase() === '#cbd5f5') return (theme.palette as any).kpi_alpha.slateLight;
+    if (targetColor.toLowerCase() === '#1e293b') return (theme.palette as any).kpi_alpha.slateDark;
+    if (targetColor.toLowerCase() === '#0f172a') return (theme.palette as any).kpi_alpha.slateDeep;
+    if (targetColor.toLowerCase() === '#0b1120') return (theme.palette as any).kpi_alpha.slateDeepest;
+    if (targetColor.toLowerCase() === '#94a3b8') return (theme.palette as any).kpi_alpha.slateGray;
+    if (targetColor.toLowerCase() === '#e2e8f0') return (theme.palette as any).kpi_alpha.lavender;
+    
+    // Core palette matches
+    if (targetColor === theme.palette.primary.main) return (theme.palette.primary as any)._alpha;
+    if (targetColor === theme.palette.secondary.main) return (theme.palette.secondary as any)._alpha;
+    if (targetColor === theme.palette.success.main) return (theme.palette.success as any)._alpha;
+    if (targetColor === theme.palette.error.main) return (theme.palette.error as any)._alpha;
+    if (targetColor === theme.palette.warning.main) return (theme.palette.warning as any)._alpha;
+    if (targetColor === theme.palette.info.main) return (theme.palette.info as any)._alpha;
+
+    // Fallback to primary alpha
+    return (theme.palette.primary as any)._alpha;
+  };
+
+  const statusAlpha = resolveAlpha(color);
+  const trendColorAlpha = trend ? (trend.isUp ? (theme.palette.success as any)._alpha : (theme.palette.error as any)._alpha) : null;
+
   return (
     <motion.div
       whileHover={{ y: -6, transition: { duration: 0.3, ease: "easeOut" } }}
@@ -64,15 +95,15 @@ const StatCard = ({
           cursor: onClick ? "pointer" : "default",
           
           // Glassmorphism 2.0
-          background: `linear-gradient(135deg, ${alpha(theme.palette.background.paper, 0.9)} 0%, ${alpha(theme.palette.background.paper, 0.7)} 100%)`,
+          background: `linear-gradient(135deg, ${(theme.palette.background as any).paper_alpha.main_90} 0%, ${(theme.palette.background as any).paper_alpha.main_70} 100%)`,
           backdropFilter: "blur(20px)",
-          border: `1px solid ${alpha(color, 0.15)}`,
+          border: `1px solid ${statusAlpha.main_15}`,
           
           // Outer and Inner Shadows (Depth)
           boxShadow: `
-            0 10px 40px -10px ${alpha("#000", 0.3)},
-            inset 0 0 20px 0 ${alpha(color, 0.05)},
-            inset 0 1px 1px 0 ${alpha("#fff", 0.1)}
+            0 10px 40px -10px ${(theme.palette.common as any).black_alpha.main_30},
+            inset 0 0 20px 0 ${statusAlpha.main_05},
+            inset 0 1px 1px 0 ${(theme.palette.common as any).white_alpha.main_10}
           `,
           
           "&::before": {
@@ -82,16 +113,16 @@ const StatCard = ({
             left: 0,
             right: 0,
             height: "4px",
-            background: `linear-gradient(90deg, ${color}, ${alpha(color, 0.3)})`,
+            background: `linear-gradient(90deg, ${color}, ${statusAlpha.main_30})`,
             opacity: 0.8,
             transition: "all 0.3s ease",
           },
           
           "&:hover": {
-            borderColor: alpha(color, 0.5),
+            borderColor: statusAlpha.main_50,
             boxShadow: `
-              0 20px 50px -12px ${alpha(color, 0.2)},
-              inset 0 0 30px 0 ${alpha(color, 0.1)}
+              0 20px 50px -12px ${statusAlpha.main_20},
+              inset 0 0 30px 0 ${statusAlpha.main_10}
             `,
             "&::before": {
               height: "6px",
@@ -105,7 +136,7 @@ const StatCard = ({
               transform: "scale(1.15) rotate(10deg)",
               color: "#fff",
               bgcolor: color,
-              boxShadow: `0 8px 20px ${alpha(color, 0.4)}`,
+              boxShadow: `0 8px 20px ${statusAlpha.main_40}`,
             },
           },
           transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
@@ -126,7 +157,7 @@ const StatCard = ({
               <Typography
                 variant="overline"
                 sx={{
-                  color: alpha(theme.palette.text.primary, 0.4),
+                  color: (theme.palette.text as any).primary_alpha.main_40,
                   fontWeight: 900,
                   letterSpacing: "0.15em",
                   fontSize: "0.65rem",
@@ -172,7 +203,7 @@ const StatCard = ({
                     width: "140%",
                     height: "140%",
                     borderRadius: "50%",
-                    background: `radial-gradient(circle, ${alpha(color, 0.6)} 0%, transparent 70%)`,
+                    background: `radial-gradient(circle, ${statusAlpha.main_60} 0%, transparent 70%)`,
                     transform: "translate(-50%, -50%) scale(0.8)",
                     opacity: 0.2,
                     zIndex: 0,
@@ -188,11 +219,11 @@ const StatCard = ({
                     p: 1.8,
                     borderRadius: "20px",
                     color: color,
-                    bgcolor: alpha(color, 0.12),
+                    bgcolor: statusAlpha.main_12,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: `inset 0 0 10px ${alpha(color, 0.1)}`,
+                    boxShadow: `inset 0 0 10px ${statusAlpha.main_10}`,
                     transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
                   }}
                 >
@@ -215,17 +246,17 @@ const StatCard = ({
                 fontSize: "0.75rem",
                 fontWeight: 800,
                 color: trend.isUp ? theme.palette.success.main : theme.palette.error.main,
-                bgcolor: alpha(trend.isUp ? theme.palette.success.main : theme.palette.error.main, 0.12),
+                bgcolor: trendColorAlpha?.main_12,
                 width: "fit-content",
                 px: 1.2,
                 py: 0.6,
                 borderRadius: "10px",
-                boxShadow: `inset 0 0 5px ${alpha(trend.isUp ? theme.palette.success.main : theme.palette.error.main, 0.1)}`,
+                boxShadow: `inset 0 0 5px ${trendColorAlpha?.main_10}`,
               }}
             >
             <Box component="span" sx={{ fontSize: "1rem" }}>{trend.isUp ? "↑" : "↓"}</Box>
             {trend.value}%
-            <Typography component="span" sx={{ color: alpha(theme.palette.text.primary, 0.35), fontWeight: 600, ml: 0.5, fontSize: "0.7rem", letterSpacing: "0.02em" }}>
+            <Typography component="span" sx={{ color: (theme.palette.text as any).primary_alpha.main_35, fontWeight: 600, ml: 0.5, fontSize: "0.7rem", letterSpacing: "0.02em" }}>
               {dict?.common?.fromLastMonth || "FROM LAST MONTH"}
             </Typography>
           </Box>
@@ -241,7 +272,7 @@ const StatCard = ({
             width: "60%",
             height: "60%",
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${alpha(color, 0.15)} 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${statusAlpha.main_15} 0%, transparent 70%)`,
             filter: "blur(50px)",
             zIndex: 0,
             opacity: 0.6,
@@ -255,7 +286,7 @@ const StatCard = ({
             width: "50%",
             height: "50%",
             borderRadius: "50%",
-            background: `radial-gradient(circle, ${alpha(color, 0.1)} 0%, transparent 70%)`,
+            background: `radial-gradient(circle, ${statusAlpha.main_10} 0%, transparent 70%)`,
             filter: "blur(60px)",
             zIndex: 0,
             opacity: 0.3,

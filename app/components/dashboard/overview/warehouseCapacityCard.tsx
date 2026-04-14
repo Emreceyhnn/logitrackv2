@@ -54,7 +54,7 @@ const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
                     variant="determinate"
                     sx={{
                       height: 8,
-                      bgcolor: alpha(theme.palette.divider, 0.1),
+                      bgcolor: (theme.palette as any).divider_alpha.main_10,
                       borderRadius: 4,
                       "& .MuiLinearProgress-bar": {
                         borderRadius: 4,

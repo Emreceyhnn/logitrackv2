@@ -85,7 +85,7 @@ const RouteRowActions = ({
             backgroundImage: "none",
             borderRadius: "12px",
             minWidth: 180,
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
             boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.4)",
             mt: 0.5,
           },
@@ -117,7 +117,7 @@ const RouteRowActions = ({
             sx={{
               py: 1.5,
               color: theme.palette.success.main,
-              "&:hover": { bgcolor: alpha(theme.palette.success.main, 0.1) },
+              "&:hover": { bgcolor: (theme.palette.success as any)._alpha.main_10 },
             }}
           >
             <ListItemIcon>
@@ -137,7 +137,7 @@ const RouteRowActions = ({
             sx={{
               py: 1.5,
               color: theme.palette.primary.main,
-              "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+              "&:hover": { bgcolor: (theme.palette.primary as any)._alpha.main_10 },
             }}
           >
             <ListItemIcon>
@@ -179,7 +179,7 @@ const RouteRowActions = ({
             sx={{
               py: 1.5,
               color: theme.palette.error.main,
-              "&:hover": { bgcolor: alpha(theme.palette.error.main, 0.1) },
+              "&:hover": { bgcolor: (theme.palette.error as any)._alpha.main_10 },
             }}
           >
             <ListItemIcon>

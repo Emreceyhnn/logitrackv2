@@ -5,8 +5,8 @@ import {
   LinearProgress,
   Card,
   Button,
-  alpha,
   Box,
+  useTheme,
 } from "@mui/material";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import SpeedIcon from "@mui/icons-material/Speed";
@@ -23,6 +23,7 @@ interface OverviewTabProps {
 }
 
 const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
+  const theme = useTheme();
   const dict = useDictionary();
   /* --------------------------------- states --------------------------------- */
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
@@ -53,10 +54,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
               sx={{
                 borderRadius: "12px",
                 overflow: "hidden",
-                bgcolor: alpha("#1A202C", 0.5),
+                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${alpha("#ffffff", 0.05)}`,
+                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
                 position: "relative",
               }}
             >
@@ -97,10 +98,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: alpha("#1A202C", 0.5),
+                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${alpha("#ffffff", 0.05)}`,
+                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
@@ -131,10 +132,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: alpha("#1A202C", 0.5),
+                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${alpha("#ffffff", 0.05)}`,
+                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
@@ -162,10 +163,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: alpha("#1A202C", 0.5),
+                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${alpha("#ffffff", 0.05)}`,
+                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
@@ -196,10 +197,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: alpha("#1A202C", 0.5),
+                bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${alpha("#ffffff", 0.05)}`,
+                border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
@@ -222,9 +223,9 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
               variant="contained"
               sx={{
                 borderRadius: "8px",
-                bgcolor: "#246BFD",
+                bgcolor: theme.palette.primary.main,
                 textTransform: "none",
-                "&:hover": { bgcolor: alpha("#246BFD", 0.9) },
+                "&:hover": { bgcolor: (theme.palette.primary as any)._alpha.main_90 },
               }}
               onClick={() => setAssignDialogOpen(true)}
             >

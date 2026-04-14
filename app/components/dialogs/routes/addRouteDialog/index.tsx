@@ -249,7 +249,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   borderRadius: 4,
                   bgcolor: "#0B1019",
                   backgroundImage: "none",
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                 },
               }}
             >
@@ -282,7 +282,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                     activeStep={currentStep - 1}
                     sx={{
                       "& .MuiStepConnector-line": {
-                        borderColor: alpha(theme.palette.divider, 0.1),
+                        borderColor: (theme.palette as any).divider_alpha.main_10,
                       },
                     }}
                   >
@@ -319,7 +319,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                 <Divider
                   sx={{
                     mb: 4,
-                    borderColor: alpha(theme.palette.divider, 0.05),
+                    borderColor: (theme.palette as any).divider_alpha.main_05,
                   }}
                 />
 
@@ -348,7 +348,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   disabled={isLoading}
                   sx={{
                     color: "text.secondary",
-                    "&:hover": { bgcolor: alpha(theme.palette.divider, 0.05) },
+                    "&:hover": { bgcolor: (theme.palette as any).divider_alpha.main_05 },
                   }}
                 >
                   {currentStep === 1 ? dict.common.cancel : dict.common.back}
@@ -368,7 +368,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                     borderRadius: 2,
                     px: 4,
                     fontWeight: 600,
-                    boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
+                    boxShadow: `0 8px 16px ${(theme.palette.primary as any)._alpha.main_20}`,
                   }}
                 >
                   {isLoading

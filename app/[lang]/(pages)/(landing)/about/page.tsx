@@ -8,6 +8,7 @@ import {
   Typography,
   Chip,
   Divider,
+  useTheme,
 } from "@mui/material";
 import { alpha, keyframes } from "@mui/system";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
@@ -23,6 +24,7 @@ const float = keyframes`
 `;
 
 export default function AboutPage() {
+  const theme = useTheme();
   const dict = useDictionary();
   const aDict = dict.landing.aboutPage;
 
@@ -44,8 +46,8 @@ export default function AboutPage() {
           position: "absolute",
           inset: 0,
           background:
-            "radial-gradient(circle at 20% 20%, rgba(59,130,246,0.15) 0%, transparent 40%)," +
-            "radial-gradient(circle at 80% 80%, rgba(99,102,241,0.1) 0%, transparent 50%)",
+            "radial-gradient(circle at 20% 20%, #3b82f626 0%, transparent 40%)," +
+            "radial-gradient(circle at 80% 80%, #6366f11a 0%, transparent 50%)",
           zIndex: 0,
         }}
       />
@@ -68,8 +70,8 @@ export default function AboutPage() {
               borderRadius: "999px",
               px: 2,
               py: 0.5,
-              bgcolor: alpha("#38bdf8", 0.1),
-              border: `1px solid ${alpha("#38bdf8", 0.3)}`,
+              bgcolor: (theme.palette.kpi as any).cyan_alpha.main_10,
+              border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_30}`,
               color: "#38bdf8",
               fontWeight: 700,
               letterSpacing: 1,
@@ -93,7 +95,7 @@ export default function AboutPage() {
           <Typography
             variant="h5"
             sx={{
-              color: alpha("#cbd5f5", 0.8),
+              color: (theme.palette.kpi as any).slateLight_alpha.main_80,
               maxWidth: 700,
               fontWeight: 400,
               lineHeight: 1.6,
@@ -103,7 +105,7 @@ export default function AboutPage() {
           </Typography>
         </Stack>
 
-        <Divider sx={{ borderColor: alpha("#cbd5f5", 0.1), mb: 12 }} />
+        <Divider sx={{ borderColor: (theme.palette.kpi as any).slateLight_alpha.main_10, mb: 12 }} />
 
 
         <Stack
@@ -119,7 +121,7 @@ export default function AboutPage() {
             <Typography variant="h3" sx={{ fontWeight: 800, mt: 2, mb: 4 }}>
               {aDict.vision.title}
             </Typography>
-            <Typography variant="body1" sx={{ color: alpha("#cbd5f5", 0.9), fontSize: "1.1rem", lineHeight: 1.8 }}>
+            <Typography variant="body1" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_90, fontSize: "1.1rem", lineHeight: 1.8 }}>
               {aDict.vision.description}
             </Typography>
           </Box>
@@ -131,8 +133,8 @@ export default function AboutPage() {
               width: "100%",
               borderRadius: 6,
               overflow: "hidden",
-              border: `1px solid ${alpha("#38bdf8", 0.2)}`,
-              background: alpha("#1e293b", 0.4),
+              border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_20}`,
+              background: (theme.palette.kpi as any).slateDark_alpha.main_40,
               backdropFilter: "blur(10px)",
               display: "flex",
               alignItems: "center",
@@ -194,14 +196,14 @@ export default function AboutPage() {
                   flex: 1,
                   p: 5,
                   borderRadius: 5,
-                  background: alpha("#1e293b", 0.4),
-                  border: `1px solid ${alpha("#38bdf8", 0.1)}`,
+                  background: (theme.palette.kpi as any).slateDark_alpha.main_40,
+                  border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_10}`,
                   transition: "all 0.3s ease",
                   "&:hover": {
                     transform: "translateY(-8px)",
-                    borderColor: alpha("#38bdf8", 0.3),
-                    background: alpha("#1e293b", 0.6),
-                    boxShadow: `0 20px 40px ${alpha("#000", 0.4)}`,
+                    borderColor: (theme.palette.kpi as any).cyan_alpha.main_30,
+                    background: (theme.palette.kpi as any).slateDark_alpha.main_60,
+                    boxShadow: `0 20px 40px ${(theme.palette.common as any).black_alpha.main_40}`,
                   }
                 }}
               >
@@ -209,7 +211,7 @@ export default function AboutPage() {
                 <Typography variant="h5" fontWeight={700} mb={2}>
                   {pillar.title}
                 </Typography>
-                <Typography variant="body2" sx={{ color: alpha("#cbd5f5", 0.7), lineHeight: 1.7 }}>
+                <Typography variant="body2" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_70, lineHeight: 1.7 }}>
                   {pillar.description}
                 </Typography>
               </Box>
@@ -222,8 +224,8 @@ export default function AboutPage() {
           sx={{
             p: { xs: 6, md: 10 },
             borderRadius: 8,
-            background: "linear-gradient(135deg, rgba(56,189,248,0.1) 0%, rgba(99,102,241,0.05) 100%)",
-            border: `1px solid ${alpha("#38bdf8", 0.2)}`,
+            background: "linear-gradient(135deg, #38bdf81a 0%, #6366f10d 100%)",
+            border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_20}`,
             textAlign: "center",
             position: "relative",
             overflow: "hidden",
@@ -236,7 +238,7 @@ export default function AboutPage() {
               right: -100,
               width: 300,
               height: 300,
-              background: "radial-gradient(circle, rgba(56,189,248,0.15) 0%, transparent 70%)",
+              background: "radial-gradient(circle, #38bdf826 0%, transparent 70%)",
               filter: "blur(40px)",
             }}
           />
@@ -246,7 +248,7 @@ export default function AboutPage() {
           <Typography
             variant="h6"
             sx={{
-              color: alpha("#cbd5f5", 0.9),
+              color: (theme.palette.kpi as any).slateLight_alpha.main_90,
               maxWidth: 800,
               mx: "auto",
               fontWeight: 400,
@@ -262,12 +264,12 @@ export default function AboutPage() {
       <Box
         sx={{
           py: 8,
-          borderTop: `1px solid ${alpha("#cbd5f5", 0.05)}`,
+          borderTop: `1px solid ${(theme.palette.kpi as any).slateLight_alpha.main_05}`,
           textAlign: "center",
-          bgcolor: alpha("#0b1120", 0.5),
+          bgcolor: (theme.palette.kpi as any).slateDeepest_alpha.main_50,
         }}
       >
-        <Typography variant="body2" sx={{ color: alpha("#cbd5f5", 0.4) }}>
+        <Typography variant="body2" sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_40 }}>
           {aDict.footer.copyright.replace("{year}", new Date().getFullYear().toString())}
         </Typography>
       </Box>

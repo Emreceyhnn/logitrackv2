@@ -87,10 +87,10 @@ export default function KpiCards({ kpis, loading }: KpiCardsProps) {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                background: alpha(theme.palette.background.paper, 0.8),
+                background: (theme.palette.background as any).paper_alpha.main_80,
                 backdropFilter: "blur(20px)",
-                border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                boxShadow: `0 10px 40px -10px ${alpha("#000", 0.2)}`,
+                border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+                boxShadow: `0 10px 40px -10px ${(theme.palette.common as any).black_alpha.main_20}`,
                 "&::before": {
                   content: '""',
                   position: "absolute",
@@ -98,7 +98,7 @@ export default function KpiCards({ kpis, loading }: KpiCardsProps) {
                   left: 0,
                   right: 0,
                   height: "4px",
-                  background: `linear-gradient(90deg, ${theme.palette.divider}, ${alpha(theme.palette.divider, 0.1)})`,
+                  background: `linear-gradient(90deg, ${theme.palette.divider}, ${(theme.palette as any).divider_alpha.main_10})`,
                   opacity: 0.5,
                 },
               }}

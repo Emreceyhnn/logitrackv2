@@ -47,21 +47,21 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
   const fieldSx = {
     "& .MuiOutlinedInput-root": {
       borderRadius: 2.5,
-      bgcolor: alpha("#ffffff", 0.03),
+      bgcolor: (theme.palette.common as any).white_alpha.main_03,
       transition: "all 0.2s",
-      "& fieldset": { borderColor: alpha(theme.palette.divider, 0.08) },
+      "& fieldset": { borderColor: (theme.palette as any).divider_alpha.main_08 },
       "&:hover": {
-        bgcolor: alpha("#ffffff", 0.05),
-        "& fieldset": { borderColor: alpha(theme.palette.primary.main, 0.3) },
+        bgcolor: (theme.palette.common as any).white_alpha.main_05,
+        "& fieldset": { borderColor: (theme.palette.primary as any)._alpha.main_30 },
       },
       "&.Mui-focused": {
-        bgcolor: alpha("#ffffff", 0.06),
+        bgcolor: (theme.palette.common as any).white_alpha.main_06,
         "& fieldset": { borderColor: theme.palette.primary.main },
       },
       color: "white",
     },
     "& .MuiInputLabel-root": {
-      color: alpha("#fff", 0.4),
+      color: (theme.palette.common as any).white_alpha.main_40,
       fontSize: "0.9rem",
       fontWeight: 500,
     },
@@ -78,8 +78,8 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
           gap: 3,
           p: 3,
           borderRadius: 4,
-          border: `1px solid ${alpha("#ffffff", 0.05)}`,
-          bgcolor: alpha("#ffffff", 0.02),
+          border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+          bgcolor: (theme.palette.common as any).white_alpha.main_02,
           position: "relative",
           overflow: "hidden",
           "&::before": {
@@ -89,7 +89,7 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             left: 0,
             width: "100%",
             height: "100%",
-            background: `radial-gradient(circle at top right, ${alpha(theme.palette.primary.main, 0.08)}, transparent)`,
+            background: `radial-gradient(circle at top right, ${(theme.palette.primary as any)._alpha.main_08}, transparent)`,
             zIndex: 0,
           },
         }}
@@ -100,12 +100,12 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             sx={{
               width: 90,
               height: 90,
-              border: `3px solid ${alpha(theme.palette.primary.main, 0.3)}`,
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              border: `3px solid ${(theme.palette.primary as any)._alpha.main_30}`,
+              bgcolor: (theme.palette.primary as any)._alpha.main_10,
               color: theme.palette.primary.main,
               fontSize: "2rem",
               fontWeight: 800,
-              boxShadow: `0 8px 32px ${alpha("#000", 0.4)}`,
+              boxShadow: `0 8px 32px ${(theme.palette.common as any).black_alpha.main_40}`,
             }}
           >
             {state.profileForm.name?.[0]}
@@ -164,12 +164,12 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             }
             label={dict.profile.account.verifiedMember}
             sx={{
-              bgcolor: alpha(theme.palette.primary.main, 0.12),
+              bgcolor: (theme.palette.primary as any)._alpha.main_12,
               color: theme.palette.primary.main,
               fontWeight: 700,
               fontSize: "0.7rem",
               height: 24,
-              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+              border: `1px solid ${(theme.palette.primary as any)._alpha.main_20}`,
             }}
           />
         </Box>
@@ -210,7 +210,7 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             startAdornment: (
               <InputAdornment position="start">
                 <EmailIcon
-                  sx={{ fontSize: 18, color: alpha("#fff", 0.25), ml: 0.5 }}
+                  sx={{ fontSize: 18, color: (theme.palette.common as any).white_alpha.main_25, ml: 0.5 }}
                 />
               </InputAdornment>
             ),
@@ -220,17 +220,17 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             ...fieldSx,
             "& .MuiOutlinedInput-root": {
               ...fieldSx["& .MuiOutlinedInput-root"],
-              bgcolor: alpha("#fff", 0.015),
-              "& fieldset": { borderColor: alpha("#fff", 0.05) },
+              bgcolor: (theme.palette.common as any).white_alpha.main_02,
+              "& fieldset": { borderColor: (theme.palette.common as any).white_alpha.main_05 },
             },
             "& .MuiFormHelperText-root": {
-              color: alpha("#fff", 0.25),
+              color: (theme.palette.common as any).white_alpha.main_25,
               fontSize: "0.72rem",
               fontWeight: 500,
               mt: 1,
             },
             "& .Mui-disabled": {
-              WebkitTextFillColor: alpha("#fff", 0.3),
+              WebkitTextFillColor: (theme.palette.common as any).white_alpha.main_30,
             },
           }}
         />
@@ -256,9 +256,9 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             py: 1,
             fontSize: "0.9rem",
             background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-            boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.3)}`,
+            boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_30}`,
             "&:hover": {
-              boxShadow: `0 12px 32px ${alpha(theme.palette.primary.main, 0.4)}`,
+              boxShadow: `0 12px 32px ${(theme.palette.primary as any)._alpha.main_40}`,
               transform: "translateY(-1px)",
             },
             transition: "all 0.2s",

@@ -50,7 +50,7 @@ const ContactSection = () => {
                 helperText={touched.email ? (errors.email as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: alpha("#fff", 0.02),
+                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
                   }
                 }}
               />
@@ -69,7 +69,7 @@ const ContactSection = () => {
                 helperText={touched.phone ? (errors.phone as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: alpha("#fff", 0.02),
+                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
                   }
                 }}
               />
@@ -101,11 +101,11 @@ const ContactSection = () => {
                     isDefault: values.locations.length === 0,
                   })}
                   sx={{
-                    borderColor: alpha(theme.palette.primary.main, 0.3),
+                    borderColor: (theme.palette.primary as any)._alpha.main_30,
                     color: "primary.main",
                     "&:hover": { 
                       borderColor: theme.palette.primary.main,
-                      bgcolor: alpha(theme.palette.primary.main, 0.05) 
+                      bgcolor: (theme.palette.primary as any)._alpha.main_05 
                     },
                     borderRadius: 2,
                     textTransform: "none",
@@ -128,14 +128,14 @@ const ContactSection = () => {
                       sx={{
                         p: 3,
                         borderRadius: 4,
-                        border: `1px solid ${alpha("#fff", 0.05)}`,
-                        bgcolor: alpha("#fff", 0.01),
-                        backgroundImage: `linear-gradient(135deg, ${alpha("#fff", 0.02)} 0%, transparent 100%)`,
+                        border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
+                        bgcolor: (theme.palette.common as any).white_alpha.main_01,
+                        backgroundImage: `linear-gradient(135deg, ${(theme.palette.common as any).white_alpha.main_02} 0%, transparent 100%)`,
                         position: "relative",
                         transition: "all 0.3s ease",
                         "&:hover": {
-                          border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-                          bgcolor: alpha("#fff", 0.02),
+                          border: `1px solid ${(theme.palette.primary as any)._alpha.main_20}`,
+                          bgcolor: (theme.palette.common as any).white_alpha.main_02,
                         }
                       }}
                     >
@@ -153,11 +153,11 @@ const ContactSection = () => {
                             position: "absolute",
                             top: 12,
                             right: 12,
-                            color: alpha(theme.palette.error.main, 0.5),
-                            bgcolor: alpha(theme.palette.error.main, 0.05),
+                            color: (theme.palette.error as any)._alpha.main_50,
+                            bgcolor: (theme.palette.error as any)._alpha.main_05,
                             "&:hover": { 
                               color: theme.palette.error.main,
-                              bgcolor: alpha(theme.palette.error.main, 0.1),
+                              bgcolor: (theme.palette.error as any)._alpha.main_10,
                             },
                           }}
                         >

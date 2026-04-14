@@ -11,8 +11,8 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  useTheme,
 } from "@mui/material";
-import { alpha } from "@mui/material";
 import WarningIcon from "@mui/icons-material/Warning";
 import ErrorIcon from "@mui/icons-material/Error";
 import InfoIcon from "@mui/icons-material/Info";
@@ -37,6 +37,7 @@ interface VehicleIssuesCardProps {
 }
 
 export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
+  const theme = useTheme();
   const dict = useDictionary();
 
   /* ------------------------------- components ------------------------------- */
@@ -90,7 +91,7 @@ export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
                         label={meta.label}
                         size="small"
                         sx={{
-                          bgcolor: alpha(meta.color, 0.1),
+                          bgcolor: (theme.palette[meta.paletteKey as "success" | "info" | "warning" | "error" | "secondary"] as any)._alpha.main_10,
                           color: meta.color,
                           fontWeight: 600,
                           fontSize: '0.65rem'

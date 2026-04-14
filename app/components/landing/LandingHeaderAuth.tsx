@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button, Stack, CircularProgress, alpha } from "@mui/material";
+import { Button, Stack, CircularProgress, alpha, useTheme } from "@mui/material";
 import Link from "next/link";
 import { getUserSession } from "@/app/lib/actions/auth";
 import CreateCompanyDialog from "../dialogs/company/CreateCompanyDialog";
@@ -14,6 +14,7 @@ export default function LandingHeaderAuth() {
   const params = useParams();
   const lang = (params?.lang as string) || "tr";
   const dict = useDictionary();
+  const theme = useTheme();
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{
@@ -45,7 +46,7 @@ export default function LandingHeaderAuth() {
   };
 
   if (loading) {
-    return <CircularProgress size={24} sx={{ color: "#38bdf8" }} />;
+    return <CircularProgress size={24} sx={{ color: (theme.palette.background as any).cyan?.main }} />;
   }
 
   if (user) {
@@ -116,10 +117,10 @@ export default function LandingHeaderAuth() {
         component={Link}
         href={`/${lang}${getLocalizedPath("/auth/sign-in", lang)}`}
         sx={{
-          color: alpha("#e2e8f0", 0.8),
+          color: (theme.palette.background as any).lavender?.main_80,
           fontWeight: 600,
           textTransform: "none",
-          "&:hover": { color: "#38bdf8" },
+          "&:hover": { color: (theme.palette.background as any).cyan?.main },
         }}
       >
         {dict.navbar.signIn}

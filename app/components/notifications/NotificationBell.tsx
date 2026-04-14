@@ -12,7 +12,6 @@ import {
   ListItem,
   Stack,
   Button,
-  alpha,
   useTheme,
   Tooltip,
 } from "@mui/material";
@@ -46,6 +45,19 @@ const getStatusColor = (t: NotificationType) => {
       return COLORS.error;
     default:
       return COLORS.info;
+  }
+};
+
+const resolveStatusAlpha = (theme: any, t: NotificationType) => {
+  switch (t) {
+    case "SUCCESS":
+      return theme.palette.success._alpha;
+    case "WARNING":
+      return theme.palette.warning._alpha;
+    case "ERROR":
+      return theme.palette.error._alpha;
+    default:
+      return theme.palette.info._alpha;
   }
 };
 
@@ -103,16 +115,17 @@ export default function NotificationBell() {
           onClick={handleOpen}
           sx={{
             color:
-              unreadCount > 0 ? theme.palette.primary.main : alpha("#fff", 0.6),
-            bgcolor: alpha(
-              unreadCount > 0 ? theme.palette.primary.main : "#fff",
-              0.04
-            ),
-            border: `1px solid ${alpha(unreadCount > 0 ? theme.palette.primary.main : "#fff", 0.08)}`,
+              unreadCount > 0 ? theme.palette.primary.main : (theme.palette.common as any).white_alpha.main_60,
+            bgcolor: unreadCount > 0 
+              ? (theme.palette.primary as any)._alpha.main_05 
+              : (theme.palette.common as any).white_alpha.main_05,
+            border: `1px solid ${unreadCount > 0 
+              ? (theme.palette.primary as any)._alpha.main_10 
+              : (theme.palette.common as any).white_alpha.main_10}`,
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             "&:hover": {
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
-              borderColor: alpha(theme.palette.primary.main, 0.3),
+              bgcolor: (theme.palette.primary as any)._alpha.main_10,
+              borderColor: (theme.palette.primary as any)._alpha.main_30,
               transform: "translateY(-1px)",
             },
           }}
@@ -190,7 +203,7 @@ export default function NotificationBell() {
                 fontWeight: 700,
                 color: theme.palette.primary.main,
                 fontSize: "0.75rem",
-                "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.1) },
+                "&:hover": { bgcolor: (theme.palette.primary as any)._alpha.main_10 },
               }}
             >
               {dict.notifications.catchUp}
@@ -225,14 +238,14 @@ export default function NotificationBell() {
                     borderRadius: 3,
                     transition: "all 0.2s",
                     position: "relative",
-                    bgcolor: notif.isRead ? "transparent" : alpha("#fff", 0.03),
+                    bgcolor: notif.isRead ? "transparent" : (theme.palette.common as any).white_alpha.main_03,
                     border: "1px solid",
                     borderColor: notif.isRead
                       ? "transparent"
                       : "rgba(255,255,255,0.06)",
                     "&:hover": {
-                      bgcolor: alpha("#fff", 0.05),
-                      borderColor: alpha(getStatusColor(notif.type), 0.3),
+                      bgcolor: (theme.palette.common as any).white_alpha.main_05,
+                      borderColor: resolveStatusAlpha(theme, notif.type).main_30,
                     },
                   }}
                 >
@@ -293,7 +306,7 @@ export default function NotificationBell() {
                     <Typography
                       variant="body2"
                       sx={{
-                        color: alpha("#fff", 0.6),
+                        color: (theme.palette.common as any).white_alpha.main_60,
                         fontSize: "0.75rem",
                         lineHeight: 1.4,
                         mb: 1,
@@ -304,7 +317,7 @@ export default function NotificationBell() {
                     <Typography
                       variant="caption"
                       sx={{
-                        color: alpha("#fff", 0.3),
+                        color: (theme.palette.common as any).white_alpha.main_30,
                         fontSize: "0.65rem",
                         fontWeight: 700,
                       }}

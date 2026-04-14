@@ -82,13 +82,13 @@ export function SidebarList(params: Params) {
                 px: 3,
                 py: 1,
                 bgcolor: activeItem
-                  ? alpha(theme.palette.primary.main, 0.08)
+                  ? (theme.palette.primary as any)._alpha.main_08
                   : "transparent",
                 color: activeItem
                   ? theme.palette.primary.main
                   : "text.secondary",
                 "&:hover": {
-                  bgcolor: alpha(theme.palette.primary.main, 0.04),
+                  bgcolor: (theme.palette.primary as any)._alpha.main_04,
                 },
                 borderRight: activeItem
                   ? `3px solid ${theme.palette.primary.main}`
@@ -139,7 +139,7 @@ export function SidebarList(params: Params) {
                             ? theme.palette.primary.main
                             : "text.secondary",
                           bgcolor: subActive
-                            ? alpha(theme.palette.primary.main, 0.05)
+                            ? (theme.palette.primary as any)._alpha.main_05
                             : "transparent",
                           "&:hover": {
                             color: theme.palette.primary.main,

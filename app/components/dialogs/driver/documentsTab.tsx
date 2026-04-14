@@ -1,5 +1,4 @@
 import {
-  alpha,
   Box,
   Card,
   Stack,
@@ -84,14 +83,14 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
           width: 6,
         },
         "&::-webkit-scrollbar-track": {
-          backgroundColor: alpha(theme.palette.background.paper, 0.1),
+          backgroundColor: (theme.palette.background as any).paper_alpha.main_10,
           borderRadius: 4,
         },
         "&::-webkit-scrollbar-thumb": {
-          backgroundColor: alpha(theme.palette.text.secondary, 0.2),
+          backgroundColor: (theme.palette.text as any).secondary_alpha.main_20,
           borderRadius: 4,
           "&:hover": {
-            backgroundColor: alpha(theme.palette.text.secondary, 0.4),
+            backgroundColor: (theme.palette.text as any).secondary_alpha.main_40,
           },
         },
       }}
@@ -102,18 +101,14 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
             sx={{
               p: 2.5,
               borderRadius: 3,
-              bgcolor: alpha(
+              bgcolor: hasValidLicense
+                ? (theme.palette.success as any)._alpha.main_05
+                : (theme.palette.error as any)._alpha.main_05,
+              border: `1px solid ${
                 hasValidLicense
-                  ? theme.palette.success.main
-                  : theme.palette.error.main,
-                0.05
-              ),
-              border: `1px solid ${alpha(
-                hasValidLicense
-                  ? theme.palette.success.main
-                  : theme.palette.error.main,
-                0.2
-              )}`,
+                  ? (theme.palette.success as any)._alpha.main_20
+                  : (theme.palette.error as any)._alpha.main_20
+              }`,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -127,12 +122,9 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                 width: 48,
                 height: 48,
                 borderRadius: "50%",
-                bgcolor: alpha(
-                  hasValidLicense
-                    ? theme.palette.success.main
-                    : theme.palette.error.main,
-                  0.1
-                ),
+                bgcolor: hasValidLicense
+                  ? (theme.palette.success as any)._alpha.main_10
+                  : (theme.palette.error as any)._alpha.main_10,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -170,7 +162,7 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                 sx={{
                   p: 0.8,
                   borderRadius: 1,
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  bgcolor: (theme.palette.primary as any)._alpha.main_10,
                   color: theme.palette.primary.main,
                   display: "flex",
                 }}
@@ -193,12 +185,12 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                     sx={{
                       p: 2,
                       borderRadius: 2,
-                      bgcolor: alpha(theme.palette.background.paper, 0.3),
-                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                      bgcolor: (theme.palette.background as any).paper_alpha.main_30,
+                      border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                       transition: "all 0.2s ease",
                       "&:hover": {
-                        borderColor: alpha(theme.palette.primary.main, 0.3),
-                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        borderColor: (theme.palette.primary as any)._alpha.main_30,
+                        bgcolor: (theme.palette.primary as any)._alpha.main_05,
                       },
                     }}
                   >
@@ -206,7 +198,7 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                       sx={{
                         p: 1.5,
                         borderRadius: 1.5,
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        bgcolor: (theme.palette.primary as any)._alpha.main_10,
                         color: theme.palette.primary.main,
                         display: "flex",
                       }}
@@ -237,9 +229,9 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                         }}
                         sx={{
                           color: theme.palette.primary.main,
-                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          bgcolor: (theme.palette.primary as any)._alpha.main_10,
                           "&:hover": {
-                            bgcolor: alpha(theme.palette.primary.main, 0.2),
+                            bgcolor: (theme.palette.primary as any)._alpha.main_20,
                           },
                         }}
                       >
@@ -252,9 +244,9 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                         target="_blank"
                         sx={{
                           color: theme.palette.primary.main,
-                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          bgcolor: (theme.palette.primary as any)._alpha.main_10,
                           "&:hover": {
-                            bgcolor: alpha(theme.palette.primary.main, 0.2),
+                            bgcolor: (theme.palette.primary as any)._alpha.main_20,
                           },
                         }}
                       >
@@ -268,8 +260,8 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                   sx={{
                     p: 3,
                     borderRadius: 2,
-                    bgcolor: alpha(theme.palette.error.main, 0.05),
-                    border: `1px dashed ${alpha(theme.palette.error.main, 0.2)}`,
+                    bgcolor: (theme.palette.error as any)._alpha.main_05,
+                    border: `1px dashed ${(theme.palette.error as any)._alpha.main_20}`,
                     display: "flex",
                     alignItems: "flex-start",
                     gap: 1.5,

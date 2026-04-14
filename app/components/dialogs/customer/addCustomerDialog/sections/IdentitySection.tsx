@@ -1,4 +1,4 @@
-import { Box, Grid, Stack, Typography, MenuItem, alpha, SvgIconProps } from "@mui/material";
+import { Box, Grid, Stack, Typography, MenuItem, useTheme, SvgIconProps } from "@mui/material";
 import { AddCustomerIdentity } from "@/app/lib/type/add-customer";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -24,6 +24,7 @@ const LabelWithIcon = ({ icon: Icon, label }: { icon: React.ComponentType<SvgIco
 );
 
 const IdentitySection = () => {
+  const theme = useTheme();
   const dict = useDictionary();
   const { values, errors, touched, setFieldValue, handleBlur } = useFormikContext<AddCustomerIdentity>();
 
@@ -57,9 +58,9 @@ const IdentitySection = () => {
                 helperText={touched.name ? (errors.name as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: alpha("#fff", 0.02),
-                    "&:hover": { bgcolor: alpha("#fff", 0.04) },
-                    "&.Mui-focused": { bgcolor: alpha("#fff", 0.04) },
+                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
+                    "&:hover": { bgcolor: (theme.palette.common as any).white_alpha.main_04 },
+                    "&.Mui-focused": { bgcolor: (theme.palette.common as any).white_alpha.main_04 },
                   }
                 }}
               />
@@ -81,7 +82,7 @@ const IdentitySection = () => {
                 helperText={touched.code ? (errors.code as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: alpha("#fff", 0.02),
+                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
                   }
                 }}
               />
@@ -103,7 +104,7 @@ const IdentitySection = () => {
                 helperText={touched.taxId ? (errors.taxId as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: alpha("#fff", 0.02),
+                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
                   }
                 }}
               />
@@ -125,7 +126,7 @@ const IdentitySection = () => {
                 helperText={touched.industry ? (errors.industry as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: alpha("#fff", 0.02),
+                    bgcolor: (theme.palette.common as any).white_alpha.main_02,
                   }
                 }}
               >

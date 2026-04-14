@@ -211,8 +211,8 @@ const InventorySection = ({
               p: 4,
               textAlign: "center",
               borderRadius: 2,
-              border: `1px dashed ${alpha(theme.palette.divider, 0.1)}`,
-              bgcolor: alpha(theme.palette.divider, 0.02),
+              border: `1px dashed ${(theme.palette as any).divider_alpha.main_10}`,
+              bgcolor: (theme.palette as any).divider_alpha.main_02,
             }}
           >
             <Typography variant="body2" color="text.secondary">
@@ -312,7 +312,7 @@ const InventorySection = ({
             bgcolor: "#0B0E14",
             backgroundImage: "none",
             borderRadius: 3,
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
           },
         }}
       >
@@ -321,7 +321,7 @@ const InventorySection = ({
         </DialogTitle>
         <DialogContent
           dividers
-          sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}
+          sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }}
         >
           <List>
             {availableInventory.map((product) => (
@@ -331,7 +331,7 @@ const InventorySection = ({
                   sx={{
                     borderRadius: 2,
                     "&:hover": {
-                      bgcolor: alpha(theme.palette.primary.main, 0.1),
+                      bgcolor: (theme.palette.primary as any)._alpha.main_10,
                     },
                   }}
                 >

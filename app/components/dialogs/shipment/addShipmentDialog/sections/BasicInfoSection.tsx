@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  alpha,
   Box,
   Button,
   Grid,
@@ -117,15 +116,17 @@ const BasicInfoSection = () => {
                       py: 1.5,
                       bgcolor:
                         values.priority === p.value
-                          ? alpha(p.color, 0.1)
-                          : alpha("#1A202C", 0.5),
+                          ? (theme.palette[p.value === "LOW" ? "success" : p.value === "MEDIUM" ? "warning" : "error"] as any)._alpha.main_10
+                          : (theme.palette.text as any).darkBlue._alpha.main_50,
                       color:
                         values.priority === p.value ? p.color : "text.secondary",
-                      borderColor: alpha(theme.palette.divider, 0.1),
+                      borderColor: (theme.palette as any).divider_alpha.main_10,
                       borderWidth: "1px !important",
                       fontWeight: 600,
                       "&:hover": {
-                        bgcolor: alpha(p.color, 0.15),
+                        bgcolor: values.priority === p.value 
+                          ? (theme.palette[p.value === "LOW" ? "success" : p.value === "MEDIUM" ? "warning" : "error"] as any)._alpha.main_20
+                          : (theme.palette.text as any).darkBlue._alpha.main_60,
                       },
                     }}
                   >

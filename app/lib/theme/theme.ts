@@ -3,34 +3,62 @@ import type {} from "@mui/x-date-pickers/themeAugmentation";
 import { palettes } from "./palette";
 
 declare module "@mui/material/styles" {
+  interface PaletteColor {
+    _alpha: Record<string, string>;
+  }
+  interface SimplePaletteColorOptions {
+    _alpha?: Record<string, string>;
+  }
+
+  interface TypeText {
+    primary_alpha: Record<string, string>;
+    secondary_alpha: Record<string, string>;
+    greenText: string;
+    sideBarText: string;
+    darkBlue: { main: string; _alpha: Record<string, string> };
+  }
+
+  interface TypeBackground {
+    default_alpha: Record<string, string>;
+    paper_alpha: Record<string, string>;
+    dashboardBg: string;
+    sidebar: string;
+    header: string;
+    hoverBg: string;
+    midnight: { main: string; _alpha: Record<string, string> };
+    deepNavy: { main: string; _alpha: Record<string, string> };
+    ebony: { main: string; _alpha: Record<string, string> };
+  }
+
+  interface CommonColors {
+    black_alpha: Record<string, string>;
+    white_alpha: Record<string, string>;
+  }
+
   interface Palette {
-    icon?: {
+    divider_alpha: Record<string, string>;
+    icon: {
       primary: string;
       secondary: string;
     };
-    buttonPrimary?: {
+    buttonPrimary: {
       buttonBg: string;
       buttonBgHover: string;
       iconColor: string;
       iconBgColor: string;
       primaryText: string;
     };
-    buttonSecondary?: {
+    buttonSecondary: {
       buttonBg: string;
       buttonBgHover: string;
       iconColor: string;
       iconBg: string;
       primaryText: string;
     };
-    logo?: {
+    logo: {
       color1: string;
       color2: string;
       text: string;
-    };
-    scroll?: {
-      color: string;
-      hover: string;
-      background: string;
     };
     kpi: {
       indigo: string;
@@ -41,10 +69,18 @@ declare module "@mui/material/styles" {
       violet: string;
       cyan: string;
       purple: string;
+      slateLight: string;
+      slateDark: string;
+      slateDeep: string;
+      slateDeepest: string;
+      slateGray: string;
+      lavender: string;
     };
+    kpi_alpha: Record<string, Record<string, string>>;
   }
 
   interface PaletteOptions {
+    divider_alpha?: Record<string, string>;
     icon?: {
       primary?: string;
       secondary?: string;
@@ -68,11 +104,6 @@ declare module "@mui/material/styles" {
       color2?: string;
       text?: string;
     };
-    scroll?: {
-      color?: string;
-      hover?: string;
-      background?: string;
-    };
     kpi?: {
       indigo?: string;
       sky?: string;
@@ -82,19 +113,14 @@ declare module "@mui/material/styles" {
       violet?: string;
       cyan?: string;
       purple?: string;
+      slateLight?: string;
+      slateDark?: string;
+      slateDeep?: string;
+      slateDeepest?: string;
+      slateGray?: string;
+      lavender?: string;
     };
-  }
-
-  interface TypeBackground {
-    dashboardBg?: string;
-    sidebar?: string;
-    header?: string;
-    hoverBg?: string;
-  }
-
-  interface TypeText {
-    greenText?: string;
-    sideBarText?: string;
+    kpi_alpha?: Record<string, Record<string, string>>;
   }
 
   interface BreakpointOverrides {
@@ -110,7 +136,7 @@ export type ThemeMode = "light" | "dark";
 
 export const getTheme = (mode: ThemeMode) =>
   createTheme({
-    palette: palettes[mode] ?? palettes.dark,
+    palette: (palettes[mode] ?? palettes.dark) as any,
 
     breakpoints: {
       values: {
@@ -258,8 +284,8 @@ export const getTheme = (mode: ThemeMode) =>
             minWidth: 160,
             borderRadius: "12px",
             boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-            border: `1px solid ${alpha("#ffffff", 0.1)}`,
-            backgroundColor: alpha("#0B0F19", 0.8),
+            border: `1px solid ${palettes[mode].common.white_alpha.main_10}`,
+            backgroundColor: palettes[mode].background.ebony?._alpha.main_80 || "#0B0F19CC",
             backdropFilter: "blur(12px)",
             marginTop: "8px",
           },
@@ -276,12 +302,12 @@ export const getTheme = (mode: ThemeMode) =>
             padding: "8px 12px",
             transition: "all 0.2s",
             "&:hover": {
-              backgroundColor: palettes[mode].primary.main ? alpha(palettes[mode].primary.main, 0.1) : alpha("#ffffff", 0.05),
+              backgroundColor: palettes[mode].primary._alpha.main_10 || "rgba(255, 255, 255, 0.05)",
             },
             "&.Mui-selected": {
-              backgroundColor: palettes[mode].primary.main ? alpha(palettes[mode].primary.main, 0.15) : alpha("#ffffff", 0.1),
+              backgroundColor: palettes[mode].primary._alpha.main_15 || "rgba(255, 255, 255, 0.1)",
               "&:hover": {
-                backgroundColor: palettes[mode].primary.main ? alpha(palettes[mode].primary.main, 0.2) : alpha("#ffffff", 0.15),
+                backgroundColor: palettes[mode].primary._alpha.main_20 || "rgba(255, 255, 255, 0.15)",
               },
             },
             "&:last-child": {

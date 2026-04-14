@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  alpha,
   Avatar,
   Box,
   Button,
@@ -138,20 +137,10 @@ const VehicleDialog = (params: VehicleDialogParams) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
 
-  const statusMeta = getStatusMeta(vehicleData?.status, dict);
+  const statusMeta = getStatusMeta(vehicleData?.status, dict) as any;
   
-  const getStatusColor = () => {
-    if (statusMeta.color.includes(".")) {
-      const [colorKey, colorVariant] = statusMeta.color.split(".");
-      const paletteColor = theme.palette[
-        colorKey as keyof typeof theme.palette
-      ] as unknown as Record<string, string>;
-      return paletteColor?.[colorVariant] || theme.palette.text.primary;
-    }
-    return statusMeta.color;
-  };
-
-  const statusColor = getStatusColor();
+  const statusColor = (theme.palette[statusMeta.paletteKey as keyof typeof theme.palette] as any)?.main || statusMeta.color;
+  const statusAlpha = (theme.palette[statusMeta.paletteKey as keyof typeof theme.palette] as any)?._alpha || (theme.palette.primary as any)._alpha;
 
   return (
     <Dialog
@@ -162,9 +151,9 @@ const VehicleDialog = (params: VehicleDialogParams) => {
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: "#0B1019",
+          bgcolor: (theme.palette.background as any).midnight.main,
           backgroundImage: "none",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
           overflow: "hidden",
         },
       }}
@@ -172,8 +161,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
       <Box
         sx={{
           p: 3,
-          bgcolor: "#0B1019",
-          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          bgcolor: (theme.palette.background as any).midnight.main,
+          borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
         }}
       >
         <Stack
@@ -188,7 +177,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
               sx={{
                 bgcolor: vehicleData?.photo
                   ? "transparent"
-                  : alpha(statusColor, 0.1),
+                  : statusAlpha.main_10,
                 color: statusColor,
                 width: 72,
                 height: 72,
@@ -196,8 +185,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                 fontWeight: 800,
                 borderRadius: 2,
                 border: vehicleData?.photo
-                  ? `2px solid ${alpha(statusColor, 0.5)}`
-                  : `1px solid ${alpha(statusColor, 0.2)}`,
+                  ? `2px solid ${statusAlpha.main_50}`
+                  : `1px solid ${statusAlpha.main_20}`,
               }}
             >
               {!vehicleData?.photo &&
@@ -223,7 +212,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                   sx={{
                     height: 24,
                     fontWeight: 600,
-                    bgcolor: alpha(statusColor, 0.1),
+                    bgcolor: statusAlpha.main_10,
                     color: statusColor,
                   }}
                 />
@@ -252,7 +241,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                   borderRadius: 2,
                   textTransform: "none",
                   fontWeight: 600,
-                  bgcolor: alpha(theme.palette.success.main, 0.05),
+                  bgcolor: (theme.palette.success as any)._alpha.main_05,
                 }}
               >
                 {dict.vehicles.dialogs.returnToService}
@@ -270,7 +259,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                     borderRadius: 2,
                     textTransform: "none",
                     fontWeight: 600,
-                    bgcolor: alpha(theme.palette.warning.main, 0.05),
+                    bgcolor: (theme.palette.warning as any)._alpha.main_05,
                   }}
                 >
                   {dict.vehicles.dialogs.setMaintenance}
@@ -296,7 +285,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           <Box
             sx={{
               borderBottom: 1,
-              borderColor: alpha(theme.palette.divider, 0.1),
+              borderColor: (theme.palette as any).divider_alpha.main_10,
             }}
           >
             <Tabs
@@ -323,8 +312,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
         <Box
           sx={{
             p: 3,
-            borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-            bgcolor: alpha(theme.palette.error.main, 0.05),
+            borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+            bgcolor: (theme.palette.error as any)._alpha.main_05,
           }}
         >
           <Stack
@@ -350,7 +339,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                 borderWidth: 1.5,
                 "&:hover": {
                   borderWidth: 1.5,
-                  bgcolor: alpha(theme.palette.error.main, 0.05),
+                  bgcolor: (theme.palette.error as any)._alpha.main_05,
                 },
               }}
             >

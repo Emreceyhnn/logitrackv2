@@ -23,8 +23,8 @@ export const GoogleMapsProvider = ({ children }: GoogleMapsProviderProps) => {
       <Box
         sx={{
           p: 3,
-          bgcolor: alpha(theme.palette.error.main, 0.05),
-          border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
+          bgcolor: (theme.palette.error as any)._alpha.main_05,
+          border: `1px solid ${(theme.palette.error as any)._alpha.main_20}`,
           borderRadius: 2,
           display: "flex",
           alignItems: "center",

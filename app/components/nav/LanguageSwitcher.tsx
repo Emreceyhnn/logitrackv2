@@ -68,10 +68,10 @@ const LanguageSwitcher = () => {
         size="small"
         sx={{
           ml: 1,
-          bgcolor: alpha(theme.palette.primary.main, 0.05),
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          bgcolor: (theme.palette.primary as any)._alpha.main_05,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
           "&:hover": {
-            bgcolor: alpha(theme.palette.primary.main, 0.1),
+            bgcolor: (theme.palette.primary as any)._alpha.main_10,
           },
         }}
         aria-controls={open ? "language-menu" : undefined}
@@ -96,7 +96,7 @@ const LanguageSwitcher = () => {
             filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.12))",
             mt: 1.5,
             bgcolor: theme.palette.background.paper,
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
             borderRadius: 2,
             "& .MuiAvatar-root": {
               width: 32,
@@ -132,9 +132,9 @@ const LanguageSwitcher = () => {
               minWidth: 180,
               gap: 2,
               "&.Mui-selected": {
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                bgcolor: (theme.palette.primary as any)._alpha.main_10,
                 "&:hover": {
-                  bgcolor: alpha(theme.palette.primary.main, 0.15),
+                  bgcolor: (theme.palette.primary as any)._alpha.main_15,
                 },
               },
             }}

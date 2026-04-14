@@ -11,57 +11,43 @@ import {
   Divider,
   Stack,
   Typography,
+  useTheme,
 } from "@mui/material";
+import { keyframes } from "@mui/system";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
-import { alpha, keyframes } from "@mui/system";
-
-const pulse = keyframes`
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 10px ${alpha("#38bdf8", 0.25)}, 0 0 20px ${alpha(
-      "#38bdf8",
-      0.15
-    )};
-    opacity: 1;
-  }
-  25% {
-    transform: scale(1.08);
-    box-shadow: 0 0 25px ${alpha("#38bdf8", 0.4)}, 0 0 45px ${alpha(
-      "#38bdf8",
-      0.25
-    )};
-    opacity: 0.95;
-  }
-  50% {
-    transform: scale(1.15);
-    box-shadow: 0 0 40px ${alpha("#38bdf8", 0.6)}, 0 0 70px ${alpha(
-      "#38bdf8",
-      0.35
-    )};
-    opacity: 1;
-  }
-  75% {
-    transform: scale(1.08);
-    box-shadow: 0 0 25px ${alpha("#38bdf8", 0.4)}, 0 0 45px ${alpha(
-      "#38bdf8",
-      0.25
-    )};
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 10px ${alpha("#38bdf8", 0.25)}, 0 0 20px ${alpha(
-      "#38bdf8",
-      0.15
-    )};
-    opacity: 1;
-  }
-`;
-
 export default function LandingPage() {
   const dict = useDictionary();
+  const theme = useTheme();
+
+  const pulse = useMemo(() => keyframes`
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 10px ${(theme.palette.kpi as any).cyan_alpha.main_25}, 0 0 20px ${(theme.palette.kpi as any).cyan_alpha.main_15};
+      opacity: 1;
+    }
+    25% {
+      transform: scale(1.08);
+      box-shadow: 0 0 25px ${(theme.palette.kpi as any).cyan_alpha.main_40}, 0 0 45px ${(theme.palette.kpi as any).cyan_alpha.main_25};
+      opacity: 0.95;
+    }
+    50% {
+      transform: scale(1.15);
+      box-shadow: 0 0 40px ${(theme.palette.kpi as any).cyan_alpha.main_60}, 0 0 70px ${(theme.palette.kpi as any).cyan_alpha.main_35};
+      opacity: 1;
+    }
+    75% {
+      transform: scale(1.08);
+      box-shadow: 0 0 25px ${(theme.palette.kpi as any).cyan_alpha.main_40}, 0 0 45px ${(theme.palette.kpi as any).cyan_alpha.main_25};
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 10px ${(theme.palette.kpi as any).cyan_alpha.main_25}, 0 0 20px ${(theme.palette.kpi as any).cyan_alpha.main_15};
+      opacity: 1;
+    }
+  `, [theme]);
 
   const featureCards = useMemo(() => [
     {
@@ -159,9 +145,9 @@ export default function LandingPage() {
             position: "absolute",
             inset: 0,
             background:
-              "radial-gradient(circle at 20% 20%, rgba(59,130,246,0.35) 0%, transparent 45%)," +
-              "radial-gradient(circle at 80% 10%, rgba(6,182,212,0.25) 0%, transparent 50%)," +
-              "radial-gradient(circle at 80% 80%, rgba(99,102,241,0.18) 0%, transparent 55%)",
+              "radial-gradient(circle at 20% 20%, #3b82f659 0%, transparent 45%)," +
+              "radial-gradient(circle at 80% 10%, #06b6d440 0%, transparent 50%)," +
+              "radial-gradient(circle at 80% 80%, #6366f12e 0%, transparent 55%)",
           }}
         />
         <Box
@@ -172,7 +158,7 @@ export default function LandingPage() {
             top: { xs: -200, md: -260 },
             left: { xs: -160, md: -120 },
             background:
-              "radial-gradient(circle, rgba(56,189,248,0.35) 0%, transparent 70%)",
+              "radial-gradient(circle, #38bdf859 0%, transparent 70%)",
             filter: "blur(80px)",
             opacity: 0.8,
             animation: "pulse 18s ease-in-out infinite",
@@ -186,7 +172,7 @@ export default function LandingPage() {
             bottom: { xs: -120, md: -160 },
             right: { xs: -140, md: -120 },
             background:
-              "radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%)",
+              "radial-gradient(circle, #6366f159 0%, transparent 70%)",
             filter: "blur(90px)",
             opacity: 0.7,
             animation: "pulse 22s ease-in-out infinite",
@@ -243,16 +229,16 @@ export default function LandingPage() {
                       borderRadius: "999px",
                       px: 1.5,
                       py: 0.5,
-                      bgcolor: alpha("#1e293b", 0.7),
-                      border: `1px solid ${alpha("#38bdf8", 0.3)}`,
-                      color: alpha("#e2e8f0", 0.9),
+                      bgcolor: (theme.palette.kpi as any).slateDark_alpha.main_70,
+                      border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_30}`,
+                      color: (theme.palette.kpi as any).lavender_alpha.main_90,
                       fontWeight: 600,
                       letterSpacing: 0.5,
                     }}
                   />
                   <Typography
                     variant="body2"
-                    sx={{ color: alpha("#cbd5f5", 0.65), letterSpacing: 1 }}
+                    sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_65, letterSpacing: 1 }}
                   >
                     {dict.landing.hero.trusted}
                   </Typography>
@@ -275,7 +261,7 @@ export default function LandingPage() {
                 <Typography
                   variant="body1"
                   sx={{
-                    color: alpha("#cbd5f5", 0.9),
+                    color: (theme.palette.kpi as any).slateLight_alpha.main_90,
                     fontSize: 18,
                     maxWidth: 520,
                   }}
@@ -310,11 +296,11 @@ export default function LandingPage() {
                       px: 4,
                       py: 1.6,
                       borderRadius: "999px",
-                      borderColor: alpha("#38bdf8", 0.6),
+                      borderColor: (theme.palette.kpi as any).cyan_alpha.main_60,
                       color: "#38bdf8",
                       "&:hover": {
                         borderColor: "#38bdf8",
-                        backgroundColor: alpha("#38bdf8", 0.08),
+                        backgroundColor: (theme.palette.kpi as any).cyan_alpha.main_08,
                       },
                     }}
                   >
@@ -331,7 +317,7 @@ export default function LandingPage() {
                         flexItem
                         orientation="vertical"
                         sx={{
-                          borderColor: alpha("#94a3b8", 0.15),
+                          borderColor: (theme.palette.kpi as any).slateGray_alpha.main_15,
                           display: { xs: "none", sm: "block" },
                         }}
                       />
@@ -343,7 +329,7 @@ export default function LandingPage() {
                       </Typography>
                       <Typography
                         variant="body2"
-                        sx={{ color: alpha("#e2e8f0", 0.7) }}
+                        sx={{ color: (theme.palette.kpi as any).lavender_alpha.main_70 }}
                       >
                         {dict.landing.stats.onTime}
                       </Typography>
@@ -354,7 +340,7 @@ export default function LandingPage() {
                       </Typography>
                       <Typography
                         variant="body2"
-                        sx={{ color: alpha("#e2e8f0", 0.7) }}
+                        sx={{ color: (theme.palette.kpi as any).lavender_alpha.main_70 }}
                       >
                         {dict.landing.stats.monitored}
                       </Typography>
@@ -368,8 +354,8 @@ export default function LandingPage() {
                       px: 2.5,
                       py: 1.5,
                       borderRadius: 999,
-                      backgroundColor: alpha("#1e293b", 0.65),
-                      border: `1px solid ${alpha("#38bdf8", 0.2)}`,
+                      backgroundColor: (theme.palette.kpi as any).slateDark_alpha.main_65,
+                      border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_20}`,
                       maxWidth: 360,
                       boxShadow: "0 20px 45px rgba(15,23,42,0.35)",
                     }}
@@ -386,13 +372,13 @@ export default function LandingPage() {
                     <Stack spacing={0.5}>
                       <Typography
                         variant="body2"
-                        sx={{ color: alpha("#cbd5f5", 0.85), fontWeight: 600 }}
+                        sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_85, fontWeight: 600 }}
                       >
                         {dict.landing.stats.live}
                       </Typography>
                       <Typography
                         variant="caption"
-                        sx={{ color: alpha("#94a3b8", 0.75) }}
+                        sx={{ color: (theme.palette.kpi as any).slateGray_alpha.main_75 }}
                       >
                         {dict.landing.stats.updateFreq}
                       </Typography>
@@ -408,8 +394,8 @@ export default function LandingPage() {
                   position: "relative",
                   borderRadius: 6,
                   p: { xs: 2, md: 3 },
-                  background: alpha("#0f172a", 0.6),
-                  border: `1px solid ${alpha("#38bdf8", 0.24)}`,
+                  background: (theme.palette.kpi as any).slateDeep_alpha.main_60,
+                  border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_24}`,
                   boxShadow: "0 50px 140px rgba(15, 23, 42, 0.55)",
                   backdropFilter: "blur(18px)",
                 }}
@@ -430,7 +416,7 @@ export default function LandingPage() {
                     position: "relative",
                     borderRadius: 5,
                     overflow: "hidden",
-                    border: `1px solid ${alpha("#38bdf8", 0.35)}`,
+                    border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_35}`,
                     boxShadow: "0 40px 110px rgba(8,12,24,0.75)",
                   }}
                 >
@@ -478,8 +464,8 @@ export default function LandingPage() {
                           px: 2.5,
                           py: 2,
                           borderRadius: 3,
-                          backgroundColor: alpha("#0f172a", 0.6),
-                          border: `1px solid ${alpha("#38bdf8", 0.2)}`,
+                          backgroundColor: (theme.palette.kpi as any).slateDeep_alpha.main_60,
+                          border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_20}`,
                           boxShadow: "0 18px 48px rgba(8, 12, 24, 0.55)",
                           animation: "float 14s ease-in-out infinite",
                         }}
@@ -489,7 +475,7 @@ export default function LandingPage() {
                         </Typography>
                         <Typography
                           variant="caption"
-                          sx={{ color: alpha("#cbd5f5", 0.75) }}
+                          sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_75 }}
                         >
                           {metric.label}
                         </Typography>
@@ -501,8 +487,8 @@ export default function LandingPage() {
                       px: 3,
                       py: 2,
                       borderRadius: 3,
-                      background: alpha("#1e293b", 0.65),
-                      border: `1px solid ${alpha("#38bdf8", 0.22)}`,
+                      background: (theme.palette.kpi as any).slateDark_alpha.main_65,
+                      border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_22}`,
                       boxShadow: "0 18px 48px rgba(8, 12, 24, 0.5)",
                       display: "flex",
                       alignItems: "center",
@@ -515,13 +501,13 @@ export default function LandingPage() {
                     <Stack spacing={0.5}>
                       <Typography
                         variant="body2"
-                        sx={{ color: alpha("#e2e8f0", 0.85), fontWeight: 600 }}
+                        sx={{ color: (theme.palette.kpi as any).lavender_alpha.main_85, fontWeight: 600 }}
                       >
                         {dict.landing.hero.metrics.slaStability}
                       </Typography>
                       <Typography
                         variant="caption"
-                        sx={{ color: alpha("#94a3b8", 0.75) }}
+                        sx={{ color: (theme.palette.kpi as any).slateGray_alpha.main_75 }}
                       >
                         {dict.landing.hero.metrics.slaTrend}
                       </Typography>
@@ -537,8 +523,8 @@ export default function LandingPage() {
                     px: 3,
                     py: 2.2,
                     borderRadius: 4,
-                    background: alpha("#0f172a", 0.9),
-                    border: `1px solid ${alpha("#38bdf8", 0.35)}`,
+                    background: (theme.palette.kpi as any).slateDeep_alpha.main_90,
+                    border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_35}`,
                     boxShadow: "0 25px 70px rgba(8, 12, 24, 0.55)",
                     display: "flex",
                     alignItems: "center",
@@ -551,13 +537,13 @@ export default function LandingPage() {
                   <Stack spacing={0.5}>
                     <Typography
                       variant="body2"
-                      sx={{ color: alpha("#e2e8f0", 0.85), fontWeight: 600 }}
+                      sx={{ color: (theme.palette.kpi as any).lavender_alpha.main_85, fontWeight: 600 }}
                     >
                       {dict.landing.hero.metrics.predictiveEtaReady}
                     </Typography>
                     <Typography
                       variant="caption"
-                      sx={{ color: alpha("#94a3b8", 0.75) }}
+                      sx={{ color: (theme.palette.kpi as any).slateGray_alpha.main_75 }}
                     >
                       {dict.landing.hero.metrics.lastUpdate}
                     </Typography>
@@ -576,7 +562,7 @@ export default function LandingPage() {
             display="block"
             textAlign="center"
             sx={{
-              color: alpha("#38bdf8", 0.8),
+              color: (theme.palette.kpi as any).cyan_alpha.main_80,
               fontWeight: 600,
               letterSpacing: 4,
             }}
@@ -597,7 +583,7 @@ export default function LandingPage() {
                 sx={{
                   textTransform: "uppercase",
                   letterSpacing: 2,
-                  color: alpha("#e2e8f0", 0.65),
+                  color: (theme.palette.kpi as any).lavender_alpha.main_65,
                 }}
               >
                 {logo}
@@ -623,7 +609,7 @@ export default function LandingPage() {
                 </Typography>
                 <Typography
                   variant="body1"
-                  sx={{ color: alpha("#cbd5f5", 0.85) }}
+                  sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_85 }}
                 >
                   {dict.landing.features.description}
                 </Typography>
@@ -641,8 +627,8 @@ export default function LandingPage() {
                         height: "100%",
                         p: 3,
                         borderRadius: 4,
-                        backgroundColor: alpha("#1e293b", 0.65),
-                        border: `1px solid ${alpha("#38bdf8", 0.16)}`,
+                        backgroundColor: (theme.palette.kpi as any).slateDark_alpha.main_65,
+                        border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_16}`,
                         transition: "transform 0.2s ease, box-shadow 0.2s ease",
                         "&:hover": {
                           transform: "translateY(-4px)",
@@ -655,7 +641,7 @@ export default function LandingPage() {
                       </Typography>
                       <Typography
                         variant="body2"
-                        sx={{ color: alpha("#e2e8f0", 0.75) }}
+                        sx={{ color: (theme.palette.kpi as any).lavender_alpha.main_75 }}
                       >
                         {card.description}
                       </Typography>
@@ -684,8 +670,8 @@ export default function LandingPage() {
                   sx={{
                     borderRadius: 4,
                     p: 4,
-                    backgroundColor: alpha("#1e293b", 0.6),
-                    border: `1px solid ${alpha("#38bdf8", 0.16)}`,
+                    backgroundColor: (theme.palette.kpi as any).slateDark_alpha.main_60,
+                    border: `1px solid ${(theme.palette.kpi as any).cyan_alpha.main_16}`,
                     transition: "transform 0.2s ease, box-shadow 0.2s ease",
                     "&:hover": {
                       transform: "translateY(-4px)",
@@ -696,7 +682,7 @@ export default function LandingPage() {
                   <Typography
                     variant="h6"
                     sx={{
-                      color: alpha("#38bdf8", 0.85),
+                      color: (theme.palette.kpi as any).cyan_alpha.main_85,
                       fontWeight: 700,
                       mb: 1,
                     }}
@@ -708,7 +694,7 @@ export default function LandingPage() {
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{ color: alpha("#cbd5f5", 0.8) }}
+                    sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_80 }}
                   >
                     {item.description}
                   </Typography>
@@ -733,7 +719,7 @@ export default function LandingPage() {
               </Typography>
               <Typography
                 variant="body1"
-                sx={{ color: alpha("#cbd5f5", 0.85) }}
+                sx={{ color: (theme.palette.kpi as any).slateLight_alpha.main_85 }}
               >
                 {dict.landing.cta.description}
               </Typography>
@@ -763,11 +749,11 @@ export default function LandingPage() {
                   px: 4,
                   py: 1.5,
                   borderRadius: "999px",
-                  borderColor: alpha("#38bdf8", 0.6),
+                  borderColor: (theme.palette.kpi as any).cyan_alpha.main_60,
                   color: "#38bdf8",
                   "&:hover": {
                     borderColor: "#38bdf8",
-                    backgroundColor: alpha("#38bdf8", 0.08),
+                    backgroundColor: (theme.palette.kpi as any).cyan_alpha.main_08,
                   },
                 }}
               >
@@ -788,7 +774,7 @@ export default function LandingPage() {
           >
             <Typography
               variant="body2"
-              sx={{ color: alpha("#94a3b8", 0.7), fontWeight: 500 }}
+              sx={{ color: (theme.palette.kpi as any).slateGray_alpha.main_70, fontWeight: 500 }}
             >
               {(dict.footer?.copyright || "© {year} LogiTrack. All rights reserved.").replace("{year}", new Date().getFullYear().toString())}
             </Typography>
@@ -803,7 +789,7 @@ export default function LandingPage() {
                   key={link}
                   variant="caption"
                   sx={{
-                    color: alpha("#94a3b8", 0.6),
+                    color: (theme.palette.kpi as any).slateGray_alpha.main_60,
                     cursor: "pointer",
                     "&:hover": { color: "#38bdf8" },
                   }}

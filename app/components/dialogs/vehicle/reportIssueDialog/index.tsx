@@ -11,7 +11,6 @@ import {
   MenuItem,
   IconButton,
   useTheme,
-  alpha,
   CircularProgress,
   Alert,
 } from "@mui/material";
@@ -147,13 +146,13 @@ const ReportIssueDialog = ({
   /* ---------------------------------- styles --------------------------------- */
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: alpha("#1A202C", 0.5),
+      backgroundColor: (theme.palette.text as any).darkBlue._alpha.main_50,
       borderRadius: 2,
       "& fieldset": {
-        borderColor: alpha(theme.palette.divider, 0.1),
+        borderColor: (theme.palette as any).divider_alpha.main_10,
       },
       "&:hover fieldset": {
-        borderColor: alpha(theme.palette.primary.main, 0.3),
+        borderColor: (theme.palette.primary as any)._alpha.main_30,
       },
       "&.Mui-focused fieldset": {
         borderColor: theme.palette.primary.main,
@@ -180,7 +179,7 @@ const ReportIssueDialog = ({
           borderRadius: 4,
           bgcolor: "#0B1019",
           backgroundImage: "none",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
         },
       }}
     >
@@ -189,7 +188,7 @@ const ReportIssueDialog = ({
           <Stack direction="row" spacing={2} alignItems="center">
             <Box
               sx={{
-                bgcolor: alpha(theme.palette.warning.main, 0.1),
+                bgcolor: (theme.palette.warning as any)._alpha.main_10,
                 color: theme.palette.warning.main,
                 p: 1.25,
                 borderRadius: 2,
@@ -202,7 +201,7 @@ const ReportIssueDialog = ({
               <Typography variant="h6" fontWeight={700} color="white">
                 {dict.vehicles.dialogs.reportIssueTitle}
               </Typography>
-              <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
+              <Typography variant="caption" sx={{ color: (theme.palette.common as any).white_alpha.main_40, mt: 0.5, display: "block" }}>
                 {dict.vehicles.dialogs.vehicleLabel}: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>{vehiclePlate}</span>
               </Typography>
             </Box>
@@ -221,9 +220,9 @@ const ReportIssueDialog = ({
               variant="filled"
               sx={{ 
                 borderRadius: 2,
-                bgcolor: alpha(success ? theme.palette.success.main : theme.palette.error.main, 0.1),
+                bgcolor: success ? (theme.palette.success as any)._alpha.main_10 : (theme.palette.error as any)._alpha.main_10,
                 color: success ? theme.palette.success.light : theme.palette.error.light,
-                border: `1px solid ${alpha(success ? theme.palette.success.main : theme.palette.error.main, 0.2)}`,
+                border: `1px solid ${success ? (theme.palette.success as any)._alpha.main_20 : (theme.palette.error as any)._alpha.main_20}`,
               }}
             >
               {success ? dict.toasts.successAdd : error}
@@ -274,7 +273,7 @@ const ReportIssueDialog = ({
                             height: 10,
                             borderRadius: "50%",
                             bgcolor: mainColor,
-                            boxShadow: `0 0 10px ${alpha(mainColor, 0.5)}`,
+                            boxShadow: `0 0 10px ${(theme.palette[colorKey] as any)._alpha.main_50}`,
                           }}
                         />
                         <Typography variant="body2" color="white" fontWeight={500}>
@@ -288,7 +287,7 @@ const ReportIssueDialog = ({
                       sx: {
                         bgcolor: "#1A202C",
                         backgroundImage: "none",
-                        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                        border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                         mt: 1,
                       }
                     }
@@ -343,7 +342,7 @@ const ReportIssueDialog = ({
         </Stack>
       </DialogContent>
 
-      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
+      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}` }}>
         <Stack direction="row" spacing={2} justifyContent="flex-end">
           <Button 
             onClick={handleClose} 
@@ -364,7 +363,7 @@ const ReportIssueDialog = ({
               textTransform: "none",
               borderRadius: 2,
               px: 4,
-              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+              boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_20}`,
               fontWeight: 700,
               minWidth: 140,
             }}

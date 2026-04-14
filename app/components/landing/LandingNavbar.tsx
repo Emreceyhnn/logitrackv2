@@ -7,6 +7,7 @@ import {
   Typography,
   alpha,
   useScrollTrigger,
+  useTheme,
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,6 +21,7 @@ export default function LandingNavbar() {
   const lang = (params?.lang as string) || "tr";
   const dict = useDictionary();
 
+  const theme = useTheme();
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 50,
@@ -44,10 +46,10 @@ export default function LandingNavbar() {
             px: { xs: 2, md: 4 },
             borderRadius: "24px",
             background: trigger
-              ? alpha("#020617", 0.85)
-              : alpha("#0f172a", 0.4),
+              ? (theme.palette.background as any).deepNavy?.main_85
+              : (theme.palette.background as any).slateDeep?.main_40,
             backdropFilter: "blur(20px)",
-            border: `1px solid ${trigger ? alpha("#38bdf8", 0.2) : alpha("#cbd5f5", 0.1)}`,
+            border: `1px solid ${trigger ? (theme.palette.background as any).cyan?.main_20 : (theme.palette.background as any).slateLight?.main_10}`,
             boxShadow: trigger ? "0 20px 40px rgba(0,0,0,0.4)" : "none",
             transition: "all 0.4s ease",
             justifyContent: "space-between",
@@ -110,9 +112,9 @@ export default function LandingNavbar() {
                 sx={{
                   fontWeight: 600,
                   textDecoration: "none",
-                  color: alpha("#e2e8f0", 0.7),
+                  color: (theme.palette.background as any).lavender?.main_70,
                   transition: "all 0.2s ease",
-                  "&:hover": { color: "#38bdf8" },
+                  "&:hover": { color: (theme.palette.background as any).cyan?.main },
                 }}
               >
                 {item.label}

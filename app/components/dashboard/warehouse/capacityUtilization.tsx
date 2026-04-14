@@ -5,7 +5,6 @@ import {
   Stack,
   Typography,
   useTheme,
-  alpha,
 } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
@@ -61,7 +60,7 @@ const CapacityUtilization = ({
                   size={140}
                   thickness={3}
                   sx={{
-                    color: alpha(theme.palette.divider, 0.05),
+                    color: (theme.palette as any).divider_alpha.main_05,
                   }}
                 />
                 <CircularProgress
@@ -73,7 +72,7 @@ const CapacityUtilization = ({
                     color: mainColor,
                     position: "absolute",
                     left: 0,
-                    filter: `drop-shadow(0 0 8px ${alpha(mainColor, 0.4)})`,
+                    filter: `drop-shadow(0 0 8px ${isCritical ? (theme.palette.error as any)._alpha.main_40 : (theme.palette.primary as any)._alpha.main_40})`,
                     [`& .MuiCircularProgress-circle`]: {
                       strokeLinecap: "round",
                     },
@@ -100,7 +99,7 @@ const CapacityUtilization = ({
                     sx={{ 
                       textTransform: "uppercase", 
                       fontWeight: 700,
-                      color: alpha(theme.palette.text.primary, 0.4),
+                      color: (theme.palette.text as any).primary_alpha.main_40,
                       letterSpacing: "0.1em",
                       fontSize: "0.65rem"
                     }}

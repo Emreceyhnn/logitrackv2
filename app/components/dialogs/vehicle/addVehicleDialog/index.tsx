@@ -200,7 +200,7 @@ const AddVehicleDialog = ({
               borderRadius: 4,
               bgcolor: "#0B1019",
               backgroundImage: "none",
-              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
             },
           }}
         >
@@ -228,8 +228,8 @@ const AddVehicleDialog = ({
                   mt: 2, 
                   p: 2, 
                   borderRadius: 2, 
-                  bgcolor: alpha(theme.palette.error.main, 0.1),
-                  border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`
+                  bgcolor: (theme.palette.error as any)._alpha.main_10,
+                  border: `1px solid ${(theme.palette.error as any)._alpha.main_20}`
                 }}
               >
                 <Typography variant="caption" color="error.light">
@@ -245,7 +245,7 @@ const AddVehicleDialog = ({
                 activeStep={currentStep - 1}
                 sx={{
                   "& .MuiStepConnector-line": {
-                    borderColor: alpha(theme.palette.divider, 0.1),
+                    borderColor: (theme.palette as any).divider_alpha.main_10,
                   },
                 }}
               >
@@ -277,7 +277,7 @@ const AddVehicleDialog = ({
             </Box>
 
             <Divider
-              sx={{ mb: 4, borderColor: alpha(theme.palette.divider, 0.05) }}
+              sx={{ mb: 4, borderColor: (theme.palette as any).divider_alpha.main_05 }}
             />
 
             <Box sx={{ minHeight: 400 }}>
@@ -294,7 +294,7 @@ const AddVehicleDialog = ({
               sx={{
                 mt: 4,
                 pt: 3,
-                borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+                borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
               }}
             >
               <Stack direction="row" spacing={2} justifyContent="flex-end">
@@ -316,7 +316,7 @@ const AddVehicleDialog = ({
                     sx={{
                       textTransform: "none",
                       borderRadius: 2,
-                      borderColor: alpha(theme.palette.divider, 0.2),
+                      borderColor: (theme.palette as any).divider_alpha.main_20,
                       color: "white",
                       fontWeight: 600,
                     }}
@@ -341,7 +341,7 @@ const AddVehicleDialog = ({
                     textTransform: "none",
                     px: currentStep === 3 ? 3 : 4,
                     borderRadius: 2,
-                    boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+                    boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_20}`,
                     fontWeight: 700,
                     minWidth: 140,
                   }}

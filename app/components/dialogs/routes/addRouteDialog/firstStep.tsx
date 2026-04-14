@@ -43,7 +43,7 @@ const FirstRouteDialogStep = ({
               width: 40,
               height: 40,
               borderRadius: "50%",
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              bgcolor: (theme.palette.primary as any)._alpha.main_10,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -178,8 +178,8 @@ const FirstRouteDialogStep = ({
           sx={{
             p: 2,
             borderRadius: 2,
-            bgcolor: alpha(theme.palette.primary.main, 0.05),
-            border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+            bgcolor: (theme.palette.primary as any)._alpha.main_05,
+            border: `1px solid ${(theme.palette.primary as any)._alpha.main_10}`,
             display: "flex",
             gap: 2,
           }}

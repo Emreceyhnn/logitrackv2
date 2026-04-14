@@ -36,17 +36,17 @@ export default function TableSkeleton({
       ]}
     >
       <Table sx={{ minWidth: 750 }}>
-        <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
+        <TableHead sx={{ bgcolor: (theme.palette.primary as any)._alpha.main_03 }}>
           <TableRow>
             {Array.from(new Array(columns)).map((_, i) => (
               <TableCell
                 key={i}
-                sx={{ borderColor: alpha(theme.palette.divider, 0.1) }}
+                sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }}
               >
                 <Skeleton
                   variant="text"
                   width="60%"
-                  sx={{ bgcolor: alpha(theme.palette.text.primary, 0.1) }}
+                  sx={{ bgcolor: (theme.palette.text as any).primary_alpha.main_10 }}
                 />
               </TableCell>
             ))}
@@ -59,14 +59,14 @@ export default function TableSkeleton({
               {Array.from(new Array(columns)).map((_, colIndex) => (
                 <TableCell
                   key={colIndex}
-                  sx={{ borderColor: alpha(theme.palette.divider, 0.1), py: 1.5 }}
+                  sx={{ borderColor: (theme.palette as any).divider_alpha.main_10, py: 1.5 }}
                 >
                   <Skeleton
                     animation="wave"
                     variant={colIndex === 1 ? "rounded" : "text"}
                     width={colIndex === 1 ? 80 : "80%"}
                     height={colIndex === 1 ? 24 : 24}
-                    sx={{ bgcolor: alpha(theme.palette.text.primary, 0.05), borderRadius: 1 }}
+                    sx={{ bgcolor: (theme.palette.text as any).primary_alpha.main_05, borderRadius: 1 }}
                   />
                 </TableCell>
               ))}

@@ -9,7 +9,6 @@ import {
   CircularProgress,
   InputAdornment,
   useTheme,
-  alpha,
 } from "@mui/material";
 import {
   Lock as LockIcon,
@@ -44,30 +43,30 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
     len >= 12 ? "strong" : len >= 8 ? "medium" : len > 0 ? "weak" : "none";
 
   const strengthMap = {
-    none: { color: alpha("#fff", 0.1), width: "0%", label: "" },
-    weak: { color: theme.palette.error.main, width: "33%", label: dict.profile.security.strengths.vulnerable },
-    medium: { color: theme.palette.warning.main, width: "66%", label: dict.profile.security.strengths.acceptable },
-    strong: { color: theme.palette.success.main, width: "100%", label: dict.profile.security.strengths.robust },
+    none: { color: (theme.palette.common as any).white_alpha.main_10, alphaBlock: (theme.palette.common as any).white_alpha, width: "0%", label: "" },
+    weak: { color: theme.palette.error.main, alphaBlock: (theme.palette.error as any)._alpha, width: "33%", label: dict.profile.security.strengths.vulnerable },
+    medium: { color: theme.palette.warning.main, alphaBlock: (theme.palette.warning as any)._alpha, width: "66%", label: dict.profile.security.strengths.acceptable },
+    strong: { color: theme.palette.success.main, alphaBlock: (theme.palette.success as any)._alpha, width: "100%", label: dict.profile.security.strengths.robust },
   };
 
   const fieldSx = {
     "& .MuiOutlinedInput-root": {
       borderRadius: 2.5,
-      bgcolor: alpha("#ffffff", 0.03),
+      bgcolor: (theme.palette.common as any).white_alpha.main_03,
       transition: "all 0.2s",
-      "& fieldset": { borderColor: alpha(theme.palette.divider, 0.08) },
+      "& fieldset": { borderColor: (theme.palette as any).divider_alpha.main_08 },
       "&:hover": {
-        bgcolor: alpha("#ffffff", 0.05),
-        "& fieldset": { borderColor: alpha(theme.palette.primary.main, 0.3) },
+        bgcolor: (theme.palette.common as any).white_alpha.main_05,
+        "& fieldset": { borderColor: (theme.palette.primary as any)._alpha.main_30 },
       },
       "&.Mui-focused": {
-        bgcolor: alpha("#ffffff", 0.06),
+        bgcolor: (theme.palette.common as any).white_alpha.main_06,
         "& fieldset": { borderColor: theme.palette.primary.main },
       },
       color: "white",
     },
     "& .MuiInputLabel-root": {
-      color: alpha("#fff", 0.4),
+      color: (theme.palette.common as any).white_alpha.main_40,
       fontSize: "0.9rem",
       fontWeight: 500,
     },
@@ -85,8 +84,8 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
         sx={{
           p: 2.5,
           borderRadius: 3,
-          bgcolor: alpha(theme.palette.primary.main, 0.06),
-          border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+          bgcolor: (theme.palette.primary as any)._alpha.main_06,
+          border: `1px solid ${(theme.palette.primary as any)._alpha.main_15}`,
           display: "flex",
           gap: 2,
           alignItems: "flex-start",
@@ -99,7 +98,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
             width: 32,
             height: 32,
             borderRadius: 1.5,
-            bgcolor: alpha(theme.palette.primary.main, 0.1),
+            bgcolor: (theme.palette.primary as any)._alpha.main_10,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -121,7 +120,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
           <Typography
             variant="caption"
             sx={{
-              color: alpha("#fff", 0.45),
+              color: (theme.palette.common as any).white_alpha.main_45,
               fontWeight: 500,
               lineHeight: 1.5,
             }}
@@ -153,11 +152,11 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                 >
                   {show.current ? (
                     <VisibilityOff
-                      sx={{ fontSize: 18, color: alpha("#fff", 0.3) }}
+                      sx={{ fontSize: 18, color: (theme.palette.common as any).white_alpha.main_30 }}
                     />
                   ) : (
                     <Visibility
-                      sx={{ fontSize: 18, color: alpha("#fff", 0.3) }}
+                      sx={{ fontSize: 18, color: (theme.palette.common as any).white_alpha.main_30 }}
                     />
                   )}
                 </IconButton>
@@ -186,11 +185,11 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                   >
                     {show.newP ? (
                       <VisibilityOff
-                        sx={{ fontSize: 18, color: alpha("#fff", 0.3) }}
+                        sx={{ fontSize: 18, color: (theme.palette.common as any).white_alpha.main_30 }}
                       />
                     ) : (
                       <Visibility
-                        sx={{ fontSize: 18, color: alpha("#fff", 0.3) }}
+                        sx={{ fontSize: 18, color: (theme.palette.common as any).white_alpha.main_30 }}
                       />
                     )}
                   </IconButton>
@@ -210,7 +209,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                 <Typography
                   variant="caption"
                   sx={{
-                    color: alpha("#fff", 0.45),
+                    color: (theme.palette.common as any).white_alpha.main_45,
                     fontWeight: 700,
                     fontSize: "0.65rem",
                     textTransform: "uppercase",
@@ -232,7 +231,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
               <Box
                 sx={{
                   height: 4,
-                  bgcolor: alpha("#fff", 0.05),
+                  bgcolor: (theme.palette.common as any).white_alpha.main_05,
                   borderRadius: 2,
                   overflow: "hidden",
                 }}
@@ -244,7 +243,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                     bgcolor: strengthMap[strength as keyof typeof strengthMap].color,
                     borderRadius: 2,
                     transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-                    boxShadow: `0 0 8px ${alpha(strengthMap[strength as keyof typeof strengthMap].color, 0.4)}`,
+                    boxShadow: `0 0 8px ${(strengthMap[strength as keyof typeof strengthMap] as any).alphaBlock?.main_40 || "transparent"}`,
                   }}
                 />
               </Box>
@@ -281,11 +280,11 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                 >
                   {show.confirm ? (
                     <VisibilityOff
-                      sx={{ fontSize: 18, color: alpha("#fff", 0.3) }}
+                      sx={{ fontSize: 18, color: (theme.palette.common as any).white_alpha.main_30 }}
                     />
                   ) : (
                     <Visibility
-                      sx={{ fontSize: 18, color: alpha("#fff", 0.3) }}
+                      sx={{ fontSize: 18, color: (theme.palette.common as any).white_alpha.main_30 }}
                     />
                   )}
                 </IconButton>
@@ -320,16 +319,16 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
             py: 1,
             fontSize: "0.9rem",
             background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-            boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.3)}`,
+            boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_30}`,
             "&:hover": {
-              boxShadow: `0 12px 32px ${alpha(theme.palette.primary.main, 0.4)}`,
+              boxShadow: `0 12px 32px ${(theme.palette.primary as any)._alpha.main_40}`,
               transform: "translateY(-1px)",
             },
             transition: "all 0.2s",
             "&.Mui-disabled": {
-              bgcolor: alpha("#fff", 0.05),
-              color: alpha("#fff", 0.2),
-              border: `1px solid ${alpha("#fff", 0.05)}`,
+              bgcolor: (theme.palette.common as any).white_alpha.main_05,
+              color: (theme.palette.common as any).white_alpha.main_20,
+              border: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
             },
           }}
         >

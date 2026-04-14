@@ -117,7 +117,7 @@ const AddCustomerDialog = ({
           backdrop: {
             sx: {
               backdropFilter: "blur(8px)",
-              backgroundColor: alpha(theme.palette.background.default, 0.4),
+              backgroundColor: (theme.palette.background as any).default_alpha.main_40,
             },
           },
         }}
@@ -126,7 +126,7 @@ const AddCustomerDialog = ({
             bgcolor: "#0B0F19",
             backgroundImage: "radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent), radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.03), transparent)",
             borderRadius: 4,
-            border: `1px solid ${alpha("#fff", 0.08)}`,
+            border: `1px solid ${(theme.palette.common as any).white_alpha.main_08}`,
             maxHeight: "90vh",
             boxShadow: "0 24px 48px -12px rgba(0,0,0,0.5)",
           },
@@ -159,8 +159,8 @@ const AddCustomerDialog = ({
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                        bgcolor: (theme.palette.primary as any)._alpha.main_10,
+                        border: `1px solid ${(theme.palette.primary as any)._alpha.main_20}`,
                         color: theme.palette.primary.main,
                       }}
                     >
@@ -179,8 +179,8 @@ const AddCustomerDialog = ({
                     onClick={closeDialog} 
                     sx={{ 
                       color: "text.secondary",
-                      bgcolor: alpha("#fff", 0.03),
-                      "&:hover": { bgcolor: alpha("#fff", 0.08), color: "white" }
+                      bgcolor: (theme.palette.common as any).white_alpha.main_03,
+                      "&:hover": { bgcolor: (theme.palette.common as any).white_alpha.main_08, color: "white" }
                     }}
                   >
                     <CloseIcon fontSize="small" />
@@ -193,7 +193,7 @@ const AddCustomerDialog = ({
                     mb: 4,
                     px: 1,
                     "& .MuiStepLabel-label": {
-                      color: alpha("#fff", 0.3),
+                      color: (theme.palette.common as any).white_alpha.main_30,
                       fontWeight: 600,
                       fontSize: "0.7rem",
                       textTransform: "uppercase",
@@ -204,20 +204,20 @@ const AddCustomerDialog = ({
                       color: "white",
                     },
                     "& .MuiStepLabel-label.Mui-completed": {
-                      color: alpha("#fff", 0.6),
+                      color: (theme.palette.common as any).white_alpha.main_60,
                     },
                     "& .MuiStepIcon-root": { 
                       width: 28,
                       height: 28,
-                      color: alpha("#fff", 0.05),
-                      border: `1px solid ${alpha("#fff", 0.08)}`,
+                      color: (theme.palette.common as any).white_alpha.main_05,
+                      border: `1px solid ${(theme.palette.common as any).white_alpha.main_08}`,
                       borderRadius: "50%",
                       transition: "all 0.3s ease",
                     },
                     "& .MuiStepIcon-root.Mui-active": {
                       color: theme.palette.primary.main,
-                      border: `1px solid ${alpha(theme.palette.primary.main, 0.5)}`,
-                      boxShadow: `0 0 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                      border: `1px solid ${(theme.palette.primary as any)._alpha.main_50}`,
+                      boxShadow: `0 0 12px ${(theme.palette.primary as any)._alpha.main_30}`,
                     },
                     "& .MuiStepIcon-root.Mui-completed": {
                       color: theme.palette.primary.main,
@@ -227,7 +227,7 @@ const AddCustomerDialog = ({
                       fontWeight: 700,
                     },
                     "& .MuiStepConnector-line": {
-                      borderColor: alpha("#fff", 0.05),
+                      borderColor: (theme.palette.common as any).white_alpha.main_05,
                       borderTopWidth: 2,
                     },
                     "& .MuiStepConnector-root.Mui-active .MuiStepConnector-line": {
@@ -253,8 +253,8 @@ const AddCustomerDialog = ({
                       p: 2,
                       mb: 3,
                       borderRadius: 2,
-                      bgcolor: alpha(theme.palette.error.main, 0.05),
-                      border: `1px solid ${alpha(theme.palette.error.main, 0.1)}`,
+                      bgcolor: (theme.palette.error as any)._alpha.main_05,
+                      border: `1px solid ${(theme.palette.error as any)._alpha.main_10}`,
                     }}
                   >
                     <Typography variant="caption" color="error" fontWeight={600}>
@@ -274,7 +274,7 @@ const AddCustomerDialog = ({
                 sx={{
                   p: 3,
                   pt: 2,
-                  borderTop: `1px solid ${alpha("#fff", 0.05)}`,
+                  borderTop: `1px solid ${(theme.palette.common as any).white_alpha.main_05}`,
                   justifyContent: "space-between",
                 }}
               >
@@ -285,11 +285,11 @@ const AddCustomerDialog = ({
                       : () => setCurrentStep(currentStep - 1)
                   }
                   sx={{
-                    color: alpha("#fff", 0.5),
+                    color: (theme.palette.common as any).white_alpha.main_50,
                     textTransform: "none",
                     fontWeight: 600,
                     px: 3,
-                    "&:hover": { color: "white", bgcolor: alpha("#fff", 0.05) }
+                    "&:hover": { color: "white", bgcolor: (theme.palette.common as any).white_alpha.main_05 }
                   }}
                 >
                   {currentStep === 1 ? dict.common.cancel : dict.common.back}
@@ -320,12 +320,12 @@ const AddCustomerDialog = ({
                     borderRadius: 2.5,
                     textTransform: "none",
                     fontWeight: 700,
-                    boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.25)}`,
+                    boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_25}`,
                     py: 1.2,
                     px: 4,
                     transition: "all 0.2s ease",
                     "&:hover": {
-                      boxShadow: `0 12px 32px ${alpha(theme.palette.primary.main, 0.4)}`,
+                      boxShadow: `0 12px 32px ${(theme.palette.primary as any)._alpha.main_40}`,
                       transform: "translateY(-1px)",
                     },
                     "&:active": {

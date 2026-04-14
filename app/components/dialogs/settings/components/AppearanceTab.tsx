@@ -7,7 +7,6 @@ import {
   Stack,
   Chip,
   useTheme,
-  alpha,
 } from "@mui/material";
 import {
   LightMode,
@@ -46,10 +45,10 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
       <Box sx={{ 
         p: 2, 
         borderRadius: 2.5, 
-        bgcolor: alpha(theme.palette.primary.main, 0.04),
-        border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`
+        bgcolor: (theme.palette.primary as any)._alpha.main_04,
+        border: `1px solid ${(theme.palette.primary as any)._alpha.main_10}`
       }}>
-        <Typography variant="caption" sx={{ color: alpha("#fff", 0.45), fontWeight: 550, lineHeight: 1.6 }}>
+        <Typography variant="caption" sx={{ color: (theme.palette.common as any).white_alpha.main_45, fontWeight: 550, lineHeight: 1.6 }}>
             {dict.settings.dialogs.appearance.desc}
         </Typography>
       </Box>
@@ -66,17 +65,17 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
                 flex: 1,
                 p: 2.5,
                 borderRadius: 4,
-                border: `1.5px solid ${active ? theme.palette.primary.main : alpha("#ffffff", 0.05)}`,
-                bgcolor: active ? alpha(theme.palette.primary.main, 0.08) : alpha("#ffffff", 0.02),
+                border: `1.5px solid ${active ? theme.palette.primary.main : (theme.palette.common as any).white_alpha.main_05}`,
+                bgcolor: active ? (theme.palette.primary as any)._alpha.main_08 : (theme.palette.common as any).white_alpha.main_02,
                 cursor: "pointer",
                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 position: "relative",
                 overflow: "hidden",
                 "&:hover": {
-                  border: `1.5px solid ${alpha(theme.palette.primary.main, active ? 0.8 : 0.2)}`,
-                  bgcolor: alpha(theme.palette.primary.main, active ? 0.1 : 0.04),
+                  border: `1.5px solid ${active ? (theme.palette.primary as any)._alpha.main_80 : (theme.palette.primary as any)._alpha.main_20}`,
+                  bgcolor: active ? (theme.palette.primary as any)._alpha.main_10 : (theme.palette.primary as any)._alpha.main_04,
                   transform: "translateY(-4px)",
-                  boxShadow: `0 12px 32px ${alpha("#000", 0.5)}`
+                  boxShadow: `0 12px 32px ${(theme.palette.common as any).black_alpha.main_50}`
                 },
                 "&::after": active ? {
                     content: '""',
@@ -85,7 +84,7 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
                     right: 0,
                     width: "40px",
                     height: "40px",
-                    background: `linear-gradient(45deg, transparent 50%, ${alpha(theme.palette.primary.main, 0.1)} 50%)`,
+                    background: `linear-gradient(45deg, transparent 50%, ${(theme.palette.primary as any)._alpha.main_10} 50%)`,
                 } : {}
               }}
             >
@@ -93,10 +92,10 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
                 sx={{
                   width: 44, height: 44, borderRadius: 2.5, mb: 2,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  bgcolor: active ? theme.palette.primary.main : alpha("#ffffff", 0.05),
-                  color: active ? "#000" : alpha("#fff", 0.4),
+                  bgcolor: active ? theme.palette.primary.main : (theme.palette.common as any).white_alpha.main_05,
+                  color: active ? "#000" : (theme.palette.common as any).white_alpha.main_40,
                   transition: "all 0.3s",
-                  boxShadow: active ? `0 8px 20px ${alpha(theme.palette.primary.main, 0.4)}` : "none"
+                  boxShadow: active ? `0 8px 20px ${(theme.palette.primary as any)._alpha.main_40}` : "none"
                 }}
               >
                 <Icon sx={{ fontSize: 22 }} />
@@ -104,7 +103,7 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
               <Typography variant="body1" fontWeight={850} color="white" sx={{ mb: 0.5 }}>
                   {m.label}
               </Typography>
-              <Typography variant="caption" sx={{ color: alpha("#fff", 0.35), fontWeight: 600, display: "block", mb: 2 }}>
+              <Typography variant="caption" sx={{ color: (theme.palette.common as any).white_alpha.main_35, fontWeight: 600, display: "block", mb: 2 }}>
                   {m.desc}
               </Typography>
               
@@ -118,12 +117,12 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
                             label={dict.settings.dialogs.appearance.modes.projectionActive} size="small"
                             icon={<CheckIcon sx={{ fontSize: 13, color: "inherit !important" }} />}
                             sx={{
-                                bgcolor: alpha(theme.palette.primary.main, 0.15),
+                                bgcolor: (theme.palette.primary as any)._alpha.main_15,
                                 color: theme.palette.primary.main,
                                 fontWeight: 850,
                                 fontSize: "0.6rem",
                                 height: 22,
-                                border: `1px solid ${alpha(theme.palette.primary.main, 0.3)}`,
+                                border: `1px solid ${(theme.palette.primary as any)._alpha.main_30}`,
                                 "& .MuiChip-icon": { ml: 0.5 }
                             }}
                         />

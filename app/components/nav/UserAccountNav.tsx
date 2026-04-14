@@ -29,48 +29,48 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import ProfileDialog from "../dialogs/profile/ProfileDialog";
 import SettingsDialog from "../dialogs/settings/SettingsDialog";
 
-const menuPaperSx = {
-  overflow: "visible",
-  filter: "drop-shadow(0px 8px 16px rgba(0,0,0,0.4))",
-  mt: 1.5,
-  borderRadius: 3,
-  bgcolor: alpha("#0B1019", 0.95),
-  backdropFilter: "blur(12px)",
-  border: `1px solid ${alpha("#ffffff", 0.08)}`,
-  color: "white",
-  padding: "4px",
-  "& .MuiMenuItem-root": {
-    borderRadius: 1.5,
-    mx: 0.5,
-    my: 0.25,
-    px: 1.5,
-    py: 1,
-    fontSize: "0.85rem",
-    fontWeight: 600,
-    transition: "all 0.2s",
-    "&:hover": {
-      bgcolor: alpha("#fff", 0.05),
-    },
-  },
-  "& .MuiAvatar-root": { width: 32, height: 32, ml: -0.5, mr: 1 },
-  "&::before": {
-    content: '""',
-    display: "block",
-    position: "absolute",
-    top: 0,
-    right: 14,
-    width: 10,
-    height: 10,
-    bgcolor: "#0B1019",
-    transform: "translateY(-50%) rotate(45deg)",
-    zIndex: 0,
-    borderLeft: `1px solid ${alpha("#ffffff", 0.08)}`,
-    borderTop: `1px solid ${alpha("#ffffff", 0.08)}`,
-  },
-};
-
 export default function UserAccountNav() {
   const theme = useTheme();
+
+  const menuPaperSx = {
+    overflow: "visible",
+    filter: "drop-shadow(0px 8px 16px rgba(0,0,0,0.4))",
+    mt: 1.5,
+    borderRadius: 3,
+    bgcolor: (theme.palette.background as any).midnight._alpha.main_95,
+    backdropFilter: "blur(12px)",
+    border: `1px solid ${(theme.palette.common as any).white_alpha.main_08}`,
+    color: "white",
+    padding: "4px",
+    "& .MuiMenuItem-root": {
+      borderRadius: 1.5,
+      mx: 0.5,
+      my: 0.25,
+      px: 1.5,
+      py: 1,
+      fontSize: "0.85rem",
+      fontWeight: 600,
+      transition: "all 0.2s",
+      "&:hover": {
+        bgcolor: (theme.palette.common as any).white_alpha.main_05,
+      },
+    },
+    "& .MuiAvatar-root": { width: 32, height: 32, ml: -0.5, mr: 1 },
+    "&::before": {
+      content: '""',
+      display: "block",
+      position: "absolute",
+      top: 0,
+      right: 14,
+      width: 10,
+      height: 10,
+      bgcolor: "#0B1019",
+      transform: "translateY(-50%) rotate(45deg)",
+      zIndex: 0,
+      borderLeft: `1px solid ${(theme.palette.common as any).white_alpha.main_08}`,
+      borderTop: `1px solid ${(theme.palette.common as any).white_alpha.main_08}`,
+    },
+  };
   const params = useParams();
   const lang = (params?.lang as string) || "tr";
   const dict = useDictionary();
@@ -152,13 +152,13 @@ export default function UserAccountNav() {
             padding: "6px 12px",
             borderRadius: 3,
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            bgcolor: alpha("#fff", 0.02),
-            border: `1px solid ${alpha("#fff", 0.03)}`,
+            bgcolor: (theme.palette.common as any).white_alpha.main_02,
+            border: `1px solid ${(theme.palette.common as any).white_alpha.main_03}`,
             "&:hover": {
-              bgcolor: alpha(theme.palette.primary.main, 0.08),
-              borderColor: alpha(theme.palette.primary.main, 0.2),
+              bgcolor: (theme.palette.primary as any)._alpha.main_08,
+              borderColor: (theme.palette.primary as any)._alpha.main_20,
               transform: "translateY(-1px)",
-              boxShadow: `0 4px 20px ${alpha("#000", 0.3)}`,
+              boxShadow: `0 4px 20px ${(theme.palette.common as any).black_alpha.main_30}`,
             },
           }}
         >
@@ -167,8 +167,8 @@ export default function UserAccountNav() {
             sx={{
               width: 32,
               height: 32,
-              border: `2px solid ${alpha(theme.palette.primary.main, 0.4)}`,
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              border: `2px solid ${(theme.palette.primary as any)._alpha.main_40}`,
+              bgcolor: (theme.palette.primary as any)._alpha.main_10,
               color: theme.palette.primary.main,
               fontWeight: 800,
               fontSize: "0.75rem",
@@ -189,7 +189,7 @@ export default function UserAccountNav() {
             <Typography
               variant="caption"
               sx={{
-                color: alpha("#fff", 0.35),
+                color: (theme.palette.common as any).white_alpha.main_35,
                 fontWeight: 600,
                 fontSize: "0.65rem",
               }}
@@ -226,7 +226,7 @@ export default function UserAccountNav() {
           </ListItemIcon>
           {dict.common.settings}
         </MenuItem>
-        <Divider sx={{ borderColor: alpha("#ffffff", 0.06), my: 0.5 }} />
+        <Divider sx={{ borderColor: (theme.palette.common as any).white_alpha.main_06, my: 0.5 }} />
         <MenuItem
           onClick={handleLogout}
           sx={{ color: "#f43f5e !important", gap: 1.5 }}

@@ -10,7 +10,6 @@ import {
   Stack,
   IconButton,
   useTheme,
-  alpha,
   Typography,
   Stepper,
   Step,
@@ -128,7 +127,7 @@ export default function CreateCompanyDialog({
           borderRadius: 4,
           bgcolor: theme.palette.mode === "dark" ? "#0B1019" : "#fff",
           backgroundImage: "none",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
           overflow: "hidden",
         },
       }}
@@ -171,9 +170,9 @@ export default function CreateCompanyDialog({
                   onClick={onClose}
                   sx={{
                     color: "text.secondary",
-                    bgcolor: alpha(theme.palette.text.secondary, 0.05),
+                    bgcolor: (theme.palette.text as any).secondary_alpha.main_05,
                     "&:hover": {
-                      bgcolor: alpha(theme.palette.error.main, 0.1),
+                      bgcolor: (theme.palette.error as any)._alpha.main_10,
                       color: theme.palette.error.main,
                     },
                   }}
@@ -186,7 +185,7 @@ export default function CreateCompanyDialog({
                 activeStep={activeStep}
                 sx={{
                   "& .MuiStepLabel-label": {
-                    color: alpha(theme.palette.text.primary, 0.4),
+                    color: (theme.palette.text as any).primary_alpha.main_40,
                     fontWeight: 700,
                     fontSize: "0.75rem",
                     textTransform: "uppercase",
@@ -196,10 +195,10 @@ export default function CreateCompanyDialog({
                     color: theme.palette.primary.main,
                   },
                   "& .MuiStepLabel-label.Mui-completed": {
-                    color: alpha(theme.palette.text.primary, 0.8),
+                    color: (theme.palette.text as any).primary_alpha.main_80,
                   },
                   "& .MuiStepIcon-root": {
-                    color: alpha(theme.palette.divider, 0.1),
+                    color: (theme.palette as any).divider_alpha.main_10,
                   },
                   "& .MuiStepIcon-root.Mui-active": {
                     color: theme.palette.primary.main,
@@ -283,9 +282,9 @@ export default function CreateCompanyDialog({
               sx={{
                 p: 4,
                 pt: 1,
-                borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+                borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
                 justifyContent: "space-between",
-                bgcolor: alpha(theme.palette.background.paper, 0.4),
+                bgcolor: (theme.palette.background as any).paper_alpha.main_40,
               }}
             >
               <Button
@@ -297,7 +296,7 @@ export default function CreateCompanyDialog({
                   borderRadius: 2,
                   px: 3,
                   "&:hover": {
-                    bgcolor: alpha(theme.palette.text.secondary, 0.1),
+                    bgcolor: (theme.palette.text as any).secondary_alpha.main_10,
                   },
                 }}
                 startIcon={activeStep > 0 ? <NavigateBeforeIcon /> : null}
@@ -336,15 +335,9 @@ export default function CreateCompanyDialog({
                   minWidth: 160,
                   py: 1.2,
                   fontWeight: 800,
-                  boxShadow: `0 8px 20px ${alpha(
-                    theme.palette.primary.main,
-                    0.25
-                  )}`,
+                  boxShadow: `0 8px 20px ${(theme.palette.primary as any)._alpha.main_25}`,
                   "&:hover": {
-                    boxShadow: `0 12px 24px ${alpha(
-                      theme.palette.primary.main,
-                      0.35
-                    )}`,
+                    boxShadow: `0 12px 24px ${(theme.palette.primary as any)._alpha.main_35}`,
                   },
                 }}
               >

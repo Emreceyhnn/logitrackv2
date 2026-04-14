@@ -94,7 +94,7 @@ const WarehouseDetailsDialog = ({
           borderRadius: 4,
           bgcolor: "#0B1019",
           backgroundImage: "none",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
           overflow: "hidden",
           minHeight: "80vh",
         },
@@ -104,7 +104,7 @@ const WarehouseDetailsDialog = ({
         sx={{
           p: 3,
           bgcolor: "#0B1019",
-          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
         }}
       >
         <Stack
@@ -116,7 +116,7 @@ const WarehouseDetailsDialog = ({
             <Avatar
               variant="rounded"
               sx={{
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                bgcolor: (theme.palette.primary as any)._alpha.main_10,
                 color: theme.palette.primary.main,
                 width: 72,
                 height: 72,
@@ -185,7 +185,7 @@ const WarehouseDetailsDialog = ({
           <Box
             sx={{
               borderBottom: 1,
-              borderColor: alpha(theme.palette.divider, 0.1),
+              borderColor: (theme.palette as any).divider_alpha.main_10,
               px: 3,
             }}
           >

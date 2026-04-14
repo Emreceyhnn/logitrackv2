@@ -43,10 +43,10 @@ const AuthButton = ({
           bgcolor: theme.palette.primary.dark,
         },
         "&.Mui-disabled": {
-          bgcolor: alpha(theme.palette.primary.main, 0.5),
-          color: alpha("#fff", 0.5),
+          bgcolor: (theme.palette.primary as any)._alpha.main_50,
+          color: (theme.palette.common as any).white_alpha.main_50,
         },
-        boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.25)}`,
+        boxShadow: `0 8px 16px ${(theme.palette.primary as any)._alpha.main_25}`,
         transition: "all 0.2s ease-in-out",
         ...sx,
       }}

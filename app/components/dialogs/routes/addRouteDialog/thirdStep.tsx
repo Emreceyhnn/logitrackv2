@@ -92,7 +92,7 @@ const ThirdRouteDialogStep = () => {
               width: 40,
               height: 40,
               borderRadius: "50%",
-              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              bgcolor: (theme.palette.primary as any)._alpha.main_10,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -215,8 +215,8 @@ const ThirdRouteDialogStep = () => {
           sx={{
             p: 3,
             borderRadius: 3,
-            bgcolor: alpha("#1A202C", 0.5),
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
+            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
             backgroundImage: "none",
           }}
         >

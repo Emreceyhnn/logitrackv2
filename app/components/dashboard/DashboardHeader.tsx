@@ -19,9 +19,9 @@ export default function DashboardHeader() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        bgcolor: alpha(theme.palette.background.default, 0.4),
+        bgcolor: (theme.palette.background as any).default_alpha.main_40,
         backdropFilter: "blur(12px) saturate(150%)",
-        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+        borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_08}`,
         position: "sticky",
         top: 0,
         zIndex: theme.zIndex.appBar,
@@ -34,7 +34,7 @@ export default function DashboardHeader() {
             fontWeight={800} 
             sx={{ 
                 color: theme.palette.primary.main,
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                bgcolor: (theme.palette.primary as any)._alpha.main_10,
                 px: 1.5,
                 py: 0.5,
                 borderRadius: 1.5,

@@ -80,15 +80,15 @@ export default function DocumentViewerDialog({
           display: "flex",
           flexDirection: "column",
           boxShadow: "0 24px 48px rgba(0,0,0,0.5)",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
         },
       }}
     >
       <DialogTitle
         sx={{
           p: 2.5,
-          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-          bgcolor: alpha("#0B1019", 0.8),
+          borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+          bgcolor: (theme.palette.background as any).midnight._alpha.main_80,
           backdropFilter: "blur(10px)",
           zIndex: 10,
         }}
@@ -103,7 +103,7 @@ export default function DocumentViewerDialog({
               sx={{
                 p: 1,
                 borderRadius: 1.5,
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                bgcolor: (theme.palette.primary as any)._alpha.main_10,
                 color: theme.palette.primary.main,
                 display: "flex",
               }}
@@ -118,7 +118,7 @@ export default function DocumentViewerDialog({
               >
                 {title}
               </Typography>
-              <Typography variant="caption" sx={{ color: alpha("#fff", 0.5) }}>
+              <Typography variant="caption" sx={{ color: (theme.palette.common as any).white_alpha.main_50 }}>
                 {isPdf ? dict.documentViewer.pdfDocument : dict.documentViewer.imageFile}
               </Typography>
             </Box>
@@ -132,12 +132,12 @@ export default function DocumentViewerDialog({
                 target="_blank"
                 size="small"
                 sx={{
-                  color: alpha("#fff", 0.7),
-                  border: `1px solid ${alpha("#fff", 0.1)}`,
+                  color: (theme.palette.common as any).white_alpha.main_70,
+                  border: `1px solid ${(theme.palette.common as any).white_alpha.main_10}`,
                   "&:hover": {
                     color: "primary.main",
                     borderColor: "primary.main",
-                    bgcolor: alpha(theme.palette.primary.main, 0.05),
+                    bgcolor: (theme.palette.primary as any)._alpha.main_05,
                   },
                 }}
               >
@@ -153,12 +153,12 @@ export default function DocumentViewerDialog({
                 target="_blank"
                 size="small"
                 sx={{
-                  color: alpha("#fff", 0.7),
-                  border: `1px solid ${alpha("#fff", 0.1)}`,
+                  color: (theme.palette.common as any).white_alpha.main_70,
+                  border: `1px solid ${(theme.palette.common as any).white_alpha.main_10}`,
                   "&:hover": {
                     color: "success.main",
                     borderColor: "success.main",
-                    bgcolor: alpha(theme.palette.success.main, 0.05),
+                    bgcolor: (theme.palette.success as any)._alpha.main_05,
                   },
                 }}
               >
@@ -170,10 +170,10 @@ export default function DocumentViewerDialog({
               onClick={onClose}
               size="small"
               sx={{
-                color: alpha("#fff", 0.7),
+                color: (theme.palette.common as any).white_alpha.main_70,
                 "&:hover": {
                   color: "error.main",
-                  bgcolor: alpha(theme.palette.error.main, 0.1),
+                  bgcolor: (theme.palette.error as any)._alpha.main_10,
                 },
               }}
             >
@@ -236,7 +236,7 @@ export default function DocumentViewerDialog({
             }}
           >
             <ErrorOutlineIcon
-              sx={{ fontSize: 64, color: alpha(theme.palette.error.main, 0.5) }}
+              sx={{ fontSize: 64, color: (theme.palette.error as any)._alpha.main_50 }}
             />
             <Box>
               <Typography variant="h6" color="white" gutterBottom>

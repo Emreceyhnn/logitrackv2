@@ -1,6 +1,5 @@
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import {
-  alpha,
   Stack,
   Typography,
   Card,
@@ -37,50 +36,63 @@ const KPICard = ({
   icon: React.ReactNode;
   color: string;
   theme: Theme;
-}) => (
-  <Card
-    sx={{
-      p: 2.5,
-      borderRadius: 3,
-      bgcolor: alpha(theme.palette.background.paper, 0.3),
-      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-      display: "flex",
-      flexDirection: "column",
-      gap: 2,
-      flexGrow: 1,
-      transition: "all 0.2s ease",
-      "&:hover": {
-        borderColor: alpha(color, 0.3),
-        bgcolor: alpha(color, 0.05),
-        transform: "translateY(-2px)",
-      },
-    }}
-  >
-    <Stack
-      direction="row"
-      justifyContent="space-between"
-      alignItems="flex-start"
+}) => {
+  const resolveAlpha = (targetColor: string) => {
+    if (targetColor === theme.palette.primary.main) return (theme.palette.primary as any)._alpha;
+    if (targetColor === theme.palette.success.main) return (theme.palette.success as any)._alpha;
+    if (targetColor === theme.palette.error.main) return (theme.palette.error as any)._alpha;
+    if (targetColor === theme.palette.warning.main) return (theme.palette.warning as any)._alpha;
+    if (targetColor === theme.palette.info.main) return (theme.palette.info as any)._alpha;
+    return (theme.palette.primary as any)._alpha;
+  };
+
+  const statusAlpha = resolveAlpha(color);
+
+  return (
+    <Card
+      sx={{
+        p: 2.5,
+        borderRadius: 3,
+        bgcolor: (theme.palette.background as any).paper_alpha.main_30,
+        border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        flexGrow: 1,
+        transition: "all 0.2s ease",
+        "&:hover": {
+          borderColor: statusAlpha.main_30,
+          bgcolor: statusAlpha.main_05,
+          transform: "translateY(-2px)",
+        },
+      }}
     >
-      <Typography variant="body2" color="text.secondary" fontWeight={600}>
-        {title}
-      </Typography>
-      <Box
-        sx={{
-          p: 1,
-          borderRadius: 2,
-          bgcolor: alpha(color, 0.1),
-          color: color,
-          display: "flex",
-        }}
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="flex-start"
       >
-        {icon}
-      </Box>
-    </Stack>
-    <Typography variant="h4" fontWeight={800} color="white">
-      {value}
-    </Typography>
-  </Card>
-);
+        <Typography variant="body2" color="text.secondary" fontWeight={600}>
+          {title}
+        </Typography>
+        <Box
+          sx={{
+            p: 1,
+            borderRadius: 2,
+            bgcolor: statusAlpha.main_10,
+            color: color,
+            display: "flex",
+          }}
+        >
+          {icon}
+        </Box>
+      </Stack>
+      <Typography variant="h4" fontWeight={800} color="white">
+        {value}
+      </Typography>
+    </Card>
+  );
+};
 
 const OverviewTab = ({ driver }: OverviewTabProps) => {
   const theme = useTheme();
@@ -102,14 +114,14 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
           width: 6,
         },
         "&::-webkit-scrollbar-track": {
-          backgroundColor: alpha(theme.palette.background.paper, 0.1),
+          backgroundColor: (theme.palette.background as any).paper_alpha.main_10,
           borderRadius: 4,
         },
         "&::-webkit-scrollbar-thumb": {
-          backgroundColor: alpha(theme.palette.text.secondary, 0.2),
+          backgroundColor: (theme.palette.text as any).secondary_alpha.main_20,
           borderRadius: 4,
           "&:hover": {
-            backgroundColor: alpha(theme.palette.text.secondary, 0.4),
+            backgroundColor: (theme.palette.text as any).secondary_alpha.main_40,
           },
         },
       }}
@@ -154,8 +166,8 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             sx={{
               p: 2.5,
               borderRadius: 3,
-              bgcolor: alpha(theme.palette.background.paper, 0.3),
-              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              bgcolor: (theme.palette.background as any).paper_alpha.main_30,
+              border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
@@ -183,8 +195,8 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             sx={{
               p: 2.5,
               borderRadius: 3,
-              bgcolor: alpha(theme.palette.background.paper, 0.3),
-              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              bgcolor: (theme.palette.background as any).paper_alpha.main_30,
+              border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
@@ -219,8 +231,8 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             sx={{
               p: 2.5,
               borderRadius: 3,
-              bgcolor: alpha(theme.palette.background.paper, 0.3),
-              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              bgcolor: (theme.palette.background as any).paper_alpha.main_30,
+              border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
@@ -256,7 +268,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             py: 1.5,
             fontWeight: 600,
             textTransform: "none",
-            boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
+            boxShadow: `0 8px 16px ${(theme.palette.primary as any)._alpha.main_20}`,
           }}
         >
           {dict.drivers.labels.contactDriver}
@@ -271,11 +283,11 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             py: 1.5,
             fontWeight: 600,
             textTransform: "none",
-            borderColor: alpha(theme.palette.divider, 0.2),
+            borderColor: (theme.palette as any).divider_alpha.main_20,
             color: "white",
             "&:hover": {
-              borderColor: alpha(theme.palette.divider, 0.5),
-              bgcolor: alpha(theme.palette.background.paper, 0.5),
+              borderColor: (theme.palette as any).divider_alpha.main_50,
+              bgcolor: (theme.palette.background as any).paper_alpha.main_50,
             },
           }}
         >

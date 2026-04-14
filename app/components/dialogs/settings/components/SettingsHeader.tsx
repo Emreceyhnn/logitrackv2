@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Stack, Typography, IconButton, useTheme, alpha } from "@mui/material";
+import { Box, Stack, Typography, IconButton, useTheme } from "@mui/material";
 import { Close as CloseIcon, Settings as SettingsIcon } from "@mui/icons-material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
@@ -22,12 +22,12 @@ export default function SettingsHeader({ onClose }: HeaderProps) {
               width: 38,
               height: 38,
               borderRadius: 2.5,
-              bgcolor: alpha(theme.palette.primary.main, 0.12),
+              bgcolor: (theme.palette.primary as any)._alpha.main_12,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               backdropFilter: "blur(10px)",
-              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+              border: `1px solid ${(theme.palette.primary as any)._alpha.main_20}`,
             }}
           >
             <SettingsIcon sx={{ fontSize: 20, color: theme.palette.primary.main }} />
@@ -36,7 +36,7 @@ export default function SettingsHeader({ onClose }: HeaderProps) {
             <Typography variant="subtitle1" fontWeight={800} color="white" sx={{ letterSpacing: -0.2 }}>
               {dict.settings.dialogs.systemConfiguration}
             </Typography>
-            <Typography variant="caption" sx={{ color: alpha("#fff", 0.45), fontWeight: 500 }}>
+            <Typography variant="caption" sx={{ color: (theme.palette.common as any).white_alpha.main_45, fontWeight: 500 }}>
               {dict.settings.dialogs.adjustRegional}
             </Typography>
           </Box>
@@ -45,11 +45,11 @@ export default function SettingsHeader({ onClose }: HeaderProps) {
           size="small" 
           onClick={onClose} 
           sx={{ 
-            color: alpha("#fff", 0.3), 
+            color: (theme.palette.common as any).white_alpha.main_30, 
             transition: "all 0.2s",
             "&:hover": { 
-              color: "#f43f5e", 
-              bgcolor: alpha("#f43f5e", 0.1),
+              color: theme.palette.error.main, 
+              bgcolor: (theme.palette.error as any)._alpha.main_10,
               transform: "rotate(90deg)"
             } 
           }}

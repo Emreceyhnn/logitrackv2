@@ -36,7 +36,7 @@ const RoutesMainMap = ({ mapData, loading }: RoutesMainMapProps) => {
           flexGrow: 3,
           borderRadius: "16px",
           overflow: "hidden",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
         }}
       >
         <Skeleton variant="rectangular" width="100%" height="100%" sx={{ minHeight: 400 }} />

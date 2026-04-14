@@ -148,16 +148,16 @@ export default function InventoryEditDialog({
 
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      bgcolor: alpha(theme.palette.background.paper, 0.05),
+      bgcolor: (theme.palette.background as any).paper_alpha.main_05,
       borderRadius: 2,
       color: "white",
-      "& fieldset": { borderColor: alpha(theme.palette.divider, 0.1) },
-      "&:hover fieldset": { borderColor: alpha(theme.palette.primary.main, 0.3) },
+      "& fieldset": { borderColor: (theme.palette as any).divider_alpha.main_10 },
+      "&:hover fieldset": { borderColor: (theme.palette.primary as any)._alpha.main_30 },
       "&.Mui-focused fieldset": { borderColor: theme.palette.primary.main },
     },
-    "& .MuiInputLabel-root": { color: alpha("#fff", 0.5) },
+    "& .MuiInputLabel-root": { color: (theme.palette.common as any).white_alpha.main_50 },
     "& .MuiInputLabel-root.Mui-focused": { color: theme.palette.primary.main },
-    "& .MuiInputAdornment-root .MuiTypography-root": { color: alpha("#fff", 0.3) },
+    "& .MuiInputAdornment-root .MuiTypography-root": { color: (theme.palette.common as any).white_alpha.main_30 },
   };
 
   return (
@@ -171,7 +171,7 @@ export default function InventoryEditDialog({
           bgcolor: "#0B0F19",
           backgroundImage: "none",
           borderRadius: 4, 
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
           overflow: "hidden",
         }
       }}
@@ -187,7 +187,7 @@ export default function InventoryEditDialog({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                bgcolor: (theme.palette.secondary as any)._alpha.main_10,
                 color: theme.palette.secondary.main,
               }}
             >
@@ -208,7 +208,7 @@ export default function InventoryEditDialog({
         </Stack>
       </Box>
 
-      <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1) }} />
+      <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }} />
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent sx={{ p: 4 }}>
@@ -236,8 +236,8 @@ export default function InventoryEditDialog({
                           width: "100%",
                           height: 140,
                           borderRadius: 3,
-                          border: `2px dashed ${alpha(theme.palette.divider, 0.1)}`,
-                          bgcolor: alpha(theme.palette.background.paper, 0.05),
+                          border: `2px dashed ${(theme.palette as any).divider_alpha.main_10}`,
+                          bgcolor: (theme.palette.background as any).paper_alpha.main_05,
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
@@ -248,7 +248,7 @@ export default function InventoryEditDialog({
                           mb: 3,
                           "&:hover": {
                             borderColor: theme.palette.primary.main,
-                            bgcolor: alpha(theme.palette.primary.main, 0.02),
+                            bgcolor: (theme.palette.primary as any)._alpha.main_02,
                           },
                         }}
                       >
@@ -271,7 +271,7 @@ export default function InventoryEditDialog({
                                 position: "absolute",
                                 top: 8,
                                 right: 8,
-                                bgcolor: alpha(theme.palette.error.main, 0.8),
+                                bgcolor: (theme.palette.error as any)._alpha.main_80,
                                 color: "white",
                                 "&:hover": { bgcolor: theme.palette.error.main },
                               }}
@@ -310,7 +310,7 @@ export default function InventoryEditDialog({
                               }}
                             >
                               <AddPhotoAlternateIcon
-                                sx={{ fontSize: 32, color: alpha("#fff", 0.2), mb: 1 }}
+                                sx={{ fontSize: 32, color: (theme.palette.common as any).white_alpha.main_20, mb: 1 }}
                               />
                               <Typography variant="caption" color="text.secondary">
                                 {dict.inventory.dialogs.clickToChange}
@@ -382,8 +382,8 @@ export default function InventoryEditDialog({
                   mt: 3,
                   p: 2,
                   borderRadius: 2.5,
-                  bgcolor: alpha(theme.palette.warning.main, 0.05),
-                  border: `1px solid ${alpha(theme.palette.warning.main, 0.1)}`,
+                  bgcolor: (theme.palette.warning as any)._alpha.main_05,
+                  border: `1px solid ${(theme.palette.warning as any)._alpha.main_10}`,
                   display: "flex",
                   gap: 1.5,
                   alignItems: "center",
@@ -468,9 +468,9 @@ export default function InventoryEditDialog({
           </Stack>
         </DialogContent>
 
-        <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1) }} />
+        <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }} />
 
-        <Box sx={{ p: 3, px: 4, bgcolor: alpha(theme.palette.background.default, 0.1) }}>
+        <Box sx={{ p: 3, px: 4, bgcolor: (theme.palette.background as any).default_alpha.main_10 }}>
           <Stack direction="row" spacing={2} justifyContent="flex-end">
             <Button 
               onClick={onClose} 
@@ -487,7 +487,7 @@ export default function InventoryEditDialog({
                 borderRadius: 2, 
                 fontWeight: 700,
                 textTransform: "none",
-                boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+                boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_20}`,
                 py: 1.2,
               }}
             >

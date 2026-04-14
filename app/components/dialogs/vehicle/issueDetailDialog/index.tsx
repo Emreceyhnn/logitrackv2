@@ -13,7 +13,6 @@ import {
   CircularProgress,
   IconButton,
   useTheme,
-  alpha,
   Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -81,13 +80,13 @@ export default function IssueDetailDialog({
   /* --------------------------------- styles --------------------------------- */
   const selectSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: alpha("#1A202C", 0.5),
+      backgroundColor: (theme.palette.text as any).darkBlue._alpha.main_50,
       borderRadius: 2,
       "& fieldset": {
-        borderColor: alpha(theme.palette.divider, 0.1),
+        borderColor: (theme.palette as any).divider_alpha.main_10,
       },
       "&:hover fieldset": {
-        borderColor: alpha(theme.palette.primary.main, 0.3),
+        borderColor: (theme.palette.primary as any)._alpha.main_30,
       },
       "&.Mui-focused fieldset": {
         borderColor: theme.palette.primary.main,
@@ -117,7 +116,7 @@ export default function IssueDetailDialog({
           borderRadius: 4,
           bgcolor: "#0B1019",
           backgroundImage: "none",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
         },
       }}
     >
@@ -126,7 +125,7 @@ export default function IssueDetailDialog({
           <Stack direction="row" spacing={2} alignItems="center">
             <Box
               sx={{
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                bgcolor: (theme.palette.primary as any)._alpha.main_10,
                 color: theme.palette.primary.main,
                 p: 1.25,
                 borderRadius: 2,
@@ -139,7 +138,7 @@ export default function IssueDetailDialog({
               <Typography variant="h6" fontWeight={700} color="white">
                 {dict.vehicles.dialogs.issueDetails}
               </Typography>
-              <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
+              <Typography variant="caption" sx={{ color: (theme.palette.common as any).white_alpha.main_40, mt: 0.5, display: "block" }}>
                 {dict.vehicles.dialogs.referenceId}: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>#{issue.id.slice(-6).toUpperCase()}</span>
               </Typography>
             </Box>
@@ -158,9 +157,9 @@ export default function IssueDetailDialog({
               variant="filled"
               sx={{ 
                 borderRadius: 2,
-                bgcolor: alpha(theme.palette.error.main, 0.1),
+                bgcolor: (theme.palette.error as any)._alpha.main_10,
                 color: theme.palette.error.light,
-                border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
+                border: `1px solid ${(theme.palette.error as any)._alpha.main_20}`,
               }}
             >
               {error}
@@ -185,8 +184,8 @@ export default function IssueDetailDialog({
                 sx={{ 
                   p: 2, 
                   borderRadius: 2, 
-                  bgcolor: alpha("#1A202C", 0.3),
-                  border: `1px solid ${alpha(theme.palette.divider, 0.05)}`
+                  bgcolor: (theme.palette.text as any).darkBlue._alpha.main_30,
+                  border: `1px solid ${(theme.palette as any).divider_alpha.main_05}`
                 }}
               >
                 <Typography variant="body2" color="rgba(255,255,255,0.7)" sx={{ lineHeight: 1.6 }}>
@@ -210,7 +209,7 @@ export default function IssueDetailDialog({
               </Box>
             </Box>
 
-            <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
+            <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_05 }} />
 
             <Box>
               <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 2, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
@@ -218,7 +217,7 @@ export default function IssueDetailDialog({
               </Typography>
               <Stack direction="row" spacing={2.5}>
                 <FormControl fullWidth sx={selectSx}>
-                  <InputLabel shrink sx={{ color: alpha("#fff", 0.4) }}>{dict.vehicles.fields.status}</InputLabel>
+                  <InputLabel shrink sx={{ color: (theme.palette.common as any).white_alpha.main_40 }}>{dict.vehicles.fields.status}</InputLabel>
                   <Select
                     value={status}
                     label={dict.vehicles.fields.status}
@@ -230,7 +229,7 @@ export default function IssueDetailDialog({
                         sx: {
                           bgcolor: "#1A202C",
                           backgroundImage: "none",
-                          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                         }
                       }
                     }}
@@ -243,7 +242,7 @@ export default function IssueDetailDialog({
                 </FormControl>
 
                 <FormControl fullWidth sx={selectSx}>
-                  <InputLabel shrink sx={{ color: alpha("#fff", 0.4) }}>{dict.vehicles.fields.priority}</InputLabel>
+                  <InputLabel shrink sx={{ color: (theme.palette.common as any).white_alpha.main_40 }}>{dict.vehicles.fields.priority}</InputLabel>
                   <Select
                     value={priority}
                     label={dict.vehicles.fields.priority}
@@ -255,7 +254,7 @@ export default function IssueDetailDialog({
                         sx: {
                           bgcolor: "#1A202C",
                           backgroundImage: "none",
-                          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                         }
                       }
                     }}
@@ -264,7 +263,7 @@ export default function IssueDetailDialog({
                       const mainColor = theme.palette[colorKey]?.main || theme.palette.text.primary;
                       return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                          <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: mainColor, boxShadow: `0 0 10px ${alpha(mainColor, 0.5)}` }} />
+                          <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: mainColor, boxShadow: `0 0 10px ${(theme.palette[colorKey] as any)._alpha.main_50}` }} />
                           <Typography variant="body2" color="white">{dict.vehicles.priorities[value as keyof typeof dict.vehicles.priorities] || value as string}</Typography>
                         </Box>
                       );
@@ -286,7 +285,7 @@ export default function IssueDetailDialog({
         </Stack>
       </DialogContent>
 
-      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
+      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}` }}>
         <Stack direction="row" spacing={2} justifyContent="flex-end">
           <Button 
             onClick={onClose} 
@@ -308,7 +307,7 @@ export default function IssueDetailDialog({
               textTransform: "none",
               borderRadius: 2,
               px: 4,
-              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+              boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_20}`,
               fontWeight: 700,
               minWidth: 160,
             }}

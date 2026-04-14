@@ -119,7 +119,7 @@ export default function EditCustomerDialog({
                 bgcolor: "#0B0F19",
                 backgroundImage: "none",
                 borderRadius: 4,
-                border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                 maxHeight: "90vh",
               },
             }}
@@ -136,7 +136,7 @@ export default function EditCustomerDialog({
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                        bgcolor: (theme.palette.primary as any)._alpha.main_10,
                         color: theme.palette.primary.main,
                       }}
                     >
@@ -161,17 +161,17 @@ export default function EditCustomerDialog({
                   sx={{
                     mb: 4,
                     "& .MuiStepLabel-label": {
-                      color: alpha("#fff", 0.3),
+                      color: (theme.palette.common as any).white_alpha.main_30,
                       fontWeight: 600,
                       fontSize: "0.65rem",
                       textTransform: "uppercase",
                     },
                     "& .MuiStepLabel-label.Mui-active": { color: theme.palette.primary.main },
-                    "& .MuiStepLabel-label.Mui-completed": { color: alpha("#fff", 0.5) },
-                    "& .MuiStepIcon-root": { color: alpha(theme.palette.divider, 0.1) },
+                    "& .MuiStepLabel-label.Mui-completed": { color: (theme.palette.common as any).white_alpha.main_50 },
+                    "& .MuiStepIcon-root": { color: (theme.palette as any).divider_alpha.main_10 },
                     "& .MuiStepIcon-root.Mui-active": { color: theme.palette.primary.main },
                     "& .MuiStepIcon-root.Mui-completed": { color: theme.palette.primary.main },
-                    "& .MuiStepConnector-line": { borderColor: alpha(theme.palette.divider, 0.1) },
+                    "& .MuiStepConnector-line": { borderColor: (theme.palette as any).divider_alpha.main_10 },
                     "& .MuiStepConnector-root.Mui-active .MuiStepConnector-line": { borderColor: theme.palette.primary.main },
                     "& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line": { borderColor: theme.palette.primary.main },
                   }}
@@ -191,8 +191,8 @@ export default function EditCustomerDialog({
                       p: 2,
                       mb: 3,
                       borderRadius: 2,
-                      bgcolor: alpha(theme.palette.error.main, 0.05),
-                      border: `1px solid ${alpha(theme.palette.error.main, 0.1)}`,
+                      bgcolor: (theme.palette.error as any)._alpha.main_05,
+                      border: `1px solid ${(theme.palette.error as any)._alpha.main_10}`,
                     }}
                   >
                     <Typography variant="caption" color="error" fontWeight={600}>{error}</Typography>
@@ -207,7 +207,7 @@ export default function EditCustomerDialog({
                 sx={{
                   p: 3,
                   pt: 1,
-                  borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+                  borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
                   justifyContent: "space-between",
                 }}
               >
@@ -228,7 +228,7 @@ export default function EditCustomerDialog({
                     borderRadius: 2,
                     textTransform: "none",
                     fontWeight: 700,
-                    boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+                    boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_20}`,
                     py: 1.2,
                   }}
                   startIcon={isPending && <CircularProgress size={16} color="inherit" />}

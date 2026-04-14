@@ -11,7 +11,6 @@ import {
   Divider,
   Avatar,
   useTheme,
-  alpha,
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -106,7 +105,7 @@ const CustomerDetailDialog = ({
           bgcolor: "#0B0F19",
           backgroundImage: "none",
           borderRadius: 4,
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
           overflow: "hidden",
         },
       }}
@@ -132,8 +131,8 @@ const CustomerDetailDialog = ({
           <Box
             sx={{
               p: 3,
-              background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha("#0B0F19", 1)} 100%)`,
-              borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+              background: `linear-gradient(135deg, ${(theme.palette.primary as any)._alpha.main_05} 0%, #0B0F19 100%)`,
+              borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
             }}
           >
             <Stack
@@ -145,7 +144,7 @@ const CustomerDetailDialog = ({
                 <Avatar
                   variant="rounded"
                   sx={{
-                    bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                    bgcolor: (theme.palette.secondary as any)._alpha.main_10,
                     color: theme.palette.secondary.main,
                     width: 72,
                     height: 72,
@@ -174,7 +173,7 @@ const CustomerDetailDialog = ({
                       sx={{
                         height: 24,
                         fontWeight: 600,
-                        bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                        bgcolor: (theme.palette.secondary as any)._alpha.main_10,
                         color: theme.palette.secondary.dark,
                       }}
                     />
@@ -199,9 +198,9 @@ const CustomerDetailDialog = ({
                   size="small"
                   sx={{
                     color: "text.secondary",
-                    bgcolor: alpha(theme.palette.divider, 0.05),
+                    bgcolor: (theme.palette as any).divider_alpha.main_05,
                     "&:hover": {
-                      bgcolor: alpha(theme.palette.divider, 0.1),
+                      bgcolor: (theme.palette as any).divider_alpha.main_10,
                       color: "white",
                     },
                   }}
@@ -226,13 +225,13 @@ const CustomerDetailDialog = ({
                   width: { xs: "100%", md: "35%" },
                   p: 3,
                   borderRight: {
-                    md: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+                    md: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
                   },
                   borderBottom: {
-                    xs: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+                    xs: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
                     md: "none",
                   },
-                  bgcolor: alpha(theme.palette.common.black, 0.2),
+                  bgcolor: (theme.palette.common as any).black_alpha.main_20,
                 }}
               >
                 <Stack spacing={4}>
@@ -254,8 +253,8 @@ const CustomerDetailDialog = ({
                       sx={{
                         p: 2,
                         borderRadius: 2,
-                        bgcolor: alpha(theme.palette.background.paper, 0.02),
-                        borderColor: alpha(theme.palette.divider, 0.1),
+                        bgcolor: (theme.palette.background as any).paper_alpha.main_02,
+                        borderColor: (theme.palette as any).divider_alpha.main_10,
                       }}
                     >
                       <Stack spacing={1.5}>
@@ -315,7 +314,7 @@ const CustomerDetailDialog = ({
                               variant="body2"
                               sx={{
                                 wordBreak: "break-all",
-                                color: alpha("#fff", 0.7),
+                                color: (theme.palette.common as any).white_alpha.main_70,
                               }}
                             >
                               {customer.email || dict.common.na}
@@ -349,8 +348,8 @@ const CustomerDetailDialog = ({
                             sx={{
                               p: 1.5,
                               borderRadius: 2,
-                              bgcolor: alpha(theme.palette.background.paper, 0.02),
-                              border: `1px solid ${alpha(theme.palette.divider, 0.05)}`
+                              bgcolor: (theme.palette.background as any).paper_alpha.main_02,
+                              border: `1px solid ${(theme.palette as any).divider_alpha.main_05}`
                             }}
                           >
                             <LocationOnIcon
@@ -367,7 +366,7 @@ const CustomerDetailDialog = ({
                                   <Chip
                                     label={dict.customers.fields.isDefault}
                                     size="small"
-                                    sx={{ height: 16, fontSize: '0.6rem', bgcolor: alpha(theme.palette.primary.main, 0.1), color: theme.palette.primary.main }}
+                                    sx={{ height: 16, fontSize: '0.6rem', bgcolor: (theme.palette.primary as any)._alpha.main_10, color: theme.palette.primary.main }}
                                   />
                                 )}
                               </Stack>
@@ -420,8 +419,8 @@ const CustomerDetailDialog = ({
                       sx={{
                         p: 2,
                         borderRadius: 2,
-                        bgcolor: alpha(theme.palette.primary.main, 0.02),
-                        borderColor: alpha(theme.palette.primary.main, 0.1),
+                        bgcolor: (theme.palette.primary as any)._alpha.main_02,
+                        borderColor: (theme.palette.primary as any)._alpha.main_10,
                       }}
                     >
                       <Stack spacing={1}>
@@ -480,11 +479,11 @@ const CustomerDetailDialog = ({
                         sx={{
                           p: 2,
                           borderRadius: 2,
-                          bgcolor: alpha(theme.palette.background.paper, 0.02),
-                          borderColor: alpha(theme.palette.divider, 0.05),
+                          bgcolor: (theme.palette.background as any).paper_alpha.main_02,
+                          borderColor: (theme.palette as any).divider_alpha.main_05,
                           "&:hover": {
-                            borderColor: alpha(theme.palette.primary.main, 0.2),
-                            bgcolor: alpha(theme.palette.primary.main, 0.02),
+                            borderColor: (theme.palette.primary as any)._alpha.main_20,
+                            bgcolor: (theme.palette.primary as any)._alpha.main_02,
                           },
                         }}
                       >

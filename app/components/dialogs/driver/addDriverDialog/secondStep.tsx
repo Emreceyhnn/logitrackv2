@@ -127,7 +127,7 @@ const SecondDriverDialogStep = ({
                 sx={{
                   p: 0.8,
                   borderRadius: 1,
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  bgcolor: (theme.palette.primary as any)._alpha.main_10,
                   color: theme.palette.primary.main,
                   display: "flex",
                 }}
@@ -200,7 +200,7 @@ const SecondDriverDialogStep = ({
                 sx={{
                   p: 0.8,
                   borderRadius: 1,
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  bgcolor: (theme.palette.primary as any)._alpha.main_10,
                   color: theme.palette.primary.main,
                   display: "flex",
                 }}
@@ -239,11 +239,11 @@ const SecondDriverDialogStep = ({
                     border: `1px solid ${
                       values.status === status.id
                         ? theme.palette.primary.main
-                        : alpha(theme.palette.divider, 0.1)
+                        : (theme.palette as any).divider_alpha.main_10
                     }`,
                     bgcolor:
                       values.status === status.id
-                        ? alpha(theme.palette.primary.main, 0.05)
+                        ? (theme.palette.primary as any)._alpha.main_05
                         : "transparent",
                     cursor: "pointer",
                     display: "flex",
@@ -282,7 +282,7 @@ const SecondDriverDialogStep = ({
               sx={{
                 p: 2,
                 borderRadius: 2,
-                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                bgcolor: (theme.palette.primary as any)._alpha.main_05,
                 display: "flex",
                 gap: 2,
               }}
@@ -344,7 +344,7 @@ const SecondDriverDialogStep = ({
                 sx={{
                   p: 0.8,
                   borderRadius: 1,
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  bgcolor: (theme.palette.primary as any)._alpha.main_10,
                   color: theme.palette.primary.main,
                   display: "flex",
                 }}
@@ -361,8 +361,8 @@ const SecondDriverDialogStep = ({
               sx={{
                 p: 3,
                 borderRadius: 3,
-                border: `2px dashed ${alpha(theme.palette.divider, 0.2)}`,
-                bgcolor: alpha(theme.palette.background.paper, 0.3),
+                border: `2px dashed ${(theme.palette as any).divider_alpha.main_20}`,
+                bgcolor: (theme.palette.background as any).paper_alpha.main_30,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -370,8 +370,8 @@ const SecondDriverDialogStep = ({
                 cursor: "pointer",
                 transition: "all 0.2s ease",
                 "&:hover": {
-                  borderColor: alpha(theme.palette.primary.main, 0.5),
-                  bgcolor: alpha(theme.palette.primary.main, 0.05),
+                  borderColor: (theme.palette.primary as any)._alpha.main_50,
+                  bgcolor: (theme.palette.primary as any)._alpha.main_05,
                 },
               }}
             >
@@ -380,7 +380,7 @@ const SecondDriverDialogStep = ({
                 sx={{
                   p: 1.5,
                   borderRadius: "50%",
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  bgcolor: (theme.palette.primary as any)._alpha.main_10,
                   color: theme.palette.primary.main,
                 }}
               >
@@ -402,8 +402,8 @@ const SecondDriverDialogStep = ({
                     sx={{
                       p: 2,
                       borderRadius: 2,
-                      bgcolor: alpha("#1A202C", 0.5),
-                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                      bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
+                      border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                     }}
                   >
                     <Stack direction="row" spacing={2} alignItems="center">
@@ -412,7 +412,7 @@ const SecondDriverDialogStep = ({
                           width: 48,
                           height: 48,
                           borderRadius: 1,
-                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          bgcolor: (theme.palette.primary as any)._alpha.main_10,
                           color: theme.palette.primary.main,
                           display: "flex",
                           alignItems: "center",
@@ -470,14 +470,14 @@ const SecondDriverDialogStep = ({
                             placeholder: dict.common.noData,
                             sx: {
                               "& .MuiOutlinedInput-root": {
-                                backgroundColor: alpha(theme.palette.background.paper, 0.1),
+                                backgroundColor: (theme.palette.background as any).paper_alpha.main_10,
                                 borderRadius: 1.5,
                                 fontSize: "0.8rem",
-                                "& fieldset": { borderColor: alpha(theme.palette.divider, 0.1) },
-                                "&:hover fieldset": { borderColor: alpha(theme.palette.primary.main, 0.2) },
+                                "& fieldset": { borderColor: (theme.palette as any).divider_alpha.main_10 },
+                                "&:hover fieldset": { borderColor: (theme.palette.primary as any)._alpha.main_20 },
                               },
                               "& .MuiOutlinedInput-input": { color: "white" },
-                              "& .MuiIconButton-root": { color: alpha("#fff", 0.5) }
+                              "& .MuiIconButton-root": { color: (theme.palette.common as any).white_alpha.main_50 }
                             }
                           }
                         }}
@@ -496,7 +496,7 @@ const SecondDriverDialogStep = ({
             p: 3,
             bgcolor: "#0F172A",
             borderRadius: 3,
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
             position: "sticky",
             top: 0,
           }}
@@ -525,7 +525,7 @@ const SecondDriverDialogStep = ({
                   width: 56,
                   height: 56,
                   borderRadius: 2,
-                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  bgcolor: (theme.palette.primary as any)._alpha.main_10,
                   color: theme.palette.primary.main,
                   display: "flex",
                   alignItems: "center",
@@ -550,7 +550,7 @@ const SecondDriverDialogStep = ({
               </Stack>
             </Stack>
 
-            <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
+            <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_05 }} />
 
             <Stack spacing={2}>
               <Stack direction="row" spacing={2}>
@@ -603,7 +603,7 @@ const SecondDriverDialogStep = ({
               </Stack>
             </Stack>
 
-            <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.05) }} />
+            <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_05 }} />
 
             <Stack spacing={1.5}>
               <Stack direction="row" justifyContent="space-between">
@@ -637,8 +637,8 @@ const SecondDriverDialogStep = ({
                 mt: 2,
                 p: 2,
                 borderRadius: 2,
-                bgcolor: alpha(theme.palette.info.main, 0.05),
-                border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
+                bgcolor: (theme.palette.info as any)._alpha.main_05,
+                border: `1px solid ${(theme.palette.info as any)._alpha.main_10}`,
               }}
             >
               <Typography

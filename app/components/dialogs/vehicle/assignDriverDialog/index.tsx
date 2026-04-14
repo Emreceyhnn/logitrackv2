@@ -112,14 +112,14 @@ export default function AssignDriverDialog({
 
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: alpha("#1A202C", 0.5),
+      backgroundColor: (theme.palette.text as any).darkBlue._alpha.main_50,
       borderRadius: 2,
       height: 48,
       "& fieldset": {
-        borderColor: alpha(theme.palette.divider, 0.1),
+        borderColor: (theme.palette as any).divider_alpha.main_10,
       },
       "&:hover fieldset": {
-        borderColor: alpha(theme.palette.primary.main, 0.3),
+        borderColor: (theme.palette.primary as any)._alpha.main_30,
       },
       "&.Mui-focused fieldset": {
         borderColor: theme.palette.primary.main,
@@ -146,7 +146,7 @@ export default function AssignDriverDialog({
           borderRadius: 4,
           bgcolor: "#0B1019",
           backgroundImage: "none",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
         },
       }}
     >
@@ -159,7 +159,7 @@ export default function AssignDriverDialog({
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
-        <Typography variant="caption" sx={{ color: alpha("#fff", 0.4), mt: 0.5, display: "block" }}>
+        <Typography variant="caption" sx={{ color: (theme.palette.common as any).white_alpha.main_40, mt: 0.5, display: "block" }}>
           {dict.vehicles.fields.plate}: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>{vehiclePlate}</span>
         </Typography>
       </Box>
@@ -172,9 +172,9 @@ export default function AssignDriverDialog({
             sx={{ 
               mb: 3, 
               borderRadius: 2,
-              bgcolor: alpha(theme.palette.error.main, 0.1),
+              bgcolor: (theme.palette.error as any)._alpha.main_10,
               color: theme.palette.error.light,
-              border: `1px solid ${alpha(theme.palette.error.main, 0.2)}`,
+              border: `1px solid ${(theme.palette.error as any)._alpha.main_20}`,
             }}
           >
             {error}
@@ -194,10 +194,10 @@ export default function AssignDriverDialog({
                 sx={{
                   p: 2.5,
                   borderRadius: 3,
-                  bgcolor: alpha(theme.palette.divider, 0.02),
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  bgcolor: (theme.palette as any).divider_alpha.main_02,
+                  border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  background: `linear-gradient(135deg, ${alpha(theme.palette.divider, 0.02)} 0%, ${alpha(theme.palette.divider, 0.05)} 100%)`,
+                  background: `linear-gradient(135deg, ${(theme.palette as any).divider_alpha.main_02} 0%, ${(theme.palette as any).divider_alpha.main_05} 100%)`,
                 }}
               >
                 <Stack direction="row" alignItems="center" spacing={2.5}>
@@ -207,7 +207,7 @@ export default function AssignDriverDialog({
                       sx={{ 
                         width: 56, 
                         height: 56,
-                        border: `2px solid ${alpha(theme.palette.primary.main, 0.3)}`,
+                        border: `2px solid ${(theme.palette.primary as any)._alpha.main_30}`,
                       }}
                     >
                       <PersonIcon />
@@ -247,9 +247,9 @@ export default function AssignDriverDialog({
                       textTransform: "none",
                       fontWeight: 600,
                       px: 2,
-                      borderColor: alpha(theme.palette.error.main, 0.3),
+                      borderColor: (theme.palette.error as any)._alpha.main_30,
                       "&:hover": {
-                        bgcolor: alpha(theme.palette.error.main, 0.1),
+                        bgcolor: (theme.palette.error as any)._alpha.main_10,
                         borderColor: theme.palette.error.main,
                       }
                     }}
@@ -263,16 +263,16 @@ export default function AssignDriverDialog({
                 sx={{
                   p: 3,
                   borderRadius: 3,
-                  border: `1px dashed ${alpha(theme.palette.divider, 0.2)}`,
+                  border: `1px dashed ${(theme.palette as any).divider_alpha.main_20}`,
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   gap: 1,
-                  bgcolor: alpha(theme.palette.divider, 0.01),
+                  bgcolor: (theme.palette as any).divider_alpha.main_01,
                 }}
               >
-                <EmojiPeopleIcon sx={{ color: alpha("#fff", 0.2), fontSize: 32 }} />
-                <Typography variant="body2" sx={{ color: alpha("#fff", 0.4), fontWeight: 500 }}>
+                <EmojiPeopleIcon sx={{ color: (theme.palette.common as any).white_alpha.main_20, fontSize: 32 }} />
+                <Typography variant="body2" sx={{ color: (theme.palette.common as any).white_alpha.main_40, fontWeight: 500 }}>
                   {dict.vehicles.dialogs.noDriverAssigned}
                 </Typography>
               </Box>
@@ -292,7 +292,7 @@ export default function AssignDriverDialog({
               </Box>
             ) : (
               <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: alpha("#fff", 0.4) }}>{dict.vehicles.dialogs.selectDriver}</InputLabel>
+                <InputLabel sx={{ color: (theme.palette.common as any).white_alpha.main_40 }}>{dict.vehicles.dialogs.selectDriver}</InputLabel>
                 <Select
                   value={selectedDriverId}
                   label={dict.vehicles.dialogs.selectDriver}
@@ -302,7 +302,7 @@ export default function AssignDriverDialog({
                       sx: {
                         bgcolor: "#1A202C",
                         backgroundImage: "none",
-                        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                        border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                         mt: 1,
                         "& .MuiMenuItem-root": {
                           py: 1.5,
@@ -321,7 +321,7 @@ export default function AssignDriverDialog({
                         <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%' }}>
                           <Avatar
                             src={driver.user?.avatarUrl || ""}
-                            sx={{ width: 32, height: 32, border: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}
+                            sx={{ width: 32, height: 32, border: `1px solid ${(theme.palette as any).divider_alpha.main_10}` }}
                           >
                             <PersonIcon sx={{ fontSize: 18 }} />
                           </Avatar>
@@ -347,7 +347,7 @@ export default function AssignDriverDialog({
         </Stack>
       </DialogContent>
 
-      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.05)}` }}>
+      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${(theme.palette as any).divider_alpha.main_05}` }}>
         <Stack direction="row" spacing={2} justifyContent="flex-end">
           <Button 
             onClick={onClose} 
@@ -368,7 +368,7 @@ export default function AssignDriverDialog({
               textTransform: "none",
               borderRadius: 2,
               px: 4,
-              boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.2)}`,
+              boxShadow: `0 8px 24px ${(theme.palette.primary as any)._alpha.main_20}`,
               fontWeight: 700,
               minWidth: 140,
             }}

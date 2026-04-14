@@ -38,7 +38,7 @@ const SecondRouteDialogStep = () => {
                 width: 40,
                 height: 40,
                 borderRadius: "50%",
-                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                bgcolor: (theme.palette.primary as any)._alpha.main_10,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -141,8 +141,8 @@ const SecondRouteDialogStep = () => {
                       flex: 1,
                       p: 2,
                       borderRadius: 2,
-                      bgcolor: alpha(theme.palette.divider, 0.05),
-                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                      bgcolor: (theme.palette as any).divider_alpha.main_05,
+                      border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                     }}
                   >
                     <Typography
@@ -161,8 +161,8 @@ const SecondRouteDialogStep = () => {
                       flex: 1,
                       p: 2,
                       borderRadius: 2,
-                      bgcolor: alpha(theme.palette.divider, 0.05),
-                      border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                      bgcolor: (theme.palette as any).divider_alpha.main_05,
+                      border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                     }}
                   >
                     <Typography
@@ -182,8 +182,8 @@ const SecondRouteDialogStep = () => {
                   sx={{
                     p: 2,
                     borderRadius: 2,
-                    bgcolor: alpha(theme.palette.info.main, 0.05),
-                    border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
+                    bgcolor: (theme.palette.info as any)._alpha.main_05,
+                    border: `1px solid ${(theme.palette.info as any)._alpha.main_10}`,
                     display: "flex",
                     gap: 1.5,
                   }}
@@ -218,7 +218,7 @@ const SecondRouteDialogStep = () => {
                   minHeight: 350,
                   borderRadius: 3,
                   overflow: "hidden",
-                  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
                 }}
               >
                 <DirectionsMap

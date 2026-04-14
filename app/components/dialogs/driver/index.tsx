@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  alpha,
   Avatar,
   Box,
   Button,
@@ -83,19 +82,10 @@ const DriverDialog = (params: DriverDialogParams) => {
 
   if (!driverData) return null;
 
-  const statusMeta = getStatusMeta(driverData.status, dict);
+  const statusMeta = getStatusMeta(driverData.status, dict) as any;
   
-  const getStatusColor = () => {
-    if (statusMeta.color.includes(".")) {
-      const colorParts = statusMeta.color.split(".");
-      const colorKey = colorParts[0] as keyof typeof theme.palette;
-      const colorVariant = colorParts[1] || "main";
-      return (theme.palette[colorKey] as unknown as Record<string, string>)?.[colorVariant] || theme.palette.text.primary;
-    }
-    return statusMeta.color;
-  };
-
-  const statusColor = getStatusColor();
+  const statusColor = (theme.palette[statusMeta.paletteKey as keyof typeof theme.palette] as any)?.main || statusMeta.color;
+  const statusAlpha = (theme.palette[statusMeta.paletteKey as keyof typeof theme.palette] as any)?._alpha || (theme.palette.primary as any)._alpha;
 
   return (
     <Dialog
@@ -106,9 +96,9 @@ const DriverDialog = (params: DriverDialogParams) => {
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: "#0B1019",
+          bgcolor: (theme.palette.background as any).midnight.main,
           backgroundImage: "none",
-          border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+          border: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
           overflow: "hidden",
         },
       }}
@@ -116,11 +106,8 @@ const DriverDialog = (params: DriverDialogParams) => {
       <Box
         sx={{
           p: 4,
-          background: `linear-gradient(135deg, ${alpha(
-            statusColor,
-            0.15
-          )} 0%, ${alpha(theme.palette.background.paper, 0)} 100%)`,
-          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+          background: `linear-gradient(135deg, ${statusAlpha.main_15} 0%, ${(theme.palette.background as any).paper_alpha.main_00} 100%)`,
+          borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
         }}
       >
         <Stack
@@ -133,29 +120,26 @@ const DriverDialog = (params: DriverDialogParams) => {
               sx={{
                 p: 0.5,
                 borderRadius: 4,
-                bgcolor: alpha("#fff", 0.03),
-                border: `1px solid ${alpha(statusColor, 0.15)}`,
-                boxShadow: `0 0 0 4px ${alpha(statusColor, 0.02)}`,
+                bgcolor: (theme.palette.common as any).white_alpha.main_03,
+                border: `1px solid ${statusAlpha.main_15}`,
+                boxShadow: `0 0 0 4px ${statusAlpha.main_02}`,
               }}
             >
               <Avatar
                 variant="rounded"
                 src={driverData.user.avatarUrl || undefined}
                 sx={{
-                  bgcolor: alpha(statusColor, 0.1),
+                  bgcolor: statusAlpha.main_10,
                   color: statusColor,
                   width: 80,
                   height: 80,
                   fontSize: "2.2rem",
                   fontWeight: 800,
                   borderRadius: 3,
-                  boxShadow: `0 8px 16px ${alpha("#000", 0.3)}`,
-                  border: `1px solid ${alpha(statusColor, 0.3)}`,
+                  boxShadow: `0 8px 16px ${(theme.palette.common as any).black_alpha.main_30}`,
+                  border: `1px solid ${statusAlpha.main_30}`,
                   background: !driverData.user.avatarUrl
-                    ? `linear-gradient(135deg, ${alpha(statusColor, 0.2)} 0%, ${alpha(
-                        statusColor,
-                        0.05
-                      )} 100%)`
+                    ? `linear-gradient(135deg, ${statusAlpha.main_20} 0%, ${statusAlpha.main_05} 100%)`
                     : "transparent",
                 }}
               >
@@ -177,9 +161,9 @@ const DriverDialog = (params: DriverDialogParams) => {
                   sx={{
                     height: 24,
                     fontWeight: 700,
-                    bgcolor: alpha(statusColor, 0.1),
-                    color: statusMeta.color,
-                    border: `1px solid ${alpha(statusColor, 0.2)}`,
+                    bgcolor: statusAlpha.main_10,
+                    color: statusColor,
+                    border: `1px solid ${statusAlpha.main_20}`,
                   }}
                 />
               </Stack>
@@ -258,7 +242,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                   borderColor: "error.main",
                   color: "error.main",
                   "&:hover": {
-                    bgcolor: alpha(theme.palette.error.main, 0.1),
+                    bgcolor: (theme.palette.error as any)._alpha.main_10,
                   },
                 }}
               >
@@ -269,9 +253,9 @@ const DriverDialog = (params: DriverDialogParams) => {
               onClick={onClose}
               size="small"
               sx={{
-                bgcolor: alpha(theme.palette.text.secondary, 0.1),
+                bgcolor: (theme.palette.text as any).secondary_alpha.main_10,
                 "&:hover": {
-                  bgcolor: alpha(theme.palette.text.secondary, 0.2),
+                  bgcolor: (theme.palette.text as any).secondary_alpha.main_20,
                 },
               }}
             >
@@ -281,14 +265,14 @@ const DriverDialog = (params: DriverDialogParams) => {
         </Stack>
       </Box>
 
-      <DialogContent sx={{ p: 0, bgcolor: "#0B1019" }}>
+      <DialogContent sx={{ p: 0, bgcolor: (theme.palette.background as any).midnight.main }}>
         <Stack>
           <Box
             sx={{
               px: 4,
               pt: 2,
-              borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
-              bgcolor: alpha(theme.palette.background.paper, 0.2),
+              borderBottom: `1px solid ${(theme.palette as any).divider_alpha.main_05}`,
+              bgcolor: (theme.palette.background as any).paper_alpha.main_20,
             }}
           >
             <Tabs

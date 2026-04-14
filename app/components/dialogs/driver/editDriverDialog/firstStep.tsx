@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  alpha,
   Box,
   Divider,
   Grid,
@@ -97,7 +96,7 @@ const FirstEditDriverDialogStep = () => {
           </Grid>
         </Grid>
 
-        <Divider sx={{ borderColor: alpha(theme.palette.divider, 0.1) }} />
+        <Divider sx={{ borderColor: (theme.palette as any).divider_alpha.main_10 }} />
 
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
@@ -194,26 +193,20 @@ const FirstEditDriverDialogStep = () => {
             }}
             onDragLeave={(e) => {
               e.preventDefault();
-              e.currentTarget.style.borderColor = alpha(
-                theme.palette.divider,
-                0.2
-              );
+              e.currentTarget.style.borderColor = (theme.palette as any).divider_alpha.main_20;
             }}
             onDrop={(e) => {
               e.preventDefault();
-              e.currentTarget.style.borderColor = alpha(
-                theme.palette.divider,
-                0.2
-              );
+              e.currentTarget.style.borderColor = (theme.palette as any).divider_alpha.main_20;
               if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                 setFieldValue("licencePhoto", e.dataTransfer.files[0]);
               }
             }}
             sx={{
               height: 160,
-              border: `2px dashed ${alpha(theme.palette.divider, 0.2)}`,
+              border: `2px dashed ${(theme.palette as any).divider_alpha.main_20}`,
               borderRadius: 3,
-              bgcolor: alpha(theme.palette.background.paper, 0.3),
+              bgcolor: (theme.palette.background as any).paper_alpha.main_30,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -221,8 +214,8 @@ const FirstEditDriverDialogStep = () => {
               cursor: "pointer",
               transition: "all 0.2s ease",
               "&:hover": {
-                borderColor: alpha(theme.palette.primary.main, 0.5),
-                bgcolor: alpha(theme.palette.primary.main, 0.05),
+                borderColor: (theme.palette.primary as any)._alpha.main_50,
+                bgcolor: (theme.palette.primary as any)._alpha.main_05,
               },
             }}
           >
@@ -233,7 +226,7 @@ const FirstEditDriverDialogStep = () => {
                     width: 48,
                     height: 48,
                     borderRadius: "50%",
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    bgcolor: (theme.palette.primary as any)._alpha.main_10,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -261,16 +254,16 @@ const FirstEditDriverDialogStep = () => {
                 sx={{
                   p: 2,
                   width: "80%",
-                  bgcolor: alpha("#1A202C", 0.5),
+                  bgcolor: (theme.palette.text as any).darkBlue._alpha.main_50,
                   borderRadius: 2,
-                  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                  border: `1px solid ${(theme.palette.primary as any)._alpha.main_20}`,
                 }}
               >
                 <Box
                   sx={{
                     p: 1,
                     borderRadius: 1.5,
-                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    bgcolor: (theme.palette.primary as any)._alpha.main_10,
                     color: theme.palette.primary.main,
                     display: "flex",
                   }}

@@ -33,8 +33,8 @@ export default function Sidebar({ activeStep }: SidebarProps) {
     <Box
       sx={{
         width: 280,
-        bgcolor: alpha(theme.palette.background.paper, 0.5),
-        borderRight: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        bgcolor: (theme.palette.background as any).paper_alpha.main_50,
+        borderRight: `1px solid ${(theme.palette as any).divider_alpha.main_10}`,
         p: 4,
         display: { xs: "none", md: "flex" },
         flexDirection: "column",
@@ -64,7 +64,7 @@ export default function Sidebar({ activeStep }: SidebarProps) {
           sx={{
             width: "100%",
             height: 4,
-            bgcolor: alpha(theme.palette.primary.main, 0.1),
+            bgcolor: (theme.palette.primary as any)._alpha.main_10,
             mt: 2,
             borderRadius: 2,
             overflow: "hidden",
@@ -96,9 +96,9 @@ export default function Sidebar({ activeStep }: SidebarProps) {
                 p: 2,
                 borderRadius: 2,
                 bgcolor: isActive
-                  ? alpha(theme.palette.primary.main, 0.05)
+                  ? (theme.palette.primary as any)._alpha.main_05
                   : "transparent",
-                border: `1px solid ${isActive ? alpha(theme.palette.primary.main, 0.2) : "transparent"}`,
+                border: `1px solid ${isActive ? (theme.palette.primary as any)._alpha.main_20 : "transparent"}`,
                 transition: "all 0.2s ease",
               }}
             >
@@ -112,7 +112,7 @@ export default function Sidebar({ activeStep }: SidebarProps) {
                   justifyContent: "center",
                   bgcolor: isActive
                     ? "primary.main"
-                    : alpha(theme.palette.text.secondary, 0.1),
+                    : (theme.palette.text as any).secondary_alpha.main_10,
                   color: isActive ? "white" : "text.secondary",
                 }}
               >
