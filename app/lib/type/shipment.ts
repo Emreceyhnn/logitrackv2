@@ -5,7 +5,7 @@ import {
   Company,
   ShipmentStatus,
   ShipmentPriority,
-} from "@prisma/client";
+} from "./enums";
 import { CustomerWithRelations } from "./customer";
 import { InventoryShipmentItem } from "./add-shipment";
 

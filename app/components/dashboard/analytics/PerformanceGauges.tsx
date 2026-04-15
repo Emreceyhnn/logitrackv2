@@ -1,8 +1,6 @@
-"use client";
-
 import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { Stack, Typography, Grid, Paper, useTheme, Box } from "@mui/material";
+import { Stack, Typography, Grid, Paper, Box } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import SpeedIcon from "@mui/icons-material/Speed";
 import SentimentSatisfiedAltIcon from "@mui/icons-material/SentimentSatisfiedAlt";
@@ -20,7 +18,7 @@ interface PerformanceGaugesProps {
 
 export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
   /* -------------------------------- variables ------------------------------- */
-  const theme = useTheme();
+
   const dict = useDictionary();
 
   const onTimeRate = data?.onTimeRate ?? 0;
@@ -64,7 +62,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
                   fontWeight: "bold",
                 },
                 [`& .${gaugeClasses.valueArc}`]: {
-                  fill: theme.palette.success.main,
+                  fill: "theme.palette.success.main",
                 },
               }}
               text={({ value }) => `${value}%`}
@@ -114,7 +112,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
                   fontWeight: "bold",
                 },
                 [`& .${gaugeClasses.valueArc}`]: {
-                  fill: theme.palette.primary.main,
+                  fill: "theme.palette.primary.main",
                 },
               }}
               text={({ value }) => `${value}%`}
@@ -160,14 +158,17 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
                   fontWeight: "bold",
                 },
                 [`& .${gaugeClasses.valueArc}`]: {
-                  fill: theme.palette.secondary.main,
+                  fill: "theme.palette.secondary.main",
                 },
               }}
               text={({ value }) => `${value}`}
             />
           </Box>
           <Typography variant="body2" color="text.secondary" align="center">
-            {dict.analytics.performance.reviews.replace("{count}", satisfactionCount.toString())}
+            {dict.analytics.performance.reviews.replace(
+              "{count}",
+              satisfactionCount.toString()
+            )}
           </Typography>
         </Paper>
       </Grid>

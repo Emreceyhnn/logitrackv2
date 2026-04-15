@@ -8,7 +8,6 @@ import {
   Box,
   Typography,
   Stack,
-  
   Button,
   CircularProgress,
   useTheme,
@@ -118,8 +117,13 @@ export default function DocumentViewerDialog({
               >
                 {title}
               </Typography>
-              <Typography variant="caption" sx={{ color: theme.palette.common.white_alpha.main_50 }}>
-                {isPdf ? dict.documentViewer.pdfDocument : dict.documentViewer.imageFile}
+              <Typography
+                variant="caption"
+                sx={{ color: theme.palette.common.white_alpha.main_50 }}
+              >
+                {isPdf
+                  ? dict.documentViewer.pdfDocument
+                  : dict.documentViewer.imageFile}
               </Typography>
             </Box>
           </Stack>

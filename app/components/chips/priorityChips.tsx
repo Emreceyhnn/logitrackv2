@@ -1,18 +1,11 @@
-import { Chip, useTheme, PaletteColor } from "@mui/material";
+import { Chip } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
 export const PriorityChip = ({ status }: { status: string }) => {
   const dict = useDictionary();
-  const theme = useTheme();
   const meta = getStatusMeta(status, dict);
-
-  // Safely access the palette color dynamically
-  const paletteKey = meta.paletteKey as keyof typeof theme.palette;
-  const paletteColor = theme.palette[paletteKey] as PaletteColor;
-  
-  const statusColor = paletteColor?.main || meta.color;
-  const statusAlpha = paletteColor?._alpha || theme.palette.primary._alpha;
+  const paletteKey = meta.paletteKey || "secondary";
 
   return (
     <Chip
@@ -20,17 +13,20 @@ export const PriorityChip = ({ status }: { status: string }) => {
       size="small"
       label={meta.label}
       sx={{
-        borderRadius: "4px",
-        height: "22px",
-        fontSize: "0.75rem",
-        fontWeight: 600,
-        backgroundColor: statusAlpha?.main_10 || "rgba(0,0,0,0.1)",
-        color: statusColor,
-        border: `1px solid ${statusAlpha?.main_20 || "rgba(0,0,0,0.1)"}`,
+        borderRadius: "6px",
+        height: "24px",
+        fontSize: "0.7rem",
+        fontWeight: 800,
+        backgroundColor: `${paletteKey}._alpha.main_15`,
+        color: `${paletteKey}.main`,
+        border: `1px solid ${paletteKey}._alpha.main_30`,
+        textTransform: "uppercase",
+        letterSpacing: "0.02em",
         "& .MuiChip-label": {
           px: 1,
-        }
+        },
       }}
     />
   );
 };
+

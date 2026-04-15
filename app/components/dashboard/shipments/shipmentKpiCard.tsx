@@ -30,19 +30,19 @@ const ShipmentKpiCard = ({ state }: ShipmentKpiCardProps) => {
         label: dict.shipments.dashboard.activeShipments,
         value: values.active,
         icon: <LocalShippingIcon />,
-        color: "#0ea5e9", // Sky
+        color: theme.palette.kpi.sky,
       },
       {
         label: dict.shipments.dashboard.delayedShipments,
         value: values.delayed,
         icon: <AccessTimeIcon />,
-        color: theme.palette.error.main,
+        color: theme.palette.kpi.error,
       },
       {
         label: dict.shipments.dashboard.inTransit,
         value: values.inTransit,
         icon: <DirectionsBoatIcon />,
-        color: "#10b981", // Emerald
+        color: theme.palette.kpi.emerald,
       },
     ];
   }, [stats, theme, dict]);
@@ -56,9 +56,9 @@ const ShipmentKpiCard = ({ state }: ShipmentKpiCardProps) => {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   return (
@@ -82,13 +82,19 @@ const ShipmentKpiCard = ({ state }: ShipmentKpiCardProps) => {
             md: "1 1 calc(25% - 24px)",
           },
           display: "flex", // Support StatCard stretching
-        }
+        },
       }}
     >
       {kpiItems.map((item, index) => (
         <Box
           key={index}
-          sx={{ width: { xs: "100%", sm: "calc(50% - 8px)", md: "calc(25% - 12px)" } }}
+          sx={{
+            width: {
+              xs: "100%",
+              sm: "calc(50% - 8px)",
+              md: "calc(25% - 12px)",
+            },
+          }}
         >
           <StatCard
             title={item.label}

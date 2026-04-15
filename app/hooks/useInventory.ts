@@ -9,20 +9,21 @@ import {
   deleteInventoryItem,
   logWarehouseFulfillment,
 } from "@/app/lib/controllers/inventory";
-import { Inventory } from "@prisma/client";
+import { Inventory } from "@/app/lib/type/enums";
 import { toast } from "sonner";
-import { InventoryWithRelations, LowStockItem, InventoryMovement } from "@/app/lib/type/inventory";
 
 export const inventoryKeys = {
   all: ["inventory"] as const,
-  lists: (warehouseId?: string) => [...inventoryKeys.all, "list", { warehouseId }] as const,
+  lists: (warehouseId?: string) =>
+    [...inventoryKeys.all, "list", { warehouseId }] as const,
   details: (id: string) => [...inventoryKeys.all, "detail", id] as const,
   lowStock: () => [...inventoryKeys.all, "lowStock"] as const,
-  movements: (sku: string, warehouseId: string) => [...inventoryKeys.all, "movements", { sku, warehouseId }] as const,
+  movements: (sku: string, warehouseId: string) =>
+    [...inventoryKeys.all, "movements", { sku, warehouseId }] as const,
 };
 
 export function useInventory(warehouseId?: string) {
-  return useQuery<InventoryWithRelations[]>({
+  return useQuery({
     queryKey: inventoryKeys.lists(warehouseId),
     queryFn: () => getInventory(warehouseId),
     staleTime: 1000 * 60 * 5,
@@ -30,7 +31,7 @@ export function useInventory(warehouseId?: string) {
 }
 
 export function useInventoryItem(id: string | null) {
-  return useQuery<InventoryWithRelations | null>({
+  return useQuery({
     queryKey: inventoryKeys.details(id || ""),
     queryFn: () => (id ? getInventoryItemById(id) : null),
     enabled: !!id,
@@ -39,15 +40,18 @@ export function useInventoryItem(id: string | null) {
 }
 
 export function useLowStockItems() {
-  return useQuery<LowStockItem[]>({
+  return useQuery({
     queryKey: inventoryKeys.lowStock(),
     queryFn: () => getLowStockItems(),
     staleTime: 1000 * 60 * 5,
   });
 }
 
-export function useInventoryMovements(sku: string | null, warehouseId: string | null) {
-  return useQuery<InventoryMovement[]>({
+export function useInventoryMovements(
+  sku: string | null,
+  warehouseId: string | null
+) {
+  return useQuery({
     queryKey: inventoryKeys.movements(sku || "", warehouseId || ""),
     queryFn: () => getInventoryMovements(sku!, warehouseId!),
     enabled: !!sku && !!warehouseId,
@@ -92,25 +96,38 @@ export function useInventoryMutations() {
         data.cargoType
       ),
     onSuccess: () => handleSuccess("Item added to inventory successfully"),
-    onError: (error: Error) => handleError("Failed to add inventory item", error),
+    onError: (error: Error) =>
+      handleError("Failed to add inventory item", error),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Inventory> }) =>
       updateInventoryItem(id, data),
     onSuccess: () => handleSuccess("Inventory item updated successfully"),
-    onError: (error: Error) => handleError("Failed to update inventory item", error),
+    onError: (error: Error) =>
+      handleError("Failed to update inventory item", error),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteInventoryItem(id),
     onSuccess: () => handleSuccess("Inventory item deleted successfully"),
-    onError: (error: Error) => handleError("Failed to delete inventory item", error),
+    onError: (error: Error) =>
+      handleError("Failed to delete inventory item", error),
   });
 
   const logFulfillmentMutation = useMutation({
-    mutationFn: (data: { warehouseId: string; sku: string; quantity: number; type: "PICK" | "PACK" }) =>
-      logWarehouseFulfillment(data.warehouseId, data.sku, data.quantity, data.type),
+    mutationFn: (data: {
+      warehouseId: string;
+      sku: string;
+      quantity: number;
+      type: "PICK" | "PACK";
+    }) =>
+      logWarehouseFulfillment(
+        data.warehouseId,
+        data.sku,
+        data.quantity,
+        data.type
+      ),
     onSuccess: () => handleSuccess("Fulfillment logged successfully"),
     onError: (error: Error) => handleError("Failed to log fulfillment", error),
   });

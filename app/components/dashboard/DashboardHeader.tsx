@@ -1,13 +1,9 @@
-"use client";
-
-import React from "react";
-import { Box, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import UserAccountNav from "../nav/UserAccountNav";
 import NotificationBell from "../notifications/NotificationBell";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function DashboardHeader() {
-  const theme = useTheme();
   const dict = useDictionary();
 
   return (
@@ -19,29 +15,29 @@ export default function DashboardHeader() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        bgcolor: theme.palette.background.default_alpha.main_40,
+        bgcolor: "theme.palette.background.default_alpha.main_40",
         backdropFilter: "blur(12px) saturate(150%)",
-        borderBottom: `1px solid ${theme.palette.divider_alpha.main_08}`,
+        borderBottom: `1px solid theme.palette.divider_alpha.main_08`,
         position: "sticky",
         top: 0,
-        zIndex: theme.zIndex.appBar,
+        zIndex: "theme.zIndex.appBar",
       }}
     >
       <Stack direction="row" spacing={1} alignItems="center">
         {/* Placeholder for Breadcrumbs or Page Title if needed */}
-        <Typography 
-            variant="subtitle2" 
-            fontWeight={800} 
-            sx={{ 
-                color: theme.palette.primary.main,
-                bgcolor: theme.palette.primary._alpha.main_10,
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 1.5,
-                letterSpacing: 1,
-                fontSize: "0.7rem",
-                textTransform: "uppercase"
-            }}
+        <Typography
+          variant="subtitle2"
+          fontWeight={800}
+          sx={{
+            color: "theme.palette.primary.main",
+            bgcolor: "theme.palette.primary._alpha.main_10",
+            px: 1.5,
+            py: 0.5,
+            borderRadius: 1.5,
+            letterSpacing: 1,
+            fontSize: "0.7rem",
+            textTransform: "uppercase",
+          }}
         >
           {dict.dashboard.header.internalConsole}
         </Typography>

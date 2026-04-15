@@ -5,7 +5,7 @@ import DataTable from "@/app/components/ui/DataTable";
 import type { DataTableColumn, DataTableRowAction, DataTableFilter } from "@/app/lib/type/dataTable";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { DriverTableProps, DriverWithRelations } from "@/app/lib/type/driver";
-import { DriverStatus } from "@prisma/client";
+import { DriverStatus } from "@/app/lib/type/enums";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";

@@ -14,7 +14,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
-import { RouteStatus } from "@prisma/client";
+import { RouteStatus } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";

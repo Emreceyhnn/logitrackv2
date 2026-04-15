@@ -9,27 +9,23 @@ import {
   deleteDriver,
   updateDriverStatus,
   assignVehicleToDriver,
-  unassignVehicleFromDriver
+  unassignVehicleFromDriver,
 } from "@/app/lib/controllers/driver";
-import { 
-  DriverWithRelations, 
-  DriverDashboardResponseType, 
-  PaginatedResponse 
-} from "@/app/lib/type/driver";
-import { DriverStatus } from "@prisma/client";
+import { DriverWithRelations, PaginatedResponse } from "@/app/lib/type/driver";
+import { DriverStatus } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 
 export const driverKeys = {
   all: ["drivers"] as const,
   lists: () => [...driverKeys.all, "list"] as const,
-  list: (params: { 
-    page: number; 
-    limit: number; 
-    search?: string; 
-    status?: DriverStatus[]; 
-    hasVehicle?: boolean; 
-    sortField?: string; 
-    sortOrder?: "asc" | "desc" 
+  list: (params: {
+    page: number;
+    limit: number;
+    search?: string;
+    status?: DriverStatus[];
+    hasVehicle?: boolean;
+    sortField?: string;
+    sortOrder?: "asc" | "desc";
   }) => [...driverKeys.lists(), params] as const,
   details: () => [...driverKeys.all, "detail"] as const,
   detail: (id: string) => [...driverKeys.details(), id] as const,
@@ -46,14 +42,23 @@ export function useDrivers(
   sortOrder?: "asc" | "desc"
 ) {
   return useQuery<PaginatedResponse<DriverWithRelations>>({
-    queryKey: driverKeys.list({ page, limit, search, status, hasVehicle, sortField, sortOrder }),
-    queryFn: () => getDrivers(page, limit, search, status, hasVehicle, sortField, sortOrder),
+    queryKey: driverKeys.list({
+      page,
+      limit,
+      search,
+      status,
+      hasVehicle,
+      sortField,
+      sortOrder,
+    }),
+    queryFn: () =>
+      getDrivers(page, limit, search, status, hasVehicle, sortField, sortOrder),
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useDriverDashboardData() {
-  return useQuery<DriverDashboardResponseType>({
+  return useQuery({
     queryKey: driverKeys.dashboard(),
     queryFn: () => getDriverDashboardData(),
     staleTime: 1000 * 60 * 5,
@@ -74,13 +79,20 @@ export function useDriverMutations() {
   };
 
   const createMutation = useMutation({
-    mutationFn: (data: Parameters<typeof createDriver>[0]) => createDriver(data),
+    mutationFn: (data: Parameters<typeof createDriver>[0]) =>
+      createDriver(data),
     onSuccess: () => handleSuccess("Driver created successfully"),
     onError: (error: Error) => handleError("Failed to create driver", error),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof updateDriver>[1] }) => updateDriver(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Parameters<typeof updateDriver>[1];
+    }) => updateDriver(id, data),
     onSuccess: () => handleSuccess("Driver updated successfully"),
     onError: (error: Error) => handleError("Failed to update driver", error),
   });
@@ -92,13 +104,21 @@ export function useDriverMutations() {
   });
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: DriverStatus }) => updateDriverStatus(id, status),
+    mutationFn: ({ id, status }: { id: string; status: DriverStatus }) =>
+      updateDriverStatus(id, status),
     onSuccess: () => handleSuccess("Driver status updated successfully"),
-    onError: (error: Error) => handleError("Failed to update driver status", error),
+    onError: (error: Error) =>
+      handleError("Failed to update driver status", error),
   });
 
   const assignMutation = useMutation({
-    mutationFn: ({ driverId, vehicleId }: { driverId: string; vehicleId: string }) => assignVehicleToDriver(driverId, vehicleId),
+    mutationFn: ({
+      driverId,
+      vehicleId,
+    }: {
+      driverId: string;
+      vehicleId: string;
+    }) => assignVehicleToDriver(driverId, vehicleId),
     onSuccess: () => handleSuccess("Vehicle assigned successfully"),
     onError: (error: Error) => handleError("Failed to assign vehicle", error),
   });

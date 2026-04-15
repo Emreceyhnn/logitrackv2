@@ -23,7 +23,13 @@ export default function RegisterForm() {
       borderRadius={"24px"}
     >
       <Box p={{ xs: "30px", sm: "50px" }}>
-        <Stack direction="row" spacing={3} mb={6} alignItems="center" justifyContent="center">
+        <Stack
+          direction="row"
+          spacing={3}
+          mb={6}
+          alignItems="center"
+          justifyContent="center"
+        >
           <Typography
             sx={{
               fontWeight: 600,

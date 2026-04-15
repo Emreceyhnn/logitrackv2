@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme, type PaletteOptions } from "@mui/material/styles";
 import type {} from "@mui/x-date-pickers/themeAugmentation";
 import { palettes } from "./palette";
 
@@ -93,7 +93,10 @@ declare module "@mui/material/styles" {
       teal_alpha: Record<string, string>;
       deepPurple: string;
       deepPurple_alpha: Record<string, string>;
+      error: string;
+      error_alpha: Record<string, string>;
     };
+    getColorAlpha: (targetColor: string) => Record<string, string>;
   }
 
   interface PaletteOptions {
@@ -155,6 +158,7 @@ declare module "@mui/material/styles" {
       deepPurple?: string;
       deepPurple_alpha?: Record<string, string>;
     };
+    getColorAlpha?: (targetColor: string) => Record<string, string>;
   }
 
   interface BreakpointOverrides {
@@ -168,9 +172,71 @@ import { getScrollbarStyles } from "@/app/components/scrollbar";
 
 export type ThemeMode = "light" | "dark";
 
-export const getTheme = (mode: ThemeMode) =>
-  createTheme({
-    palette: (palettes[mode] ?? palettes.dark) as PaletteOptions,
+export const getTheme = (mode: ThemeMode) => {
+  const basePalette = (palettes[mode] ?? palettes.dark) as unknown as typeof palettes.dark;
+
+  return createTheme({
+    palette: {
+      ...basePalette,
+      getColorAlpha: (targetColor: string) => {
+        const color = targetColor.toLowerCase();
+        if (!basePalette || !basePalette.kpi)
+          return basePalette?.primary?._alpha || {};
+        const kpi = basePalette.kpi;
+
+        // Dynamic KPI mapping: Check if targetColor matches any hex in kpi object
+        const kpiEntries = Object.entries(kpi);
+        for (const [key, value] of kpiEntries) {
+          if (typeof value === "string" && value.toLowerCase() === color) {
+            const alphaKey = `${key}_alpha`;
+            // @ts-expect-error -- kpi is a strict typed object; dynamic alphaKey access is intentional
+            if (kpi[alphaKey]) return kpi[alphaKey];
+          }
+        }
+
+        // Specific mappings for complex keys / fallbacks
+        if (color === "#38bdf8") return kpi.cyan_alpha;
+        if (color === "#6366f1") return kpi.indigo_alpha;
+        if (color === "#10b981") return kpi.emerald_alpha;
+        if (color === "#f59e0b") return kpi.amber_alpha;
+        if (color === "#0ea5e9") return kpi.sky_alpha;
+        if (color === "#a855f7") return kpi.purple_alpha;
+        if (color === "#cbd5f5") return kpi.slateLight_alpha;
+        if (color === "#1e293b") return kpi.slateDark_alpha;
+        if (color === "#0f172a") return kpi.slateDeep_alpha;
+        if (color === "#0b1120") return kpi.slateDeepest_alpha;
+        if (color === "#94a3b8") return kpi.slateGray_alpha;
+        if (color === "#e2e8f0") return kpi.lavender_alpha;
+
+        // Core Palette Matches
+        if (
+          basePalette.primary &&
+          color === basePalette.primary.main.toLowerCase()
+        )
+          return basePalette.primary._alpha;
+        if (
+          basePalette.secondary &&
+          color === basePalette.secondary.main.toLowerCase()
+        )
+          return basePalette.secondary._alpha;
+        if (
+          basePalette.success &&
+          color === basePalette.success.main.toLowerCase()
+        )
+          return basePalette.success._alpha;
+        if (basePalette.error && color === basePalette.error.main.toLowerCase())
+          return basePalette.error._alpha;
+        if (
+          basePalette.warning &&
+          color === basePalette.warning.main.toLowerCase()
+        )
+          return basePalette.warning._alpha;
+        if (basePalette.info && color === basePalette.info.main.toLowerCase())
+          return basePalette.info._alpha;
+
+        return basePalette.primary?._alpha || {};
+      },
+    } as PaletteOptions,
 
     breakpoints: {
       values: {
@@ -319,7 +385,8 @@ export const getTheme = (mode: ThemeMode) =>
             borderRadius: "12px",
             boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
             border: `1px solid ${palettes[mode].common.white_alpha.main_10}`,
-            backgroundColor: palettes[mode].background.ebony?._alpha.main_80 || "#0B0F19CC",
+            backgroundColor:
+              palettes[mode].background.ebony?._alpha.main_80 || "#0B0F19CC",
             backdropFilter: "blur(12px)",
             marginTop: "8px",
           },
@@ -336,12 +403,18 @@ export const getTheme = (mode: ThemeMode) =>
             padding: "8px 12px",
             transition: "all 0.2s",
             "&:hover": {
-              backgroundColor: palettes[mode].primary._alpha.main_10 || "rgba(255, 255, 255, 0.05)",
+              backgroundColor:
+                palettes[mode].primary._alpha.main_10 ||
+                "rgba(255, 255, 255, 0.05)",
             },
             "&.Mui-selected": {
-              backgroundColor: palettes[mode].primary._alpha.main_15 || "rgba(255, 255, 255, 0.1)",
+              backgroundColor:
+                palettes[mode].primary._alpha.main_15 ||
+                "rgba(255, 255, 255, 0.1)",
               "&:hover": {
-                backgroundColor: palettes[mode].primary._alpha.main_20 || "rgba(255, 255, 255, 0.15)",
+                backgroundColor:
+                  palettes[mode].primary._alpha.main_20 ||
+                  "rgba(255, 255, 255, 0.15)",
               },
             },
             "&:last-child": {
@@ -352,3 +425,4 @@ export const getTheme = (mode: ThemeMode) =>
       },
     },
   });
+};

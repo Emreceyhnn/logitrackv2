@@ -1,5 +1,3 @@
-"use client";
-
 import { ChangeEvent } from "react";
 import {
   Box,
@@ -7,7 +5,6 @@ import {
   TextField,
   MenuItem,
   Stack,
-  useTheme,
   InputAdornment,
   IconButton,
 } from "@mui/material";
@@ -19,32 +16,43 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useFormikContext } from "formik";
 import { VehicleFormValues } from "@/app/lib/type/vehicle";
 
-const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) => {
+const FirstStep = ({
+  onFileSelect,
+}: {
+  onFileSelect?: (file: File) => void;
+}) => {
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
-  const theme = useTheme();
-  const { values, errors, touched, setFieldValue, handleBlur, handleChange: formikHandleChange } = useFormikContext<VehicleFormValues>();
+
+  const {
+    values,
+    errors,
+    touched,
+    setFieldValue,
+    handleBlur,
+    handleChange: formikHandleChange,
+  } = useFormikContext<VehicleFormValues>();
 
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
+      backgroundColor: "theme.palette.text.darkBlue._alpha.main_50",
       borderRadius: 2,
       "& fieldset": {
-        borderColor: theme.palette.divider_alpha.main_10,
+        borderColor: "theme.palette.divider_alpha.main_10",
       },
       "&:hover fieldset": {
-        borderColor: theme.palette.primary._alpha.main_30,
+        borderColor: "theme.palette.primary._alpha.main_30",
       },
       "&.Mui-focused fieldset": {
-        borderColor: theme.palette.primary.main,
+        borderColor: "theme.palette.primary.main",
       },
     },
     "& .MuiInputLabel-root": {
       color: "text.secondary",
       fontSize: "0.85rem",
       "&.Mui-focused": {
-        color: theme.palette.primary.main,
+        color: "theme.palette.primary.main",
       },
     },
     "& .MuiOutlinedInput-input": {
@@ -66,7 +74,9 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
   };
 
   const photoPreview =
-    values.photo instanceof File ? URL.createObjectURL(values.photo) : values.photo;
+    values.photo instanceof File
+      ? URL.createObjectURL(values.photo)
+      : values.photo;
 
   return (
     <Box sx={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 4 }}>
@@ -116,10 +126,10 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
                   position: "absolute",
                   top: 8,
                   right: 8,
-                  bgcolor: theme.palette.error._alpha.main_80,
+                  bgcolor: "theme.palette.error._alpha.main_80",
                   color: "white",
                   "&:hover": {
-                    bgcolor: theme.palette.error.main,
+                    bgcolor: "theme.palette.error.main",
                   },
                 }}
               >
@@ -174,11 +184,11 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
               width: 56,
               height: 56,
               borderRadius: 1,
-              bgcolor: theme.palette.divider_alpha.main_10,
+              bgcolor: "theme.palette.divider_alpha.main_10",
               overflow: "hidden",
               border: photoPreview
-                ? `2px solid ${theme.palette.primary.main}`
-                : `1px solid ${theme.palette.divider_alpha.main_10}`,
+                ? `2px solid theme.palette.primary.main`
+                : `1px solid theme.palette.divider_alpha.main_10`,
             }}
           >
             {photoPreview ? (
@@ -214,7 +224,9 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
           <TextField
             fullWidth
             name="fleetNo"
-            label={dict.vehicles.fields.fleetNo + " (" + dict.common.optional + ")"} 
+            label={
+              dict.vehicles.fields.fleetNo + " (" + dict.common.optional + ")"
+            }
             placeholder="e.g. V-001"
             value={values.fleetNo}
             onChange={formikHandleChange}
@@ -318,7 +330,9 @@ const FirstStep = ({ onFileSelect }: { onFileSelect?: (file: File) => void }) =>
             onChange={formikHandleChange}
             onBlur={handleBlur}
             error={touched.nextServiceKm && Boolean(errors.nextServiceKm)}
-            helperText={touched.nextServiceKm && (errors.nextServiceKm as string)}
+            helperText={
+              touched.nextServiceKm && (errors.nextServiceKm as string)
+            }
             sx={textFieldSx}
             InputProps={{
               endAdornment: (

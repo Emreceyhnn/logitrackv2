@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Box,
   Dialog,
   DialogContent,
@@ -42,8 +41,14 @@ const initialContact = {
   email: "",
   phone: "",
   locations: [
-    { name: "Main Office", address: "", lat: undefined as number | undefined, lng: undefined as number | undefined, isDefault: true }
-  ]
+    {
+      name: "Main Office",
+      address: "",
+      lat: undefined as number | undefined,
+      lng: undefined as number | undefined,
+      isDefault: true,
+    },
+  ],
 };
 
 const AddCustomerDialog = ({
@@ -104,7 +109,10 @@ const AddCustomerDialog = ({
     }
   };
 
-  const steps = [dict.customers.dialogs.steps.identity, dict.customers.dialogs.steps.contact];
+  const steps = [
+    dict.customers.dialogs.steps.identity,
+    dict.customers.dialogs.steps.contact,
+  ];
 
   return (
     <GoogleMapsProvider>
@@ -124,7 +132,8 @@ const AddCustomerDialog = ({
         PaperProps={{
           sx: {
             bgcolor: "#0B0F19",
-            backgroundImage: "radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent), radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.03), transparent)",
+            backgroundImage:
+              "radial-gradient(circle at top right, rgba(37, 99, 235, 0.05), transparent), radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.03), transparent)",
             borderRadius: 4,
             border: `1px solid ${theme.palette.common.white_alpha.main_08}`,
             maxHeight: "90vh",
@@ -134,14 +143,13 @@ const AddCustomerDialog = ({
       >
         <Formik
           initialValues={initialValues}
-          validationSchema={useMemo(() => addCustomerValidationSchema(dict), [dict])}
+          validationSchema={useMemo(
+            () => addCustomerValidationSchema(dict),
+            [dict]
+          )}
           onSubmit={handleSubmit}
         >
-          {({
-            handleSubmit: formikSubmit,
-            isSubmitting,
-            validateForm,
-          }) => (
+          {({ handleSubmit: formikSubmit, isSubmitting, validateForm }) => (
             <>
               <Box sx={{ p: 3, pb: 0 }}>
                 <Stack
@@ -167,20 +175,32 @@ const AddCustomerDialog = ({
                       <BusinessIcon fontSize="small" />
                     </Box>
                     <Box>
-                      <Typography variant="h6" fontWeight={700} color="white" lineHeight={1.2}>
+                      <Typography
+                        variant="h6"
+                        fontWeight={700}
+                        color="white"
+                        lineHeight={1.2}
+                      >
                         {dict.customers.dialogs.addTitle}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        fontWeight={500}
+                      >
                         {dict.customers.registerNewPartner}
                       </Typography>
                     </Box>
                   </Stack>
-                  <IconButton 
-                    onClick={closeDialog} 
-                    sx={{ 
+                  <IconButton
+                    onClick={closeDialog}
+                    sx={{
                       color: "text.secondary",
                       bgcolor: theme.palette.common.white_alpha.main_03,
-                      "&:hover": { bgcolor: theme.palette.common.white_alpha.main_08, color: "white" }
+                      "&:hover": {
+                        bgcolor: theme.palette.common.white_alpha.main_08,
+                        color: "white",
+                      },
                     }}
                   >
                     <CloseIcon fontSize="small" />
@@ -206,7 +226,7 @@ const AddCustomerDialog = ({
                     "& .MuiStepLabel-label.Mui-completed": {
                       color: theme.palette.common.white_alpha.main_60,
                     },
-                    "& .MuiStepIcon-root": { 
+                    "& .MuiStepIcon-root": {
                       width: 28,
                       height: 28,
                       color: theme.palette.common.white_alpha.main_05,
@@ -230,12 +250,14 @@ const AddCustomerDialog = ({
                       borderColor: theme.palette.common.white_alpha.main_05,
                       borderTopWidth: 2,
                     },
-                    "& .MuiStepConnector-root.Mui-active .MuiStepConnector-line": {
-                      borderColor: theme.palette.primary.main,
-                    },
-                    "& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line": {
-                      borderColor: theme.palette.primary.main,
-                    },
+                    "& .MuiStepConnector-root.Mui-active .MuiStepConnector-line":
+                      {
+                        borderColor: theme.palette.primary.main,
+                      },
+                    "& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line":
+                      {
+                        borderColor: theme.palette.primary.main,
+                      },
                   }}
                 >
                   {steps.map((label) => (
@@ -257,17 +279,17 @@ const AddCustomerDialog = ({
                       border: `1px solid ${theme.palette.error._alpha.main_10}`,
                     }}
                   >
-                    <Typography variant="caption" color="error" fontWeight={600}>
+                    <Typography
+                      variant="caption"
+                      color="error"
+                      fontWeight={600}
+                    >
                       {error}
                     </Typography>
                   </Box>
                 )}
-                {currentStep === 1 && (
-                  <IdentitySection />
-                )}
-                {currentStep === 2 && (
-                  <ContactSection />
-                )}
+                {currentStep === 1 && <IdentitySection />}
+                {currentStep === 2 && <ContactSection />}
               </DialogContent>
 
               <DialogActions
@@ -289,7 +311,10 @@ const AddCustomerDialog = ({
                     textTransform: "none",
                     fontWeight: 600,
                     px: 3,
-                    "&:hover": { color: "white", bgcolor: theme.palette.common.white_alpha.main_05 }
+                    "&:hover": {
+                      color: "white",
+                      bgcolor: theme.palette.common.white_alpha.main_05,
+                    },
                   }}
                 >
                   {currentStep === 1 ? dict.common.cancel : dict.common.back}
@@ -301,10 +326,11 @@ const AddCustomerDialog = ({
                   onClick={async () => {
                     if (currentStep < 2) {
                       const stepErrors = await validateForm();
-                      const hasStep1Errors = Object.keys(stepErrors).some(key => 
-                        ["name", "code", "industry", "taxId"].includes(key)
+                      const hasStep1Errors = Object.keys(stepErrors).some(
+                        (key) =>
+                          ["name", "code", "industry", "taxId"].includes(key)
                       );
-                      
+
                       if (!hasStep1Errors) {
                         setCurrentStep(2);
                       } else {
@@ -330,13 +356,17 @@ const AddCustomerDialog = ({
                     },
                     "&:active": {
                       transform: "translateY(0)",
-                    }
+                    },
                   }}
                   endIcon={
-                    !isSubmitting && currentStep < 2 ? <ArrowForwardIcon /> : undefined
+                    !isSubmitting && currentStep < 2 ? (
+                      <ArrowForwardIcon />
+                    ) : undefined
                   }
                   startIcon={
-                    isSubmitting && <CircularProgress size={16} color="inherit" />
+                    isSubmitting && (
+                      <CircularProgress size={16} color="inherit" />
+                    )
                   }
                 >
                   {isSubmitting

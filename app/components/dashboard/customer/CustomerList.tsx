@@ -206,7 +206,7 @@ const CustomerList = ({
                   color="text.secondary"
                   sx={{ display: "block", mt: 0.5 }}
                 >
-                  {customer.code} • {getIndustryLabel(customer.industry)}
+                  {customer.code} • {getIndustryLabel(customer.industry || null)}
                 </Typography>
               </Box>
             </Stack>

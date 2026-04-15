@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getCompanyProfile, removeCompanyUser } from "@/app/lib/controllers/company";
+import {
+  getCompanyProfile,
+  removeCompanyUser,
+} from "@/app/lib/controllers/company";
 import { toast } from "sonner";
-import { CompanyPageData } from "@/app/lib/type/company";
 
 export const companyKeys = {
   all: ["company"] as const,
@@ -9,7 +11,7 @@ export const companyKeys = {
 };
 
 export function useCompanyProfile() {
-  return useQuery<CompanyPageData>({
+  return useQuery({
     queryKey: companyKeys.profile(),
     queryFn: () => getCompanyProfile(),
     staleTime: 1000 * 60 * 10,

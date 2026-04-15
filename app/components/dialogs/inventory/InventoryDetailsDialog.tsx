@@ -24,6 +24,7 @@ import {
   TableHead,
   TableRow,
   CircularProgress,
+  PaletteColor,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -177,7 +178,7 @@ export default function InventoryDetailsDialog({
                     height: 20,
                     fontSize: "0.65rem",
                     bgcolor: (theme.palette[statusColor] as PaletteColor)._alpha.main_10,
-                    color: theme.palette[statusColor].light,
+                    color: (theme.palette[statusColor] as PaletteColor).light,
                     border: `1px solid ${(theme.palette[statusColor] as PaletteColor)._alpha.main_20}`
                   }}
                 />

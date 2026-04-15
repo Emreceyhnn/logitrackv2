@@ -113,7 +113,7 @@ export default function CreateCompanyDialog({
 
   const steps = [
     dict.company.dialogs.steps.branding,
-    dict.company.dialogs.steps.regional
+    dict.company.dialogs.steps.regional,
   ];
 
   return (
@@ -134,16 +134,14 @@ export default function CreateCompanyDialog({
     >
       <Formik
         initialValues={initialFormData}
-        validationSchema={useMemo(() => createCompanyValidationSchema(dict), [dict])}
+        validationSchema={useMemo(
+          () => createCompanyValidationSchema(dict),
+          [dict]
+        )}
         onSubmit={handleSubmit}
         validateOnMount
       >
-        {({
-          values,
-          errors,
-          setFieldValue,
-          submitForm,
-        }) => (
+        {({ values, errors, setFieldValue, submitForm }) => (
           <>
             <Box sx={{ p: 4, pb: 0 }}>
               <Stack

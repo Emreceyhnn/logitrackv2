@@ -1,5 +1,19 @@
-import { Box, Button, Card, Stack, Typography, Table, TableBody, TableCell, TableHead, TableRow, Divider, CardActionArea, useTheme, PaletteColor } from "@mui/material";
-import type { Issue, MaintenanceRecord } from "@prisma/client";
+import {
+  Box,
+  Button,
+  Card,
+  Stack,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Divider,
+  CardActionArea,
+  useTheme,
+} from "@mui/material";
+import type { Issue, MaintenanceRecord } from "@/app/lib/type/enums";
 import { VehicleStatus, IssueStatus } from "@/app/lib/type/enums";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import AddIcon from "@mui/icons-material/Add";
@@ -29,9 +43,10 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
   const [maintenanceDetailOpen, setMaintenanceDetailOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<MaintenanceRecord | null>(null);
+  const [selectedRecord, setSelectedRecord] =
+    useState<MaintenanceRecord | null>(null);
   const [issueDetailOpen, setIssueDetailOpen] = useState(false);
-  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null); 
+  const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
 
   if (!vehicle) {
     return <Typography color="text.secondary">{dict.common.noData}</Typography>;
@@ -58,33 +73,46 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "COMPLETED": return "#48BB78";
-      case "IN_PROGRESS": return "#4299E1";
-      case "SCHEDULED": return "#F6AD55";
-      case "CANCELLED": return "#F56565";
-      default: return "#48BB78";
+      case "COMPLETED":
+        return "success.main";
+      case "IN_PROGRESS":
+        return "info.main";
+      case "SCHEDULED":
+        return "warning.main";
+      case "CANCELLED":
+        return "error.main";
+      default:
+        return "success.main";
     }
   };
 
-  const resolveMaintenanceAlpha = (status: string) => {
-    let paletteKey: keyof typeof theme.palette = "success";
+  const getStatusAlpha = (status: string) => {
     switch (status) {
-      case "COMPLETED": paletteKey = "success"; break;
-      case "IN_PROGRESS": paletteKey = "info"; break;
-      case "SCHEDULED": paletteKey = "warning"; break;
-      case "CANCELLED": paletteKey = "error"; break;
-      default: paletteKey = "success"; break;
+      case "COMPLETED":
+        return "success._alpha";
+      case "IN_PROGRESS":
+        return "info._alpha";
+      case "SCHEDULED":
+        return "warning._alpha";
+      case "CANCELLED":
+        return "error._alpha";
+      default:
+        return "success._alpha";
     }
-    return (theme.palette[paletteKey] as PaletteColor)._alpha;
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "COMPLETED": return <CheckCircleIcon sx={{ fontSize: 14 }} />;
-      case "IN_PROGRESS": return <PendingIcon sx={{ fontSize: 14 }} />;
-      case "SCHEDULED": return <ErrorIcon sx={{ fontSize: 14 }} />;
-      case "CANCELLED": return <CancelIcon sx={{ fontSize: 14 }} />;
-      default: return null;
+      case "COMPLETED":
+        return <CheckCircleIcon sx={{ fontSize: 14 }} />;
+      case "IN_PROGRESS":
+        return <PendingIcon sx={{ fontSize: 14 }} />;
+      case "SCHEDULED":
+        return <ErrorIcon sx={{ fontSize: 14 }} />;
+      case "CANCELLED":
+        return <CancelIcon sx={{ fontSize: 14 }} />;
+      default:
+        return null;
     }
   };
 
@@ -92,7 +120,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const maintenanceHistory = (vehicle.maintenanceRecords || []).slice(-4);
   const openIssues =
     vehicle.issues?.filter(
-      (i) => i.status === IssueStatus.OPEN || i.status === IssueStatus.IN_PROGRESS
+      (i) =>
+        i.status === IssueStatus.OPEN || i.status === IssueStatus.IN_PROGRESS
     ) || [];
 
   return (
@@ -123,24 +152,35 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             >
               {dict.vehicles.dialogs.vehicleStatus}
             </Typography>
-            <Box sx={{ 
-              width: 10, 
-               height: 10, 
-               borderRadius: "50%", 
-               bgcolor: vehicle.status === VehicleStatus.AVAILABLE ? "success.main" : vehicle.status === VehicleStatus.MAINTENANCE ? "warning.main" : "info.main" 
-             }} />
+            <Box
+              sx={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                bgcolor:
+                  vehicle.status === VehicleStatus.AVAILABLE
+                    ? "success.main"
+                    : vehicle.status === VehicleStatus.MAINTENANCE
+                      ? "warning.main"
+                      : "info.main",
+              }}
+            />
           </Stack>
           <FormControl fullWidth size="small" sx={{ mt: 1 }}>
             <Select
               value={vehicle.status}
-              onChange={(e) => handleVehicleStatusChange(e.target.value as VehicleStatus)}
+              onChange={(e) =>
+                handleVehicleStatusChange(e.target.value as VehicleStatus)
+              }
               sx={{
                 color: "white",
                 fontSize: "1.1rem",
                 fontWeight: 700,
                 "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                 "& .MuiSelect-select": { paddingLeft: 0 },
-                "& .MuiSvgIcon-root": { color: theme.palette.common.white_alpha.main_30 }
+                "& .MuiSvgIcon-root": {
+                  color: theme.palette.common.white_alpha.main_30,
+                },
               }}
               MenuProps={{
                 PaperProps: {
@@ -148,17 +188,28 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     bgcolor: "#1A202C",
                     backgroundImage: "none",
                     border: `1px solid ${theme.palette.common.white_alpha.main_10}`,
-                  }
-                }
+                  },
+                },
               }}
             >
-                <MenuItem value={VehicleStatus.AVAILABLE}>{dict.vehicles.statuses.AVAILABLE}</MenuItem>
-                <MenuItem value={VehicleStatus.ON_TRIP}>{dict.vehicles.statuses.ON_TRIP}</MenuItem>
-                <MenuItem value={VehicleStatus.MAINTENANCE}>{dict.vehicles.statuses.MAINTENANCE}</MenuItem>
+              <MenuItem value={VehicleStatus.AVAILABLE}>
+                {dict.vehicles.statuses.AVAILABLE}
+              </MenuItem>
+              <MenuItem value={VehicleStatus.ON_TRIP}>
+                {dict.vehicles.statuses.ON_TRIP}
+              </MenuItem>
+              <MenuItem value={VehicleStatus.MAINTENANCE}>
+                {dict.vehicles.statuses.MAINTENANCE}
+              </MenuItem>
             </Select>
           </FormControl>
           <Typography
-            sx={{ fontSize: 12, fontWeight: 200, color: "text.secondary", mt: 0.5 }}
+            sx={{
+              fontSize: 12,
+              fontWeight: 200,
+              color: "text.secondary",
+              mt: 0.5,
+            }}
           >
             {dict.vehicles.dialogs.manageAvailability}
           </Typography>
@@ -237,7 +288,9 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     onClick={() => handleIssueClick(i)}
                     sx={{
                       p: 2,
-                      "&:hover": { bgcolor: theme.palette.common.white_alpha.main_05 },
+                      "&:hover": {
+                        bgcolor: theme.palette.common.white_alpha.main_05,
+                      },
                     }}
                   >
                     <Stack direction="row" alignItems="center" gap={2}>
@@ -315,7 +368,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     align="left"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      borderBottomColor:
+                        theme.palette.common.white_alpha.main_05,
                       bgcolor: theme.palette.background.midnight.main, // Match card bg for sticky header
                     }}
                   >
@@ -325,7 +379,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     align="left"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      borderBottomColor:
+                        theme.palette.common.white_alpha.main_05,
                       bgcolor: theme.palette.background.midnight.main,
                     }}
                   >
@@ -335,7 +390,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     align="left"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      borderBottomColor:
+                        theme.palette.common.white_alpha.main_05,
                       bgcolor: theme.palette.background.midnight.main,
                     }}
                   >
@@ -345,7 +401,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     align="left"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      borderBottomColor:
+                        theme.palette.common.white_alpha.main_05,
                       bgcolor: theme.palette.background.midnight.main,
                     }}
                   >
@@ -355,7 +412,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     align="left"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      borderBottomColor:
+                        theme.palette.common.white_alpha.main_05,
                       bgcolor: theme.palette.background.midnight.main,
                     }}
                   >
@@ -365,14 +423,14 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
               </TableHead>
 
               <TableBody>
-                  {maintenanceHistory.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} align="center">
-                        <Typography variant="body2" color="text.secondary">
-                          {dict.vehicles.dialogs.noMaintenanceFound}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
+                {maintenanceHistory.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center">
+                      <Typography variant="body2" color="text.secondary">
+                        {dict.vehicles.dialogs.noMaintenanceFound}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   maintenanceHistory.map((v, index) => (
                     <TableRow
@@ -394,7 +452,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                         align="left"
                         sx={{
                           color: "white",
-                          borderBottomColor: theme.palette.common.white_alpha.main_05,
+                          borderBottomColor:
+                            theme.palette.common.white_alpha.main_05,
                         }}
                       >
                         <Typography sx={{ fontSize: 12 }}>
@@ -409,7 +468,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                         align="left"
                         sx={{
                           color: "white",
-                          borderBottomColor: theme.palette.common.white_alpha.main_05,
+                          borderBottomColor:
+                            theme.palette.common.white_alpha.main_05,
                         }}
                       >
                         <Typography sx={{ fontSize: 12 }}>{v.type}</Typography>
@@ -418,7 +478,8 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                         align="left"
                         sx={{
                           color: "white",
-                          borderBottomColor: theme.palette.common.white_alpha.main_05,
+                          borderBottomColor:
+                            theme.palette.common.white_alpha.main_05,
                         }}
                       >
                         {v.description?.split(":")[1] || dict.common.na}
@@ -427,36 +488,49 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                         align="left"
                         sx={{
                           color: "white",
-                          borderBottomColor: theme.palette.common.white_alpha.main_05,
+                          borderBottomColor:
+                            theme.palette.common.white_alpha.main_05,
                         }}
                       >{`$${v.cost}`}</TableCell>
                       <TableCell
                         align="left"
-                        sx={{ borderBottomColor: theme.palette.common.white_alpha.main_05 }}
+                        sx={{
+                          borderBottomColor:
+                            theme.palette.common.white_alpha.main_05,
+                        }}
                       >
                         <Box
                           sx={{
                             padding: "4px 8px",
                             borderRadius: "12px",
-                            bgcolor: resolveMaintenanceAlpha(v.status || "COMPLETED").main_10,
-                            border: `1px solid ${resolveMaintenanceAlpha(v.status || "COMPLETED").main_20}`,
+                            bgcolor: `${getStatusAlpha(v.status || "COMPLETED")}.main_10`,
+                            border: `1px solid ${getStatusAlpha(v.status || "COMPLETED")}.main_20`,
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 1,
                           }}
                         >
-                          <Box sx={{ color: getStatusColor(v.status || "COMPLETED"), display: "flex" }}>
+                          <Box
+                            sx={{
+                              color: getStatusColor(v.status || "COMPLETED"),
+                              display: "flex",
+                            }}
+                          >
                             {getStatusIcon(v.status || "COMPLETED")}
                           </Box>
                           <Typography
-                            sx={{ 
-                              fontSize: 11, 
+                            sx={{
+                              fontSize: 11,
                               fontWeight: 700,
                               color: getStatusColor(v.status || "COMPLETED"),
-                              textTransform: "uppercase"
+                              textTransform: "uppercase",
                             }}
                           >
-                            {dict.vehicles.statuses[v.status as keyof typeof dict.vehicles.statuses] || v.status || dict.vehicles.statuses.COMPLETED}
+                            {dict.vehicles.statuses[
+                              v.status as keyof typeof dict.vehicles.statuses
+                            ] ||
+                              v.status ||
+                              dict.vehicles.statuses.COMPLETED}
                           </Typography>
                         </Box>
                       </TableCell>

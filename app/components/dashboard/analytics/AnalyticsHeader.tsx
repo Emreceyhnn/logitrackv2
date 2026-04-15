@@ -1,11 +1,8 @@
-"use client";
-
 import {
   Stack,
   Typography,
   Button,
   Box,
-  useTheme,
   TextField,
   MenuItem,
 } from "@mui/material";
@@ -15,7 +12,6 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 export default function AnalyticsHeader() {
   /* -------------------------------- variables ------------------------------- */
-  const theme = useTheme();
   const dict = useDictionary();
 
   return (
@@ -30,7 +26,7 @@ export default function AnalyticsHeader() {
         <Typography
           variant="h4"
           fontWeight={700}
-          sx={{ color: theme.palette.text.primary }}
+          sx={{ color: "theme.palette.text.primary" }}
         >
           {dict.analytics.title}
         </Typography>

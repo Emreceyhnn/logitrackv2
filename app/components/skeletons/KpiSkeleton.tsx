@@ -1,13 +1,10 @@
-"use client";
-import { Stack, Card, Skeleton,  useTheme, Box } from "@mui/material";
+import { Stack, Card, Skeleton, Box } from "@mui/material";
 
 interface KpiSkeletonProps {
   count?: number;
 }
 
 export default function KpiSkeleton({ count = 6 }: KpiSkeletonProps) {
-  const theme = useTheme();
-
   return (
     <Box
       sx={{
@@ -23,8 +20,8 @@ export default function KpiSkeleton({ count = 6 }: KpiSkeletonProps) {
         width: "100%",
         "& > *": {
           display: "flex",
-          "& > div": { width: "100%" }
-        }
+          "& > div": { width: "100%" },
+        },
       }}
     >
       {Array.from(new Array(count)).map((_, index) => (
@@ -34,7 +31,7 @@ export default function KpiSkeleton({ count = 6 }: KpiSkeletonProps) {
             gridColumn: {
               xs: "span 1",
               sm: "span 1",
-              md: "span 1", 
+              md: "span 1",
               lg: index < 5 ? "span 3" : "span 5",
             },
           }}
@@ -51,10 +48,11 @@ export default function KpiSkeleton({ count = 6 }: KpiSkeletonProps) {
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              background: theme.palette.background.paper_alpha.main_80,
+              background: "theme.palette.background.paper_alpha.main_80",
               backdropFilter: "blur(20px)",
-              border: `1px solid ${theme.palette.divider_alpha.main_10}`,
-              boxShadow: `0 10px 40px -10px ${theme.palette.common.black_alpha.main_20}`,
+              border: "1px solid theme.palette.divider_alpha.main_10",
+              boxShadow:
+                "0 10px 40px -10px theme.palette.common.black_alpha.main_20",
               "&::before": {
                 content: '""',
                 position: "absolute",
@@ -62,7 +60,7 @@ export default function KpiSkeleton({ count = 6 }: KpiSkeletonProps) {
                 left: 0,
                 right: 0,
                 height: "4px",
-                background: `linear-gradient(90deg, ${theme.palette.divider}, ${theme.palette.divider_alpha.main_10})`,
+                background: `linear-gradient(90deg, theme.palette.divider, theme.palette.divider_alpha.main_10)`,
                 opacity: 0.5,
               },
             }}

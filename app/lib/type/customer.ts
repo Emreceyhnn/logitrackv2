@@ -1,15 +1,14 @@
-import { Customer, Shipment } from "@prisma/client";
+import { Customer, Shipment, CustomerLocation } from "./enums";
 
 // Domain Models
-export interface CustomerWithRelations extends Omit<Customer, 'address' | 'lat' | 'lng'> {
+export interface CustomerWithRelations extends Customer {
   _count?: {
     shipments: number;
   };
   shipments?: Shipment[];
-  locations?: import("@prisma/client").CustomerLocation[];
+  locations?: CustomerLocation[];
 }
 
-// Form State
 export interface CustomerFormLocation {
   id?: string;
   name: string;

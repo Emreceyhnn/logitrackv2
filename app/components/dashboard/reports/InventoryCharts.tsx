@@ -1,24 +1,23 @@
-"use client";
-
 import { PieChart } from "@mui/x-charts/PieChart";
-import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
+import { Card, Stack, Typography, Box } from "@mui/material";
 import { InventoryCategoryStats } from "@/app/lib/type/reports";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { Dictionary } from "@/app/lib/language/language";
 
 interface InventoryChartsProps {
   data: InventoryCategoryStats;
+  dict: Dictionary;
 }
 
-export default function InventoryCharts({ data }: InventoryChartsProps) {
-  const dict = useDictionary();
-  const theme = useTheme();
-
+export default function InventoryCharts({ data, dict }: InventoryChartsProps) {
   if (!data) return null;
 
   // Convert Record to Array for charts
   const categories = Object.keys(data);
   const chartData = categories.map((cat) => ({
-    category: (dict.reports.charts.inventoryCategories as Record<string, string>)[cat] || cat,
+    category:
+      (dict.reports.charts.inventoryCategories as Record<string, string>)[
+        cat
+      ] || cat,
     value: data[cat].value,
     count: data[cat].count,
   }));
@@ -27,18 +26,12 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
     id: index,
     value: item.value,
     label: item.category,
-    color: theme.palette.augmentColor({
-      color: { main: theme.palette.secondary.main },
-    }).main,
   }));
 
   const countPieData = chartData.map((item, index) => ({
     id: index,
     value: item.count,
     label: item.category,
-    color: theme.palette.augmentColor({
-      color: { main: theme.palette.primary.main },
-    }).main,
   }));
 
   return (
@@ -49,14 +42,14 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
             flex: 1,
             p: 2.5,
             borderRadius: "16px",
-            boxShadow: theme.shadows[2],
+            boxShadow: 2,
             display: "flex",
             flexDirection: "column",
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            background: `${theme.palette.background.paper}`,
+            background: "theme.palette.background.paper",
             "&:hover": {
               transform: "translateY(-4px)",
-              boxShadow: theme.shadows[8],
+              boxShadow: 8,
             },
           }}
         >
@@ -84,7 +77,14 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
                   data:
                     valuePieData.length > 0
                       ? valuePieData
-                      : [{ id: 0, value: 1, label: dict.common.noData, color: "#ccc" }],
+                      : [
+                          {
+                            id: 0,
+                            value: 1,
+                            label: dict.common.noData,
+                            color: "#ccc",
+                          },
+                        ],
                   highlightScope: { fade: "global", highlight: "item" },
                   faded: {
                     innerRadius: 30,
@@ -108,14 +108,14 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
             flex: 1,
             p: 2.5,
             borderRadius: "16px",
-            boxShadow: theme.shadows[2],
+            boxShadow: 2,
             display: "flex",
             flexDirection: "column",
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            background: `${theme.palette.background.paper}`,
+            background: "theme.palette.background.paper",
             "&:hover": {
               transform: "translateY(-4px)",
-              boxShadow: theme.shadows[8],
+              boxShadow: 8,
             },
           }}
         >
@@ -143,7 +143,14 @@ export default function InventoryCharts({ data }: InventoryChartsProps) {
                   data:
                     countPieData.length > 0
                       ? countPieData
-                      : [{ id: 0, value: 1, label: dict.common.noData, color: "#ccc" }],
+                      : [
+                          {
+                            id: 0,
+                            value: 1,
+                            label: dict.common.noData,
+                            color: "#ccc",
+                          },
+                        ],
                   highlightScope: { fade: "global", highlight: "item" },
                   faded: {
                     innerRadius: 30,

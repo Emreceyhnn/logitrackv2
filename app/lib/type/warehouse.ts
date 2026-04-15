@@ -1,4 +1,11 @@
-import { Warehouse, Inventory, Driver } from "@prisma/client";
+import { Warehouse, Driver } from "./enums";
+// Note: Inventory not in enums yet, defining minimal interface here for now
+export interface Inventory {
+  id: string;
+  sku: string;
+  name: string;
+  quantity: number;
+}
 
 // Domain Models
 export interface WarehouseWithRelations extends Omit<Warehouse, "specifications"> {

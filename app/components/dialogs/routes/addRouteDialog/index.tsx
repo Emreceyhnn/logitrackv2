@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Box,
   Dialog,
   DialogContent,
@@ -25,7 +24,7 @@ import { toast } from "sonner";
 import { createRoute } from "@/app/lib/controllers/routes";
 import { getShipments } from "@/app/lib/controllers/shipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
-import { Warehouse } from "@prisma/client";
+import { Warehouse } from "@/app/lib/type/enums";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { Formik, Form } from "formik";
@@ -143,7 +142,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
   const steps = [
     dict.routes.dialogs.steps.schedule,
     dict.routes.dialogs.steps.locations,
-    dict.routes.dialogs.steps.assignments
+    dict.routes.dialogs.steps.assignments,
   ];
 
   return (
@@ -213,7 +212,9 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                 );
               }
 
-              toast.info(`${dict.routes.dialogs.prefilledFrom} ${shipment.trackingId}`);
+              toast.info(
+                `${dict.routes.dialogs.prefilledFrom} ${shipment.trackingId}`
+              );
             }
           };
 

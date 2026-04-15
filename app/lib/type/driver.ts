@@ -1,4 +1,4 @@
-import { DriverStatus } from "@prisma/client";
+import { DriverStatus } from "./enums";
 
 export interface DriverWithRelations {
   id: string;

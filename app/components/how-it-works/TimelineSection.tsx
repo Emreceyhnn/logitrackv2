@@ -99,13 +99,13 @@ export default function TimelineSection() {
                   borderRadius: "24px",
                   bgcolor: "rgba(8, 12, 24, 0.75)",
                   backdropFilter: "blur(20px)",
-                  border: `1px solid ${theme.palette.kpi[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_20}`,
-                  boxShadow: `0 8px 32px 0 ${theme.palette.kpi[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_05}`,
+                  border: `1px solid ${(theme.palette.kpi as unknown as Record<string, Record<string, string>>)[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_20}`,
+                  boxShadow: `0 8px 32px 0 ${(theme.palette.kpi as unknown as Record<string, Record<string, string>>)[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_05}`,
                   transition: "all 0.3s ease",
                   "&:hover": {
                     transform: "translateY(-5px)",
-                    border: `1px solid ${theme.palette.kpi[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_40}`,
-                    boxShadow: `0 12px 40px 0 ${theme.palette.kpi[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_10}`,
+                    border: `1px solid ${(theme.palette.kpi as unknown as Record<string, Record<string, string>>)[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_40}`,
+                    boxShadow: `0 12px 40px 0 ${(theme.palette.kpi as unknown as Record<string, Record<string, string>>)[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_10}`,
                   },
                 }}
               >

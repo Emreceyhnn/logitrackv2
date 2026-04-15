@@ -21,8 +21,12 @@ import { Dictionary } from "./language/language";
 
 export const getStatusMeta = (status?: string, dict?: Dictionary) => {
   const s = status?.toUpperCase() || "";
-  
-  // Helpers to get text from dict
+
+  // Helpers to get data from dict
+  const getDictColor = (paletteKey: string, fallback: string) => {
+    return (dict as unknown as Record<string, Record<string, string>>)?.primaryColors?.[paletteKey] || fallback;
+  };
+
   const getDictLabel = (key: string) => {
     // Special mapping for driver statuses
     if (key === "ON_JOB") return dict?.drivers?.onDuty;
@@ -32,9 +36,14 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     return (
       (dict?.vehicles?.statuses as unknown as Record<string, string>)?.[key] ||
       (dict?.routes?.statuses as unknown as Record<string, string>)?.[key] ||
-      (dict?.vehicles?.priorities as unknown as Record<string, string>)?.[key] ||
+      (dict?.vehicles?.priorities as unknown as Record<string, string>)?.[
+        key
+      ] ||
       (dict?.common as unknown as Record<string, string>)?.[key] ||
-      key.replace(/_/g, " ").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())
+      key
+        .replace(/_/g, " ")
+        .toLowerCase()
+        .replace(/^\w/, (c) => c.toUpperCase())
     );
   };
 
@@ -49,14 +58,22 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     case "DELIVERED":
     case "SUCCESS":
     case "ON_TRIP":
-      return { color: "#48BB78", paletteKey: "success", label }; // Success Green
+      return {
+        color: getDictColor("success", "#48BB78"),
+        paletteKey: "success",
+        label,
+      };
     case "IN_PROGRESS":
     case "IN_TRANSIT":
     case "PICKED_UP":
     case "IN_SERVICE":
     case "IDLE":
     case "PROCESSING":
-      return { color: "#4299E1", paletteKey: "info", label }; // info Blue (mapped from primary for consistency)
+      return {
+        color: getDictColor("info", "#4299E1"),
+        paletteKey: "info",
+        label,
+      };
     case "MAINTENANCE":
     case "SCHEDULED":
     case "PENDING":
@@ -69,7 +86,11 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     case "LOW":
     case "MEDIUM":
     case "OPEN":
-      return { color: "#F6AD55", paletteKey: "warning", label }; // Warning Orange/Amber
+      return {
+        color: getDictColor("warning", "#F6AD55"),
+        paletteKey: "warning",
+        label,
+      };
     case "ERROR":
     case "EXPIRED":
     case "HIGH":
@@ -79,8 +100,16 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     case "CANCELLED":
     case "CLOSED":
     case "RESOLVED":
-      return { color: "#F56565", paletteKey: "error", label }; // Error Red
+      return {
+        color: getDictColor("error", "#F56565"),
+        paletteKey: "error",
+        label,
+      };
     default:
-      return { color: "#718096", paletteKey: "secondary", label: label || "-" }; // Neutral Grey
+      return {
+        color: getDictColor("secondary", "#718096"),
+        paletteKey: "secondary",
+        label: label || "-",
+      };
   }
 };

@@ -1,23 +1,22 @@
-"use client";
-
-import { Paper, Typography, Box, useTheme } from "@mui/material";
+import { Paper, Typography, Box } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { ScatterChart } from "@mui/x-charts/ScatterChart";
 import { FleetVehicleStats } from "@/app/lib/type/reports";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { Dictionary } from "@/app/lib/language/language";
 
 interface FleetChartsProps {
   data: FleetVehicleStats[];
+  dict: Dictionary;
 }
 
-export default function FleetCharts({ data }: FleetChartsProps) {
-  const dict = useDictionary();
-  const theme = useTheme();
+export default function FleetCharts({ data, dict }: FleetChartsProps) {
 
   if (!data || data.length === 0) {
     return (
       <Box p={3}>
-        <Typography color="text.secondary">{dict.reports.charts.fleet.noData}</Typography>
+        <Typography color="text.secondary">
+          {dict.reports.charts.fleet.noData}
+        </Typography>
       </Box>
     );
   }
@@ -52,7 +51,7 @@ export default function FleetCharts({ data }: FleetChartsProps) {
             {
               dataKey: "cost",
               label: dict.reports.charts.fleet.maintenanceCostLabel,
-              color: theme.palette.error.main,
+              color: "theme.palette.error.main",
             },
           ]}
           height={300}

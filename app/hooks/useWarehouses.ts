@@ -9,13 +9,8 @@ import {
   deleteWarehouse,
   assignManagerToWarehouse,
 } from "@/app/lib/controllers/warehouse";
-import { Warehouse } from "@prisma/client";
+import { Warehouse } from "@/app/lib/type/enums";
 import { toast } from "sonner";
-import {
-  WarehouseWithRelations,
-  WarehouseStats,
-  InventoryMovementWithRelations,
-} from "@/app/lib/type/warehouse";
 
 export const warehouseKeys = {
   all: ["warehouses"] as const,
@@ -26,7 +21,7 @@ export const warehouseKeys = {
 };
 
 export function useWarehouses() {
-  return useQuery<WarehouseWithRelations[]>({
+  return useQuery({
     queryKey: warehouseKeys.lists(),
     queryFn: () => getWarehouses(),
     staleTime: 1000 * 60 * 5,
@@ -34,7 +29,7 @@ export function useWarehouses() {
 }
 
 export function useWarehouse(id: string | null) {
-  return useQuery<WarehouseWithRelations | null>({
+  return useQuery({
     queryKey: warehouseKeys.details(id || ""),
     queryFn: () => (id ? getWarehouseById(id) : null),
     enabled: !!id,
@@ -43,7 +38,7 @@ export function useWarehouse(id: string | null) {
 }
 
 export function useWarehouseStats() {
-  return useQuery<WarehouseStats | null>({
+  return useQuery({
     queryKey: warehouseKeys.stats(),
     queryFn: () => getWarehouseStats(),
     staleTime: 1000 * 60 * 5,
@@ -51,7 +46,7 @@ export function useWarehouseStats() {
 }
 
 export function useRecentStockMovements() {
-  return useQuery<InventoryMovementWithRelations[]>({
+  return useQuery({
     queryKey: warehouseKeys.movements(),
     queryFn: () => getRecentStockMovements(),
     staleTime: 1000 * 60 * 5,

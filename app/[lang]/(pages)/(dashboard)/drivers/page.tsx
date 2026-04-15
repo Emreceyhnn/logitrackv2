@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Box,
-  Stack,
-  Typography,
-  Button,
-  useTheme,
-} from "@mui/material";
+import { Box, Stack, Typography, Button, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useEffect, useState, useMemo, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
@@ -16,7 +10,11 @@ import {
   DriverWithRelations,
   DriverFilters,
 } from "@/app/lib/type/driver";
-import { useDrivers, useDriverDashboardData, useDriverMutations } from "@/app/hooks/useDrivers";
+import {
+  useDrivers,
+  useDriverDashboardData,
+  useDriverMutations,
+} from "@/app/hooks/useDrivers";
 import {
   Shield,
   Groups,
@@ -77,15 +75,17 @@ function DriverContent() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [driverToEdit, setDriverToEdit] = useState<DriverWithRelations | null>(null);
+  const [driverToEdit, setDriverToEdit] = useState<DriverWithRelations | null>(
+    null
+  );
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [driverToDelete, setDriverToDelete] = useState<string | null>(null);
 
   /* ---------------------------------- HOOKS --------------------------------- */
-  const { 
-    data: driversData, 
+  const {
+    data: driversData,
     isLoading: isDriversLoading,
-    refetch: refetchDrivers 
+    refetch: refetchDrivers,
   } = useDrivers(
     state.pagination.page,
     state.pagination.limit,
@@ -96,10 +96,10 @@ function DriverContent() {
     state.sort.order
   );
 
-  const { 
-    data: dashboardData, 
+  const {
+    data: dashboardData,
     isLoading: isDashboardLoading,
-    refetch: refetchDashboard 
+    refetch: refetchDashboard,
   } = useDriverDashboardData();
 
   const { deleteDriver: deleteMutation } = useDriverMutations();
@@ -191,48 +191,49 @@ function DriverContent() {
   };
 
   /* ----------------------------------- KPI ---------------------------------- */
-  const kpis = useMemo(() => [
-    {
-      label: dict.drivers.totalDrivers,
-      value: dashboardData?.driversKpis?.totalDrivers ?? 0,
-      icon: <Groups sx={{ fontSize: 22 }} />,
-      color: theme.palette.primary.main,
-    },
-    {
-      label: dict.drivers.onDuty,
-      value: dashboardData?.driversKpis?.onDuty ?? 0,
-      icon: <Work sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.emerald,
-    },
-    {
-      label: dict.drivers.offDuty,
-      value: dashboardData?.driversKpis?.offDuty ?? 0,
-      icon: <Home sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.amber,
-    },
-    {
-      label: dict.drivers.complianceIssues,
-      value: dashboardData?.driversKpis?.complianceIssues ?? 0,
-      icon: <ReportProblem sx={{ fontSize: 22 }} />,
-      color: theme.palette.error.main,
-    },
-    {
-      label: dict.drivers.safetyRating,
-      value: dashboardData?.driversKpis?.avgSafetyScore ?? 0,
-      icon: <Shield sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.indigo,
-    },
-    {
-      label: dict.drivers.efficiencyRating,
-      value: dashboardData?.driversKpis?.avgEfficiencyScore ?? 0,
-      icon: <RocketLaunch sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.violet,
-    },
-  ], [dashboardData, theme, dict]);
-
-  const selectedDriver = drivers.find(
-    (d) => d.id === state.selectedDriverId
+  const kpis = useMemo(
+    () => [
+      {
+        label: dict.drivers.totalDrivers,
+        value: dashboardData?.driversKpis?.totalDrivers ?? 0,
+        icon: <Groups sx={{ fontSize: 22 }} />,
+        color: theme.palette.primary.main,
+      },
+      {
+        label: dict.drivers.onDuty,
+        value: dashboardData?.driversKpis?.onDuty ?? 0,
+        icon: <Work sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.emerald,
+      },
+      {
+        label: dict.drivers.offDuty,
+        value: dashboardData?.driversKpis?.offDuty ?? 0,
+        icon: <Home sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.amber,
+      },
+      {
+        label: dict.drivers.complianceIssues,
+        value: dashboardData?.driversKpis?.complianceIssues ?? 0,
+        icon: <ReportProblem sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.error,
+      },
+      {
+        label: dict.drivers.safetyRating,
+        value: dashboardData?.driversKpis?.avgSafetyScore ?? 0,
+        icon: <Shield sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.indigo,
+      },
+      {
+        label: dict.drivers.efficiencyRating,
+        value: dashboardData?.driversKpis?.avgEfficiencyScore ?? 0,
+        icon: <RocketLaunch sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.violet,
+      },
+    ],
+    [dashboardData, theme, dict]
   );
+
+  const selectedDriver = drivers.find((d) => d.id === state.selectedDriverId);
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>

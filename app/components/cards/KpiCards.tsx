@@ -1,6 +1,6 @@
 "use client";
 
-import {  Box, Card, Skeleton, Stack, useTheme } from "@mui/material";
+import { Box, Card, Skeleton, Stack } from "@mui/material";
 
 import { motion } from "framer-motion";
 import StatCard from "../cards/StatCard";
@@ -19,7 +19,6 @@ interface KpiCardsProps {
 }
 
 export default function KpiCards({ kpis, loading }: KpiCardsProps) {
-  const theme = useTheme();
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -87,10 +86,10 @@ export default function KpiCards({ kpis, loading }: KpiCardsProps) {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                background: theme.palette.background.paper_alpha.main_80,
+                background: "theme.palette.background.paper_alpha.main_80",
                 backdropFilter: "blur(20px)",
-                border: `1px solid ${theme.palette.divider_alpha.main_10}`,
-                boxShadow: `0 10px 40px -10px ${theme.palette.common.black_alpha.main_20}`,
+                border: `1px solid theme.palette.divider_alpha.main_10`,
+                boxShadow: `0 10px 40px -10px theme.palette.common.black_alpha.main_20`,
                 "&::before": {
                   content: '""',
                   position: "absolute",
@@ -98,7 +97,7 @@ export default function KpiCards({ kpis, loading }: KpiCardsProps) {
                   left: 0,
                   right: 0,
                   height: "4px",
-                  background: `linear-gradient(90deg, ${theme.palette.divider}, ${theme.palette.divider_alpha.main_10})`,
+                  background: `linear-gradient(90deg, theme.palette.divider, theme.palette.divider_alpha.main_10`,
                   opacity: 0.5,
                 },
               }}

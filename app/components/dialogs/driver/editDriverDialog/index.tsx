@@ -24,7 +24,7 @@ import {
   EditDriverFormValues,
   AddDriverDocument,
 } from "@/app/lib/type/driver";
-import { DriverStatus } from "@prisma/client";
+import { DriverStatus } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 import { updateDriver } from "@/app/lib/controllers/driver";
 import { uploadImageAction } from "@/app/lib/actions/upload";

@@ -1,5 +1,4 @@
-"use client";
-import { Box, Stack, Typography, useTheme, Divider } from "@mui/material";
+import { Box, Stack, Typography, Divider } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { BarChart } from "@mui/x-charts/BarChart";
 import CustomCard from "../../cards/card";
@@ -16,9 +15,12 @@ interface DriverPerformanceChartsProps {
   loading?: boolean;
 }
 
-const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceChartsProps) => {
+const DriverPerformanceCharts = ({
+  data,
+  loading = false,
+}: DriverPerformanceChartsProps) => {
   /* -------------------------------- variables ------------------------------- */
-  const theme = useTheme();
+
   const dict = useDictionary();
 
   if (loading || !data) {
@@ -53,19 +55,19 @@ const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceCha
                   scaleType: "band",
                   data: driverNames,
                   label: dict.sidebar.drivers,
-                  tickLabelStyle: { fill: theme.palette.text.secondary },
+                  tickLabelStyle: { fill: "theme.palette.text.secondary" },
                 },
               ]}
               yAxis={[
                 {
                   label: dict.drivers.dashboard.ratingsLabel,
-                  labelStyle: { fill: theme.palette.text.secondary },
+                  labelStyle: { fill: "theme.palette.text.secondary" },
                 },
               ]}
               series={[
                 {
                   data: ratings,
-                  color: theme.palette.primary.main,
+                  color: "theme.palette.primary.main",
                   label: dict.drivers.dashboard.ratingsLabel,
                   highlightScope: { highlight: "item", fade: "global" },
                 },
@@ -93,19 +95,19 @@ const DriverPerformanceCharts = ({ data, loading = false }: DriverPerformanceCha
                   scaleType: "band",
                   data: driverNames,
                   label: dict.sidebar.drivers,
-                  tickLabelStyle: { fill: theme.palette.text.secondary },
+                  tickLabelStyle: { fill: "theme.palette.text.secondary" },
                 },
               ]}
               yAxis={[
                 {
                   label: dict.drivers.dashboard.hours,
-                  labelStyle: { fill: theme.palette.text.secondary },
+                  labelStyle: { fill: "theme.palette.text.secondary" },
                 },
               ]}
               series={[
                 {
                   data: workingHours,
-                  color: theme.palette.secondary.main,
+                  color: "theme.palette.secondary.main",
                   label: dict.drivers.dashboard.hoursThisWeek,
                   highlightScope: { highlight: "item", fade: "global" },
                 },

@@ -11,17 +11,6 @@ import {
   getShipmentVolumeHistory,
   getMapData,
 } from "@/app/lib/controllers/analytics";
-import {
-  ActionRequiredItems,
-  OverviewStats,
-  DailyOperationsData,
-  FuelStat,
-  WarehouseCapacityStat,
-  LowStockItemStat,
-  PicksAndPacksData,
-  ShipmentDayStat,
-  MapData,
-} from "@/app/lib/type/overview";
 
 export const overviewKeys = {
   all: ["overview"] as const,
@@ -38,7 +27,7 @@ export const overviewKeys = {
 };
 
 export function useOverviewStats() {
-  return useQuery<OverviewStats | null>({
+  return useQuery({
     queryKey: overviewKeys.stats(),
     queryFn: () => getOverviewStats(),
     staleTime: 1000 * 60 * 5,
@@ -46,7 +35,7 @@ export function useOverviewStats() {
 }
 
 export function useActionRequired() {
-  return useQuery<ActionRequiredItems[] | null>({
+  return useQuery({
     queryKey: overviewKeys.actionRequired(),
     queryFn: () => getActionRequired(),
     staleTime: 1000 * 60 * 5,
@@ -54,7 +43,7 @@ export function useActionRequired() {
 }
 
 export function useDailyOperations() {
-  return useQuery<DailyOperationsData | null>({
+  return useQuery({
     queryKey: overviewKeys.dailyOperations(),
     queryFn: () => getDailyOperations(),
     staleTime: 1000 * 60 * 5,
@@ -62,7 +51,7 @@ export function useDailyOperations() {
 }
 
 export function useFuelStats() {
-  return useQuery<FuelStat[]>({
+  return useQuery({
     queryKey: overviewKeys.fuelStats(),
     queryFn: () => getFuelStats(),
     staleTime: 1000 * 60 * 5,
@@ -70,7 +59,7 @@ export function useFuelStats() {
 }
 
 export function useWarehouseCapacity() {
-  return useQuery<WarehouseCapacityStat[]>({
+  return useQuery({
     queryKey: overviewKeys.warehouseCapacity(),
     queryFn: () => getWarehouseCapacity(),
     staleTime: 1000 * 60 * 5,
@@ -78,7 +67,7 @@ export function useWarehouseCapacity() {
 }
 
 export function useLowStockItems() {
-  return useQuery<LowStockItemStat[]>({
+  return useQuery({
     queryKey: overviewKeys.lowStockItems(),
     queryFn: () => getLowStockItems(),
     staleTime: 1000 * 60 * 5,
@@ -86,7 +75,7 @@ export function useLowStockItems() {
 }
 
 export function useShipmentStatusStats() {
-  return useQuery<string[]>({
+  return useQuery({
     queryKey: overviewKeys.shipmentStatus(),
     queryFn: () => getShipmentStatusStats(),
     staleTime: 1000 * 60 * 5,
@@ -94,7 +83,7 @@ export function useShipmentStatusStats() {
 }
 
 export function usePicksAndPacks() {
-  return useQuery<PicksAndPacksData>({
+  return useQuery({
     queryKey: overviewKeys.picksAndPacks(),
     queryFn: () => getPicksAndPacks(),
     staleTime: 1000 * 60 * 5,
@@ -102,7 +91,7 @@ export function usePicksAndPacks() {
 }
 
 export function useShipmentVolumeHistory() {
-  return useQuery<ShipmentDayStat[]>({
+  return useQuery({
     queryKey: overviewKeys.shipmentVolume(),
     queryFn: () => getShipmentVolumeHistory(),
     staleTime: 1000 * 60 * 5,
@@ -110,7 +99,7 @@ export function useShipmentVolumeHistory() {
 }
 
 export function useMapData() {
-  return useQuery<MapData[]>({
+  return useQuery({
     queryKey: overviewKeys.mapData(),
     queryFn: () => getMapData(),
     staleTime: 1000 * 60 * 5,
@@ -129,28 +118,28 @@ export function useOverviewData() {
   const shipmentVolume = useShipmentVolumeHistory();
   const mapData = useMapData();
 
-  const isLoading = 
-    stats.isLoading || 
-    actionRequired.isLoading || 
-    dailyOps.isLoading || 
-    fuelStats.isLoading || 
-    warehouseCapacity.isLoading || 
-    lowStockItems.isLoading || 
-    shipmentStatus.isLoading || 
-    picksAndPacks.isLoading || 
-    shipmentVolume.isLoading || 
+  const isLoading =
+    stats.isLoading ||
+    actionRequired.isLoading ||
+    dailyOps.isLoading ||
+    fuelStats.isLoading ||
+    warehouseCapacity.isLoading ||
+    lowStockItems.isLoading ||
+    shipmentStatus.isLoading ||
+    picksAndPacks.isLoading ||
+    shipmentVolume.isLoading ||
     mapData.isLoading;
 
-  const isError = 
-    stats.isError || 
-    actionRequired.isError || 
-    dailyOps.isError || 
-    fuelStats.isError || 
-    warehouseCapacity.isError || 
-    lowStockItems.isError || 
-    shipmentStatus.isError || 
-    picksAndPacks.isError || 
-    shipmentVolume.isError || 
+  const isError =
+    stats.isError ||
+    actionRequired.isError ||
+    dailyOps.isError ||
+    fuelStats.isError ||
+    warehouseCapacity.isError ||
+    lowStockItems.isError ||
+    shipmentStatus.isError ||
+    picksAndPacks.isError ||
+    shipmentVolume.isError ||
     mapData.isError;
 
   return {
@@ -181,6 +170,6 @@ export function useOverviewData() {
         shipmentVolume.refetch(),
         mapData.refetch(),
       ]);
-    }
+    },
   };
 }

@@ -1,28 +1,29 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { 
-  getVehicles, 
-  getVehiclesDashboardData, 
-  createVehicle, 
-  updateVehicle, 
+import {
+  getVehicles,
+  getVehiclesDashboardData,
+  createVehicle,
+  updateVehicle,
   deleteVehicle,
-  updateVehicleStatus
+  updateVehicleStatus,
 } from "@/app/lib/controllers/vehicle";
-import { VehicleWithRelations, VehicleDashboardResponseType, VehicleFilters } from "@/app/lib/type/vehicle";
+import { VehicleFilters } from "@/app/lib/type/vehicle";
 import { toast } from "sonner";
 
 export const vehicleKeys = {
   all: ["vehicles"] as const,
   lists: () => [...vehicleKeys.all, "list"] as const,
-  list: (filters: VehicleFilters) => [...vehicleKeys.lists(), { filters }] as const,
+  list: (filters: VehicleFilters) =>
+    [...vehicleKeys.lists(), { filters }] as const,
   details: () => [...vehicleKeys.all, "detail"] as const,
   detail: (id: string) => [...vehicleKeys.details(), id] as const,
   dashboard: () => [...vehicleKeys.all, "dashboard"] as const,
 };
 
 export function useVehicles(filters: VehicleFilters = {}) {
-  return useQuery<VehicleWithRelations[]>({
+  return useQuery({
     queryKey: vehicleKeys.list(filters),
     queryFn: () => getVehicles(filters),
     staleTime: 1000 * 60 * 5,
@@ -30,7 +31,7 @@ export function useVehicles(filters: VehicleFilters = {}) {
 }
 
 export function useVehiclesDashboardData() {
-  return useQuery<VehicleDashboardResponseType>({
+  return useQuery({
     queryKey: vehicleKeys.dashboard(),
     queryFn: () => getVehiclesDashboardData(),
     staleTime: 1000 * 60 * 5,
@@ -51,13 +52,20 @@ export function useVehicleMutations() {
   };
 
   const createMutation = useMutation({
-    mutationFn: (data: Parameters<typeof createVehicle>[0]) => createVehicle(data),
+    mutationFn: (data: Parameters<typeof createVehicle>[0]) =>
+      createVehicle(data),
     onSuccess: () => handleSuccess("Vehicle created successfully"),
     onError: (error: Error) => handleError("Failed to create vehicle", error),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof updateVehicle>[1] }) => updateVehicle(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Parameters<typeof updateVehicle>[1];
+    }) => updateVehicle(id, data),
     onSuccess: () => handleSuccess("Vehicle updated successfully"),
     onError: (error: Error) => handleError("Failed to update vehicle", error),
   });
@@ -69,9 +77,16 @@ export function useVehicleMutations() {
   });
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: Parameters<typeof updateVehicleStatus>[1] }) => updateVehicleStatus(id, status),
+    mutationFn: ({
+      id,
+      status,
+    }: {
+      id: string;
+      status: Parameters<typeof updateVehicleStatus>[1];
+    }) => updateVehicleStatus(id, status),
     onSuccess: () => handleSuccess("Vehicle status updated successfully"),
-    onError: (error: Error) => handleError("Failed to update vehicle status", error),
+    onError: (error: Error) =>
+      handleError("Failed to update vehicle status", error),
   });
 
   return {

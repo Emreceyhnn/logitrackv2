@@ -34,7 +34,7 @@ import {
   ShipmentWithRelations,
   ShipmentFormValues,
 } from "@/app/lib/type/shipment";
-import { ShipmentPriority } from "@prisma/client";
+import { ShipmentPriority } from "@/app/lib/type/enums";
 import { Formik, Form, useFormikContext } from "formik";
 import { editShipmentValidationSchema } from "@/app/lib/validationSchema";
 import BasicInfoSection from "./addShipmentDialog/sections/BasicInfoSection";

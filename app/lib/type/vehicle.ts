@@ -7,7 +7,7 @@ import {
   Document,
   MaintenanceRecord,
   Route,
-} from "@prisma/client";
+} from "./enums";
 
 export interface VehicleDashboardProps {
   id: string;

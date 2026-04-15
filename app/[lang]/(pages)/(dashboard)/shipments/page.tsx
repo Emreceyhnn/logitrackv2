@@ -177,7 +177,7 @@ function ShipmentContent() {
       label: dict.shipments.dashboard.delayedShipments,
       value: state.stats?.delayed || 0,
       icon: <AccessTime sx={{ fontSize: 22 }} />,
-      color: theme.palette.error.main,
+      color: theme.palette.kpi.error,
     },
     {
       label: dict.shipments.dashboard.inTransit,

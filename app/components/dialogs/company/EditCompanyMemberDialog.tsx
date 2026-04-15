@@ -26,7 +26,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { CompanyMember } from "@/app/lib/type/company";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateCompanyMember } from "@/app/lib/controllers/company";
-import { UserStatus } from "@prisma/client";
+import { UserStatus } from "@/app/lib/type/enums";
 import { editCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
 
 

@@ -1,24 +1,19 @@
-"use client";
-
 import {
   Card,
   CardContent,
   CardHeader,
   Typography,
   Box,
-  Chip,
   List,
   ListItem,
   ListItemText,
   ListItemIcon,
-  useTheme,
-  PaletteColor,
 } from "@mui/material";
 import WarningIcon from "@mui/icons-material/Warning";
 import ErrorIcon from "@mui/icons-material/Error";
 import InfoIcon from "@mui/icons-material/Info";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { getStatusMeta } from "@/app/lib/priorityColor";
+import { PriorityChip } from "../../chips/priorityChips";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface CheckIssue {
@@ -38,7 +33,6 @@ interface VehicleIssuesCardProps {
 }
 
 export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
-  const theme = useTheme();
   const dict = useDictionary();
 
   /* ------------------------------- components ------------------------------- */
@@ -59,7 +53,10 @@ export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
     <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <CardHeader
         title={dict.vehicles.dashboard.openIssues}
-        subheader={dict.vehicles.dashboard.activeIssues.replace("{count}", issues.length.toString())}
+        subheader={dict.vehicles.dashboard.activeIssues.replace(
+          "{count}",
+          issues.length.toString()
+        )}
       />
       <CardContent sx={{ flexGrow: 1, overflow: "auto" }}>
         {issues.length === 0 ? (
@@ -76,49 +73,38 @@ export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
         ) : (
           <List>
             {issues.map((issue) => {
-              const meta = getStatusMeta(issue.priority, dict);
-              const paletteKey = meta.paletteKey as keyof typeof theme.palette;
-              const paletteColor = theme.palette[paletteKey] as PaletteColor;
-
               return (
-              <ListItem key={issue.id} divider>
-                <ListItemIcon>{getStatusIcon(issue.status)}</ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Box
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="center"
-                    >
-                      <Typography variant="subtitle2">{issue.title}</Typography>
-                      <Chip
-                        label={meta.label}
-                        size="small"
-                        sx={{
-                          bgcolor: paletteColor?._alpha?.main_10 || 'rgba(0,0,0,0.1)',
-                          color: meta.color,
-                          fontWeight: 600,
-                          fontSize: '0.65rem'
-                        }}
-                        variant="outlined"
-                      />
-                    </Box>
-                  }
-                  secondary={
-                    <>
-                      <Typography variant="caption" display="block">
-                        {issue.vehicle?.plate
-                          ? `${dict.vehicles.fields.plate}: ${issue.vehicle.plate}`
-                          : ""}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {issue.description}
-                      </Typography>
-                    </>
-                  }
-                />
-              </ListItem>
-            )})}
+                <ListItem key={issue.id} divider>
+                  <ListItemIcon>{getStatusIcon(issue.status)}</ListItemIcon>
+                  <ListItemText
+                    primary={
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Typography variant="subtitle2">
+                          {issue.title}
+                        </Typography>
+                        <PriorityChip status={issue.priority} />
+                      </Box>
+                    }
+                    secondary={
+                      <>
+                        <Typography variant="caption" display="block">
+                          {issue.vehicle?.plate
+                            ? `${dict.vehicles.fields.plate}: ${issue.vehicle.plate}`
+                            : ""}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {issue.description}
+                        </Typography>
+                      </>
+                    }
+                  />
+                </ListItem>
+              );
+            })}
           </List>
         )}
       </CardContent>

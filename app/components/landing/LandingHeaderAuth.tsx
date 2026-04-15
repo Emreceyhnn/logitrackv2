@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button, Stack, CircularProgress,  useTheme } from "@mui/material";
+import { Button, Stack, CircularProgress, useTheme } from "@mui/material";
 import Link from "next/link";
 import { getUserSession } from "@/app/lib/actions/auth";
 import CreateCompanyDialog from "../dialogs/company/CreateCompanyDialog";
@@ -46,7 +46,9 @@ export default function LandingHeaderAuth() {
   };
 
   if (loading) {
-    return <CircularProgress size={24} sx={{ color: theme.palette.background.cyan?.main }} />;
+    return (
+      <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />
+    );
   }
 
   if (user) {
@@ -117,10 +119,10 @@ export default function LandingHeaderAuth() {
         component={Link}
         href={`/${lang}${getLocalizedPath("/auth/sign-in", lang)}`}
         sx={{
-          color: theme.palette.background.lavender?.main_80,
+          color: theme.palette.text.primary,
           fontWeight: 600,
           textTransform: "none",
-          "&:hover": { color: theme.palette.background.cyan?.main },
+          "&:hover": { color: theme.palette.primary.main },
         }}
       >
         {dict.navbar.signIn}

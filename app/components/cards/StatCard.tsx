@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   Box,
@@ -36,38 +38,12 @@ const StatCard = ({
   const theme = useTheme();
   const dict = useDictionary();
 
-  // Helper to resolve color to theme alpha tokens
-  const resolveAlpha = (targetColor: string) => {
-    // Check if it's a known KPI color
-    if (targetColor.toLowerCase() === '#38bdf8') return theme.palette.kpi.cyan_alpha;
-    if (targetColor.toLowerCase() === '#6366f1') return theme.palette.kpi.indigo_alpha;
-    if (targetColor.toLowerCase() === '#10b981') return theme.palette.kpi.emerald_alpha;
-    if (targetColor.toLowerCase() === '#f59e0b') return theme.palette.kpi.amber_alpha;
-    if (targetColor.toLowerCase() === '#ec4899') return theme.palette.kpi.pink_alpha || theme.palette.primary._alpha;
-    if (targetColor.toLowerCase() === '#8b5cf6') return theme.palette.kpi.violet_alpha || theme.palette.primary._alpha;
-    if (targetColor.toLowerCase() === '#0ea5e9') return theme.palette.kpi.sky_alpha;
-    if (targetColor.toLowerCase() === '#a855f7') return theme.palette.kpi.purple_alpha;
-    if (targetColor.toLowerCase() === '#cbd5f5') return theme.palette.kpi.slateLight_alpha;
-    if (targetColor.toLowerCase() === '#1e293b') return theme.palette.kpi.slateDark_alpha;
-    if (targetColor.toLowerCase() === '#0f172a') return theme.palette.kpi.slateDeep_alpha;
-    if (targetColor.toLowerCase() === '#0b1120') return theme.palette.kpi.slateDeepest_alpha;
-    if (targetColor.toLowerCase() === '#94a3b8') return theme.palette.kpi.slateGray_alpha;
-    if (targetColor.toLowerCase() === '#e2e8f0') return theme.palette.kpi.lavender_alpha;
-    
-    // Core palette matches
-    if (targetColor === theme.palette.primary.main) return theme.palette.primary._alpha;
-    if (targetColor === theme.palette.secondary.main) return theme.palette.secondary._alpha;
-    if (targetColor === theme.palette.success.main) return theme.palette.success._alpha;
-    if (targetColor === theme.palette.error.main) return theme.palette.error._alpha;
-    if (targetColor === theme.palette.warning.main) return theme.palette.warning._alpha;
-    if (targetColor === theme.palette.info.main) return theme.palette.info._alpha;
-
-    // Fallback to primary alpha
-    return theme.palette.primary._alpha;
-  };
-
-  const statusAlpha = resolveAlpha(color);
-  const trendColorAlpha = trend ? (trend.isUp ? theme.palette.success._alpha : theme.palette.error._alpha) : null;
+  const statusAlpha = theme.palette.getColorAlpha(color);
+  const trendColorAlpha = trend
+    ? theme.palette.getColorAlpha(
+        trend.isUp ? theme.palette.success.main : theme.palette.error.main
+      )
+    : null;
 
   return (
     <motion.div
@@ -76,7 +52,7 @@ const StatCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      style={{ height: '100%', flex: 1, display: 'flex' }}
+      style={{ height: "100%", flex: 1, display: "flex" }}
     >
       <Card
         onClick={onClick}
@@ -93,19 +69,15 @@ const StatCard = ({
           flexDirection: "column",
           justifyContent: "space-between",
           cursor: onClick ? "pointer" : "default",
-          
-          // Glassmorphism 2.0
           background: `linear-gradient(135deg, ${theme.palette.background.paper_alpha.main_90} 0%, ${theme.palette.background.paper_alpha.main_70} 100%)`,
           backdropFilter: "blur(20px)",
-          border: `1px solid ${statusAlpha.main_15}`,
-          
-          // Outer and Inner Shadows (Depth)
+          border: `1px solid ${statusAlpha.main_20}`,
           boxShadow: `
             0 10px 40px -10px ${theme.palette.common.black_alpha.main_30},
             inset 0 0 20px 0 ${statusAlpha.main_05},
             inset 0 1px 1px 0 ${theme.palette.common.white_alpha.main_10}
           `,
-          
+
           "&::before": {
             content: '""',
             position: "absolute",
@@ -117,7 +89,7 @@ const StatCard = ({
             opacity: 0.8,
             transition: "all 0.3s ease",
           },
-          
+
           "&:hover": {
             borderColor: statusAlpha.main_50,
             boxShadow: `
@@ -142,17 +114,22 @@ const StatCard = ({
           transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
         }}
       >
-        <Stack 
-          direction="column" 
-          justifyContent="space-between" 
-          sx={{ 
-            position: "relative", 
-            zIndex: 1, 
+        <Stack
+          direction="column"
+          justifyContent="space-between"
+          sx={{
+            position: "relative",
+            zIndex: 1,
             height: "100%",
-            flexGrow: 1 
+            flexGrow: 1,
           }}
         >
-          <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="flex-start"
+            spacing={2}
+          >
             <Stack spacing={1} sx={{ flexGrow: 1 }}>
               <Typography
                 variant="overline"
@@ -224,7 +201,8 @@ const StatCard = ({
                     alignItems: "center",
                     justifyContent: "center",
                     boxShadow: `inset 0 0 10px ${statusAlpha.main_10}`,
-                    transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                    transition:
+                      "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
                   }}
                 >
                   {icon}
@@ -245,7 +223,9 @@ const StatCard = ({
                 gap: 0.8,
                 fontSize: "0.75rem",
                 fontWeight: 800,
-                color: trend.isUp ? theme.palette.success.main : theme.palette.error.main,
+                color: trend.isUp
+                  ? theme.palette.success.main
+                  : theme.palette.error.main,
                 bgcolor: trendColorAlpha?.main_12,
                 width: "fit-content",
                 px: 1.2,
@@ -254,13 +234,24 @@ const StatCard = ({
                 boxShadow: `inset 0 0 5px ${trendColorAlpha?.main_10}`,
               }}
             >
-            <Box component="span" sx={{ fontSize: "1rem" }}>{trend.isUp ? "↑" : "↓"}</Box>
-            {trend.value}%
-            <Typography component="span" sx={{ color: theme.palette.text.primary_alpha.main_35, fontWeight: 600, ml: 0.5, fontSize: "0.7rem", letterSpacing: "0.02em" }}>
-              {dict?.common?.fromLastMonth || "FROM LAST MONTH"}
-            </Typography>
-          </Box>
-        )}
+              <Box component="span" sx={{ fontSize: "1rem" }}>
+                {trend.isUp ? "↑" : "↓"}
+              </Box>
+              {trend.value}%
+              <Typography
+                component="span"
+                sx={{
+                  color: theme.palette.text.primary_alpha.main_35,
+                  fontWeight: 600,
+                  ml: 0.5,
+                  fontSize: "0.7rem",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                {dict?.common?.fromLastMonth || "FROM LAST MONTH"}
+              </Typography>
+            </Box>
+          )}
         </Stack>
 
         {/* Dynamic Glowing Mesh (Background) */}

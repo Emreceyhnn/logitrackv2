@@ -1,11 +1,4 @@
-import {
-  
-  LinearProgress,
-  Stack,
-  Typography,
-  useTheme,
-  Box,
-} from "@mui/material";
+import { LinearProgress, Stack, Typography, Box } from "@mui/material";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 
 interface Params {
@@ -17,15 +10,10 @@ interface Params {
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const RoutesTelemetryCards = (params: Params) => {
-  const theme = useTheme();
   const dict = useDictionary();
   const { route, liveDistanceKm } = params;
   if (!route) return null;
 
-  // Derive metrics safely
-  // We can calculate "Completed" based on some logic or just show 0 for now as 'completedDistance' isn't in schema
-  // Or maybe use duration?
-  // Let's assume 0 for completed if not tracking live yet.
   const completedDistance = 0;
   const totalDistance = liveDistanceKm || route.distanceKm || 0;
   const remainingDistance = Math.max(0, totalDistance - completedDistance);
@@ -41,8 +29,8 @@ const RoutesTelemetryCards = (params: Params) => {
           sx={{
             p: 3,
             borderRadius: 3,
-            bgcolor: theme.palette.divider_alpha.main_05,
-            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+            bgcolor: "theme.palette.divider_alpha.main_05",
+            border: "1px solid theme.palette.divider_alpha.main_10",
             flex: 1,
           }}
         >
@@ -68,8 +56,8 @@ const RoutesTelemetryCards = (params: Params) => {
           sx={{
             p: 3,
             borderRadius: 3,
-            bgcolor: theme.palette.divider_alpha.main_05,
-            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+            bgcolor: "theme.palette.divider_alpha.main_05",
+            border: "1px solid theme.palette.divider_alpha.main_10",
             flex: 1,
           }}
         >
@@ -96,8 +84,8 @@ const RoutesTelemetryCards = (params: Params) => {
         sx={{
           p: 3,
           borderRadius: 3,
-          bgcolor: theme.palette.divider_alpha.main_05,
-          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+          bgcolor: "theme.palette.divider_alpha.main_05",
+          border: "1px solid theme.palette.divider_alpha.main_10",
         }}
       >
         <Stack spacing={1}>

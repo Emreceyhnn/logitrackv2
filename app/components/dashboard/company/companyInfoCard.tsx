@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Avatar,
   Box,
@@ -24,11 +22,14 @@ export default function CompanyInfoCard({ props }: CompanyInfoCardProps) {
   const { state } = props;
   const profile = state.data?.profile ?? null;
   const formattedDate = profile?.createdAt
-    ? new Date(profile.createdAt).toLocaleDateString(dict.common.logitrack === "LogiTrack" ? "en-US" : "tr-TR", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
+    ? new Date(profile.createdAt).toLocaleDateString(
+        dict.common.logitrack === "LogiTrack" ? "en-US" : "tr-TR",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }
+      )
     : null;
 
   return (
@@ -67,7 +68,10 @@ export default function CompanyInfoCard({ props }: CompanyInfoCardProps) {
                     sx={{ fontSize: 14, color: "text.secondary" }}
                   />
                   <Typography fontSize={13} color="text.secondary">
-                    {dict.company.info.created.replace("{date}", formattedDate ?? "")}
+                    {dict.company.info.created.replace(
+                      "{date}",
+                      formattedDate ?? ""
+                    )}
                   </Typography>
                 </Stack>
               </>

@@ -12,7 +12,6 @@ import {
   Step,
   StepLabel,
   useTheme,
-  
   Button,
   CircularProgress,
 } from "@mui/material";
@@ -22,12 +21,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import FirstStep from "./firstStep";
 import TechSpecsStep from "./techSpecsStep";
 import DocumentsStep from "./documentsStep";
-import {
-  AddVehiclePageProps,
-  VehicleFormValues,
-} from "@/app/lib/type/vehicle";
+import { AddVehiclePageProps, VehicleFormValues } from "@/app/lib/type/vehicle";
 import { VehicleType } from "@/app/lib/type/enums";
-import { createVehicle, uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
+import {
+  createVehicle,
+  uploadVehicleDocument,
+} from "@/app/lib/controllers/vehicle";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { fileToBase64 } from "@/app/lib/utils/fileUtils";
 
@@ -105,8 +104,10 @@ const AddVehicleDialog = ({
     try {
       // Logic for documents validation
       const requiredTypes = ["REGISTRATION", "INSPECTION", "INSURANCE"];
-      const uploadedTypes = values.documents.map(d => d.type);
-      const missingTypes = requiredTypes.filter(t => !uploadedTypes.includes(t));
+      const uploadedTypes = values.documents.map((d) => d.type);
+      const missingTypes = requiredTypes.filter(
+        (t) => !uploadedTypes.includes(t)
+      );
 
       if (missingTypes.length > 0) {
         throw new Error(dict.toasts.errorGeneric);
@@ -137,26 +138,39 @@ const AddVehicleDialog = ({
         engineSize: values.engineSize,
         transmission: values.transmission,
         techNotes: values.techNotes,
-        registrationExpiry: values.registrationExpiry ? values.registrationExpiry.toDate() : undefined,
-        inspectionExpiry: values.inspectionExpiry ? values.inspectionExpiry.toDate() : undefined,
-        nextServiceKm: Number(values.nextServiceKm) || Number(values.nextServiceDueKm),
+        registrationExpiry: values.registrationExpiry
+          ? values.registrationExpiry.toDate()
+          : undefined,
+        inspectionExpiry: values.inspectionExpiry
+          ? values.inspectionExpiry.toDate()
+          : undefined,
+        nextServiceKm:
+          Number(values.nextServiceKm) || Number(values.nextServiceDueKm),
         enableAlerts: values.enableExpiryAlerts,
       };
 
-      const createdVehicle = await createVehicle(payload as unknown as Record<string, unknown>);
+      const createdVehicle = await createVehicle(
+        payload as unknown as Record<string, unknown>
+      );
 
       const docPromises = values.documents
-        .filter(doc => doc.file)
+        .filter((doc) => doc.file)
         .map(async (doc) => {
           const base64 = await fileToBase64(doc.file!);
-          const uploadResult = await uploadImageAction(base64, "documents", `vehicles/${createdVehicle.id}`);
-          
+          const uploadResult = await uploadImageAction(
+            base64,
+            "documents",
+            `vehicles/${createdVehicle.id}`
+          );
+
           return uploadVehicleDocument(createdVehicle.id, {
             type: doc.type || "OTHER",
             name: doc.name,
             url: uploadResult.url,
             status: "ACTIVE",
-            expiryDate: values.registrationExpiry ? values.registrationExpiry.toDate() : undefined,
+            expiryDate: values.registrationExpiry
+              ? values.registrationExpiry.toDate()
+              : undefined,
           });
         });
 
@@ -169,7 +183,8 @@ const AddVehicleDialog = ({
       closeDialog();
       resetForm();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : dict.toasts.errorGeneric;
+      const message =
+        err instanceof Error ? err.message : dict.toasts.errorGeneric;
       setError(message);
       toast.error(message);
     } finally {
@@ -180,7 +195,7 @@ const AddVehicleDialog = ({
   const steps = [
     dict.vehicles.dialogs.steps.general,
     dict.vehicles.dialogs.steps.specs,
-    dict.vehicles.dialogs.steps.docs
+    dict.vehicles.dialogs.steps.docs,
   ];
 
   return (
@@ -223,13 +238,13 @@ const AddVehicleDialog = ({
             </Stack>
 
             {error && (
-              <Box 
-                sx={{ 
-                  mt: 2, 
-                  p: 2, 
-                  borderRadius: 2, 
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  borderRadius: 2,
                   bgcolor: theme.palette.error._alpha.main_10,
-                  border: `1px solid ${theme.palette.error._alpha.main_20}`
+                  border: `1px solid ${theme.palette.error._alpha.main_20}`,
                 }}
               >
                 <Typography variant="caption" color="error.light">
@@ -255,7 +270,9 @@ const AddVehicleDialog = ({
                       StepIconProps={{
                         sx: {
                           "&.Mui-active": { color: theme.palette.primary.main },
-                          "&.Mui-completed": { color: theme.palette.primary.main },
+                          "&.Mui-completed": {
+                            color: theme.palette.primary.main,
+                          },
                         },
                       }}
                     >
@@ -263,9 +280,7 @@ const AddVehicleDialog = ({
                         variant="caption"
                         fontWeight={600}
                         color={
-                          currentStep - 1 >= index
-                            ? "white"
-                            : "text.secondary"
+                          currentStep - 1 >= index ? "white" : "text.secondary"
                         }
                       >
                         {label}
@@ -282,8 +297,8 @@ const AddVehicleDialog = ({
 
             <Box sx={{ minHeight: 400 }}>
               {currentStep === 1 && (
-                <FirstStep 
-                  onFileSelect={(file) => setFieldValue("photo", file)} 
+                <FirstStep
+                  onFileSelect={(file) => setFieldValue("photo", file)}
                 />
               )}
               {currentStep === 2 && <TechSpecsStep />}

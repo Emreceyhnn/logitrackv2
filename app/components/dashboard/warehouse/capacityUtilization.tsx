@@ -1,11 +1,4 @@
-"use client";
-import {
-  Box,
-  CircularProgress,
-  Stack,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
@@ -20,23 +13,34 @@ const CapacityUtilization = ({
   warehouses,
   loading = false,
 }: CapacityUtilizationProps) => {
-  const theme = useTheme();
   const dict = useDictionary();
 
   if (loading) {
-    return <AnalyticsSkeleton title={dict.dashboard.warehouse.capacityUtilization} height={300} />;
+    return (
+      <AnalyticsSkeleton
+        title={dict.dashboard.warehouse.capacityUtilization}
+        height={300}
+      />
+    );
   }
 
   return (
     <CustomCard sx={{ flex: 2 }}>
-      <Typography variant="h6" fontWeight={800} sx={{ mb: 4, letterSpacing: "-0.02em" }}>
+      <Typography
+        variant="h6"
+        fontWeight={800}
+        sx={{ mb: 4, letterSpacing: "-0.02em" }}
+      >
         {dict.dashboard.warehouse.capacityUtilization}
       </Typography>
 
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", sm: "repeat(auto-fit, minmax(200px, 1fr))" },
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(auto-fit, minmax(200px, 1fr))",
+          },
           gap: 4,
           alignItems: "center",
           justifyContent: "center",
@@ -49,7 +53,9 @@ const CapacityUtilization = ({
           const capacityPct = Math.round((usedPallets / totalPallets) * 100);
 
           const isCritical = capacityPct > 85;
-          const mainColor = isCritical ? theme.palette.error.main : theme.palette.primary.main;
+          const mainColor = isCritical
+            ? "theme.palette.error.main"
+            : "theme.palette.primary.main";
 
           return (
             <Stack key={warehouse.id} alignItems="center" spacing={3}>
@@ -60,7 +66,7 @@ const CapacityUtilization = ({
                   size={140}
                   thickness={3}
                   sx={{
-                    color: theme.palette.divider_alpha.main_05,
+                    color: "theme.palette.divider_alpha.main_05",
                   }}
                 />
                 <CircularProgress
@@ -72,7 +78,7 @@ const CapacityUtilization = ({
                     color: mainColor,
                     position: "absolute",
                     left: 0,
-                    filter: `drop-shadow(0 0 8px ${isCritical ? theme.palette.error._alpha.main_40 : theme.palette.primary._alpha.main_40})`,
+                    filter: `drop-shadow(0 0 8px ${isCritical ? "theme.palette.error._alpha.main_40" : "theme.palette.primary._alpha.main_40"})`,
                     [`& .MuiCircularProgress-circle`]: {
                       strokeLinecap: "round",
                     },
@@ -91,17 +97,22 @@ const CapacityUtilization = ({
                     flexDirection: "column",
                   }}
                 >
-                  <Typography variant="h4" component="div" fontWeight={900} sx={{ letterSpacing: "-0.04em" }}>
+                  <Typography
+                    variant="h4"
+                    component="div"
+                    fontWeight={900}
+                    sx={{ letterSpacing: "-0.04em" }}
+                  >
                     {capacityPct}%
                   </Typography>
                   <Typography
                     variant="caption"
-                    sx={{ 
-                      textTransform: "uppercase", 
+                    sx={{
+                      textTransform: "uppercase",
                       fontWeight: 700,
-                      color: theme.palette.text.primary_alpha.main_40,
+                      color: "theme.palette.text.primary_alpha.main_40",
                       letterSpacing: "0.1em",
-                      fontSize: "0.65rem"
+                      fontSize: "0.65rem",
                     }}
                   >
                     {warehouse.city}
@@ -109,11 +120,17 @@ const CapacityUtilization = ({
                 </Box>
               </Box>
               <Stack alignItems="center" spacing={0.5}>
-                <Typography variant="body2" fontWeight={700} color="text.primary">
+                <Typography
+                  variant="body2"
+                  fontWeight={700}
+                  color="text.primary"
+                >
                   {warehouse.name}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {usedPallets.toLocaleString()} / {totalPallets.toLocaleString()} {dict.dashboard.warehouse.pallets}
+                  {usedPallets.toLocaleString()} /{" "}
+                  {totalPallets.toLocaleString()}{" "}
+                  {dict.dashboard.warehouse.pallets}
                 </Typography>
               </Stack>
             </Stack>

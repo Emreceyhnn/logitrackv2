@@ -24,7 +24,7 @@ import {
   DriverFormValues,
   EligibleUser,
 } from "@/app/lib/type/driver";
-import { DriverStatus } from "@prisma/client";
+import { DriverStatus } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 import { createDriver, getEligibleUsersForDriver } from "@/app/lib/controllers/driver";
 import { uploadImageAction } from "@/app/lib/actions/upload";

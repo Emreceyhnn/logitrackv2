@@ -6,7 +6,6 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
-  
   useTheme,
   CircularProgress,
 } from "@mui/material";
@@ -18,7 +17,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { useState } from "react";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
-import { RouteStatus } from "@prisma/client";
+import { RouteStatus } from "@/app/lib/type/enums";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
 

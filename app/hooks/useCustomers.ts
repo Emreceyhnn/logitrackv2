@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getCustomers, deleteCustomer } from "@/app/lib/controllers/customer";
 import { toast } from "sonner";
-import { CustomerWithRelations } from "@/app/lib/type/customer";
 
 export const customerKeys = {
   all: ["customers"] as const,
@@ -10,7 +9,7 @@ export const customerKeys = {
 };
 
 export function useCustomers() {
-  return useQuery<CustomerWithRelations[]>({
+  return useQuery({
     queryKey: customerKeys.lists(),
     queryFn: () => getCustomers(),
     staleTime: 1000 * 60 * 5,

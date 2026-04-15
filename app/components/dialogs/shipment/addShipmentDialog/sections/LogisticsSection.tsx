@@ -1,13 +1,4 @@
-"use client";
-
-import {
-  Box,
-  Grid,
-  Stack,
-  Typography,
-  useTheme,
-  MenuItem,
-} from "@mui/material";
+import { Box, Grid, Stack, Typography, MenuItem } from "@mui/material";
 import { useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
@@ -23,13 +14,10 @@ interface LogisticsSectionProps {
   customers: CustomerWithRelations[];
 }
 
-const LogisticsSection = ({
-  warehouses,
-  customers,
-}: LogisticsSectionProps) => {
+const LogisticsSection = ({ warehouses, customers }: LogisticsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
-  const theme = useTheme();
+
   const { values, setFieldValue, handleBlur, touched, errors } =
     useFormikContext<ShipmentFormValues>();
 
@@ -42,7 +30,7 @@ const LogisticsSection = ({
               width: 8,
               height: 8,
               borderRadius: "50%",
-              bgcolor: theme.palette.primary.main,
+              bgcolor: "theme.palette.primary.main",
             }}
           />
           <Typography variant="subtitle2" fontWeight={700} color="white">
@@ -66,8 +54,14 @@ const LogisticsSection = ({
                 placeholder={dict.shipments.dialogs.fields.originPlaceholder}
                 value={values.originWarehouseId}
                 onBlur={handleBlur}
-                error={touched.originWarehouseId && Boolean(errors.originWarehouseId)}
-                helperText={touched.originWarehouseId ? (errors.originWarehouseId as string) : undefined}
+                error={
+                  touched.originWarehouseId && Boolean(errors.originWarehouseId)
+                }
+                helperText={
+                  touched.originWarehouseId
+                    ? (errors.originWarehouseId as string)
+                    : undefined
+                }
                 onChange={(e) => {
                   const warehouseId = e.target.value;
                   const selectedWarehouse = warehouses.find(
@@ -75,8 +69,14 @@ const LogisticsSection = ({
                   );
                   if (selectedWarehouse) {
                     setFieldValue("originWarehouseId", warehouseId);
-                    setFieldValue("originLat", selectedWarehouse.lat ?? undefined);
-                    setFieldValue("originLng", selectedWarehouse.lng ?? undefined);
+                    setFieldValue(
+                      "originLat",
+                      selectedWarehouse.lat ?? undefined
+                    );
+                    setFieldValue(
+                      "originLng",
+                      selectedWarehouse.lng ?? undefined
+                    );
                   } else {
                     setFieldValue("originWarehouseId", warehouseId);
                   }
@@ -106,12 +106,18 @@ const LogisticsSection = ({
                 {dict.shipments.dialogs.fields.destination}
               </Typography>
               <AddressAutocomplete
-                placeholder={dict.shipments.dialogs.fields.destinationPlaceholder}
+                placeholder={
+                  dict.shipments.dialogs.fields.destinationPlaceholder
+                }
                 name="destination"
                 value={values.destination}
                 onBlur={handleBlur}
                 error={touched.destination && Boolean(errors.destination)}
-                helperText={touched.destination ? (errors.destination as string) : undefined}
+                helperText={
+                  touched.destination
+                    ? (errors.destination as string)
+                    : undefined
+                }
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFieldValue("destination", e.target.value)
                 }
@@ -144,7 +150,9 @@ const LogisticsSection = ({
                 value={values.customerId}
                 onBlur={handleBlur}
                 error={touched.customerId && Boolean(errors.customerId)}
-                helperText={touched.customerId ? (errors.customerId as string) : undefined}
+                helperText={
+                  touched.customerId ? (errors.customerId as string) : undefined
+                }
                 onChange={(e) => {
                   const customerId = e.target.value;
                   if (!customerId) {
@@ -157,14 +165,28 @@ const LogisticsSection = ({
                   const selectedCustomer = customers.find(
                     (c) => c.id === customerId
                   );
-                  const defaultLoc = selectedCustomer?.locations?.find((l) => l.isDefault) || selectedCustomer?.locations?.[0];
-                  
+                  const defaultLoc =
+                    selectedCustomer?.locations?.find((l) => l.isDefault) ||
+                    selectedCustomer?.locations?.[0];
+
                   setFieldValue("customerId", customerId);
                   setFieldValue("customerLocationId", defaultLoc?.id || "");
-                  setFieldValue("destination", defaultLoc?.address || values.destination);
-                  setFieldValue("destinationLat", defaultLoc?.lat ?? values.destinationLat);
-                  setFieldValue("destinationLng", defaultLoc?.lng ?? values.destinationLng);
-                  setFieldValue("contactEmail", selectedCustomer?.email || values.contactEmail);
+                  setFieldValue(
+                    "destination",
+                    defaultLoc?.address || values.destination
+                  );
+                  setFieldValue(
+                    "destinationLat",
+                    defaultLoc?.lat ?? values.destinationLat
+                  );
+                  setFieldValue(
+                    "destinationLng",
+                    defaultLoc?.lng ?? values.destinationLng
+                  );
+                  setFieldValue(
+                    "contactEmail",
+                    selectedCustomer?.email || values.contactEmail
+                  );
                 }}
               >
                 <MenuItem value="">
@@ -202,33 +224,54 @@ const LogisticsSection = ({
                 disabled={!values.customerId}
                 value={values.customerLocationId}
                 onBlur={handleBlur}
-                error={touched.customerLocationId && Boolean(errors.customerLocationId)}
-                helperText={touched.customerLocationId ? (errors.customerLocationId as string) : undefined}
+                error={
+                  touched.customerLocationId &&
+                  Boolean(errors.customerLocationId)
+                }
+                helperText={
+                  touched.customerLocationId
+                    ? (errors.customerLocationId as string)
+                    : undefined
+                }
                 onChange={(e) => {
                   const locationId = e.target.value;
-                  const selectedCustomer = customers.find(c => c.id === values.customerId);
-                  const selectedLoc = selectedCustomer?.locations?.find(l => l.id === locationId);
-                  
+                  const selectedCustomer = customers.find(
+                    (c) => c.id === values.customerId
+                  );
+                  const selectedLoc = selectedCustomer?.locations?.find(
+                    (l) => l.id === locationId
+                  );
+
                   if (selectedLoc) {
                     setFieldValue("customerLocationId", locationId);
                     setFieldValue("destination", selectedLoc.address);
-                    setFieldValue("destinationLat", selectedLoc.lat ?? undefined);
-                    setFieldValue("destinationLng", selectedLoc.lng ?? undefined);
+                    setFieldValue(
+                      "destinationLat",
+                      selectedLoc.lat ?? undefined
+                    );
+                    setFieldValue(
+                      "destinationLng",
+                      selectedLoc.lng ?? undefined
+                    );
                   } else {
                     setFieldValue("customerLocationId", locationId);
                   }
                 }}
               >
                 {values.customerId ? (
-                  customers.find(c => c.id === values.customerId)?.locations?.map((l) => (
-                    <MenuItem key={l.id} value={l.id}>
-                      <Typography variant="body2">
-                        {l.name} {l.isDefault ? "(Default)" : ""}
-                      </Typography>
-                    </MenuItem>
-                  ))
+                  customers
+                    .find((c) => c.id === values.customerId)
+                    ?.locations?.map((l) => (
+                      <MenuItem key={l.id} value={l.id}>
+                        <Typography variant="body2">
+                          {l.name} {l.isDefault ? "(Default)" : ""}
+                        </Typography>
+                      </MenuItem>
+                    ))
                 ) : (
-                  <MenuItem value="" disabled>Select a customer first</MenuItem>
+                  <MenuItem value="" disabled>
+                    Select a customer first
+                  </MenuItem>
                 )}
               </CustomTextArea>
             </Stack>
@@ -249,10 +292,12 @@ const LogisticsSection = ({
                 value={values.contactEmail}
                 onBlur={handleBlur}
                 error={touched.contactEmail && Boolean(errors.contactEmail)}
-                helperText={touched.contactEmail ? (errors.contactEmail as string) : undefined}
-                onChange={(e) =>
-                  setFieldValue("contactEmail", e.target.value)
+                helperText={
+                  touched.contactEmail
+                    ? (errors.contactEmail as string)
+                    : undefined
                 }
+                onChange={(e) => setFieldValue("contactEmail", e.target.value)}
               />
             </Stack>
           </Grid>
@@ -272,7 +317,11 @@ const LogisticsSection = ({
                 value={values.billingAccount}
                 onBlur={handleBlur}
                 error={touched.billingAccount && Boolean(errors.billingAccount)}
-                helperText={touched.billingAccount ? (errors.billingAccount as string) : undefined}
+                helperText={
+                  touched.billingAccount
+                    ? (errors.billingAccount as string)
+                    : undefined
+                }
                 onChange={(e) =>
                   setFieldValue("billingAccount", e.target.value)
                 }

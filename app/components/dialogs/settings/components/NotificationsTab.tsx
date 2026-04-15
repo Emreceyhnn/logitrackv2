@@ -1,6 +1,3 @@
-"use client";
-
-import React from "react";
 import {
   Box,
   Typography,
@@ -8,8 +5,6 @@ import {
   Button,
   Divider,
   CircularProgress,
-  useTheme,
-  
 } from "@mui/material";
 import {
   NotificationsActive as NotifIcon,
@@ -32,7 +27,6 @@ export default function NotificationsTab({
   state,
   actions,
 }: NotificationsTabProps) {
-  const theme = useTheme();
   const dict = useDictionary();
 
   return (
@@ -43,17 +37,20 @@ export default function NotificationsTab({
             sx={{
               p: 0.8,
               borderRadius: 1.5,
-              bgcolor: theme.palette.primary._alpha.main_10,
+              bgcolor: "theme.palette.primary._alpha.main_10",
             }}
           >
             <EmailOutlinedIcon
-              sx={{ fontSize: 16, color: theme.palette.primary.main }}
+              sx={{ fontSize: 16, color: "theme.palette.primary.main" }}
             />
           </Box>
           <Typography
             variant="caption"
             fontWeight={850}
-            sx={{ color: theme.palette.common.white_alpha.main_60, letterSpacing: 1.2 }}
+            sx={{
+              color: "theme.palette.common.white_alpha.main_60",
+              letterSpacing: 1.2,
+            }}
           >
             {dict.settings.dialogs.notifications.emailChannels}
           </Typography>
@@ -69,7 +66,9 @@ export default function NotificationsTab({
           />
           <NotificationRow
             label={dict.settings.dialogs.notifications.preventiveMaintenance}
-            description={dict.settings.dialogs.notifications.preventiveMaintenanceDesc}
+            description={
+              dict.settings.dialogs.notifications.preventiveMaintenanceDesc
+            }
             checked={state.notifications.emailMaintenanceAlerts}
             onChange={(v) =>
               actions.updateNotifications({ emailMaintenanceAlerts: v })
@@ -86,7 +85,9 @@ export default function NotificationsTab({
         </Stack>
       </Box>
 
-      <Divider sx={{ borderColor: theme.palette.common.white_alpha.main_05 }} />
+      <Divider
+        sx={{ borderColor: "theme.palette.common.white_alpha.main_05" }}
+      />
 
       <Box>
         <Stack direction="row" alignItems="center" gap={1} mb={2}>
@@ -94,17 +95,20 @@ export default function NotificationsTab({
             sx={{
               p: 0.8,
               borderRadius: 1.5,
-              bgcolor: theme.palette.primary._alpha.main_10,
+              bgcolor: "theme.palette.primary._alpha.main_10",
             }}
           >
             <NotifIcon
-              sx={{ fontSize: 16, color: theme.palette.primary.main }}
+              sx={{ fontSize: 16, color: "theme.palette.primary.main" }}
             />
           </Box>
           <Typography
             variant="caption"
             fontWeight={850}
-            sx={{ color: theme.palette.common.white_alpha.main_60, letterSpacing: 1.2 }}
+            sx={{
+              color: "theme.palette.common.white_alpha.main_60",
+              letterSpacing: 1.2,
+            }}
           >
             {dict.settings.dialogs.notifications.realTimeSignals}
           </Typography>
@@ -120,7 +124,9 @@ export default function NotificationsTab({
           />
           <NotificationRow
             label={dict.settings.dialogs.notifications.networkAnomalies}
-            description={dict.settings.dialogs.notifications.networkAnomaliesDesc}
+            description={
+              dict.settings.dialogs.notifications.networkAnomaliesDesc
+            }
             checked={state.notifications.pushDelayAlerts}
             onChange={(v) =>
               actions.updateNotifications({ pushDelayAlerts: v })
@@ -147,16 +153,18 @@ export default function NotificationsTab({
             borderRadius: 2.5,
             px: 4,
             py: 1,
-            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-            boxShadow: `0 8px 32px ${theme.palette.primary._alpha.main_25}`,
+            background: `linear-gradient(135deg, "theme.palette.primary.main", "theme.palette.primary.dark")`,
+            boxShadow: `0 8px 32px "theme.palette.primary._alpha.main_25"`,
             "&:hover": {
-              boxShadow: `0 12px 40px ${theme.palette.primary._alpha.main_35}`,
+              boxShadow: `0 12px 40px "theme.palette.primary._alpha.main_35"`,
               transform: "translateY(-1px)",
             },
             transition: "all 0.2s",
           }}
         >
-          {state.isSaving ? dict.common.synchronizing : dict.settings.dialogs.notifications.updateWebhooks}
+          {state.isSaving
+            ? dict.common.synchronizing
+            : dict.settings.dialogs.notifications.updateWebhooks}
         </Button>
       </Box>
     </Stack>

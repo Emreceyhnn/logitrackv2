@@ -13,7 +13,7 @@ import {
   ShipmentTableProps,
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
-import { ShipmentStatus } from "@prisma/client";
+import { ShipmentStatus } from "@/app/lib/type/enums";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
@@ -109,7 +109,7 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
     {
       key: "createdAt",
       label: dict.shipments.table.columns.created,
-      render: (row) => new Date(row.createdAt).toLocaleDateString(),
+      render: (row) => row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "-",
     },
     {
       key: "destination",

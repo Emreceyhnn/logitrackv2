@@ -1,4 +1,4 @@
-import { User, Role, Driver } from "@prisma/client";
+import { User, Role, Driver } from "./enums";
 
 // Domain Models
 export interface UserWithRelations extends User {

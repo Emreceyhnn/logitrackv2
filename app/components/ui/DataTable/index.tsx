@@ -388,7 +388,7 @@ function DataTable<TRow extends { id: string }>({
         <TableContainer sx={{ p: 0 }}>
           <Table size="small">
             <TableHead
-              sx={{ bgcolor: (theme.palette.primary as any).main_03 }}
+              sx={{ bgcolor: (theme.palette.primary as unknown as Record<string, string | undefined>).main_03 }}
             >
               <TableRow>
                 {columns.map((col) => (

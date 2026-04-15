@@ -117,17 +117,25 @@ export default function ReportsPage() {
         tabIndex={state.tabIndex}
         metrics={state.data?.metrics}
         loading={state.loading}
+        dict={dict}
       />
 
       <Box sx={{ mt: 2 }}>
         <CustomTabPanel value={state.tabIndex} index={0}>
-          <ShipmentCharts data={state.data?.shipments} loading={state.loading} />
+          <ShipmentCharts
+            data={state.data?.shipments}
+            loading={state.loading}
+            dict={dict}
+          />
         </CustomTabPanel>
         <CustomTabPanel value={state.tabIndex} index={1}>
-          <FleetCharts data={state.data?.fleet || []} />
+          <FleetCharts data={state.data?.fleet || []} dict={dict} />
         </CustomTabPanel>
         <CustomTabPanel value={state.tabIndex} index={2}>
-          <InventoryCharts data={state.data?.inventory.categoryStats || {}} />
+          <InventoryCharts
+            data={state.data?.inventory.categoryStats || {}}
+            dict={dict}
+          />
         </CustomTabPanel>
       </Box>
     </Box>

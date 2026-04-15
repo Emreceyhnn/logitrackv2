@@ -45,7 +45,6 @@ function VehicleContent() {
   const theme = useTheme();
   const dict = useDictionary();
 
-
   const searchParams = useSearchParams();
   const vehicleIdFromUrl = searchParams.get("id");
   const tabFromUrl = searchParams.get("tab");
@@ -204,7 +203,7 @@ function VehicleContent() {
         label: dict.vehicles.kpis.openIssues,
         value: dashboardData?.vehiclesKpis?.openIssues ?? 0,
         icon: <ReportProblem sx={{ fontSize: 22 }} />,
-        color: theme.palette.error.main,
+        color: theme.palette.kpi.error,
       },
       {
         label: dict.vehicles.kpis.docsExpiring,

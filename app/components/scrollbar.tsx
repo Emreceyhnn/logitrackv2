@@ -1,5 +1,3 @@
-"use client";
-
 export interface ScrollbarTheme {
   palette?: {
     scroll?: {

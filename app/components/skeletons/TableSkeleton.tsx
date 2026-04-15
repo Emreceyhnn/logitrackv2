@@ -1,4 +1,3 @@
-"use client";
 import {
   Skeleton,
   Table,
@@ -7,8 +6,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  
-  useTheme,
   SxProps,
   Theme,
 } from "@mui/material";
@@ -26,8 +23,6 @@ export default function TableSkeleton({
   title,
   sx,
 }: TableSkeletonProps) {
-  const theme = useTheme();
-
   return (
     <TableContainer
       sx={[
@@ -36,17 +31,17 @@ export default function TableSkeleton({
       ]}
     >
       <Table sx={{ minWidth: 750 }}>
-        <TableHead sx={{ bgcolor: theme.palette.primary._alpha.main_03 }}>
+        <TableHead sx={{ bgcolor: "theme.palette.primary._alpha.main_03" }}>
           <TableRow>
             {Array.from(new Array(columns)).map((_, i) => (
               <TableCell
                 key={i}
-                sx={{ borderColor: theme.palette.divider_alpha.main_10 }}
+                sx={{ borderColor: "theme.palette.divider_alpha.main_10" }}
               >
                 <Skeleton
                   variant="text"
                   width="60%"
-                  sx={{ bgcolor: theme.palette.text.primary_alpha.main_10 }}
+                  sx={{ bgcolor: "theme.palette.text.primary_alpha.main_10" }}
                 />
               </TableCell>
             ))}
@@ -59,14 +54,20 @@ export default function TableSkeleton({
               {Array.from(new Array(columns)).map((_, colIndex) => (
                 <TableCell
                   key={colIndex}
-                  sx={{ borderColor: theme.palette.divider_alpha.main_10, py: 1.5 }}
+                  sx={{
+                    borderColor: "theme.palette.divider_alpha.main_10",
+                    py: 1.5,
+                  }}
                 >
                   <Skeleton
                     animation="wave"
                     variant={colIndex === 1 ? "rounded" : "text"}
                     width={colIndex === 1 ? 80 : "80%"}
                     height={colIndex === 1 ? 24 : 24}
-                    sx={{ bgcolor: theme.palette.text.primary_alpha.main_05, borderRadius: 1 }}
+                    sx={{
+                      bgcolor: "theme.palette.text.primary_alpha.main_05",
+                      borderRadius: 1,
+                    }}
                   />
                 </TableCell>
               ))}

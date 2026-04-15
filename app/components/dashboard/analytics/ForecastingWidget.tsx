@@ -1,8 +1,6 @@
-"use client";
-
 import { LineChart } from "@mui/x-charts/LineChart";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { Stack, Typography, Paper, useTheme, Chip, Box } from "@mui/material";
+import { Stack, Typography, Paper, Chip, Box } from "@mui/material";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 
 interface ForecastData {
@@ -17,15 +15,30 @@ interface ForecastingWidgetProps {
 
 export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
   /* -------------------------------- variables ------------------------------- */
-  const theme = useTheme();
+
   const dict = useDictionary();
 
   const weekPrefix = dict.analytics.forecasting.weekPrefix;
-  const generateWeeks = () => Array.from({ length: 13 }, (_, i) => `${weekPrefix}${i + 1}`);
-  
-  const weeks = data?.weeks?.map(w => w.replace("W", weekPrefix)) || generateWeeks();
+  const generateWeeks = () =>
+    Array.from({ length: 13 }, (_, i) => `${weekPrefix}${i + 1}`);
+
+  const weeks =
+    data?.weeks?.map((w) => w.replace("W", weekPrefix)) || generateWeeks();
   const actualsSeries = data?.actuals || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  const predictedSeries = data?.predicted || [null, null, null, null, null, null, null, null, null, null, null, null];
+  const predictedSeries = data?.predicted || [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+  ];
 
   return (
     <Paper sx={{ p: 3, borderRadius: 3, mt: 3, bgcolor: "background.paper" }}>
@@ -60,13 +73,13 @@ export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
           {
             data: actualsSeries,
             label: dict.analytics.forecasting.actualVolume,
-            color: theme.palette.primary.main,
+            color: "theme.palette.primary.main",
             showMark: true,
           },
           {
             data: predictedSeries,
             label: dict.analytics.forecasting.predicted,
-            color: theme.palette.secondary.main,
+            color: "theme.palette.secondary.main",
             showMark: true,
           },
         ]}

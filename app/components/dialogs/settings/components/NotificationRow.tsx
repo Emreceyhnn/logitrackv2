@@ -1,7 +1,4 @@
-"use client";
-
-import React from "react";
-import { Box, Typography, Switch, useTheme } from "@mui/material";
+import { Box, Typography, Switch } from "@mui/material";
 
 interface NotifRowProps {
   label: string;
@@ -16,7 +13,6 @@ export default function NotificationRow({
   checked,
   onChange,
 }: NotifRowProps) {
-  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -27,19 +23,36 @@ export default function NotificationRow({
         py: 2,
         borderRadius: 3,
         border: `1px solid ${checked ? "#ffffff14" : "#ffffff0a"}`,
-        bgcolor: checked ? theme.palette.primary._alpha.main_05 : theme.palette.common.white_alpha.main_02,
+        bgcolor: checked
+          ? "theme.palette.primary._alpha.main_05"
+          : "theme.palette.common.white_alpha.main_02",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         "&:hover": {
-          bgcolor: checked ? theme.palette.primary._alpha.main_08 : theme.palette.common.white_alpha.main_03,
-          borderColor: checked ? theme.palette.primary._alpha.main_30 : theme.palette.primary._alpha.main_10,
-        }
+          bgcolor: checked
+            ? "theme.palette.primary._alpha.main_08"
+            : "theme.palette.common.white_alpha.main_03",
+          borderColor: checked
+            ? "theme.palette.primary._alpha.main_30"
+            : "theme.palette.primary._alpha.main_10",
+        },
       }}
     >
       <Box>
-        <Typography variant="body2" fontWeight={750} color="white" sx={{ mb: 0.25 }}>
+        <Typography
+          variant="body2"
+          fontWeight={750}
+          color="white"
+          sx={{ mb: 0.25 }}
+        >
           {label}
         </Typography>
-        <Typography variant="caption" sx={{ color: theme.palette.common.white_alpha.main_35, fontWeight: 500 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: "theme.palette.common.white_alpha.main_35",
+            fontWeight: 500,
+          }}
+        >
           {description}
         </Typography>
       </Box>
@@ -48,17 +61,21 @@ export default function NotificationRow({
         onChange={(e) => onChange(e.target.checked)}
         size="small"
         sx={{
-          "& .MuiSwitch-switchBase.Mui-checked": { 
-              color: theme.palette.primary.main,
-              "& + .MuiSwitch-track": { 
-                  bgcolor: theme.palette.primary.main,
-                  opacity: 0.3
-              }
+          "& .MuiSwitch-switchBase.Mui-checked": {
+            color: "theme.palette.primary.main",
+            "& + .MuiSwitch-track": {
+              bgcolor: "theme.palette.primary.main",
+              opacity: 0.3,
+            },
           },
-          "& .MuiSwitch-track": { bgcolor: theme.palette.common.white_alpha.main_10 },
+          "& .MuiSwitch-track": {
+            bgcolor: "theme.palette.common.white_alpha.main_10",
+          },
           "& .MuiSwitch-thumb": {
-              boxShadow: checked ? `0 0 10px ${theme.palette.primary._alpha.main_60}` : "none"
-          }
+            boxShadow: checked
+              ? "0 0 10px theme.palette.primary._alpha.main_60"
+              : "none",
+          },
         }}
       />
     </Box>

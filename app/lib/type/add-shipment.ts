@@ -1,4 +1,4 @@
-import { ShipmentPriority } from "@prisma/client";
+import { ShipmentPriority } from "./enums";
 import { InventoryWithRelations } from "./inventory";
 
 export { ShipmentPriority };

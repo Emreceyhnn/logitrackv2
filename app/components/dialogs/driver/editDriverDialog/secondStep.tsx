@@ -26,7 +26,7 @@ import {
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { useUser } from "@/app/lib/hooks/useUser";
-import { Warehouse, DriverStatus } from "@prisma/client";
+import { Warehouse, DriverStatus } from "@/app/lib/type/enums";
 import { VehicleStatus } from "@/app/lib/type/enums";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { DriverWithRelations } from "@/app/lib/type/driver";

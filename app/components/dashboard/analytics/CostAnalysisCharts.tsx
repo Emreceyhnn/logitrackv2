@@ -1,9 +1,7 @@
-"use client";
-
 import { PieChart } from "@mui/x-charts/PieChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { Stack, Typography, Grid, Paper, useTheme, Box } from "@mui/material";
+import { Stack, Typography, Grid, Paper, Box } from "@mui/material";
 
 interface CostData {
   months: string[];
@@ -19,7 +17,6 @@ interface CostAnalysisChartsProps {
 
 export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
   /* ------------------------------- variables ------------------------------- */
-  const theme = useTheme();
   const dict = useDictionary();
 
   const monthsArray = [
@@ -32,32 +29,58 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
   ];
 
   // We ignore data.months if it's returning short English names to force localization
-  const months = monthsArray; 
+  const months = monthsArray;
   const fuelCosts = data?.fuel || [0, 0, 0, 0, 0, 0];
   const maintenanceCosts = data?.maintenance || [0, 0, 0, 0, 0, 0];
   const overheadCosts = data?.overhead || [0, 0, 0, 0, 0, 0];
 
   const defaultCostDistribution = [
-    { id: 0, value: 35, label: dict.analytics.costs.categories.fuel, color: theme.palette.error.main },
-    { id: 1, value: 25, label: dict.analytics.costs.categories.maintenance, color: theme.palette.warning.main },
-    { id: 2, value: 30, label: dict.analytics.costs.categories.salaries, color: theme.palette.info.main },
-    { id: 3, value: 10, label: dict.analytics.costs.categories.insuranceOps, color: theme.palette.success.main },
+    {
+      id: 0,
+      value: 35,
+      label: dict.analytics.costs.categories.fuel,
+      color: "theme.palette.error.main",
+    },
+    {
+      id: 1,
+      value: 25,
+      label: dict.analytics.costs.categories.maintenance,
+      color: "theme.palette.warning.main",
+    },
+    {
+      id: 2,
+      value: 30,
+      label: dict.analytics.costs.categories.salaries,
+      color: "theme.palette.info.main",
+    },
+    {
+      id: 3,
+      value: 10,
+      label: dict.analytics.costs.categories.insuranceOps,
+      color: "theme.palette.success.main",
+    },
   ];
 
   const translateLabel = (label: string) => {
     const key = label.toLowerCase();
     if (key === "fuel") return dict.analytics.costs.categories.fuel;
-    if (key === "maintenance") return dict.analytics.costs.categories.maintenance;
-    if (key === "driver salaries") return dict.analytics.costs.categories.salaries;
-    if (key === "insurance/ops") return dict.analytics.costs.categories.insuranceOps;
+    if (key === "maintenance")
+      return dict.analytics.costs.categories.maintenance;
+    if (key === "driver salaries")
+      return dict.analytics.costs.categories.salaries;
+    if (key === "insurance/ops")
+      return dict.analytics.costs.categories.insuranceOps;
     return label;
   };
 
-  const costDistribution = data?.distribution.map((d, i) => ({
-    ...d,
-    color: d.color || (defaultCostDistribution[i % 4]?.color ?? theme.palette.primary.main),
-    label: translateLabel(d.label)
-  })) || defaultCostDistribution;
+  const costDistribution =
+    data?.distribution.map((d, i) => ({
+      ...d,
+      color:
+        d.color ||
+        (defaultCostDistribution[i % 4]?.color ?? "theme.palette.primary.main"),
+      label: translateLabel(d.label),
+    })) || defaultCostDistribution;
 
   return (
     <Grid container spacing={3}>
@@ -86,7 +109,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
                 area: true,
                 stack: "total",
                 showMark: false,
-                color: theme.palette.error.light,
+                color: "theme.palette.error.light",
               },
               {
                 data: maintenanceCosts,
@@ -94,7 +117,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
                 area: true,
                 stack: "total",
                 showMark: false,
-                color: theme.palette.warning.light,
+                color: "theme.palette.warning.light",
               },
               {
                 data: overheadCosts,
@@ -102,7 +125,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
                 area: true,
                 stack: "total",
                 showMark: false,
-                color: theme.palette.action.disabled,
+                color: "theme.palette.action.disabled",
               },
             ]}
             height={300}

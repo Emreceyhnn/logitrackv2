@@ -168,7 +168,7 @@ const CustomerDetailDialog = ({
                   </Stack>
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Chip
-                      label={getIndustryLabel(customer.industry)}
+                      label={getIndustryLabel(customer.industry || null)}
                       size="small"
                       sx={{
                         height: 24,

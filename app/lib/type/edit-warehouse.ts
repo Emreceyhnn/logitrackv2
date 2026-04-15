@@ -1,4 +1,4 @@
-import { WarehouseType } from "@prisma/client";
+import { WarehouseType } from "./enums";
 import { WarehouseWithRelations } from "./warehouse";
 
 export interface EditWarehouseBasicInfo {

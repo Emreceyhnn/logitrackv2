@@ -13,7 +13,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useState, useEffect } from "react";
 import { AddInventoryStorageLevels } from "@/app/lib/type/add-inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
-import { Warehouse } from "@prisma/client";
+import { Warehouse } from "@/app/lib/type/enums";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/lib/hooks/useUser";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";

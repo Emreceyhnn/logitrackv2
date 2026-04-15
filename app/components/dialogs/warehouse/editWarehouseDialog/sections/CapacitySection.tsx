@@ -1,14 +1,4 @@
-"use client";
-
-import {
-  
-  Box,
-  Grid,
-  Stack,
-  Typography,
-  useTheme,
-  Button,
-} from "@mui/material";
+import { Box, Grid, Stack, Typography, Button } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   EditWarehouseCapacity,
@@ -30,17 +20,40 @@ interface CapacitySectionProps {
 import { Dictionary } from "@/app/lib/language/language";
 
 const SPECIFICATIONS = (dict: Dictionary) => [
-  { label: dict.warehouses.categories.specs.coldStorage, value: "Cold Storage", icon: <AcUnitIcon fontSize="small" /> },
-  { label: dict.warehouses.categories.specs.hazardous, value: "Hazardous Materials", icon: <WarningAmberIcon fontSize="small" /> },
-  { label: dict.warehouses.categories.specs.bonded, value: "Bonded Warehouse", icon: <GavelIcon fontSize="small" /> },
-  { label: dict.warehouses.categories.specs.crossDocking, value: "Cross-Docking", icon: <LocalShippingIcon fontSize="small" /> },
-  { label: dict.warehouses.categories.specs.highSecurity, value: "High Security", icon: <SecurityIcon fontSize="small" /> },
-  { label: dict.warehouses.categories.specs.lashing, value: "Lashing/Loading", icon: <InventoryIcon fontSize="small" /> },
+  {
+    label: dict.warehouses.categories.specs.coldStorage,
+    value: "Cold Storage",
+    icon: <AcUnitIcon fontSize="small" />,
+  },
+  {
+    label: dict.warehouses.categories.specs.hazardous,
+    value: "Hazardous Materials",
+    icon: <WarningAmberIcon fontSize="small" />,
+  },
+  {
+    label: dict.warehouses.categories.specs.bonded,
+    value: "Bonded Warehouse",
+    icon: <GavelIcon fontSize="small" />,
+  },
+  {
+    label: dict.warehouses.categories.specs.crossDocking,
+    value: "Cross-Docking",
+    icon: <LocalShippingIcon fontSize="small" />,
+  },
+  {
+    label: dict.warehouses.categories.specs.highSecurity,
+    value: "High Security",
+    icon: <SecurityIcon fontSize="small" />,
+  },
+  {
+    label: dict.warehouses.categories.specs.lashing,
+    value: "Lashing/Loading",
+    icon: <InventoryIcon fontSize="small" />,
+  },
 ];
 
 const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
   const dict = useDictionary();
-  const theme = useTheme();
 
   const f = dict.warehouses.dialogs.fields;
   const specItems = SPECIFICATIONS(dict);
@@ -61,8 +74,8 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
               width: 10,
               height: 10,
               borderRadius: "50%",
-              bgcolor: theme.palette.primary.main,
-              boxShadow: `0 0 10px ${theme.palette.primary.main}`,
+              bgcolor: "theme.palette.primary.main",
+              boxShadow: `0 0 10px theme.palette.primary.main`,
             }}
           />
           <Typography variant="subtitle1" fontWeight={700} color="white">
@@ -124,7 +137,7 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                 width: 10,
                 height: 10,
                 borderRadius: "50%",
-                bgcolor: theme.palette.primary.main,
+                bgcolor: "theme.palette.primary.main",
               }}
             />
             <Typography variant="subtitle1" fontWeight={700} color="white">
@@ -143,9 +156,9 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                     sx={{
                       height: 80,
                       borderRadius: 3,
-                      border: `1px solid ${isActive ? theme.palette.primary.main : theme.palette.divider_alpha.main_10}`,
+                      border: `1px solid ${isActive ? "theme.palette.primary.main" : "theme.palette.divider_alpha.main_10"}`,
                       bgcolor: isActive
-                        ? theme.palette.primary._alpha.main_05
+                        ? "theme.palette.primary._alpha.main_05"
                         : "transparent",
                       display: "flex",
                       flexDirection: "column",
@@ -155,11 +168,11 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                       transition: "all 0.2s ease-in-out",
                       "&:hover": {
                         bgcolor: isActive
-                          ? theme.palette.primary._alpha.main_10
-                          : theme.palette.divider_alpha.main_05,
+                          ? "theme.palette.primary._alpha.main_10"
+                          : "theme.palette.divider_alpha.main_05",
                         borderColor: isActive
-                          ? theme.palette.primary.main
-                          : theme.palette.divider_alpha.main_20,
+                          ? "theme.palette.primary.main"
+                          : "theme.palette.divider_alpha.main_20",
                         transform: "translateY(-2px)",
                       },
                     }}
@@ -167,7 +180,7 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                     <Box
                       sx={{
                         color: isActive
-                          ? theme.palette.primary.main
+                          ? "theme.palette.primary.main"
                           : "inherit",
                       }}
                     >
@@ -191,8 +204,8 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
           sx={{
             p: 2.5,
             borderRadius: 3,
-            bgcolor: theme.palette.info._alpha.main_05,
-            border: `1px solid ${theme.palette.info._alpha.main_10}`,
+            bgcolor: "theme.palette.info._alpha.main_05",
+            border: `1px solid theme.palette.info._alpha.main_10`,
           }}
         >
           <Typography

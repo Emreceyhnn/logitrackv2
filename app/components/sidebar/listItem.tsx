@@ -6,10 +6,10 @@ import {
   ListItemText,
   Collapse,
   useTheme,
-  
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { getLocalizedPath } from "@/app/lib/language/navigation";
 
 export type SidebarItem = {
@@ -29,7 +29,6 @@ export function SidebarList(params: Params) {
 
   /* --------------------------------- states --------------------------------- */
   const [openKey, setOpenKey] = useState<string | null>(null);
-  const router = useRouter();
   const pathname = usePathname();
   const theme = useTheme();
 
@@ -38,17 +37,14 @@ export function SidebarList(params: Params) {
     setOpenKey((prev) => (prev === title ? null : title));
   };
 
-  const handleNavigate = (path: string) => {
-    // Ensure path starts with lang
+  const getFullLocalizedPath = (path: string) => {
     const localizedPath = getLocalizedPath(path, lang);
-    const fullPath = `/${lang}${localizedPath}`;
-    router.push(fullPath);
+    return `/${lang}${localizedPath}`;
   };
 
   const isActive = (href?: string) => {
     if (!href) return false;
-    const localizedPath = getLocalizedPath(href, lang);
-    const fullPath = `/${lang}${localizedPath}`;
+    const fullPath = getFullLocalizedPath(href);
     return pathname === fullPath;
   };
 
@@ -70,14 +66,15 @@ export function SidebarList(params: Params) {
           isActive(item.href) ||
           item.subTitles?.some((sub) => isActive(sub.href));
 
+        // Use Link only if no children, otherwise use toggle button
+        const buttonProps = hasChildren 
+          ? { onClick: () => handleToggle(item.title) } 
+          : { component: Link, href: getFullLocalizedPath(item.href || "#") };
+
         return (
           <div key={item.title} style={{ width: "100%" }}>
             <ListItemButton
-              onClick={() =>
-                hasChildren
-                  ? handleToggle(item.title)
-                  : handleNavigate(item.href || "#")
-              }
+              {...buttonProps}
               sx={{
                 px: 3,
                 py: 1,
@@ -131,7 +128,8 @@ export function SidebarList(params: Params) {
                     return (
                       <ListItemButton
                         key={sub.title}
-                        onClick={() => handleNavigate(sub.href)}
+                        component={Link}
+                        href={getFullLocalizedPath(sub.href)}
                         sx={{
                           pl: 7,
                           py: 0.75,

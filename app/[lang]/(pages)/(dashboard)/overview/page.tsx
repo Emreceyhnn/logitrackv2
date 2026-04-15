@@ -50,71 +50,76 @@ export default function OverviewPage() {
   };
 
   /* ----------------------------------- KPI ---------------------------------- */
-  const kpiItems = useMemo(() => [
-    {
-      label: dict.overview.activeShipments,
-      value: data.stats?.activeShipments || 0,
-      icon: <LocalShipping sx={{ fontSize: 22 }} />,
-      color: theme.palette.primary.main,
-      trend: { value: 4, isUp: true },
-    },
-    {
-      label: dict.overview.delayedShipments,
-      value: data.stats?.delayedShipments || 0,
-      icon: <AccessTime sx={{ fontSize: 22 }} />,
-      color: theme.palette.error.main,
-      trend: { value: 1, isUp: false },
-    },
-    {
-      label: dict.overview.vehiclesOnTrip,
-      value: data.stats?.vehiclesOnTrip || 0,
-      icon: <DirectionsCar sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.sky,
-      trend: { value: 6, isUp: true },
-    },
-    {
-      label: dict.overview.vehiclesInService,
-      value: data.stats?.vehiclesInService || 0,
-      icon: <Build sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.amber,
-    },
-    {
-      label: dict.overview.availableVehicles,
-      value: data.stats?.availableVehicles || 0,
-      icon: <CheckCircle sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.emerald,
-      trend: { value: 2, isUp: true },
-    },
-    {
-      label: dict.overview.activeDrivers,
-      value: data.stats?.activeDrivers || 0,
-      icon: <Person sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.violet,
-    },
-    {
-      label: dict.overview.warehouses,
-      value: data.stats?.warehouses || 0,
-      icon: <Warehouse sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.indigo,
-    },
-    {
-      label: dict.overview.inventorySkus,
-      value: data.stats?.inventorySkus || 0,
-      icon: <Inventory sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.cyan,
-      trend: { value: 8, isUp: true },
-    },
-  ], [data.stats, theme, dict]);
+  const kpiItems = useMemo(
+    () => [
+      {
+        label: dict.overview.activeShipments,
+        value: data.stats?.activeShipments || 0,
+        icon: <LocalShipping sx={{ fontSize: 22 }} />,
+        color: theme.palette.primary.main,
+        trend: { value: 4, isUp: true },
+      },
+      {
+        label: dict.overview.delayedShipments,
+        value: data.stats?.delayedShipments || 0,
+        icon: <AccessTime sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.pink,
+        trend: { value: 1, isUp: false },
+      },
+      {
+        label: dict.overview.vehiclesOnTrip,
+        value: data.stats?.vehiclesOnTrip || 0,
+        icon: <DirectionsCar sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.cyan,
+        trend: { value: 6, isUp: true },
+      },
+      {
+        label: dict.overview.vehiclesInService,
+        value: data.stats?.vehiclesInService || 0,
+        color: theme.palette.kpi.amber,
+        icon: <Build sx={{ fontSize: 22 }} />,
+      },
+      {
+        label: dict.overview.availableVehicles,
+        value: data.stats?.availableVehicles || 0,
+        icon: <CheckCircle sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.emerald,
+        trend: { value: 2, isUp: true },
+      },
+      {
+        label: dict.overview.activeDrivers,
+        value: data.stats?.activeDrivers || 0,
+        icon: <Person sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.violet,
+      },
+      {
+        label: dict.overview.warehouses,
+        value: data.stats?.warehouses || 0,
+        icon: <Warehouse sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.indigo,
+      },
+      {
+        label: dict.overview.inventorySkus,
+        value: data.stats?.inventorySkus || 0,
+        icon: <Inventory sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.cyan,
+        trend: { value: 8, isUp: true },
+      },
+    ],
+    [data.stats, theme, dict]
+  );
 
-  const mapData: MapData[] = useMemo(() => (data.mapData || []).map(
-    (item: MapData) => ({
-      ...item,
-      type: (["W", "V", "C"].includes(item.type) ? item.type : "W") as
-        | "W"
-        | "V"
-        | "C",
-    })
-  ), [data.mapData]);
+  const mapData: MapData[] = useMemo(
+    () =>
+      (data.mapData || []).map((item: MapData) => ({
+        ...item,
+        type: (["W", "V", "C"].includes(item.type) ? item.type : "W") as
+          | "W"
+          | "V"
+          | "C",
+      })),
+    [data.mapData]
+  );
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>

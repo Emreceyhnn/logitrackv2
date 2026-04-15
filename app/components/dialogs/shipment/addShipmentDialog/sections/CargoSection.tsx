@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Box,
-  Grid,
-  Stack,
-  Typography,
-  useTheme,
-  MenuItem,
-} from "@mui/material";
+import { Box, Grid, Stack, Typography, MenuItem } from "@mui/material";
 import { useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
@@ -19,7 +12,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 const CargoSection = () => {
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
-  const theme = useTheme();
+
   const { values, setFieldValue, handleBlur, touched, errors } =
     useFormikContext<ShipmentFormValues>();
 
@@ -32,7 +25,7 @@ const CargoSection = () => {
               width: 8,
               height: 8,
               borderRadius: "50%",
-              bgcolor: theme.palette.primary.main,
+              bgcolor: "theme.palette.primary.main",
             }}
           />
           <Typography variant="subtitle2" fontWeight={700} color="white">
@@ -57,7 +50,9 @@ const CargoSection = () => {
                 value={values.weightKg.toString()}
                 onBlur={handleBlur}
                 error={touched.weightKg && Boolean(errors.weightKg)}
-                helperText={touched.weightKg ? (errors.weightKg as string) : undefined}
+                helperText={
+                  touched.weightKg ? (errors.weightKg as string) : undefined
+                }
                 onChange={(e) =>
                   setFieldValue("weightKg", parseFloat(e.target.value) || 0)
                 }
@@ -85,7 +80,9 @@ const CargoSection = () => {
                 value={values.volumeM3.toString()}
                 onBlur={handleBlur}
                 error={touched.volumeM3 && Boolean(errors.volumeM3)}
-                helperText={touched.volumeM3 ? (errors.volumeM3 as string) : undefined}
+                helperText={
+                  touched.volumeM3 ? (errors.volumeM3 as string) : undefined
+                }
                 onChange={(e) =>
                   setFieldValue("volumeM3", parseFloat(e.target.value) || 0)
                 }
@@ -111,7 +108,11 @@ const CargoSection = () => {
                 value={values.palletCount.toString()}
                 onBlur={handleBlur}
                 error={touched.palletCount && Boolean(errors.palletCount)}
-                helperText={touched.palletCount ? (errors.palletCount as string) : undefined}
+                helperText={
+                  touched.palletCount
+                    ? (errors.palletCount as string)
+                    : undefined
+                }
                 onChange={(e) =>
                   setFieldValue("palletCount", parseInt(e.target.value) || 0)
                 }
@@ -136,7 +137,9 @@ const CargoSection = () => {
                 value={values.cargoType}
                 onBlur={handleBlur}
                 error={touched.cargoType && Boolean(errors.cargoType)}
-                helperText={touched.cargoType ? (errors.cargoType as string) : undefined}
+                helperText={
+                  touched.cargoType ? (errors.cargoType as string) : undefined
+                }
                 onChange={(e) => setFieldValue("cargoType", e.target.value)}
               >
                 <MenuItem value="General Cargo">General Cargo</MenuItem>

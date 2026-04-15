@@ -104,6 +104,21 @@
     "filtersActive": "{count} aktif filtre",
     "moreThan": "{count} taneden fazla"
   },
+  "primaryColors": {
+    "title": "Renk Yapılandırması",
+    "success": "#48BB78",
+    "info": "#4299E1",
+    "warning": "#F6AD55",
+    "error": "#F56565",
+    "secondary": "#718096",
+    "labels": {
+      "success": "Başarılı",
+      "info": "Bilgi",
+      "warning": "Uyarı",
+      "error": "Hata",
+      "secondary": "İkincil"
+    }
+  },
   "sidebar": {
     "overview": "Genel Bakış",
     "operation": "Operasyon",

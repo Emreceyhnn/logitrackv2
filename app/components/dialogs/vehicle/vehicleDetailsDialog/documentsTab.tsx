@@ -12,7 +12,6 @@ import {
   TableHead,
   TableRow,
   IconButton,
-  
   useTheme,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -52,7 +51,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
     title: string;
   } | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [docToDelete, setDocToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [docToDelete, setDocToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [isDeletingDoc, setIsDeletingDoc] = useState(false);
 
   if (!vehicle) {
@@ -325,7 +327,8 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   <TableCell
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      borderBottomColor:
+                        theme.palette.common.white_alpha.main_05,
                     }}
                   >
                     {dict.common.docType}
@@ -333,7 +336,8 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   <TableCell
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      borderBottomColor:
+                        theme.palette.common.white_alpha.main_05,
                     }}
                   >
                     {dict.common.status}
@@ -341,7 +345,8 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   <TableCell
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      borderBottomColor:
+                        theme.palette.common.white_alpha.main_05,
                     }}
                   >
                     {dict.common.expiryDate}
@@ -350,7 +355,8 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                     align="center"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor: theme.palette.common.white_alpha.main_05,
+                      borderBottomColor:
+                        theme.palette.common.white_alpha.main_05,
                     }}
                   >
                     {dict.common.actions}
@@ -378,12 +384,17 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       hover
                       sx={{
                         cursor: "pointer",
-                        "&:hover": { bgcolor: theme.palette.common.white_alpha.main_02 },
+                        "&:hover": {
+                          bgcolor: theme.palette.common.white_alpha.main_02,
+                        },
                       }}
                       onClick={() => handleViewDoc(v.url, v.name)}
                     >
                       <TableCell
-                        sx={{ borderBottomColor: theme.palette.common.white_alpha.main_05 }}
+                        sx={{
+                          borderBottomColor:
+                            theme.palette.common.white_alpha.main_05,
+                        }}
                       >
                         <Stack>
                           <Typography
@@ -393,7 +404,9 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                               color: "white",
                             }}
                           >
-                            {dict.vehicles.docTypes[v.type as keyof typeof dict.vehicles.docTypes] || v.type}
+                            {dict.vehicles.docTypes[
+                              v.type as keyof typeof dict.vehicles.docTypes
+                            ] || v.type}
                           </Typography>
                           <Typography
                             variant="caption"
@@ -406,14 +419,18 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                         </Stack>
                       </TableCell>
                       <TableCell
-                        sx={{ borderBottomColor: theme.palette.common.white_alpha.main_05 }}
+                        sx={{
+                          borderBottomColor:
+                            theme.palette.common.white_alpha.main_05,
+                        }}
                       >
                         <StatusChip status={v.status} />
                       </TableCell>
                       <TableCell
                         sx={{
                           color: "white",
-                          borderBottomColor: theme.palette.common.white_alpha.main_05,
+                          borderBottomColor:
+                            theme.palette.common.white_alpha.main_05,
                         }}
                       >
                         {v.expiryDate
@@ -422,7 +439,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       </TableCell>
                       <TableCell
                         align="center"
-                        sx={{ borderBottomColor: theme.palette.common.white_alpha.main_05 }}
+                        sx={{
+                          borderBottomColor:
+                            theme.palette.common.white_alpha.main_05,
+                        }}
                       >
                         <Stack
                           direction="row"

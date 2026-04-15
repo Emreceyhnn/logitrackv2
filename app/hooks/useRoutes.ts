@@ -26,33 +26,45 @@ export const routeKeys = {
 };
 
 export function useRoutes(page: number, pageSize: number, status?: string) {
-  return useQuery<{ routes: RouteWithRelations[]; totalCount: number }>({
+  return useQuery({
     queryKey: routeKeys.lists(page, pageSize, status),
-    queryFn: () => getRoutes(page + 1, pageSize, status),
+    queryFn: async (): Promise<{ routes: RouteWithRelations[]; totalCount: number }> => {
+      const res = await getRoutes(page + 1, pageSize, status);
+      return res as { routes: RouteWithRelations[]; totalCount: number };
+    },
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useRouteStats() {
-  return useQuery<RouteStats | null>({
+  return useQuery({
     queryKey: routeKeys.stats(),
-    queryFn: () => getRouteStats(),
+    queryFn: async (): Promise<RouteStats | null> => {
+      const res = await getRouteStats();
+      return res as RouteStats | null;
+    },
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useRouteEfficiency() {
-  return useQuery<RouteEfficiencyStats | null>({
+  return useQuery({
     queryKey: routeKeys.efficiency(),
-    queryFn: () => getRouteEfficiencyStats(),
+    queryFn: async (): Promise<RouteEfficiencyStats | null> => {
+      const res = await getRouteEfficiencyStats();
+      return res as RouteEfficiencyStats | null;
+    },
     staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useRouteLocations() {
-  return useQuery<MapRouteData[]>({
+  return useQuery({
     queryKey: routeKeys.locations(),
-    queryFn: () => getActiveRoutesLocations(),
+    queryFn: async (): Promise<MapRouteData[]> => {
+      const res = await getActiveRoutesLocations();
+      return res as MapRouteData[];
+    },
     staleTime: 1000 * 30, // Locations update faster
   });
 }

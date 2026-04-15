@@ -1,13 +1,9 @@
-"use client";
-
 import {
-  
   Box,
   Button,
   Grid,
   Stack,
   Typography,
-  useTheme,
   MenuItem,
   Card,
 } from "@mui/material";
@@ -27,7 +23,7 @@ interface RouteSectionProps {
 const RouteSection = ({ routes }: RouteSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
-  const theme = useTheme();
+
   const { values, setFieldValue, handleBlur, touched, errors } =
     useFormikContext<ShipmentFormValues>();
 
@@ -47,7 +43,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
-                bgcolor: theme.palette.primary.main,
+                bgcolor: "theme.palette.primary.main",
               }}
             />
             <Typography variant="subtitle2" fontWeight={700} color="white">
@@ -59,8 +55,8 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
             variant="outlined"
             onClick={() => {}}
             sx={{
-              color: theme.palette.primary.main,
-              borderColor: theme.palette.primary._alpha.main_30,
+              color: "theme.palette.primary.main",
+              borderColor: "theme.palette.primary._alpha.main_30",
               fontWeight: 600,
               textTransform: "none",
               borderRadius: 2,
@@ -86,13 +82,21 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                 placeholder={dict.shipments.dialogs.fields.routePlaceholder}
                 value={values.assignedRouteId || ""}
                 onBlur={handleBlur}
-                error={touched.assignedRouteId && Boolean(errors.assignedRouteId)}
-                helperText={touched.assignedRouteId ? (errors.assignedRouteId as string) : undefined}
+                error={
+                  touched.assignedRouteId && Boolean(errors.assignedRouteId)
+                }
+                helperText={
+                  touched.assignedRouteId
+                    ? (errors.assignedRouteId as string)
+                    : undefined
+                }
                 onChange={(e) =>
                   setFieldValue("assignedRouteId", e.target.value)
                 }
               >
-                <MenuItem value="">{dict.shipments.dialogs.fields.unassigned}</MenuItem>
+                <MenuItem value="">
+                  {dict.shipments.dialogs.fields.unassigned}
+                </MenuItem>
                 {routes.map((r) => (
                   <MenuItem key={r.id} value={r.id}>
                     <Stack direction="row" spacing={1} alignItems="center">
@@ -115,8 +119,8 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                 sx={{
                   p: 2,
                   borderRadius: 2,
-                  bgcolor: theme.palette.text.darkBlue._alpha.main_50,
-                  border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+                  bgcolor: "theme.palette.text.darkBlue._alpha.main_50",
+                  border: "1px solid theme.palette.divider_alpha.main_10",
                   backgroundImage: "none",
                 }}
               >
@@ -134,7 +138,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                         <PersonIcon
                           sx={{
                             fontSize: 16,
-                            color: theme.palette.primary.main,
+                            color: "theme.palette.primary.main",
                           }}
                         />
                         <Typography
@@ -182,8 +186,8 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                   alignItems: "center",
                   justifyContent: "center",
                   borderRadius: 2,
-                  bgcolor: theme.palette.divider_alpha.main_02,
-                  border: `1px dashed ${theme.palette.divider_alpha.main_10}`,
+                  bgcolor: "theme.palette.divider_alpha.main_02",
+                  border: "1px dashed theme.palette.divider_alpha.main_10",
                 }}
               >
                 <Typography variant="caption" color="text.secondary">

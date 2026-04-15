@@ -71,8 +71,8 @@ export default function RoutesPage() {
   } = useRouteLocations();
 
   const { deleteRoute: deleteMutation } = useRouteMutations();
-  
-  const routes = useMemo(() => routesData?.routes || [], [routesData?.routes]);
+
+  const routes = useMemo(() => routesData?.routes || [], [routesData]);
 
   const loading =
     isRoutesLoading ||
@@ -168,7 +168,7 @@ export default function RoutesPage() {
       label: dict.routes.delayed,
       value: stats?.delayed || 0,
       icon: <Warning sx={{ fontSize: 22 }} />,
-      color: theme.palette.error.main,
+      color: theme.palette.kpi.error,
     },
   ];
 

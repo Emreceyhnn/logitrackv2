@@ -23,7 +23,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateIssue } from "@/app/lib/controllers/vehicle";
 import { getPriorityColor } from "@/app/lib/priorityColor";
 import { IssueStatus, IssuePriority } from "@/app/lib/type/enums";
-import type { Issue } from "@prisma/client";
+import type { Issue } from "@/app/lib/type/enums";
 
 interface IssueDetailDialogProps {
   open: boolean;

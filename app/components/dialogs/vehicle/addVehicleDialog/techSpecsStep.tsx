@@ -1,13 +1,9 @@
-"use client";
-
 import {
   Box,
   Typography,
   TextField,
   MenuItem,
   Stack,
-  
-  useTheme,
   InputAdornment,
 } from "@mui/material";
 import ScaleIcon from "@mui/icons-material/Scale";
@@ -22,29 +18,29 @@ import { VehicleFormValues } from "@/app/lib/type/vehicle";
 const TechSpecsStep = () => {
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
-  const theme = useTheme();
-  const { values, errors, touched, handleBlur, handleChange } = useFormikContext<VehicleFormValues>();
+  const { values, errors, touched, handleBlur, handleChange } =
+    useFormikContext<VehicleFormValues>();
 
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
+      backgroundColor: "theme.palette.text.darkBlue._alpha.main_50",
       borderRadius: 2,
       "& fieldset": {
-        borderColor: theme.palette.divider_alpha.main_10,
+        borderColor: "theme.palette.divider_alpha.main_10",
       },
       "&:hover fieldset": {
-        borderColor: theme.palette.primary._alpha.main_30,
+        borderColor: "theme.palette.primary._alpha.main_30",
       },
       "&.Mui-focused fieldset": {
-        borderColor: theme.palette.primary.main,
+        borderColor: "theme.palette.primary.main",
       },
     },
     "& .MuiInputLabel-root": {
       color: "text.secondary",
       fontSize: "0.85rem",
       "&.Mui-focused": {
-        color: theme.palette.primary.main,
+        color: "theme.palette.primary.main",
       },
     },
     "& .MuiOutlinedInput-input": {
@@ -113,8 +109,12 @@ const TechSpecsStep = () => {
           >
             <MenuItem value="">{dict.common.search}</MenuItem>
             <MenuItem value="DIESEL">{dict.vehicles.fuelTypes.DIESEL}</MenuItem>
-            <MenuItem value="GASOLINE">{dict.vehicles.fuelTypes.GASOLINE}</MenuItem>
-            <MenuItem value="ELECTRIC">{dict.vehicles.fuelTypes.ELECTRIC}</MenuItem>
+            <MenuItem value="GASOLINE">
+              {dict.vehicles.fuelTypes.GASOLINE}
+            </MenuItem>
+            <MenuItem value="ELECTRIC">
+              {dict.vehicles.fuelTypes.ELECTRIC}
+            </MenuItem>
             <MenuItem value="HYBRID">{dict.vehicles.fuelTypes.HYBRID}</MenuItem>
           </TextField>
         </Box>
@@ -176,8 +176,13 @@ const TechSpecsStep = () => {
             value={values.avgFuelConsumption}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={touched.avgFuelConsumption && Boolean(errors.avgFuelConsumption)}
-            helperText={touched.avgFuelConsumption && (errors.avgFuelConsumption as string)}
+            error={
+              touched.avgFuelConsumption && Boolean(errors.avgFuelConsumption)
+            }
+            helperText={
+              touched.avgFuelConsumption &&
+              (errors.avgFuelConsumption as string)
+            }
             sx={textFieldSx}
             InputProps={{
               startAdornment: (
@@ -256,9 +261,15 @@ const TechSpecsStep = () => {
             }}
           >
             <MenuItem value="">{dict.common.search}</MenuItem>
-            <MenuItem value="AUTOMATIC">{dict.vehicles.transmissionTypes.AUTOMATIC}</MenuItem>
-            <MenuItem value="MANUAL">{dict.vehicles.transmissionTypes.MANUAL}</MenuItem>
-            <MenuItem value="AMULTI">{dict.vehicles.transmissionTypes.AMULTI}</MenuItem>
+            <MenuItem value="AUTOMATIC">
+              {dict.vehicles.transmissionTypes.AUTOMATIC}
+            </MenuItem>
+            <MenuItem value="MANUAL">
+              {dict.vehicles.transmissionTypes.MANUAL}
+            </MenuItem>
+            <MenuItem value="AMULTI">
+              {dict.vehicles.transmissionTypes.AMULTI}
+            </MenuItem>
           </TextField>
         </Box>
       </Stack>

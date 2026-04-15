@@ -1,5 +1,5 @@
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { DirectionsMap } from "../../googleMaps/DirectionsMap";
 
 interface MapRoutesDialogCardProps {
@@ -29,7 +29,6 @@ const MapRoutesDialogCard = ({
   addrB,
   onRouteInfoUpdate,
 }: MapRoutesDialogCardProps) => {
-  const theme = useTheme();
   const dict = useDictionary();
   const isRoute = !!((origin || addrA) && (destination || addrB));
 
@@ -48,12 +47,12 @@ const MapRoutesDialogCard = ({
           position: "absolute",
           top: 16,
           left: 16,
-          bgcolor: theme.palette.background.midnight._alpha.main_80,
+          bgcolor: "theme.palette.background.midnight._alpha.main_80",
           backdropFilter: "blur(8px)",
           px: 1.5,
           py: 0.75,
           borderRadius: "8px",
-          border: `1px solid ${theme.palette.common.white_alpha.main_10}`,
+          border: "1px solid theme.palette.common.white_alpha.main_10",
           zIndex: 1,
         }}
       >
@@ -63,7 +62,9 @@ const MapRoutesDialogCard = ({
           color="white"
           sx={{ letterSpacing: "0.05em" }}
         >
-          {isRoute ? dict.routes.details.missionRoute : dict.routes.details.liveTelemetryMap}
+          {isRoute
+            ? dict.routes.details.missionRoute
+            : dict.routes.details.liveTelemetryMap}
         </Typography>
       </Box>
     </Box>

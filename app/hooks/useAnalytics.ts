@@ -8,7 +8,7 @@ export const analyticsKeys = {
 };
 
 export function useAnalyticsData() {
-  return useQuery<AnalyticsPageState | null>({
+  return useQuery({
     queryKey: analyticsKeys.dashboard(),
     queryFn: async () => {
       const result = await getAnalyticsDashboardData();

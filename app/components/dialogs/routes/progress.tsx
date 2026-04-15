@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import CircleIcon from "@mui/icons-material/Circle";
-
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function RouteProgress({
@@ -18,7 +17,6 @@ export default function RouteProgress({
   route: RouteWithRelations;
 }) {
   const dict = useDictionary();
-  // Derive stops from Route fields and Shipments
   const stops = [
     {
       locationName: route.startAddress || dict.routes.details.origin,
@@ -87,7 +85,6 @@ export default function RouteProgress({
               </Stack>
             </StepLabel>
             <StepContent>
-              {/* Connector line is handled by default, just adding spacing if needed */}
               <Box sx={{ height: 10 }} />
             </StepContent>
           </Step>

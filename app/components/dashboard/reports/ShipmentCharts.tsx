@@ -1,9 +1,7 @@
-"use client";
-
 import { BarChart } from "@mui/x-charts/BarChart";
-import { Card, Stack, Typography, Box, useTheme } from "@mui/material";
+import { Card, Stack, Typography, Box } from "@mui/material";
 import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { Dictionary } from "@/app/lib/language/language";
 
 interface ShipmentChartData {
   statusCounts: { status: string; count: number }[];
@@ -13,15 +11,20 @@ interface ShipmentChartData {
 interface ShipmentChartsProps {
   data?: ShipmentChartData;
   loading?: boolean;
+  dict: Dictionary;
 }
 
-export default function ShipmentCharts({ data, loading = false }: ShipmentChartsProps) {
+export default function ShipmentCharts({
+  data,
+  loading = false,
+  dict,
+}: ShipmentChartsProps) {
   /* -------------------------------- variables ------------------------------- */
-  const dict = useDictionary();
-  const theme = useTheme();
 
   if (loading || !data) {
-    return <AnalyticsSkeleton title={dict.reports.charts.shipment.analyticsTitle} />;
+    return (
+      <AnalyticsSkeleton title={dict.reports.charts.shipment.analyticsTitle} />
+    );
   }
 
   const statusMap: Record<string, number> = {};
@@ -42,15 +45,15 @@ export default function ShipmentCharts({ data, loading = false }: ShipmentCharts
             p: 2.5,
             flexDirection: "column",
             borderRadius: "16px",
-            boxShadow: theme.shadows[2],
+            boxShadow: 2,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            background: `${theme.palette.background.paper}`,
+            background: `theme.palette.background.paper`,
             "&:hover": {
               transform: "translateY(-4px)",
-              boxShadow: theme.shadows[8],
+              boxShadow: 8,
             },
           }}
         >
@@ -71,7 +74,7 @@ export default function ShipmentCharts({ data, loading = false }: ShipmentCharts
                 {
                   dataKey: "count",
                   label: dict.shipments.dashboard.totalShipments,
-                  color: theme.palette.primary.main,
+                  color: "theme.palette.primary.main",
                 },
               ]}
               height={300}

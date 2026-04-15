@@ -7,9 +7,7 @@ import { Box, Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
 import InventoryHeader from "@/app/components/dashboard/inventory/InventoryHeader";
 import InventoryTable from "@/app/components/dashboard/inventory/InventoryTable";
-import {
-  InventoryPageActions,
-} from "@/app/lib/type/inventory";
+import { InventoryPageActions } from "@/app/lib/type/inventory";
 import { useInventory, useInventoryMutations } from "@/app/hooks/useInventory";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import InventoryDetailsDialog from "@/app/components/dialogs/inventory/InventoryDetailsDialog";
@@ -50,14 +48,14 @@ function InventoryContent() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   /* ---------------------------------- HOOKS --------------------------------- */
-  const { 
-    data: inventory = [], 
-    isLoading: isInventoryLoading, 
-    refetch: refetchInventory 
+  const {
+    data: inventory = [],
+    isLoading: isInventoryLoading,
+    refetch: refetchInventory,
   } = useInventory();
-  
-  
-  const { deleteItem: deleteMutation, updateItem: updateMutation } = useInventoryMutations();
+
+  const { deleteItem: deleteMutation, updateItem: updateMutation } =
+    useInventoryMutations();
 
   const loading = isInventoryLoading;
 
@@ -89,10 +87,14 @@ function InventoryContent() {
       await updateMutation.mutateAsync({ id, data });
     },
 
-    updateFilters: (newFilters) => setFilters((prev) => ({ ...prev, ...newFilters })),
+    updateFilters: (newFilters) =>
+      setFilters((prev) => ({ ...prev, ...newFilters })),
   };
 
-  const selectedItem = (inventory as InventoryWithRelations[]).find((i: InventoryWithRelations) => i.id === selectedItemId) || null;
+  const selectedItem =
+    (inventory as InventoryWithRelations[]).find(
+      (i: InventoryWithRelations) => i.id === selectedItemId
+    ) || null;
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleDeleteRequest = (id: string) => {
@@ -123,54 +125,69 @@ function InventoryContent() {
 
   const totalItems = filteredData.length;
   const lowStockItemsCount = (filteredData as InventoryWithRelations[]).filter(
-    (item: InventoryWithRelations) => item.quantity > 0 && item.quantity <= item.minStock
+    (item: InventoryWithRelations) =>
+      item.quantity > 0 && item.quantity <= item.minStock
   ).length;
-  const outOfStockItemsCount = (filteredData as InventoryWithRelations[]).filter(
-    (item: InventoryWithRelations) => item.quantity === 0
-  ).length;
+  const outOfStockItemsCount = (
+    filteredData as InventoryWithRelations[]
+  ).filter((item: InventoryWithRelations) => item.quantity === 0).length;
 
   const totalValue = (filteredData as InventoryWithRelations[]).reduce(
-    (acc: number, item: InventoryWithRelations) => acc + item.quantity * (item.unitValue || 0),
+    (acc: number, item: InventoryWithRelations) =>
+      acc + item.quantity * (item.unitValue || 0),
     0
   );
 
   /* ----------------------------------- KPI ---------------------------------- */
-  const kpiItems = useMemo(() => [
-    {
-      label: dict.inventory.totalItems,
-      value: totalItems ?? 0,
-      icon: <InventoryIcon sx={{ fontSize: 22 }} />,
-      color: theme.palette.primary.main,
-    },
-    {
-      label: dict.inventory.lowStock,
-      value: lowStockItemsCount ?? 0,
-      icon: <Warning sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.amber,
-      trend:
-        lowStockItemsCount > 0 ? { value: lowStockItemsCount, isUp: true } : undefined,
-    },
-    {
-      label: dict.inventory.outOfStock,
-      value: outOfStockItemsCount ?? 0,
-      icon: <ErrorIcon sx={{ fontSize: 22 }} />,
-      color: theme.palette.error.main,
-      trend:
-        outOfStockItemsCount > 0
-          ? { value: outOfStockItemsCount, isUp: true }
-          : undefined,
-    },
-    {
-      label: dict.inventory.totalValue,
-      value: new Intl.NumberFormat(lang === "tr" ? "tr-TR" : "en-US", {
-        style: "currency",
-        currency: lang === "tr" ? "TRY" : "USD",
-        maximumFractionDigits: 0,
-      }).format(totalValue),
-      icon: <AttachMoney sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.emerald,
-    },
-  ], [totalItems, lowStockItemsCount, outOfStockItemsCount, totalValue, theme, dict, lang]);
+  const kpiItems = useMemo(
+    () => [
+      {
+        label: dict.inventory.totalItems,
+        value: totalItems ?? 0,
+        icon: <InventoryIcon sx={{ fontSize: 22 }} />,
+        color: theme.palette.primary.main,
+      },
+      {
+        label: dict.inventory.lowStock,
+        value: lowStockItemsCount ?? 0,
+        icon: <Warning sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.amber,
+        trend:
+          lowStockItemsCount > 0
+            ? { value: lowStockItemsCount, isUp: true }
+            : undefined,
+      },
+      {
+        label: dict.inventory.outOfStock,
+        value: outOfStockItemsCount ?? 0,
+        icon: <ErrorIcon sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.error,
+        trend:
+          outOfStockItemsCount > 0
+            ? { value: outOfStockItemsCount, isUp: true }
+            : undefined,
+      },
+      {
+        label: dict.inventory.totalValue,
+        value: new Intl.NumberFormat(lang === "tr" ? "tr-TR" : "en-US", {
+          style: "currency",
+          currency: lang === "tr" ? "TRY" : "USD",
+          maximumFractionDigits: 0,
+        }).format(totalValue),
+        icon: <AttachMoney sx={{ fontSize: 22 }} />,
+        color: theme.palette.kpi.emerald,
+      },
+    ],
+    [
+      totalItems,
+      lowStockItemsCount,
+      outOfStockItemsCount,
+      totalValue,
+      theme,
+      dict,
+      lang,
+    ]
+  );
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
@@ -223,7 +240,10 @@ function InventoryContent() {
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={handleDeleteConfirm}
         title={dict.inventory.deleteTitle}
-        description={dict.inventory.deleteDesc.replace("{name}", selectedItem?.name || "")}
+        description={dict.inventory.deleteDesc.replace(
+          "{name}",
+          selectedItem?.name || ""
+        )}
         loading={deleteMutation.isPending}
       />
     </Box>

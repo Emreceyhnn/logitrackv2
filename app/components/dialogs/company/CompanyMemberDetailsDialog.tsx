@@ -1,6 +1,3 @@
-"use client";
-
-import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,8 +8,6 @@ import {
   Avatar,
   Chip,
   Grid,
-  
-  useTheme,
   Button,
 } from "@mui/material";
 import {
@@ -34,7 +29,6 @@ export default function CompanyMemberDetailsDialog({
   onClose,
   member,
 }: CompanyMemberDetailsDialogProps) {
-  const theme = useTheme();
   const dict = useDictionary();
 
   if (!member) return null;
@@ -50,13 +44,17 @@ export default function CompanyMemberDetailsDialog({
           bgcolor: "#0B0F19",
           backgroundImage: "none",
           borderRadius: 4,
-          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+          border: `1px solid theme.palette.divider_alpha.main_10`,
           overflow: "hidden",
         },
       }}
     >
       <Box sx={{ p: 3, pb: 0 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="flex-start"
+        >
           <Stack direction="row" spacing={3} alignItems="center">
             <Avatar
               src={member.avatarUrl || undefined}
@@ -65,8 +63,8 @@ export default function CompanyMemberDetailsDialog({
                 height: 80,
                 fontSize: "2rem",
                 fontWeight: 700,
-                bgcolor: theme.palette.primary._alpha.main_10,
-                color: theme.palette.primary.main,
+                bgcolor: "theme.palette.primary._alpha.main_10",
+                color: "theme.palette.primary.main",
                 borderRadius: 3,
               }}
             >
@@ -81,16 +79,18 @@ export default function CompanyMemberDetailsDialog({
                   label={member.roleName || dict.company.memberDetails.noRole}
                   size="small"
                   sx={{
-                    bgcolor: theme.palette.secondary._alpha.main_10,
-                    color: theme.palette.secondary.light,
+                    bgcolor: "theme.palette.secondary._alpha.main_10",
+                    color: "theme.palette.secondary.light",
                     fontWeight: 700,
                     fontSize: "0.7rem",
-                    border: `1px solid ${theme.palette.secondary._alpha.main_20}`,
+                    border: `1px solid theme.palette.secondary._alpha.main_20`,
                   }}
                 />
                 <Chip
                   label={
-                    (dict.company.editMember.statuses as Record<string, string>)[member.status] || member.status
+                    (
+                      dict.company.editMember.statuses as Record<string, string>
+                    )[member.status] || member.status
                   }
                   size="small"
                   color={member.status === "ACTIVE" ? "success" : "warning"}
@@ -109,32 +109,74 @@ export default function CompanyMemberDetailsDialog({
       <DialogContent sx={{ mt: 4, p: 4, pt: 0 }}>
         <Grid container spacing={4}>
           <Grid size={12}>
-            <Box sx={{ p: 3, borderRadius: 3, bgcolor: theme.palette.background.paper_alpha.main_03, border: `1px solid ${theme.palette.divider_alpha.main_05}` }}>
-              <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ letterSpacing: 1, textTransform: "uppercase", mb: 2, display: "block" }}>
+            <Box
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                bgcolor: "theme.palette.background.paper_alpha.main_03",
+                border: `1px solid theme.palette.divider_alpha.main_05`,
+              }}
+            >
+              <Typography
+                variant="caption"
+                fontWeight={800}
+                color="text.secondary"
+                sx={{
+                  letterSpacing: 1,
+                  textTransform: "uppercase",
+                  mb: 2,
+                  display: "block",
+                }}
+              >
                 {dict.company.memberDetails.contactInfo}
               </Typography>
               <Stack spacing={2}>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.info._alpha.main_10, color: theme.palette.info.main }}>
+                  <Avatar
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      bgcolor: "theme.palette.info._alpha.main_10",
+                      color: "theme.palette.info.main",
+                    }}
+                  >
                     <EmailIcon sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="caption" color="text.secondary">{dict.company.memberDetails.emailAddress}</Typography>
-                    <Typography variant="body2" color="white" fontWeight={500}>{member.email}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {dict.company.memberDetails.emailAddress}
+                    </Typography>
+                    <Typography variant="body2" color="white" fontWeight={500}>
+                      {member.email}
+                    </Typography>
                   </Box>
                 </Stack>
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Avatar sx={{ width: 32, height: 32, bgcolor: theme.palette.success._alpha.main_10, color: theme.palette.success.main }}>
+                  <Avatar
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      bgcolor: "theme.palette.success._alpha.main_10",
+                      color: "theme.palette.success.main",
+                    }}
+                  >
                     <EventIcon sx={{ fontSize: 18 }} />
                   </Avatar>
                   <Box>
-                    <Typography variant="caption" color="text.secondary">{dict.company.memberDetails.joinedSince}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {dict.company.memberDetails.joinedSince}
+                    </Typography>
                     <Typography variant="body2" color="white" fontWeight={500}>
-                      {new Date(member.createdAt).toLocaleDateString(dict.common.logitrack === "LogiTrack" ? "en-US" : "tr-TR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {new Date(member.createdAt).toLocaleDateString(
+                        dict.common.logitrack === "LogiTrack"
+                          ? "en-US"
+                          : "tr-TR",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
                     </Typography>
                   </Box>
                 </Stack>
@@ -143,24 +185,50 @@ export default function CompanyMemberDetailsDialog({
           </Grid>
 
           <Grid size={12}>
-             <Box sx={{ p: 3, borderRadius: 3, bgcolor: theme.palette.warning._alpha.main_03, border: `1px solid ${theme.palette.warning._alpha.main_05}` }}>
-              <Typography variant="caption" fontWeight={800} color="warning.light" sx={{ letterSpacing: 1, textTransform: "uppercase", mb: 1.5, display: "block" }}>
+            <Box
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                bgcolor: "theme.palette.warning._alpha.main_03",
+                border: `1px solid theme.palette.warning._alpha.main_05`,
+              }}
+            >
+              <Typography
+                variant="caption"
+                fontWeight={800}
+                color="warning.light"
+                sx={{
+                  letterSpacing: 1,
+                  textTransform: "uppercase",
+                  mb: 1.5,
+                  display: "block",
+                }}
+              >
                 {dict.company.memberDetails.adminData}
               </Typography>
-              <Typography 
-                variant="body2" 
-                color="text.secondary" 
+              <Typography
+                variant="body2"
+                color="text.secondary"
                 sx={{ fontSize: "0.85rem", lineHeight: 1.6 }}
-                dangerouslySetInnerHTML={{ 
-                  __html: dict.company.memberDetails.adminDataDesc.replace("{role}", `<strong>${member.roleName || "read-only"}</strong>`) 
-                }} 
+                dangerouslySetInnerHTML={{
+                  __html: dict.company.memberDetails.adminDataDesc.replace(
+                    "{role}",
+                    `<strong>${member.roleName || "read-only"}</strong>`
+                  ),
+                }}
               />
             </Box>
           </Grid>
         </Grid>
 
-        <Box sx={{ mt: 4, pt: 3, borderTop: `1px solid ${theme.palette.divider_alpha.main_10}` }}>
-           <Button
+        <Box
+          sx={{
+            mt: 4,
+            pt: 3,
+            borderTop: `1px solid theme.palette.divider_alpha.main_10`,
+          }}
+        >
+          <Button
             fullWidth
             variant="outlined"
             onClick={onClose}
@@ -170,12 +238,12 @@ export default function CompanyMemberDetailsDialog({
               fontWeight: 700,
               textTransform: "none",
               color: "text.secondary",
-              borderColor: theme.palette.divider_alpha.main_20,
+              borderColor: "theme.palette.divider_alpha.main_20",
               "&:hover": {
                 borderColor: "white",
                 color: "white",
-                bgcolor: theme.palette.common.white_alpha.main_02
-              }
+                bgcolor: "theme.palette.common.white_alpha.main_02",
+              },
             }}
           >
             {dict.company.memberDetails.closeView}

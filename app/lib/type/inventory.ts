@@ -1,4 +1,4 @@
-import { Inventory } from "@prisma/client";
+import { Inventory } from "./enums";
 
 // Domain Models
 export interface InventoryWithRelations

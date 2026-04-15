@@ -1,10 +1,18 @@
-import { Box, Divider, List, ListItem, Stack, Typography,  useTheme } from "@mui/material";
+import {
+  Box,
+  Divider,
+  List,
+  ListItem,
+  Stack,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import CustomCard from "../../cards/card";
 import DirectionsIcon from "@mui/icons-material/Directions";
 import PlaceIcon from "@mui/icons-material/Place";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { DailyOperationsData } from "@/app/lib/type/overview";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useMemo } from "react";
@@ -16,7 +24,7 @@ interface DailyOperationsCardProps {
 const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {
   const dict = useDictionary();
   const theme = useTheme();
-  
+
   const items = useMemo(() => {
     if (!values) return [];
     return [
@@ -24,36 +32,36 @@ const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {
         label: dict.dashboard.overview.dailyOperations.plannedRoutes,
         value: values.plannedRoutes,
         icon: <DirectionsIcon sx={{ fontSize: 20 }} />,
-        color: theme.palette.primary.main,
-        bgColor: theme.palette.primary._alpha.main_10,
+        color: theme.palette.kpi.indigo,
+        bgColor: theme.palette.kpi.indigo_alpha.main_10,
       },
       {
         label: dict.dashboard.overview.dailyOperations.completedDeliveries,
         value: values.completedDeliveries,
         icon: <PlaceIcon sx={{ fontSize: 20 }} />,
-        color: theme.palette.success.main,
-        bgColor: theme.palette.success._alpha.main_10,
+        color: theme.palette.kpi.emerald,
+        bgColor: theme.palette.kpi.emerald_alpha.main_10,
       },
       {
         label: dict.dashboard.overview.dailyOperations.failedDeliveries,
         value: values.failedDeliveries,
         icon: <ErrorOutlineIcon sx={{ fontSize: 20 }} />,
-        color: theme.palette.error.main,
+        color: theme.palette.kpi.error,
         bgColor: theme.palette.error._alpha.main_10,
       },
       {
         label: dict.dashboard.overview.dailyOperations.avgDuration,
         value: values.avgDeliveryTimeMin || "--",
         icon: <AccessTimeIcon sx={{ fontSize: 20 }} />,
-        color: theme.palette.warning.main,
-        bgColor: theme.palette.warning._alpha.main_10,
+        color: theme.palette.kpi.amber,
+        bgColor: theme.palette.kpi.amber_alpha.main_10,
       },
       {
         label: dict.dashboard.overview.dailyOperations.fuelConsumed,
         value: values.fuelConsumedLiters,
         icon: <LocalGasStationIcon sx={{ fontSize: 20 }} />,
-        color: theme.palette.info.main,
-        bgColor: theme.palette.info._alpha.main_10,
+        color: theme.palette.kpi.sky,
+        bgColor: theme.palette.kpi.sky_alpha.main_10,
       },
     ];
   }, [values, dict, theme]);
@@ -61,12 +69,19 @@ const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {
   if (!values) return null;
 
   return (
-    <CustomCard sx={{ padding: "0 0 6px 0", height: "100%", display: "flex", flexDirection: "column" }}>
+    <CustomCard
+      sx={{
+        padding: "0 0 6px 0",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
         {dict.dashboard.overview.dailyOperations.title}
       </Typography>
       <Divider />
-      
+
       <Box sx={{ flexGrow: 1, p: 2 }}>
         <List sx={{ p: 0, display: "flex", flexDirection: "column", gap: 1.5 }}>
           {items.map((item, index) => (
@@ -98,11 +113,19 @@ const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {
                 >
                   {item.icon}
                 </Box>
-                <Typography variant="body2" fontWeight={500} color="text.secondary">
+                <Typography
+                  variant="body2"
+                  fontWeight={500}
+                  color="text.secondary"
+                >
                   {item.label}
                 </Typography>
               </Stack>
-              <Typography variant="subtitle1" fontWeight={700} color="text.primary">
+              <Typography
+                variant="subtitle1"
+                fontWeight={700}
+                color="text.primary"
+              >
                 {item.value}
               </Typography>
             </ListItem>

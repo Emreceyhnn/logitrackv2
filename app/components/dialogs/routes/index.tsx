@@ -18,7 +18,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
 import { RouteWithRelations } from "@/app/lib/type/routes";
-import { RouteStatus } from "@prisma/client";
+import { RouteStatus } from "@/app/lib/type/enums";
 
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import DriverCard from "../../cards/driverCard";
@@ -41,8 +41,13 @@ interface RouteDialogProps {
 
 const getStatusMeta = (status?: string, dict?: Dictionary) => {
   const s = status?.toUpperCase();
-  const label = (dict?.routes?.statuses as unknown as Record<string, string>)?.[s as string] || status || "-";
-  
+  const label =
+    (dict?.routes?.statuses as unknown as Record<string, string>)?.[
+      s as string
+    ] ||
+    status ||
+    "-";
+
   switch (s) {
     case "ACTIVE":
       return { color: "success.main", label };
@@ -95,7 +100,7 @@ export default function RouteDialog({
   };
 
   const statusMeta = getStatusMeta(route.status || "PENDING", dict);
-  
+
   const getStatusColor = () => {
     if (statusMeta.color.includes(".")) {
       const [colorKey, colorVariant] = statusMeta.color.split(".");
@@ -109,8 +114,10 @@ export default function RouteDialog({
   };
 
   const statusColor = getStatusColor();
-  const paletteKey = statusMeta.color.split('.')[0] as any;
-  const statusAlpha = (theme.palette[paletteKey as keyof typeof theme.palette] as any)?._alpha || theme.palette.primary._alpha;
+  const paletteKey = statusMeta.color.split(".")[0];
+  const statusAlpha =
+    (theme.palette as unknown as Record<string, { _alpha?: Record<string, string> }>)[paletteKey]?._alpha ??
+    theme.palette.primary._alpha;
 
   const mapOrigin =
     route.startLat && route.startLng
@@ -298,7 +305,10 @@ export default function RouteDialog({
                 onClick={onClose}
                 sx={{
                   color: "rgba(255,255,255,0.4)",
-                  "&:hover": { color: "white", bgcolor: theme.palette.common.white_alpha.main_05 },
+                  "&:hover": {
+                    color: "white",
+                    bgcolor: theme.palette.common.white_alpha.main_05,
+                  },
                 }}
               >
                 <CloseIcon />
@@ -372,12 +382,16 @@ export default function RouteDialog({
                   )}
                 </Stack>
 
-                <Divider sx={{ borderColor: theme.palette.common.white_alpha.main_05 }} />
+                <Divider
+                  sx={{ borderColor: theme.palette.common.white_alpha.main_05 }}
+                />
 
                 {/* Progress Section */}
                 <RouteProgress route={route} />
 
-                <Divider sx={{ borderColor: theme.palette.common.white_alpha.main_05 }} />
+                <Divider
+                  sx={{ borderColor: theme.palette.common.white_alpha.main_05 }}
+                />
 
                 {/* Stats Grid */}
                 <Stack direction="row" spacing={2}>

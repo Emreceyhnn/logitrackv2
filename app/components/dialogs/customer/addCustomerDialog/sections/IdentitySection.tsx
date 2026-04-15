@@ -1,4 +1,11 @@
-import { Box, Grid, Stack, Typography, MenuItem, useTheme, SvgIconProps } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Stack,
+  Typography,
+  MenuItem,
+  SvgIconProps,
+} from "@mui/material";
 import { AddCustomerIdentity } from "@/app/lib/type/add-customer";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -9,7 +16,13 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import { useFormikContext } from "formik";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
-const LabelWithIcon = ({ icon: Icon, label }: { icon: React.ComponentType<SvgIconProps>, label: string }) => (
+const LabelWithIcon = ({
+  icon: Icon,
+  label,
+}: {
+  icon: React.ComponentType<SvgIconProps>;
+  label: string;
+}) => (
   <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
     <Icon sx={{ fontSize: "0.9rem", color: "primary.main", opacity: 0.8 }} />
     <Typography
@@ -24,9 +37,9 @@ const LabelWithIcon = ({ icon: Icon, label }: { icon: React.ComponentType<SvgIco
 );
 
 const IdentitySection = () => {
-  const theme = useTheme();
   const dict = useDictionary();
-  const { values, errors, touched, setFieldValue, handleBlur } = useFormikContext<AddCustomerIdentity>();
+  const { values, errors, touched, setFieldValue, handleBlur } =
+    useFormikContext<AddCustomerIdentity>();
 
   const INDUSTRIES = [
     { value: "Logistics & Transportation", label: dict.industries.logistics },
@@ -45,7 +58,10 @@ const IdentitySection = () => {
         <Grid container spacing={3}>
           <Grid size={{ xs: 12 }}>
             <Stack spacing={0}>
-              <LabelWithIcon icon={BusinessIcon} label={`${dict.customers.fields.companyName} *`} />
+              <LabelWithIcon
+                icon={BusinessIcon}
+                label={`${dict.customers.fields.companyName} *`}
+              />
               <CustomTextArea
                 name="name"
                 placeholder={dict.common.na}
@@ -58,10 +74,14 @@ const IdentitySection = () => {
                 helperText={touched.name ? (errors.name as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: theme.palette.common.white_alpha.main_02,
-                    "&:hover": { bgcolor: theme.palette.common.white_alpha.main_04 },
-                    "&.Mui-focused": { bgcolor: theme.palette.common.white_alpha.main_04 },
-                  }
+                    bgcolor: "theme.palette.common.white_alpha.main_02",
+                    "&:hover": {
+                      bgcolor: "theme.palette.common.white_alpha.main_04",
+                    },
+                    "&.Mui-focused": {
+                      bgcolor: "theme.palette.common.white_alpha.main_04",
+                    },
+                  },
                 }}
               />
             </Stack>
@@ -69,7 +89,10 @@ const IdentitySection = () => {
 
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={0}>
-              <LabelWithIcon icon={BadgeIcon} label={dict.customers.fields.customerCode} />
+              <LabelWithIcon
+                icon={BadgeIcon}
+                label={dict.customers.fields.customerCode}
+              />
               <CustomTextArea
                 name="code"
                 placeholder={dict.common.optional}
@@ -82,8 +105,8 @@ const IdentitySection = () => {
                 helperText={touched.code ? (errors.code as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: theme.palette.common.white_alpha.main_02,
-                  }
+                    bgcolor: "theme.palette.common.white_alpha.main_02",
+                  },
                 }}
               />
             </Stack>
@@ -91,7 +114,10 @@ const IdentitySection = () => {
 
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={0}>
-              <LabelWithIcon icon={ReceiptIcon} label={dict.customers.fields.taxId} />
+              <LabelWithIcon
+                icon={ReceiptIcon}
+                label={dict.customers.fields.taxId}
+              />
               <CustomTextArea
                 name="taxId"
                 placeholder={dict.common.na}
@@ -104,8 +130,8 @@ const IdentitySection = () => {
                 helperText={touched.taxId ? (errors.taxId as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: theme.palette.common.white_alpha.main_02,
-                  }
+                    bgcolor: "theme.palette.common.white_alpha.main_02",
+                  },
                 }}
               />
             </Stack>
@@ -113,7 +139,10 @@ const IdentitySection = () => {
 
           <Grid size={{ xs: 12 }}>
             <Stack spacing={0}>
-              <LabelWithIcon icon={CategoryIcon} label={dict.customers.fields.industry} />
+              <LabelWithIcon
+                icon={CategoryIcon}
+                label={dict.customers.fields.industry}
+              />
               <CustomTextArea
                 name="industry"
                 select
@@ -126,8 +155,8 @@ const IdentitySection = () => {
                 helperText={touched.industry ? (errors.industry as string) : ""}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    bgcolor: theme.palette.common.white_alpha.main_02,
-                  }
+                    bgcolor: "theme.palette.common.white_alpha.main_02",
+                  },
                 }}
               >
                 <MenuItem value="" disabled>

@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Divider,
   LinearProgress,
@@ -75,7 +73,10 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
           <Typography
             sx={{ fontSize: 14, fontWeight: 700, color: "info.main" }}
           >
-            {dict.routes.dashboard.avg.replace("{count}", data.fuelConsumption.toFixed(2))}
+            {dict.routes.dashboard.avg.replace(
+              "{count}",
+              data.fuelConsumption.toFixed(2)
+            )}
           </Typography>
         </Stack>
         <LinearProgress
@@ -93,7 +94,9 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
       </Stack>
       <Stack spacing={1}>
         <Stack direction={"row"} justifyContent={"space-between"}>
-          <Typography sx={{ fontSize: 14 }}>{dict.routes.dashboard.onTimePerformance}</Typography>
+          <Typography sx={{ fontSize: 14 }}>
+            {dict.routes.dashboard.onTimePerformance}
+          </Typography>
           <Typography
             sx={{ fontSize: 14, fontWeight: 700, color: "success.main" }}
           >
@@ -115,7 +118,9 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
       </Stack>
       <Stack spacing={1}>
         <Stack direction={"row"} justifyContent={"space-between"}>
-          <Typography sx={{ fontSize: 14 }}>{dict.routes.dashboard.vehicleUtilization}</Typography>
+          <Typography sx={{ fontSize: 14 }}>
+            {dict.routes.dashboard.vehicleUtilization}
+          </Typography>
           <Typography
             sx={{ fontSize: 14, fontWeight: 700, color: "warning.main" }}
           >

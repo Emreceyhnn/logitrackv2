@@ -1,17 +1,14 @@
-"use client";
-
 import {
   Box,
   Grid,
   Stack,
   Typography,
-  useTheme,
   MenuItem,
   Switch,
   FormControlLabel,
 } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { WarehouseType } from "@prisma/client";
+import { WarehouseType } from "@/app/lib/type/enums";
 import {
   EditWarehouseBasicInfo,
   EditWarehousePageActions,
@@ -25,7 +22,6 @@ interface BasicInfoSectionProps {
 
 const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
   const dict = useDictionary();
-  const theme = useTheme();
 
   const f = dict.warehouses.dialogs.fields;
 
@@ -38,8 +34,8 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
               width: 10,
               height: 10,
               borderRadius: "50%",
-              bgcolor: theme.palette.primary.main,
-              boxShadow: `0 0 10px ${theme.palette.primary.main}`,
+              bgcolor: "theme.palette.primary.main",
+              boxShadow: `0 0 10px theme.palette.primary.main`,
             }}
           />
           <Typography variant="subtitle1" fontWeight={700} color="white">
@@ -101,14 +97,20 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 select
                 value={state.type}
                 onChange={(e) =>
-                  actions.updateBasicInfo({ type: e.target.value as WarehouseType })
+                  actions.updateBasicInfo({
+                    type: e.target.value as WarehouseType,
+                  })
                 }
               >
-                <MenuItem value="WAREHOUSE">{dict.warehouses.categories.types.WAREHOUSE}</MenuItem>
+                <MenuItem value="WAREHOUSE">
+                  {dict.warehouses.categories.types.WAREHOUSE}
+                </MenuItem>
                 <MenuItem value="DISTRIBUTION_CENTER">
                   {dict.warehouses.categories.types.DISTRIBUTION_CENTER}
                 </MenuItem>
-                <MenuItem value="CROSSDOCK">{dict.warehouses.categories.types.CROSSDOCK}</MenuItem>
+                <MenuItem value="CROSSDOCK">
+                  {dict.warehouses.categories.types.CROSSDOCK}
+                </MenuItem>
               </CustomTextArea>
             </Stack>
           </Grid>
@@ -126,7 +128,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                   width: 10,
                   height: 10,
                   borderRadius: "50%",
-                  bgcolor: theme.palette.primary.main,
+                  bgcolor: "theme.palette.primary.main",
                 }}
               />
               <Typography variant="subtitle1" fontWeight={700} color="white">

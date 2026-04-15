@@ -32,7 +32,7 @@ import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { RouteWithRelations } from "@/app/lib/type/routes";
-import { ShipmentStatus, ShipmentPriority } from "@prisma/client";
+import { ShipmentStatus, ShipmentPriority } from "@/app/lib/type/enums";
 import { Formik, Form, useFormikContext } from "formik";
 import { addShipmentValidationSchema } from "@/app/lib/validationSchema";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";

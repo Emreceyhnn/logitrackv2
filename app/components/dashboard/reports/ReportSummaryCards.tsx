@@ -1,6 +1,5 @@
 "use client";
-
-import { Card, Stack, Typography, useTheme, Box } from "@mui/material";
+import { Card, Stack, Typography, Box, useTheme } from "@mui/material";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
@@ -10,7 +9,7 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import { ReportsMetrics } from "@/app/lib/type/reports";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { Dictionary } from "@/app/lib/language/language";
 
 interface MetricCardProps {
   title: string;
@@ -31,38 +30,50 @@ const MetricCard = ({
 }: MetricCardProps) => {
   const theme = useTheme();
 
-  // Helper to resolve color to theme alpha tokens
-  const resolveAlpha = (targetColor: string) => {
-    if (targetColor === theme.palette.primary.main) return theme.palette.primary._alpha;
-    if (targetColor === theme.palette.success.main) return theme.palette.success._alpha;
-    if (targetColor === theme.palette.error.main) return theme.palette.error._alpha;
-    if (targetColor === theme.palette.warning.main) return theme.palette.warning._alpha;
-    if (targetColor === theme.palette.info.main) return theme.palette.info._alpha;
-    return theme.palette.primary._alpha;
-  };
-
-  const statusAlpha = resolveAlpha(color);
-  const changeAlpha = positive ? theme.palette.success._alpha : theme.palette.error._alpha;
+  // Resolve alpha tokens using the centralized theme utility
+  const statusAlpha = theme.palette.getColorAlpha(color);
+  const changeAlpha = positive
+    ? theme.palette.success._alpha
+    : theme.palette.error._alpha;
 
   return (
     <Card
       sx={{
-        p: 2.5,
+        p: 3,
         height: "100%",
-        borderRadius: "16px",
-        boxShadow: theme.shadows[2],
+        borderRadius: "28px",
+        position: "relative",
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        background: `${theme.palette.background.paper}`,
+        transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+        background: theme.palette.background.paper_alpha.main_80,
+        backdropFilter: "blur(20px)",
+        border: `1px solid ${statusAlpha.main_15}`,
+        boxShadow: `0 10px 40px -10px ${theme.palette.common.black_alpha.main_30}`,
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "4px",
+          background: `linear-gradient(90deg, ${color}, ${statusAlpha.main_30})`,
+          opacity: 0.8,
+        },
         "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: theme.shadows[8],
+          transform: "translateY(-6px)",
+          borderColor: statusAlpha.main_40,
+          boxShadow: `0 20px 50px -12px ${statusAlpha.main_20}`,
+          "&::before": {
+            height: "6px",
+            opacity: 1,
+          },
         },
       }}
     >
-      <Stack spacing={2}>
+      <Stack spacing={2.5}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -70,47 +81,58 @@ const MetricCard = ({
         >
           <Box
             sx={{
-              p: 1.5,
-              borderRadius: "12px",
-              bgcolor: statusAlpha.main_10,
+              p: 1.8,
+              borderRadius: "20px",
+              bgcolor: statusAlpha.main_12,
               color: color,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              boxShadow: `inset 0 0 10px ${statusAlpha.main_10}`,
             }}
           >
             {icon}
           </Box>
-          <Stack direction="row" spacing={0.5} alignItems="center">
-            <Typography
-              variant="caption"
-              fontWeight={700}
-              sx={{
-                color: positive ? "success.main" : "error.main",
-                bgcolor: changeAlpha.main_10,
-                px: 1,
-                py: 0.5,
-                borderRadius: "6px",
-              }}
-            >
-              {change}
-            </Typography>
-          </Stack>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              color: positive ? "success.main" : "error.main",
+              bgcolor: changeAlpha.main_10,
+              px: 1.2,
+              py: 0.6,
+              borderRadius: "10px",
+              fontSize: "0.75rem",
+              fontWeight: 800,
+            }}
+          >
+            {positive ? "↑" : "↓"} {change}
+          </Box>
         </Stack>
 
         <Box>
           <Typography
             variant="h4"
-            fontWeight={800}
-            sx={{ color: theme.palette.text.primary, mb: 0.5 }}
+            sx={{
+              fontWeight: 900,
+              color: "text.primary",
+              letterSpacing: "-0.04em",
+              lineHeight: 1,
+              mb: 1,
+            }}
           >
             {value}
           </Typography>
           <Typography
-            variant="body2"
-            color="text.secondary"
-            fontWeight={600}
-            sx={{ letterSpacing: 0.5 }}
+            variant="overline"
+            sx={{
+              color: "text.primary_alpha.main_40",
+              fontWeight: 800,
+              letterSpacing: "0.1em",
+              fontSize: "0.7rem",
+              display: "block",
+            }}
           >
             {title}
           </Typography>
@@ -123,13 +145,14 @@ const MetricCard = ({
 export default function ReportSummaryCards({
   tabIndex,
   metrics,
+  dict,
   loading = false,
 }: {
   tabIndex: number;
   metrics?: ReportsMetrics;
+  dict: Dictionary;
   loading?: boolean;
 }) {
-  const dict = useDictionary();
   const theme = useTheme();
 
   if (loading || !metrics) {
@@ -147,34 +170,34 @@ export default function ReportSummaryCards({
           {
             title: dict.reports.metrics.totalShipments,
             value: metrics?.totalShipments.toLocaleString() || "0",
-            change: "+12%",
+            change: "12%",
             positive: true,
             icon: <LocalShippingIcon />,
-            color: theme.palette.primary.main,
+            color: theme.palette.kpi.indigo,
           },
           {
             title: dict.reports.metrics.onTimeRate,
             value: `${metrics?.onTimeRate.toFixed(1)}%` || "0%",
-            change: "+2.1%",
+            change: "2.1%",
             positive: true,
             icon: <AccessTimeIcon />,
-            color: theme.palette.success.main,
+            color: theme.palette.kpi.emerald,
           },
           {
             title: dict.reports.metrics.avgDeliveryTime,
             value: dict.reports.metrics.daysUnits.replace("{count}", "2.3"),
-            change: "-5%",
+            change: "5%",
             positive: true,
             icon: <TrendingUpIcon />,
-            color: theme.palette.info.main,
+            color: theme.palette.kpi.sky,
           },
           {
             title: dict.reports.metrics.pendingOrders,
-            value: "42", // Mock
-            change: "+8%",
+            value: "42",
+            change: "8%",
             positive: false,
             icon: <WarningAmberIcon />,
-            color: theme.palette.warning.main,
+            color: theme.palette.kpi.amber,
           },
         ];
       case 1:
@@ -185,31 +208,31 @@ export default function ReportSummaryCards({
             change: "0%",
             positive: true,
             icon: <DirectionsCarIcon />,
-            color: theme.palette.primary.main,
+            color: theme.palette.kpi.indigo,
           },
           {
             title: dict.reports.metrics.avgFuelCons,
-            value: "22L/100km", // Mock
-            change: "-1.2%",
+            value: "22L/100km",
+            change: "1.2%",
             positive: true,
             icon: <LocalShippingIcon />,
-            color: theme.palette.success.main,
+            color: theme.palette.kpi.emerald,
           },
           {
             title: dict.reports.metrics.maintenanceCost,
-            value: "$4,250", // Mock
-            change: "+15%",
+            value: "$4,250",
+            change: "15%",
             positive: false,
             icon: <AttachMoneyIcon />,
-            color: theme.palette.error.main,
+            color: theme.palette.kpi.error,
           },
           {
             title: dict.reports.metrics.totalDistance,
-            value: "125k km", // Mock
-            change: "+10%",
+            value: "125k km",
+            change: "10%",
             positive: true,
             icon: <TrendingUpIcon />,
-            color: theme.palette.info.main,
+            color: theme.palette.kpi.sky,
           },
         ];
       case 2:
@@ -217,34 +240,34 @@ export default function ReportSummaryCards({
           {
             title: dict.reports.metrics.totalInventoryValue,
             value: `$${(metrics?.totalInventoryValue || 0).toLocaleString()}`,
-            change: "+5.4%",
+            change: "5.4%",
             positive: true,
             icon: <AttachMoneyIcon />,
-            color: theme.palette.success.main,
+            color: theme.palette.kpi.emerald,
           },
           {
             title: dict.reports.metrics.stockTurnover,
-            value: "4.2", // Mock
-            change: "+0.3",
+            value: "4.2",
+            change: "0.3",
             positive: true,
             icon: <TrendingUpIcon />,
-            color: theme.palette.info.main,
+            color: theme.palette.kpi.sky,
           },
           {
             title: dict.reports.metrics.deadStock,
-            value: "$12k", // Mock
-            change: "-2%",
+            value: "$12k",
+            change: "2%",
             positive: true,
             icon: <WarningAmberIcon />,
-            color: theme.palette.error.main,
+            color: theme.palette.kpi.error,
           },
           {
-            title: dict.reports.metrics.lowStockSKUs,
-            value: "15", // Mock
-            change: "+3",
-            positive: false,
+            title: "Warehouse Capacity",
+            value: "82%",
+            change: "4%",
+            positive: true,
             icon: <Inventory2Icon />,
-            color: theme.palette.warning.main,
+            color: theme.palette.kpi.amber,
           },
         ];
       default:
@@ -252,18 +275,21 @@ export default function ReportSummaryCards({
     }
   };
 
-  const metricsData = getMetrics();
+  const currentMetrics = getMetrics();
 
   return (
-    <Box
-      display="grid"
-      gridTemplateColumns="repeat(auto-fill, minmax(240px, 1fr))"
-      gap={3}
-      mb={4}
-    >
-      {metricsData.map((metric, index) => (
-        <MetricCard key={index} {...metric} />
-      ))}
+    <Box sx={{ mb: 4 }}>
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={3}
+        alignItems="stretch"
+      >
+        {currentMetrics.map((metric, index) => (
+          <Box key={index} sx={{ flex: 1 }}>
+            <MetricCard {...metric} />
+          </Box>
+        ))}
+      </Stack>
     </Box>
   );
 }

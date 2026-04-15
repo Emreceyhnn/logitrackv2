@@ -1,5 +1,3 @@
-"use client";
-
 import { Box, Stack, Typography } from "@mui/material";
 import { Field, FieldProps } from "formik";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
@@ -13,7 +11,9 @@ export default function Step1PersonalInfo() {
         <Typography variant="h5" sx={{ color: "#fff", fontWeight: 600, mb: 1 }}>
           {dict.auth.personalInfo}
         </Typography>
-        <Typography sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}>
+        <Typography
+          sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}
+        >
           {dict.auth.signUpDescription}
         </Typography>
       </Box>

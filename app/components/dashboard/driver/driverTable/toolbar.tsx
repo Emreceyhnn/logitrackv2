@@ -14,7 +14,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import ClearIcon from "@mui/icons-material/Clear";
-import { DriverStatus } from "@prisma/client";
+import { DriverStatus } from "@/app/lib/type/enums";
 import { DriverFilters } from "@/app/lib/type/driver";
 import { useEffect, useState } from "react";
 

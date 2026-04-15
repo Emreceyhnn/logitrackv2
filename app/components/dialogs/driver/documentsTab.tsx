@@ -20,7 +20,6 @@ import { useState } from "react";
 import { getSignedUrlAction } from "@/app/lib/actions/upload";
 import DocumentViewerDialog from "../shared/DocumentViewerDialog";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-
 import { DriverWithRelations } from "@/app/lib/type/driver";
 
 interface DocumentsTabProps {
@@ -40,7 +39,11 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
   } | null>(null);
 
   if (!driver) {
-    return <Typography color="text.secondary">{dict.drivers.noDriverSelected}</Typography>;
+    return (
+      <Typography color="text.secondary">
+        {dict.drivers.noDriverSelected}
+      </Typography>
+    );
   }
 
   const hasValidLicense =
@@ -150,7 +153,9 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                 fontWeight={700}
                 color={hasValidLicense ? "success.main" : "error.main"}
               >
-                {hasValidLicense ? dict.drivers.labels.compliant : dict.drivers.labels.actionRequired}
+                {hasValidLicense
+                  ? dict.drivers.labels.compliant
+                  : dict.drivers.labels.actionRequired}
               </Typography>
             </Stack>
           </Card>
@@ -205,15 +210,21 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                     >
                       <InsertDriveFileOutlinedIcon />
                     </Box>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography
-                          variant="body1"
-                          fontWeight={600}
-                          color="white"
-                          noWrap
-                        >
-                          {doc.name === "License Scan" ? dict.drivers.labels.physicalLicense : doc.name} - {(dict.vehicles.docTypes as Record<string, string>)?.[doc.type] || doc.type}
-                        </Typography>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography
+                        variant="body1"
+                        fontWeight={600}
+                        color="white"
+                        noWrap
+                      >
+                        {doc.name === "License Scan"
+                          ? dict.drivers.labels.physicalLicense
+                          : doc.name}{" "}
+                        -{" "}
+                        {(dict.vehicles.docTypes as Record<string, string>)?.[
+                          doc.type
+                        ] || doc.type}
+                      </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {doc.expiryDate
                           ? `${dict.drivers.labels.expiryPrefix}${new Date(doc.expiryDate).toLocaleDateString()}`

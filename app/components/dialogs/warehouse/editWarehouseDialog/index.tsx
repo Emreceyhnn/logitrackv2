@@ -30,7 +30,7 @@ import { useUser } from "@/app/lib/hooks/useUser";
 import BasicInfoSection from "./sections/BasicInfoSection";
 import LocationSection from "./sections/LocationSection";
 import CapacitySection from "./sections/CapacitySection";
-import { WarehouseType } from "@prisma/client";
+import { WarehouseType } from "@/app/lib/type/enums";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 
 const defaultBasicInfo = {

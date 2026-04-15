@@ -9,7 +9,6 @@ import {
   CircularProgress,
   InputAdornment,
   useTheme,
-  PaletteColor,
 } from "@mui/material";
 import {
   Lock as LockIcon,
@@ -44,10 +43,30 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
     len >= 12 ? "strong" : len >= 8 ? "medium" : len > 0 ? "weak" : "none";
 
   const strengthMap = {
-    none: { color: theme.palette.common.white_alpha.main_10, alphaBlock: theme.palette.common.white_alpha, width: "0%", label: "" },
-    weak: { color: theme.palette.error.main, alphaBlock: theme.palette.error._alpha, width: "33%", label: dict.profile.security.strengths.vulnerable },
-    medium: { color: theme.palette.warning.main, alphaBlock: theme.palette.warning._alpha, width: "66%", label: dict.profile.security.strengths.acceptable },
-    strong: { color: theme.palette.success.main, alphaBlock: theme.palette.success._alpha, width: "100%", label: dict.profile.security.strengths.robust },
+    none: {
+      color: theme.palette.common.white_alpha.main_10,
+      alphaBlock: theme.palette.common.white_alpha,
+      width: "0%",
+      label: "",
+    },
+    weak: {
+      color: theme.palette.error.main,
+      alphaBlock: theme.palette.error._alpha,
+      width: "33%",
+      label: dict.profile.security.strengths.vulnerable,
+    },
+    medium: {
+      color: theme.palette.warning.main,
+      alphaBlock: theme.palette.warning._alpha,
+      width: "66%",
+      label: dict.profile.security.strengths.acceptable,
+    },
+    strong: {
+      color: theme.palette.success.main,
+      alphaBlock: theme.palette.success._alpha,
+      width: "100%",
+      label: dict.profile.security.strengths.robust,
+    },
   };
 
   const fieldSx = {
@@ -153,11 +172,17 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                 >
                   {show.current ? (
                     <VisibilityOff
-                      sx={{ fontSize: 18, color: theme.palette.common.white_alpha.main_30 }}
+                      sx={{
+                        fontSize: 18,
+                        color: theme.palette.common.white_alpha.main_30,
+                      }}
                     />
                   ) : (
                     <Visibility
-                      sx={{ fontSize: 18, color: theme.palette.common.white_alpha.main_30 }}
+                      sx={{
+                        fontSize: 18,
+                        color: theme.palette.common.white_alpha.main_30,
+                      }}
                     />
                   )}
                 </IconButton>
@@ -186,11 +211,17 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                   >
                     {show.newP ? (
                       <VisibilityOff
-                        sx={{ fontSize: 18, color: theme.palette.common.white_alpha.main_30 }}
+                        sx={{
+                          fontSize: 18,
+                          color: theme.palette.common.white_alpha.main_30,
+                        }}
                       />
                     ) : (
                       <Visibility
-                        sx={{ fontSize: 18, color: theme.palette.common.white_alpha.main_30 }}
+                        sx={{
+                          fontSize: 18,
+                          color: theme.palette.common.white_alpha.main_30,
+                        }}
                       />
                     )}
                   </IconButton>
@@ -221,7 +252,8 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                 <Typography
                   variant="caption"
                   sx={{
-                    color: strengthMap[strength as keyof typeof strengthMap].color,
+                    color:
+                      strengthMap[strength as keyof typeof strengthMap].color,
                     fontWeight: 800,
                     fontSize: "0.65rem",
                   }}
@@ -240,8 +272,10 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                 <Box
                   sx={{
                     height: "100%",
-                    width: strengthMap[strength as keyof typeof strengthMap].width,
-                    bgcolor: strengthMap[strength as keyof typeof strengthMap].color,
+                    width:
+                      strengthMap[strength as keyof typeof strengthMap].width,
+                    bgcolor:
+                      strengthMap[strength as keyof typeof strengthMap].color,
                     borderRadius: 2,
                     transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
                     boxShadow: `0 0 8px ${strengthMap[strength as keyof typeof strengthMap].alphaBlock?.main_40 || "transparent"}`,
@@ -281,11 +315,17 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
                 >
                   {show.confirm ? (
                     <VisibilityOff
-                      sx={{ fontSize: 18, color: theme.palette.common.white_alpha.main_30 }}
+                      sx={{
+                        fontSize: 18,
+                        color: theme.palette.common.white_alpha.main_30,
+                      }}
                     />
                   ) : (
                     <Visibility
-                      sx={{ fontSize: 18, color: theme.palette.common.white_alpha.main_30 }}
+                      sx={{
+                        fontSize: 18,
+                        color: theme.palette.common.white_alpha.main_30,
+                      }}
                     />
                   )}
                 </IconButton>
@@ -333,7 +373,9 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
             },
           }}
         >
-          {state.isSaving ? dict.profile.status.upgrading : dict.profile.security.updateButton}
+          {state.isSaving
+            ? dict.profile.status.upgrading
+            : dict.profile.security.updateButton}
         </Button>
       </Box>
     </Stack>

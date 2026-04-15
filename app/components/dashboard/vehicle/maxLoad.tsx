@@ -1,5 +1,3 @@
-"use client";
-
 import CustomCard from "../../cards/card";
 import { Divider, Stack, Typography } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";

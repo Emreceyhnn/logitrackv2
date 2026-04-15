@@ -17,7 +17,7 @@ import {
   ShipmentVolumeData,
   ShipmentStatusData,
 } from "@/app/lib/type/shipment";
-import { Prisma, ShipmentStatus, ShipmentPriority } from "@prisma/client";
+import { ShipmentStatus, ShipmentPriority } from "@/app/lib/type/enums";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export const shipmentKeys = {
@@ -30,7 +30,7 @@ export const shipmentKeys = {
 };
 
 export function useShipments() {
-  return useQuery<ShipmentWithRelations[]>({
+  return useQuery({
     queryKey: shipmentKeys.lists(),
     queryFn: async () => {
       const result = await getShipments();
@@ -41,7 +41,7 @@ export function useShipments() {
 }
 
 export function useShipmentDetails(id: string | null) {
-  return useQuery<ShipmentWithRelations | null>({
+  return useQuery({
     queryKey: shipmentKeys.details(id || ""),
     queryFn: async () => {
       if (!id) return null;
@@ -54,7 +54,7 @@ export function useShipmentDetails(id: string | null) {
 }
 
 export function useShipmentStats() {
-  return useQuery<ShipmentStats>({
+  return useQuery({
     queryKey: shipmentKeys.stats(),
     queryFn: async () => {
       const result = await getShipmentStats();
@@ -65,7 +65,7 @@ export function useShipmentStats() {
 }
 
 export function useShipmentVolumeHistory() {
-  return useQuery<ShipmentVolumeData[]>({
+  return useQuery({
     queryKey: shipmentKeys.history(),
     queryFn: async () => {
       const result = await getShipmentVolumeHistory();
@@ -76,7 +76,7 @@ export function useShipmentVolumeHistory() {
 }
 
 export function useShipmentStatusDistribution() {
-  return useQuery<ShipmentStatusData[]>({
+  return useQuery({
     queryKey: shipmentKeys.distribution(),
     queryFn: async () => {
       const result = await getShipmentStatusDistribution();
@@ -133,7 +133,10 @@ export function useShipmentMutations() {
       // Exclude relation fields from update data to satisfy Prisma types
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { company, history, customer, driver, route, ...updateData } = data;
-      return updateShipment(id, updateData as Prisma.ShipmentUpdateInput);
+      // Using 'any' cast to avoid importing @prisma/client into the UI layer.
+      // updateShipment server action validates the data type on the backend.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return updateShipment(id, updateData as any);
     },
     onSuccess: () => handleSuccess(dict.toasts.successUpdate),
     onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),

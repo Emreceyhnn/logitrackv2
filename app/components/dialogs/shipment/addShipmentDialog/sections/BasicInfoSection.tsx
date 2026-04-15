@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
-import { ShipmentPriority } from "@prisma/client";
+import { ShipmentPriority } from "@/app/lib/type/enums";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
@@ -30,10 +30,26 @@ const BasicInfoSection = () => {
     value: ShipmentPriority;
     color: string;
   }[] = [
-    { label: dict.vehicles.priorities.LOW, value: "LOW", color: theme.palette.success.main },
-    { label: dict.vehicles.priorities.MEDIUM, value: "MEDIUM", color: theme.palette.warning.main },
-    { label: dict.vehicles.priorities.HIGH, value: "HIGH", color: theme.palette.error.main },
-    { label: dict.vehicles.priorities.CRITICAL, value: "CRITICAL", color: theme.palette.error.dark },
+    {
+      label: dict.vehicles.priorities.LOW,
+      value: "LOW",
+      color: theme.palette.success.main,
+    },
+    {
+      label: dict.vehicles.priorities.MEDIUM,
+      value: "MEDIUM",
+      color: theme.palette.warning.main,
+    },
+    {
+      label: dict.vehicles.priorities.HIGH,
+      value: "HIGH",
+      color: theme.palette.error.main,
+    },
+    {
+      label: dict.vehicles.priorities.CRITICAL,
+      value: "CRITICAL",
+      color: theme.palette.error.dark,
+    },
   ];
 
   return (
@@ -65,12 +81,22 @@ const BasicInfoSection = () => {
               </Typography>
               <CustomTextArea
                 name="referenceNumber"
-                placeholder={dict.shipments.dialogs.fields.shipmentIdPlaceholder}
+                placeholder={
+                  dict.shipments.dialogs.fields.shipmentIdPlaceholder
+                }
                 value={values.referenceNumber}
-                onChange={(e) => setFieldValue("referenceNumber", e.target.value)}
+                onChange={(e) =>
+                  setFieldValue("referenceNumber", e.target.value)
+                }
                 onBlur={handleBlur}
-                error={touched.referenceNumber && Boolean(errors.referenceNumber)}
-                helperText={touched.referenceNumber ? (errors.referenceNumber as string) : undefined}
+                error={
+                  touched.referenceNumber && Boolean(errors.referenceNumber)
+                }
+                helperText={
+                  touched.referenceNumber
+                    ? (errors.referenceNumber as string)
+                    : undefined
+                }
               />
             </Stack>
           </Grid>
@@ -116,17 +142,36 @@ const BasicInfoSection = () => {
                       py: 1.5,
                       bgcolor:
                         values.priority === p.value
-                          ? (theme.palette[p.value === "LOW" ? "success" : p.value === "MEDIUM" ? "warning" : "error"] as any)._alpha.main_10
+                          ? (
+                              (theme.palette as unknown as Record<string, { _alpha: Record<string, string> }>)[
+                                p.value === "LOW"
+                                  ? "success"
+                                  : p.value === "MEDIUM"
+                                    ? "warning"
+                                    : "error"
+                              ]
+                            )?._alpha.main_10
                           : theme.palette.text.darkBlue._alpha.main_50,
                       color:
-                        values.priority === p.value ? p.color : "text.secondary",
+                        values.priority === p.value
+                          ? p.color
+                          : "text.secondary",
                       borderColor: theme.palette.divider_alpha.main_10,
                       borderWidth: "1px !important",
                       fontWeight: 600,
                       "&:hover": {
-                        bgcolor: values.priority === p.value 
-                          ? (theme.palette[p.value === "LOW" ? "success" : p.value === "MEDIUM" ? "warning" : "error"] as any)._alpha.main_20
-                          : theme.palette.text.darkBlue._alpha.main_60,
+                        bgcolor:
+                          values.priority === p.value
+                            ? (
+                                (theme.palette as unknown as Record<string, { _alpha: Record<string, string> }>)[
+                                  p.value === "LOW"
+                                    ? "success"
+                                    : p.value === "MEDIUM"
+                                      ? "warning"
+                                      : "error"
+                                ]
+                              )?._alpha.main_20
+                            : theme.palette.text.darkBlue._alpha.main_60,
                       },
                     }}
                   >
@@ -155,9 +200,15 @@ const BasicInfoSection = () => {
                 error={touched.type && Boolean(errors.type)}
                 helperText={touched.type ? (errors.type as string) : undefined}
               >
-                <MenuItem value="Standard Freight">{dict.shipments.dialogs.types.standardFreight}</MenuItem>
-                <MenuItem value="Express">{dict.shipments.dialogs.types.express}</MenuItem>
-                <MenuItem value="Hazardous">{dict.shipments.dialogs.types.hazardous}</MenuItem>
+                <MenuItem value="Standard Freight">
+                  {dict.shipments.dialogs.types.standardFreight}
+                </MenuItem>
+                <MenuItem value="Express">
+                  {dict.shipments.dialogs.types.express}
+                </MenuItem>
+                <MenuItem value="Hazardous">
+                  {dict.shipments.dialogs.types.hazardous}
+                </MenuItem>
               </CustomTextArea>
             </Stack>
           </Grid>
@@ -182,7 +233,9 @@ const BasicInfoSection = () => {
                     fullWidth: true,
                     placeholder: dict.shipments.dialogs.fields.slaPlaceholder,
                     error: touched.slaDeadline && Boolean(errors.slaDeadline),
-                    helperText: touched.slaDeadline ? (errors.slaDeadline as string) : undefined,
+                    helperText: touched.slaDeadline
+                      ? (errors.slaDeadline as string)
+                      : undefined,
                   },
                 }}
               />

@@ -1,4 +1,4 @@
-import { Route, RouteStatus } from "@prisma/client";
+import { Route, RouteStatus } from "./enums";
 
 // Domain Models
 export interface RouteWithRelations extends Route {
