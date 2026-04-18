@@ -2,15 +2,6 @@
 // import ClientExample from "./ClientExample";
 // import { Container, Typography, Box, Stack, Paper, Divider } from "@mui/material";
 
-"use client";
-import { useVehicleWithDashboard } from "@/app/hooks/useVehicles";
-import {
-  getVehicles,
-  getVehiclesDashboardData,
-  getVehiclesWithDashboard,
-} from "@/app/lib/controllers/vehicle";
-import { useEffect } from "react";
-
 // export default async function Playground({
 //   params,
 // }: {
@@ -95,9 +86,6 @@ import { useEffect } from "react";
 // }
 
 export default function Playground() {
-  const { data, isLoading, refetch } = useVehicleWithDashboard();
-  console.log(data);
-
   return (
     <div>
       <h1>Playground</h1>

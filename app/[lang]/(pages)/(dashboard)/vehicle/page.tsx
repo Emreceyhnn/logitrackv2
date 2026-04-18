@@ -129,7 +129,7 @@ function VehicleContent() {
 
   const handleDelete = useCallback(
     (id: string) => {
-      const v = vehicles.find((v) => v.id === id);
+      const v = vehicles?.find((v) => v.id === id);
       if (v) {
         setActionVehicle(v);
         setDeleteDialogOpen(true);

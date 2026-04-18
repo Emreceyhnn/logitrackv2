@@ -56,6 +56,8 @@ function DriverContent() {
     selectedDriverId: string | null;
   }>({
     filters: {
+      page: 1,
+      limit: 10,
       search: "",
       status: [],
       hasVehicle: undefined,

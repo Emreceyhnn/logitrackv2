@@ -9,6 +9,7 @@ import UserAccountNav from "../nav/UserAccountNav";
 import { useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { getLocalizedPath } from "@/app/lib/language/navigation";
+import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 
 export default function LandingHeaderAuth() {
   const params = useParams();
@@ -17,10 +18,7 @@ export default function LandingHeaderAuth() {
   const theme = useTheme();
 
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<{
-    id: string;
-    companyId: string | null;
-  } | null>(null);
+  const [user, setUser] = useState<AuthenticatedUser | null>(null);
 
   const [openCompanyModal, setOpenCompanyModal] = useState(false);
 
@@ -55,7 +53,7 @@ export default function LandingHeaderAuth() {
     return (
       <>
         <Stack direction="row" spacing={2} alignItems="center">
-          <UserAccountNav />
+          <UserAccountNav user={user} />
 
           {user.companyId ? (
             <Button

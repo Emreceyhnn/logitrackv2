@@ -27,6 +27,7 @@ import { getUserSession } from "@/app/lib/actions/auth";
 import { useNotifications } from "@/app/hooks/useNotifications";
 import { NotificationType } from "@/app/lib/notifications";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 
 const COLORS = {
   info: "#38bdf8",
@@ -66,15 +67,7 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
   const dict = useDictionary();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [user, setUser] = useState<{
-    id: string;
-    companyId: string | null;
-    roleId: string | null;
-  } | null>(initialUser ? {
-    id: initialUser.id,
-    companyId: initialUser.companyId,
-    roleId: initialUser.roleId,
-  } : null);
+  const [user, setUser] = useState<AuthenticatedUser | null>(initialUser);
 
   const open = Boolean(anchorEl);
 
@@ -84,11 +77,7 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
         try {
           const session = await getUserSession();
           if (session) {
-            setUser({
-              id: session.id,
-              companyId: session.companyId,
-              roleId: session.roleId,
-            });
+              setUser(session);
           }
         } catch (err) {
           console.error("Session fetch failed for bell:", err);
