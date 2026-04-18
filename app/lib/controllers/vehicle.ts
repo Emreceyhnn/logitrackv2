@@ -1,7 +1,16 @@
-"use server";
+﻿"use server";
 
 import { db } from "../db";
-import { Issue, MaintenanceStatus, Prisma, VehicleStatus, VehicleType, IssueStatus, IssuePriority, IssueType } from "@prisma/client";
+import {
+  Issue,
+  MaintenanceStatus,
+  Prisma,
+  VehicleStatus,
+  VehicleType,
+  IssueStatus,
+  IssuePriority,
+  IssueType,
+} from "@prisma/client";
 import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";
 import {
@@ -9,7 +18,11 @@ import {
   VehicleDocumentConverter,
   VehicleKpiConverter,
 } from "./utils/vehicleUtils";
-import { VehicleFilters, VehicleWithRelations, VehicleDashboardProps } from "../type/vehicle";
+import {
+  VehicleFilters,
+  VehicleWithRelations,
+  VehicleDashboardProps,
+} from "../type/vehicle";
 
 export const createVehicle = authenticatedAction(
   async (user, vehicleData: Record<string, unknown>) => {
@@ -75,19 +88,19 @@ export const createVehicle = authenticatedAction(
       if (!plate) throw new Error("Plate is required");
       if (!type) throw new Error("Vehicle type is required");
 
-      const vehicleFleetNo = fleetNo?.toString() || `FLEET-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      const vehicleFleetNo =
+        fleetNo?.toString() ||
+        `FLEET-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
       const existingVehicle = await db.vehicle.findFirst({
         where: {
-          OR: [
-            { plate: plate.toString() },
-            { fleetNo: vehicleFleetNo }
-          ]
-        }
+          OR: [{ plate: plate.toString() }, { fleetNo: vehicleFleetNo }],
+        },
       });
 
       if (existingVehicle) {
-        const conflictField = existingVehicle.plate === plate.toString() ? "Plate" : "Fleet Number";
+        const conflictField =
+          existingVehicle.plate === plate.toString() ? "Plate" : "Fleet Number";
         throw new Error(`${conflictField} already exists in the system.`);
       }
 
@@ -126,82 +139,6 @@ export const createVehicle = authenticatedAction(
       return newVehicle;
     } catch (error) {
       console.error("Failed to create vehicle:", error);
-      throw error;
-    }
-  }
-);
-
-export const getVehicles = authenticatedAction(
-  async (user, filters?: VehicleFilters): Promise<VehicleWithRelations[]> => {
-    const userId = user?.id || "";
-    const companyId = user?.companyId || "";
-    try {
-      await checkPermission(userId, companyId, [
-        "role_admin",
-        "role_manager",
-        "role_dispatcher",
-      ]);
-
-      if (!companyId) throw new Error("User has no company");
-
-      const whereClause: Prisma.VehicleWhereInput = {
-        companyId,
-      };
-
-      if (filters) {
-        if (filters.search) {
-          whereClause.OR = [
-            { plate: { contains: filters.search, mode: "insensitive" } },
-            { brand: { contains: filters.search, mode: "insensitive" } },
-            { model: { contains: filters.search, mode: "insensitive" } },
-          ];
-        }
-
-        if (filters.status && filters.status.length > 0) {
-          whereClause.status = { in: filters.status };
-        }
-
-        if (filters.type && filters.type.length > 0) {
-          whereClause.type = { in: filters.type };
-        }
-
-        if (filters.hasIssues) {
-          whereClause.issues = {
-            some: {
-              status: { in: [IssueStatus.OPEN, IssueStatus.IN_PROGRESS] },
-            },
-          };
-        }
-
-        if (filters.hasDriver === true) {
-          whereClause.driver = { isNot: null };
-        } else if (filters.hasDriver === false) {
-          whereClause.driver = { is: null };
-        }
-      }
-
-      const vehicles = await db.vehicle.findMany({
-        where: whereClause,
-        include: {
-          driver: {
-            select: {
-              id: true,
-              rating: true,
-              user: {
-                select: { name: true, surname: true, avatarUrl: true },
-              },
-            },
-          },
-          issues: true,
-          documents: true,
-          maintenanceRecords: true,
-          routes: true,
-        },
-        orderBy: { createdAt: "desc" },
-      });
-      return vehicles as unknown as VehicleWithRelations[];
-    } catch (error) {
-      console.error("Failed to get vehicles:", error);
       throw error;
     }
   }
@@ -280,16 +217,28 @@ export const updateVehicle = authenticatedAction(
         const conflictCheck = await db.vehicle.findFirst({
           where: {
             OR: [
-              updateData.plate ? { plate: updateData.plate as string } : undefined,
-              updateData.fleetNo ? { fleetNo: updateData.fleetNo as string } : undefined
-            ].filter((condition): condition is { plate: string } | { fleetNo: string } => condition !== undefined),
-            NOT: { id: vehicleId }
-          }
+              updateData.plate
+                ? { plate: updateData.plate as string }
+                : undefined,
+              updateData.fleetNo
+                ? { fleetNo: updateData.fleetNo as string }
+                : undefined,
+            ].filter(
+              (
+                condition
+              ): condition is { plate: string } | { fleetNo: string } =>
+                condition !== undefined
+            ),
+            NOT: { id: vehicleId },
+          },
         });
 
         if (conflictCheck) {
-          const conflictField = conflictCheck.plate === updateData.plate ? "Plate" : "Fleet Number";
-          throw new Error(`${conflictField} already exists in another vehicle.`);
+          const conflictField =
+            conflictCheck.plate === updateData.plate ? "Plate" : "Fleet Number";
+          throw new Error(
+            `${conflictField} already exists in another vehicle.`
+          );
         }
       }
 
@@ -489,7 +438,13 @@ export const addMaintenanceRecord = authenticatedAction(
   async (
     user,
     vehicleId: string,
-    recordData: { type: string; date: Date; cost: number; status?: MaintenanceStatus; description?: string }
+    recordData: {
+      type: string;
+      date: Date;
+      cost: number;
+      status?: MaintenanceStatus;
+      description?: string;
+    }
   ) => {
     const userId = user?.id || "";
     const companyId = user?.companyId || "";
@@ -574,55 +529,6 @@ export const getOpenIssuesForUser = authenticatedAction(async (user) => {
   } catch (error) {
     console.error("Failed to get open issues:", error);
     return [];
-  }
-});
-
-export const getVehiclesDashboardData = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
-  const companyId = user?.companyId || "";
-  try {
-    await checkPermission(userId, companyId, [
-      "role_admin",
-      "role_manager",
-      "role_dispatcher",
-    ]);
-
-    if (!companyId) throw new Error("User has no company");
-
-    const vehicles = await db.vehicle.findMany({
-      where: { companyId },
-      select: {
-        id: true,
-        plate: true,
-        status: true,
-        maxLoadKg: true,
-
-        issues: {
-          where: {
-            status: {
-              in: ["OPEN", "IN_PROGRESS"],
-            },
-          },
-          select: { id: true },
-        },
-
-        documents: {
-          select: {
-            type: true,
-            expiryDate: true,
-          },
-        },
-      },
-    });
-
-    const vehiclesKpis = VehicleKpiConverter(vehicles as unknown as VehicleDashboardProps[]);
-    const vehiclesCapacity = VehicleCapacityConverter(vehicles as unknown as VehicleDashboardProps[]);
-    const expiringDocs = VehicleDocumentConverter(vehicles as unknown as VehicleDashboardProps[]);
-
-    return { vehiclesKpis, vehiclesCapacity, expiringDocs };
-  } catch (error) {
-    console.error("Failed to get vehicle kpi cards:", error);
-    throw error;
   }
 });
 
@@ -830,4 +736,304 @@ export const updateMaintenanceRecord = authenticatedAction(
   }
 );
 
+export const getVehicles = authenticatedAction(
+  async (user, filters?: VehicleFilters): Promise<VehicleWithRelations[]> => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
 
+      if (!companyId) throw new Error("User has no company");
+
+      const whereClause: Prisma.VehicleWhereInput = { companyId };
+
+      if (filters) {
+        if (filters.search) {
+          whereClause.OR = [
+            { plate: { contains: filters.search, mode: "insensitive" } },
+            { brand: { contains: filters.search, mode: "insensitive" } },
+            { model: { contains: filters.search, mode: "insensitive" } },
+          ];
+        }
+
+        if (filters.status && filters.status.length > 0) {
+          whereClause.status = { in: filters.status };
+        }
+
+        if (filters.type && filters.type.length > 0) {
+          whereClause.type = { in: filters.type };
+        }
+
+        if (filters.hasIssues) {
+          whereClause.issues = {
+            some: {
+              status: { in: [IssueStatus.OPEN, IssueStatus.IN_PROGRESS] },
+            },
+          };
+        }
+
+        if (filters.hasDriver === true) {
+          whereClause.driver = { isNot: null };
+        } else if (filters.hasDriver === false) {
+          whereClause.driver = { is: null };
+        }
+      }
+
+      const vehicles = await db.vehicle.findMany({
+        where: whereClause,
+        include: {
+          driver: {
+            select: {
+              id: true,
+              rating: true,
+              user: {
+                select: { name: true, surname: true, avatarUrl: true },
+              },
+            },
+          },
+          issues: true,
+          documents: true,
+          maintenanceRecords: true,
+          routes: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return vehicles as unknown as VehicleWithRelations[];
+    } catch (error) {
+      console.error("Failed to get vehicles:", error);
+      throw error;
+    }
+  }
+);
+
+export const getVehiclesDashboardData = authenticatedAction(async (user) => {
+  const userId = user?.id || "";
+  const companyId = user?.companyId || "";
+  try {
+    await checkPermission(userId, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_dispatcher",
+    ]);
+
+    if (!companyId) throw new Error("User has no company");
+
+    const vehicles = await db.vehicle.findMany({
+      where: { companyId },
+      select: {
+        id: true,
+        plate: true,
+        status: true,
+        maxLoadKg: true,
+
+        issues: {
+          where: {
+            status: {
+              in: ["OPEN", "IN_PROGRESS"],
+            },
+          },
+          select: { id: true },
+        },
+
+        documents: {
+          select: {
+            type: true,
+            expiryDate: true,
+          },
+        },
+      },
+    });
+
+    const vehiclesKpis = VehicleKpiConverter(
+      vehicles as unknown as VehicleDashboardProps[]
+    );
+    const vehiclesCapacity = VehicleCapacityConverter(
+      vehicles as unknown as VehicleDashboardProps[]
+    );
+    const expiringDocs = VehicleDocumentConverter(
+      vehicles as unknown as VehicleDashboardProps[]
+    );
+
+    return { vehiclesKpis, vehiclesCapacity, expiringDocs };
+  } catch (error) {
+    console.error("Failed to get vehicle kpi cards:", error);
+    throw error;
+  }
+});
+
+export const getVehiclesWithDashboard = authenticatedAction(
+  async (
+    user,
+    filters?: VehicleFilters
+  ): Promise<{
+    vehicles: VehicleWithRelations[];
+    vehiclesKpis: ReturnType<typeof VehicleKpiConverter>;
+    vehiclesCapacity: ReturnType<typeof VehicleCapacityConverter>;
+    expiringDocs: ReturnType<typeof VehicleDocumentConverter>;
+  }> => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
+
+    try {
+      if (!companyId) throw new Error("User has no company");
+
+
+      const whereClause: Prisma.VehicleWhereInput = { companyId };
+
+      if (filters) {
+        if (filters.search) {
+          whereClause.OR = [
+            { plate: { contains: filters.search, mode: "insensitive" } },
+            { brand: { contains: filters.search, mode: "insensitive" } },
+            { model: { contains: filters.search, mode: "insensitive" } },
+          ];
+        }
+        if (filters.status && filters.status.length > 0) {
+          whereClause.status = { in: filters.status };
+        }
+        if (filters.type && filters.type.length > 0) {
+          whereClause.type = { in: filters.type };
+        }
+        if (filters.hasIssues) {
+          whereClause.issues = {
+            some: {
+              status: { in: [IssueStatus.OPEN, IssueStatus.IN_PROGRESS] },
+            },
+          };
+        }
+        if (filters.hasDriver === true) {
+          whereClause.driver = { isNot: null };
+        } else if (filters.hasDriver === false) {
+          whereClause.driver = { is: null };
+        }
+      }
+
+      // ── Promise.all: checkPermission + findMany paralel ─────────────────────
+      // Her iki DB çağrısı aynı anda başlar; checkPermission (~200ms) findMany
+      // (~400-800ms) beklenirken eş zamanlı tamamlanır → toplam süre max() olur.
+      // checkPermission başarısız olursa Promise.all hemen reject eder.
+      const [, vehicles] = await Promise.all([
+        checkPermission(userId, companyId, [
+          "role_admin",
+          "role_manager",
+          "role_dispatcher",
+        ]),
+        db.vehicle.findMany({
+          where: whereClause,
+          select: {
+            // ── Scalars (VehicleWithRelations) ──────────────────────────────
+            id: true,
+            fleetNo: true,
+            plate: true,
+            brand: true,
+            model: true,
+            year: true,
+            type: true,
+            fuelType: true,
+            maxLoadKg: true,
+            nextServiceKm: true,
+            avgFuelConsumption: true,
+            status: true,
+            odometerKm: true,
+            fuelLevel: true,
+            currentLat: true,
+            currentLng: true,
+            photo: true,
+            createdAt: true,
+            updatedAt: true,
+
+            // ── Driver ──────────────────────────────────────────────────────
+            driver: {
+              select: {
+                id: true,
+                rating: true,
+                user: {
+                  select: { name: true, surname: true, avatarUrl: true },
+                },
+              },
+            },
+
+            // ── Issues ──────────────────────────────────────────────────────
+            issues: {
+              select: {
+                id: true,
+                title: true,
+                type: true,
+                priority: true,
+                status: true,
+                description: true,
+                vehicleId: true,
+                companyId: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+
+            // ── Documents ───────────────────────────────────────────────────
+            documents: {
+              select: {
+                id: true,
+                type: true,
+                name: true,
+                url: true,
+                expiryDate: true,
+                status: true,
+                vehicleId: true,
+                companyId: true,
+                createdAt: true,
+              },
+            },
+
+            // ── Maintenance records ──────────────────────────────────────────
+            maintenanceRecords: {
+              select: {
+                id: true,
+                type: true,
+                date: true,
+                cost: true,
+                status: true,
+                description: true,
+                vehicleId: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+
+            // ── Routes ──────────────────────────────────────────────────────
+            routes: {
+              select: {
+                id: true,
+                status: true,
+                startAddress: true,
+                startLat: true,
+                startLng: true,
+                endAddress: true,
+                endLat: true,
+                endLng: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        }),
+      ]);
+
+      const dashboardInput = vehicles as unknown as VehicleDashboardProps[];
+
+      return {
+        vehicles: vehicles as unknown as VehicleWithRelations[],
+        vehiclesKpis: VehicleKpiConverter(dashboardInput),
+        vehiclesCapacity: VehicleCapacityConverter(dashboardInput),
+        expiringDocs: VehicleDocumentConverter(dashboardInput),
+      };
+    } catch (error) {
+      console.error("Failed to get vehicles with dashboard data:", error);
+      throw error;
+    }
+  }
+);

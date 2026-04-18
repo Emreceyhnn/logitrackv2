@@ -28,8 +28,9 @@ import LanguageSwitcher from "./LanguageSwitcher";
 // Dialogs
 import ProfileDialog from "../dialogs/profile/ProfileDialog";
 import SettingsDialog from "../dialogs/settings/SettingsDialog";
+import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 
-export default function UserAccountNav() {
+export default function UserAccountNav({ user: initialUser }: { user: AuthenticatedUser | null }) {
   const theme = useTheme();
 
   const menuPaperSx = {
@@ -75,13 +76,8 @@ export default function UserAccountNav() {
   const lang = (params?.lang as string) || "tr";
   const dict = useDictionary();
 
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<{
-    id: string;
-    name: string;
-    surname: string;
-    avatarUrl: string | null;
-  } | null>(null);
+  const [loading, setLoading] = useState(!initialUser);
+  const [user, setUser] = useState<AuthenticatedUser | null>(initialUser);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
@@ -90,10 +86,9 @@ export default function UserAccountNav() {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const fetchSession = async () => {
-    setLoading(true);
     try {
       const session = await getUserSession();
-      setUser(session);
+      setUser(session as AuthenticatedUser | null);
     } catch {
       setUser(null);
     } finally {
@@ -102,8 +97,10 @@ export default function UserAccountNav() {
   };
 
   useEffect(() => {
-    fetchSession();
-  }, []);
+    if (!initialUser) {
+      fetchSession();
+    }
+  }, [initialUser]);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { validateSession, refreshSession } from "./controllers/session";
 
 export type AuthenticatedUser = {
@@ -10,27 +11,11 @@ export type AuthenticatedUser = {
   avatarUrl: string | null;
 };
 
-export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
-  try {
-    let sessionUser = await validateSession();
+export const getAuthenticatedUser = cache(
+  async (): Promise<AuthenticatedUser | null> => {
+    try {
+      let sessionUser = await validateSession();
 
-    if (sessionUser) {
-      return {
-        id: sessionUser.id,
-        name: sessionUser.name,
-        surname: sessionUser.surname,
-        avatarUrl: sessionUser.avatarUrl,
-        companyId: sessionUser.companyId,
-        roleId: sessionUser.roleId,
-        sessionId: sessionUser.sessionId,
-      };
-    }
-
-    console.log("[getAuthenticatedUser] 🔄 Attempting session refresh...");
-    const refreshed = await refreshSession();
-
-    if (refreshed) {
-      sessionUser = await validateSession();
       if (sessionUser) {
         return {
           id: sessionUser.id,
@@ -42,16 +27,34 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
           sessionId: sessionUser.sessionId,
         };
       }
-    }
-  } catch (error) {
-    console.error(
-      "[getAuthenticatedUser] ❌ Session check failed critical:",
-      error
-    );
-  }
 
-  return null;
-}
+      console.log("[getAuthenticatedUser] 🔄 Attempting session refresh...");
+      const refreshed = await refreshSession();
+
+      if (refreshed) {
+        sessionUser = await validateSession();
+        if (sessionUser) {
+          return {
+            id: sessionUser.id,
+            name: sessionUser.name,
+            surname: sessionUser.surname,
+            avatarUrl: sessionUser.avatarUrl,
+            companyId: sessionUser.companyId,
+            roleId: sessionUser.roleId,
+            sessionId: sessionUser.sessionId,
+          };
+        }
+      }
+    } catch (error) {
+      console.error(
+        "[getAuthenticatedUser] ❌ Session check failed critical:",
+        error
+      );
+    }
+
+    return null;
+  }
+);
 
 export function authenticatedAction<T, Args extends unknown[]>(
   action: (user: AuthenticatedUser, ...args: Args) => Promise<T>

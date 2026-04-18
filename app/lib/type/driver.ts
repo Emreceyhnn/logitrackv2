@@ -84,9 +84,13 @@ export interface DriverDashboardResponseType {
 }
 
 export interface DriverFilters {
+  page: number;
+  limit: number;
   search?: string;
   status?: DriverStatus[];
   hasVehicle?: boolean;
+  sortField?: string;
+  sortOrder?: "asc" | "desc";
 }
 
 export interface PaginatedResponse<T> {
@@ -153,7 +157,6 @@ export interface DriverTableProps {
 export interface DriverKpiCardProps {
   data: DriverDashboardResponseType["driversKpis"] | null;
 }
-
 
 export interface CreateDriverFormData {
   userId: string;
@@ -309,7 +312,7 @@ export interface EligibleUser {
   roleId?: string | null;
 }
 
-export type DriverActivityType = 
+export type DriverActivityType =
   | "SHIFT_START"
   | "SHIFT_END"
   | "JOB_COMPLETED"

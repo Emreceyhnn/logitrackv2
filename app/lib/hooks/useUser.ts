@@ -1,34 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getUserSession } from "../actions/auth";
+import { useUserContext } from "../context/UserContext";
 
-export type UserSession = {
-  id: string;
-  companyId: string | null;
-  roleId: string | null;
-  sessionId?: string;
-} | null;
-
+/**
+ * useUser hook refactored to consume the global UserContext.
+ * This ensures that on every dashboard refresh or navigation, 
+ * we use the server-hydrated session data instead of making redundant fetches.
+ */
 export function useUser() {
-  const [user, setUser] = useState<UserSession>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const session = await getUserSession();
-        setUser(session);
-      } catch (error) {
-        console.error("Failed to fetch user session", error);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
-
+  const { user, loading } = useUserContext();
+  
   return { user, loading };
 }

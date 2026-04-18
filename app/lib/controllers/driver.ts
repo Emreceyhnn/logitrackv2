@@ -11,227 +11,9 @@ import {
   DriverActivity,
   DriverWithRelations,
   PaginatedResponse,
+  DriverFilters,
+  DriverDashboardResponseType,
 } from "../type/driver";
-
-export const getDrivers = authenticatedAction(
-  async (
-    user,
-    page: number = 1,
-    limit: number = 10,
-    search?: string,
-    status?: DriverStatus[],
-    hasVehicle?: boolean,
-    sortField?: string,
-    sortOrder?: "asc" | "desc"
-  ): Promise<PaginatedResponse<DriverWithRelations>> => {
-    const userId = user?.id || "";
-    const companyId = user?.companyId || "";
-    try {
-      await checkPermission(userId, companyId, [
-        "role_admin",
-        "role_manager",
-        "role_dispatcher",
-      ]);
-
-      const skip = (page - 1) * limit;
-
-      const where: Prisma.DriverWhereInput = {
-        companyId,
-      };
-
-      if (search) {
-        where.OR = [
-          {
-            user: {
-              name: { contains: search, mode: "insensitive" },
-            },
-          },
-          {
-            user: {
-              surname: { contains: search, mode: "insensitive" },
-            },
-          },
-          {
-            licenseNumber: { contains: search, mode: "insensitive" },
-          },
-          {
-            phone: { contains: search, mode: "insensitive" },
-          },
-        ];
-      }
-
-      if (status && status.length > 0) {
-        where.status = { in: status };
-      }
-
-      if (hasVehicle !== undefined) {
-        if (hasVehicle) {
-          where.currentVehicleId = { not: null };
-        } else {
-          where.currentVehicleId = null;
-        }
-      }
-
-      let orderBy: Prisma.DriverOrderByWithRelationInput = {
-        createdAt: "desc",
-      };
-      if (sortField && sortOrder) {
-        if (sortField === "name") {
-          orderBy = { user: { name: sortOrder } };
-        } else if (sortField === "vehicle") {
-          orderBy = { currentVehicle: { plate: sortOrder } };
-        } else {
-          orderBy = {
-            [sortField]: sortOrder,
-          } as Prisma.DriverOrderByWithRelationInput;
-        }
-      }
-
-      const [drivers, total] = await Promise.all([
-        db.driver.findMany({
-          where,
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                surname: true,
-                email: true,
-                avatarUrl: true,
-                roleId: true,
-              },
-            },
-            currentVehicle: {
-              select: {
-                id: true,
-                plate: true,
-                brand: true,
-                model: true,
-              },
-            },
-            homeBaseWarehouse: {
-              select: {
-                id: true,
-                name: true,
-                code: true,
-              },
-            },
-            _count: {
-              select: {
-                shipments: true,
-                issues: true,
-              },
-            },
-            documents: true,
-          },
-          orderBy: orderBy,
-          skip,
-          take: limit,
-        }),
-        db.driver.count({ where }),
-      ]);
-
-      return {
-        data: drivers as unknown as DriverWithRelations[],
-        meta: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
-        },
-      };
-    } catch (error) {
-      console.error("Failed to get drivers:", error);
-      throw error;
-    }
-  }
-);
-
-export const getDriverDashboardData = authenticatedAction(async (user) => {
-  const companyId = user?.companyId || "";
-  const userId = user?.id || "";
-  try {
-    await checkPermission(userId, companyId, [
-      "role_admin",
-      "role_manager",
-      "role_dispatcher",
-    ]);
-
-    const [totalDrivers, onDuty, offDuty, onLeave, safetyScoreAgg, topDrivers] =
-      await Promise.all([
-        db.driver.count({ where: { companyId } }),
-        db.driver.count({
-          where: { companyId, status: "ON_JOB" },
-        }),
-        db.driver.count({
-          where: { companyId, status: "OFF_DUTY" },
-        }),
-        db.driver.count({
-          where: { companyId, status: "ON_LEAVE" },
-        }),
-        db.driver.aggregate({
-          where: { companyId },
-          _avg: { safetyScore: true, efficiencyScore: true },
-        }),
-        db.driver.findMany({
-          where: { companyId },
-          select: {
-            id: true,
-            user: { select: { name: true, surname: true } },
-            rating: true,
-            _count: { select: { shipments: true } },
-          },
-          orderBy: { rating: "desc" },
-          take: 5,
-        }),
-      ]);
-
-    const complianceIssuesCount = await db.driver.count({
-      where: {
-        companyId,
-        OR: [
-          { licenseExpiry: { lt: new Date() } },
-          { safetyScore: { lt: 75 } },
-        ],
-      },
-    });
-
-    return {
-      driversKpis: {
-        totalDrivers,
-        onDuty,
-        offDuty,
-        onLeave,
-        complianceIssues: complianceIssuesCount,
-        avgSafetyScore: safetyScoreAgg._avg.safetyScore || 0,
-        avgEfficiencyScore: safetyScoreAgg._avg.efficiencyScore || 0,
-      },
-      topPerformers: topDrivers.map((d) => ({
-        id: d.id,
-        name: d.user.name,
-        surname: d.user.surname,
-        rating: d.rating || 0,
-        tripsCompleted: d._count.shipments,
-      })),
-      performanceCharts: topDrivers.map((d) => ({
-        name: d.user.name,
-        rating: d.rating || 0,
-        workingHours: d._count.shipments * 5 + 30,
-        days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
-        values: [
-          d._count.shipments,
-          d._count.shipments + 1,
-          Math.max(0, d._count.shipments - 1),
-          d._count.shipments + 2,
-          d._count.shipments,
-        ],
-      })),
-    };
-  } catch (error) {
-    console.error("Failed to get driver dashboard data:", error);
-    throw error;
-  }
-});
 
 export const getDriverById = authenticatedAction(
   async (user, driverId: string) => {
@@ -319,9 +101,10 @@ export const createDriver = authenticatedAction(
       }
 
       await db.$transaction(async (tx) => {
-        const finalEmployeeId = data.employeeId && data.employeeId.trim() !== "" 
-          ? data.employeeId 
-          : `EMP-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        const finalEmployeeId =
+          data.employeeId && data.employeeId.trim() !== ""
+            ? data.employeeId
+            : `EMP-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
         await tx.driver.create({
           data: {
@@ -412,9 +195,12 @@ export const updateDriver = authenticatedAction(
         where: { id: driverId },
         data: {
           phone: data.phone,
-          employeeId: (data.employeeId && data.employeeId.trim() !== "") 
-            ? data.employeeId 
-            : (data.employeeId === "" ? `EMP-${Math.random().toString(36).substring(2, 7).toUpperCase()}` : foundDriver.employeeId),
+          employeeId:
+            data.employeeId && data.employeeId.trim() !== ""
+              ? data.employeeId
+              : data.employeeId === ""
+                ? `EMP-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
+                : foundDriver.employeeId,
           licenseNumber: data.licenseNumber,
           licenseType: data.licenseType,
           licenseExpiry: data.licenseExpiry,
@@ -714,7 +500,7 @@ export const getDriverHistory = authenticatedAction(
           id: route.id,
           type: "ROUTE_COMPLETED",
           title: "Route Completed",
-          description: `Finished route ${route.name || route.id} from ${route.startAddress || 'Start'} to ${route.endAddress || 'End'}`,
+          description: `Finished route ${route.name || route.id} from ${route.startAddress || "Start"} to ${route.endAddress || "End"}`,
           timestamp: route.endTime || route.updatedAt,
           metadata: { routeId: route.id },
         });
@@ -743,6 +529,442 @@ export const getDriverHistory = authenticatedAction(
       };
     } catch (error) {
       console.error("Failed to get driver history:", error);
+      throw error;
+    }
+  }
+);
+
+export const getDrivers = authenticatedAction(
+  async (
+    user,
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+    status?: DriverStatus[],
+    hasVehicle?: boolean,
+    sortField?: string,
+    sortOrder?: "asc" | "desc"
+  ): Promise<PaginatedResponse<DriverWithRelations>> => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
+    try {
+      await checkPermission(userId, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
+
+      const skip = (page - 1) * limit;
+
+      const where: Prisma.DriverWhereInput = {
+        companyId,
+      };
+
+      if (search) {
+        where.OR = [
+          {
+            user: {
+              name: { contains: search, mode: "insensitive" },
+            },
+          },
+          {
+            user: {
+              surname: { contains: search, mode: "insensitive" },
+            },
+          },
+          {
+            licenseNumber: { contains: search, mode: "insensitive" },
+          },
+          {
+            phone: { contains: search, mode: "insensitive" },
+          },
+        ];
+      }
+
+      if (status && status.length > 0) {
+        where.status = { in: status };
+      }
+
+      if (hasVehicle !== undefined) {
+        if (hasVehicle) {
+          where.currentVehicleId = { not: null };
+        } else {
+          where.currentVehicleId = null;
+        }
+      }
+
+      let orderBy: Prisma.DriverOrderByWithRelationInput = {
+        createdAt: "desc",
+      };
+      if (sortField && sortOrder) {
+        if (sortField === "name") {
+          orderBy = { user: { name: sortOrder } };
+        } else if (sortField === "vehicle") {
+          orderBy = { currentVehicle: { plate: sortOrder } };
+        } else {
+          orderBy = {
+            [sortField]: sortOrder,
+          } as Prisma.DriverOrderByWithRelationInput;
+        }
+      }
+
+      const [drivers, total] = await Promise.all([
+        db.driver.findMany({
+          where,
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                surname: true,
+                email: true,
+                avatarUrl: true,
+                roleId: true,
+              },
+            },
+            currentVehicle: {
+              select: {
+                id: true,
+                plate: true,
+                brand: true,
+                model: true,
+              },
+            },
+            homeBaseWarehouse: {
+              select: {
+                id: true,
+                name: true,
+                code: true,
+              },
+            },
+            _count: {
+              select: {
+                shipments: true,
+                issues: true,
+              },
+            },
+            documents: true,
+          },
+          orderBy: orderBy,
+          skip,
+          take: limit,
+        }),
+        db.driver.count({ where }),
+      ]);
+
+      return {
+        data: drivers as unknown as DriverWithRelations[],
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+      };
+    } catch (error) {
+      console.error("Failed to get drivers:", error);
+      throw error;
+    }
+  }
+);
+
+export const getDriverDashboardData = authenticatedAction(async (user) => {
+  const companyId = user?.companyId || "";
+  const userId = user?.id || "";
+  try {
+    await checkPermission(userId, companyId, [
+      "role_admin",
+      "role_manager",
+      "role_dispatcher",
+    ]);
+
+    const [totalDrivers, onDuty, offDuty, onLeave, safetyScoreAgg, topDrivers] =
+      await Promise.all([
+        db.driver.count({ where: { companyId } }),
+        db.driver.count({
+          where: { companyId, status: "ON_JOB" },
+        }),
+        db.driver.count({
+          where: { companyId, status: "OFF_DUTY" },
+        }),
+        db.driver.count({
+          where: { companyId, status: "ON_LEAVE" },
+        }),
+        db.driver.aggregate({
+          where: { companyId },
+          _avg: { safetyScore: true, efficiencyScore: true },
+        }),
+        db.driver.findMany({
+          where: { companyId },
+          select: {
+            id: true,
+            user: { select: { name: true, surname: true } },
+            rating: true,
+            _count: { select: { shipments: true } },
+          },
+          orderBy: { rating: "desc" },
+          take: 5,
+        }),
+      ]);
+
+    const complianceIssuesCount = await db.driver.count({
+      where: {
+        companyId,
+        OR: [
+          { licenseExpiry: { lt: new Date() } },
+          { safetyScore: { lt: 75 } },
+        ],
+      },
+    });
+
+    return {
+      driversKpis: {
+        totalDrivers,
+        onDuty,
+        offDuty,
+        onLeave,
+        complianceIssues: complianceIssuesCount,
+        avgSafetyScore: safetyScoreAgg._avg.safetyScore || 0,
+        avgEfficiencyScore: safetyScoreAgg._avg.efficiencyScore || 0,
+      },
+      topPerformers: topDrivers.map((d) => ({
+        id: d.id,
+        name: d.user.name,
+        surname: d.user.surname,
+        rating: d.rating || 0,
+        tripsCompleted: d._count.shipments,
+      })),
+      performanceCharts: topDrivers.map((d) => ({
+        name: d.user.name,
+        rating: d.rating || 0,
+        workingHours: d._count.shipments * 5 + 30,
+        days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+        values: [
+          d._count.shipments,
+          d._count.shipments + 1,
+          Math.max(0, d._count.shipments - 1),
+          d._count.shipments + 2,
+          d._count.shipments,
+        ],
+      })),
+    };
+  } catch (error) {
+    console.error("Failed to get driver dashboard data:", error);
+    throw error;
+  }
+});
+
+export const getDriverWithDashboardData = authenticatedAction(
+  async (
+    user,
+    filters?: DriverFilters
+  ): Promise<{
+    drivers: DriverWithRelations[];
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+    driversKpis: DriverDashboardResponseType["driversKpis"];
+    topPerformers: DriverDashboardResponseType["topPerformers"];
+    performanceCharts: DriverDashboardResponseType["performanceCharts"];
+  }> => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
+
+    try {
+      if (!companyId) throw new Error("User has no company");
+
+      const whereClause: Prisma.DriverWhereInput = { companyId };
+      const limit = filters?.limit || 10;
+      const page = filters?.page || 1;
+      const skip = (page - 1) * limit;
+
+      if (filters) {
+        if (filters.search) {
+          whereClause.OR = [
+            {
+              user: {
+                name: { contains: filters.search, mode: "insensitive" },
+              },
+            },
+            {
+              user: {
+                surname: { contains: filters.search, mode: "insensitive" },
+              },
+            },
+            {
+              licenseNumber: { contains: filters.search, mode: "insensitive" },
+            },
+            {
+              phone: { contains: filters.search, mode: "insensitive" },
+            },
+          ];
+        }
+
+        if (filters.status && filters.status.length > 0) {
+          whereClause.status = { in: filters.status };
+        }
+
+        if (filters.hasVehicle !== undefined) {
+          if (filters.hasVehicle) {
+            whereClause.currentVehicleId = { not: null };
+          } else {
+            whereClause.currentVehicleId = null;
+          }
+        }
+      }
+
+      let orderBy: Prisma.DriverOrderByWithRelationInput = {
+        createdAt: "desc",
+      };
+      if (filters?.sortField && filters?.sortOrder) {
+        if (filters.sortField === "name") {
+          orderBy = { user: { name: filters.sortOrder } };
+        } else if (filters.sortField === "vehicle") {
+          orderBy = { currentVehicle: { plate: filters.sortOrder } };
+        } else {
+          orderBy = {
+            [filters.sortField]: filters.sortOrder,
+          } as Prisma.DriverOrderByWithRelationInput;
+        }
+      }
+
+      const [
+        ,
+        drivers,
+        totalDriversList,
+        totalDrivers,
+        onDuty,
+        offDuty,
+        onLeave,
+        safetyScoreAgg,
+        topDrivers,
+        complianceIssuesCount,
+      ] = await Promise.all([
+        checkPermission(userId, companyId, [
+          "role_admin",
+          "role_manager",
+          "role_dispatcher",
+        ]),
+        db.driver.findMany({
+          where: whereClause,
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                surname: true,
+                email: true,
+                avatarUrl: true,
+                roleId: true,
+              },
+            },
+            currentVehicle: {
+              select: {
+                id: true,
+                plate: true,
+                brand: true,
+                model: true,
+              },
+            },
+            homeBaseWarehouse: {
+              select: {
+                id: true,
+                name: true,
+                code: true,
+              },
+            },
+            _count: {
+              select: {
+                shipments: true,
+                issues: true,
+              },
+            },
+            documents: true,
+          },
+          orderBy,
+          skip,
+          take: limit,
+        }),
+        db.driver.count({ where: whereClause }), // count for paginated list
+        db.driver.count({ where: { companyId } }),
+        db.driver.count({
+          where: { companyId, status: "ON_JOB" },
+        }),
+        db.driver.count({
+          where: { companyId, status: "OFF_DUTY" },
+        }),
+        db.driver.count({
+          where: { companyId, status: "ON_LEAVE" },
+        }),
+        db.driver.aggregate({
+          where: { companyId },
+          _avg: { safetyScore: true, efficiencyScore: true },
+        }),
+        db.driver.findMany({
+          where: { companyId },
+          select: {
+            id: true,
+            user: { select: { name: true, surname: true } },
+            rating: true,
+            _count: { select: { shipments: true } },
+          },
+          orderBy: { rating: "desc" },
+          take: 5,
+        }),
+        db.driver.count({
+          where: {
+            companyId,
+            OR: [
+              { licenseExpiry: { lt: new Date() } },
+              { safetyScore: { lt: 75 } },
+            ],
+          },
+        }),
+      ]);
+
+      return {
+        drivers: drivers as unknown as DriverWithRelations[],
+        meta: {
+          total: totalDriversList,
+          page,
+          limit,
+          totalPages: Math.ceil(totalDriversList / limit),
+        },
+        driversKpis: {
+          totalDrivers,
+          onDuty,
+          offDuty,
+          onLeave,
+          complianceIssues: complianceIssuesCount,
+          avgSafetyScore: safetyScoreAgg._avg.safetyScore || 0,
+          avgEfficiencyScore: safetyScoreAgg._avg.efficiencyScore || 0,
+        },
+        topPerformers: topDrivers.map((d) => ({
+          id: d.id,
+          name: d.user.name,
+          surname: d.user.surname,
+          rating: d.rating || 0,
+          tripsCompleted: d._count.shipments,
+        })),
+        performanceCharts: topDrivers.map((d) => ({
+          name: d.user.name,
+          rating: d.rating || 0,
+          workingHours: d._count.shipments * 5 + 30, // mock calculation
+          days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+          values: [
+            d._count.shipments,
+            d._count.shipments + 1,
+            Math.max(0, d._count.shipments - 1),
+            d._count.shipments + 2,
+            d._count.shipments,
+          ],
+        })),
+      };
+    } catch (error) {
+      console.error("Failed to get driver with dashboard data:", error);
       throw error;
     }
   }

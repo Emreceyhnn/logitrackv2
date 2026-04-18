@@ -2,8 +2,13 @@ import { Box, Stack, Typography } from "@mui/material";
 import UserAccountNav from "../nav/UserAccountNav";
 import NotificationBell from "../notifications/NotificationBell";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 
-export default function DashboardHeader() {
+export default function DashboardHeader({
+  user,
+}: {
+  user: AuthenticatedUser | null;
+}) {
   const dict = useDictionary();
 
   return (
@@ -20,7 +25,7 @@ export default function DashboardHeader() {
         borderBottom: `1px solid theme.palette.divider_alpha.main_08`,
         position: "sticky",
         top: 0,
-        zIndex: "theme.zIndex.appBar",
+        zIndex: 999,
       }}
     >
       <Stack direction="row" spacing={1} alignItems="center">
@@ -44,8 +49,8 @@ export default function DashboardHeader() {
       </Stack>
 
       <Stack direction="row" spacing={2} alignItems="center">
-        <NotificationBell />
-        <UserAccountNav />
+        <NotificationBell user={user} />
+        <UserAccountNav user={user} />
       </Stack>
     </Box>
   );

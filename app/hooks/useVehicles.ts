@@ -3,11 +3,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getVehicles,
-  getVehiclesDashboardData,
   createVehicle,
   updateVehicle,
   deleteVehicle,
   updateVehicleStatus,
+  getVehiclesWithDashboard,
 } from "@/app/lib/controllers/vehicle";
 import { VehicleFilters } from "@/app/lib/type/vehicle";
 import { toast } from "sonner";
@@ -20,6 +20,8 @@ export const vehicleKeys = {
   details: () => [...vehicleKeys.all, "detail"] as const,
   detail: (id: string) => [...vehicleKeys.details(), id] as const,
   dashboard: () => [...vehicleKeys.all, "dashboard"] as const,
+  dashboardWithFilters: (filters: VehicleFilters) =>
+    [...vehicleKeys.dashboard(), { filters }] as const,
 };
 
 export function useVehicles(filters: VehicleFilters = {}) {
@@ -30,10 +32,10 @@ export function useVehicles(filters: VehicleFilters = {}) {
   });
 }
 
-export function useVehiclesDashboardData() {
+export function useVehicleWithDashboard(filters: VehicleFilters = {}) {
   return useQuery({
-    queryKey: vehicleKeys.dashboard(),
-    queryFn: () => getVehiclesDashboardData(),
+    queryKey: vehicleKeys.dashboardWithFilters(filters),
+    queryFn: () => getVehiclesWithDashboard(filters),
     staleTime: 1000 * 60 * 5,
   });
 }

@@ -27,7 +27,12 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   const dict = useDictionary();
-  const { vehicles, loading = false, filters, meta: apiMeta } = state;
+  const {
+    vehicles = [],
+    loading = false,
+    filters = {},
+    meta: apiMeta,
+  } = state || {};
   const {
     selectVehicle,
     onEdit,
@@ -48,13 +53,18 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
       try {
         setActionLoading(vehicleId);
         await updateVehicleStatus(vehicleId, newStatus);
-        const statusLabel = dict.vehicles.statuses[newStatus as keyof typeof dict.vehicles.statuses] || newStatus.replace(/_/g, " ");
+        const statusLabel =
+          dict.vehicles.statuses[
+            newStatus as keyof typeof dict.vehicles.statuses
+          ] || newStatus.replace(/_/g, " ");
         toast.success(
           `${dict.toasts.successUpdate || "Updated"} - ${statusLabel}`
         );
         onUpdateSuccess?.();
       } catch (error) {
-        toast.error(dict.toasts.errorGeneric || "Failed to update vehicle status");
+        toast.error(
+          dict.toasts.errorGeneric || "Failed to update vehicle status"
+        );
         console.error(error);
       } finally {
         setActionLoading(null);
@@ -64,30 +74,45 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   );
 
   /* ---------------------------------- data ---------------------------------- */
-  const STATUS_OPTIONS = useMemo(() => Object.values(VehicleStatus).map((s) => ({
-    label: dict.vehicles.statuses[s as keyof typeof dict.vehicles.statuses] || s.replace(/_/g, " "),
-    value: s,
-  })), [dict]);
+  const STATUS_OPTIONS = useMemo(
+    () =>
+      Object.values(VehicleStatus).map((s) => ({
+        label:
+          dict.vehicles.statuses[s as keyof typeof dict.vehicles.statuses] ||
+          s.replace(/_/g, " "),
+        value: s,
+      })),
+    [dict]
+  );
 
-  const TYPE_OPTIONS = useMemo(() => Object.values(VehicleType).map((t) => ({
-    label: dict.vehicles.types[t as keyof typeof dict.vehicles.types] || t.replace(/_/g, " "),
-    value: t,
-  })), [dict]);
+  const TYPE_OPTIONS = useMemo(
+    () =>
+      Object.values(VehicleType).map((t) => ({
+        label:
+          dict.vehicles.types[t as keyof typeof dict.vehicles.types] ||
+          t.replace(/_/g, " "),
+        value: t,
+      })),
+    [dict]
+  );
 
-  const VEHICLE_FILTERS = useMemo(() => [
-    {
-      key: "status",
-      label: dict.vehicles.fields.status,
-      options: STATUS_OPTIONS,
-      multiple: true,
-    },
-    {
-      key: "type",
-      label: dict.vehicles.fields.type,
-      options: TYPE_OPTIONS,
-      multiple: true,
-    },
-  ], [dict, STATUS_OPTIONS, TYPE_OPTIONS]);
+  const VEHICLE_FILTERS = useMemo(
+    () => [
+      {
+        key: "status",
+        label: dict.vehicles.fields.status,
+        options: STATUS_OPTIONS,
+        multiple: true,
+      },
+      {
+        key: "type",
+        label: dict.vehicles.fields.type,
+        options: TYPE_OPTIONS,
+        multiple: true,
+      },
+    ],
+    [dict, STATUS_OPTIONS, TYPE_OPTIONS]
+  );
 
   /* --------------------------------- handlers --------------------------------- */
   const handleSearchChange = useCallback(
@@ -116,7 +141,7 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         label: "#",
         width: 50,
         render: (_row) => {
-          const idx = vehicles.indexOf(_row);
+          const idx = (vehicles || []).indexOf(_row);
           return idx + 1;
         },
       },
@@ -143,7 +168,9 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         key: "odometer",
         label: dict.vehicles.fields.odometer,
         render: (row) =>
-          row.odometerKm ? `${row.odometerKm.toLocaleString()} ${dict.common.km}` : dict.common.na,
+          row.odometerKm
+            ? `${row.odometerKm.toLocaleString()} ${dict.common.km}`
+            : dict.common.na,
       },
       {
         key: "driver",
@@ -166,7 +193,9 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
       {
         key: "type",
         label: dict.vehicles.fields.type,
-        render: (row) => dict.vehicles.types[row.type as keyof typeof dict.vehicles.types] || row.type.replace(/_/g, " "),
+        render: (row) =>
+          dict.vehicles.types[row.type as keyof typeof dict.vehicles.types] ||
+          row.type.replace(/_/g, " "),
       },
       {
         key: "fuelLevel",
@@ -194,14 +223,16 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
       {
         label: dict.vehicles.dialogs.setMaintenance,
         icon: <BuildIcon fontSize="small" />,
-        onClick: (row) => handleStatusUpdate(row.id, "MAINTENANCE" as VehicleStatus),
+        onClick: (row) =>
+          handleStatusUpdate(row.id, "MAINTENANCE" as VehicleStatus),
         hidden: (row) =>
           row.status === "MAINTENANCE" || row.status === "ON_TRIP",
       },
       {
         label: dict.vehicles.dialogs.returnToService,
         icon: <CheckCircleOutlineIcon fontSize="small" />,
-        onClick: (row) => handleStatusUpdate(row.id, "AVAILABLE" as VehicleStatus),
+        onClick: (row) =>
+          handleStatusUpdate(row.id, "AVAILABLE" as VehicleStatus),
         hidden: (row) => row.status !== "MAINTENANCE",
       },
       {
@@ -217,10 +248,10 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   /* --------------------------------- active filters --------------------------------- */
   const activeFilters: Record<string, string[]> = useMemo(
     () => ({
-      ...(filters.status && filters.status.length > 0
+      ...(filters?.status && filters.status.length > 0
         ? { status: filters.status as string[] }
         : {}),
-      ...(filters.type && filters.type.length > 0
+      ...(filters?.type && filters.type.length > 0
         ? { type: filters.type as string[] }
         : {}),
     }),
@@ -231,12 +262,12 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
   const meta = apiMeta || {
     page: localPage,
     limit: localLimit,
-    total: vehicles.length,
+    total: vehicles?.length || 0,
   };
 
   const paginatedVehicles = apiMeta
-    ? vehicles
-    : vehicles.slice((meta.page - 1) * meta.limit, meta.page * meta.limit);
+    ? (vehicles || [])
+    : (vehicles || []).slice((meta.page - 1) * meta.limit, meta.page * meta.limit);
 
   const handlePageChange = (newPage: number) => {
     if (setPage) setPage(newPage);

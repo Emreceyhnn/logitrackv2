@@ -6,9 +6,8 @@ import VehicleTable from "@/app/components/dashboard/vehicle/vehicleTable";
 import AddVehicleDialog from "@/app/components/dialogs/vehicle/addVehicleDialog";
 import VehicleDialog from "@/app/components/dialogs/vehicle/vehicleDetailsDialog";
 import {
-  useVehicles,
-  useVehiclesDashboardData,
   useVehicleMutations,
+  useVehicleWithDashboard,
 } from "@/app/hooks/useVehicles";
 import {
   VehiclePageActions,
@@ -44,7 +43,6 @@ function VehicleContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
-
   const searchParams = useSearchParams();
   const vehicleIdFromUrl = searchParams.get("id");
   const tabFromUrl = searchParams.get("tab");
@@ -66,25 +64,20 @@ function VehicleContent() {
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
-    data: vehicles = [],
-    isLoading: isVehiclesLoading,
-    refetch: refetchVehicles,
-  } = useVehicles(state.filters);
-
-  const {
     data: dashboardData,
-    isLoading: isDashboardLoading,
-    refetch: refetchDashboard,
-  } = useVehiclesDashboardData();
+    isLoading: isVehiclesLoading,
+    refetch: refetchVehicleWithDashboard,
+  } = useVehicleWithDashboard(state.filters);
+
+  const vehicles = dashboardData?.vehicles;
+  const loading = isVehiclesLoading;
 
   const { deleteVehicle: deleteMutation } = useVehicleMutations();
 
-  const loading = isVehiclesLoading || isDashboardLoading;
-
   /* ---------------------------------- ACTIONS ------------------------------- */
   const refreshAll = useCallback(async () => {
-    await Promise.all([refetchVehicles(), refetchDashboard()]);
-  }, [refetchVehicles, refetchDashboard]);
+    await Promise.all([refetchVehicleWithDashboard()]);
+  }, [refetchVehicleWithDashboard]);
 
   const selectVehicle = useCallback((id: string | null) => {
     setState((prev) => ({ ...prev, selectedVehicleId: id }));
@@ -102,8 +95,8 @@ function VehicleContent() {
 
   const actions: VehiclePageActions = useMemo(
     () => ({
-      fetchVehicles: async () => {}, // Handled by React Query
-      fetchDashboardData: async () => {}, // Handled by React Query
+      fetchVehicles: async () => {},
+      fetchDashboardData: async () => {},
       refreshAll,
       selectVehicle,
       updateFilters,
@@ -125,7 +118,7 @@ function VehicleContent() {
 
   const handleEdit = useCallback(
     (id: string) => {
-      const v = vehicles.find((v) => v.id === id);
+      const v = vehicles?.find((v) => v.id === id);
       if (v) {
         setActionVehicle(v);
         setEditDialogOpen(true);
@@ -168,7 +161,7 @@ function VehicleContent() {
     actions.selectVehicle(null);
   };
 
-  const selectedVehicle = vehicles.find(
+  const selectedVehicle = vehicles?.find(
     (v) => v.id === state.selectedVehicleId
   );
 
@@ -285,7 +278,7 @@ function VehicleContent() {
           key={state.selectedVehicleId}
           open={!!state.selectedVehicleId}
           onClose={() => actions.selectVehicle(null)}
-          vehicleData={vehicles.find((v) => v.id === state.selectedVehicleId)}
+          vehicleData={vehicles?.find((v) => v.id === state.selectedVehicleId)}
           onUpdateSuccess={refreshAll}
           onDeleteSuccess={handleDialogDeleteSuccess}
           initialTab={tabFromUrl ? parseInt(tabFromUrl) : 0}

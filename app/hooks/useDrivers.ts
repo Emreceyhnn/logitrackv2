@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getDrivers,
   getDriverDashboardData,
+  getDriverWithDashboardData,
   createDriver,
   updateDriver,
   deleteDriver,
@@ -30,6 +31,15 @@ export const driverKeys = {
   details: () => [...driverKeys.all, "detail"] as const,
   detail: (id: string) => [...driverKeys.details(), id] as const,
   dashboard: () => [...driverKeys.all, "dashboard"] as const,
+  dashboardWithFilters: (filters: {
+    page: number;
+    limit: number;
+    search?: string;
+    status?: DriverStatus[];
+    hasVehicle?: boolean;
+    sortField?: string;
+    sortOrder?: "asc" | "desc";
+  }) => [...driverKeys.dashboard(), { filters }] as const,
 };
 
 export function useDrivers(
@@ -61,6 +71,39 @@ export function useDriverDashboardData() {
   return useQuery({
     queryKey: driverKeys.dashboard(),
     queryFn: () => getDriverDashboardData(),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useDriverWithDashboard(
+  page: number = 1,
+  limit: number = 10,
+  search?: string,
+  status?: DriverStatus[],
+  hasVehicle?: boolean,
+  sortField?: string,
+  sortOrder?: "asc" | "desc"
+) {
+  return useQuery({
+    queryKey: driverKeys.dashboardWithFilters({
+      page,
+      limit,
+      search,
+      status,
+      hasVehicle,
+      sortField,
+      sortOrder,
+    }),
+    queryFn: () =>
+      getDriverWithDashboardData({
+        page,
+        limit,
+        search,
+        status,
+        hasVehicle,
+        sortField,
+        sortOrder,
+      }),
     staleTime: 1000 * 60 * 5,
   });
 }

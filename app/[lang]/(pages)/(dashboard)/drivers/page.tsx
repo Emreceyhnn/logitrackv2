@@ -11,8 +11,7 @@ import {
   DriverFilters,
 } from "@/app/lib/type/driver";
 import {
-  useDrivers,
-  useDriverDashboardData,
+  useDriverWithDashboard,
   useDriverMutations,
 } from "@/app/hooks/useDrivers";
 import {
@@ -83,10 +82,10 @@ function DriverContent() {
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
-    data: driversData,
-    isLoading: isDriversLoading,
-    refetch: refetchDrivers,
-  } = useDrivers(
+    data: combinedData,
+    isLoading: loading,
+    refetch: refreshAllData,
+  } = useDriverWithDashboard(
     state.pagination.page,
     state.pagination.limit,
     state.filters.search,
@@ -96,22 +95,16 @@ function DriverContent() {
     state.sort.order
   );
 
-  const {
-    data: dashboardData,
-    isLoading: isDashboardLoading,
-    refetch: refetchDashboard,
-  } = useDriverDashboardData();
-
   const { deleteDriver: deleteMutation } = useDriverMutations();
 
-  const drivers = driversData?.data || [];
-  const totalCount = driversData?.meta.total || 0;
-  const loading = isDriversLoading || isDashboardLoading;
+  const drivers = combinedData?.drivers || [];
+  const totalCount = combinedData?.meta.total || 0;
+  const dashboardData = combinedData;
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
-    await Promise.all([refetchDrivers(), refetchDashboard()]);
-  }, [refetchDrivers, refetchDashboard]);
+    await refreshAllData();
+  }, [refreshAllData]);
 
   const actions: DriverPageActions = useMemo(
     () => ({

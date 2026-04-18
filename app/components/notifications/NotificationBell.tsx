@@ -62,7 +62,7 @@ const resolveStatusAlpha = (theme: Theme, t: NotificationType) => {
   }
 };
 
-export default function NotificationBell() {
+export default function NotificationBell({ user: initialUser }: { user: AuthenticatedUser | null }) {
   const dict = useDictionary();
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -70,27 +70,33 @@ export default function NotificationBell() {
     id: string;
     companyId: string | null;
     roleId: string | null;
-  } | null>(null);
+  } | null>(initialUser ? {
+    id: initialUser.id,
+    companyId: initialUser.companyId,
+    roleId: initialUser.roleId,
+  } : null);
 
   const open = Boolean(anchorEl);
 
   useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const session = await getUserSession();
-        if (session) {
-          setUser({
-            id: session.id,
-            companyId: session.companyId,
-            roleId: session.roleId,
-          });
+    if (!initialUser) {
+      const fetchSession = async () => {
+        try {
+          const session = await getUserSession();
+          if (session) {
+            setUser({
+              id: session.id,
+              companyId: session.companyId,
+              roleId: session.roleId,
+            });
+          }
+        } catch (err) {
+          console.error("Session fetch failed for bell:", err);
         }
-      } catch (err) {
-        console.error("Session fetch failed for bell:", err);
-      }
-    };
-    fetchSession();
-  }, []);
+      };
+      fetchSession();
+    }
+  }, [initialUser]);
 
   const {
     notifications,
