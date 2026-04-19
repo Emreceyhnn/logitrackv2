@@ -14,10 +14,7 @@ import {
   RoutesPageState,
 } from "@/app/lib/type/routes";
 import {
-  useRoutes,
-  useRouteStats,
-  useRouteEfficiency,
-  useRouteLocations,
+  useRoutesWithDashboard,
   useRouteMutations,
 } from "@/app/hooks/useRoutes";
 import EditRouteDialog from "@/app/components/dialogs/routes/edit-route-dialog";
@@ -49,46 +46,30 @@ export default function RoutesPage() {
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
-    data: routesData,
-    isLoading: isRoutesLoading,
-    refetch: refetchRoutes,
-  } = useRoutes(pagination.page, pagination.pageSize, filters.status);
+    data: dashboardData,
+    isLoading,
+    refetch,
+  } = useRoutesWithDashboard(
+    pagination.page,
+    pagination.pageSize,
+    filters.status
+  );
 
-  const {
-    data: stats,
-    isLoading: isStatsLoading,
-    refetch: refetchStats,
-  } = useRouteStats();
-  const {
-    data: efficiency,
-    isLoading: isEfficiencyLoading,
-    refetch: refetchEfficiency,
-  } = useRouteEfficiency();
-  const {
-    data: mapData = [],
-    isLoading: isLocationsLoading,
-    refetch: refetchLocations,
-  } = useRouteLocations();
 
   const { deleteRoute: deleteMutation } = useRouteMutations();
 
-  const routes = useMemo(() => routesData?.routes || [], [routesData]);
+  const routes = useMemo(() => dashboardData?.routes || [], [dashboardData]);
+  const stats = dashboardData?.stats;
+  const efficiency = dashboardData?.efficiency;
+  const mapData = dashboardData?.mapData || [];
 
-  const loading =
-    isRoutesLoading ||
-    isStatsLoading ||
-    isEfficiencyLoading ||
-    isLocationsLoading;
+  const loading = isLoading;
+
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
-    await Promise.all([
-      refetchRoutes(),
-      refetchStats(),
-      refetchEfficiency(),
-      refetchLocations(),
-    ]);
-  }, [refetchRoutes, refetchStats, refetchEfficiency, refetchLocations]);
+    await refetch();
+  }, [refetch]);
 
   const actions: RoutesPageActions = {
     fetchRoutes: async () => {},
@@ -110,9 +91,7 @@ export default function RoutesPage() {
   };
 
   const handleEdit = (id: string) => {
-    const route = ((routesData?.routes as RouteWithRelations[]) || []).find(
-      (r) => r.id === id
-    );
+    const route = (dashboardData?.routes || []).find((r) => r.id === id);
     if (route) {
       setActionRoute(route);
       setEditOpen(true);
@@ -120,9 +99,7 @@ export default function RoutesPage() {
   };
 
   const handleDelete = (id: string) => {
-    const route = ((routesData?.routes as RouteWithRelations[]) || []).find(
-      (r) => r.id === id
-    );
+    const route = (dashboardData?.routes || []).find((r) => r.id === id);
     if (route) {
       setActionRoute(route);
       setDeleteOpen(true);
@@ -215,7 +192,7 @@ export default function RoutesPage() {
           pagination={{
             page: pagination.page,
             pageSize: pagination.pageSize,
-            total: routesData?.totalCount || 0,
+            total: dashboardData?.totalCount || 0,
           }}
           onPageChange={handlePageChange}
           onSelect={() => {}}

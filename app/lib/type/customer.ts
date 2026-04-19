@@ -9,6 +9,13 @@ export interface CustomerWithRelations extends Customer {
   locations?: CustomerLocation[];
 }
 
+export interface CustomerStats {
+  totalCustomers: number;
+  activeCustomers: number;
+  totalShipments: number;
+}
+
+
 export interface CustomerFormLocation {
   id?: string;
   name: string;
@@ -31,6 +38,8 @@ export interface CustomerFormValues {
 // Page State
 export interface CustomerPageState {
   customers: CustomerWithRelations[];
+  totalCount: number;
+  stats: CustomerStats | null;
   selectedCustomerId: string | null;
   filters: {
     search?: string;
@@ -42,11 +51,13 @@ export interface CustomerPageState {
 // Page Actions
 export interface CustomerPageActions {
   fetchCustomers: () => Promise<void>;
-  selectCustomer: (id: string | null) => void;
+  selectCustomer: (id: string) => void;
   updateFilters: (filters: Partial<CustomerPageState["filters"]>) => void;
 }
 
 // Component Props
+import { PaginationMeta } from "./dataTable";
+
 export interface CustomerListProps {
   customers: CustomerWithRelations[];
   selectedId: string | null;
@@ -54,4 +65,7 @@ export interface CustomerListProps {
   onSelect: (id: string) => void;
   onEdit?: (customer: CustomerWithRelations) => void;
   onDelete?: (customer: CustomerWithRelations) => void;
+  meta?: PaginationMeta;
+  onPageChange?: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
 }

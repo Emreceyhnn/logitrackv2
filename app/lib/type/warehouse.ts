@@ -61,6 +61,7 @@ export interface WarehouseStats {
 export interface WarehousePageState {
   warehouses: WarehouseWithRelations[];
   stats: WarehouseStats | null;
+  totalCount: number;
   recentMovements: InventoryMovementWithRelations[];
   selectedWarehouseId: string | null;
   loading: boolean;

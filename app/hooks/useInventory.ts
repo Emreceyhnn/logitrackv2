@@ -7,6 +7,7 @@ import {
   createInventoryItem,
   updateInventoryItem,
   deleteInventoryItem,
+  getInventoryWithDashboardData,
   logWarehouseFulfillment,
 } from "@/app/lib/controllers/inventory";
 import { Inventory } from "@/app/lib/type/enums";
@@ -20,6 +21,17 @@ export const inventoryKeys = {
   lowStock: () => [...inventoryKeys.all, "lowStock"] as const,
   movements: (sku: string, warehouseId: string) =>
     [...inventoryKeys.all, "movements", { sku, warehouseId }] as const,
+  dashboard: () => [...inventoryKeys.all, "dashboard"] as const,
+  dashboardWithFilters: (
+    page: number,
+    pageSize: number,
+    warehouseId?: string,
+    search?: string
+  ) =>
+    [
+      ...inventoryKeys.dashboard(),
+      { page, pageSize, warehouseId, search },
+    ] as const,
 };
 
 export function useInventory(warehouseId?: string) {
@@ -29,6 +41,26 @@ export function useInventory(warehouseId?: string) {
     staleTime: 1000 * 60 * 5,
   });
 }
+
+export function useInventoryWithDashboard(
+  page: number = 1,
+  pageSize: number = 10,
+  warehouseId?: string,
+  search?: string
+) {
+  return useQuery({
+    queryKey: inventoryKeys.dashboardWithFilters(
+      page,
+      pageSize,
+      warehouseId,
+      search
+    ),
+    queryFn: () =>
+      getInventoryWithDashboardData(page, pageSize, warehouseId, search),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 
 export function useInventoryItem(id: string | null) {
   return useQuery({

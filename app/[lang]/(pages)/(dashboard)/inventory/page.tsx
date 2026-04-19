@@ -8,7 +8,10 @@ import CustomCard from "@/app/components/cards/card";
 import InventoryHeader from "@/app/components/dashboard/inventory/InventoryHeader";
 import InventoryTable from "@/app/components/dashboard/inventory/InventoryTable";
 import { InventoryPageActions } from "@/app/lib/type/inventory";
-import { useInventory, useInventoryMutations } from "@/app/hooks/useInventory";
+import {
+  useInventoryWithDashboard,
+  useInventoryMutations,
+} from "@/app/hooks/useInventory";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import InventoryDetailsDialog from "@/app/components/dialogs/inventory/InventoryDetailsDialog";
 import InventoryEditDialog from "@/app/components/dialogs/inventory/InventoryEditDialog";
@@ -40,7 +43,14 @@ function InventoryContent() {
   const lang = (params?.lang as string) || "en";
 
   /* ---------------------------------- STATE --------------------------------- */
-  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [filters, setFilters] = useState({
+    search: "",
+    warehouseId: undefined as string | undefined,
+  });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+  });
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -49,20 +59,25 @@ function InventoryContent() {
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
-    data: inventory = [],
-    isLoading: isInventoryLoading,
-    refetch: refetchInventory,
-  } = useInventory();
+    data: dashboardData,
+    isLoading,
+    refetch,
+  } = useInventoryWithDashboard(
+    pagination.page,
+    pagination.pageSize,
+    filters.warehouseId,
+    filters.search
+  );
 
   const { deleteItem: deleteMutation, updateItem: updateMutation } =
     useInventoryMutations();
 
-  const loading = isInventoryLoading;
+  const loading = isLoading;
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
-    await refetchInventory();
-  }, [refetchInventory]);
+    await refetch();
+  }, [refetch]);
 
   const actions: InventoryPageActions = {
     fetchInventory: async () => {},
@@ -87,14 +102,21 @@ function InventoryContent() {
       await updateMutation.mutateAsync({ id, data });
     },
 
-    updateFilters: (newFilters) =>
-      setFilters((prev) => ({ ...prev, ...newFilters })),
+    updateFilters: (newFilters) => {
+      setFilters((prev) => ({ ...prev, ...newFilters }));
+      setPagination((prev) => ({ ...prev, page: 1 }));
+    },
   };
 
+  const items = dashboardData?.items || [];
+  const stats = dashboardData?.stats;
+
+
   const selectedItem =
-    (inventory as InventoryWithRelations[]).find(
+    (items as InventoryWithRelations[]).find(
       (i: InventoryWithRelations) => i.id === selectedItemId
     ) || null;
+
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleDeleteRequest = (id: string) => {
@@ -112,59 +134,33 @@ function InventoryContent() {
     }
   };
 
-  /* --------------------------------- HELPER --------------------------------- */
-  const filteredData = useMemo(() => {
-    if (!filters.search) return inventory;
-    const lowerTerm = filters.search.toLowerCase();
-    return (inventory as InventoryWithRelations[]).filter(
-      (item: InventoryWithRelations) =>
-        item.name.toLowerCase().includes(lowerTerm) ||
-        item.sku.toLowerCase().includes(lowerTerm)
-    );
-  }, [inventory, filters.search]);
-
-  const totalItems = filteredData.length;
-  const lowStockItemsCount = (filteredData as InventoryWithRelations[]).filter(
-    (item: InventoryWithRelations) =>
-      item.quantity > 0 && item.quantity <= item.minStock
-  ).length;
-  const outOfStockItemsCount = (
-    filteredData as InventoryWithRelations[]
-  ).filter((item: InventoryWithRelations) => item.quantity === 0).length;
-
-  const totalValue = (filteredData as InventoryWithRelations[]).reduce(
-    (acc: number, item: InventoryWithRelations) =>
-      acc + item.quantity * (item.unitValue || 0),
-    0
-  );
-
   /* ----------------------------------- KPI ---------------------------------- */
   const kpiItems = useMemo(
     () => [
       {
         label: dict.inventory.totalItems,
-        value: totalItems ?? 0,
+        value: stats?.totalItems ?? 0,
         icon: <InventoryIcon sx={{ fontSize: 22 }} />,
         color: theme.palette.primary.main,
       },
       {
         label: dict.inventory.lowStock,
-        value: lowStockItemsCount ?? 0,
+        value: stats?.lowStockCount ?? 0,
         icon: <Warning sx={{ fontSize: 22 }} />,
         color: theme.palette.kpi.amber,
         trend:
-          lowStockItemsCount > 0
-            ? { value: lowStockItemsCount, isUp: true }
+          (stats?.lowStockCount || 0) > 0
+            ? { value: stats!.lowStockCount, isUp: true }
             : undefined,
       },
       {
         label: dict.inventory.outOfStock,
-        value: outOfStockItemsCount ?? 0,
+        value: stats?.outOfStockCount ?? 0,
         icon: <ErrorIcon sx={{ fontSize: 22 }} />,
         color: theme.palette.kpi.error,
         trend:
-          outOfStockItemsCount > 0
-            ? { value: outOfStockItemsCount, isUp: true }
+          (stats?.outOfStockCount || 0) > 0
+            ? { value: stats!.outOfStockCount, isUp: true }
             : undefined,
       },
       {
@@ -173,20 +169,12 @@ function InventoryContent() {
           style: "currency",
           currency: lang === "tr" ? "TRY" : "USD",
           maximumFractionDigits: 0,
-        }).format(totalValue),
+        }).format(stats?.totalValue || 0),
         icon: <AttachMoney sx={{ fontSize: 22 }} />,
         color: theme.palette.kpi.emerald,
       },
     ],
-    [
-      totalItems,
-      lowStockItemsCount,
-      outOfStockItemsCount,
-      totalValue,
-      theme,
-      dict,
-      lang,
-    ]
+    [stats, theme, dict, lang]
   );
 
   return (
@@ -205,11 +193,20 @@ function InventoryContent() {
           </Typography>
           <Divider />
           <InventoryTable
-            items={filteredData}
+            items={items}
             loading={loading}
             onSelect={actions.openDetails}
             onEdit={(item) => actions.openEdit(item.id)}
             onDelete={handleDeleteRequest}
+            meta={{
+              page: pagination.page,
+              limit: pagination.pageSize,
+              total: dashboardData?.totalCount || 0,
+            }}
+            onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
+            onLimitChange={(pageSize) =>
+              setPagination({ page: 1, pageSize: pageSize })
+            }
           />
         </CustomCard>
       </Stack>

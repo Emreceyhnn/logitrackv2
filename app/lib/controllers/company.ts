@@ -4,7 +4,7 @@ import { db } from "../db";
 import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";
 import { createSession, revokeSession } from "./session";
-import { UserStatus } from "@prisma/client";
+import { UserStatus, Prisma } from "@prisma/client";
 
 export const createCompany = authenticatedAction(
   async (user, name: string, avatarUrl?: string) => {
@@ -521,6 +521,113 @@ export const updateCompanyMember = authenticatedAction(
       console.error("Failed to update company user:", error);
       throw new Error(
         error instanceof Error ? error.message : "Failed to update company user"
+      );
+    }
+  }
+);
+export const getCompanyWithDashboardData = authenticatedAction(
+  async (user, filters: { page: number; pageSize: number; search?: string }) => {
+    const userId = user?.id || "";
+    const companyId = user?.companyId || "";
+
+    if (!companyId) {
+      throw new Error("User is not associated with any company");
+    }
+
+    try {
+      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+
+      const page = Math.max(1, filters.page || 1);
+      const pageSize = Math.max(1, filters.pageSize || 10);
+      const skip = (page - 1) * pageSize;
+
+      const queryWhere: Prisma.UserWhereInput = {
+        companyId,
+        ...(filters.search
+          ? {
+              OR: [
+                { name: { contains: filters.search, mode: "insensitive" } },
+                { surname: { contains: filters.search, mode: "insensitive" } },
+                { email: { contains: filters.search, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+      };
+
+      const [
+        company,
+        members,
+        filteredCount,
+        totalUserCount,
+        vehicleCount,
+        driverCount,
+        warehouseCount,
+        customerCount,
+        shipmentCount,
+      ] = await Promise.all([
+        db.company.findUnique({
+          where: { id: companyId },
+        }),
+        db.user.findMany({
+          where: queryWhere,
+          include: { role: { select: { id: true, name: true } } },
+          orderBy: { createdAt: "asc" },
+          skip,
+          take: pageSize,
+        }),
+        db.user.count({ where: queryWhere }),
+        db.user.count({ where: { companyId } }),
+        db.vehicle.count({ where: { companyId } }),
+        db.driver.count({ where: { companyId } }),
+        db.warehouse.count({ where: { companyId } }),
+        db.customer.count({ where: { companyId } }),
+        db.shipment.count({ where: { companyId } }),
+      ]);
+
+      if (!company) {
+        throw new Error("Company not found");
+      }
+
+      return {
+        profile: {
+          id: company.id,
+          name: company.name,
+          avatarUrl: company.avatarUrl ?? null,
+          createdAt: company.createdAt.toISOString(),
+          updatedAt: company.updatedAt.toISOString(),
+        },
+        members: members.map((u) => ({
+          id: u.id,
+          name: u.name,
+          surname: u.surname,
+          email: u.email,
+          avatarUrl: u.avatarUrl ?? null,
+          status: u.status,
+          roleId: u.role?.id ?? null,
+          roleName: u.role?.name ?? null,
+          createdAt: u.createdAt.toISOString(),
+        })),
+        totalCount: filteredCount,
+        meta: {
+          page,
+          limit: pageSize,
+          total: filteredCount,
+        },
+        stats: {
+          users: totalUserCount,
+          vehicles: vehicleCount,
+          drivers: driverCount,
+          warehouses: warehouseCount,
+          customers: customerCount,
+          shipments: shipmentCount,
+        },
+      };
+    } catch (error) {
+      console.error("Failed to get company dashboard data:", error);
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to get company dashboard data"
       );
     }
   }

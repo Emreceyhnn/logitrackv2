@@ -4,6 +4,12 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma, Customer, CustomerLocation, ShipmentStatus, ShipmentPriority } from "@prisma/client";
+import {
+  ShipmentWithRelations,
+  ShipmentStats,
+  ShipmentVolumeData,
+  ShipmentStatusData,
+} from "../type/shipment";
 
 interface CustomerWithLocations extends Customer {
   locations: CustomerLocation[];
@@ -536,6 +542,136 @@ export const getShipmentStatusDistribution = authenticatedAction(
     } catch (error) {
       console.error("Failed to get shipment status distribution:", error);
       return [];
+    }
+  }
+);
+
+export const getShipmentsWithDashboardData = authenticatedAction(
+  async (
+    user,
+    page: number = 1,
+    pageSize: number = 10,
+    status?: ShipmentStatus | "ALL",
+    search?: string
+  ): Promise<{
+    shipments: ShipmentWithRelations[];
+    totalCount: number;
+    stats: ShipmentStats;
+    volumeHistory: ShipmentVolumeData[];
+    statusDistribution: ShipmentStatusData[];
+  }> => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+
+    try {
+      if (!companyId) throw new Error("User has no company");
+
+      const skip = (page - 1) * pageSize;
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const where: Prisma.ShipmentWhereInput = { companyId };
+      if (status && status !== "ALL") {
+        where.status = status;
+      }
+      if (search) {
+        where.OR = [
+          { trackingId: { contains: search, mode: "insensitive" } },
+          { origin: { contains: search, mode: "insensitive" } },
+          { destination: { contains: search, mode: "insensitive" } },
+          { customer: { name: { contains: search, mode: "insensitive" } } },
+        ];
+      }
+
+      // ── Parallel Orchestration ──────────────────────────────────────────
+      const [
+        ,
+        shipments,
+        totalCount,
+        total,
+        active,
+        delayed,
+        inTransit,
+        rawVolumeHistory,
+        statusCounts,
+      ] = await Promise.all([
+        checkPermission(userId, companyId, [
+          "role_admin",
+          "role_manager",
+          "role_dispatcher",
+        ]),
+        db.shipment.findMany({
+          where,
+          include: {
+            customer: {
+              include: { locations: true },
+            },
+            driver: {
+              include: {
+                user: {
+                  select: { name: true, surname: true, avatarUrl: true },
+                },
+              },
+            },
+            route: true,
+          },
+          orderBy: { createdAt: "desc" },
+          skip,
+          take: pageSize,
+        }),
+        db.shipment.count({ where }),
+        db.shipment.count({ where: { companyId } }),
+        db.shipment.count({
+          where: {
+            companyId,
+            status: { in: [ShipmentStatus.PENDING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.PROCESSING] },
+          },
+        }),
+        db.shipment.count({
+          where: { companyId, status: ShipmentStatus.DELAYED },
+        }),
+        db.shipment.count({
+          where: { companyId, status: ShipmentStatus.IN_TRANSIT },
+        }),
+        db.shipment.findMany({
+          where: {
+            companyId,
+            createdAt: { gte: sevenDaysAgo },
+          },
+          select: { createdAt: true },
+        }),
+        db.shipment.groupBy({
+          by: ["status"],
+          where: { companyId },
+          _count: { status: true },
+        }),
+      ]);
+
+      // Volume History Transformation
+      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const volumeByDay: Record<string, number> = {};
+      rawVolumeHistory.forEach((s) => {
+        const dayName = days[s.createdAt.getDay()];
+        volumeByDay[dayName] = (volumeByDay[dayName] || 0) + 1;
+      });
+      const volumeHistory = days.map((day) => ({
+        day,
+        volume: volumeByDay[day] || 0,
+      }));
+
+      return {
+        shipments: shipments as unknown as ShipmentWithRelations[],
+        totalCount,
+        stats: { total, active, delayed, inTransit },
+        volumeHistory,
+        statusDistribution: statusCounts.map((s) => ({
+          status: s.status,
+          count: s._count.status,
+        })),
+      };
+    } catch (error) {
+      console.error("Failed to get shipments combined data:", error);
+      throw error;
     }
   }
 );

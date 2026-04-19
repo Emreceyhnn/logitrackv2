@@ -4,6 +4,13 @@ import { Prisma, RouteStatus } from "@prisma/client";
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
+import {
+  RouteWithRelations,
+  RouteStats,
+  RouteEfficiencyStats,
+  MapRouteData,
+} from "../type/routes";
+
 
 export const createRoute = authenticatedAction(
   async (
@@ -38,9 +45,10 @@ export const createRoute = authenticatedAction(
         "role_dispatcher",
       ]);
 
-      const finalName = name && name.trim() !== "" 
-        ? name 
-        : `ROUTE-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      const finalName =
+        name && name.trim() !== ""
+          ? name
+          : `ROUTE-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
       const existingRoute = await db.route.findFirst({
         where: { name: finalName, companyId: user.companyId },
@@ -66,10 +74,12 @@ export const createRoute = authenticatedAction(
       } else if (origin?.type === "CUSTOMER" && origin.id) {
         const customer = await db.customer.findUnique({
           where: { id: origin.id },
-          include: { locations: true }
+          include: { locations: true },
         });
         if (customer && customer.locations.length > 0) {
-          const defaultLoc = customer.locations.find((l) => l.isDefault) || customer.locations[0];
+          const defaultLoc =
+            customer.locations.find((l) => l.isDefault) ||
+            customer.locations[0];
           startAddress = defaultLoc.address || undefined;
           startLat = defaultLoc.lat || undefined;
           startLng = defaultLoc.lng || undefined;
@@ -92,10 +102,12 @@ export const createRoute = authenticatedAction(
       } else if (destination?.type === "CUSTOMER" && destination.id) {
         const customer = await db.customer.findUnique({
           where: { id: destination.id },
-          include: { locations: true }
+          include: { locations: true },
         });
         if (customer && customer.locations.length > 0) {
-          const defaultLoc = customer.locations.find((l) => l.isDefault) || customer.locations[0];
+          const defaultLoc =
+            customer.locations.find((l) => l.isDefault) ||
+            customer.locations[0];
           endAddress = defaultLoc.address || undefined;
           endLat = defaultLoc.lat || undefined;
           endLng = defaultLoc.lng || undefined;
@@ -241,7 +253,12 @@ export const getRouteById = authenticatedAction(
               driver: {
                 include: {
                   user: {
-                    select: { id: true, name: true, surname: true, avatarUrl: true },
+                    select: {
+                      id: true,
+                      name: true,
+                      surname: true,
+                      avatarUrl: true,
+                    },
                   },
                 },
               },
@@ -835,6 +852,180 @@ export const updateRouteStatus = authenticatedAction(
       return updatedRoute;
     } catch (error) {
       console.error("Failed to update route status:", error);
+      throw error;
+    }
+  }
+);
+
+export const getRoutesWithDashboardData = authenticatedAction(
+  async (
+    user,
+    page: number = 1,
+    pageSize: number = 10,
+    status?: string
+  ): Promise<{
+    routes: RouteWithRelations[];
+    totalCount: number;
+    stats: RouteStats;
+    efficiency: RouteEfficiencyStats;
+    mapData: MapRouteData[];
+  }> => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+
+    try {
+      if (!companyId) throw new Error("User has no company");
+
+      const skip = (page - 1) * pageSize;
+      const now = new Date();
+      const startOfDay = new Date(now.setHours(0, 0, 0, 0));
+
+      const where: Prisma.RouteWhereInput = { companyId };
+      if (status && status !== "ALL") {
+        where.status = status as RouteStatus;
+      }
+
+      // ── Parallel Orchestration ──────────────────────────────────────────
+      // This pattern ensures that checkPermission and all DB fetches start
+      // simultaneously for sub-second performance.
+      const [
+        ,
+        routes,
+        totalCount,
+        activeCount,
+        inProgressCount,
+        completedCount,
+        delayedCount,
+        totalVehicles,
+        vehiclesOnTrip,
+        locationsData,
+      ] = await Promise.all([
+        checkPermission(userId, companyId, [
+          "role_admin",
+          "role_manager",
+          "role_dispatcher",
+        ]),
+        db.route.findMany({
+          where,
+          include: {
+            vehicle: {
+              select: {
+                id: true,
+                plate: true,
+                type: true,
+                brand: true,
+                model: true,
+                currentLat: true,
+                currentLng: true,
+                fuelLevel: true,
+              },
+            },
+            driver: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    surname: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+            shipments: {
+              select: {
+                id: true,
+                status: true,
+                origin: true,
+                destination: true,
+              },
+            },
+          },
+          orderBy: { date: "desc" },
+          skip,
+          take: pageSize,
+        }),
+        db.route.count({ where }),
+        db.route.count({
+          where: { companyId, status: { in: ["ACTIVE", "PLANNED"] } },
+        }),
+        db.route.count({
+          where: { companyId, status: "ACTIVE" },
+        }),
+        db.route.count({
+          where: {
+            companyId,
+            status: "COMPLETED",
+            updatedAt: { gte: startOfDay },
+          },
+        }),
+        db.route.count({
+          where: {
+            companyId,
+            status: { not: "COMPLETED" },
+            endTime: { lt: new Date() },
+          },
+        }),
+        db.vehicle.count({ where: { companyId } }),
+        db.vehicle.count({ where: { companyId, status: "ON_TRIP" } }),
+        db.route.findMany({
+          where: { companyId, status: { in: ["ACTIVE", "PLANNED"] } },
+          select: {
+            id: true,
+            status: true,
+            vehicle: {
+              select: {
+                id: true,
+                plate: true,
+                currentLat: true,
+                currentLng: true,
+                status: true,
+                type: true,
+              },
+            },
+            startLat: true,
+            startLng: true,
+            endLat: true,
+            endLng: true,
+            name: true,
+          },
+        }),
+      ]);
+
+      const utilization =
+        totalVehicles > 0 ? (vehiclesOnTrip / totalVehicles) * 100 : 0;
+
+      return {
+        routes: routes as unknown as RouteWithRelations[],
+        totalCount,
+        stats: {
+          active: activeCount,
+          inProgress: inProgressCount,
+          completedToday: completedCount,
+          delayed: delayedCount,
+        },
+        efficiency: {
+          fuelConsumption: 24.5,
+          onTimePerformance: 89,
+          vehicleUtilization: utilization,
+          recentNotifications: [],
+        },
+        mapData: locationsData
+          .filter((r) => r.vehicle?.currentLat && r.vehicle?.currentLng)
+          .map((r) => ({
+            position: {
+              lat: r.vehicle!.currentLat!,
+              lng: r.vehicle!.currentLng!,
+            },
+            name: r.vehicle!.plate,
+            id: r.vehicle!.id,
+            type: "V",
+            routeId: r.id,
+            routeName: r.name,
+          })),
+      };
+    } catch (error) {
+      console.error("Failed to get routes combined data:", error);
       throw error;
     }
   }

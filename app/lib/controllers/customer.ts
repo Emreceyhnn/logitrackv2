@@ -4,6 +4,8 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
+import { CustomerWithRelations } from "../type/customer";
+
 
 export const createCustomer = authenticatedAction(
   async (
@@ -93,6 +95,90 @@ export const getCustomers = authenticatedAction(async (user) => {
     throw error;
   }
 });
+
+export const getCustomersWithDashboardData = authenticatedAction(
+  async (
+    user,
+    page: number = 1,
+    pageSize: number = 10,
+    search?: string
+  ): Promise<{
+    customers: CustomerWithRelations[];
+    totalCount: number;
+    stats: {
+      totalCustomers: number;
+      activeCustomers: number;
+      totalShipments: number;
+    };
+  }> => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+
+    try {
+      if (!companyId) throw new Error("User has no company");
+
+      const skip = (page - 1) * pageSize;
+
+      const where: Prisma.CustomerWhereInput = { companyId };
+      if (search) {
+        where.OR = [
+          { name: { contains: search, mode: "insensitive" } },
+          { code: { contains: search, mode: "insensitive" } },
+        ];
+      }
+
+      // ── Parallel Orchestration ──────────────────────────────────────────
+      const [
+        ,
+        customers,
+        totalCount,
+        statsRaw,
+      ] = await Promise.all([
+        checkPermission(userId, companyId, ["role_admin", "role_manager", "role_dispatcher"]),
+        db.customer.findMany({
+          where,
+          include: {
+            locations: true,
+            _count: {
+              select: { shipments: true },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+          skip,
+          take: pageSize,
+        }),
+        db.customer.count({ where }),
+        db.customer.findMany({
+          where: { companyId },
+          select: {
+            _count: {
+              select: { shipments: true },
+            },
+          },
+        }),
+      ]);
+
+      // Stats Calculation
+      const totalCustomers = totalCount;
+      const totalShipments = statsRaw.reduce((acc, c) => acc + c._count.shipments, 0);
+      const activeCustomers = statsRaw.filter((c) => c._count.shipments > 0).length;
+
+      return {
+        customers: customers as unknown as CustomerWithRelations[],
+        totalCount,
+        stats: {
+          totalCustomers,
+          activeCustomers,
+          totalShipments,
+        },
+      };
+    } catch (error) {
+      console.error("Failed to get customers combined data:", error);
+      throw error;
+    }
+  }
+);
+
 
 export const getCustomerById = authenticatedAction(
   async (user, customerId: string) => {

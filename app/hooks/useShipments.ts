@@ -5,6 +5,7 @@ import {
   getShipmentStats,
   getShipmentVolumeHistory,
   getShipmentStatusDistribution,
+  getShipmentsWithDashboardData,
   createShipment,
   updateShipment,
   deleteShipment,
@@ -27,6 +28,9 @@ export const shipmentKeys = {
   stats: () => [...shipmentKeys.all, "stats"] as const,
   history: () => [...shipmentKeys.all, "history"] as const,
   distribution: () => [...shipmentKeys.all, "distribution"] as const,
+  dashboard: () => [...shipmentKeys.all, "dashboard"] as const,
+  dashboardWithFilters: (page: number, pageSize: number, status?: ShipmentStatus, search?: string) =>
+    [...shipmentKeys.dashboard(), { page, pageSize, status, search }] as const,
 };
 
 export function useShipments() {
@@ -85,6 +89,20 @@ export function useShipmentStatusDistribution() {
     staleTime: 1000 * 60 * 5,
   });
 }
+
+export function useShipmentsWithDashboard(
+  page: number = 1,
+  pageSize: number = 10,
+  status?: ShipmentStatus,
+  search?: string
+) {
+  return useQuery({
+    queryKey: shipmentKeys.dashboardWithFilters(page, pageSize, status, search),
+    queryFn: () => getShipmentsWithDashboardData(page, pageSize, status, search),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 
 export function useShipmentMutations() {
   const queryClient = useQueryClient();

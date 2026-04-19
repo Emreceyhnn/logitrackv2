@@ -12,9 +12,7 @@ import {
   WarehouseWithRelations,
 } from "@/app/lib/type/warehouse";
 import {
-  useWarehouses,
-  useWarehouseStats,
-  useRecentStockMovements,
+  useWarehousesWithDashboard,
   useWarehouseMutations,
 } from "@/app/hooks/useWarehouses";
 import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseDialog";
@@ -40,6 +38,11 @@ export default function WarehousePage() {
   const dict = useDictionary();
 
   /* --------------------------------- STATES --------------------------------- */
+
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+  });
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(
     null
   );
@@ -56,33 +59,20 @@ export default function WarehousePage() {
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
-    data: warehouses = [],
-    isLoading: isWarehousesLoading,
-    refetch: refetchWarehouses,
-  } = useWarehouses();
-  const {
-    data: stats,
-    isLoading: isStatsLoading,
-    refetch: refetchStats,
-  } = useWarehouseStats();
-  const {
-    data: recentMovements = [],
-    isLoading: isMovementsLoading,
-    refetch: refetchMovements,
-  } = useRecentStockMovements();
+    data: dashboardData,
+    isLoading,
+    refetch,
+  } = useWarehousesWithDashboard(pagination.page, pagination.pageSize);
 
   const { deleteWarehouse: deleteMutation } = useWarehouseMutations();
 
-  const loading = isWarehousesLoading || isStatsLoading || isMovementsLoading;
+  const loading = isLoading;
+
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
-    await Promise.all([
-      refetchWarehouses(),
-      refetchStats(),
-      refetchMovements(),
-    ]);
-  }, [refetchWarehouses, refetchStats, refetchMovements]);
+    await refetch();
+  }, [refetch]);
 
   const actions: WarehousePageActions = {
     fetchWarehouses: async () => {},
@@ -120,9 +110,14 @@ export default function WarehousePage() {
     }
   };
 
+  const warehouses = dashboardData?.warehouses || [];
+  const stats = dashboardData?.stats || null;
+  const recentMovements = dashboardData?.recentMovements || [];
+
   const warehouseToDelete = warehouses.find(
     (w: WarehouseWithRelations) => w.id === warehouseToDeleteId
   );
+
 
   /* --------------------------------- KPI --------------------------------- */
   const kpiItems = [
@@ -203,6 +198,15 @@ export default function WarehousePage() {
           onEdit={actions.editWarehouse}
           onDelete={actions.deleteWarehouse}
           onDetails={actions.selectWarehouse}
+          meta={{
+            page: pagination.page,
+            limit: pagination.pageSize,
+            total: dashboardData?.totalCount || 0,
+          }}
+          onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
+          onLimitChange={(pageSize) =>
+            setPagination({ page: 1, pageSize: pageSize })
+          }
         />
       </Stack>
 

@@ -4,6 +4,11 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma, WarehouseType } from "@prisma/client";
+import {
+  WarehouseWithRelations,
+  WarehouseStats,
+  InventoryMovementWithRelations,
+} from "../type/warehouse";
 
 export const createWarehouse = authenticatedAction(
   async (
@@ -522,3 +527,116 @@ export const getRecentStockMovements = authenticatedAction(async (user) => {
     return [];
   }
 });
+
+export const getWarehousesWithDashboardData = authenticatedAction(
+  async (
+    user,
+    page: number = 1,
+    pageSize: number = 10
+  ): Promise<{
+    warehouses: WarehouseWithRelations[];
+    totalCount: number;
+    stats: WarehouseStats;
+    recentMovements: InventoryMovementWithRelations[];
+  }> => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+
+    try {
+      if (!companyId) throw new Error("User has no company");
+
+      const skip = (page - 1) * pageSize;
+
+      // ── Parallel Orchestration ──────────────────────────────────────────
+      const [, warehouses, totalCount, statsRaw, inventoryStats, movements] =
+        await Promise.all([
+          checkPermission(userId, companyId, ["role_admin", "role_manager"]),
+          db.warehouse.findMany({
+            where: { companyId },
+            include: {
+              manager: {
+                select: {
+                  id: true,
+                  name: true,
+                  surname: true,
+                  email: true,
+                  avatarUrl: true,
+                },
+              },
+              _count: {
+                select: {
+                  inventory: true,
+                  drivers: true,
+                },
+              },
+            },
+            orderBy: { createdAt: "desc" },
+            skip,
+            take: pageSize,
+          }),
+          db.warehouse.count({ where: { companyId } }),
+          db.warehouse.findMany({
+            where: { companyId },
+            select: { capacityPallets: true, capacityVolumeM3: true },
+          }),
+          db.inventory.aggregate({
+            where: { companyId },
+            _count: { sku: true },
+            _sum: { quantity: true },
+          }),
+          db.inventoryMovement.findMany({
+            where: { companyId },
+            include: {
+              warehouse: { select: { code: true, name: true } },
+            },
+            take: 10,
+            orderBy: { date: "desc" },
+          }),
+        ]);
+
+      // Stats Calculation
+      const totalWarehouses = statsRaw.length;
+      const totalCapacityPallets = statsRaw.reduce(
+        (acc, w) => acc + (w.capacityPallets || 0),
+        0
+      );
+      const totalCapacityVolume = statsRaw.reduce(
+        (acc, w) => acc + (w.capacityVolumeM3 || 0),
+        0
+      );
+
+      // Enriched Movements
+      const enrichedMovements = await Promise.all(
+        movements.map(async (m) => {
+          const inventoryItem = await db.inventory.findFirst({
+            where: {
+              warehouseId: m.warehouseId,
+              sku: m.sku,
+            },
+            select: { name: true },
+          });
+          return {
+            ...m,
+            itemName: inventoryItem?.name || m.sku,
+          } as InventoryMovementWithRelations;
+        })
+      );
+
+      return {
+        warehouses: warehouses as unknown as WarehouseWithRelations[],
+        totalCount,
+        stats: {
+          totalWarehouses,
+          totalSkus: inventoryStats._count.sku,
+          totalItems: inventoryStats._sum.quantity || 0,
+          totalCapacityPallets,
+          totalCapacityVolume,
+        },
+        recentMovements: enrichedMovements,
+      };
+    } catch (error) {
+      console.error("Failed to get warehouse combined data:", error);
+      throw error;
+    }
+  }
+);

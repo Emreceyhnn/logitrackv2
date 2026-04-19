@@ -1,11 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getCustomers, deleteCustomer } from "@/app/lib/controllers/customer";
+import {
+  getCustomers,
+  deleteCustomer,
+  getCustomersWithDashboardData,
+} from "@/app/lib/controllers/customer";
 import { toast } from "sonner";
 
 export const customerKeys = {
   all: ["customers"] as const,
   lists: () => [...customerKeys.all, "list"] as const,
   details: (id: string) => [...customerKeys.all, "detail", id] as const,
+  dashboard: () => [...customerKeys.all, "dashboard"] as const,
+  dashboardWithFilters: (page: number, pageSize: number, search?: string) =>
+    [...customerKeys.dashboard(), { page, pageSize, search }] as const,
 };
 
 export function useCustomers() {
@@ -15,6 +22,19 @@ export function useCustomers() {
     staleTime: 1000 * 60 * 5,
   });
 }
+
+export function useCustomersWithDashboard(
+  page: number = 1,
+  pageSize: number = 10,
+  search?: string
+) {
+  return useQuery({
+    queryKey: customerKeys.dashboardWithFilters(page, pageSize, search),
+    queryFn: () => getCustomersWithDashboardData(page, pageSize, search),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 
 export function useCustomerMutations() {
   const queryClient = useQueryClient();

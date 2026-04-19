@@ -16,7 +16,13 @@ import {
 import { ShipmentStatus } from "@/app/lib/type/enums";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
-const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
+const ShipmentTable = ({
+  state,
+  actions,
+  pagination,
+  onPageChange,
+  onLimitChange,
+}: ShipmentTableProps) => {
   const dict = useDictionary();
   const { shipments, loading = false, filters } = state;
   const { selectShipment, onEdit, onDelete, updateFilters } = actions;
@@ -49,15 +55,27 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
   const [localPage, setLocalPage] = useState(1);
   const [localLimit, setLocalLimit] = useState(10);
 
-  const meta = useMemo(() => ({
-    page: localPage,
-    limit: localLimit,
-    total: shipments.length,
-  }), [localPage, localLimit, shipments.length]);
+  const meta = useMemo(() => {
+    if (pagination) {
+      return {
+        page: pagination.page,
+        limit: pagination.pageSize,
+        total: pagination.total,
+      };
+    }
+    return {
+      page: localPage,
+      limit: localLimit,
+      total: shipments.length,
+    };
+  }, [pagination, localPage, localLimit, shipments.length]);
+
 
   const paginatedShipments = useMemo(() => {
+    if (pagination) return shipments;
     return shipments.slice((meta.page - 1) * meta.limit, meta.page * meta.limit);
-  }, [shipments, meta.page, meta.limit]);
+  }, [shipments, meta.page, meta.limit, pagination]);
+
 
   /* --------------------------------- handlers --------------------------------- */
   const handleOpenDetails = useCallback(
@@ -84,6 +102,26 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
     },
     [updateFilters]
   );
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (onPageChange) onPageChange(page);
+      else setLocalPage(page);
+    },
+    [onPageChange]
+  );
+
+  const handleLimitChange = useCallback(
+    (limit: number) => {
+      if (onLimitChange) onLimitChange(limit);
+      else {
+        setLocalLimit(limit);
+        setLocalPage(1);
+      }
+    },
+    [onLimitChange]
+  );
+
 
   /* --------------------------------- columns --------------------------------- */
   const columns: DataTableColumn<ShipmentWithRelations>[] = [
@@ -175,8 +213,8 @@ const ShipmentTable = ({ state, actions }: ShipmentTableProps) => {
         onFilterChange={handleFilterChange}
         rowActions={rowActions}
         meta={meta}
-        onPageChange={setLocalPage}
-        onLimitChange={(lim) => { setLocalLimit(lim); setLocalPage(1); }}
+        onPageChange={handlePageChange}
+        onLimitChange={handleLimitChange}
         wrapCard={true}
         tableTitle={dict.shipments.table.title}
       />

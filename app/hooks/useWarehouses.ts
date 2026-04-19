@@ -7,6 +7,7 @@ import {
   createWarehouse,
   updateWarehouse,
   deleteWarehouse,
+  getWarehousesWithDashboardData,
   assignManagerToWarehouse,
 } from "@/app/lib/controllers/warehouse";
 import { Warehouse } from "@/app/lib/type/enums";
@@ -18,6 +19,9 @@ export const warehouseKeys = {
   details: (id: string) => [...warehouseKeys.all, "detail", id] as const,
   stats: () => [...warehouseKeys.all, "stats"] as const,
   movements: () => [...warehouseKeys.all, "movements"] as const,
+  dashboard: () => [...warehouseKeys.all, "dashboard"] as const,
+  dashboardWithFilters: (page: number, pageSize: number) =>
+    [...warehouseKeys.dashboard(), { page, pageSize }] as const,
 };
 
 export function useWarehouses() {
@@ -52,6 +56,18 @@ export function useRecentStockMovements() {
     staleTime: 1000 * 60 * 5,
   });
 }
+
+export function useWarehousesWithDashboard(
+  page: number = 1,
+  pageSize: number = 10
+) {
+  return useQuery({
+    queryKey: warehouseKeys.dashboardWithFilters(page, pageSize),
+    queryFn: () => getWarehousesWithDashboardData(page, pageSize),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 
 export function useWarehouseMutations() {
   const queryClient = useQueryClient();

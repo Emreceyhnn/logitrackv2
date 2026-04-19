@@ -27,7 +27,10 @@ import {
   CustomerPageActions,
   CustomerWithRelations,
 } from "@/app/lib/type/customer";
-import { useCustomers, useCustomerMutations } from "@/app/hooks/useCustomers";
+import {
+  useCustomersWithDashboard,
+  useCustomerMutations,
+} from "@/app/hooks/useCustomers";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
@@ -39,6 +42,10 @@ export default function CustomersPage() {
 
   /* ---------------------------------- STATE --------------------------------- */
   const [filters, setFilters] = useState<{ search: string }>({ search: "" });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+  });
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
     null
   );
@@ -51,10 +58,15 @@ export default function CustomersPage() {
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
-    data: customers = [],
-    isLoading: loading,
-    refetch: refetchCustomers,
-  } = useCustomers();
+    data: dashboardData,
+    isLoading,
+    refetch,
+  } = useCustomersWithDashboard(
+    pagination.page,
+    pagination.pageSize,
+    filters.search
+  );
+
   const { deleteCustomer: deleteMutation } = useCustomerMutations();
 
   /* -------------------------------- HANDLERS -------------------------------- */
@@ -72,11 +84,16 @@ export default function CustomersPage() {
     if (!actionCustomer || !user) return;
     try {
       await deleteMutation.mutateAsync(actionCustomer.id);
-      toast.success(dict.customers.dialogs.successDelete || "Customer deleted successfully");
+      toast.success(
+        dict.customers.dialogs.successDelete || "Customer deleted successfully"
+      );
       setDeleteOpen(false);
       setDetailOpen(false);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : (dict.customers.dialogs.errorDelete || "Failed to delete customer");
+      const message =
+        error instanceof Error
+          ? error.message
+          : dict.customers.dialogs.errorDelete || "Failed to delete customer";
       toast.error(message);
     }
   };
@@ -84,27 +101,22 @@ export default function CustomersPage() {
   /* --------------------------------- ACTIONS -------------------------------- */
   const actions: CustomerPageActions = {
     fetchCustomers: async () => {},
-    selectCustomer: (id: string | null) => {
+    selectCustomer: (id: string) => {
+      if (!id) return;
       setSelectedCustomerId(id);
-      if (id) setDetailOpen(true);
+      setDetailOpen(true);
     },
-    updateFilters: (newFilters: Partial<{ search: string }>) =>
-      setFilters((prev) => ({ ...prev, ...newFilters })),
+    updateFilters: (newFilters: Partial<{ search: string }>) => {
+      setFilters((prev) => ({ ...prev, ...newFilters }));
+      setPagination((prev) => ({ ...prev, page: 1 }));
+    },
   };
 
   /* --------------------------------- HELPERS -------------------------------- */
-  const filteredCustomers = useMemo(() => {
-    if (!filters.search) return customers;
-    const lowerTerm = filters.search.toLowerCase();
-    return customers.filter(
-      (c: CustomerWithRelations) =>
-        c.name.toLowerCase().includes(lowerTerm) ||
-        c.code.toLowerCase().includes(lowerTerm)
-    );
-  }, [customers, filters.search]);
+  const customers = useMemo(() => dashboardData?.customers || [], [dashboardData?.customers]);
 
   const mapLocations = useMemo<MarkerData[]>(() => {
-    return filteredCustomers.flatMap((c: CustomerWithRelations) => {
+    return customers.flatMap((c: CustomerWithRelations) => {
       if (!c.locations) return [];
 
       return c.locations
@@ -120,7 +132,7 @@ export default function CustomersPage() {
           type: "customer" as const,
         }));
     });
-  }, [filteredCustomers]);
+  }, [customers]);
 
   return (
     <Box sx={{ height: "calc(100vh - 100px)", p: 3, display: "flex", gap: 3 }}>
@@ -158,12 +170,21 @@ export default function CustomersPage() {
         </Paper>
         <Box sx={{ flex: 1, overflow: "hidden" }}>
           <CustomerList
-            customers={filteredCustomers}
+            customers={customers}
             selectedId={selectedCustomerId}
-            loading={loading}
+            loading={isLoading}
             onSelect={actions.selectCustomer}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            meta={{
+              page: pagination.page,
+              limit: pagination.pageSize,
+              total: dashboardData?.totalCount || 0,
+            }}
+            onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
+            onLimitChange={(pageSize) =>
+              setPagination({ page: 1, pageSize: pageSize })
+            }
           />
         </Box>
       </Stack>
@@ -195,7 +216,9 @@ export default function CustomersPage() {
             borderRadius={1}
             zIndex={1}
           >
-            <Typography variant="caption">{dict.customers.noGeoData}</Typography>
+            <Typography variant="caption">
+              {dict.customers.noGeoData}
+            </Typography>
           </Box>
         )}
       </Card>
@@ -209,14 +232,14 @@ export default function CustomersPage() {
       <EditCustomerDialog
         open={editOpen}
         onClose={() => setEditOpen(false)}
-        onSuccess={refetchCustomers}
+        onSuccess={() => refetch()}
         customer={actionCustomer}
       />
 
       <AddCustomerDialog
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        onSuccess={refetchCustomers}
+        onSuccess={() => refetch()}
       />
 
       <DeleteConfirmationDialog
@@ -224,7 +247,10 @@ export default function CustomersPage() {
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDeleteConfirm}
         title={dict.customers.deleteTitle}
-        description={dict.customers.deleteDesc.replace("{name}", actionCustomer?.name || (dict.common.this || "this"))}
+        description={dict.customers.deleteDesc.replace(
+          "{name}",
+          actionCustomer?.name || dict.common.this || "this"
+        )}
         loading={deleteMutation.isPending}
       />
     </Box>

@@ -4,6 +4,10 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
+import {
+  InventoryWithRelations,
+  LowStockItem,
+} from "../type/inventory";
 
 export const createInventoryItem = authenticatedAction(
   async (
@@ -234,6 +238,112 @@ export const getLowStockItems = authenticatedAction(async (user) => {
     throw error;
   }
 });
+
+export const getInventoryWithDashboardData = authenticatedAction(
+  async (
+    user,
+    page: number = 1,
+    pageSize: number = 10,
+    warehouseId?: string,
+    search?: string
+  ): Promise<{
+    items: InventoryWithRelations[];
+    totalCount: number;
+    stats: {
+      totalItems: number;
+      lowStockCount: number;
+      outOfStockCount: number;
+      totalValue: number;
+    };
+    lowStockItems: LowStockItem[];
+  }> => {
+    const userId = user?.id;
+    const companyId = user?.companyId;
+
+    try {
+      if (!companyId) throw new Error("User has no company");
+
+      const skip = (page - 1) * pageSize;
+
+      const where: Prisma.InventoryWhereInput = { companyId };
+      if (warehouseId) where.warehouseId = warehouseId;
+      if (search) {
+        where.OR = [
+          { name: { contains: search, mode: "insensitive" } },
+          { sku: { contains: search, mode: "insensitive" } },
+        ];
+      }
+
+      // ── Parallel Orchestration ──────────────────────────────────────────
+      const [
+        ,
+        items,
+        totalCount,
+        allStatsItems,
+        lowStockItems,
+      ] = await Promise.all([
+        checkPermission(userId, companyId, ["role_admin", "role_manager", "role_warehouse"]),
+        db.inventory.findMany({
+          where,
+          include: {
+            warehouse: { select: { name: true, code: true } },
+          },
+          orderBy: { name: "asc" },
+          skip,
+          take: pageSize,
+        }),
+        db.inventory.count({ where }),
+        // Fetch all items summary for accurate KPI calculation across the filtered set
+        db.inventory.findMany({
+          where,
+          select: { quantity: true, minStock: true, unitValue: true },
+        }),
+        db.inventory.findMany({
+          where: {
+            ...where,
+            quantity: { lte: db.inventory.fields.minStock },
+          },
+          include: {
+            warehouse: { select: { name: true } },
+          },
+          take: 10, // Preview of low stock
+        }),
+      ]);
+
+      // KPI Calculations
+      let totalItems = 0;
+      let lowStockCount = 0;
+      let outOfStockCount = 0;
+      let totalValue = 0;
+
+      allStatsItems.forEach((item) => {
+        totalItems++;
+        if (item.quantity === 0) {
+          outOfStockCount++;
+        } else if (item.quantity <= item.minStock) {
+          lowStockCount++;
+        }
+        totalValue += item.quantity * (Number(item.unitValue) || 0);
+      });
+
+      return {
+        items: items as unknown as InventoryWithRelations[],
+        totalCount,
+        stats: {
+          totalItems,
+          lowStockCount,
+          outOfStockCount,
+          totalValue,
+        },
+        lowStockItems: lowStockItems as unknown as LowStockItem[],
+      };
+    } catch (error) {
+      console.error("Failed to get inventory combined data:", error);
+      throw error;
+    }
+  }
+);
+
 
 export const getInventoryMovements = authenticatedAction(
   async (user, sku: string, warehouseId: string) => {

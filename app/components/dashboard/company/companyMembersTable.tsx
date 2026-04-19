@@ -55,29 +55,17 @@ export default function CompanyMembersTable({
   const theme = useTheme();
   const members = state.data?.members ?? [];
   const loading = state.loading;
+  const meta = state.data?.meta ?? {
+    page: 1,
+    limit: 10,
+    total: 0,
+  };
 
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<CompanyMember | null>(
-    null
-  );
+  const [selectedMember, setSelectedMember] = useState<CompanyMember | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
-
-  // Local pagination
-  const [localPage, setLocalPage] = useState(1);
-  const [localLimit, setLocalLimit] = useState(10);
-
-  const paginatedMembers = members.slice(
-    (localPage - 1) * localLimit,
-    localPage * localLimit
-  );
-
-  const meta = {
-    page: localPage,
-    limit: localLimit,
-    total: members.length,
-  };
 
   const handleAction = (
     action: "details" | "edit" | "delete",
@@ -115,11 +103,11 @@ export default function CompanyMembersTable({
                 width: 32,
                 height: 32,
                 fontSize: 13,
-                bgcolor: theme.palette.primary._alpha.main_10,
-                color: theme.palette.primary.main,
+                bgcolor: theme.palette.primary?._alpha?.main_10 ?? "primary.main",
+                color: theme.palette.primary?.main,
               }}
             >
-              {!row.avatarUrl && `${row.name[0]}${row.surname[0]}`}
+              {!row.avatarUrl && row.name && row.surname && `${row.name[0]}${row.surname[0]}`}
             </Avatar>
             <Typography fontSize={13} fontWeight={600}>
               {row.name} {row.surname}
@@ -203,16 +191,16 @@ export default function CompanyMembersTable({
   return (
     <>
       <DataTable<CompanyMember>
-        rows={paginatedMembers}
+        rows={members}
         columns={columns}
         loading={loading}
         emptyMessage={dict.company.members.empty}
         meta={meta}
-        onPageChange={setLocalPage}
-        onLimitChange={(lim) => {
-          setLocalLimit(lim);
-          setLocalPage(1);
-        }}
+        onPageChange={(p) => actions.updatePagination({ page: p })}
+        onLimitChange={(lim) =>
+          actions.updatePagination({ pageSize: lim, page: 1 })
+        }
+        onSearchChange={(v) => actions.updateFilters({ search: v })}
         rowActions={rowActions}
         wrapCard={true}
         tableTitle={dict.company.members.title}

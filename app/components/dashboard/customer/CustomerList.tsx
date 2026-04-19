@@ -15,7 +15,7 @@ import {
   Divider,
   Skeleton,
   useTheme,
-  
+  Pagination,
 } from "@mui/material";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -37,6 +37,8 @@ const CustomerList = ({
   onSelect,
   onEdit,
   onDelete,
+  meta,
+  onPageChange,
 }: CustomerListProps) => {
   const dict = useDictionary();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -252,6 +254,38 @@ const CustomerList = ({
           </Box>
         )}
       </Box>
+
+      {meta && (
+        <Box
+          sx={{
+            p: 1.5,
+            borderTop: "1px solid",
+            borderColor: theme.palette.divider_alpha.main_10,
+            display: "flex",
+            justifyContent: "center",
+            bgcolor: "rgba(0,0,0,0.2)",
+          }}
+        >
+          <Pagination
+            count={Math.ceil(meta.total / meta.limit)}
+            page={meta.page}
+            onChange={(_, page) => onPageChange?.(page)}
+            size="small"
+            color="primary"
+            siblingCount={0}
+            boundaryCount={1}
+            sx={{
+              "& .MuiPaginationItem-root": {
+                fontSize: "0.75rem",
+                height: 24,
+                minWidth: 24,
+                borderRadius: 1,
+              },
+            }}
+          />
+        </Box>
+      )}
+
 
       <Menu
         anchorEl={anchorEl}

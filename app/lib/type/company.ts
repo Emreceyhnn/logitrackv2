@@ -1,3 +1,5 @@
+import { PaginationMeta } from "./dataTable";
+
 export interface CompanyProfile {
   id?: string;
   name?: string;
@@ -7,7 +9,7 @@ export interface CompanyProfile {
 }
 
 export interface CompanyStats {
-  users?: number;
+  users: number;
   vehicles: number;
   drivers: number;
   warehouses: number;
@@ -30,7 +32,9 @@ export interface CompanyMember {
 export interface CompanyPageData {
   profile: CompanyProfile;
   stats: CompanyStats;
-  members: CompanyMember[] | undefined;
+  members: CompanyMember[];
+  totalCount: number;
+  meta: PaginationMeta;
 }
 
 export interface CompanyPageState {
@@ -43,6 +47,8 @@ export interface CompanyPageActions {
   fetchData: () => Promise<void>;
   refreshAll: () => Promise<void>;
   deleteMember: (memberId: string) => Promise<void>;
+  updateFilters: (filters: Partial<{ search: string }>) => void;
+  updatePagination: (pagination: Partial<{ page: number; pageSize: number }>) => void;
 }
 
 export interface CompanyPageProps {

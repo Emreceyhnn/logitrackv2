@@ -75,6 +75,7 @@ export interface ShipmentStatusData {
 export interface ShipmentPageState {
   shipments: ShipmentWithRelations[];
   stats: ShipmentStats | null;
+  totalCount: number;
   volumeHistory: ShipmentVolumeData[];
   statusDistribution: ShipmentStatusData[];
   selectedShipmentId: string | null;
@@ -104,6 +105,13 @@ export interface ShipmentTableProps {
     onEdit: (id: string) => void;
     onDelete: (id: string) => void;
   };
+  pagination?: {
+    page: number;
+    pageSize: number;
+    total: number;
+  };
+  onPageChange?: (page: number) => void;
+  onLimitChange?: (limit: number) => void;
 }
 
 export interface ShipmentKpiCardProps {

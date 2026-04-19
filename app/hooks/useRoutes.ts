@@ -4,6 +4,7 @@ import {
   getRouteStats,
   getRouteEfficiencyStats,
   getActiveRoutesLocations,
+  getRoutesWithDashboardData,
   deleteRoute,
 } from "@/app/lib/controllers/routes";
 import { toast } from "sonner";
@@ -23,6 +24,9 @@ export const routeKeys = {
   efficiency: () => [...routeKeys.all, "efficiency"] as const,
   locations: () => [...routeKeys.all, "locations"] as const,
   details: (id: string) => [...routeKeys.all, "detail", id] as const,
+  dashboard: () => [...routeKeys.all, "dashboard"] as const,
+  dashboardWithFilters: (page: number, pageSize: number, status?: string) =>
+    [...routeKeys.dashboard(), { page, pageSize, status }] as const,
 };
 
 export function useRoutes(page: number, pageSize: number, status?: string) {
@@ -68,6 +72,19 @@ export function useRouteLocations() {
     staleTime: 1000 * 30, // Locations update faster
   });
 }
+
+export function useRoutesWithDashboard(
+  page: number,
+  pageSize: number,
+  status?: string
+) {
+  return useQuery({
+    queryKey: routeKeys.dashboardWithFilters(page, pageSize, status),
+    queryFn: () => getRoutesWithDashboardData(page + 1, pageSize, status),
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 
 export function useRouteMutations() {
   const queryClient = useQueryClient();

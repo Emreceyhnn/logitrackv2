@@ -11,10 +11,7 @@ import {
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
 import {
-  useShipments,
-  useShipmentStats,
-  useShipmentVolumeHistory,
-  useShipmentStatusDistribution,
+  useShipmentsWithDashboard,
   useShipmentMutations,
 } from "@/app/hooks/useShipments";
 import EditShipmentDialog from "@/app/components/dialogs/shipment/edit-shipment-dialog";
@@ -50,6 +47,10 @@ function ShipmentContent() {
 
   /* ---------------------------------- STATES --------------------------------- */
   const [filters, setFilters] = useState<ShipmentPageState["filters"]>({});
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+  });
   const [selectedShipmentId, setSelectedShipmentId] = useState<string | null>(
     null
   );
@@ -62,40 +63,26 @@ function ShipmentContent() {
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
-    data: shipments = [],
-    isLoading: isShipmentsLoading,
-    refetch: refetchShipments,
-  } = useShipments();
-  const {
-    data: stats,
-    isLoading: isStatsLoading,
-    refetch: refetchStats,
-  } = useShipmentStats();
-  const {
-    data: volumeHistory = [],
-    isLoading: isHistoryLoading,
-    refetch: refetchHistory,
-  } = useShipmentVolumeHistory();
-  const {
-    data: statusDistribution = [],
-    isLoading: isDistLoading,
-    refetch: refetchDist,
-  } = useShipmentStatusDistribution();
+    data: dashboardData,
+    isLoading,
+    refetch,
+  } = useShipmentsWithDashboard(
+    pagination.page,
+    pagination.pageSize,
+    filters.status,
+    filters.search
+  );
+
 
   const { deleteShipment: deleteMutation } = useShipmentMutations();
 
-  const loading =
-    isShipmentsLoading || isStatsLoading || isHistoryLoading || isDistLoading;
+  const loading = isLoading;
+
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
-    await Promise.all([
-      refetchShipments(),
-      refetchStats(),
-      refetchHistory(),
-      refetchDist(),
-    ]);
-  }, [refetchShipments, refetchStats, refetchHistory, refetchDist]);
+    await refetch();
+  }, [refetch]);
 
   const actions: ShipmentPageActions = useMemo(
     () => ({
@@ -104,18 +91,21 @@ function ShipmentContent() {
       fetchCharts: async () => {},
       refreshAll,
       selectShipment: (id: string | null) => setSelectedShipmentId(id),
-      updateFilters: (newFilters: Partial<ShipmentPageState["filters"]>) =>
-        setFilters((prev) => ({ ...prev, ...newFilters })),
+      updateFilters: (newFilters: Partial<ShipmentPageState["filters"]>) => {
+        setFilters((prev) => ({ ...prev, ...newFilters }));
+        setPagination((prev) => ({ ...prev, page: 1 }));
+      },
     }),
     [refreshAll]
   );
 
   /* -------------------------- COMPATIBILITY LAYER --------------------------- */
   const state: ShipmentPageState = {
-    shipments: shipments,
-    stats: stats || null,
-    volumeHistory: volumeHistory,
-    statusDistribution: statusDistribution,
+    shipments: dashboardData?.shipments || [],
+    stats: dashboardData?.stats || null,
+    totalCount: dashboardData?.totalCount || 0,
+    volumeHistory: dashboardData?.volumeHistory || [],
+    statusDistribution: dashboardData?.statusDistribution || [],
     selectedShipmentId,
     filters,
     loading,
@@ -225,6 +215,15 @@ function ShipmentContent() {
             onEdit: handleEdit,
             onDelete: handleDelete,
           }}
+          pagination={{
+            page: pagination.page,
+            pageSize: pagination.pageSize,
+            total: state.totalCount,
+          }}
+          onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
+          onLimitChange={(pageSize) =>
+            setPagination({ page: 1, pageSize: pageSize })
+          }
         />
       </Stack>
 

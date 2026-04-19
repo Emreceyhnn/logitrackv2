@@ -9,7 +9,7 @@ import {
   CompanyStats,
   CompanyMember,
 } from "@/app/lib/type/company";
-import { useCompanyProfile, useCompanyMutations } from "@/app/hooks/useCompany";
+import { useCompanyWithDashboard, useCompanyMutations } from "@/app/hooks/useCompany";
 import CompanyInfoCard from "@/app/components/dashboard/company/companyInfoCard";
 import CompanyMembersTable from "@/app/components/dashboard/company/companyMembersTable";
 import AddCompanyMemberDialog from "@/app/components/dialogs/company/AddCompanyMemberDialog";
@@ -27,19 +27,24 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 export default function CompanyPage() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
+  const dict = useDictionary();
+
+  /* ---------------------------------- STATE --------------------------------- */
+  const [filters, setFilters] = useState({ search: "" });
+  const [pagination, setPagination] = useState({ page: 1, pageSize: 10 });
+  const [addMemberOpen, setAddMemberOpen] = useState(false);
 
   /* ---------------------------------- HOOKS --------------------------------- */
-  const dict = useDictionary();
   const {
     data: result,
     isLoading: loading,
     error,
     refetch,
-  } = useCompanyProfile();
+  } = useCompanyWithDashboard({
+    ...filters,
+    ...pagination,
+  });
   const { deleteMember: deleteMutation } = useCompanyMutations();
-
-  /* ---------------------------------- STATE --------------------------------- */
-  const [addMemberOpen, setAddMemberOpen] = useState(false);
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const state = useMemo(
@@ -49,6 +54,8 @@ export default function CompanyPage() {
             profile: result.profile as CompanyProfile,
             stats: result.stats as CompanyStats,
             members: result.members as CompanyMember[],
+            totalCount: result.totalCount,
+            meta: result.meta,
           }
         : null,
       loading,
@@ -71,6 +78,13 @@ export default function CompanyPage() {
       },
       deleteMember: async (memberId: string) => {
         await deleteMutation.mutateAsync(memberId);
+      },
+      updateFilters: (newFilters: Partial<{ search: string }>) => {
+        setFilters((prev) => ({ ...prev, ...newFilters }));
+        setPagination({ page: 1, pageSize: 10 });
+      },
+      updatePagination: (newPagination: Partial<{ page: number; pageSize: number }>) => {
+        setPagination((prev) => ({ ...prev, ...newPagination }));
       },
     }),
     [refetch, deleteMutation]

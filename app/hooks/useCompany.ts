@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getCompanyProfile,
+  getCompanyWithDashboardData,
   removeCompanyUser,
 } from "@/app/lib/controllers/company";
 import { toast } from "sonner";
@@ -8,7 +9,22 @@ import { toast } from "sonner";
 export const companyKeys = {
   all: ["company"] as const,
   profile: () => [...companyKeys.all, "profile"] as const,
+  dashboardWithFilters: (filters: { page: number; pageSize: number; search?: string }) =>
+    [...companyKeys.all, "dashboard", filters] as const,
 };
+
+export function useCompanyWithDashboard(filters: {
+  page: number;
+  pageSize: number;
+  search?: string;
+}) {
+  return useQuery({
+    queryKey: companyKeys.dashboardWithFilters(filters),
+    queryFn: () => getCompanyWithDashboardData(filters),
+    placeholderData: (previousData) => previousData,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
 
 export function useCompanyProfile() {
   return useQuery({

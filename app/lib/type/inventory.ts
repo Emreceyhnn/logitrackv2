@@ -30,10 +30,20 @@ export interface InventoryMovement {
   } | null;
 }
 
+export interface InventoryStats {
+  totalItems: number;
+  lowStockCount: number;
+  outOfStockCount: number;
+  totalValue: number;
+}
+
+
 // Page State
 export interface InventoryPageState {
   inventory: InventoryWithRelations[];
   lowStockItems: LowStockItem[];
+  totalCount: number;
+  stats: InventoryStats | null;
   selectedItemId: string | null;
   selectedItem: InventoryWithRelations | null;
   recentMovements: InventoryMovement[]; // New field
