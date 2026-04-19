@@ -17,8 +17,8 @@ const rand = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 const randFloat = (min: number, max: number) =>
   parseFloat((Math.random() * (max - min) + min).toFixed(2));
-const pick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
-const pickN = <T>(arr: T[], n: number): T[] => {
+const pick = <T>(arr: readonly T[]): T => arr[Math.floor(Math.random() * arr.length)];
+const pickN = <T>(arr: readonly T[], n: number): T[] => {
   const shuffled = [...arr].sort(() => 0.5 - Math.random());
   return shuffled.slice(0, n);
 };
@@ -97,7 +97,7 @@ const VEHICLE_BRANDS = [
 const FUEL_TYPES = ["DIESEL", "DIESEL", "DIESEL", "ELECTRIC", "LPG", "HYBRID"];
 const DRIVER_STATUSES = ["ON_JOB", "OFF_DUTY", "ON_LEAVE"] as const;
 const VEHICLE_STATUSES = ["AVAILABLE", "ON_TRIP", "MAINTENANCE"] as const;
-const VEHICLE_TYPES = ["TRUCK", "VAN"] as const;
+// const VEHICLE_TYPES = ["TRUCK", "VAN"] as const;
 const WAREHOUSE_TYPES = [
   "DISTRIBUTION_CENTER",
   "CROSSDOCK",
@@ -282,7 +282,7 @@ async function main() {
     const shipmentCount = rand(60, 80);
 
     // ── 3a. Admin / manager users ───────────────────────────────────────────
-    const adminUser = await prisma.user.upsert({
+    await prisma.user.upsert({
       where: { email: `admin@${slug.toLowerCase()}.com` },
       update: {},
       create: {
@@ -312,7 +312,7 @@ async function main() {
       },
     });
 
-    const dispatcherUser = await prisma.user.upsert({
+    await prisma.user.upsert({
       where: { email: `dispatcher@${slug.toLowerCase()}.com` },
       update: {},
       create: {
@@ -417,7 +417,7 @@ async function main() {
             type: pick(MAINTENANCE_TYPES),
             date: daysAgo(rand(0, 365)),
             cost: randFloat(500, 15000),
-            status: pick(["COMPLETED", "COMPLETED", "COMPLETED", "SCHEDULED", "IN_PROGRESS"]) as any,
+            status: pick(["COMPLETED", "COMPLETED", "COMPLETED", "SCHEDULED", "IN_PROGRESS"]) as import("@prisma/client").MaintenanceStatus,
             description: `${pick(MAINTENANCE_TYPES)} bakım kaydı - ${rand(1, 200000)} km`,
           },
         });
@@ -463,7 +463,7 @@ async function main() {
               name: firstName,
               surname: lastName,
               password: hashedPassword,
-              status: pick(["ACTIVE", "ACTIVE", "ACTIVE", "INACTIVE"]) as any,
+              status: pick(["ACTIVE", "ACTIVE", "ACTIVE", "INACTIVE"]) as import("@prisma/client").UserStatus,
               roleId: roles["Driver"].id,
               companyId: company.id,
             },
@@ -591,7 +591,7 @@ async function main() {
     for (let s = 0; s < shipmentCount; s++) {
       const originCity = pick(CITIES);
       const destCity = pick(CITIES.filter((c) => c.name !== originCity.name));
-      const routeStatus = pick(["PLANNED", "ACTIVE", "COMPLETED", "CANCELED"]) as any;
+      const routeStatus = pick(["PLANNED", "ACTIVE", "COMPLETED", "CANCELLED"]) as import("@prisma/client").RouteStatus;
       const shipStatus = pick(SHIPMENT_STATUSES);
       const routeDate = daysAgo(rand(-10, 60));
       const driver = driverIds.length > 0 ? pick(driverIds) : null;

@@ -244,6 +244,9 @@ export async function validateSession(): Promise<SessionUser | null> {
       avatarUrl: session.user.avatarUrl,
     };
   } catch (error) {
+    if ((error as any)?.digest === 'DYNAMIC_SERVER_USAGE') {
+      throw error;
+    }
     console.error("[validateSession] ❌ Unexpected error:", error);
     return null;
   }
@@ -329,6 +332,9 @@ export async function refreshSession(): Promise<boolean> {
 
     return true;
   } catch (error) {
+    if ((error as any)?.digest === 'DYNAMIC_SERVER_USAGE') {
+      throw error;
+    }
     console.error("Session refresh failed:", error);
     return false;
   }

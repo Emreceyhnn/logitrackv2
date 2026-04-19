@@ -87,7 +87,7 @@ export const createInventoryItem = authenticatedAction(
         },
       });
 
-      await invalidateInventoryCache(companyId);
+      await invalidateInventoryCache(companyId!);
       return { inventory: newItem };
     } catch (error) {
       console.error("Failed to create inventory item:", error);
@@ -185,7 +185,7 @@ export const updateInventoryItem = authenticatedAction(
         },
       });
 
-      await invalidateInventoryCache(companyId, inventoryId);
+      await invalidateInventoryCache(companyId!, inventoryId);
       return updatedItem;
     } catch (error) {
       console.error("Failed to update inventory item:", error);
@@ -218,7 +218,7 @@ export const deleteInventoryItem = authenticatedAction(
         where: { id: inventoryId },
       });
 
-      await invalidateInventoryCache(companyId, inventoryId);
+      await invalidateInventoryCache(companyId!, inventoryId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete inventory item:", error);
@@ -455,7 +455,7 @@ export const logWarehouseFulfillment = authenticatedAction(
          });
       }
 
-      await invalidateInventoryCache(companyId, inventoryNode.id);
+      await invalidateInventoryCache(companyId!, inventoryNode.id);
       return { success: true, movement };
     } catch (error) {
       console.error("Failed to log warehouse fulfillment:", error);

@@ -145,7 +145,7 @@ export const createShipment = authenticatedAction(
         },
       });
 
-      await invalidateShipmentCache(companyId);
+      await invalidateShipmentCache(companyId!);
       return { shipment: newShipment };
     } catch (error) {
       console.error("Failed to create shipment:", error);
@@ -189,7 +189,7 @@ export const assignDriverToShipment = authenticatedAction(
         },
       });
 
-      await invalidateShipmentCache(companyId, shipmentId);
+      await invalidateShipmentCache(companyId!, shipmentId);
       return updatedShipment;
     } catch (error) {
       console.error("Failed to assign driver to shipment:", error);
@@ -233,7 +233,7 @@ export const assignRouteToShipment = authenticatedAction(
         },
       });
 
-      await invalidateShipmentCache(companyId, shipmentId);
+      await invalidateShipmentCache(companyId!, shipmentId);
       return updatedShipment;
     } catch (error) {
       console.error("Failed to assign route to shipment:", error);
@@ -279,7 +279,7 @@ export const updateShipmentStatus = authenticatedAction(
         },
       });
 
-      await invalidateShipmentCache(companyId, shipmentId);
+      await invalidateShipmentCache(companyId!, shipmentId);
       return updatedShipment;
     } catch (error) {
       console.error("Failed to update shipment status:", error);
@@ -405,7 +405,7 @@ export const updateShipment = authenticatedAction(
         data: updateData,
       });
 
-      await invalidateShipmentCache(companyId, shipmentId);
+      await invalidateShipmentCache(companyId!, shipmentId);
       return updatedShipment;
     } catch (error) {
       console.error("Failed to update shipment:", error);
@@ -434,7 +434,7 @@ export const deleteShipment = authenticatedAction(
         where: { id: shipmentId },
       });
 
-      await invalidateShipmentCache(companyId, shipmentId);
+      await invalidateShipmentCache(companyId!, shipmentId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete shipment:", error);

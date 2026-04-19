@@ -78,7 +78,7 @@ export const createWarehouse = authenticatedAction(
         },
       });
 
-      await invalidateWarehouseCache(companyId);
+      await invalidateWarehouseCache(companyId!);
       return { warehouse: newWarehouse };
     } catch (error) {
       console.error("Failed to create warehouse:", error);
@@ -212,7 +212,7 @@ export const updateWarehouse = authenticatedAction(
         data: updateData,
       });
 
-      await invalidateWarehouseCache(user.companyId, warehouseId);
+      await invalidateWarehouseCache(user.companyId!, warehouseId);
       return updatedWarehouse;
     } catch (error) {
       console.error("Failed to update warehouse:", error);
@@ -242,7 +242,7 @@ export const deleteWarehouse = authenticatedAction(
         where: { id: warehouseId },
       });
 
-      await invalidateWarehouseCache(user.companyId, warehouseId);
+      await invalidateWarehouseCache(user.companyId!, warehouseId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete warehouse:", error);
@@ -275,7 +275,7 @@ export const assignManagerToWarehouse = authenticatedAction(
         },
       });
 
-      await invalidateWarehouseCache(user.companyId, warehouseId);
+      await invalidateWarehouseCache(user.companyId!, warehouseId);
       return updatedWarehouse;
     } catch (error) {
       console.error("Failed to assign manager to warehouse:", error);

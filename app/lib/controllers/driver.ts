@@ -863,7 +863,7 @@ export const getDriverWithDashboardData = authenticatedAction(
 
       const cacheKey = driverCacheKeys.dashboard(
         companyId,
-        hashFilters(filters as Record<string, unknown>)
+        hashFilters(filters)
       );
 
       return await withCache(cacheKey, DRIVER_CACHE_TTL, async () => {

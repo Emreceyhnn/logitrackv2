@@ -46,6 +46,9 @@ export const getAuthenticatedUser = cache(
         }
       }
     } catch (error) {
+      if ((error as any)?.digest === "DYNAMIC_SERVER_USAGE") {
+        throw error;
+      }
       console.error(
         "[getAuthenticatedUser] ❌ Session check failed critical:",
         error

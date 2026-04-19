@@ -72,7 +72,8 @@ export const createCustomer = authenticatedAction(
         include: {
           locations: true,
         },
-      });      await invalidateCustomerCache(user.companyId);
+      });
+      await invalidateCustomerCache(user.companyId!);
       return { customer: newCustomer };
     } catch (error) {
       console.error("Failed to create customer:", error);
@@ -325,7 +326,7 @@ export const updateCustomer = authenticatedAction(
         where: { id: customerId },
         data: updateData,
         include: { locations: true }
-      });      await invalidateCustomerCache(companyId, customerId);
+      });      await invalidateCustomerCache(companyId!, customerId);
       return updatedCustomer;
     } catch (error) {
       console.error("Failed to update customer:", error);
@@ -355,7 +356,7 @@ export const deleteCustomer = authenticatedAction(
 
       await db.customer.delete({
         where: { id: customerId },
-      });      await invalidateCustomerCache(companyId, customerId);
+      });      await invalidateCustomerCache(companyId!, customerId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete customer:", error);

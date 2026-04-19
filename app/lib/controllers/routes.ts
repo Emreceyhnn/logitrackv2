@@ -160,7 +160,7 @@ export const createRoute = authenticatedAction(
         return route;
       });
 
-      await invalidateRouteCache(user.companyId);
+      await invalidateRouteCache(user.companyId!);
       return { route: newRoute };
     } catch (error) {
       console.error("Failed to create route:", error);
@@ -190,7 +190,7 @@ export const getRoutes = authenticatedAction(
       }
 
       const cacheKey = routeCacheKeys.list(
-        companyId,
+        companyId!,
         hashFilters({ page, pageSize, status })
       );
 
@@ -329,7 +329,7 @@ export const updateRoute = authenticatedAction(
         data: updateData,
       });
 
-      await invalidateRouteCache(companyId, routeId);
+      await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to update route:", error);
@@ -361,7 +361,7 @@ export const deleteRoute = authenticatedAction(
         where: { id: routeId },
       });
 
-      await invalidateRouteCache(companyId, routeId);
+      await invalidateRouteCache(companyId!, routeId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete route:", error);
@@ -396,7 +396,7 @@ export const assignDriverToRoute = authenticatedAction(
         },
       });
 
-      await invalidateRouteCache(companyId, routeId);
+      await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to assign driver to route:", error);
@@ -431,7 +431,7 @@ export const assignVehicleToRoute = authenticatedAction(
         },
       });
 
-      await invalidateRouteCache(companyId, routeId);
+      await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to assign vehicle to route:", error);
@@ -466,7 +466,7 @@ export const unassignDriverFromRoute = authenticatedAction(
         },
       });
 
-      await invalidateRouteCache(companyId, routeId);
+      await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to unassign driver from route:", error);
@@ -501,7 +501,7 @@ export const unassignVehicleFromRoute = authenticatedAction(
         },
       });
 
-      await invalidateRouteCache(companyId, routeId);
+      await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to unassign vehicle from route:", error);
@@ -876,7 +876,7 @@ export const updateRouteStatus = authenticatedAction(
         return newRoute;
       });
 
-      await invalidateRouteCache(companyId, routeId);
+      await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to update route status:", error);

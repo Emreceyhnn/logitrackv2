@@ -106,6 +106,7 @@ export const companyCacheKeys = {
   kpis: (companyId: string) => `companies:${companyId}:kpis`,
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function hashFilters(filters: any) {
   if (!filters || Object.keys(filters).length === 0) return "all";
   return Buffer.from(JSON.stringify(filters)).toString("base64");
