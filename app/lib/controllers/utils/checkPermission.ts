@@ -28,13 +28,25 @@ export async function checkPermission(
   if (requiredRoles.length > 0) {
     const userRoleName = user.role?.name ?? "";
 
-    // Map internal role identifiers to potential DB names
+    // Map internal role identifiers to all possible DB role names (case-insensitive)
     const roleMapping: Record<string, string[]> = {
-      role_admin: ["Administrator", "admin"],
-      role_manager: ["manager"],
-      role_dispatcher: ["Dispatcher"],
+      role_admin: [
+        "administrator",
+        "admin",
+        "company admin",
+        "super admin",
+        "companyadmin",
+        "superadmin",
+      ],
+      role_manager: ["manager", "operations manager", "fleet manager"],
+      role_dispatcher: ["dispatcher"],
       role_driver: ["driver"],
-      role_warehouse: ["warehouse", "warehouse manager"],
+      role_warehouse: [
+        "warehouse",
+        "warehouse manager",
+        "warehouse operator",
+        "warehouseoperator",
+      ],
     };
 
     const normalizedRequired = requiredRoles.flatMap((r) => {
@@ -43,7 +55,10 @@ export async function checkPermission(
       return [roleKey, ...mapped];
     });
 
-    if (!normalizedRequired.includes(userRoleName)) {
+    // Case-insensitive comparison against the user's actual role name
+    const userRoleNameLower = userRoleName.toLowerCase();
+
+    if (!normalizedRequired.includes(userRoleNameLower)) {
       throw new Error(
         `Insufficient permissions. Required roles: ${requiredRoles.join(", ")}`
       );

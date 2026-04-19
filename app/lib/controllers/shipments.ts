@@ -10,6 +10,21 @@ import {
   ShipmentVolumeData,
   ShipmentStatusData,
 } from "../type/shipment";
+import {
+  redis,
+  withCache,
+  invalidatePattern,
+  hashFilters,
+  shipmentCacheKeys,
+  SHIPMENT_CACHE_TTL,
+} from "../redis";
+
+async function invalidateShipmentCache(companyId: string, shipmentId?: string) {
+  await Promise.all([
+    invalidatePattern(shipmentCacheKeys.companyPattern(companyId)),
+    shipmentId ? redis.del(shipmentCacheKeys.detail(shipmentId)) : Promise.resolve(),
+  ]);
+}
 
 interface CustomerWithLocations extends Customer {
   locations: CustomerLocation[];
@@ -130,6 +145,7 @@ export const createShipment = authenticatedAction(
         },
       });
 
+      await invalidateShipmentCache(companyId);
       return { shipment: newShipment };
     } catch (error) {
       console.error("Failed to create shipment:", error);
@@ -173,6 +189,7 @@ export const assignDriverToShipment = authenticatedAction(
         },
       });
 
+      await invalidateShipmentCache(companyId, shipmentId);
       return updatedShipment;
     } catch (error) {
       console.error("Failed to assign driver to shipment:", error);
@@ -216,6 +233,7 @@ export const assignRouteToShipment = authenticatedAction(
         },
       });
 
+      await invalidateShipmentCache(companyId, shipmentId);
       return updatedShipment;
     } catch (error) {
       console.error("Failed to assign route to shipment:", error);
@@ -261,6 +279,7 @@ export const updateShipmentStatus = authenticatedAction(
         },
       });
 
+      await invalidateShipmentCache(companyId, shipmentId);
       return updatedShipment;
     } catch (error) {
       console.error("Failed to update shipment status:", error);
@@ -281,7 +300,9 @@ export const getShipments = authenticatedAction(async (user) => {
 
     if (!companyId) throw new Error("User has no company");
 
-    const shipments = await db.shipment.findMany({
+    const cacheKey = shipmentCacheKeys.list(companyId, hashFilters({}));
+    return await withCache(cacheKey, SHIPMENT_CACHE_TTL, async () => {
+      const shipments = await db.shipment.findMany({
       where: { companyId },
       include: {
         customer: {
@@ -297,8 +318,9 @@ export const getShipments = authenticatedAction(async (user) => {
         route: true,
       },
       orderBy: { createdAt: "desc" },
+      });
+      return shipments;
     });
-    return shipments;
   } catch (error) {
     console.error("Failed to get shipments:", error);
     throw error;
@@ -383,6 +405,7 @@ export const updateShipment = authenticatedAction(
         data: updateData,
       });
 
+      await invalidateShipmentCache(companyId, shipmentId);
       return updatedShipment;
     } catch (error) {
       console.error("Failed to update shipment:", error);
@@ -411,6 +434,7 @@ export const deleteShipment = authenticatedAction(
         where: { id: shipmentId },
       });
 
+      await invalidateShipmentCache(companyId, shipmentId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete shipment:", error);
@@ -584,9 +608,15 @@ export const getShipmentsWithDashboardData = authenticatedAction(
       }
 
       // ── Parallel Orchestration ──────────────────────────────────────────
-      const [
-        ,
-        shipments,
+      const cacheKey = shipmentCacheKeys.dashboard(
+        companyId,
+        hashFilters({ page, pageSize, status, search })
+      );
+
+      return await withCache(cacheKey, SHIPMENT_CACHE_TTL, async () => {
+        const [
+          ,
+          shipments,
         totalCount,
         total,
         active,
@@ -668,7 +698,8 @@ export const getShipmentsWithDashboardData = authenticatedAction(
           status: s.status,
           count: s._count.status,
         })),
-      };
+        };
+      });
     } catch (error) {
       console.error("Failed to get shipments combined data:", error);
       throw error;

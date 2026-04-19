@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { db } from "../db";
 import {
@@ -23,6 +23,27 @@ import {
   VehicleWithRelations,
   VehicleDashboardProps,
 } from "../type/vehicle";
+import {
+  redis,
+  withCache,
+  invalidatePattern,
+  hashFilters,
+  vehicleCacheKeys,
+  VEHICLE_CACHE_TTL,
+} from "../redis";
+
+// ── Cache invalidation helper ─────────────────────────────────────────────────
+async function invalidateVehicleCache(
+  companyId: string,
+  vehicleId?: string
+): Promise<void> {
+  await Promise.all([
+    // Wipe all dashboard + kpi keys for this company
+    invalidatePattern(vehicleCacheKeys.companyPattern(companyId)),
+    // Wipe the specific vehicle detail key (if applicable)
+    vehicleId ? redis.del(vehicleCacheKeys.detail(vehicleId)) : Promise.resolve(),
+  ]);
+}
 
 export const createVehicle = authenticatedAction(
   async (user, vehicleData: Record<string, unknown>) => {
@@ -136,6 +157,8 @@ export const createVehicle = authenticatedAction(
           company: { connect: { id: companyId } },
         },
       });
+
+      await invalidateVehicleCache(companyId);
       return newVehicle;
     } catch (error) {
       console.error("Failed to create vehicle:", error);
@@ -247,6 +270,7 @@ export const updateVehicle = authenticatedAction(
         data: updateData,
       });
 
+      await invalidateVehicleCache(companyId, vehicleId);
       return updatedVehicle;
     } catch (error) {
       console.error("Failed to update vehicle:", error);
@@ -275,6 +299,7 @@ export const deleteVehicle = authenticatedAction(
         where: { id: vehicleId },
       });
 
+      await invalidateVehicleCache(companyId, vehicleId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete vehicle:", error);
@@ -393,6 +418,7 @@ export const assignDriverToVehicle = authenticatedAction(
         }
       });
 
+      await invalidateVehicleCache(companyId, vehicleId);
       return { success: true };
     } catch (error) {
       console.error("Failed to assign driver:", error);
@@ -426,6 +452,7 @@ export const updateVehicleStatus = authenticatedAction(
         data: { status: status as VehicleStatus },
       });
 
+      await invalidateVehicleCache(companyId, vehicleId);
       return updatedVehicle;
     } catch (error) {
       console.error("Failed to update status:", error);
@@ -477,6 +504,7 @@ export const addMaintenanceRecord = authenticatedAction(
         data: { status: "MAINTENANCE" },
       });
 
+      await invalidateVehicleCache(companyId, vehicleId);
       return record;
     } catch (error) {
       console.error("Failed to add maintenance record:", error);
@@ -563,6 +591,7 @@ export const unassignDriverFromVehicle = authenticatedAction(
         });
       }
 
+      await invalidateVehicleCache(companyId, vehicleId);
       return { success: true };
     } catch (error) {
       console.error("Failed to unassign driver:", error);
@@ -822,43 +851,47 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
 
     if (!companyId) throw new Error("User has no company");
 
-    const vehicles = await db.vehicle.findMany({
-      where: { companyId },
-      select: {
-        id: true,
-        plate: true,
-        status: true,
-        maxLoadKg: true,
+    const cacheKey = vehicleCacheKeys.kpis(companyId);
 
-        issues: {
-          where: {
-            status: {
-              in: ["OPEN", "IN_PROGRESS"],
+    return await withCache(cacheKey, VEHICLE_CACHE_TTL, async () => {
+      const vehicles = await db.vehicle.findMany({
+        where: { companyId },
+        select: {
+          id: true,
+          plate: true,
+          status: true,
+          maxLoadKg: true,
+
+          issues: {
+            where: {
+              status: {
+                in: ["OPEN", "IN_PROGRESS"],
+              },
+            },
+            select: { id: true },
+          },
+
+          documents: {
+            select: {
+              type: true,
+              expiryDate: true,
             },
           },
-          select: { id: true },
         },
+      });
 
-        documents: {
-          select: {
-            type: true,
-            expiryDate: true,
-          },
-        },
-      },
+      const vehiclesKpis = VehicleKpiConverter(
+        vehicles as unknown as VehicleDashboardProps[]
+      );
+      const vehiclesCapacity = VehicleCapacityConverter(
+        vehicles as unknown as VehicleDashboardProps[]
+      );
+      const expiringDocs = VehicleDocumentConverter(
+        vehicles as unknown as VehicleDashboardProps[]
+      );
+
+      return { vehiclesKpis, vehiclesCapacity, expiringDocs };
     });
-
-    const vehiclesKpis = VehicleKpiConverter(
-      vehicles as unknown as VehicleDashboardProps[]
-    );
-    const vehiclesCapacity = VehicleCapacityConverter(
-      vehicles as unknown as VehicleDashboardProps[]
-    );
-    const expiringDocs = VehicleDocumentConverter(
-      vehicles as unknown as VehicleDashboardProps[]
-    );
-
-    return { vehiclesKpis, vehiclesCapacity, expiringDocs };
   } catch (error) {
     console.error("Failed to get vehicle kpi cards:", error);
     throw error;
@@ -881,7 +914,12 @@ export const getVehiclesWithDashboard = authenticatedAction(
     try {
       if (!companyId) throw new Error("User has no company");
 
+      const cacheKey = vehicleCacheKeys.dashboard(
+        companyId,
+        hashFilters(filters as Record<string, unknown>)
+      );
 
+      return await withCache(cacheKey, VEHICLE_CACHE_TTL, async () => {
       const whereClause: Prisma.VehicleWhereInput = { companyId };
 
       if (filters) {
@@ -1031,6 +1069,7 @@ export const getVehiclesWithDashboard = authenticatedAction(
         vehiclesCapacity: VehicleCapacityConverter(dashboardInput),
         expiringDocs: VehicleDocumentConverter(dashboardInput),
       };
+      }); // end withCache
     } catch (error) {
       console.error("Failed to get vehicles with dashboard data:", error);
       throw error;

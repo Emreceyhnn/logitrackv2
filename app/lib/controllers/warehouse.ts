@@ -9,6 +9,21 @@ import {
   WarehouseStats,
   InventoryMovementWithRelations,
 } from "../type/warehouse";
+import {
+  redis,
+  withCache,
+  invalidatePattern,
+  hashFilters,
+  warehouseCacheKeys,
+  WAREHOUSE_CACHE_TTL,
+} from "../redis";
+
+async function invalidateWarehouseCache(companyId: string, warehouseId?: string) {
+  await Promise.all([
+    invalidatePattern(warehouseCacheKeys.companyPattern(companyId)),
+    warehouseId ? redis.del(warehouseCacheKeys.detail(warehouseId)) : Promise.resolve(),
+  ]);
+}
 
 export const createWarehouse = authenticatedAction(
   async (
@@ -63,6 +78,7 @@ export const createWarehouse = authenticatedAction(
         },
       });
 
+      await invalidateWarehouseCache(companyId);
       return { warehouse: newWarehouse };
     } catch (error) {
       console.error("Failed to create warehouse:", error);
@@ -77,7 +93,9 @@ export const getWarehouses = authenticatedAction(async (user) => {
 
     if (!user.companyId) throw new Error("User has no company");
 
-    const warehouses = await db.warehouse.findMany({
+    const cacheKey = warehouseCacheKeys.list(user.companyId, hashFilters({}));
+    return await withCache(cacheKey, WAREHOUSE_CACHE_TTL, async () => {
+      const warehouses = await db.warehouse.findMany({
       where: { companyId: user.companyId },
       include: {
         manager: {
@@ -97,8 +115,9 @@ export const getWarehouses = authenticatedAction(async (user) => {
         },
       },
       orderBy: { createdAt: "desc" },
+      });
+      return warehouses;
     });
-    return warehouses;
   } catch (error) {
     console.error("Failed to get warehouses:", error);
     throw error;
@@ -193,6 +212,7 @@ export const updateWarehouse = authenticatedAction(
         data: updateData,
       });
 
+      await invalidateWarehouseCache(user.companyId, warehouseId);
       return updatedWarehouse;
     } catch (error) {
       console.error("Failed to update warehouse:", error);
@@ -222,6 +242,7 @@ export const deleteWarehouse = authenticatedAction(
         where: { id: warehouseId },
       });
 
+      await invalidateWarehouseCache(user.companyId, warehouseId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete warehouse:", error);
@@ -254,6 +275,7 @@ export const assignManagerToWarehouse = authenticatedAction(
         },
       });
 
+      await invalidateWarehouseCache(user.companyId, warehouseId);
       return updatedWarehouse;
     } catch (error) {
       console.error("Failed to assign manager to warehouse:", error);
@@ -548,8 +570,14 @@ export const getWarehousesWithDashboardData = authenticatedAction(
       const skip = (page - 1) * pageSize;
 
       // ── Parallel Orchestration ──────────────────────────────────────────
-      const [, warehouses, totalCount, statsRaw, inventoryStats, movements] =
-        await Promise.all([
+      const cacheKey = warehouseCacheKeys.dashboard(
+        companyId,
+        hashFilters({ page, pageSize })
+      );
+
+      return await withCache(cacheKey, WAREHOUSE_CACHE_TTL, async () => {
+        const [, warehouses, totalCount, statsRaw, inventoryStats, movements] =
+          await Promise.all([
           checkPermission(userId, companyId, ["role_admin", "role_manager"]),
           db.warehouse.findMany({
             where: { companyId },
@@ -633,7 +661,8 @@ export const getWarehousesWithDashboardData = authenticatedAction(
           totalCapacityVolume,
         },
         recentMovements: enrichedMovements,
-      };
+        };
+      });
     } catch (error) {
       console.error("Failed to get warehouse combined data:", error);
       throw error;

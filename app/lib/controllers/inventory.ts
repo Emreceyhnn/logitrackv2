@@ -8,6 +8,21 @@ import {
   InventoryWithRelations,
   LowStockItem,
 } from "../type/inventory";
+import {
+  redis,
+  withCache,
+  invalidatePattern,
+  hashFilters,
+  inventoryCacheKeys,
+  INVENTORY_CACHE_TTL,
+} from "../redis";
+
+async function invalidateInventoryCache(companyId: string, inventoryId?: string) {
+  await Promise.all([
+    invalidatePattern(inventoryCacheKeys.companyPattern(companyId)),
+    inventoryId ? redis.del(inventoryCacheKeys.detail(inventoryId)) : Promise.resolve(),
+  ]);
+}
 
 export const createInventoryItem = authenticatedAction(
   async (
@@ -72,6 +87,7 @@ export const createInventoryItem = authenticatedAction(
         },
       });
 
+      await invalidateInventoryCache(companyId);
       return { inventory: newItem };
     } catch (error) {
       console.error("Failed to create inventory item:", error);
@@ -96,16 +112,19 @@ export const getInventory = authenticatedAction(
         whereClause.warehouseId = warehouseId;
       }
 
-      const inventory = await db.inventory.findMany({
+      const cacheKey = inventoryCacheKeys.list(companyId, hashFilters({ warehouseId }));
+      return await withCache(cacheKey, INVENTORY_CACHE_TTL, async () => {
+        const inventory = await db.inventory.findMany({
         where: whereClause,
         include: {
           warehouse: {
             select: { name: true, code: true },
           },
         },
-        orderBy: { name: "asc" },
+          orderBy: { name: "asc" },
+        });
+        return inventory;
       });
-      return inventory;
     } catch (error) {
       console.error("Failed to get inventory:", error);
       throw error;
@@ -166,6 +185,7 @@ export const updateInventoryItem = authenticatedAction(
         },
       });
 
+      await invalidateInventoryCache(companyId, inventoryId);
       return updatedItem;
     } catch (error) {
       console.error("Failed to update inventory item:", error);
@@ -198,6 +218,7 @@ export const deleteInventoryItem = authenticatedAction(
         where: { id: inventoryId },
       });
 
+      await invalidateInventoryCache(companyId, inventoryId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete inventory item:", error);
@@ -275,13 +296,19 @@ export const getInventoryWithDashboardData = authenticatedAction(
       }
 
       // ── Parallel Orchestration ──────────────────────────────────────────
-      const [
-        ,
-        items,
-        totalCount,
-        allStatsItems,
-        lowStockItems,
-      ] = await Promise.all([
+      const cacheKey = inventoryCacheKeys.dashboard(
+        companyId,
+        hashFilters({ page, pageSize, warehouseId, search })
+      );
+
+      return await withCache(cacheKey, INVENTORY_CACHE_TTL, async () => {
+        const [
+          ,
+          items,
+          totalCount,
+          allStatsItems,
+          lowStockItems,
+        ] = await Promise.all([
         checkPermission(userId, companyId, ["role_admin", "role_manager", "role_warehouse"]),
         db.inventory.findMany({
           where,
@@ -335,8 +362,9 @@ export const getInventoryWithDashboardData = authenticatedAction(
           outOfStockCount,
           totalValue,
         },
-        lowStockItems: lowStockItems as unknown as LowStockItem[],
-      };
+          lowStockItems: lowStockItems as unknown as LowStockItem[],
+        };
+      });
     } catch (error) {
       console.error("Failed to get inventory combined data:", error);
       throw error;
@@ -427,6 +455,7 @@ export const logWarehouseFulfillment = authenticatedAction(
          });
       }
 
+      await invalidateInventoryCache(companyId, inventoryNode.id);
       return { success: true, movement };
     } catch (error) {
       console.error("Failed to log warehouse fulfillment:", error);

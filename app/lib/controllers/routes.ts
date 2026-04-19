@@ -10,8 +10,21 @@ import {
   RouteEfficiencyStats,
   MapRouteData,
 } from "../type/routes";
+import {
+  redis,
+  withCache,
+  invalidatePattern,
+  hashFilters,
+  routeCacheKeys,
+  ROUTE_CACHE_TTL,
+} from "../redis";
 
-
+async function invalidateRouteCache(companyId: string, routeId?: string) {
+  await Promise.all([
+    invalidatePattern(routeCacheKeys.companyPattern(companyId)),
+    routeId ? redis.del(routeCacheKeys.detail(routeId)) : Promise.resolve(),
+  ]);
+}
 export const createRoute = authenticatedAction(
   async (
     user,
@@ -147,6 +160,7 @@ export const createRoute = authenticatedAction(
         return route;
       });
 
+      await invalidateRouteCache(user.companyId);
       return { route: newRoute };
     } catch (error) {
       console.error("Failed to create route:", error);
@@ -175,8 +189,14 @@ export const getRoutes = authenticatedAction(
         where.status = status as RouteStatus;
       }
 
-      const [routes, totalCount] = await Promise.all([
-        db.route.findMany({
+      const cacheKey = routeCacheKeys.list(
+        companyId,
+        hashFilters({ page, pageSize, status })
+      );
+
+      return await withCache(cacheKey, ROUTE_CACHE_TTL, async () => {
+        const [routes, totalCount] = await Promise.all([
+          db.route.findMany({
           where,
           include: {
             vehicle: {
@@ -220,6 +240,7 @@ export const getRoutes = authenticatedAction(
       ]);
 
       return { routes, totalCount };
+      });
     } catch (error) {
       console.error("Failed to get routes:", error);
       throw error;
@@ -308,6 +329,7 @@ export const updateRoute = authenticatedAction(
         data: updateData,
       });
 
+      await invalidateRouteCache(companyId, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to update route:", error);
@@ -339,6 +361,7 @@ export const deleteRoute = authenticatedAction(
         where: { id: routeId },
       });
 
+      await invalidateRouteCache(companyId, routeId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete route:", error);
@@ -373,6 +396,7 @@ export const assignDriverToRoute = authenticatedAction(
         },
       });
 
+      await invalidateRouteCache(companyId, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to assign driver to route:", error);
@@ -407,6 +431,7 @@ export const assignVehicleToRoute = authenticatedAction(
         },
       });
 
+      await invalidateRouteCache(companyId, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to assign vehicle to route:", error);
@@ -441,6 +466,7 @@ export const unassignDriverFromRoute = authenticatedAction(
         },
       });
 
+      await invalidateRouteCache(companyId, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to unassign driver from route:", error);
@@ -475,6 +501,7 @@ export const unassignVehicleFromRoute = authenticatedAction(
         },
       });
 
+      await invalidateRouteCache(companyId, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to unassign vehicle from route:", error);
@@ -849,6 +876,7 @@ export const updateRouteStatus = authenticatedAction(
         return newRoute;
       });
 
+      await invalidateRouteCache(companyId, routeId);
       return updatedRoute;
     } catch (error) {
       console.error("Failed to update route status:", error);
@@ -888,9 +916,15 @@ export const getRoutesWithDashboardData = authenticatedAction(
       // ── Parallel Orchestration ──────────────────────────────────────────
       // This pattern ensures that checkPermission and all DB fetches start
       // simultaneously for sub-second performance.
-      const [
-        ,
-        routes,
+      const cacheKey = routeCacheKeys.dashboard(
+        companyId,
+        hashFilters({ page, pageSize, status })
+      );
+
+      return await withCache(cacheKey, ROUTE_CACHE_TTL, async () => {
+        const [
+          ,
+          routes,
         totalCount,
         activeCount,
         inProgressCount,
@@ -1024,6 +1058,7 @@ export const getRoutesWithDashboardData = authenticatedAction(
             routeName: r.name,
           })),
       };
+      });
     } catch (error) {
       console.error("Failed to get routes combined data:", error);
       throw error;

@@ -5,7 +5,21 @@ import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
 import { CustomerWithRelations } from "../type/customer";
+import {
+  redis,
+  withCache,
+  invalidatePattern,
+  hashFilters,
+  customerCacheKeys,
+  CUSTOMER_CACHE_TTL,
+} from "../redis";
 
+async function invalidateCustomerCache(companyId: string, customerId?: string) {
+  await Promise.all([
+    invalidatePattern(customerCacheKeys.companyPattern(companyId)),
+    customerId ? redis.del(customerCacheKeys.detail(customerId)) : Promise.resolve(),
+  ]);
+}
 
 export const createCustomer = authenticatedAction(
   async (
@@ -58,8 +72,7 @@ export const createCustomer = authenticatedAction(
         include: {
           locations: true,
         },
-      });
-
+      });      await invalidateCustomerCache(user.companyId);
       return { customer: newCustomer };
     } catch (error) {
       console.error("Failed to create customer:", error);
@@ -77,9 +90,9 @@ export const getCustomers = authenticatedAction(async (user) => {
       "role_admin",
       "role_manager",
       "role_dispatcher",
-    ]);
-
-    const customers = await db.customer.findMany({
+    ]);    const cacheKey = customerCacheKeys.list(companyId, hashFilters({}));
+    return await withCache(cacheKey, CUSTOMER_CACHE_TTL, async () => {
+      const customers = await db.customer.findMany({
       where: { companyId },
       include: {
         locations: true,
@@ -88,8 +101,9 @@ export const getCustomers = authenticatedAction(async (user) => {
         },
       },
       orderBy: { createdAt: "desc" },
+      });
+      return customers;
     });
-    return customers;
   } catch (error) {
     console.error("Failed to get customers:", error);
     throw error;
@@ -128,12 +142,18 @@ export const getCustomersWithDashboardData = authenticatedAction(
       }
 
       // ── Parallel Orchestration ──────────────────────────────────────────
-      const [
-        ,
-        customers,
-        totalCount,
-        statsRaw,
-      ] = await Promise.all([
+      const cacheKey = customerCacheKeys.dashboard(
+        companyId,
+        hashFilters({ page, pageSize, search })
+      );
+
+      return await withCache(cacheKey, CUSTOMER_CACHE_TTL, async () => {
+        const [
+          ,
+          customers,
+          totalCount,
+          statsRaw,
+        ] = await Promise.all([
         checkPermission(userId, companyId, ["role_admin", "role_manager", "role_dispatcher"]),
         db.customer.findMany({
           where,
@@ -170,8 +190,9 @@ export const getCustomersWithDashboardData = authenticatedAction(
           totalCustomers,
           activeCustomers,
           totalShipments,
-        },
-      };
+          },
+        };
+      });
     } catch (error) {
       console.error("Failed to get customers combined data:", error);
       throw error;
@@ -304,8 +325,7 @@ export const updateCustomer = authenticatedAction(
         where: { id: customerId },
         data: updateData,
         include: { locations: true }
-      });
-
+      });      await invalidateCustomerCache(companyId, customerId);
       return updatedCustomer;
     } catch (error) {
       console.error("Failed to update customer:", error);
@@ -335,8 +355,7 @@ export const deleteCustomer = authenticatedAction(
 
       await db.customer.delete({
         where: { id: customerId },
-      });
-
+      });      await invalidateCustomerCache(companyId, customerId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete customer:", error);

@@ -3,7 +3,7 @@
 import { db } from "../db";
 import { checkPermission } from "./utils/checkPermission";
 import { DriverStatus, Prisma } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+
 import { authenticatedAction } from "../auth-middleware";
 import {
   CreateDriverFormData,
@@ -14,6 +14,21 @@ import {
   DriverFilters,
   DriverDashboardResponseType,
 } from "../type/driver";
+import {
+  redis,
+  withCache,
+  invalidatePattern,
+  hashFilters,
+  driverCacheKeys,
+  DRIVER_CACHE_TTL,
+} from "../redis";
+
+async function invalidateDriverCache(companyId: string, driverId?: string) {
+  await Promise.all([
+    invalidatePattern(driverCacheKeys.companyPattern(companyId)),
+    driverId ? redis.del(driverCacheKeys.detail(driverId)) : Promise.resolve(),
+  ]);
+}
 
 export const getDriverById = authenticatedAction(
   async (user, driverId: string) => {
@@ -155,7 +170,7 @@ export const createDriver = authenticatedAction(
         });
       });
 
-      revalidatePath("/drivers");
+      await invalidateDriverCache(companyId);
       return { success: true };
     } catch (error) {
       console.error("Failed to create driver:", error);
@@ -249,7 +264,7 @@ export const updateDriver = authenticatedAction(
         },
       });
 
-      revalidatePath("/drivers");
+      await invalidateDriverCache(companyId, driverId);
       return updatedDriver;
     } catch (error) {
       console.error("Failed to update driver:", error);
@@ -293,7 +308,7 @@ export const deleteDriver = authenticatedAction(
         });
       });
 
-      revalidatePath("/drivers");
+      await invalidateDriverCache(companyId, driverId);
       return { success: true };
     } catch (error) {
       console.error("Failed to delete driver:", error);
@@ -326,6 +341,8 @@ export const updateDriverStatus = authenticatedAction(
         where: { id: driverId },
         data: { status },
       });
+      
+      await invalidateDriverCache(companyId, driverId);
       return updatedDriver;
     } catch (error) {
       console.error("Failed to update driver status:", error);
@@ -365,6 +382,7 @@ export const assignVehicleToDriver = authenticatedAction(
         },
       });
 
+      await invalidateDriverCache(companyId, driverId);
       return updatedDriver;
     } catch (error) {
       console.error("Failed to assign vehicle to driver:", error);
@@ -400,6 +418,7 @@ export const unassignVehicleFromDriver = authenticatedAction(
         },
       });
 
+      await invalidateDriverCache(companyId, driverId);
       return updatedDriver;
     } catch (error) {
       console.error("Failed to unassign vehicle from driver:", error);
@@ -608,8 +627,14 @@ export const getDrivers = authenticatedAction(
         }
       }
 
-      const [drivers, total] = await Promise.all([
-        db.driver.findMany({
+      const cacheKey = driverCacheKeys.list(
+        companyId,
+        hashFilters({ page, limit, search, status, hasVehicle, sortField, sortOrder })
+      );
+
+      return await withCache(cacheKey, DRIVER_CACHE_TTL, async () => {
+        const [drivers, total] = await Promise.all([
+          db.driver.findMany({
           where,
           include: {
             user: {
@@ -661,6 +686,7 @@ export const getDrivers = authenticatedAction(
           totalPages: Math.ceil(total / limit),
         },
       };
+      });
     } catch (error) {
       console.error("Failed to get drivers:", error);
       throw error;
@@ -678,8 +704,11 @@ export const getDriverDashboardData = authenticatedAction(async (user) => {
       "role_dispatcher",
     ]);
 
-    const [totalDrivers, onDuty, offDuty, onLeave, safetyScoreAgg, topDrivers] =
-      await Promise.all([
+    const cacheKey = driverCacheKeys.kpis(companyId);
+
+    return await withCache(cacheKey, DRIVER_CACHE_TTL, async () => {
+      const [totalDrivers, onDuty, offDuty, onLeave, safetyScoreAgg, topDrivers] =
+        await Promise.all([
         db.driver.count({ where: { companyId } }),
         db.driver.count({
           where: { companyId, status: "ON_JOB" },
@@ -748,6 +777,7 @@ export const getDriverDashboardData = authenticatedAction(async (user) => {
         ],
       })),
     };
+    });
   } catch (error) {
     console.error("Failed to get driver dashboard data:", error);
     throw error;
@@ -831,9 +861,15 @@ export const getDriverWithDashboardData = authenticatedAction(
         }
       }
 
-      const [
-        ,
-        drivers,
+      const cacheKey = driverCacheKeys.dashboard(
+        companyId,
+        hashFilters(filters as Record<string, unknown>)
+      );
+
+      return await withCache(cacheKey, DRIVER_CACHE_TTL, async () => {
+        const [
+          ,
+          drivers,
         totalDriversList,
         totalDrivers,
         onDuty,
@@ -963,6 +999,7 @@ export const getDriverWithDashboardData = authenticatedAction(
           ],
         })),
       };
+      });
     } catch (error) {
       console.error("Failed to get driver with dashboard data:", error);
       throw error;

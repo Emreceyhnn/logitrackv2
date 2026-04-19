@@ -23,6 +23,11 @@ import {
   ShipmentDayStat,
   MapData
 } from "../type/overview";
+import {
+  withCache,
+  overviewCacheKeys,
+  OVERVIEW_CACHE_TTL,
+} from "../redis";
 
 /**
  * Aggregates all data required for the Overview Dashboard in a single server-side pass.
@@ -60,9 +65,12 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
 
-    // Run all queries in parallel, including the permission check
-    const [
-      , // permission check only needs to resolve, no value needed
+    const cacheKey = overviewCacheKeys.dashboard(companyId);
+
+    return await withCache(cacheKey, OVERVIEW_CACHE_TTL, async () => {
+      // Run all queries in parallel, including the permission check
+      const [
+        , // permission check only needs to resolve, no value needed
       statsCounts,
       openIssues,
       expiringDocs,
@@ -413,8 +421,9 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       trends: [], // Keeping empty for backward compat if needed
       shipmentVolume,
       mapData,
-      alerts
-    };
+        alerts
+      };
+    });
   } catch (error) {
     console.error("Failed to get unified overview dashboard data:", error);
     throw error;

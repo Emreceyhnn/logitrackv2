@@ -5,6 +5,21 @@ import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";
 import { createSession, revokeSession } from "./session";
 import { UserStatus, Prisma } from "@prisma/client";
+import {
+  redis,
+  withCache,
+  invalidatePattern,
+  hashFilters,
+  companyCacheKeys,
+  COMPANY_CACHE_TTL,
+} from "../redis";
+
+async function invalidateCompanyCache(companyId: string) {
+  await Promise.all([
+    invalidatePattern(companyCacheKeys.companyPattern(companyId)),
+    redis.del(companyCacheKeys.detail(companyId))
+  ]);
+}
 
 export const createCompany = authenticatedAction(
   async (user, name: string, avatarUrl?: string) => {
@@ -129,6 +144,7 @@ export const updateCompany = authenticatedAction(
           avatarUrl: data.avatarUrl,
         },
       });
+      await invalidateCompanyCache(companyId);
       return updatedCompany;
     } catch (error) {
       console.error("Failed to update company:", error);
@@ -295,6 +311,7 @@ export const removeCompanyUser = authenticatedAction(
           companyId: null,
         },
       });
+      await invalidateCompanyCache(companyId);
       return updatedUser;
     } catch (error) {
       console.error("Failed to remove company user:", error);
@@ -455,6 +472,7 @@ export const addCompanyUser = authenticatedAction(
         },
       });
 
+      await invalidateCompanyCache(companyId);
       return updatedUser;
     } catch (error) {
       console.error("Failed to add company user:", error);
@@ -516,6 +534,7 @@ export const updateCompanyMember = authenticatedAction(
         },
       });
 
+      await invalidateCompanyCache(companyId);
       return updatedUser;
     } catch (error) {
       console.error("Failed to update company user:", error);
@@ -554,9 +573,15 @@ export const getCompanyWithDashboardData = authenticatedAction(
           : {}),
       };
 
-      const [
-        company,
-        members,
+      const cacheKey = companyCacheKeys.dashboard(
+        companyId,
+        hashFilters({ page, pageSize, search: filters.search })
+      );
+
+      return await withCache(cacheKey, COMPANY_CACHE_TTL, async () => {
+        const [
+          company,
+          members,
         filteredCount,
         totalUserCount,
         vehicleCount,
@@ -620,8 +645,9 @@ export const getCompanyWithDashboardData = authenticatedAction(
           warehouses: warehouseCount,
           customers: customerCount,
           shipments: shipmentCount,
-        },
-      };
+          },
+        };
+      });
     } catch (error) {
       console.error("Failed to get company dashboard data:", error);
       throw new Error(
