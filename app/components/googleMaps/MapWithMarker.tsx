@@ -110,6 +110,8 @@ export const MapWithMarker = ({
 }: MapWithMarkerProps) => {
   const mapRef = useRef<google.maps.Map | null>(null);
 
+  const fitBoundsFired = useRef(false);
+
   const mapCenter = useMemo(() => center || { lat: 41.0082, lng: 28.9784 }, [center]);
   
   const mapOptions = useMemo<google.maps.MapOptions>(() => ({
@@ -123,12 +125,13 @@ export const MapWithMarker = ({
 
   const onLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
-    if (markers && markers.length > 0) {
+    if (markers && markers.length > 0 && !fitBoundsFired.current) {
       const bounds = new window.google.maps.LatLngBounds();
       markers.forEach((marker) => {
         bounds.extend(new window.google.maps.LatLng(marker.position.lat, marker.position.lng));
       });
       map.fitBounds(bounds);
+      fitBoundsFired.current = true;
       
       const listener = window.google.maps.event.addListener(map, "idle", () => {
         if (map.getZoom()! > 16) map.setZoom(16);
@@ -137,16 +140,24 @@ export const MapWithMarker = ({
     }
   }, [markers]);
 
-  // Adjust bounds if markers change during runtime ONLY if center is not provided
+  // Adjust bounds if markers change during runtime ONLY if center is not provided and bounds haven't been fit yet
   React.useEffect(() => {
-    if (!center && mapRef.current && markers.length > 0) {
+    if (!center && mapRef.current && markers.length > 0 && !fitBoundsFired.current) {
       const bounds = new window.google.maps.LatLngBounds();
       markers.forEach((marker) => {
         bounds.extend(new window.google.maps.LatLng(marker.position.lat, marker.position.lng));
       });
       mapRef.current.fitBounds(bounds);
+      fitBoundsFired.current = true;
     }
   }, [markers, center]);
+
+  // Reset fitBounds tracking if the explicit center prop changes
+  React.useEffect(() => {
+    if (center) {
+      fitBoundsFired.current = false;
+    }
+  }, [center]);
 
   return (
     <div className="overflow-hidden border border-gray-200/10 rounded-xl shadow-2xl" style={{ height }}>

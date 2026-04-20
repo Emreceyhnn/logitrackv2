@@ -83,3 +83,20 @@ export const subscribeToAllVehicles = (
 
   return () => off(vehiclesRef);
 };
+/**
+ * Syncs the entire vehicle record to Firebase.
+ */
+export const syncVehicleToFirebase = async (vehicle: any) => {
+  try {
+    const path = `vehicles/registry/${vehicle.id}`;
+    await set(ref(firebase, path), {
+      ...vehicle,
+      lastSynced: Date.now(),
+    });
+    return { success: true };
+  } catch (error) {
+    console.error(`Failed to sync vehicle ${vehicle.id} to Firebase:`, error);
+    // We don't throw here to avoid breaking the main flow
+    return { success: false, error };
+  }
+};

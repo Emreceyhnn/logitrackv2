@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Box, Skeleton,  useTheme } from "@mui/material";
+import { Box, Skeleton } from "@mui/material";
 import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { MapRouteData } from "@/app/lib/type/routes";
@@ -12,7 +12,6 @@ interface RoutesMainMapProps {
 }
 
 const RoutesMainMap = ({ mapData, loading }: RoutesMainMapProps) => {
-  const theme = useTheme();
 
   // Map Routes to Markers - moved before early return to satisfy hook rules
   const markers = useMemo(() => {
@@ -28,23 +27,13 @@ const RoutesMainMap = ({ mapData, loading }: RoutesMainMapProps) => {
     });
   }, [mapData]);
 
-  if (loading)
-    return (
-      <Box
-        sx={{
-          minHeight: 400,
-          flexGrow: 3,
-          borderRadius: "16px",
-          overflow: "hidden",
-          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
-        }}
-      >
-        <Skeleton variant="rectangular" width="100%" height="100%" sx={{ minHeight: 400 }} />
-      </Box>
-    );
-
   return (
-    <Box sx={{ minHeight: 400, flexGrow: 3, borderRadius: "16px", overflow: "hidden" }}>
+    <Box sx={{ minHeight: 400, flexGrow: 3, borderRadius: "16px", overflow: "hidden", position: "relative" }}>
+      {loading && (
+        <Box sx={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 10 }}>
+          <Skeleton variant="rectangular" width="100%" height="100%" sx={{ minHeight: 400 }} />
+        </Box>
+      )}
       <GoogleMapsProvider>
         <MapWithMarker markers={markers} />
       </GoogleMapsProvider>

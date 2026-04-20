@@ -16,7 +16,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "test:users": "tsx scripts/test-users.ts",
     "firebase:seed-location": "tsx scripts/seed-firebase-locations.ts",
-    "firebase:simulate-trip": "tsx scripts/simulate-trip.ts"
+    "firebase:simulate-trip": "tsx scripts/simulate-trip.ts",
+    "firebase:sync-all": "tsx scripts/sync-all-vehicles.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

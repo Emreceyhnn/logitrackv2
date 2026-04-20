@@ -31,6 +31,7 @@ import {
   vehicleCacheKeys,
   VEHICLE_CACHE_TTL,
 } from "../redis";
+import { syncVehicleToFirebase } from "../vehicleTracking";
 
 // ── Cache invalidation helper ─────────────────────────────────────────────────
 async function invalidateVehicleCache(
@@ -158,7 +159,11 @@ export const createVehicle = authenticatedAction(
         },
       });
 
+
       await invalidateVehicleCache(companyId);
+      // Sync to Firebase (background)
+      syncVehicleToFirebase(newVehicle).catch(err => console.error("Firebase sync failed:", err));
+      
       return newVehicle;
     } catch (error) {
       console.error("Failed to create vehicle:", error);
@@ -271,6 +276,11 @@ export const updateVehicle = authenticatedAction(
       });
 
       await invalidateVehicleCache(companyId, vehicleId);
+      // Sync to Firebase (background)
+      syncVehicleToFirebase(updatedVehicle).catch((err) =>
+        console.error("Firebase sync failed:", err)
+      );
+
       return updatedVehicle;
     } catch (error) {
       console.error("Failed to update vehicle:", error);
