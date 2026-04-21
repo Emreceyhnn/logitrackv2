@@ -45,7 +45,10 @@ const DriverCard = (params: DriverWithRelations | null) => {
                     color: "text.secondary",
                   }}
                 >
-                  {dict.drivers.card.license.replace("{type}", params.licenseType)}
+                  {dict.drivers.card.license.replace(
+                    "{type}",
+                    params.licenseType
+                  )}
                 </Typography>
               )}
             </Stack>
@@ -59,19 +62,6 @@ const DriverCard = (params: DriverWithRelations | null) => {
             </Typography>
           </Stack>
         </Stack>
-        <Button
-          variant="contained"
-          sx={{
-            gap: 1,
-            alignItems: "center",
-            display: "flex",
-            textTransform: "none",
-          }}
-          fullWidth
-        >
-          <ChatIcon sx={{ width: 18, height: 18 }} />
-          {dict.drivers.labels.contactDriver}
-        </Button>
       </Stack>
     </CustomCard>
   );

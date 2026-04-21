@@ -19,7 +19,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SaveIcon from "@mui/icons-material/Save";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import FirstStep from "../addVehicleDialog/firstStep";
 import TechSpecsStep from "../addVehicleDialog/techSpecsStep";
 import { VehicleWithRelations, VehicleFormValues } from "@/app/lib/type/vehicle";
@@ -28,6 +28,7 @@ import { uploadImageAction } from "@/app/lib/actions/upload";
 import { toast } from "sonner";
 import { VehicleType } from "@/app/lib/type/enums";
 import { Formik, FormikHelpers } from "formik";
+import { editVehicleValidationSchema } from "@/app/lib/validationSchema";
 
 export interface EditVehicleDialogProps {
   open: boolean;
@@ -64,6 +65,7 @@ const EditVehicleDialog = ({
     maxLoadKg: "",
     fuelType: "",
     fuelLevel: 50,
+    status: "",
     avgFuelConsumption: "",
     engineSize: "",
     transmission: "",
@@ -92,10 +94,11 @@ const EditVehicleDialog = ({
         maxLoadKg: vehicle.maxLoadKg || "",
         fuelType: vehicle.fuelType || "",
         fuelLevel: vehicle.fuelLevel || 50,
+        status: vehicle.status || "AVAILABLE",
         avgFuelConsumption: vehicle.avgFuelConsumption || "",
-        engineSize: "", // Not natively in Prisma model but form supports
-        transmission: "",
-        techNotes: "",
+        engineSize: vehicle.engineSize || "",
+        transmission: vehicle.transmission || "",
+        techNotes: vehicle.techNotes || "",
         registrationExpiry: null, 
         inspectionExpiry: null,
         nextServiceDueKm: "",
@@ -154,6 +157,10 @@ const EditVehicleDialog = ({
         avgFuelConsumption: values.avgFuelConsumption ? Number(values.avgFuelConsumption) : null,
         fuelLevel: values.fuelLevel ? Number(values.fuelLevel) : null,
         nextServiceKm: values.nextServiceKm ? Number(values.nextServiceKm) : null,
+        status: values.status,
+        engineSize: values.engineSize,
+        transmission: values.transmission,
+        techNotes: values.techNotes,
         photo: (photoUrl as string) || null,
       };
 
@@ -183,14 +190,32 @@ const EditVehicleDialog = ({
     <Formik
       enableReinitialize
       initialValues={initialValues}
+      validationSchema={useMemo(() => editVehicleValidationSchema(dict), [dict])}
       onSubmit={handleSubmit}
     >
-      {({ isSubmitting, submitForm, setFieldValue, validateForm }) => {
+      {({ isSubmitting, submitForm, setFieldValue, validateForm, submitCount, errors }) => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useEffect(() => {
+          if (submitCount > 0 && Object.keys(errors).length > 0) {
+            const getStepForField = (fieldName: string): number => {
+              const step1Fields = ["plate", "fleetNo", "brand", "model", "type", "year", "odometerKm", "photo", "status"];
+              if (step1Fields.includes(fieldName)) return 1;
+              return 2;
+            };
+
+            const firstErrorField = Object.keys(errors)[0];
+            const targetStep = getStepForField(firstErrorField);
+            if (targetStep !== currentStep) {
+              setCurrentStep(targetStep);
+              toast.error(dict.validation.genericFormError || "Please check errors in the highlighted step.");
+            }
+          }
+        }, [submitCount]);
         
         const handleNext = async () => {
           const errors = await validateForm();
           // Step 1 field keys
-          const step1Keys = ['fleetNo', 'plate', 'type', 'brand', 'model', 'year', 'odometerKm', 'nextServiceKm'];
+          const step1Keys = ['fleetNo', 'plate', 'type', 'brand', 'model', 'year', 'odometerKm', 'nextServiceKm', 'status'];
           const hasStep1Errors = step1Keys.some(key => errors[key as keyof VehicleFormValues]);
           
           if (!hasStep1Errors) {

@@ -1272,7 +1272,9 @@
       "duration": "DURATION",
       "fleetId": "FLEET ID",
       "noUnit": "NO UNIT",
-      "tbd": "TBD"
+      "tbd": "TBD",
+      "directConsignment": "Direct Consignment",
+      "oneTimeService": "One-time direct service"
     },
     "dialogs": {
       "addTitle": "Create New Shipment",
@@ -1312,6 +1314,7 @@
         "customerClient": "CUSTOMER / CLIENT",
         "customerPlaceholder": "Select customer",
         "customerLocation": "CUSTOMER LOCATION (DEPOT)",
+        "deliveryLocation": "DELIVERY LOCATION",
         "locationPlaceholder": "Select depot",
         "selectCustomerFirst": "Select a customer first",
         "contactEmail": "CONTACT EMAIL",

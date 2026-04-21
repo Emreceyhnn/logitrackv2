@@ -18,7 +18,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
 import { ErrorOutline as ErrorOutlineIcon } from "@mui/icons-material";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface DocumentViewerDialogProps {
@@ -41,11 +41,36 @@ export default function DocumentViewerDialog({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  // Determine if it's likely a PDF or Image based on URL if fileType not provided
-  const isPdf =
-    fileType?.toLowerCase().includes("pdf") ||
-    url.toLowerCase().endsWith(".pdf") ||
-    url.includes("/raw/upload/") === false;
+  // Determine if it's likely a PDF or Image based on URL
+  const { isPdf, isImage } = useMemo(() => {
+    const lowerUrl = url.toLowerCase();
+    const type = fileType?.toLowerCase() || "";
+    
+    // Check if URL ends with common extensions (ignoring query params)
+    let urlPath = "";
+    try {
+      urlPath = new URL(url).pathname.toLowerCase();
+    } catch {
+      urlPath = lowerUrl;
+    }
+
+    const hasPdfExt = urlPath.endsWith(".pdf") || lowerUrl.includes(".pdf");
+    const hasImageExt = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"].some(
+      (ext) => urlPath.endsWith(ext) || lowerUrl.includes(ext)
+    );
+
+    const isPdfType = type.includes("pdf") || hasPdfExt;
+    const isImageType = type.includes("image") || hasImageExt;
+
+    // If it's explicitly an image or has image extension, it's an image
+    if (isImageType) return { isPdf: false, isImage: true };
+    // If it's a PDF, or if it's not an image and could be a PDF
+    if (isPdfType) return { isPdf: true, isImage: false };
+    
+    // Default fallback: if we can't tell, and it doesn't look like an image, 
+    // try to render as PDF/iframe unless it's a raw upload we know as image
+    return { isPdf: !hasImageExt, isImage: hasImageExt };
+  }, [url, fileType]);
 
   // Use a key to force reset state when URL changes
   const viewerKey = `${url}-${open}`;
@@ -290,7 +315,7 @@ export default function DocumentViewerDialog({
               onLoad={handleLoad}
               onError={handleError}
             />
-          ) : (
+          ) : isImage ? (
             <Box
               sx={{
                 width: "100%",
@@ -312,6 +337,28 @@ export default function DocumentViewerDialog({
                   filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.5))",
                   borderRadius: 2,
                 }}
+                onLoad={handleLoad}
+                onError={handleError}
+              />
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                p: 4,
+              }}
+            >
+               {/* Fallback for other types or unknown */}
+               <iframe
+                key={viewerKey}
+                src={url}
+                width="100%"
+                height="100%"
+                style={{ border: "none" }}
                 onLoad={handleLoad}
                 onError={handleError}
               />

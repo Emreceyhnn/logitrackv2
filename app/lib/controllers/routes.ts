@@ -10,6 +10,7 @@ import {
   RouteEfficiencyStats,
   MapRouteData,
 } from "../type/routes";
+import { invalidateShipmentCache } from "./shipments";
 import {
   redis,
   withCache,
@@ -49,7 +50,8 @@ export const createRoute = authenticatedAction(
       address?: string;
       lat?: number;
       lng?: number;
-    }
+    },
+    shipmentId?: string
   ) => {
     try {
       await checkPermission(user.id, user.companyId, [
@@ -137,8 +139,8 @@ export const createRoute = authenticatedAction(
             endTime,
             distanceKm,
             durationMin,
-            driverId,
-            vehicleId,
+            driverId: driverId || null,
+            vehicleId: vehicleId || null,
             companyId: user.companyId,
             startAddress,
             startLat,
@@ -157,10 +159,31 @@ export const createRoute = authenticatedAction(
           });
         }
 
+        // If shipmentId is provided, connect it to the route and update status
+        if (shipmentId) {
+          await tx.shipment.update({
+            where: { id: shipmentId },
+            data: {
+              routeId: route.id,
+              status: "PLANNED",
+              history: {
+                create: {
+                  status: "PLANNED",
+                  description: `Assigned to route: ${finalName}`,
+                  createdBy: user.id,
+                },
+              },
+            },
+          });
+        }
+
         return route;
       });
 
-      await invalidateRouteCache(user.companyId!);
+      await Promise.all([
+        invalidateRouteCache(user.companyId!),
+        shipmentId ? invalidateShipmentCache(user.companyId!, shipmentId) : Promise.resolve(),
+      ]);
       return { route: newRoute };
     } catch (error) {
       console.error("Failed to create route:", error);

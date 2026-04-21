@@ -21,6 +21,11 @@ export interface VehicleDashboardProps {
   issues: {
     id: string;
   }[];
+  maintenanceRecords: {
+    type: string;
+    date: Date;
+    status: string | null;
+  }[];
 }
 
 export interface VehicleDashboardResponseType {
@@ -42,6 +47,12 @@ export interface VehicleDashboardResponseType {
     plate: string;
     documentType: string;
     expiryDate: Date | null;
+  }[];
+  plannedServices: {
+    id: string;
+    plate: string;
+    serviceType: string;
+    serviceDate: Date;
   }[];
 }
 
@@ -78,6 +89,11 @@ export interface VehicleWithRelations {
   maintenanceRecords: MaintenanceRecord[];
   routes: Route[];
   photo: string | null;
+  engineSize?: string | null;
+  transmission?: string | null;
+  techNotes?: string | null;
+  registrationExpiry?: Date | null;
+  inspectionExpiry?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -181,6 +197,7 @@ export interface VehicleStep1Data {
   year: number | "";
   odometerKm: number | "";
   nextServiceKm: number | "";
+  status: string | "";
 }
 
 export interface VehicleStep2Data {

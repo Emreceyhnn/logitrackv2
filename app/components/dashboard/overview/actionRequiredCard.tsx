@@ -1,11 +1,20 @@
-import { Box, Divider, List, ListItem, ListItemButton, Stack, Typography,  useTheme } from "@mui/material";
+import {
+  Box,
+  Divider,
+  List,
+  ListItem,
+  ListItemButton,
+  Stack,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import CustomCard from "../../cards/card";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import PersonIcon from "@mui/icons-material/Person";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { ReactNode } from "react";
 import { ActionRequiredItems } from "@/app/lib/type/overview";
 import { useRouter } from "next/navigation";
@@ -109,15 +118,28 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     ),
   };
   return (
-    <CustomCard sx={{ padding: "0 0 6px 0", height: "100%", maxHeight: 360, display: "flex", flexDirection: "column" }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" p={2}>
+    <CustomCard
+      sx={{
+        padding: "0 0 6px 0",
+        height: "100%",
+        maxHeight: 360,
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        p={2}
+      >
         <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
           {dict.dashboard.overview.actionRequired.title}
         </Typography>
         {alerts.length > 0 && (
           <Box
             sx={{
-              bgcolor: (theme) => theme.palette.error._alpha.main_10,
+              bgcolor: "theme.palette.error._alpha.main_10",
               color: "error.main",
               px: 1,
               py: 0.25,
@@ -126,15 +148,25 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
               fontWeight: 700,
             }}
           >
-            {dict.dashboard.overview.actionRequired.pendingCount.replace("{count}", alerts.length.toString())}
+            {dict.dashboard.overview.actionRequired.pendingCount.replace(
+              "{count}",
+              alerts.length.toString()
+            )}
           </Box>
         )}
       </Stack>
       <Divider />
-      
+
       <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
         {alerts.length === 0 ? (
-          <Stack alignItems="center" justifyContent="center" height="100%" minHeight={200} spacing={2} p={3}>
+          <Stack
+            alignItems="center"
+            justifyContent="center"
+            height="100%"
+            minHeight={200}
+            spacing={2}
+            p={3}
+          >
             <Box sx={{ color: "success.main", opacity: 0.5 }}>
               <CheckCircleOutlineIcon sx={{ fontSize: 48 }} />
             </Box>
@@ -164,7 +196,11 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
                     {setType[i.type]}
 
                     <Stack spacing={0.25}>
-                      <Typography fontSize={14} fontWeight={600} color="text.primary">
+                      <Typography
+                        fontSize={14}
+                        fontWeight={600}
+                        color="text.primary"
+                      >
                         {i.title}
                       </Typography>
                       <Typography fontSize={13} color="text.secondary">

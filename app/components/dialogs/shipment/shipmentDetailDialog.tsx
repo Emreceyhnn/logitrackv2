@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import BusinessIcon from "@mui/icons-material/Business";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import DriverCard from "../../cards/driverCard";
@@ -67,7 +68,7 @@ export default function ShipmentDetailDialog({
           bgcolor: "#0B1019",
           backgroundImage: "none",
           overflow: "hidden",
-          border: "1px solid theme.palette.common.white_alpha.main_05",
+          border: `1px solid theme.palette.common.white_alpha.main_05`,
           maxHeight: "90vh",
         },
       }}
@@ -76,7 +77,7 @@ export default function ShipmentDetailDialog({
         sx={{
           p: 3,
           background: `linear-gradient(to right, theme.palette.primary._alpha.main_15, transparent)`,
-          borderBottom: "1px solid theme.palette.common.white_alpha.main_05",
+          borderBottom: `1px solid theme.palette.common.white_alpha.main_05`,
           position: "relative",
         }}
       >
@@ -156,85 +157,118 @@ export default function ShipmentDetailDialog({
               </Box>
 
               <Box>
-                <Typography
-                  variant="caption"
-                  fontWeight={700}
-                  color="text.secondary"
-                  sx={{ textTransform: "uppercase", mb: 2, display: "block" }}
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  sx={{ mb: 3 }}
                 >
-                  {dict.shipments.details.missionPath}
-                </Typography>
-                <Box sx={{ position: "relative", pl: 4 }}>
+                  <Box
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      bgcolor: "primary.main",
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    fontWeight={700}
+                    color="text.secondary"
+                    sx={{ textTransform: "uppercase" }}
+                  >
+                    {dict.shipments.details.missionPath}
+                  </Typography>
+                </Stack>
+                <Box sx={{ position: "relative", pl: 4.5 }}>
+                  {/* Vertical Stepper Line */}
                   <Box
                     sx={{
                       position: "absolute",
-                      left: 11,
-                      top: 10,
-                      bottom: 10,
-                      width: 2,
-                      bgcolor: "theme.palette.primary._alpha.main_20",
-                      "&::after": {
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        backgroundImage: `linear-gradient(to bottom, theme.palette.primary.main 50%, transparent 50%)`,
-                        backgroundSize: "1px 8px",
-                      },
+                      left: 10,
+                      top: 13,
+                      bottom: 18,
+                      width: 0,
+                      borderLeft: "1.5px dashed",
+                      borderColor: "theme.palette.primary._alpha.main_40",
+                      zIndex: 0,
+                      opacity: 0.6,
                     }}
                   />
 
-                  <Stack spacing={4}>
+                  <Stack spacing={6}>
                     <Box sx={{ position: "relative" }}>
                       <Box
                         sx={{
                           position: "absolute",
-                          left: -33,
-                          top: 4,
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
-                          bgcolor: "theme.palette.primary.main",
-                          boxShadow: `0 0 10px theme.palette.primary.main`,
+                          left: -39,
+                          top: 0,
+                          width: 26,
+                          height: 26,
+                          borderRadius: "8px",
+                          bgcolor: "#0B1019",
+                          border: "1.5px solid",
+                          borderColor: "theme.palette.primary.main",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "theme.palette.primary.main",
+                          zIndex: 1,
+                          boxShadow:
+                            "0 0 10px theme.palette.primary._alpha.main_20",
                         }}
-                      />
-                      <Typography
-                        variant="body2"
-                        fontWeight={700}
-                        color="white"
                       >
-                        {dict.shipments.details.pickupOrigin}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {shipment.origin || dict.common.noData}
-                      </Typography>
+                        <BusinessIcon sx={{ fontSize: 15 }} />
+                      </Box>
+                      <Stack spacing={0.25}>
+                        <Typography
+                          variant="body2"
+                          fontWeight={700}
+                          color="white"
+                        >
+                          {dict.shipments.details.pickupOrigin}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {shipment.origin || dict.common.noData}
+                        </Typography>
+                      </Stack>
                     </Box>
 
                     <Box sx={{ position: "relative" }}>
                       <Box
                         sx={{
                           position: "absolute",
-                          left: -33,
-                          top: 4,
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
-                          bgcolor: "theme.palette.error.main",
-                          boxShadow: `0 0 10px theme.palette.error.main`,
+                          left: -39,
+                          top: 0,
+                          width: 26,
+                          height: 26,
+                          borderRadius: "8px",
+                          bgcolor: "#0B1019",
+                          border: "1.5px solid",
+                          borderColor: "theme.palette.error.main",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "error.main",
+                          zIndex: 1,
+                          boxShadow:
+                            "0 0 10px theme.palette.error._alpha.main_20",
                         }}
-                      />
-                      <Typography
-                        variant="body2"
-                        fontWeight={700}
-                        color="white"
                       >
-                        {dict.shipments.details.finalDelivery}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {shipment.destination || dict.common.noData}
-                      </Typography>
+                        <LocationOnIcon sx={{ fontSize: 16 }} />
+                      </Box>
+                      <Stack spacing={0.25}>
+                        <Typography
+                          variant="body2"
+                          fontWeight={700}
+                          color="white"
+                        >
+                          {dict.shipments.details.finalDelivery}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {shipment.destination || dict.common.noData}
+                        </Typography>
+                      </Stack>
                     </Box>
                   </Stack>
                 </Box>
@@ -260,10 +294,9 @@ export default function ShipmentDetailDialog({
                   <Box
                     sx={{
                       p: 2,
-                      borderRadius: 2,
+                      borderRadius: 3,
                       bgcolor: "theme.palette.common.white_alpha.main_03",
-                      border:
-                        "1px solid theme.palette.common.white_alpha.main_05",
+                      border: "1px solid theme.palette.divider_alpha.main_10",
                     }}
                   >
                     <Typography variant="caption" color="text.secondary">
@@ -290,7 +323,7 @@ export default function ShipmentDetailDialog({
                         {dict.shipments.details.grossWeight}
                       </Typography>
                       <Typography variant="h6" fontWeight={800} color="white">
-                        {shipment.weightKg}
+                        {shipment.weightKg.toFixed(2)}
                         <Typography component="span" variant="caption" ml={0.5}>
                           {dict.shipments.details.kg}
                         </Typography>
@@ -301,16 +334,16 @@ export default function ShipmentDetailDialog({
               </Box>
 
               {/* Customer Info Card */}
-              {shipment.customer && (
-                <Box>
-                  <Typography
-                    variant="caption"
-                    fontWeight={700}
-                    color="text.secondary"
-                    sx={{ textTransform: "uppercase", mb: 1, display: "block" }}
-                  >
-                    {dict.shipments.details.customerEntity}
-                  </Typography>
+              <Box>
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                  sx={{ textTransform: "uppercase", mb: 1, display: "block" }}
+                >
+                  {dict.shipments.details.customerEntity}
+                </Typography>
+                {shipment.customer ? (
                   <Stack
                     direction="row"
                     spacing={2}
@@ -324,7 +357,7 @@ export default function ShipmentDetailDialog({
                     <Avatar
                       variant="rounded"
                       sx={{
-                        bgcolor: "theme.palette.primary.main",
+                        bgcolor: "primary.main",
                         color: "white",
                         width: 40,
                         height: 40,
@@ -345,8 +378,31 @@ export default function ShipmentDetailDialog({
                       </Typography>
                     </Box>
                   </Stack>
-                </Box>
-              )}
+                ) : (
+                  <Paper
+                    sx={{
+                      p: 2,
+                      bgcolor: "theme.palette.common.white_alpha.main_03",
+                      border:
+                        "1px solid theme.palette.common.white_alpha.main_05",
+                      borderRadius: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      fontWeight={700}
+                      color="white"
+                    >
+                      {dict.shipments.details.directConsignment ||
+                        "Custom Shipment"}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {dict.shipments.details.oneTimeService ||
+                        "One-time direct service"}
+                    </Typography>
+                  </Paper>
+                )}
+              </Box>
             </Stack>
           </Box>
 
@@ -366,7 +422,7 @@ export default function ShipmentDetailDialog({
                 backdropFilter: "blur(12px)",
                 borderRadius: 3,
                 p: 2,
-                border: "1px solid theme.palette.common.white_alpha.main_10",
+                border: `1px solid theme.palette.common.white_alpha.main_10`,
                 display: "flex",
                 justifyContent: "space-around",
                 zIndex: 1,

@@ -16,7 +16,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import FirstStep from "./firstStep";
 import TechSpecsStep from "./techSpecsStep";
@@ -29,6 +29,9 @@ import {
 } from "@/app/lib/controllers/vehicle";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { fileToBase64 } from "@/app/lib/utils/fileUtils";
+import { toast } from "sonner";
+import { Formik, FormikHelpers } from "formik";
+import { addVehicleValidationSchema } from "@/app/lib/validationSchema";
 
 interface VehicleCreateInput {
   plate: string;
@@ -51,9 +54,6 @@ interface VehicleCreateInput {
   nextServiceKm?: number;
   enableAlerts?: boolean;
 }
-import { Formik, FormikHelpers } from "formik";
-import { addVehicleValidationSchema } from "@/app/lib/validationSchema";
-import { toast } from "sonner";
 
 const initialValues: VehicleFormValues = {
   fleetNo: "",
@@ -67,6 +67,7 @@ const initialValues: VehicleFormValues = {
   maxLoadKg: "",
   fuelType: "",
   fuelLevel: 50,
+  status: "AVAILABLE",
   avgFuelConsumption: "",
   engineSize: "",
   transmission: "",
@@ -204,7 +205,29 @@ const AddVehicleDialog = ({
       validationSchema={useMemo(() => addVehicleValidationSchema(dict), [dict])}
       onSubmit={handleSubmit}
     >
-      {({ isSubmitting, submitForm, setFieldValue }) => (
+      {({ isSubmitting, submitForm, setFieldValue, submitCount, errors }) => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useEffect(() => {
+          if (submitCount > 0 && Object.keys(errors).length > 0) {
+            const getStepForField = (fieldName: string): number => {
+              const step1Fields = ["plate", "fleetNo", "brand", "model", "type", "year", "odometerKm", "photo"];
+              const step2Fields = ["maxLoadKg", "fuelType", "avgFuelConsumption", "fuelLevel", "engineSize", "transmission", "techNotes"];
+              if (step1Fields.includes(fieldName)) return 1;
+              if (step2Fields.includes(fieldName)) return 2;
+              return 3;
+            };
+
+            const firstErrorField = Object.keys(errors)[0];
+            const targetStep = getStepForField(firstErrorField);
+            if (targetStep !== currentStep) {
+              setCurrentStep(targetStep);
+              // Also show a toast to let user know we moved them
+              toast.error(dict.validation.genericFormError || "Please check errors in the highlighted step.");
+            }
+          }
+        }, [submitCount]);
+
+        return (
         <Dialog
           open={open}
           onClose={closeDialog}
@@ -371,7 +394,8 @@ const AddVehicleDialog = ({
             </Box>
           </DialogContent>
         </Dialog>
-      )}
+        );
+      }}
     </Formik>
   );
 };

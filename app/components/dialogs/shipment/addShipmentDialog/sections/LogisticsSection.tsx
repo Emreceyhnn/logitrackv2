@@ -8,6 +8,7 @@ import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import PersonIcon from "@mui/icons-material/Person";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 interface LogisticsSectionProps {
   warehouses: WarehouseWithRelations[];
@@ -38,7 +39,7 @@ const LogisticsSection = ({ warehouses, customers }: LogisticsSectionProps) => {
           </Typography>
         </Stack>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1}>
               <Typography
@@ -215,12 +216,16 @@ const LogisticsSection = ({ warehouses, customers }: LogisticsSectionProps) => {
                 color="text.secondary"
                 fontWeight={600}
               >
-                CUSTOMER LOCATION (DEPOT)
+                {dict.shipments.dialogs.fields.deliveryLocation ||
+                  "DELIVERY LOCATION"}
               </Typography>
               <CustomTextArea
                 name="customerLocationId"
                 select
-                placeholder="Select depot"
+                placeholder={
+                  dict.shipments.dialogs.fields.locationPlaceholder ||
+                  "Select depot"
+                }
                 disabled={!values.customerId}
                 value={values.customerLocationId}
                 onBlur={handleBlur}
@@ -270,7 +275,8 @@ const LogisticsSection = ({ warehouses, customers }: LogisticsSectionProps) => {
                     ))
                 ) : (
                   <MenuItem value="" disabled>
-                    Select a customer first
+                    {dict.shipments.dialogs.fields.selectCustomerFirst ||
+                      "Select a customer first"}
                   </MenuItem>
                 )}
               </CustomTextArea>

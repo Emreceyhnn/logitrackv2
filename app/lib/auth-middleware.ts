@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { redirect } from "next/navigation";
 import { validateSession, refreshSession } from "./controllers/session";
 
 export type AuthenticatedUser = {
@@ -66,7 +67,7 @@ export function authenticatedAction<T, Args extends unknown[]>(
     const user = await getAuthenticatedUser();
 
     if (!user) {
-      throw new Error("Unauthorized");
+      redirect("/");
     }
 
     return action(user, ...args);

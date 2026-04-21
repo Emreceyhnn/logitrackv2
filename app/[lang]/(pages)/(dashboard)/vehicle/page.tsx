@@ -259,7 +259,10 @@ function VehicleContent() {
       </Stack>
 
       <Stack mt={2} direction={{ xs: "column", md: "row" }} spacing={2}>
-        <DocumentCalenderCard data={dashboardData?.expiringDocs || []} />
+        <DocumentCalenderCard 
+          data={dashboardData?.expiringDocs || []} 
+          maintenanceData={dashboardData?.plannedServices || []}
+        />
 
         <VehicleCapacityChart
           data={dashboardData?.vehiclesCapacity || []}

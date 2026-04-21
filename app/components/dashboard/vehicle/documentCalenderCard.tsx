@@ -18,12 +18,21 @@ interface VehicleDocument {
   expiryDate: Date | null;
 }
 
+interface VehicleService {
+  id: string;
+  plate: string;
+  serviceType: string;
+  serviceDate: Date;
+}
+
 interface VehicleDocumentCalenderCardProps {
   data?: VehicleDocument[];
+  maintenanceData?: VehicleService[];
 }
 
 const DocumentCalenderCard = ({
   data = [],
+  maintenanceData = [],
 }: VehicleDocumentCalenderCardProps) => {
   const dict = useDictionary();
   const params = useParams();
@@ -36,7 +45,11 @@ const DocumentCalenderCard = ({
       d.expiryDate ? dayjs(d.expiryDate).isSame(day, "day") : false
     );
 
-    if (docsForDay.length === 0) {
+    const maintenanceForDay = maintenanceData.filter((m) =>
+      m.serviceDate ? dayjs(m.serviceDate).isSame(day, "day") : false
+    );
+
+    if (docsForDay.length === 0 && maintenanceForDay.length === 0) {
       return <PickersDay day={day} {...other} />;
     }
 
@@ -44,14 +57,31 @@ const DocumentCalenderCard = ({
       return (dict.vehicles.docTypes as Record<string, string>)?.[type] || type;
     };
 
+    const tooltipContent = [
+      ...docsForDay.map(
+        (d) => `${getLocalizedDocType(d.documentType)} - ${d.plate}`
+      ),
+      ...maintenanceForDay.map((m) => `${m.serviceType} - ${m.plate}`),
+    ].join(", ");
+
+    const badgeColor = docsForDay.length > 0 ? "error" : "info";
+
     return (
-      <Tooltip
-        title={docsForDay
-          .map((d) => `${getLocalizedDocType(d.documentType)} - ${d.plate}`)
-          .join(", ")}
-        arrow
-      >
-        <Badge variant="dot" color="error">
+      <Tooltip title={tooltipContent} arrow>
+        <Badge
+          variant="dot"
+          color={badgeColor}
+          overlap="circular"
+          sx={{
+            "& .MuiBadge-badge": {
+              ...(docsForDay.length > 0 &&
+                maintenanceForDay.length > 0 && {
+                  background:
+                    "linear-gradient(45deg, #f44336 50%, #2196f3 50%)",
+                }),
+            },
+          }}
+        >
           <PickersDay day={day} {...other} />
         </Badge>
       </Tooltip>

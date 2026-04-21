@@ -63,6 +63,9 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [shipments, setShipments] = useState<ShipmentWithRelations[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [selectedShipmentId, setSelectedShipmentId] = useState<string | null>(
+    null
+  );
 
   /* ------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
@@ -74,7 +77,9 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
             getWarehouses(),
           ]);
           setShipments(
-            shipmentsData.filter((s: ShipmentWithRelations) => !s.routeId)
+            shipmentsData.filter(
+              (s: ShipmentWithRelations) => !s.routeId && s.status === "PENDING"
+            )
           );
           setWarehouses(warehousesData);
         } catch (error) {
@@ -114,7 +119,8 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
           address: values.endAddress,
           lat: values.endLat,
           lng: values.endLng,
-        }
+        },
+        selectedShipmentId || undefined
       );
 
       toast.success(dict.toasts.successAdd);
@@ -122,6 +128,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
         onClose();
         onSuccess?.();
         setCurrentStep(1);
+        setSelectedShipmentId(null);
       }, 1500);
     } catch (err: unknown) {
       const message =
@@ -136,6 +143,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
     if (!isLoading) {
       onClose();
       setCurrentStep(1);
+      setSelectedShipmentId(null);
     }
   };
 
@@ -157,6 +165,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
           const handleShipmentSelect = async (shipmentId: string) => {
             const shipment = shipments.find((s) => s.id === shipmentId);
             if (shipment) {
+              setSelectedShipmentId(shipmentId);
               const warehouse = warehouses.find(
                 (w) => w.id === shipment.origin
               );
@@ -192,6 +201,22 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                 setFieldValue("startLat", warehouse.lat ?? undefined);
                 setFieldValue("startLng", warehouse.lng ?? undefined);
                 setFieldValue("startId", warehouse.id);
+                setFieldValue("startType", "WAREHOUSE");
+              } else {
+                setFieldValue("startAddress", shipment.origin);
+                setFieldValue(
+                  "startLat",
+                  typeof shipment.originLat === "number"
+                    ? shipment.originLat
+                    : undefined
+                );
+                setFieldValue(
+                  "startLng",
+                  typeof shipment.originLng === "number"
+                    ? shipment.originLng
+                    : undefined
+                );
+                setFieldValue("startId", "");
                 setFieldValue("startType", "WAREHOUSE");
               }
 

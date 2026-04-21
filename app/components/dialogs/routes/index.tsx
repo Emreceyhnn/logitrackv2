@@ -116,8 +116,12 @@ export default function RouteDialog({
   const statusColor = getStatusColor();
   const paletteKey = statusMeta.color.split(".")[0];
   const statusAlpha =
-    (theme.palette as unknown as Record<string, { _alpha?: Record<string, string> }>)[paletteKey]?._alpha ??
-    theme.palette.primary._alpha;
+    (
+      theme.palette as unknown as Record<
+        string,
+        { _alpha?: Record<string, string> }
+      >
+    )[paletteKey]?._alpha ?? theme.palette.primary._alpha;
 
   const mapOrigin =
     route.startLat && route.startLng
@@ -317,11 +321,8 @@ export default function RouteDialog({
           </Stack>
         </Box>
 
-        <DialogContent sx={{ p: 0, scrollbarWidth: "none" }}>
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            sx={{ minHeight: 600 }}
-          >
+        <DialogContent sx={{ p: 0 }}>
+          <Stack direction={{ xs: "column", md: "row" }}>
             {/* Left Column: Information & Progress */}
             <Box
               sx={{
@@ -329,10 +330,9 @@ export default function RouteDialog({
                 borderRight: `1px solid ${theme.palette.divider_alpha.main_05}`,
                 p: 3,
                 bgcolor: theme.palette.common.white_alpha.main_01,
-                overflowY: "auto",
               }}
             >
-              <Stack spacing={4}>
+              <Stack spacing={2}>
                 {/* Driver Section */}
                 <Stack spacing={2}>
                   <Typography
@@ -458,9 +458,8 @@ export default function RouteDialog({
             >
               <Box
                 sx={{
-                  flex: 1,
+                  height: { xs: 300, md: 440 },
                   width: "100%",
-                  minHeight: { xs: 400, md: "auto" },
                 }}
               >
                 <MapRoutesDialogCard

@@ -68,7 +68,7 @@ const FuelByVehicleCard = ({ values }: FuelByVehicleCardProps) => {
             series={[
               {
                 data: values.map((v) => v.value),
-                color: "theme.palette.info.main",
+                color: "theme.palette.primary.main",
                 valueFormatter: (value: number | null) => `${value || 0} L`,
               },
             ]}

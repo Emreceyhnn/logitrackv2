@@ -1,12 +1,7 @@
-"use client";
-
 import {
-  
   Button,
-  Grid,
   Stack,
   Typography,
-  useTheme,
   MenuItem,
   CircularProgress,
   Dialog,
@@ -42,7 +37,7 @@ const InventorySection = ({
 }: InventorySectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
-  const theme = useTheme();
+
   const { values, setFieldValue } = useFormikContext<ShipmentFormValues>();
 
   /* --------------------------------- states --------------------------------- */
@@ -163,7 +158,7 @@ const InventorySection = ({
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
-                bgcolor: theme.palette.primary.main,
+                bgcolor: "theme.palette.primary.main",
               }}
             />
             <Typography variant="subtitle2" fontWeight={700} color="white">
@@ -183,12 +178,12 @@ const InventorySection = ({
               onClick={() => setIsPickerOpen(true)}
               disabled={isLoadingInventory || availableInventory.length === 0}
               sx={{
-                color: theme.palette.primary.main,
+                color: "theme.palette.primary.main",
                 fontWeight: 600,
                 textTransform: "none",
               }}
             >
-               {dict.shipments.dialogs.fields.warehouse}
+              {dict.shipments.dialogs.fields.warehouse}
             </Button>
             <Button
               startIcon={<AddIcon />}
@@ -200,7 +195,7 @@ const InventorySection = ({
                 textTransform: "none",
               }}
             >
-               {dict.shipments.dialogs.fields.manual}
+              {dict.shipments.dialogs.fields.manual}
             </Button>
           </Stack>
         </Stack>
@@ -211,8 +206,8 @@ const InventorySection = ({
               p: 4,
               textAlign: "center",
               borderRadius: 2,
-              border: `1px dashed ${theme.palette.divider_alpha.main_10}`,
-              bgcolor: theme.palette.divider_alpha.main_02,
+              border: `1px dashed theme.palette.divider_alpha.main_10`,
+              bgcolor: "theme.palette.divider_alpha.main_02",
             }}
           >
             <Typography variant="body2" color="text.secondary">
@@ -221,80 +216,161 @@ const InventorySection = ({
           </Box>
         ) : (
           <Stack spacing={1}>
-            <Grid container spacing={1.5} sx={{ mb: 1, px: 1 }}>
-              <Grid size={{ xs: 3 }}>
-                <Typography variant="caption" fontWeight={700} color="text.secondary">{dict.shipments.dialogs.fields.skuId}</Typography>
-              </Grid>
-              <Grid size={{ xs: 5.5 }}>
-                <Typography variant="caption" fontWeight={700} color="text.secondary">{dict.shipments.dialogs.fields.itemName}</Typography>
-              </Grid>
-              <Grid size={{ xs: 1.5 }}>
-                <Typography variant="caption" fontWeight={700} color="text.secondary">{dict.shipments.dialogs.fields.qty}</Typography>
-              </Grid>
-              <Grid size={{ xs: 1.5 }}>
-                <Typography variant="caption" fontWeight={700} color="text.secondary">{dict.shipments.dialogs.fields.unit}</Typography>
-              </Grid>
-              <Grid size={{ xs: 0.5 }} />
-            </Grid>
+            {/* Table Headers */}
+            <Stack direction="row" spacing={1.5} sx={{ mb: 1, px: 2 }}>
+              <Box sx={{ flex: 3 }}>
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                >
+                  {dict.shipments.dialogs.fields.skuId}
+                </Typography>
+              </Box>
+              <Box sx={{ flex: 5.5 }}>
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                >
+                  {dict.shipments.dialogs.fields.itemName}
+                </Typography>
+              </Box>
+              <Box sx={{ flex: 1.5 }}>
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                >
+                  {dict.shipments.dialogs.fields.qty}
+                </Typography>
+              </Box>
+              <Box sx={{ flex: 1.5 }}>
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                >
+                  {dict.shipments.dialogs.fields.unit}
+                </Typography>
+              </Box>
+              <Box sx={{ width: 40 }} /> {/* Spacer for delete button */}
+            </Stack>
 
             {values.inventoryItems.map((item) => (
               <Box key={item.id}>
-                <Grid container spacing={1.5} alignItems="center" sx={{ px: 1, mb: 0.5 }}>
-                  <Grid size={{ xs: 3 }}>
+                <Stack
+                  direction="row"
+                  spacing={1.5}
+                  alignItems="center"
+                  sx={{ px: 1, mb: 1 }}
+                >
+                  <Box sx={{ flex: 3 }}>
                     <CustomTextArea
+                      sx={{ margin: 0, padding: 0 }}
                       name={`sku-${item.id}`}
                       placeholder="SKU"
                       value={item.sku}
-                      onChange={(e) => updateItem(item.id, { sku: e.target.value })}
+                      onChange={(e) =>
+                        updateItem(item.id, { sku: e.target.value })
+                      }
                     />
-                  </Grid>
-                  <Grid size={{ xs: 5.5 }}>
+                  </Box>
+                  <Box sx={{ flex: 5.5 }}>
                     <CustomTextArea
+                      sx={{ margin: 0, padding: 0 }}
                       name={`name-${item.id}`}
                       placeholder="Name"
                       value={item.name}
-                      onChange={(e) => updateItem(item.id, { name: e.target.value })}
+                      onChange={(e) =>
+                        updateItem(item.id, { name: e.target.value })
+                      }
                     />
-                  </Grid>
-                  <Grid size={{ xs: 1.5 }}>
+                  </Box>
+                  <Box sx={{ flex: 1.5 }}>
                     <CustomTextArea
+                      sx={{ margin: 0, padding: 0 }}
                       name={`qty-${item.id}`}
                       type="number"
                       value={item.quantity.toString()}
-                      onChange={(e) => updateItem(item.id, { quantity: parseInt(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        updateItem(item.id, {
+                          quantity: parseInt(e.target.value) || 0,
+                        })
+                      }
                     />
-                  </Grid>
-                  <Grid size={{ xs: 1.5 }}>
+                  </Box>
+                  <Box sx={{ flex: 1.5 }}>
                     <CustomTextArea
+                      sx={{ margin: 0, padding: 0 }}
                       name={`unit-${item.id}`}
                       select
                       value={item.unit}
-                      onChange={(e) => updateItem(item.id, { unit: e.target.value as InventoryShipmentItem["unit"] })}
+                      onChange={(e) =>
+                        updateItem(item.id, {
+                          unit: e.target.value as InventoryShipmentItem["unit"],
+                        })
+                      }
                     >
-                      <MenuItem value="Each">{dict.shipments.dialogs.types.each}</MenuItem>
-                      <MenuItem value="Box">{dict.shipments.dialogs.types.box}</MenuItem>
-                      <MenuItem value="Pallet">{dict.shipments.dialogs.types.pallet}</MenuItem>
+                      <MenuItem value="Each">
+                        {dict.shipments.dialogs.types.each}
+                      </MenuItem>
+                      <MenuItem value="Box">
+                        {dict.shipments.dialogs.types.box}
+                      </MenuItem>
+                      <MenuItem value="Pallet">
+                        {dict.shipments.dialogs.types.pallet}
+                      </MenuItem>
                     </CustomTextArea>
-                  </Grid>
-                  <Grid size={{ xs: 0.5 }}>
+                  </Box>
+                  <Box
+                    sx={{ width: 40, display: "flex", justifyContent: "start" }}
+                  >
                     <IconButton
                       size="small"
                       onClick={() => handleRemove(item.id)}
-                      sx={{ color: "text.secondary", "&:hover": { color: "error.main" } }}
+                      sx={{
+                        p: 0.5,
+                        color: "text.secondary",
+                        "&:hover": { color: "error.main" },
+                      }}
                     >
                       <DeleteOutlineIcon fontSize="small" />
                     </IconButton>
-                  </Grid>
-                </Grid>
-                
+                  </Box>
+                </Stack>
+
                 {/* Row Feedback */}
                 <Stack direction="row" spacing={3} sx={{ px: 1.5, mb: 1.5 }}>
-                    <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "10px" }}>
-                       {dict.shipments.dialogs.fields.calculatedPallets}: <b>{(item.unit === "Pallet" ? item.quantity : (item.palletCount && item.palletCount > 0 ? item.quantity / item.palletCount : 0)).toFixed(2)}</b>
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "10px" }}>
-                       {dict.shipments.dialogs.fields.rowWeight}: <b>{(item.unit === "Pallet" ? (item.weightKg || 0) * (item.palletCount || 0) * item.quantity : (item.weightKg || 0) * item.quantity).toFixed(2)} KG</b>
-                    </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary", fontSize: "10px" }}
+                  >
+                    {dict.shipments.dialogs.fields.calculatedPallets}:{" "}
+                    <b>
+                      {(item.unit === "Pallet"
+                        ? item.quantity
+                        : item.palletCount && item.palletCount > 0
+                          ? item.quantity / item.palletCount
+                          : 0
+                      ).toFixed(2)}
+                    </b>
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary", fontSize: "10px" }}
+                  >
+                    {dict.shipments.dialogs.fields.rowWeight}:{" "}
+                    <b>
+                      {(item.unit === "Pallet"
+                        ? (item.weightKg || 0) *
+                          (item.palletCount || 0) *
+                          item.quantity
+                        : (item.weightKg || 0) * item.quantity
+                      ).toFixed(2)}{" "}
+                      KG
+                    </b>
+                  </Typography>
                 </Stack>
               </Box>
             ))}
@@ -309,10 +385,8 @@ const InventorySection = ({
         fullWidth
         PaperProps={{
           sx: {
-            bgcolor: "#0B0E14",
-            backgroundImage: "none",
             borderRadius: 3,
-            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+            border: "1px solid theme.palette.divider_alpha.main_10",
           },
         }}
       >
@@ -321,7 +395,9 @@ const InventorySection = ({
         </DialogTitle>
         <DialogContent
           dividers
-          sx={{ borderColor: theme.palette.divider_alpha.main_10 }}
+          sx={{
+            borderColor: "theme.palette.divider_alpha.main_10",
+          }}
         >
           <List>
             {availableInventory.map((product) => (
@@ -331,7 +407,7 @@ const InventorySection = ({
                   sx={{
                     borderRadius: 2,
                     "&:hover": {
-                      bgcolor: theme.palette.primary._alpha.main_10,
+                      bgcolor: "theme.palette.primary._alpha.main_10",
                     },
                   }}
                 >

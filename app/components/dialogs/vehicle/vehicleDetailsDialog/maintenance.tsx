@@ -28,6 +28,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import PendingIcon from "@mui/icons-material/Pending";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { getStatusMeta } from "@/app/lib/priorityColor";
 import { MenuItem, Select, FormControl } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
@@ -71,43 +72,27 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "COMPLETED":
-        return "success.main";
-      case "IN_PROGRESS":
-        return "info.main";
-      case "SCHEDULED":
-        return "warning.main";
-      case "CANCELLED":
-        return "error.main";
-      default:
-        return "success.main";
-    }
-  };
-
-  const getStatusAlpha = (status: string) => {
-    switch (status) {
-      case "COMPLETED":
-        return "success._alpha";
-      case "IN_PROGRESS":
-        return "info._alpha";
-      case "SCHEDULED":
-        return "warning._alpha";
-      case "CANCELLED":
-        return "error._alpha";
-      default:
-        return "success._alpha";
-    }
-  };
-
   const getStatusIcon = (status: string) => {
-    switch (status) {
+    const s = status?.toUpperCase();
+    switch (s) {
       case "COMPLETED":
         return <CheckCircleIcon sx={{ fontSize: 14 }} />;
       case "IN_PROGRESS":
-        return <PendingIcon sx={{ fontSize: 14 }} />;
+        return (
+          <PendingIcon 
+            sx={{ 
+              fontSize: 14,
+              animation: "pulse 2s infinite ease-in-out",
+              "@keyframes pulse": {
+                "0%": { opacity: 1, transform: "scale(1)" },
+                "50%": { opacity: 0.5, transform: "scale(1.2)" },
+                "100%": { opacity: 1, transform: "scale(1)" },
+              }
+            }} 
+          />
+        );
       case "SCHEDULED":
+      case "OPEN":
         return <ErrorIcon sx={{ fontSize: 14 }} />;
       case "CANCELLED":
         return <CancelIcon sx={{ fontSize: 14 }} />;
@@ -117,7 +102,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   };
 
   /* -------------------------------- variables ------------------------------- */
-  const maintenanceHistory = (vehicle.maintenanceRecords || []).slice(-4);
+  const maintenanceHistory = (vehicle.maintenanceRecords || []).slice(-10);
   const openIssues =
     vehicle.issues?.filter(
       (i) =>
@@ -157,12 +142,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                 width: 10,
                 height: 10,
                 borderRadius: "50%",
-                bgcolor:
-                  vehicle.status === VehicleStatus.AVAILABLE
-                    ? "success.main"
-                    : vehicle.status === VehicleStatus.MAINTENANCE
-                      ? "warning.main"
-                      : "info.main",
+                bgcolor: getStatusMeta(vehicle.status, dict).color,
               }}
             />
           </Stack>
@@ -299,7 +279,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                           height: 10,
                           width: 10,
                           borderRadius: "50%",
-                          bgcolor: "error.main",
+                          bgcolor: getStatusMeta(i.priority, dict).color,
                         }}
                       />
                       <Stack flexGrow={1}>
@@ -445,7 +425,9 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                           bgcolor: theme.palette.common.white_alpha.main_02,
                           cursor: "pointer",
                         },
-                        transition: "background-color 0.2s",
+                        transition: "all 0.2s",
+                        opacity: (v.status === "COMPLETED" || v.status === "CANCELLED") ? 0.5 : 1,
+                        filter: (v.status === "COMPLETED" || v.status === "CANCELLED") ? "grayscale(0.6)" : "none",
                       }}
                     >
                       <TableCell
@@ -499,40 +481,45 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                             theme.palette.common.white_alpha.main_05,
                         }}
                       >
-                        <Box
-                          sx={{
-                            padding: "4px 8px",
-                            borderRadius: "12px",
-                            bgcolor: `${getStatusAlpha(v.status || "COMPLETED")}.main_10`,
-                            border: `1px solid ${getStatusAlpha(v.status || "COMPLETED")}.main_20`,
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 1,
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              color: getStatusColor(v.status || "COMPLETED"),
-                              display: "flex",
-                            }}
-                          >
-                            {getStatusIcon(v.status || "COMPLETED")}
-                          </Box>
-                          <Typography
-                            sx={{
-                              fontSize: 11,
-                              fontWeight: 700,
-                              color: getStatusColor(v.status || "COMPLETED"),
-                              textTransform: "uppercase",
-                            }}
-                          >
-                            {dict.vehicles.statuses[
-                              v.status as keyof typeof dict.vehicles.statuses
-                            ] ||
-                              v.status ||
-                              dict.vehicles.statuses.COMPLETED}
-                          </Typography>
-                        </Box>
+                        {(() => {
+                          const statusMeta = getStatusMeta(
+                            v.status || "COMPLETED",
+                            dict
+                          );
+                          const paletteKey = statusMeta.paletteKey || "success";
+                          return (
+                            <Box
+                              sx={{
+                                padding: "4px 8px",
+                                borderRadius: "12px",
+                                bgcolor: `${paletteKey}._alpha.main_10`,
+                                border: `1px solid ${paletteKey}._alpha.main_20`,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 1,
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  color: `${paletteKey}.main`,
+                                  display: "flex",
+                                }}
+                              >
+                                {getStatusIcon(v.status || "COMPLETED")}
+                              </Box>
+                              <Typography
+                                sx={{
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  color: `${paletteKey}.main`,
+                                  textTransform: "uppercase",
+                                }}
+                              >
+                                {statusMeta.label}
+                              </Typography>
+                            </Box>
+                          );
+                        })()}
                       </TableCell>
                     </TableRow>
                   ))

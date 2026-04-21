@@ -1272,7 +1272,9 @@
       "duration": "SÜRE",
       "fleetId": "FİLO KİMLİĞİ",
       "noUnit": "BİRİM YOK",
-      "tbd": "Belirlenmedi"
+      "tbd": "Belirlenmedi",
+      "directConsignment": "Doğrudan Sevkiyat",
+      "oneTimeService": "Tek seferlik doğrudan hizmet"
     },
     "dialogs": {
       "addTitle": "Yeni Sevkiyat Oluştur",
@@ -1312,6 +1314,7 @@
         "customerClient": "MÜŞTERİ / ALICI",
         "customerPlaceholder": "Müşteri seçin",
         "customerLocation": "MÜŞTERİ KONUMU (DEPO)",
+        "deliveryLocation": "TESLİMAT LOKASYONU",
         "locationPlaceholder": "Depo seçin",
         "selectCustomerFirst": "Önce bir müşteri seçin",
         "contactEmail": "İLETİŞİM E-POSTASI",

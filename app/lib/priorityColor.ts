@@ -5,13 +5,12 @@ export const getPriorityColor = (priority: string): ChipProps["color"] => {
 
   switch (normalizedPriority) {
     case "CRITICAL":
-      return "error";
     case "HIGH":
-      return "warning";
+      return "error";
     case "MEDIUM":
-      return "info";
+      return "warning";
     case "LOW":
-      return "success";
+      return "info";
     default:
       return "default";
   }
@@ -24,7 +23,10 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
 
   // Helpers to get data from dict
   const getDictColor = (paletteKey: string, fallback: string) => {
-    return (dict as unknown as Record<string, Record<string, string>>)?.primaryColors?.[paletteKey] || fallback;
+    return (
+      (dict as unknown as Record<string, Record<string, string>>)
+        ?.primaryColors?.[paletteKey] || fallback
+    );
   };
 
   const getDictLabel = (key: string) => {
@@ -50,30 +52,20 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
   const label = getDictLabel(s);
 
   switch (s) {
-    case "AVAILABLE":
-    case "COMPLETED":
-    case "VALID":
-    case "ON_DUTY":
-    case "ON_JOB":
-    case "DELIVERED":
-    case "SUCCESS":
-    case "ON_TRIP":
-      return {
-        color: getDictColor("success", "#48BB78"),
-        paletteKey: "success",
-        label,
-      };
+    case "LOW":
     case "IN_PROGRESS":
     case "IN_TRANSIT":
     case "PICKED_UP":
     case "IN_SERVICE":
     case "IDLE":
     case "PROCESSING":
+    case "ON_TRIP":
       return {
         color: getDictColor("info", "#4299E1"),
         paletteKey: "info",
         label,
       };
+    case "MEDIUM":
     case "MAINTENANCE":
     case "SCHEDULED":
     case "PENDING":
@@ -81,30 +73,40 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     case "WARNING":
     case "PLANNED":
     case "ASSIGNED":
-    case "OFF_DUTY":
-    case "ON_LEAVE":
-    case "LOW":
-    case "MEDIUM":
     case "OPEN":
       return {
         color: getDictColor("warning", "#F6AD55"),
         paletteKey: "warning",
         label,
       };
+    case "HIGH":
+    case "CRITICAL":
     case "ERROR":
     case "EXPIRED":
-    case "HIGH":
     case "FAILED":
-    case "CRITICAL":
     case "DELAYED":
     case "CANCELLED":
-    case "CLOSED":
-    case "RESOLVED":
       return {
         color: getDictColor("error", "#F56565"),
         paletteKey: "error",
         label,
       };
+    case "RESOLVED":
+    case "CLOSED":
+    case "SUCCESS":
+    case "COMPLETED":
+    case "VALID":
+    case "AVAILABLE":
+    case "DELIVERED":
+    case "ON_DUTY":
+    case "ON_JOB":
+      return {
+        color: getDictColor("success", "#48BB78"),
+        paletteKey: "success",
+        label,
+      };
+    case "OFF_DUTY":
+    case "ON_LEAVE":
     default:
       return {
         color: getDictColor("secondary", "#718096"),

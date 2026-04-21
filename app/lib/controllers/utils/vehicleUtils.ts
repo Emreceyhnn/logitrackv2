@@ -41,3 +41,16 @@ export const VehicleDocumentConverter = (props: VehicleDashboardProps[]) => {
     }))
   );
 };
+
+export const VehicleServiceConverter = (props: VehicleDashboardProps[]) => {
+  return props.flatMap((v) =>
+    (v.maintenanceRecords || [])
+      .filter((m) => m.status === "SCHEDULED")
+      .map((m) => ({
+        id: v.id,
+        plate: v.plate,
+        serviceType: m.type,
+        serviceDate: m.date,
+      }))
+  );
+};

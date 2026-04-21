@@ -17,6 +17,7 @@ import {
   VehicleCapacityConverter,
   VehicleDocumentConverter,
   VehicleKpiConverter,
+  VehicleServiceConverter,
 } from "./utils/vehicleUtils";
 import {
   VehicleFilters,
@@ -360,6 +361,7 @@ export const createVehicleIssue = authenticatedAction(
         },
       });
 
+      await invalidateVehicleCache(companyId, vehicleId);
       return issue;
     } catch (error) {
       console.error("Failed to create vehicle issue:", error);
@@ -683,6 +685,7 @@ export const uploadVehicleDocument = authenticatedAction(
         },
       });
 
+      await invalidateVehicleCache(companyId, vehicleId);
       return doc;
     } catch (error) {
       console.error("Failed to upload document:", error);
@@ -712,7 +715,7 @@ export const updateIssue = authenticatedAction(
 
       const foundIssue = await db.issue.findUnique({
         where: { id: issueId },
-        select: { companyId: true },
+        select: { companyId: true, vehicleId: true },
       });
 
       if (!foundIssue || foundIssue.companyId !== companyId) {
@@ -724,6 +727,7 @@ export const updateIssue = authenticatedAction(
         data,
       });
 
+      await invalidateVehicleCache(companyId, foundIssue.vehicleId ?? undefined);
       return updatedIssue;
     } catch (error) {
       console.error("Failed to update issue:", error);
@@ -755,7 +759,7 @@ export const updateMaintenanceRecord = authenticatedAction(
 
       const foundRecord = await db.maintenanceRecord.findUnique({
         where: { id: recordId },
-        include: { vehicle: { select: { companyId: true } } },
+        include: { vehicle: { select: { companyId: true, id: true } } },
       });
 
       if (!foundRecord || foundRecord.vehicle.companyId !== companyId) {
@@ -767,6 +771,7 @@ export const updateMaintenanceRecord = authenticatedAction(
         data,
       });
 
+      await invalidateVehicleCache(companyId, foundRecord.vehicle.id);
       return updatedRecord;
     } catch (error) {
       console.error("Failed to update maintenance record:", error);
@@ -887,6 +892,16 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
               expiryDate: true,
             },
           },
+          maintenanceRecords: {
+            where: {
+              status: { in: ["SCHEDULED"] },
+            },
+            select: {
+              type: true,
+              date: true,
+              status: true,
+            },
+          },
         },
       });
 
@@ -899,8 +914,11 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
       const expiringDocs = VehicleDocumentConverter(
         vehicles as unknown as VehicleDashboardProps[]
       );
+      const plannedServices = VehicleServiceConverter(
+        vehicles as unknown as VehicleDashboardProps[]
+      );
 
-      return { vehiclesKpis, vehiclesCapacity, expiringDocs };
+      return { vehiclesKpis, vehiclesCapacity, expiringDocs, plannedServices };
     });
   } catch (error) {
     console.error("Failed to get vehicle kpi cards:", error);
@@ -917,6 +935,7 @@ export const getVehiclesWithDashboard = authenticatedAction(
     vehiclesKpis: ReturnType<typeof VehicleKpiConverter>;
     vehiclesCapacity: ReturnType<typeof VehicleCapacityConverter>;
     expiringDocs: ReturnType<typeof VehicleDocumentConverter>;
+    plannedServices: ReturnType<typeof VehicleServiceConverter>;
   }> => {
     const userId = user?.id || "";
     const companyId = user?.companyId || "";
@@ -1073,12 +1092,13 @@ export const getVehiclesWithDashboard = authenticatedAction(
 
       const dashboardInput = vehicles as unknown as VehicleDashboardProps[];
 
-      return {
-        vehicles: vehicles as unknown as VehicleWithRelations[],
-        vehiclesKpis: VehicleKpiConverter(dashboardInput),
-        vehiclesCapacity: VehicleCapacityConverter(dashboardInput),
-        expiringDocs: VehicleDocumentConverter(dashboardInput),
-      };
+        return {
+          vehicles: vehicles as unknown as VehicleWithRelations[],
+          vehiclesKpis: VehicleKpiConverter(dashboardInput),
+          vehiclesCapacity: VehicleCapacityConverter(dashboardInput),
+          expiringDocs: VehicleDocumentConverter(dashboardInput),
+          plannedServices: VehicleServiceConverter(dashboardInput),
+        };
       }); // end withCache
     } catch (error) {
       console.error("Failed to get vehicles with dashboard data:", error);

@@ -157,13 +157,13 @@ const FirstStep = ({
               />
 
               <Box
-                sx={(theme) => ({
+                sx={{
                   p: 2,
                   borderRadius: "50%",
-                  bgcolor: theme.palette.primary._alpha.main_10,
-                  color: theme.palette.primary.main,
+                  bgcolor: "theme.palette.primary._alpha.main_10",
+                  color: "theme.palette.primary.main",
                   mb: 1.5,
-                })}
+                }}
               >
                 <AddAPhotoIcon fontSize="large" />
               </Box>
@@ -277,6 +277,29 @@ const FirstStep = ({
         >
           <MenuItem value="TRUCK">{dict.vehicles.types.TRUCK}</MenuItem>
           <MenuItem value="VAN">{dict.vehicles.types.VAN}</MenuItem>
+        </TextField>
+
+        <TextField
+          fullWidth
+          select
+          name="status"
+          label={dict.vehicles.fields.status}
+          value={values.status}
+          onChange={formikHandleChange}
+          onBlur={handleBlur}
+          error={touched.status && Boolean(errors.status)}
+          helperText={touched.status && (errors.status as string)}
+          sx={textFieldSx}
+        >
+          <MenuItem value="AVAILABLE">
+            {dict.vehicles.statuses?.AVAILABLE || "Available"}
+          </MenuItem>
+          <MenuItem value="ON_TRIP">
+            {dict.vehicles.statuses?.ON_TRIP || "On Trip"}
+          </MenuItem>
+          <MenuItem value="MAINTENANCE">
+            {dict.vehicles.statuses?.MAINTENANCE || "Maintenance"}
+          </MenuItem>
         </TextField>
 
         <Stack direction="row" spacing={2}>

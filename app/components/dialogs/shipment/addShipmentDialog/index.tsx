@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Box,
   Dialog,
   DialogContent,
@@ -122,22 +121,25 @@ const AddShipmentDialog = ({
   }, [open, user]);
 
   /* -------------------------------- handlers --------------------------------- */
-  const handleFetchInventory = useCallback(async (warehouseId: string) => {
-    if (!warehouseId || !user) {
-      setAvailableInventory([]);
-      return;
-    }
-    setIsLoadingInventory(true);
-    try {
-      const inv = await getInventory(warehouseId);
-      setAvailableInventory(inv);
-    } catch (error) {
-      console.error("Failed to fetch warehouse inventory", error);
-      setAvailableInventory([]);
-    } finally {
-      setIsLoadingInventory(false);
-    }
-  }, [user]);
+  const handleFetchInventory = useCallback(
+    async (warehouseId: string) => {
+      if (!warehouseId || !user) {
+        setAvailableInventory([]);
+        return;
+      }
+      setIsLoadingInventory(true);
+      try {
+        const inv = await getInventory(warehouseId);
+        setAvailableInventory(inv);
+      } catch (error) {
+        console.error("Failed to fetch warehouse inventory", error);
+        setAvailableInventory([]);
+      } finally {
+        setIsLoadingInventory(false);
+      }
+    },
+    [user]
+  );
 
   const onSubmit = async (values: ShipmentFormValues) => {
     if (!user) return;
@@ -178,7 +180,8 @@ const AddShipmentDialog = ({
         setCurrentStep(1);
       }, 1500);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : dict.toasts.errorGeneric;
+      const message =
+        err instanceof Error ? err.message : dict.toasts.errorGeneric;
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -194,14 +197,17 @@ const AddShipmentDialog = ({
 
   const steps = [
     dict.shipments.dialogs.steps.logistics,
-    dict.shipments.dialogs.steps.cargo
+    dict.shipments.dialogs.steps.cargo,
   ];
 
   return (
     <GoogleMapsProvider>
       <Formik
         initialValues={initialValues}
-        validationSchema={useMemo(() => addShipmentValidationSchema(dict), [dict])}
+        validationSchema={useMemo(
+          () => addShipmentValidationSchema(dict),
+          [dict]
+        )}
         onSubmit={onSubmit}
         enableReinitialize
       >
@@ -313,7 +319,9 @@ const AddShipmentDialog = ({
                       <Stack spacing={6}>
                         <BasicInfoSection />
                         <Divider
-                          sx={{ borderColor: theme.palette.divider_alpha.main_05 }}
+                          sx={{
+                            borderColor: theme.palette.divider_alpha.main_05,
+                          }}
                         />
                         <LogisticsSection
                           warehouses={warehouses}
@@ -323,15 +331,14 @@ const AddShipmentDialog = ({
                     ) : (
                       <Stack spacing={6}>
                         <Grid container spacing={6}>
-                          <Grid size={{ xs: 12, lg: 6 }}>
+                          <Grid size={{ xs: 12, lg: 12 }}>
                             <CargoSection />
-                          </Grid>
-                          <Grid size={{ xs: 12, lg: 6 }}>
-                            <RouteSection routes={routes} />
                           </Grid>
                         </Grid>
                         <Divider
-                          sx={{ borderColor: theme.palette.divider_alpha.main_05 }}
+                          sx={{
+                            borderColor: theme.palette.divider_alpha.main_05,
+                          }}
                         />
                         <InventorySection
                           availableInventory={availableInventory}
@@ -354,34 +361,55 @@ const AddShipmentDialog = ({
                     onClick={
                       currentStep === 1 ? closeDialog : () => setCurrentStep(1)
                     }
-                    sx={{ color: "text.secondary", textTransform: "none" }}
+                    sx={{ 
+                      color: "text.secondary", 
+                      textTransform: "none",
+                      fontWeight: 600,
+                      px: 2,
+                      "&:hover": {
+                        color: "white",
+                        bgcolor: theme.palette.divider_alpha.main_05,
+                      }
+                    }}
                   >
                     {currentStep === 1 ? dict.common.cancel : dict.common.back}
                   </Button>
-
-                  <Button
-                    variant="contained"
-                    disabled={isLoading}
-                    onClick={
-                      currentStep === 1 ? handleNextStep : () => handleSubmit()
-                    }
-                    sx={{
-                      minWidth: 140,
-                      borderRadius: 2,
-                      textTransform: "none",
-                      fontWeight: 600,
-                      boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
-                    }}
-                    startIcon={
-                      isLoading && <CircularProgress size={16} color="inherit" />
-                    }
-                  >
-                    {isLoading
-                      ? dict.toasts.loading
-                      : currentStep === 1
-                        ? dict.common.next
-                        : dict.common.save}
-                  </Button>
+                  
+                  <Stack direction="row" spacing={2}>
+                    <Button
+                      variant="contained"
+                      disabled={isLoading}
+                      onClick={
+                        currentStep === 1 ? handleNextStep : () => handleSubmit()
+                      }
+                      sx={{
+                        minWidth: 140,
+                        borderRadius: 2,
+                        textTransform: "none",
+                        fontWeight: 700,
+                        letterSpacing: '0.5px',
+                        boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
+                        "&:hover": {
+                          boxShadow: `0 12px 32px ${theme.palette.primary._alpha.main_40}`,
+                          transform: 'translateY(-1px)',
+                        },
+                        "&:active": {
+                          transform: 'translateY(0)',
+                        }
+                      }}
+                      startIcon={
+                        isLoading && (
+                          <CircularProgress size={16} color="inherit" />
+                        )
+                      }
+                    >
+                      {isLoading
+                        ? dict.toasts.loading
+                        : currentStep === 1
+                          ? dict.common.next
+                          : dict.common.save}
+                    </Button>
+                  </Stack>
                 </DialogActions>
               </Dialog>
             </>

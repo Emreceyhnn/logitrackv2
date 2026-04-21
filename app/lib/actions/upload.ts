@@ -84,7 +84,7 @@ export const uploadImageAction = maybeAuthenticatedAction(
     const buffer = Buffer.from(base64Part, "base64");
 
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    const ext = mimeType.split("/en")[1];
+    const ext = mimeType.split("/")[1];
     const filePath = folder
       ? `${folder}/${fileName}.${ext}`
       : `${fileName}.${ext}`;
@@ -121,8 +121,8 @@ export const getSignedUrlAction = authenticatedAction(
   ): Promise<SignedUrlResult> => {
     validateFileUrl(fileUrl);
 
-    const urlParts = fileUrl.split("/en");
-    const path = urlParts.slice(urlParts.indexOf(bucket) + 1).join("/en");
+    const urlParts = fileUrl.split("/");
+    const path = urlParts.slice(urlParts.indexOf(bucket) + 1).join("/");
 
     if (!path) {
       return { success: true, url: fileUrl, signed: false };

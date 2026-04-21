@@ -232,43 +232,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           </Stack>
 
           <Stack direction="row" spacing={1} alignItems="center">
-            {vehicleData?.status === "MAINTENANCE" ? (
-              <Button
-                size="small"
-                variant="outlined"
-                color="success"
-                startIcon={<CheckCircleIcon />}
-                disabled={statusLoading}
-                onClick={() => handleStatusUpdate(VehicleStatus.AVAILABLE)}
-                sx={{
-                  borderRadius: 2,
-                  textTransform: "none",
-                  fontWeight: 600,
-                  bgcolor: theme.palette.success._alpha.main_05,
-                }}
-              >
-                {dict.vehicles.dialogs.returnToService}
-              </Button>
-            ) : (
-              vehicleData?.status === "AVAILABLE" && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  color="warning"
-                  startIcon={<BuildIcon />}
-                  disabled={statusLoading}
-                  onClick={() => handleStatusUpdate("MAINTENANCE" as VehicleStatus)}
-                  sx={{
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontWeight: 600,
-                    bgcolor: theme.palette.warning._alpha.main_05,
-                  }}
-                >
-                  {dict.vehicles.dialogs.setMaintenance}
-                </Button>
-              )
-            )}
+
             <IconButton
               onClick={onClose}
               size="small"

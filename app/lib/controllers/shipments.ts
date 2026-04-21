@@ -19,7 +19,7 @@ import {
   SHIPMENT_CACHE_TTL,
 } from "../redis";
 
-async function invalidateShipmentCache(companyId: string, shipmentId?: string) {
+export async function invalidateShipmentCache(companyId: string, shipmentId?: string) {
   await Promise.all([
     invalidatePattern(shipmentCacheKeys.companyPattern(companyId)),
     shipmentId ? redis.del(shipmentCacheKeys.detail(shipmentId)) : Promise.resolve(),
