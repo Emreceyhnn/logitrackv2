@@ -312,6 +312,8 @@ model Warehouse {
   movements InventoryMovement[]
   drivers   Driver[] // Home base for drivers
 
+  shipmentsOrigin Shipment[] @relation("ShipmentOrigin")
+
   companyId String?
   company   Company? @relation(fields: [companyId], references: [id])
 
@@ -424,7 +426,11 @@ model Shipment {
   driver   Driver? @relation(fields: [driverId], references: [id])
 
   status      ShipmentStatus @default(PENDING)
-  origin      String
+  
+  origin             String? // Legacy field, keeping for compatibility
+  originWarehouseId  String?
+  originWarehouse    Warehouse? @relation("ShipmentOrigin", fields: [originWarehouseId], references: [id])
+  
   originLat   Float?
   originLng   Float?
   destination String
@@ -432,6 +438,7 @@ model Shipment {
   destinationLng Float?
 
   itemsCount Int @default(1)
+  items      ShipmentItem[]
   priority    ShipmentPriority? @default(MEDIUM)
   type        String? @default("Standard Freight")
   slaDeadline DateTime?
@@ -628,4 +635,26 @@ model AuditLog {
   @@index([userId])
   @@index([action])
   @@map("audit_logs")
+}
+
+model ShipmentItem {
+  id         String   @id @default(cuid())
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  
+  sku        String
+  name       String
+  quantity   Int
+  unit       String   @default("Each")
+  
+  // Physical properties (snapshot at time of shipment)
+  weightKg    Float?  @default(0)
+  volumeM3    Float?  @default(0)
+  palletCount Float?  @default(0)
+  cargoType   String? @default("General Cargo")
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("shipment_items")
 }

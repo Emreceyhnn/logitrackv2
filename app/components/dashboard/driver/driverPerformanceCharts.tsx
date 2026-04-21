@@ -67,7 +67,7 @@ const DriverPerformanceCharts = ({
               series={[
                 {
                   data: ratings,
-                  color: "theme.palette.primary.main",
+                  color: "#8b5cf6",
                   label: dict.drivers.dashboard.ratingsLabel,
                   highlightScope: { highlight: "item", fade: "global" },
                 },
@@ -107,7 +107,7 @@ const DriverPerformanceCharts = ({
               series={[
                 {
                   data: workingHours,
-                  color: "theme.palette.secondary.main",
+                  color: "#10b981",
                   label: dict.drivers.dashboard.hoursThisWeek,
                   highlightScope: { highlight: "item", fade: "global" },
                 },

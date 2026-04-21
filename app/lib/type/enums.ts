@@ -250,7 +250,8 @@ export interface Shipment {
   customerLocationId?: string | null;
   driverId?: string | null;
   status: ShipmentStatus;
-  origin: string;
+  origin: string | null;
+  originWarehouseId?: string | null;
   originLat?: number | null;
   originLng?: number | null;
   destination: string;
@@ -367,6 +368,21 @@ export interface Company {
   id: string;
   name: string;
   avatarUrl?: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface ShipmentItem {
+  id: string;
+  shipmentId: string;
+  sku: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  weightKg?: number | null;
+  volumeM3?: number | null;
+  palletCount?: number | null;
+  cargoType?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

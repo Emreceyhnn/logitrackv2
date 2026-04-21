@@ -68,7 +68,7 @@ const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
             series={[
               {
                 data: values.map((v) => v.count),
-                color: "theme.palette.primary.main",
+                color: "#ff9800",
                 valueFormatter: (value: number | null) =>
                   dict.dashboard.overview.shipmentVolume.shipmentsCount.replace(
                     "{count}",

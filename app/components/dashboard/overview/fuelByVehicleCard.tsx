@@ -60,7 +60,7 @@ const FuelByVehicleCard = ({ values }: FuelByVehicleCardProps) => {
             yAxis={[
               {
                 tickLabelStyle: {
-                  fill: "theme.palette.text.secondary",
+                  fill: "theme.palette.error.main",
                   fontSize: 12,
                 },
               },
@@ -68,7 +68,7 @@ const FuelByVehicleCard = ({ values }: FuelByVehicleCardProps) => {
             series={[
               {
                 data: values.map((v) => v.value),
-                color: "theme.palette.primary.main",
+                color: "#ff9800",
                 valueFormatter: (value: number | null) => `${value || 0} L`,
               },
             ]}

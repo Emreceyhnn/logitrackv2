@@ -39,25 +39,25 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
       id: 0,
       value: 35,
       label: dict.analytics.costs.categories.fuel,
-      color: "theme.palette.error.main",
+      color: "#fca5a5",
     },
     {
       id: 1,
       value: 25,
       label: dict.analytics.costs.categories.maintenance,
-      color: "theme.palette.warning.main",
+      color: "#fcd34d",
     },
     {
       id: 2,
       value: 30,
       label: dict.analytics.costs.categories.salaries,
-      color: "theme.palette.info.main",
+      color: "#94a3b8",
     },
     {
       id: 3,
       value: 10,
       label: dict.analytics.costs.categories.insuranceOps,
-      color: "theme.palette.success.main",
+      color: "#10b981",
     },
   ];
 
@@ -109,7 +109,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
                 area: true,
                 stack: "total",
                 showMark: false,
-                color: "theme.palette.error.light",
+                color: "#fca5a5",
               },
               {
                 data: maintenanceCosts,
@@ -117,7 +117,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
                 area: true,
                 stack: "total",
                 showMark: false,
-                color: "theme.palette.warning.light",
+                color: "#fcd34d",
               },
               {
                 data: overheadCosts,
@@ -125,7 +125,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
                 area: true,
                 stack: "total",
                 showMark: false,
-                color: "theme.palette.action.disabled",
+                color: "#94a3b8",
               },
             ]}
             height={300}

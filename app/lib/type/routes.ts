@@ -37,7 +37,7 @@ export interface RouteWithRelations extends Route {
   shipments?: {
     id: string;
     status: string;
-    origin: string;
+    origin: string | null;
     destination: string;
   }[];
   metrics?: {

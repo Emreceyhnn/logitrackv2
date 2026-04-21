@@ -74,7 +74,7 @@ export default function ShipmentCharts({
                 {
                   dataKey: "count",
                   label: dict.shipments.dashboard.totalShipments,
-                  color: "theme.palette.primary.main",
+                  color: "#8b5cf6",
                 },
               ]}
               height={300}

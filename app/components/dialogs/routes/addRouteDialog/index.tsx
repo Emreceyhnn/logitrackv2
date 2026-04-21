@@ -167,7 +167,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
             if (shipment) {
               setSelectedShipmentId(shipmentId);
               const warehouse = warehouses.find(
-                (w) => w.id === shipment.origin
+                (w) => w.id === shipment.originWarehouseId || w.id === shipment.origin
               );
               const defaultLoc = shipment.customer?.locations?.find(
                 (l) => l.isDefault
@@ -203,7 +203,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                 setFieldValue("startId", warehouse.id);
                 setFieldValue("startType", "WAREHOUSE");
               } else {
-                setFieldValue("startAddress", shipment.origin);
+                setFieldValue("startAddress", shipment.origin || "");
                 setFieldValue(
                   "startLat",
                   typeof shipment.originLat === "number"

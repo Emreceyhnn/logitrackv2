@@ -10,7 +10,6 @@ interface FleetChartsProps {
 }
 
 export default function FleetCharts({ data, dict }: FleetChartsProps) {
-
   if (!data || data.length === 0) {
     return (
       <Box p={3}>
@@ -51,7 +50,7 @@ export default function FleetCharts({ data, dict }: FleetChartsProps) {
             {
               dataKey: "cost",
               label: dict.reports.charts.fleet.maintenanceCostLabel,
-              color: "theme.palette.error.main",
+              color: "#cbd5f5",
             },
           ]}
           height={300}

@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Box,
   Dialog,
   DialogContent,
@@ -62,7 +61,10 @@ const EditShipmentDialog = ({
   const theme = useTheme();
   const { user } = useUser();
   const dict = useDictionary();
-  const validationSchema = useMemo(() => editShipmentValidationSchema(dict), [dict]);
+  const validationSchema = useMemo(
+    () => editShipmentValidationSchema(dict),
+    [dict]
+  );
 
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
@@ -125,7 +127,7 @@ const EditShipmentDialog = ({
         (shipment.priority as ShipmentPriority) || ShipmentPriority.MEDIUM,
       type: shipment.type || "Standard Freight",
       slaDeadline: shipment.slaDeadline ? new Date(shipment.slaDeadline) : null,
-      originWarehouseId: shipment.origin || "",
+      originWarehouseId: shipment.originWarehouseId || shipment.origin || "",
       originLat: shipment.originLat ?? undefined,
       originLng: shipment.originLng ?? undefined,
       destination: shipment.destination || "",
@@ -140,7 +142,18 @@ const EditShipmentDialog = ({
       palletCount: shipment.palletCount || 0,
       cargoType: shipment.cargoType || "General Cargo",
       assignedRouteId: shipment.routeId || null,
-      inventoryItems: [],
+      inventoryItems:
+        shipment.items?.map((item) => ({
+          id: item.id,
+          sku: item.sku,
+          name: item.name,
+          quantity: item.quantity,
+          unit: item.unit as any,
+          weightKg: item.weightKg || 0,
+          volumeM3: item.volumeM3 || 0,
+          palletCount: item.palletCount || 1,
+          cargoType: item.cargoType || "General Cargo",
+        })) || [],
     };
   };
 
@@ -167,6 +180,7 @@ const EditShipmentDialog = ({
       await updateShipment(shipment.id, {
         customerId: values.customerId,
         origin: values.originWarehouseId,
+        originWarehouseId: values.originWarehouseId,
         destination: values.destination,
         itemsCount: values.inventoryItems.length || shipment.itemsCount || 1,
         weightKg: values.weightKg,
@@ -185,7 +199,8 @@ const EditShipmentDialog = ({
         contactEmail: values.contactEmail,
         billingAccount: values.billingAccount,
         customerLocationId: values.customerLocationId,
-      });
+        inventoryItems: values.inventoryItems, // Pass items for synchronization
+      } as any);
 
       toast.success(dict.toasts.successUpdate);
       setTimeout(() => {
@@ -208,10 +223,13 @@ const EditShipmentDialog = ({
     }
   };
 
-  const steps = useMemo(() => [
-    dict.shipments.dialogs.steps.logistics,
-    dict.shipments.dialogs.steps.cargo
-  ], [dict]);
+  const steps = useMemo(
+    () => [
+      dict.shipments.dialogs.steps.logistics,
+      dict.shipments.dialogs.steps.cargo,
+    ],
+    [dict]
+  );
 
   if (!shipment) return null;
 
@@ -252,171 +270,172 @@ const EditShipmentDialog = ({
 
           return (
             <>
-              <FormikInventorySync
-                onWarehouseChange={() => {}} 
-                open={open}
-              />
+              <FormikInventorySync onWarehouseChange={() => {}} open={open} />
               <Dialog
-              open={open}
-              onClose={closeDialog}
-              maxWidth="lg"
-              fullWidth
-              PaperProps={{
-                sx: {
-                  borderRadius: 4,
-                  bgcolor: "#0B1019",
-                  backgroundImage: "none",
-                  border: `1px solid ${theme.palette.divider_alpha.main_10}`,
-                },
-              }}
-            >
-              <Box sx={{ p: 3, pb: 0 }}>
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  sx={{ mb: 3 }}
-                >
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Box
-                      sx={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 2,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        bgcolor: theme.palette.warning._alpha.main_10,
-                        color: theme.palette.warning.main,
-                      }}
-                    >
-                      <EditIcon />
-                    </Box>
-                    <Stack spacing={0.5}>
-                      <Typography variant="h6" fontWeight={700} color="white">
-                        {dict.shipments.dialogs.editTitle}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {dict.shipments.dialogs.editSubtitle} {shipment.trackingId}
-                      </Typography>
-                    </Stack>
-                  </Stack>
-                  <IconButton
-                    onClick={closeDialog}
-                    sx={{ color: "text.secondary" }}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </Stack>
-
-                <Stepper
-                  activeStep={currentStep - 1}
-                  sx={{
-                    "& .MuiStepLabel-label": {
-                      color: theme.palette.common.white_alpha.main_50,
-                      fontWeight: 600,
-                    },
-                    "& .MuiStepLabel-label.Mui-active": {
-                      color: theme.palette.primary.main,
-                    },
-                    "& .MuiStepLabel-label.Mui-completed": {
-                      color: theme.palette.common.white_alpha.main_70,
-                    },
-                    "& .MuiStepIcon-root": {
-                      color: theme.palette.divider_alpha.main_10,
-                    },
-                    "& .MuiStepIcon-root.Mui-active": {
-                      color: theme.palette.primary.main,
-                    },
-                    "& .MuiStepIcon-root.Mui-completed": {
-                      color: theme.palette.primary.main,
-                    },
-                  }}
-                >
-                  {steps.map((label) => (
-                    <Step key={label}>
-                      <StepLabel>{label}</StepLabel>
-                    </Step>
-                  ))}
-                </Stepper>
-              </Box>
-
-              <DialogContent sx={{ mt: 2, pb: 4, minHeight: 400 }}>
-                <Form>
-                  {currentStep === 1 ? (
-                    <Stack spacing={6}>
-                      <BasicInfoSection />
-                      <Divider
-                        sx={{ borderColor: theme.palette.divider_alpha.main_05 }}
-                      />
-                      <LogisticsSection
-                        warehouses={warehouses}
-                        customers={customers}
-                      />
-                    </Stack>
-                  ) : (
-                    <Stack spacing={6}>
-                      <Grid container spacing={6}>
-                        <Grid size={{ xs: 12, lg: 6 }}>
-                          <CargoSection />
-                        </Grid>
-                        <Grid size={{ xs: 12, lg: 6 }}>
-                          <RouteSection routes={routes} />
-                        </Grid>
-                      </Grid>
-                      <Divider
-                        sx={{ borderColor: theme.palette.divider_alpha.main_05 }}
-                      />
-                      <InventorySection
-                        availableInventory={[]}
-                        isLoadingInventory={false}
-                      />
-                    </Stack>
-                  )}
-                </Form>
-              </DialogContent>
-
-              <DialogActions
-                sx={{
-                  p: 3,
-                  pt: 1,
-                  borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`,
-                  justifyContent: "space-between",
+                open={open}
+                onClose={closeDialog}
+                maxWidth="lg"
+                fullWidth
+                PaperProps={{
+                  sx: {
+                    borderRadius: 4,
+                    bgcolor: "#0B1019",
+                    backgroundImage: "none",
+                    border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+                  },
                 }}
               >
-                <Button
-                  onClick={
-                    currentStep === 1 ? closeDialog : () => setCurrentStep(1)
-                  }
-                  sx={{ color: "text.secondary", textTransform: "none" }}
-                >
-                  {currentStep === 1 ? dict.common.cancel : dict.common.back}
-                </Button>
+                <Box sx={{ p: 3, pb: 0 }}>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    sx={{ mb: 3 }}
+                  >
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Box
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 2,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          bgcolor: theme.palette.warning._alpha.main_10,
+                          color: theme.palette.warning.main,
+                        }}
+                      >
+                        <EditIcon />
+                      </Box>
+                      <Stack spacing={0.5}>
+                        <Typography variant="h6" fontWeight={700} color="white">
+                          {dict.shipments.dialogs.editTitle}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {dict.shipments.dialogs.editSubtitle}{" "}
+                          {shipment.trackingId}
+                        </Typography>
+                      </Stack>
+                    </Stack>
+                    <IconButton
+                      onClick={closeDialog}
+                      sx={{ color: "text.secondary" }}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  </Stack>
 
-                <Button
-                  variant="contained"
-                  disabled={isLoading}
-                  onClick={
-                    currentStep === 1 ? handleNextStep : () => handleSubmit()
-                  }
+                  <Stepper
+                    activeStep={currentStep - 1}
+                    sx={{
+                      "& .MuiStepLabel-label": {
+                        color: theme.palette.common.white_alpha.main_50,
+                        fontWeight: 600,
+                      },
+                      "& .MuiStepLabel-label.Mui-active": {
+                        color: theme.palette.primary.main,
+                      },
+                      "& .MuiStepLabel-label.Mui-completed": {
+                        color: theme.palette.common.white_alpha.main_70,
+                      },
+                      "& .MuiStepIcon-root": {
+                        color: theme.palette.divider_alpha.main_10,
+                      },
+                      "& .MuiStepIcon-root.Mui-active": {
+                        color: theme.palette.primary.main,
+                      },
+                      "& .MuiStepIcon-root.Mui-completed": {
+                        color: theme.palette.primary.main,
+                      },
+                    }}
+                  >
+                    {steps.map((label) => (
+                      <Step key={label}>
+                        <StepLabel>{label}</StepLabel>
+                      </Step>
+                    ))}
+                  </Stepper>
+                </Box>
+
+                <DialogContent sx={{ mt: 2, pb: 4, minHeight: 400 }}>
+                  <Form>
+                    {currentStep === 1 ? (
+                      <Stack spacing={6}>
+                        <BasicInfoSection />
+                        <Divider
+                          sx={{
+                            borderColor: theme.palette.divider_alpha.main_05,
+                          }}
+                        />
+                        <LogisticsSection
+                          warehouses={warehouses}
+                          customers={customers}
+                        />
+                      </Stack>
+                    ) : (
+                      <Stack spacing={6}>
+                        <Grid container spacing={6}>
+                          <Grid size={{ xs: 12, lg: 12 }}>
+                            <CargoSection />
+                          </Grid>
+                        </Grid>
+                        <Divider
+                          sx={{
+                            borderColor: theme.palette.divider_alpha.main_05,
+                          }}
+                        />
+                        <InventorySection
+                          availableInventory={[]}
+                          isLoadingInventory={false}
+                        />
+                      </Stack>
+                    )}
+                  </Form>
+                </DialogContent>
+
+                <DialogActions
                   sx={{
-                    minWidth: 140,
-                    borderRadius: 2,
-                    textTransform: "none",
-                    fontWeight: 600,
-                    boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
+                    p: 3,
+                    pt: 1,
+                    borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`,
+                    justifyContent: "space-between",
                   }}
-                  startIcon={
-                    isLoading && <CircularProgress size={16} color="inherit" />
-                  }
                 >
-                  {isLoading
-                    ? dict.toasts.loading
-                    : currentStep === 1
-                      ? dict.common.next
-                      : dict.common.save}
-                </Button>
-              </DialogActions>
+                  <Button
+                    onClick={
+                      currentStep === 1 ? closeDialog : () => setCurrentStep(1)
+                    }
+                    sx={{ color: "text.secondary", textTransform: "none" }}
+                  >
+                    {currentStep === 1 ? dict.common.cancel : dict.common.back}
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    disabled={isLoading}
+                    onClick={
+                      currentStep === 1 ? handleNextStep : () => handleSubmit()
+                    }
+                    sx={{
+                      minWidth: 140,
+                      borderRadius: 2,
+                      textTransform: "none",
+                      fontWeight: 600,
+                      boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
+                    }}
+                    startIcon={
+                      isLoading && (
+                        <CircularProgress size={16} color="inherit" />
+                      )
+                    }
+                  >
+                    {isLoading
+                      ? dict.toasts.loading
+                      : currentStep === 1
+                        ? dict.common.next
+                        : dict.common.save}
+                  </Button>
+                </DialogActions>
               </Dialog>
             </>
           );

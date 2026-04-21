@@ -39,6 +39,66 @@ const LogisticsSection = ({ warehouses, customers }: LogisticsSectionProps) => {
           </Typography>
         </Stack>
 
+        {/* Selected Origin Preview Card */}
+        {values.originWarehouseId &&
+          warehouses.find((w) => w.id === values.originWarehouseId) && (
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 3,
+                bgcolor: "rgba(255, 255, 255, 0.03)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 2,
+                  bgcolor: "primary.main",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  boxShadow: "0 4px 12px rgba(139, 92, 246, 0.3)",
+                }}
+              >
+                <WarehouseIcon />
+              </Box>
+              <Stack spacing={0.25}>
+                <Typography
+                  variant="caption"
+                  color="primary.light"
+                  fontWeight={700}
+                  sx={{ letterSpacing: 0.5, textTransform: "uppercase" }}
+                >
+                  {dict.shipments.dialogs.fields.originWarehouse.toUpperCase()}
+                </Typography>
+                <Typography variant="body1" fontWeight={700} color="white">
+                  {
+                    warehouses.find((w) => w.id === values.originWarehouseId)
+                      ?.name
+                  }
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {
+                    warehouses.find((w) => w.id === values.originWarehouseId)
+                      ?.city
+                  }
+                  ,{" "}
+                  {
+                    warehouses.find((w) => w.id === values.originWarehouseId)
+                      ?.address
+                  }
+                </Typography>
+              </Stack>
+            </Box>
+          )}
+
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1}>

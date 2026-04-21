@@ -5,6 +5,7 @@ import {
   Company,
   ShipmentStatus,
   ShipmentPriority,
+  ShipmentItem,
 } from "./enums";
 import { CustomerWithRelations } from "./customer";
 import { InventoryShipmentItem } from "./add-shipment";
@@ -23,6 +24,7 @@ export interface ShipmentWithRelations
     | "slaDeadline"
     | "contactEmail"
     | "billingAccount"
+    | "originWarehouseId"
   > {
   status: ShipmentStatus;
   priority: ShipmentPriority | null;
@@ -32,6 +34,7 @@ export interface ShipmentWithRelations
   destinationLng: number | null;
   customer: CustomerWithRelations | null;
   customerLocationId: string | null;
+  originWarehouseId: string | null;
   driver: {
     id: string;
     user: {
@@ -51,6 +54,7 @@ export interface ShipmentWithRelations
   // For detail view
   company?: Company | null;
   history?: ShipmentHistory[];
+  items?: ShipmentItem[];
 }
 
 // KPI / Stats

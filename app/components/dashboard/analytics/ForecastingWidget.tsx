@@ -73,13 +73,13 @@ export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
           {
             data: actualsSeries,
             label: dict.analytics.forecasting.actualVolume,
-            color: "theme.palette.primary.main",
+            color: "#8b5cf6",
             showMark: true,
           },
           {
             data: predictedSeries,
             label: dict.analytics.forecasting.predicted,
-            color: "theme.palette.secondary.main",
+            color: "#10b981",
             showMark: true,
           },
         ]}

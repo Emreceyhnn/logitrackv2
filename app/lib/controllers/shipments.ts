@@ -33,29 +33,58 @@ interface CustomerWithLocations extends Customer {
 export const createShipment = authenticatedAction(
   async (
     user,
-    customerId: string | null | undefined,
-    origin: string,
-    destination: string,
-    status: ShipmentStatus = ShipmentStatus.PENDING,
-    itemsCount: number = 1,
-    weightKg: number = 0,
-    volumeM3: number = 0,
-    palletCount: number = 0,
-    cargoType: string = "General Cargo",
-    destinationLat?: number,
-    destinationLng?: number,
-    originLat?: number,
-    originLng?: number,
-    trackingId?: string,
-    customerLocationId?: string,
-    priority: ShipmentPriority = ShipmentPriority.MEDIUM,
-    type: string = "Standard Freight",
-    slaDeadline?: Date | null,
-    contactEmail?: string,
-    billingAccount?: string
+    data: {
+      customerId?: string | null;
+      origin: string;
+      destination: string;
+      status?: ShipmentStatus;
+      itemsCount?: number;
+      weightKg?: number;
+      volumeM3?: number;
+      palletCount?: number;
+      cargoType?: string;
+      destinationLat?: number;
+      destinationLng?: number;
+      originLat?: number;
+      originLng?: number;
+      trackingId?: string;
+      customerLocationId?: string;
+      priority?: ShipmentPriority;
+      type?: string;
+      slaDeadline?: Date | null;
+      contactEmail?: string;
+      billingAccount?: string;
+      originWarehouseId?: string;
+      inventoryItems?: any[];
+    }
   ) => {
     const userId = user?.id;
     const companyId = user?.companyId;
+
+    const {
+      customerId,
+      origin,
+      destination,
+      status = ShipmentStatus.PENDING,
+      itemsCount = 1,
+      weightKg = 0,
+      volumeM3 = 0,
+      palletCount = 0,
+      cargoType = "General Cargo",
+      destinationLat,
+      destinationLng,
+      originLat,
+      originLng,
+      trackingId,
+      customerLocationId,
+      priority = ShipmentPriority.MEDIUM,
+      type = "Standard Freight",
+      slaDeadline,
+      contactEmail,
+      billingAccount,
+      originWarehouseId,
+      inventoryItems = [],
+    } = data;
     try {
       await checkPermission(userId, companyId, [
         "role_admin",
@@ -118,6 +147,7 @@ export const createShipment = authenticatedAction(
           customerId: customerId || undefined,
           customerLocationId: customerLocationId || undefined,
           origin,
+          originWarehouseId: originWarehouseId || (origin.length === 36 ? origin : undefined), // Heuristic or explicit
           originLat,
           originLng,
           destination: finalDestination,
@@ -141,6 +171,18 @@ export const createShipment = authenticatedAction(
               description: "Shipment created",
               createdBy: userId,
             },
+          },
+          items: {
+            create: inventoryItems.map((item: any) => ({
+              sku: item.sku,
+              name: item.name,
+              quantity: item.quantity,
+              unit: item.unit,
+              weightKg: item.weightKg,
+              volumeM3: item.volumeM3,
+              palletCount: item.palletCount,
+              cargoType: item.cargoType,
+            })),
           },
         },
       });
@@ -316,6 +358,7 @@ export const getShipments = authenticatedAction(async (user) => {
           },
         },
         route: true,
+        items: true,
       },
       orderBy: { createdAt: "desc" },
       });
@@ -356,6 +399,7 @@ export const getShipmentById = authenticatedAction(
               createdAt: "desc",
             },
           },
+          items: true,
         },
       });
 
@@ -395,9 +439,47 @@ export const updateShipment = authenticatedAction(
         throw new Error("Shipment not found or unauthorized");
       }
 
-      const updateData = { ...data };
+      const updateData = { ...data } as any;
       if (updateData.trackingId === "") {
         updateData.trackingId = `TRK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+      }
+
+      // Handle items synchronization if provided
+      const items = (updateData as any).inventoryItems;
+      if (items) {
+        delete updateData.inventoryItems;
+        
+        // Use a transaction for safety
+        const updatedShipment = await db.$transaction(async (tx) => {
+          // 1. Delete existing items
+          await tx.shipmentItem.deleteMany({
+            where: { shipmentId },
+          });
+
+          // 2. Create new items
+          return tx.shipment.update({
+            where: { id: shipmentId },
+            data: {
+              ...updateData,
+              items: {
+                create: items.map((item: any) => ({
+                  sku: item.sku,
+                  name: item.name,
+                  quantity: item.quantity,
+                  unit: item.unit,
+                  weightKg: item.weightKg,
+                  volumeM3: item.volumeM3,
+                  palletCount: item.palletCount,
+                  cargoType: item.cargoType,
+                })),
+              },
+            },
+            include: { items: true },
+          });
+        });
+        
+        await invalidateShipmentCache(companyId!, shipmentId);
+        return updatedShipment;
       }
 
       const updatedShipment = await db.shipment.update({
@@ -644,6 +726,7 @@ export const getShipmentsWithDashboardData = authenticatedAction(
               },
             },
             route: true,
+            items: true,
           },
           orderBy: { createdAt: "desc" },
           skip,

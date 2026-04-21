@@ -150,28 +150,30 @@ const AddShipmentDialog = ({
       );
       const originName = selectedWarehouse?.name || values.originWarehouseId;
 
-      await createShipment(
-        values.customerId,
-        originName,
-        values.destination,
-        ShipmentStatus.PENDING,
-        values.inventoryItems.length || 1,
-        values.weightKg,
-        values.volumeM3,
-        values.palletCount,
-        values.cargoType,
-        values.destinationLat,
-        values.destinationLng,
-        values.originLat,
-        values.originLng,
-        values.referenceNumber,
-        values.customerLocationId,
-        values.priority,
-        values.type,
-        values.slaDeadline,
-        values.contactEmail,
-        values.billingAccount
-      );
+      await createShipment({
+        customerId: values.customerId,
+        origin: originName,
+        originWarehouseId: values.originWarehouseId,
+        destination: values.destination,
+        status: ShipmentStatus.PENDING,
+        itemsCount: values.inventoryItems.length || 1,
+        weightKg: values.weightKg,
+        volumeM3: values.volumeM3,
+        palletCount: values.palletCount,
+        cargoType: values.cargoType,
+        destinationLat: values.destinationLat,
+        destinationLng: values.destinationLng,
+        originLat: values.originLat,
+        originLng: values.originLng,
+        trackingId: values.referenceNumber,
+        customerLocationId: values.customerLocationId,
+        priority: values.priority,
+        type: values.type,
+        slaDeadline: values.slaDeadline,
+        contactEmail: values.contactEmail,
+        billingAccount: values.billingAccount,
+        inventoryItems: values.inventoryItems,
+      });
 
       toast.success(dict.toasts.successAdd);
       setTimeout(() => {

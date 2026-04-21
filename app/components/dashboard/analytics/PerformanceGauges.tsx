@@ -62,7 +62,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
                   fontWeight: "bold",
                 },
                 [`& .${gaugeClasses.valueArc}`]: {
-                  fill: "theme.palette.success.main",
+                  fill: "#10b981",
                 },
               }}
               text={({ value }) => `${value}%`}
@@ -112,7 +112,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
                   fontWeight: "bold",
                 },
                 [`& .${gaugeClasses.valueArc}`]: {
-                  fill: "theme.palette.primary.main",
+                  fill: "#8b5cf6",
                 },
               }}
               text={({ value }) => `${value}%`}
@@ -158,7 +158,7 @@ export default function PerformanceGauges({ data }: PerformanceGaugesProps) {
                   fontWeight: "bold",
                 },
                 [`& .${gaugeClasses.valueArc}`]: {
-                  fill: "theme.palette.secondary.main",
+                  fill: "#fcd34d",
                 },
               }}
               text={({ value }) => `${value}`}
