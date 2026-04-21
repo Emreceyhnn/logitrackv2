@@ -975,7 +975,14 @@
     "addInventory": "Add Inventory",
     "searchPlaceholder": "Search product, SKU...",
     "filter": "Filter",
-    "filters": "Filters",
+    "filters": {
+      "title": "Filter Inventory",
+      "warehouse": "Warehouse",
+      "status": "Stock Status",
+      "reset": "Reset Filters",
+      "apply": "Apply Filters",
+      "cancel": "Cancel"
+    },
     "noItems": "No inventory items found",
     "table": {
       "productName": "Product Name",

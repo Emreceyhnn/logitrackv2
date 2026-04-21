@@ -26,11 +26,14 @@ export const inventoryKeys = {
     page: number,
     pageSize: number,
     warehouseId?: string,
-    search?: string
+    search?: string,
+    sortBy?: string,
+    sortOrder?: "asc" | "desc",
+    status?: string[]
   ) =>
     [
       ...inventoryKeys.dashboard(),
-      { page, pageSize, warehouseId, search },
+      { page, pageSize, warehouseId, search, sortBy, sortOrder, status },
     ] as const,
 };
 
@@ -46,17 +49,31 @@ export function useInventoryWithDashboard(
   page: number = 1,
   pageSize: number = 10,
   warehouseId?: string,
-  search?: string
+  search?: string,
+  sortBy?: string,
+  sortOrder?: "asc" | "desc",
+  status?: string[]
 ) {
   return useQuery({
     queryKey: inventoryKeys.dashboardWithFilters(
       page,
       pageSize,
       warehouseId,
-      search
+      search,
+      sortBy,
+      sortOrder,
+      status
     ),
     queryFn: () =>
-      getInventoryWithDashboardData(page, pageSize, warehouseId, search),
+      getInventoryWithDashboardData(
+        page,
+        pageSize,
+        warehouseId,
+        search,
+        sortBy,
+        sortOrder,
+        status
+      ),
     staleTime: 1000 * 60 * 5,
   });
 }

@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AddInventoryDialogProps,
   AddInventoryItemDetails,
@@ -49,6 +49,7 @@ const AddInventoryDialog = ({
   open,
   onClose,
   onSuccess,
+  initialWarehouseId,
 }: AddInventoryDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
@@ -63,6 +64,13 @@ const AddInventoryDialog = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formKey, setFormKey] = useState(0);
+
+  /* --------------------------------- effects --------------------------------- */
+  useEffect(() => {
+    if (open && initialWarehouseId) {
+      setStorageLevels((prev) => ({ ...prev, warehouseId: initialWarehouseId }));
+    }
+  }, [open, initialWarehouseId]);
 
   /* ---------------------------------- handlers --------------------------------- */
   const updateItemDetails = (data: Partial<AddInventoryItemDetails>) =>

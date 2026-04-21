@@ -975,7 +975,14 @@
     "addInventory": "Envanter Ekle",
     "searchPlaceholder": "Ürün, SKU ara...",
     "filter": "Filtre",
-    "filters": "Filtreler",
+    "filters": {
+      "title": "Envanteri Filtrele",
+      "warehouse": "Depo",
+      "status": "Stok Durumu",
+      "reset": "Filtreleri Sıfırla",
+      "apply": "Filtreleri Uygula",
+      "cancel": "İptal"
+    },
     "noItems": "Envanter öğesi bulunamadı",
     "table": {
       "productName": "Ürün Adı",

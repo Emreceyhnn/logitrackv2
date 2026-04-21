@@ -40,4 +40,5 @@ export interface AddInventoryDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  initialWarehouseId?: string;
 }

@@ -7,7 +7,446 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enums
+model Company {
+  id                 String              @id @default(cuid())
+  name               String              @unique
+  avatarUrl          String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  customers          Customer[]
+  documents          Document[]
+  drivers            Driver[]
+  fuelLogs           FuelLog[]
+  inventory          Inventory[]
+  inventoryMovements InventoryMovement[]
+  issues             Issue[]
+  routes             Route[]
+  shipments          Shipment[]
+  users              User[]
+  vehicles           Vehicle[]
+  warehouses         Warehouse[]
+
+  @@map("companies")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  permissions String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+
+  @@map("roles")
+}
+
+model User {
+  id                 String              @id @default(cuid())
+  email              String              @unique
+  name               String
+  surname            String
+  password           String?
+  avatarUrl          String?
+  roleId             String?
+  status             UserStatus          @default(ACTIVE)
+  lastLoginAt        DateTime?
+  companyId          String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  auditLogs          AuditLog[]
+  driver             Driver?
+  inventoryMovements InventoryMovement[]
+  sessions           Session[]
+  company            Company?            @relation(fields: [companyId], references: [id])
+  role               Role?               @relation(fields: [roleId], references: [id])
+  managedWarehouses  Warehouse[]
+
+  @@map("users")
+}
+
+model Driver {
+  id                  String       @id @default(cuid())
+  userId              String       @unique
+  employeeId          String       @unique
+  licenseNumber       String?
+  licenseType         String?
+  licenseExpiry       DateTime?
+  phone               String
+  status              DriverStatus @default(OFF_DUTY)
+  safetyScore         Int?
+  efficiencyScore     Int?
+  rating              Float?
+  hazmatCertified     Boolean      @default(false)
+  languages           String[]
+  currentVehicleId    String?      @unique
+  companyId           String?
+  homeBaseWarehouseId String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  documents           Document[]
+  company             Company?     @relation(fields: [companyId], references: [id])
+  currentVehicle      Vehicle?     @relation(fields: [currentVehicleId], references: [id])
+  homeBaseWarehouse   Warehouse?   @relation(fields: [homeBaseWarehouseId], references: [id])
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fuelLogs            FuelLog[]
+  issues              Issue[]
+  routes              Route[]
+  shipments           Shipment[]
+
+  @@map("drivers")
+}
+
+model Vehicle {
+  id                 String              @id @default(cuid())
+  fleetNo            String              @unique
+  plate              String              @unique
+  type               VehicleType
+  brand              String
+  model              String
+  year               Int
+  status             VehicleStatus       @default(AVAILABLE)
+  maxLoadKg          Int
+  fuelType           String
+  currentLat         Float?
+  currentLng         Float?
+  fuelLevel          Int?
+  odometerKm         Int?
+  companyId          String?
+  nextServiceKm      Int?
+  avgFuelConsumption Float?
+  registrationExpiry DateTime?
+  inspectionExpiry   DateTime?
+  engineSize         String?
+  transmission       String?
+  techNotes          String?
+  photo              String?
+  enableAlerts       Boolean?            @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  documents          Document[]
+  driver             Driver?
+  fuelLogs           FuelLog[]
+  issues             Issue[]
+  maintenanceRecords MaintenanceRecord[]
+  routes             Route[]
+  company            Company?            @relation(fields: [companyId], references: [id])
+
+  @@map("vehicles")
+}
+
+model MaintenanceRecord {
+  id          String            @id @default(cuid())
+  vehicleId   String
+  type        String
+  date        DateTime
+  cost        Float
+  status      MaintenanceStatus @default(COMPLETED)
+  description String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  vehicle     Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@map("maintenance_records")
+}
+
+model Warehouse {
+  id               String              @id @default(cuid())
+  code             String              @unique
+  name             String
+  type             WarehouseType
+  address          String
+  city             String
+  country          String
+  lat              Float?
+  lng              Float?
+  capacityPallets  Int                 @default(5000)
+  capacityVolumeM3 Int                 @default(100000)
+  operatingHours   String?             @default("08:00 - 18:00")
+  specifications   String[]            @default([])
+  managerId        String?
+  companyId        String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  drivers          Driver[]
+  inventory        Inventory[]
+  movements        InventoryMovement[]
+  shipmentsOrigin  Shipment[]          @relation("ShipmentOrigin")
+  company          Company?            @relation(fields: [companyId], references: [id])
+  manager          User?               @relation(fields: [managerId], references: [id])
+
+  @@map("warehouses")
+}
+
+model Customer {
+  id        String             @id @default(cuid())
+  code      String             @unique
+  name      String
+  industry  String?
+  taxId     String?
+  email     String?
+  phone     String?
+  companyId String?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  locations CustomerLocation[]
+  company   Company?           @relation(fields: [companyId], references: [id])
+  shipments Shipment[]
+
+  @@map("customers")
+}
+
+model CustomerLocation {
+  id         String     @id @default(cuid())
+  customerId String
+  name       String
+  address    String
+  lat        Float?
+  lng        Float?
+  isDefault  Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  customer   Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  shipments  Shipment[]
+
+  @@map("customer_locations")
+}
+
+model Inventory {
+  id          String    @id @default(cuid())
+  warehouseId String
+  sku         String
+  name        String
+  quantity    Int
+  minStock    Int       @default(0)
+  imageUrl    String?
+  unitValue   Float?    @default(0)
+  unit        String    @default("Each")
+  weightKg    Float?    @default(0)
+  volumeM3    Float?    @default(0)
+  palletCount Float?    @default(0)
+  cargoType   String?   @default("General Cargo")
+  updatedAt   DateTime  @updatedAt
+  companyId   String?
+  company     Company?  @relation(fields: [companyId], references: [id])
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+
+  @@unique([warehouseId, sku])
+  @@map("inventory")
+}
+
+model InventoryMovement {
+  id          String    @id @default(cuid())
+  warehouseId String
+  sku         String
+  quantity    Int
+  type        String
+  date        DateTime  @default(now())
+  userId      String?
+  companyId   String?
+  company     Company?  @relation(fields: [companyId], references: [id])
+  user        User?     @relation(fields: [userId], references: [id])
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+
+  @@map("inventory_movements")
+}
+
+model Shipment {
+  id                 String            @id @default(cuid())
+  trackingId         String            @unique
+  customerId         String?
+  customerLocationId String?
+  driverId           String?
+  status             ShipmentStatus    @default(PENDING)
+  origin             String?
+  originLat          Float?
+  originLng          Float?
+  destination        String
+  destinationLat     Float?
+  destinationLng     Float?
+  itemsCount         Int               @default(1)
+  priority           ShipmentPriority? @default(MEDIUM)
+  type               String?           @default("Standard Freight")
+  slaDeadline        DateTime?
+  weightKg           Float?            @default(0)
+  volumeM3           Float?            @default(0)
+  palletCount        Float?            @default(0)
+  cargoType          String?           @default("General Cargo")
+  contactEmail       String?
+  billingAccount     String?           @default("Standard Billing (Net 30)")
+  routeId            String?
+  companyId          String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  originWarehouseId  String?
+  issues             Issue[]
+  history            ShipmentHistory[]
+  items              ShipmentItem[]
+  company            Company?          @relation(fields: [companyId], references: [id])
+  customer           Customer?         @relation(fields: [customerId], references: [id])
+  customerLocation   CustomerLocation? @relation(fields: [customerLocationId], references: [id])
+  driver             Driver?           @relation(fields: [driverId], references: [id])
+  originWarehouse    Warehouse?        @relation("ShipmentOrigin", fields: [originWarehouseId], references: [id])
+  route              Route?            @relation(fields: [routeId], references: [id])
+
+  @@map("shipments")
+}
+
+model ShipmentHistory {
+  id          String   @id @default(cuid())
+  shipmentId  String
+  status      String
+  location    String?
+  description String?
+  createdAt   DateTime @default(now())
+  createdBy   String?
+  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@map("shipment_history")
+}
+
+model Route {
+  id           String      @id @default(cuid())
+  name         String?
+  status       RouteStatus @default(PLANNED)
+  date         DateTime
+  startTime    DateTime?
+  endTime      DateTime?
+  distanceKm   Float?
+  durationMin  Int?
+  startAddress String?
+  startLat     Float?
+  startLng     Float?
+  endAddress   String?
+  endLat       Float?
+  endLng       Float?
+  driverId     String?
+  vehicleId    String?
+  companyId    String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  company      Company?    @relation(fields: [companyId], references: [id])
+  driver       Driver?     @relation(fields: [driverId], references: [id])
+  vehicle      Vehicle?    @relation(fields: [vehicleId], references: [id])
+  shipments    Shipment[]
+
+  @@map("routes")
+}
+
+model Document {
+  id         String    @id @default(cuid())
+  type       String
+  name       String
+  url        String
+  expiryDate DateTime?
+  status     String
+  driverId   String?
+  vehicleId  String?
+  companyId  String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  company    Company?  @relation(fields: [companyId], references: [id])
+  driver     Driver?   @relation(fields: [driverId], references: [id])
+  vehicle    Vehicle?  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+model FuelLog {
+  id          String   @id @default(cuid())
+  vehicleId   String
+  driverId    String
+  companyId   String
+  date        DateTime @default(now())
+  volumeLiter Float
+  cost        Float
+  odometerKm  Int
+  location    String?
+  fuelType    String
+  receiptUrl  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  company     Company  @relation(fields: [companyId], references: [id])
+  driver      Driver   @relation(fields: [driverId], references: [id])
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@map("fuel_logs")
+}
+
+model Issue {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  status      IssueStatus   @default(OPEN)
+  priority    IssuePriority @default(MEDIUM)
+  type        IssueType     @default(OTHER)
+  vehicleId   String?
+  driverId    String?
+  shipmentId  String?
+  companyId   String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  company     Company?      @relation(fields: [companyId], references: [id])
+  driver      Driver?       @relation(fields: [driverId], references: [id])
+  shipment    Shipment?     @relation(fields: [shipmentId], references: [id])
+  vehicle     Vehicle?      @relation(fields: [vehicleId], references: [id])
+
+  @@map("issues")
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  userId         String
+  token          String   @unique
+  refreshToken   String   @unique
+  deviceInfo     String?
+  ipAddress      String?
+  lastActivityAt DateTime @default(now())
+  expiresAt      DateTime
+  isRevoked      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([refreshToken])
+  @@map("sessions")
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  userId     String?
+  action     AuditAction
+  ipAddress  String?
+  deviceInfo String?
+  metadata   String?
+  createdAt  DateTime    @default(now())
+  user       User?       @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+model ShipmentItem {
+  id          String   @id @default(cuid())
+  shipmentId  String
+  sku         String
+  name        String
+  quantity    Int
+  unit        String   @default("Each")
+  weightKg    Float?   @default(0)
+  volumeM3    Float?   @default(0)
+  palletCount Float?   @default(0)
+  cargoType   String?  @default("General Cargo")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@map("shipment_items")
+}
+
 enum UserRole {
   ADMIN
   MANAGER
@@ -104,557 +543,9 @@ enum IssueType {
   OTHER
 }
 
-// Models
-
-model Company {
-  id                 String              @id @default(cuid())
-  name               String              @unique
-  avatarUrl          String?
-  users              User[]
-  warehouses         Warehouse[]
-  vehicles           Vehicle[]
-  drivers            Driver[]
-  shipments          Shipment[]
-  routes             Route[]
-  customers          Customer[]
-  inventory          Inventory[]
-  inventoryMovements InventoryMovement[]
-  documents          Document[]
-  issues             Issue[]
-  fuelLogs           FuelLog[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-
-  @@map("companies")
-}
-
-model Role {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  permissions String[]
-  users       User[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("roles")
-}
-
-model User {
-  id                 String              @id @default(cuid())
-
-  email              String              @unique
-  name               String
-  surname            String
-  password           String?
-  avatarUrl          String?
-  roleId             String?
-  role               Role?               @relation(fields: [roleId], references: [id])
-  status             UserStatus          @default(ACTIVE)
-  lastLoginAt        DateTime?
-  companyId          String?
-  company            Company?            @relation(fields: [companyId], references: [id])
-  // Relations
-  driver             Driver?
-  managedWarehouses  Warehouse[] // Managers can manage multiple warehouses
-  inventoryMovements InventoryMovement[]
-  sessions           Session[]
-  auditLogs          AuditLog[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("users")
-}
-
-model Driver {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  employeeId    String    @unique
-  licenseNumber String?
-  licenseType   String?
-  licenseExpiry DateTime?
-
-  phone  String
-  status DriverStatus @default(OFF_DUTY)
-
-  // Compliance & Metrics
-  safetyScore     Int?
-  efficiencyScore Int?
-  rating          Float?
-  hazmatCertified Boolean  @default(false)
-  languages       String[]
-
-  // Relations
-  currentVehicleId String?  @unique
-  currentVehicle   Vehicle? @relation(fields: [currentVehicleId], references: [id], onDelete: SetNull)
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-
-  homeBaseWarehouseId String?
-  homeBaseWarehouse   Warehouse? @relation(fields: [homeBaseWarehouseId], references: [id])
-
-  shipments Shipment[]
-  fuelLogs  FuelLog[]
-  routes    Route[]
-  documents Document[]
-  issues    Issue[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("drivers")
-}
-
-model Vehicle {
-  id      String      @id @default(cuid())
-  fleetNo String      @unique
-  plate   String      @unique
-  type    VehicleType
-  brand   String
-  model   String
-  year    Int
-
-  status VehicleStatus @default(AVAILABLE)
-
-  // Specs
-  maxLoadKg Int
-  fuelType  String // DIESEL, ELECTRIC, etc.
-
-  // Live Status (Simplified for now)
-  currentLat Float?
-  currentLng Float?
-  fuelLevel  Int?
-  odometerKm Int?
-
-  // Relations
-  driver Driver? // Reverse relation from Driver.currentVehicle 
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-
-  nextServiceKm      Int?
-  avgFuelConsumption Float?
-  registrationExpiry DateTime? // Ruhsat süresi
-  inspectionExpiry   DateTime? // Muayene süresi
-
-  engineSize   String?
-  transmission String?
-  techNotes    String?
-
-  photo        String?
-  enableAlerts Boolean? @default(true)
-
-  maintenanceRecords MaintenanceRecord[]
-  fuelLogs           FuelLog[]
-  routes             Route[]
-  documents          Document[]
-  issues             Issue[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("vehicles")
-}
-
 enum MaintenanceStatus {
   SCHEDULED
   IN_PROGRESS
   COMPLETED
   CANCELLED
-}
-
-model MaintenanceRecord {
-  id        String  @id @default(cuid())
-  vehicleId String
-  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-
-  type        String // Routine, Repair, etc.
-  date        DateTime
-  cost        Float
-  status      MaintenanceStatus @default(COMPLETED)
-  description String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("maintenance_records")
-}
-
-model Warehouse {
-  id   String        @id @default(cuid())
-  code String        @unique
-  name String
-  type WarehouseType
-
-  // Address
-  address String
-  city    String
-  country String
-  lat     Float?
-  lng     Float?
-
-  // Capacity
-  capacityPallets  Int      @default(5000)
-  capacityVolumeM3 Int      @default(100000)
-  operatingHours   String?  @default("08:00 - 18:00")
-  specifications   String[] @default([])
-
-  // Management
-  managerId String?
-  manager   User?   @relation(fields: [managerId], references: [id])
-
-  // Relations
-  inventory Inventory[]
-  movements InventoryMovement[]
-  drivers   Driver[] // Home base for drivers
-
-  shipmentsOrigin Shipment[] @relation("ShipmentOrigin")
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("warehouses")
-}
-
-model Customer {
-  id       String  @id @default(cuid())
-  code     String  @unique
-  name     String
-  industry String?
-  taxId    String?
-
-  // Contact
-  email   String?
-  phone   String?
-
-  locations CustomerLocation[]
-  shipments Shipment[]
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("customers")
-}
-
-model CustomerLocation {
-  id         String   @id @default(cuid())
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  
-  name       String   // e.g., "HQ", "Izmir Branch"
-  address    String
-  lat        Float?
-  lng        Float?
-  isDefault  Boolean  @default(false)
-  
-  shipments  Shipment[]
-  
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@map("customer_locations")
-}
-
-model Inventory {
-  id          String    @id @default(cuid())
-  warehouseId String
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
-
-  sku      String // Keeping simple for now, could be its own model
-  name     String
-  quantity Int
-  minStock Int    @default(0)
-  imageUrl String?
-  unitValue Float?   @default(0)
-  unit      String   @default("Each")
-
-  // Physical Properties for Shipping
-  weightKg    Float?  @default(0)
-  volumeM3    Float?  @default(0)
-  palletCount Float?  @default(0)
-  cargoType   String? @default("General Cargo")
-
-  updatedAt DateTime @updatedAt
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-
-  @@unique([warehouseId, sku])
-  @@map("inventory")
-}
-
-model InventoryMovement {
-  id          String    @id @default(cuid())
-  warehouseId String
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
-
-  sku      String
-  quantity Int
-  type     String // PICK, PUTAWAY, ADJUSTMENT
-  date     DateTime @default(now())
-
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id])
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-
-  @@map("inventory_movements")
-}
-
-model Shipment {
-  id         String @id @default(cuid())
-  trackingId String @unique
-
-  customerId String?
-  customer   Customer? @relation(fields: [customerId], references: [id])
-
-  customerLocationId String?
-  customerLocation   CustomerLocation? @relation(fields: [customerLocationId], references: [id])
-
-  driverId String?
-  driver   Driver? @relation(fields: [driverId], references: [id])
-
-  status      ShipmentStatus @default(PENDING)
-  
-  origin             String? // Legacy field, keeping for compatibility
-  originWarehouseId  String?
-  originWarehouse    Warehouse? @relation("ShipmentOrigin", fields: [originWarehouseId], references: [id])
-  
-  originLat   Float?
-  originLng   Float?
-  destination String
-  destinationLat Float?
-  destinationLng Float?
-
-  itemsCount Int @default(1)
-  items      ShipmentItem[]
-  priority    ShipmentPriority? @default(MEDIUM)
-  type        String? @default("Standard Freight")
-  slaDeadline DateTime?
-
-  // Physical Properties (Total for the shipment)
-  weightKg    Float?  @default(0)
-  volumeM3    Float?  @default(0)
-  palletCount Float?  @default(0)
-  cargoType   String? @default("General Cargo")
-
-  contactEmail   String?
-  billingAccount String? @default("Standard Billing (Net 30)")
-
-  routeId String?
-  route   Route?  @relation(fields: [routeId], references: [id])
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-
-  history ShipmentHistory[]
-  issues  Issue[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("shipments")
-}
-
-model ShipmentHistory {
-  id         String   @id @default(cuid())
-  shipmentId String
-  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
-
-  status      String
-  location    String?
-  description String?
-
-  createdAt DateTime @default(now())
-  createdBy String? // User ID or System
-
-  @@map("shipment_history")
-}
-
-model Route {
-  id     String      @id @default(cuid())
-  name   String?
-  status RouteStatus @default(PLANNED)
-
-  // Scheduling
-  date      DateTime
-  startTime DateTime?
-  endTime   DateTime?
-
-  // Metrics
-  distanceKm  Float?
-  durationMin Int?
-
-  // Location
-  startAddress String?
-  startLat     Float?
-  startLng     Float?
-
-  endAddress String?
-  endLat     Float?
-  endLng     Float?
-
-  // Relations
-  driverId String?
-  driver   Driver? @relation(fields: [driverId], references: [id])
-
-  vehicleId String?
-  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
-
-  shipments Shipment[]
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("routes")
-}
-
-model Document {
-  id         String    @id @default(cuid())
-  type       String // LICENSE, INSURANCE, PERMIT, etc.
-  name       String
-  url        String
-  expiryDate DateTime?
-  status     String
-
-  // Relations - A document can belong to a Driver OR a Vehicle
-  driverId String?
-  driver   Driver? @relation(fields: [driverId], references: [id])
-
-  vehicleId String?
-  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("documents")
-}
-
-model FuelLog {
-  id        String  @id @default(cuid())
-  vehicleId String
-  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  driverId  String
-  driver    Driver  @relation(fields: [driverId], references: [id])
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-
-  date        DateTime @default(now())
-  volumeLiter Float
-  cost        Float
-  odometerKm  Int
-  location    String?
-  fuelType    String // DIESEL, ELECTRIC_KWH, etc.
-
-  receiptUrl String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("fuel_logs")
-}
-
-model Issue {
-  id          String  @id @default(cuid())
-  title       String
-  description String?
-  status      IssueStatus    @default(OPEN)
-  priority    IssuePriority  @default(MEDIUM)
-  type        IssueType      @default(OTHER)
-
-  // Relations
-  vehicleId String?
-  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
-
-  driverId String?
-  driver   Driver? @relation(fields: [driverId], references: [id])
-
-  shipmentId String?
-  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("issues")
-}
-
-model Session {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  token          String   @unique
-  refreshToken   String   @unique
-  deviceInfo     String?
-  ipAddress      String?
-  lastActivityAt DateTime @default(now())
-  expiresAt      DateTime
-  isRevoked      Boolean  @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@index([token])
-  @@index([refreshToken])
-  @@map("sessions")
-}
-
-model AuditLog {
-  id     String  @id @default(cuid())
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  action     AuditAction
-  ipAddress  String?
-  deviceInfo String?
-  metadata   String?
-
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@index([action])
-  @@map("audit_logs")
-}
-
-model ShipmentItem {
-  id         String   @id @default(cuid())
-  shipmentId String
-  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
-  
-  sku        String
-  name       String
-  quantity   Int
-  unit       String   @default("Each")
-  
-  // Physical properties (snapshot at time of shipment)
-  weightKg    Float?  @default(0)
-  volumeM3    Float?  @default(0)
-  palletCount Float?  @default(0)
-  cargoType   String? @default("General Cargo")
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@map("shipment_items")
 }

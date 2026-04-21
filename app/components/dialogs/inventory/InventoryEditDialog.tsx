@@ -12,7 +12,6 @@ import {
   IconButton,
   InputAdornment,
   Stack,
-  
   useTheme,
   Divider,
 } from "@mui/material";
@@ -26,7 +25,10 @@ import {
 import { useForm, Controller, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { InventoryEditProps, InventoryWithRelations } from "@/app/lib/type/inventory";
+import {
+  InventoryEditProps,
+  InventoryWithRelations,
+} from "@/app/lib/type/inventory";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -51,15 +53,36 @@ export default function InventoryEditDialog({
   const theme = useTheme();
   const dict = useDictionary();
 
-  const validationSchema = React.useMemo(() => yup.object({
-    sku: yup.string().optional(),
-    imageUrl: yup.string().optional().nullable(),
-    quantity: yup.number().typeError(dict.common.noData).required(dict.common.noData).min(0, dict.common.noData),
-    minStock: yup.number().typeError(dict.common.noData).required(dict.common.noData).min(0, dict.common.noData),
-    weightKg: yup.number().nullable().transform((v) => (v === "" || isNaN(v) ? null : v)),
-    volumeM3: yup.number().nullable().transform((v) => (v === "" || isNaN(v) ? null : v)),
-    palletCount: yup.number().nullable().transform((v) => (v === "" || isNaN(v) ? null : v)),
-  }), [dict]);
+  const validationSchema = React.useMemo(
+    () =>
+      yup.object({
+        sku: yup.string().optional(),
+        imageUrl: yup.string().optional().nullable(),
+        quantity: yup
+          .number()
+          .typeError(dict.common.noData)
+          .required(dict.common.noData)
+          .min(0, dict.common.noData),
+        minStock: yup
+          .number()
+          .typeError(dict.common.noData)
+          .required(dict.common.noData)
+          .min(0, dict.common.noData),
+        weightKg: yup
+          .number()
+          .nullable()
+          .transform((v) => (v === "" || isNaN(v) ? null : v)),
+        volumeM3: yup
+          .number()
+          .nullable()
+          .transform((v) => (v === "" || isNaN(v) ? null : v)),
+        palletCount: yup
+          .number()
+          .nullable()
+          .transform((v) => (v === "" || isNaN(v) ? null : v)),
+      }),
+    [dict]
+  );
 
   const {
     control,
@@ -101,14 +124,14 @@ export default function InventoryEditDialog({
   // However, reset is still useful if item updates while open (though key on ID covers most cases).
   useEffect(() => {
     if (item && isOpen) {
-       // Only reset if we actually have an item and it's open, but key=item.id should handle most cases.
-       // We keep it as a safety if item properties change without ID change.
+      // Only reset if we actually have an item and it's open, but key=item.id should handle most cases.
+      // We keep it as a safety if item properties change without ID change.
     }
   }, [item, isOpen, reset]);
 
   const handleNumChange = (
-    val: string, 
-    setLocal: (v: string) => void, 
+    val: string,
+    setLocal: (v: string) => void,
     fieldChange: (v: number | null) => void,
     isFloat: boolean = false
   ) => {
@@ -155,29 +178,37 @@ export default function InventoryEditDialog({
       "&:hover fieldset": { borderColor: theme.palette.primary._alpha.main_30 },
       "&.Mui-focused fieldset": { borderColor: theme.palette.primary.main },
     },
-    "& .MuiInputLabel-root": { color: theme.palette.common.white_alpha.main_50 },
+    "& .MuiInputLabel-root": {
+      color: theme.palette.common.white_alpha.main_50,
+    },
     "& .MuiInputLabel-root.Mui-focused": { color: theme.palette.primary.main },
-    "& .MuiInputAdornment-root .MuiTypography-root": { color: theme.palette.common.white_alpha.main_30 },
+    "& .MuiInputAdornment-root .MuiTypography-root": {
+      color: theme.palette.common.white_alpha.main_30,
+    },
   };
 
   return (
-    <Dialog 
-      open={isOpen} 
-      onClose={onClose} 
-      fullWidth 
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      fullWidth
       maxWidth="sm"
       PaperProps={{
-        sx: { 
+        sx: {
           bgcolor: "#0B0F19",
           backgroundImage: "none",
-          borderRadius: 4, 
+          borderRadius: 4,
           border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           overflow: "hidden",
-        }
+        },
       }}
     >
       <Box sx={{ p: 3, pb: 2 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Stack direction="row" spacing={2} alignItems="center">
             <Box
               sx={{
@@ -197,12 +228,20 @@ export default function InventoryEditDialog({
               <Typography variant="h6" fontWeight={700} color="white">
                 {dict.inventory.dialogs.editItem}
               </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: -0.5 }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: "block", mt: -0.5 }}
+              >
                 {item.name} • {item.warehouse.name}
               </Typography>
             </Box>
           </Stack>
-          <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }}>
+          <IconButton
+            onClick={onClose}
+            size="small"
+            sx={{ color: "text.secondary" }}
+          >
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
@@ -216,15 +255,27 @@ export default function InventoryEditDialog({
             {/* Section 1: Stock Levels */}
             <Box>
               <Stack direction="row" spacing={1} alignItems="center" mb={2}>
-                <InventoryIcon sx={{ color: theme.palette.primary.main, fontSize: "1.2rem" }} />
-                <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ letterSpacing: "1px", textTransform: "uppercase" }}>
+                <InventoryIcon
+                  sx={{ color: theme.palette.primary.main, fontSize: "1.2rem" }}
+                />
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                  sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
+                >
                   {dict.inventory.dialogs.productInfo}
                 </Typography>
               </Stack>
-              
+
               <Grid container spacing={3}>
                 <Grid size={{ xs: 12 }}>
-                  <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ display: "block", mb: 1.5 }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    fontWeight={700}
+                    sx={{ display: "block", mb: 1.5 }}
+                  >
                     {dict.inventory.dialogs.productImage}
                   </Typography>
                   <Controller
@@ -253,7 +304,13 @@ export default function InventoryEditDialog({
                         }}
                       >
                         {field.value ? (
-                          <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
+                          <Box
+                            sx={{
+                              position: "relative",
+                              width: "100%",
+                              height: "100%",
+                            }}
+                          >
                             <Box
                               component="img"
                               src={field.value}
@@ -273,7 +330,9 @@ export default function InventoryEditDialog({
                                 right: 8,
                                 bgcolor: theme.palette.error._alpha.main_80,
                                 color: "white",
-                                "&:hover": { bgcolor: theme.palette.error.main },
+                                "&:hover": {
+                                  bgcolor: theme.palette.error.main,
+                                },
                               }}
                             >
                               <DeleteIcon fontSize="small" />
@@ -291,7 +350,9 @@ export default function InventoryEditDialog({
                                 if (file) {
                                   const reader = new FileReader();
                                   reader.onload = (event) => {
-                                    field.onChange(event.target?.result as string);
+                                    field.onChange(
+                                      event.target?.result as string
+                                    );
                                   };
                                   reader.readAsDataURL(file);
                                 }
@@ -310,9 +371,17 @@ export default function InventoryEditDialog({
                               }}
                             >
                               <AddPhotoAlternateIcon
-                                sx={{ fontSize: 32, color: theme.palette.common.white_alpha.main_20, mb: 1 }}
+                                sx={{
+                                  fontSize: 32,
+                                  color:
+                                    theme.palette.common.white_alpha.main_20,
+                                  mb: 1,
+                                }}
                               />
-                              <Typography variant="caption" color="text.secondary">
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
                                 {dict.inventory.dialogs.clickToChange}
                               </Typography>
                             </label>
@@ -348,7 +417,13 @@ export default function InventoryEditDialog({
                         type="number"
                         fullWidth
                         value={localQuantity}
-                        onChange={(e) => handleNumChange(e.target.value, setLocalQuantity, field.onChange)}
+                        onChange={(e) =>
+                          handleNumChange(
+                            e.target.value,
+                            setLocalQuantity,
+                            field.onChange
+                          )
+                        }
                         error={!!errors.quantity}
                         helperText={errors.quantity?.message}
                         sx={textFieldSx}
@@ -367,7 +442,13 @@ export default function InventoryEditDialog({
                         type="number"
                         fullWidth
                         value={localMinStock}
-                        onChange={(e) => handleNumChange(e.target.value, setLocalMinStock, field.onChange)}
+                        onChange={(e) =>
+                          handleNumChange(
+                            e.target.value,
+                            setLocalMinStock,
+                            field.onChange
+                          )
+                        }
                         error={!!errors.minStock}
                         helperText={errors.minStock?.message}
                         sx={textFieldSx}
@@ -390,7 +471,11 @@ export default function InventoryEditDialog({
                 }}
               >
                 <WarningIcon color="warning" sx={{ fontSize: "1.1rem" }} />
-                <Typography variant="caption" color="warning.light" sx={{ fontWeight: 600, lineHeight: 1.4 }}>
+                <Typography
+                  variant="caption"
+                  color="warning.light"
+                  sx={{ fontWeight: 600, lineHeight: 1.4 }}
+                >
                   {dict.inventory.dialogs.auditWarning}
                 </Typography>
               </Box>
@@ -399,8 +484,18 @@ export default function InventoryEditDialog({
             {/* Section 2: Physical Attributes */}
             <Box>
               <Stack direction="row" spacing={1} alignItems="center" mb={2}>
-                <SettingsIcon sx={{ color: theme.palette.secondary.main, fontSize: "1.2rem" }} />
-                <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ letterSpacing: "1px", textTransform: "uppercase" }}>
+                <SettingsIcon
+                  sx={{
+                    color: theme.palette.secondary.main,
+                    fontSize: "1.2rem",
+                  }}
+                />
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  color="text.secondary"
+                  sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
+                >
                   {dict.inventory.dialogs.loadParams}
                 </Typography>
               </Stack>
@@ -417,9 +512,18 @@ export default function InventoryEditDialog({
                         type="number"
                         fullWidth
                         value={localWeight}
-                        onChange={(e) => handleNumChange(e.target.value, setLocalWeight, field.onChange, true)}
-                        InputProps={{ 
-                          endAdornment: <InputAdornment position="end">Kg</InputAdornment>,
+                        onChange={(e) =>
+                          handleNumChange(
+                            e.target.value,
+                            setLocalWeight,
+                            field.onChange,
+                            true
+                          )
+                        }
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">Kg</InputAdornment>
+                          ),
                         }}
                         sx={textFieldSx}
                       />
@@ -437,9 +541,18 @@ export default function InventoryEditDialog({
                         type="number"
                         fullWidth
                         value={localVolume}
-                        onChange={(e) => handleNumChange(e.target.value, setLocalVolume, field.onChange, true)}
-                        InputProps={{ 
-                          endAdornment: <InputAdornment position="end">M³</InputAdornment>,
+                        onChange={(e) =>
+                          handleNumChange(
+                            e.target.value,
+                            setLocalVolume,
+                            field.onChange,
+                            true
+                          )
+                        }
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">M³</InputAdornment>
+                          ),
                         }}
                         sx={textFieldSx}
                       />
@@ -457,7 +570,14 @@ export default function InventoryEditDialog({
                         type="number"
                         fullWidth
                         value={localPalletCount}
-                        onChange={(e) => handleNumChange(e.target.value, setLocalPalletCount, field.onChange, true)}
+                        onChange={(e) =>
+                          handleNumChange(
+                            e.target.value,
+                            setLocalPalletCount,
+                            field.onChange,
+                            true
+                          )
+                        }
                         sx={textFieldSx}
                       />
                     )}
@@ -470,11 +590,23 @@ export default function InventoryEditDialog({
 
         <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
 
-        <Box sx={{ p: 3, px: 4, bgcolor: theme.palette.background.default_alpha.main_10 }}>
+        <Box
+          sx={{
+            p: 3,
+            px: 4,
+            bgcolor: theme.palette.background.default_alpha.main_10,
+          }}
+        >
           <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button 
-              onClick={onClose} 
-              sx={{ px: 3, fontWeight: 600, color: "text.secondary", textTransform: "none", "&:hover": { color: "white" } }}
+            <Button
+              onClick={onClose}
+              sx={{
+                px: 3,
+                fontWeight: 600,
+                color: "text.secondary",
+                textTransform: "none",
+                "&:hover": { color: "white" },
+              }}
             >
               {dict.inventory.dialogs.discardChanges}
             </Button>
@@ -482,16 +614,18 @@ export default function InventoryEditDialog({
               type="submit"
               variant="contained"
               disabled={isSubmitting}
-              sx={{ 
+              sx={{
                 minWidth: 160,
-                borderRadius: 2, 
+                borderRadius: 2,
                 fontWeight: 700,
                 textTransform: "none",
                 boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
                 py: 1.2,
               }}
             >
-              {isSubmitting ? dict.common.saving : dict.inventory.dialogs.commitUpdate}
+              {isSubmitting
+                ? dict.common.saving
+                : dict.inventory.dialogs.commitUpdate}
             </Button>
           </Stack>
         </Box>

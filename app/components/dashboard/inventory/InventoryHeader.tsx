@@ -12,12 +12,14 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface InventoryHeaderProps {
+  value: string;
   onSearch: (value: string) => void;
   onFilterClick: () => void;
   onAddClick: () => void;
 }
 
 const InventoryHeader = ({
+  value,
   onSearch,
   onFilterClick,
   onAddClick,
@@ -45,6 +47,7 @@ const InventoryHeader = ({
         <TextField
           placeholder={dict.inventory.searchPlaceholder}
           size="small"
+          value={value}
           onChange={(e) => onSearch(e.target.value)}
           slotProps={{
             input: {
@@ -58,7 +61,7 @@ const InventoryHeader = ({
           sx={{ width: { xs: "100%", md: 300 } }}
         />
 
-        <Tooltip title={dict.inventory.filters}>
+        <Tooltip title={dict.inventory.filters?.title || "Filter Inventory"}>
           <Button
             variant="outlined"
             startIcon={<FilterListIcon />}

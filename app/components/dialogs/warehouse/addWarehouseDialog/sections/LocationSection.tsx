@@ -208,56 +208,6 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
           </Grid>
         </Grid>
 
-        <Box sx={{ mt: 2 }}>
-          <Stack
-            direction="row"
-            spacing={1.5}
-            alignItems="center"
-            sx={{ mb: 2 }}
-          >
-            <Box
-              sx={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                bgcolor: theme.palette.primary.main,
-              }}
-            />
-            <Typography variant="subtitle1" fontWeight={700} color="white">
-              {f.locationPreview}
-            </Typography>
-          </Stack>
-          <Box
-            sx={{
-              width: "100%",
-              height: 200,
-              borderRadius: 3,
-              bgcolor: theme.palette.divider_alpha.main_05,
-              border: `1px solid ${theme.palette.divider_alpha.main_10}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                opacity: 0.2,
-                backgroundImage: `radial-gradient(${theme.palette.primary.main} 0.5px, transparent 0.5px)`,
-                backgroundSize: "20px 20px",
-              }}
-            />
-            <Typography variant="body2" color="text.secondary">
-              {f.mapPending}
-            </Typography>
-          </Box>
-        </Box>
       </Stack>
     </Box>
   );

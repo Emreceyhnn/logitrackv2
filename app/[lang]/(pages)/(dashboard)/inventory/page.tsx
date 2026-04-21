@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useMemo, Suspense } from "react";
+import { useCallback, useState, useMemo, Suspense, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { Box, Divider, Stack, Typography } from "@mui/material";
@@ -17,6 +17,7 @@ import InventoryDetailsDialog from "@/app/components/dialogs/inventory/Inventory
 import InventoryEditDialog from "@/app/components/dialogs/inventory/InventoryEditDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import AddInventoryDialog from "@/app/components/dialogs/inventory/addInventoryDialog";
+import InventoryFilterDialog from "@/app/components/dialogs/inventory/InventoryFilterDialog";
 import {
   Inventory as InventoryIcon,
   Warning,
@@ -46,7 +47,13 @@ function InventoryContent() {
   const [filters, setFilters] = useState({
     search: "",
     warehouseId: undefined as string | undefined,
+    status: [] as string[],
   });
+  const [sort, setSort] = useState<{ field?: string; order: "asc" | "desc" }>({
+    field: "name",
+    order: "asc",
+  });
+  const [displaySearch, setDisplaySearch] = useState("");
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 10,
@@ -56,6 +63,7 @@ function InventoryContent() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
@@ -66,8 +74,21 @@ function InventoryContent() {
     pagination.page,
     pagination.pageSize,
     filters.warehouseId,
-    filters.search
+    filters.search,
+    sort.field,
+    sort.order,
+    filters.status
   );
+
+  // Debouncing effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, search: displaySearch }));
+      setPagination((prev) => ({ ...prev, page: 1 }));
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [displaySearch]);
 
   const { deleteItem: deleteMutation, updateItem: updateMutation } =
     useInventoryMutations();
@@ -111,12 +132,10 @@ function InventoryContent() {
   const items = dashboardData?.items || [];
   const stats = dashboardData?.stats;
 
-
   const selectedItem =
     (items as InventoryWithRelations[]).find(
       (i: InventoryWithRelations) => i.id === selectedItemId
     ) || null;
-
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleDeleteRequest = (id: string) => {
@@ -124,10 +143,18 @@ function InventoryContent() {
     setIsDeleteOpen(true);
   };
 
+  const handleSortRequest = (field: string) => {
+    setSort((prev) => ({
+      field,
+      order: prev.field === field && prev.order === "asc" ? "desc" : "asc",
+    }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
+
   const handleDeleteConfirm = async () => {
-    if (!selectedItem) return;
+    if (!selectedItemId) return;
     try {
-      await deleteMutation.mutateAsync(selectedItem.id);
+      await deleteMutation.mutateAsync(selectedItemId);
       setIsDeleteOpen(false);
     } catch (error) {
       console.error("Delete failed", error);
@@ -180,8 +207,9 @@ function InventoryContent() {
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       <InventoryHeader
-        onSearch={(val) => actions.updateFilters({ search: val })}
-        onFilterClick={() => {}}
+        value={displaySearch}
+        onSearch={(val) => setDisplaySearch(val)}
+        onFilterClick={() => setIsFilterOpen(true)}
         onAddClick={() => setIsAddOpen(true)}
       />
       <KpiCards kpis={kpiItems} loading={loading} />
@@ -207,6 +235,9 @@ function InventoryContent() {
             onLimitChange={(pageSize) =>
               setPagination({ page: 1, pageSize: pageSize })
             }
+            sortField={sort.field}
+            sortOrder={sort.order}
+            onRequestSort={handleSortRequest}
           />
         </CustomCard>
       </Stack>
@@ -242,6 +273,19 @@ function InventoryContent() {
           selectedItem?.name || ""
         )}
         loading={deleteMutation.isPending}
+      />
+
+      <InventoryFilterDialog
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        filters={{
+          warehouseId: filters.warehouseId,
+          status: filters.status,
+        }}
+        onApply={(newFilters) => {
+          setFilters((prev) => ({ ...prev, ...newFilters }));
+          setPagination((prev) => ({ ...prev, page: 1 }));
+        }}
       />
     </Box>
   );

@@ -1,8 +1,10 @@
 import { Inventory } from "./enums";
 
 // Domain Models
-export interface InventoryWithRelations
-  extends Omit<Inventory, "imageUrl" | "unitValue" | "unit"> {
+export interface InventoryWithRelations extends Omit<
+  Inventory,
+  "imageUrl" | "unitValue" | "unit"
+> {
   warehouse: {
     code: string;
     name: string;
@@ -36,7 +38,6 @@ export interface InventoryStats {
   outOfStockCount: number;
   totalValue: number;
 }
-
 
 // Page State
 export interface InventoryPageState {
@@ -77,11 +78,14 @@ export interface InventoryTableProps {
   items: InventoryWithRelations[];
   loading: boolean;
   onSelect: (id: string) => void;
-  onEdit: (item: InventoryWithRelations) => void;
+  onEdit?: (item: InventoryWithRelations) => void;
   onDelete: (id: string) => void;
   meta?: PaginationMeta;
   onPageChange?: (page: number) => void;
   onLimitChange?: (limit: number) => void;
+  sortField?: string;
+  sortOrder?: "asc" | "desc";
+  onRequestSort?: (field: string) => void;
 }
 
 export interface InventoryDetailsProps {
