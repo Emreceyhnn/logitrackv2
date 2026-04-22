@@ -37,7 +37,7 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
 
   const handleChange = (mode: AppearanceMode) => {
     actions.updateAppearance({ mode });
-    if (mode !== "system") setMode(mode);
+    setMode(mode); // setMode now handles "system" → resolves to OS preference
   };
 
   return (

@@ -311,6 +311,7 @@ export interface Inventory {
   sku: string;
   name: string;
   quantity: number;
+  allocatedQuantity: number;
   minStock: number;
   imageUrl?: string | null;
   unitValue?: number | null;

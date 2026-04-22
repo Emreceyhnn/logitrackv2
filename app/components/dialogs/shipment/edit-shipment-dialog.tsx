@@ -19,16 +19,18 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { updateShipment } from "@/app/lib/controllers/shipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getCustomers } from "@/app/lib/controllers/customer";
+import { getInventory } from "@/app/lib/controllers/inventory";
 import { getRoutes } from "@/app/lib/controllers/routes";
 import { useUser } from "@/app/lib/hooks/useUser";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { RouteWithRelations } from "@/app/lib/type/routes";
+import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import {
   ShipmentWithRelations,
   ShipmentFormValues,
@@ -43,6 +45,29 @@ import InventorySection from "./addShipmentDialog/sections/InventorySection";
 import RouteSection from "./addShipmentDialog/sections/RouteSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * FormikInventorySync — tanımlanması ZORUNLU OLARAK bileşenin DIŞINDA
+ * olmalı. İçeride tanımlanırsa React her render'da yeni bir component tipi
+ * oluşturur, unmount/remount yapar ve useEffect sonsuz döngüye girer.
+ * ───────────────────────────────────────────────────────────────────────── */
+interface FormikInventorySyncProps {
+  onWarehouseChange: (id: string) => void;
+}
+
+const FormikInventorySync = ({ onWarehouseChange }: FormikInventorySyncProps) => {
+  const { values } = useFormikContext<ShipmentFormValues>();
+  const lastFetchedId = useRef<string | null>(null);
+
+  useEffect(() => {
+    // Aynı warehouse için tekrar fetch yapma
+    if (values.originWarehouseId === lastFetchedId.current) return;
+    lastFetchedId.current = values.originWarehouseId;
+    onWarehouseChange(values.originWarehouseId);
+  }, [values.originWarehouseId, onWarehouseChange]);
+
+  return null;
+};
 
 interface EditShipmentDialogProps {
   open: boolean;
@@ -69,6 +94,10 @@ const EditShipmentDialog = ({
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingInventory, setIsLoadingInventory] = useState(false);
+  const [availableInventory, setAvailableInventory] = useState<
+    InventoryWithRelations[]
+  >([]);
 
   const [warehouses, setWarehouses] = useState<WarehouseWithRelations[]>([]);
   const [customers, setCustomers] = useState<CustomerWithRelations[]>([]);
@@ -94,6 +123,26 @@ const EditShipmentDialog = ({
       fetchData();
     }
   }, [open, user]);
+
+  const handleFetchInventory = useCallback(
+    async (warehouseId: string) => {
+      if (!warehouseId || !user) {
+        setAvailableInventory([]);
+        return;
+      }
+      setIsLoadingInventory(true);
+      try {
+        const inv = await getInventory(warehouseId);
+        setAvailableInventory(inv);
+      } catch (error) {
+        console.error("Failed to fetch warehouse inventory", error);
+        setAvailableInventory([]);
+      } finally {
+        setIsLoadingInventory(false);
+      }
+    },
+    [user]
+  );
 
   const getInitialValues = (): ShipmentFormValues => {
     if (!shipment) {
@@ -127,7 +176,9 @@ const EditShipmentDialog = ({
         (shipment.priority as ShipmentPriority) || ShipmentPriority.MEDIUM,
       type: shipment.type || "Standard Freight",
       slaDeadline: shipment.slaDeadline ? new Date(shipment.slaDeadline) : null,
-      originWarehouseId: shipment.originWarehouseId || shipment.origin || "",
+      originWarehouseId: shipment.originWarehouseId || 
+        (warehouses.find(w => w.name === shipment.origin)?.id) || 
+        "",
       originLat: shipment.originLat ?? undefined,
       originLng: shipment.originLng ?? undefined,
       destination: shipment.destination || "",
@@ -157,30 +208,27 @@ const EditShipmentDialog = ({
     };
   };
 
-  const FormikInventorySync = ({
-    onWarehouseChange,
-    open,
-  }: {
-    onWarehouseChange: (id: string) => void;
-    open: boolean;
-  }) => {
-    const { values } = useFormikContext<ShipmentFormValues>();
-    useEffect(() => {
-      if (open) {
-        onWarehouseChange(values.originWarehouseId);
-      }
-    }, [values.originWarehouseId, open, onWarehouseChange]);
-    return null;
-  };
+  // FormikInventorySync artık dosyanın üst seviyesinde tanımlı (sonsuz döngüyü önlemek için)
 
   const onSubmit = async (values: ShipmentFormValues) => {
     if (!user || !shipment) return;
     setIsLoading(true);
     try {
+      const selectedWarehouse = warehouses.find(
+        (w) => w.id === values.originWarehouseId
+      );
+      const originName = selectedWarehouse?.name || values.originWarehouseId;
+
+      // Boş string FK alanlarını null'a çevir — Prisma FK constraint ihlalini önler
+      const sanitize = (val: string | null | undefined) =>
+        val && val.trim() !== "" ? val : null;
+
       await updateShipment(shipment.id, {
-        customerId: values.customerId,
-        origin: values.originWarehouseId,
-        originWarehouseId: values.originWarehouseId,
+        customerId: sanitize(values.customerId),
+        customerLocationId: sanitize(values.customerLocationId),
+        originWarehouseId: sanitize(values.originWarehouseId) ?? undefined,
+        routeId: sanitize(values.assignedRouteId),
+        origin: originName,
         destination: values.destination,
         itemsCount: values.inventoryItems.length || shipment.itemsCount || 1,
         weightKg: values.weightKg,
@@ -192,14 +240,12 @@ const EditShipmentDialog = ({
         originLat: values.originLat,
         originLng: values.originLng,
         trackingId: values.referenceNumber,
-        routeId: values.assignedRouteId,
         priority: values.priority,
         type: values.type,
         slaDeadline: values.slaDeadline,
-        contactEmail: values.contactEmail,
+        contactEmail: sanitize(values.contactEmail) ?? undefined,
         billingAccount: values.billingAccount,
-        customerLocationId: values.customerLocationId,
-        inventoryItems: values.inventoryItems, // Pass items for synchronization
+        inventoryItems: values.inventoryItems,
       } as any);
 
       toast.success(dict.toasts.successUpdate);
@@ -270,7 +316,7 @@ const EditShipmentDialog = ({
 
           return (
             <>
-              <FormikInventorySync onWarehouseChange={() => {}} open={open} />
+              <FormikInventorySync onWarehouseChange={handleFetchInventory} />
               <Dialog
                 open={open}
                 onClose={closeDialog}
@@ -385,8 +431,8 @@ const EditShipmentDialog = ({
                           }}
                         />
                         <InventorySection
-                          availableInventory={[]}
-                          isLoadingInventory={false}
+                          availableInventory={availableInventory}
+                          isLoadingInventory={isLoadingInventory}
                         />
                       </Stack>
                     )}

@@ -213,23 +213,24 @@ model CustomerLocation {
 }
 
 model Inventory {
-  id          String    @id @default(cuid())
-  warehouseId String
-  sku         String
-  name        String
-  quantity    Int
-  minStock    Int       @default(0)
-  imageUrl    String?
-  unitValue   Float?    @default(0)
-  unit        String    @default("Each")
-  weightKg    Float?    @default(0)
-  volumeM3    Float?    @default(0)
-  palletCount Float?    @default(0)
-  cargoType   String?   @default("General Cargo")
-  updatedAt   DateTime  @updatedAt
-  companyId   String?
-  company     Company?  @relation(fields: [companyId], references: [id])
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  id                String    @id @default(cuid())
+  warehouseId       String
+  sku               String
+  name              String
+  quantity          Int
+  allocatedQuantity Int       @default(0)
+  minStock          Int       @default(0)
+  imageUrl          String?
+  unitValue         Float?    @default(0)
+  unit              String    @default("Each")
+  weightKg          Float?    @default(0)
+  volumeM3          Float?    @default(0)
+  palletCount       Float?    @default(0)
+  cargoType         String?   @default("General Cargo")
+  updatedAt         DateTime  @updatedAt
+  companyId         String?
+  company           Company?  @relation(fields: [companyId], references: [id])
+  warehouse         Warehouse @relation(fields: [warehouseId], references: [id])
 
   @@unique([warehouseId, sku])
   @@map("inventory")
@@ -241,6 +242,7 @@ model InventoryMovement {
   sku         String
   quantity    Int
   type        String
+  notes       String?
   date        DateTime  @default(now())
   userId      String?
   companyId   String?

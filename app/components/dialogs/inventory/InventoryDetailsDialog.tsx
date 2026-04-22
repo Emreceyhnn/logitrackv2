@@ -25,6 +25,11 @@ import {
   TableRow,
   CircularProgress,
   PaletteColor,
+  TextField,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -44,8 +49,10 @@ import {
   InventoryDetailsProps,
   InventoryMovement,
 } from "@/app/lib/type/inventory";
-import { getInventoryMovements } from "@/app/lib/controllers/inventory";
+import { getInventoryMovements, getInventoryBySku } from "@/app/lib/controllers/inventory";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useInventoryMutations } from "@/app/hooks/useInventory";
+import { toast } from "sonner";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -91,6 +98,7 @@ export default function InventoryDetailsDialog({
   };
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(false);
+  const [otherLocations, setOtherLocations] = useState<any[]>([]);
 
   const loadMovements = React.useCallback(async () => {
     if (!item) return;
@@ -104,6 +112,47 @@ export default function InventoryDetailsDialog({
       setLoadingMovements(false);
     }
   }, [item]);
+
+  /* ---------------------------------- ADJUSTMENT STATE ------------------------- */
+  const [adjustAmount, setAdjustAmount] = useState<number>(0);
+  const [adjustType, setAdjustType] = useState<string>("ADJUSTMENT");
+  const [adjustNote, setAdjustNote] = useState<string>("");
+  const { adjustStock } = useInventoryMutations();
+
+  const handleAdjustStock = async () => {
+    if (!item || adjustAmount === 0) return;
+
+    try {
+      await adjustStock.mutateAsync({
+        id: item.id,
+        delta: adjustAmount,
+        type: adjustType,
+        notes: adjustNote,
+      });
+      toast.success(dict.toasts.successUpdate);
+      setAdjustAmount(0);
+      setAdjustNote("");
+      loadMovements();
+    } catch (err: any) {
+      toast.error(err.message || dict.common.errorOccurred);
+    }
+  };
+
+  const loadOtherLocations = React.useCallback(async () => {
+    if (!item) return;
+    try {
+      const data = await getInventoryBySku(item.sku);
+      setOtherLocations(data.filter((l: any) => l.id !== item.id));
+    } catch (err) {
+      console.error("Failed to load other locations", err);
+    }
+  }, [item]);
+
+  useEffect(() => {
+    if (isOpen && item) {
+      loadOtherLocations();
+    }
+  }, [isOpen, item, loadOtherLocations]);
 
   useEffect(() => {
     if (isOpen && item && tabValue === 1) {
@@ -127,8 +176,14 @@ export default function InventoryDetailsDialog({
   const getMovementIcon = (type: string) => {
     switch (type) {
       case "PICK":
+      case "SHIPMENT":
+      case "ALLOCATION":
         return <OutIcon sx={{ color: "error.main" }} />;
       case "PUTAWAY":
+      case "SHIPMENT_REVERT":
+      case "SHIPMENT_CANCEL":
+      case "ALLOCATION_REVERT":
+      case "ALLOCATION_CANCEL":
         return <InIcon sx={{ color: "success.main" }} />;
       default:
         return <AdjustIcon sx={{ color: "info.main" }} />;
@@ -203,9 +258,25 @@ export default function InventoryDetailsDialog({
             </Stack>
           </Stack>
 
-          <IconButton onClick={onClose} sx={{ color: "text.secondary" }}>
-            <CloseIcon fontSize="small" />
-          </IconButton>
+          <Stack direction="row" spacing={1}>
+            {onEdit && (
+              <IconButton 
+                onClick={() => onEdit(item.id)} 
+                sx={{ 
+                  color: "primary.main",
+                  bgcolor: theme.palette.primary._alpha.main_10,
+                  "&:hover": {
+                    bgcolor: theme.palette.primary._alpha.main_20,
+                  }
+                }}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            )}
+            <IconButton onClick={onClose} sx={{ color: "text.secondary" }}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Stack>
         </Stack>
 
         <Tabs
@@ -300,12 +371,191 @@ export default function InventoryDetailsDialog({
                           color="text.secondary"
                           fontWeight={600}
                         >
-                          {dict.inventory.dialogs.available}
+                          {dict.inventory.dialogs.available || "AVAILABLE"}
+                        </Typography>
+                        <Typography variant="h5" fontWeight={800} color="white">
+                          {(item.quantity - (item.allocatedQuantity || 0)).toLocaleString()}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </Paper>
+                  
+                  {(item.allocatedQuantity || 0) > 0 && (
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 2,
+                        bgcolor: theme.palette.error._alpha.main_05,
+                        borderColor: theme.palette.error._alpha.main_10,
+                        borderRadius: 3,
+                      }}
+                    >
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Avatar
+                          sx={{
+                            bgcolor: theme.palette.error._alpha.main_10,
+                            color: theme.palette.error.main,
+                          }}
+                        >
+                          <InventoryIcon />
+                        </Avatar>
+                        <Box>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            fontWeight={600}
+                          >
+                            {dict.inventory.status.blocked || "BLOCKED"}
+                          </Typography>
+                          <Typography variant="h5" fontWeight={800} color="white">
+                            {item.allocatedQuantity.toLocaleString()}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </Paper>
+                  )}
+                  
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      p: 2,
+                      bgcolor: theme.palette.background.paper_alpha.main_05,
+                      borderColor: theme.palette.divider_alpha.main_10,
+                      borderRadius: 3,
+                    }}
+                  >
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Avatar
+                        sx={{
+                          bgcolor: theme.palette.info._alpha.main_10,
+                          color: theme.palette.info.light,
+                        }}
+                      >
+                        <InventoryIcon />
+                      </Avatar>
+                      <Box>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          fontWeight={600}
+                        >
+                          PHYSICAL
                         </Typography>
                         <Typography variant="h5" fontWeight={800} color="white">
                           {item.quantity.toLocaleString()}
                         </Typography>
                       </Box>
+                    </Stack>
+                  </Paper>
+
+                  {/* Stock Adjustment Form */}
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      p: 2.5,
+                      bgcolor: theme.palette.background.paper_alpha.main_05,
+                      borderColor: theme.palette.divider_alpha.main_10,
+                      borderRadius: 3,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        mb: 2,
+                        color: "white",
+                        fontWeight: 700,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                      }}
+                    >
+                      <AdjustIcon sx={{ fontSize: 18, color: "primary.main" }} />
+                      {dict.inventory.dialogs.quickAdjustment}
+                    </Typography>
+                    <Stack spacing={2}>
+                      <Grid container spacing={2}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                          <TextField
+                            fullWidth
+                            size="small"
+                            label={dict.inventory.dialogs.adjustmentAmount}
+                            type="number"
+                            value={adjustAmount}
+                            onChange={(e) =>
+                              setAdjustAmount(Number(e.target.value))
+                            }
+                            variant="outlined"
+                            sx={{
+                              "& .MuiInputBase-root": { color: "white" },
+                              "& .MuiInputLabel-root": {
+                                color: "text.secondary",
+                              },
+                            }}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel sx={{ color: "text.secondary" }}>
+                              {dict.inventory.dialogs.adjustmentType}
+                            </InputLabel>
+                            <Select
+                              value={adjustType}
+                              label={dict.inventory.dialogs.adjustmentType}
+                              onChange={(e) => setAdjustType(e.target.value)}
+                              sx={{
+                                color: "white",
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                  borderColor:
+                                    theme.palette.divider_alpha.main_20,
+                                },
+                              }}
+                            >
+                              <MenuItem value="ADJUSTMENT">Adjustment</MenuItem>
+                              <MenuItem value="PURCHASE">Purchase</MenuItem>
+                              <MenuItem value="RETURN">Return</MenuItem>
+                              <MenuItem value="DAMAGE">Damage</MenuItem>
+                              <MenuItem value="LOSS">Loss</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                      </Grid>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label={dict.inventory.dialogs.notes}
+                        value={adjustNote}
+                        onChange={(e) => setAdjustNote(e.target.value)}
+                        variant="outlined"
+                        multiline
+                        rows={2}
+                        sx={{
+                          "& .MuiInputBase-root": { color: "white" },
+                          "& .MuiInputLabel-root": {
+                            color: "text.secondary",
+                          },
+                        }}
+                      />
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        onClick={handleAdjustStock}
+                        disabled={adjustAmount === 0 || adjustStock.isPending}
+                        startIcon={
+                          adjustStock.isPending ? (
+                            <CircularProgress size={20} color="inherit" />
+                          ) : (
+                            <AdjustIcon />
+                          )
+                        }
+                        sx={{
+                          height: 40,
+                          bgcolor: "primary.main",
+                          fontWeight: 700,
+                          "&:hover": { bgcolor: "primary.dark" },
+                        }}
+                      >
+                        {dict.common.apply}
+                      </Button>
                     </Stack>
                   </Paper>
 
@@ -504,6 +754,7 @@ export default function InventoryDetailsDialog({
                   </Grid>
                 </Grid>
 
+
                 <Box
                   sx={{
                     mt: 4,
@@ -532,6 +783,91 @@ export default function InventoryDetailsDialog({
                     )}
                   </Typography>
                 </Box>
+
+                {/* Other Locations Section */}
+                {otherLocations.length > 0 && (
+                  <Box sx={{ mt: 4 }}>
+                    <Typography
+                      variant="caption"
+                      fontWeight={800}
+                      color="text.secondary"
+                      sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
+                    >
+                      {dict.inventory.dialogs.otherLocations}
+                    </Typography>
+                    <Stack spacing={1.5} mt={2}>
+                      {otherLocations.map((loc) => (
+                        <Paper
+                          key={loc.id}
+                          variant="outlined"
+                          sx={{
+                            p: 2,
+                            bgcolor:
+                              theme.palette.background.paper_alpha.main_05,
+                            borderColor: theme.palette.divider_alpha.main_10,
+                            borderRadius: 2,
+                            transition: "all 0.2s",
+                            "&:hover": {
+                              borderColor: theme.palette.primary._alpha.main_30,
+                              bgcolor:
+                                theme.palette.background.paper_alpha.main_10,
+                            },
+                          }}
+                        >
+                          <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                          >
+                            <Stack
+                              direction="row"
+                              spacing={2}
+                              alignItems="center"
+                            >
+                              <WarehouseIcon
+                                sx={{ color: "text.secondary", fontSize: 20 }}
+                              />
+                              <Box>
+                                <Typography
+                                  variant="subtitle2"
+                                  color="white"
+                                  fontWeight={700}
+                                >
+                                  {loc.warehouse.name}
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                >
+                                  {loc.warehouse.code}
+                                </Typography>
+                              </Box>
+                            </Stack>
+                            <Box sx={{ textAlign: "right" }}>
+                              <Typography
+                                variant="h6"
+                                color="primary.light"
+                                fontWeight={800}
+                              >
+                                {loc.quantity}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                sx={{
+                                  textTransform: "uppercase",
+                                  fontSize: "0.6rem",
+                                }}
+                              >
+                                UNITS
+                              </Typography>
+                            </Box>
+                          </Stack>
+                        </Paper>
+                      ))}
+                    </Stack>
+                  </Box>
+                )}
               </Box>
             </Grid>
           </Grid>
@@ -589,6 +925,9 @@ export default function InventoryDetailsDialog({
                         {dict.inventory.dialogs.historyFields.quantity}
                       </TableCell>
                       <TableCell>
+                        {dict.inventory.dialogs.historyFields.notes || "Notes"}
+                      </TableCell>
+                      <TableCell>
                         {dict.inventory.dialogs.historyFields.user}
                       </TableCell>
                       <TableCell align="right">
@@ -622,7 +961,7 @@ export default function InventoryDetailsDialog({
                                 fontWeight: 600,
                               }}
                             >
-                              {move.type}
+                              {(dict.inventory.dialogs.historyTypes as Record<string, string>)?.[move.type] || move.type}
                             </Typography>
                           </Stack>
                         </TableCell>
@@ -640,6 +979,17 @@ export default function InventoryDetailsDialog({
                             {move.quantity > 0
                               ? `+${move.quantity}`
                               : move.quantity}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: "text.secondary",
+                              fontStyle: "italic",
+                            }}
+                          >
+                            {move.notes || "-"}
                           </Typography>
                         </TableCell>
                         <TableCell>

@@ -27,6 +27,7 @@ const MapRoutesDialogCard = ({
   destination,
   addrA,
   addrB,
+  vehicleLocation,
   onRouteInfoUpdate,
 }: MapRoutesDialogCardProps) => {
   const dict = useDictionary();
@@ -38,6 +39,7 @@ const MapRoutesDialogCard = ({
         <DirectionsMap
           origin={origin}
           destination={destination}
+          vehicleLocation={vehicleLocation}
           onRouteInfoUpdate={onRouteInfoUpdate}
         />
       </GoogleMapsProvider>

@@ -3,7 +3,8 @@
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
-import { Prisma, Customer, CustomerLocation, ShipmentStatus, ShipmentPriority } from "@prisma/client";
+import { type Prisma, ShipmentStatus, ShipmentPriority } from "@prisma/client";
+import type { Customer, CustomerLocation } from "@prisma/client";
 import {
   ShipmentWithRelations,
   ShipmentStats,
@@ -18,6 +19,7 @@ import {
   shipmentCacheKeys,
   SHIPMENT_CACHE_TTL,
 } from "../redis";
+import { invalidateInventoryCache } from "./inventory";
 
 export async function invalidateShipmentCache(companyId: string, shipmentId?: string) {
   await Promise.all([
@@ -141,53 +143,100 @@ export const createShipment = authenticatedAction(
               ? firstCustomerLocation.lng
               : undefined;
 
-      const newShipment = await db.shipment.create({
-        data: {
-          trackingId: finalTrackingId,
-          customerId: customerId || undefined,
-          customerLocationId: customerLocationId || undefined,
-          origin,
-          originWarehouseId: originWarehouseId || (origin.length === 36 ? origin : undefined), // Heuristic or explicit
-          originLat,
-          originLng,
-          destination: finalDestination,
-          destinationLat: finalDestinationLat,
-          destinationLng: finalDestinationLng,
-          status,
-          itemsCount,
-          weightKg,
-          volumeM3,
-          palletCount,
-          cargoType,
-          companyId,
-          priority,
-          type,
-          slaDeadline,
-          contactEmail,
-          billingAccount,
-          history: {
-            create: {
-              status: status,
-              description: "Shipment created",
-              createdBy: userId,
+      const newShipment = await db.$transaction(async (tx: any) => {
+        const shipment = await tx.shipment.create({
+          data: {
+            trackingId: finalTrackingId,
+            customerId: customerId || undefined,
+            customerLocationId: customerLocationId || undefined,
+            origin,
+            originWarehouseId: originWarehouseId || (origin.length === 36 ? origin : undefined),
+            originLat,
+            originLng,
+            destination: finalDestination,
+            destinationLat: finalDestinationLat,
+            destinationLng: finalDestinationLng,
+            status,
+            itemsCount,
+            weightKg,
+            volumeM3,
+            palletCount,
+            cargoType,
+            companyId,
+            priority,
+            type,
+            slaDeadline,
+            contactEmail,
+            billingAccount,
+            history: {
+              create: {
+                status: status,
+                description: "Shipment created",
+                createdBy: userId,
+              },
+            },
+            items: {
+              create: inventoryItems.map((item: any) => ({
+                sku: item.sku,
+                name: item.name,
+                quantity: item.quantity,
+                unit: item.unit,
+                weightKg: item.weightKg,
+                volumeM3: item.volumeM3,
+                palletCount: item.palletCount,
+                cargoType: item.cargoType,
+              })),
             },
           },
-          items: {
-            create: inventoryItems.map((item: any) => ({
-              sku: item.sku,
-              name: item.name,
-              quantity: item.quantity,
-              unit: item.unit,
-              weightKg: item.weightKg,
-              volumeM3: item.volumeM3,
-              palletCount: item.palletCount,
-              cargoType: item.cargoType,
-            })),
-          },
-        },
+        });
+
+        // Decrement inventory stock if it's from a warehouse
+        const finalWarehouseId = shipment.originWarehouseId;
+        if (finalWarehouseId && inventoryItems.length > 0) {
+          for (const item of inventoryItems) {
+            // Find inventory item to ensure it exists
+            const invItem = await tx.inventory.findUnique({
+              where: {
+                warehouseId_sku: {
+                  warehouseId: finalWarehouseId,
+                  sku: item.sku,
+                },
+              },
+            });
+
+            if (invItem) {
+              await tx.inventory.update({
+                where: { id: invItem.id },
+                data: {
+                  allocatedQuantity: {
+                    increment: item.quantity,
+                  },
+                },
+              });
+
+              // Log inventory movement
+              await tx.inventoryMovement.create({
+                data: {
+                  warehouseId: finalWarehouseId,
+                  sku: item.sku,
+                  quantity: -item.quantity,
+                  type: "ALLOCATION",
+                  userId,
+                  companyId,
+                },
+              });
+            }
+          }
+          await invalidatePattern(shipmentCacheKeys.companyPattern(companyId!));
+        }
+
+        return shipment;
       });
 
-      await invalidateShipmentCache(companyId!);
+      await Promise.all([
+        invalidateShipmentCache(companyId!),
+        invalidateInventoryCache(companyId!)
+      ]);
       return { shipment: newShipment };
     } catch (error) {
       console.error("Failed to create shipment:", error);
@@ -444,20 +493,84 @@ export const updateShipment = authenticatedAction(
         updateData.trackingId = `TRK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
       }
 
+      // FK alanlarında boş string geldiyse undefined'a çevir (Prisma P2003 önlemi)
+      const fkFields = ["customerId", "customerLocationId", "routeId", "originWarehouseId", "driverId"];
+      for (const field of fkFields) {
+        if (updateData[field] === "" || updateData[field] === null) {
+          updateData[field] = undefined;
+        }
+      }
+
       // Handle items synchronization if provided
       const items = (updateData as any).inventoryItems;
       if (items) {
         delete updateData.inventoryItems;
         
         // Use a transaction for safety
-        const updatedShipment = await db.$transaction(async (tx) => {
-          // 1. Delete existing items
+        const updatedShipment = await db.$transaction(async (tx: any) => {
+          // 1. Get old items to restore inventory
+          const oldShipment = await tx.shipment.findUnique({
+            where: { id: shipmentId },
+            include: { items: true },
+          });
+
+          if (!oldShipment) throw new Error("Shipment not found");
+
+          // Check trackingId uniqueness if it's being updated
+          if (updateData.trackingId && updateData.trackingId !== oldShipment.trackingId) {
+            const duplicate = await tx.shipment.findUnique({
+              where: { trackingId: updateData.trackingId },
+            });
+            if (duplicate) {
+              throw new Error("Tracking ID already exists in another shipment");
+            }
+          }
+
+          const oldWarehouseId = oldShipment.originWarehouseId;
+
+          // 2. Revert old inventory if applicable
+          if (oldWarehouseId) {
+            for (const oldItem of oldShipment!.items) {
+              const invItem = await tx.inventory.findUnique({
+                where: {
+                  warehouseId_sku: {
+                    warehouseId: oldWarehouseId,
+                    sku: oldItem.sku,
+                  },
+                },
+              });
+
+              if (invItem) {
+                await tx.inventory.update({
+                  where: { id: invItem.id },
+                  data: {
+                    allocatedQuantity: {
+                      decrement: oldItem.quantity,
+                    },
+                  },
+                });
+
+                await tx.inventoryMovement.create({
+                  data: {
+                    warehouseId: oldWarehouseId,
+                    sku: oldItem.sku,
+                    quantity: oldItem.quantity,
+                    type: "ALLOCATION_REVERT",
+                    userId,
+                    companyId,
+                  },
+                });
+              }
+            }
+          }
+
+          // 3. Delete existing shipment items
           await tx.shipmentItem.deleteMany({
             where: { shipmentId },
           });
 
-          // 2. Create new items
-          return tx.shipment.update({
+          // 4. Update shipment and create new items
+          const updated = await tx.shipment.update({
             where: { id: shipmentId },
             data: {
               ...updateData,
@@ -476,9 +589,53 @@ export const updateShipment = authenticatedAction(
             },
             include: { items: true },
           });
+
+          // 5. Decrement new inventory if applicable
+          const newWarehouseId = updated.originWarehouseId;
+          if (newWarehouseId) {
+            for (const item of items) {
+              const invItem = await tx.inventory.findUnique({
+                where: {
+                  warehouseId_sku: {
+                    warehouseId: newWarehouseId,
+                    sku: item.sku,
+                  },
+                },
+              });
+
+              if (invItem) {
+                await tx.inventory.update({
+                  where: { id: invItem.id },
+                  data: {
+                    allocatedQuantity: {
+                      increment: item.quantity,
+                    },
+                  },
+                });
+
+                await tx.inventoryMovement.create({
+                  data: {
+                    warehouseId: newWarehouseId,
+                    sku: item.sku,
+                    quantity: -item.quantity,
+                    type: "ALLOCATION",
+                    userId,
+                    companyId,
+                  },
+                });
+              }
+            }
+          }
+
+          return updated;
         });
         
-        await invalidateShipmentCache(companyId!, shipmentId);
+        // Non-blocking invalidation to prevent hanging on slow Redis
+        Promise.all([
+          invalidateShipmentCache(companyId!, shipmentId),
+          invalidateInventoryCache(companyId!)
+        ]).catch(err => console.error("Cache invalidation failed:", err));
+        
         return updatedShipment;
       }
 
@@ -487,7 +644,9 @@ export const updateShipment = authenticatedAction(
         data: updateData,
       });
 
-      await invalidateShipmentCache(companyId!, shipmentId);
+      invalidateShipmentCache(companyId!, shipmentId).catch(err => 
+        console.error("Cache invalidation failed:", err)
+      );
       return updatedShipment;
     } catch (error) {
       console.error("Failed to update shipment:", error);
@@ -505,18 +664,60 @@ export const deleteShipment = authenticatedAction(
 
       const existingShipment = await db.shipment.findUnique({
         where: { id: shipmentId },
-        select: { companyId: true },
+        include: { items: true },
       });
 
       if (!existingShipment || existingShipment.companyId !== companyId) {
         throw new Error("Shipment not found or unauthorized");
       }
 
-      await db.shipment.delete({
-        where: { id: shipmentId },
+      await db.$transaction(async (tx: any) => {
+        // Restore inventory stock
+        const warehouseId = existingShipment.originWarehouseId;
+        if (warehouseId) {
+          for (const item of existingShipment.items) {
+            const invItem = await tx.inventory.findUnique({
+              where: {
+                warehouseId_sku: {
+                  warehouseId,
+                  sku: item.sku,
+                },
+              },
+            });
+
+            if (invItem) {
+              await tx.inventory.update({
+                where: { id: invItem.id },
+                data: {
+                  allocatedQuantity: {
+                    decrement: item.quantity,
+                  },
+                },
+              });
+
+              await tx.inventoryMovement.create({
+                data: {
+                  warehouseId,
+                  sku: item.sku,
+                  quantity: item.quantity,
+                  type: "ALLOCATION_CANCEL",
+                  userId,
+                  companyId,
+                },
+              });
+            }
+          }
+        }
+
+        await tx.shipment.delete({
+          where: { id: shipmentId },
+        });
       });
 
-      await invalidateShipmentCache(companyId!, shipmentId);
+      Promise.all([
+        invalidateShipmentCache(companyId!, shipmentId),
+        invalidateInventoryCache(companyId!)
+      ]).catch(err => console.error("Cache invalidation failed:", err));
       return { success: true };
     } catch (error) {
       console.error("Failed to delete shipment:", error);
@@ -611,7 +812,7 @@ export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
     const volumeByDay: Record<string, number> = {};
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-    rawShipments.forEach((s) => {
+    rawShipments.forEach((s: { createdAt: Date }) => {
       const dayName = days[s.createdAt.getDay()];
       volumeByDay[dayName] = (volumeByDay[dayName] || 0) + 1;
     });
@@ -641,7 +842,7 @@ export const getShipmentStatusDistribution = authenticatedAction(
         _count: { status: true },
       });
 
-      return statusCounts.map((s) => ({
+      return statusCounts.map((s: any) => ({
         status: s.status,
         count: s._count.status,
       }));
@@ -763,7 +964,7 @@ export const getShipmentsWithDashboardData = authenticatedAction(
       // Volume History Transformation
       const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
       const volumeByDay: Record<string, number> = {};
-      rawVolumeHistory.forEach((s) => {
+      rawVolumeHistory.forEach((s: any) => {
         const dayName = days[s.createdAt.getDay()];
         volumeByDay[dayName] = (volumeByDay[dayName] || 0) + 1;
       });
@@ -777,7 +978,7 @@ export const getShipmentsWithDashboardData = authenticatedAction(
         totalCount,
         stats: { total, active, delayed, inTransit },
         volumeHistory,
-        statusDistribution: statusCounts.map((s) => ({
+        statusDistribution: statusCounts.map((s: any) => ({
           status: s.status,
           count: s._count.status,
         })),

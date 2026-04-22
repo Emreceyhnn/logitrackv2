@@ -81,6 +81,8 @@ export const inventoryCacheKeys = {
   dashboard: (companyId: string, filtersHash?: string) =>
     `inventories:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
   kpis: (companyId: string) => `inventories:${companyId}:kpis`,
+  movements: (companyId: string, warehouseId: string, sku: string) =>
+    `inventories:${companyId}:movements:${warehouseId}:${sku}`,
 };
 
 export const CUSTOMER_CACHE_TTL = 3600;

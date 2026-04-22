@@ -27,6 +27,7 @@ export type SessionUser = {
   id: string;
   companyId: string | null;
   roleId: string | null;
+  roleName: string | null;
   sessionId: string;
   name: string;
   surname: string;
@@ -184,6 +185,11 @@ export async function validateSession(): Promise<SessionUser | null> {
             name: true,
             surname: true,
             avatarUrl: true,
+            role: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
@@ -238,6 +244,7 @@ export async function validateSession(): Promise<SessionUser | null> {
       id: session.user.id,
       companyId: session.user.companyId,
       roleId: session.user.roleId,
+      roleName: (session.user as any).role?.name || null,
       sessionId: session.id,
       name: session.user.name,
       surname: session.user.surname,

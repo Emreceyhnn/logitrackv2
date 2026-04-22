@@ -12,7 +12,6 @@ import {
   Divider,
   Box,
   useTheme,
-  
 } from "@mui/material";
 import {
   Settings as SettingsIcon,
@@ -30,18 +29,25 @@ import ProfileDialog from "../dialogs/profile/ProfileDialog";
 import SettingsDialog from "../dialogs/settings/SettingsDialog";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 
-export default function UserAccountNav({ user: initialUser }: { user: AuthenticatedUser | null }) {
+export default function UserAccountNav({
+  user: initialUser,
+}: {
+  user: AuthenticatedUser | null;
+}) {
   const theme = useTheme();
 
+  const isLight = theme.palette.mode === "light";
   const menuPaperSx = {
     overflow: "visible",
-    filter: "drop-shadow(0px 8px 16px rgba(0,0,0,0.4))",
+    filter: isLight 
+      ? "drop-shadow(0px 8px 16px rgba(0,0,0,0.1))" 
+      : "drop-shadow(0px 8px 16px rgba(0,0,0,0.4))",
     mt: 1.5,
     borderRadius: 3,
-    bgcolor: theme.palette.background.midnight._alpha.main_95,
+    bgcolor: theme.palette.background.paper,
     backdropFilter: "blur(12px)",
-    border: `1px solid ${theme.palette.common.white_alpha.main_08}`,
-    color: "white",
+    border: `1px solid ${theme.palette.divider}`,
+    color: theme.palette.text.primary,
     padding: "4px",
     "& .MuiMenuItem-root": {
       borderRadius: 1.5,
@@ -53,7 +59,7 @@ export default function UserAccountNav({ user: initialUser }: { user: Authentica
       fontWeight: 600,
       transition: "all 0.2s",
       "&:hover": {
-        bgcolor: theme.palette.common.white_alpha.main_05,
+        bgcolor: theme.palette.action.hover,
       },
     },
     "& .MuiAvatar-root": { width: 32, height: 32, ml: -0.5, mr: 1 },
@@ -65,11 +71,11 @@ export default function UserAccountNav({ user: initialUser }: { user: Authentica
       right: 14,
       width: 10,
       height: 10,
-      bgcolor: "#0B1019",
+      bgcolor: theme.palette.background.paper,
       transform: "translateY(-50%) rotate(45deg)",
       zIndex: 0,
-      borderLeft: `1px solid ${theme.palette.common.white_alpha.main_08}`,
-      borderTop: `1px solid ${theme.palette.common.white_alpha.main_08}`,
+      borderLeft: `1px solid ${theme.palette.divider}`,
+      borderTop: `1px solid ${theme.palette.divider}`,
     },
   };
   const params = useParams();
@@ -149,13 +155,15 @@ export default function UserAccountNav({ user: initialUser }: { user: Authentica
             padding: "6px 12px",
             borderRadius: 3,
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            bgcolor: theme.palette.common.white_alpha.main_02,
-            border: `1px solid ${theme.palette.common.white_alpha.main_03}`,
+            bgcolor: isLight ? theme.palette.grey[100] : theme.palette.common.white_alpha.main_02,
+            border: `1px solid ${theme.palette.divider}`,
             "&:hover": {
               bgcolor: theme.palette.primary._alpha.main_08,
               borderColor: theme.palette.primary._alpha.main_20,
               transform: "translateY(-1px)",
-              boxShadow: `0 4px 20px ${theme.palette.common.black_alpha.main_30}`,
+              boxShadow: isLight 
+                ? `0 4px 20px rgba(0,0,0,0.05)`
+                : `0 4px 20px ${theme.palette.common.black_alpha.main_30}`,
             },
           }}
         >
@@ -178,7 +186,7 @@ export default function UserAccountNav({ user: initialUser }: { user: Authentica
             <Typography
               variant="body2"
               fontWeight={800}
-              color="white"
+              color="text.primary"
               sx={{ fontSize: "0.85rem" }}
             >
               {user.name} {user.surname}
@@ -186,12 +194,15 @@ export default function UserAccountNav({ user: initialUser }: { user: Authentica
             <Typography
               variant="caption"
               sx={{
-                color: theme.palette.common.white_alpha.main_35,
+                color: "text.secondary",
                 fontWeight: 600,
                 fontSize: "0.65rem",
+                opacity: 0.7
               }}
             >
-              {dict.sidebar.management}
+              {(dict["roles-header"] as Record<string, string>)?.[
+                user.roleName || ""
+              ] ?? user.roleName}
             </Typography>
           </Stack>
         </Box>
@@ -223,7 +234,12 @@ export default function UserAccountNav({ user: initialUser }: { user: Authentica
           </ListItemIcon>
           {dict.common.settings}
         </MenuItem>
-        <Divider sx={{ borderColor: theme.palette.common.white_alpha.main_06, my: 0.5 }} />
+        <Divider
+          sx={{
+            borderColor: theme.palette.divider,
+            my: 0.5,
+          }}
+        />
         <MenuItem
           onClick={handleLogout}
           sx={{ color: "#f43f5e !important", gap: 1.5 }}

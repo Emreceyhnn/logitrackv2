@@ -284,11 +284,13 @@ export const getTheme = (mode: ThemeMode) => {
       MuiPickerPopper: {
         styleOverrides: {
           paper: {
-            backgroundColor: "#0B1019",
+            backgroundColor: palettes[mode].background.paper,
             backgroundImage: "none",
-            border: `1px solid rgba(255, 255, 255, 0.1)`,
+            border: `1px solid ${palettes[mode].divider}`,
             borderRadius: 16,
-            boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+            boxShadow: mode === "dark" 
+              ? "0 20px 40px rgba(0,0,0,0.4)"
+              : "0 20px 40px rgba(0,0,0,0.1)",
           },
         },
       },
@@ -296,7 +298,7 @@ export const getTheme = (mode: ThemeMode) => {
         styleOverrides: {
           root: {
             fontSize: "0.875rem",
-            color: "rgba(255, 255, 255, 0.7)",
+            color: palettes[mode].text.secondary,
             "&.Mui-selected": {
               backgroundColor: palettes[mode].primary.main,
               color: palettes[mode].primary.contrastText,
@@ -306,7 +308,7 @@ export const getTheme = (mode: ThemeMode) => {
               },
             },
             "&:hover": {
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
+              backgroundColor: palettes[mode].action.hover,
             },
             "&.MuiPickersDay-today": {
               border: `1px solid ${palettes[mode].primary.main}`,
@@ -317,9 +319,9 @@ export const getTheme = (mode: ThemeMode) => {
       MuiDateTimePickerToolbar: {
         styleOverrides: {
           root: {
-            backgroundColor: "#0B1019",
+            backgroundColor: palettes[mode].background.paper,
             "& .MuiTypography-root": {
-              color: "#FFFFFF",
+              color: palettes[mode].text.primary,
             },
           },
         },
@@ -327,9 +329,9 @@ export const getTheme = (mode: ThemeMode) => {
       MuiDateTimePickerTabs: {
         styleOverrides: {
           root: {
-            backgroundColor: "#0B1019",
+            backgroundColor: palettes[mode].background.paper,
             "& .MuiTab-root": {
-              color: "rgba(255, 255, 255, 0.5)",
+              color: palettes[mode].text.secondary,
               "&.Mui-selected": {
                 color: palettes[mode].primary.main,
               },
@@ -347,12 +349,16 @@ export const getTheme = (mode: ThemeMode) => {
             marginBottom: "20px",
             "& .MuiOutlinedInput-root": {
               borderRadius: 8,
-              backgroundColor: "rgba(255, 255, 255, 0.03)",
+              backgroundColor: mode === "dark" 
+                ? "rgba(255, 255, 255, 0.03)"
+                : "rgba(0, 0, 0, 0.01)",
               "& fieldset": {
-                borderColor: "rgba(255, 255, 255, 0.1)",
+                borderColor: palettes[mode].divider,
               },
               "&:hover fieldset": {
-                borderColor: "rgba(255, 255, 255, 0.2)",
+                borderColor: mode === "dark"
+                  ? "rgba(255, 255, 255, 0.2)"
+                  : "rgba(0, 0, 0, 0.2)",
               },
               "&.Mui-focused fieldset": {
                 borderColor: palettes[mode].primary.main,
@@ -383,10 +389,11 @@ export const getTheme = (mode: ThemeMode) => {
           paper: {
             minWidth: 160,
             borderRadius: "12px",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-            border: `1px solid ${palettes[mode].common.white_alpha.main_10}`,
-            backgroundColor:
-              palettes[mode].background.ebony?._alpha.main_80 || "#0B0F19CC",
+            boxShadow: mode === "dark" 
+              ? "0 8px 32px rgba(0,0,0,0.5)"
+              : "0 8px 32px rgba(0,0,0,0.1)",
+            border: `1px solid ${palettes[mode].divider}`,
+            backgroundColor: palettes[mode].background.paper,
             backdropFilter: "blur(12px)",
             marginTop: "8px",
           },

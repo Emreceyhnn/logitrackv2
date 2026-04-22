@@ -25,6 +25,8 @@ import {
 import { useForm, Controller, Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useWarehouses } from "@/app/hooks/useWarehouses";
+import { MenuItem } from "@mui/material";
 import {
   InventoryEditProps,
   InventoryWithRelations,
@@ -33,15 +35,20 @@ import { uploadImageAction } from "@/app/lib/actions/upload";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { toast } from "sonner";
 
 type FormData = {
+  name: string;
   sku?: string;
+  warehouseId: string;
   imageUrl?: string | null;
   quantity: number;
   minStock: number;
   weightKg: number | null;
   volumeM3: number | null;
   palletCount: number | null;
+  cargoType?: string | null;
+  unitValue?: number | null;
 };
 
 export default function InventoryEditDialog({
@@ -52,11 +59,14 @@ export default function InventoryEditDialog({
 }: InventoryEditProps) {
   const theme = useTheme();
   const dict = useDictionary();
+  const { data: warehouses } = useWarehouses();
 
   const validationSchema = React.useMemo(
     () =>
       yup.object({
+        name: yup.string().required(dict.common.noData),
         sku: yup.string().optional(),
+        warehouseId: yup.string().required(dict.common.noData),
         imageUrl: yup.string().optional().nullable(),
         quantity: yup
           .number()
@@ -80,6 +90,11 @@ export default function InventoryEditDialog({
           .number()
           .nullable()
           .transform((v) => (v === "" || isNaN(v) ? null : v)),
+        unitValue: yup
+          .number()
+          .nullable()
+          .transform((v) => (v === "" || isNaN(v) ? null : v)),
+        cargoType: yup.string().optional().nullable(),
       }),
     [dict]
   );
@@ -92,13 +107,17 @@ export default function InventoryEditDialog({
   } = useForm<FormData>({
     resolver: yupResolver(validationSchema) as unknown as Resolver<FormData>,
     defaultValues: {
+      name: item?.name || "",
       sku: item?.sku || "",
+      warehouseId: item?.warehouseId || "",
       imageUrl: item?.imageUrl || "",
       quantity: item?.quantity || 0,
       minStock: item?.minStock || 0,
       weightKg: item?.weightKg || 0,
       volumeM3: item?.volumeM3 || 0,
       palletCount: item?.palletCount || 0,
+      unitValue: item?.unitValue || 0,
+      cargoType: item?.cargoType || "General Cargo",
     },
   });
 
@@ -118,6 +137,9 @@ export default function InventoryEditDialog({
   );
   const [localPalletCount, setLocalPalletCount] = useState(
     item?.palletCount ? item.palletCount.toString() : ""
+  );
+  const [localUnitValue, setLocalUnitValue] = useState(
+    item?.unitValue ? item.unitValue.toString() : ""
   );
 
   // We don't need useEffect to sync values because the component is keyed and re-mounts when item changes.
@@ -149,6 +171,7 @@ export default function InventoryEditDialog({
   const onSubmit = async (data: FormData) => {
     if (!item) return;
     try {
+      console.log("Submitting inventory update:", data);
       let finalImageUrl = data.imageUrl || "";
 
       // If it's a new base64 image, upload it
@@ -160,10 +183,13 @@ export default function InventoryEditDialog({
       await onUpdate(item.id, {
         ...data,
         imageUrl: finalImageUrl,
-      } as Partial<InventoryWithRelations>);
+      } as Partial<any>);
+      
+      toast.success(dict.common.saveSuccess || "Inventory updated successfully");
       onClose();
     } catch (error) {
       console.error("Failed to update inventory", error);
+      toast.error((error as Error).message || "Failed to update inventory");
     }
   };
 
@@ -199,7 +225,6 @@ export default function InventoryEditDialog({
           backgroundImage: "none",
           borderRadius: 4,
           border: `1px solid ${theme.palette.divider_alpha.main_10}`,
-          overflow: "hidden",
         },
       }}
     >
@@ -250,7 +275,20 @@ export default function InventoryEditDialog({
       <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent sx={{ p: 4 }}>
+        <DialogContent 
+          sx={{ 
+            p: 4, 
+            maxHeight: "calc(90vh - 160px)", 
+            overflowY: "auto",
+            "&::-webkit-scrollbar": { width: "8px" },
+            "&::-webkit-scrollbar-track": { bgcolor: "transparent" },
+            "&::-webkit-scrollbar-thumb": { 
+              bgcolor: theme.palette.divider_alpha.main_10,
+              borderRadius: "4px",
+              "&:hover": { bgcolor: theme.palette.divider_alpha.main_20 }
+            },
+          }}
+        >
           <Stack spacing={4}>
             {/* Section 1: Stock Levels */}
             <Box>
@@ -269,6 +307,23 @@ export default function InventoryEditDialog({
               </Stack>
 
               <Grid container spacing={3}>
+                <Grid size={{ xs: 12 }}>
+                  <Controller
+                    name="name"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label={dict.inventory.fields?.name || "Product Name"}
+                        placeholder="Enter product name"
+                        fullWidth
+                        error={!!errors.name}
+                        helperText={errors.name?.message}
+                        sx={textFieldSx}
+                      />
+                    )}
+                  />
+                </Grid>
                 <Grid size={{ xs: 12 }}>
                   <Typography
                     variant="caption"
@@ -403,6 +458,29 @@ export default function InventoryEditDialog({
                         fullWidth
                         sx={textFieldSx}
                       />
+                    )}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Controller
+                    name="warehouseId"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        select
+                        label={dict.inventory.filters?.warehouse || "Warehouse"}
+                        fullWidth
+                        error={!!errors.warehouseId}
+                        helperText={errors.warehouseId?.message}
+                        sx={textFieldSx}
+                      >
+                        {warehouses?.map((w) => (
+                          <MenuItem key={w.id} value={w.id}>
+                            {w.name} ({w.code})
+                          </MenuItem>
+                        ))}
+                      </TextField>
                     )}
                   />
                 </Grid>
@@ -566,7 +644,7 @@ export default function InventoryEditDialog({
                     render={({ field }) => (
                       <TextField
                         {...field}
-                        label={dict.inventory.fields.pallets}
+                        label={dict.inventory.dialogs.palletSpots}
                         type="number"
                         fullWidth
                         value={localPalletCount}
@@ -574,10 +652,56 @@ export default function InventoryEditDialog({
                           handleNumChange(
                             e.target.value,
                             setLocalPalletCount,
+                            field.onChange
+                          )
+                        }
+                        sx={textFieldSx}
+                      />
+                    )}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 6 }}>
+                  <Controller
+                    name="cargoType"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label={dict.inventory.table?.cargoType || "Cargo Type"}
+                        fullWidth
+                        sx={textFieldSx}
+                      />
+                    )}
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 6 }}>
+                  <Controller
+                    name="unitValue"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label={dict.inventory.table?.unitPrice || "Unit Value"}
+                        type="number"
+                        fullWidth
+                        value={localUnitValue}
+                        onChange={(e) =>
+                          handleNumChange(
+                            e.target.value,
+                            setLocalUnitValue,
                             field.onChange,
                             true
                           )
                         }
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {dict.common.currency || "$"}
+                            </InputAdornment>
+                          ),
+                        }}
                         sx={textFieldSx}
                       />
                     )}
@@ -610,6 +734,11 @@ export default function InventoryEditDialog({
             >
               {dict.inventory.dialogs.discardChanges}
             </Button>
+            {Object.keys(errors).length > 0 && (
+              <Typography variant="caption" color="error" sx={{ alignSelf: "center", fontWeight: 600 }}>
+                {dict.common.fillRequired || "Lütfen formdaki hataları kontrol edin"}
+              </Typography>
+            )}
             <Button
               type="submit"
               variant="contained"

@@ -102,7 +102,8 @@
       "of": "of"
     },
     "filtersActive": "{count} filters active",
-    "moreThan": "more than {count}"
+    "moreThan": "more than {count}",
+    "currency": "$"
   },
   "primaryColors": {
     "title": "Color Configuration",
@@ -133,6 +134,16 @@
     "company": "Company",
     "analytics": "Analytics",
     "reports": "Reports"
+  },
+  "roles-header": {
+    "Company Admin": "Company Admin",
+    "Warehouse Operator": "Warehouse Operator",
+    "Administrator": "Administrator",
+    "Default": "Default",
+    "Dispatcher": "Dispatcher",
+    "Driver": "Driver",
+    "Manager": "Manager",
+    "Warehouse": "Warehouse"
   },
   "auth": {
     "signIn": "Sign In",
@@ -990,7 +1001,8 @@
       "category": "Category",
       "stockLevel": "Stock Level",
       "unitPrice": "Unit Price",
-      "warehouses": "Warehouses"
+      "warehouses": "Warehouses",
+      "cargoType": "Cargo Type"
     },
     "actions": {
       "details": "Details",
@@ -1005,7 +1017,8 @@
       "lowStock": "LOW STOCK",
       "outOfStock": "OUT OF STOCK",
       "low": "Low",
-      "out": "Out"
+      "out": "Out",
+      "blocked": "Blocked"
     },
     "dialogs": {
       "addTitle": "Add New Item",
@@ -1018,6 +1031,7 @@
       "safetyStock": "SAFETY STOCK",
       "locationData": "Location Data",
       "warehouseCode": "Warehouse Code",
+      "palletSpots": "Pallet Spots",
       "cargoType": "Cargo Type",
       "physicalSpecs": "Physical Specifications",
       "intelTitle": "Architectural Intelligence",
@@ -1026,9 +1040,27 @@
       "historyFields": {
         "type": "TYPE",
         "quantity": "QUANTITY",
+        "notes": "NOTES",
         "user": "USER",
         "date": "DATE",
         "system": "System"
+      },
+      "quickAdjustment": "Quick Stock Adjustment",
+      "adjustmentAmount": "Adjustment Amount (+/-)",
+      "adjustmentType": "Operation Type",
+      "notes": "Notes / Description",
+      "otherLocations": "Stock in Other Locations",
+      "historyTypes": {
+        "PICK": "PICK (OUT)",
+        "PACK": "PACK",
+        "PUTAWAY": "PUTAWAY (IN)",
+        "ALLOCATION": "SHIPMENT ALLOCATION",
+        "ALLOCATION_REVERT": "ALLOCATION REVERTED",
+        "ALLOCATION_CANCEL": "ALLOCATION CANCELLED",
+        "ADJUSTMENT": "STOCK ADJUSTMENT",
+        "SHIPMENT": "SHIPMENT DISPATCH",
+        "SHIPMENT_REVERT": "SHIPMENT REVERTED",
+        "SHIPMENT_CANCEL": "SHIPMENT CANCELLED"
       },
       "closeView": "Close View",
       "modifySpecs": "Modify Specs",
@@ -1281,7 +1313,23 @@
       "noUnit": "NO UNIT",
       "tbd": "TBD",
       "directConsignment": "Direct Consignment",
-      "oneTimeService": "One-time direct service"
+      "oneTimeService": "One-time direct service",
+      "tabs": {
+        "overview": "Overview",
+        "items": "Cargo Items"
+      },
+      "itemsTab": {
+        "sku": "SKU",
+        "product": "Product",
+        "qty": "Qty",
+        "weight": "Weight",
+        "volume": "Volume",
+        "pallets": "Pallets",
+        "cargoType": "Cargo Type",
+        "noItems": "No items linked to this shipment.",
+        "totalItems": "Total Items",
+        "totalWeight": "Total Weight"
+      }
     },
     "dialogs": {
       "addTitle": "Create New Shipment",
@@ -1958,5 +2006,13 @@
       "realTime": "Real-time metric",
       "reviews": "Based on {count} Reviews"
     }
+  },
+  "roles": {
+    "ADMIN": "Administrator",
+    "MANAGER": "Manager",
+    "DRIVER": "Driver",
+    "OPERATOR": "Operator",
+    "OWNER": "Owner",
+    "MANAGEMENT": "Management"
   }
 }

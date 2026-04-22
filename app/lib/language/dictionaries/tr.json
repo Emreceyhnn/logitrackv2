@@ -102,7 +102,8 @@
       "of": "üzerinden"
     },
     "filtersActive": "{count} aktif filtre",
-    "moreThan": "{count} taneden fazla"
+    "moreThan": "{count} taneden fazla",
+    "currency": "₺"
   },
   "primaryColors": {
     "title": "Renk Yapılandırması",
@@ -133,6 +134,16 @@
     "company": "Şirket",
     "analytics": "Analitik",
     "reports": "Raporlar"
+  },
+  "roles-header": {
+    "Company Admin": "Şirket Admini",
+    "Warehouse Operator": "Depo Operatörü",
+    "Administrator": "Yönetici",
+    "Default": "Çalışan",
+    "Dispatcher": "Operatör",
+    "Driver": "Sürücü",
+    "Manager": "Yönetici",
+    "Warehouse": "Depo"
   },
   "auth": {
     "signIn": "Giriş Yap",
@@ -990,7 +1001,8 @@
       "category": "Kategori",
       "stockLevel": "Stok Seviyesi",
       "unitPrice": "Birim Fiyat",
-      "warehouses": "Depolar"
+      "warehouses": "Depolar",
+      "cargoType": "Kargo Tipi"
     },
     "actions": {
       "details": "Detaylar",
@@ -1005,7 +1017,8 @@
       "lowStock": "DÜŞÜK STOK",
       "outOfStock": "STOKTA YOK",
       "low": "Düşük",
-      "out": "Yok"
+      "out": "Yok",
+      "blocked": "Blokeli"
     },
     "dialogs": {
       "addTitle": "Yeni Ürün Ekle",
@@ -1018,6 +1031,7 @@
       "safetyStock": "GÜVENLİK STOĞU",
       "locationData": "Konum Verileri",
       "warehouseCode": "Depo Kodu",
+      "palletSpots": "Palet Alanı",
       "cargoType": "Yük Tipi",
       "physicalSpecs": "Fiziksel Özellikler",
       "intelTitle": "Mimari Zeka",
@@ -1026,9 +1040,27 @@
       "historyFields": {
         "type": "TİP",
         "quantity": "MİKTAR",
+        "notes": "NOTLAR",
         "user": "KULLANICI",
         "date": "TARİH",
         "system": "Sistem"
+      },
+      "quickAdjustment": "Hızlı Stok Güncelleme",
+      "adjustmentAmount": "Güncelleme Miktarı (+/-)",
+      "adjustmentType": "İşlem Tipi",
+      "notes": "Notlar / Açıklama",
+      "otherLocations": "Diğer Konumlardaki Stoklar",
+      "historyTypes": {
+        "PICK": "TOPLAMA (ÇIKIŞ)",
+        "PACK": "PAKETLEME",
+        "PUTAWAY": "YERLEŞTİRME (GİRİŞ)",
+        "ALLOCATION": "SEVKİYAT REZERVASYONU",
+        "ALLOCATION_REVERT": "REZERVASYON İPTALİ",
+        "ALLOCATION_CANCEL": "REZERVASYON İPTALİ",
+        "ADJUSTMENT": "STOK GÜNCELLEMESİ",
+        "SHIPMENT": "SEVKİYAT ÇIKIŞI",
+        "SHIPMENT_REVERT": "SEVKİYAT İADESİ",
+        "SHIPMENT_CANCEL": "SEVKİYAT İPTALİ"
       },
       "closeView": "Görünümü Kapat",
       "modifySpecs": "Özellikleri Değiştir",
@@ -1281,7 +1313,23 @@
       "noUnit": "BİRİM YOK",
       "tbd": "Belirlenmedi",
       "directConsignment": "Doğrudan Sevkiyat",
-      "oneTimeService": "Tek seferlik doğrudan hizmet"
+      "oneTimeService": "Tek seferlik doğrudan hizmet",
+      "tabs": {
+        "overview": "Genel Bakış",
+        "items": "Kargo Kalemleri"
+      },
+      "itemsTab": {
+        "sku": "SKU",
+        "product": "Ürün",
+        "qty": "Miktar",
+        "weight": "Ağırlık",
+        "volume": "Hacim",
+        "pallets": "Palet",
+        "cargoType": "Kargo Tipi",
+        "noItems": "Bu sevkiyata bağlı kalem bulunamadı.",
+        "totalItems": "Toplam Kalem",
+        "totalWeight": "Toplam Ağırlık"
+      }
     },
     "dialogs": {
       "addTitle": "Yeni Sevkiyat Oluştur",
@@ -1959,5 +2007,13 @@
       "realTime": "Gerçek zamanlı metrik",
       "reviews": "{count} Değerlendirmeye Dayalı"
     }
+  },
+  "roles": {
+    "ADMIN": "Yönetici",
+    "MANAGER": "Müdür",
+    "DRIVER": "Sürücü",
+    "OPERATOR": "Operatör",
+    "OWNER": "Sahip",
+    "MANAGEMENT": "Yönetim"
   }
 }

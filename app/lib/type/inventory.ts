@@ -26,6 +26,7 @@ export interface InventoryMovement {
   quantity: number;
   type: string;
   date: Date;
+  notes?: string | null;
   user?: {
     name: string;
     surname: string;
@@ -38,6 +39,22 @@ export interface InventoryStats {
   outOfStockCount: number;
   totalValue: number;
 }
+
+export interface CreateInventoryInput {
+  warehouseId: string;
+  sku: string;
+  name: string;
+  quantity: number;
+  minStock?: number;
+  weightKg?: number | null;
+  volumeM3?: number | null;
+  palletCount?: number | null;
+  cargoType?: string | null;
+  unitValue?: number | null;
+  imageUrl?: string | null;
+}
+
+export interface UpdateInventoryInput extends Partial<CreateInventoryInput> {}
 
 // Page State
 export interface InventoryPageState {

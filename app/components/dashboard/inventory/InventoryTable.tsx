@@ -158,9 +158,14 @@ const InventoryTable = ({
                 variant="body2"
                 sx={{ color: `${getStockColor(status)}.main`, fontWeight: 500 }}
               >
-                {row.quantity}{" "}
-                {status === "LOW_STOCK" && `(${dict.inventory.status.low})`}{" "}
-                {status === "OUT_OF_STOCK" && `(${dict.inventory.status.out})`}
+                {row.quantity - (row.allocatedQuantity || 0)}{" "}
+                {row.allocatedQuantity > 0 && (
+                  <Typography component="span" variant="caption" sx={{ color: "warning.main", ml: 0.5 }}>
+                    ({row.allocatedQuantity} {dict.inventory.status.blocked || "Blokeli"})
+                  </Typography>
+                )}
+                {status === "LOW_STOCK" && ` (${dict.inventory.status.low})`}
+                {status === "OUT_OF_STOCK" && ` (${dict.inventory.status.out})`}
               </Typography>
             </Stack>
           );

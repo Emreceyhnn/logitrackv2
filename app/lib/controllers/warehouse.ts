@@ -18,10 +18,15 @@ import {
   WAREHOUSE_CACHE_TTL,
 } from "../redis";
 
-async function invalidateWarehouseCache(companyId: string, warehouseId?: string) {
+async function invalidateWarehouseCache(
+  companyId: string,
+  warehouseId?: string
+) {
   await Promise.all([
     invalidatePattern(warehouseCacheKeys.companyPattern(companyId)),
-    warehouseId ? redis.del(warehouseCacheKeys.detail(warehouseId)) : Promise.resolve(),
+    warehouseId
+      ? redis.del(warehouseCacheKeys.detail(warehouseId))
+      : Promise.resolve(),
   ]);
 }
 
@@ -96,25 +101,25 @@ export const getWarehouses = authenticatedAction(async (user) => {
     const cacheKey = warehouseCacheKeys.list(user.companyId, hashFilters({}));
     return await withCache(cacheKey, WAREHOUSE_CACHE_TTL, async () => {
       const warehouses = await db.warehouse.findMany({
-      where: { companyId: user.companyId },
-      include: {
-        manager: {
-          select: {
-            id: true,
-            name: true,
-            surname: true,
-            email: true,
-            avatarUrl: true,
+        where: { companyId: user.companyId },
+        include: {
+          manager: {
+            select: {
+              id: true,
+              name: true,
+              surname: true,
+              email: true,
+              avatarUrl: true,
+            },
+          },
+          _count: {
+            select: {
+              inventory: true,
+              drivers: true,
+            },
           },
         },
-        _count: {
-          select: {
-            inventory: true,
-            drivers: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: "desc" },
       });
       return warehouses;
     });
@@ -336,24 +341,40 @@ export const addInventoryItem = authenticatedAction(
         throw new Error("Item with this SKU already exists in this warehouse");
       }
 
-      const newItem = await db.inventory.create({
-        data: {
-          warehouseId,
-          sku: itemSku,
-          name,
-          quantity,
-          minStock,
-          weightKg,
-          volumeM3,
-          palletCount,
-          cargoType,
-          imageUrl,
-          unitValue: unitValue || 0,
-          companyId: user.companyId!,
-        },
+      const result = await db.$transaction(async (tx) => {
+        const newItem = await tx.inventory.create({
+          data: {
+            warehouseId,
+            sku: itemSku,
+            name,
+            quantity,
+            minStock,
+            weightKg,
+            volumeM3,
+            palletCount,
+            cargoType,
+            imageUrl,
+            unitValue: unitValue || 0,
+            companyId: user.companyId!,
+          },
+        });
+
+        await tx.inventoryMovement.create({
+          data: {
+            warehouseId,
+            sku: itemSku,
+            quantity,
+            type: "PUTAWAY",
+            notes: "Initial inventory entry",
+            userId: user.id,
+            companyId: user.companyId,
+          },
+        });
+
+        return newItem;
       });
 
-      return newItem;
+      return result;
     } catch (error) {
       console.error("Failed to add inventory item:", error);
       throw error;
@@ -370,12 +391,17 @@ export const updateInventoryItem = authenticatedAction(
         "role_warehouse",
       ]);
 
-      const existingItem = await db.inventory.findUnique({
+      const currentItem = await db.inventory.findUnique({
         where: { id: inventoryId },
-        select: { companyId: true },
+        select: {
+          sku: true,
+          warehouseId: true,
+          companyId: true,
+          quantity: true,
+        },
       });
 
-      if (!existingItem || existingItem.companyId !== user.companyId) {
+      if (!currentItem || currentItem.companyId !== user.companyId) {
         throw new Error("Inventory item not found or unauthorized");
       }
 
@@ -384,11 +410,33 @@ export const updateInventoryItem = authenticatedAction(
         updateData.sku = `SKU-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
       }
 
-      const updatedItem = await db.inventory.update({
-        where: { id: inventoryId },
-        data: updateData,
+      const updatedItem = await db.$transaction(async (tx) => {
+        const item = await tx.inventory.update({
+          where: { id: inventoryId },
+          data: updateData,
+        });
+
+        if (
+          data.quantity !== undefined &&
+          typeof data.quantity === "number" &&
+          data.quantity !== currentItem.quantity
+        ) {
+          await tx.inventoryMovement.create({
+            data: {
+              warehouseId: currentItem.warehouseId,
+              sku: (typeof updateData.sku === "string" ? updateData.sku : null) || currentItem.sku,
+              quantity: data.quantity - currentItem.quantity,
+              type: "ADJUSTMENT",
+              userId: user.id,
+              companyId: user.companyId,
+            },
+          });
+        }
+
+        return item;
       });
 
+      await invalidateWarehouseCache(user.companyId!, updatedItem.warehouseId);
       return updatedItem;
     } catch (error) {
       console.error("Failed to update inventory item:", error);
@@ -578,89 +626,89 @@ export const getWarehousesWithDashboardData = authenticatedAction(
       return await withCache(cacheKey, WAREHOUSE_CACHE_TTL, async () => {
         const [, warehouses, totalCount, statsRaw, inventoryStats, movements] =
           await Promise.all([
-          checkPermission(userId, companyId, ["role_admin", "role_manager"]),
-          db.warehouse.findMany({
-            where: { companyId },
-            include: {
-              manager: {
-                select: {
-                  id: true,
-                  name: true,
-                  surname: true,
-                  email: true,
-                  avatarUrl: true,
+            checkPermission(userId, companyId, ["role_admin", "role_manager"]),
+            db.warehouse.findMany({
+              where: { companyId },
+              include: {
+                manager: {
+                  select: {
+                    id: true,
+                    name: true,
+                    surname: true,
+                    email: true,
+                    avatarUrl: true,
+                  },
+                },
+                _count: {
+                  select: {
+                    inventory: true,
+                    drivers: true,
+                  },
                 },
               },
-              _count: {
-                select: {
-                  inventory: true,
-                  drivers: true,
-                },
+              orderBy: { createdAt: "desc" },
+              skip,
+              take: pageSize,
+            }),
+            db.warehouse.count({ where: { companyId } }),
+            db.warehouse.findMany({
+              where: { companyId },
+              select: { capacityPallets: true, capacityVolumeM3: true },
+            }),
+            db.inventory.aggregate({
+              where: { companyId },
+              _count: { sku: true },
+              _sum: { quantity: true },
+            }),
+            db.inventoryMovement.findMany({
+              where: { companyId },
+              include: {
+                warehouse: { select: { code: true, name: true } },
               },
-            },
-            orderBy: { createdAt: "desc" },
-            skip,
-            take: pageSize,
-          }),
-          db.warehouse.count({ where: { companyId } }),
-          db.warehouse.findMany({
-            where: { companyId },
-            select: { capacityPallets: true, capacityVolumeM3: true },
-          }),
-          db.inventory.aggregate({
-            where: { companyId },
-            _count: { sku: true },
-            _sum: { quantity: true },
-          }),
-          db.inventoryMovement.findMany({
-            where: { companyId },
-            include: {
-              warehouse: { select: { code: true, name: true } },
-            },
-            take: 10,
-            orderBy: { date: "desc" },
-          }),
-        ]);
+              take: 10,
+              orderBy: { date: "desc" },
+            }),
+          ]);
 
-      // Stats Calculation
-      const totalWarehouses = statsRaw.length;
-      const totalCapacityPallets = statsRaw.reduce(
-        (acc, w) => acc + (w.capacityPallets || 0),
-        0
-      );
-      const totalCapacityVolume = statsRaw.reduce(
-        (acc, w) => acc + (w.capacityVolumeM3 || 0),
-        0
-      );
+        // Stats Calculation
+        const totalWarehouses = statsRaw.length;
+        const totalCapacityPallets = statsRaw.reduce(
+          (acc, w) => acc + (w.capacityPallets || 0),
+          0
+        );
+        const totalCapacityVolume = statsRaw.reduce(
+          (acc, w) => acc + (w.capacityVolumeM3 || 0),
+          0
+        );
 
-      // Enriched Movements
-      const enrichedMovements = await Promise.all(
-        movements.map(async (m) => {
-          const inventoryItem = await db.inventory.findFirst({
-            where: {
-              warehouseId: m.warehouseId,
-              sku: m.sku,
-            },
-            select: { name: true },
-          });
-          return {
-            ...m,
-            itemName: inventoryItem?.name || m.sku,
-          } as InventoryMovementWithRelations;
-        })
-      );
+        // Enriched Movements
+        const enrichedMovements = await Promise.all(
+          movements.map(async (m) => {
+            const inventoryItem = await db.inventory.findFirst({
+              where: {
+                warehouseId: m.warehouseId,
+                sku: m.sku,
+              },
+              select: { name: true },
+            });
+            return {
+              ...m,
+              itemName: inventoryItem?.name || m.sku,
+            } as InventoryMovementWithRelations;
+          })
+        );
 
-      return {
-        warehouses: warehouses as unknown as WarehouseWithRelations[],
-        totalCount,
-        stats: {
-          totalWarehouses,
-          totalSkus: inventoryStats._count.sku,
-          totalItems: inventoryStats._sum.quantity || 0,
-          totalCapacityPallets,
-          totalCapacityVolume,
-        },
-        recentMovements: enrichedMovements,
+        return {
+          warehouses: warehouses as unknown as WarehouseWithRelations[],
+          totalCount,
+          stats: {
+            totalWarehouses,
+            totalSkus: inventoryStats._count.sku,
+            totalItems: inventoryStats._sum.quantity || 0,
+            totalCapacityPallets,
+            totalCapacityVolume,
+          },
+          recentMovements: enrichedMovements,
         };
       });
     } catch (error) {

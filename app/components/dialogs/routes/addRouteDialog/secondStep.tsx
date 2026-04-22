@@ -224,6 +224,7 @@ const SecondRouteDialogStep = () => {
                 <DirectionsMap
                   origin={origin}
                   destination={destination}
+                  vehicleLocation={null}
                   onRouteInfoUpdate={(data: { distanceKm?: number; durationMin?: number }) => {
                     if (data.distanceKm !== undefined) setFieldValue("distanceKm", data.distanceKm);
                     if (data.durationMin !== undefined) setFieldValue("durationMin", data.durationMin);

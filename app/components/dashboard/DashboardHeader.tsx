@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography, useTheme } from "@mui/material";
 import UserAccountNav from "../nav/UserAccountNav";
 import NotificationBell from "../notifications/NotificationBell";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -10,6 +10,7 @@ export default function DashboardHeader({
   user: AuthenticatedUser | null;
 }) {
   const dict = useDictionary();
+  const theme = useTheme();
 
   return (
     <Box
@@ -20,9 +21,11 @@ export default function DashboardHeader({
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        bgcolor: "theme.palette.background.default_alpha.main_40",
+        bgcolor: theme.palette.mode === "dark" 
+          ? "rgba(15, 23, 42, 0.6)" // Dark fallback
+          : "rgba(255, 255, 255, 0.8)", // Light fallback
         backdropFilter: "blur(12px) saturate(150%)",
-        borderBottom: `1px solid theme.palette.divider_alpha.main_08`,
+        borderBottom: `1px solid ${theme.palette.divider}`,
         position: "sticky",
         top: 0,
         zIndex: 999,
@@ -34,8 +37,8 @@ export default function DashboardHeader({
           variant="subtitle2"
           fontWeight={800}
           sx={{
-            color: "theme.palette.primary.main",
-            bgcolor: "theme.palette.primary._alpha.main_10",
+            color: theme.palette.primary.main,
+            bgcolor: theme.palette.primary._alpha.main_10,
             px: 1.5,
             py: 0.5,
             borderRadius: 1.5,

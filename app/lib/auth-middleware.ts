@@ -6,6 +6,7 @@ export type AuthenticatedUser = {
   id: string;
   companyId: string | null;
   roleId: string | null;
+  roleName: string | null;
   sessionId: string;
   name: string;
   surname: string;
@@ -25,6 +26,7 @@ export const getAuthenticatedUser = cache(
           avatarUrl: sessionUser.avatarUrl,
           companyId: sessionUser.companyId,
           roleId: sessionUser.roleId,
+          roleName: sessionUser.roleName,
           sessionId: sessionUser.sessionId,
         };
       }
@@ -42,6 +44,7 @@ export const getAuthenticatedUser = cache(
             avatarUrl: sessionUser.avatarUrl,
             companyId: sessionUser.companyId,
             roleId: sessionUser.roleId,
+            roleName: sessionUser.roleName,
             sessionId: sessionUser.sessionId,
           };
         }

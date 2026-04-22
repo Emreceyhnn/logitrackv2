@@ -29,24 +29,16 @@ import { NotificationType } from "@/app/lib/notifications";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 
-const COLORS = {
-  info: "#38bdf8",
-  success: "#4ade80",
-  warning: "#fbbf24",
-  error: "#f43f5e",
-  panel: "rgba(15, 23, 42, 0.95)", // Deep Midnight
-};
-
-const getStatusColor = (t: NotificationType) => {
+const getStatusColor = (theme: Theme, t: NotificationType) => {
   switch (t) {
     case "SUCCESS":
-      return COLORS.success;
+      return theme.palette.success.main;
     case "WARNING":
-      return COLORS.warning;
+      return theme.palette.warning.main;
     case "ERROR":
-      return COLORS.error;
+      return theme.palette.error.main;
     default:
-      return COLORS.info;
+      return theme.palette.info.main;
   }
 };
 
@@ -111,13 +103,13 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
           onClick={handleOpen}
           sx={{
             color:
-              unreadCount > 0 ? theme.palette.primary.main : theme.palette.common.white_alpha.main_60,
+              unreadCount > 0 ? theme.palette.primary.main : theme.palette.text.secondary,
             bgcolor: unreadCount > 0 
               ? theme.palette.primary._alpha.main_05 
-              : theme.palette.common.white_alpha.main_05,
+              : theme.palette.action.hover,
             border: `1px solid ${unreadCount > 0 
               ? theme.palette.primary._alpha.main_10 
-              : theme.palette.common.white_alpha.main_10}`,
+              : theme.palette.divider}`,
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             "&:hover": {
               bgcolor: theme.palette.primary._alpha.main_10,
@@ -164,10 +156,12 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
             maxHeight: 520,
             borderRadius: 4,
             overflow: "hidden",
-            bgcolor: COLORS.panel,
+            bgcolor: theme.palette.background.paper,
             backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6)",
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: theme.palette.mode === "dark" 
+              ? "0 25px 50px -12px rgba(0, 0, 0, 0.6)"
+              : "0 25px 50px -12px rgba(0, 0, 0, 0.1)",
             display: "flex",
             flexDirection: "column",
           },
@@ -184,7 +178,7 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
           <Typography
             variant="h6"
             fontWeight={800}
-            color="#fff"
+            color="text.primary"
             sx={{ letterSpacing: "-0.02em" }}
           >
             {dict.notifications.title}
@@ -207,19 +201,19 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
           )}
         </Box>
 
-        <Divider sx={{ borderColor: "rgba(255,255,255,0.05)" }} />
+        <Divider sx={{ borderColor: theme.palette.divider }} />
 
         <Box sx={{ flex: 1, overflowY: "auto", px: 1.5, py: 1 }}>
           {loading ? (
             <Box sx={{ py: 6, textAlign: "center" }}>
-              <Typography variant="body2" color="rgba(255,255,255,0.4)">
+              <Typography variant="body2" color="text.secondary">
                 {dict.notifications.initializing}
               </Typography>
             </Box>
           ) : notifications.length === 0 ? (
             <Box sx={{ py: 6, textAlign: "center", opacity: 0.3 }}>
-              <NotifIcon sx={{ fontSize: 40, mb: 1, color: "#fff" }} />
-              <Typography variant="body2" color="#fff">
+              <NotifIcon sx={{ fontSize: 40, mb: 1, color: "text.primary" }} />
+              <Typography variant="body2" color="text.primary">
                 {dict.notifications.systemClear}
               </Typography>
             </Box>
@@ -234,13 +228,13 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
                     borderRadius: 3,
                     transition: "all 0.2s",
                     position: "relative",
-                    bgcolor: notif.isRead ? "transparent" : theme.palette.common.white_alpha.main_03,
+                    bgcolor: notif.isRead ? "transparent" : theme.palette.action.hover,
                     border: "1px solid",
                     borderColor: notif.isRead
                       ? "transparent"
-                      : "rgba(255,255,255,0.06)",
+                      : theme.palette.divider,
                     "&:hover": {
-                      bgcolor: theme.palette.common.white_alpha.main_05,
+                      bgcolor: theme.palette.action.hover,
                       borderColor: resolveStatusAlpha(theme, notif.type).main_30,
                     },
                   }}
@@ -252,7 +246,7 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
                       borderRadius: 1,
                       position: "absolute",
                       left: 6,
-                      bgcolor: getStatusColor(notif.type),
+                      bgcolor: getStatusColor(theme, notif.type),
                       opacity: notif.isRead ? 0.3 : 1,
                     }}
                   />
@@ -269,7 +263,7 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
                         variant="subtitle2"
                         sx={{
                           fontWeight: notif.isRead ? 600 : 800,
-                          color: "#fff",
+                          color: "text.primary",
                           fontSize: "0.85rem",
                           lineHeight: 1.2,
                         }}
@@ -290,9 +284,13 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
                           size="small"
                           onClick={() => deleteNotification(notif)}
                           sx={{
-                            color: "rgba(255,255,255,0.2)",
+                            color: theme.palette.text.secondary,
+                            opacity: 0.3,
                             p: 0.5,
-                            "&:hover": { color: COLORS.error },
+                            "&:hover": { 
+                              color: theme.palette.error.main,
+                              opacity: 1
+                            },
                           }}
                         >
                           <DeleteIcon sx={{ fontSize: 16 }} />
@@ -302,7 +300,7 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
                     <Typography
                       variant="body2"
                       sx={{
-                        color: theme.palette.common.white_alpha.main_60,
+                        color: "text.secondary",
                         fontSize: "0.75rem",
                         lineHeight: 1.4,
                         mb: 1,
@@ -313,7 +311,8 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
                     <Typography
                       variant="caption"
                       sx={{
-                        color: theme.palette.common.white_alpha.main_30,
+                        color: "text.secondary",
+                        opacity: 0.5,
                         fontSize: "0.65rem",
                         fontWeight: 700,
                       }}

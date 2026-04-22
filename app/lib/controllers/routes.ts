@@ -1,6 +1,6 @@
 "use server";
 
-import { Prisma, RouteStatus } from "@prisma/client";
+import { type Prisma, RouteStatus } from "@prisma/client";
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
@@ -129,7 +129,7 @@ export const createRoute = authenticatedAction(
         }
       }
 
-      const newRoute = await db.$transaction(async (tx) => {
+      const newRoute = await db.$transaction(async (tx: any) => {
         // Create the route
         const route = await tx.route.create({
           data: {
@@ -745,7 +745,7 @@ export const getActiveRoutesLocations = authenticatedAction(async (user) => {
           r.vehicle.currentLat !== null &&
           r.vehicle.currentLng !== null
       )
-      .map((r) => ({
+      .map((r: any) => ({
         position: {
           lat: r.vehicle!.currentLat!,
           lng: r.vehicle!.currentLng!,
@@ -788,7 +788,7 @@ export const updateRouteStatus = authenticatedAction(
         return route;
       }
 
-      const updatedRoute = await db.$transaction(async (tx) => {
+      const updatedRoute = await db.$transaction(async (tx: any) => {
         const updateData: Prisma.RouteUpdateInput = { status };
 
         if (status === "ACTIVE" && !route.startTime) {
@@ -1068,8 +1068,8 @@ export const getRoutesWithDashboardData = authenticatedAction(
           recentNotifications: [],
         },
         mapData: locationsData
-          .filter((r) => r.vehicle?.currentLat && r.vehicle?.currentLng)
-          .map((r) => ({
+          .filter((r: any) => r.vehicle?.currentLat && r.vehicle?.currentLng)
+          .map((r: any) => ({
             position: {
               lat: r.vehicle!.currentLat!,
               lng: r.vehicle!.currentLng!,

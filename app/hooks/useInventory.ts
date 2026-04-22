@@ -9,6 +9,7 @@ import {
   deleteInventoryItem,
   getInventoryWithDashboardData,
   logWarehouseFulfillment,
+  adjustInventoryStock,
 } from "@/app/lib/controllers/inventory";
 import { Inventory } from "@/app/lib/type/enums";
 import { toast } from "sonner";
@@ -132,18 +133,9 @@ export function useInventoryMutations() {
       volumeM3?: number;
       palletCount?: number;
       cargoType?: string;
+      unitValue?: number;
     }) =>
-      createInventoryItem(
-        data.warehouseId,
-        data.sku,
-        data.name,
-        data.quantity,
-        data.minStock,
-        data.weightKg,
-        data.volumeM3,
-        data.palletCount,
-        data.cargoType
-      ),
+      createInventoryItem(data),
     onSuccess: () => handleSuccess("Item added to inventory successfully"),
     onError: (error: Error) =>
       handleError("Failed to add inventory item", error),
@@ -180,11 +172,23 @@ export function useInventoryMutations() {
     onSuccess: () => handleSuccess("Fulfillment logged successfully"),
     onError: (error: Error) => handleError("Failed to log fulfillment", error),
   });
+  
+  const adjustStockMutation = useMutation({
+    mutationFn: (data: {
+      id: string;
+      delta: number;
+      type?: string;
+      notes?: string;
+    }) => adjustInventoryStock(data.id, data.delta, data.type, data.notes),
+    onSuccess: () => handleSuccess("Stock adjusted successfully"),
+    onError: (error: Error) => handleError("Failed to adjust stock", error),
+  });
 
   return {
     createItem: createMutation,
     updateItem: updateMutation,
     deleteItem: deleteMutation,
     logFulfillment: logFulfillmentMutation,
+    adjustStock: adjustStockMutation,
   };
 }

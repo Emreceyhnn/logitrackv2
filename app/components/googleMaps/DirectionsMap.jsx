@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import {
   GoogleMap,
   DirectionsRenderer,
   Marker,
+  OverlayView,
 } from "@react-google-maps/api";
 import { useDictionary } from "../../lib/language/DictionaryContext";
 
@@ -14,12 +15,98 @@ const containerStyle = {
   borderRadius: "12px",
 };
 
-export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
+/**
+ * Custom vehicle marker overlay rendered as a DOM element.
+ * Shows a truck emoji pin + plate label.
+ */
+const VehicleMarker = ({ position, name }) => {
+  return (
+    <OverlayView
+      position={position}
+      mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+    >
+      <div
+        style={{
+          transform: "translate(-50%, -100%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          cursor: "default",
+          pointerEvents: "none",
+          userSelect: "none",
+        }}
+      >
+        {/* Plate badge */}
+        <div
+          style={{
+            background: "rgba(11, 16, 25, 0.92)",
+            backdropFilter: "blur(8px)",
+            border: "1px solid rgba(99, 179, 237, 0.5)",
+            color: "#63B3ED",
+            fontSize: "10px",
+            fontWeight: 800,
+            padding: "2px 8px",
+            borderRadius: "6px",
+            whiteSpace: "nowrap",
+            letterSpacing: "0.05em",
+            marginBottom: "4px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+          }}
+        >
+          {name}
+        </div>
+        {/* Truck icon bubble */}
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: "50% 50% 50% 0",
+            transform: "rotate(-45deg)",
+            background: "linear-gradient(135deg, #3182CE, #63B3ED)",
+            border: "2px solid rgba(255,255,255,0.3)",
+            boxShadow: "0 4px 16px rgba(49, 130, 206, 0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span
+            style={{
+              transform: "rotate(45deg)",
+              fontSize: "16px",
+              lineHeight: 1,
+            }}
+          >
+            🚛
+          </span>
+        </div>
+        {/* Drop shadow dot */}
+        <div
+          style={{
+            width: 8,
+            height: 4,
+            borderRadius: "50%",
+            background: "rgba(0,0,0,0.3)",
+            marginTop: 2,
+            filter: "blur(2px)",
+          }}
+        />
+      </div>
+    </OverlayView>
+  );
+};
+
+export const DirectionsMap = ({
+  origin,
+  destination,
+  vehicleLocation,
+  onRouteInfoUpdate,
+}) => {
   const dict = useDictionary();
   const [response, setResponse] = useState(null);
   const [errorCount, setErrorCount] = useState(0);
   const [isRequesting, setIsRequesting] = useState(false);
-  
+
   // Use ref to track the last requested route to prevent redundant calls
   const lastRequestRef = useRef({ originKey: "", destinationKey: "" });
 
@@ -52,17 +139,12 @@ export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
       return;
     }
 
-    // Mark as requesting - use a micro-delay or better, handle it outside if possible
-    // But for now, we just acknowledge the ref update is synchronous and the state update is intentional
     lastRequestRef.current = { originKey, destinationKey };
-    
-    // Use a small timeout to avoid the synchronous setState warning in some environments
+
     const timer = setTimeout(() => setIsRequesting(true), 0);
 
     if (typeof window === "undefined" || !window.google) {
       console.error("Google Maps API not loaded yet");
-      // If Google Maps API is not loaded, we can't make a request, so stop requesting.
-      // Use a timeout to avoid sync state update warning
       const timer2 = setTimeout(() => setIsRequesting(false), 0);
       return () => {
         clearTimeout(timer);
@@ -83,10 +165,9 @@ export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
         if (status === window.google.maps.DirectionsStatus.OK) {
           setResponse(result);
           setErrorCount(0);
-          
+
           const leg = result.routes[0].legs[0];
           if (onRouteInfoUpdate) {
-            // Update parent state with metrics
             onRouteInfoUpdate({
               distanceKm: parseFloat((leg.distance.value / 1000).toFixed(1)),
               durationMin: Math.ceil(leg.duration.value / 60),
@@ -104,22 +185,33 @@ export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
   }, [origin, destination, onRouteInfoUpdate]);
 
   const mapCenter = useMemo(() => {
+    // If we have a vehicle location, prefer centering on it
+    if (vehicleLocation?.lat && vehicleLocation?.lng) {
+      return { lat: vehicleLocation.lat, lng: vehicleLocation.lng };
+    }
     if (origin?.lat && origin?.lng) return origin;
     return { lat: 41.0082, lng: 28.9784 }; // Default to Istanbul
-  }, [origin]);
+  }, [origin, vehicleLocation]);
 
-  const mapOptions = useMemo(() => ({
-    disableDefaultUI: false,
-    zoomControl: true,
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: true,
-  }), []);
+  const mapOptions = useMemo(
+    () => ({
+      disableDefaultUI: false,
+      zoomControl: true,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true,
+    }),
+    []
+  );
 
-  const rendererOptions = useMemo(() => ({
-    directions: response,
-    suppressMarkers: false,
-  }), [response]);
+  const rendererOptions = useMemo(
+    () => ({
+      directions: response,
+      // Suppress default A/B markers so our vehicle marker is visible cleanly
+      suppressMarkers: false,
+    }),
+    [response]
+  );
 
   return (
     <div className="relative w-full h-full">
@@ -130,27 +222,39 @@ export const DirectionsMap = ({ origin, destination, onRouteInfoUpdate }) => {
           </div>
         </div>
       )}
-      
-      <GoogleMap 
-        mapContainerStyle={containerStyle} 
-        center={mapCenter} 
+
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={mapCenter}
         zoom={12}
         options={mapOptions}
       >
+        {/* Origin / Destination markers — only shown while route not yet calculated */}
         {!response && origin && (
-          <Marker position={typeof origin === "string" ? null : origin} label="A" />
+          <Marker
+            position={typeof origin === "string" ? null : origin}
+            label="A"
+          />
         )}
         {!response && destination && (
-          <Marker position={typeof destination === "string" ? null : destination} label="B" />
+          <Marker
+            position={typeof destination === "string" ? null : destination}
+            label="B"
+          />
         )}
 
-        {response && (
-          <DirectionsRenderer
-            options={rendererOptions}
+        {/* Directions polyline */}
+        {response && <DirectionsRenderer options={rendererOptions} />}
+
+        {/* Vehicle marker — always visible when location data is available */}
+        {vehicleLocation?.lat && vehicleLocation?.lng && (
+          <VehicleMarker
+            position={{ lat: vehicleLocation.lat, lng: vehicleLocation.lng }}
+            name={vehicleLocation.name || "Vehicle"}
           />
         )}
       </GoogleMap>
-      
+
       {errorCount > 0 && (
         <div className="absolute bottom-4 left-4 right-4 z-10">
           <div className="bg-red-500/90 text-white text-xs font-medium px-3 py-2 rounded-md shadow-lg backdrop-blur-sm">
