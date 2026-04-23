@@ -1,7 +1,11 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://logitrack.app";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
+    ? process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, "")
+    : process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : "https://logitrack.app";
   const locales = ["en", "tr"];
   const publicRoutes = [
     "",
