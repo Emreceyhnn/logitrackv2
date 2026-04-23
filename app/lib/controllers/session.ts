@@ -10,7 +10,7 @@ import type { AuditAction } from "@prisma/client";
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
-const ACCESS_TOKEN_EXPIRY = "15m"; // 15 minutes
+const ACCESS_TOKEN_EXPIRY = "24h"; // 24 hours
 const REFRESH_TOKEN_EXPIRY_DAYS = 7;
 const ACTIVITY_THROTTLE_MS = 5 * 60 * 1000; // 5 minutes — don't update lastActivityAt on every single request
 
@@ -121,7 +121,7 @@ export async function createSession(
 
     cookieStore.set("token", accessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: 15 * 60, // 15 minutes (seconds)
+      maxAge: 24 * 60 * 60, // 24 hours (seconds)
     });
 
     cookieStore.set("refreshToken", refreshToken, {
@@ -321,7 +321,7 @@ export async function refreshSession(): Promise<boolean> {
     // Set new cookies
     cookieStore.set("token", newAccessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: 15 * 60, // 15 minutes (seconds)
+      maxAge: 24 * 60 * 60, // 24 hours (seconds)
     });
 
     cookieStore.set("refreshToken", newRefreshToken, {
