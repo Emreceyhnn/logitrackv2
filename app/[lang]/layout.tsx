@@ -26,7 +26,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
   const dict = await getDictionary(lang);
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://logitrack.app";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
+    ? process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, "")
+    : process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : "https://logitrack.emreceyhan.xyz";
 
   return {
     title: {
@@ -96,7 +100,11 @@ export default async function LangLayout({
   const dict = await getDictionary(lang);
   const userTheme = await getUserTheme();
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://logitrack.app";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
+    ? process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, "")
+    : process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : "https://logitrack.emreceyhan.xyz";
 
   const organizationSchema = {
     "@context": "https://schema.org",

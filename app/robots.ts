@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     ? process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, "")
     : process.env.VERCEL_URL 
       ? `https://${process.env.VERCEL_URL}` 
-      : "https://logitrack.app";
+      : "https://logitrack.emreceyhan.xyz";
 
   return {
     rules: [
