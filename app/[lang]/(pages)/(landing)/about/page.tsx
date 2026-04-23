@@ -81,6 +81,7 @@ export default function AboutPage() {
           />
           <Typography
             variant="h2"
+            component="h1"
             sx={{
               fontWeight: 800,
               lineHeight: 1.1,
@@ -118,7 +119,7 @@ export default function AboutPage() {
             <Typography variant="overline" sx={{ color: "#38bdf8", letterSpacing: 3, fontWeight: 700 }}>
               {aDict.vision.overline}
             </Typography>
-            <Typography variant="h3" sx={{ fontWeight: 800, mt: 2, mb: 4 }}>
+            <Typography variant="h3" component="h2" sx={{ fontWeight: 800, mt: 2, mb: 4 }}>
               {aDict.vision.title}
             </Typography>
             <Typography variant="body1" sx={{ color: theme.palette.kpi.slateLight_alpha.main_90, fontSize: "1.1rem", lineHeight: 1.8 }}>
@@ -163,6 +164,7 @@ export default function AboutPage() {
         <Box mb={16}>
           <Typography
             variant="h4"
+            component="h2"
             textAlign="center"
             fontWeight={800}
             mb={8}
@@ -208,7 +210,7 @@ export default function AboutPage() {
                 }}
               >
                 <Box mb={3}>{pillar.icon}</Box>
-                <Typography variant="h5" fontWeight={700} mb={2}>
+                <Typography variant="h5" component="h3" fontWeight={700} mb={2}>
                   {pillar.title}
                 </Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.kpi.slateLight_alpha.main_70, lineHeight: 1.7 }}>
@@ -242,7 +244,7 @@ export default function AboutPage() {
               filter: "blur(40px)",
             }}
           />
-          <Typography variant="h4" fontWeight={800} mb={3}>
+          <Typography variant="h4" component="h2" fontWeight={800} mb={3}>
             {aDict.why.title}
           </Typography>
           <Typography

@@ -212,7 +212,7 @@ export default function FeaturesPage() {
                         mb: 2
                       }}
                     />
-                    <Typography variant="h5" fontWeight={800} mb={2}>
+                    <Typography variant="h5" component="h3" fontWeight={800} mb={2}>
                       {feature.title}
                     </Typography>
                     <Typography variant="body2" sx={{ color: theme.palette.kpi.slateLight_alpha.main_60, lineHeight: 1.8 }}>
@@ -252,7 +252,7 @@ export default function FeaturesPage() {
           <Typography variant="overline" sx={{ color: "#38bdf8", letterSpacing: 4, fontWeight: 800 }}>
             {fDict.infrastructure.overline}
           </Typography>
-          <Typography variant="h3" sx={{ fontWeight: 900, mt: 3, mb: 4 }}>
+          <Typography variant="h3" component="h2" sx={{ fontWeight: 900, mt: 3, mb: 4 }}>
             {fDict.infrastructure.title}
           </Typography>
           <Typography variant="body1" sx={{ color: theme.palette.kpi.slateLight_alpha.main_70, maxWidth: 900, mx: "auto", mb: 6, lineHeight: 1.8 }}>

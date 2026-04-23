@@ -115,6 +115,7 @@ export default function PricingPage() {
           />
           <Typography
             variant="h2"
+            component="h1"
             sx={{
               fontWeight: 900,
               fontSize: { xs: "2.5rem", md: "4rem" },
@@ -193,7 +194,7 @@ export default function PricingPage() {
                   />
                 )}
 
-                <Typography variant="h5" fontWeight={800} mb={1}>
+                <Typography variant="h5" component="h2" fontWeight={800} mb={1}>
                   {tier.title}
                 </Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.kpi.slateLight_alpha.main_60, mb: 4, height: 40 }}>
@@ -259,7 +260,7 @@ export default function PricingPage() {
         >
           <Stack spacing={3} alignItems="center">
             <BoltRoundedIcon sx={{ fontSize: 48, color: "#38bdf8" }} />
-            <Typography variant="h4" fontWeight={900}>
+            <Typography variant="h4" component="h2" fontWeight={900}>
               {dict.landing.pricing.infrastructure.title}
             </Typography>
             <Typography variant="body1" sx={{ color: theme.palette.kpi.slateLight_alpha.main_70, maxWidth: 800, mx: "auto", lineHeight: 1.8 }}>

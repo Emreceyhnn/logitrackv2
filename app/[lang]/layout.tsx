@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getDictionary } from "@/app/lib/language/language";
 import { DictionaryProvider } from "@/app/lib/language/DictionaryContext";
 import { getUserTheme } from "@/app/lib/actions/theme";
+import JsonLd from "@/app/components/seo/JsonLd";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -28,7 +29,10 @@ export async function generateMetadata({
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://logitrack.app";
 
   return {
-    title: dict.landing.metaTitle || "LogiTrack – AI Lojistik Yönetim Platformu",
+    title: {
+      default: dict.landing.metaTitle || "LogiTrack – AI Lojistik Yönetim Platformu",
+      template: `%s | LogiTrack`
+    },
     description: dict.landing.metaDescription || "Teslimatlarınızı, filonuzu ve operasyonlarınızı tek akıllı panelden yönetin.",
     metadataBase: new URL(baseUrl),
     alternates: {
@@ -37,6 +41,32 @@ export async function generateMetadata({
         en: "/en",
         tr: "/tr",
       },
+    },
+    openGraph: {
+      type: "website",
+      locale: lang === "tr" ? "tr_TR" : "en_US",
+      url: `${baseUrl}/${lang}`,
+      siteName: "LogiTrack",
+      title: dict.landing.metaTitle,
+      description: dict.landing.metaDescription,
+      images: [
+        {
+          url: "/logo1.png",
+          width: 1200,
+          height: 630,
+          alt: "LogiTrack AI Logistics",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: dict.landing.metaTitle,
+      description: dict.landing.metaDescription,
+      images: ["/logo1.png"],
+    },
+    icons: {
+      icon: "/favicon.ico",
+      apple: "/logo1.png",
     },
     robots: {
       index: true,
@@ -48,6 +78,9 @@ export async function generateMetadata({
         "max-image-preview": "large",
         "max-snippet": -1,
       },
+    },
+    verification: {
+      google: "google-site-verification-id", // Search Console'dan alınan kodu buraya ekleyin
     },
   };
 }
@@ -63,9 +96,25 @@ export default async function LangLayout({
   const dict = await getDictionary(lang);
   const userTheme = await getUserTheme();
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://logitrack.app";
+
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "LogiTrack",
+    "url": baseUrl,
+    "logo": `${baseUrl}/logo1.png`,
+    "sameAs": [
+      "https://twitter.com/logitrack",
+      "https://linkedin.com/company/logitrack"
+    ],
+    "description": dict.landing.metaDescription
+  };
+
   return (
     <html lang={lang}>
       <body className={poppins.variable}>
+        <JsonLd data={organizationSchema} />
         <Providers initialMode={(userTheme as any) || undefined}>
           <DictionaryProvider dict={dict}>
             {children}

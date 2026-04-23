@@ -195,7 +195,7 @@ export default function LandingPage() {
         >
           <Image
             src="/logo1-vector.png"
-            alt="Logo"
+            alt="LogiTrack - AI Powered Logistics Management Platform"
             fill
             sizes="140px"
             style={{ objectFit: "contain" }}
@@ -327,7 +327,7 @@ export default function LandingPage() {
                     }
                   >
                     <Stack spacing={0.5}>
-                      <Typography variant="h3" fontWeight={800}>
+                      <Typography variant="h4" component="h2" fontWeight={800}>
                         98%
                       </Typography>
                       <Typography
@@ -338,7 +338,7 @@ export default function LandingPage() {
                       </Typography>
                     </Stack>
                     <Stack spacing={0.5}>
-                      <Typography variant="h3" fontWeight={800}>
+                      <Typography variant="h4" component="h2" fontWeight={800}>
                         12k+
                       </Typography>
                       <Typography
@@ -615,7 +615,7 @@ export default function LandingPage() {
                 >
                   {dict.landing.features.overline}
                 </Typography>
-                <Typography variant="h3" fontWeight={800}>
+                <Typography variant="h3" component="h2" fontWeight={800}>
                   {dict.landing.features.title}
                 </Typography>
                 <Typography
@@ -731,7 +731,7 @@ export default function LandingPage() {
             justifyContent="space-between"
           >
             <Stack spacing={2}>
-              <Typography variant="h4" fontWeight={800}>
+              <Typography variant="h4" component="h2" fontWeight={800}>
                 {dict.landing.cta.title}
               </Typography>
               <Typography
