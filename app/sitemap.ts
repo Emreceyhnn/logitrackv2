@@ -20,9 +20,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
         lastModified: new Date(),
         changeFrequency: "weekly",
         priority: route === "" ? 1 : 0.8,
-        languages: {
-          en: `${baseUrl}/en${route}`,
-          tr: `${baseUrl}/tr${route}`,
+        alternates: {
+          languages: {
+            en: `${baseUrl}/en${route}`,
+            tr: `${baseUrl}/tr${route}`,
+          },
         },
       });
     });
