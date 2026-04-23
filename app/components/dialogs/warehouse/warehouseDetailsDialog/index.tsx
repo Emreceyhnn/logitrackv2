@@ -91,10 +91,6 @@ const WarehouseDetailsDialog = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 4,
-          bgcolor: "#0B1019",
-          backgroundImage: "none",
-          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           overflow: "hidden",
           minHeight: "80vh",
         },
@@ -103,8 +99,8 @@ const WarehouseDetailsDialog = ({
       <Box
         sx={{
           p: 3,
-          bgcolor: "#0B1019",
-          borderBottom: `1px solid ${theme.palette.divider_alpha.main_10}`,
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
         <Stack
@@ -129,8 +125,8 @@ const WarehouseDetailsDialog = ({
               <Stack direction="row" spacing={1} alignItems="center">
                 <Typography
                   variant="h4"
-                  fontWeight={700}
-                  sx={{ color: "white" }}
+                  fontWeight={800}
+                  color="text.primary"
                 >
                   {warehouseData.name}
                 </Typography>

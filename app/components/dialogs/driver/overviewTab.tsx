@@ -87,7 +87,7 @@ const KPICard = ({
           {icon}
         </Box>
       </Stack>
-      <Typography variant="h4" fontWeight={800} color="white">
+      <Typography variant="h4" fontWeight={800} color="text.primary">
         {value}
       </Typography>
     </Card>
@@ -183,7 +183,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                 {dict.drivers.fields.licenseExpiry}
               </Typography>
             </Stack>
-            <Typography variant="h6" fontWeight={700} color="white">
+            <Typography variant="h6" fontWeight={700} color="text.primary">
               {driver.licenseExpiry
                 ? new Date(driver.licenseExpiry).toLocaleDateString()
                 : dict.common.na}
@@ -248,7 +248,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                 {dict.drivers.labels.base}
               </Typography>
             </Stack>
-            <Typography variant="h6" fontWeight={700} color="white" noWrap>
+            <Typography variant="h6" fontWeight={700} color="text.primary" noWrap>
               {driver.homeBaseWarehouse?.name || dict.common.noData}
             </Typography>
             <Typography variant="caption" color="text.secondary">
@@ -284,7 +284,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             fontWeight: 600,
             textTransform: "none",
             borderColor: theme.palette.divider_alpha.main_20,
-            color: "white",
+            color: "text.primary",
             "&:hover": {
               borderColor: theme.palette.divider_alpha.main_50,
               bgcolor: theme.palette.background.paper_alpha.main_50,

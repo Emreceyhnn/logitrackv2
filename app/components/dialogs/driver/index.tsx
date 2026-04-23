@@ -99,7 +99,6 @@ const DriverDialog = (params: DriverDialogParams) => {
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: theme.palette.background.midnight.main,
           backgroundImage: "none",
           border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           overflow: "hidden",
@@ -154,7 +153,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                 <Typography
                   variant="h4"
                   fontWeight={800}
-                  sx={{ color: "white" }}
+                  sx={{ color: "text.primary" }}
                 >
                   {driverData.user.name} {driverData.user.surname}
                 </Typography>
@@ -268,7 +267,7 @@ const DriverDialog = (params: DriverDialogParams) => {
         </Stack>
       </Box>
 
-      <DialogContent sx={{ p: 0, bgcolor: theme.palette.background.midnight.main }}>
+      <DialogContent sx={{ p: 0 }}>
         <Stack>
           <Box
             sx={{
@@ -300,7 +299,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                   minHeight: 48,
                   px: 3,
                   "&.Mui-selected": {
-                    color: "white",
+                    color: "text.primary",
                   },
                 },
               }}

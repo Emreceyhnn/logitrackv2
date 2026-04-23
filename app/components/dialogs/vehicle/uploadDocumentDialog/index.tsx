@@ -135,25 +135,19 @@ export default function UploadDocumentDialog({
 
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
       borderRadius: 2,
       height: 48,
       "& fieldset": {
-        borderColor: theme.palette.divider_alpha.main_10,
+        borderColor: "divider",
       },
       "&:hover fieldset": {
-        borderColor: theme.palette.primary._alpha.main_30,
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: theme.palette.primary.main,
+        borderColor: "primary.main",
       },
     },
     "& .MuiInputLabel-root": {
       fontSize: "0.85rem",
-      color: "text.secondary",
     },
     "& .MuiOutlinedInput-input": {
-      color: "white",
       fontSize: "0.9rem",
     },
   };
@@ -199,10 +193,7 @@ export default function UploadDocumentDialog({
       maxWidth="sm"
       PaperProps={{
         sx: {
-          borderRadius: 4,
-          bgcolor: "#0B1019",
-          backgroundImage: "none",
-          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+          overflow: "hidden",
         },
       }}
     >
@@ -212,7 +203,7 @@ export default function UploadDocumentDialog({
           justifyContent="space-between"
           alignItems="center"
         >
-          <Typography variant="h6" fontWeight={700} color="white">
+          <Typography variant="h6" fontWeight={800} color="text.primary">
             {dict.vehicles.dialogs.uploadDocumentTitle}
           </Typography>
           <IconButton
@@ -225,7 +216,8 @@ export default function UploadDocumentDialog({
         </Stack>
         <Typography
           variant="caption"
-          sx={{ color: theme.palette.common.white_alpha.main_40, mt: 0.5, display: "block" }}
+          color="text.secondary"
+          sx={{ mt: 0.5, display: "block", fontWeight: 500 }}
         >
           {dict.vehicles.dialogs.uploadDocumentDesc}
         </Typography>
@@ -239,9 +231,9 @@ export default function UploadDocumentDialog({
               variant="filled"
               sx={{
                 borderRadius: 2,
-                bgcolor: theme.palette.error._alpha.main_10,
-                color: theme.palette.error.light,
-                border: `1px solid ${theme.palette.error._alpha.main_20}`,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "error._alpha.main_10" : "error._alpha.main_05",
+                color: "error.light",
+                border: (theme) => `1px solid ${theme.palette.error._alpha.main_20}`,
               }}
             >
               {error}
@@ -264,7 +256,7 @@ export default function UploadDocumentDialog({
             </Typography>
             <Stack spacing={2.5}>
               <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: theme.palette.common.white_alpha.main_40 }}>{dict.common.docType}</InputLabel>
+                <InputLabel sx={{ color: "text.secondary" }}>{dict.common.docType}</InputLabel>
                 <Select
                   value={type}
                   label={dict.common.docType}
@@ -272,9 +264,7 @@ export default function UploadDocumentDialog({
                   MenuProps={{
                     PaperProps: {
                       sx: {
-                        bgcolor: "#1A202C",
                         backgroundImage: "none",
-                        border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                         mt: 1,
                       },
                     },
@@ -355,22 +345,22 @@ export default function UploadDocumentDialog({
                 borderRadius: 3,
                 borderStyle: "dashed",
                 borderWidth: 2,
-                borderColor: theme.palette.primary._alpha.main_30,
-                bgcolor: theme.palette.primary._alpha.main_02,
+                borderColor: (theme) => theme.palette.mode === "dark" ? theme.palette.primary._alpha.main_30 : theme.palette.primary._alpha.main_40,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? theme.palette.primary._alpha.main_02 : "rgba(0,0,0,0.02)",
                 flexDirection: "column",
                 gap: 1,
                 textTransform: "none",
                 "&:hover": {
-                  bgcolor: theme.palette.primary._alpha.main_05,
+                  bgcolor: (theme) => theme.palette.mode === "dark" ? theme.palette.primary._alpha.main_05 : "rgba(0,0,0,0.04)",
                   borderColor: theme.palette.primary.main,
                 },
               }}
             >
               <Stack spacing={0.5} alignItems="center">
-                <Typography variant="body2" fontWeight={600} color="white">
+                <Typography variant="body2" fontWeight={700} color="text.primary">
                   {file ? file.name : dict.vehicles.dialogs.selectOrDragFile}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>
                   {dict.vehicles.dialogs.fileFormats}
                 </Typography>
               </Stack>
@@ -404,11 +394,11 @@ export default function UploadDocumentDialog({
                   height: 160,
                   borderRadius: 3,
                   overflow: "hidden",
-                  border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+                  border: `1px solid ${theme.palette.divider}`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  bgcolor: theme.palette.common.black_alpha.main_20,
+                  bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
                   position: "relative",
                 }}
               >
@@ -432,7 +422,7 @@ export default function UploadDocumentDialog({
         sx={{
           p: 3,
           pt: 2,
-          borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`,
+          borderTop: `1px solid ${theme.palette.divider}`,
         }}
       >
         <Stack direction="row" spacing={2} justifyContent="flex-end">

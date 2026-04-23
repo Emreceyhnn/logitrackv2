@@ -80,24 +80,18 @@ export default function IssueDetailDialog({
   /* --------------------------------- styles --------------------------------- */
   const selectSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
       borderRadius: 2,
       "& fieldset": {
-        borderColor: theme.palette.divider_alpha.main_10,
+        borderColor: "divider",
       },
       "&:hover fieldset": {
-        borderColor: theme.palette.primary._alpha.main_30,
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: theme.palette.primary.main,
+        borderColor: "primary.main",
       },
     },
     "& .MuiInputLabel-root": {
       fontSize: "0.85rem",
-      color: "text.secondary",
     },
     "& .MuiOutlinedInput-input": {
-      color: "white",
       fontSize: "0.9rem",
     },
   };
@@ -113,10 +107,7 @@ export default function IssueDetailDialog({
       maxWidth="sm"
       PaperProps={{
         sx: {
-          borderRadius: 4,
-          bgcolor: "#0B1019",
-          backgroundImage: "none",
-          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+          overflow: "hidden",
         },
       }}
     >
@@ -135,11 +126,11 @@ export default function IssueDetailDialog({
               <AssignmentIcon />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={700} color="white">
+              <Typography variant="h6" fontWeight={800} color="text.primary">
                 {dict.vehicles.dialogs.issueDetails}
               </Typography>
-              <Typography variant="caption" sx={{ color: theme.palette.common.white_alpha.main_40, mt: 0.5, display: "block" }}>
-                {dict.vehicles.dialogs.referenceId}: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>#{issue.id.slice(-6).toUpperCase()}</span>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block", fontWeight: 500 }}>
+                {dict.vehicles.dialogs.referenceId}: <span style={{ color: theme.palette.primary.main, fontWeight: 700 }}>#{issue.id.slice(-6).toUpperCase()}</span>
               </Typography>
             </Box>
           </Stack>
@@ -157,9 +148,9 @@ export default function IssueDetailDialog({
               variant="filled"
               sx={{ 
                 borderRadius: 2,
-                bgcolor: theme.palette.error._alpha.main_10,
-                color: theme.palette.error.light,
-                border: `1px solid ${theme.palette.error._alpha.main_20}`,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "error._alpha.main_10" : "error._alpha.main_05",
+                color: "error.light",
+                border: (theme) => `1px solid ${theme.palette.error._alpha.main_20}`,
               }}
             >
               {error}
@@ -171,7 +162,7 @@ export default function IssueDetailDialog({
               <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
                 {dict.vehicles.dialogs.incidentTitle}
               </Typography>
-              <Typography variant="h5" color="white" fontWeight={700}>
+              <Typography variant="h5" color="text.primary" fontWeight={800}>
                 {issue.title}
               </Typography>
             </Box>
@@ -184,11 +175,11 @@ export default function IssueDetailDialog({
                 sx={{ 
                   p: 2, 
                   borderRadius: 2, 
-                  bgcolor: theme.palette.text.darkBlue._alpha.main_30,
-                  border: `1px solid ${theme.palette.divider_alpha.main_05}`
+                  bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                  border: `1px solid ${theme.palette.divider}`,
                 }}
               >
-                <Typography variant="body2" color="rgba(255,255,255,0.7)" sx={{ lineHeight: 1.6 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6, fontWeight: 500 }}>
                   {issue.description || dict.vehicles.dialogs.noSupplementalDetails}
                 </Typography>
               </Box>
@@ -199,7 +190,7 @@ export default function IssueDetailDialog({
                 <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 0.5, display: "block", textTransform: "uppercase" }}>
                   {dict.vehicles.dialogs.reportedOn}
                 </Typography>
-                <Typography variant="body2" color="white">
+                <Typography variant="body2" color="text.primary" fontWeight={600}>
                   {new Date(issue.createdAt).toLocaleDateString("en-US", {
                     month: "long",
                     day: "numeric",
@@ -209,7 +200,7 @@ export default function IssueDetailDialog({
               </Box>
             </Box>
 
-            <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
+            <Divider sx={{ borderColor: "divider" }} />
 
             <Box>
               <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 2, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
@@ -217,7 +208,7 @@ export default function IssueDetailDialog({
               </Typography>
               <Stack direction="row" spacing={2.5}>
                 <FormControl fullWidth sx={selectSx}>
-                  <InputLabel shrink sx={{ color: theme.palette.common.white_alpha.main_40 }}>{dict.vehicles.fields.status}</InputLabel>
+                  <InputLabel shrink sx={{ color: "text.secondary" }}>{dict.vehicles.fields.status}</InputLabel>
                   <Select
                     value={status}
                     label={dict.vehicles.fields.status}
@@ -227,9 +218,7 @@ export default function IssueDetailDialog({
                     MenuProps={{
                       PaperProps: {
                         sx: {
-                          bgcolor: "#1A202C",
                           backgroundImage: "none",
-                          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                         }
                       }
                     }}
@@ -242,7 +231,7 @@ export default function IssueDetailDialog({
                 </FormControl>
 
                 <FormControl fullWidth sx={selectSx}>
-                  <InputLabel shrink sx={{ color: theme.palette.common.white_alpha.main_40 }}>{dict.vehicles.fields.priority}</InputLabel>
+                  <InputLabel shrink sx={{ color: "text.secondary" }}>{dict.vehicles.fields.priority}</InputLabel>
                   <Select
                     value={priority}
                     label={dict.vehicles.fields.priority}
@@ -252,9 +241,7 @@ export default function IssueDetailDialog({
                     MenuProps={{
                       PaperProps: {
                         sx: {
-                          bgcolor: "#1A202C",
                           backgroundImage: "none",
-                          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                         }
                       }
                     }}
@@ -264,8 +251,8 @@ export default function IssueDetailDialog({
                       const mainColor = paletteColor?.main || theme.palette.text.primary;
                       return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                          <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: mainColor, boxShadow: `0 0 10px ${paletteColor?._alpha.main_50}` }} />
-                          <Typography variant="body2" color="white">{dict.vehicles.priorities[value as keyof typeof dict.vehicles.priorities] || value as string}</Typography>
+                          <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: mainColor, boxShadow: (theme) => theme.palette.mode === "dark" ? `0 0 10px ${paletteColor?._alpha.main_50}` : "none" }} />
+                          <Typography variant="body2" color="text.primary" fontWeight={600}>{dict.vehicles.priorities[value as keyof typeof dict.vehicles.priorities] || value as string}</Typography>
                         </Box>
                       );
                     }}
@@ -286,7 +273,7 @@ export default function IssueDetailDialog({
         </Stack>
       </DialogContent>
 
-      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider_alpha.main_05}` }}>
+      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
         <Stack direction="row" spacing={2} justifyContent="flex-end">
           <Button 
             onClick={onClose} 

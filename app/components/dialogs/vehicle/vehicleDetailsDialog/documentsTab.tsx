@@ -156,10 +156,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                border: `1px solid ${theme.palette.divider}`,
               }}
             >
               <Box
@@ -180,7 +180,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 {dict.common.active}
               </Typography>
               <Typography
-                sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
+                sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}
               >
                 {activeCount}
               </Typography>
@@ -191,10 +191,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                border: `1px solid ${theme.palette.divider}`,
               }}
             >
               <Box
@@ -215,7 +215,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 {dict.common.expiring}
               </Typography>
               <Typography
-                sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
+                sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}
               >
                 {expiringSoonCount}
               </Typography>
@@ -228,10 +228,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                border: `1px solid ${theme.palette.divider}`,
               }}
             >
               <Box
@@ -252,7 +252,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 {dict.common.missing}
               </Typography>
               <Typography
-                sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
+                sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}
               >
                 {missingOrExpiredCount}
               </Typography>
@@ -263,10 +263,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                border: `1px solid ${theme.palette.divider}`,
               }}
             >
               <Box
@@ -287,7 +287,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 {dict.common.upload}
               </Typography>
               <Typography
-                sx={{ fontSize: 18, marginTop: "auto", color: "white" }}
+                sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}
               >
                 {lastUploadDate.getTime() > 0
                   ? lastUploadDate.toLocaleDateString()
@@ -315,10 +315,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
               p: 2,
               borderRadius: "8px",
               gap: 2,
-              bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+              bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
               backgroundImage: "none",
               boxShadow: "none",
-              border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+              border: `1px solid ${theme.palette.divider}`,
             }}
           >
             <Table size="small">
@@ -327,8 +327,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   <TableCell
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor:
-                        theme.palette.common.white_alpha.main_05,
+                      borderBottomColor: "divider",
                     }}
                   >
                     {dict.common.docType}
@@ -385,23 +384,22 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       sx={{
                         cursor: "pointer",
                         "&:hover": {
-                          bgcolor: theme.palette.common.white_alpha.main_02,
+                          bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
                         },
                       }}
                       onClick={() => handleViewDoc(v.url, v.name)}
                     >
                       <TableCell
                         sx={{
-                          borderBottomColor:
-                            theme.palette.common.white_alpha.main_05,
+                          borderBottomColor: "divider",
                         }}
                       >
                         <Stack>
                           <Typography
                             sx={{
                               fontSize: 14,
-                              fontWeight: 500,
-                              color: "white",
+                              fontWeight: 700,
+                              color: "text.primary",
                             }}
                           >
                             {dict.vehicles.docTypes[
@@ -420,17 +418,16 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       </TableCell>
                       <TableCell
                         sx={{
-                          borderBottomColor:
-                            theme.palette.common.white_alpha.main_05,
+                          borderBottomColor: "divider",
                         }}
                       >
                         <StatusChip status={v.status} />
                       </TableCell>
                       <TableCell
                         sx={{
-                          color: "white",
-                          borderBottomColor:
-                            theme.palette.common.white_alpha.main_05,
+                          color: "text.primary",
+                          fontWeight: 600,
+                          borderBottomColor: "divider",
                         }}
                       >
                         {v.expiryDate
@@ -440,8 +437,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       <TableCell
                         align="center"
                         sx={{
-                          borderBottomColor:
-                            theme.palette.common.white_alpha.main_05,
+                          borderBottomColor: "divider",
                         }}
                       >
                         <Stack

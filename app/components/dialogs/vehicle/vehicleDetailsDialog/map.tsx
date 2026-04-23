@@ -98,7 +98,7 @@ const MapVehicleOverviewCard = ({
         }}
       >
         {loading ? (
-          <Skeleton variant="rounded" width={90} height={26} sx={{ bgcolor: "#ffffff14" }} />
+          <Skeleton variant="rounded" width={90} height={26} sx={{ bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" }} />
         ) : hasLiveSignal ? (
           <Chip
             icon={
@@ -120,10 +120,10 @@ const MapVehicleOverviewCard = ({
             label={dict.vehicles.dialogs.liveStatus}
             size="small"
             sx={{
-              bgcolor: theme.palette.success._alpha.main_15,
-              border: `1px solid ${theme.palette.success._alpha.main_40}`,
-              color: "#4ade80",
-              fontWeight: 700,
+              bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(74, 222, 128, 0.15)" : "rgba(74, 222, 128, 0.1)",
+              border: (theme) => `1px solid ${theme.palette.mode === "dark" ? "rgba(74, 222, 128, 0.4)" : "rgba(74, 222, 128, 0.5)"}`,
+              color: (theme) => theme.palette.mode === "dark" ? "#4ade80" : "#166534",
+              fontWeight: 800,
               fontSize: "0.65rem",
               letterSpacing: "0.08em",
               backdropFilter: "blur(8px)",
@@ -132,13 +132,13 @@ const MapVehicleOverviewCard = ({
           />
         ) : (
           <Chip
-            icon={<SignalWifiOffIcon sx={{ fontSize: "0.85rem !important", color: "#94a3b8" }} />}
+            icon={<SignalWifiOffIcon sx={{ fontSize: "0.85rem !important", color: "text.secondary" }} />}
             label={dict.vehicles.dialogs.noSignal}
             size="small"
             sx={{
-              bgcolor: theme.palette.kpi.slateDark_alpha.main_80,
-              border: `1px solid ${theme.palette.kpi.slateGray_alpha.main_20}`,
-              color: "#94a3b8",
+              bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+              border: `1px solid ${theme.palette.divider}`,
+              color: "text.secondary",
               fontWeight: 600,
               fontSize: "0.65rem",
               letterSpacing: "0.06em",
@@ -155,7 +155,7 @@ const MapVehicleOverviewCard = ({
           variant="rectangular"
           width="100%"
           height="100%"
-          sx={{ minHeight: 320, bgcolor: "#ffffff0a" }}
+          sx={{ minHeight: 320, bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)" }}
         />
       ) : activeLocation ? (
         <GoogleMapsProvider>
@@ -169,15 +169,15 @@ const MapVehicleOverviewCard = ({
           spacing={1.5}
           sx={{
             minHeight: 320,
-            bgcolor: theme.palette.kpi.slateDeep_alpha.main_80,
+            bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
             borderRadius: 2,
           }}
         >
-          <SatelliteAltIcon sx={{ fontSize: 48, color: theme.palette.kpi.slateGray_alpha.main_30 }} />
-          <Typography variant="body2" sx={{ color: "#64748b", fontWeight: 500 }}>
+          <SatelliteAltIcon sx={{ fontSize: 48, color: "text.disabled" }} />
+          <Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 700 }}>
             {dict.vehicles.dialogs.noGpsData}
           </Typography>
-          <Typography variant="caption" sx={{ color: "#475569", textAlign: "center", px: 2 }}>
+          <Typography variant="caption" sx={{ color: "text.disabled", textAlign: "center", px: 2 }}>
             {dict.vehicles.dialogs.noGpsDesc}
           </Typography>
         </Stack>
@@ -193,7 +193,9 @@ const MapVehicleOverviewCard = ({
             right: 0,
             px: 2,
             py: 1.5,
-            background: "linear-gradient(to top, #0b1019f2 0%, #0b1019b3 50%, transparent 100%)",
+            background: (theme) => theme.palette.mode === "dark" 
+              ? "linear-gradient(to top, rgba(11, 16, 25, 0.95) 0%, rgba(11, 16, 25, 0.7) 50%, transparent 100%)"
+              : "linear-gradient(to top, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 50%, transparent 100%)",
             zIndex: 10,
             pointerEvents: "none",
           }}
@@ -201,10 +203,10 @@ const MapVehicleOverviewCard = ({
           <Stack direction="row" spacing={3} alignItems="center">
             {/* Coordinates */}
             <Stack direction="row" spacing={0.5} alignItems="center">
-              <MyLocationIcon sx={{ fontSize: 12, color: "#38bdf8" }} />
+              <MyLocationIcon sx={{ fontSize: 12, color: "primary.main" }} />
               <Typography
                 variant="caption"
-                sx={{ color: "#94a3b8", fontFamily: "monospace", fontSize: "0.68rem" }}
+                sx={{ color: "text.secondary", fontFamily: "monospace", fontSize: "0.68rem", fontWeight: 700 }}
               >
                 {liveLocation.lat.toFixed(5)}, {liveLocation.lng.toFixed(5)}
               </Typography>
@@ -213,10 +215,10 @@ const MapVehicleOverviewCard = ({
             {/* Speed */}
             {liveLocation.speed != null && (
               <Stack direction="row" spacing={0.5} alignItems="center">
-                <SpeedIcon sx={{ fontSize: 12, color: "#a78bfa" }} />
+                <SpeedIcon sx={{ fontSize: 12, color: "secondary.main" }} />
                 <Typography
                   variant="caption"
-                  sx={{ color: "#94a3b8", fontSize: "0.68rem", fontWeight: 600 }}
+                  sx={{ color: "text.secondary", fontSize: "0.68rem", fontWeight: 800 }}
                 >
                   {Math.round(liveLocation.speed)} km/h
                 </Typography>
@@ -226,7 +228,7 @@ const MapVehicleOverviewCard = ({
             {/* Last Updated */}
             <Typography
               variant="caption"
-              sx={{ color: "#475569", fontSize: "0.62rem", ml: "auto !important" }}
+              sx={{ color: "text.disabled", fontSize: "0.62rem", ml: "auto !important", fontWeight: 600 }}
             >
               {dict.vehicles.dialogs.updated} {formatAge(liveLocation.lastUpdated, now)}
             </Typography>
@@ -244,15 +246,16 @@ const MapVehicleOverviewCard = ({
             right: 0,
             px: 2,
             py: 1,
-            background: "#0b1019d9",
+            background: (theme) => theme.palette.mode === "dark" ? "rgba(11, 16, 25, 0.85)" : "rgba(255, 255, 255, 0.85)",
             zIndex: 10,
             pointerEvents: "none",
             backdropFilter: "blur(4px)",
+            borderTop: `1px solid ${theme.palette.divider}`,
           }}
         >
           <Typography
             variant="caption"
-            sx={{ color: "#64748b", fontSize: "0.65rem" }}
+            sx={{ color: "text.secondary", fontSize: "0.65rem", fontWeight: 700 }}
           >
             {dict.vehicles.dialogs.dbFallback}
           </Typography>

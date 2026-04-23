@@ -142,11 +142,7 @@ export default function ShipmentDetailDialog({
       maxWidth="lg"
       PaperProps={{
         sx: {
-          borderRadius: 4,
-          bgcolor: "background.paper",
-          backgroundImage: "none",
           overflow: "hidden",
-          border: `1px solid ${theme.palette.divider}`,
           maxHeight: "90vh",
         },
       }}
@@ -803,7 +799,7 @@ export default function ShipmentDetailDialog({
                               <Typography
                                 variant="body2"
                                 fontWeight={700}
-                                color="white"
+                                color="text.primary"
                               >
                                 {(item.weightKg * item.quantity).toFixed(1)}
                                 <Typography
@@ -850,11 +846,13 @@ export default function ShipmentDetailDialog({
                 bottom: 24,
                 left: 24,
                 right: 24,
-                bgcolor: "rgba(11,16,25,0.82)",
+                bgcolor: (theme) => theme.palette.mode === 'dark' 
+                  ? "rgba(11,16,25,0.82)" 
+                  : theme.palette.background.paper_alpha.main_90,
                 backdropFilter: "blur(12px)",
                 borderRadius: 3,
                 p: 2,
-                border: `1px solid ${theme.palette.common.white_alpha.main_10}`,
+                border: `1px solid ${theme.palette.divider}`,
                 display: "flex",
                 justifyContent: "space-around",
                 zIndex: 1,
@@ -864,7 +862,7 @@ export default function ShipmentDetailDialog({
                 <Typography variant="caption" color="text.secondary">
                   {dict.shipments.details.mileage}
                 </Typography>
-                <Typography variant="subtitle1" fontWeight={800} color="white">
+                <Typography variant="subtitle1" fontWeight={800} color="text.primary">
                   {shipment.route?.distanceKm
                     ? `${shipment.route.distanceKm} km`
                     : dict.shipments.details.tbd}
@@ -879,7 +877,7 @@ export default function ShipmentDetailDialog({
                 <Typography variant="caption" color="text.secondary">
                   {dict.shipments.details.duration}
                 </Typography>
-                <Typography variant="subtitle1" fontWeight={800} color="white">
+                <Typography variant="subtitle1" fontWeight={800} color="text.primary">
                   {shipment.route?.durationMin
                     ? `${shipment.route.durationMin} min`
                     : dict.shipments.details.tbd}
@@ -894,7 +892,7 @@ export default function ShipmentDetailDialog({
                 <Typography variant="caption" color="text.secondary">
                   {dict.shipments.details.fleetId}
                 </Typography>
-                <Typography variant="subtitle1" fontWeight={800} color="white">
+                <Typography variant="subtitle1" fontWeight={800} color="text.primary">
                   {shipment.route?.id
                     ? `RT-${shipment.route.id.substring(0, 4).toUpperCase()}`
                     : dict.shipments.details.noUnit}

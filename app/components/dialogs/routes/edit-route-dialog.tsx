@@ -175,10 +175,10 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
               fullWidth
               PaperProps={{
                 sx: {
-                  borderRadius: 4,
-                  bgcolor: "#0B1019",
                   backgroundImage: "none",
+                  borderRadius: 4,
                   border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+                  overflow: "hidden",
                 },
               }}
             >

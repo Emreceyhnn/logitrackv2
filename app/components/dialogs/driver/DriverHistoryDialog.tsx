@@ -139,10 +139,9 @@ export default function DriverHistoryDialog({
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: "#0B1019",
           backgroundImage: "none",
           border: `1px solid ${theme.palette.divider_alpha.main_10}`,
-          maxHeight: "85vh",
+          overflow: "hidden",
         },
       }}
     >

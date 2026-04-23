@@ -564,14 +564,14 @@ export const palettes = {
         main_70: "#0F172AB3",
         main_80: "#0F172ACC",
       },
-      secondary: "#64748B",
+      secondary: "#475569",
       secondary_alpha: {
-        main_05: "#64748B0D",
-        main_10: "#64748B1A",
-        main_20: "#64748B33",
-        main_40: "#64748B66",
-        main_60: "#64748B99",
-        main_70: "#64748BB3",
+        main_05: "#4755690D",
+        main_10: "#4755691A",
+        main_20: "#47556933",
+        main_40: "#47556966",
+        main_60: "#47556999",
+        main_70: "#475569B3",
       },
       greenText: "#10B981",
       sideBarText: "#475569",
@@ -597,7 +597,7 @@ export const palettes = {
     },
 
     action: {
-      active: "#64748B",
+      active: "#475569",
       hover: "#F1F5F9",
       hoverOpacity: 0.04,
       selected: "#E2E8F0",
@@ -612,7 +612,7 @@ export const palettes = {
 
     icon: {
       primary: "#1ec1f2",
-      secondary: "#64748B",
+      secondary: "#475569",
     },
 
     buttonPrimary: {

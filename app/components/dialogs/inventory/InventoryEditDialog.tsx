@@ -221,10 +221,10 @@ export default function InventoryEditDialog({
       maxWidth="sm"
       PaperProps={{
         sx: {
-          bgcolor: "#0B0F19",
-          backgroundImage: "none",
           borderRadius: 4,
+          backgroundImage: "none",
           border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+          overflow: "hidden",
         },
       }}
     >

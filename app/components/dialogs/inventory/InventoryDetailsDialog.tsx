@@ -198,7 +198,6 @@ export default function InventoryDetailsDialog({
       maxWidth="md"
       PaperProps={{
         sx: {
-          bgcolor: "#0B0F19",
           backgroundImage: "none",
           borderRadius: 4,
           border: `1px solid ${theme.palette.divider_alpha.main_10}`,
@@ -235,7 +234,7 @@ export default function InventoryDetailsDialog({
             </Avatar>
             <Stack spacing={0.5}>
               <Stack direction="row" spacing={1.5} alignItems="center">
-                <Typography variant="h6" fontWeight={800} color="white">
+                <Typography variant="h6" fontWeight={800} color="text.primary">
                   {item.name}
                 </Typography>
                 <Chip
@@ -287,7 +286,7 @@ export default function InventoryDetailsDialog({
 
             minHeight: 40,
             "& .MuiTab-root": {
-              color: theme.palette.common.white_alpha.main_40,
+              color: theme.palette.text.secondary_alpha.main_50,
               fontSize: "0.75rem",
               fontWeight: 700,
               textTransform: "uppercase",
@@ -373,7 +372,7 @@ export default function InventoryDetailsDialog({
                         >
                           {dict.inventory.dialogs.available || "AVAILABLE"}
                         </Typography>
-                        <Typography variant="h5" fontWeight={800} color="white">
+                        <Typography variant="h5" fontWeight={800} color="text.primary">
                           {(item.quantity - (item.allocatedQuantity || 0)).toLocaleString()}
                         </Typography>
                       </Box>
@@ -407,7 +406,7 @@ export default function InventoryDetailsDialog({
                           >
                             {dict.inventory.status.blocked || "BLOCKED"}
                           </Typography>
-                          <Typography variant="h5" fontWeight={800} color="white">
+                          <Typography variant="h5" fontWeight={800} color="text.primary">
                             {item.allocatedQuantity.toLocaleString()}
                           </Typography>
                         </Box>
@@ -441,7 +440,7 @@ export default function InventoryDetailsDialog({
                         >
                           PHYSICAL
                         </Typography>
-                        <Typography variant="h5" fontWeight={800} color="white">
+                        <Typography variant="h5" fontWeight={800} color="text.primary">
                           {item.quantity.toLocaleString()}
                         </Typography>
                       </Box>
@@ -462,7 +461,7 @@ export default function InventoryDetailsDialog({
                       variant="subtitle2"
                       sx={{
                         mb: 2,
-                        color: "white",
+                        color: "text.primary",
                         fontWeight: 700,
                         display: "flex",
                         alignItems: "center",
@@ -486,7 +485,7 @@ export default function InventoryDetailsDialog({
                             }
                             variant="outlined"
                             sx={{
-                              "& .MuiInputBase-root": { color: "white" },
+                              "& .MuiInputBase-root": { color: "text.primary" },
                               "& .MuiInputLabel-root": {
                                 color: "text.secondary",
                               },
@@ -503,7 +502,7 @@ export default function InventoryDetailsDialog({
                               label={dict.inventory.dialogs.adjustmentType}
                               onChange={(e) => setAdjustType(e.target.value)}
                               sx={{
-                                color: "white",
+                                color: "text.primary",
                                 "& .MuiOutlinedInput-notchedOutline": {
                                   borderColor:
                                     theme.palette.divider_alpha.main_20,
@@ -529,7 +528,7 @@ export default function InventoryDetailsDialog({
                         multiline
                         rows={2}
                         sx={{
-                          "& .MuiInputBase-root": { color: "white" },
+                          "& .MuiInputBase-root": { color: "text.primary" },
                           "& .MuiInputLabel-root": {
                             color: "text.secondary",
                           },
@@ -618,7 +617,7 @@ export default function InventoryDetailsDialog({
                         >
                           {dict.inventory.fields.unitValue.toUpperCase()}
                         </Typography>
-                        <Typography variant="h5" fontWeight={800} color="white">
+                        <Typography variant="h5" fontWeight={800} color="text.primary">
                           {formatPrice(item.unitValue || 0)}
                         </Typography>
                       </Box>
@@ -643,7 +642,7 @@ export default function InventoryDetailsDialog({
                       <Typography
                         variant="body2"
                         fontWeight={600}
-                        color="white"
+                        color="text.primary"
                       >
                         {item.warehouse.code}
                       </Typography>
@@ -655,7 +654,7 @@ export default function InventoryDetailsDialog({
                       <Typography
                         variant="body2"
                         fontWeight={600}
-                        color="white"
+                        color="text.primary"
                       >
                         {item.cargoType === "General" || !item.cargoType
                           ? dict.inventory.category.general
@@ -699,7 +698,7 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.weight.toUpperCase()}
                       </Typography>
-                      <Typography variant="h6" fontWeight={800} color="white">
+                      <Typography variant="h6" fontWeight={800} color="text.primary">
                         {item.weightKg}kg
                       </Typography>
                     </Paper>
@@ -723,7 +722,7 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.volume.toUpperCase()}
                       </Typography>
-                      <Typography variant="h6" fontWeight={800} color="white">
+                      <Typography variant="h6" fontWeight={800} color="text.primary">
                         {item.volumeM3}m³
                       </Typography>
                     </Paper>
@@ -747,7 +746,7 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.pallets.toUpperCase()}
                       </Typography>
-                      <Typography variant="h6" fontWeight={800} color="white">
+                      <Typography variant="h6" fontWeight={800} color="text.primary">
                         {item.palletCount}
                       </Typography>
                     </Paper>
@@ -830,7 +829,7 @@ export default function InventoryDetailsDialog({
                               <Box>
                                 <Typography
                                   variant="subtitle2"
-                                  color="white"
+                                  color="text.primary"
                                   fontWeight={700}
                                 >
                                   {loc.warehouse.name}
@@ -956,7 +955,7 @@ export default function InventoryDetailsDialog({
                             <Typography
                               variant="body2"
                               sx={{
-                                color: "white",
+                                color: "text.primary",
                                 fontSize: "0.75rem",
                                 fontWeight: 600,
                               }}
@@ -1030,7 +1029,7 @@ export default function InventoryDetailsDialog({
               fontWeight: 600,
               color: "text.secondary",
               textTransform: "none",
-              "&:hover": { color: "white" },
+              "&:hover": { color: "text.primary" },
             }}
           >
             {dict.inventory.dialogs.closeView}

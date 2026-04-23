@@ -52,8 +52,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: "theme.palette.kpi.indigo_alpha.main_10",
-              borderColor: "theme.palette.kpi.indigo_alpha.main_20",
+              bgcolor: (theme) => theme.palette.kpi.indigo_alpha.main_10,
+              borderColor: (theme) => theme.palette.kpi.indigo_alpha.main_20,
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -63,13 +63,13 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: "theme.palette.kpi.indigo_alpha.main_20",
-                  color: "theme.palette.kpi.indigo",
+                  bgcolor: (theme) => theme.palette.kpi.indigo_alpha.main_20,
+                  color: (theme) => theme.palette.kpi.indigo,
                 }}
               >
                 <MapIcon />
               </Box>
-              <Typography variant="subtitle1" fontWeight={600} color="white">
+              <Typography variant="subtitle1" fontWeight={700} color="text.primary">
                 {t.locationDetails}
               </Typography>
             </Stack>
@@ -78,7 +78,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 <Typography variant="caption" color="text.secondary">
                   {t.address}
                 </Typography>
-                <Typography variant="body2" color="white" fontWeight={500}>
+                <Typography variant="body2" color="text.primary" fontWeight={600}>
                   {warehouse.address}
                 </Typography>
               </Box>
@@ -86,7 +86,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 <Typography variant="caption" color="text.secondary">
                   {t.cityCountry}
                 </Typography>
-                <Typography variant="body2" color="white" fontWeight={500}>
+                <Typography variant="body2" color="text.primary" fontWeight={600}>
                   {warehouse.city}, {warehouse.country}
                 </Typography>
               </Box>
@@ -101,8 +101,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: "theme.palette.kpi.teal_alpha.main_10",
-              borderColor: "theme.palette.kpi.teal_alpha.main_20",
+              bgcolor: (theme) => theme.palette.kpi.teal_alpha.main_10,
+              borderColor: (theme) => theme.palette.kpi.teal_alpha.main_20,
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -112,13 +112,13 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: "theme.palette.kpi.teal_alpha.main_20",
-                  color: "theme.palette.kpi.emerald",
+                  bgcolor: (theme) => theme.palette.kpi.teal_alpha.main_20,
+                  color: (theme) => theme.palette.kpi.emerald,
                 }}
               >
                 <BusinessCenterIcon />
               </Box>
-              <Typography variant="subtitle1" fontWeight={600} color="white">
+              <Typography variant="subtitle1" fontWeight={700} color="text.primary">
                 {t.operations}
               </Typography>
             </Stack>
@@ -134,8 +134,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                       px: 1,
                       py: 0.3,
                       borderRadius: 1,
-                      bgcolor: "theme.palette.primary._alpha.main_10",
-                      color: "theme.palette.primary.main",
+                      bgcolor: (theme) => theme.palette.primary._alpha.main_10,
+                      color: "primary.main",
                       fontWeight: 700,
                       textTransform: "uppercase",
                       fontSize: "0.65rem",
@@ -151,7 +151,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 <Typography variant="caption" color="text.secondary">
                   {t.operatingHours}
                 </Typography>
-                <Typography variant="body2" color="white" fontWeight={500}>
+                <Typography variant="body2" color="text.primary" fontWeight={600}>
                   {operatingHoursStr}
                 </Typography>
               </Box>
@@ -159,7 +159,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 <Typography variant="caption" color="text.secondary">
                   {t.manager}
                 </Typography>
-                <Typography variant="body2" color="white" fontWeight={500}>
+                <Typography variant="body2" color="text.primary" fontWeight={600}>
                   {warehouse.manager
                     ? `${warehouse.manager.name} ${warehouse.manager.surname}`
                     : t.notAssigned}
@@ -176,8 +176,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: "theme.palette.kpi.deepPurple_alpha.main_10",
-              borderColor: "theme.palette.kpi.deepPurple_alpha.main_20",
+              bgcolor: (theme) => theme.palette.kpi.deepPurple_alpha.main_10,
+              borderColor: (theme) => theme.palette.kpi.deepPurple_alpha.main_20,
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -187,13 +187,13 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: "theme.palette.kpi.deepPurple_alpha.main_20",
-                  color: "theme.palette.kpi.violet",
+                  bgcolor: (theme) => theme.palette.kpi.deepPurple_alpha.main_20,
+                  color: (theme) => theme.palette.kpi.violet,
                 }}
               >
                 <InventoryIcon />
               </Box>
-              <Typography variant="subtitle1" fontWeight={600} color="white">
+              <Typography variant="subtitle1" fontWeight={700} color="text.primary">
                 {t.uniqueSkus}
               </Typography>
             </Stack>
@@ -205,7 +205,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 justifyContent: "center",
               }}
             >
-              <Typography variant="h3" fontWeight={700} color="white">
+              <Typography variant="h3" fontWeight={800} color="text.primary">
                 {warehouse._count?.inventory || 0}
               </Typography>
             </Box>
@@ -214,7 +214,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
 
         {/* Capacity Utilization */}
         <Grid size={{ xs: 12 }}>
-          <Typography variant="h6" fontWeight={600} color="white" mb={2} mt={2}>
+          <Typography variant="h6" fontWeight={800} color="text.primary" mb={2} mt={2}>
             {t.capacityUtilization}
           </Typography>
         </Grid>
@@ -233,21 +233,21 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: "theme.palette.primary._alpha.main_10",
-                  color: "theme.palette.primary.main",
+                  bgcolor: (theme) => theme.palette.primary._alpha.main_10,
+                  color: "primary.main",
                 }}
               >
                 <BusinessCenterIcon />
               </Box>
               <Box flex={1}>
-                <Typography variant="subtitle1" fontWeight={600} color="white">
+                <Typography variant="subtitle1" fontWeight={700} color="text.primary">
                   {t.palletStorage}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {t.standardEuroPallets}
                 </Typography>
               </Box>
-              <Typography variant="h5" fontWeight={700} color="white">
+              <Typography variant="h5" fontWeight={800} color="text.primary">
                 {palletPct.toFixed(1)}%
               </Typography>
             </Stack>
@@ -259,7 +259,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   height: 12,
                   borderRadius: 6,
-                  bgcolor: "theme.palette.divider_alpha.main_10",
+                  bgcolor: (theme) => theme.palette.divider_alpha.main_10,
                   "& .MuiLinearProgress-bar": { display: "none" },
                 }}
               />
@@ -276,14 +276,14 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   bgcolor: "transparent",
                   "& .MuiLinearProgress-bar": {
                     borderRadius: 6,
-                    bgcolor: "theme.palette.primary.main",
+                    bgcolor: (theme) => theme.palette.primary.main,
                   },
                 }}
               />
             </Box>
 
             <Stack direction="row" justifyContent="space-between">
-              <Typography variant="body2" color="white" fontWeight={500}>
+              <Typography variant="body2" color="text.primary" fontWeight={600}>
                 {mockUsedPallets.toLocaleString()} {t.used}
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -307,21 +307,21 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: "theme.palette.success._alpha.main_10",
-                  color: "theme.palette.success.main",
+                  bgcolor: (theme) => theme.palette.success._alpha.main_10,
+                  color: "success.main",
                 }}
               >
                 <LocalShippingIcon />
               </Box>
               <Box flex={1}>
-                <Typography variant="subtitle1" fontWeight={600} color="white">
+                <Typography variant="subtitle1" fontWeight={700} color="text.primary">
                   {t.volumeCapacity}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {t.totalCubicMeters}
                 </Typography>
               </Box>
-              <Typography variant="h5" fontWeight={700} color="white">
+              <Typography variant="h5" fontWeight={800} color="text.primary">
                 {volumePct.toFixed(1)}%
               </Typography>
             </Stack>
@@ -333,7 +333,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   height: 12,
                   borderRadius: 6,
-                  bgcolor: "theme.palette.divider_alpha.main_10",
+                  bgcolor: (theme) => theme.palette.divider_alpha.main_10,
                   "& .MuiLinearProgress-bar": { display: "none" },
                 }}
               />
@@ -351,14 +351,14 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   bgcolor: "transparent",
                   "& .MuiLinearProgress-bar": {
                     borderRadius: 6,
-                    bgcolor: "theme.palette.success.main",
+                    bgcolor: (theme) => theme.palette.success.main,
                   },
                 }}
               />
             </Box>
 
             <Stack direction="row" justifyContent="space-between">
-              <Typography variant="body2" color="white" fontWeight={500}>
+              <Typography variant="body2" color="text.primary" fontWeight={600}>
                 {mockUsedVolume.toLocaleString()} {t.m3Used}
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -371,9 +371,9 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
         {/* Feature Flags */}
         <Grid size={{ xs: 12 }}>
           <Divider
-            sx={{ my: 2, borderColor: "theme.palette.divider_alpha.main_10" }}
+            sx={{ my: 2, borderColor: "divider" }}
           />
-          <Typography variant="h6" fontWeight={600} color="white" mb={2}>
+          <Typography variant="h6" fontWeight={800} color="text.primary" mb={2}>
             {t.facilityCapabilities}
           </Typography>
           <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
@@ -384,12 +384,13 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 spacing={1.5}
                 sx={{
                   mb: 2,
-                  bgcolor: "theme.palette.info._alpha.main_10",
-                  color: "theme.palette.info.light",
+                  bgcolor: (theme) => theme.palette.info._alpha.main_10,
+                  color: "info.main",
                   px: 2,
                   py: 1.5,
                   borderRadius: 2,
-                  border: `1px solid theme.palette.info._alpha.main_20`,
+                  border: "1px solid",
+                  borderColor: (theme) => theme.palette.info._alpha.main_20,
                 }}
               >
                 <ThermostatIcon />
@@ -417,12 +418,13 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   spacing={1.5}
                   sx={{
                     mb: 2,
-                    bgcolor: "theme.palette.divider_alpha.main_05",
+                    bgcolor: (theme) => theme.palette.divider_alpha.main_05,
                     color: "text.secondary",
                     px: 2,
                     py: 1.5,
                     borderRadius: 2,
-                    border: `1px solid theme.palette.divider_alpha.main_10`,
+                    border: "1px solid",
+                    borderColor: "divider",
                   }}
                 >
                   <BusinessCenterIcon />
@@ -443,12 +445,12 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 spacing={1.5}
                 sx={{
                   mb: 2,
-                  bgcolor: "theme.palette.divider_alpha.main_05",
+                  bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
                   color: "text.secondary",
                   px: 2,
                   py: 1.5,
                   borderRadius: 2,
-                  border: `1px solid theme.palette.divider_alpha.main_10`,
+                  border: (theme) => `1px solid ${theme.palette.divider}`,
                 }}
               >
                 <BusinessCenterIcon />

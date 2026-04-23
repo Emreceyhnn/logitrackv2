@@ -235,10 +235,7 @@ const AddVehicleDialog = ({
           fullWidth
           PaperProps={{
             sx: {
-              borderRadius: 4,
-              bgcolor: "#0B1019",
-              backgroundImage: "none",
-              border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+              overflow: "hidden",
             },
           }}
         >
@@ -248,7 +245,7 @@ const AddVehicleDialog = ({
               justifyContent="space-between"
               alignItems="center"
             >
-              <Typography variant="h6" fontWeight={700} color="white">
+              <Typography variant="h6" fontWeight={800} color="text.primary">
                 {dict.vehicles.dialogs.addTitle}
               </Typography>
               <IconButton
@@ -301,9 +298,9 @@ const AddVehicleDialog = ({
                     >
                       <Typography
                         variant="caption"
-                        fontWeight={600}
+                        fontWeight={700}
                         color={
-                          currentStep - 1 >= index ? "white" : "text.secondary"
+                          currentStep - 1 >= index ? "text.primary" : "text.disabled"
                         }
                       >
                         {label}
@@ -354,9 +351,7 @@ const AddVehicleDialog = ({
                     sx={{
                       textTransform: "none",
                       borderRadius: 2,
-                      borderColor: theme.palette.divider_alpha.main_20,
-                      color: "white",
-                      fontWeight: 600,
+                      fontWeight: 700,
                     }}
                   >
                     {dict.common.back}

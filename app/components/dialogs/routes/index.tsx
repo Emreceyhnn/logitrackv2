@@ -148,8 +148,7 @@ export default function RouteDialog({
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: "24px",
-            bgcolor: "#0B1019",
+            borderRadius: 4,
             backgroundImage: "none",
             border: `1px solid ${theme.palette.divider_alpha.main_10}`,
             overflow: "hidden",

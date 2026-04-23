@@ -107,22 +107,22 @@ export default function LandingPage() {
   const heroVideoPoster = "/sign-up.webp";
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: "#0f172a",
-        color: "#f1f5f9",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <Box sx={{ 
+      bgcolor: "background.default",
+      color: "text.primary",
+      minHeight: "100vh",
+      transition: "background-color 0.3s ease",
+      display: "flex",
+      flexDirection: "column",
+    }}>
       <Box
         sx={{
           position: "relative",
           flex: 1,
           overflow: "hidden",
-          background:
-            "linear-gradient(135deg, #0f172a 0%, #1f2a44 45%, #111827 100%)",
+          background: (theme) => theme.palette.mode === "dark" 
+          ? "linear-gradient(135deg, #0f172a 0%, #1f2a44 45%, #111827 100%)"
+          : `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
           "@keyframes pulse": {
             "0%": { transform: "scale(1)", opacity: 0.75 },
             "50%": { transform: "scale(1.08)", opacity: 1 },
@@ -229,16 +229,16 @@ export default function LandingPage() {
                       borderRadius: "999px",
                       px: 1.5,
                       py: 0.5,
-                      bgcolor: theme.palette.kpi.slateDark_alpha.main_70,
-                      border: `1px solid ${theme.palette.kpi.cyan_alpha.main_30}`,
-                      color: theme.palette.kpi.lavender_alpha.main_90,
+                      bgcolor: theme.palette.mode === "dark" ? theme.palette.kpi.slateDark_alpha.main_70 : "action.hover",
+                      border: `1px solid ${theme.palette.mode === "dark" ? theme.palette.kpi.cyan_alpha.main_30 : theme.palette.divider}`,
+                      color: theme.palette.mode === "dark" ? theme.palette.kpi.lavender_alpha.main_90 : "text.primary",
                       fontWeight: 600,
                       letterSpacing: 0.5,
                     }}
                   />
                   <Typography
                     variant="body2"
-                    sx={{ color: theme.palette.kpi.slateLight_alpha.main_65, letterSpacing: 1 }}
+                    sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.slateLight_alpha.main_65 : "text.secondary", letterSpacing: 1 }}
                   >
                     {dict.landing.hero.trusted}
                   </Typography>
@@ -261,9 +261,12 @@ export default function LandingPage() {
                 <Typography
                   variant="body1"
                   sx={{
-                    color: theme.palette.kpi.slateLight_alpha.main_90,
+                    color: theme.palette.mode === "dark" ? theme.palette.kpi.slateLight_alpha.main_90 : "text.secondary",
+                    mb: 5,
+                    lineHeight: 1.6,
+                    maxWidth: "800px",
+                    mx: "auto",
                     fontSize: 18,
-                    maxWidth: 520,
                   }}
                 >
                   {dict.landing.hero.description}
@@ -329,7 +332,7 @@ export default function LandingPage() {
                       </Typography>
                       <Typography
                         variant="body2"
-                        sx={{ color: theme.palette.kpi.lavender_alpha.main_70 }}
+                        sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.lavender_alpha.main_70 : "text.secondary" }}
                       >
                         {dict.landing.stats.onTime}
                       </Typography>
@@ -340,7 +343,7 @@ export default function LandingPage() {
                       </Typography>
                       <Typography
                         variant="body2"
-                        sx={{ color: theme.palette.kpi.lavender_alpha.main_70 }}
+                        sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.lavender_alpha.main_70 : "text.secondary" }}
                       >
                         {dict.landing.stats.monitored}
                       </Typography>
@@ -354,10 +357,10 @@ export default function LandingPage() {
                       px: 2.5,
                       py: 1.5,
                       borderRadius: 999,
-                      backgroundColor: theme.palette.kpi.slateDark_alpha.main_65,
-                      border: `1px solid ${theme.palette.kpi.cyan_alpha.main_20}`,
+                      backgroundColor: theme.palette.mode === "dark" ? theme.palette.kpi.slateDark_alpha.main_65 : "background.paper",
+                      border: `1px solid ${theme.palette.mode === "dark" ? theme.palette.kpi.cyan_alpha.main_20 : theme.palette.divider}`,
                       maxWidth: 360,
-                      boxShadow: "0 20px 45px rgba(15,23,42,0.35)",
+                      boxShadow: theme.palette.mode === "dark" ? "0 20px 45px rgba(15,23,42,0.35)" : "0 20px 45px rgba(0,0,0,0.05)",
                     }}
                   >
                     <Box
@@ -372,13 +375,13 @@ export default function LandingPage() {
                     <Stack spacing={0.5}>
                       <Typography
                         variant="body2"
-                        sx={{ color: theme.palette.kpi.slateLight_alpha.main_85, fontWeight: 600 }}
+                        sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.slateLight_alpha.main_85 : "text.primary", fontWeight: 600 }}
                       >
                         {dict.landing.stats.live}
                       </Typography>
                       <Typography
                         variant="caption"
-                        sx={{ color: theme.palette.kpi.slateGray_alpha.main_75 }}
+                        sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.slateGray_alpha.main_75 : "text.secondary" }}
                       >
                         {dict.landing.stats.updateFreq}
                       </Typography>
@@ -464,9 +467,9 @@ export default function LandingPage() {
                           px: 2.5,
                           py: 2,
                           borderRadius: 3,
-                          backgroundColor: theme.palette.kpi.slateDeep_alpha.main_60,
-                          border: `1px solid ${theme.palette.kpi.cyan_alpha.main_20}`,
-                          boxShadow: "0 18px 48px rgba(8, 12, 24, 0.55)",
+                          backgroundColor: theme.palette.mode === "dark" ? theme.palette.kpi.slateDeep_alpha.main_60 : "background.paper",
+                          border: `1px solid ${theme.palette.mode === "dark" ? theme.palette.kpi.cyan_alpha.main_20 : theme.palette.divider}`,
+                          boxShadow: theme.palette.mode === "dark" ? "0 18px 48px rgba(8, 12, 24, 0.55)" : "0 18px 48px rgba(0, 0, 0, 0.05)",
                           animation: "float 14s ease-in-out infinite",
                         }}
                       >
@@ -475,7 +478,7 @@ export default function LandingPage() {
                         </Typography>
                         <Typography
                           variant="caption"
-                          sx={{ color: theme.palette.kpi.slateLight_alpha.main_75 }}
+                          sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.slateLight_alpha.main_75 : "text.secondary" }}
                         >
                           {metric.label}
                         </Typography>
@@ -487,9 +490,9 @@ export default function LandingPage() {
                       px: 3,
                       py: 2,
                       borderRadius: 3,
-                      background: theme.palette.kpi.slateDark_alpha.main_65,
-                      border: `1px solid ${theme.palette.kpi.cyan_alpha.main_22}`,
-                      boxShadow: "0 18px 48px rgba(8, 12, 24, 0.5)",
+                      background: theme.palette.mode === "dark" ? theme.palette.kpi.slateDark_alpha.main_65 : "background.paper",
+                      border: `1px solid ${theme.palette.mode === "dark" ? theme.palette.kpi.cyan_alpha.main_22 : theme.palette.divider}`,
+                      boxShadow: theme.palette.mode === "dark" ? "0 18px 48px rgba(8, 12, 24, 0.5)" : "0 18px 48px rgba(0, 0, 0, 0.05)",
                       display: "flex",
                       alignItems: "center",
                       gap: 1.5,
@@ -501,13 +504,13 @@ export default function LandingPage() {
                     <Stack spacing={0.5}>
                       <Typography
                         variant="body2"
-                        sx={{ color: theme.palette.kpi.lavender_alpha.main_85, fontWeight: 600 }}
+                        sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.lavender_alpha.main_85 : "text.primary", fontWeight: 600 }}
                       >
                         {dict.landing.hero.metrics.slaStability}
                       </Typography>
                       <Typography
                         variant="caption"
-                        sx={{ color: theme.palette.kpi.slateGray_alpha.main_75 }}
+                        sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.slateGray_alpha.main_75 : "text.secondary" }}
                       >
                         {dict.landing.hero.metrics.slaTrend}
                       </Typography>
@@ -523,9 +526,9 @@ export default function LandingPage() {
                     px: 3,
                     py: 2.2,
                     borderRadius: 4,
-                    background: theme.palette.kpi.slateDeep_alpha.main_90,
-                    border: `1px solid ${theme.palette.kpi.cyan_alpha.main_35}`,
-                    boxShadow: "0 25px 70px rgba(8, 12, 24, 0.55)",
+                    background: theme.palette.mode === "dark" ? theme.palette.kpi.slateDeep_alpha.main_90 : "background.paper",
+                    border: `1px solid ${theme.palette.mode === "dark" ? theme.palette.kpi.cyan_alpha.main_35 : theme.palette.divider}`,
+                    boxShadow: theme.palette.mode === "dark" ? "0 25px 70px rgba(8, 12, 24, 0.55)" : "0 25px 70px rgba(0, 0, 0, 0.05)",
                     display: "flex",
                     alignItems: "center",
                     gap: 1.5,
@@ -555,7 +558,12 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      <Box sx={{ bgcolor: "#0b1120", py: 8 }}>
+      <Box sx={{ 
+        bgcolor: theme.palette.mode === "dark" ? "#0b1120" : "background.paper",
+        borderTop: `1px solid ${theme.palette.divider}`,
+        borderBottom: `1px solid ${theme.palette.divider}`,
+        py: 8 
+      }}>
         <Container maxWidth="lg">
           <Typography
             variant="overline"
@@ -593,7 +601,10 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      <Box sx={{ bgcolor: "#0f172a", py: 12 }}>
+      <Box sx={{ 
+        bgcolor: theme.palette.mode === "dark" ? "#0f172a" : "background.default", 
+        py: 12 
+      }}>
         <Container maxWidth="lg">
           <Stack direction="row" spacing={8} flexWrap="wrap" useFlexGap>
             <Box sx={{ width: { xs: "100%", md: "calc(50% - 32px)" } }}>
@@ -609,7 +620,7 @@ export default function LandingPage() {
                 </Typography>
                 <Typography
                   variant="body1"
-                  sx={{ color: theme.palette.kpi.slateLight_alpha.main_85 }}
+                  sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.slateLight_alpha.main_85 : "text.secondary" }}
                 >
                   {dict.landing.features.description}
                 </Typography>
@@ -627,8 +638,8 @@ export default function LandingPage() {
                         height: "100%",
                         p: 3,
                         borderRadius: 4,
-                        backgroundColor: theme.palette.kpi.slateDark_alpha.main_65,
-                        border: `1px solid ${theme.palette.kpi.cyan_alpha.main_16}`,
+                        backgroundColor: theme.palette.mode === "dark" ? theme.palette.kpi.slateDark_alpha.main_65 : "background.paper",
+                        border: `1px solid ${theme.palette.mode === "dark" ? theme.palette.kpi.cyan_alpha.main_16 : theme.palette.divider}`,
                         transition: "transform 0.2s ease, box-shadow 0.2s ease",
                         "&:hover": {
                           transform: "translateY(-4px)",
@@ -641,7 +652,7 @@ export default function LandingPage() {
                       </Typography>
                       <Typography
                         variant="body2"
-                        sx={{ color: theme.palette.kpi.lavender_alpha.main_75 }}
+                        sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.lavender_alpha.main_75 : "text.secondary" }}
                       >
                         {card.description}
                       </Typography>
@@ -654,7 +665,10 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      <Box sx={{ bgcolor: "#0b1120", py: 12 }}>
+      <Box sx={{ 
+        bgcolor: theme.palette.mode === "dark" ? "#0b1120" : "background.paper", 
+        py: 12 
+      }}>
         <Container maxWidth="lg">
           <Stack direction="row" spacing={6} flexWrap="wrap" useFlexGap>
             <Box
@@ -670,8 +684,8 @@ export default function LandingPage() {
                   sx={{
                     borderRadius: 4,
                     p: 4,
-                    backgroundColor: theme.palette.kpi.slateDark_alpha.main_60,
-                    border: `1px solid ${theme.palette.kpi.cyan_alpha.main_16}`,
+                    backgroundColor: theme.palette.mode === "dark" ? theme.palette.kpi.slateDark_alpha.main_60 : "background.paper",
+                    border: `1px solid ${theme.palette.mode === "dark" ? theme.palette.kpi.cyan_alpha.main_16 : theme.palette.divider}`,
                     transition: "transform 0.2s ease, box-shadow 0.2s ease",
                     "&:hover": {
                       transform: "translateY(-4px)",
@@ -694,7 +708,7 @@ export default function LandingPage() {
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{ color: theme.palette.kpi.slateLight_alpha.main_80 }}
+                    sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.slateLight_alpha.main_80 : "text.secondary" }}
                   >
                     {item.description}
                   </Typography>
@@ -705,7 +719,10 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      <Box sx={{ bgcolor: "#0f172a", py: 10 }}>
+      <Box sx={{ 
+        bgcolor: theme.palette.mode === "dark" ? "#0f172a" : "background.default", 
+        py: 10 
+      }}>
         <Container maxWidth="lg">
           <Stack
             direction={{ xs: "column", md: "row" }}
@@ -719,7 +736,7 @@ export default function LandingPage() {
               </Typography>
               <Typography
                 variant="body1"
-                sx={{ color: theme.palette.kpi.slateLight_alpha.main_85 }}
+                sx={{ color: theme.palette.mode === "dark" ? theme.palette.kpi.slateLight_alpha.main_85 : "text.secondary" }}
               >
                 {dict.landing.cta.description}
               </Typography>
@@ -764,7 +781,11 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      <Box sx={{ bgcolor: "#0b1120", py: 6 }}>
+      <Box sx={{ 
+        bgcolor: theme.palette.mode === "dark" ? "#0b1120" : "background.paper",
+        borderTop: `1px solid ${theme.palette.divider}`,
+        py: 6 
+      }}>
         <Container maxWidth="lg">
           <Stack
             direction={{ xs: "column", sm: "row" }}

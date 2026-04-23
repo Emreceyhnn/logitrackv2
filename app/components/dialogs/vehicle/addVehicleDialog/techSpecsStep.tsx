@@ -24,27 +24,19 @@ const TechSpecsStep = () => {
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: "theme.palette.text.darkBlue._alpha.main_50",
       borderRadius: 2,
       "& fieldset": {
-        borderColor: "theme.palette.divider_alpha.main_10",
+        borderColor: "divider",
       },
       "&:hover fieldset": {
-        borderColor: "theme.palette.primary._alpha.main_30",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "theme.palette.primary.main",
+        borderColor: "primary.main",
       },
     },
     "& .MuiInputLabel-root": {
-      color: "text.secondary",
       fontSize: "0.85rem",
-      "&.Mui-focused": {
-        color: "theme.palette.primary.main",
-      },
     },
     "& .MuiOutlinedInput-input": {
-      color: "white",
+      fontSize: "0.9rem",
     },
   };
 

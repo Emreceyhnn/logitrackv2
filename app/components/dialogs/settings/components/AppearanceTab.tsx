@@ -45,10 +45,10 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
       <Box sx={{ 
         p: 2, 
         borderRadius: 2.5, 
-        bgcolor: theme.palette.primary._alpha.main_04,
+        bgcolor: theme.palette.mode === "dark" ? theme.palette.primary._alpha.main_04 : theme.palette.primary._alpha.main_08,
         border: `1px solid ${theme.palette.primary._alpha.main_10}`
       }}>
-        <Typography variant="caption" sx={{ color: theme.palette.common.white_alpha.main_45, fontWeight: 550, lineHeight: 1.6 }}>
+        <Typography variant="caption" sx={{ color: theme.palette.mode === "dark" ? theme.palette.common.white_alpha.main_45 : "text.secondary", fontWeight: 600, lineHeight: 1.6 }}>
             {dict.settings.dialogs.appearance.desc}
         </Typography>
       </Box>
@@ -65,8 +65,8 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
                 flex: 1,
                 p: 2.5,
                 borderRadius: 4,
-                border: `1.5px solid ${active ? theme.palette.primary.main : theme.palette.common.white_alpha.main_05}`,
-                bgcolor: active ? theme.palette.primary._alpha.main_08 : theme.palette.common.white_alpha.main_02,
+                border: `1.5px solid ${active ? theme.palette.primary.main : (theme.palette.mode === "dark" ? theme.palette.common.white_alpha.main_05 : theme.palette.divider_alpha.main_20)}`,
+                bgcolor: active ? theme.palette.primary._alpha.main_08 : (theme.palette.mode === "dark" ? theme.palette.common.white_alpha.main_02 : theme.palette.background.default_alpha.main_40),
                 cursor: "pointer",
                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 position: "relative",
@@ -75,7 +75,9 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
                   border: `1.5px solid ${active ? theme.palette.primary._alpha.main_80 : theme.palette.primary._alpha.main_20}`,
                   bgcolor: active ? theme.palette.primary._alpha.main_10 : theme.palette.primary._alpha.main_04,
                   transform: "translateY(-4px)",
-                  boxShadow: `0 12px 32px ${theme.palette.common.black_alpha.main_50}`
+                  boxShadow: theme.palette.mode === "dark" 
+                    ? `0 12px 32px ${theme.palette.common.black_alpha.main_50}`
+                    : "0 12px 32px rgba(0,0,0,0.08)"
                 },
                 "&::after": active ? {
                     content: '""',
@@ -92,18 +94,18 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
                 sx={{
                   width: 44, height: 44, borderRadius: 2.5, mb: 2,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  bgcolor: active ? theme.palette.primary.main : theme.palette.common.white_alpha.main_05,
-                  color: active ? "#000" : theme.palette.common.white_alpha.main_40,
+                  bgcolor: active ? theme.palette.primary.main : (theme.palette.mode === "dark" ? theme.palette.common.white_alpha.main_05 : theme.palette.divider_alpha.main_20),
+                  color: active ? (theme.palette.mode === "dark" ? "#000" : "#FFF") : (theme.palette.mode === "dark" ? theme.palette.common.white_alpha.main_40 : theme.palette.text.secondary),
                   transition: "all 0.3s",
                   boxShadow: active ? `0 8px 20px ${theme.palette.primary._alpha.main_40}` : "none"
                 }}
               >
                 <Icon sx={{ fontSize: 22 }} />
               </Box>
-              <Typography variant="body1" fontWeight={850} color="white" sx={{ mb: 0.5 }}>
+              <Typography variant="body1" fontWeight={800} color="text.primary" sx={{ mb: 0.5 }}>
                   {m.label}
               </Typography>
-              <Typography variant="caption" sx={{ color: theme.palette.common.white_alpha.main_35, fontWeight: 600, display: "block", mb: 2 }}>
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, display: "block", mb: 2 }}>
                   {m.desc}
               </Typography>
               

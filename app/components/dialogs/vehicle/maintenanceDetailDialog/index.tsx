@@ -113,25 +113,19 @@ export default function MaintenanceDetailDialog({
 
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
       borderRadius: 2,
       height: 48,
       "& fieldset": {
-        borderColor: theme.palette.divider_alpha.main_10,
+        borderColor: "divider",
       },
       "&:hover fieldset": {
-        borderColor: theme.palette.primary._alpha.main_30,
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: theme.palette.primary.main,
+        borderColor: "primary.main",
       },
     },
     "& .MuiInputLabel-root": {
       fontSize: "0.85rem",
-      color: "text.secondary",
     },
     "& .MuiOutlinedInput-input": {
-      color: "white",
       fontSize: "0.9rem",
     },
   };
@@ -162,23 +156,20 @@ export default function MaintenanceDetailDialog({
       maxWidth="sm"
       PaperProps={{
         sx: {
-          borderRadius: 4,
-          bgcolor: "#0B1019",
-          backgroundImage: "none",
-          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+          overflow: "hidden",
         },
       }}
     >
       <Box sx={{ p: 3, pb: 2 }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" fontWeight={700} color="white">
+          <Typography variant="h6" fontWeight={800} color="text.primary">
             {dict.vehicles.dialogs.maintenanceDetails}
           </Typography>
           <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
-        <Typography variant="caption" sx={{ color: theme.palette.common.white_alpha.main_40, mt: 0.5, display: "block" }}>
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block", fontWeight: 500 }}>
           {dict.vehicles.dialogs.maintenanceDetailsDesc || "View and manage the status of this maintenance entry."}
         </Typography>
       </Box>
@@ -191,9 +182,9 @@ export default function MaintenanceDetailDialog({
               variant="filled"
               sx={{
                 borderRadius: 2,
-                bgcolor: theme.palette.error._alpha.main_10,
-                color: theme.palette.error.light,
-                border: `1px solid ${theme.palette.error._alpha.main_20}`,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "error._alpha.main_10" : "error._alpha.main_05",
+                color: "error.light",
+                border: (theme) => `1px solid ${theme.palette.error._alpha.main_20}`,
               }}
             >
               {error}
@@ -205,7 +196,7 @@ export default function MaintenanceDetailDialog({
               {dict.vehicles.dialogs.maintenanceStatus}
             </Typography>
             <FormControl fullWidth sx={textFieldSx}>
-              <InputLabel sx={{ color: theme.palette.common.white_alpha.main_40 }}>{dict.vehicles.fields.status}</InputLabel>
+              <InputLabel sx={{ color: "text.secondary" }}>{dict.vehicles.fields.status}</InputLabel>
               <Select
                 value={formData.status}
                 label={dict.vehicles.fields.status}
@@ -215,9 +206,7 @@ export default function MaintenanceDetailDialog({
                 MenuProps={{
                   PaperProps: {
                     sx: {
-                      bgcolor: "#1A202C",
                       backgroundImage: "none",
-                      border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                       mt: 1,
                     }
                   }
@@ -240,7 +229,7 @@ export default function MaintenanceDetailDialog({
             </FormControl>
           </Box>
 
-          <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
+          <Divider sx={{ borderColor: "divider" }} />
 
           <Box>
             <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
@@ -248,7 +237,7 @@ export default function MaintenanceDetailDialog({
             </Typography>
             <Stack spacing={2.5}>
               <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: theme.palette.common.white_alpha.main_40 }}>{dict.vehicles.fields.serviceType}</InputLabel>
+                <InputLabel sx={{ color: "text.secondary" }}>{dict.vehicles.fields.serviceType}</InputLabel>
                 <Select
                   value={formData.type}
                   label={dict.vehicles.fields.serviceType}
@@ -258,9 +247,7 @@ export default function MaintenanceDetailDialog({
                   MenuProps={{
                     PaperProps: {
                       sx: {
-                        bgcolor: "#1A202C",
                         backgroundImage: "none",
-                        border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                         mt: 1,
                       }
                     }
@@ -342,7 +329,7 @@ export default function MaintenanceDetailDialog({
         </Stack>
       </DialogContent>
 
-      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider_alpha.main_05}` }}>
+      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
         <Stack direction="row" spacing={2} justifyContent="flex-end">
           <Button 
             onClick={onClose} 

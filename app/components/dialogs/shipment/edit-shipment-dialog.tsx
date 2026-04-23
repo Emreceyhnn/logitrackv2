@@ -324,10 +324,7 @@ const EditShipmentDialog = ({
                 fullWidth
                 PaperProps={{
                   sx: {
-                    borderRadius: 4,
-                    bgcolor: "#0B1019",
-                    backgroundImage: "none",
-                    border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+                    overflow: "hidden",
                   },
                 }}
               >
@@ -354,10 +351,10 @@ const EditShipmentDialog = ({
                         <EditIcon />
                       </Box>
                       <Stack spacing={0.5}>
-                        <Typography variant="h6" fontWeight={700} color="white">
+                        <Typography variant="h6" fontWeight={800} color="text.primary">
                           {dict.shipments.dialogs.editTitle}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" color="text.secondary" fontWeight={500}>
                           {dict.shipments.dialogs.editSubtitle}{" "}
                           {shipment.trackingId}
                         </Typography>
@@ -375,17 +372,19 @@ const EditShipmentDialog = ({
                     activeStep={currentStep - 1}
                     sx={{
                       "& .MuiStepLabel-label": {
-                        color: theme.palette.common.white_alpha.main_50,
+                        color: "text.secondary",
                         fontWeight: 600,
                       },
                       "& .MuiStepLabel-label.Mui-active": {
                         color: theme.palette.primary.main,
+                        fontWeight: 700,
                       },
                       "& .MuiStepLabel-label.Mui-completed": {
-                        color: theme.palette.common.white_alpha.main_70,
+                        color: "text.primary",
+                        fontWeight: 700,
                       },
                       "& .MuiStepIcon-root": {
-                        color: theme.palette.divider_alpha.main_10,
+                        color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
                       },
                       "& .MuiStepIcon-root.Mui-active": {
                         color: theme.palette.primary.main,

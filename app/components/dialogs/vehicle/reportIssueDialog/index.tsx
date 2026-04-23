@@ -147,24 +147,18 @@ const ReportIssueDialog = ({
   /* ---------------------------------- styles --------------------------------- */
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
       borderRadius: 2,
       "& fieldset": {
-        borderColor: theme.palette.divider_alpha.main_10,
+        borderColor: "divider",
       },
       "&:hover fieldset": {
-        borderColor: theme.palette.primary._alpha.main_30,
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: theme.palette.primary.main,
+        borderColor: "primary.main",
       },
     },
     "& .MuiInputLabel-root": {
       fontSize: "0.85rem",
-      color: "text.secondary",
     },
     "& .MuiOutlinedInput-input": {
-      color: "white",
       fontSize: "0.9rem",
     },
   };
@@ -177,10 +171,7 @@ const ReportIssueDialog = ({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 4,
-          bgcolor: "#0B1019",
-          backgroundImage: "none",
-          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+          overflow: "hidden",
         },
       }}
     >
@@ -199,11 +190,11 @@ const ReportIssueDialog = ({
               <ReportProblemIcon />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={700} color="white">
+              <Typography variant="h6" fontWeight={800} color="text.primary">
                 {dict.vehicles.dialogs.reportIssueTitle}
               </Typography>
-              <Typography variant="caption" sx={{ color: theme.palette.common.white_alpha.main_40, mt: 0.5, display: "block" }}>
-                {dict.vehicles.dialogs.vehicleLabel}: <span style={{ color: theme.palette.primary.main, fontWeight: 600 }}>{vehiclePlate}</span>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block", fontWeight: 500 }}>
+                {dict.vehicles.dialogs.vehicleLabel}: <span style={{ color: theme.palette.primary.main, fontWeight: 700 }}>{vehiclePlate}</span>
               </Typography>
             </Box>
           </Stack>
@@ -221,9 +212,9 @@ const ReportIssueDialog = ({
               variant="filled"
               sx={{ 
                 borderRadius: 2,
-                bgcolor: success ? theme.palette.success._alpha.main_10 : theme.palette.error._alpha.main_10,
-                color: success ? theme.palette.success.light : theme.palette.error.light,
-                border: `1px solid ${success ? theme.palette.success._alpha.main_20 : theme.palette.error._alpha.main_20}`,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? (success ? "success._alpha.main_10" : "error._alpha.main_10") : (success ? "success._alpha.main_05" : "error._alpha.main_05"),
+                color: success ? "success.light" : "error.light",
+                border: (theme) => `1px solid ${success ? theme.palette.success._alpha.main_20 : theme.palette.error._alpha.main_20}`,
               }}
             >
               {success ? dict.toasts.successAdd : error}
@@ -275,10 +266,10 @@ const ReportIssueDialog = ({
                             height: 10,
                             borderRadius: "50%",
                             bgcolor: mainColor,
-                            boxShadow: `0 0 10px ${paletteColor?._alpha.main_50}`,
+                            boxShadow: (theme) => theme.palette.mode === "dark" ? `0 0 10px ${paletteColor?._alpha.main_50}` : "none",
                           }}
                         />
-                        <Typography variant="body2" color="white" fontWeight={500}>
+                        <Typography variant="body2" color="text.primary" fontWeight={600}>
                           {dict.vehicles.priorities[value as keyof typeof dict.vehicles.priorities]}
                         </Typography>
                       </Box>
@@ -287,9 +278,7 @@ const ReportIssueDialog = ({
                   MenuProps: {
                     PaperProps: {
                       sx: {
-                        bgcolor: "#1A202C",
                         backgroundImage: "none",
-                        border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                         mt: 1,
                       }
                     }

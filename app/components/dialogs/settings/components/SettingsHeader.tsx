@@ -21,32 +21,31 @@ export default function SettingsHeader({ onClose }: HeaderProps) {
               width: 38,
               height: 38,
               borderRadius: 2.5,
-              bgcolor: "theme.palette.primary._alpha.main_12",
+              bgcolor: "primary._alpha.main_12",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               backdropFilter: "blur(10px)",
-              border: "1px solid theme.palette.primary._alpha.main_20",
+              border: (theme) => `1px solid ${theme.palette.primary._alpha.main_20}`,
             }}
           >
             <SettingsIcon
-              sx={{ fontSize: 20, color: "theme.palette.primary.main" }}
+              sx={{ fontSize: 20, color: "primary.main" }}
             />
           </Box>
           <Box>
             <Typography
               variant="subtitle1"
               fontWeight={800}
-              color="white"
-              sx={{ letterSpacing: -0.2 }}
+              sx={{ letterSpacing: -0.2, color: "text.primary" }}
             >
               {dict.settings.dialogs.systemConfiguration}
             </Typography>
             <Typography
               variant="caption"
               sx={{
-                color: "theme.palette.common.white_alpha.main_45",
-                fontWeight: 500,
+                color: "text.secondary",
+                fontWeight: 600,
               }}
             >
               {dict.settings.dialogs.adjustRegional}
@@ -57,11 +56,11 @@ export default function SettingsHeader({ onClose }: HeaderProps) {
           size="small"
           onClick={onClose}
           sx={{
-            color: "theme.palette.common.white_alpha.main_30",
+            color: "text.secondary",
             transition: "all 0.2s",
             "&:hover": {
-              color: "theme.palette.error.main",
-              bgcolor: "theme.palette.error._alpha.main_10",
+              color: "error.main",
+              bgcolor: "error._alpha.main_10",
               transform: "rotate(90deg)",
             },
           }}

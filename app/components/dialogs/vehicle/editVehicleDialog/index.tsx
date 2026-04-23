@@ -235,10 +235,7 @@ const EditVehicleDialog = ({
             fullWidth
             PaperProps={{
               sx: {
-                borderRadius: 4,
-                bgcolor: theme.palette.background.midnight.main,
-                backgroundImage: "none",
-                border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+                overflow: "hidden",
               },
             }}
           >
@@ -249,7 +246,7 @@ const EditVehicleDialog = ({
                 alignItems="center"
               >
                 <Stack direction="row" spacing={2} alignItems="center">
-                  <Typography variant="h6" fontWeight={600} color="white">
+                  <Typography variant="h6" fontWeight={800} color="text.primary">
                     {dict.vehicles.dialogs.editTitle}: {vehicle?.plate}
                   </Typography>
                 </Stack>
@@ -357,8 +354,7 @@ const EditVehicleDialog = ({
                       sx={{
                         textTransform: "none",
                         borderRadius: 2,
-                        borderColor: theme.palette.divider_alpha.main_20,
-                        color: "white",
+                        fontWeight: 700,
                       }}
                     >
                       {dict.common.back}

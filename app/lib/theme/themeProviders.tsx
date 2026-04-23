@@ -11,6 +11,7 @@ import { getTheme, type ThemeMode } from "./theme";
 import QueryProvider from "../providers/QueryProvider";
 import { Toaster } from "@/app/components/toast";
 import { useParams } from "next/navigation";
+import { saveUserTheme } from "@/app/lib/actions/theme";
 
 const THEME_STORAGE_KEY = "logitrack-theme-mode";
 const VALID_MODES = ["light", "dark", "system"] as const;
@@ -34,8 +35,14 @@ function resolveMode(stored: StoredMode): ThemeMode {
   return stored;
 }
 
-export default function Providers({ children }: { children: React.ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>("dark");
+export default function Providers({ 
+  children,
+  initialMode 
+}: { 
+  children: React.ReactNode;
+  initialMode?: StoredMode;
+}) {
+  const [mode, setModeState] = useState<ThemeMode>(() => resolveMode(initialMode || "dark"));
   const theme = useMemo(() => getTheme(mode), [mode]);
   const params = useParams();
   const lang = (params?.lang as string) || "en";
@@ -43,7 +50,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   // Hydrate from localStorage after mount (avoids SSR mismatch)
   useEffect(() => {
     const stored = getSavedStoredMode();
-    setModeState(resolveMode(stored));
+    // If we got initialMode from server, we might still want to respect it if we just logged in.
+    // However, localStorage is usually the source of truth for the browser.
+    // We will override with server initialMode if available, otherwise localStorage.
+    const modeToUse = initialMode || stored;
+    setModeState(resolveMode(modeToUse));
 
     // If system mode, listen for OS preference changes
     if (stored === "system") {
@@ -58,6 +69,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   const setMode = useCallback((newMode: ThemeMode | "system") => {
     try {
       localStorage.setItem(THEME_STORAGE_KEY, newMode);
+      saveUserTheme(newMode).catch((err) => console.error("Redis theme sync error", err));
     } catch {
       // localStorage not available (private browsing, etc.)
     }

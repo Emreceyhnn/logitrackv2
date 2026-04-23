@@ -36,27 +36,19 @@ const FirstStep = ({
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: "theme.palette.text.darkBlue._alpha.main_50",
       borderRadius: 2,
       "& fieldset": {
-        borderColor: "theme.palette.divider_alpha.main_10",
+        borderColor: "divider",
       },
       "&:hover fieldset": {
-        borderColor: "theme.palette.primary._alpha.main_30",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "theme.palette.primary.main",
+        borderColor: "primary.main",
       },
     },
     "& .MuiInputLabel-root": {
-      color: "text.secondary",
       fontSize: "0.85rem",
-      "&.Mui-focused": {
-        color: "theme.palette.primary.main",
-      },
     },
     "& .MuiOutlinedInput-input": {
-      color: "white",
+      fontSize: "0.9rem",
     },
   };
 
@@ -126,10 +118,10 @@ const FirstStep = ({
                   position: "absolute",
                   top: 8,
                   right: 8,
-                  bgcolor: "theme.palette.error._alpha.main_80",
-                  color: "white",
+                  bgcolor: "error.main",
+                  color: "common.white",
                   "&:hover": {
-                    bgcolor: "theme.palette.error.main",
+                    bgcolor: "error.dark",
                   },
                 }}
               >
@@ -160,15 +152,15 @@ const FirstStep = ({
                 sx={{
                   p: 2,
                   borderRadius: "50%",
-                  bgcolor: "theme.palette.primary._alpha.main_10",
-                  color: "theme.palette.primary.main",
+                  bgcolor: (theme) => theme.palette.mode === "dark" ? "primary._alpha.main_10" : "primary._alpha.main_05",
+                  color: "primary.main",
                   mb: 1.5,
                 }}
               >
                 <AddAPhotoIcon fontSize="large" />
               </Box>
 
-              <Typography variant="body2" fontWeight={500} color="white">
+              <Typography variant="body2" fontWeight={700} color="text.primary">
                 {dict.vehicles.dialogs.clickToUpload}
               </Typography>
               <Typography variant="caption" color="text.secondary">

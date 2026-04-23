@@ -378,7 +378,7 @@ export const getTheme = (mode: ThemeMode) => {
             lineHeight: 1,
             whiteSpace: "nowrap",
             "&.Mui-error": {
-              color: palettes[mode === "dark" ? "dark" : "light"].error.light,
+              color: palettes[mode].error.main,
             },
           },
         },
@@ -427,6 +427,50 @@ export const getTheme = (mode: ThemeMode) => {
             "&:last-child": {
               marginBottom: 0,
             },
+          },
+        },
+      },
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            borderRadius: 20,
+            backgroundImage: "none",
+            backgroundColor: mode === "dark" 
+              ? (palettes.dark.background.midnight?._alpha?.main_85 || "rgba(11, 16, 25, 0.85)")
+              : "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(24px) saturate(180%)",
+            border: `1px solid ${mode === "dark" ? palettes.dark.divider_alpha.main_10 : palettes.light.divider_alpha.main_20}`,
+            boxShadow: mode === "dark"
+              ? "0 24px 64px rgba(0,0,0,0.6)"
+              : "0 24px 64px rgba(0,0,0,0.1)",
+          },
+        },
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: {
+            padding: "24px 24px 16px",
+            "\u0026 .MuiTypography-root": {
+              fontWeight: 800,
+              fontSize: "1.25rem",
+              color: palettes[mode].text.primary,
+            },
+          },
+        },
+      },
+      MuiDialogContent: {
+        styleOverrides: {
+          root: {
+            padding: "16px 24px 24px",
+            color: palettes[mode].text.secondary,
+          },
+        },
+      },
+      MuiDialogActions: {
+        styleOverrides: {
+          root: {
+            padding: "16px 24px 24px",
+            gap: "12px",
           },
         },
       },

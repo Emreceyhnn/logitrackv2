@@ -45,11 +45,19 @@ export default function LandingNavbar() {
             px: { xs: 2, md: 4 },
             borderRadius: "24px",
             background: trigger
-              ? theme.palette.background.deepNavy?._alpha.main_85
-              : theme.palette.kpi.slateDeep_alpha.main_40,
+              ? (theme.palette.mode === "dark" 
+                  ? theme.palette.background.deepNavy?._alpha.main_85 
+                  : "rgba(255, 255, 255, 0.9)")
+              : (theme.palette.mode === "dark"
+                  ? theme.palette.kpi.slateDeep_alpha.main_40
+                  : "rgba(255, 255, 255, 0.4)"),
             backdropFilter: "blur(20px)",
-            border: `1px solid ${trigger ? theme.palette.kpi.cyan_alpha.main_20 : theme.palette.kpi.slateLight_alpha.main_10}`,
-            boxShadow: trigger ? "0 20px 40px rgba(0,0,0,0.4)" : "none",
+            border: (theme) => `1px solid ${trigger 
+              ? (theme.palette.mode === "dark" ? theme.palette.kpi.cyan_alpha.main_20 : "rgba(0, 0, 0, 0.1)") 
+              : (theme.palette.mode === "dark" ? theme.palette.kpi.slateLight_alpha.main_10 : "rgba(0, 0, 0, 0.05)")}`,
+            boxShadow: trigger 
+              ? (theme.palette.mode === "dark" ? "0 20px 40px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.05)") 
+              : "none",
             transition: "all 0.4s ease",
             justifyContent: "space-between",
           }}
@@ -81,7 +89,7 @@ export default function LandingNavbar() {
                   fontWeight: 800,
                   letterSpacing: 1.5,
                   fontSize: trigger ? "1rem" : "1.25rem",
-                  color: "#fff",
+                  color: theme.palette.logo.text,
                   transition: "all 0.4s ease",
                   display: { xs: "none", sm: "block" },
                 }}
@@ -123,9 +131,9 @@ export default function LandingNavbar() {
                 sx={{
                   fontWeight: 600,
                   textDecoration: "none",
-                  color: theme.palette.kpi.lavender_alpha.main_70,
+                  color: theme.palette.text.secondary,
                   transition: "all 0.2s ease",
-                  "&:hover": { color: theme.palette.kpi.cyan },
+                  "&:hover": { color: theme.palette.primary.main },
                 }}
               >
                 {item.label}

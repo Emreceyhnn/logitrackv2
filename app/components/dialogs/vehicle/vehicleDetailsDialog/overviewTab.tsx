@@ -54,10 +54,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
               sx={{
                 borderRadius: "12px",
                 overflow: "hidden",
-                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                border: `1px solid ${theme.palette.divider}`,
                 position: "relative",
               }}
             >
@@ -98,16 +98,16 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                border: (theme) => `1px solid ${theme.palette.divider}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
                 {dict.vehicles.fields.fuelLevel}
               </Typography>
-              <Typography sx={{ fontSize: 20, color: "white" }}>
+              <Typography sx={{ fontSize: 20, color: "text.primary", fontWeight: 800 }}>
                 %{vehicle.fuelLevel}
               </Typography>
               <LinearProgress
@@ -132,16 +132,16 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                border: (theme) => `1px solid ${theme.palette.divider}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
                 {dict.vehicles.fields.odometer}
               </Typography>
-              <Typography sx={{ fontSize: 20, color: "white" }}>
+              <Typography sx={{ fontSize: 20, color: "text.primary", fontWeight: 800 }}>
                 {vehicle.odometerKm?.toLocaleString("en-US")} km
               </Typography>
               <SpeedIcon
@@ -163,16 +163,16 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                border: (theme) => `1px solid ${theme.palette.divider}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
                 {dict.vehicles.fields.service}
               </Typography>
-              <Typography sx={{ fontSize: 20, color: "white" }}>
+              <Typography sx={{ fontSize: 20, color: "text.primary", fontWeight: 800 }}>
                 {vehicle?.nextServiceKm && vehicle?.odometerKm
                   ? (vehicle.nextServiceKm - vehicle.odometerKm).toLocaleString(
                       "en-US"
@@ -197,16 +197,16 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 flexDirection: "column",
                 borderRadius: "8px",
                 flexGrow: 1,
-                bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
-                border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                border: (theme) => `1px solid ${theme.palette.divider}`,
               }}
             >
               <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
                 {dict.vehicles.fields.avgFuelConsumption}
               </Typography>
-              <Typography sx={{ fontSize: 20, color: "white" }}>
+              <Typography sx={{ fontSize: 20, color: "text.primary", fontWeight: 800 }}>
                 {vehicle?.avgFuelConsumption?.toLocaleString("en-US")} L/100km
               </Typography>
               <OilBarrelIcon

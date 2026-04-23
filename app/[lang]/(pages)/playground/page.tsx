@@ -1,6 +1,11 @@
-// import { getDictionary } from "@/app/lib/language/language";
-// import ClientExample from "./ClientExample";
-// import { Container, Typography, Box, Stack, Paper, Divider } from "@mui/material";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 // export default async function Playground({
 //   params,

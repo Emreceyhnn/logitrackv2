@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -61,6 +61,15 @@ export default function SettingsDialog({ open, onClose }: Props) {
     appearance: { mode: "dark" },
   });
 
+  useEffect(() => {
+    if (open) {
+      const stored = localStorage.getItem("logitrack-theme-mode");
+      if (stored) {
+        setState((s) => ({ ...s, appearance: { mode: stored as any } }));
+      }
+    }
+  }, [open]);
+
   const showToast = useCallback((type: "success" | "error", msg: string) => {
     if (type === "success") toast.success(msg);
     else toast.error(msg);
@@ -116,12 +125,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: 5,
-            bgcolor: theme.palette.background.midnight._alpha.main_85,
-            backdropFilter: "blur(24px) saturate(180%)",
-            backgroundImage: "none",
-            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
-            boxShadow: `0 24px 64px ${theme.palette.common.black_alpha.main_60}`,
+            overflow: "hidden",
           },
         }}
       >
@@ -138,11 +142,11 @@ export default function SettingsDialog({ open, onClose }: Props) {
                 fontWeight: 700,
                 fontSize: "0.82rem",
                 minHeight: 44,
-                color: theme.palette.common.white_alpha.main_30,
+                color: "text.secondary",
                 gap: 1,
                 transition: "all 0.2s",
-                "&.Mui-selected": { color: "white" },
-                "&:hover": { color: theme.palette.common.white_alpha.main_60 },
+                "&.Mui-selected": { color: "text.primary" },
+                "&:hover": { color: "text.primary" },
               },
               "& .MuiTabs-indicator": {
                 bgcolor: theme.palette.primary.main,

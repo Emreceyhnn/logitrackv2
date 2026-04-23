@@ -98,7 +98,6 @@ export default function DocumentViewerDialog({
       PaperProps={{
         sx: {
           borderRadius: 4,
-          bgcolor: "#0B1019",
           backgroundImage: "none",
           height: "90vh",
           display: "flex",

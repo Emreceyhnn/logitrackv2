@@ -116,13 +116,12 @@ export default function EditCompanyMemberDialog({
       fullWidth 
       maxWidth="sm"
       PaperProps={{
-        sx: { 
-          bgcolor: "#0B0F19",
+        sx: {
+          borderRadius: 4,
           backgroundImage: "none",
-          borderRadius: 4, 
           border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           overflow: "hidden",
-        }
+        },
       }}
     >
       <Box sx={{ p: 3, pb: 2 }}>

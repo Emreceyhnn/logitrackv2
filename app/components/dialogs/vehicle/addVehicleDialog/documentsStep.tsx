@@ -48,29 +48,20 @@ const DocumentsStep = () => {
   /* --------------------------------- styles --------------------------------- */
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
-      backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
       borderRadius: 2,
       height: 48,
       "& fieldset": {
-        borderColor: theme.palette.divider_alpha.main_10,
+        borderColor: "divider",
       },
       "&:hover fieldset": {
-        borderColor: theme.palette.primary._alpha.main_30,
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: theme.palette.primary.main,
+        borderColor: "primary.main",
       },
     },
     "& .MuiInputLabel-root": {
       display: "none",
     },
     "& .MuiOutlinedInput-input": {
-      color: "white",
       fontSize: "0.9rem",
-      "&::placeholder": {
-        color: theme.palette.common.white_alpha.main_30,
-        opacity: 1,
-      },
     },
   };
 
@@ -116,7 +107,7 @@ const DocumentsStep = () => {
       <Box sx={{ flex: 1 }}>
         <Typography
           variant="h6"
-          sx={{ color: "white", mb: 3, fontWeight: 600 }}
+          sx={{ color: "text.primary", mb: 3, fontWeight: 800 }}
         >
           {dict.vehicles.dialogs.complianceDates}
         </Typography>
@@ -173,8 +164,8 @@ const DocumentsStep = () => {
               p: 2,
               mt: 2,
               borderRadius: 3,
-              border: `1px solid ${theme.palette.divider_alpha.main_10}`,
-              bgcolor: theme.palette.divider_alpha.main_02,
+              border: `1px solid ${theme.palette.divider}`,
+              bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
               display: "flex",
               alignItems: "flex-start",
               gap: 2,
@@ -192,7 +183,7 @@ const DocumentsStep = () => {
             <Box>
               <Typography
                 variant="body2"
-                sx={{ color: "white", fontWeight: 600 }}
+                sx={{ color: "text.primary", fontWeight: 700 }}
               >
                 {dict.vehicles.dialogs.enableAlerts}
               </Typography>
@@ -210,7 +201,7 @@ const DocumentsStep = () => {
       <Box sx={{ flex: 1.2 }}>
         <Typography
           variant="h6"
-          sx={{ color: "white", mb: 3, fontWeight: 600 }}
+          sx={{ color: "text.primary", mb: 3, fontWeight: 800 }}
         >
           {dict.common.documents}
         </Typography>
@@ -245,13 +236,13 @@ const DocumentsStep = () => {
           sx={{
             p: 3,
             borderRadius: 3,
-            bgcolor: theme.palette.divider_alpha.main_02,
-            border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+            bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+            border: `1px solid ${theme.palette.divider}`,
           }}
         >
           <Typography
             variant="subtitle2"
-            sx={{ color: "white", mb: 2, fontWeight: 600 }}
+            sx={{ color: "text.primary", mb: 2, fontWeight: 700 }}
           >
             {dict.vehicles.dialogs.uploadFiles}
           </Typography>
@@ -289,7 +280,7 @@ const DocumentsStep = () => {
             </Box>
             <Typography
               variant="body2"
-              sx={{ color: "white", fontWeight: 600, mb: 0.5 }}
+              sx={{ color: "text.primary", fontWeight: 700, mb: 0.5 }}
             >
               <span style={{ color: theme.palette.primary.main }}>
                 {dict.common.upload}
@@ -312,12 +303,12 @@ const DocumentsStep = () => {
                   sx={{
                     p: 2,
                     borderRadius: 3,
-                    bgcolor: theme.palette.text.darkBlue._alpha.main_60,
-                    border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+                    bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                    border: `1px solid ${theme.palette.divider}`,
                     transition: "all 0.2s",
                     "&:hover": {
-                      borderColor: theme.palette.primary._alpha.main_40,
-                      bgcolor: theme.palette.text.darkBlue._alpha.main_80,
+                      borderColor: "primary.main",
+                      bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
                     },
                   }}
                 >
@@ -336,18 +327,18 @@ const DocumentsStep = () => {
                       {typeInfo.icon}
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: "white",
-                          fontWeight: 600,
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                        }}
-                      >
-                        {doc.name}
-                      </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "text.primary",
+                            fontWeight: 700,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {doc.name}
+                        </Typography>
                       <Typography
                         variant="caption"
                         sx={{ color: "text.secondary" }}
@@ -359,10 +350,10 @@ const DocumentsStep = () => {
                       size="small"
                       onClick={() => removeFile(doc.id)}
                       sx={{
-                        color: theme.palette.common.white_alpha.main_30,
+                        color: "text.disabled",
                         "&:hover": {
-                          color: theme.palette.error.main,
-                          bgcolor: theme.palette.error._alpha.main_10,
+                          color: "error.main",
+                          bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,0,0,0.1)" : "rgba(255,0,0,0.05)",
                         },
                       }}
                     >
@@ -378,14 +369,13 @@ const DocumentsStep = () => {
                         sx={{
                           height: 36,
                           borderRadius: 1.5,
-                          bgcolor: theme.palette.common.black_alpha.main_20,
-                          color: "white",
+                          bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
                           fontSize: "0.8rem",
                           "& .MuiOutlinedInput-notchedOutline": {
-                            borderColor: theme.palette.divider_alpha.main_10,
+                            borderColor: "divider",
                           },
                           "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: theme.palette.primary._alpha.main_30,
+                            borderColor: "primary.main",
                           },
                         }}
                       >

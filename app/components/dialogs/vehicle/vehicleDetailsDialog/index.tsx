@@ -153,10 +153,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 4,
-          bgcolor: theme.palette.background.midnight.main,
-          backgroundImage: "none",
-          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
           overflow: "hidden",
         },
       }}
@@ -164,8 +160,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
       <Box
         sx={{
           p: 3,
-          bgcolor: theme.palette.background.midnight.main,
-          borderBottom: `1px solid ${theme.palette.divider_alpha.main_10}`,
+          borderBottom: `1px solid ${theme.palette.divider}`,
         }}
       >
         <Stack
@@ -201,8 +196,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
               <Stack direction="row" spacing={1} alignItems="center">
                 <Typography
                   variant="h4"
-                  fontWeight={700}
-                  sx={{ color: "white" }}
+                  fontWeight={800}
+                  color="text.primary"
                 >
                   {vehicleData?.plate}
                 </Typography>
@@ -252,7 +247,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           <Box
             sx={{
               borderBottom: 1,
-              borderColor: theme.palette.divider_alpha.main_10,
+              borderColor: "divider",
             }}
           >
             <Tabs
@@ -279,8 +274,8 @@ const VehicleDialog = (params: VehicleDialogParams) => {
         <Box
           sx={{
             p: 3,
-            borderTop: `1px solid ${theme.palette.divider_alpha.main_10}`,
-            bgcolor: theme.palette.error._alpha.main_05,
+            borderTop: `1px solid ${theme.palette.divider}`,
+            bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255, 0, 0, 0.05)" : "rgba(255, 0, 0, 0.02)",
           }}
         >
           <Stack
