@@ -2,6 +2,9 @@
 
 import "dayjs/locale/tr";
 import "dayjs/locale/en";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -12,6 +15,10 @@ import QueryProvider from "../providers/QueryProvider";
 import { Toaster } from "@/app/components/toast";
 import { useParams } from "next/navigation";
 import { saveUserTheme } from "@/app/lib/actions/theme";
+import { useUserContext } from "../context/UserContext";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const THEME_STORAGE_KEY = "logitrack-theme-mode";
 const VALID_MODES = ["light", "dark", "system"] as const;
@@ -42,10 +49,19 @@ export default function Providers({
   children: React.ReactNode;
   initialMode?: StoredMode;
 }) {
+  const { user } = useUserContext();
   const [mode, setModeState] = useState<ThemeMode>(() => resolveMode(initialMode || "dark"));
   const theme = useMemo(() => getTheme(mode), [mode]);
   const params = useParams();
   const lang = (params?.lang as string) || "en";
+
+  // Set global dayjs timezone when user preferences change
+  useEffect(() => {
+    if (user?.timezone) {
+      dayjs.tz.setDefault(user.timezone);
+      console.log(`[themeProviders] 🌍 Timezone set to: ${user.timezone}`);
+    }
+  }, [user?.timezone]);
 
   // Hydrate from localStorage after mount (avoids SSR mismatch)
   useEffect(() => {

@@ -221,6 +221,10 @@ export const LoginUser = maybeAuthenticatedAction(
           surname: foundUser.surname,
           email: foundUser.email,
           companyId: foundUser.companyId,
+          timezone: foundUser.timezone,
+          dateFormat: foundUser.dateFormat,
+          timeFormat: foundUser.timeFormat,
+          currency: foundUser.currency || "USD",
         },
       };
     } catch (error) {
@@ -451,6 +455,43 @@ export const searchPlatformUsers = authenticatedAction(
       }));
     } catch (error) {
       console.error("Failed to search platform users:", error);
+      throw error;
+    }
+  }
+);
+
+export const updateUserRegionalSettings = authenticatedAction(
+  async (
+    user,
+    settings: {
+      timezone: string;
+      dateFormat: string;
+      timeFormat: string;
+      language?: string;
+      currency?: string;
+    }
+  ) => {
+    try {
+      const updatedUser = await db.user.update({
+        where: { id: user.id },
+        data: {
+          timezone: settings.timezone,
+          dateFormat: settings.dateFormat,
+          timeFormat: settings.timeFormat,
+          ...(settings.currency ? { currency: settings.currency } : {}),
+        },
+      });
+
+      // Log audit event
+      await logAuditEvent({
+        userId: user.id,
+        action: "SETTINGS_UPDATE",
+        metadata: { ...settings, type: "regional_settings_update" },
+      });
+
+      return { success: true, user: updatedUser };
+    } catch (error) {
+      console.error("Failed to update regional settings:", error);
       throw error;
     }
   }

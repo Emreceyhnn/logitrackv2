@@ -10,6 +10,7 @@ import Inventory2Icon from "@mui/icons-material/Inventory2";
 import { ReportsMetrics } from "@/app/lib/type/reports";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 import { Dictionary } from "@/app/lib/language/language";
+import { useCurrency } from "@/app/lib/hooks/useCurrency";
 
 interface MetricCardProps {
   title: string;
@@ -154,6 +155,7 @@ export default function ReportSummaryCards({
   loading?: boolean;
 }) {
   const theme = useTheme();
+  const { compact, format } = useCurrency();
 
   if (loading || !metrics) {
     return (
@@ -220,7 +222,7 @@ export default function ReportSummaryCards({
           },
           {
             title: dict.reports.metrics.maintenanceCost,
-            value: "$4,250",
+            value: format(4250),
             change: "15%",
             positive: false,
             icon: <AttachMoneyIcon />,
@@ -239,7 +241,7 @@ export default function ReportSummaryCards({
         return [
           {
             title: dict.reports.metrics.totalInventoryValue,
-            value: `$${(metrics?.totalInventoryValue || 0).toLocaleString()}`,
+            value: compact(metrics?.totalInventoryValue || 0),
             change: "5.4%",
             positive: true,
             icon: <AttachMoneyIcon />,
@@ -255,7 +257,7 @@ export default function ReportSummaryCards({
           },
           {
             title: dict.reports.metrics.deadStock,
-            value: "$12k",
+            value: compact(12000),
             change: "2%",
             positive: true,
             icon: <WarningAmberIcon />,

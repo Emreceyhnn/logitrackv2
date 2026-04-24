@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState } from "react";
 import { Typography, Avatar, Stack, Chip, Box } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import InfoIcon from "@mui/icons-material/Info";
@@ -15,7 +15,7 @@ import type {
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { InventoryTableProps } from "@/app/lib/type/inventory";
 
-import { useParams } from "next/navigation";
+import { useCurrency } from "@/app/lib/hooks/useCurrency";
 
 // Helper to derive status for UI
 const getStatus = (quantity: number, minStock: number) => {
@@ -44,25 +44,10 @@ const InventoryTable = ({
   onRequestSort,
 }: InventoryTableProps) => {
   const dict = useDictionary();
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
   const [localPage, setLocalPage] = useState(1);
   const [localLimit, setLocalLimit] = useState(10);
 
-  const formatPrice = useCallback(
-    (price: number) => {
-      try {
-        return new Intl.NumberFormat(lang === "tr" ? "tr-TR" : "en-US", {
-          style: "currency",
-          currency: lang === "tr" ? "TRY" : "USD",
-          maximumFractionDigits: 0,
-        }).format(price);
-      } catch {
-        return lang === "tr" ? `₺${price.toFixed(0)}` : `$${price.toFixed(0)}`;
-      }
-    },
-    [lang]
-  );
+  const { formatFrom, isLoading: currencyLoading } = useCurrency();
 
   const currentMeta = meta || {
     page: localPage,
@@ -176,7 +161,7 @@ const InventoryTable = ({
         label: dict.inventory.table.unitPrice,
         sortable: true,
         sortKey: "unitValue",
-        render: (row) => formatPrice(row.unitValue || 0),
+        render: (row) => currencyLoading ? "..." : formatFrom(row.unitValue || 0, (row as any).currency || "USD", 2),
       },
       {
         key: "warehouse",
@@ -192,7 +177,7 @@ const InventoryTable = ({
         ),
       },
     ],
-    [dict, formatPrice]
+    [dict, formatFrom]
   );
 
   const rowActions: DataTableRowAction<InventoryWithRelations>[] = useMemo(

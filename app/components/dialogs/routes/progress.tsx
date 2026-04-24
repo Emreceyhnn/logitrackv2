@@ -10,6 +10,8 @@ import {
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import CircleIcon from "@mui/icons-material/Circle";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useUser } from "@/app/lib/hooks/useUser";
+import { formatDisplayTime } from "@/app/lib/utils/date";
 
 export default function RouteProgress({
   route,
@@ -17,16 +19,19 @@ export default function RouteProgress({
   route: RouteWithRelations;
 }) {
   const dict = useDictionary();
+  const { user } = useUser();
+
+  const dateSettings = {
+    timezone: user?.timezone || "UTC",
+    dateFormat: user?.dateFormat || "DD/MM/YYYY",
+    timeFormat: user?.timeFormat || "24h",
+  };
+
   const stops = [
     {
       locationName: route.startAddress || dict.routes.details.origin,
       status: "COMPLETED",
-      time: route.startTime
-        ? new Date(route.startTime).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        : "",
+      time: formatDisplayTime(route.startTime, dateSettings),
     },
     ...(route.shipments?.map((s) => ({
       locationName: `${dict.routes.details.delivery}: ${s.destination}`,
@@ -36,12 +41,7 @@ export default function RouteProgress({
     {
       locationName: route.endAddress || dict.routes.details.destination,
       status: route.status === "COMPLETED" ? "COMPLETED" : "PENDING",
-      time: route.endTime
-        ? new Date(route.endTime).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        : "",
+      time: formatDisplayTime(route.endTime, dateSettings),
     },
   ];
 

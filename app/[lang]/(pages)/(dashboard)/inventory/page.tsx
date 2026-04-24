@@ -26,6 +26,8 @@ import {
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import KpiCards from "@/app/components/cards/KpiCards";
+import { useCurrency } from "@/app/lib/hooks/useCurrency";
+
 
 export default function InventoryPage() {
   const dict = useDictionary();
@@ -42,6 +44,8 @@ function InventoryContent() {
   const dict = useDictionary();
   const params = useParams();
   const lang = (params?.lang as string) || "en";
+  const { format, isLoading: currencyLoading } = useCurrency();
+
 
   /* ---------------------------------- STATE --------------------------------- */
   const [filters, setFilters] = useState({
@@ -192,16 +196,13 @@ function InventoryContent() {
       },
       {
         label: dict.inventory.totalValue,
-        value: new Intl.NumberFormat(lang === "tr" ? "tr-TR" : "en-US", {
-          style: "currency",
-          currency: lang === "tr" ? "TRY" : "USD",
-          maximumFractionDigits: 0,
-        }).format(stats?.totalValue || 0),
+        value: currencyLoading ? "..." : format(stats?.totalValue || 0),
         icon: <AttachMoney sx={{ fontSize: 22 }} />,
         color: theme.palette.kpi.emerald,
       },
     ],
-    [stats, theme, dict, lang]
+    [stats, theme, dict, format, currencyLoading]
+
   );
 
   return (

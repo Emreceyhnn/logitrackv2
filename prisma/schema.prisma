@@ -52,6 +52,10 @@ model User {
   status             UserStatus          @default(ACTIVE)
   lastLoginAt        DateTime?
   companyId          String?
+  timezone           String              @default("UTC")
+  dateFormat         String              @default("DD/MM/YYYY")
+  timeFormat         String              @default("24h")
+  currency           String              @default("USD")
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   auditLogs          AuditLog[]
@@ -143,6 +147,7 @@ model MaintenanceRecord {
   cost        Float
   status      MaintenanceStatus @default(COMPLETED)
   description String?
+  currency    String            @default("USD")
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   vehicle     Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
@@ -222,6 +227,7 @@ model Inventory {
   minStock          Int       @default(0)
   imageUrl          String?
   unitValue         Float?    @default(0)
+  currency          String    @default("USD")
   unit              String    @default("Each")
   weightKg          Float?    @default(0)
   volumeM3          Float?    @default(0)
@@ -365,6 +371,7 @@ model FuelLog {
   odometerKm  Int
   location    String?
   fuelType    String
+  currency    String   @default("USD")
   receiptUrl  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -502,6 +509,7 @@ enum AuditAction {
   SESSION_REVOKE
   PASSWORD_CHANGE
   LOGIN_FAILED
+  SETTINGS_UPDATE
 }
 
 enum ShipmentStatus {
@@ -550,4 +558,15 @@ enum MaintenanceStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+model ExchangeRate {
+  id        String   @id @default(cuid())
+  base      String   @default("USD")
+  rates     Json     // Stores the rates as a JSON object
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("exchange_rates")
 }

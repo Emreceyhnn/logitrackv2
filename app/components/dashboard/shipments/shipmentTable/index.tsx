@@ -3,7 +3,11 @@
 import { useState, useCallback, useMemo } from "react";
 import { Typography } from "@mui/material";
 import DataTable from "@/app/components/ui/DataTable";
-import type { DataTableColumn, DataTableFilter, DataTableRowAction } from "@/app/lib/type/dataTable";
+import type {
+  DataTableColumn,
+  DataTableFilter,
+  DataTableRowAction,
+} from "@/app/lib/type/dataTable";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDetailDialog";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
@@ -14,6 +18,8 @@ import {
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
 import { ShipmentStatus } from "@/app/lib/type/enums";
+import { useUserContext } from "@/app/lib/context/UserContext";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const ShipmentTable = ({
@@ -24,12 +30,15 @@ const ShipmentTable = ({
   onLimitChange,
 }: ShipmentTableProps) => {
   const dict = useDictionary();
+  const { user } = useUserContext();
   const { shipments, loading = false, filters } = state;
   const { selectShipment, onEdit, onDelete, updateFilters } = actions;
 
   // Localized statuses for the filter
   const SHIPMENT_FILTERS: DataTableFilter[] = useMemo(() => {
-    const SHIPMENT_STATUS_VALUES = Object.values(ShipmentStatus) as ShipmentStatus[];
+    const SHIPMENT_STATUS_VALUES = Object.values(
+      ShipmentStatus
+    ) as ShipmentStatus[];
     return [
       {
         key: "status",
@@ -37,7 +46,10 @@ const ShipmentTable = ({
         options: SHIPMENT_STATUS_VALUES.map((s: ShipmentStatus) => {
           const statusKey = s.toUpperCase();
           return {
-            label: dict.routes.statuses[statusKey as keyof typeof dict.routes.statuses] || s.replace(/_/g, " "),
+            label:
+              dict.shipments.statuses[
+                statusKey as keyof typeof dict.shipments.statuses
+              ] || s.replace(/_/g, " "),
             value: s as string,
           };
         }),
@@ -70,12 +82,13 @@ const ShipmentTable = ({
     };
   }, [pagination, localPage, localLimit, shipments.length]);
 
-
   const paginatedShipments = useMemo(() => {
     if (pagination) return shipments;
-    return shipments.slice((meta.page - 1) * meta.limit, meta.page * meta.limit);
+    return shipments.slice(
+      (meta.page - 1) * meta.limit,
+      meta.page * meta.limit
+    );
   }, [shipments, meta.page, meta.limit, pagination]);
-
 
   /* --------------------------------- handlers --------------------------------- */
   const handleOpenDetails = useCallback(
@@ -122,7 +135,6 @@ const ShipmentTable = ({
     [onLimitChange]
   );
 
-
   /* --------------------------------- columns --------------------------------- */
   const columns: DataTableColumn<ShipmentWithRelations>[] = [
     {
@@ -147,7 +159,7 @@ const ShipmentTable = ({
     {
       key: "createdAt",
       label: dict.shipments.table.columns.created,
-      render: (row) => row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "-",
+      render: (row) => formatDisplayDate(row.createdAt, user || undefined),
     },
     {
       key: "destination",

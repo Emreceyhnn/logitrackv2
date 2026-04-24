@@ -18,6 +18,8 @@ import {
   inventoryCacheKeys,
   INVENTORY_CACHE_TTL,
 } from "../redis";
+import { getExchangeRates } from "../services/exchangeRate";
+
 
 export async function invalidateInventoryCache(companyId: string, inventoryId?: string) {
   await Promise.all([
@@ -39,7 +41,7 @@ export const createInventoryItem = authenticatedAction(
 
       if (!companyId) throw new Error("User has no company");
 
-      const { warehouseId, sku, name, quantity, minStock = 0, weightKg = 0, volumeM3 = 0, palletCount = 0, cargoType = "General Cargo", unitValue = 0 } = data;
+      const { warehouseId, sku, name, quantity, minStock = 0, weightKg = 0, volumeM3 = 0, palletCount = 0, cargoType = "General Cargo", unitValue = 0, currency = "USD" } = data;
 
       const warehouse = await db.warehouse.findUnique({
         where: { id: warehouseId },
@@ -78,6 +80,7 @@ export const createInventoryItem = authenticatedAction(
             palletCount,
             cargoType,
             unitValue,
+            currency: currency ?? "USD",
             companyId,
           },
         });
@@ -215,9 +218,7 @@ export const updateInventoryItem = authenticatedAction(
       const updatedItem = await db.$transaction(async (tx) => {
         const item = await tx.inventory.update({
           where: { id: inventoryId },
-          data: {
-            ...data,
-          },
+          data: data as any,
         });
         console.log(`[updateInventoryItem] Item updated in DB:`, item.id);
 
@@ -472,6 +473,7 @@ export const getInventoryWithDashboardData = authenticatedAction(
           items,
           totalCount,
           allStatsItems,
+          ratesData,
         ] = await Promise.all([
           checkPermission(userId!, companyId, ["role_admin", "role_manager", "role_warehouse"]),
           db.inventory.findMany({
@@ -486,8 +488,17 @@ export const getInventoryWithDashboardData = authenticatedAction(
           db.inventory.count({ where }),
           db.inventory.findMany({
             where,
-            select: { id: true, name: true, quantity: true, minStock: true, unitValue: true, warehouse: { select: { name: true } } },
+            select: { 
+              id: true, 
+              name: true, 
+              quantity: true, 
+              minStock: true, 
+              unitValue: true, 
+              currency: true,
+              warehouse: { select: { name: true } } 
+            },
           }),
+          getExchangeRates(),
         ]);
 
         // KPI Calculations & Low Stock Extract
@@ -507,7 +518,11 @@ export const getInventoryWithDashboardData = authenticatedAction(
               lowStockItems.push(item);
             }
           }
-          totalValue += item.quantity * (Number(item.unitValue) || 0);
+          
+          // Convert to USD for a consistent totalValue
+          const rateFrom = (ratesData.rates as any)[item.currency] || 1;
+          const itemValueInUsd = (item.unitValue || 0) / rateFrom;
+          totalValue += item.quantity * itemValueInUsd;
         });
 
         return {

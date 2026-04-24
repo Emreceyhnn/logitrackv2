@@ -1,6 +1,7 @@
 "use client";
 
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useCurrency } from "@/app/lib/hooks/useCurrency";
 import { useMemo, useState } from "react";
 import {
   Box,
@@ -29,6 +30,7 @@ const ItemDetailsSection = ({
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
   const theme = useTheme();
+  const { symbol } = useCurrency();
 
   const CATEGORIES = useMemo(() => [
     { value: "Electronics", label: dict.inventory.categories.electronics },
@@ -140,7 +142,9 @@ const ItemDetailsSection = ({
                   placeholder="0.00"
                   value={localUnitValue}
                   onChange={(e) => handleNumChange("unitValue", e.target.value, setLocalUnitValue)}
-                />
+                >
+                  <Typography sx={{ color: "text.secondary", fontSize: "0.9rem", ml: 1 }}>{symbol}</Typography>
+                </CustomTextArea>
               </Stack>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>

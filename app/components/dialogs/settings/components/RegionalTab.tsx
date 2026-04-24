@@ -183,6 +183,21 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
               <MenuItem value="YYYY-MM-DD">ISO-8601 (YYYY-MM-DD)</MenuItem>
             </Select>
           </FormControl>
+
+          <FormControl fullWidth size="small" sx={ilSX}>
+            <InputLabel>{dict.settings.dialogs.regional.timeFormat}</InputLabel>
+            <Select
+              value={state.regional.timeFormat}
+              label={dict.settings.dialogs.regional.timeFormat}
+              onChange={(e) =>
+                actions.updateRegional({ timeFormat: e.target.value })
+              }
+              sx={ssX}
+            >
+              <MenuItem value="24h">24 {dict.settings.dialogs.regional.timeFormats.hour}</MenuItem>
+              <MenuItem value="12h">12 {dict.settings.dialogs.regional.timeFormats.hour} (AM/PM)</MenuItem>
+            </Select>
+          </FormControl>
         </Stack>
       </Stack>
 

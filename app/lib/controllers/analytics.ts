@@ -1,5 +1,7 @@
 "use server";
 
+import dayjs from "dayjs";
+
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
@@ -12,6 +14,8 @@ import {
   IssuePriority, 
   IssueType 
 } from "@prisma/client";
+import { formatDisplayDate } from "../utils/date";
+import { getExchangeRates } from "../services/exchangeRate";
 
 export const getOverviewStats = authenticatedAction(async (user) => {
   try {
@@ -132,7 +136,7 @@ export const getActionRequired = authenticatedAction(async (user) => {
       type: "DOCUMENT_DUE" as const,
       title: doc.name,
       message: doc.expiryDate
-        ? `Expires ${new Date(doc.expiryDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+        ? `Expires ${formatDisplayDate(doc.expiryDate, user)}`
         : "Expiry approaching",
       link: doc.driverId 
         ? `/drivers?id=${doc.driverId}` 
@@ -226,20 +230,35 @@ export const getFuelStats = authenticatedAction(async (user) => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const fuelByVehicle = await db.fuelLog.groupBy({
-      by: ["vehicleId"],
+    const fuelByVehicleRaw = await db.fuelLog.findMany({
       where: {
         companyId: user.companyId,
         date: { gte: thirtyDaysAgo },
       },
-      _sum: { volumeLiter: true, cost: true },
-      orderBy: { _sum: { volumeLiter: "desc" } },
-      take: 8,
     });
 
-    if (fuelByVehicle.length === 0) return [];
+    if (fuelByVehicleRaw.length === 0) return [];
 
-    const vehicleIds = fuelByVehicle.map((f) => f.vehicleId);
+    const rates = (await getExchangeRates()).rates;
+    const statsMap = new Map<string, { volume: number; costUsd: number }>();
+
+    fuelByVehicleRaw.forEach((log) => {
+      const current = statsMap.get(log.vehicleId) || { volume: 0, costUsd: 0 };
+      const rate = rates[log.currency || "USD"] || 1;
+      const costUsd = log.cost / rate;
+
+      statsMap.set(log.vehicleId, {
+        volume: current.volume + log.volumeLiter,
+        costUsd: current.costUsd + costUsd,
+      });
+    });
+
+    // Take top 8 by volume
+    const topVehicles = Array.from(statsMap.entries())
+      .sort((a, b) => b[1].volume - a[1].volume)
+      .slice(0, 8);
+
+    const vehicleIds = topVehicles.map(([id]) => id);
     const vehicles = await db.vehicle.findMany({
       where: { id: { in: vehicleIds } },
       select: { id: true, plate: true },
@@ -247,11 +266,11 @@ export const getFuelStats = authenticatedAction(async (user) => {
 
     const vehicleMap = new Map(vehicles.map((v) => [v.id, v.plate]));
 
-    return fuelByVehicle.map((f) => ({
-      id: f.vehicleId,
-      plate: vehicleMap.get(f.vehicleId) ?? f.vehicleId,
-      value: Math.round((f._sum.volumeLiter ?? 0) * 10) / 10,
-      totalCost: Math.round(f._sum.cost ?? 0),
+    return topVehicles.map(([id, data]) => ({
+      id,
+      plate: vehicleMap.get(id) ?? id,
+      value: Math.round(data.volume * 10) / 10,
+      totalCost: Math.round(data.costUsd),
     }));
   } catch (error) {
     console.error("Failed to get fuel stats:", error);
@@ -451,7 +470,9 @@ export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
       const d = new Date();
       d.setDate(d.getDate() - i);
       d.setHours(0, 0, 0, 0);
-      const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      
+      const dayjsDate = dayjs.utc(d).tz(user.timezone || "UTC");
+      const label = dayjsDate.format("MMM DD");
       const dayStart = new Date(d);
       const dayEnd = new Date(d);
       dayEnd.setHours(23, 59, 59, 999);

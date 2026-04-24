@@ -36,6 +36,7 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
+import { useCurrency } from "@/app/lib/hooks/useCurrency";
 
 type FormData = {
   name: string;
@@ -60,6 +61,7 @@ export default function InventoryEditDialog({
   const theme = useTheme();
   const dict = useDictionary();
   const { data: warehouses } = useWarehouses();
+  const { convertFrom, symbol, currency: userCurrency } = useCurrency();
 
   const validationSchema = React.useMemo(
     () =>
@@ -116,7 +118,7 @@ export default function InventoryEditDialog({
       weightKg: item?.weightKg || 0,
       volumeM3: item?.volumeM3 || 0,
       palletCount: item?.palletCount || 0,
-      unitValue: item?.unitValue || 0,
+      unitValue: item ? parseFloat(convertFrom(item.unitValue || 0, (item as any).currency || "USD").toFixed(2)) : 0,
       cargoType: item?.cargoType || "General Cargo",
     },
   });
@@ -138,8 +140,10 @@ export default function InventoryEditDialog({
   const [localPalletCount, setLocalPalletCount] = useState(
     item?.palletCount ? item.palletCount.toString() : ""
   );
+  
+  const convertedInitialUnitValue = item ? parseFloat(convertFrom(item.unitValue || 0, (item as any).currency || "USD").toFixed(2)) : 0;
   const [localUnitValue, setLocalUnitValue] = useState(
-    item?.unitValue ? item.unitValue.toString() : ""
+    convertedInitialUnitValue ? convertedInitialUnitValue.toString() : ""
   );
 
   // We don't need useEffect to sync values because the component is keyed and re-mounts when item changes.
@@ -183,6 +187,7 @@ export default function InventoryEditDialog({
       await onUpdate(item.id, {
         ...data,
         imageUrl: finalImageUrl,
+        currency: userCurrency,
       } as Partial<any>);
       
       toast.success(dict.common.saveSuccess || "Inventory updated successfully");
@@ -698,7 +703,7 @@ export default function InventoryEditDialog({
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
-                              {dict.common.currency || "$"}
+                              {symbol}
                             </InputAdornment>
                           ),
                         }}

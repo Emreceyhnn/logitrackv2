@@ -11,6 +11,8 @@ import { CustomerWithRelations } from "./customer";
 import { InventoryShipmentItem } from "./add-shipment";
 
 // Domain Models
+export const SHIPMENT_STATUS_VALUES = Object.values(ShipmentStatus);
+
 export interface ShipmentWithRelations
   extends Omit<
     Shipment,

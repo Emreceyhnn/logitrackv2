@@ -201,6 +201,10 @@ export const getVehicleById = authenticatedAction(
             orderBy: { date: "desc" },
             take: 5,
           },
+          fuelLogs: {
+            orderBy: { date: "desc" },
+            take: 10,
+          },
         },
       });
 
@@ -481,6 +485,7 @@ export const addMaintenanceRecord = authenticatedAction(
       type: string;
       date: Date;
       cost: number;
+      currency?: string;
       status?: MaintenanceStatus;
       description?: string;
     }
@@ -744,6 +749,7 @@ export const updateMaintenanceRecord = authenticatedAction(
       type?: string;
       date?: Date;
       cost?: number;
+      currency?: string;
       status?: MaintenanceStatus;
       description?: string;
     }

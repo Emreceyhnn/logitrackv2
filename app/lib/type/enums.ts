@@ -387,3 +387,20 @@ export interface ShipmentItem {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface FuelLog {
+  id: string;
+  vehicleId: string;
+  driverId: string;
+  companyId: string;
+  date: Date;
+  volumeLiter: number;
+  cost: number;
+  odometerKm: number;
+  location?: string | null;
+  fuelType: string;
+  currency: string;
+  receiptUrl?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}

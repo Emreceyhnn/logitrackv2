@@ -1,5 +1,7 @@
 "use server";
 
+import dayjs from "dayjs";
+
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
@@ -23,11 +25,13 @@ import {
   ShipmentDayStat,
   MapData
 } from "../type/overview";
-import {
+import { 
   withCache,
   overviewCacheKeys,
   OVERVIEW_CACHE_TTL,
 } from "../redis";
+import { getExchangeRates } from "../services/exchangeRate";
+import { formatDisplayDate } from "../utils/date";
 
 /**
  * Aggregates all data required for the Overview Dashboard in a single server-side pass.
@@ -75,7 +79,8 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       openIssues,
       expiringDocs,
       dailyOpsMetrics,
-      fuelLogs,
+      fuelLogsRaw,
+      exchangeRates,
       vehiclePlates,
       warehousesRaw,
       palletSumsRaw,
@@ -175,16 +180,15 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       ]),
 
       // 5. Fuel Logs (Top 8 vehicles, last 30 days)
-      db.fuelLog.groupBy({
-        by: ["vehicleId"],
+      db.fuelLog.findMany({
         where: {
           companyId,
           date: { gte: thirtyDaysAgo },
         },
-        _sum: { volumeLiter: true, cost: true },
-        orderBy: { _sum: { volumeLiter: "desc" } },
-        take: 8,
       }),
+      
+      // 5b. Exchange Rates for processing
+      getExchangeRates(),
 
       // 5b. Parallel Vehicle Plate Fetching (Eliminate waterfall)
       db.vehicle.findMany({
@@ -299,7 +303,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       type: "DOCUMENT_DUE" as const,
       title: doc.name,
       message: doc.expiryDate
-        ? `Expires ${new Date(doc.expiryDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+        ? `Expires ${formatDisplayDate(doc.expiryDate, user)}`
         : "Expiry approaching",
       link: doc.driverId 
         ? `/drivers?id=${doc.driverId}` 
@@ -321,13 +325,29 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
 
     // 5. Fuel Stats
     const vehicleMap = new Map(vehiclePlates.map((v) => [v.id, v.plate]));
-    
-    const fuelStats: FuelStat[] = fuelLogs.map((f) => ({
-      id: f.vehicleId,
-      plate: vehicleMap.get(f.vehicleId) ?? f.vehicleId,
-      value: Math.round((f._sum.volumeLiter ?? 0) * 10) / 10,
-      totalCost: Math.round(f._sum.cost ?? 0),
-    }));
+    const rates = exchangeRates.rates;
+    const fuelStatsMap = new Map<string, { volume: number; costUsd: number }>();
+
+    fuelLogsRaw.forEach((log) => {
+      const current = fuelStatsMap.get(log.vehicleId) || { volume: 0, costUsd: 0 };
+      const rate = rates[log.currency || "USD"] || 1;
+      const costUsd = log.cost / rate;
+
+      fuelStatsMap.set(log.vehicleId, {
+        volume: current.volume + log.volumeLiter,
+        costUsd: current.costUsd + costUsd,
+      });
+    });
+
+    const fuelStats: FuelStat[] = Array.from(fuelStatsMap.entries())
+      .sort((a, b) => b[1].volume - a[1].volume)
+      .slice(0, 8)
+      .map(([id, data]) => ({
+        id,
+        plate: vehicleMap.get(id) ?? id,
+        value: Math.round(data.volume * 10) / 10,
+        totalCost: Math.round(data.costUsd),
+      }));
 
     // 6. Warehouse Capacity
     const palletMap = new Map(palletSumsRaw.map((p) => [p.warehouseId, { pallets: p._sum.palletCount ?? 0, volume: p._sum.volumeM3 ?? 0 }]));
@@ -377,7 +397,9 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       const d = new Date();
       d.setDate(d.getDate() - i);
       d.setHours(0, 0, 0, 0);
-      const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      
+      const dayjsDate = dayjs.utc(d).tz(user.timezone || "UTC");
+      const label = dayjsDate.format("MMM DD");
       const dayStart = d.getTime();
       const dayEnd = dayStart + 86399999;
       const count = shipmentVolumeRaw.filter((s) => {

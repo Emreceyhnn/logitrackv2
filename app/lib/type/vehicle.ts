@@ -7,6 +7,7 @@ import {
   Document,
   MaintenanceRecord,
   Route,
+  FuelLog,
 } from "./enums";
 
 export interface VehicleDashboardProps {
@@ -87,6 +88,7 @@ export interface VehicleWithRelations {
   issues: Issue[];
   documents: Document[];
   maintenanceRecords: MaintenanceRecord[];
+  fuelLogs: FuelLog[];
   routes: Route[];
   photo: string | null;
   engineSize?: string | null;

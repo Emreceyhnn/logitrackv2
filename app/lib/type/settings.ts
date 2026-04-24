@@ -9,6 +9,7 @@ export interface RegionalSettings {
   currency: CurrencyCode;
   timezone: string;
   dateFormat: string;
+  timeFormat: string;
 }
 
 export interface NotificationSettings {

@@ -302,7 +302,8 @@ export const addInventoryItem = authenticatedAction(
     palletCount: number = 0,
     cargoType: string = "General Cargo",
     imageUrl?: string,
-    unitValue?: number
+    unitValue?: number,
+    currency: string = "USD"
   ) => {
     try {
       await checkPermission(user.id, user.companyId, [
@@ -355,6 +356,7 @@ export const addInventoryItem = authenticatedAction(
             cargoType,
             imageUrl,
             unitValue: unitValue || 0,
+            currency,
             companyId: user.companyId!,
           },
         });
@@ -533,11 +535,11 @@ export const getWarehouseStats = authenticatedAction(async (user) => {
     });
 
     const totalCapacityPallets = warehouses.reduce(
-      (acc, w) => acc + (w.capacityPallets || 0),
+      (acc: number, w) => acc + (w.capacityPallets || 0),
       0
     );
     const totalCapacityVolume = warehouses.reduce(
-      (acc, w) => acc + (w.capacityVolumeM3 || 0),
+      (acc: number, w) => acc + (w.capacityVolumeM3 || 0),
       0
     );
 
@@ -576,7 +578,7 @@ export const getRecentStockMovements = authenticatedAction(async (user) => {
     });
 
     const enrichedMovements = await Promise.all(
-      movements.map(async (m) => {
+      movements.map(async (m: any) => {
         const inventoryItem = await db.inventory.findFirst({
           where: {
             warehouseId: m.warehouseId,
@@ -673,17 +675,17 @@ export const getWarehousesWithDashboardData = authenticatedAction(
         // Stats Calculation
         const totalWarehouses = statsRaw.length;
         const totalCapacityPallets = statsRaw.reduce(
-          (acc, w) => acc + (w.capacityPallets || 0),
+          (acc: number, w) => acc + (w.capacityPallets || 0),
           0
         );
         const totalCapacityVolume = statsRaw.reduce(
-          (acc, w) => acc + (w.capacityVolumeM3 || 0),
+          (acc: number, w) => acc + (w.capacityVolumeM3 || 0),
           0
         );
 
         // Enriched Movements
         const enrichedMovements = await Promise.all(
-          movements.map(async (m) => {
+          movements.map(async (m: any) => {
             const inventoryItem = await db.inventory.findFirst({
               where: {
                 warehouseId: m.warehouseId,

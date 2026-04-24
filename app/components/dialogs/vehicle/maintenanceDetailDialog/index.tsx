@@ -34,6 +34,7 @@ import { updateMaintenanceRecord } from "@/app/lib/controllers/vehicle";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { MaintenanceStatus, MaintenanceRecord } from "@/app/lib/type/enums";
+import { useCurrency } from "@/app/lib/hooks/useCurrency";
 
 interface MaintenanceDetailDialogProps {
   open: boolean;
@@ -49,6 +50,7 @@ export default function MaintenanceDetailDialog({
   onSuccess,
 }: MaintenanceDetailDialogProps) {
   const dict = useDictionary();
+  const { convertFrom, symbol, currency: userCurrency } = useCurrency();
   /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState<{
     type: string;
@@ -71,12 +73,12 @@ export default function MaintenanceDetailDialog({
       setFormData({
         type: record.type,
         date: dayjs(record.date),
-        cost: record.cost.toString(),
+        cost: convertFrom(record.cost, (record as any).currency || "USD").toFixed(2),
         status: (record.status as MaintenanceStatus) || "COMPLETED",
         description: record.description || "",
       });
     }
-  }, [record]);
+  }, [record, convertFrom]);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleSubmit = async () => {
@@ -94,6 +96,7 @@ export default function MaintenanceDetailDialog({
         type: formData.type,
         date: formData.date.toDate(),
         cost: parseFloat(formData.cost),
+        currency: userCurrency,
         status: formData.status,
         description: formData.description,
       });
@@ -293,7 +296,7 @@ export default function MaintenanceDetailDialog({
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <AttachMoneyIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+                      <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>{symbol}</Typography>
                     </InputAdornment>
                   ),
                 }}

@@ -18,10 +18,13 @@ import {
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-
+import { useUserContext } from "@/app/lib/context/UserContext";
+import { updateUserRegionalSettings } from "@/app/lib/controllers/users";
+import { useRouter } from "next/navigation";
 import type {
   SettingsPageState,
   SettingsPageActions,
+  CurrencyCode,
 } from "@/app/lib/type/settings";
 
 // Extracted Components
@@ -39,6 +42,8 @@ interface Props {
 export default function SettingsDialog({ open, onClose }: Props) {
   const theme = useTheme();
   const dict = useDictionary();
+  const { user } = useUserContext();
+  const router = useRouter();
 
   const [state, setState] = useState<SettingsPageState>({
     activeTab: 0,
@@ -47,9 +52,10 @@ export default function SettingsDialog({ open, onClose }: Props) {
     error: null,
     regional: {
       language: "EN",
-      currency: "USD",
-      timezone: "UTC",
-      dateFormat: "MM/DD/YYYY",
+      currency: (user?.currency as CurrencyCode) || "USD",
+      timezone: user?.timezone || "UTC",
+      dateFormat: user?.dateFormat || "DD/MM/YYYY",
+      timeFormat: user?.timeFormat || "24h",
     },
     notifications: {
       emailShipmentUpdates: true,
@@ -60,6 +66,21 @@ export default function SettingsDialog({ open, onClose }: Props) {
     },
     appearance: { mode: "dark" },
   });
+
+  useEffect(() => {
+    if (open && user) {
+      setState((s) => ({
+        ...s,
+        regional: {
+          ...s.regional,
+          currency: (user.currency as CurrencyCode) || "USD",
+          timezone: user.timezone || "UTC",
+          dateFormat: user.dateFormat || "DD/MM/YYYY",
+          timeFormat: user.timeFormat || "24h",
+        },
+      }));
+    }
+  }, [open, user]);
 
   useEffect(() => {
     if (open) {
@@ -98,10 +119,16 @@ export default function SettingsDialog({ open, onClose }: Props) {
     ),
     saveRegional: useCallback(async () => {
       setState((s) => ({ ...s, isSaving: true }));
-      await new Promise((r) => setTimeout(r, 600));
-      setState((s) => ({ ...s, isSaving: false }));
-      showToast("success", dict.settings.dialogs.success.regional);
-    }, [showToast, dict.settings.dialogs.success.regional]),
+      try {
+        await updateUserRegionalSettings(state.regional);
+        setState((s) => ({ ...s, isSaving: false }));
+        showToast("success", dict.settings.dialogs.success.regional);
+        router.refresh();
+      } catch (error) {
+        setState((s) => ({ ...s, isSaving: false }));
+        showToast("error", "Failed to save settings");
+      }
+    }, [state.regional, showToast, dict.settings.dialogs.success.regional, router]),
     saveNotifications: useCallback(async () => {
       setState((s) => ({ ...s, isSaving: true }));
       await new Promise((r) => setTimeout(r, 600));

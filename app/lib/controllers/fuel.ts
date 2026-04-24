@@ -74,6 +74,7 @@ export const createFuelLog = authenticatedAction(
       fuelType: string;
       date?: Date;
       receiptUrl?: string;
+      currency?: string;
     }
   ) => {
     const userId = user?.id || "";
@@ -85,6 +86,7 @@ export const createFuelLog = authenticatedAction(
       return db.fuelLog.create({
         data: {
           ...data,
+          currency: data.currency || "USD",
           companyId,
         },
       });

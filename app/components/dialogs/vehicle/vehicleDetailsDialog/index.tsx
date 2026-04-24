@@ -21,6 +21,7 @@ import { useState } from "react";
 import OverviewTab from "./overviewTab";
 import DocumentsTab from "./documentsTab";
 import MaintenanceTab from "./maintenance";
+import FuelTab from "./fuel";
 import CloseIcon from "@mui/icons-material/Close";
 
 import BuildIcon from "@mui/icons-material/Build";
@@ -258,6 +259,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
               <Tab label={dict.vehicles.dialogs.tabs.overview} {...a11yProps(0)} />
               <Tab label={dict.vehicles.dialogs.tabs.documents} {...a11yProps(1)} />
               <Tab label={dict.vehicles.dialogs.tabs.maintenance} {...a11yProps(2)} />
+              <Tab label={dict.vehicles.dialogs.tabs.fuel} {...a11yProps(3)} />
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
@@ -268,6 +270,9 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           </CustomTabPanel>
           <CustomTabPanel value={value} index={2}>
             <MaintenanceTab vehicle={vehicleData} onUpdate={onUpdateSuccess} />
+          </CustomTabPanel>
+          <CustomTabPanel value={value} index={3}>
+            <FuelTab vehicle={vehicleData} onUpdate={onUpdateSuccess} />
           </CustomTabPanel>
         </Stack>
 

@@ -107,7 +107,8 @@ const AddInventoryDialog = ({
         itemDetails.palletCount || 0,
         itemDetails.cargoType || "General Cargo",
         finalImageUrl,
-        itemDetails.unitValue || 0
+        itemDetails.unitValue || 0,
+        (user as any).currency || "USD"
       );
 
       toast.success(dict.toasts.successAdd);

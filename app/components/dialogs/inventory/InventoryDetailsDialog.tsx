@@ -52,6 +52,7 @@ import {
 import { getInventoryMovements, getInventoryBySku } from "@/app/lib/controllers/inventory";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useInventoryMutations } from "@/app/hooks/useInventory";
+import { useCurrency } from "@/app/lib/hooks/useCurrency";
 import { toast } from "sonner";
 
 interface TabPanelProps {
@@ -88,14 +89,8 @@ export default function InventoryDetailsDialog({
   const params = useParams();
   const lang = (params?.lang as string) || "en";
   const [tabValue, setTabValue] = useState(0);
+  const { formatFrom } = useCurrency();
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat(lang === "tr" ? "tr-TR" : "en-US", {
-      style: "currency",
-      currency: lang === "tr" ? "TRY" : "USD",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(false);
   const [otherLocations, setOtherLocations] = useState<any[]>([]);
@@ -618,7 +613,7 @@ export default function InventoryDetailsDialog({
                           {dict.inventory.fields.unitValue.toUpperCase()}
                         </Typography>
                         <Typography variant="h5" fontWeight={800} color="text.primary">
-                          {formatPrice(item.unitValue || 0)}
+                          {formatFrom(item.unitValue || 0, (item as any).currency || "USD")}
                         </Typography>
                       </Box>
                     </Stack>

@@ -7,6 +7,8 @@ import type { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTab
 import RouteDetailsDialog from "@/app/components/dialogs/routes";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { RouteTableProps, RouteWithRelations } from "@/app/lib/type/routes";
+import { useUser } from "@/app/lib/hooks/useUser";
+import { formatDisplayDateTime } from "@/app/lib/utils/date";
 
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import EditIcon from "@mui/icons-material/Edit";
@@ -36,6 +38,12 @@ const RouteTable = ({
   onRefresh,
 }: ExtendedRouteTableProps) => {
   const dict = useDictionary();
+  const { user } = useUser();
+  const dateSettings = useMemo(() => ({
+    timezone: user?.timezone || "UTC",
+    dateFormat: user?.dateFormat || "DD/MM/YYYY",
+    timeFormat: user?.timeFormat || "24h",
+  }), [user]);
 
   /* --------------------------------- states --------------------------------- */
   const [openDetails, setOpenDetails] = useState(false);
@@ -135,7 +143,11 @@ const RouteTable = ({
     {
       key: "eta",
       label: dict.routes.table.columns.eta,
-      render: (row) => (row.endTime ? new Date(row.endTime).toLocaleString() : dict.common.na),
+      render: (row) => (
+        row.endTime
+          ? formatDisplayDateTime(row.endTime, dateSettings)
+          : dict.common.na
+      ),
     },
     {
       key: "status",

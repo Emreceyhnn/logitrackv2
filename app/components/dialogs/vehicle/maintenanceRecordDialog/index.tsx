@@ -27,6 +27,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import { useState } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { addMaintenanceRecord } from "@/app/lib/controllers/vehicle";
+import { useUserContext } from "@/app/lib/context/UserContext";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { MaintenanceStatus } from "@/app/lib/type/enums";
@@ -45,6 +46,8 @@ export default function MaintenanceRecordDialog({
   onSuccess,
 }: MaintenanceRecordDialogProps) {
   const dict = useDictionary();
+  const { user } = useUserContext();
+  const userCurrency = user?.currency || "USD";
   /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState({
     type: "",
@@ -71,6 +74,7 @@ export default function MaintenanceRecordDialog({
         type: formData.type,
         date: formData.date.toDate(),
         cost: parseFloat(formData.cost),
+        currency: userCurrency,
         status: formData.status,
         description: formData.description,
       });
@@ -273,7 +277,7 @@ export default function MaintenanceRecordDialog({
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>$</Typography>
+                      <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>{userCurrency}</Typography>
                     </InputAdornment>
                   ),
                 }}

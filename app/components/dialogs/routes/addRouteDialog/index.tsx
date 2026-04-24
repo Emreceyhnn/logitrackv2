@@ -26,6 +26,7 @@ import { getShipments } from "@/app/lib/controllers/shipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { Warehouse } from "@/app/lib/type/enums";
 import { useUser } from "@/app/lib/hooks/useUser";
+import { toUTC } from "@/app/lib/utils/date";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { Formik, Form } from "formik";
 import { addRouteValidationSchema } from "@/app/lib/validationSchema";
@@ -95,13 +96,16 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
     if (!user) return;
     setIsLoading(true);
     try {
-      const routeDate = values.startTime || new Date();
+      // Convert the user-local wall-clock times to UTC using the user's timezone
+      const userTz = user.timezone || "UTC";
+      const startUTC = values.startTime ? toUTC(values.startTime, userTz) : new Date();
+      const endUTC = values.endTime ? toUTC(values.endTime, userTz) : new Date();
 
       await createRoute(
         values.name,
-        routeDate,
-        values.startTime || new Date(),
-        values.endTime || new Date(),
+        startUTC,
+        startUTC,
+        endUTC,
         values.distanceKm,
         values.durationMin,
         values.driverId,

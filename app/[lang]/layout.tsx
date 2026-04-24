@@ -7,6 +7,8 @@ import { getDictionary } from "@/app/lib/language/language";
 import { DictionaryProvider } from "@/app/lib/language/DictionaryContext";
 import { getUserTheme } from "@/app/lib/actions/theme";
 import JsonLd from "@/app/components/seo/JsonLd";
+import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
+import { UserProvider } from "@/app/lib/context/UserContext";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -99,6 +101,7 @@ export default async function LangLayout({
   const { lang } = await params;
   const dict = await getDictionary(lang);
   const userTheme = await getUserTheme();
+  const user = await getAuthenticatedUser();
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
     ? process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, "")
@@ -123,11 +126,13 @@ export default async function LangLayout({
     <html lang={lang}>
       <body className={poppins.variable}>
         <JsonLd data={organizationSchema} />
-        <Providers initialMode={(userTheme as any) || undefined}>
-          <DictionaryProvider dict={dict}>
-            {children}
-          </DictionaryProvider>
-        </Providers>
+        <UserProvider initialUser={user}>
+          <Providers initialMode={(userTheme as any) || undefined}>
+            <DictionaryProvider dict={dict}>
+              {children}
+            </DictionaryProvider>
+          </Providers>
+        </UserProvider>
         <SpeedInsights />
       </body>
     </html>

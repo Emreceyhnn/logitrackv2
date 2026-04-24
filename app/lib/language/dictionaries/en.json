@@ -744,6 +744,7 @@
         "overview": "Overview",
         "documents": "Documents",
         "maintenance": "Maintenance",
+        "fuel": "Fuel Logs",
         "map": "Live Map"
       }
     },
@@ -1478,6 +1479,11 @@
       "fuelLevel": "Fuel level"
     },
     "dialogs": {
+      "localizationDesc": "Global regional settings synchronize time matrices, currency symbols, and date formatting across all telemetry and management layers.",
+      "interfaceLanguage": "Interface Language",
+      "defaultCurrency": "Default Currency",
+      "activeTimezone": "Active Timezone",
+      "dateTimeFormat": "Date Format",
       "addTitle": "Plan New Route",
       "editTitle": "Edit Route Details",
       "prefilledFrom": "Prefilled from shipment",
@@ -1756,8 +1762,12 @@
           "tokyoSeoul": "Tokyo/Seoul (GMT+9)"
         },
         "dateFormats": {
-          "standard": "Standard (MM/DD/YY)",
-          "international": "International (DD/MM/YY)"
+          "standard": "Standard (MM/DD/YYYY)",
+          "international": "International (DD/MM/YYYY)"
+        },
+        "timeFormat": "Time Format",
+        "timeFormats": {
+          "hour": "Hour"
         }
       }
     }
@@ -2014,5 +2024,27 @@
     "OPERATOR": "Operator",
     "OWNER": "Owner",
     "MANAGEMENT": "Management"
+  },
+  "fuel": {
+    "title": "Fuel Management",
+    "addLog": "Add Fuel Log",
+    "addLogDesc": "Record fuel purchase for this vehicle.",
+    "noLogs": "No fuel logs found.",
+    "history": "Fuel History",
+    "info": "Fuel Information",
+    "fields": {
+      "date": "Date",
+      "volume": "Volume (L)",
+      "cost": "Total Cost",
+      "odometer": "Odometer (km)",
+      "location": "Location",
+      "fuelType": "Fuel Type",
+      "driver": "Driver"
+    },
+    "dialogs": {
+      "addTitle": "Add Fuel Log",
+      "success": "Fuel log added successfully",
+      "error": "Failed to add fuel log"
+    }
   }
 }

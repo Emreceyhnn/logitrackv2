@@ -11,6 +11,10 @@ export type AuthenticatedUser = {
   name: string;
   surname: string;
   avatarUrl: string | null;
+  timezone: string;
+  dateFormat: string;
+  timeFormat: string;
+  currency: string;
 };
 
 export const getAuthenticatedUser = cache(
@@ -28,6 +32,10 @@ export const getAuthenticatedUser = cache(
           roleId: sessionUser.roleId,
           roleName: sessionUser.roleName,
           sessionId: sessionUser.sessionId,
+          timezone: sessionUser.timezone,
+          dateFormat: sessionUser.dateFormat,
+          timeFormat: sessionUser.timeFormat,
+          currency: sessionUser.currency || "USD",
         };
       }
 
@@ -46,6 +54,10 @@ export const getAuthenticatedUser = cache(
             roleId: sessionUser.roleId,
             roleName: sessionUser.roleName,
             sessionId: sessionUser.sessionId,
+            timezone: sessionUser.timezone,
+            dateFormat: sessionUser.dateFormat,
+            timeFormat: sessionUser.timeFormat,
+            currency: sessionUser.currency || "USD",
           };
         }
       }

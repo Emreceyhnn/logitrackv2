@@ -30,6 +30,7 @@ import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvid
 import { Formik, Form } from "formik";
 import { editRouteValidationSchema } from "@/app/lib/validationSchema";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { toUTC, utcToUserTz } from "@/app/lib/utils/date";
 
 interface EditRouteDialogProps {
   open: boolean;
@@ -49,6 +50,7 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
 
   /* -------------------------------- handlers --------------------------------- */
   const getInitialValues = (): RouteFormValues => {
+    const userTz = user?.timezone || "UTC";
     if (!route) {
       return {
         name: "",
@@ -69,10 +71,14 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
       };
     }
 
+    // Convert UTC dates from DB to the user's local timezone for the picker
+    const startInUserTz = utcToUserTz(route.startTime, userTz);
+    const endInUserTz = utcToUserTz(route.endTime, userTz);
+
     return {
       name: route.name || "",
-      startTime: route.startTime ? new Date(route.startTime) : null,
-      endTime: route.endTime ? new Date(route.endTime) : null,
+      startTime: startInUserTz ? startInUserTz.toDate() : null,
+      endTime: endInUserTz ? endInUserTz.toDate() : null,
       startType: route.startType || "WAREHOUSE",
       startId: route.startId || "",
       startAddress: route.startAddress || "",
@@ -94,10 +100,15 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
     if (!user || !route) return;
     setIsLoading(true);
     try {
+      // Convert user-local wall-clock times back to UTC for storage
+      const userTz = user.timezone || "UTC";
+      const startUTC = values.startTime ? toUTC(values.startTime, userTz) : undefined;
+      const endUTC = values.endTime ? toUTC(values.endTime, userTz) : undefined;
+
       await updateRoute(route.id, {
         name: values.name,
-        startTime: values.startTime,
-        endTime: values.endTime,
+        startTime: startUTC,
+        endTime: endUTC,
         startAddress: values.startAddress,
         startLat: values.startLat,
         startLng: values.startLng,

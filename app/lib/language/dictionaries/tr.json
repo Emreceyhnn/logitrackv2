@@ -744,6 +744,7 @@
         "overview": "Genel Bakış",
         "documents": "Belgeler",
         "maintenance": "Bakım",
+        "fuel": "Yakıt Günlükleri",
         "map": "Canlı Harita"
       }
     },
@@ -1478,6 +1479,11 @@
       "fuelLevel": "Yakıt seviyesi"
     },
     "dialogs": {
+      "localizationDesc": "Küresel bölgesel ayarlar; tüm telemetri ve yönetim katmanlarında zaman matrislerini, para birimi sembollerini ve tarih biçimlendirmesini senkronize eder.",
+      "interfaceLanguage": "Arayüz Dili",
+      "defaultCurrency": "Varsayılan Para Birimi",
+      "activeTimezone": "Aktif Zaman Dilimi",
+      "dateTimeFormat": "Tarih Formatı",
       "addTitle": "Yeni Rota Planla",
       "editTitle": "Rota Detaylarını Düzenle",
       "prefilledFrom": "Sevkiyattan önceden yüklendi",
@@ -1757,8 +1763,12 @@
           "tokyoSeoul": "Tokyo/Seul (GMT+9)"
         },
         "dateFormats": {
-          "standard": "Standart (AA/GG/YY)",
-          "international": "Uluslararası (GG/AA/YY)"
+          "standard": "Standart (AA/GG/YYYY)",
+          "international": "Uluslararası (GG/AA/YYYY)"
+        },
+        "timeFormat": "Saat Formatı",
+        "timeFormats": {
+          "hour": "Saat"
         }
       }
     }
@@ -2015,5 +2025,27 @@
     "OPERATOR": "Operatör",
     "OWNER": "Sahip",
     "MANAGEMENT": "Yönetim"
+  },
+  "fuel": {
+    "title": "Yakıt Yönetimi",
+    "addLog": "Yakıt Kaydı Ekle",
+    "addLogDesc": "Bu araç için yakıt alımını kaydedin.",
+    "noLogs": "Yakıt kaydı bulunamadı.",
+    "history": "Yakıt Geçmişi",
+    "info": "Yakıt Bilgisi",
+    "fields": {
+      "date": "Tarih",
+      "volume": "Hacim (L)",
+      "cost": "Toplam Maliyet",
+      "odometer": "Kilometre (km)",
+      "location": "Konum",
+      "fuelType": "Yakıt Tipi",
+      "driver": "Sürücü"
+    },
+    "dialogs": {
+      "addTitle": "Yakıt Kaydı Ekle",
+      "success": "Yakıt kaydı başarıyla eklendi",
+      "error": "Yakıt kaydı eklenemedi"
+    }
   }
 }

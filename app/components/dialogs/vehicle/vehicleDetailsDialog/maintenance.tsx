@@ -31,6 +31,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 import { MenuItem, Select, FormControl } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useCurrency } from "@/app/lib/hooks/useCurrency";
 
 interface MaintenanceTabProps {
   vehicle?: VehicleWithRelations;
@@ -40,6 +41,7 @@ interface MaintenanceTabProps {
 const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const theme = useTheme();
   const dict = useDictionary();
+  const { formatFrom, isLoading: currencyLoading } = useCurrency();
   /* --------------------------------- states --------------------------------- */
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
@@ -460,7 +462,9 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                           color: "text.primary",
                           borderBottomColor: "divider",
                         }}
-                      >{`$${v.cost}`}</TableCell>
+                      >
+                        {currencyLoading ? "..." : formatFrom(v.cost, (v as any).currency || "USD", 2)}
+                      </TableCell>
                       <TableCell
                         align="left"
                         sx={{

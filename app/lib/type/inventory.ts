@@ -51,6 +51,7 @@ export interface CreateInventoryInput {
   palletCount?: number | null;
   cargoType?: string | null;
   unitValue?: number | null;
+  currency?: string | null;
   imageUrl?: string | null;
 }
 

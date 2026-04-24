@@ -18,40 +18,38 @@ export default function DashboardLayoutClient({
   const theme = useTheme();
 
   return (
-    <UserProvider initialUser={user}>
+    <Box
+      display="flex"
+      sx={{
+        backgroundColor: theme.palette.background.dashboardBg,
+        minHeight: "100vh",
+      }}
+    >
       <Box
-        display="flex"
+        component="nav"
         sx={{
-          backgroundColor: theme.palette.background.dashboardBg,
-          minHeight: "100vh",
+          display: { xs: "none", md: "block" },
+          width: 200,
+          flexShrink: 0,
+          position: "relative",
+          zIndex: theme.zIndex.drawer,
         }}
       >
-        <Box
-          component="nav"
-          sx={{
-            display: { xs: "none", md: "block" },
-            width: 200,
-            flexShrink: 0,
-            position: "relative",
-            zIndex: theme.zIndex.drawer,
-          }}
-        >
-          <SideBar />
-        </Box>
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            width: { xs: "100%", md: "calc(100% - 200px)" },
-            minHeight: "100vh",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <DashboardHeader user={user} />
-          <Box sx={{ flexGrow: 1 }}>{children}</Box>
-        </Box>
+        <SideBar />
       </Box>
-    </UserProvider>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          width: { xs: "100%", md: "calc(100% - 200px)" },
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <DashboardHeader user={user} />
+        <Box sx={{ flexGrow: 1 }}>{children}</Box>
+      </Box>
+    </Box>
   );
 }

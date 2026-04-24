@@ -32,6 +32,10 @@ export type SessionUser = {
   name: string;
   surname: string;
   avatarUrl: string | null;
+  timezone: string;
+  dateFormat: string;
+  timeFormat: string;
+  currency: string;
 };
 
 export interface SessionJWTPayload extends jwt.JwtPayload {
@@ -185,6 +189,10 @@ export async function validateSession(): Promise<SessionUser | null> {
             name: true,
             surname: true,
             avatarUrl: true,
+            timezone: true,
+            dateFormat: true,
+            timeFormat: true,
+            currency: true,
             role: {
               select: {
                 name: true,
@@ -249,6 +257,10 @@ export async function validateSession(): Promise<SessionUser | null> {
       name: session.user.name,
       surname: session.user.surname,
       avatarUrl: session.user.avatarUrl,
+      timezone: session.user.timezone,
+      dateFormat: session.user.dateFormat,
+      timeFormat: session.user.timeFormat,
+      currency: (session.user as any).currency || "USD",
     };
   } catch (error) {
     if ((error as any)?.digest === 'DYNAMIC_SERVER_USAGE') {
@@ -288,6 +300,13 @@ export async function refreshSession(): Promise<boolean> {
             roleId: true,
             companyId: true,
             status: true,
+            name: true,
+            surname: true,
+            avatarUrl: true,
+            timezone: true,
+            dateFormat: true,
+            timeFormat: true,
+            currency: true,
           },
         },
       },
@@ -319,15 +338,24 @@ export async function refreshSession(): Promise<boolean> {
     });
 
     // Set new cookies
-    cookieStore.set("token", newAccessToken, {
-      ...COOKIE_OPTIONS,
-      maxAge: 24 * 60 * 60, // 24 hours (seconds)
-    });
+    try {
+      cookieStore.set("token", newAccessToken, {
+        ...COOKIE_OPTIONS,
+        maxAge: 24 * 60 * 60, // 24 hours (seconds)
+      });
 
-    cookieStore.set("refreshToken", newRefreshToken, {
-      ...COOKIE_OPTIONS,
-      maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60, // 7 days (seconds)
-    });
+      cookieStore.set("refreshToken", newRefreshToken, {
+        ...COOKIE_OPTIONS,
+        maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60, // 7 days (seconds)
+      });
+    } catch (cookieError) {
+      console.warn(
+        "[refreshSession] ⚠️ Could not set cookies (likely called from Server Component). Refresh in middleware instead.",
+        cookieError
+      );
+      // We don't return false here because the DB rotation succeeded.
+      // The tokens will be lost if not handled by middleware, but we avoid a crash.
+    }
 
     // Log the refresh event
     await logAuditEvent({
