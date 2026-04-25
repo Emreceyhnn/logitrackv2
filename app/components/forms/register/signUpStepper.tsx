@@ -109,17 +109,20 @@ interface RegisterFormValues {
 }
 
 export default function SignUpStepper() {
+  /* -------------------------------- VARIABLES ------------------------------- */
   const dict = useDictionary();
   const steps = [dict.auth.personalInfo, dict.auth.security, dict.auth.review];
-  const [activeStep, setActiveStep] = useState(0);
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { lang } = useParams();
-
   const schemas = useMemo(() => signUpValidationSchema(dict), [dict]);
+
+  /* --------------------------------- STATES --------------------------------- */
+  const [activeStep, setActiveStep] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const isLastStep = activeStep === steps.length - 1;
 
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handleNext = async (
     values: RegisterFormValues,
     actions: FormikHelpers<RegisterFormValues>
@@ -249,7 +252,9 @@ export default function SignUpStepper() {
               <AuthButton
                 type="submit"
                 loading={loading}
-                loadingText={isLastStep ? dict.auth.registering : dict.auth.continuing}
+                loadingText={
+                  isLastStep ? dict.auth.registering : dict.auth.continuing
+                }
                 sx={{
                   bgcolor: "#38bdf8",
                   color: "#000",
@@ -258,7 +263,9 @@ export default function SignUpStepper() {
                   },
                 }}
               >
-                {isLastStep ? dict.auth.completeRegistration : dict.auth.continue}
+                {isLastStep
+                  ? dict.auth.completeRegistration
+                  : dict.auth.continue}
               </AuthButton>
             </Stack>
           </Form>

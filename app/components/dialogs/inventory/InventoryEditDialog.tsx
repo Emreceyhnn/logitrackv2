@@ -36,7 +36,7 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
-import { useCurrency } from "@/app/lib/hooks/useCurrency";
+import { useCurrency } from "@/app/hooks/useCurrency";
 
 type FormData = {
   name: string;
@@ -118,7 +118,14 @@ export default function InventoryEditDialog({
       weightKg: item?.weightKg || 0,
       volumeM3: item?.volumeM3 || 0,
       palletCount: item?.palletCount || 0,
-      unitValue: item ? parseFloat(convertFrom(item.unitValue || 0, (item as any).currency || "USD").toFixed(2)) : 0,
+      unitValue: item
+        ? parseFloat(
+            convertFrom(
+              item.unitValue || 0,
+              (item as any).currency || "USD"
+            ).toFixed(2)
+          )
+        : 0,
       cargoType: item?.cargoType || "General Cargo",
     },
   });
@@ -140,8 +147,15 @@ export default function InventoryEditDialog({
   const [localPalletCount, setLocalPalletCount] = useState(
     item?.palletCount ? item.palletCount.toString() : ""
   );
-  
-  const convertedInitialUnitValue = item ? parseFloat(convertFrom(item.unitValue || 0, (item as any).currency || "USD").toFixed(2)) : 0;
+
+  const convertedInitialUnitValue = item
+    ? parseFloat(
+        convertFrom(
+          item.unitValue || 0,
+          (item as any).currency || "USD"
+        ).toFixed(2)
+      )
+    : 0;
   const [localUnitValue, setLocalUnitValue] = useState(
     convertedInitialUnitValue ? convertedInitialUnitValue.toString() : ""
   );
@@ -189,8 +203,10 @@ export default function InventoryEditDialog({
         imageUrl: finalImageUrl,
         currency: userCurrency,
       } as Partial<any>);
-      
-      toast.success(dict.common.saveSuccess || "Inventory updated successfully");
+
+      toast.success(
+        dict.common.saveSuccess || "Inventory updated successfully"
+      );
       onClose();
     } catch (error) {
       console.error("Failed to update inventory", error);
@@ -280,17 +296,17 @@ export default function InventoryEditDialog({
       <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent 
-          sx={{ 
-            p: 4, 
-            maxHeight: "calc(90vh - 160px)", 
+        <DialogContent
+          sx={{
+            p: 4,
+            maxHeight: "calc(90vh - 160px)",
             overflowY: "auto",
             "&::-webkit-scrollbar": { width: "8px" },
             "&::-webkit-scrollbar-track": { bgcolor: "transparent" },
-            "&::-webkit-scrollbar-thumb": { 
+            "&::-webkit-scrollbar-thumb": {
               bgcolor: theme.palette.divider_alpha.main_10,
               borderRadius: "4px",
-              "&:hover": { bgcolor: theme.palette.divider_alpha.main_20 }
+              "&:hover": { bgcolor: theme.palette.divider_alpha.main_20 },
             },
           }}
         >
@@ -740,8 +756,13 @@ export default function InventoryEditDialog({
               {dict.inventory.dialogs.discardChanges}
             </Button>
             {Object.keys(errors).length > 0 && (
-              <Typography variant="caption" color="error" sx={{ alignSelf: "center", fontWeight: 600 }}>
-                {dict.common.fillRequired || "Lütfen formdaki hataları kontrol edin"}
+              <Typography
+                variant="caption"
+                color="error"
+                sx={{ alignSelf: "center", fontWeight: 600 }}
+              >
+                {dict.common.fillRequired ||
+                  "Lütfen formdaki hataları kontrol edin"}
               </Typography>
             )}
             <Button

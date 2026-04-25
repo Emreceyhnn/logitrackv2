@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Box,
   Dialog,
   DialogContent,
@@ -26,7 +25,7 @@ import {
 } from "@/app/lib/type/add-inventory";
 import { toast } from "sonner";
 import { addInventoryItem } from "@/app/lib/controllers/warehouse";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import ItemDetailsSection from "./sections/ItemDetailsSection";
 import StorageLevelsSection from "./sections/StorageLevelsSection";
@@ -68,7 +67,10 @@ const AddInventoryDialog = ({
   /* --------------------------------- effects --------------------------------- */
   useEffect(() => {
     if (open && initialWarehouseId) {
-      setStorageLevels((prev) => ({ ...prev, warehouseId: initialWarehouseId }));
+      setStorageLevels((prev) => ({
+        ...prev,
+        warehouseId: initialWarehouseId,
+      }));
     }
   }, [open, initialWarehouseId]);
 
@@ -89,10 +91,7 @@ const AddInventoryDialog = ({
 
       // If it's a base64 string (starts with data:), upload it first
       if (finalImageUrl.startsWith("data:")) {
-        const uploadResult = await uploadImageAction(
-          finalImageUrl,
-          "general"
-        );
+        const uploadResult = await uploadImageAction(finalImageUrl, "general");
         finalImageUrl = uploadResult.url;
       }
 
@@ -140,7 +139,7 @@ const AddInventoryDialog = ({
   const steps = [
     dict.inventory.dialogs.steps.details,
     dict.inventory.dialogs.steps.storage,
-    dict.inventory.dialogs.steps.review
+    dict.inventory.dialogs.steps.review,
   ];
 
   return (
@@ -213,7 +212,9 @@ const AddInventoryDialog = ({
             "& .MuiStepLabel-label.Mui-completed": {
               color: theme.palette.common.white_alpha.main_50,
             },
-            "& .MuiStepIcon-root": { color: theme.palette.divider_alpha.main_10 },
+            "& .MuiStepIcon-root": {
+              color: theme.palette.divider_alpha.main_10,
+            },
             "& .MuiStepIcon-root.Mui-active": {
               color: theme.palette.primary.main,
             },
@@ -310,10 +311,10 @@ const AddInventoryDialog = ({
             (currentStep === 2 && !storageLevels.warehouseId)
           }
           onClick={
-            currentStep === 1 
-              ? () => setCurrentStep(2) 
-              : currentStep === 2 
-                ? () => setCurrentStep(3) 
+            currentStep === 1
+              ? () => setCurrentStep(2)
+              : currentStep === 2
+                ? () => setCurrentStep(3)
                 : handleSubmit
           }
           sx={{

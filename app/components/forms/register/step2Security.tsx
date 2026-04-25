@@ -15,7 +15,10 @@ import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function Step2Security() {
+  /* -------------------------------- VARIABLES ------------------------------- */
   const dict = useDictionary();
+
+  /* --------------------------------- STATES --------------------------------- */
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
 

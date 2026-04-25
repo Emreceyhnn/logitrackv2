@@ -28,18 +28,21 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
   const dict = await getDictionary(lang);
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     ? process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, "")
-    : process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
       : "https://logitrack.emreceyhan.xyz";
 
   return {
     title: {
-      default: dict.landing.metaTitle || "LogiTrack – AI Lojistik Yönetim Platformu",
-      template: `%s | LogiTrack`
+      default:
+        dict.landing.metaTitle || "LogiTrack – AI Lojistik Yönetim Platformu",
+      template: `%s | LogiTrack`,
     },
-    description: dict.landing.metaDescription || "Teslimatlarınızı, filonuzu ve operasyonlarınızı tek akıllı panelden yönetin.",
+    description:
+      dict.landing.metaDescription ||
+      "Teslimatlarınızı, filonuzu ve operasyonlarınızı tek akıllı panelden yönetin.",
     metadataBase: new URL(baseUrl),
     alternates: {
       canonical: `/${lang}`,
@@ -103,23 +106,23 @@ export default async function LangLayout({
   const userTheme = await getUserTheme();
   const user = await getAuthenticatedUser();
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     ? process.env.NEXT_PUBLIC_BASE_URL.replace(/\/$/, "")
-    : process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
       : "https://logitrack.emreceyhan.xyz";
 
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "LogiTrack",
-    "url": baseUrl,
-    "logo": `${baseUrl}/logo1.png`,
-    "sameAs": [
+    name: "LogiTrack",
+    url: baseUrl,
+    logo: `${baseUrl}/logo1.png`,
+    sameAs: [
       "https://twitter.com/logitrack",
-      "https://linkedin.com/company/logitrack"
+      "https://linkedin.com/company/logitrack",
     ],
-    "description": dict.landing.metaDescription
+    description: dict.landing.metaDescription,
   };
 
   return (
@@ -128,9 +131,7 @@ export default async function LangLayout({
         <JsonLd data={organizationSchema} />
         <UserProvider initialUser={user}>
           <Providers initialMode={(userTheme as any) || undefined}>
-            <DictionaryProvider dict={dict}>
-              {children}
-            </DictionaryProvider>
+            <DictionaryProvider dict={dict}>{children}</DictionaryProvider>
           </Providers>
         </UserProvider>
         <SpeedInsights />

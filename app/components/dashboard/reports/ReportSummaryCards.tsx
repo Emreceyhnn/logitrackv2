@@ -10,7 +10,7 @@ import Inventory2Icon from "@mui/icons-material/Inventory2";
 import { ReportsMetrics } from "@/app/lib/type/reports";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
 import { Dictionary } from "@/app/lib/language/language";
-import { useCurrency } from "@/app/lib/hooks/useCurrency";
+import { useCurrency } from "@/app/hooks/useCurrency";
 
 interface MetricCardProps {
   title: string;

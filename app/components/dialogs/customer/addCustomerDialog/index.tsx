@@ -23,7 +23,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { AddCustomerDialogProps } from "@/app/lib/type/add-customer";
 import { toast } from "sonner";
 import { createCustomer } from "@/app/lib/controllers/customer";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import IdentitySection from "./sections/IdentitySection";
 import ContactSection from "./sections/ContactSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";

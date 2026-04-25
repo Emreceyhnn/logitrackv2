@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Box,
   Dialog,
   DialogContent,
@@ -25,7 +24,7 @@ import {
   AddWarehousePageState,
 } from "@/app/lib/type/add-warehouse";
 import { createWarehouse } from "@/app/lib/controllers/warehouse";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import BasicInfoSection from "./sections/BasicInfoSection";
@@ -156,7 +155,7 @@ const AddWarehouseDialog = ({
   const steps = [
     dict.warehouses.dialogs.steps.basicInfo,
     dict.warehouses.dialogs.steps.location,
-    dict.warehouses.dialogs.steps.capacity
+    dict.warehouses.dialogs.steps.capacity,
   ];
 
   return (
@@ -188,15 +187,20 @@ const AddWarehouseDialog = ({
                     ? dict.warehouses.dialogs.locationTitle
                     : dict.warehouses.dialogs.capacityTitle}
               </Typography>
-              <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                {dict.common.step} {state.currentStep}: {steps[state.currentStep - 1]}
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                fontWeight={500}
+              >
+                {dict.common.step} {state.currentStep}:{" "}
+                {steps[state.currentStep - 1]}
               </Typography>
             </Stack>
             <IconButton
               onClick={actions.closeDialog}
-              sx={{ 
+              sx={{
                 color: "text.secondary",
-                "&:hover": { color: "text.primary", bgcolor: "action.hover" }
+                "&:hover": { color: "text.primary", bgcolor: "action.hover" },
               }}
             >
               <CloseIcon />
@@ -220,7 +224,10 @@ const AddWarehouseDialog = ({
                 fontWeight: 700,
               },
               "& .MuiStepIcon-root": {
-                color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                color:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(0,0,0,0.1)",
               },
               "& .MuiStepIcon-root.Mui-active": {
                 color: "primary.main",

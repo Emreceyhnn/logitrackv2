@@ -19,12 +19,9 @@ import {
   Logout as LogoutIcon,
 } from "@mui/icons-material";
 import { useParams } from "next/navigation";
-
 import { getUserSession, logoutAction } from "@/app/lib/actions/auth";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import LanguageSwitcher from "./LanguageSwitcher";
-
-// Dialogs
 import ProfileDialog from "../dialogs/profile/ProfileDialog";
 import SettingsDialog from "../dialogs/settings/SettingsDialog";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
@@ -34,13 +31,17 @@ export default function UserAccountNav({
 }: {
   user: AuthenticatedUser | null;
 }) {
+  /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
+  const params = useParams();
+  const lang = (params?.lang as string) || "tr";
+  const dict = useDictionary();
 
   const isLight = theme.palette.mode === "light";
   const menuPaperSx = {
     overflow: "visible",
-    filter: isLight 
-      ? "drop-shadow(0px 8px 16px rgba(0,0,0,0.1))" 
+    filter: isLight
+      ? "drop-shadow(0px 8px 16px rgba(0,0,0,0.1))"
       : "drop-shadow(0px 8px 16px rgba(0,0,0,0.4))",
     mt: 1.5,
     borderRadius: 3,
@@ -78,19 +79,16 @@ export default function UserAccountNav({
       borderTop: `1px solid ${theme.palette.divider}`,
     },
   };
-  const params = useParams();
-  const lang = (params?.lang as string) || "tr";
-  const dict = useDictionary();
 
+  /* --------------------------------- STATES --------------------------------- */
   const [loading, setLoading] = useState(!initialUser);
   const [user, setUser] = useState<AuthenticatedUser | null>(initialUser);
-
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
-
   const [profileOpen, setProfileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
+  /* --------------------------------- ACTIONS -------------------------------- */
   const fetchSession = async () => {
     try {
       const session = await getUserSession();
@@ -102,12 +100,15 @@ export default function UserAccountNav({
     }
   };
 
+  /* -------------------------------- LIFECYCLE ------------------------------- */
+
   useEffect(() => {
     if (!initialUser) {
       fetchSession();
     }
   }, [initialUser]);
 
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -132,6 +133,7 @@ export default function UserAccountNav({
     window.location.href = `/${lang}`;
   };
 
+  /* -------------------------------- RENDER ------------------------------- */
   if (loading) {
     return (
       <CircularProgress size={20} sx={{ color: theme.palette.primary.main }} />
@@ -155,13 +157,15 @@ export default function UserAccountNav({
             padding: "6px 12px",
             borderRadius: 3,
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            bgcolor: isLight ? theme.palette.grey[100] : theme.palette.common.white_alpha.main_02,
+            bgcolor: isLight
+              ? theme.palette.grey[100]
+              : theme.palette.common.white_alpha.main_02,
             border: `1px solid ${theme.palette.divider}`,
             "&:hover": {
               bgcolor: theme.palette.primary._alpha.main_08,
               borderColor: theme.palette.primary._alpha.main_20,
               transform: "translateY(-1px)",
-              boxShadow: isLight 
+              boxShadow: isLight
                 ? `0 4px 20px rgba(0,0,0,0.05)`
                 : `0 4px 20px ${theme.palette.common.black_alpha.main_30}`,
             },
@@ -197,7 +201,7 @@ export default function UserAccountNav({
                 color: "text.secondary",
                 fontWeight: 600,
                 fontSize: "0.65rem",
-                opacity: 0.7
+                opacity: 0.7,
               }}
             >
               {(dict["roles-header"] as Record<string, string>)?.[

@@ -31,7 +31,7 @@ import {
   useCustomersWithDashboard,
   useCustomerMutations,
 } from "@/app/hooks/useCustomers";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
 
@@ -113,7 +113,10 @@ export default function CustomersPage() {
   };
 
   /* --------------------------------- HELPERS -------------------------------- */
-  const customers = useMemo(() => dashboardData?.customers || [], [dashboardData?.customers]);
+  const customers = useMemo(
+    () => dashboardData?.customers || [],
+    [dashboardData?.customers]
+  );
 
   const mapLocations = useMemo<MarkerData[]>(() => {
     return customers.flatMap((c: CustomerWithRelations) => {

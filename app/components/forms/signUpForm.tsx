@@ -1,14 +1,16 @@
-"use client";
-
 import Link from "next/link";
 import { Box, Stack, Typography } from "@mui/material";
-import { useParams } from "next/navigation";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import SignUpStepper from "./register/signUpStepper";
+import { getDictionary } from "@/app/lib/language/language";
 
-export default function RegisterForm() {
-  const { lang } = useParams();
-  const dict = useDictionary();
+export default async function RegisterForm({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  /* -------------------------------- VARIABLES ------------------------------- */
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
 
   return (
     <Box

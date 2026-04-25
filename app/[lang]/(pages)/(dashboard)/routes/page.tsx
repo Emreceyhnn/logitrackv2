@@ -19,7 +19,7 @@ import {
 } from "@/app/hooks/useRoutes";
 import EditRouteDialog from "@/app/components/dialogs/routes/edit-route-dialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import AddRouteDialog from "@/app/components/dialogs/routes/addRouteDialog";
 import { AltRoute, Loop, CheckCircle, Warning } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
@@ -55,7 +55,6 @@ export default function RoutesPage() {
     filters.status
   );
 
-
   const { deleteRoute: deleteMutation } = useRouteMutations();
 
   const routes = useMemo(() => dashboardData?.routes || [], [dashboardData]);
@@ -64,7 +63,6 @@ export default function RoutesPage() {
   const mapData = dashboardData?.mapData || [];
 
   const loading = isLoading;
-
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {

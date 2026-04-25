@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Box,
   Dialog,
   DialogContent,
@@ -17,11 +16,14 @@ import {
   StepLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { CustomerWithRelations, CustomerFormValues } from "@/app/lib/type/customer";
+import {
+  CustomerWithRelations,
+  CustomerFormValues,
+} from "@/app/lib/type/customer";
 import { updateCustomer } from "@/app/lib/controllers/customer";
 import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import IdentitySection from "./addCustomerDialog/sections/IdentitySection";
 import ContactSection from "./addCustomerDialog/sections/ContactSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
@@ -64,13 +66,16 @@ export default function EditCustomerDialog({
           taxId: values.taxId,
           email: values.email,
           phone: values.phone,
-          locations: values.locations.filter(l => l.address.trim() !== "")
+          locations: values.locations.filter((l) => l.address.trim() !== ""),
         });
         toast.success(dict.customers.dialogs.successUpdate);
         onSuccess();
         onClose();
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : dict.customers.dialogs.errorUpdate;
+        const message =
+          err instanceof Error
+            ? err.message
+            : dict.customers.dialogs.errorUpdate;
         setError(message);
         console.error(err);
         toast.error(message);
@@ -78,10 +83,16 @@ export default function EditCustomerDialog({
     });
   };
 
-  const validationSchema = useMemo(() => editCustomerValidationSchema(dict), [dict]);
+  const validationSchema = useMemo(
+    () => editCustomerValidationSchema(dict),
+    [dict]
+  );
   if (!customer) return null;
 
-  const steps = [dict.customers.dialogs.steps.identity, dict.customers.dialogs.steps.contact];
+  const steps = [
+    dict.customers.dialogs.steps.identity,
+    dict.customers.dialogs.steps.contact,
+  ];
 
   const customerInitialValues = {
     name: customer.name || "",
@@ -90,14 +101,22 @@ export default function EditCustomerDialog({
     taxId: customer.taxId || "",
     email: customer.email || "",
     phone: customer.phone || "",
-    locations: customer.locations?.map(loc => ({
+    locations: customer.locations?.map((loc) => ({
       id: loc.id,
       name: loc.name,
       address: loc.address,
       lat: loc.lat ?? undefined,
       lng: loc.lng ?? undefined,
-      isDefault: loc.isDefault
-    })) || [{ name: dict.customers.fields.mainOffice, address: "", lat: undefined, lng: undefined, isDefault: true }],
+      isDefault: loc.isDefault,
+    })) || [
+      {
+        name: dict.customers.fields.mainOffice,
+        address: "",
+        lat: undefined,
+        lng: undefined,
+        isDefault: true,
+      },
+    ],
   };
 
   return (
@@ -126,7 +145,12 @@ export default function EditCustomerDialog({
           >
             <Form>
               <Box sx={{ p: 3, pb: 0 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ mb: 3 }}
+                >
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Box
                       sx={{
@@ -140,18 +164,26 @@ export default function EditCustomerDialog({
                         color: theme.palette.primary.main,
                       }}
                     >
-                      <Typography variant="h6" sx={{ lineHeight: 1 }}>🏢</Typography>
+                      <Typography variant="h6" sx={{ lineHeight: 1 }}>
+                        🏢
+                      </Typography>
                     </Box>
                     <Stack spacing={0.2}>
                       <Typography variant="h6" fontWeight={700} color="white">
                         {dict.customers.dialogs.editTitle}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {dict.customers.dialogs.editSubtitle.replace("{name}", customer.name)}
+                        {dict.customers.dialogs.editSubtitle.replace(
+                          "{name}",
+                          customer.name
+                        )}
                       </Typography>
                     </Stack>
                   </Stack>
-                  <IconButton onClick={onClose} sx={{ color: "text.secondary" }}>
+                  <IconButton
+                    onClick={onClose}
+                    sx={{ color: "text.secondary" }}
+                  >
                     <CloseIcon />
                   </IconButton>
                 </Stack>
@@ -166,14 +198,28 @@ export default function EditCustomerDialog({
                       fontSize: "0.65rem",
                       textTransform: "uppercase",
                     },
-                    "& .MuiStepLabel-label.Mui-active": { color: theme.palette.primary.main },
-                    "& .MuiStepLabel-label.Mui-completed": { color: theme.palette.common.white_alpha.main_50 },
-                    "& .MuiStepIcon-root": { color: theme.palette.divider_alpha.main_10 },
-                    "& .MuiStepIcon-root.Mui-active": { color: theme.palette.primary.main },
-                    "& .MuiStepIcon-root.Mui-completed": { color: theme.palette.primary.main },
-                    "& .MuiStepConnector-line": { borderColor: theme.palette.divider_alpha.main_10 },
-                    "& .MuiStepConnector-root.Mui-active .MuiStepConnector-line": { borderColor: theme.palette.primary.main },
-                    "& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line": { borderColor: theme.palette.primary.main },
+                    "& .MuiStepLabel-label.Mui-active": {
+                      color: theme.palette.primary.main,
+                    },
+                    "& .MuiStepLabel-label.Mui-completed": {
+                      color: theme.palette.common.white_alpha.main_50,
+                    },
+                    "& .MuiStepIcon-root": {
+                      color: theme.palette.divider_alpha.main_10,
+                    },
+                    "& .MuiStepIcon-root.Mui-active": {
+                      color: theme.palette.primary.main,
+                    },
+                    "& .MuiStepIcon-root.Mui-completed": {
+                      color: theme.palette.primary.main,
+                    },
+                    "& .MuiStepConnector-line": {
+                      borderColor: theme.palette.divider_alpha.main_10,
+                    },
+                    "& .MuiStepConnector-root.Mui-active .MuiStepConnector-line":
+                      { borderColor: theme.palette.primary.main },
+                    "& .MuiStepConnector-root.Mui-completed .MuiStepConnector-line":
+                      { borderColor: theme.palette.primary.main },
                   }}
                 >
                   {steps.map((label) => (
@@ -195,10 +241,16 @@ export default function EditCustomerDialog({
                       border: `1px solid ${theme.palette.error._alpha.main_10}`,
                     }}
                   >
-                    <Typography variant="caption" color="error" fontWeight={600}>{error}</Typography>
+                    <Typography
+                      variant="caption"
+                      color="error"
+                      fontWeight={600}
+                    >
+                      {error}
+                    </Typography>
                   </Box>
                 )}
-                
+
                 {currentStep === 1 && <IdentitySection />}
                 {currentStep === 2 && <ContactSection />}
               </DialogContent>
@@ -212,8 +264,14 @@ export default function EditCustomerDialog({
                 }}
               >
                 <Button
-                  onClick={currentStep === 1 ? onClose : () => setCurrentStep(1)}
-                  sx={{ color: "text.secondary", textTransform: "none", fontWeight: 600 }}
+                  onClick={
+                    currentStep === 1 ? onClose : () => setCurrentStep(1)
+                  }
+                  sx={{
+                    color: "text.secondary",
+                    textTransform: "none",
+                    fontWeight: 600,
+                  }}
                 >
                   {currentStep === 1 ? dict.common.cancel : dict.common.back}
                 </Button>
@@ -221,8 +279,17 @@ export default function EditCustomerDialog({
                 <Button
                   variant="contained"
                   type={currentStep === 2 ? "submit" : "button"}
-                  disabled={isPending || (currentStep === 1 && (!values.name || !!errors.name || !!errors.industry || !!errors.code))}
-                  onClick={currentStep === 1 ? () => setCurrentStep(2) : undefined}
+                  disabled={
+                    isPending ||
+                    (currentStep === 1 &&
+                      (!values.name ||
+                        !!errors.name ||
+                        !!errors.industry ||
+                        !!errors.code))
+                  }
+                  onClick={
+                    currentStep === 1 ? () => setCurrentStep(2) : undefined
+                  }
                   sx={{
                     minWidth: 160,
                     borderRadius: 2,
@@ -231,9 +298,15 @@ export default function EditCustomerDialog({
                     boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
                     py: 1.2,
                   }}
-                  startIcon={isPending && <CircularProgress size={16} color="inherit" />}
+                  startIcon={
+                    isPending && <CircularProgress size={16} color="inherit" />
+                  }
                 >
-                  {isPending ? dict.common.updating : currentStep < 2 ? dict.common.nextStep : dict.common.saveChanges}
+                  {isPending
+                    ? dict.common.updating
+                    : currentStep < 2
+                      ? dict.common.nextStep
+                      : dict.common.saveChanges}
                 </Button>
               </DialogActions>
             </Form>

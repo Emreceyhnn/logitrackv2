@@ -1,8 +1,15 @@
 import { Box, Divider, Stack, Typography } from "@mui/material";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { getDictionary } from "@/app/lib/language/language";
 
-export default function Footer() {
-  const dict = useDictionary();
+export default async function Footer({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  /* -------------------------------- VARIABLES ------------------------------- */
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+
   return (
     <Box
       component="footer"
@@ -81,7 +88,8 @@ export default function Footer() {
         spacing={2}
       >
         <Typography variant="body2" color="text.secondary">
-          © {new Date().getFullYear()} {dict.common.logitrack}. {dict.footer.rights}
+          © {new Date().getFullYear()} {dict.common.logitrack}.{" "}
+          {dict.footer.rights}
         </Typography>
 
         <Typography variant="body2" color="text.secondary">

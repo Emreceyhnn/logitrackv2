@@ -9,7 +9,10 @@ import {
   CompanyStats,
   CompanyMember,
 } from "@/app/lib/type/company";
-import { useCompanyWithDashboard, useCompanyMutations } from "@/app/hooks/useCompany";
+import {
+  useCompanyWithDashboard,
+  useCompanyMutations,
+} from "@/app/hooks/useCompany";
 import CompanyInfoCard from "@/app/components/dashboard/company/companyInfoCard";
 import CompanyMembersTable from "@/app/components/dashboard/company/companyMembersTable";
 import AddCompanyMemberDialog from "@/app/components/dialogs/company/AddCompanyMemberDialog";
@@ -83,7 +86,9 @@ export default function CompanyPage() {
         setFilters((prev) => ({ ...prev, ...newFilters }));
         setPagination({ page: 1, pageSize: 10 });
       },
-      updatePagination: (newPagination: Partial<{ page: number; pageSize: number }>) => {
+      updatePagination: (
+        newPagination: Partial<{ page: number; pageSize: number }>
+      ) => {
         setPagination((prev) => ({ ...prev, ...newPagination }));
       },
     }),

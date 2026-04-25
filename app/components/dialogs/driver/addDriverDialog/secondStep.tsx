@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Box,
   Card,
   Divider,
@@ -27,7 +26,7 @@ import {
 } from "@/app/lib/type/driver";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import { Warehouse, DriverStatus } from "@/app/lib/type/enums";
 import { VehicleStatus } from "@/app/lib/type/enums";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
@@ -55,7 +54,7 @@ const SecondDriverDialogStep = ({
   const dict = useDictionary();
   const theme = useTheme();
   const { user } = useUser();
-  const { values, errors, touched, setFieldValue, handleBlur, handleChange } = 
+  const { values, errors, touched, setFieldValue, handleBlur, handleChange } =
     useFormikContext<DriverFormValues>();
 
   /* --------------------------------- states --------------------------------- */
@@ -83,19 +82,23 @@ const SecondDriverDialogStep = ({
   /* -------------------------------- handlers -------------------------------- */
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newDocs: AddDriverDocument[] = Array.from(e.target.files).map((file: File) => {
-        const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
-        return {
-          id: crypto.randomUUID(),
-          name: file.name,
-          type: "OTHER",
-          expiryDate: null,
-          file: file,
-          previewUrl,
-          size: (file.size / (1024 * 1024)).toFixed(2) + " MB",
-          uploadedAt: new Date().toLocaleDateString(),
-        };
-      });
+      const newDocs: AddDriverDocument[] = Array.from(e.target.files).map(
+        (file: File) => {
+          const previewUrl = file.type.startsWith("image/")
+            ? URL.createObjectURL(file)
+            : undefined;
+          return {
+            id: crypto.randomUUID(),
+            name: file.name,
+            type: "OTHER",
+            expiryDate: null,
+            file: file,
+            previewUrl,
+            size: (file.size / (1024 * 1024)).toFixed(2) + " MB",
+            uploadedAt: new Date().toLocaleDateString(),
+          };
+        }
+      );
       setFieldValue("documents", [...values.documents, ...newDocs]);
     }
   };
@@ -108,11 +111,14 @@ const SecondDriverDialogStep = ({
   };
 
   const removeDoc = (id: string) => {
-    const docToRemove = values.documents.find(d => d.id === id);
+    const docToRemove = values.documents.find((d) => d.id === id);
     if (docToRemove?.previewUrl) {
       URL.revokeObjectURL(docToRemove.previewUrl);
     }
-    setFieldValue("documents", values.documents.filter((doc) => doc.id !== id));
+    setFieldValue(
+      "documents",
+      values.documents.filter((doc) => doc.id !== id)
+    );
   };
 
   const selectedUser = eligibleUsers.find((u) => u.id === values.userId);
@@ -154,8 +160,14 @@ const SecondDriverDialogStep = ({
                   value={values.homeWareHouseId}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={touched.homeWareHouseId && Boolean(errors.homeWareHouseId)}
-                  helperText={touched.homeWareHouseId ? (errors.homeWareHouseId as string) : undefined}
+                  error={
+                    touched.homeWareHouseId && Boolean(errors.homeWareHouseId)
+                  }
+                  helperText={
+                    touched.homeWareHouseId
+                      ? (errors.homeWareHouseId as string)
+                      : undefined
+                  }
                   select
                 >
                   {warehouses.map((w) => (
@@ -179,8 +191,14 @@ const SecondDriverDialogStep = ({
                   value={values.currentVehicleId}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={touched.currentVehicleId && Boolean(errors.currentVehicleId)}
-                  helperText={touched.currentVehicleId ? (errors.currentVehicleId as string) : undefined}
+                  error={
+                    touched.currentVehicleId && Boolean(errors.currentVehicleId)
+                  }
+                  helperText={
+                    touched.currentVehicleId
+                      ? (errors.currentVehicleId as string)
+                      : undefined
+                  }
                   select
                 >
                   <MenuItem value="">{dict.common.noData}</MenuItem>
@@ -227,11 +245,17 @@ const SecondDriverDialogStep = ({
                   label: dict.drivers.offDuty,
                   icon: <PowerSettingsNewIcon />,
                 },
-                { id: "ON_JOB", label: dict.drivers.onDuty, icon: <FlashOnIcon /> },
+                {
+                  id: "ON_JOB",
+                  label: dict.drivers.onDuty,
+                  icon: <FlashOnIcon />,
+                },
               ].map((status) => (
                 <Box
                   key={status.id}
-                  onClick={() => setFieldValue("status", status.id as DriverStatus)}
+                  onClick={() =>
+                    setFieldValue("status", status.id as DriverStatus)
+                  }
                   sx={{
                     flex: 1,
                     p: 2,
@@ -326,7 +350,8 @@ const SecondDriverDialogStep = ({
                 placeholder="e.g. EN, TR"
                 value={values.languages.join(", ")}
                 onChange={(e) =>
-                  setFieldValue("languages", 
+                  setFieldValue(
+                    "languages",
                     e.target.value
                       .split(",")
                       .map((lang) => lang.trim())
@@ -395,96 +420,109 @@ const SecondDriverDialogStep = ({
             </Box>
 
             <Stack spacing={1.5}>
-                {values.documents.map((doc) => (
-                  <Stack
-                    key={doc.id}
-                    spacing={1.5}
-                    sx={{
-                      p: 2,
-                      borderRadius: 2,
-                      bgcolor: theme.palette.text.darkBlue._alpha.main_50,
-                      border: `1px solid ${theme.palette.divider_alpha.main_10}`,
-                    }}
-                  >
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Box
-                        sx={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: 1,
-                          bgcolor: theme.palette.primary._alpha.main_10,
-                          color: theme.palette.primary.main,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {doc.previewUrl ? (
-                          <Box
-                            component="img"
-                            src={doc.previewUrl}
-                            sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                          />
-                        ) : (
-                          <InsertDriveFileIcon fontSize="small" />
-                        )}
-                      </Box>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography
-                          variant="body2"
-                          fontWeight={600}
-                          color="white"
-                          noWrap
-                        >
-                          {doc.name}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {doc.size}
-                        </Typography>
-                      </Box>
-                      <IconButton
-                        size="small"
-                        onClick={() => removeDoc(doc.id)}
-                        sx={{ color: "text.secondary" }}
-                      >
-                        <DeleteOutlineIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
-                    
-                    <Box>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ mb: 1, display: "block", fontWeight: 500 }}
-                      >
-                        {dict.common.date}
-                      </Typography>
-                      <DatePicker
-                        value={doc.expiryDate ? dayjs(doc.expiryDate) : null}
-                        onChange={(newValue) => updateDocExpiry(doc.id, newValue)}
-                        slotProps={{
-                          textField: {
-                            fullWidth: true,
-                            size: "small",
-                            placeholder: dict.common.noData,
-                            sx: {
-                              "& .MuiOutlinedInput-root": {
-                                backgroundColor: theme.palette.background.paper_alpha.main_10,
-                                borderRadius: 1.5,
-                                fontSize: "0.8rem",
-                                "& fieldset": { borderColor: theme.palette.divider_alpha.main_10 },
-                                "&:hover fieldset": { borderColor: theme.palette.primary._alpha.main_20 },
-                              },
-                              "& .MuiOutlinedInput-input": { color: "white" },
-                              "& .MuiIconButton-root": { color: theme.palette.common.white_alpha.main_50 }
-                            }
-                          }
-                        }}
-                      />
+              {values.documents.map((doc) => (
+                <Stack
+                  key={doc.id}
+                  spacing={1.5}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: theme.palette.text.darkBlue._alpha.main_50,
+                    border: `1px solid ${theme.palette.divider_alpha.main_10}`,
+                  }}
+                >
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Box
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 1,
+                        bgcolor: theme.palette.primary._alpha.main_10,
+                        color: theme.palette.primary.main,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {doc.previewUrl ? (
+                        <Box
+                          component="img"
+                          src={doc.previewUrl}
+                          sx={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : (
+                        <InsertDriveFileIcon fontSize="small" />
+                      )}
                     </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography
+                        variant="body2"
+                        fontWeight={600}
+                        color="white"
+                        noWrap
+                      >
+                        {doc.name}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {doc.size}
+                      </Typography>
+                    </Box>
+                    <IconButton
+                      size="small"
+                      onClick={() => removeDoc(doc.id)}
+                      sx={{ color: "text.secondary" }}
+                    >
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
                   </Stack>
-                ))}
+
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mb: 1, display: "block", fontWeight: 500 }}
+                    >
+                      {dict.common.date}
+                    </Typography>
+                    <DatePicker
+                      value={doc.expiryDate ? dayjs(doc.expiryDate) : null}
+                      onChange={(newValue) => updateDocExpiry(doc.id, newValue)}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true,
+                          size: "small",
+                          placeholder: dict.common.noData,
+                          sx: {
+                            "& .MuiOutlinedInput-root": {
+                              backgroundColor:
+                                theme.palette.background.paper_alpha.main_10,
+                              borderRadius: 1.5,
+                              fontSize: "0.8rem",
+                              "& fieldset": {
+                                borderColor:
+                                  theme.palette.divider_alpha.main_10,
+                              },
+                              "&:hover fieldset": {
+                                borderColor:
+                                  theme.palette.primary._alpha.main_20,
+                              },
+                            },
+                            "& .MuiOutlinedInput-input": { color: "white" },
+                            "& .MuiIconButton-root": {
+                              color: theme.palette.common.white_alpha.main_50,
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </Box>
+                </Stack>
+              ))}
             </Stack>
           </Stack>
         </Stack>
@@ -550,7 +588,9 @@ const SecondDriverDialogStep = ({
               </Stack>
             </Stack>
 
-            <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
+            <Divider
+              sx={{ borderColor: theme.palette.divider_alpha.main_05 }}
+            />
 
             <Stack spacing={2}>
               <Stack direction="row" spacing={2}>
@@ -591,7 +631,8 @@ const SecondDriverDialogStep = ({
                     {dict.drivers.fields.licenseNumber}
                   </Typography>
                   <Typography variant="body2" color="white">
-                    {dict.drivers.fields.licenseNumber}: {values.licenseNumber || dict.common.na}
+                    {dict.drivers.fields.licenseNumber}:{" "}
+                    {values.licenseNumber || dict.common.na}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {dict.drivers.fields.licenseExpiry}:{" "}
@@ -603,7 +644,9 @@ const SecondDriverDialogStep = ({
               </Stack>
             </Stack>
 
-            <Divider sx={{ borderColor: theme.palette.divider_alpha.main_05 }} />
+            <Divider
+              sx={{ borderColor: theme.palette.divider_alpha.main_05 }}
+            />
 
             <Stack spacing={1.5}>
               <Stack direction="row" justifyContent="space-between">
@@ -627,7 +670,9 @@ const SecondDriverDialogStep = ({
                   }
                   fontWeight={600}
                 >
-                  {values.hazmatCertified ? dict.common.success : dict.common.noData}
+                  {values.hazmatCertified
+                    ? dict.common.success
+                    : dict.common.noData}
                 </Typography>
               </Stack>
             </Stack>

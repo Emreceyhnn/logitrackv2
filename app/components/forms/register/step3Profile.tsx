@@ -1,19 +1,30 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Box, Stack, Typography, Avatar, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Typography,
+  Avatar,
+  CircularProgress,
+} from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useFormikContext } from "formik";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 
 export default function Step3Profile() {
+  /* -------------------------------- VARIABLES ------------------------------- */
   const dict = useDictionary();
   const { values, setFieldValue } = useFormikContext<{ avatarUrl: string }>();
+  /* --------------------------------- STATES --------------------------------- */
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  /* -------------------------------- HANDLERS -------------------------------- */
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -22,8 +33,12 @@ export default function Step3Profile() {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64String = reader.result as string;
-        const result = await uploadImageAction(base64String, "avatars", "register-flow");
-        
+        const result = await uploadImageAction(
+          base64String,
+          "avatars",
+          "register-flow"
+        );
+
         if (result.success) {
           setFieldValue("avatarUrl", result.url);
         }
@@ -46,12 +61,17 @@ export default function Step3Profile() {
         <Typography variant="h5" sx={{ color: "#fff", fontWeight: 600, mb: 1 }}>
           {dict.auth.finalTouches}
         </Typography>
-        <Typography sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}>
+        <Typography
+          sx={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "14px" }}
+        >
           {dict.auth.profileDescription}
         </Typography>
       </Box>
 
-      <Box sx={{ position: "relative", my: 2, cursor: "pointer" }} onClick={handleAvatarClick}>
+      <Box
+        sx={{ position: "relative", my: 2, cursor: "pointer" }}
+        onClick={handleAvatarClick}
+      >
         <input
           type="file"
           ref={fileInputRef}
@@ -71,13 +91,17 @@ export default function Step3Profile() {
             "&:hover": {
               borderColor: "#38bdf8",
               bgcolor: "rgba(56, 189, 248, 0.05)",
-            }
+            },
           }}
         >
           {uploading ? (
             <CircularProgress size={40} sx={{ color: "#38bdf8" }} />
-          ) : !values.avatarUrl && (
-            <CloudUploadIcon sx={{ fontSize: 40, color: "rgba(255, 255, 255, 0.3)" }} />
+          ) : (
+            !values.avatarUrl && (
+              <CloudUploadIcon
+                sx={{ fontSize: 40, color: "rgba(255, 255, 255, 0.3)" }}
+              />
+            )
           )}
         </Avatar>
         <Typography
@@ -89,7 +113,11 @@ export default function Step3Profile() {
             textAlign: "center",
           }}
         >
-          {uploading ? dict.auth.uploading : values.avatarUrl ? dict.auth.changePhoto : dict.auth.uploadProfilePicture}
+          {uploading
+            ? dict.auth.uploading
+            : values.avatarUrl
+              ? dict.auth.changePhoto
+              : dict.auth.uploadProfilePicture}
         </Typography>
       </Box>
 
@@ -102,7 +130,10 @@ export default function Step3Profile() {
           width: "100%",
         }}
       >
-        <Typography variant="body2" sx={{ color: "rgba(255, 255, 255, 0.8)", lineHeight: 1.6 }}>
+        <Typography
+          variant="body2"
+          sx={{ color: "rgba(255, 255, 255, 0.8)", lineHeight: 1.6 }}
+        >
           {dict.auth.termsAgreement}
         </Typography>
       </Box>

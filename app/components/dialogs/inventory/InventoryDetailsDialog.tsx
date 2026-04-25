@@ -49,10 +49,13 @@ import {
   InventoryDetailsProps,
   InventoryMovement,
 } from "@/app/lib/type/inventory";
-import { getInventoryMovements, getInventoryBySku } from "@/app/lib/controllers/inventory";
+import {
+  getInventoryMovements,
+  getInventoryBySku,
+} from "@/app/lib/controllers/inventory";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useInventoryMutations } from "@/app/hooks/useInventory";
-import { useCurrency } from "@/app/lib/hooks/useCurrency";
+import { useCurrency } from "@/app/hooks/useCurrency";
 import { toast } from "sonner";
 
 interface TabPanelProps {
@@ -254,14 +257,14 @@ export default function InventoryDetailsDialog({
 
           <Stack direction="row" spacing={1}>
             {onEdit && (
-              <IconButton 
-                onClick={() => onEdit(item.id)} 
-                sx={{ 
+              <IconButton
+                onClick={() => onEdit(item.id)}
+                sx={{
                   color: "primary.main",
                   bgcolor: theme.palette.primary._alpha.main_10,
                   "&:hover": {
                     bgcolor: theme.palette.primary._alpha.main_20,
-                  }
+                  },
                 }}
               >
                 <EditIcon fontSize="small" />
@@ -367,13 +370,19 @@ export default function InventoryDetailsDialog({
                         >
                           {dict.inventory.dialogs.available || "AVAILABLE"}
                         </Typography>
-                        <Typography variant="h5" fontWeight={800} color="text.primary">
-                          {(item.quantity - (item.allocatedQuantity || 0)).toLocaleString()}
+                        <Typography
+                          variant="h5"
+                          fontWeight={800}
+                          color="text.primary"
+                        >
+                          {(
+                            item.quantity - (item.allocatedQuantity || 0)
+                          ).toLocaleString()}
                         </Typography>
                       </Box>
                     </Stack>
                   </Paper>
-                  
+
                   {(item.allocatedQuantity || 0) > 0 && (
                     <Paper
                       variant="outlined"
@@ -401,14 +410,18 @@ export default function InventoryDetailsDialog({
                           >
                             {dict.inventory.status.blocked || "BLOCKED"}
                           </Typography>
-                          <Typography variant="h5" fontWeight={800} color="text.primary">
+                          <Typography
+                            variant="h5"
+                            fontWeight={800}
+                            color="text.primary"
+                          >
                             {item.allocatedQuantity.toLocaleString()}
                           </Typography>
                         </Box>
                       </Stack>
                     </Paper>
                   )}
-                  
+
                   <Paper
                     variant="outlined"
                     sx={{
@@ -435,7 +448,11 @@ export default function InventoryDetailsDialog({
                         >
                           PHYSICAL
                         </Typography>
-                        <Typography variant="h5" fontWeight={800} color="text.primary">
+                        <Typography
+                          variant="h5"
+                          fontWeight={800}
+                          color="text.primary"
+                        >
                           {item.quantity.toLocaleString()}
                         </Typography>
                       </Box>
@@ -463,7 +480,9 @@ export default function InventoryDetailsDialog({
                         gap: 1,
                       }}
                     >
-                      <AdjustIcon sx={{ fontSize: 18, color: "primary.main" }} />
+                      <AdjustIcon
+                        sx={{ fontSize: 18, color: "primary.main" }}
+                      />
                       {dict.inventory.dialogs.quickAdjustment}
                     </Typography>
                     <Stack spacing={2}>
@@ -612,8 +631,15 @@ export default function InventoryDetailsDialog({
                         >
                           {dict.inventory.fields.unitValue.toUpperCase()}
                         </Typography>
-                        <Typography variant="h5" fontWeight={800} color="text.primary">
-                          {formatFrom(item.unitValue || 0, (item as any).currency || "USD")}
+                        <Typography
+                          variant="h5"
+                          fontWeight={800}
+                          color="text.primary"
+                        >
+                          {formatFrom(
+                            item.unitValue || 0,
+                            (item as any).currency || "USD"
+                          )}
                         </Typography>
                       </Box>
                     </Stack>
@@ -693,7 +719,11 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.weight.toUpperCase()}
                       </Typography>
-                      <Typography variant="h6" fontWeight={800} color="text.primary">
+                      <Typography
+                        variant="h6"
+                        fontWeight={800}
+                        color="text.primary"
+                      >
                         {item.weightKg}kg
                       </Typography>
                     </Paper>
@@ -717,7 +747,11 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.volume.toUpperCase()}
                       </Typography>
-                      <Typography variant="h6" fontWeight={800} color="text.primary">
+                      <Typography
+                        variant="h6"
+                        fontWeight={800}
+                        color="text.primary"
+                      >
                         {item.volumeM3}m³
                       </Typography>
                     </Paper>
@@ -741,13 +775,16 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.pallets.toUpperCase()}
                       </Typography>
-                      <Typography variant="h6" fontWeight={800} color="text.primary">
+                      <Typography
+                        variant="h6"
+                        fontWeight={800}
+                        color="text.primary"
+                      >
                         {item.palletCount}
                       </Typography>
                     </Paper>
                   </Grid>
                 </Grid>
-
 
                 <Box
                   sx={{
@@ -955,7 +992,12 @@ export default function InventoryDetailsDialog({
                                 fontWeight: 600,
                               }}
                             >
-                              {(dict.inventory.dialogs.historyTypes as Record<string, string>)?.[move.type] || move.type}
+                              {(
+                                dict.inventory.dialogs.historyTypes as Record<
+                                  string,
+                                  string
+                                >
+                              )?.[move.type] || move.type}
                             </Typography>
                           </Stack>
                         </TableCell>

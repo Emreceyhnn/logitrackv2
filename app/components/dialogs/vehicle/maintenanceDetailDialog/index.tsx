@@ -13,7 +13,6 @@ import {
   Alert,
   InputAdornment,
   CircularProgress,
-  
   IconButton,
   Typography,
   Box,
@@ -34,7 +33,7 @@ import { updateMaintenanceRecord } from "@/app/lib/controllers/vehicle";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { MaintenanceStatus, MaintenanceRecord } from "@/app/lib/type/enums";
-import { useCurrency } from "@/app/lib/hooks/useCurrency";
+import { useCurrency } from "@/app/hooks/useCurrency";
 
 interface MaintenanceDetailDialogProps {
   open: boolean;
@@ -73,7 +72,10 @@ export default function MaintenanceDetailDialog({
       setFormData({
         type: record.type,
         date: dayjs(record.date),
-        cost: convertFrom(record.cost, (record as any).currency || "USD").toFixed(2),
+        cost: convertFrom(
+          record.cost,
+          (record as any).currency || "USD"
+        ).toFixed(2),
         status: (record.status as MaintenanceStatus) || "COMPLETED",
         description: record.description || "",
       });
@@ -105,7 +107,10 @@ export default function MaintenanceDetailDialog({
       onClose();
     } catch (err) {
       console.error(err);
-      setError(dict.vehicles.dialogs.failedToUpdateRecord || "Failed to update maintenance record");
+      setError(
+        dict.vehicles.dialogs.failedToUpdateRecord ||
+          "Failed to update maintenance record"
+      );
     } finally {
       setLoading(false);
     }
@@ -134,28 +139,68 @@ export default function MaintenanceDetailDialog({
   };
 
   const SERVICE_TYPES = [
-    { value: "ROUTINE_MAINTENANCE", label: dict.vehicles.serviceTypes.ROUTINE_MAINTENANCE, icon: <SettingsIcon sx={{ fontSize: 18 }} /> },
-    { value: "REPAIR", label: dict.vehicles.serviceTypes.REPAIR, icon: <BuildIcon sx={{ fontSize: 18 }} /> },
-    { value: "INSPECTION", label: dict.vehicles.serviceTypes.INSPECTION, icon: <SearchIcon sx={{ fontSize: 18 }} /> },
-    { value: "TIRE_CHANGE", label: dict.vehicles.serviceTypes.TIRE_CHANGE, icon: <TireRepairIcon sx={{ fontSize: 18 }} /> },
-    { value: "OIL_CHANGE", label: dict.vehicles.serviceTypes.OIL_CHANGE, icon: <OpacityIcon sx={{ fontSize: 18 }} /> },
-    { value: "OTHER", label: dict.vehicles.serviceTypes.OTHER, icon: <AssignmentIcon sx={{ fontSize: 18 }} /> },
+    {
+      value: "ROUTINE_MAINTENANCE",
+      label: dict.vehicles.serviceTypes.ROUTINE_MAINTENANCE,
+      icon: <SettingsIcon sx={{ fontSize: 18 }} />,
+    },
+    {
+      value: "REPAIR",
+      label: dict.vehicles.serviceTypes.REPAIR,
+      icon: <BuildIcon sx={{ fontSize: 18 }} />,
+    },
+    {
+      value: "INSPECTION",
+      label: dict.vehicles.serviceTypes.INSPECTION,
+      icon: <SearchIcon sx={{ fontSize: 18 }} />,
+    },
+    {
+      value: "TIRE_CHANGE",
+      label: dict.vehicles.serviceTypes.TIRE_CHANGE,
+      icon: <TireRepairIcon sx={{ fontSize: 18 }} />,
+    },
+    {
+      value: "OIL_CHANGE",
+      label: dict.vehicles.serviceTypes.OIL_CHANGE,
+      icon: <OpacityIcon sx={{ fontSize: 18 }} />,
+    },
+    {
+      value: "OTHER",
+      label: dict.vehicles.serviceTypes.OTHER,
+      icon: <AssignmentIcon sx={{ fontSize: 18 }} />,
+    },
   ];
 
   const MAINTENANCE_STATUSES = [
-    { value: "SCHEDULED", label: dict.vehicles.statuses.SCHEDULED, color: "#F6AD55" },
-    { value: "IN_PROGRESS", label: dict.vehicles.statuses.IN_PROGRESS, color: "#4299E1" },
-    { value: "COMPLETED", label: dict.vehicles.statuses.COMPLETED, color: "#48BB78" },
-    { value: "CANCELLED", label: dict.vehicles.statuses.CANCELLED, color: "#F56565" },
+    {
+      value: "SCHEDULED",
+      label: dict.vehicles.statuses.SCHEDULED,
+      color: "#F6AD55",
+    },
+    {
+      value: "IN_PROGRESS",
+      label: dict.vehicles.statuses.IN_PROGRESS,
+      color: "#4299E1",
+    },
+    {
+      value: "COMPLETED",
+      label: dict.vehicles.statuses.COMPLETED,
+      color: "#48BB78",
+    },
+    {
+      value: "CANCELLED",
+      label: dict.vehicles.statuses.CANCELLED,
+      color: "#F56565",
+    },
   ];
 
   if (!record) return null;
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      fullWidth 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
       maxWidth="sm"
       PaperProps={{
         sx: {
@@ -164,16 +209,29 @@ export default function MaintenanceDetailDialog({
       }}
     >
       <Box sx={{ p: 3, pb: 2 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="h6" fontWeight={800} color="text.primary">
             {dict.vehicles.dialogs.maintenanceDetails}
           </Typography>
-          <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }}>
+          <IconButton
+            onClick={onClose}
+            size="small"
+            sx={{ color: "text.secondary" }}
+          >
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block", fontWeight: 500 }}>
-          {dict.vehicles.dialogs.maintenanceDetailsDesc || "View and manage the status of this maintenance entry."}
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ mt: 0.5, display: "block", fontWeight: 500 }}
+        >
+          {dict.vehicles.dialogs.maintenanceDetailsDesc ||
+            "View and manage the status of this maintenance entry."}
         </Typography>
       </Box>
 
@@ -185,9 +243,13 @@ export default function MaintenanceDetailDialog({
               variant="filled"
               sx={{
                 borderRadius: 2,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "error._alpha.main_10" : "error._alpha.main_05",
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "error._alpha.main_10"
+                    : "error._alpha.main_05",
                 color: "error.light",
-                border: (theme) => `1px solid ${theme.palette.error._alpha.main_20}`,
+                border: (theme) =>
+                  `1px solid ${theme.palette.error._alpha.main_20}`,
               }}
             >
               {error}
@@ -195,11 +257,23 @@ export default function MaintenanceDetailDialog({
           )}
 
           <Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+                fontWeight: 700,
+                mb: 1.5,
+                display: "block",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
               {dict.vehicles.dialogs.maintenanceStatus}
             </Typography>
             <FormControl fullWidth sx={textFieldSx}>
-              <InputLabel sx={{ color: "text.secondary" }}>{dict.vehicles.fields.status}</InputLabel>
+              <InputLabel sx={{ color: "text.secondary" }}>
+                {dict.vehicles.fields.status}
+              </InputLabel>
               <Select
                 value={formData.status}
                 label={dict.vehicles.fields.status}
@@ -211,19 +285,25 @@ export default function MaintenanceDetailDialog({
                     sx: {
                       backgroundImage: "none",
                       mt: 1,
-                    }
-                  }
+                    },
+                  },
                 }}
               >
                 {MAINTENANCE_STATUSES.map((status) => (
-                  <MenuItem key={status.value} value={status.value} sx={{ py: 1.5 }}>
+                  <MenuItem
+                    key={status.value}
+                    value={status.value}
+                    sx={{ py: 1.5 }}
+                  >
                     <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Box sx={{ 
-                        width: 8, 
-                        height: 8, 
-                        borderRadius: '50%', 
-                        bgcolor: status.color 
-                      }} />
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          bgcolor: status.color,
+                        }}
+                      />
                       <Typography variant="body2">{status.label}</Typography>
                     </Stack>
                   </MenuItem>
@@ -235,12 +315,24 @@ export default function MaintenanceDetailDialog({
           <Divider sx={{ borderColor: "divider" }} />
 
           <Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+                fontWeight: 700,
+                mb: 1.5,
+                display: "block",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
               {dict.vehicles.dialogs.configuration}
             </Typography>
             <Stack spacing={2.5}>
               <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: "text.secondary" }}>{dict.vehicles.fields.serviceType}</InputLabel>
+                <InputLabel sx={{ color: "text.secondary" }}>
+                  {dict.vehicles.fields.serviceType}
+                </InputLabel>
                 <Select
                   value={formData.type}
                   label={dict.vehicles.fields.serviceType}
@@ -252,14 +344,21 @@ export default function MaintenanceDetailDialog({
                       sx: {
                         backgroundImage: "none",
                         mt: 1,
-                      }
-                    }
+                      },
+                    },
                   }}
                 >
                   {SERVICE_TYPES.map((st) => (
                     <MenuItem key={st.value} value={st.value} sx={{ py: 1.5 }}>
                       <Stack direction="row" spacing={1.5} alignItems="center">
-                        <Box sx={{ color: theme.palette.primary.main, display: 'flex' }}>{st.icon}</Box>
+                        <Box
+                          sx={{
+                            color: theme.palette.primary.main,
+                            display: "flex",
+                          }}
+                        >
+                          {st.icon}
+                        </Box>
                         <Typography variant="body2">{st.label}</Typography>
                       </Stack>
                     </MenuItem>
@@ -277,8 +376,8 @@ export default function MaintenanceDetailDialog({
                   textField: {
                     fullWidth: true,
                     sx: textFieldSx,
-                    InputLabelProps: { shrink: true }
-                  }
+                    InputLabelProps: { shrink: true },
+                  },
                 }}
               />
 
@@ -296,7 +395,11 @@ export default function MaintenanceDetailDialog({
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>{symbol}</Typography>
+                      <Typography
+                        sx={{ color: "text.secondary", fontSize: "0.9rem" }}
+                      >
+                        {symbol}
+                      </Typography>
                     </InputAdornment>
                   ),
                 }}
@@ -305,12 +408,25 @@ export default function MaintenanceDetailDialog({
           </Box>
 
           <Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+                fontWeight: 700,
+                mb: 1.5,
+                display: "block",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
               {dict.vehicles.dialogs.additionalInfo}
             </Typography>
             <TextField
               label={dict.vehicles.dialogs.technicianNotes}
-              placeholder={dict.vehicles.dialogs.technicianNotesDesc || "Briefly describe the work performed..."}
+              placeholder={
+                dict.vehicles.dialogs.technicianNotesDesc ||
+                "Briefly describe the work performed..."
+              }
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
@@ -324,7 +440,7 @@ export default function MaintenanceDetailDialog({
                   ...textFieldSx["& .MuiOutlinedInput-root"],
                   height: "auto",
                   padding: "12px 14px",
-                }
+                },
               }}
               InputLabelProps={{ shrink: true }}
             />
@@ -332,15 +448,17 @@ export default function MaintenanceDetailDialog({
         </Stack>
       </DialogContent>
 
-      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+      <Box
+        sx={{ p: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}
+      >
         <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button 
-            onClick={onClose} 
+          <Button
+            onClick={onClose}
             disabled={loading}
-            sx={{ 
-              color: "text.secondary", 
-              textTransform: "none", 
-              fontWeight: 600 
+            sx={{
+              color: "text.secondary",
+              textTransform: "none",
+              fontWeight: 600,
             }}
           >
             {dict.common.cancel}
@@ -363,7 +481,9 @@ export default function MaintenanceDetailDialog({
                 <CircularProgress size={16} color="inherit" />
                 <span>{dict.common.updating}</span>
               </Stack>
-            ) : dict.vehicles.dialogs.updateRecord}
+            ) : (
+              dict.vehicles.dialogs.updateRecord
+            )}
           </Button>
         </Stack>
       </Box>

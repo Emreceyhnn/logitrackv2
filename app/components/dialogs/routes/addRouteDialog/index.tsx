@@ -25,7 +25,7 @@ import { createRoute } from "@/app/lib/controllers/routes";
 import { getShipments } from "@/app/lib/controllers/shipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { Warehouse } from "@/app/lib/type/enums";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import { toUTC } from "@/app/lib/utils/date";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { Formik, Form } from "formik";
@@ -98,8 +98,12 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
     try {
       // Convert the user-local wall-clock times to UTC using the user's timezone
       const userTz = user.timezone || "UTC";
-      const startUTC = values.startTime ? toUTC(values.startTime, userTz) : new Date();
-      const endUTC = values.endTime ? toUTC(values.endTime, userTz) : new Date();
+      const startUTC = values.startTime
+        ? toUTC(values.startTime, userTz)
+        : new Date();
+      const endUTC = values.endTime
+        ? toUTC(values.endTime, userTz)
+        : new Date();
 
       await createRoute(
         values.name,
@@ -171,7 +175,9 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
             if (shipment) {
               setSelectedShipmentId(shipmentId);
               const warehouse = warehouses.find(
-                (w) => w.id === shipment.originWarehouseId || w.id === shipment.origin
+                (w) =>
+                  w.id === shipment.originWarehouseId ||
+                  w.id === shipment.origin
               );
               const defaultLoc = shipment.customer?.locations?.find(
                 (l) => l.isDefault

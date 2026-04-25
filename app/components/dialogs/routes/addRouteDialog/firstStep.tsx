@@ -9,7 +9,7 @@ import BoltIcon from "@mui/icons-material/Bolt";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import { utcToUserTz } from "@/app/lib/utils/date";
 
 interface FirstRouteDialogStepProps {
@@ -85,7 +85,10 @@ const FirstRouteDialogStep = ({
             <Stack spacing={1.5}>
               <Stack direction="row" spacing={1} alignItems="center">
                 <BoltIcon
-                  sx={{ color: (theme) => theme.palette.warning.main, fontSize: 18 }}
+                  sx={{
+                    color: (theme) => theme.palette.warning.main,
+                    fontSize: 18,
+                  }}
                 />
                 <Typography
                   variant="body2"
@@ -222,7 +225,8 @@ const FirstRouteDialogStep = ({
             p: 2,
             borderRadius: 2,
             bgcolor: (theme) => theme.palette.primary._alpha.main_05,
-            border: (theme) => `1px solid ${theme.palette.primary._alpha.main_10}`,
+            border: (theme) =>
+              `1px solid ${theme.palette.primary._alpha.main_10}`,
             display: "flex",
             gap: 2,
           }}

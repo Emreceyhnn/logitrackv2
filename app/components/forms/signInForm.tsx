@@ -15,7 +15,6 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import AuthButton from "../ui/AuthButton";
-
 import { useRouter, useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { LoginUser } from "@/app/lib/controllers/users";
@@ -27,13 +26,15 @@ interface LoginFormValues {
 }
 
 export default function LoginForm() {
-  /* --------------------------------- STATES --------------------------------- */
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  /* -------------------------------- VARIABLES ------------------------------- */
   const router = useRouter();
   const params = useParams();
   const lang = (params?.lang as string) || "en";
   const dict = useDictionary();
+
+  /* --------------------------------- STATES --------------------------------- */
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleSubmit = async (
@@ -61,7 +62,8 @@ export default function LoginForm() {
       }
     } catch (error: unknown) {
       console.error("Login failed:", error);
-      const message = error instanceof Error ? error.message : dict.auth.loginFailed;
+      const message =
+        error instanceof Error ? error.message : dict.auth.loginFailed;
       actions.setFieldError("email", message);
       actions.setFieldError("password", message);
     } finally {
@@ -137,10 +139,7 @@ export default function LoginForm() {
         <Formik<LoginFormValues>
           initialValues={{ email: "", password: "" }}
           onSubmit={handleSubmit}
-          validationSchema={useMemo(
-            () => loginValidationSchema(dict),
-            [dict]
-          )}
+          validationSchema={useMemo(() => loginValidationSchema(dict), [dict])}
         >
           <Form>
             <Stack spacing={3}>

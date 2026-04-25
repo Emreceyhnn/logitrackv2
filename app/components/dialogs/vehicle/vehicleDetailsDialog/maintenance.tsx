@@ -31,7 +31,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 import { MenuItem, Select, FormControl } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useCurrency } from "@/app/lib/hooks/useCurrency";
+import { useCurrency } from "@/app/hooks/useCurrency";
 
 interface MaintenanceTabProps {
   vehicle?: VehicleWithRelations;
@@ -81,16 +81,16 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
         return <CheckCircleIcon sx={{ fontSize: 14 }} />;
       case "IN_PROGRESS":
         return (
-          <PendingIcon 
-            sx={{ 
+          <PendingIcon
+            sx={{
               fontSize: 14,
               animation: "pulse 2s infinite ease-in-out",
               "@keyframes pulse": {
                 "0%": { opacity: 1, transform: "scale(1)" },
                 "50%": { opacity: 0.5, transform: "scale(1.2)" },
                 "100%": { opacity: 1, transform: "scale(1)" },
-              }
-            }} 
+              },
+            }}
           />
         );
       case "SCHEDULED":
@@ -123,7 +123,10 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             flexDirection: "column",
             borderRadius: "8px",
             justifyContent: "space-evenly",
-            bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.03)"
+                : "rgba(0,0,0,0.02)",
             backgroundImage: "none",
             boxShadow: "none",
             border: `1px solid ${theme.palette.divider}`,
@@ -216,7 +219,10 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             p: 2,
             flex: 2,
             borderRadius: "8px",
-            bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.03)"
+                : "rgba(0,0,0,0.02)",
             backgroundImage: "none",
             boxShadow: "none",
             border: `1px solid ${theme.palette.divider}`,
@@ -227,7 +233,9 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             alignItems={"center"}
             justifyContent={"space-between"}
           >
-            <Typography sx={{ fontSize: 18, fontWeight: 700, color: "text.primary" }}>
+            <Typography
+              sx={{ fontSize: 18, fontWeight: 700, color: "text.primary" }}
+            >
               {dict.vehicles.dialogs.openIssues}
             </Typography>
             <Button
@@ -255,7 +263,10 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                   key={index}
                   sx={{
                     borderRadius: "8px",
-                    bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.01)",
+                    bgcolor: (theme) =>
+                      theme.palette.mode === "dark"
+                        ? "rgba(255,255,255,0.05)"
+                        : "rgba(0,0,0,0.01)",
                     overflow: "hidden",
                     backgroundImage: "none",
                     boxShadow: "none",
@@ -282,7 +293,11 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                       />
                       <Stack flexGrow={1}>
                         <Typography
-                          sx={{ fontSize: 16, fontWeight: 700, color: "text.primary" }}
+                          sx={{
+                            fontSize: 16,
+                            fontWeight: 700,
+                            color: "text.primary",
+                          }}
                         >
                           {i.title}
                         </Typography>
@@ -313,7 +328,10 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             display: "flex",
             flexDirection: "column",
             borderRadius: "8px",
-            bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.03)"
+                : "rgba(0,0,0,0.02)",
             backgroundImage: "none",
             boxShadow: "none",
             border: `1px solid ${theme.palette.divider}`,
@@ -326,7 +344,9 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             alignItems="center"
             mb={2}
           >
-            <Typography sx={{ fontSize: 18, fontWeight: 700, color: "text.primary" }}>
+            <Typography
+              sx={{ fontSize: 18, fontWeight: 700, color: "text.primary" }}
+            >
               {dict.vehicles.dialogs.recentMaintenance}
             </Typography>
             <Button
@@ -415,12 +435,21 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                       sx={{
                         "&:last-child td, &:last-child th": { border: 0 },
                         "&:hover": {
-                          bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
+                          bgcolor: (theme) =>
+                            theme.palette.mode === "dark"
+                              ? "rgba(255,255,255,0.03)"
+                              : "rgba(0,0,0,0.03)",
                           cursor: "pointer",
                         },
                         transition: "all 0.2s",
-                        opacity: (v.status === "COMPLETED" || v.status === "CANCELLED") ? 0.5 : 1,
-                        filter: (v.status === "COMPLETED" || v.status === "CANCELLED") ? "grayscale(0.6)" : "none",
+                        opacity:
+                          v.status === "COMPLETED" || v.status === "CANCELLED"
+                            ? 0.5
+                            : 1,
+                        filter:
+                          v.status === "COMPLETED" || v.status === "CANCELLED"
+                            ? "grayscale(0.6)"
+                            : "none",
                       }}
                     >
                       <TableCell
@@ -463,7 +492,9 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                           borderBottomColor: "divider",
                         }}
                       >
-                        {currencyLoading ? "..." : formatFrom(v.cost, (v as any).currency || "USD", 2)}
+                        {currencyLoading
+                          ? "..."
+                          : formatFrom(v.cost, (v as any).currency || "USD", 2)}
                       </TableCell>
                       <TableCell
                         align="left"

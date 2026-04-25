@@ -1,4 +1,4 @@
-import { ChipProps } from "@mui/material";
+import { ChipProps, Theme, useTheme } from "@mui/material";
 
 export const getPriorityColor = (priority: string): ChipProps["color"] => {
   const normalizedPriority = priority?.toUpperCase();
@@ -17,11 +17,11 @@ export const getPriorityColor = (priority: string): ChipProps["color"] => {
 };
 
 import { Dictionary } from "./language/language";
+import { NotificationType } from "./notifications";
 
 export const getStatusMeta = (status?: string, dict?: Dictionary) => {
   const s = status?.toUpperCase() || "";
 
-  // Helpers to get data from dict
   const getDictColor = (paletteKey: string, fallback: string) => {
     return (
       (dict as unknown as Record<string, Record<string, string>>)
@@ -30,7 +30,6 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
   };
 
   const getDictLabel = (key: string) => {
-    // Special mapping for driver statuses
     if (key === "ON_JOB") return dict?.drivers?.onDuty;
     if (key === "OFF_DUTY") return dict?.drivers?.offDuty;
     if (key === "ON_LEAVE") return dict?.drivers?.onLeave;
@@ -113,5 +112,31 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
         paletteKey: "secondary",
         label: label || "-",
       };
+  }
+};
+
+export const getStatusColor = (t: NotificationType) => {
+  switch (t) {
+    case "SUCCESS":
+      return "theme.palette.success.main";
+    case "WARNING":
+      return "theme.palette.warning.main";
+    case "ERROR":
+      return "theme.palette.error.main";
+    default:
+      return "theme.palette.info.main";
+  }
+};
+
+export const resolveStatusAlpha = (t: NotificationType) => {
+  switch (t) {
+    case "SUCCESS":
+      return "theme.palette.success._alpha";
+    case "WARNING":
+      return "theme.palette.warning._alpha";
+    case "ERROR":
+      return "theme.palette.error._alpha";
+    default:
+      return "theme.palette.info._alpha";
   }
 };

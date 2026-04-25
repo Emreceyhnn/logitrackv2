@@ -12,16 +12,20 @@ import { getLocalizedPath } from "@/app/lib/language/navigation";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 
 export default function LandingHeaderAuth() {
+  /* -------------------------------- VARIABLES ------------------------------- */
   const params = useParams();
-  const lang = (params?.lang as string) || "tr";
-  const dict = useDictionary();
   const theme = useTheme();
+  const dict = useDictionary();
+  const lang = (params?.lang as string) || "tr";
+
+  /* --------------------------------- STATES --------------------------------- */
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<AuthenticatedUser | null>(null);
 
   const [openCompanyModal, setOpenCompanyModal] = useState(false);
 
+  /* --------------------------------- ACTIONS -------------------------------- */
   const checkAuth = async () => {
     setLoading(true);
     try {
@@ -33,16 +37,18 @@ export default function LandingHeaderAuth() {
       setLoading(false);
     }
   };
-
+  /* -------------------------------- LIFECYCLE ------------------------------- */
   useEffect(() => {
     checkAuth();
   }, []);
 
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handleSuccess = () => {
     setOpenCompanyModal(false);
     checkAuth();
   };
 
+  /* -------------------------------- RENDER -------------------------------- */
   if (loading) {
     return (
       <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />

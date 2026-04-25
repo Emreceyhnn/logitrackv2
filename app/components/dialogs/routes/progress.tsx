@@ -10,7 +10,7 @@ import {
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import CircleIcon from "@mui/icons-material/Circle";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import { formatDisplayTime } from "@/app/lib/utils/date";
 
 export default function RouteProgress({

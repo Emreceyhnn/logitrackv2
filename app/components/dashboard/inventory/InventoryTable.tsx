@@ -15,7 +15,7 @@ import type {
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { InventoryTableProps } from "@/app/lib/type/inventory";
 
-import { useCurrency } from "@/app/lib/hooks/useCurrency";
+import { useCurrency } from "@/app/hooks/useCurrency";
 
 // Helper to derive status for UI
 const getStatus = (quantity: number, minStock: number) => {
@@ -145,8 +145,13 @@ const InventoryTable = ({
               >
                 {row.quantity - (row.allocatedQuantity || 0)}{" "}
                 {row.allocatedQuantity > 0 && (
-                  <Typography component="span" variant="caption" sx={{ color: "warning.main", ml: 0.5 }}>
-                    ({row.allocatedQuantity} {dict.inventory.status.blocked || "Blokeli"})
+                  <Typography
+                    component="span"
+                    variant="caption"
+                    sx={{ color: "warning.main", ml: 0.5 }}
+                  >
+                    ({row.allocatedQuantity}{" "}
+                    {dict.inventory.status.blocked || "Blokeli"})
                   </Typography>
                 )}
                 {status === "LOW_STOCK" && ` (${dict.inventory.status.low})`}
@@ -161,7 +166,10 @@ const InventoryTable = ({
         label: dict.inventory.table.unitPrice,
         sortable: true,
         sortKey: "unitValue",
-        render: (row) => currencyLoading ? "..." : formatFrom(row.unitValue || 0, (row as any).currency || "USD", 2),
+        render: (row) =>
+          currencyLoading
+            ? "..."
+            : formatFrom(row.unitValue || 0, (row as any).currency || "USD", 2),
       },
       {
         key: "warehouse",

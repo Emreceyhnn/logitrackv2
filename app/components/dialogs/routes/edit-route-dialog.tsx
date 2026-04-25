@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Box,
   Dialog,
   DialogContent,
@@ -21,7 +20,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { updateRoute } from "@/app/lib/controllers/routes";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import FirstRouteDialogStep from "./addRouteDialog/firstStep";
 import SecondRouteDialogStep from "./addRouteDialog/secondStep";
 import ThirdRouteDialogStep from "./addRouteDialog/thirdStep";
@@ -39,7 +38,12 @@ interface EditRouteDialogProps {
   route: RouteWithRelations | null;
 }
 
-const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogProps) => {
+const EditRouteDialog = ({
+  open,
+  onClose,
+  onSuccess,
+  route,
+}: EditRouteDialogProps) => {
   const theme = useTheme();
   const { user } = useUser();
   const dict = useDictionary();
@@ -102,7 +106,9 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
     try {
       // Convert user-local wall-clock times back to UTC for storage
       const userTz = user.timezone || "UTC";
-      const startUTC = values.startTime ? toUTC(values.startTime, userTz) : undefined;
+      const startUTC = values.startTime
+        ? toUTC(values.startTime, userTz)
+        : undefined;
       const endUTC = values.endTime ? toUTC(values.endTime, userTz) : undefined;
 
       await updateRoute(route.id, {
@@ -117,8 +123,12 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
         endLng: values.endLng,
         distanceKm: values.distanceKm,
         durationMin: values.durationMin,
-        driver: values.driverId ? { connect: { id: values.driverId } } : { disconnect: true },
-        vehicle: values.vehicleId ? { connect: { id: values.vehicleId } } : { disconnect: true },
+        driver: values.driverId
+          ? { connect: { id: values.driverId } }
+          : { disconnect: true },
+        vehicle: values.vehicleId
+          ? { connect: { id: values.vehicleId } }
+          : { disconnect: true },
       });
 
       toast.success(dict.toasts.successUpdate);
@@ -127,7 +137,8 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
         onSuccess?.();
       }, 1500);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : dict.toasts.errorGeneric;
+      const message =
+        err instanceof Error ? err.message : dict.toasts.errorGeneric;
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -144,10 +155,13 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
   const steps = [
     dict.routes.dialogs.steps.schedule,
     dict.routes.dialogs.steps.locations,
-    dict.routes.dialogs.steps.assignments
+    dict.routes.dialogs.steps.assignments,
   ];
 
-  const validationSchema = useMemo(() => editRouteValidationSchema(dict), [dict]);
+  const validationSchema = useMemo(
+    () => editRouteValidationSchema(dict),
+    [dict]
+  );
   if (!route) return null;
 
   return (
@@ -162,17 +176,19 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
           const handleNextStep = async () => {
             let fieldsToValidate: string[] = [];
             if (currentStep === 1) {
-              fieldsToValidate = ['name', 'startTime', 'endTime'];
+              fieldsToValidate = ["name", "startTime", "endTime"];
             } else if (currentStep === 2) {
-              fieldsToValidate = ['startAddress', 'endAddress'];
+              fieldsToValidate = ["startAddress", "endAddress"];
             }
 
-            fieldsToValidate.forEach(f => setFieldTouched(f, true));
+            fieldsToValidate.forEach((f) => setFieldTouched(f, true));
             const result = await validateForm();
-            const hasErrors = fieldsToValidate.some(f => result[f as keyof typeof result]);
+            const hasErrors = fieldsToValidate.some(
+              (f) => result[f as keyof typeof result]
+            );
 
             if (!hasErrors) {
-              setCurrentStep(prev => prev + 1);
+              setCurrentStep((prev) => prev + 1);
             } else {
               toast.error(dict.validation.genericFormError);
             }
@@ -194,7 +210,11 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
               }}
             >
               <Box sx={{ p: 3, pb: 0 }}>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
                   <Stack spacing={0.5}>
                     <Typography variant="h6" fontWeight={600} color="white">
                       {dict.routes.dialogs.editTitle}
@@ -203,18 +223,48 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
                       {dict.routes.dialogs.editSubtitle}
                     </Typography>
                   </Stack>
-                  <IconButton onClick={closeDialog} size="small" sx={{ color: "text.secondary" }}>
+                  <IconButton
+                    onClick={closeDialog}
+                    size="small"
+                    sx={{ color: "text.secondary" }}
+                  >
                     <CloseIcon fontSize="small" />
                   </IconButton>
                 </Stack>
               </Box>
               <DialogContent>
                 <Box sx={{ mb: 4, px: 2 }}>
-                  <Stepper activeStep={currentStep - 1} sx={{ "& .MuiStepConnector-line": { borderColor: theme.palette.divider_alpha.main_10 } }}>
+                  <Stepper
+                    activeStep={currentStep - 1}
+                    sx={{
+                      "& .MuiStepConnector-line": {
+                        borderColor: theme.palette.divider_alpha.main_10,
+                      },
+                    }}
+                  >
                     {steps.map((label, index) => (
                       <Step key={label}>
-                        <StepLabel StepIconProps={{ sx: { "&.Mui-active": { color: theme.palette.primary.main }, "&.Mui-completed": { color: theme.palette.primary.main } } }}>
-                          <Typography variant="caption" fontWeight={600} color={currentStep - 1 >= index ? "text.primary" : "text.secondary"}>
+                        <StepLabel
+                          StepIconProps={{
+                            sx: {
+                              "&.Mui-active": {
+                                color: theme.palette.primary.main,
+                              },
+                              "&.Mui-completed": {
+                                color: theme.palette.primary.main,
+                              },
+                            },
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            fontWeight={600}
+                            color={
+                              currentStep - 1 >= index
+                                ? "text.primary"
+                                : "text.secondary"
+                            }
+                          >
                             {label}
                           </Typography>
                         </StepLabel>
@@ -222,7 +272,12 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
                     ))}
                   </Stepper>
                 </Box>
-                <Divider sx={{ mb: 4, borderColor: theme.palette.divider_alpha.main_05 }} />
+                <Divider
+                  sx={{
+                    mb: 4,
+                    borderColor: theme.palette.divider_alpha.main_05,
+                  }}
+                />
 
                 <Box sx={{ minHeight: 400 }}>
                   <Form>
@@ -232,22 +287,46 @@ const EditRouteDialog = ({ open, onClose, onSuccess, route }: EditRouteDialogPro
                   </Form>
                 </Box>
               </DialogContent>
-              <DialogActions sx={{ p: 3, pt: 0, justifyContent: "space-between" }}>
+              <DialogActions
+                sx={{ p: 3, pt: 0, justifyContent: "space-between" }}
+              >
                 <Button
-                  onClick={currentStep === 1 ? closeDialog : () => setCurrentStep(prev => prev - 1)}
+                  onClick={
+                    currentStep === 1
+                      ? closeDialog
+                      : () => setCurrentStep((prev) => prev - 1)
+                  }
                   disabled={isLoading}
-                  sx={{ color: "text.secondary", "&:hover": { bgcolor: theme.palette.divider_alpha.main_05 } }}
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { bgcolor: theme.palette.divider_alpha.main_05 },
+                  }}
                 >
                   {currentStep === 1 ? dict.common.cancel : dict.common.back}
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={currentStep === steps.length ? () => handleSubmit() : handleNextStep}
+                  onClick={
+                    currentStep === steps.length
+                      ? () => handleSubmit()
+                      : handleNextStep
+                  }
                   disabled={isLoading}
-                  startIcon={isLoading && <CircularProgress size={16} color="inherit" />}
-                  sx={{ borderRadius: 2, px: 4, fontWeight: 600, boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}` }}
+                  startIcon={
+                    isLoading && <CircularProgress size={16} color="inherit" />
+                  }
+                  sx={{
+                    borderRadius: 2,
+                    px: 4,
+                    fontWeight: 600,
+                    boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
+                  }}
                 >
-                  {isLoading ? dict.toasts.loading : currentStep === steps.length ? dict.common.save : dict.common.next}
+                  {isLoading
+                    ? dict.toasts.loading
+                    : currentStep === steps.length
+                      ? dict.common.save
+                      : dict.common.next}
                 </Button>
               </DialogActions>
             </Dialog>

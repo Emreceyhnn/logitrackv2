@@ -20,7 +20,7 @@ import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import { useState } from "react";
 import AddFuelLogDialog from "../fuelLogDialog";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useCurrency } from "@/app/lib/hooks/useCurrency";
+import { useCurrency } from "@/app/hooks/useCurrency";
 import dayjs from "dayjs";
 
 interface FuelTabProps {
@@ -40,8 +40,14 @@ const FuelTab = ({ vehicle, onUpdate }: FuelTabProps) => {
 
   const fuelHistory = (vehicle.fuelLogs || []).slice(0, 10);
 
-  const totalFuelCost = (vehicle.fuelLogs || []).reduce((sum, log) => sum + log.cost, 0);
-  const totalVolume = (vehicle.fuelLogs || []).reduce((sum, log) => sum + log.volumeLiter, 0);
+  const totalFuelCost = (vehicle.fuelLogs || []).reduce(
+    (sum, log) => sum + log.cost,
+    0
+  );
+  const totalVolume = (vehicle.fuelLogs || []).reduce(
+    (sum, log) => sum + log.volumeLiter,
+    0
+  );
 
   return (
     <Stack spacing={2} maxHeight={750}>
@@ -55,13 +61,18 @@ const FuelTab = ({ vehicle, onUpdate }: FuelTabProps) => {
             flexDirection: "column",
             borderRadius: "8px",
             justifyContent: "space-evenly",
-            bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.03)"
+                : "rgba(0,0,0,0.02)",
             backgroundImage: "none",
             boxShadow: "none",
             border: `1px solid ${theme.palette.divider}`,
           }}
         >
-          <Typography sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>
+          <Typography
+            sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}
+          >
             {dict.fuel.fields.volume}
           </Typography>
           <Typography variant="h5" fontWeight={800}>
@@ -78,17 +89,22 @@ const FuelTab = ({ vehicle, onUpdate }: FuelTabProps) => {
             flexDirection: "column",
             borderRadius: "8px",
             justifyContent: "space-evenly",
-            bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.03)"
+                : "rgba(0,0,0,0.02)",
             backgroundImage: "none",
             boxShadow: "none",
             border: `1px solid ${theme.palette.divider}`,
           }}
         >
-          <Typography sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>
+          <Typography
+            sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}
+          >
             {dict.fuel.fields.cost}
           </Typography>
           <Typography variant="h5" fontWeight={800} color="primary.main">
-             {formatFrom(totalFuelCost, "USD")}
+            {formatFrom(totalFuelCost, "USD")}
           </Typography>
         </Card>
 
@@ -101,17 +117,25 @@ const FuelTab = ({ vehicle, onUpdate }: FuelTabProps) => {
             flexDirection: "column",
             borderRadius: "8px",
             justifyContent: "space-evenly",
-            bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.03)"
+                : "rgba(0,0,0,0.02)",
             backgroundImage: "none",
             boxShadow: "none",
             border: `1px solid ${theme.palette.divider}`,
           }}
         >
-          <Typography sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}>
+          <Typography
+            sx={{ fontSize: 14, fontWeight: 500, color: "text.secondary" }}
+          >
             {dict.vehicles.specs.avgFuelConsumption}
           </Typography>
           <Typography variant="h5" fontWeight={800}>
-            {vehicle.avgFuelConsumption || "N/A"} <Typography component="span" variant="caption">L/100km</Typography>
+            {vehicle.avgFuelConsumption || "N/A"}{" "}
+            <Typography component="span" variant="caption">
+              L/100km
+            </Typography>
           </Typography>
         </Card>
       </Stack>
@@ -130,14 +154,23 @@ const FuelTab = ({ vehicle, onUpdate }: FuelTabProps) => {
           direction="row"
           alignItems="center"
           justifyContent="space-between"
-          sx={{ p: 2, bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)" }}
+          sx={{
+            p: 2,
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.02)"
+                : "rgba(0,0,0,0.01)",
+          }}
         >
           <Stack direction="row" spacing={1.5} alignItems="center">
             <Box
               sx={{
                 p: 1,
                 borderRadius: "10px",
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "primary._alpha.main_10" : "primary._alpha.main_05",
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "primary._alpha.main_10"
+                    : "primary._alpha.main_05",
                 color: "primary.main",
                 display: "flex",
               }}
@@ -176,12 +209,24 @@ const FuelTab = ({ vehicle, onUpdate }: FuelTabProps) => {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>{dict.fuel.fields.date}</TableCell>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>{dict.fuel.fields.fuelType}</TableCell>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>{dict.fuel.fields.volume}</TableCell>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>{dict.fuel.fields.cost}</TableCell>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>{dict.fuel.fields.odometer}</TableCell>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>{dict.fuel.fields.location}</TableCell>
+                <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                  {dict.fuel.fields.date}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                  {dict.fuel.fields.fuelType}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                  {dict.fuel.fields.volume}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                  {dict.fuel.fields.cost}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                  {dict.fuel.fields.odometer}
+                </TableCell>
+                <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                  {dict.fuel.fields.location}
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -193,7 +238,9 @@ const FuelTab = ({ vehicle, onUpdate }: FuelTabProps) => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {dict.vehicles.fuelTypes[log.fuelType as keyof typeof dict.vehicles.fuelTypes] || log.fuelType}
+                        {dict.vehicles.fuelTypes[
+                          log.fuelType as keyof typeof dict.vehicles.fuelTypes
+                        ] || log.fuelType}
                       </Typography>
                     </TableCell>
                     <TableCell>{log.volumeLiter} L</TableCell>

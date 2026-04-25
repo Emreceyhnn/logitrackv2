@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Box,
   Dialog,
   DialogContent,
@@ -25,7 +24,7 @@ import {
   EditWarehousePageState,
 } from "@/app/lib/type/edit-warehouse";
 import { updateWarehouse } from "@/app/lib/controllers/warehouse";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 
 import BasicInfoSection from "./sections/BasicInfoSection";
 import LocationSection from "./sections/LocationSection";
@@ -231,16 +230,20 @@ const EditWarehouseDialog = ({
                     ? dict.warehouses.dialogs.locationTitle
                     : dict.warehouses.dialogs.capacityTitle}
               </Typography>
-              <Typography variant="body2" color="text.secondary" fontWeight={500}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                fontWeight={500}
+              >
                 {dict.common.step} {state.currentStep}:{" "}
                 {steps[state.currentStep - 1]}
               </Typography>
             </Stack>
             <IconButton
               onClick={actions.closeDialog}
-              sx={{ 
+              sx={{
                 color: "text.secondary",
-                "&:hover": { color: "text.primary", bgcolor: "action.hover" }
+                "&:hover": { color: "text.primary", bgcolor: "action.hover" },
               }}
             >
               <CloseIcon />
@@ -264,7 +267,10 @@ const EditWarehouseDialog = ({
                 fontWeight: 700,
               },
               "& .MuiStepIcon-root": {
-                color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                color:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(0,0,0,0.1)",
               },
               "& .MuiStepIcon-root.Mui-active": {
                 color: "primary.main",

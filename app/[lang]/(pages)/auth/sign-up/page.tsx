@@ -1,7 +1,11 @@
 import RegisterForm from "@/app/components/forms/signUpForm";
 import { Box } from "@mui/material";
 
-export default function SignInPage() {
+export default function SignUpPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
   return (
     <Box
       sx={{
@@ -50,7 +54,7 @@ export default function SignInPage() {
           padding: "20px",
         }}
       >
-        <RegisterForm />
+        <RegisterForm params={params} />
       </Box>
     </Box>
   );

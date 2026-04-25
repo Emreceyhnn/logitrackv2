@@ -26,7 +26,7 @@ import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getCustomers } from "@/app/lib/controllers/customer";
 import { getInventory } from "@/app/lib/controllers/inventory";
 import { getRoutes } from "@/app/lib/controllers/routes";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { RouteWithRelations } from "@/app/lib/type/routes";
@@ -55,7 +55,9 @@ interface FormikInventorySyncProps {
   onWarehouseChange: (id: string) => void;
 }
 
-const FormikInventorySync = ({ onWarehouseChange }: FormikInventorySyncProps) => {
+const FormikInventorySync = ({
+  onWarehouseChange,
+}: FormikInventorySyncProps) => {
   const { values } = useFormikContext<ShipmentFormValues>();
   const lastFetchedId = useRef<string | null>(null);
 
@@ -176,8 +178,9 @@ const EditShipmentDialog = ({
         (shipment.priority as ShipmentPriority) || ShipmentPriority.MEDIUM,
       type: shipment.type || "Standard Freight",
       slaDeadline: shipment.slaDeadline ? new Date(shipment.slaDeadline) : null,
-      originWarehouseId: shipment.originWarehouseId || 
-        (warehouses.find(w => w.name === shipment.origin)?.id) || 
+      originWarehouseId:
+        shipment.originWarehouseId ||
+        warehouses.find((w) => w.name === shipment.origin)?.id ||
         "",
       originLat: shipment.originLat ?? undefined,
       originLng: shipment.originLng ?? undefined,
@@ -351,10 +354,18 @@ const EditShipmentDialog = ({
                         <EditIcon />
                       </Box>
                       <Stack spacing={0.5}>
-                        <Typography variant="h6" fontWeight={800} color="text.primary">
+                        <Typography
+                          variant="h6"
+                          fontWeight={800}
+                          color="text.primary"
+                        >
                           {dict.shipments.dialogs.editTitle}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          fontWeight={500}
+                        >
                           {dict.shipments.dialogs.editSubtitle}{" "}
                           {shipment.trackingId}
                         </Typography>
@@ -384,7 +395,10 @@ const EditShipmentDialog = ({
                         fontWeight: 700,
                       },
                       "& .MuiStepIcon-root": {
-                        color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                        color:
+                          theme.palette.mode === "dark"
+                            ? "rgba(255,255,255,0.1)"
+                            : "rgba(0,0,0,0.1)",
                       },
                       "& .MuiStepIcon-root.Mui-active": {
                         color: theme.palette.primary.main,

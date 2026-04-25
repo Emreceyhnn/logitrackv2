@@ -12,9 +12,7 @@ import {
   ListItem,
   Stack,
   Button,
-  useTheme,
   Tooltip,
-  Theme,
 } from "@mui/material";
 import {
   Notifications as NotifIcon,
@@ -25,39 +23,16 @@ import {
 } from "@mui/icons-material";
 import { getUserSession } from "@/app/lib/actions/auth";
 import { useNotifications } from "@/app/hooks/useNotifications";
-import { NotificationType } from "@/app/lib/notifications";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
+import { getStatusColor, resolveStatusAlpha } from "@/app/lib/priorityColor";
 
-const getStatusColor = (theme: Theme, t: NotificationType) => {
-  switch (t) {
-    case "SUCCESS":
-      return theme.palette.success.main;
-    case "WARNING":
-      return theme.palette.warning.main;
-    case "ERROR":
-      return theme.palette.error.main;
-    default:
-      return theme.palette.info.main;
-  }
-};
-
-const resolveStatusAlpha = (theme: Theme, t: NotificationType) => {
-  switch (t) {
-    case "SUCCESS":
-      return theme.palette.success._alpha;
-    case "WARNING":
-      return theme.palette.warning._alpha;
-    case "ERROR":
-      return theme.palette.error._alpha;
-    default:
-      return theme.palette.info._alpha;
-  }
-};
-
-export default function NotificationBell({ user: initialUser }: { user: AuthenticatedUser | null }) {
+export default function NotificationBell({
+  user: initialUser,
+}: {
+  user: AuthenticatedUser | null;
+}) {
   const dict = useDictionary();
-  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [user, setUser] = useState<AuthenticatedUser | null>(initialUser);
 
@@ -69,7 +44,7 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
         try {
           const session = await getUserSession();
           if (session) {
-              setUser(session);
+            setUser(session);
           }
         } catch (err) {
           console.error("Session fetch failed for bell:", err);
@@ -103,17 +78,22 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
           onClick={handleOpen}
           sx={{
             color:
-              unreadCount > 0 ? theme.palette.primary.main : theme.palette.text.secondary,
-            bgcolor: unreadCount > 0 
-              ? theme.palette.primary._alpha.main_05 
-              : theme.palette.action.hover,
-            border: `1px solid ${unreadCount > 0 
-              ? theme.palette.primary._alpha.main_10 
-              : theme.palette.divider}`,
+              unreadCount > 0
+                ? "theme.palette.primary.main"
+                : "theme.palette.text.secondary",
+            bgcolor:
+              unreadCount > 0
+                ? "theme.palette.primary._alpha.main_05"
+                : "theme.palette.action.hover",
+            border: `1px solid ${
+              unreadCount > 0
+                ? "theme.palette.primary._alpha.main_10"
+                : "theme.palette.divider"
+            }`,
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             "&:hover": {
-              bgcolor: theme.palette.primary._alpha.main_10,
-              borderColor: theme.palette.primary._alpha.main_30,
+              bgcolor: "theme.palette.primary._alpha.main_10",
+              borderColor: "theme.palette.primary._alpha.main_30",
               transform: "translateY(-1px)",
             },
           }}
@@ -156,12 +136,13 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
             maxHeight: 520,
             borderRadius: 4,
             overflow: "hidden",
-            bgcolor: theme.palette.background.paper,
+            bgcolor: "theme.palette.background.paper",
             backdropFilter: "blur(20px)",
-            border: `1px solid ${theme.palette.divider}`,
-            boxShadow: theme.palette.mode === "dark" 
-              ? "0 25px 50px -12px rgba(0, 0, 0, 0.6)"
-              : "0 25px 50px -12px rgba(0, 0, 0, 0.1)",
+            border: "1px solid theme.palette.divider",
+            boxShadow:
+              "theme.palette.mode === 'dark'" +
+              " ? '0 25px 50px -12px rgba(0, 0, 0, 0.6)'" +
+              " : '0 25px 50px -12px rgba(0, 0, 0, 0.1)'",
             display: "flex",
             flexDirection: "column",
           },
@@ -191,9 +172,9 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
               sx={{
                 textTransform: "none",
                 fontWeight: 700,
-                color: theme.palette.primary.main,
+                color: "theme.palette.primary.main",
                 fontSize: "0.75rem",
-                "&:hover": { bgcolor: theme.palette.primary._alpha.main_10 },
+                "&:hover": { bgcolor: "theme.palette.primary._alpha.main_10" },
               }}
             >
               {dict.notifications.catchUp}
@@ -201,7 +182,7 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
           )}
         </Box>
 
-        <Divider sx={{ borderColor: theme.palette.divider }} />
+        <Divider sx={{ borderColor: "theme.palette.divider" }} />
 
         <Box sx={{ flex: 1, overflowY: "auto", px: 1.5, py: 1 }}>
           {loading ? (
@@ -228,14 +209,16 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
                     borderRadius: 3,
                     transition: "all 0.2s",
                     position: "relative",
-                    bgcolor: notif.isRead ? "transparent" : theme.palette.action.hover,
+                    bgcolor: notif.isRead
+                      ? "transparent"
+                      : "theme.palette.action.hover",
                     border: "1px solid",
                     borderColor: notif.isRead
                       ? "transparent"
-                      : theme.palette.divider,
+                      : "theme.palette.divider",
                     "&:hover": {
-                      bgcolor: theme.palette.action.hover,
-                      borderColor: resolveStatusAlpha(theme, notif.type).main_30,
+                      bgcolor: "theme.palette.action.hover",
+                      borderColor: resolveStatusAlpha(notif.type),
                     },
                   }}
                 >
@@ -246,7 +229,7 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
                       borderRadius: 1,
                       position: "absolute",
                       left: 6,
-                      bgcolor: getStatusColor(theme, notif.type),
+                      bgcolor: getStatusColor(notif.type),
                       opacity: notif.isRead ? 0.3 : 1,
                     }}
                   />
@@ -275,7 +258,7 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
                           <IconButton
                             size="small"
                             onClick={() => markAsRead(notif)}
-                            sx={{ color: theme.palette.primary.main, p: 0.5 }}
+                            sx={{ color: "theme.palette.primary.main", p: 0.5 }}
                           >
                             <ReadIcon sx={{ fontSize: 16 }} />
                           </IconButton>
@@ -284,12 +267,12 @@ export default function NotificationBell({ user: initialUser }: { user: Authenti
                           size="small"
                           onClick={() => deleteNotification(notif)}
                           sx={{
-                            color: theme.palette.text.secondary,
+                            color: "theme.palette.text.secondary",
                             opacity: 0.3,
                             p: 0.5,
-                            "&:hover": { 
-                              color: theme.palette.error.main,
-                              opacity: 1
+                            "&:hover": {
+                              color: "theme.palette.error.main",
+                              opacity: 1,
                             },
                           }}
                         >

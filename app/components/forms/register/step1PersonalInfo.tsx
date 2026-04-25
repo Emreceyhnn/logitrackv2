@@ -1,10 +1,14 @@
+"use client";
+
 import { Box, Stack, Typography } from "@mui/material";
 import { Field, FieldProps } from "formik";
 import { StyledTextFieldAuth } from "@/app/lib/styled/styledFieldBox";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function Step1PersonalInfo() {
+  /* -------------------------------- VARIABLES ------------------------------- */
   const dict = useDictionary();
+
   return (
     <Stack spacing={3}>
       <Box>

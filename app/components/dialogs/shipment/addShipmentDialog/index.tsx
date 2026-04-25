@@ -26,7 +26,7 @@ import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getCustomers } from "@/app/lib/controllers/customer";
 import { getInventory } from "@/app/lib/controllers/inventory";
 import { getRoutes } from "@/app/lib/controllers/routes";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
@@ -263,12 +263,20 @@ const AddShipmentDialog = ({
                     sx={{ mb: 3 }}
                   >
                     <Stack spacing={0.5}>
-                      <Typography variant="h6" fontWeight={800} color="text.primary">
+                      <Typography
+                        variant="h6"
+                        fontWeight={800}
+                        color="text.primary"
+                      >
                         {currentStep === 1
                           ? dict.shipments.dialogs.addTitle
                           : dict.shipments.dialogs.cargoTitle}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        fontWeight={500}
+                      >
                         {dict.shipments.dialogs.addSubtitle}
                       </Typography>
                     </Stack>
@@ -296,7 +304,10 @@ const AddShipmentDialog = ({
                         fontWeight: 700,
                       },
                       "& .MuiStepIcon-root": {
-                        color: theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                        color:
+                          theme.palette.mode === "dark"
+                            ? "rgba(255,255,255,0.1)"
+                            : "rgba(0,0,0,0.1)",
                       },
                       "& .MuiStepIcon-root.Mui-active": {
                         color: "primary.main",
@@ -362,41 +373,43 @@ const AddShipmentDialog = ({
                     onClick={
                       currentStep === 1 ? closeDialog : () => setCurrentStep(1)
                     }
-                    sx={{ 
-                      color: "text.secondary", 
+                    sx={{
+                      color: "text.secondary",
                       textTransform: "none",
                       fontWeight: 600,
                       px: 2,
                       "&:hover": {
                         color: "text.primary",
                         bgcolor: theme.palette.action.hover,
-                      }
+                      },
                     }}
                   >
                     {currentStep === 1 ? dict.common.cancel : dict.common.back}
                   </Button>
-                  
+
                   <Stack direction="row" spacing={2}>
                     <Button
                       variant="contained"
                       disabled={isLoading}
                       onClick={
-                        currentStep === 1 ? handleNextStep : () => handleSubmit()
+                        currentStep === 1
+                          ? handleNextStep
+                          : () => handleSubmit()
                       }
                       sx={{
                         minWidth: 140,
                         borderRadius: 2,
                         textTransform: "none",
                         fontWeight: 700,
-                        letterSpacing: '0.5px',
+                        letterSpacing: "0.5px",
                         boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
                         "&:hover": {
                           boxShadow: `0 12px 32px ${theme.palette.primary._alpha.main_40}`,
-                          transform: 'translateY(-1px)',
+                          transform: "translateY(-1px)",
                         },
                         "&:active": {
-                          transform: 'translateY(0)',
-                        }
+                          transform: "translateY(0)",
+                        },
                       }}
                       startIcon={
                         isLoading && (

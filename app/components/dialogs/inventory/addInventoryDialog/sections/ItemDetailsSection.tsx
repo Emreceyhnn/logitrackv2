@@ -1,7 +1,7 @@
 "use client";
 
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useCurrency } from "@/app/lib/hooks/useCurrency";
+import { useCurrency } from "@/app/hooks/useCurrency";
 import { useMemo, useState } from "react";
 import {
   Box,
@@ -11,7 +11,6 @@ import {
   MenuItem,
   Grid,
   IconButton,
-  
 } from "@mui/material";
 import { AddInventoryItemDetails } from "@/app/lib/type/add-inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
@@ -32,24 +31,45 @@ const ItemDetailsSection = ({
   const theme = useTheme();
   const { symbol } = useCurrency();
 
-  const CATEGORIES = useMemo(() => [
-    { value: "Electronics", label: dict.inventory.categories.electronics },
-    { value: "Machinery", label: dict.inventory.categories.machinery },
-    { value: "Spare Parts", label: dict.inventory.categories.spareParts },
-    { value: "Raw Materials", label: dict.inventory.categories.rawMaterials },
-    { value: "Finished Goods", label: dict.inventory.categories.finishedGoods },
-    { value: "Packaging", label: dict.inventory.categories.packaging },
-    { value: "Office Supplies", label: dict.inventory.categories.officeSupplies },
-    { value: "Others", label: dict.inventory.categories.others },
-  ], [dict]);
+  const CATEGORIES = useMemo(
+    () => [
+      { value: "Electronics", label: dict.inventory.categories.electronics },
+      { value: "Machinery", label: dict.inventory.categories.machinery },
+      { value: "Spare Parts", label: dict.inventory.categories.spareParts },
+      { value: "Raw Materials", label: dict.inventory.categories.rawMaterials },
+      {
+        value: "Finished Goods",
+        label: dict.inventory.categories.finishedGoods,
+      },
+      { value: "Packaging", label: dict.inventory.categories.packaging },
+      {
+        value: "Office Supplies",
+        label: dict.inventory.categories.officeSupplies,
+      },
+      { value: "Others", label: dict.inventory.categories.others },
+    ],
+    [dict]
+  );
 
   /* ---------------------------------- state --------------------------------- */
-  const [localUnitValue, setLocalUnitValue] = useState(state.unitValue === 0 ? "" : state.unitValue?.toString() || "");
-  const [localWeight, setLocalWeight] = useState(state.weightKg === 0 ? "" : state.weightKg?.toString() || "");
-  const [localVolume, setLocalVolume] = useState(state.volumeM3 === 0 ? "" : state.volumeM3?.toString() || "");
-  const [localPalletCount, setLocalPalletCount] = useState(state.palletCount === 0 ? "" : state.palletCount?.toString() || "");
+  const [localUnitValue, setLocalUnitValue] = useState(
+    state.unitValue === 0 ? "" : state.unitValue?.toString() || ""
+  );
+  const [localWeight, setLocalWeight] = useState(
+    state.weightKg === 0 ? "" : state.weightKg?.toString() || ""
+  );
+  const [localVolume, setLocalVolume] = useState(
+    state.volumeM3 === 0 ? "" : state.volumeM3?.toString() || ""
+  );
+  const [localPalletCount, setLocalPalletCount] = useState(
+    state.palletCount === 0 ? "" : state.palletCount?.toString() || ""
+  );
 
-  const handleNumChange = (field: keyof AddInventoryItemDetails, val: string, setLocal: (v: string) => void) => {
+  const handleNumChange = (
+    field: keyof AddInventoryItemDetails,
+    val: string,
+    setLocal: (v: string) => void
+  ) => {
     setLocal(val);
     const parsed = parseFloat(val);
     updateItemDetails({ [field]: isNaN(parsed) ? 0 : parsed });
@@ -141,9 +161,19 @@ const ItemDetailsSection = ({
                   type="number"
                   placeholder="0.00"
                   value={localUnitValue}
-                  onChange={(e) => handleNumChange("unitValue", e.target.value, setLocalUnitValue)}
+                  onChange={(e) =>
+                    handleNumChange(
+                      "unitValue",
+                      e.target.value,
+                      setLocalUnitValue
+                    )
+                  }
                 >
-                  <Typography sx={{ color: "text.secondary", fontSize: "0.9rem", ml: 1 }}>{symbol}</Typography>
+                  <Typography
+                    sx={{ color: "text.secondary", fontSize: "0.9rem", ml: 1 }}
+                  >
+                    {symbol}
+                  </Typography>
                 </CustomTextArea>
               </Stack>
             </Grid>
@@ -161,7 +191,9 @@ const ItemDetailsSection = ({
                   type="number"
                   placeholder="0.00"
                   value={localWeight}
-                  onChange={(e) => handleNumChange("weightKg", e.target.value, setLocalWeight)}
+                  onChange={(e) =>
+                    handleNumChange("weightKg", e.target.value, setLocalWeight)
+                  }
                 />
               </Stack>
             </Grid>
@@ -179,7 +211,9 @@ const ItemDetailsSection = ({
                   type="number"
                   placeholder="0.000"
                   value={localVolume}
-                  onChange={(e) => handleNumChange("volumeM3", e.target.value, setLocalVolume)}
+                  onChange={(e) =>
+                    handleNumChange("volumeM3", e.target.value, setLocalVolume)
+                  }
                 />
               </Stack>
             </Grid>
@@ -197,14 +231,24 @@ const ItemDetailsSection = ({
                   type="number"
                   placeholder="0.0"
                   value={localPalletCount}
-                  onChange={(e) => handleNumChange("palletCount", e.target.value, setLocalPalletCount)}
+                  onChange={(e) =>
+                    handleNumChange(
+                      "palletCount",
+                      e.target.value,
+                      setLocalPalletCount
+                    )
+                  }
                 />
               </Stack>
             </Grid>
           </Grid>
 
           <Stack spacing={1.5}>
-            <Typography variant="caption" color="text.secondary" fontWeight={600}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              fontWeight={600}
+            >
               {dict.inventory.dialogs.productImage}
             </Typography>
             <Box
@@ -228,7 +272,9 @@ const ItemDetailsSection = ({
               }}
             >
               {state.imageUrl ? (
-                <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
+                <Box
+                  sx={{ position: "relative", width: "100%", height: "100%" }}
+                >
                   <Box
                     component="img"
                     src={state.imageUrl}
@@ -287,7 +333,11 @@ const ItemDetailsSection = ({
                     }}
                   >
                     <AddPhotoAlternateIcon
-                      sx={{ fontSize: 40, color: theme.palette.common.white_alpha.main_20, mb: 1 }}
+                      sx={{
+                        fontSize: 40,
+                        color: theme.palette.common.white_alpha.main_20,
+                        mb: 1,
+                      }}
                     />
                     <Typography variant="body2" color="text.secondary">
                       {dict.inventory.dialogs.clickToUpload}

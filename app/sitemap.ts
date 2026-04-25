@@ -2,12 +2,14 @@ import { MetadataRoute } from "next";
 import { getLocalizedPath } from "@/app/lib/language/navigation";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const envUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-                (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://logitrack.emreceyhan.xyz");
-  
-  // Robust base URL calculation: remove trailing slashes and /sitemap.xml if present
+  const envUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "https://logitrack.emreceyhan.xyz");
+
   const baseUrl = envUrl.replace(/\/$/, "").replace(/\/sitemap\.xml$/, "");
-  
+
   const locales = ["en", "tr"] as const;
   const publicRoutes = ["", "features", "pricing", "about", "how-it-works"];
 
@@ -15,12 +17,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   locales.forEach((lang) => {
     publicRoutes.forEach((route) => {
-      // Get correctly localized path from our utility
       const localizedPath = getLocalizedPath(route, lang);
-      
-      // Ensure we don't have double slashes and handle root path properly
-      const cleanPath = localizedPath.startsWith("/") ? localizedPath : `/${localizedPath}`;
-      // For the root of a locale (e.g. /en or /tr), we don't want a trailing slash if route is empty
+
+      const cleanPath = localizedPath.startsWith("/")
+        ? localizedPath
+        : `/${localizedPath}`;
+
       const url = `${baseUrl}/${lang}${cleanPath === "/" ? "" : cleanPath}`;
 
       sitemapEntries.push({

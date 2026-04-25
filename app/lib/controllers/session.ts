@@ -252,7 +252,7 @@ export async function validateSession(): Promise<SessionUser | null> {
       id: session.user.id,
       companyId: session.user.companyId,
       roleId: session.user.roleId,
-      roleName: (session.user as any).role?.name || null,
+      roleName: session.user.role?.name || null,
       sessionId: session.id,
       name: session.user.name,
       surname: session.user.surname,
@@ -260,7 +260,7 @@ export async function validateSession(): Promise<SessionUser | null> {
       timezone: session.user.timezone,
       dateFormat: session.user.dateFormat,
       timeFormat: session.user.timeFormat,
-      currency: (session.user as any).currency || "USD",
+      currency: session.user.currency || "USD",
     };
   } catch (error) {
     if ((error as any)?.digest === 'DYNAMIC_SERVER_USAGE') {
@@ -399,9 +399,16 @@ export async function revokeAllUserSessions(userId: string): Promise<void> {
  * Clears auth cookies from the client.
  */
 export async function clearAuthCookies(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.delete("token");
-  cookieStore.delete("refreshToken");
+  try {
+    const cookieStore = await cookies();
+    cookieStore.delete("token");
+    cookieStore.delete("refreshToken");
+  } catch (error) {
+    console.warn(
+      "[clearAuthCookies] ⚠️ Could not delete cookies (likely called during render). This is expected if not in a Server Action/Route Handler.",
+      error
+    );
+  }
 }
 
 /**

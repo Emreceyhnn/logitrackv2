@@ -3,14 +3,11 @@ import { db as firebase, ref, set, update, onValue, off } from "./firebase";
 export interface VehicleLocation {
   lat: number;
   lng: number;
-  speed?: number; // km/h
-  heading?: number; // degrees
-  lastUpdated: number; // timestamp
+  speed?: number;
+  heading?: number;
+  lastUpdated: number;
 }
 
-/**
- * Updates a vehicle's live location in Firebase Realtime Database.
- */
 export const updateVehicleLocation = async (
   vehicleId: string,
   location: Omit<VehicleLocation, "lastUpdated">
@@ -30,9 +27,6 @@ export const updateVehicleLocation = async (
   }
 };
 
-/**
- * Updates multiple fields for a vehicle in Firebase.
- */
 export const updateVehicleData = async (
   vehicleId: string,
   data: Partial<VehicleLocation>
@@ -51,9 +45,6 @@ export const updateVehicleData = async (
   }
 };
 
-/**
- * Subscribes to a single vehicle's location.
- */
 export const subscribeToVehicleLocation = (
   vehicleId: string,
   callback: (location: VehicleLocation | null) => void
@@ -68,9 +59,6 @@ export const subscribeToVehicleLocation = (
   return () => off(vehicleRef);
 };
 
-/**
- * Subscribes to all vehicle locations.
- */
 export const subscribeToAllVehicles = (
   callback: (locations: Record<string, VehicleLocation>) => void
 ) => {
@@ -83,9 +71,7 @@ export const subscribeToAllVehicles = (
 
   return () => off(vehiclesRef);
 };
-/**
- * Syncs the entire vehicle record to Firebase.
- */
+
 export const syncVehicleToFirebase = async (vehicle: any) => {
   try {
     const path = `vehicles/registry/${vehicle.id}`;
@@ -96,7 +82,7 @@ export const syncVehicleToFirebase = async (vehicle: any) => {
     return { success: true };
   } catch (error) {
     console.error(`Failed to sync vehicle ${vehicle.id} to Firebase:`, error);
-    // We don't throw here to avoid breaking the main flow
+
     return { success: false, error };
   }
 };

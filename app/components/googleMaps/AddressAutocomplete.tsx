@@ -35,15 +35,20 @@ export const AddressAutocomplete = ({
   helperText,
   onBlur,
 }: AddressAutocompleteProps) => {
+  /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
+
+  /* --------------------------------- STATES --------------------------------- */
   const [address, setAddress] = useState(value);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
+  /* -------------------------------- LIFECYCLE ------------------------------- */
   useEffect(() => {
     setAddress(value);
   }, [value]);
 
+  /* --------------------------------- ACTIONS -------------------------------- */
   const onLoad = (autocomplete: google.maps.places.Autocomplete) => {
     autocompleteRef.current = autocomplete;
   };
@@ -64,6 +69,7 @@ export const AddressAutocomplete = ({
     }
   };
 
+  /* --------------------------------- STYLES --------------------------------- */
   const textFieldStyles = {
     "& .MuiOutlinedInput-root": {
       backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
@@ -90,6 +96,7 @@ export const AddressAutocomplete = ({
     },
   };
 
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddress(e.target.value);
     if (onChange) onChange(e);

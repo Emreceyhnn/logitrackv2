@@ -3,11 +3,14 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Typography } from "@mui/material";
 import DataTable from "@/app/components/ui/DataTable";
-import type { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTable";
+import type {
+  DataTableColumn,
+  DataTableRowAction,
+} from "@/app/lib/type/dataTable";
 import RouteDetailsDialog from "@/app/components/dialogs/routes";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { RouteTableProps, RouteWithRelations } from "@/app/lib/type/routes";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import { formatDisplayDateTime } from "@/app/lib/utils/date";
 
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
@@ -39,15 +42,20 @@ const RouteTable = ({
 }: ExtendedRouteTableProps) => {
   const dict = useDictionary();
   const { user } = useUser();
-  const dateSettings = useMemo(() => ({
-    timezone: user?.timezone || "UTC",
-    dateFormat: user?.dateFormat || "DD/MM/YYYY",
-    timeFormat: user?.timeFormat || "24h",
-  }), [user]);
+  const dateSettings = useMemo(
+    () => ({
+      timezone: user?.timezone || "UTC",
+      dateFormat: user?.dateFormat || "DD/MM/YYYY",
+      timeFormat: user?.timeFormat || "24h",
+    }),
+    [user]
+  );
 
   /* --------------------------------- states --------------------------------- */
   const [openDetails, setOpenDetails] = useState(false);
-  const [selectedRoute, setSelectedRoute] = useState<RouteWithRelations | null>(null);
+  const [selectedRoute, setSelectedRoute] = useState<RouteWithRelations | null>(
+    null
+  );
 
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -56,7 +64,12 @@ const RouteTable = ({
   const [localLimit, setLocalLimit] = useState(10);
 
   const meta = useMemo(() => {
-    if (pagination) return { page: pagination.page, limit: pagination.pageSize, total: pagination.total };
+    if (pagination)
+      return {
+        page: pagination.page,
+        limit: pagination.pageSize,
+        total: pagination.total,
+      };
     return { page: localPage, limit: localLimit, total: routes.length };
   }, [pagination, localPage, localLimit, routes.length]);
 
@@ -80,81 +93,99 @@ const RouteTable = ({
     if (onSelect) onSelect("");
   }, [onSelect]);
 
-  const handleOpenDetails = useCallback((id: string) => {
-    const route = routes.find((v) => v.id === id);
-    if (!route) return;
-    setSelectedRoute(route);
-    setOpenDetails(true);
-    if (onSelect) onSelect(id);
-  }, [routes, onSelect]);
+  const handleOpenDetails = useCallback(
+    (id: string) => {
+      const route = routes.find((v) => v.id === id);
+      if (!route) return;
+      setSelectedRoute(route);
+      setOpenDetails(true);
+      if (onSelect) onSelect(id);
+    },
+    [routes, onSelect]
+  );
 
-  const handleChangePage = useCallback((newPage: number) => {
-    if (onPageChange) onPageChange(newPage);
-    else setLocalPage(newPage);
-  }, [onPageChange]);
-  
-  const handleLimitChange = useCallback((newLimit: number) => {
-    // There is no onLimitChange passed down in ExtendedRouteTableProps currently, handle locally
-    setLocalLimit(newLimit);
-    if (!onPageChange) setLocalPage(1);
-  }, [onPageChange]);
+  const handleChangePage = useCallback(
+    (newPage: number) => {
+      if (onPageChange) onPageChange(newPage);
+      else setLocalPage(newPage);
+    },
+    [onPageChange]
+  );
 
-  const handleStatusChange = useCallback(async (id: string, newStatus: RouteStatus) => {
-    setActionLoading(id);
-    try {
-      await updateRouteStatus(id, newStatus);
-      const statusLabel = getStatusMeta(newStatus, dict).label || "";
-      const successMsg = dict.routes.toasts.updateSuccess || "Route updated to {status}";
-      toast.success(successMsg.replace("{status}", statusLabel));
-      onRefresh?.();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : dict.routes.toasts.updateError;
-      toast.error(message);
-    } finally {
-      setActionLoading(null);
-    }
-  }, [onRefresh, dict]);
+  const handleLimitChange = useCallback(
+    (newLimit: number) => {
+      // There is no onLimitChange passed down in ExtendedRouteTableProps currently, handle locally
+      setLocalLimit(newLimit);
+      if (!onPageChange) setLocalPage(1);
+    },
+    [onPageChange]
+  );
 
-  const columns: DataTableColumn<RouteWithRelations>[] = useMemo(() => [
-    {
-      key: "routeId",
-      label: dict.routes.table.columns.routeId,
-      render: (row) => (
-        <Typography variant="body2" fontWeight={600}>
-          {row.name || row.id}
-        </Typography>
-      ),
+  const handleStatusChange = useCallback(
+    async (id: string, newStatus: RouteStatus) => {
+      setActionLoading(id);
+      try {
+        await updateRouteStatus(id, newStatus);
+        const statusLabel = getStatusMeta(newStatus, dict).label || "";
+        const successMsg =
+          dict.routes.toasts.updateSuccess || "Route updated to {status}";
+        toast.success(successMsg.replace("{status}", statusLabel));
+        onRefresh?.();
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : dict.routes.toasts.updateError;
+        toast.error(message);
+      } finally {
+        setActionLoading(null);
+      }
     },
-    {
-      key: "vehiclePlate",
-      label: dict.routes.table.columns.vehiclePlate,
-      render: (row) => row.vehicle?.plate || dict.common.unassigned,
-    },
-    {
-      key: "origin",
-      label: dict.routes.table.columns.origin,
-      render: (row) => row.startAddress || dict.common.na,
-    },
-    {
-      key: "destination",
-      label: dict.routes.table.columns.destination,
-      render: (row) => row.endAddress || dict.common.na,
-    },
-    {
-      key: "eta",
-      label: dict.routes.table.columns.eta,
-      render: (row) => (
-        row.endTime
-          ? formatDisplayDateTime(row.endTime, dateSettings)
-          : dict.common.na
-      ),
-    },
-    {
-      key: "status",
-      label: dict.routes.table.columns.status,
-      render: (row) => <StatusChip status={row.status} />,
-    },
-  ], [dict]);
+    [onRefresh, dict]
+  );
+
+  const columns: DataTableColumn<RouteWithRelations>[] = useMemo(
+    () => [
+      {
+        key: "routeId",
+        label: dict.routes.table.columns.routeId,
+        render: (row) => (
+          <Typography variant="body2" fontWeight={600}>
+            {row.name || row.id}
+          </Typography>
+        ),
+      },
+      {
+        key: "vehiclePlate",
+        label: dict.routes.table.columns.vehiclePlate,
+        render: (row) => row.vehicle?.plate || dict.common.unassigned,
+      },
+      {
+        key: "origin",
+        label: dict.routes.table.columns.origin,
+        render: (row) => row.startAddress || dict.common.na,
+      },
+      {
+        key: "destination",
+        label: dict.routes.table.columns.destination,
+        render: (row) => row.endAddress || dict.common.na,
+      },
+      {
+        key: "eta",
+        label: dict.routes.table.columns.eta,
+        render: (row) =>
+          row.endTime
+            ? formatDisplayDateTime(row.endTime, dateSettings)
+            : dict.common.na,
+      },
+      {
+        key: "status",
+        label: dict.routes.table.columns.status,
+        render: (row) => <StatusChip status={row.status} />,
+      },
+    ],
+    [dict]
+  );
 
   const rowActions: DataTableRowAction<RouteWithRelations>[] = useMemo(() => {
     const actions: DataTableRowAction<RouteWithRelations>[] = [
@@ -211,7 +242,7 @@ const RouteTable = ({
         wrapCard={true}
         tableTitle={dict.routes.table.title}
       />
-      
+
       <RouteDetailsDialog
         open={openDetails}
         onClose={handleCloseDetails}

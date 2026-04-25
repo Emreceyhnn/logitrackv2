@@ -1,6 +1,6 @@
 import { useJsApiLoader, Libraries } from "@react-google-maps/api";
 import React from "react";
-import { Box, CircularProgress, Typography,  useTheme } from "@mui/material";
+import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
@@ -11,8 +11,11 @@ interface GoogleMapsProviderProps {
 }
 
 export const GoogleMapsProvider = ({ children }: GoogleMapsProviderProps) => {
+  /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
+
+  /* --------------------------------- STATES --------------------------------- */
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
     libraries,
@@ -56,7 +59,11 @@ export const GoogleMapsProvider = ({ children }: GoogleMapsProviderProps) => {
           gap: 2,
         }}
       >
-        <CircularProgress size={32} thickness={5} sx={{ color: theme.palette.primary.main }} />
+        <CircularProgress
+          size={32}
+          thickness={5}
+          sx={{ color: theme.palette.primary.main }}
+        />
         <Typography variant="caption" color="text.secondary" fontWeight={600}>
           {dict.maps.initializing}
         </Typography>

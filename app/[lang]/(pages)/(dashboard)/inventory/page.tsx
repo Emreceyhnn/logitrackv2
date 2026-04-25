@@ -26,8 +26,7 @@ import {
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import KpiCards from "@/app/components/cards/KpiCards";
-import { useCurrency } from "@/app/lib/hooks/useCurrency";
-
+import { useCurrency } from "@/app/hooks/useCurrency";
 
 export default function InventoryPage() {
   const dict = useDictionary();
@@ -45,7 +44,6 @@ function InventoryContent() {
   const params = useParams();
   const lang = (params?.lang as string) || "en";
   const { format, isLoading: currencyLoading } = useCurrency();
-
 
   /* ---------------------------------- STATE --------------------------------- */
   const [filters, setFilters] = useState({
@@ -202,7 +200,6 @@ function InventoryContent() {
       },
     ],
     [stats, theme, dict, format, currencyLoading]
-
   );
 
   return (

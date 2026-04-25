@@ -7,18 +7,22 @@ import {
   MenuItem,
   ListItemText,
   Typography,
-  
   useTheme,
 } from "@mui/material";
 import LanguageIcon from "@mui/icons-material/Language";
 import CheckIcon from "@mui/icons-material/Check";
 import { useRouter, usePathname, useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { getLocalizedPath, getCanonicalPath } from "@/app/lib/language/navigation";
+import {
+  getLocalizedPath,
+  getCanonicalPath,
+} from "@/app/lib/language/navigation";
 
 const LanguageSwitcher = () => {
+  /* --------------------------------- STATES --------------------------------- */
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
   const router = useRouter();
   const pathname = usePathname();
@@ -31,6 +35,7 @@ const LanguageSwitcher = () => {
     { code: "en", label: dict.languages.en, flag: "🇺🇸" },
   ];
 
+  /* -------------------------------- HANDLERS -------------------------------- */
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -44,10 +49,10 @@ const LanguageSwitcher = () => {
 
     const segments = pathname.split("/");
     const pathWithoutLang = segments.slice(2).join("/"); // skip empty and lang
-    
+
     // 1. Get canonical path (English-like) from current localized path
     const canonical = getCanonicalPath(pathWithoutLang, currentLang);
-    
+
     // 2. Get localized path for target language
     const localized = getLocalizedPath(canonical, lang);
 

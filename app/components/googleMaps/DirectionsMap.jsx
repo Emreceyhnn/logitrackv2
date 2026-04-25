@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   GoogleMap,
   DirectionsRenderer,
@@ -9,16 +9,14 @@ import {
 } from "@react-google-maps/api";
 import { useDictionary } from "../../lib/language/DictionaryContext";
 
+/* --------------------------------- STYLES --------------------------------- */
 const containerStyle = {
   width: "100%",
   height: "400px",
   borderRadius: "12px",
 };
 
-/**
- * Custom vehicle marker overlay rendered as a DOM element.
- * Shows a truck emoji pin + plate label.
- */
+/* ------------------------------- MARKER COMPONENT ------------------------------- */
 const VehicleMarker = ({ position, name }) => {
   return (
     <OverlayView
@@ -102,21 +100,21 @@ export const DirectionsMap = ({
   vehicleLocation,
   onRouteInfoUpdate,
 }) => {
+  /* -------------------------------- VARIABLES ------------------------------- */
   const dict = useDictionary();
+
+  /* --------------------------------- STATES --------------------------------- */
   const [response, setResponse] = useState(null);
   const [errorCount, setErrorCount] = useState(0);
   const [isRequesting, setIsRequesting] = useState(false);
-
-  // Use ref to track the last requested route to prevent redundant calls
   const lastRequestRef = useRef({ originKey: "", destinationKey: "" });
 
+  /* -------------------------------- LIFECYCLE ------------------------------- */
   useEffect(() => {
-    // Check if we have both origin and destination
     if (!origin || !destination) {
       return;
     }
 
-    // Helper to get a stable key from the origin/destination inputs
     const getKey = (p) => {
       if (typeof p === "string") return p;
       if (p?.lat && p?.lng) return `${p.lat},${p.lng}`;
@@ -126,12 +124,10 @@ export const DirectionsMap = ({
     const originKey = getKey(origin);
     const destinationKey = getKey(destination);
 
-    // Only proceed if both keys are valid
     if (!originKey || !destinationKey) {
       return;
     }
 
-    // Skip if we already requested this exact route
     if (
       lastRequestRef.current.originKey === originKey &&
       lastRequestRef.current.destinationKey === destinationKey
@@ -185,12 +181,11 @@ export const DirectionsMap = ({
   }, [origin, destination, onRouteInfoUpdate]);
 
   const mapCenter = useMemo(() => {
-    // If we have a vehicle location, prefer centering on it
     if (vehicleLocation?.lat && vehicleLocation?.lng) {
       return { lat: vehicleLocation.lat, lng: vehicleLocation.lng };
     }
     if (origin?.lat && origin?.lng) return origin;
-    return { lat: 41.0082, lng: 28.9784 }; // Default to Istanbul
+    return { lat: 41.0082, lng: 28.9784 };
   }, [origin, vehicleLocation]);
 
   const mapOptions = useMemo(
@@ -207,7 +202,6 @@ export const DirectionsMap = ({
   const rendererOptions = useMemo(
     () => ({
       directions: response,
-      // Suppress default A/B markers so our vehicle marker is visible cleanly
       suppressMarkers: false,
     }),
     [response]
@@ -229,7 +223,6 @@ export const DirectionsMap = ({
         zoom={12}
         options={mapOptions}
       >
-        {/* Origin / Destination markers — only shown while route not yet calculated */}
         {!response && origin && (
           <Marker
             position={typeof origin === "string" ? null : origin}
@@ -243,10 +236,8 @@ export const DirectionsMap = ({
           />
         )}
 
-        {/* Directions polyline */}
         {response && <DirectionsRenderer options={rendererOptions} />}
 
-        {/* Vehicle marker — always visible when location data is available */}
         {vehicleLocation?.lat && vehicleLocation?.lng && (
           <VehicleMarker
             position={{ lat: vehicleLocation.lat, lng: vehicleLocation.lng }}

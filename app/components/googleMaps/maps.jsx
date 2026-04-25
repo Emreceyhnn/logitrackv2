@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+"use client";
+
+import { useState } from "react";
 import { GoogleMapsProvider } from "./GoogleMapsProvider";
 import { AddressAutocomplete } from "./AddressAutocomplete";
 import { MapWithMarker } from "./MapWithMarker";
@@ -11,9 +13,8 @@ const GoogleMapDemo = () => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [pickedLocation, setPickedLocation] = useState(null);
 
-  // Directions state
-  const origin = { lat: 41.0082, lng: 28.9784 }; // Istanbul
-  const destination = { lat: 41.0591, lng: 29.0125 }; // Besiktas
+  const origin = { lat: 41.0082, lng: 28.9784 };
+  const destination = { lat: 41.0591, lng: 29.0125 };
 
   return (
     <GoogleMapsProvider>
@@ -23,13 +24,10 @@ const GoogleMapDemo = () => {
             <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
               {dict.maps.demo.title}
             </h1>
-            <p className="text-gray-500">
-              {dict.maps.demo.subtitle}
-            </p>
+            <p className="text-gray-500">{dict.maps.demo.subtitle}</p>
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* 1. Address Autocomplete & Marker */}
             <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
               <div className="space-y-1">
                 <h2 className="text-xl font-bold text-gray-800">
@@ -42,8 +40,8 @@ const GoogleMapDemo = () => {
               <AddressAutocomplete onAddressSelect={setSelectedAddress} />
               {selectedAddress && (
                 <div className="p-3 bg-green-50 rounded-lg text-xs font-mono text-green-700">
-                  {dict.maps.demo.lat}: {selectedAddress.lat.toFixed(6)}, {dict.maps.demo.lng}:{" "}
-                  {selectedAddress.lng.toFixed(6)}
+                  {dict.maps.demo.lat}: {selectedAddress.lat.toFixed(6)},{" "}
+                  {dict.maps.demo.lng}: {selectedAddress.lng.toFixed(6)}
                   <br />
                   {dict.maps.demo.address}: {selectedAddress.formattedAddress}
                 </div>
@@ -70,7 +68,6 @@ const GoogleMapDemo = () => {
               />
             </section>
 
-            {/* 2. Map Picker */}
             <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
               <div className="space-y-1">
                 <h2 className="text-xl font-bold text-gray-800">
@@ -89,7 +86,6 @@ const GoogleMapDemo = () => {
               )}
             </section>
 
-            {/* 3. Directions Map */}
             <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6 md:col-span-2">
               <div className="space-y-1">
                 <h2 className="text-xl font-bold text-gray-800">

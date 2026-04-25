@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Box,
   Grid,
   Stack,
@@ -15,7 +14,7 @@ import { AddInventoryStorageLevels } from "@/app/lib/type/add-inventory";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { Warehouse } from "@/app/lib/type/enums";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
-import { useUser } from "@/app/lib/hooks/useUser";
+import { useUser } from "@/app/hooks/useUser";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 interface StorageLevelsSectionProps {
@@ -34,12 +33,20 @@ const StorageLevelsSection = ({
 
   /* ---------------------------------- state --------------------------------- */
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  
-  // Local string state for smooth numeric input (handles decimals/empty better)
-  const [localQuantity, setLocalQuantity] = useState(state.initialQuantity === 0 ? "" : state.initialQuantity.toString());
-  const [localMinStock, setLocalMinStock] = useState(state.minStockLevel === 0 ? "" : state.minStockLevel.toString());
 
-  const handleNumChange = (field: keyof AddInventoryStorageLevels, val: string, setLocal: (v: string) => void) => {
+  // Local string state for smooth numeric input (handles decimals/empty better)
+  const [localQuantity, setLocalQuantity] = useState(
+    state.initialQuantity === 0 ? "" : state.initialQuantity.toString()
+  );
+  const [localMinStock, setLocalMinStock] = useState(
+    state.minStockLevel === 0 ? "" : state.minStockLevel.toString()
+  );
+
+  const handleNumChange = (
+    field: keyof AddInventoryStorageLevels,
+    val: string,
+    setLocal: (v: string) => void
+  ) => {
     setLocal(val);
     const parsed = parseInt(val);
     updateStorageLevels({ [field]: isNaN(parsed) ? 0 : parsed });
@@ -133,7 +140,13 @@ const StorageLevelsSection = ({
                     type="number"
                     placeholder="0"
                     value={localQuantity}
-                    onChange={(e) => handleNumChange("initialQuantity", e.target.value, setLocalQuantity)}
+                    onChange={(e) =>
+                      handleNumChange(
+                        "initialQuantity",
+                        e.target.value,
+                        setLocalQuantity
+                      )
+                    }
                   />
                 </Stack>
               </Grid>
@@ -151,7 +164,13 @@ const StorageLevelsSection = ({
                     type="number"
                     placeholder="10"
                     value={localMinStock}
-                    onChange={(e) => handleNumChange("minStockLevel", e.target.value, setLocalMinStock)}
+                    onChange={(e) =>
+                      handleNumChange(
+                        "minStockLevel",
+                        e.target.value,
+                        setLocalMinStock
+                      )
+                    }
                   />
                 </Stack>
               </Grid>
