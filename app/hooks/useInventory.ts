@@ -7,36 +7,17 @@ import {
   createInventoryItem,
   updateInventoryItem,
   deleteInventoryItem,
-  getInventoryWithDashboardData,
   logWarehouseFulfillment,
   adjustInventoryStock,
 } from "@/app/lib/controllers/inventory";
 import { Inventory } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 
-export const inventoryKeys = {
-  all: ["inventory"] as const,
-  lists: (warehouseId?: string) =>
-    [...inventoryKeys.all, "list", { warehouseId }] as const,
-  details: (id: string) => [...inventoryKeys.all, "detail", id] as const,
-  lowStock: () => [...inventoryKeys.all, "lowStock"] as const,
-  movements: (sku: string, warehouseId: string) =>
-    [...inventoryKeys.all, "movements", { sku, warehouseId }] as const,
-  dashboard: () => [...inventoryKeys.all, "dashboard"] as const,
-  dashboardWithFilters: (
-    page: number,
-    pageSize: number,
-    warehouseId?: string,
-    search?: string,
-    sortBy?: string,
-    sortOrder?: "asc" | "desc",
-    status?: string[]
-  ) =>
-    [
-      ...inventoryKeys.dashboard(),
-      { page, pageSize, warehouseId, search, sortBy, sortOrder, status },
-    ] as const,
-};
+import { inventoryKeys } from "@/app/lib/query-keys/inventory.keys";
+import {
+  InventoryWithRelations,
+  LowStockItem,
+} from "@/app/lib/type/inventory";
 
 export function useInventory(warehouseId?: string) {
   return useQuery({
@@ -44,6 +25,46 @@ export function useInventory(warehouseId?: string) {
     queryFn: () => getInventory(warehouseId),
     staleTime: 1000 * 60 * 5,
   });
+}
+
+async function fetchInventoryDashboard(
+  page: number,
+  pageSize: number,
+  warehouseId?: string,
+  search?: string,
+  sortBy?: string,
+  sortOrder?: "asc" | "desc",
+  status?: string[]
+): Promise<{
+  items: InventoryWithRelations[];
+  totalCount: number;
+  stats: {
+    totalItems: number;
+    lowStockCount: number;
+    outOfStockCount: number;
+    totalValue: number;
+  };
+  lowStockItems: LowStockItem[];
+}> {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
+  if (warehouseId) params.set("warehouseId", warehouseId);
+  if (search) params.set("search", search);
+  if (sortBy) params.set("sortBy", sortBy);
+  if (sortOrder) params.set("sortOrder", sortOrder);
+  if (status && status.length > 0) params.set("status", status.join(","));
+
+  const res = await fetch(`/api/inventory/dashboard?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useInventoryWithDashboard] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
 }
 
 export function useInventoryWithDashboard(
@@ -66,7 +87,7 @@ export function useInventoryWithDashboard(
       status
     ),
     queryFn: () =>
-      getInventoryWithDashboardData(
+      fetchInventoryDashboard(
         page,
         pageSize,
         warehouseId,
@@ -76,6 +97,7 @@ export function useInventoryWithDashboard(
         status
       ),
     staleTime: 1000 * 60 * 5,
+    placeholderData: (previousData) => previousData,
   });
 }
 

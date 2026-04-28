@@ -5,7 +5,6 @@ import {
   getShipmentStats,
   getShipmentVolumeHistory,
   getShipmentStatusDistribution,
-  getShipmentsWithDashboardData,
   createShipment,
   updateShipment,
   deleteShipment,
@@ -21,17 +20,7 @@ import {
 import { ShipmentStatus, ShipmentPriority } from "@/app/lib/type/enums";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
-export const shipmentKeys = {
-  all: ["shipments"] as const,
-  lists: () => [...shipmentKeys.all, "list"] as const,
-  details: (id: string) => [...shipmentKeys.all, "detail", id] as const,
-  stats: () => [...shipmentKeys.all, "stats"] as const,
-  history: () => [...shipmentKeys.all, "history"] as const,
-  distribution: () => [...shipmentKeys.all, "distribution"] as const,
-  dashboard: () => [...shipmentKeys.all, "dashboard"] as const,
-  dashboardWithFilters: (page: number, pageSize: number, status?: ShipmentStatus, search?: string) =>
-    [...shipmentKeys.dashboard(), { page, pageSize, status, search }] as const,
-};
+import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
 
 export function useShipments() {
   return useQuery({
@@ -90,6 +79,36 @@ export function useShipmentStatusDistribution() {
   });
 }
 
+async function fetchShipmentDashboard(
+  page: number,
+  pageSize: number,
+  status?: ShipmentStatus,
+  search?: string
+): Promise<{
+  shipments: ShipmentWithRelations[];
+  totalCount: number;
+  stats: ShipmentStats;
+  volumeData: ShipmentVolumeData[];
+  statusData: ShipmentStatusData[];
+}> {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
+  if (status && (status as string) !== "ALL") params.set("status", status);
+  if (search) params.set("search", search);
+
+  const res = await fetch(`/api/shipments/dashboard?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useShipmentsWithDashboard] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
 export function useShipmentsWithDashboard(
   page: number = 1,
   pageSize: number = 10,
@@ -98,8 +117,9 @@ export function useShipmentsWithDashboard(
 ) {
   return useQuery({
     queryKey: shipmentKeys.dashboardWithFilters(page, pageSize, status, search),
-    queryFn: () => getShipmentsWithDashboardData(page, pageSize, status, search),
+    queryFn: () => fetchShipmentDashboard(page + 1, pageSize, status, search),
     staleTime: 1000 * 60 * 5,
+    placeholderData: (previousData) => previousData,
   });
 }
 

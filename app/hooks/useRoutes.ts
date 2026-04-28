@@ -4,7 +4,6 @@ import {
   getRouteStats,
   getRouteEfficiencyStats,
   getActiveRoutesLocations,
-  getRoutesWithDashboardData,
   deleteRoute,
 } from "@/app/lib/controllers/routes";
 import { toast } from "sonner";
@@ -16,23 +15,15 @@ import {
   MapRouteData,
 } from "@/app/lib/type/routes";
 
-export const routeKeys = {
-  all: ["routes"] as const,
-  lists: (page: number, pageSize: number, status?: string) => 
-    [...routeKeys.all, "list", { page, pageSize, status }] as const,
-  stats: () => [...routeKeys.all, "stats"] as const,
-  efficiency: () => [...routeKeys.all, "efficiency"] as const,
-  locations: () => [...routeKeys.all, "locations"] as const,
-  details: (id: string) => [...routeKeys.all, "detail", id] as const,
-  dashboard: () => [...routeKeys.all, "dashboard"] as const,
-  dashboardWithFilters: (page: number, pageSize: number, status?: string) =>
-    [...routeKeys.dashboard(), { page, pageSize, status }] as const,
-};
+import { routeKeys } from "@/app/lib/query-keys/route.keys";
 
 export function useRoutes(page: number, pageSize: number, status?: string) {
   return useQuery({
     queryKey: routeKeys.lists(page, pageSize, status),
-    queryFn: async (): Promise<{ routes: RouteWithRelations[]; totalCount: number }> => {
+    queryFn: async (): Promise<{
+      routes: RouteWithRelations[];
+      totalCount: number;
+    }> => {
       const res = await getRoutes(page + 1, pageSize, status);
       return res as { routes: RouteWithRelations[]; totalCount: number };
     },
@@ -73,6 +64,28 @@ export function useRouteLocations() {
   });
 }
 
+async function fetchRouteDashboard(
+  page: number,
+  pageSize: number,
+  status?: string
+) {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
+  if (status) params.set("status", status);
+
+  const res = await fetch(`/api/routes/dashboard?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useRoutesWithDashboard] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
 export function useRoutesWithDashboard(
   page: number,
   pageSize: number,
@@ -80,11 +93,11 @@ export function useRoutesWithDashboard(
 ) {
   return useQuery({
     queryKey: routeKeys.dashboardWithFilters(page, pageSize, status),
-    queryFn: () => getRoutesWithDashboardData(page + 1, pageSize, status),
+    queryFn: () => fetchRouteDashboard(page + 1, pageSize, status),
     staleTime: 1000 * 60 * 5,
+    placeholderData: (previousData) => previousData,
   });
 }
-
 
 export function useRouteMutations() {
   const queryClient = useQueryClient();

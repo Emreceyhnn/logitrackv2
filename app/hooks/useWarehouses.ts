@@ -7,22 +7,17 @@ import {
   createWarehouse,
   updateWarehouse,
   deleteWarehouse,
-  getWarehousesWithDashboardData,
   assignManagerToWarehouse,
 } from "@/app/lib/controllers/warehouse";
 import { Warehouse } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 
-export const warehouseKeys = {
-  all: ["warehouses"] as const,
-  lists: () => [...warehouseKeys.all, "list"] as const,
-  details: (id: string) => [...warehouseKeys.all, "detail", id] as const,
-  stats: () => [...warehouseKeys.all, "stats"] as const,
-  movements: () => [...warehouseKeys.all, "movements"] as const,
-  dashboard: () => [...warehouseKeys.all, "dashboard"] as const,
-  dashboardWithFilters: (page: number, pageSize: number) =>
-    [...warehouseKeys.dashboard(), { page, pageSize }] as const,
-};
+import { warehouseKeys } from "@/app/lib/query-keys/warehouse.keys";
+import {
+  WarehouseWithRelations,
+  WarehouseStats,
+  InventoryMovementWithRelations,
+} from "@/app/lib/type/warehouse";
 
 export function useWarehouses() {
   return useQuery({
@@ -57,14 +52,40 @@ export function useRecentStockMovements() {
   });
 }
 
+async function fetchWarehouseDashboard(
+  page: number,
+  pageSize: number
+): Promise<{
+  warehouses: WarehouseWithRelations[];
+  totalCount: number;
+  stats: WarehouseStats;
+  recentMovements: InventoryMovementWithRelations[];
+}> {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
+
+  const res = await fetch(`/api/warehouses/dashboard?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useWarehousesWithDashboard] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
 export function useWarehousesWithDashboard(
   page: number = 1,
   pageSize: number = 10
 ) {
   return useQuery({
     queryKey: warehouseKeys.dashboardWithFilters(page, pageSize),
-    queryFn: () => getWarehousesWithDashboardData(page, pageSize),
+    queryFn: () => fetchWarehouseDashboard(page + 1, pageSize),
     staleTime: 1000 * 60 * 5,
+    placeholderData: (previousData) => previousData,
   });
 }
 

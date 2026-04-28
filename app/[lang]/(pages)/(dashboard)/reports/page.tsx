@@ -1,143 +1,67 @@
-"use client";
+/**
+ * Reports Page — Hybrid SSR + CSR
+ */
 
-import { useEffect, useState } from "react";
-import { Box, Typography, Tabs, Tab } from "@mui/material";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import InventoryIcon from "@mui/icons-material/Inventory";
-
-import ShipmentCharts from "@/app/components/dashboard/reports/ShipmentCharts";
-import FleetCharts from "@/app/components/dashboard/reports/FleetCharts";
-import InventoryCharts from "@/app/components/dashboard/reports/InventoryCharts";
-import ReportSummaryCards from "@/app/components/dashboard/reports/ReportSummaryCards";
+import { Suspense } from "react";
+import { Box, CircularProgress } from "@mui/material";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getReportsDataAction } from "@/app/lib/controllers/reports";
-import { ReportsPageState } from "@/app/lib/type/reports";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { reportsKeys } from "@/app/lib/query-keys/reports.keys";
+import ReportsContent from "./components/ReportsContent";
+import { redirect } from "next/navigation";
 
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
+export const dynamic = "force-dynamic";
 
-function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
+function ReportsPageSkeleton() {
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`reports-tabpanel-${index}`}
-      aria-labelledby={`reports-tab-${index}`}
-      {...other}
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      width="100%"
+      minHeight="60vh"
     >
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
-    </div>
+      <CircularProgress size={36} />
+    </Box>
   );
 }
 
-export default function ReportsPage() {
-  const dict = useDictionary();
+export default async function ReportsPage() {
+  const user = await getAuthenticatedUser();
+  if (!user) {
+    redirect("/");
+  }
 
-  /* --------------------------------- states --------------------------------- */
-  const [state, setState] = useState<ReportsPageState>({
-    data: null,
-    loading: true,
-    error: null,
-    tabIndex: 0,
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 15,
+      },
+    },
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await getReportsDataAction();
-        setState((prev) => ({ ...prev, data: result, loading: false }));
-      } catch (error) {
-        console.error("Failed to fetch reports:", error);
-        const message = error instanceof Error ? error.message : "An unknown error occurred";
-        setState((prev) => ({ ...prev, loading: false, error: message }));
-      }
-    };
-    fetchData();
-  }, []);
+  try {
+    await queryClient.prefetchQuery({
+      queryKey: reportsKeys.dashboard(),
+      queryFn: () => getReportsDataAction(),
+      staleTime: 1000 * 60 * 15,
+    });
+  } catch (error) {
+    console.error("[ReportsPage SSR] prefetch failed:", error);
+  }
 
-  /* -------------------------------- handlers -------------------------------- */
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setState((prev) => ({ ...prev, tabIndex: newValue }));
-  };
+  const dehydratedState = dehydrate(queryClient);
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ mb: 5 }}>
-        <Typography
-          variant="h3"
-          fontWeight={800}
-          sx={{ mb: 1, letterSpacing: "-0.02em" }}
-        >
-          {dict.reports.title}
-        </Typography>
-        <Typography variant="h6" color="text.secondary" fontWeight={400}>
-          {dict.reports.subtitle}
-        </Typography>
-      </Box>
-
-      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 4 }}>
-        <Tabs
-          value={state.tabIndex}
-          onChange={handleChange}
-          aria-label="report tabs"
-          sx={{
-            "& .MuiTab-root": {
-              textTransform: "none",
-              fontWeight: 600,
-              fontSize: "1rem",
-              minHeight: 48,
-            },
-          }}
-        >
-          <Tab
-            icon={<LocalShippingIcon />}
-            iconPosition="start"
-            label={dict.reports.tabs.shipment}
-          />
-          <Tab
-            icon={<DirectionsCarIcon />}
-            iconPosition="start"
-            label={dict.reports.tabs.fleet}
-          />
-          <Tab
-            icon={<InventoryIcon />}
-            iconPosition="start"
-            label={dict.reports.tabs.inventory}
-          />
-        </Tabs>
-      </Box>
-
-      <ReportSummaryCards
-        tabIndex={state.tabIndex}
-        metrics={state.data?.metrics}
-        loading={state.loading}
-        dict={dict}
-      />
-
-      <Box sx={{ mt: 2 }}>
-        <CustomTabPanel value={state.tabIndex} index={0}>
-          <ShipmentCharts
-            data={state.data?.shipments}
-            loading={state.loading}
-            dict={dict}
-          />
-        </CustomTabPanel>
-        <CustomTabPanel value={state.tabIndex} index={1}>
-          <FleetCharts data={state.data?.fleet || []} dict={dict} />
-        </CustomTabPanel>
-        <CustomTabPanel value={state.tabIndex} index={2}>
-          <InventoryCharts
-            data={state.data?.inventory.categoryStats || {}}
-            dict={dict}
-          />
-        </CustomTabPanel>
-      </Box>
-    </Box>
+    <HydrationBoundary state={dehydratedState}>
+      <Suspense fallback={<ReportsPageSkeleton />}>
+        <ReportsContent />
+      </Suspense>
+    </HydrationBoundary>
   );
 }
