@@ -7,6 +7,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import Image from "next/image";
 import MonitorIcon from "@mui/icons-material/Monitor";
 import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
 import KeyboardCommandKeyIcon from "@mui/icons-material/KeyboardCommandKey";
@@ -106,16 +107,37 @@ const SideBar = () => {
     >
       <Stack spacing={1} height={"100%"}>
         <Stack p={3}>
-          <Typography
-            sx={{
-              fontWeight: 800,
-              letterSpacing: "-3%",
-              fontSize: 24,
-              textTransform: "uppercase",
-            }}
-          >
-            {dict.common.logitrack}
-          </Typography>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: "8px",
+                background: "linear-gradient(135deg, #38bdf8, #6366f1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Image
+                src="/logo.svg"
+                alt="LogiTrack"
+                width={20}
+                height={20}
+              />
+            </Box>
+            <Typography
+              sx={{
+                fontWeight: 800,
+                letterSpacing: "-3%",
+                fontSize: 20,
+                textTransform: "uppercase",
+                color: theme.palette.text.primary,
+              }}
+            >
+              {dict.common.logitrack}
+            </Typography>
+          </Stack>
         </Stack>
         <Divider />
 

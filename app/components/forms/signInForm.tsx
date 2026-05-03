@@ -8,6 +8,7 @@ import {
   InputAdornment,
   IconButton,
 } from "@mui/material";
+import Image from "next/image";
 import { Field, Form, Formik } from "formik";
 import type { FormikHelpers, FieldProps } from "formik";
 import { useMemo, useState } from "react";
@@ -88,6 +89,40 @@ export default function LoginForm() {
       borderRadius={"24px"}
     >
       <Box p={{ xs: "30px", sm: "50px" }}>
+        <Stack alignItems="center" mb={4}>
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: "16px",
+              background: "linear-gradient(135deg, #38bdf8, #6366f1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 8px 16px rgba(56, 189, 248, 0.2)",
+              mb: 2,
+            }}
+          >
+            <Image
+              src="/logo.svg"
+              alt="LogiTrack"
+              width={40}
+              height={40}
+            />
+          </Box>
+          <Typography
+            sx={{
+              fontWeight: 800,
+              letterSpacing: 2,
+              fontSize: 14,
+              textTransform: "uppercase",
+              color: "#38bdf8",
+            }}
+          >
+            LogiTrack
+          </Typography>
+        </Stack>
+
         <Stack
           direction="row"
           spacing={3}

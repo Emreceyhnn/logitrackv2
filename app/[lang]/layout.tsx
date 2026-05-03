@@ -60,7 +60,7 @@ export async function generateMetadata({
       description: dict.landing.metaDescription,
       images: [
         {
-          url: "/logo1.png",
+          url: "/logo.svg",
           width: 1200,
           height: 630,
           alt: "LogiTrack AI Logistics",
@@ -71,11 +71,11 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: dict.landing.metaTitle,
       description: dict.landing.metaDescription,
-      images: ["/logo1.png"],
+      images: ["/logo.svg"],
     },
     icons: {
-      icon: "/favicon.ico",
-      apple: "/logo1.png",
+      icon: "/logo.svg",
+      apple: "/logo.svg",
     },
     robots: {
       index: true,
@@ -117,7 +117,7 @@ export default async function LangLayout({
     "@type": "Organization",
     name: "LogiTrack",
     url: baseUrl,
-    logo: `${baseUrl}/logo1.png`,
+    logo: `${baseUrl}/logo.svg`,
     sameAs: [
       "https://twitter.com/logitrack",
       "https://linkedin.com/company/logitrack",

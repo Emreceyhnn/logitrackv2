@@ -103,7 +103,7 @@ export default function LandingPage() {
 
   const trustedLogos = dict.landing.trustedLogos;
 
-  const heroVideoSrc = "/landing-hero.mp4";
+  const heroVideoSrc = "/landing-video.webm";
   const heroVideoPoster = "/sign-up.webp";
 
   return (
@@ -194,7 +194,7 @@ export default function LandingPage() {
           }}
         >
           <Image
-            src="/logo1-vector.png"
+            src="/logo.svg"
             alt="LogiTrack - AI Powered Logistics Management Platform"
             fill
             sizes="140px"

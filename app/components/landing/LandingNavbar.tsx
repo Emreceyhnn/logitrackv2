@@ -88,7 +88,7 @@ export default function LandingNavbar() {
                 }}
               >
                 <Image
-                  src="/logo-beyaz-vector.png"
+                  src="/logo.svg"
                   alt="LogiTrack"
                   width={trigger ? 22 : 28}
                   height={trigger ? 22 : 28}

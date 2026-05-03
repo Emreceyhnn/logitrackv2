@@ -151,7 +151,7 @@ export default function AboutPage() {
               }}
             >
               <Image
-                src="/logo1-vector.png"
+                src="/logo.svg"
                 alt="LogiTrack Vision"
                 fill
                 style={{ objectFit: "contain", opacity: 0.8 }}
