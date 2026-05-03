@@ -1,332 +1,98 @@
-"use client";
+/**
+ * Driver Page — Hybrid SSR + CSR
+ *
+ * Rendering Strategy
+ * ──────────────────
+ * ┌─────────────────────────────────────────────────────────────────────┐
+ * │  SERVER (this file)                                                 │
+ * │  1. Authenticate user via getAuthenticatedUser() (React cache)      │
+ * │  2. Call getDriverWithDashboardData() directly — hits Redis first,  │
+ * │     falls back to Prisma if cache cold. No extra round-trip.        │
+ * │  3. Serialize data into TanStack Query's dehydrated state.          │
+ * │  4. Stream HTML to the browser — users see populated content        │
+ * │     immediately, no loading spinner on first paint.                 │
+ * ├─────────────────────────────────────────────────────────────────────┤
+ * │  CLIENT (DriverContent.tsx)                                         │
+ * │  5. HydrationBoundary rehydrates the dehydrated state into the      │
+ * │     existing QueryClient — cache is warm on the first render.       │
+ * │  6. useDriverWithDashboard() finds the data in cache →              │
+ * │     isLoading = false, no network call on mount.                    │
+ * │  7. When the user applies filters the hook issues a fresh CSR       │
+ * │     request and reactively updates the UI.                          │
+ * └─────────────────────────────────────────────────────────────────────┘
+ */
 
-import { Box, Stack, Typography, Button, useTheme } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import { useEffect, useState, useMemo, Suspense, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { Suspense } from "react";
+import { Box, CircularProgress } from "@mui/material";
 import {
-  DriverPageActions,
-  DriverWithRelations,
-  DriverFilters,
-} from "@/app/lib/type/driver";
-import {
-  useDriverWithDashboard,
-  useDriverMutations,
-} from "@/app/hooks/useDrivers";
-import {
-  Shield,
-  Groups,
-  Work,
-  Home,
-  ReportProblem,
-  RocketLaunch,
-} from "@mui/icons-material";
-import DriverTable from "@/app/components/dashboard/driver/driverTable";
-import DriverPerformanceCharts from "@/app/components/dashboard/driver/driverPerformanceCharts";
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
+import { getDriverWithDashboardData } from "@/app/lib/controllers/driver";
+import { driverKeys } from "@/app/lib/query-keys/driver.keys";
+import DriverContent from "./components/DriverContent";
+import { redirect } from "next/navigation";
 
-import DriverDialog from "@/app/components/dialogs/driver";
-import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";
-import EditDriverDialog from "@/app/components/dialogs/driver/editDriverDialog";
-import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import KpiCards from "@/app/components/cards/KpiCards";
+export const dynamic = "force-dynamic";
 
-export default function DriverPage() {
-  const dict = useDictionary();
+function DriverPageSkeleton() {
   return (
-    <Suspense fallback={<Box p={4}>{dict.common.loading}</Box>}>
-      <DriverContent />
-    </Suspense>
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      width="100%"
+      minHeight="60vh"
+    >
+      <CircularProgress size={36} />
+    </Box>
   );
 }
 
-function DriverContent() {
-  /* -------------------------------- VARIABLES ------------------------------- */
-  const theme = useTheme();
-  const dict = useDictionary();
-  const searchParams = useSearchParams();
-  const driverIdFromUrl = searchParams.get("id");
-  const tabFromUrl = searchParams.get("tab");
+export default async function DriverPage() {
+  const user = await getAuthenticatedUser();
+  if (!user) {
+    redirect("/");
+  }
 
-  /* ---------------------------------- STATES --------------------------------- */
-  const [state, setState] = useState<{
-    filters: DriverFilters;
-    pagination: { page: number; limit: number };
-    sort: { field: string; order: "asc" | "desc" };
-    selectedDriverId: string | null;
-  }>({
-    filters: {
-      page: 1,
-      limit: 10,
-      search: "",
-      status: [],
-      hasVehicle: undefined,
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5,
+      },
     },
-    pagination: {
-      page: 1,
-      limit: 10,
-    },
-    sort: {
-      field: "createdAt",
-      order: "desc",
-    },
-    selectedDriverId: null,
   });
 
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [driverToEdit, setDriverToEdit] = useState<DriverWithRelations | null>(
-    null
-  );
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [driverToDelete, setDriverToDelete] = useState<string | null>(null);
-
-  /* ---------------------------------- HOOKS --------------------------------- */
-  const {
-    data: combinedData,
-    isLoading: loading,
-    refetch: refreshAllData,
-  } = useDriverWithDashboard(
-    state.pagination.page,
-    state.pagination.limit,
-    state.filters.search,
-    state.filters.status,
-    state.filters.hasVehicle,
-    state.sort.field,
-    state.sort.order
-  );
-
-  const { deleteDriver: deleteMutation } = useDriverMutations();
-
-  const drivers = combinedData?.drivers || [];
-  const totalCount = combinedData?.meta.total || 0;
-  const dashboardData = combinedData;
-
-  /* --------------------------------- ACTIONS -------------------------------- */
-  const refreshAll = useCallback(async () => {
-    await refreshAllData();
-  }, [refreshAllData]);
-
-  const actions: DriverPageActions = useMemo(
-    () => ({
-      fetchDrivers: async () => {}, // Handled by React Query
-      fetchDashboardData: async () => {}, // Handled by React Query
-      selectDriver: (id: string | null) => {
-        setState((prev) => ({ ...prev, selectedDriverId: id }));
-        if (id) setIsDetailsOpen(true);
-      },
-      updateFilters: (newFilters: Partial<DriverFilters>) => {
-        setState((prev) => ({
-          ...prev,
-          filters: { ...prev.filters, ...newFilters },
-          pagination: { ...prev.pagination, page: 1 },
-        }));
-      },
-      changePage: async () => {}, // Handled by state
-      refreshAll,
-    }),
-    [refreshAll]
-  );
-
-  /* -------------------------------- LIFECYCLE --------------------------------- */
-  useEffect(() => {
-    if (driverIdFromUrl) {
-      actions.selectDriver(driverIdFromUrl);
-    }
-  }, [driverIdFromUrl, actions]);
-
-  /* -------------------------------- HANDLERS -------------------------------- */
-  const handleEdit = (driver: DriverWithRelations) => {
-    setDriverToEdit(driver);
-    setIsEditOpen(true);
-  };
-  const handleDelete = (id: string) => {
-    setDriverToDelete(id);
-    setIsDeleteOpen(true);
-  };
-  const confirmDelete = async () => {
-    if (!driverToDelete) return;
-
-    try {
-      await deleteMutation.mutateAsync(driverToDelete);
-      setIsDeleteOpen(false);
-      setDriverToDelete(null);
-    } catch (error) {
-      console.error("Failed to delete driver:", error);
-    }
+  const defaultFilters = {
+    page: 1,
+    limit: 10,
+    search: "",
+    status: [],
+    hasVehicle: undefined,
+    sortField: "createdAt",
+    sortOrder: "desc" as const,
   };
 
-  const handleFilterChange = (newFilters: Partial<DriverFilters>) => {
-    actions.updateFilters(newFilters);
-  };
-  const handlePageChange = (newPage: number) => {
-    setState((prev) => ({
-      ...prev,
-      pagination: { ...prev.pagination, page: newPage },
-    }));
-  };
-  const handleLimitChange = (newLimit: number) => {
-    setState((prev) => ({
-      ...prev,
-      pagination: { ...prev.pagination, limit: newLimit, page: 1 },
-    }));
-  };
-  const handleSort = (property: string) => {
-    setState((prev) => ({
-      ...prev,
-      sort: {
-        field: property,
-        order:
-          prev.sort.field === property && prev.sort.order === "asc"
-            ? "desc"
-            : "asc",
-      },
-    }));
-  };
+  try {
+    // Note: We need to use the exact same key as in useDriverWithDashboard
+    await queryClient.prefetchQuery({
+      queryKey: driverKeys.dashboardWithFilters(defaultFilters),
+      queryFn: () => getDriverWithDashboardData(defaultFilters),
+      staleTime: 1000 * 60 * 5,
+    });
+  } catch (error) {
+    console.error("[DriverPage SSR] prefetch failed:", error);
+  }
 
-  /* ----------------------------------- KPI ---------------------------------- */
-  const kpis = useMemo(
-    () => [
-      {
-        label: dict.drivers.totalDrivers,
-        value: dashboardData?.driversKpis?.totalDrivers ?? 0,
-        icon: <Groups sx={{ fontSize: 22 }} />,
-        color: theme.palette.primary.main,
-      },
-      {
-        label: dict.drivers.onDuty,
-        value: dashboardData?.driversKpis?.onDuty ?? 0,
-        icon: <Work sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.emerald,
-      },
-      {
-        label: dict.drivers.offDuty,
-        value: dashboardData?.driversKpis?.offDuty ?? 0,
-        icon: <Home sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.amber,
-      },
-      {
-        label: dict.drivers.complianceIssues,
-        value: dashboardData?.driversKpis?.complianceIssues ?? 0,
-        icon: <ReportProblem sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.error,
-      },
-      {
-        label: dict.drivers.safetyRating,
-        value: dashboardData?.driversKpis?.avgSafetyScore ?? 0,
-        icon: <Shield sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.indigo,
-      },
-      {
-        label: dict.drivers.efficiencyRating,
-        value: dashboardData?.driversKpis?.avgEfficiencyScore ?? 0,
-        icon: <RocketLaunch sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.violet,
-      },
-    ],
-    [dashboardData, theme, dict]
-  );
-
-  const selectedDriver = drivers.find((d) => d.id === state.selectedDriverId);
+  const dehydratedState = dehydrate(queryClient);
 
   return (
-    <Box position={"relative"} p={4} width={"100%"}>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
-      >
-        <Box>
-          <Typography
-            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
-          >
-            {dict.drivers.title}
-          </Typography>
-          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
-            {dict.drivers.subtitle}
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setIsAddDialogOpen(true)}
-          sx={{ textTransform: "none", borderRadius: 2 }}
-        >
-          {dict.drivers.addDriver}
-        </Button>
-      </Stack>
-
-      <KpiCards kpis={kpis} loading={loading} />
-
-      <Stack gap={2} mt={2}>
-        <DriverTable
-          filters={state.filters}
-          onFilterChange={handleFilterChange}
-          drivers={drivers}
-          loading={loading}
-          meta={{
-            total: totalCount,
-            page: state.pagination.page,
-            limit: state.pagination.limit,
-            totalPages: Math.ceil(totalCount / state.pagination.limit),
-          }}
-          onDriverSelect={actions.selectDriver}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onRefresh={refreshAll}
-          onPageChange={handlePageChange}
-          onLimitChange={handleLimitChange}
-          sortField={state.sort.field}
-          sortOrder={state.sort.order}
-          onRequestSort={handleSort}
-        />
-      </Stack>
-
-      <DriverPerformanceCharts
-        data={dashboardData?.performanceCharts}
-        loading={loading}
-      />
-
-      <AddDriverDialog
-        open={isAddDialogOpen}
-        onClose={() => setIsAddDialogOpen(false)}
-        onSuccess={refreshAll}
-      />
-
-      <EditDriverDialog
-        key={driverToEdit?.id}
-        open={isEditOpen}
-        driver={driverToEdit}
-        onClose={() => setIsEditOpen(false)}
-        onSuccess={refreshAll}
-      />
-
-      <DeleteConfirmationDialog
-        open={isDeleteOpen}
-        title={dict.drivers.deleteTitle}
-        description={dict.drivers.deleteDesc}
-        onClose={() => setIsDeleteOpen(false)}
-        onConfirm={confirmDelete}
-        loading={deleteMutation.isPending}
-      />
-
-      <DriverDialog
-        key={selectedDriver?.id}
-        open={isDetailsOpen}
-        onClose={() => setIsDetailsOpen(false)}
-        driverData={selectedDriver ?? null}
-        onEdit={(driver) => {
-          setDriverToEdit(driver);
-          setIsEditOpen(true);
-        }}
-        onDelete={(id) => {
-          setDriverToDelete(id);
-          setIsDeleteOpen(true);
-        }}
-        initialTab={tabFromUrl ? parseInt(tabFromUrl) : 0}
-      />
-    </Box>
+    <HydrationBoundary state={dehydratedState}>
+      <Suspense fallback={<DriverPageSkeleton />}>
+        <DriverContent />
+      </Suspense>
+    </HydrationBoundary>
   );
 }

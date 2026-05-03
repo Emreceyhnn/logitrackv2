@@ -1,264 +1,93 @@
-"use client";
+/**
+ * Shipments Page — Hybrid SSR + CSR
+ *
+ * Rendering Strategy
+ * ──────────────────
+ * ┌─────────────────────────────────────────────────────────────────────┐
+ * │  SERVER (this file)                                                 │
+ * │  1. Authenticate user via getAuthenticatedUser() (React cache)      │
+ * │  2. Call getShipmentsWithDashboardData() directly — hits Redis first│
+ * │     falls back to Prisma if cache cold. No extra round-trip.        │
+ * │  3. Serialize data into TanStack Query's dehydrated state.          │
+ * │  4. Stream HTML to the browser — users see populated content        │
+ * │     immediately, no loading spinner on first paint.                 │
+ * ├─────────────────────────────────────────────────────────────────────┤
+ * │  CLIENT (shipmentsContent.tsx)                                      │
+ * │  5. HydrationBoundary rehydrates the dehydrated state into the      │
+ * │     existing QueryClient — cache is warm on the first render.       │
+ * │  6. useShipmentsWithDashboard() finds the data in cache →           │
+ * │     isLoading = false, no network call on mount.                    │
+ * │  7. When the user applies filters the hook issues a fresh CSR       │
+ * │     request and reactively updates the UI.                          │
+ * └─────────────────────────────────────────────────────────────────────┘
+ */
 
-import ShipmentTable from "@/app/components/dashboard/shipments/shipmentTable";
-import ShipmentAnalytics from "@/app/components/dashboard/shipments/ShipmentAnalytics";
-import { Box, Button, Stack, Typography, useTheme } from "@mui/material";
-import { useCallback, useEffect, useState, Suspense, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { Box, CircularProgress } from "@mui/material";
 import {
-  ShipmentPageState,
-  ShipmentPageActions,
-  ShipmentWithRelations,
-} from "@/app/lib/type/shipment";
-import {
-  useShipmentsWithDashboard,
-  useShipmentMutations,
-} from "@/app/hooks/useShipments";
-import EditShipmentDialog from "@/app/components/dialogs/shipment/edit-shipment-dialog";
-import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDetailDialog";
-import AddShipmentDialog from "@/app/components/dialogs/shipment/addShipmentDialog";
-import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import AddIcon from "@mui/icons-material/Add";
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
+import { getShipmentsWithDashboardData } from "@/app/lib/controllers/shipments";
+import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
+import ShipmentContent from "./components/shipmentsContent";
+import { redirect } from "next/navigation";
 
-import {
-  LocalShipping,
-  AccessTime,
-  DirectionsBoat,
-  Inventory,
-} from "@mui/icons-material";
-import KpiCards from "@/app/components/cards/KpiCards";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+export const dynamic = "force-dynamic";
 
-export default function ShipmentPage() {
-  const dict = useDictionary();
+function ShipmentPageSkeleton() {
   return (
-    <Suspense fallback={<Box p={4}>{dict.common.loading}</Box>}>
-      <ShipmentContent />
-    </Suspense>
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      width="100%"
+      minHeight="60vh"
+    >
+      <CircularProgress size={36} />
+    </Box>
   );
 }
 
-function ShipmentContent() {
-  /* -------------------------------- VARIABLES ------------------------------- */
-  const theme = useTheme();
-  const dict = useDictionary();
-  const searchParams = useSearchParams();
-  const shipmentIdFromUrl = searchParams.get("id");
+export default async function ShipmentPage() {
+  const user = await getAuthenticatedUser();
+  if (!user) {
+    redirect("/");
+  }
 
-  /* ---------------------------------- STATES --------------------------------- */
-  const [filters, setFilters] = useState<ShipmentPageState["filters"]>({});
-  const [pagination, setPagination] = useState({
-    page: 1,
-    pageSize: 10,
-  });
-  const [selectedShipmentId, setSelectedShipmentId] = useState<string | null>(
-    null
-  );
-
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [actionShipment, setActionShipment] =
-    useState<ShipmentWithRelations | null>(null);
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-
-  /* ---------------------------------- HOOKS --------------------------------- */
-  const {
-    data: dashboardData,
-    isLoading,
-    refetch,
-  } = useShipmentsWithDashboard(
-    pagination.page,
-    pagination.pageSize,
-    filters.status,
-    filters.search
-  );
-
-
-  const { deleteShipment: deleteMutation } = useShipmentMutations();
-
-  const loading = isLoading;
-
-
-  /* --------------------------------- ACTIONS -------------------------------- */
-  const refreshAll = useCallback(async () => {
-    await refetch();
-  }, [refetch]);
-
-  const actions: ShipmentPageActions = useMemo(
-    () => ({
-      fetchShipments: async () => {},
-      fetchStats: async () => {},
-      fetchCharts: async () => {},
-      refreshAll,
-      selectShipment: (id: string | null) => setSelectedShipmentId(id),
-      updateFilters: (newFilters: Partial<ShipmentPageState["filters"]>) => {
-        setFilters((prev) => ({ ...prev, ...newFilters }));
-        setPagination((prev) => ({ ...prev, page: 1 }));
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5,
       },
-    }),
-    [refreshAll]
-  );
-
-  /* -------------------------- COMPATIBILITY LAYER --------------------------- */
-  const state: ShipmentPageState = {
-    shipments: dashboardData?.shipments || [],
-    stats: dashboardData?.stats || null,
-    totalCount: dashboardData?.totalCount || 0,
-    volumeHistory: dashboardData?.volumeHistory || [],
-    statusDistribution: dashboardData?.statusDistribution || [],
-    selectedShipmentId,
-    filters,
-    loading,
-    error: null,
-  };
-
-  /* -------------------------------- LIFECYCLE --------------------------------- */
-  useEffect(() => {
-    if (shipmentIdFromUrl) {
-      actions.selectShipment(shipmentIdFromUrl);
-    }
-  }, [shipmentIdFromUrl, actions]);
-
-  /* -------------------------------- HANDLERS -------------------------------- */
-  const handleEdit = (id: string) => {
-    const shipment = state.shipments.find((s) => s.id === id);
-    if (shipment) {
-      setActionShipment(shipment);
-      setEditOpen(true);
-    }
-  };
-  const handleDelete = (id: string) => {
-    const shipment = state.shipments.find((s) => s.id === id);
-    if (shipment) {
-      setActionShipment(shipment);
-      setDeleteOpen(true);
-    }
-  };
-  const handleDeleteConfirm = async () => {
-    if (!actionShipment) return;
-    try {
-      await deleteMutation.mutateAsync(actionShipment.id);
-      setDeleteOpen(false);
-    } catch (error) {
-      console.error("Failed to delete shipment:", error);
-    }
-  };
-
-  /* --------------------------------- RENDER --------------------------------- */
-
-  const selectedShipment = state.shipments.find(
-    (s) => s.id === state.selectedShipmentId
-  );
-
-  const kpiItems = [
-    {
-      label: dict.shipments.dashboard.totalShipments,
-      value: state.stats?.total || 0,
-      icon: <Inventory sx={{ fontSize: 22 }} />,
-      color: theme.palette.primary.main,
     },
-    {
-      label: dict.shipments.dashboard.activeShipments,
-      value: state.stats?.active || 0,
-      icon: <LocalShipping sx={{ fontSize: 22 }} />,
-      color: "#0ea5e9", // Sky
-    },
-    {
-      label: dict.shipments.dashboard.delayedShipments,
-      value: state.stats?.delayed || 0,
-      icon: <AccessTime sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.error,
-    },
-    {
-      label: dict.shipments.dashboard.inTransit,
-      value: state.stats?.inTransit || 0,
-      icon: <DirectionsBoat sx={{ fontSize: 22 }} />,
-      color: "#10b981", // Emerald
-    },
-  ];
+  });
+
+  const clientPage = 1;
+  const serverPage = clientPage;
+  const pageSize = 10;
+  const status = undefined;
+  const search = undefined;
+
+  try {
+    await queryClient.prefetchQuery({
+      queryKey: shipmentKeys.dashboardWithFilters(clientPage, pageSize, status, search),
+      queryFn: () => getShipmentsWithDashboardData(serverPage, pageSize, status, search),
+      staleTime: 1000 * 60 * 5,
+    });
+  } catch (error) {
+    console.error("[ShipmentPage SSR] prefetch failed:", error);
+  }
+
+  const dehydratedState = dehydrate(queryClient);
 
   return (
-    <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
-      >
-        <Box>
-          <Typography
-            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
-          >
-            {dict.shipments.title}
-          </Typography>
-          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
-            {dict.shipments.subtitle}
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setAddDialogOpen(true)}
-          sx={{ textTransform: "none", borderRadius: 2 }}
-        >
-          {dict.shipments.addShipment}
-        </Button>
-      </Stack>
-
-      <KpiCards kpis={kpiItems} loading={state.loading} />
-
-      <Stack mt={2}>
-        <ShipmentTable
-          state={state}
-          actions={{
-            ...actions,
-            onEdit: handleEdit,
-            onDelete: handleDelete,
-          }}
-          pagination={{
-            page: pagination.page,
-            pageSize: pagination.pageSize,
-            total: state.totalCount,
-          }}
-          onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
-          onLimitChange={(pageSize) =>
-            setPagination({ page: 1, pageSize: pageSize })
-          }
-        />
-      </Stack>
-
-      <ShipmentAnalytics state={state} actions={actions} />
-
-      <ShipmentDetailDialog
-        open={!!selectedShipment}
-        onClose={() => actions.selectShipment(null)}
-        shipment={selectedShipment || null}
-      />
-
-      <EditShipmentDialog
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        shipment={actionShipment}
-        onSuccess={refreshAll}
-      />
-
-      <AddShipmentDialog
-        open={addDialogOpen}
-        onClose={() => setAddDialogOpen(false)}
-        onSuccess={refreshAll}
-      />
-
-      <DeleteConfirmationDialog
-        open={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={handleDeleteConfirm}
-        title={dict.shipments.deleteTitle}
-        description={dict.shipments.deleteDesc.replace(
-          "{id}",
-          actionShipment?.trackingId || ""
-        )}
-        loading={deleteMutation.isPending}
-      />
-    </Box>
+    <HydrationBoundary state={dehydratedState}>
+      <Suspense fallback={<ShipmentPageSkeleton />}>
+        <ShipmentContent />
+      </Suspense>
+    </HydrationBoundary>
   );
 }

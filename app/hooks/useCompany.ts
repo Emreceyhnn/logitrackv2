@@ -1,17 +1,33 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getCompanyProfile,
-  getCompanyWithDashboardData,
   removeCompanyUser,
 } from "@/app/lib/controllers/company";
 import { toast } from "sonner";
 
-export const companyKeys = {
-  all: ["company"] as const,
-  profile: () => [...companyKeys.all, "profile"] as const,
-  dashboardWithFilters: (filters: { page: number; pageSize: number; search?: string }) =>
-    [...companyKeys.all, "dashboard", filters] as const,
-};
+import { companyKeys } from "@/app/lib/query-keys/company.keys";
+
+async function fetchCompanyDashboard(filters: {
+  page: number;
+  pageSize: number;
+  search?: string;
+}) {
+  const params = new URLSearchParams();
+  params.set("page", String(filters.page));
+  params.set("pageSize", String(filters.pageSize));
+  if (filters.search) params.set("search", filters.search);
+
+  const res = await fetch(`/api/company/dashboard?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useCompanyWithDashboard] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
+}
 
 export function useCompanyWithDashboard(filters: {
   page: number;
@@ -20,7 +36,7 @@ export function useCompanyWithDashboard(filters: {
 }) {
   return useQuery({
     queryKey: companyKeys.dashboardWithFilters(filters),
-    queryFn: () => getCompanyWithDashboardData(filters),
+    queryFn: () => fetchCompanyDashboard(filters),
     placeholderData: (previousData) => previousData,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });

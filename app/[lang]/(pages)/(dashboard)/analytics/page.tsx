@@ -1,43 +1,67 @@
-"use client";
+/**
+ * Analytics Page — Hybrid SSR + CSR
+ */
 
-import { Box, Skeleton, Stack } from "@mui/material";
-import AnalyticsHeader from "@/app/components/dashboard/analytics/AnalyticsHeader";
-import PerformanceGauges from "@/app/components/dashboard/analytics/PerformanceGauges";
-import CostAnalysisCharts from "@/app/components/dashboard/analytics/CostAnalysisCharts";
-import ForecastingWidget from "@/app/components/dashboard/analytics/ForecastingWidget";
-import { useAnalyticsData } from "@/app/hooks/useAnalytics";
+import { Suspense } from "react";
+import { Box, CircularProgress } from "@mui/material";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
+import { getAnalyticsDashboardData } from "@/app/lib/controllers/analytics";
+import { analyticsKeys } from "@/app/lib/query-keys/analytics.keys";
+import AnalyticsContent from "./components/AnalyticsContent";
+import { redirect } from "next/navigation";
 
-export default function AnalyticsPage() {
-  const { data: state, isLoading } = useAnalyticsData();
+export const dynamic = "force-dynamic";
 
-  if (isLoading) {
-    return (
-      <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
-        <AnalyticsHeader />
-        <Stack spacing={3} mt={3}>
-          <Skeleton variant="rounded" height={200} />
-          <Skeleton variant="rounded" height={400} />
-          <Skeleton variant="rounded" height={300} />
-        </Stack>
-      </Box>
-    );
+function AnalyticsPageSkeleton() {
+  return (
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      width="100%"
+      minHeight="60vh"
+    >
+      <CircularProgress size={36} />
+    </Box>
+  );
+}
+
+export default async function AnalyticsPage() {
+  const user = await getAuthenticatedUser();
+  if (!user) {
+    redirect("/");
   }
 
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 10,
+      },
+    },
+  });
+
+  try {
+    await queryClient.prefetchQuery({
+      queryKey: analyticsKeys.dashboard(),
+      queryFn: () => getAnalyticsDashboardData(),
+      staleTime: 1000 * 60 * 10,
+    });
+  } catch (error) {
+    console.error("[AnalyticsPage SSR] prefetch failed:", error);
+  }
+
+  const dehydratedState = dehydrate(queryClient);
+
   return (
-    <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
-      <AnalyticsHeader />
-
-      <Box sx={{ mb: 3 }}>
-        <PerformanceGauges data={state?.performance} />
-      </Box>
-
-      <Box sx={{ mb: 3 }}>
-        <CostAnalysisCharts data={state?.costs} />
-      </Box>
-
-      <Box>
-        <ForecastingWidget data={state?.forecast} />
-      </Box>
-    </Box>
+    <HydrationBoundary state={dehydratedState}>
+      <Suspense fallback={<AnalyticsPageSkeleton />}>
+        <AnalyticsContent />
+      </Suspense>
+    </HydrationBoundary>
   );
 }

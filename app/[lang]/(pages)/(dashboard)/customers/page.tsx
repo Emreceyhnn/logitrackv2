@@ -1,261 +1,72 @@
-"use client";
+/**
+ * Customers Page — Hybrid SSR + CSR
+ */
 
+import { Suspense } from "react";
+import { Box, CircularProgress } from "@mui/material";
 import {
-  Box,
-  Card,
-  Stack,
-  TextField,
-  InputAdornment,
-  Paper,
-  Typography,
-  Button,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import AddIcon from "@mui/icons-material/Add";
-import {
-  MapWithMarker,
-  MarkerData,
-} from "@/app/components/googleMaps/MapWithMarker";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
-import CustomerDetailDialog from "@/app/components/dialogs/customer/customerDetailDialog";
-import EditCustomerDialog from "@/app/components/dialogs/customer/editCustomerDialog";
-import AddCustomerDialog from "@/app/components/dialogs/customer/addCustomerDialog";
-import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import CustomerList from "@/app/components/dashboard/customer/CustomerList";
-import { useState, useMemo } from "react";
-import {
-  CustomerPageActions,
-  CustomerWithRelations,
-} from "@/app/lib/type/customer";
-import {
-  useCustomersWithDashboard,
-  useCustomerMutations,
-} from "@/app/hooks/useCustomers";
-import { useUser } from "@/app/hooks/useUser";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { toast } from "sonner";
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
+import { getCustomersWithDashboardData } from "@/app/lib/controllers/customer";
+import { customerKeys } from "@/app/lib/query-keys/customer.keys";
+import CustomerContent from "./components/CustomerContent";
+import { redirect } from "next/navigation";
 
-export default function CustomersPage() {
-  /* -------------------------------- VARIABLES ------------------------------- */
-  const { user } = useUser();
-  const dict = useDictionary();
+export const dynamic = "force-dynamic";
 
-  /* ---------------------------------- STATE --------------------------------- */
-  const [filters, setFilters] = useState<{ search: string }>({ search: "" });
-  const [pagination, setPagination] = useState({
-    page: 1,
-    pageSize: 10,
+function CustomersPageSkeleton() {
+  return (
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      width="100%"
+      minHeight="60vh"
+    >
+      <CircularProgress size={36} />
+    </Box>
+  );
+}
+
+export default async function CustomersPage() {
+  const user = await getAuthenticatedUser();
+  if (!user) {
+    redirect("/");
+  }
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5,
+      },
+    },
   });
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
-    null
-  );
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [actionCustomer, setActionCustomer] =
-    useState<CustomerWithRelations | null>(null);
 
-  /* ---------------------------------- HOOKS --------------------------------- */
-  const {
-    data: dashboardData,
-    isLoading,
-    refetch,
-  } = useCustomersWithDashboard(
-    pagination.page,
-    pagination.pageSize,
-    filters.search
-  );
+  const clientPage = 1;
+  const serverPage = clientPage;
+  const pageSize = 10;
+  const search = undefined;
 
-  const { deleteCustomer: deleteMutation } = useCustomerMutations();
-
-  /* -------------------------------- HANDLERS -------------------------------- */
-  const handleEdit = (customer: CustomerWithRelations) => {
-    setActionCustomer(customer);
-    setEditOpen(true);
-  };
-
-  const handleDelete = (customer: CustomerWithRelations) => {
-    setActionCustomer(customer);
-    setDeleteOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!actionCustomer || !user) return;
-    try {
-      await deleteMutation.mutateAsync(actionCustomer.id);
-      toast.success(
-        dict.customers.dialogs.successDelete || "Customer deleted successfully"
-      );
-      setDeleteOpen(false);
-      setDetailOpen(false);
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : dict.customers.dialogs.errorDelete || "Failed to delete customer";
-      toast.error(message);
-    }
-  };
-
-  /* --------------------------------- ACTIONS -------------------------------- */
-  const actions: CustomerPageActions = {
-    fetchCustomers: async () => {},
-    selectCustomer: (id: string) => {
-      if (!id) return;
-      setSelectedCustomerId(id);
-      setDetailOpen(true);
-    },
-    updateFilters: (newFilters: Partial<{ search: string }>) => {
-      setFilters((prev) => ({ ...prev, ...newFilters }));
-      setPagination((prev) => ({ ...prev, page: 1 }));
-    },
-  };
-
-  /* --------------------------------- HELPERS -------------------------------- */
-  const customers = useMemo(
-    () => dashboardData?.customers || [],
-    [dashboardData?.customers]
-  );
-
-  const mapLocations = useMemo<MarkerData[]>(() => {
-    return customers.flatMap((c: CustomerWithRelations) => {
-      if (!c.locations) return [];
-
-      return c.locations
-        .filter((loc) => loc.lat != null && loc.lng != null)
-        .map((loc) => ({
-          position: {
-            lat: Number(loc.lat),
-            lng: Number(loc.lng),
-          },
-          label: c.name.charAt(0).toUpperCase(),
-          title: `${c.name} - ${loc.name}`,
-          description: loc.address,
-          type: "customer" as const,
-        }));
+  try {
+    await queryClient.prefetchQuery({
+      queryKey: customerKeys.dashboardWithFilters(clientPage, pageSize, search),
+      queryFn: () => getCustomersWithDashboardData(serverPage, pageSize, search),
+      staleTime: 1000 * 60 * 5,
     });
-  }, [customers]);
+  } catch (error) {
+    console.error("[CustomersPage SSR] prefetch failed:", error);
+  }
+
+  const dehydratedState = dehydrate(queryClient);
 
   return (
-    <Box sx={{ height: "calc(100vh - 100px)", p: 3, display: "flex", gap: 3 }}>
-      <Stack spacing={2} sx={{ width: 400, height: "100%" }}>
-        <Paper sx={{ p: 2, borderRadius: 3 }}>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <TextField
-              fullWidth
-              placeholder={dict.customers.searchPlaceholder}
-              size="small"
-              value={filters.search || ""}
-              onChange={(e) =>
-                actions.updateFilters({ search: e.target.value })
-              }
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon color="action" />
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<AddIcon />}
-              onClick={() => setAddOpen(true)}
-              sx={{ whiteSpace: "nowrap", minWidth: "auto" }}
-            >
-              {dict.common.add}
-            </Button>
-          </Stack>
-        </Paper>
-        <Box sx={{ flex: 1, overflow: "hidden" }}>
-          <CustomerList
-            customers={customers}
-            selectedId={selectedCustomerId}
-            loading={isLoading}
-            onSelect={actions.selectCustomer}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            meta={{
-              page: pagination.page,
-              limit: pagination.pageSize,
-              total: dashboardData?.totalCount || 0,
-            }}
-            onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
-            onLimitChange={(pageSize) =>
-              setPagination({ page: 1, pageSize: pageSize })
-            }
-          />
-        </Box>
-      </Stack>
-
-      <Card
-        sx={{
-          flex: 1,
-          borderRadius: 3,
-          overflow: "hidden",
-          position: "relative",
-          height: "100%",
-        }}
-      >
-        <GoogleMapsProvider>
-          <MapWithMarker
-            center={{ lat: 39.9334, lng: 32.8597 }}
-            markers={mapLocations}
-            zoom={6}
-            height="100%"
-          />
-        </GoogleMapsProvider>
-        {mapLocations.length === 0 && (
-          <Box
-            position="absolute"
-            top={16}
-            left={16}
-            bgcolor="background.paper"
-            p={1}
-            borderRadius={1}
-            zIndex={1}
-          >
-            <Typography variant="caption">
-              {dict.customers.noGeoData}
-            </Typography>
-          </Box>
-        )}
-      </Card>
-
-      <CustomerDetailDialog
-        open={detailOpen}
-        onClose={() => setDetailOpen(false)}
-        customerId={selectedCustomerId}
-      />
-
-      <EditCustomerDialog
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        onSuccess={() => refetch()}
-        customer={actionCustomer}
-      />
-
-      <AddCustomerDialog
-        open={addOpen}
-        onClose={() => setAddOpen(false)}
-        onSuccess={() => refetch()}
-      />
-
-      <DeleteConfirmationDialog
-        open={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={handleDeleteConfirm}
-        title={dict.customers.deleteTitle}
-        description={dict.customers.deleteDesc.replace(
-          "{name}",
-          actionCustomer?.name || dict.common.this || "this"
-        )}
-        loading={deleteMutation.isPending}
-      />
-    </Box>
+    <HydrationBoundary state={dehydratedState}>
+      <Suspense fallback={<CustomersPageSkeleton />}>
+        <CustomerContent />
+      </Suspense>
+    </HydrationBoundary>
   );
 }

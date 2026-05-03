@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getDrivers,
   getDriverDashboardData,
-  getDriverWithDashboardData,
   createDriver,
   updateDriver,
   deleteDriver,
@@ -12,35 +11,14 @@ import {
   assignVehicleToDriver,
   unassignVehicleFromDriver,
 } from "@/app/lib/controllers/driver";
-import { DriverWithRelations, PaginatedResponse } from "@/app/lib/type/driver";
+import { DriverWithRelations, PaginatedResponse, DriverFilters, DriverDashboardResponseType } from "@/app/lib/type/driver";
 import { DriverStatus } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 
-export const driverKeys = {
-  all: ["drivers"] as const,
-  lists: () => [...driverKeys.all, "list"] as const,
-  list: (params: {
-    page: number;
-    limit: number;
-    search?: string;
-    status?: DriverStatus[];
-    hasVehicle?: boolean;
-    sortField?: string;
-    sortOrder?: "asc" | "desc";
-  }) => [...driverKeys.lists(), params] as const,
-  details: () => [...driverKeys.all, "detail"] as const,
-  detail: (id: string) => [...driverKeys.details(), id] as const,
-  dashboard: () => [...driverKeys.all, "dashboard"] as const,
-  dashboardWithFilters: (filters: {
-    page: number;
-    limit: number;
-    search?: string;
-    status?: DriverStatus[];
-    hasVehicle?: boolean;
-    sortField?: string;
-    sortOrder?: "asc" | "desc";
-  }) => [...driverKeys.dashboard(), { filters }] as const,
-};
+// Imported for local use in the hooks below.
+// Server Components (page.tsx) import driverKeys directly from
+// "@/app/lib/query-keys/driver.keys" to avoid the "use client" boundary.
+import { driverKeys } from "@/app/lib/query-keys/driver.keys";
 
 export function useDrivers(
   page: number = 1,
@@ -75,6 +53,50 @@ export function useDriverDashboardData() {
   });
 }
 
+/**
+ * Fetches driver dashboard data via the API route.
+ *
+ * We intentionally use a Route Handler instead of the Server Action
+ * (getDriverWithDashboardData) because Next.js triggers router.refresh()
+ * automatically after every Server Action completes — even read-only ones.
+ * This caused a full page reload on every filter/search change.
+ * A plain HTTP fetch via the Route Handler has no such side-effect.
+ */
+async function fetchDriverDashboard(
+  filters: DriverFilters
+): Promise<{
+    drivers: DriverWithRelations[];
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+    driversKpis: DriverDashboardResponseType["driversKpis"];
+    topPerformers: DriverDashboardResponseType["topPerformers"];
+    performanceCharts: DriverDashboardResponseType["performanceCharts"];
+}> {
+  const params = new URLSearchParams();
+  if (filters.page) params.set("page", String(filters.page));
+  if (filters.limit) params.set("limit", String(filters.limit));
+  if (filters.search) params.set("search", filters.search);
+  if (filters.status?.length) filters.status.forEach((s) => params.append("status", s));
+  if (filters.hasVehicle !== undefined) params.set("hasVehicle", String(filters.hasVehicle));
+  if (filters.sortField) params.set("sortField", filters.sortField);
+  if (filters.sortOrder) params.set("sortOrder", filters.sortOrder);
+
+  const res = await fetch(`/api/drivers/dashboard?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useDriverWithDashboard] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
 export function useDriverWithDashboard(
   page: number = 1,
   limit: number = 10,
@@ -95,7 +117,7 @@ export function useDriverWithDashboard(
       sortOrder,
     }),
     queryFn: () =>
-      getDriverWithDashboardData({
+      fetchDriverDashboard({
         page,
         limit,
         search,
@@ -105,6 +127,7 @@ export function useDriverWithDashboard(
         sortOrder,
       }),
     staleTime: 1000 * 60 * 5,
+    placeholderData: (previousData, previousQuery) => previousData,
   });
 }
 
