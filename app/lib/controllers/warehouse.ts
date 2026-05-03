@@ -4,6 +4,7 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma, WarehouseType } from "@prisma/client";
+import { createNotification } from "@/app/lib/notifications";
 import {
   WarehouseWithRelations,
   WarehouseStats,
@@ -376,6 +377,19 @@ export const addInventoryItem = authenticatedAction(
         return newItem;
       });
 
+      // Notification check for initial stock
+      if (result.quantity <= result.minStock) {
+        await createNotification(
+          { companyId: user.companyId!, roleName: "WAREHOUSE" },
+          {
+            title: "Düşük Stok Uyarısı! ⚠️",
+            message: `${result.name} (SKU: ${result.sku}) kritik stok seviyesinde kaydedildi.`,
+            type: "WARNING",
+            link: `/dashboard/inventory?warehouseId=${result.warehouseId}`,
+          }
+        );
+      }
+
       return result;
     } catch (error) {
       console.error("Failed to add inventory item:", error);
@@ -439,6 +453,20 @@ export const updateInventoryItem = authenticatedAction(
       });
 
       await invalidateWarehouseCache(user.companyId!, updatedItem.warehouseId);
+
+      // Notification check for stock levels
+      if (updatedItem.quantity <= updatedItem.minStock) {
+        await createNotification(
+          { companyId: user.companyId!, roleName: "WAREHOUSE" },
+          {
+            title: "Kritik Stok Seviyesi! 🚨",
+            message: `${updatedItem.name} (SKU: ${updatedItem.sku}) stok seviyesi ${updatedItem.quantity}'e düştü. (Min: ${updatedItem.minStock})`,
+            type: "ERROR",
+            link: `/dashboard/inventory?warehouseId=${updatedItem.warehouseId}`,
+          }
+        );
+      }
+
       return updatedItem;
     } catch (error) {
       console.error("Failed to update inventory item:", error);

@@ -5,6 +5,7 @@ import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { type Prisma, ShipmentStatus, ShipmentPriority } from "@prisma/client";
 import type { Customer, CustomerLocation } from "@prisma/client";
+import { createNotification } from "@/app/lib/notifications";
 import {
   ShipmentWithRelations,
   ShipmentStats,
@@ -237,6 +238,18 @@ export const createShipment = authenticatedAction(
         invalidateShipmentCache(companyId!),
         invalidateInventoryCache(companyId!)
       ]);
+
+      // Dispatch Notification
+      await createNotification(
+        { companyId: companyId! },
+        {
+          title: "Yeni Sevkiyat Kaydı 📦",
+          message: `${newShipment.trackingId} takip numaralı yeni sevkiyat oluşturuldu.`,
+          type: "INFO",
+          link: `/dashboard/shipments/${newShipment.id}`,
+        }
+      );
+
       return { shipment: newShipment };
     } catch (error) {
       console.error("Failed to create shipment:", error);
@@ -371,6 +384,30 @@ export const updateShipmentStatus = authenticatedAction(
       });
 
       await invalidateShipmentCache(companyId!, shipmentId);
+
+      // Dispatch Notification for critical status changes
+      if (status === ShipmentStatus.DELAYED || status === ShipmentStatus.FAILED) {
+        await createNotification(
+          { companyId: companyId! },
+          {
+            title: status === ShipmentStatus.DELAYED ? "Sevkiyat Gecikmesi ⏳" : "Sevkiyat Başarısız ❌",
+            message: `${updatedShipment.trackingId} numaralı sevkiyatın durumu ${status} olarak güncellendi.`,
+            type: status === ShipmentStatus.DELAYED ? "WARNING" : "ERROR",
+            link: `/dashboard/shipments/${updatedShipment.id}`,
+          }
+        );
+      } else if (status === ShipmentStatus.DELIVERED || status === ShipmentStatus.COMPLETED) {
+        await createNotification(
+          { companyId: companyId! },
+          {
+            title: "Sevkiyat Teslim Edildi ✅",
+            message: `${updatedShipment.trackingId} numaralı sevkiyat başarıyla teslim edildi.`,
+            type: "SUCCESS",
+            link: `/dashboard/shipments/${updatedShipment.id}`,
+          }
+        );
+      }
+
       return updatedShipment;
     } catch (error) {
       console.error("Failed to update shipment status:", error);

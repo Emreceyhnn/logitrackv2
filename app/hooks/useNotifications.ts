@@ -40,50 +40,34 @@ export const useNotifications = (user: UserContext | undefined) => {
   useEffect(() => {
     if (!user?.id) return;
 
-    const paths = [
-      { key: "everybody", path: "notifications/groups/everyone" },
-      { key: "personal", path: `notifications/inbox/${user.id}` },
-      ...(user.companyId ? [{ key: "company", path: `notifications/groups/company_${user.companyId}` }] : []),
-      ...(user.companyId && user.roleName ? [{ key: "role", path: `notifications/groups/company_${user.companyId}_role_${user.roleName}` }] : []),
-    ];
+    const path = `notifications/inbox/${user.id}`;
+    const nodeRef = ref(db, path);
 
-    const listeners: Array<{ nodeRef: ReturnType<typeof ref>; listener: (snap: DataSnapshot) => void; path: string }> = [];
-
-    paths.forEach(({ path }) => {
-      const nodeRef = ref(db, path);
-      const listener = (snapshot: DataSnapshot) => {
-        const data = snapshot.val() as Record<string, Omit<Notification, "id" | "_sourcePath">> | null;
-        
-        setNotificationMap(prev => {
-          const next = { ...prev };
-          
-          // Clear current path's entries before rebuilding to ensure sync
-          Object.keys(next).forEach(k => {
-            if (next[k]._sourcePath === path) delete next[k];
-          });
-
-          if (data) {
-            Object.entries(data).forEach(([id, val]) => {
-              next[`${path}_${id}`] = { ...val, id, _sourcePath: path } as Notification;
-            });
-          }
-          return next;
+    const listener = (snapshot: DataSnapshot) => {
+      const data = snapshot.val() as Record<string, Omit<Notification, "id">> | null;
+      
+      if (data) {
+        const newNotifications: Record<string, Notification> = {};
+        Object.entries(data).forEach(([id, val]) => {
+          newNotifications[id] = { ...val, id, _sourcePath: path } as Notification;
         });
-        setLoading(false);
-      };
+        setNotificationMap(newNotifications);
+      } else {
+        setNotificationMap({});
+      }
+      setLoading(false);
+    };
 
-      onValue(nodeRef, listener, (err) => {
-        console.error(`Sub error [${path}]:`, err);
-        setLoading(false);
-      });
-
-      listeners.push({ nodeRef, listener, path });
+    onValue(nodeRef, listener, (err) => {
+      console.error(`Subscription error on [${path}]:`, err);
+      setLoading(false);
     });
 
     return () => {
-      listeners.forEach(({ nodeRef, listener }) => off(nodeRef, "value", listener));
+      off(nodeRef, "value", listener);
     };
-  }, [user?.id, user?.companyId, user?.roleName]);
+  }, [user?.id]);
+
 
   const notifications = useMemo(() => {
     return Object.values(notificationMap).sort((a, b) => b.createdAt - a.createdAt);

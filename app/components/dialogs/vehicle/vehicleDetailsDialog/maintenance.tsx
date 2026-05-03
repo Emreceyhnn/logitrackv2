@@ -494,7 +494,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                       >
                         {currencyLoading
                           ? "..."
-                          : formatFrom(v.cost, (v as any).currency || "USD", 2)}
+                          : formatFrom(v.cost, v.currency || "USD", 2)}
                       </TableCell>
                       <TableCell
                         align="left"

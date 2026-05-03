@@ -1,6 +1,7 @@
 "use server";
 
 import { type Prisma, RouteStatus } from "@prisma/client";
+import { createNotification } from "@/app/lib/notifications";
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
@@ -817,22 +818,33 @@ export const updateRouteStatus = authenticatedAction(
               data: { status: "ON_JOB" },
             });
           }
-          if (route.shipments.length > 0) {
-            await tx.shipment.updateMany({
-              where: { routeId: route.id },
-              data: { status: "IN_TRANSIT" },
-            });
-            for (const shipment of route.shipments) {
-              await tx.shipmentHistory.create({
-                data: {
-                  shipmentId: shipment.id,
-                  status: "IN_TRANSIT",
-                  description: "Route started - Shipment in transit",
-                  createdBy: userId || "",
-                },
+            if (route.shipments.length > 0) {
+              await tx.shipment.updateMany({
+                where: { routeId: route.id },
+                data: { status: "IN_TRANSIT" },
               });
+              for (const shipment of route.shipments) {
+                await tx.shipmentHistory.create({
+                  data: {
+                    shipmentId: shipment.id,
+                    status: "IN_TRANSIT",
+                    description: "Route started - Shipment in transit",
+                    createdBy: userId || "",
+                  },
+                });
+              }
             }
-          }
+
+            // Dispatch Notification
+            await createNotification(
+              { companyId: companyId! },
+              {
+                title: "Rota Başlatıldı 🚚",
+                message: `${route.name || route.id} numaralı rota şu an aktif durumda. Araç yola çıktı.`,
+                type: "SUCCESS",
+                link: `/dashboard/routes/${route.id}`,
+              }
+            );
         } else if (status === "COMPLETED") {
           // Vehicle to AVAILABLE, Driver to OFF_DUTY, Shipments to DELIVERED
           if (route.vehicleId) {
@@ -847,23 +859,34 @@ export const updateRouteStatus = authenticatedAction(
               data: { status: "OFF_DUTY" },
             });
           }
-          if (route.shipments.length > 0) {
-            await tx.shipment.updateMany({
-              where: { routeId: route.id },
-              data: { status: "COMPLETED" },
-            });
-            for (const shipment of route.shipments) {
-              await tx.shipmentHistory.create({
-                data: {
-                  shipmentId: shipment.id,
-                  status: "COMPLETED",
-                  location: route.endAddress || "Destination",
-                  description: "Route completed - Shipment completed",
-                  createdBy: userId || "",
-                },
+            if (route.shipments.length > 0) {
+              await tx.shipment.updateMany({
+                where: { routeId: route.id },
+                data: { status: "COMPLETED" },
               });
+              for (const shipment of route.shipments) {
+                await tx.shipmentHistory.create({
+                  data: {
+                    shipmentId: shipment.id,
+                    status: "COMPLETED",
+                    location: route.endAddress || "Destination",
+                    description: "Route completed - Shipment completed",
+                    createdBy: userId || "",
+                  },
+                });
+              }
             }
-          }
+
+            // Dispatch Notification
+            await createNotification(
+              { companyId: companyId! },
+              {
+                title: "Rota Tamamlandı ✅",
+                message: `${route.name || route.id} numaralı rota başarıyla tamamlandı. Tüm sevkiyatlar teslim edildi.`,
+                type: "SUCCESS",
+                link: `/dashboard/routes/${route.id}`,
+              }
+            );
         } else if (status === "CANCELED") {
           // Vehicle to AVAILABLE, Driver to OFF_DUTY
           if (route.vehicleId) {
@@ -878,22 +901,33 @@ export const updateRouteStatus = authenticatedAction(
               data: { status: "OFF_DUTY" },
             });
           }
-          if (route.shipments.length > 0) {
-            await tx.shipment.updateMany({
-              where: { routeId: route.id },
-              data: { status: "PENDING" }, // revert to pending
-            });
-            for (const shipment of route.shipments) {
-              await tx.shipmentHistory.create({
-                data: {
-                  shipmentId: shipment.id,
-                  status: "PENDING",
-                  description: "Route canceled - Shipment reverted to pending",
-                  createdBy: userId || "",
-                },
+            if (route.shipments.length > 0) {
+              await tx.shipment.updateMany({
+                where: { routeId: route.id },
+                data: { status: "PENDING" }, // revert to pending
               });
+              for (const shipment of route.shipments) {
+                await tx.shipmentHistory.create({
+                  data: {
+                    shipmentId: shipment.id,
+                    status: "PENDING",
+                    description: "Route canceled - Shipment reverted to pending",
+                    createdBy: userId || "",
+                  },
+                });
+              }
             }
-          }
+
+            // Dispatch Notification
+            await createNotification(
+              { companyId: companyId! },
+              {
+                title: "Rota İptal Edildi ⚠️",
+                message: `${route.name || route.id} numaralı rota iptal edildi. Araç müsait durumuna çekildi.`,
+                type: "WARNING",
+                link: `/dashboard/routes/${route.id}`,
+              }
+            );
         }
 
         return newRoute;

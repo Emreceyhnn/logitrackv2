@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { checkPermission } from "./utils/checkPermission";
 import jwt from "jsonwebtoken";
 import { db } from "../db";
+import { createNotification } from "@/app/lib/notifications";
 import {
   authenticatedAction,
   maybeAuthenticatedAction,
@@ -361,6 +362,17 @@ export const createUserForCompany = authenticatedAction(
           roleId: foundRole ? foundRole.id : undefined,
         },
       });
+
+      // Dispatch Notification for new team member
+      await createNotification(
+        { companyId: user.companyId! },
+        {
+          title: "Yeni Ekip Üyesi! 👋",
+          message: `${userData.name} ${userData.surname} ekibe katıldı. Rol: ${userData.role}`,
+          type: "SUCCESS",
+          link: `/dashboard/users`,
+        }
+      );
 
       return newUser;
     } catch (error) {

@@ -3,6 +3,7 @@
 import { db } from "../db";
 import { checkPermission } from "./utils/checkPermission";
 import { DriverStatus, Prisma } from "@prisma/client";
+import { createNotification } from "@/app/lib/notifications";
 
 import { authenticatedAction } from "../auth-middleware";
 import {
@@ -171,6 +172,19 @@ export const createDriver = authenticatedAction(
       });
 
       await invalidateDriverCache(companyId);
+
+      // Dispatch Notification for new driver
+      const driverUser = await db.user.findUnique({ where: { id: data.userId }, select: { name: true, surname: true } });
+      await createNotification(
+        { companyId },
+        {
+          title: "Yeni Sürücü Aramıza Katıldı! 🚛",
+          message: `${driverUser?.name} ${driverUser?.surname} sisteme yeni sürücü olarak eklendi.`,
+          type: "SUCCESS",
+          link: `/dashboard/drivers`,
+        }
+      );
+
       return { success: true };
     } catch (error) {
       console.error("Failed to create driver:", error);
@@ -343,6 +357,21 @@ export const updateDriverStatus = authenticatedAction(
       });
       
       await invalidateDriverCache(companyId, driverId);
+
+      // Dispatch Notification for status changes
+      if (status === "SUSPENDED") {
+        const driver = await db.driver.findUnique({ where: { id: driverId }, include: { user: { select: { name: true, surname: true } } } });
+        await createNotification(
+          { companyId },
+          {
+            title: "Sürücü Askıya Alındı! ⚠️",
+            message: `${driver?.user.name} ${driver?.user.surname} isimli sürücü askıya alındı.`,
+            type: "ERROR",
+            link: `/dashboard/drivers/${driverId}`,
+          }
+        );
+      }
+
       return updatedDriver;
     } catch (error) {
       console.error("Failed to update driver status:", error);

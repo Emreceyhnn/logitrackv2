@@ -345,6 +345,7 @@ export interface MaintenanceRecord {
   type: string;
   date: Date;
   cost: number;
+  currency: string;
   status: MaintenanceStatus;
   description?: string | null;
   createdAt: Date;

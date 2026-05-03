@@ -74,7 +74,7 @@ export default function MaintenanceDetailDialog({
         date: dayjs(record.date),
         cost: convertFrom(
           record.cost,
-          (record as any).currency || "USD"
+          record.currency || "USD"
         ).toFixed(2),
         status: (record.status as MaintenanceStatus) || "COMPLETED",
         description: record.description || "",

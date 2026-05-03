@@ -4,6 +4,7 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
+import { createNotification } from "@/app/lib/notifications";
 
 export const createDocument = authenticatedAction(
   async (
@@ -75,6 +76,19 @@ export const createDocument = authenticatedAction(
           vehicleId,
         },
       });
+
+      // Dispatch Notification for expiration alerts
+      if (docStatus === "EXPIRED" || docStatus === "EXPIRING_SOON") {
+        await createNotification(
+          { companyId },
+          {
+            title: docStatus === "EXPIRED" ? "Belge Süresi Dolmuş! 🚫" : "Belge Süresi Yaklaşıyor! ⏳",
+            message: `${name} isimli belgenin durumu: ${docStatus}. Lütfen yenileyiniz.`,
+            type: docStatus === "EXPIRED" ? "ERROR" : "WARNING",
+            link: "/dashboard/documents",
+          }
+        );
+      }
 
       return { document: newDocument };
     } catch (error) {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useUserContext } from "@/app/lib/context/UserContext";
 import { getExchangeRatesAction } from "@/app/lib/controllers/exchangeRate";
@@ -41,47 +42,50 @@ export function useCurrency() {
 
   const rate = currency === "USD" ? 1 : (ratesData?.rates?.[currency] ?? 1);
 
-  const formatter = createCurrencyFormatter(currency, rate);
+  return useMemo(() => {
+    const formatter = createCurrencyFormatter(currency, rate);
 
-  return {
-    /** Format a USD amount in the user's currency (e.g. "$1,234" or "₺47k") */
-    format: (usdAmount: number, decimals = 0) =>
-      formatCurrency(usdAmount, currency, rate, decimals),
+    return {
+      /** Format a USD amount in the user's currency (e.g. "$1,234" or "₺47k") */
+      format: (usdAmount: number, decimals = 0) =>
+        formatCurrency(usdAmount, currency, rate, decimals),
 
-    /** Compact format for large numbers (e.g. "$1.2k", "₺45M") */
-    compact: (usdAmount: number) =>
-      formatCurrencyCompact(usdAmount, currency, rate),
+      /** Compact format for large numbers (e.g. "$1.2k", "₺45M") */
+      compact: (usdAmount: number) =>
+        formatCurrencyCompact(usdAmount, currency, rate),
 
-    /** Currency symbol (e.g. "$", "₺", "€", "£") */
-    symbol: CURRENCY_SYMBOLS[currency] ?? "$",
+      /** Currency symbol (e.g. "$", "₺", "€", "£") */
+      symbol: CURRENCY_SYMBOLS[currency] ?? "$",
 
-    /** Converts an amount from a given currency to the user's currency */
-    convertFrom: (amount: number, fromCurrency: string) => {
-      if (fromCurrency === currency) return amount;
-      const rateFrom = ratesData?.rates?.[fromCurrency] ?? 1;
-      const rateTo = ratesData?.rates?.[currency] ?? 1;
-      return (amount / rateFrom) * rateTo;
-    },
+      /** Converts an amount from a given currency to the user's currency */
+      convertFrom: (amount: number, fromCurrency: string) => {
+        if (fromCurrency === currency) return amount;
+        const rateFrom = ratesData?.rates?.[fromCurrency] ?? 1;
+        const rateTo = ratesData?.rates?.[currency] ?? 1;
+        return (amount / rateFrom) * rateTo;
+      },
 
-    /** Formats an amount from a given currency to the user's currency */
-    formatFrom: (amount: number, fromCurrency: string, decimals = 0) => {
-      if (fromCurrency === currency) return formatter.formatDirect(amount, decimals);
-      const rateFrom = ratesData?.rates?.[fromCurrency] ?? 1;
-      const rateTo = ratesData?.rates?.[currency] ?? 1;
-      const targetAmount = (amount / rateFrom) * rateTo;
-      return formatter.formatDirect(targetAmount, decimals);
-    },
+      /** Formats an amount from a given currency to the user's currency */
+      formatFrom: (amount: number, fromCurrency: string, decimals = 0) => {
+        if (fromCurrency === currency)
+          return formatter.formatDirect(amount, decimals);
+        const rateFrom = ratesData?.rates?.[fromCurrency] ?? 1;
+        const rateTo = ratesData?.rates?.[currency] ?? 1;
+        const targetAmount = (amount / rateFrom) * rateTo;
+        return formatter.formatDirect(targetAmount, decimals);
+      },
 
-    /** The user's currency code */
-    currency,
+      /** The user's currency code */
+      currency,
 
-    /** The current exchange rate (USD → user currency) */
-    rate,
+      /** The current exchange rate (USD → user currency) */
+      rate,
 
-    /** Full formatter object */
-    formatter,
+      /** Full formatter object */
+      formatter,
 
-    /** True while exchange rates are loading */
-    isLoading,
-  };
+      /** True while exchange rates are loading */
+      isLoading,
+    };
+  }, [currency, rate, ratesData, isLoading]);
 }

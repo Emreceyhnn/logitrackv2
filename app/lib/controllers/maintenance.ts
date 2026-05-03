@@ -4,6 +4,8 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
+import { createNotification } from "@/app/lib/notifications";
+import { getExchangeRates } from "@/app/lib/services/exchangeRate";
 
 export const createMaintenanceRecord = authenticatedAction(
   async (
@@ -12,7 +14,8 @@ export const createMaintenanceRecord = authenticatedAction(
     type: string,
     date: Date,
     cost: number,
-    description?: string
+    description?: string,
+    currency: string = "USD"
   ) => {
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
@@ -34,15 +37,40 @@ export const createMaintenanceRecord = authenticatedAction(
         );
       }
 
+      // Normalize cost to USD
+      let normalizedCost = cost;
+      if (currency && currency !== "USD") {
+        try {
+          const rates = await getExchangeRates();
+          const rate = rates.rates[currency] || 1;
+          normalizedCost = cost / rate;
+        } catch (err) {
+          console.warn("[maintenance] Currency conversion failed:", err);
+        }
+      }
+
       const newRecord = await db.maintenanceRecord.create({
         data: {
           vehicleId,
           type,
           date,
-          cost,
+          cost: normalizedCost,
           description,
+          currency: "USD",
         },
+        include: { vehicle: { select: { plate: true } } },
       });
+
+      // Dispatch Notification
+      await createNotification(
+        { companyId },
+        {
+          title: "Yeni Bakım Kaydı 👨‍🔧",
+          message: `${newRecord.vehicle.plate} plakalı araç için ${type} bakımı planlandı.`,
+          type: "INFO",
+          link: `/dashboard/vehicles/${vehicleId}`,
+        }
+      );
 
       return { maintenanceRecord: newRecord };
     } catch (error) {
@@ -140,7 +168,16 @@ export const updateMaintenanceRecord = authenticatedAction(
       await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
       const existingRecord = await db.maintenanceRecord.findUnique({
         where: { id: recordId },
-        include: { vehicle: { select: { companyId: true } } },
+        select: {
+          status: true,
+          type: true,
+          vehicle: {
+            select: {
+              companyId: true,
+              plate: true,
+            },
+          },
+        },
       });
 
       if (!existingRecord?.vehicle?.companyId)
@@ -151,12 +188,73 @@ export const updateMaintenanceRecord = authenticatedAction(
         "role_manager",
       ]);
 
+      // Normalize cost to USD if provided
+      let finalData = { ...data };
+      const rawCost = typeof data.cost === 'number' ? data.cost : (data.cost as any)?.set;
+      const rawCurrency = typeof data.currency === 'string' ? data.currency : (data.currency as any)?.set;
+
+      if (rawCost !== undefined && rawCurrency && rawCurrency !== "USD") {
+        try {
+          const rates = await getExchangeRates();
+          const rate = rates.rates[rawCurrency] || 1;
+          const normalizedCost = rawCost / rate;
+          finalData.cost = normalizedCost;
+          finalData.currency = "USD";
+        } catch (err) {
+          console.warn("[maintenance] Currency conversion failed in update:", err);
+        }
+      } else if (rawCurrency) {
+        finalData.currency = "USD";
+      }
+
       const updatedRecord = await db.maintenanceRecord.update({
         where: { id: recordId },
-        data: {
-          ...data,
-        },
+        data: finalData,
+        include: { vehicle: { select: { plate: true, id: true } } },
       });
+
+      // Dispatch Notification if status changed
+      const oldStatus = existingRecord.status;
+      const newStatus = (typeof data.status === 'string' ? data.status : (data.status as any)?.set) || updatedRecord.status;
+
+      if (newStatus !== oldStatus) {
+        let title = "Bakım Güncellendi 👨‍🔧";
+        let message = `${updatedRecord.vehicle.plate} plakalı aracın ${updatedRecord.type} bakımı durumu ${newStatus} olarak güncellendi.`;
+        let type: "INFO" | "SUCCESS" | "WARNING" | "ERROR" = "INFO";
+
+        switch (newStatus) {
+          case "COMPLETED":
+            title = "Bakım Tamamlandı! ✅";
+            message = `${updatedRecord.vehicle.plate} plakalı aracın ${updatedRecord.type} bakımı başarıyla tamamlandı.`;
+            type = "SUCCESS";
+            break;
+          case "CANCELLED":
+            title = "Bakım İptal Edildi 🛑";
+            message = `${updatedRecord.vehicle.plate} plakalı aracın ${updatedRecord.type} bakımı iptal edildi.`;
+            type = "WARNING";
+            break;
+          case "IN_PROGRESS":
+            title = "Bakım Devam Ediyor 🔧";
+            message = `${updatedRecord.vehicle.plate} plakalı aracın ${updatedRecord.type} bakımı başladı.`;
+            type = "INFO";
+            break;
+          case "SCHEDULED":
+            title = "Bakım Planlandı 📅";
+            message = `${updatedRecord.vehicle.plate} plakalı aracın ${updatedRecord.type} bakımı için tarih belirlendi.`;
+            type = "INFO";
+            break;
+        }
+
+        await createNotification(
+          { companyId: existingRecord.vehicle.companyId! },
+          {
+            title,
+            message,
+            type,
+            link: `/dashboard/vehicles/${updatedRecord.vehicle.id}`,
+          }
+        );
+      }
 
       return updatedRecord;
     } catch (error) {
@@ -178,7 +276,16 @@ export const deleteMaintenanceRecord = authenticatedAction(
       await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
       const existingRecord = await db.maintenanceRecord.findUnique({
         where: { id: recordId },
-        include: { vehicle: { select: { companyId: true } } },
+        select: {
+          type: true,
+          vehicleId: true,
+          vehicle: {
+            select: {
+              companyId: true,
+              plate: true,
+            },
+          },
+        },
       });
 
       if (!existingRecord?.vehicle?.companyId)
@@ -192,6 +299,17 @@ export const deleteMaintenanceRecord = authenticatedAction(
       await db.maintenanceRecord.delete({
         where: { id: recordId },
       });
+
+      // Dispatch Notification
+      await createNotification(
+        { companyId: existingRecord.vehicle.companyId! },
+        {
+          title: "Bakım Kaydı Silindi 🗑️",
+          message: `${existingRecord.vehicle.plate} plakalı araca ait ${existingRecord.type} bakımı kaydı sistemden silindi.`,
+          type: "WARNING",
+          link: `/dashboard/vehicles/${existingRecord.vehicleId}`,
+        }
+      );
 
       return { success: true };
     } catch (error) {
@@ -252,5 +370,52 @@ export const getMaintenanceStats = authenticatedAction(async (user) => {
     throw new Error(
       error instanceof Error ? error.message : "Failed to get maintenance stats"
     );
+  }
+});
+
+/**
+ * Scans for scheduled maintenance records in the next 3 days and sends notifications.
+ * This can be triggered by a cron job or a dashboard load.
+ */
+export const checkUpcomingMaintenance = authenticatedAction(async (user) => {
+  const companyId = user?.companyId;
+  if (!companyId) return;
+
+  try {
+    const threeDaysFromNow = new Date();
+    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+
+    const upcomingRecords = await db.maintenanceRecord.findMany({
+      where: {
+        vehicle: { companyId },
+        status: "SCHEDULED",
+        date: {
+          gte: new Date(),
+          lte: threeDaysFromNow,
+        },
+      },
+      include: {
+        vehicle: {
+          select: { plate: true, id: true },
+        },
+      },
+    });
+
+    for (const record of upcomingRecords) {
+      await createNotification(
+        { companyId },
+        {
+          title: "Yaklaşan Bakım Uyarısı! ⏳",
+          message: `${record.vehicle.plate} plakalı aracın ${record.type} bakımı yaklaşıyor (Tarih: ${record.date.toLocaleDateString()}).`,
+          type: "WARNING",
+          link: `/dashboard/vehicles/${record.vehicle.id}`,
+        }
+      );
+    }
+
+    return { count: upcomingRecords.length };
+  } catch (error) {
+    console.error("Failed to check upcoming maintenance:", error);
+    return { error: "Failed to check upcoming maintenance" };
   }
 });
