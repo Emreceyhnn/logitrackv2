@@ -66,11 +66,10 @@ export default function Providers({
   // Hydrate from localStorage after mount (avoids SSR mismatch)
   useEffect(() => {
     const stored = getSavedStoredMode();
-    // If we got initialMode from server, we might still want to respect it if we just logged in.
-    // However, localStorage is usually the source of truth for the browser.
-    // We will override with server initialMode if available, otherwise localStorage.
     const modeToUse = initialMode || stored;
-    setModeState(resolveMode(modeToUse));
+    const resolved = resolveMode(modeToUse);
+    
+    setModeState(resolved);
 
     // If system mode, listen for OS preference changes
     if (stored === "system") {
@@ -80,7 +79,7 @@ export default function Providers({
       mq.addEventListener("change", handler);
       return () => mq.removeEventListener("change", handler);
     }
-  }, []);
+  }, [initialMode]);
 
   const setMode = useCallback((newMode: ThemeMode | "system") => {
     try {

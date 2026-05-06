@@ -263,7 +263,7 @@ export async function validateSession(): Promise<SessionUser | null> {
       currency: session.user.currency || "USD",
     };
   } catch (error) {
-    if ((error as any)?.digest === 'DYNAMIC_SERVER_USAGE') {
+    if ((error as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') {
       throw error;
     }
     console.error("[validateSession] ❌ Unexpected error:", error);
@@ -367,7 +367,7 @@ export async function refreshSession(): Promise<boolean> {
 
     return true;
   } catch (error) {
-    if ((error as any)?.digest === 'DYNAMIC_SERVER_USAGE') {
+    if ((error as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') {
       throw error;
     }
     console.error("Session refresh failed:", error);

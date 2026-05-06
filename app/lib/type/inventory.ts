@@ -55,7 +55,7 @@ export interface CreateInventoryInput {
   imageUrl?: string | null;
 }
 
-export interface UpdateInventoryInput extends Partial<CreateInventoryInput> {}
+export type UpdateInventoryInput = Partial<CreateInventoryInput>;
 
 // Page State
 export interface InventoryPageState {

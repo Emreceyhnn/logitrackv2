@@ -12,6 +12,7 @@ import {
   ShipmentVolumeData,
   ShipmentStatusData,
 } from "../type/shipment";
+import { InventoryShipmentItem } from "../type/add-shipment";
 import {
   redis,
   withCache,
@@ -58,7 +59,7 @@ export const createShipment = authenticatedAction(
       contactEmail?: string;
       billingAccount?: string;
       originWarehouseId?: string;
-      inventoryItems?: any[];
+      inventoryItems?: InventoryShipmentItem[];
     }
   ) => {
     const userId = user?.id;
@@ -144,7 +145,7 @@ export const createShipment = authenticatedAction(
               ? firstCustomerLocation.lng
               : undefined;
 
-      const newShipment = await db.$transaction(async (tx: any) => {
+      const newShipment = await db.$transaction(async (tx: Prisma.TransactionClient) => {
         const shipment = await tx.shipment.create({
           data: {
             trackingId: finalTrackingId,
@@ -177,7 +178,7 @@ export const createShipment = authenticatedAction(
               },
             },
             items: {
-              create: inventoryItems.map((item: any) => ({
+              create: inventoryItems.map((item: InventoryShipmentItem) => ({
                 sku: item.sku,
                 name: item.name,
                 quantity: item.quantity,
@@ -559,7 +560,7 @@ export const updateShipment = authenticatedAction(
         throw new Error("Shipment not found or unauthorized");
       }
 
-      const updateData = { ...data } as any;
+      const updateData = { ...data } as Prisma.ShipmentUpdateInput & { inventoryItems?: InventoryShipmentItem[] };
       if (updateData.trackingId === "") {
         updateData.trackingId = `TRK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
       }
@@ -578,7 +579,7 @@ export const updateShipment = authenticatedAction(
         delete updateData.inventoryItems;
         
         // Use a transaction for safety
-        const updatedShipment = await db.$transaction(async (tx: any) => {
+        const updatedShipment = await db.$transaction(async (tx: Prisma.TransactionClient) => {
           // 1. Get old items to restore inventory
           const oldShipment = await tx.shipment.findUnique({
             where: { id: shipmentId },
@@ -646,7 +647,7 @@ export const updateShipment = authenticatedAction(
             data: {
               ...updateData,
               items: {
-                create: items.map((item: any) => ({
+                create: items.map((item: InventoryShipmentItem) => ({
                   sku: item.sku,
                   name: item.name,
                   quantity: item.quantity,
@@ -1035,7 +1036,7 @@ export const getShipmentsWithDashboardData = authenticatedAction(
       // Volume History Transformation
       const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
       const volumeByDay: Record<string, number> = {};
-      rawVolumeHistory.forEach((s: any) => {
+      rawVolumeHistory.forEach((s: { createdAt: Date }) => {
         const dayName = days[s.createdAt.getDay()];
         volumeByDay[dayName] = (volumeByDay[dayName] || 0) + 1;
       });
@@ -1049,7 +1050,7 @@ export const getShipmentsWithDashboardData = authenticatedAction(
         totalCount,
         stats: { total, active, delayed, inTransit },
         volumeHistory,
-        statusDistribution: statusCounts.map((s: any) => ({
+        statusDistribution: statusCounts.map((s: { status: ShipmentStatus; _count: { status: number } }) => ({
           status: s.status,
           count: s._count.status,
         })),

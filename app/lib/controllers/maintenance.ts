@@ -189,9 +189,9 @@ export const updateMaintenanceRecord = authenticatedAction(
       ]);
 
       // Normalize cost to USD if provided
-      let finalData = { ...data };
-      const rawCost = typeof data.cost === 'number' ? data.cost : (data.cost as any)?.set;
-      const rawCurrency = typeof data.currency === 'string' ? data.currency : (data.currency as any)?.set;
+      const finalData = { ...data };
+      const rawCost = typeof data.cost === 'number' ? data.cost : (data.cost as Prisma.FloatFieldUpdateOperationsInput)?.set;
+      const rawCurrency = typeof data.currency === 'string' ? data.currency : (data.currency as Prisma.StringFieldUpdateOperationsInput)?.set;
 
       if (rawCost !== undefined && rawCurrency && rawCurrency !== "USD") {
         try {
@@ -215,7 +215,7 @@ export const updateMaintenanceRecord = authenticatedAction(
 
       // Dispatch Notification if status changed
       const oldStatus = existingRecord.status;
-      const newStatus = (typeof data.status === 'string' ? data.status : (data.status as any)?.set) || updatedRecord.status;
+      const newStatus = (typeof data.status === 'string' ? data.status : (data.status as Prisma.StringFieldUpdateOperationsInput)?.set) || updatedRecord.status;
 
       if (newStatus !== oldStatus) {
         let title = "Bakım Güncellendi 👨‍🔧";

@@ -35,8 +35,8 @@ export async function GET(req: Request) {
       if (!doc.expiryDate || !doc.companyId) continue;
 
       const daysLeft = Math.ceil((doc.expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      let type: "ERROR" | "WARNING" = daysLeft <= 0 ? "ERROR" : "WARNING";
-      let title = daysLeft <= 0 ? "Belge Süresi Doldu! 🚫" : "Belge Süresi Yaklaşıyor! ⏳";
+      const type: "ERROR" | "WARNING" = daysLeft <= 0 ? "ERROR" : "WARNING";
+      const title = daysLeft <= 0 ? "Belge Süresi Doldu! 🚫" : "Belge Süresi Yaklaşıyor! ⏳";
       let message = "";
 
       const entityName = doc.driver 
@@ -69,9 +69,9 @@ export async function GET(req: Request) {
       if (!driver.licenseExpiry || !driver.companyId) continue;
 
       const daysLeft = Math.ceil((driver.licenseExpiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      let type: "ERROR" | "WARNING" = daysLeft <= 0 ? "ERROR" : "WARNING";
-      let title = daysLeft <= 0 ? "Ehliyet Süresi Doldu! 🪪" : "Ehliyet Süresi Yaklaşıyor! ⏳";
-      let message = daysLeft <= 0 
+      const type: "ERROR" | "WARNING" = daysLeft <= 0 ? "ERROR" : "WARNING";
+      const title = daysLeft <= 0 ? "Ehliyet Süresi Doldu! 🪪" : "Ehliyet Süresi Yaklaşıyor! ⏳";
+      const message = daysLeft <= 0 
         ? `${driver.user.name} ${driver.user.surname} isimli sürücünün ehliyet süresi dolmuş durumda!`
         : `${driver.user.name} ${driver.user.surname} isim bir sürücünün ehliyet süresinin dolmasına ${daysLeft} gün kaldı.`;
 

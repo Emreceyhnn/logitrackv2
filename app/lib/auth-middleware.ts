@@ -62,7 +62,7 @@ export const getAuthenticatedUser = cache(
         }
       }
     } catch (error) {
-      if ((error as any)?.digest === "DYNAMIC_SERVER_USAGE") {
+      if ((error as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") {
         throw error;
       }
       console.error(

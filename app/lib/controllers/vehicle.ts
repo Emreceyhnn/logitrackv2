@@ -923,7 +923,7 @@ export const updateMaintenanceRecord = authenticatedAction(
       }
 
       // Normalize cost to USD if provided
-      let finalData = { ...data };
+      const finalData = { ...data };
       if (data.cost !== undefined && data.currency && data.currency !== "USD") {
         try {
           const rates = await getExchangeRates();

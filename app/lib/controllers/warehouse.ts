@@ -630,7 +630,7 @@ export const getRecentStockMovements = authenticatedAction(async (user) => {
     });
 
     const enrichedMovements = await Promise.all(
-      movements.map(async (m: any) => {
+      movements.map(async (m: typeof movements[number]) => {
         const inventoryItem = await db.inventory.findFirst({
           where: {
             warehouseId: m.warehouseId,
@@ -737,7 +737,7 @@ export const getWarehousesWithDashboardData = authenticatedAction(
 
         // Enriched Movements
         const enrichedMovements = await Promise.all(
-          movements.map(async (m: any) => {
+          movements.map(async (m: typeof movements[number]) => {
             const inventoryItem = await db.inventory.findFirst({
               where: {
                 warehouseId: m.warehouseId,

@@ -67,7 +67,7 @@ export const createInventoryItem = authenticatedAction(
         throw new Error("Item with this SKU already exists in this warehouse");
       }
 
-      const { newItem, movement } = await db.$transaction(async (tx) => {
+      const { newItem } = await db.$transaction(async (tx) => {
         const item = await tx.inventory.create({
           data: {
             warehouseId,
@@ -97,7 +97,7 @@ export const createInventoryItem = authenticatedAction(
           },
         });
 
-        return { newItem: item, movement: mvt };
+        return { newItem: item };
       });
 
       await invalidateInventoryCache(companyId, newItem.id);
@@ -218,7 +218,7 @@ export const updateInventoryItem = authenticatedAction(
       const updatedItem = await db.$transaction(async (tx) => {
         const item = await tx.inventory.update({
           where: { id: inventoryId },
-          data: data as any,
+          data: data as Prisma.InventoryUpdateInput,
         });
         console.log(`[updateInventoryItem] Item updated in DB:`, item.id);
 
@@ -447,14 +447,14 @@ export const getInventoryWithDashboardData = authenticatedAction(
 
         if (statusFilters.length > 0) {
           where.AND = [
-            ...(where.AND as any || []),
+            ...(where.AND as Prisma.InventoryWhereInput[] || []),
             { OR: statusFilters }
           ];
         }
       }
 
       // Sort logic
-      const orderBy: any = {};
+      const orderBy: Prisma.InventoryOrderByWithRelationInput = {};
       if (sortBy) {
         orderBy[sortBy] = sortOrder || "asc";
       } else {
@@ -506,7 +506,7 @@ export const getInventoryWithDashboardData = authenticatedAction(
         let lowStockCount = 0;
         let outOfStockCount = 0;
         let totalValue = 0;
-        const lowStockItems: any[] = [];
+        const lowStockItems: LowStockItem[] = [];
 
         allStatsItems.forEach((item) => {
           totalItems++;
@@ -520,7 +520,7 @@ export const getInventoryWithDashboardData = authenticatedAction(
           }
           
           // Convert to USD for a consistent totalValue
-          const rateFrom = (ratesData.rates as any)[item.currency] || 1;
+          const rateFrom = (ratesData.rates as Record<string, number>)[item.currency] || 1;
           const itemValueInUsd = (item.unitValue || 0) / rateFrom;
           totalValue += item.quantity * itemValueInUsd;
         });
