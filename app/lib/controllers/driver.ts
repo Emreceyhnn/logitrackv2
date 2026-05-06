@@ -3,6 +3,7 @@
 import { db } from "../db";
 import { checkPermission } from "./utils/checkPermission";
 import { DriverStatus, Prisma } from "@prisma/client";
+import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 
 import { authenticatedAction } from "../auth-middleware";
 import {
@@ -171,6 +172,19 @@ export const createDriver = authenticatedAction(
       });
 
       await invalidateDriverCache(companyId);
+
+      // Dispatch Notification for new driver
+      const driverUser = await db.user.findUnique({ where: { id: data.userId }, select: { name: true, surname: true } });
+      await createNotification(
+        { companyId },
+        {
+          title: "Yeni Sürücü Aramıza Katıldı! 🚛",
+          message: `${driverUser?.name} ${driverUser?.surname} sisteme yeni sürücü olarak eklendi.`,
+          type: "SUCCESS",
+          link: `/dashboard/drivers`,
+        }
+      );
+
       return { success: true };
     } catch (error) {
       console.error("Failed to create driver:", error);
@@ -343,6 +357,33 @@ export const updateDriverStatus = authenticatedAction(
       });
       
       await invalidateDriverCache(companyId, driverId);
+
+      // Dispatch Notification for status changes
+      const driver = await db.driver.findUnique({ 
+        where: { id: driverId }, 
+        include: { user: { select: { name: true, surname: true } } } 
+      });
+
+      const statusMap: Record<string, { label: string, type: "INFO" | "WARNING" | "ERROR" | "SUCCESS", emoji: string }> = {
+        AVAILABLE: { label: "Müsait / Boşta", type: "SUCCESS", emoji: "✅" },
+        ON_JOB: { label: "Görevde", type: "INFO", emoji: "🚛" },
+        OFF_DUTY: { label: "Mesai Dışı / İstirahat", type: "WARNING", emoji: "😴" },
+        ON_LEAVE: { label: "İzinli", type: "INFO", emoji: "🏖️" },
+        SUSPENDED: { label: "Askıya Alındı", type: "ERROR", emoji: "⚠️" },
+      };
+
+      const statusInfo = statusMap[status] || { label: status, type: "INFO", emoji: "ℹ️" };
+
+      await createNotification(
+        { companyId },
+        {
+          title: `Sürücü Durumu Değişti: ${statusInfo.label} ${statusInfo.emoji}`,
+          message: `${driver?.user.name} ${driver?.user.surname} isimli sürücü şu an ${statusInfo.label} durumunda.`,
+          type: statusInfo.type,
+          link: `/dashboard/drivers/${driverId}`,
+        }
+      );
+
       return updatedDriver;
     } catch (error) {
       console.error("Failed to update driver status:", error);

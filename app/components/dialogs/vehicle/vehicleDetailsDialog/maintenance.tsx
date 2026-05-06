@@ -112,7 +112,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
     ) || [];
 
   return (
-    <Stack spacing={2} maxHeight={750}>
+    <Stack spacing={2}>
       <Stack spacing={2} direction={"row"} justifyContent={"space-between"}>
         <Card
           sx={{
@@ -252,73 +252,119 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
               + {dict.vehicles.dialogs.reportIssue}
             </Button>
           </Stack>
-          <Stack maxHeight={190} overflow={"auto"} spacing={2} mt={2}>
-            {openIssues.length === 0 ? (
-              <Typography variant="body2" color="text.secondary" align="center">
-                {dict.vehicles.dialogs.noOpenIssues}
-              </Typography>
-            ) : (
-              openIssues.map((i, index) => (
-                <Card
-                  key={index}
-                  sx={{
-                    borderRadius: "8px",
-                    bgcolor: (theme) =>
-                      theme.palette.mode === "dark"
-                        ? "rgba(255,255,255,0.05)"
-                        : "rgba(0,0,0,0.01)",
-                    overflow: "hidden",
-                    backgroundImage: "none",
-                    boxShadow: "none",
-                    border: `1px solid ${theme.palette.divider}`,
-                  }}
+          {/* Fade wrapper — stays fixed; scroll happens inside */}
+          <Box
+            mt={2}
+            sx={{
+              position: "relative",
+              /* Gradient fade only when list overflows */
+              ...(openIssues.length > 2 && {
+                maskImage:
+                  "linear-gradient(to bottom, black 75%, transparent 100%)",
+                WebkitMaskImage:
+                  "linear-gradient(to bottom, black 75%, transparent 100%)",
+              }),
+            }}
+          >
+            <Box
+              sx={{
+                maxHeight: 190,
+                overflowY: "auto",
+                overflowX: "hidden",
+                pr: 1,
+                display: "flex",
+                flexDirection: "column",
+                gap: 1.5,
+                /* Custom Scrollbar */
+                "&::-webkit-scrollbar": {
+                  width: "5px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  background: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  background: theme.palette.divider,
+                  borderRadius: "10px",
+                },
+                "&::-webkit-scrollbar-thumb:hover": {
+                  background: theme.palette.text.secondary,
+                },
+              }}
+            >
+              {openIssues.length === 0 ? (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  align="center"
                 >
-                  <CardActionArea
-                    onClick={() => handleIssueClick(i)}
+                  {dict.vehicles.dialogs.noOpenIssues}
+                </Typography>
+              ) : (
+                openIssues.map((i, index) => (
+                  <Card
+                    key={index}
                     sx={{
-                      p: 2,
-                      "&:hover": {
-                        bgcolor: theme.palette.common.white_alpha.main_05,
-                      },
+                      borderRadius: "8px",
+                      bgcolor: (theme) =>
+                        theme.palette.mode === "dark"
+                          ? "rgba(255,255,255,0.05)"
+                          : "rgba(0,0,0,0.01)",
+                      overflow: "hidden",
+                      backgroundImage: "none",
+                      boxShadow: "none",
+                      border: `1px solid ${theme.palette.divider}`,
+                      flexShrink: 0,
                     }}
                   >
-                    <Stack direction="row" alignItems="center" gap={2}>
-                      <Box
-                        sx={{
-                          height: 10,
-                          width: 10,
-                          borderRadius: "50%",
-                          bgcolor: getStatusMeta(i.priority, dict).color,
-                        }}
-                      />
-                      <Stack flexGrow={1}>
-                        <Typography
+                    <CardActionArea
+                      onClick={() => handleIssueClick(i)}
+                      sx={{
+                        p: 2,
+                        "&:hover": {
+                          bgcolor: theme.palette.common.white_alpha.main_05,
+                        },
+                      }}
+                    >
+                      <Stack direction="row" alignItems="center" gap={2}>
+                        <Box
                           sx={{
-                            fontSize: 16,
-                            fontWeight: 700,
-                            color: "text.primary",
+                            height: 10,
+                            width: 10,
+                            borderRadius: "50%",
+                            flexShrink: 0,
+                            bgcolor: getStatusMeta(i.priority, dict).color,
                           }}
-                        >
-                          {i.title}
-                        </Typography>
-                        <Typography
-                          sx={{
-                            fontSize: 12,
-                            fontWeight: 200,
-                            color: "text.secondary",
-                          }}
-                        >
-                          {dict.vehicles.dialogs.reportedOn}{" "}
-                          {new Date(i.createdAt).toLocaleDateString()}
-                        </Typography>
+                        />
+                        <Stack flexGrow={1} minWidth={0}>
+                          <Typography
+                            noWrap
+                            sx={{
+                              fontSize: 16,
+                              fontWeight: 700,
+                              color: "text.primary",
+                            }}
+                          >
+                            {i.title}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: 12,
+                              fontWeight: 200,
+                              color: "text.secondary",
+                            }}
+                          >
+                            {dict.vehicles.dialogs.reportedOn}{" "}
+                            {new Date(i.createdAt).toLocaleDateString()}
+                          </Typography>
+                        </Stack>
+                        <PriorityChip status={i.priority} />
                       </Stack>
-                      <PriorityChip status={i.priority} />
-                    </Stack>
-                  </CardActionArea>
-                </Card>
-              ))
-            )}
-          </Stack>
+                    </CardActionArea>
+                  </Card>
+                ))
+              )}
+            </Box>
+          </Box>
         </Card>
       </Stack>
       <Stack sx={{ flex: 1, minHeight: 0 }}>
@@ -358,7 +404,39 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
               {dict.vehicles.dialogs.addRecord}
             </Button>
           </Stack>
-          <Box sx={{ overflowX: "auto", overflowY: "auto", flex: 1 }}>
+          <Box
+            sx={{
+              overflowX: "auto",
+              overflowY: "auto",
+              flex: 1,
+              maxHeight: 200,
+              pr: 1,
+              /* Custom Scrollbar */
+              "&::-webkit-scrollbar": {
+                width: "5px",
+                height: "5px",
+              },
+              "&::-webkit-scrollbar-track": {
+                background: "transparent",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                background: theme.palette.divider,
+                borderRadius: "10px",
+              },
+              "&::-webkit-scrollbar-thumb:hover": {
+                background: theme.palette.text.secondary,
+              },
+              /* Fade effect to indicate scroll */
+              maskImage:
+                maintenanceHistory.length > 4
+                  ? "linear-gradient(to bottom, black 85%, transparent 100%)"
+                  : "none",
+              WebkitMaskImage:
+                maintenanceHistory.length > 4
+                  ? "linear-gradient(to bottom, black 85%, transparent 100%)"
+                  : "none",
+            }}
+          >
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
@@ -418,7 +496,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
               <TableBody>
                 {maintenanceHistory.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} align="center">
+                    <TableCell colSpan={4} align="center">
                       <Typography variant="body2" color="text.secondary">
                         {dict.vehicles.dialogs.noMaintenanceFound}
                       </Typography>
@@ -494,7 +572,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                       >
                         {currencyLoading
                           ? "..."
-                          : formatFrom(v.cost, (v as any).currency || "USD", 2)}
+                          : formatFrom(v.cost, v.currency || "USD", 2)}
                       </TableCell>
                       <TableCell
                         align="left"

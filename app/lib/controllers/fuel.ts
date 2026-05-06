@@ -4,6 +4,7 @@ import { db } from "../db";
 import { checkPermission } from "./utils/checkPermission";
 import { FuelLog, FuelLogWithRelations, FuelPageState } from "../type/fuel";
 import { authenticatedAction } from "../auth-middleware";
+import { getExchangeRates } from "@/app/lib/services/exchangeRate";
 
 export const getFuelLogs = authenticatedAction(
   async (user, filters: FuelPageState["filters"]) => {
@@ -83,10 +84,24 @@ export const createFuelLog = authenticatedAction(
       await checkPermission(userId, companyId);
       if (!companyId) throw new Error("User has no company assigned");
 
+      // Normalize cost to USD
+      let normalizedCost = data.cost;
+      const currency = data.currency || "USD";
+      if (currency !== "USD") {
+        try {
+          const rates = await getExchangeRates();
+          const rate = rates.rates[currency] || 1;
+          normalizedCost = data.cost / rate;
+        } catch (err) {
+          console.warn("[fuel] Currency conversion failed:", err);
+        }
+      }
+
       return db.fuelLog.create({
         data: {
           ...data,
-          currency: data.currency || "USD",
+          cost: normalizedCost,
+          currency: "USD",
           companyId,
         },
       });

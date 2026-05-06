@@ -861,7 +861,8 @@
       "information": "Bilgilendirme",
       "verificationDesc": "Tüm veriler doğrulamaya tabidir.",
       "physicalLicense": "Fiziksel Ehliyet Taraması",
-      "ensureVisible": "Lütfen tüm verilerin açıkça göründüğünden emin olun."
+      "ensureVisible": "Lütfen tüm verilerin açıkça göründüğünden emin olun.",
+      "manageAvailability": "Genel uygunluğu yönetin"
     },
     "dialogs": {
       "addTitle": "Yeni Sürücü Ekle",
@@ -2046,6 +2047,134 @@
       "addTitle": "Yakıt Kaydı Ekle",
       "success": "Yakıt kaydı başarıyla eklendi",
       "error": "Yakıt kaydı eklenemedi"
+    }
+  },
+  "company": {
+    "title": "Şirket",
+    "overview": "Organizasyonunuzu, üyelerinizi ve ayarlarınızı yönetin.",
+    "addMember": "Üye Ekle",
+    "kpi": {
+      "totalUsers": "Toplam Kullanıcı",
+      "vehicles": "Araçlar",
+      "drivers": "Sürücüler",
+      "warehouses": "Depolar",
+      "customers": "Müşteriler",
+      "shipments": "Sevkiyatlar"
+    },
+    "info": {
+      "created": "{date} tarihinde oluşturuldu",
+      "active": "Aktif"
+    },
+    "roles": {
+      "admin": "Şirket Yöneticisi",
+      "manager": "Müdür",
+      "driver": "Sürücü",
+      "warehouse": "Depo Operatörü",
+      "dispatcher": "Dispatçer",
+      "default": "Varsayılan"
+    },
+    "branding": {
+      "title": "Şirket Kimliği",
+      "subtitle": "Organizasyonunuzun yasal adını ve dijital markalamasını tanımlayın.",
+      "legalName": "Yasal Şirket Adı",
+      "legalNamePlaceholder": "Örn. Acme Lojistik A.Ş.",
+      "legalNameDesc": "Bu ad, tüm resmi belgeler ve raporlarda görünecektir.",
+      "digitalIdentity": "Dijital Kimlik",
+      "changeLogo": "Logo Değiştir",
+      "uploadAssets": "SVG, PNG veya JPG (maks. 2 MB)",
+      "uploadFormat": "Önerilen: 400×400 piksel",
+      "industry": "Sektör",
+      "industryPlaceholder": "Sektör seçin"
+    },
+    "sidebar": {
+      "currentStep": "Mevcut Adım",
+      "stepProgress": "Adım {current} / {total}",
+      "loggedInAs": "Giriş yapıldı",
+      "primaryAdmin": "Birincil Yönetici"
+    },
+    "dialogs": {
+      "identityTitle": "Şirket Kimliği",
+      "regionalTitle": "Bölgesel Yapılandırma",
+      "identitySubtitle": "Organizasyonunuzun temel kimliğini ve markalamasını ayarlayın.",
+      "localizationDesc": "Organizasyonunuz için bölgesel tercihleri yapılandırın.",
+      "interfaceLanguage": "Arayüz Dili",
+      "defaultCurrency": "Varsayılan Para Birimi",
+      "activeTimezone": "Aktif Saat Dilimi",
+      "dateTimeFormat": "Tarih ve Saat Formatı",
+      "addMemberTitle": "Ekip Üyesi Ekle",
+      "addMemberSubtitle": "Bir kullanıcı arayın ve organizasyonunuzda rol atayın.",
+      "searchPlaceholder": "Ad veya e-posta ile ara...",
+      "searchResults": "Arama Sonuçları",
+      "assignRole": "Rol Ata",
+      "invitationNote": "Seçilen kullanıcı organizasyonunuza katılmak için davet alacak.",
+      "driverDetailsRequired": "Bu rol için sürücü bilgileri gereklidir.",
+      "addToCompany": "Şirkete Ekle",
+      "steps": {
+        "branding": "Markalama",
+        "regional": "Bölgesel",
+        "globalConfig": "Küresel Yapılandırma",
+        "regionalEcosystem": "Bölgesel Ekosistem",
+        "regionalDesc": "Organizasyonunuzun saat dilimi, para birimi ve dil tercihlerini ayarlayın.",
+        "timezone": "Saat Dilimi",
+        "currency": "Para Birimi",
+        "language": "Arayüz Dili",
+        "integrity": "Veri Bütünlüğü",
+        "standardize": "Tüm kullanıcılarda tarih/saat formatlarını standartlaştır",
+        "overrides": "Kullanıcı başına bölgesel geçersiz kılmalara izin ver"
+      }
+    },
+    "members": {
+      "title": "Ekip Üyeleri",
+      "empty": "Üye bulunamadı.",
+      "statuses": {
+        "active": "Aktif",
+        "inactive": "Pasif",
+        "suspended": "Askıya Alındı"
+      },
+      "columns": {
+        "member": "Üye",
+        "email": "E-posta",
+        "role": "Rol",
+        "status": "Durum",
+        "joined": "Katılım Tarihi"
+      },
+      "actions": {
+        "details": "Detaylar",
+        "edit": "Düzenle",
+        "delete": "Sil"
+      },
+      "deleteDialog": {
+        "title": "Üye Kaldırılsın mı?",
+        "description": "{name} adlı kişiyi organizasyondan kaldırmak istediğinizden emin misiniz? Bu işlem geri alınamaz."
+      }
+    },
+    "memberDetails": {
+      "noRole": "Rol Yok",
+      "contactInfo": "İletişim Bilgileri",
+      "emailAddress": "E-posta Adresi",
+      "phone": "Telefon Numarası",
+      "joinedOn": "Katılım Tarihi",
+      "joinedSince": "Üyelik Tarihi",
+      "lastActive": "Son Aktivite",
+      "permissions": "İzinler",
+      "accountStatus": "Hesap Durumu",
+      "adminData": "Yönetimsel Veriler",
+      "adminDataDesc": "Bu üye yükseltilmiş ayrıcalıklara sahip. Rol değişiklikleri için <strong>{email}</strong> ile iletişine geçin.",
+      "closeView": "Kapat"
+    },
+    "editMember": {
+      "title": "Üyeyi Düzenle",
+      "subtitle": "{name} için detayları güncelle",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "systemRole": "Sistem Rolü",
+      "accountStatus": "Hesap Durumu",
+      "saving": "Kaydediliyor...",
+      "statuses": {
+        "ACTIVE": "Aktif",
+        "INACTIVE": "Pasif",
+        "SUSPENDED": "Askıya Alındı"
+      }
     }
   }
 }

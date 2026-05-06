@@ -19,6 +19,11 @@ import HomeWorkIcon from "@mui/icons-material/HomeWork";
 import { useState } from "react";
 import DriverHistoryDialog from "./DriverHistoryDialog";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { updateDriverStatus } from "@/app/lib/controllers/driver";
+import { MenuItem, Select, FormControl, Divider } from "@mui/material";
+import { DriverStatus } from "@prisma/client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface OverviewTabProps {
   driver?: DriverWithRelations;
@@ -97,7 +102,24 @@ const KPICard = ({
 const OverviewTab = ({ driver }: OverviewTabProps) => {
   const theme = useTheme();
   const dict = useDictionary();
+  const router = useRouter();
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleStatusChange = async (newStatus: DriverStatus) => {
+    if (!driver) return;
+    setIsUpdating(true);
+    try {
+      await updateDriverStatus(driver.id, newStatus);
+      toast.success(dict.common.success || "Status updated");
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      toast.error(dict.common.error || "Failed to update status");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   if (!driver) {
     return <Typography color="text.secondary">{dict.drivers.noDriverSelected}</Typography>;
@@ -203,26 +225,58 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
               height: '100%'
             }}
           >
-            <Typography variant="body2" color="text.secondary" fontWeight={600}>
-              {dict.drivers.fields.status}
-            </Typography>
+            <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                {dict.drivers.fields.status}
+              </Typography>
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  bgcolor:
+                    driver.status === "ON_JOB"
+                      ? "success.main"
+                      : driver.status === "OFF_DUTY"
+                        ? "info.main"
+                        : "warning.main",
+                }}
+              />
+            </Stack>
+            <FormControl fullWidth size="small" sx={{ mt: 1 }}>
+              <Select
+                value={driver.status}
+                onChange={(e) => handleStatusChange(e.target.value as DriverStatus)}
+                disabled={isUpdating}
+                sx={{
+                  color: "text.primary",
+                  fontSize: "1.1rem",
+                  fontWeight: 800,
+                  "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                  "& .MuiSelect-select": { paddingLeft: 0 },
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      backgroundImage: "none",
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="ON_JOB">🚛 {dict.drivers.onDuty}</MenuItem>
+                <MenuItem value="OFF_DUTY">😴 {dict.drivers.offDuty}</MenuItem>
+                <MenuItem value="ON_LEAVE">🏖️ {dict.drivers.onLeave}</MenuItem>
+              </Select>
+            </FormControl>
             <Typography
-              variant="h6"
-              fontWeight={800}
               sx={{
-                color:
-                  driver.status === "ON_JOB"
-                    ? "success.main"
-                    : driver.status === "OFF_DUTY"
-                      ? "text.secondary"
-                      : "warning.main",
+                fontSize: 12,
+                fontWeight: 200,
+                color: "text.secondary",
+                mt: 0.5,
               }}
             >
-              {driver.status === "ON_JOB" 
-                ? dict.drivers.onDuty 
-                : driver.status === "OFF_DUTY" 
-                  ? dict.drivers.offDuty 
-                  : driver.status.replace("_", " ")}
+              {dict.drivers.labels.manageAvailability}
             </Typography>
           </Card>
         </Grid>

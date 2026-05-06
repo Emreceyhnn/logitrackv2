@@ -861,7 +861,8 @@
       "information": "Information",
       "verificationDesc": "All data is subject to verification.",
       "physicalLicense": "Physical License Scan",
-      "ensureVisible": "Please ensure all data is clearly visible."
+      "ensureVisible": "Please ensure all data is clearly visible.",
+      "manageAvailability": "Manage overall availability"
     },
     "dialogs": {
       "addTitle": "Add New Driver",
@@ -2045,6 +2046,134 @@
       "addTitle": "Add Fuel Log",
       "success": "Fuel log added successfully",
       "error": "Failed to add fuel log"
+    }
+  },
+  "company": {
+    "title": "Company",
+    "overview": "Manage your organization, members and settings.",
+    "addMember": "Add Member",
+    "kpi": {
+      "totalUsers": "Total Users",
+      "vehicles": "Vehicles",
+      "drivers": "Drivers",
+      "warehouses": "Warehouses",
+      "customers": "Customers",
+      "shipments": "Shipments"
+    },
+    "info": {
+      "created": "Created on {date}",
+      "active": "Active"
+    },
+    "roles": {
+      "admin": "Company Admin",
+      "manager": "Manager",
+      "driver": "Driver",
+      "warehouse": "Warehouse Operator",
+      "dispatcher": "Dispatcher",
+      "default": "Default"
+    },
+    "branding": {
+      "title": "Company Identity",
+      "subtitle": "Define your organization's legal name and digital branding.",
+      "legalName": "Legal Company Name",
+      "legalNamePlaceholder": "e.g. Acme Logistics Ltd.",
+      "legalNameDesc": "This name will appear on all official documents and reports.",
+      "digitalIdentity": "Digital Identity",
+      "changeLogo": "Change Logo",
+      "uploadAssets": "SVG, PNG or JPG (max 2MB)",
+      "uploadFormat": "Recommended: 400×400 px",
+      "industry": "Industry Sector",
+      "industryPlaceholder": "Select an industry"
+    },
+    "sidebar": {
+      "currentStep": "Current Step",
+      "stepProgress": "Step {current} of {total}",
+      "loggedInAs": "Logged in as",
+      "primaryAdmin": "Primary Admin"
+    },
+    "dialogs": {
+      "identityTitle": "Company Identity",
+      "regionalTitle": "Regional Configuration",
+      "identitySubtitle": "Set up your organization's core identity and branding.",
+      "localizationDesc": "Configure regional preferences for your organization.",
+      "interfaceLanguage": "Interface Language",
+      "defaultCurrency": "Default Currency",
+      "activeTimezone": "Active Timezone",
+      "dateTimeFormat": "Date & Time Format",
+      "addMemberTitle": "Add Team Member",
+      "addMemberSubtitle": "Search for a user and assign them a role in your organization.",
+      "searchPlaceholder": "Search by name or email...",
+      "searchResults": "Search Results",
+      "assignRole": "Assign Role",
+      "invitationNote": "The selected user will receive an invitation to join your organization.",
+      "driverDetailsRequired": "Driver details are required for this role.",
+      "addToCompany": "Add to Company",
+      "steps": {
+        "branding": "Branding",
+        "regional": "Regional",
+        "globalConfig": "Global Configuration",
+        "regionalEcosystem": "Regional Ecosystem",
+        "regionalDesc": "Set your organization's timezone, currency and language preferences.",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "language": "Interface Language",
+        "integrity": "Data Integrity",
+        "standardize": "Standardize date/time formats across all users",
+        "overrides": "Allow per-user regional overrides"
+      }
+    },
+    "members": {
+      "title": "Team Members",
+      "empty": "No members found.",
+      "statuses": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "suspended": "Suspended"
+      },
+      "columns": {
+        "member": "Member",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "joined": "Joined"
+      },
+      "actions": {
+        "details": "Details",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "deleteDialog": {
+        "title": "Remove Member?",
+        "description": "Are you sure you want to remove {name} from the organization? This action cannot be undone."
+      }
+    },
+    "memberDetails": {
+      "noRole": "No Role",
+      "contactInfo": "Contact Information",
+      "emailAddress": "Email Address",
+      "phone": "Phone Number",
+      "joinedOn": "Joined On",
+      "joinedSince": "Member Since",
+      "lastActive": "Last Active",
+      "permissions": "Permissions",
+      "accountStatus": "Account Status",
+      "adminData": "Administrative Data",
+      "adminDataDesc": "This member holds elevated privileges. Contact <strong>{email}</strong> for role changes.",
+      "closeView": "Close"
+    },
+    "editMember": {
+      "title": "Edit Member",
+      "subtitle": "Update details for {name}",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "systemRole": "System Role",
+      "accountStatus": "Account Status",
+      "saving": "Saving...",
+      "statuses": {
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive",
+        "SUSPENDED": "Suspended"
+      }
     }
   }
 }
