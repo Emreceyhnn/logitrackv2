@@ -1,4 +1,9 @@
-import { db as firebase, ref, set, update, onValue, off } from "./firebase";
+import { db as firebase, ref, onValue, off } from "./firebase";
+import { 
+  updateVehicleLocationAction, 
+  updateVehicleDataAction, 
+  syncVehicleToFirebaseAction 
+} from "./actions/vehicleTracking";
 
 export interface VehicleLocation {
   lat: number;
@@ -12,37 +17,14 @@ export const updateVehicleLocation = async (
   vehicleId: string,
   location: Omit<VehicleLocation, "lastUpdated">
 ) => {
-  try {
-    const path = `vehicles/locations/${vehicleId}`;
-    const data: VehicleLocation = {
-      ...location,
-      lastUpdated: Date.now(),
-    };
-
-    await set(ref(firebase, path), data);
-    return { success: true };
-  } catch (error) {
-    console.error(`Failed to update location for vehicle ${vehicleId}:`, error);
-    throw error;
-  }
+  return updateVehicleLocationAction(vehicleId, location);
 };
 
 export const updateVehicleData = async (
   vehicleId: string,
   data: Partial<VehicleLocation>
 ) => {
-  try {
-    const path = `vehicles/locations/${vehicleId}`;
-    const updateData = {
-      ...data,
-      lastUpdated: Date.now(),
-    };
-    await update(ref(firebase, path), updateData);
-    return { success: true };
-  } catch (error) {
-    console.error(`Failed to update data for vehicle ${vehicleId}:`, error);
-    throw error;
-  }
+  return updateVehicleDataAction(vehicleId, data);
 };
 
 export const subscribeToVehicleLocation = (
@@ -73,16 +55,5 @@ export const subscribeToAllVehicles = (
 };
 
 export const syncVehicleToFirebase = async (vehicle: any) => {
-  try {
-    const path = `vehicles/registry/${vehicle.id}`;
-    await set(ref(firebase, path), {
-      ...vehicle,
-      lastSynced: Date.now(),
-    });
-    return { success: true };
-  } catch (error) {
-    console.error(`Failed to sync vehicle ${vehicle.id} to Firebase:`, error);
-
-    return { success: false, error };
-  }
+  return syncVehicleToFirebaseAction(vehicle);
 };

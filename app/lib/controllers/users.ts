@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { checkPermission } from "./utils/checkPermission";
 import jwt from "jsonwebtoken";
 import { db } from "../db";
-import { createNotification } from "@/app/lib/notifications";
+import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import {
   authenticatedAction,
   maybeAuthenticatedAction,

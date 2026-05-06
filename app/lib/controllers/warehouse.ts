@@ -4,7 +4,7 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma, WarehouseType } from "@prisma/client";
-import { createNotification } from "@/app/lib/notifications";
+import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import {
   WarehouseWithRelations,
   WarehouseStats,
@@ -85,6 +85,18 @@ export const createWarehouse = authenticatedAction(
       });
 
       await invalidateWarehouseCache(companyId!);
+
+      // Dispatch Notification
+      await createNotification(
+        { companyId: companyId! },
+        {
+          title: "Yeni Depo Oluşturuldu 🏗️",
+          message: `${name} (${warehouseCode}) isimli yeni depo sisteme tanımlandı.`,
+          type: "SUCCESS",
+          link: `/dashboard/warehouses/${newWarehouse.id}`,
+        }
+      );
+
       return { warehouse: newWarehouse };
     } catch (error) {
       console.error("Failed to create warehouse:", error);
@@ -282,6 +294,18 @@ export const assignManagerToWarehouse = authenticatedAction(
       });
 
       await invalidateWarehouseCache(user.companyId!, warehouseId);
+
+      // Dispatch Notification
+      await createNotification(
+        { companyId: user.companyId!, userId: managerId },
+        {
+          title: "Depo Yöneticisi Atandınız 👤",
+          message: `${updatedWarehouse.name} deposu için yönetici olarak görevlendirildiniz.`,
+          type: "INFO",
+          link: `/dashboard/warehouses/${updatedWarehouse.id}`,
+        }
+      );
+
       return updatedWarehouse;
     } catch (error) {
       console.error("Failed to assign manager to warehouse:", error);
@@ -380,7 +404,7 @@ export const addInventoryItem = authenticatedAction(
       // Notification check for initial stock
       if (result.quantity <= result.minStock) {
         await createNotification(
-          { companyId: user.companyId!, roleName: "WAREHOUSE" },
+          { companyId: user.companyId!, roleId: "role_manager" },
           {
             title: "Düşük Stok Uyarısı! ⚠️",
             message: `${result.name} (SKU: ${result.sku}) kritik stok seviyesinde kaydedildi.`,
@@ -457,7 +481,7 @@ export const updateInventoryItem = authenticatedAction(
       // Notification check for stock levels
       if (updatedItem.quantity <= updatedItem.minStock) {
         await createNotification(
-          { companyId: user.companyId!, roleName: "WAREHOUSE" },
+          { companyId: user.companyId!, roleId: "role_manager" },
           {
             title: "Kritik Stok Seviyesi! 🚨",
             message: `${updatedItem.name} (SKU: ${updatedItem.sku}) stok seviyesi ${updatedItem.quantity}'e düştü. (Min: ${updatedItem.minStock})`,

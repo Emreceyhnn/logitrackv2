@@ -1,7 +1,7 @@
 "use server";
 
 import { type Prisma, RouteStatus } from "@prisma/client";
-import { createNotification } from "@/app/lib/notifications";
+import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
@@ -185,6 +185,18 @@ export const createRoute = authenticatedAction(
         invalidateRouteCache(user.companyId!),
         shipmentId ? invalidateShipmentCache(user.companyId!, shipmentId) : Promise.resolve(),
       ]);
+
+      // Dispatch Notification
+      await createNotification(
+        { companyId: user.companyId! },
+        {
+          title: "Yeni Rota Planlandı 📝",
+          message: `${finalName} numaralı yeni bir rota planlandı. Sürücü: ${driverId ? 'Atandı' : 'Bekleniyor'}.`,
+          type: "INFO",
+          link: `/dashboard/routes/${newRoute.id}`,
+        }
+      );
+
       return { route: newRoute };
     } catch (error) {
       console.error("Failed to create route:", error);

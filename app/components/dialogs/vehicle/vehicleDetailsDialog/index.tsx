@@ -65,7 +65,7 @@ function CustomTabPanel(props: TabPanelProps) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ px: 3, py: 2.5 }}>{children}</Box>}
     </div>
   );
 }
@@ -140,7 +140,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
   const theme = useTheme();
 
   const statusMeta = getStatusMeta(vehicleData?.status, dict);
-  
+
   const paletteKey = statusMeta.paletteKey as keyof typeof theme.palette;
   const paletteColor = theme.palette[paletteKey] as PaletteColor;
   const statusColor = paletteColor?.main || statusMeta.color;
@@ -155,6 +155,9 @@ const VehicleDialog = (params: VehicleDialogParams) => {
       PaperProps={{
         sx: {
           overflow: "hidden",
+          maxHeight: "95vh",
+          display: "flex",
+          flexDirection: "column",
         },
       }}
     >
@@ -195,11 +198,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
             </Avatar>
             <Stack spacing={0.5}>
               <Stack direction="row" spacing={1} alignItems="center">
-                <Typography
-                  variant="h4"
-                  fontWeight={800}
-                  color="text.primary"
-                >
+                <Typography variant="h4" fontWeight={800} color="text.primary">
                   {vehicleData?.plate}
                 </Typography>
                 <VerifiedIcon color="primary" sx={{ fontSize: "1.2rem" }} />
@@ -228,7 +227,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           </Stack>
 
           <Stack direction="row" spacing={1} alignItems="center">
-
             <IconButton
               onClick={onClose}
               size="small"
@@ -243,8 +241,25 @@ const VehicleDialog = (params: VehicleDialogParams) => {
         </Stack>
       </Box>
 
-      <DialogContent sx={{ p: 0 }}>
-        <Stack>
+      <DialogContent
+        sx={{
+          p: 0,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          minHeight: 0,
+        }}
+      >
+        <Stack
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+            overflow: "hidden",
+          }}
+        >
           <Box
             sx={{
               borderBottom: 1,
@@ -256,9 +271,18 @@ const VehicleDialog = (params: VehicleDialogParams) => {
               onChange={handleChange}
               aria-label="basic tabs example"
             >
-              <Tab label={dict.vehicles.dialogs.tabs.overview} {...a11yProps(0)} />
-              <Tab label={dict.vehicles.dialogs.tabs.documents} {...a11yProps(1)} />
-              <Tab label={dict.vehicles.dialogs.tabs.maintenance} {...a11yProps(2)} />
+              <Tab
+                label={dict.vehicles.dialogs.tabs.overview}
+                {...a11yProps(0)}
+              />
+              <Tab
+                label={dict.vehicles.dialogs.tabs.documents}
+                {...a11yProps(1)}
+              />
+              <Tab
+                label={dict.vehicles.dialogs.tabs.maintenance}
+                {...a11yProps(2)}
+              />
               <Tab label={dict.vehicles.dialogs.tabs.fuel} {...a11yProps(3)} />
             </Tabs>
           </Box>
@@ -278,9 +302,12 @@ const VehicleDialog = (params: VehicleDialogParams) => {
 
         <Box
           sx={{
-            p: 3,
+            p: 2,
             borderTop: `1px solid ${theme.palette.divider}`,
-            bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255, 0, 0, 0.05)" : "rgba(255, 0, 0, 0.02)",
+            bgcolor: (theme) =>
+              theme.palette.mode === "dark"
+                ? "rgba(255, 0, 0, 0.05)"
+                : "rgba(255, 0, 0, 0.02)",
           }}
         >
           <Stack

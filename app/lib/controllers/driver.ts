@@ -3,7 +3,7 @@
 import { db } from "../db";
 import { checkPermission } from "./utils/checkPermission";
 import { DriverStatus, Prisma } from "@prisma/client";
-import { createNotification } from "@/app/lib/notifications";
+import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 
 import { authenticatedAction } from "../auth-middleware";
 import {
@@ -359,18 +359,30 @@ export const updateDriverStatus = authenticatedAction(
       await invalidateDriverCache(companyId, driverId);
 
       // Dispatch Notification for status changes
-      if (status === "SUSPENDED") {
-        const driver = await db.driver.findUnique({ where: { id: driverId }, include: { user: { select: { name: true, surname: true } } } });
-        await createNotification(
-          { companyId },
-          {
-            title: "Sürücü Askıya Alındı! ⚠️",
-            message: `${driver?.user.name} ${driver?.user.surname} isimli sürücü askıya alındı.`,
-            type: "ERROR",
-            link: `/dashboard/drivers/${driverId}`,
-          }
-        );
-      }
+      const driver = await db.driver.findUnique({ 
+        where: { id: driverId }, 
+        include: { user: { select: { name: true, surname: true } } } 
+      });
+
+      const statusMap: Record<string, { label: string, type: "INFO" | "WARNING" | "ERROR" | "SUCCESS", emoji: string }> = {
+        AVAILABLE: { label: "Müsait / Boşta", type: "SUCCESS", emoji: "✅" },
+        ON_JOB: { label: "Görevde", type: "INFO", emoji: "🚛" },
+        OFF_DUTY: { label: "Mesai Dışı / İstirahat", type: "WARNING", emoji: "😴" },
+        ON_LEAVE: { label: "İzinli", type: "INFO", emoji: "🏖️" },
+        SUSPENDED: { label: "Askıya Alındı", type: "ERROR", emoji: "⚠️" },
+      };
+
+      const statusInfo = statusMap[status] || { label: status, type: "INFO", emoji: "ℹ️" };
+
+      await createNotification(
+        { companyId },
+        {
+          title: `Sürücü Durumu Değişti: ${statusInfo.label} ${statusInfo.emoji}`,
+          message: `${driver?.user.name} ${driver?.user.surname} isimli sürücü şu an ${statusInfo.label} durumunda.`,
+          type: statusInfo.type,
+          link: `/dashboard/drivers/${driverId}`,
+        }
+      );
 
       return updatedDriver;
     } catch (error) {

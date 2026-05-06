@@ -11,7 +11,7 @@ import {
   IssuePriority,
   IssueType,
 } from "@prisma/client";
-import { createNotification } from "@/app/lib/notifications";
+import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
@@ -34,7 +34,7 @@ import {
   vehicleCacheKeys,
   VEHICLE_CACHE_TTL,
 } from "../redis";
-import { syncVehicleToFirebase } from "../vehicleTracking";
+import { syncVehicleToFirebaseAction as syncVehicleToFirebase } from "../actions/vehicleTracking";
 
 // ── Cache invalidation helper ─────────────────────────────────────────────────
 async function invalidateVehicleCache(
@@ -456,6 +456,32 @@ export const assignDriverToVehicle = authenticatedAction(
       });
 
       await invalidateVehicleCache(companyId, vehicleId);
+
+      // If a driver was assigned, notify them
+      if (driverId) {
+        const driverUser = await db.user.findFirst({
+          where: { driver: { id: driverId } },
+          select: { id: true }
+        });
+        
+        if (driverUser) {
+          const vehicle = await db.vehicle.findUnique({
+            where: { id: vehicleId },
+            select: { plate: true }
+          });
+          
+          await createNotification(
+            { userId: driverUser.id },
+            {
+              title: "Yeni Araç Atandı! 🚛",
+              message: `${vehicle?.plate} plakalı araç size atandı. Yolculuğa başlamaya hazır mısınız?`,
+              type: "SUCCESS",
+              link: `/dashboard/vehicles/${vehicleId}`,
+            }
+          );
+        }
+      }
+
       return { success: true };
     } catch (error) {
       console.error("Failed to assign driver:", error);
@@ -492,12 +518,12 @@ export const updateVehicleStatus = authenticatedAction(
       await invalidateVehicleCache(companyId, vehicleId);
 
       // Dispatch Notification for specific status changes
-      if (status === "OUT_OF_SERVICE" || status === "UNDER_REPAIR") {
+      if (status === "MAINTENANCE") {
         await createNotification(
           { companyId: companyId! },
           {
-            title: "Araç Devre Dışı! ⛔",
-            message: `${updatedVehicle.plate} plakalı araç şu an ${status} durumunda.`,
+            title: "Araç Bakıma Alındı! ⛔",
+            message: `${updatedVehicle.plate} plakalı araç şu an bakım durumunda.`,
             type: "ERROR",
             link: `/dashboard/vehicles/${vehicleId}`,
           }

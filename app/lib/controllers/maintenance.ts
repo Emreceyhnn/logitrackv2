@@ -4,7 +4,7 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
-import { createNotification } from "@/app/lib/notifications";
+import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
 
 export const createMaintenanceRecord = authenticatedAction(

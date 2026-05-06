@@ -184,7 +184,37 @@ export default function NotificationBell({
 
         <Divider sx={{ borderColor: "theme.palette.divider" }} />
 
-        <Box sx={{ flex: 1, overflowY: "auto", px: 1.5, py: 1 }}>
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+            px: 1.5,
+            py: 1,
+            /* Custom Scrollbar */
+            "&::-webkit-scrollbar": {
+              width: "5px",
+            },
+            "&::-webkit-scrollbar-track": {
+              background: "transparent",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: "theme.palette.divider",
+              borderRadius: "10px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              background: "theme.palette.text.secondary",
+            },
+            /* Scroll indicator fade */
+            maskImage:
+              notifications.length > 4
+                ? "linear-gradient(to bottom, black 90%, transparent 100%)"
+                : "none",
+            WebkitMaskImage:
+              notifications.length > 4
+                ? "linear-gradient(to bottom, black 90%, transparent 100%)"
+                : "none",
+          }}
+        >
           {loading ? (
             <Box sx={{ py: 6, textAlign: "center" }}>
               <Typography variant="body2" color="text.secondary">
@@ -300,10 +330,27 @@ export default function NotificationBell({
                         fontWeight: 700,
                       }}
                     >
-                      {new Date(notif.createdAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {(() => {
+                        const date = new Date(notif.createdAt);
+                        const now = new Date();
+                        const isToday = date.toDateString() === now.toDateString();
+                        
+                        if (isToday) {
+                          return date.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          });
+                        } else {
+                          return `${date.toLocaleDateString([], {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })} ${date.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}`;
+                        }
+                      })()}
                     </Typography>
                   </Stack>
                 </ListItem>

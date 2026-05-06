@@ -5,7 +5,7 @@ import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { type Prisma, ShipmentStatus, ShipmentPriority } from "@prisma/client";
 import type { Customer, CustomerLocation } from "@prisma/client";
-import { createNotification } from "@/app/lib/notifications";
+import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import {
   ShipmentWithRelations,
   ShipmentStats,
@@ -294,6 +294,18 @@ export const assignDriverToShipment = authenticatedAction(
       });
 
       await invalidateShipmentCache(companyId!, shipmentId);
+
+      // Dispatch Notification
+      await createNotification(
+        { companyId: companyId! },
+        {
+          title: "Sürücü Atandı 👤",
+          message: `${updatedShipment.trackingId} numaralı sevkiyata bir sürücü atandı.`,
+          type: "SUCCESS",
+          link: `/dashboard/shipments/${updatedShipment.id}`,
+        }
+      );
+
       return updatedShipment;
     } catch (error) {
       console.error("Failed to assign driver to shipment:", error);
@@ -338,6 +350,18 @@ export const assignRouteToShipment = authenticatedAction(
       });
 
       await invalidateShipmentCache(companyId!, shipmentId);
+
+      // Dispatch Notification
+      await createNotification(
+        { companyId: companyId! },
+        {
+          title: "Rota Planlandı 🚛",
+          message: `${updatedShipment.trackingId} numaralı sevkiyat bir rotaya dahil edildi.`,
+          type: "SUCCESS",
+          link: `/dashboard/shipments/${updatedShipment.id}`,
+        }
+      );
+
       return updatedShipment;
     } catch (error) {
       console.error("Failed to assign route to shipment:", error);
@@ -403,6 +427,16 @@ export const updateShipmentStatus = authenticatedAction(
             title: "Sevkiyat Teslim Edildi ✅",
             message: `${updatedShipment.trackingId} numaralı sevkiyat başarıyla teslim edildi.`,
             type: "SUCCESS",
+            link: `/dashboard/shipments/${updatedShipment.id}`,
+          }
+        );
+      } else if (status === ShipmentStatus.PROCESSING || status === ShipmentStatus.IN_TRANSIT) {
+        await createNotification(
+          { companyId: companyId! },
+          {
+            title: status === ShipmentStatus.PROCESSING ? "Sevkiyat Hazırlanıyor ⚙️" : "Sevkiyat Yolda 🚛",
+            message: `${updatedShipment.trackingId} numaralı sevkiyat ${status === ShipmentStatus.PROCESSING ? 'işleme alındı' : 'yola çıktı'}.`,
+            type: "INFO",
             link: `/dashboard/shipments/${updatedShipment.id}`,
           }
         );

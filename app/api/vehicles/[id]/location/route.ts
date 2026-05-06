@@ -5,23 +5,10 @@
  * ====================================================
  * This is the HTTP endpoint that a real GPS tracker/IoT device on a vehicle
  * would call to push its location data.
- *
- * A physical device (or telematics unit) sends:
- *   POST /api/vehicles/{vehicleId}/location
- *   Body: { lat, lng, speed?, heading?, apiKey? }
- *
- * The server then:
- *   1. Validates the vehicleId exists in the Postgres DB.
- *   2. Writes the location to Firebase Realtime Database.
- *   3. All subscribed clients (dashboard) get the update in <100ms.
- *
- * GET /api/vehicles/{vehicleId}/location
- *   Returns the LATEST location stored in Firebase RTDB — used for
- *   one-time polling (non-realtime clients or REST consumers).
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { db as firebase, ref, set, onValue, off } from "@/app/lib/firebase";
+import { adminDb } from "@/app/lib/firebase-admin";
 import { db as prisma } from "@/app/lib/db";
 
 interface LocationBody {
@@ -79,11 +66,8 @@ export async function POST(
       lastUpdated: Date.now(),
     };
 
-    // 4. Push to Firebase Realtime Database
-    //    Path: vehicles/locations/{vehicleId}
-    //    `set()` always overwrites = "latest snapshot" semantics
-    const locationRef = ref(firebase, `vehicles/locations/${vehicleId}`);
-    await set(locationRef, locationPayload);
+    // 4. Push to Firebase Realtime Database via Admin SDK
+    await adminDb.ref(`vehicles/locations/${vehicleId}`).set(locationPayload);
 
     return NextResponse.json(
       {
@@ -91,7 +75,7 @@ export async function POST(
         vehicleId,
         plate: vehicle.plate,
         location: locationPayload,
-        message: "Location pushed to Firebase. Subscribed clients will update in <100ms.",
+        message: "Location pushed to Firebase via Admin SDK.",
       },
       { status: 200 }
     );
@@ -125,27 +109,14 @@ export async function GET(
       );
     }
 
-    // Read the latest value from Firebase RTDB (one-time read)
-    const locationRef = ref(firebase, `vehicles/locations/${vehicleId}`);
-    const liveLocation = await new Promise<Record<string, number | null> | null>(
-      (resolve) => {
-        onValue(
-          locationRef,
-          (snapshot) => {
-            off(locationRef); // Unsubscribe immediately after one read
-            resolve(snapshot.val());
-          },
-          { onlyOnce: true }
-        );
-      }
-    );
+    // Read the latest value from Firebase RTDB (one-time read) via Admin SDK
+    const snapshot = await adminDb.ref(`vehicles/locations/${vehicleId}`).once("value");
+    const liveLocation = snapshot.val();
 
     return NextResponse.json({
       vehicleId,
       plate: vehicle.plate,
-      // Live Firebase data (real-time, high frequency)
       liveLocation: liveLocation ?? null,
-      // Fallback: last saved coordinates in Postgres DB (low frequency)
       dbLocation:
         vehicle.currentLat && vehicle.currentLng
           ? { lat: vehicle.currentLat, lng: vehicle.currentLng }
