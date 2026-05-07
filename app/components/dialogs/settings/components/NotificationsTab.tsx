@@ -40,9 +40,7 @@ export default function NotificationsTab({
               bgcolor: "theme.palette.primary._alpha.main_10",
             }}
           >
-            <EmailOutlinedIcon
-              sx={{ fontSize: 16, color: "theme.palette.primary.main" }}
-            />
+            <EmailOutlinedIcon sx={{ fontSize: 16, color: "primary.main" }} />
           </Box>
           <Typography
             variant="caption"
@@ -86,7 +84,9 @@ export default function NotificationsTab({
       </Box>
 
       <Divider
-        sx={{ borderColor: "theme.palette.common.white_alpha.main_05" }}
+        sx={{
+          borderColor: "theme.palette.common.white_alpha.main_05",
+        }}
       />
 
       <Box>
@@ -98,9 +98,7 @@ export default function NotificationsTab({
               bgcolor: "theme.palette.primary._alpha.main_10",
             }}
           >
-            <NotifIcon
-              sx={{ fontSize: 16, color: "theme.palette.primary.main" }}
-            />
+            <NotifIcon sx={{ fontSize: 16, color: "primary.main" }} />
           </Box>
           <Typography
             variant="caption"
@@ -153,10 +151,10 @@ export default function NotificationsTab({
             borderRadius: 2.5,
             px: 4,
             py: 1,
-            background: `linear-gradient(135deg, "theme.palette.primary.main", "theme.palette.primary.dark")`,
-            boxShadow: `0 8px 32px "theme.palette.primary._alpha.main_25"`,
+            background: `linear-gradient(135deg, "primary.main", "primary.dark")`,
+            boxShadow: `0 8px 32px  theme.palette.primary._alpha.main_25`,
             "&:hover": {
-              boxShadow: `0 12px 40px "theme.palette.primary._alpha.main_35"`,
+              boxShadow: `0 12px 40px theme.palette.primary._alpha.main_35`,
               transform: "translateY(-1px)",
             },
             transition: "all 0.2s",

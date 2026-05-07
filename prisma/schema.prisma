@@ -56,6 +56,11 @@ model User {
   dateFormat         String              @default("DD/MM/YYYY")
   timeFormat         String              @default("24h")
   currency           String              @default("USD")
+  notifEmailShipment Boolean             @default(true)
+  notifEmailMaint    Boolean             @default(true)
+  notifEmailWeekly   Boolean             @default(false)
+  notifPushAssignment Boolean            @default(true)
+  notifPushDelay     Boolean             @default(true)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   auditLogs          AuditLog[]
@@ -168,6 +173,7 @@ model Warehouse {
   capacityPallets  Int                 @default(5000)
   capacityVolumeM3 Int                 @default(100000)
   operatingHours   String?             @default("08:00 - 18:00")
+  timezone         String              @default("UTC")
   specifications   String[]            @default([])
   managerId        String?
   companyId        String?

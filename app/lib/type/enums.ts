@@ -191,6 +191,7 @@ export interface Warehouse {
   capacityPallets?: number;
   capacityVolumeM3?: number;
   operatingHours?: string | null;
+  timezone: string;
   specifications?: string[];
   managerId?: string | null;
   companyId?: string | null;

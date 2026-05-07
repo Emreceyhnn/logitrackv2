@@ -24,6 +24,8 @@ import { MenuItem, Select, FormControl, Divider } from "@mui/material";
 import { DriverStatus } from "@prisma/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 
 interface OverviewTabProps {
   driver?: DriverWithRelations;
@@ -103,6 +105,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
   const theme = useTheme();
   const dict = useDictionary();
   const router = useRouter();
+  const dateSettings = useDateSettings();
   const [historyOpen, setHistoryOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -207,7 +210,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             </Stack>
             <Typography variant="h6" fontWeight={700} color="text.primary">
               {driver.licenseExpiry
-                ? new Date(driver.licenseExpiry).toLocaleDateString()
+                ? formatDisplayDate(driver.licenseExpiry, dateSettings)
                 : dict.common.na}
             </Typography>
           </Card>

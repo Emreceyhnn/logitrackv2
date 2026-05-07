@@ -30,6 +30,8 @@ import { useUser } from "@/app/hooks/useUser";
 import { Warehouse, DriverStatus } from "@/app/lib/type/enums";
 import { VehicleStatus } from "@/app/lib/type/enums";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 
 import WarehouseIcon from "@mui/icons-material/HomeRepairService";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -56,6 +58,7 @@ const SecondDriverDialogStep = ({
   const { user } = useUser();
   const { values, errors, touched, setFieldValue, handleBlur, handleChange } =
     useFormikContext<DriverFormValues>();
+  const dateSettings = useDateSettings();
 
   /* --------------------------------- states --------------------------------- */
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -95,7 +98,7 @@ const SecondDriverDialogStep = ({
             file: file,
             previewUrl,
             size: (file.size / (1024 * 1024)).toFixed(2) + " MB",
-            uploadedAt: new Date().toLocaleDateString(),
+            uploadedAt: formatDisplayDate(new Date(), dateSettings),
           };
         }
       );
@@ -637,7 +640,7 @@ const SecondDriverDialogStep = ({
                   <Typography variant="caption" color="text.secondary">
                     {dict.drivers.fields.licenseExpiry}:{" "}
                     {values.licenseExpiry
-                      ? new Date(values.licenseExpiry).toLocaleDateString()
+                      ? formatDisplayDate(values.licenseExpiry, dateSettings)
                       : dict.drivers.labels.noExpiry}
                   </Typography>
                 </Box>

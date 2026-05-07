@@ -4,6 +4,7 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
+import dayjs from "dayjs";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
 
@@ -68,6 +69,7 @@ export const createMaintenanceRecord = authenticatedAction(
           title: "Yeni Bakım Kaydı 👨‍🔧",
           message: `${newRecord.vehicle.plate} plakalı araç için ${type} bakımı planlandı.`,
           type: "INFO",
+          category: "MAINTENANCE_ALERT",
           link: `/dashboard/vehicles/${vehicleId}`,
         }
       );
@@ -251,6 +253,7 @@ export const updateMaintenanceRecord = authenticatedAction(
             title,
             message,
             type,
+            category: "MAINTENANCE_ALERT",
             link: `/dashboard/vehicles/${updatedRecord.vehicle.id}`,
           }
         );
@@ -307,6 +310,7 @@ export const deleteMaintenanceRecord = authenticatedAction(
           title: "Bakım Kaydı Silindi 🗑️",
           message: `${existingRecord.vehicle.plate} plakalı araca ait ${existingRecord.type} bakımı kaydı sistemden silindi.`,
           type: "WARNING",
+          category: "MAINTENANCE_ALERT",
           link: `/dashboard/vehicles/${existingRecord.vehicleId}`,
         }
       );
@@ -406,8 +410,9 @@ export const checkUpcomingMaintenance = authenticatedAction(async (user) => {
         { companyId },
         {
           title: "Yaklaşan Bakım Uyarısı! ⏳",
-          message: `${record.vehicle.plate} plakalı aracın ${record.type} bakımı yaklaşıyor (Tarih: ${record.date.toLocaleDateString()}).`,
+          message: `${record.vehicle.plate} plakalı aracın ${record.type} bakımı yaklaşıyor (Tarih: ${dayjs(record.date).format("DD.MM.YYYY")}).`,
           type: "WARNING",
+          category: "MAINTENANCE_ALERT",
           link: `/dashboard/vehicles/${record.vehicle.id}`,
         }
       );

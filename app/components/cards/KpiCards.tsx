@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Card, Skeleton, Stack } from "@mui/material";
+import { Box, Card, Skeleton, Stack, useTheme } from "@mui/material";
 
 import { motion } from "framer-motion";
 import StatCard from "../cards/StatCard";
@@ -28,6 +28,7 @@ export default function KpiCards({ kpis, loading }: KpiCardsProps) {
       },
     },
   };
+  const theme = useTheme();
 
   return (
     <Box

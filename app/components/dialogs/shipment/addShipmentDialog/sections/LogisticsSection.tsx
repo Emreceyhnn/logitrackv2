@@ -31,7 +31,7 @@ const LogisticsSection = ({ warehouses, customers }: LogisticsSectionProps) => {
               width: 8,
               height: 8,
               borderRadius: "50%",
-              bgcolor: "theme.palette.primary.main",
+              bgcolor: "primary.main",
             }}
           />
           <Typography variant="subtitle2" fontWeight={700} color="white">

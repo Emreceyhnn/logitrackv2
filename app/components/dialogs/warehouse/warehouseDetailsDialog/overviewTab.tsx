@@ -5,9 +5,15 @@ import {
   LinearProgress,
   Divider,
   Grid,
+  useTheme,
 } from "@mui/material";
+import { useState, useEffect } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
+import { getUserNow } from "@/app/lib/utils/date";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import dayjs from "dayjs";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
@@ -21,6 +27,7 @@ interface OverviewTabProps {
 
 const OverviewTab = ({ warehouse }: OverviewTabProps) => {
   const dict = useDictionary();
+  const theme = useTheme();
 
   const mockUsedPallets = (warehouse._count?.inventory || 0) * 10;
   const totalPallets = warehouse.capacityPallets || 5000;
@@ -40,6 +47,72 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
         : "08:00 - 18:00";
 
   const t = dict.warehouses.dialogs.details;
+  const dateSettings = useDateSettings();
+  const [nowInWhTz, setNowInWhTz] = useState(getUserNow(warehouse.timezone || "UTC"));
+  const [nowInUserTz, setNowInUserTz] = useState(getUserNow(dateSettings.timezone));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNowInWhTz(getUserNow(warehouse.timezone || "UTC"));
+      setNowInUserTz(getUserNow(dateSettings.timezone));
+    }, 10000);
+    return () => clearInterval(timer);
+  }, [warehouse.timezone, dateSettings.timezone]);
+
+  const is247 = operatingHoursStr === "24/7";
+  let isOpen = is247;
+  let statusText = "Open";
+  let nextStateMsg = "";
+
+  const parseTime = (timeStr: string, tz: string) => {
+    const [h, m] = timeStr.split(":").map(Number);
+    return dayjs().tz(tz).set("hour", h).set("minute", m).set("second", 0);
+  };
+
+  let userOpeningTime = "";
+  let userClosingTime = "";
+
+  if (!is247 && operatingHoursStr.includes(" - ")) {
+    const [opening, closing] = operatingHoursStr.split(" - ");
+    const whOpening = parseTime(opening, warehouse.timezone || "UTC");
+    let whClosing = parseTime(closing, warehouse.timezone || "UTC");
+
+    // Handle night shift (e.g. 22:00 - 06:00)
+    if (whClosing.isBefore(whOpening)) {
+      if (nowInWhTz.isAfter(whOpening) || nowInWhTz.isSame(whOpening)) {
+        whClosing = whClosing.add(1, "day");
+      } else {
+        whOpening.subtract(1, "day");
+      }
+    }
+
+    isOpen =
+      (nowInWhTz.isAfter(whOpening) || nowInWhTz.isSame(whOpening)) &&
+      nowInWhTz.isBefore(whClosing);
+
+    userOpeningTime = whOpening.tz(dateSettings.timezone).format("HH:mm");
+    userClosingTime = whClosing.tz(dateSettings.timezone).format("HH:mm");
+
+    if (isOpen) {
+      const diff = whClosing.diff(nowInWhTz, "minute");
+      const hours = Math.floor(diff / 60);
+      const minutes = diff % 60;
+      nextStateMsg = `${dict.common.closingIn || "Closing in"} ${hours}h ${minutes}m`;
+    } else {
+      let nextOpening = whOpening;
+      if (nowInWhTz.isAfter(whOpening)) {
+        nextOpening = whOpening.add(1, "day");
+      }
+      const diff = nextOpening.diff(nowInWhTz, "minute");
+      const hours = Math.floor(diff / 60);
+      const minutes = diff % 60;
+      nextStateMsg = `${dict.common.openingIn || "Opening in"} ${hours}h ${minutes}m`;
+    }
+  }
+
+  statusText = isOpen
+    ? dict.warehouses.dialogs.status?.open || "OPEN"
+    : dict.warehouses.dialogs.status?.closed || "CLOSED";
 
   return (
     <Box sx={{ pb: 4 }}>
@@ -52,8 +125,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: (theme) => theme.palette.kpi.indigo_alpha.main_10,
-              borderColor: (theme) => theme.palette.kpi.indigo_alpha.main_20,
+              bgcolor: "theme.palette.kpi.indigo_alpha.main_10",
+              borderColor: "theme.palette.kpi.indigo_alpha.main_20",
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -63,13 +136,17 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: (theme) => theme.palette.kpi.indigo_alpha.main_20,
-                  color: (theme) => theme.palette.kpi.indigo,
+                  bgcolor: "theme.palette.kpi.indigo_alpha.main_20",
+                  color: "theme.palette.kpi.indigo",
                 }}
               >
                 <MapIcon />
               </Box>
-              <Typography variant="subtitle1" fontWeight={700} color="text.primary">
+              <Typography
+                variant="subtitle1"
+                fontWeight={700}
+                color="text.primary"
+              >
                 {t.locationDetails}
               </Typography>
             </Stack>
@@ -78,7 +155,11 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 <Typography variant="caption" color="text.secondary">
                   {t.address}
                 </Typography>
-                <Typography variant="body2" color="text.primary" fontWeight={600}>
+                <Typography
+                  variant="body2"
+                  color="text.primary"
+                  fontWeight={600}
+                >
                   {warehouse.address}
                 </Typography>
               </Box>
@@ -86,7 +167,11 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 <Typography variant="caption" color="text.secondary">
                   {t.cityCountry}
                 </Typography>
-                <Typography variant="body2" color="text.primary" fontWeight={600}>
+                <Typography
+                  variant="body2"
+                  color="text.primary"
+                  fontWeight={600}
+                >
                   {warehouse.city}, {warehouse.country}
                 </Typography>
               </Box>
@@ -101,8 +186,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: (theme) => theme.palette.kpi.teal_alpha.main_10,
-              borderColor: (theme) => theme.palette.kpi.teal_alpha.main_20,
+              bgcolor: "theme.palette.kpi.teal_alpha.main_10",
+              borderColor: "theme.palette.kpi.teal_alpha.main_20",
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -112,13 +197,17 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: (theme) => theme.palette.kpi.teal_alpha.main_20,
-                  color: (theme) => theme.palette.kpi.emerald,
+                  bgcolor: "theme.palette.kpi.teal_alpha.main_20",
+                  color: "theme.palette.kpi.emerald",
                 }}
               >
                 <BusinessCenterIcon />
               </Box>
-              <Typography variant="subtitle1" fontWeight={700} color="text.primary">
+              <Typography
+                variant="subtitle1"
+                fontWeight={700}
+                color="text.primary"
+              >
                 {t.operations}
               </Typography>
             </Stack>
@@ -134,7 +223,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                       px: 1,
                       py: 0.3,
                       borderRadius: 1,
-                      bgcolor: (theme) => theme.palette.primary._alpha.main_10,
+                      bgcolor: "theme.palette.primary._alpha.main_10",
                       color: "primary.main",
                       fontWeight: 700,
                       textTransform: "uppercase",
@@ -151,15 +240,99 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 <Typography variant="caption" color="text.secondary">
                   {t.operatingHours}
                 </Typography>
-                <Typography variant="body2" color="text.primary" fontWeight={600}>
-                  {operatingHoursStr}
+                <Typography
+                  variant="body2"
+                  color="text.primary"
+                  fontWeight={600}
+                >
+                  {operatingHoursStr} (LCL)
                 </Typography>
+                {!is247 && userOpeningTime && (
+                  <Typography variant="caption" color="text.secondary">
+                    {userOpeningTime} - {userClosingTime} ({dict.common.yourTime || "Your Time"})
+                  </Typography>
+                )}
+                <Stack spacing={1} sx={{ mt: 1.5 }}>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Box
+                      sx={{
+                        px: 1,
+                        py: 0.3,
+                        borderRadius: 1,
+                        bgcolor: isOpen
+                          ? "theme.palette.success._alpha.main_10"
+                          : "theme.palette.error._alpha.main_10",
+                        color: isOpen ? "success.main" : "error.main",
+                        fontWeight: 700,
+                        fontSize: "0.65rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.5,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          bgcolor: isOpen ? "success.main" : "error.main",
+                          boxShadow: isOpen
+                            ? `0 0 6px ${theme.palette.success.main}`
+                            : "none",
+                        }}
+                      />
+                      {statusText.toUpperCase()}
+                    </Box>
+                    {nextStateMsg && (
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        fontWeight={600}
+                        sx={{ opacity: 0.8 }}
+                      >
+                        • {nextStateMsg}
+                      </Typography>
+                    )}
+                  </Stack>
+                  <Stack direction="row" spacing={2}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.5,
+                        fontWeight: 600,
+                      }}
+                    >
+                      <AccessTimeIcon sx={{ fontSize: 14 }} />
+                      {nowInWhTz.format("HH:mm")} (LCL)
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.5,
+                        fontWeight: 600,
+                        opacity: 0.7,
+                      }}
+                    >
+                      {nowInUserTz.format("HH:mm")} (YOU)
+                    </Typography>
+                  </Stack>
+                </Stack>
               </Box>
               <Box>
                 <Typography variant="caption" color="text.secondary">
                   {t.manager}
                 </Typography>
-                <Typography variant="body2" color="text.primary" fontWeight={600}>
+                <Typography
+                  variant="body2"
+                  color="text.primary"
+                  fontWeight={600}
+                >
                   {warehouse.manager
                     ? `${warehouse.manager.name} ${warehouse.manager.surname}`
                     : t.notAssigned}
@@ -176,8 +349,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: (theme) => theme.palette.kpi.deepPurple_alpha.main_10,
-              borderColor: (theme) => theme.palette.kpi.deepPurple_alpha.main_20,
+              bgcolor: "theme.palette.kpi.deepPurple_alpha.main_10",
+              borderColor: "theme.palette.kpi.deepPurple_alpha.main_20",
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -187,13 +360,17 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: (theme) => theme.palette.kpi.deepPurple_alpha.main_20,
-                  color: (theme) => theme.palette.kpi.violet,
+                  bgcolor: "theme.palette.kpi.deepPurple_alpha.main_20",
+                  color: "theme.palette.kpi.violet",
                 }}
               >
                 <InventoryIcon />
               </Box>
-              <Typography variant="subtitle1" fontWeight={700} color="text.primary">
+              <Typography
+                variant="subtitle1"
+                fontWeight={700}
+                color="text.primary"
+              >
                 {t.uniqueSkus}
               </Typography>
             </Stack>
@@ -214,7 +391,13 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
 
         {/* Capacity Utilization */}
         <Grid size={{ xs: 12 }}>
-          <Typography variant="h6" fontWeight={800} color="text.primary" mb={2} mt={2}>
+          <Typography
+            variant="h6"
+            fontWeight={800}
+            color="text.primary"
+            mb={2}
+            mt={2}
+          >
             {t.capacityUtilization}
           </Typography>
         </Grid>
@@ -233,14 +416,18 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: (theme) => theme.palette.primary._alpha.main_10,
+                  bgcolor: "theme.palette.primary._alpha.main_10",
                   color: "primary.main",
                 }}
               >
                 <BusinessCenterIcon />
               </Box>
               <Box flex={1}>
-                <Typography variant="subtitle1" fontWeight={700} color="text.primary">
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={700}
+                  color="text.primary"
+                >
                   {t.palletStorage}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -259,7 +446,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   height: 12,
                   borderRadius: 6,
-                  bgcolor: (theme) => theme.palette.divider_alpha.main_10,
+                  bgcolor: "theme.palette.divider_alpha.main_10",
                   "& .MuiLinearProgress-bar": { display: "none" },
                 }}
               />
@@ -276,7 +463,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   bgcolor: "transparent",
                   "& .MuiLinearProgress-bar": {
                     borderRadius: 6,
-                    bgcolor: (theme) => theme.palette.primary.main,
+                    bgcolor: "theme.palette.primary.main",
                   },
                 }}
               />
@@ -307,14 +494,18 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: (theme) => theme.palette.success._alpha.main_10,
+                  bgcolor: "theme.palette.success._alpha.main_10",
                   color: "success.main",
                 }}
               >
                 <LocalShippingIcon />
               </Box>
               <Box flex={1}>
-                <Typography variant="subtitle1" fontWeight={700} color="text.primary">
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={700}
+                  color="text.primary"
+                >
                   {t.volumeCapacity}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -333,7 +524,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   height: 12,
                   borderRadius: 6,
-                  bgcolor: (theme) => theme.palette.divider_alpha.main_10,
+                  bgcolor: "theme.palette.divider_alpha.main_10",
                   "& .MuiLinearProgress-bar": { display: "none" },
                 }}
               />
@@ -351,7 +542,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   bgcolor: "transparent",
                   "& .MuiLinearProgress-bar": {
                     borderRadius: 6,
-                    bgcolor: (theme) => theme.palette.success.main,
+                    bgcolor: "theme.palette.success.main",
                   },
                 }}
               />
@@ -370,9 +561,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
 
         {/* Feature Flags */}
         <Grid size={{ xs: 12 }}>
-          <Divider
-            sx={{ my: 2, borderColor: "divider" }}
-          />
+          <Divider sx={{ my: 2, borderColor: "divider" }} />
           <Typography variant="h6" fontWeight={800} color="text.primary" mb={2}>
             {t.facilityCapabilities}
           </Typography>
@@ -384,13 +573,13 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 spacing={1.5}
                 sx={{
                   mb: 2,
-                  bgcolor: (theme) => theme.palette.info._alpha.main_10,
+                  bgcolor: "theme.palette.info._alpha.main_10",
                   color: "info.main",
                   px: 2,
                   py: 1.5,
                   borderRadius: 2,
                   border: "1px solid",
-                  borderColor: (theme) => theme.palette.info._alpha.main_20,
+                  borderColor: "theme.palette.info._alpha.main_20",
                 }}
               >
                 <ThermostatIcon />
@@ -418,7 +607,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   spacing={1.5}
                   sx={{
                     mb: 2,
-                    bgcolor: (theme) => theme.palette.divider_alpha.main_05,
+                    bgcolor: "theme.palette.divider_alpha.main_05",
                     color: "text.secondary",
                     px: 2,
                     py: 1.5,
@@ -445,12 +634,12 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 spacing={1.5}
                 sx={{
                   mb: 2,
-                  bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                  bgcolor: "theme.palette.divider_alpha.main_05",
                   color: "text.secondary",
                   px: 2,
                   py: 1.5,
                   borderRadius: 2,
-                  border: (theme) => `1px solid ${theme.palette.divider}`,
+                  border: `1px solid theme.palette.divider`,
                 }}
               >
                 <BusinessCenterIcon />

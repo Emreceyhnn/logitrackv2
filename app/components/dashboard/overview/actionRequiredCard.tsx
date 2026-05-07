@@ -139,7 +139,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
         {alerts.length > 0 && (
           <Box
             sx={{
-              bgcolor: "theme.palette.error._alpha.main_10",
+              bgcolor: (theme) => theme.palette.error._alpha.main_10,
               color: "error.main",
               px: 1,
               py: 0.25,

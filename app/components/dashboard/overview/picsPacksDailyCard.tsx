@@ -52,7 +52,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
                 height: 48,
                 borderRadius: "12px",
                 bgcolor: "theme.palette.info._alpha.main_10",
-                color: "theme.palette.info.main",
+                color: "info.main",
               }}
             >
               <InventoryIcon />
@@ -93,7 +93,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
                 height: 48,
                 borderRadius: "12px",
                 bgcolor: "theme.palette.success._alpha.main_10",
-                color: "theme.palette.success.main",
+                color: "success.main",
               }}
             >
               <CategoryIcon />
@@ -126,10 +126,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
             {dict.dashboard.overview.warehouseThroughput.netDifference}:{" "}
             <span
               style={{
-                color:
-                  picks > packs
-                    ? "theme.palette.warning.main"
-                    : "theme.palette.success.main",
+                color: picks > packs ? "warning.main" : "success.main",
               }}
             >
               {Math.abs(picks - packs)}

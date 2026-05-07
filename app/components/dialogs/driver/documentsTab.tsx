@@ -21,6 +21,8 @@ import { getSignedUrlAction } from "@/app/lib/actions/upload";
 import DocumentViewerDialog from "../shared/DocumentViewerDialog";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { DriverWithRelations } from "@/app/lib/type/driver";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 
 interface DocumentsTabProps {
   driver?: DriverWithRelations;
@@ -29,6 +31,7 @@ interface DocumentsTabProps {
 const DocumentsTab = ({ driver }: DocumentsTabProps) => {
   const theme = useTheme();
   const dict = useDictionary();
+  const dateSettings = useDateSettings();
 
   /* --------------------------------- states --------------------------------- */
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -227,7 +230,7 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {doc.expiryDate
-                          ? `${dict.drivers.labels.expiryPrefix}${new Date(doc.expiryDate).toLocaleDateString()}`
+                          ? `${dict.drivers.labels.expiryPrefix}${formatDisplayDate(doc.expiryDate, dateSettings)}`
                           : dict.drivers.labels.noExpiry}
                       </Typography>
                     </Box>

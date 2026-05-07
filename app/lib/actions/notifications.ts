@@ -1,7 +1,8 @@
 "use server";
 
 import { adminDb } from "@/app/lib/firebase-admin";
-import { Notification, NotificationTarget } from "../notifications";
+import { Notification, NotificationTarget, NotificationCategory } from "../notifications";
+import { db } from "../db";
 
 /**
  * Sends a notification to a specific target (user, company, or role)
@@ -14,6 +15,55 @@ export async function sendNotificationAction(
   try {
     let path = "";
 
+    // If it's a company broadcast with a specific category, we iterate and target individuals
+    // who have that notification type enabled in their settings.
+    if (target.companyId && !target.userId && !target.isGlobal && notification.category) {
+      console.log(`[sendNotificationAction] 🎯 Targeted broadcast for category: ${notification.category}`);
+      
+      const users = await db.user.findMany({
+        where: { 
+          companyId: target.companyId,
+          ...(target.roleId ? { roleId: target.roleId } : {})
+        },
+        select: {
+          id: true,
+          notifEmailShipment: true,
+          notifEmailMaint: true,
+          notifPushAssignment: true,
+          notifPushDelay: true,
+        }
+      });
+
+      const promises = users.map(async (u) => {
+        let shouldSend = true;
+        
+        // Map category to user preference field
+        if (notification.category === "SHIPMENT_UPDATE") shouldSend = u.notifEmailShipment;
+        if (notification.category === "MAINTENANCE_ALERT") shouldSend = u.notifEmailMaint;
+        if (notification.category === "NEW_ASSIGNMENT") shouldSend = u.notifPushAssignment;
+        if (notification.category === "DELAY_ALERT") shouldSend = u.notifPushDelay;
+        // SYSTEM and others always send for now
+
+        if (!shouldSend) {
+          console.log(`[sendNotificationAction] 🔇 Skipping user ${u.id} due to settings`);
+          return;
+        }
+
+        const personalPath = `notifications/inbox/${u.id}`;
+        const ref = adminDb.ref(personalPath).push();
+        return ref.set({
+          ...notification,
+          id: ref.key!,
+          createdAt: Date.now(),
+          isRead: false,
+        });
+      });
+
+      await Promise.all(promises);
+      return { success: true };
+    }
+
+    // Default behavior for direct user targets, global, or legacy group broadcasts
     if (target.isGlobal) {
       path = "notifications/groups/everyone";
     } else if (target.userId) {

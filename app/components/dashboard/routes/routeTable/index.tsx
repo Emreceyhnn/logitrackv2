@@ -11,6 +11,7 @@ import RouteDetailsDialog from "@/app/components/dialogs/routes";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { RouteTableProps, RouteWithRelations } from "@/app/lib/type/routes";
 import { useUser } from "@/app/hooks/useUser";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDateTime } from "@/app/lib/utils/date";
 
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
@@ -42,14 +43,7 @@ const RouteTable = ({
 }: ExtendedRouteTableProps) => {
   const dict = useDictionary();
   const { user } = useUser();
-  const dateSettings = useMemo(
-    () => ({
-      timezone: user?.timezone || "UTC",
-      dateFormat: user?.dateFormat || "DD/MM/YYYY",
-      timeFormat: user?.timeFormat || "24h",
-    }),
-    [user]
-  );
+  const dateSettings = useDateSettings();
 
   /* --------------------------------- states --------------------------------- */
   const [openDetails, setOpenDetails] = useState(false);
@@ -184,7 +178,7 @@ const RouteTable = ({
         render: (row) => <StatusChip status={row.status} />,
       },
     ],
-    [dict]
+    [dict, dateSettings]
   );
 
   const rowActions: DataTableRowAction<RouteWithRelations>[] = useMemo(() => {

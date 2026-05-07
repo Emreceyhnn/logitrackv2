@@ -5,6 +5,7 @@ import {
   Typography,
   MenuItem,
   SvgIconProps,
+  useTheme,
 } from "@mui/material";
 import { AddCustomerIdentity } from "@/app/lib/type/add-customer";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
@@ -40,6 +41,7 @@ const IdentitySection = () => {
   const dict = useDictionary();
   const { values, errors, touched, setFieldValue, handleBlur } =
     useFormikContext<AddCustomerIdentity>();
+  const theme = useTheme();
 
   const INDUSTRIES = [
     { value: "Logistics & Transportation", label: dict.industries.logistics },

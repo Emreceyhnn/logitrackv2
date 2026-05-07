@@ -1,4 +1,4 @@
-import { Stack, Card, Skeleton, Box } from "@mui/material";
+import {Stack, Card, Skeleton, Box, useTheme} from "@mui/material";
 
 interface KpiSkeletonProps {
   count?: number;
@@ -48,7 +48,7 @@ export default function KpiSkeleton({ count = 6 }: KpiSkeletonProps) {
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              background: "theme.palette.background.paper_alpha.main_80",
+              background: (theme) => theme.palette.background.paper_alpha.main_80,
               backdropFilter: "blur(20px)",
               border: "1px solid theme.palette.divider_alpha.main_10",
               boxShadow:

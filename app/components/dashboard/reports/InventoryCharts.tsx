@@ -46,7 +46,7 @@ export default function InventoryCharts({ data, dict }: InventoryChartsProps) {
             display: "flex",
             flexDirection: "column",
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            background: "theme.palette.background.paper",
+            background: "background.paper",
             "&:hover": {
               transform: "translateY(-4px)",
               boxShadow: 8,
@@ -112,7 +112,7 @@ export default function InventoryCharts({ data, dict }: InventoryChartsProps) {
             display: "flex",
             flexDirection: "column",
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            background: "theme.palette.background.paper",
+            background: "background.paper",
             "&:hover": {
               transform: "translateY(-4px)",
               boxShadow: 8,

@@ -1,4 +1,10 @@
-import { Box, CircularProgress, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Stack,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import CustomCard from "../../cards/card";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
@@ -14,6 +20,7 @@ const CapacityUtilization = ({
   loading = false,
 }: CapacityUtilizationProps) => {
   const dict = useDictionary();
+  const theme = useTheme();
 
   if (loading) {
     return (
@@ -53,9 +60,7 @@ const CapacityUtilization = ({
           const capacityPct = Math.round((usedPallets / totalPallets) * 100);
 
           const isCritical = capacityPct > 85;
-          const mainColor = isCritical
-            ? "theme.palette.error.main"
-            : "theme.palette.primary.main";
+          const mainColor = isCritical ? "error.main" : "primary.main";
 
           return (
             <Stack key={warehouse.id} alignItems="center" spacing={3}>
@@ -78,7 +83,11 @@ const CapacityUtilization = ({
                     color: mainColor,
                     position: "absolute",
                     left: 0,
-                    filter: `drop-shadow(0 0 8px ${isCritical ? "theme.palette.error._alpha.main_40" : "theme.palette.primary._alpha.main_40"})`,
+                    filter: `drop-shadow(0 0 8px ${
+                      isCritical
+                        ? "theme.palette.error._alpha.main_30"
+                        : "theme.palette.primary._alpha.main_40"
+                    })`,
                     [`& .MuiCircularProgress-circle`]: {
                       strokeLinecap: "round",
                     },

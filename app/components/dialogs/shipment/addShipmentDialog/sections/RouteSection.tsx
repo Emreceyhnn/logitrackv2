@@ -15,6 +15,8 @@ import RouteIcon from "@mui/icons-material/Route";
 import PersonIcon from "@mui/icons-material/Person";
 import EventIcon from "@mui/icons-material/Event";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayTime } from "@/app/lib/utils/date";
 
 interface RouteSectionProps {
   routes: RouteWithRelations[];
@@ -23,6 +25,7 @@ interface RouteSectionProps {
 const RouteSection = ({ routes }: RouteSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
+  const dateSettings = useDateSettings();
 
   const { values, setFieldValue, handleBlur, touched, errors } =
     useFormikContext<ShipmentFormValues>();
@@ -43,7 +46,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
-                bgcolor: "theme.palette.primary.main",
+                bgcolor: "primary.main",
               }}
             />
             <Typography variant="subtitle2" fontWeight={700} color="white">
@@ -55,7 +58,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
             variant="outlined"
             onClick={() => {}}
             sx={{
-              color: "theme.palette.primary.main",
+              color: "primary.main",
               borderColor: "theme.palette.primary._alpha.main_30",
               fontWeight: 600,
               textTransform: "none",
@@ -138,7 +141,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                         <PersonIcon
                           sx={{
                             fontSize: 16,
-                            color: "theme.palette.primary.main",
+                            color: "primary.main",
                           }}
                         />
                         <Typography
@@ -167,9 +170,10 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                         />
                         <Typography variant="body2" color="white">
                           {selectedRoute.startTime
-                            ? new Date(
-                                selectedRoute.startTime
-                              ).toLocaleTimeString()
+                            ? formatDisplayTime(
+                                selectedRoute.startTime,
+                                dateSettings
+                              )
                             : dict.shipments.dialogs.fields.pendingAssignment}
                         </Typography>
                       </Stack>

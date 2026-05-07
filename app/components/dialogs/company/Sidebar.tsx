@@ -31,7 +31,7 @@ export default function Sidebar({ activeStep }: SidebarProps) {
       sx={{
         width: 280,
         bgcolor: "theme.palette.background.paper_alpha.main_50",
-        borderRight: `1px solid theme.palette.divider_alpha.main_10`,
+        borderRight: "1px solid theme.palette.divider_alpha.main_10",
         p: 4,
         display: { xs: "none", md: "flex" },
         flexDirection: "column",

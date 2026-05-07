@@ -103,7 +103,11 @@
     },
     "filtersActive": "{count} aktif filtre",
     "moreThan": "{count} taneden fazla",
-    "currency": "₺"
+    "currency": "₺",
+    "closingIn": "Kapanıyor:",
+    "openingIn": "Açılıyor:",
+    "yourTime": "Sizin Saatiniz",
+    "currentTimeAtLocation": "Konumdaki Güncel Saat"
   },
   "primaryColors": {
     "title": "Renk Yapılandırması",
@@ -1580,6 +1584,10 @@
         "location": "Konum",
         "capacity": "Kapasite"
       },
+      "status": {
+        "open": "AÇIK",
+        "closed": "KAPALI"
+      },
       "details": {
         "overview": "Genel Bakış",
         "inventory": "Envanter",
@@ -1618,6 +1626,7 @@
         "is247": "7/24 OPERASYON",
         "openingTime": "AÇILIŞ SAATİ",
         "closingTime": "KAPANIŞ SAATİ",
+        "timezone": "SAAT DİLİMİ",
         "facilityAddress": "Tesis Adresi",
         "streetAddress": "SOKAK ADRESİ",
         "streetPlaceholder": "Örn. 123 Lojistik Yolu, Sanayi Bölgesi",

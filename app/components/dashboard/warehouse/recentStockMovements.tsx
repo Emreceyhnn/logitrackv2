@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
   Chip,
   Typography,
@@ -13,6 +13,8 @@ import HistoryIcon from '@mui/icons-material/History';
 import DataTable from "@/app/components/ui/DataTable";
 import type { DataTableColumn } from "@/app/lib/type/dataTable";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { formatDisplayDate, formatDisplayTime } from "@/app/lib/utils/date";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
 
 interface RecentStockMovementsProps {
   movements: InventoryMovementWithRelations[];
@@ -25,6 +27,7 @@ const RecentStockMovements = ({
 }: RecentStockMovementsProps) => {
   const theme = useTheme();
   const dict = useDictionary();
+  const dateSettings = useDateSettings();
   
   // Local pagination
   const [localPage, setLocalPage] = useState(1);
@@ -50,7 +53,7 @@ const RecentStockMovements = ({
     setLocalPage(1);
   };
 
-  const columns: DataTableColumn<InventoryMovementWithRelations>[] = useMemo(() => [
+  const columns: DataTableColumn<InventoryMovementWithRelations>[] = [
     {
       key: "warehouse",
       label: dict.dashboard.warehouse.warehouse,
@@ -117,23 +120,18 @@ const RecentStockMovements = ({
       key: "timestamp",
       label: dict.dashboard.warehouse.timestamp,
       align: "right",
-      render: (row) => {
-        const date = new Date(row.date);
-        const timeDisplay = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        const dateDisplay = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-        return (
-          <>
-            <Typography variant="body2" fontWeight={600} color="text.primary">
-              {timeDisplay}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.6 }}>
-              {dateDisplay}
-            </Typography>
-          </>
-        );
-      },
+      render: (row) => (
+        <>
+          <Typography variant="body2" fontWeight={600} color="text.primary">
+            {formatDisplayTime(row.date, dateSettings)}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.6 }}>
+            {formatDisplayDate(row.date, dateSettings)}
+          </Typography>
+        </>
+      ),
     },
-  ], [theme, dict]);
+  ];
 
   if (loading) return (
     <CustomCard sx={{ flex: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

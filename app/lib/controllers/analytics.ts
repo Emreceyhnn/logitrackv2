@@ -517,10 +517,7 @@ export const getOnTimeTrends = authenticatedAction(async (user) => {
     // Group by date
     const byDate = new Map<string, number>();
     completedRoutes.forEach((r) => {
-      const label = new Date(r.updatedAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      });
+      const label = dayjs(r.updatedAt).format("MMM D");
       byDate.set(label, (byDate.get(label) ?? 0) + 1);
     });
 

@@ -26,7 +26,7 @@ export default function AnalyticsHeader() {
         <Typography
           variant="h4"
           fontWeight={700}
-          sx={{ color: "theme.palette.text.primary" }}
+          sx={{ color: "text.primary" }}
         >
           {dict.analytics.title}
         </Typography>

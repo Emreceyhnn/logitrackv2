@@ -83,7 +83,7 @@ export function useWarehousesWithDashboard(
 ) {
   return useQuery({
     queryKey: warehouseKeys.dashboardWithFilters(page, pageSize),
-    queryFn: () => fetchWarehouseDashboard(page + 1, pageSize),
+    queryFn: () => fetchWarehouseDashboard(page, pageSize),
     staleTime: 1000 * 60 * 5,
     placeholderData: (previousData) => previousData,
   });
@@ -117,6 +117,7 @@ export function useWarehouseMutations() {
       capacityPallets: number;
       capacityVolumeM3: number;
       operatingHours?: string;
+      timezone?: string;
       specifications?: string[];
     }) =>
       createWarehouse(
@@ -132,6 +133,7 @@ export function useWarehouseMutations() {
         data.capacityPallets,
         data.capacityVolumeM3,
         data.operatingHours,
+        data.timezone,
         data.specifications
       ),
     onSuccess: () => handleSuccess("Warehouse created successfully"),

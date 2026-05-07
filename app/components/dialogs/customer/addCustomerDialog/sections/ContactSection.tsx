@@ -139,7 +139,7 @@ const ContactSection = () => {
                     borderColor: "theme.palette.primary._alpha.main_30",
                     color: "primary.main",
                     "&:hover": {
-                      borderColor: "theme.palette.primary.main",
+                      borderColor: "primary.main",
                       bgcolor: "theme.palette.primary._alpha.main_05",
                     },
                     borderRadius: 2,
@@ -198,7 +198,7 @@ const ContactSection = () => {
                               color: "theme.palette.error._alpha.main_50",
                               bgcolor: "theme.palette.error._alpha.main_05",
                               "&:hover": {
-                                color: "theme.palette.error.main",
+                                color: "error.main",
                                 bgcolor: "theme.palette.error._alpha.main_10",
                               },
                             }}

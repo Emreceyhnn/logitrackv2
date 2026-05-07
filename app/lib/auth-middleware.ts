@@ -15,6 +15,11 @@ export type AuthenticatedUser = {
   dateFormat: string;
   timeFormat: string;
   currency: string;
+  notifEmailShipment: boolean;
+  notifEmailMaint: boolean;
+  notifEmailWeekly: boolean;
+  notifPushAssignment: boolean;
+  notifPushDelay: boolean;
 };
 
 export const getAuthenticatedUser = cache(
@@ -36,6 +41,11 @@ export const getAuthenticatedUser = cache(
           dateFormat: sessionUser.dateFormat,
           timeFormat: sessionUser.timeFormat,
           currency: sessionUser.currency || "USD",
+          notifEmailShipment: sessionUser.notifEmailShipment,
+          notifEmailMaint: sessionUser.notifEmailMaint,
+          notifEmailWeekly: sessionUser.notifEmailWeekly,
+          notifPushAssignment: sessionUser.notifPushAssignment,
+          notifPushDelay: sessionUser.notifPushDelay,
         };
       }
 
@@ -58,6 +68,11 @@ export const getAuthenticatedUser = cache(
             dateFormat: sessionUser.dateFormat,
             timeFormat: sessionUser.timeFormat,
             currency: sessionUser.currency || "USD",
+            notifEmailShipment: sessionUser.notifEmailShipment,
+            notifEmailMaint: sessionUser.notifEmailMaint,
+            notifEmailWeekly: sessionUser.notifEmailWeekly,
+            notifPushAssignment: sessionUser.notifPushAssignment,
+            notifPushDelay: sessionUser.notifPushDelay,
           };
         }
       }

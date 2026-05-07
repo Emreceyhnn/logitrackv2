@@ -76,7 +76,7 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
               width: 10,
               height: 10,
               borderRadius: "50%",
-              bgcolor: "theme.palette.primary.main",
+              bgcolor: "primary.main",
               boxShadow: `0 0 10px theme.palette.primary.main`,
             }}
           />
@@ -139,7 +139,7 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                 width: 10,
                 height: 10,
                 borderRadius: "50%",
-                bgcolor: "theme.palette.primary.main",
+                bgcolor: "primary.main",
               }}
             />
             <Typography variant="subtitle1" fontWeight={700} color="white">
@@ -158,7 +158,7 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                     sx={{
                       height: 80,
                       borderRadius: 3,
-                      border: `1px solid ${isActive ? "theme.palette.primary.main" : "theme.palette.divider_alpha.main_10"}`,
+                      border: `1px solid ${isActive ? "primary.main" : "theme.palette.divider_alpha.main_10"}`,
                       bgcolor: isActive
                         ? "theme.palette.primary._alpha.main_05"
                         : "transparent",
@@ -173,7 +173,7 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                           ? "theme.palette.primary._alpha.main_10"
                           : "theme.palette.divider_alpha.main_05",
                         borderColor: isActive
-                          ? "theme.palette.primary.main"
+                          ? "primary.main"
                           : "theme.palette.divider_alpha.main_20",
                         transform: "translateY(-2px)",
                       },
@@ -181,9 +181,7 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                   >
                     <Box
                       sx={{
-                        color: isActive
-                          ? "theme.palette.primary.main"
-                          : "inherit",
+                        color: isActive ? "primary.main" : "inherit",
                       }}
                     >
                       {spec.icon}

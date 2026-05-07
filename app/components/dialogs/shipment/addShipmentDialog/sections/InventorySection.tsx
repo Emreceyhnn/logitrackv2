@@ -158,7 +158,7 @@ const InventorySection = ({
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
-                bgcolor: "theme.palette.primary.main",
+                bgcolor: "primary.main",
               }}
             />
             <Typography variant="subtitle2" fontWeight={700} color="white">
@@ -178,7 +178,7 @@ const InventorySection = ({
               onClick={() => setIsPickerOpen(true)}
               disabled={isLoadingInventory || availableInventory.length === 0}
               sx={{
-                color: "theme.palette.primary.main",
+                color: "primary.main",
                 fontWeight: 600,
                 textTransform: "none",
               }}

@@ -30,6 +30,8 @@ import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useState } from "react";
 import UploadDocumentDialog from "../uploadDocumentDialog";
 import DocumentViewerDialog from "../../shared/DocumentViewerDialog";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
 import DeleteConfirmationDialog from "../../deleteConfirmationDialog";
@@ -42,6 +44,7 @@ interface DocumentsTabProps {
 const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
   const theme = useTheme();
   const dict = useDictionary();
+  const dateSettings = useDateSettings();
   /* --------------------------------- states --------------------------------- */
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -290,7 +293,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}
               >
                 {lastUploadDate.getTime() > 0
-                  ? lastUploadDate.toLocaleDateString()
+                  ? formatDisplayDate(lastUploadDate, dateSettings)
                   : dict.common.na}
               </Typography>
             </Card>
@@ -431,7 +434,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                         }}
                       >
                         {v.expiryDate
-                          ? new Date(v.expiryDate).toLocaleDateString()
+                          ? formatDisplayDate(v.expiryDate, dateSettings)
                           : dict.common.na}
                       </TableCell>
                       <TableCell

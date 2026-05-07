@@ -15,6 +15,8 @@ import { CompanyPageProps, CompanyMember } from "@/app/lib/type/company";
 import CompanyMemberDetailsDialog from "../../dialogs/company/CompanyMemberDetailsDialog";
 import EditCompanyMemberDialog from "../../dialogs/company/EditCompanyMemberDialog";
 import DeleteConfirmationDialog from "../../dialogs/deleteConfirmationDialog";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 
 import { Dictionary } from "@/app/lib/language/language";
 
@@ -60,6 +62,7 @@ export default function CompanyMembersTable({
     limit: 10,
     total: 0,
   };
+  const dateSettings = useDateSettings();
 
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -151,14 +154,7 @@ export default function CompanyMembersTable({
         label: dict.company.members.columns.joined,
         render: (row) => (
           <Typography fontSize={13} color="text.secondary">
-            {new Date(row.createdAt).toLocaleDateString(
-              dict.common.logitrack === "LogiTrack" ? "en-US" : "tr-TR",
-              {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              }
-            )}
+            {formatDisplayDate(row.createdAt, dateSettings)}
           </Typography>
         ),
       },

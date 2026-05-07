@@ -12,6 +12,8 @@ import BusinessIcon from "@mui/icons-material/Business";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { CompanyPageProps } from "@/app/lib/type/company";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 
 interface CompanyInfoCardProps {
   props: CompanyPageProps;
@@ -19,17 +21,11 @@ interface CompanyInfoCardProps {
 
 export default function CompanyInfoCard({ props }: CompanyInfoCardProps) {
   const dict = useDictionary();
+  const dateSettings = useDateSettings();
   const { state } = props;
   const profile = state.data?.profile ?? null;
   const formattedDate = profile?.createdAt
-    ? new Date(profile.createdAt).toLocaleDateString(
-        dict.common.logitrack === "LogiTrack" ? "en-US" : "tr-TR",
-        {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }
-      )
+    ? formatDisplayDate(profile.createdAt, dateSettings)
     : null;
 
   return (

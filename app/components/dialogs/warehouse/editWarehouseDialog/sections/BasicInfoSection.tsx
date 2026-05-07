@@ -14,6 +14,10 @@ import {
   EditWarehousePageActions,
 } from "@/app/lib/type/edit-warehouse";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
+import { COMMON_TIMEZONES } from "@/app/lib/constants/timezones";
+import { getUserNow } from "@/app/lib/utils/date";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import { useState, useEffect } from "react";
 
 interface BasicInfoSectionProps {
   state: EditWarehouseBasicInfo;
@@ -24,6 +28,14 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
   const dict = useDictionary();
 
   const f = dict.warehouses.dialogs.fields;
+  const [localTime, setLocalTime] = useState(getUserNow(state.timezone));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLocalTime(getUserNow(state.timezone));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [state.timezone]);
 
   return (
     <Box>
@@ -34,7 +46,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
               width: 10,
               height: 10,
               borderRadius: "50%",
-              bgcolor: "theme.palette.primary.main",
+              bgcolor: "primary.main",
               boxShadow: `0 0 10px theme.palette.primary.main`,
             }}
           />
@@ -83,7 +95,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1}>
               <Typography
                 variant="caption"
@@ -114,6 +126,48 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
               </CustomTextArea>
             </Stack>
           </Grid>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Stack spacing={1}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                fontWeight={600}
+              >
+                {f.timezone} *
+              </Typography>
+              <CustomTextArea
+                name="timezone"
+                select
+                value={state.timezone}
+                onChange={(e) =>
+                  actions.updateBasicInfo({
+                    timezone: e.target.value as string,
+                  })
+                }
+              >
+                {COMMON_TIMEZONES.map((tz) => (
+                  <MenuItem key={tz.value} value={tz.value}>
+                    {tz.label}
+                  </MenuItem>
+                ))}
+              </CustomTextArea>
+              <Typography
+                variant="caption"
+                color="primary.main"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  mt: 0.5,
+                  fontWeight: 600,
+                }}
+              >
+                <AccessTimeIcon sx={{ fontSize: 14 }} />
+                {dict.common.currentTimeAtLocation || "Current time at location"}:{" "}
+                {localTime.format("HH:mm:ss")}
+              </Typography>
+            </Stack>
+          </Grid>
         </Grid>
 
         <Stack spacing={2.5}>
@@ -128,7 +182,7 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                   width: 10,
                   height: 10,
                   borderRadius: "50%",
-                  bgcolor: "theme.palette.primary.main",
+                  bgcolor: "primary.main",
                 }}
               />
               <Typography variant="subtitle1" fontWeight={700} color="white">

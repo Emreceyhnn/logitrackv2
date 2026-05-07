@@ -1,4 +1,4 @@
-import { Box, Typography, Switch } from "@mui/material";
+import {Box, Typography, Switch, useTheme} from "@mui/material";
 
 interface NotifRowProps {
   label: string;
@@ -24,16 +24,16 @@ export default function NotificationRow({
         borderRadius: 3,
         border: `1px solid ${checked ? "#ffffff14" : "#ffffff0a"}`,
         bgcolor: checked
-          ? "theme.palette.primary._alpha.main_05"
-          : "theme.palette.common.white_alpha.main_02",
+          ? (theme) => theme.palette.primary._alpha.main_05
+          : (theme) => theme.palette.common.white_alpha.main_02,
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         "&:hover": {
           bgcolor: checked
-            ? "theme.palette.primary._alpha.main_08"
-            : "theme.palette.common.white_alpha.main_03",
+            ? (theme) => theme.palette.primary._alpha.main_08
+            : (theme) => theme.palette.common.white_alpha.main_03,
           borderColor: checked
-            ? "theme.palette.primary._alpha.main_30"
-            : "theme.palette.primary._alpha.main_10",
+            ? (theme) => theme.palette.primary._alpha.main_30
+            : (theme) => theme.palette.primary._alpha.main_10,
         },
       }}
     >
@@ -49,7 +49,7 @@ export default function NotificationRow({
         <Typography
           variant="caption"
           sx={{
-            color: "theme.palette.common.white_alpha.main_35",
+            color: (theme) => theme.palette.common.white_alpha.main_35,
             fontWeight: 500,
           }}
         >
@@ -62,14 +62,14 @@ export default function NotificationRow({
         size="small"
         sx={{
           "& .MuiSwitch-switchBase.Mui-checked": {
-            color: "theme.palette.primary.main",
+            color: "primary.main",
             "& + .MuiSwitch-track": {
-              bgcolor: "theme.palette.primary.main",
+              bgcolor: "primary.main",
               opacity: 0.3,
             },
           },
           "& .MuiSwitch-track": {
-            bgcolor: "theme.palette.common.white_alpha.main_10",
+            bgcolor: (theme) => theme.palette.common.white_alpha.main_10,
           },
           "& .MuiSwitch-thumb": {
             boxShadow: checked

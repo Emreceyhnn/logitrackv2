@@ -1,5 +1,5 @@
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import { DirectionsMap } from "../../googleMaps/DirectionsMap";
 
 interface MapRoutesDialogCardProps {
@@ -31,6 +31,7 @@ const MapRoutesDialogCard = ({
   onRouteInfoUpdate,
 }: MapRoutesDialogCardProps) => {
   const dict = useDictionary();
+  const theme = useTheme();
   const isRoute = !!((origin || addrA) && (destination || addrB));
 
   return (

@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography, useTheme } from "@mui/material";
 import UserAccountNav from "../nav/UserAccountNav";
 import NotificationBell from "../notifications/NotificationBell";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -16,14 +16,11 @@ export default function DashboardHeader({
       component="header"
       sx={{
         px: 4,
-        py: 2,
+        py: 2.6,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        bgcolor: (theme) => 
-          theme.palette.mode === "dark" 
-            ? "rgba(10, 15, 25, 0.7)" 
-            : "rgba(255, 255, 255, 0.7)",
+        bgcolor: "theme.palette.background.paper_alpha.main_50",
         backdropFilter: "blur(12px) saturate(150%)",
         borderBottom: "1px solid",
         borderColor: "divider",
@@ -39,7 +36,7 @@ export default function DashboardHeader({
           fontWeight={800}
           sx={{
             color: "primary.main",
-            bgcolor: (theme) => theme.palette.primary._alpha.main_10,
+            bgcolor: "theme.palette.primary._alpha.main_10",
             px: 1.5,
             py: 0.5,
             borderRadius: 1.5,

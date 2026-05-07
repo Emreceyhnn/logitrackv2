@@ -56,6 +56,8 @@ import {
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useInventoryMutations } from "@/app/hooks/useInventory";
 import { useCurrency } from "@/app/hooks/useCurrency";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDateTime } from "@/app/lib/utils/date";
 import { toast } from "sonner";
 
 interface TabPanelProps {
@@ -93,6 +95,7 @@ export default function InventoryDetailsDialog({
   const lang = (params?.lang as string) || "en";
   const [tabValue, setTabValue] = useState(0);
   const { formatFrom } = useCurrency();
+  const dateSettings = useDateSettings();
 
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(false);
@@ -1037,7 +1040,7 @@ export default function InventoryDetailsDialog({
                         </TableCell>
                         <TableCell align="right">
                           <Typography variant="caption">
-                            {new Date(move.date).toLocaleString()}
+                            {formatDisplayDateTime(move.date, dateSettings)}
                           </Typography>
                         </TableCell>
                       </TableRow>

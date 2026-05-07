@@ -22,7 +22,7 @@ const defaultSettings: DateSettings = {
 };
 
 export function formatDisplayDate(
-  date: string | Date | null | undefined,
+  date: string | Date | number | null | undefined,
   settings: DateSettings = defaultSettings
 ): string {
   if (!date) return "-";
@@ -32,7 +32,7 @@ export function formatDisplayDate(
 }
 
 export function formatDisplayTime(
-  date: string | Date | null | undefined,
+  date: string | Date | number | null | undefined,
   settings: DateSettings = defaultSettings
 ): string {
   if (!date) return "-";
@@ -43,7 +43,7 @@ export function formatDisplayTime(
 }
 
 export function formatDisplayDateTime(
-  date: string | Date | null | undefined,
+  date: string | Date | number | null | undefined,
   settings: DateSettings = defaultSettings
 ): string {
   if (!date) return "-";
@@ -69,9 +69,34 @@ export function toUTC(
 }
 
 export function utcToUserTz(
-  utcDate: string | Date | null | undefined,
+  utcDate: string | Date | number | null | undefined,
   userTimezone: string
 ): dayjs.Dayjs | null {
   if (!utcDate) return null;
   return dayjs.utc(utcDate).tz(userTimezone);
+}
+
+/**
+ * Formats a date for notifications:
+ * - If today: HH:mm
+ * - If not today: DD/MM/YYYY HH:mm
+ * (formats respect user settings)
+ */
+export function formatSmartTimestamp(
+  date: string | Date | number | null | undefined,
+  settings: DateSettings = defaultSettings
+): string {
+  if (!date) return "-";
+
+  const d = dayjs.utc(date).tz(settings.timezone);
+  const now = dayjs().tz(settings.timezone);
+  const isToday = d.isSame(now, "day");
+
+  const timeFormat = settings.timeFormat === "12h" ? "hh:mm A" : "HH:mm";
+
+  if (isToday) {
+    return d.format(timeFormat);
+  }
+
+  return d.format(`${settings.dateFormat} ${timeFormat}`);
 }

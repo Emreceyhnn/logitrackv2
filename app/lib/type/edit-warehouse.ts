@@ -8,6 +8,7 @@ export interface EditWarehouseBasicInfo {
   openingTime?: string;
   closingTime?: string;
   is247: boolean;
+  timezone: string;
 }
 
 export interface EditWarehouseLocation {

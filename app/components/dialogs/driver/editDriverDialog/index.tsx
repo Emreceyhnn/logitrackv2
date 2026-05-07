@@ -32,6 +32,8 @@ import { editDriverValidationSchema } from "@/app/lib/validationSchema";
 import FirstEditDriverDialogStep from "./firstStep";
 import SecondEditDriverDialogStep from "./secondStep";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 
 const EditDriverDialog = ({
   open,
@@ -43,6 +45,7 @@ const EditDriverDialog = ({
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(1);
   const dict = useDictionary();
+  const dateSettings = useDateSettings();
 
   const validationSchema = useMemo(() => editDriverValidationSchema(dict), [dict]);
   if (!driver) return null;
@@ -66,7 +69,7 @@ const EditDriverDialog = ({
       expiryDate: doc.expiryDate ? new Date(doc.expiryDate) : null,
       file: null,
       url: doc.url,
-      uploadedAt: new Date(doc.createdAt).toLocaleDateString(),
+      uploadedAt: formatDisplayDate(doc.createdAt, dateSettings),
     })) as AddDriverDocument[],
   };
 

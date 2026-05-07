@@ -1,4 +1,11 @@
-import { Box, Divider, LinearProgress, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Divider,
+  LinearProgress,
+  Stack,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import CustomCard from "../../cards/card";
 import { WarehouseCapacityStat } from "@/app/lib/type/overview";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
@@ -10,6 +17,7 @@ interface WarehouseCapacityCardProps {
 
 const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
   const dict = useDictionary();
+  const theme = useTheme();
 
   if (!values) return null;
 
@@ -49,10 +57,10 @@ const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
               const isDanger = w.capacity > 85;
               const isWarning = w.capacity > 65 && !isDanger;
               const barColor = isDanger
-                ? "theme.palette.error.main"
+                ? "error.main"
                 : isWarning
-                  ? "theme.palette.warning.main"
-                  : "theme.palette.success.main";
+                  ? "warning.main"
+                  : "success.main";
 
               return (
                 <Stack key={index} spacing={1}>

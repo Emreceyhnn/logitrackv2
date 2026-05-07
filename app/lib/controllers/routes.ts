@@ -193,6 +193,7 @@ export const createRoute = authenticatedAction(
           title: "Yeni Rota Planlandı 📝",
           message: `${finalName} numaralı yeni bir rota planlandı. Sürücü: ${driverId ? 'Atandı' : 'Bekleniyor'}.`,
           type: "INFO",
+          category: "NEW_ASSIGNMENT",
           link: `/dashboard/routes/${newRoute.id}`,
         }
       );

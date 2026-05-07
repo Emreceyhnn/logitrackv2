@@ -46,6 +46,7 @@ export const createWarehouse = authenticatedAction(
     capacityPallets?: number,
     capacityVolumeM3?: number,
     operatingHours?: string,
+    timezone?: string,
     specifications?: string[]
   ) => {
     try {
@@ -80,6 +81,7 @@ export const createWarehouse = authenticatedAction(
           capacityPallets: capacityPallets || 5000,
           capacityVolumeM3: capacityVolumeM3 || 100000,
           operatingHours: operatingHours || "08:00 - 18:00",
+          timezone: timezone || "UTC",
           specifications: specifications || [],
         },
       });

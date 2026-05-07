@@ -24,6 +24,8 @@ import { updateIssue } from "@/app/lib/controllers/vehicle";
 import { getPriorityColor } from "@/app/lib/priorityColor";
 import { IssueStatus, IssuePriority } from "@/app/lib/type/enums";
 import type { Issue } from "@/app/lib/type/enums";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 
 interface IssueDetailDialogProps {
   open: boolean;
@@ -41,6 +43,7 @@ export default function IssueDetailDialog({
   const dict = useDictionary();
   /* ---------------------------------- theme --------------------------------- */
   const theme = useTheme();
+  const dateSettings = useDateSettings();
 
   /* --------------------------------- states --------------------------------- */
   const [status, setStatus] = useState<IssueStatus | "">("");
@@ -191,11 +194,7 @@ export default function IssueDetailDialog({
                   {dict.vehicles.dialogs.reportedOn}
                 </Typography>
                 <Typography variant="body2" color="text.primary" fontWeight={600}>
-                  {new Date(issue.createdAt).toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric"
-                  })}
+                  {formatDisplayDate(issue.createdAt, dateSettings)}
                 </Typography>
               </Box>
             </Box>

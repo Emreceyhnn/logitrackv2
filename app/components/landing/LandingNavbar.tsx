@@ -88,7 +88,7 @@ export default function LandingNavbar() {
                 }}
               >
                 <Image
-                  src="/logo.svg"
+                  src="/logo-white.svg"
                   alt="LogiTrack"
                   width={trigger ? 22 : 28}
                   height={trigger ? 22 : 28}

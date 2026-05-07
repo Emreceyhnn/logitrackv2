@@ -18,6 +18,8 @@ import {
 } from "@mui/icons-material";
 import { CompanyMember } from "@/app/lib/type/company";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 
 interface CompanyMemberDetailsDialogProps {
   open: boolean;
@@ -32,6 +34,7 @@ export default function CompanyMemberDetailsDialog({
 }: CompanyMemberDetailsDialogProps) {
   const dict = useDictionary();
   const theme = useTheme();
+  const dateSettings = useDateSettings();
 
   if (!member) return null;
 
@@ -64,8 +67,8 @@ export default function CompanyMemberDetailsDialog({
                 height: 80,
                 fontSize: "2rem",
                 fontWeight: 700,
-                bgcolor: "theme.palette.primary._alpha.main_10",
-                color: "theme.palette.primary.main",
+                bgcolor: (theme) => theme.palette.primary._alpha.main_10,
+                color: "primary.main",
                 borderRadius: 3,
               }}
             >
@@ -80,8 +83,8 @@ export default function CompanyMemberDetailsDialog({
                   label={member.roleName || dict.company.memberDetails.noRole}
                   size="small"
                   sx={{
-                    bgcolor: "theme.palette.secondary._alpha.main_10",
-                    color: "theme.palette.secondary.light",
+                    bgcolor: (theme) => theme.palette.secondary._alpha.main_10,
+                    color: "secondary.light",
                     fontWeight: 700,
                     fontSize: "0.7rem",
                     border: `1px solid theme.palette.secondary._alpha.main_20`,
@@ -114,7 +117,7 @@ export default function CompanyMemberDetailsDialog({
               sx={{
                 p: 3,
                 borderRadius: 3,
-                bgcolor: "theme.palette.background.paper_alpha.main_03",
+                bgcolor: (theme) => theme.palette.background.paper_alpha.main_03,
                 border: `1px solid theme.palette.divider_alpha.main_05`,
               }}
             >
@@ -137,8 +140,8 @@ export default function CompanyMemberDetailsDialog({
                     sx={{
                       width: 32,
                       height: 32,
-                      bgcolor: "theme.palette.info._alpha.main_10",
-                      color: "theme.palette.info.main",
+                      bgcolor: (theme) => theme.palette.info._alpha.main_10,
+                      color: "info.main",
                     }}
                   >
                     <EmailIcon sx={{ fontSize: 18 }} />
@@ -157,8 +160,8 @@ export default function CompanyMemberDetailsDialog({
                     sx={{
                       width: 32,
                       height: 32,
-                      bgcolor: "theme.palette.success._alpha.main_10",
-                      color: "theme.palette.success.main",
+                      bgcolor: (theme) => theme.palette.success._alpha.main_10,
+                      color: "success.main",
                     }}
                   >
                     <EventIcon sx={{ fontSize: 18 }} />
@@ -168,16 +171,7 @@ export default function CompanyMemberDetailsDialog({
                       {dict.company.memberDetails.joinedSince}
                     </Typography>
                     <Typography variant="body2" color="white" fontWeight={500}>
-                      {new Date(member.createdAt).toLocaleDateString(
-                        dict.common.logitrack === "LogiTrack"
-                          ? "en-US"
-                          : "tr-TR",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }
-                      )}
+                      {formatDisplayDate(member.createdAt, dateSettings)}
                     </Typography>
                   </Box>
                 </Stack>
@@ -190,7 +184,7 @@ export default function CompanyMemberDetailsDialog({
               sx={{
                 p: 3,
                 borderRadius: 3,
-                bgcolor: "theme.palette.warning._alpha.main_03",
+                bgcolor: (theme) => theme.palette.warning._alpha.main_03,
                 border: `1px solid theme.palette.warning._alpha.main_05`,
               }}
             >
@@ -239,11 +233,11 @@ export default function CompanyMemberDetailsDialog({
               fontWeight: 700,
               textTransform: "none",
               color: "text.secondary",
-              borderColor: "theme.palette.divider_alpha.main_20",
+              borderColor: (theme) => theme.palette.divider_alpha.main_20,
               "&:hover": {
                 borderColor: "white",
                 color: "white",
-                bgcolor: "theme.palette.common.white_alpha.main_02",
+                bgcolor: (theme) => theme.palette.common.white_alpha.main_02,
               },
             }}
           >

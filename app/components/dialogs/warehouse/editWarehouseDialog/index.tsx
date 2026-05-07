@@ -39,6 +39,7 @@ const defaultBasicInfo = {
   openingTime: "08:00",
   closingTime: "18:00",
   is247: false,
+  timezone: "UTC",
 };
 
 const defaultLocation = {
@@ -107,6 +108,7 @@ const EditWarehouseDialog = ({
             openingTime,
             closingTime,
             is247,
+            timezone: warehouseData.timezone || "UTC",
           },
           location: {
             address: warehouseData.address || "",
@@ -170,6 +172,7 @@ const EditWarehouseDialog = ({
           operatingHours: state.data.basicInfo.is247
             ? "24/7"
             : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
+          timezone: state.data.basicInfo.timezone,
           specifications: state.data.capacity.specifications,
         });
 

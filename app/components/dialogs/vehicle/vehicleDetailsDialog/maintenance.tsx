@@ -19,6 +19,8 @@ import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import AddIcon from "@mui/icons-material/Add";
 import { PriorityChip } from "../../../chips/priorityChips";
 import { useState } from "react";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 import ReportIssueDialog from "../reportIssueDialog";
 import MaintenanceRecordDialog from "../maintenanceRecordDialog";
 import MaintenanceDetailDialog from "../maintenanceDetailDialog";
@@ -41,7 +43,9 @@ interface MaintenanceTabProps {
 const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const theme = useTheme();
   const dict = useDictionary();
+  const dateSettings = useDateSettings();
   const { formatFrom, isLoading: currencyLoading } = useCurrency();
+
   /* --------------------------------- states --------------------------------- */
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const [maintenanceDialogOpen, setMaintenanceDialogOpen] = useState(false);
@@ -252,7 +256,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
               + {dict.vehicles.dialogs.reportIssue}
             </Button>
           </Stack>
-          {/* Fade wrapper — stays fixed; scroll happens inside */}
+          {/* Fade wrapper \u2014 stays fixed; scroll happens inside */}
           <Box
             mt={2}
             sx={{
@@ -354,7 +358,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                             }}
                           >
                             {dict.vehicles.dialogs.reportedOn}{" "}
-                            {new Date(i.createdAt).toLocaleDateString()}
+                            {formatDisplayDate(i.createdAt, dateSettings)}
                           </Typography>
                         </Stack>
                         <PriorityChip status={i.priority} />
@@ -538,11 +542,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                         }}
                       >
                         <Typography sx={{ fontSize: 12 }}>
-                          {new Date(v.date).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "2-digit",
-                            year: "numeric",
-                          })}
+                          {formatDisplayDate(v.date, dateSettings)}
                         </Typography>
                       </TableCell>
                       <TableCell

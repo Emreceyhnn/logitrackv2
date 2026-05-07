@@ -383,6 +383,7 @@ export const createVehicleIssue = authenticatedAction(
           title: `${priorityMap[issueData.priority] || "Yeni"} Araç Sorunu Bildirildi!`,
           message: `${foundVehicle.plate} plakalı araç için ${issueData.type} arızası bildirildi: ${issueData.title}`,
           type: issueData.priority === "CRITICAL" ? "ERROR" : "WARNING",
+          category: "MAINTENANCE_ALERT",
           link: `/dashboard/vehicles/${vehicleId}`,
         }
       );
@@ -476,6 +477,7 @@ export const assignDriverToVehicle = authenticatedAction(
               title: "Yeni Araç Atandı! 🚛",
               message: `${vehicle?.plate} plakalı araç size atandı. Yolculuğa başlamaya hazır mısınız?`,
               type: "SUCCESS",
+              category: "NEW_ASSIGNMENT",
               link: `/dashboard/vehicles/${vehicleId}`,
             }
           );
@@ -525,6 +527,7 @@ export const updateVehicleStatus = authenticatedAction(
             title: "Araç Bakıma Alındı! ⛔",
             message: `${updatedVehicle.plate} plakalı araç şu an bakım durumunda.`,
             type: "ERROR",
+            category: "MAINTENANCE_ALERT",
             link: `/dashboard/vehicles/${vehicleId}`,
           }
         );
@@ -605,6 +608,7 @@ export const addMaintenanceRecord = authenticatedAction(
           title: "Bakım Kaydı Oluşturuldu 👨‍🔧",
           message: `${foundVehicle.plate} plakalı araç bakıma alındı. Tür: ${recordData.type}`,
           type: "INFO",
+          category: "MAINTENANCE_ALERT",
           link: `/dashboard/vehicles/${vehicleId}`,
         }
       );
@@ -791,6 +795,7 @@ export const uploadVehicleDocument = authenticatedAction(
               title: "Kritik Belge Uyarısı! 🚫",
               message: `${documentData.name} belgesinin süresi dolmuş! Hemen yenileyiniz.`,
               type: "ERROR",
+              category: "MAINTENANCE_ALERT",
               link: `/dashboard/vehicles/${vehicleId}`,
             }
           );

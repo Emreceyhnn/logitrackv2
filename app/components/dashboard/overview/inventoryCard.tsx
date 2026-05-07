@@ -47,7 +47,7 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
               display: "flex",
               alignItems: "center",
               gap: 0.5,
-              bgcolor: "theme.palette.error._alpha.main_10",
+              bgcolor: "error._alpha.main_10",
               color: "error.main",
               px: 1,
               py: 0.25,

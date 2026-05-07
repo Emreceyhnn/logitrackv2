@@ -217,7 +217,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
             p: 3,
             borderRadius: 4,
             bgcolor: "theme.palette.primary._alpha.main_04",
-            border: `1px solid "theme.palette.primary._alpha.main_15"`,
+            border: "1px solid theme.palette.primary._alpha.main_15",
             display: "flex",
             gap: 2.5,
             transition: "0.2s",
@@ -226,9 +226,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
             },
           }}
         >
-          <InfoOutlinedIcon
-            sx={{ color: "theme.palette.primary.main", mt: 0.5 }}
-          />
+          <InfoOutlinedIcon sx={{ color: "primary.main", mt: 0.5 }} />
           <Box>
             <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 0.5 }}>
               {dict.company.dialogs.steps.integrity}
@@ -255,7 +253,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                   }
                   sx={{
                     color: "theme.palette.primary._alpha.main_50",
-                    "&.Mui-checked": { color: "theme.palette.primary.main" },
+                    "&.Mui-checked": { color: "primary.main" },
                   }}
                 />
               }

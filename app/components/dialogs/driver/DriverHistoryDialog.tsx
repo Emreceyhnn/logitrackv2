@@ -24,6 +24,8 @@ import { useEffect, useState, useCallback } from "react";
 import { getDriverHistory } from "@/app/lib/controllers/driver";
 import { DriverHistory } from "@/app/lib/type/driver";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDateTime } from "@/app/lib/utils/date";
 
 interface DriverHistoryDialogProps {
   open: boolean;
@@ -106,6 +108,7 @@ export default function DriverHistoryDialog({
 }: DriverHistoryDialogProps) {
   const theme = useTheme();
   const dict = useDictionary();
+  const dateSettings = useDateSettings();
   const [history, setHistory] = useState<DriverHistory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -255,7 +258,7 @@ export default function DriverHistoryDialog({
                               {activity.title}
                             </Typography>
                             <Typography variant="caption" color="text.secondary">
-                              • {new Date(activity.timestamp).toLocaleString()}
+                              • {formatDisplayDateTime(activity.timestamp, dateSettings)}
                             </Typography>
                           </Stack>
                           <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>

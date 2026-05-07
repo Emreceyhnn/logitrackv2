@@ -78,7 +78,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
       ...d,
       color:
         d.color ||
-        (defaultCostDistribution[i % 4]?.color ?? "theme.palette.primary.main"),
+        (defaultCostDistribution[i % 4]?.color ?? "primary.main"),
       label: translateLabel(d.label),
     })) || defaultCostDistribution;
 

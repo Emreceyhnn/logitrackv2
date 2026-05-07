@@ -9,6 +9,8 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import dayjs from "dayjs";
 
 const WarehouseListTable = ({
   warehouses,
@@ -23,6 +25,7 @@ const WarehouseListTable = ({
 }: WarehouseTableProps) => {
   const theme = useTheme();
   const dict = useDictionary();
+  const dateSettings = useDateSettings();
 
   // Local pagination if API meta isn't provided
   const [localPage, setLocalPage] = useState(1);
@@ -133,7 +136,7 @@ const WarehouseListTable = ({
                 "& .MuiLinearProgress-bar": {
                   bgcolor: palletPct > 85 ? "error.main" : "primary.main",
                   borderRadius: 3,
-                  boxShadow: `0 0 8px ${palletPct > 85 ? theme.palette.error._alpha.main_40 : theme.palette.primary._alpha.main_40}`,
+                  boxShadow: `0 0 8px ${palletPct > 85 ? theme.palette.error._alpha.main_30 : theme.palette.primary._alpha.main_40}`,
                 },
               }}
             />
@@ -183,15 +186,70 @@ const WarehouseListTable = ({
       align: "right",
       render: (row) => {
         const oh = row.operatingHours || "24/7";
-        const txt = typeof oh === "object" && oh !== null && "monFri" in oh ? (oh as { monFri: string }).monFri : String(oh);
+        const rawTxt =
+          typeof oh === "object" && oh !== null && "monFri" in oh
+            ? (oh as { monFri: string }).monFri
+            : String(oh);
+
+        if (rawTxt === "24/7" || !rawTxt.includes(" - ")) {
+          return (
+            <Typography
+              variant="body2"
+              fontWeight={600}
+              sx={{ fontFamily: "monospace" }}
+            >
+              {rawTxt}
+            </Typography>
+          );
+        }
+
+        const [opening, closing] = rawTxt.split(" - ");
+        const whTz = row.timezone || "UTC";
+        const userTz = dateSettings.timezone;
+
+        const whOpening = dayjs()
+          .tz(whTz)
+          .set("hour", parseInt(opening.split(":")[0]))
+          .set("minute", parseInt(opening.split(":")[1]))
+          .set("second", 0);
+        let whClosing = dayjs()
+          .tz(whTz)
+          .set("hour", parseInt(closing.split(":")[0]))
+          .set("minute", parseInt(closing.split(":")[1]))
+          .set("second", 0);
+
+        if (whClosing.isBefore(whOpening)) {
+          whClosing = whClosing.add(1, "day");
+        }
+
+        const userOpening = whOpening.tz(userTz).format("HH:mm");
+        const userClosing = whClosing.tz(userTz).format("HH:mm");
+
+        const isSameTz = whTz === userTz;
+
         return (
-          <Typography variant="body2" fontWeight={600} sx={{ fontFamily: "monospace" }}>
-            {txt}
-          </Typography>
+          <Stack alignItems="flex-end">
+            <Typography
+              variant="body2"
+              fontWeight={800}
+              sx={{ fontFamily: "monospace" }}
+            >
+              {userOpening} - {userClosing}
+            </Typography>
+            {!isSameTz && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ fontSize: "0.6rem", opacity: 0.7, fontWeight: 600 }}
+              >
+                {rawTxt} (LCL)
+              </Typography>
+            )}
+          </Stack>
         );
       },
     },
-  ], [theme, dict]);
+  ], [theme, dict, dateSettings]);
 
   const rowActions: DataTableRowAction<WarehouseWithRelations>[] = useMemo(() => [
     {

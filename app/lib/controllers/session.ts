@@ -36,6 +36,11 @@ export type SessionUser = {
   dateFormat: string;
   timeFormat: string;
   currency: string;
+  notifEmailShipment: boolean;
+  notifEmailMaint: boolean;
+  notifEmailWeekly: boolean;
+  notifPushAssignment: boolean;
+  notifPushDelay: boolean;
 };
 
 export interface SessionJWTPayload extends jwt.JwtPayload {
@@ -193,6 +198,11 @@ export async function validateSession(): Promise<SessionUser | null> {
             dateFormat: true,
             timeFormat: true,
             currency: true,
+            notifEmailShipment: true,
+            notifEmailMaint: true,
+            notifEmailWeekly: true,
+            notifPushAssignment: true,
+            notifPushDelay: true,
             role: {
               select: {
                 name: true,
@@ -261,6 +271,11 @@ export async function validateSession(): Promise<SessionUser | null> {
       dateFormat: session.user.dateFormat,
       timeFormat: session.user.timeFormat,
       currency: session.user.currency || "USD",
+      notifEmailShipment: session.user.notifEmailShipment,
+      notifEmailMaint: session.user.notifEmailMaint,
+      notifEmailWeekly: session.user.notifEmailWeekly,
+      notifPushAssignment: session.user.notifPushAssignment,
+      notifPushDelay: session.user.notifPushDelay,
     };
   } catch (error) {
     if ((error as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') {
@@ -307,6 +322,11 @@ export async function refreshSession(): Promise<boolean> {
             dateFormat: true,
             timeFormat: true,
             currency: true,
+            notifEmailShipment: true,
+            notifEmailMaint: true,
+            notifEmailWeekly: true,
+            notifPushAssignment: true,
+            notifPushDelay: true,
           },
         },
       },

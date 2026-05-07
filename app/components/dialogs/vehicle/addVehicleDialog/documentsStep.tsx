@@ -29,12 +29,15 @@ import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useFormikContext } from "formik";
 import { VehicleFormValues } from "@/app/lib/type/vehicle";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { formatDisplayDate } from "@/app/lib/utils/date";
 
 const DocumentsStep = () => {
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
   const theme = useTheme();
   const { values, setFieldValue } = useFormikContext<VehicleFormValues>();
+  const dateSettings = useDateSettings();
 
   const DOCUMENT_TYPES = useMemo(() => [
     { value: "REGISTRATION", label: dict.vehicles.docTypes.REGISTRATION, icon: <BadgeIcon />, required: true },
@@ -81,7 +84,7 @@ const DocumentsStep = () => {
         type: "OTHER",
         name: file.name,
         size: (file.size / 1024 / 1024).toFixed(1) + " MB",
-        uploadedAt: new Date().toLocaleDateString(),
+        uploadedAt: formatDisplayDate(new Date(), dateSettings),
         file: file,
       }));
       setFieldValue("documents", [...values.documents, ...newFiles]);

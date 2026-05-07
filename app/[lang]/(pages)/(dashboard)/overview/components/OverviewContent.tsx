@@ -24,6 +24,7 @@ import { useState, useMemo } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useOverviewData } from "@/app/hooks/useOverview";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { MapData } from "@/app/lib/type/overview";
 import LocalShipping from "@mui/icons-material/LocalShipping";
 import AccessTime from "@mui/icons-material/AccessTime";
@@ -34,6 +35,7 @@ import Person from "@mui/icons-material/Person";
 import Warehouse from "@mui/icons-material/Warehouse";
 import Inventory from "@mui/icons-material/Inventory";
 import KpiCards from "@/app/components/cards/KpiCards";
+import { formatDisplayTime } from "@/app/lib/utils/date";
 
 export default function OverviewContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -42,6 +44,7 @@ export default function OverviewContent() {
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const { data, isLoading, refetch } = useOverviewData();
+  const dateSettings = useDateSettings();
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(new Date());
 
   const handleRefresh = async () => {
@@ -143,10 +146,7 @@ export default function OverviewContent() {
           {lastRefreshed && (
             <Typography variant="caption" color="text.secondary">
               {dict.common.lastUpdated}:{" "}
-              {lastRefreshed.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              {formatDisplayTime(lastRefreshed, dateSettings)}
             </Typography>
           )}
           <Tooltip title={dict.common.refreshDashboard}>

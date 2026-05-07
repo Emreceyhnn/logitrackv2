@@ -44,14 +44,14 @@ const CustomTextArea = ({
         borderColor: "theme.palette.primary._alpha.main_30",
       },
       "&.Mui-focused fieldset": {
-        borderColor: "theme.palette.primary.main",
+        borderColor: "primary.main",
       },
     },
     "& .MuiInputLabel-root": {
       color: "text.secondary",
       fontSize: "0.85rem",
       "&.Mui-focused": {
-        color: "theme.palette.primary.main",
+        color: "primary.main",
       },
     },
     "& .MuiOutlinedInput-input": {
@@ -93,11 +93,11 @@ const CustomTextArea = ({
                       transition: "all 0.2s ease",
                       "&:hover": {
                         bgcolor: "theme.palette.primary._alpha.main_08",
-                        color: "theme.palette.primary.main",
+                        color: "primary.main",
                       },
                       "&.Mui-selected": {
                         bgcolor: "theme.palette.primary._alpha.main_12",
-                        color: "theme.palette.primary.main",
+                        color: "primary.main",
                         fontWeight: 600,
                         "&:hover": {
                           bgcolor: "theme.palette.primary._alpha.main_18",

@@ -55,13 +55,13 @@ const DriverPerformanceCharts = ({
                   scaleType: "band",
                   data: driverNames,
                   label: dict.sidebar.drivers,
-                  tickLabelStyle: { fill: "theme.palette.text.secondary" },
+                  tickLabelStyle: { fill: "text.secondary" },
                 },
               ]}
               yAxis={[
                 {
                   label: dict.drivers.dashboard.ratingsLabel,
-                  labelStyle: { fill: "theme.palette.text.secondary" },
+                  labelStyle: { fill: "text.secondary" },
                 },
               ]}
               series={[
@@ -95,13 +95,13 @@ const DriverPerformanceCharts = ({
                   scaleType: "band",
                   data: driverNames,
                   label: dict.sidebar.drivers,
-                  tickLabelStyle: { fill: "theme.palette.text.secondary" },
+                  tickLabelStyle: { fill: "text.secondary" },
                 },
               ]}
               yAxis={[
                 {
                   label: dict.drivers.dashboard.hours,
-                  labelStyle: { fill: "theme.palette.text.secondary" },
+                  labelStyle: { fill: "text.secondary" },
                 },
               ]}
               series={[

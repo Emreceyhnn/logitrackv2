@@ -29,9 +29,9 @@ const AuthButton = ({
         fontSize: "0.95rem",
         position: "relative",
         overflow: "hidden",
-        bgcolor: "theme.palette.primary.main",
+        bgcolor: "primary.main",
         "&:hover": {
-          bgcolor: "theme.palette.primary.dark",
+          bgcolor: "primary.dark",
         },
         "&.Mui-disabled": {
           bgcolor: "theme.palette.primary._alpha.main_50",

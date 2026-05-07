@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   IconButton,
@@ -13,6 +13,7 @@ import {
   Stack,
   Button,
   Tooltip,
+  useTheme,
 } from "@mui/material";
 import {
   Notifications as NotifIcon,
@@ -21,38 +22,26 @@ import {
   CheckCircle as ReadIcon,
   DoneAll as DoneAllIcon,
 } from "@mui/icons-material";
-import { getUserSession } from "@/app/lib/actions/auth";
-import { useNotifications } from "@/app/hooks/useNotifications";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
+import { useUser } from "@/app/hooks/useUser";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getStatusColor, resolveStatusAlpha } from "@/app/lib/priorityColor";
+import { formatSmartTimestamp } from "@/app/lib/utils/date";
+import { useNotifications } from "@/app/hooks/useNotifications";
 
 export default function NotificationBell({
   user: initialUser,
 }: {
   user: AuthenticatedUser | null;
 }) {
+  const theme = useTheme();
   const dict = useDictionary();
+  const dateSettings = useDateSettings();
+  const { user: contextUser } = useUser();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [user, setUser] = useState<AuthenticatedUser | null>(initialUser);
 
   const open = Boolean(anchorEl);
-
-  useEffect(() => {
-    if (!initialUser) {
-      const fetchSession = async () => {
-        try {
-          const session = await getUserSession();
-          if (session) {
-            setUser(session);
-          }
-        } catch (err) {
-          console.error("Session fetch failed for bell:", err);
-        }
-      };
-      fetchSession();
-    }
-  }, [initialUser]);
 
   const {
     notifications,
@@ -61,7 +50,7 @@ export default function NotificationBell({
     markAsRead,
     markAllAsRead,
     deleteNotification,
-  } = useNotifications(user || undefined);
+  } = useNotifications(contextUser || undefined);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -79,21 +68,21 @@ export default function NotificationBell({
           sx={{
             color:
               unreadCount > 0
-                ? "theme.palette.primary.main"
-                : "theme.palette.text.secondary",
+                ? theme.palette.primary.main
+                : theme.palette.text.secondary,
             bgcolor:
               unreadCount > 0
-                ? "theme.palette.primary._alpha.main_05"
-                : "theme.palette.action.hover",
+                ? theme.palette.primary._alpha.main_05
+                : theme.palette.action.hover,
             border: `1px solid ${
               unreadCount > 0
-                ? "theme.palette.primary._alpha.main_10"
-                : "theme.palette.divider"
+                ? theme.palette.primary._alpha.main_10
+                : theme.palette.divider
             }`,
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             "&:hover": {
-              bgcolor: "theme.palette.primary._alpha.main_10",
-              borderColor: "theme.palette.primary._alpha.main_30",
+              bgcolor: theme.palette.primary._alpha.main_10,
+              borderColor: theme.palette.primary._alpha.main_30,
               transform: "translateY(-1px)",
             },
           }}
@@ -136,13 +125,13 @@ export default function NotificationBell({
             maxHeight: 520,
             borderRadius: 4,
             overflow: "hidden",
-            bgcolor: "theme.palette.background.paper",
+            bgcolor: theme.palette.background.paper,
             backdropFilter: "blur(20px)",
-            border: "1px solid theme.palette.divider",
+            border: `1px solid ${theme.palette.divider}`,
             boxShadow:
-              "theme.palette.mode === 'dark'" +
-              " ? '0 25px 50px -12px rgba(0, 0, 0, 0.6)'" +
-              " : '0 25px 50px -12px rgba(0, 0, 0, 0.1)'",
+              theme.palette.mode === "dark"
+                ? "0 25px 50px -12px rgba(0, 0, 0, 0.6)"
+                : "0 25px 50px -12px rgba(0, 0, 0, 0.1)",
             display: "flex",
             flexDirection: "column",
           },
@@ -172,9 +161,9 @@ export default function NotificationBell({
               sx={{
                 textTransform: "none",
                 fontWeight: 700,
-                color: "theme.palette.primary.main",
+                color: theme.palette.primary.main,
                 fontSize: "0.75rem",
-                "&:hover": { bgcolor: "theme.palette.primary._alpha.main_10" },
+                "&:hover": { bgcolor: theme.palette.primary._alpha.main_10 },
               }}
             >
               {dict.notifications.catchUp}
@@ -182,7 +171,7 @@ export default function NotificationBell({
           )}
         </Box>
 
-        <Divider sx={{ borderColor: "theme.palette.divider" }} />
+        <Divider sx={{ borderColor: theme.palette.divider }} />
 
         <Box
           sx={{
@@ -198,11 +187,11 @@ export default function NotificationBell({
               background: "transparent",
             },
             "&::-webkit-scrollbar-thumb": {
-              background: "theme.palette.divider",
+              background: theme.palette.divider,
               borderRadius: "10px",
             },
             "&::-webkit-scrollbar-thumb:hover": {
-              background: "theme.palette.text.secondary",
+              background: theme.palette.text.secondary,
             },
             /* Scroll indicator fade */
             maskImage:
@@ -241,13 +230,13 @@ export default function NotificationBell({
                     position: "relative",
                     bgcolor: notif.isRead
                       ? "transparent"
-                      : "theme.palette.action.hover",
+                      : theme.palette.action.hover,
                     border: "1px solid",
                     borderColor: notif.isRead
                       ? "transparent"
-                      : "theme.palette.divider",
+                      : theme.palette.divider,
                     "&:hover": {
-                      bgcolor: "theme.palette.action.hover",
+                      bgcolor: theme.palette.action.hover,
                       borderColor: resolveStatusAlpha(notif.type),
                     },
                   }}
@@ -288,7 +277,7 @@ export default function NotificationBell({
                           <IconButton
                             size="small"
                             onClick={() => markAsRead(notif)}
-                            sx={{ color: "theme.palette.primary.main", p: 0.5 }}
+                            sx={{ color: theme.palette.primary.main, p: 0.5 }}
                           >
                             <ReadIcon sx={{ fontSize: 16 }} />
                           </IconButton>
@@ -297,11 +286,11 @@ export default function NotificationBell({
                           size="small"
                           onClick={() => deleteNotification(notif)}
                           sx={{
-                            color: "theme.palette.text.secondary",
+                            color: theme.palette.text.secondary,
                             opacity: 0.3,
                             p: 0.5,
                             "&:hover": {
-                              color: "theme.palette.error.main",
+                              color: theme.palette.error.main,
                               opacity: 1,
                             },
                           }}
@@ -330,27 +319,7 @@ export default function NotificationBell({
                         fontWeight: 700,
                       }}
                     >
-                      {(() => {
-                        const date = new Date(notif.createdAt);
-                        const now = new Date();
-                        const isToday = date.toDateString() === now.toDateString();
-                        
-                        if (isToday) {
-                          return date.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          });
-                        } else {
-                          return `${date.toLocaleDateString([], {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          })} ${date.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}`;
-                        }
-                      })()}
+                      {formatSmartTimestamp(notif.createdAt, dateSettings)}
                     </Typography>
                   </Stack>
                 </ListItem>

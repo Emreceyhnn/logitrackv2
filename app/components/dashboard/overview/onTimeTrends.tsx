@@ -52,7 +52,7 @@ const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
                 scaleType: "band",
                 data: values.map((v) => v.date),
                 tickLabelStyle: {
-                  fill: "theme.palette.text.secondary",
+                  fill: "text.secondary",
                   fontSize: 12,
                 },
               },
@@ -60,7 +60,7 @@ const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
             yAxis={[
               {
                 tickLabelStyle: {
-                  fill: "theme.palette.text.secondary",
+                  fill: "text.secondary",
                   fontSize: 12,
                 },
               },

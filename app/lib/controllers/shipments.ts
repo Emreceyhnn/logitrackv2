@@ -247,6 +247,7 @@ export const createShipment = authenticatedAction(
           title: "Yeni Sevkiyat Kaydı 📦",
           message: `${newShipment.trackingId} takip numaralı yeni sevkiyat oluşturuldu.`,
           type: "INFO",
+          category: "SHIPMENT_UPDATE",
           link: `/dashboard/shipments/${newShipment.id}`,
         }
       );
@@ -303,6 +304,7 @@ export const assignDriverToShipment = authenticatedAction(
           title: "Sürücü Atandı 👤",
           message: `${updatedShipment.trackingId} numaralı sevkiyata bir sürücü atandı.`,
           type: "SUCCESS",
+          category: "NEW_ASSIGNMENT",
           link: `/dashboard/shipments/${updatedShipment.id}`,
         }
       );
@@ -359,6 +361,7 @@ export const assignRouteToShipment = authenticatedAction(
           title: "Rota Planlandı 🚛",
           message: `${updatedShipment.trackingId} numaralı sevkiyat bir rotaya dahil edildi.`,
           type: "SUCCESS",
+          category: "NEW_ASSIGNMENT",
           link: `/dashboard/shipments/${updatedShipment.id}`,
         }
       );
@@ -418,6 +421,7 @@ export const updateShipmentStatus = authenticatedAction(
             title: status === ShipmentStatus.DELAYED ? "Sevkiyat Gecikmesi ⏳" : "Sevkiyat Başarısız ❌",
             message: `${updatedShipment.trackingId} numaralı sevkiyatın durumu ${status} olarak güncellendi.`,
             type: status === ShipmentStatus.DELAYED ? "WARNING" : "ERROR",
+            category: status === ShipmentStatus.DELAYED ? "DELAY_ALERT" : "SHIPMENT_UPDATE",
             link: `/dashboard/shipments/${updatedShipment.id}`,
           }
         );
@@ -428,6 +432,7 @@ export const updateShipmentStatus = authenticatedAction(
             title: "Sevkiyat Teslim Edildi ✅",
             message: `${updatedShipment.trackingId} numaralı sevkiyat başarıyla teslim edildi.`,
             type: "SUCCESS",
+            category: "SHIPMENT_UPDATE",
             link: `/dashboard/shipments/${updatedShipment.id}`,
           }
         );
@@ -438,6 +443,7 @@ export const updateShipmentStatus = authenticatedAction(
             title: status === ShipmentStatus.PROCESSING ? "Sevkiyat Hazırlanıyor ⚙️" : "Sevkiyat Yolda 🚛",
             message: `${updatedShipment.trackingId} numaralı sevkiyat ${status === ShipmentStatus.PROCESSING ? 'işleme alındı' : 'yola çıktı'}.`,
             type: "INFO",
+            category: "SHIPMENT_UPDATE",
             link: `/dashboard/shipments/${updatedShipment.id}`,
           }
         );

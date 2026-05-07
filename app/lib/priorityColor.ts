@@ -118,25 +118,25 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
 export const getStatusColor = (t: NotificationType) => {
   switch (t) {
     case "SUCCESS":
-      return "theme.palette.success.main";
+      return "success.main";
     case "WARNING":
-      return "theme.palette.warning.main";
+      return "warning.main";
     case "ERROR":
-      return "theme.palette.error.main";
+      return "error.main";
     default:
-      return "theme.palette.info.main";
+      return "info.main";
   }
 };
 
 export const resolveStatusAlpha = (t: NotificationType) => {
   switch (t) {
     case "SUCCESS":
-      return "theme.palette.success._alpha";
+      return "success._alpha.main_20";
     case "WARNING":
-      return "theme.palette.warning._alpha";
+      return "warning._alpha.main_20";
     case "ERROR":
-      return "theme.palette.error._alpha";
+      return "error._alpha.main_20";
     default:
-      return "theme.palette.info._alpha";
+      return "info._alpha.main_20";
   }
 };

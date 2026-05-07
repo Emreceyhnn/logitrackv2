@@ -23,33 +23,21 @@ const FirstRouteDialogStep = ({
 }: FirstRouteDialogStepProps) => {
   const dict = useDictionary();
   const { user } = useUser();
+
   const userTz = user?.timezone || "UTC";
 
   const { values, setFieldValue, handleBlur, touched, errors } =
     useFormikContext<RouteFormValues>();
 
-  /**
-   * Convert a Date (that represents a wall-clock time in userTz) to a dayjs
-   * object so the picker shows the correct local time.
-   * Because MobileDateTimePicker does not natively handle timezone offsets,
-   * we manually shift the Date by the timezone offset to make it render
-   * correctly in UTC mode.
-   */
   const toPickerValue = (date: Date | null): dayjs.Dayjs | null => {
     if (!date) return null;
-    // Convert UTC → user timezone, then represent as a "naive" dayjs
-    // so the picker shows the user's local time correctly
+
     return utcToUserTz(date, userTz);
   };
 
-  /**
-   * When the picker changes, the returned dayjs is a "naive" local time
-   * displayed in the user's timezone. Store it as a JS Date keeping
-   * the wall-clock time (toUTC is applied on submit).
-   */
   const fromPickerValue = (val: dayjs.Dayjs | null): Date | null => {
     if (!val) return null;
-    // Store as a Date that represents the wall-clock time picked
+
     return val.toDate();
   };
 
@@ -62,7 +50,7 @@ const FirstRouteDialogStep = ({
               width: 40,
               height: 40,
               borderRadius: "50%",
-              bgcolor: (theme) => theme.palette.primary._alpha.main_10,
+              bgcolor: "theme.palette.primary._alpha.main_10",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -86,7 +74,7 @@ const FirstRouteDialogStep = ({
               <Stack direction="row" spacing={1} alignItems="center">
                 <BoltIcon
                   sx={{
-                    color: (theme) => theme.palette.warning.main,
+                    color: "theme.palette.warning.main",
                     fontSize: 18,
                   }}
                 />
@@ -224,16 +212,15 @@ const FirstRouteDialogStep = ({
           sx={{
             p: 2,
             borderRadius: 2,
-            bgcolor: (theme) => theme.palette.primary._alpha.main_05,
-            border: (theme) =>
-              `1px solid ${theme.palette.primary._alpha.main_10}`,
+            bgcolor: "theme.palette.primary._alpha.main_05",
+            border: "1px solid theme.palette.primary._alpha.main_10",
             display: "flex",
             gap: 2,
           }}
         >
           <InfoOutlinedIcon
             fontSize="small"
-            sx={{ color: (theme) => theme.palette.primary.main, mt: 0.3 }}
+            sx={{ color: "theme.palette.primary.main", mt: 0.3 }}
           />
           <Typography
             variant="caption"

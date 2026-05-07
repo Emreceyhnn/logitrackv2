@@ -1,5 +1,13 @@
 export type NotificationType = "INFO" | "WARNING" | "ERROR" | "SUCCESS";
 
+export type NotificationCategory = 
+  | "SHIPMENT_UPDATE" 
+  | "MAINTENANCE_ALERT" 
+  | "NEW_ASSIGNMENT" 
+  | "DELAY_ALERT" 
+  | "SYSTEM";
+
+
 export interface NotificationTarget {
   userId?: string;
   companyId?: string;
@@ -14,6 +22,7 @@ export interface Notification {
   type: NotificationType;
   createdAt: number;
   isRead: boolean;
+  category?: NotificationCategory;
   link?: string;
   metadata?: Record<string, unknown>;
 }

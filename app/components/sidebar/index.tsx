@@ -120,7 +120,7 @@ const SideBar = () => {
               }}
             >
               <Image
-                src="/logo.svg"
+                src="/logo-white.svg"
                 alt="LogiTrack"
                 width={20}
                 height={20}

@@ -20,6 +20,7 @@ import {
 import { ShipmentStatus } from "@/app/lib/type/enums";
 import { useUserContext } from "@/app/lib/context/UserContext";
 import { formatDisplayDate } from "@/app/lib/utils/date";
+import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const ShipmentTable = ({
@@ -31,6 +32,7 @@ const ShipmentTable = ({
 }: ShipmentTableProps) => {
   const dict = useDictionary();
   const { user } = useUserContext();
+  const dateSettings = useDateSettings();
   const { shipments, loading = false, filters } = state;
   const { selectShipment, onEdit, onDelete, updateFilters } = actions;
 
@@ -159,7 +161,7 @@ const ShipmentTable = ({
     {
       key: "createdAt",
       label: dict.shipments.table.columns.created,
-      render: (row) => formatDisplayDate(row.createdAt, user || undefined),
+      render: (row) => formatDisplayDate(row.createdAt, dateSettings),
     },
     {
       key: "destination",

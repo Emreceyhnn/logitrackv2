@@ -52,7 +52,7 @@ const FuelByVehicleCard = ({ values }: FuelByVehicleCardProps) => {
                 scaleType: "band",
                 data: values.map((v) => v.plate),
                 tickLabelStyle: {
-                  fill: "theme.palette.text.secondary",
+                  fill: "text.secondary",
                   fontSize: 12,
                 },
               },
@@ -60,7 +60,7 @@ const FuelByVehicleCard = ({ values }: FuelByVehicleCardProps) => {
             yAxis={[
               {
                 tickLabelStyle: {
-                  fill: "theme.palette.error.main",
+                  fill: "error.main",
                   fontSize: 12,
                 },
               },

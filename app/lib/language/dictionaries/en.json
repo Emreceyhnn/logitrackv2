@@ -103,7 +103,11 @@
     },
     "filtersActive": "{count} filters active",
     "moreThan": "more than {count}",
-    "currency": "$"
+    "currency": "$",
+    "closingIn": "Closing in",
+    "openingIn": "Opening in",
+    "yourTime": "Your Time",
+    "currentTimeAtLocation": "Current time at location"
   },
   "primaryColors": {
     "title": "Color Configuration",
@@ -1580,6 +1584,10 @@
         "location": "Location",
         "capacity": "Capacity"
       },
+      "status": {
+        "open": "OPEN",
+        "closed": "CLOSED"
+      },
       "details": {
         "overview": "Overview",
         "inventory": "Inventory",
@@ -1618,6 +1626,7 @@
         "is247": "24/7 Operation",
         "openingTime": "Opening Time",
         "closingTime": "Closing Time",
+        "timezone": "Timezone",
         "facilityAddress": "Facility Address",
         "streetAddress": "Street Address",
         "streetPlaceholder": "e.g. 123 Logistics Way, Industrial District",

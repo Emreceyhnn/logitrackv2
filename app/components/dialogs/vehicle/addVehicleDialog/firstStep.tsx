@@ -77,10 +77,10 @@ const FirstStep = ({
           {dict.vehicles.dialogs.photo}
         </Typography>
         <Box
-          sx={(theme) => ({
+          sx={{
             width: "100%",
             aspectRatio: "1/1",
-            border: `2px dashed ${photoPreview ? "transparent" : theme.palette.divider_alpha.main_10}`,
+            border: `2px dashed ${photoPreview ? "transparent" : "theme.palette.divider_alpha.main_10"}`,
             borderRadius: 3,
             display: "flex",
             flexDirection: "column",
@@ -93,12 +93,12 @@ const FirstStep = ({
             "&:hover": {
               borderColor: photoPreview
                 ? "none"
-                : theme.palette.primary._alpha.main_30,
+                : "theme.palette.primary._alpha.main_30",
               bgcolor: photoPreview
                 ? "none"
-                : theme.palette.primary._alpha.main_02,
+                : "theme.palette.primary._alpha.main_02",
             },
-          })}
+          }}
         >
           {photoPreview ? (
             <>
@@ -152,7 +152,7 @@ const FirstStep = ({
                 sx={{
                   p: 2,
                   borderRadius: "50%",
-                  bgcolor: (theme) => theme.palette.mode === "dark" ? "primary._alpha.main_10" : "primary._alpha.main_05",
+                  bgcolor: "primary._alpha.main_05",
                   color: "primary.main",
                   mb: 1.5,
                 }}

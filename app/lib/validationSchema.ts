@@ -737,6 +737,9 @@ export const getAddWarehouseValidationSchema = (dict: Dictionary) =>
         ["DISTRIBUTION_CENTER", "CROSSDOCK", "WAREHOUSE"],
         formatMessage(dict.validation.oneOf, { field: "Type" })
       ),
+    timezone: Yup.string().required(
+      formatMessage(dict.validation.required, { field: "Timezone" })
+    ),
     address: Yup.string().required(
       formatMessage(dict.validation.required, { field: "Address" })
     ),

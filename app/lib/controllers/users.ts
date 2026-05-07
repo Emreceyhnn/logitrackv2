@@ -508,3 +508,40 @@ export const updateUserRegionalSettings = authenticatedAction(
     }
   }
 );
+export const updateUserNotificationSettings = authenticatedAction(
+  async (
+    user,
+    settings: {
+      emailShipmentUpdates: boolean;
+      emailMaintenanceAlerts: boolean;
+      emailWeeklyReports: boolean;
+      pushNewAssignments: boolean;
+      pushDelayAlerts: boolean;
+    }
+  ) => {
+    try {
+      const updatedUser = await db.user.update({
+        where: { id: user.id },
+        data: {
+          notifEmailShipment: settings.emailShipmentUpdates,
+          notifEmailMaint: settings.emailMaintenanceAlerts,
+          notifEmailWeekly: settings.emailWeeklyReports,
+          notifPushAssignment: settings.pushNewAssignments,
+          notifPushDelay: settings.pushDelayAlerts,
+        },
+      });
+
+      // Log audit event
+      await logAuditEvent({
+        userId: user.id,
+        action: "SETTINGS_UPDATE",
+        metadata: { ...settings, type: "notification_settings_update" },
+      });
+
+      return { success: true, user: updatedUser };
+    } catch (error) {
+      console.error("Failed to update notification settings:", error);
+      throw error;
+    }
+  }
+);

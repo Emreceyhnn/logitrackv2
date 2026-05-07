@@ -19,7 +19,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useUserContext } from "@/app/lib/context/UserContext";
-import { updateUserRegionalSettings } from "@/app/lib/controllers/users";
+import { updateUserRegionalSettings, updateUserNotificationSettings } from "@/app/lib/controllers/users";
 import { useRouter } from "next/navigation";
 import type {
   SettingsPageState,
@@ -58,11 +58,11 @@ export default function SettingsDialog({ open, onClose }: Props) {
       timeFormat: user?.timeFormat || "24h",
     },
     notifications: {
-      emailShipmentUpdates: true,
-      emailMaintenanceAlerts: true,
-      emailWeeklyReports: false,
-      pushNewAssignments: true,
-      pushDelayAlerts: true,
+      emailShipmentUpdates: user?.notifEmailShipment ?? true,
+      emailMaintenanceAlerts: user?.notifEmailMaint ?? true,
+      emailWeeklyReports: user?.notifEmailWeekly ?? false,
+      pushNewAssignments: user?.notifPushAssignment ?? true,
+      pushDelayAlerts: user?.notifPushDelay ?? true,
     },
     appearance: { mode: "dark" },
   });
@@ -77,6 +77,13 @@ export default function SettingsDialog({ open, onClose }: Props) {
           timezone: user.timezone || "UTC",
           dateFormat: user.dateFormat || "DD/MM/YYYY",
           timeFormat: user.timeFormat || "24h",
+        },
+        notifications: {
+          emailShipmentUpdates: user.notifEmailShipment ?? true,
+          emailMaintenanceAlerts: user.notifEmailMaint ?? true,
+          emailWeeklyReports: user.notifEmailWeekly ?? false,
+          pushNewAssignments: user.notifPushAssignment ?? true,
+          pushDelayAlerts: user.notifPushDelay ?? true,
         },
       }));
     }
@@ -131,10 +138,16 @@ export default function SettingsDialog({ open, onClose }: Props) {
     }, [state.regional, showToast, dict.settings.dialogs.success.regional, router]),
     saveNotifications: useCallback(async () => {
       setState((s) => ({ ...s, isSaving: true }));
-      await new Promise((r) => setTimeout(r, 600));
-      setState((s) => ({ ...s, isSaving: false }));
-      showToast("success", dict.settings.dialogs.success.notifications);
-    }, [showToast, dict.settings.dialogs.success.notifications]),
+      try {
+        await updateUserNotificationSettings(state.notifications);
+        setState((s) => ({ ...s, isSaving: false }));
+        showToast("success", dict.settings.dialogs.success.notifications);
+        router.refresh();
+      } catch (error) {
+        setState((s) => ({ ...s, isSaving: false }));
+        showToast("error", "Failed to save notifications");
+      }
+    }, [state.notifications, showToast, dict.settings.dialogs.success.notifications, router]),
   };
 
   const tabs = [
