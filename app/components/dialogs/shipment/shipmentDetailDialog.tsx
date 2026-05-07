@@ -12,6 +12,7 @@ import {
   Typography,
   Paper,
   useTheme,
+  Theme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -49,7 +50,7 @@ const PillTab = ({
   badge?: number;
   active: boolean;
   onClick: () => void;
-  theme: any;
+  theme: Theme;
 }) => {
   return (
     <Box
@@ -208,11 +209,17 @@ export default function ShipmentDetailDialog({
             >
               <PillTab
                 id="overview"
+                active={tab === "overview"}
+                onClick={() => setTab("overview")}
+                theme={theme}
                 icon={<InfoOutlinedIcon sx={{ fontSize: 15 }} />}
                 label={dict.shipments.details.tabs.overview}
               />
               <PillTab
                 id="items"
+                active={tab === "items"}
+                onClick={() => setTab("items")}
+                theme={theme}
                 icon={<Inventory2OutlinedIcon sx={{ fontSize: 15 }} />}
                 label={dict.shipments.details.tabs.items}
                 badge={items.length}

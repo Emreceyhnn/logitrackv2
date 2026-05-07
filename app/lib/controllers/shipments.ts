@@ -568,8 +568,8 @@ export const updateShipment = authenticatedAction(
       // FK alanlarında boş string geldiyse undefined'a çevir (Prisma P2003 önlemi)
       const fkFields = ["customerId", "customerLocationId", "routeId", "originWarehouseId", "driverId"];
       for (const field of fkFields) {
-        if (updateData[field] === "" || updateData[field] === null) {
-          updateData[field] = undefined;
+        if ((updateData as any)[field] === "" || (updateData as any)[field] === null) {
+          (updateData as any)[field] = undefined;
         }
       }
 
@@ -591,7 +591,7 @@ export const updateShipment = authenticatedAction(
           // Check trackingId uniqueness if it's being updated
           if (updateData.trackingId && updateData.trackingId !== oldShipment.trackingId) {
             const duplicate = await tx.shipment.findUnique({
-              where: { trackingId: updateData.trackingId },
+              where: { trackingId: updateData.trackingId as string },
             });
             if (duplicate) {
               throw new Error("Tracking ID already exists in another shipment");

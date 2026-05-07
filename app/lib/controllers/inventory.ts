@@ -456,7 +456,7 @@ export const getInventoryWithDashboardData = authenticatedAction(
       // Sort logic
       const orderBy: Prisma.InventoryOrderByWithRelationInput = {};
       if (sortBy) {
-        orderBy[sortBy] = sortOrder || "asc";
+        (orderBy as any)[sortBy as keyof Prisma.InventoryOrderByWithRelationInput] = sortOrder || "asc";
       } else {
         orderBy.name = "asc";
       }
@@ -491,7 +491,10 @@ export const getInventoryWithDashboardData = authenticatedAction(
             select: { 
               id: true, 
               name: true, 
+              sku: true,
+              warehouseId: true,
               quantity: true, 
+              allocatedQuantity: true,
               minStock: true, 
               unitValue: true, 
               currency: true,
