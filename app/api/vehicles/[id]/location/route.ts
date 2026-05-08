@@ -67,7 +67,11 @@ export async function POST(
     };
 
     // 4. Push to Firebase Realtime Database via Admin SDK
-    await adminDb.ref(`vehicles/locations/${vehicleId}`).set(locationPayload);
+    if (adminDb) {
+      await adminDb.ref(`vehicles/locations/${vehicleId}`).set(locationPayload);
+    } else {
+      console.warn("⚠️ Firebase Admin SDK not initialized. Skipping location push.");
+    }
 
     return NextResponse.json(
       {
@@ -110,8 +114,11 @@ export async function GET(
     }
 
     // Read the latest value from Firebase RTDB (one-time read) via Admin SDK
-    const snapshot = await adminDb.ref(`vehicles/locations/${vehicleId}`).once("value");
-    const liveLocation = snapshot.val();
+    let liveLocation = null;
+    if (adminDb) {
+      const snapshot = await adminDb.ref(`vehicles/locations/${vehicleId}`).once("value");
+      liveLocation = snapshot.val();
+    }
 
     return NextResponse.json({
       vehicleId,

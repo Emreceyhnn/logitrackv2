@@ -13,6 +13,10 @@ export async function sendNotificationAction(
   notification: Omit<Notification, "id" | "createdAt" | "isRead">
 ) {
   try {
+    if (!adminDb) {
+      console.warn("⚠️ Firebase Admin SDK not initialized. Skipping notification.");
+      return { success: false, error: "Firebase not initialized" };
+    }
     let path = "";
 
     // If it's a company broadcast with a specific category, we iterate and target individuals
@@ -50,6 +54,7 @@ export async function sendNotificationAction(
         }
 
         const personalPath = `notifications/inbox/${u.id}`;
+        if (!adminDb) return;
         const ref = adminDb.ref(personalPath).push();
         return ref.set({
           ...notification,
@@ -99,6 +104,7 @@ export async function sendNotificationAction(
  */
 export async function markAsReadAction(path: string, notificationId: string) {
   try {
+    if (!adminDb) throw new Error("Firebase not initialized");
     await adminDb.ref(`${path}/${notificationId}`).update({ isRead: true });
     return { success: true };
   } catch (error) {
@@ -112,6 +118,7 @@ export async function markAsReadAction(path: string, notificationId: string) {
  */
 export async function deleteNotificationAction(path: string, notificationId: string) {
   try {
+    if (!adminDb) throw new Error("Firebase not initialized");
     await adminDb.ref(`${path}/${notificationId}`).remove();
     return { success: true };
   } catch (error) {

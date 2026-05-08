@@ -15,6 +15,7 @@ export async function updateVehicleLocationAction(
   location: Omit<VehicleLocation, "lastUpdated">
 ) {
   try {
+    if (!adminDb) throw new Error("Firebase not initialized");
     const path = `vehicles/locations/${vehicleId}`;
     const data: VehicleLocation = {
       ...location,
@@ -34,6 +35,7 @@ export async function updateVehicleDataAction(
   data: Partial<VehicleLocation>
 ) {
   try {
+    if (!adminDb) throw new Error("Firebase not initialized");
     const path = `vehicles/locations/${vehicleId}`;
     const updateData = {
       ...data,
@@ -49,6 +51,7 @@ export async function updateVehicleDataAction(
 
 export async function syncVehicleToFirebaseAction(vehicle: any) {
   try {
+    if (!adminDb) throw new Error("Firebase not initialized");
     const path = `vehicles/registry/${vehicle.id}`;
     await adminDb.ref(path).set({
       ...vehicle,
