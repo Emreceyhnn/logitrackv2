@@ -12,25 +12,31 @@ const firebaseAdminConfig = {
   privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
 };
 
+let adminDb: admin.database.Database | undefined;
+let adminMessaging: admin.messaging.Messaging | undefined;
+let adminAuth: admin.auth.Auth | undefined;
+
 if (!admin.apps.length) {
   try {
-    if (firebaseAdminConfig.clientEmail && firebaseAdminConfig.privateKey) {
+    if (firebaseAdminConfig.clientEmail && firebaseAdminConfig.privateKey && firebaseAdminConfig.privateKey.includes("BEGIN PRIVATE KEY")) {
       admin.initializeApp({
         credential: admin.credential.cert(firebaseAdminConfig),
         databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
       });
+      adminDb = admin.database();
+      adminMessaging = admin.messaging();
+      adminAuth = admin.auth();
     } else {
-      // Fallback for local development if running in an environment with application default credentials
-      admin.initializeApp({
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-        databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
-      });
+      console.warn("⚠️ Firebase credentials missing or invalid in .env. Realtime features will be disabled.");
     }
   } catch (error) {
-    console.error("Firebase admin initialization error", error);
+    console.error("❌ Firebase admin initialization error:", error);
   }
+} else {
+  adminDb = admin.database();
+  adminMessaging = admin.messaging();
+  adminAuth = admin.auth();
 }
 
-export const adminDb = admin.database();
-export const adminMessaging = admin.messaging();
-export const adminAuth = admin.auth();
+export { adminDb, adminMessaging, adminAuth };
+
