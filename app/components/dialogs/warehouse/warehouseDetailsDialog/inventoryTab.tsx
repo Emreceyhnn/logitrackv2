@@ -24,7 +24,6 @@ import {
 } from "@mui/icons-material";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
-import InventoryFilterDialog from "../../inventory/InventoryFilterDialog";
 
 interface InventoryTabProps {
   warehouse: WarehouseWithRelations;
@@ -56,7 +55,6 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
@@ -186,8 +184,13 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
       <InventoryHeader
         value={displaySearch}
         onSearch={(val) => setDisplaySearch(val)}
-        onFilterClick={() => setIsFilterOpen(true)}
         onAddClick={() => setIsAddOpen(true)}
+        status={filters.status}
+        onStatusChange={(status) => {
+          setFilters((prev) => ({ ...prev, status }));
+          setPagination((prev) => ({ ...prev, page: 1 }));
+        }}
+        hideWarehouseFilter
       />
 
       <Box mb={4}>
@@ -252,18 +255,6 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
         loading={deleteMutation.isPending}
       />
 
-      <InventoryFilterDialog
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        filters={{
-          status: filters.status,
-        }}
-        onApply={(newFilters) => {
-          setFilters((prev) => ({ ...prev, ...newFilters }));
-          setPagination((prev) => ({ ...prev, page: 1 }));
-        }}
-        isWarehouseView
-      />
     </Box>
   );
 };

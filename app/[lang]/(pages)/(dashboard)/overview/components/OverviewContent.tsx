@@ -312,7 +312,7 @@ export default function OverviewContent() {
                 flexDirection: "column",
               }}
             >
-              <FuelByVehicleCard values={data.fuelStats} />
+              <FuelByVehicleCard logs={data.fuelLogs} />
             </Box>
             <Box
               sx={{

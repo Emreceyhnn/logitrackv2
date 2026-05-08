@@ -10,12 +10,16 @@ import WarehouseIcon from "@mui/icons-material/Warehouse";
 import PersonIcon from "@mui/icons-material/Person";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
+import { TrailerWithRelations } from "@/app/lib/type/trailer.types";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+
 interface LogisticsSectionProps {
   warehouses: WarehouseWithRelations[];
   customers: CustomerWithRelations[];
+  trailers: TrailerWithRelations[];
 }
 
-const LogisticsSection = ({ warehouses, customers }: LogisticsSectionProps) => {
+const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
 
@@ -339,6 +343,53 @@ const LogisticsSection = ({ warehouses, customers }: LogisticsSectionProps) => {
                       "Select a customer first"}
                   </MenuItem>
                 )}
+              </CustomTextArea>
+            </Stack>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Stack spacing={1}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                fontWeight={600}
+              >
+                {dict.trailers.assignTrailer || "ASSIGN TRAILER"}
+              </Typography>
+              <CustomTextArea
+                name="trailerId"
+                select
+                placeholder={dict.trailers.selectTrailer || "Select trailer"}
+                value={values.trailerId || ""}
+                onBlur={handleBlur}
+                error={touched.trailerId && Boolean(errors.trailerId)}
+                helperText={
+                  touched.trailerId ? (errors.trailerId as string) : undefined
+                }
+                onChange={(e) => setFieldValue("trailerId", e.target.value || null)}
+              >
+                <MenuItem value="">
+                  <Typography variant="body2" color="text.secondary">
+                    {(dict.common as any).none || "None"}
+                  </Typography>
+                </MenuItem>
+                {trailers.map((t) => (
+                  <MenuItem key={t.id} value={t.id}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <LocalShippingIcon
+                        sx={{ fontSize: 18, color: "text.secondary" }}
+                      />
+                      <Stack spacing={0}>
+                        <Typography variant="body2" fontWeight={600}>
+                          {t.plate} ({t.type})
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {t.maxLoadKg} kg | {t.capacityVolumeM3} m³
+                        </Typography>
+                      </Stack>
+                    </Stack>
+                  </MenuItem>
+                ))}
               </CustomTextArea>
             </Stack>
           </Grid>

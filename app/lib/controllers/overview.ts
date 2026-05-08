@@ -44,6 +44,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
         stats: null,
         dailyOps: null,
         fuelStats: [],
+        fuelLogs: [],
         warehouseCapacity: [],
         lowStockItems: [],
         shipmentStatus: [],
@@ -59,12 +60,12 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-    sevenDaysAgo.setHours(0, 0, 0, 0);
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+    const oneHundredEightyDaysAgo = new Date();
+    oneHundredEightyDaysAgo.setDate(oneHundredEightyDaysAgo.getDate() - 179);
+    oneHundredEightyDaysAgo.setHours(0, 0, 0, 0);
 
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
@@ -183,7 +184,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       db.fuelLog.findMany({
         where: {
           companyId,
-          date: { gte: thirtyDaysAgo },
+          date: { gte: oneHundredEightyDaysAgo },
         },
       }),
       
@@ -243,7 +244,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       db.shipment.findMany({
         where: {
           companyId,
-          createdAt: { gte: sevenDaysAgo },
+          createdAt: { gte: oneHundredEightyDaysAgo },
         },
         select: { createdAt: true },
       }),
@@ -393,7 +394,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
 
     // 10. Shipment Volume History
     const shipmentVolume: ShipmentDayStat[] = [];
-    for (let i = 6; i >= 0; i--) {
+    for (let i = 179; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       d.setHours(0, 0, 0, 0);
@@ -436,6 +437,11 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       stats,
       dailyOps,
       fuelStats,
+      fuelLogs: fuelLogsRaw.map((log) => ({
+        plate: vehicleMap.get(log.vehicleId) ?? "N/A",
+        amount: log.volumeLiter,
+        date: log.date.toISOString(),
+      })),
       warehouseCapacity,
       lowStockItems,
       shipmentStatus,

@@ -7,6 +7,7 @@ import {
   Button,
   Box,
   useTheme,
+  Grid,
 } from "@mui/material";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import SpeedIcon from "@mui/icons-material/Speed";
@@ -29,7 +30,11 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
   if (!vehicle) {
-    return <Typography color="text.secondary">{dict.common.noData || "No vehicle selected"}</Typography>;
+    return (
+      <Typography color="text.secondary">
+        {dict.common.noData || "No vehicle selected"}
+      </Typography>
+    );
   }
 
   /* -------------------------------- handlers -------------------------------- */
@@ -39,22 +44,41 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
     }
   };
 
+  const cardStyle = {
+    p: 2,
+    display: "flex",
+    flexDirection: "column",
+    borderRadius: "8px",
+    height: "100%",
+    bgcolor: (theme: any) =>
+      theme.palette.mode === "dark"
+        ? "rgba(255,255,255,0.03)"
+        : "rgba(0,0,0,0.02)",
+    backgroundImage: "none",
+    boxShadow: "none",
+    border: (theme: any) => `1px solid ${theme.palette.divider}`,
+  };
+
   return (
     <>
       <Stack
         spacing={2}
         direction={"row"}
-        maxHeight={450}
+        maxHeight={600}
         height={"100%"}
         justifyContent={"space-between"}
+        alignItems="stretch"
       >
-        <Stack spacing={2} width={"45%"} sx={{ overflowY: 'auto', pr: 1 }}>
+        <Stack justifyContent={"space-between"} width={"48%"}>
           {vehicle.photo && (
             <Card
               sx={{
                 borderRadius: "12px",
                 overflow: "hidden",
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.02)"
+                    : "rgba(0,0,0,0.01)",
                 backgroundImage: "none",
                 boxShadow: "none",
                 border: `1px solid ${theme.palette.divider}`,
@@ -79,162 +103,190 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                   left: 0,
                   right: 0,
                   p: 1.5,
-                  background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)",
+                  background:
+                    "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)",
                 }}
               >
-                <Typography variant="caption" sx={{ color: "white", fontWeight: 600, opacity: 0.8 }}>
+                <Typography
+                  variant="caption"
+                  sx={{ color: "white", fontWeight: 600, opacity: 0.8 }}
+                >
                   {dict.vehicles.dialogs.preview}
                 </Typography>
               </Box>
             </Card>
           )}
-          <Stack direction={"row"} spacing={1}>
-            <Card
-              sx={{
-                p: 2,
-                gap: 1,
-                display: "flex",
-                alignItems: "start",
-                flexDirection: "column",
-                borderRadius: "8px",
-                flexGrow: 1,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
-                backgroundImage: "none",
-                boxShadow: "none",
-                border: (theme) => `1px solid ${theme.palette.divider}`,
-              }}
-            >
-              <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
-                {dict.vehicles.fields.fuelLevel}
-              </Typography>
-              <Typography sx={{ fontSize: 20, color: "text.primary", fontWeight: 800 }}>
-                %{vehicle.fuelLevel}
-              </Typography>
-              <LinearProgress
-                variant="determinate"
-                value={vehicle.fuelLevel ?? 0}
-                sx={{ width: 100, height: 5 }}
-              />
-              <LocalGasStationIcon
-                sx={{
-                  fontSize: 24,
-                  marginTop: "auto",
-                  color: "text.secondary",
-                }}
-              />
-            </Card>
-            <Card
-              sx={{
-                p: 2,
-                gap: 1,
-                display: "flex",
-                alignItems: "start",
-                flexDirection: "column",
-                borderRadius: "8px",
-                flexGrow: 1,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
-                backgroundImage: "none",
-                boxShadow: "none",
-                border: (theme) => `1px solid ${theme.palette.divider}`,
-              }}
-            >
-              <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
-                {dict.vehicles.fields.odometer}
-              </Typography>
-              <Typography sx={{ fontSize: 20, color: "text.primary", fontWeight: 800 }}>
-                {vehicle.odometerKm?.toLocaleString("en-US")} km
-              </Typography>
-              <SpeedIcon
-                sx={{
-                  fontSize: 24,
-                  marginTop: "auto",
-                  color: "text.secondary",
-                }}
-              />
-            </Card>
-          </Stack>
-          <Stack direction={"row"} spacing={1}>
-            <Card
-              sx={{
-                p: 2,
-                gap: 1,
-                display: "flex",
-                alignItems: "start",
-                flexDirection: "column",
-                borderRadius: "8px",
-                flexGrow: 1,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
-                backgroundImage: "none",
-                boxShadow: "none",
-                border: (theme) => `1px solid ${theme.palette.divider}`,
-              }}
-            >
-              <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
-                {dict.vehicles.fields.service}
-              </Typography>
-              <Typography sx={{ fontSize: 20, color: "text.primary", fontWeight: 800 }}>
-                {vehicle?.nextServiceKm && vehicle?.odometerKm
-                  ? (vehicle.nextServiceKm - vehicle.odometerKm).toLocaleString(
-                      "en-US"
-                    )
-                  : dict.common.na}{" "}
-                {dict.vehicles.dialogs.kmLeft}
-              </Typography>
-              <ConstructionIcon
-                sx={{
-                  fontSize: 24,
-                  marginTop: "auto",
-                  color: "text.secondary",
-                }}
-              />
-            </Card>
-            <Card
-              sx={{
-                p: 2,
-                gap: 1,
-                display: "flex",
-                alignItems: "start",
-                flexDirection: "column",
-                borderRadius: "8px",
-                flexGrow: 1,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
-                backgroundImage: "none",
-                boxShadow: "none",
-                border: (theme) => `1px solid ${theme.palette.divider}`,
-              }}
-            >
-              <Typography sx={{ fontSize: 16, color: "text.secondary" }}>
-                {dict.vehicles.fields.avgFuelConsumption}
-              </Typography>
-              <Typography sx={{ fontSize: 20, color: "text.primary", fontWeight: 800 }}>
-                {vehicle?.avgFuelConsumption?.toLocaleString("en-US")} L/100km
-              </Typography>
-              <OilBarrelIcon
-                sx={{
-                  fontSize: 24,
-                  marginTop: "auto",
-                  color: "text.secondary",
-                }}
-              />
-            </Card>
-          </Stack>
-          <Stack spacing={2}>
-            <Button
-              variant="contained"
-              sx={{
-                borderRadius: "8px",
-                bgcolor: theme.palette.primary.main,
-                textTransform: "none",
-                "&:hover": { bgcolor: theme.palette.primary._alpha.main_90 },
-              }}
-              onClick={() => setAssignDialogOpen(true)}
-            >
-              {vehicle.driver ? dict.drivers.dialogs.editTitle : dict.vehicles.dialogs.assignDriver}
-            </Button>
-            {/* Removed non-functional 'Get Vehicle Data' button */}
-          </Stack>
+
+          <Grid container spacing={4}>
+            {/* Fuel Level */}
+            <Grid size={{ xs: 6, md: 6 }}>
+              <Card sx={cardStyle}>
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    color: "text.secondary",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  {dict.vehicles.fields.fuelLevel}
+                </Typography>
+                <Typography
+                  sx={{ fontSize: 22, color: "text.primary", fontWeight: 800 }}
+                >
+                  %{vehicle.fuelLevel}
+                </Typography>
+                <Box sx={{ mt: 1, mb: 2 }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={vehicle.fuelLevel ?? 0}
+                    sx={{
+                      width: "100%",
+                      height: 6,
+                      borderRadius: 3,
+                      bgcolor:
+                        theme.palette.mode === "dark"
+                          ? "rgba(255,255,255,0.1)"
+                          : "rgba(0,0,0,0.1)",
+                    }}
+                  />
+                </Box>
+                <LocalGasStationIcon
+                  sx={{
+                    fontSize: 20,
+                    marginTop: "auto",
+                    color: "text.secondary",
+                    opacity: 0.5,
+                  }}
+                />
+              </Card>
+            </Grid>
+
+            {/* Odometer */}
+            <Grid size={{ xs: 6, md: 6 }}>
+              <Card sx={cardStyle}>
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    color: "text.secondary",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  {dict.vehicles.fields.odometer}
+                </Typography>
+                <Typography
+                  sx={{ fontSize: 22, color: "text.primary", fontWeight: 800 }}
+                >
+                  {vehicle.odometerKm?.toLocaleString("en-US")} km
+                </Typography>
+                <SpeedIcon
+                  sx={{
+                    fontSize: 20,
+                    marginTop: "auto",
+                    color: "text.secondary",
+                    opacity: 0.5,
+                  }}
+                />
+              </Card>
+            </Grid>
+
+            {/* Service */}
+            <Grid size={{ xs: 6, md: 6 }}>
+              <Card sx={cardStyle}>
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    color: "text.secondary",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  {dict.vehicles.fields.service}
+                </Typography>
+                <Typography
+                  sx={{ fontSize: 22, color: "text.primary", fontWeight: 800 }}
+                >
+                  {vehicle?.nextServiceKm && vehicle?.odometerKm
+                    ? (
+                        vehicle.nextServiceKm - vehicle.odometerKm
+                      ).toLocaleString("en-US")
+                    : dict.common.na}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ color: "text.secondary", fontWeight: 500 }}
+                >
+                  {dict.vehicles.dialogs.kmLeft}
+                </Typography>
+                <ConstructionIcon
+                  sx={{
+                    fontSize: 20,
+                    marginTop: "auto",
+                    color: "text.secondary",
+                    opacity: 0.5,
+                  }}
+                />
+              </Card>
+            </Grid>
+
+            {/* Avg Fuel Consumption */}
+            <Grid size={{ xs: 6, md: 6 }}>
+              <Card sx={cardStyle}>
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    color: "text.secondary",
+                    fontWeight: 600,
+                    mb: 1,
+                  }}
+                >
+                  {dict.vehicles.fields.avgFuelConsumption}
+                </Typography>
+                <Typography
+                  sx={{ fontSize: 22, color: "text.primary", fontWeight: 800 }}
+                >
+                  {vehicle?.avgFuelConsumption?.toLocaleString("en-US")}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ color: "text.secondary", fontWeight: 500 }}
+                >
+                  L/100km
+                </Typography>
+                <OilBarrelIcon
+                  sx={{
+                    fontSize: 20,
+                    marginTop: "auto",
+                    color: "text.secondary",
+                    opacity: 0.5,
+                  }}
+                />
+              </Card>
+            </Grid>
+          </Grid>
+
+          <Button
+            variant="contained"
+            fullWidth
+            sx={{
+              borderRadius: "8px",
+              py: 1.5,
+              bgcolor: theme.palette.primary.main,
+              textTransform: "none",
+              fontWeight: 700,
+              fontSize: 15,
+              "&:hover": { bgcolor: theme.palette.primary._alpha.main_90 },
+            }}
+            onClick={() => setAssignDialogOpen(true)}
+          >
+            {vehicle.driver
+              ? dict.drivers.dialogs.editTitle
+              : dict.vehicles.dialogs.assignDriver}
+          </Button>
         </Stack>
-        <Stack width={"50%"}>
+
+        <Stack width={"50%"} sx={{ minHeight: 0 }}>
           <MapVehicleOverviewCard
             id={vehicle.id}
             name={vehicle.plate}

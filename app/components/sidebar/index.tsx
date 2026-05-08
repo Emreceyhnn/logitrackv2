@@ -52,6 +52,7 @@ const SideBar = () => {
       },
       {
         title: dict.sidebar.operation,
+        href: "/vehicle",
         icon: (
           <PrecisionManufacturingIcon
             sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
@@ -66,6 +67,7 @@ const SideBar = () => {
       },
       {
         title: dict.sidebar.management,
+        href: "/warehouses",
         icon: (
           <KeyboardCommandKeyIcon
             sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
@@ -80,6 +82,7 @@ const SideBar = () => {
       },
       {
         title: dict.sidebar.analytics,
+        href: "/reports",
         icon: (
           <AnalyticsIcon
             sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}

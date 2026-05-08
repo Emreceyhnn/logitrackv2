@@ -14,7 +14,7 @@
  * Password for all accounts: 3121283455Em!
  */
 
-import { PrismaClient, UserStatus, DriverStatus, VehicleType, VehicleStatus, WarehouseType, RouteStatus, AuditAction, ShipmentStatus, ShipmentPriority, IssueStatus, IssuePriority, IssueType, MaintenanceStatus } from "@prisma/client";
+import { PrismaClient, DriverStatus, VehicleStatus, WarehouseType, RouteStatus, TrailerType, TrailerStatus, ShipmentPriority } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { adminDb } from "../app/lib/firebase-admin";
 
@@ -23,7 +23,6 @@ const prisma = new PrismaClient();
 // --- Configuration ---
 const HASH_ROUNDS = 10;
 const PASSWORD = "3121283455Em!";
-const COMPANIES_COUNT = 5;
 const VEHICLES_PER_COMPANY = 40;
 const DRIVERS_PER_COMPANY = 36;
 const WAREHOUSES_PER_COMPANY = 5;
@@ -33,10 +32,6 @@ const CUSTOMERS_PER_COMPANY = 20;
 const rand = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 const randFloat = (min: number, max: number) => parseFloat((Math.random() * (max - min) + min).toFixed(2));
 const pick = <T>(arr: readonly T[]): T => arr[Math.floor(Math.random() * arr.length)];
-const pickN = <T>(arr: readonly T[], n: number): T[] => {
-  const shuffled = [...arr].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, n);
-};
 const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000);
 const daysFromNow = (n: number) => new Date(Date.now() + n * 86_400_000);
 const pad = (n: number, len = 3) => String(n).padStart(len, "0");
@@ -101,8 +96,32 @@ async function main() {
   
   const hashedPassword = await bcrypt.hash(PASSWORD, HASH_ROUNDS);
 
-  // 1. CLEANUP (Prisma handled by db push --force-reset)
+  // 1. CLEANUP
   await clearFirebase();
+  console.log("🗑️ Clearing existing database records...");
+  await prisma.auditLog.deleteMany();
+  await prisma.session.deleteMany();
+  await prisma.document.deleteMany();
+  await prisma.fuelLog.deleteMany();
+  await prisma.issue.deleteMany();
+  await prisma.shipmentHistory.deleteMany();
+  await prisma.shipmentItem.deleteMany();
+  await prisma.shipment.deleteMany();
+  await prisma.route.deleteMany();
+  await prisma.trailerAssignment.deleteMany();
+  await prisma.trailer.deleteMany();
+  await prisma.vehicle.deleteMany();
+  await prisma.driver.deleteMany();
+  await prisma.inventoryMovement.deleteMany();
+  await prisma.inventory.deleteMany();
+  await prisma.warehouse.deleteMany();
+  await prisma.customerLocation.deleteMany();
+  await prisma.customer.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.role.deleteMany();
+  await prisma.company.deleteMany();
+  await prisma.exchangeRate.deleteMany();
+  console.log("  ✅ Database cleared.");
 
   // 2. EXCHANGE RATES
   console.log("💱 Seeding Exchange Rates...");
@@ -308,6 +327,49 @@ async function main() {
       }
     }
 
+    // Trailers (30 per company)
+    const trailerIds: string[] = [];
+    for (let i = 1; i <= 30; i++) {
+      const plate = `${rand(1, 81).toString().padStart(2, '0')} ${String.fromCharCode(65 + rand(0, 25))}${String.fromCharCode(65 + rand(0, 25))} ${rand(100, 9999)}`;
+      const type = pick([
+        TrailerType.DRY_VAN,
+        TrailerType.REEFER,
+        TrailerType.FLATBED,
+        TrailerType.TANKER,
+        TrailerType.CURTAINSIDE,
+        TrailerType.CONTAINER_CHASSIS
+      ]);
+
+      const t = await prisma.trailer.create({
+        data: {
+          fleetNo: `${cd.slug}-T-${pad(i, 3)}`,
+          plate: plate,
+          type: type,
+          capacityVolumeM3: randFloat(60, 100),
+          maxLoadKg: rand(20000, 30000),
+          isColdChain: type === TrailerType.REEFER,
+          status: pick([TrailerStatus.AVAILABLE, TrailerStatus.IN_USE, TrailerStatus.MAINTENANCE]) as TrailerStatus,
+          companyId: company.id,
+          // Assign some to vehicles
+          currentVehicleId: i <= 20 ? vehicleIds[i - 1] : null,
+        }
+      });
+      trailerIds.push(t.id);
+
+      // Trailer Documents
+      await prisma.document.create({
+        data: {
+          type: "TRAILER_REGISTRATION",
+          name: `Reg_${t.plate}.pdf`,
+          url: "https://storage.logitrack.com/docs/trailer_reg_sample.pdf",
+          status: "VALID",
+          trailerId: t.id,
+          companyId: company.id,
+          expiryDate: daysFromNow(rand(100, 500))
+        }
+      });
+    }
+
     // Drivers
     const driverIds: string[] = [];
     for (let i = 1; i <= DRIVERS_PER_COMPANY; i++) {
@@ -440,7 +502,8 @@ async function main() {
             slaDeadline: daysFromNow(2),
             routeId: route.id,
             companyId: company.id,
-            originWarehouseId: pick(warehouseIds)
+            originWarehouseId: pick(warehouseIds),
+            trailerId: pick(trailerIds)
           }
         });
 

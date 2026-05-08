@@ -36,6 +36,24 @@ export const VehicleType = {
 } as const;
 export type VehicleType = typeof VehicleType[keyof typeof VehicleType];
 
+export const TrailerType = {
+  DRY_VAN: "DRY_VAN",
+  REEFER: "REEFER",
+  FLATBED: "FLATBED",
+  TANKER: "TANKER",
+  CURTAINSIDE: "CURTAINSIDE",
+  CONTAINER_CHASSIS: "CONTAINER_CHASSIS",
+} as const;
+export type TrailerType = typeof TrailerType[keyof typeof TrailerType];
+
+export const TrailerStatus = {
+  AVAILABLE: "AVAILABLE",
+  IN_USE: "IN_USE",
+  MAINTENANCE: "MAINTENANCE",
+  RETIRED: "RETIRED",
+} as const;
+export type TrailerStatus = typeof TrailerStatus[keyof typeof TrailerStatus];
+
 export const VehicleStatus = {
   AVAILABLE: "AVAILABLE",
   ON_TRIP: "ON_TRIP",
@@ -107,6 +125,7 @@ export const IssueType = {
   VEHICLE: "VEHICLE",
   DRIVER: "DRIVER",
   SHIPMENT: "SHIPMENT",
+  TRAILER: "TRAILER",
   OTHER: "OTHER",
 } as const;
 export type IssueType = typeof IssueType[keyof typeof IssueType];
@@ -217,6 +236,30 @@ export interface Vehicle {
   companyId?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface Trailer {
+  id: string;
+  fleetNo: string;
+  plate: string;
+  type: TrailerType;
+  capacityVolumeM3: number;
+  maxLoadKg: number;
+  isColdChain: boolean;
+  status: TrailerStatus;
+  currentVehicleId?: string | null;
+  companyId?: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface TrailerAssignment {
+  id: string;
+  trailerId: string;
+  vehicleId: string;
+  assignedAt: Date;
+  detachedAt?: Date | null;
+  notes?: string | null;
 }
 
 export interface Customer {
@@ -349,6 +392,7 @@ export interface MaintenanceRecord {
   currency: string;
   status: MaintenanceStatus;
   description?: string | null;
+  documentUrl?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

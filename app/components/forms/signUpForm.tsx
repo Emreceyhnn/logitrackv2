@@ -41,7 +41,7 @@ export default async function RegisterForm({
             }}
           >
             <Image
-              src="/logo.svg"
+              src="/logo-white.svg"
               alt="LogiTrack"
               width={40}
               height={40}
@@ -89,23 +89,22 @@ export default async function RegisterForm({
             {dict.auth.register}
           </Typography>
 
-          <Typography
-            component={Link}
-            href={`/${lang}/auth/sign-in`}
-            sx={{
-              fontWeight: 500,
-              fontSize: "24px",
-              letterSpacing: "-0.02em",
-              color: "rgba(255, 255, 255, 0.3)",
-              textDecoration: "none",
-              transition: "color 0.2s ease",
-              "&:hover": {
-                color: "rgba(255, 255, 255, 0.6)",
-              },
-            }}
-          >
-            {dict.auth.login}
-          </Typography>
+          <Link href={`/${lang}/auth/sign-in`} style={{ textDecoration: "none" }}>
+            <Typography
+              sx={{
+                fontWeight: 500,
+                fontSize: "24px",
+                letterSpacing: "-0.02em",
+                color: "rgba(255, 255, 255, 0.3)",
+                transition: "color 0.2s ease",
+                "&:hover": {
+                  color: "rgba(255, 255, 255, 0.6)",
+                },
+              }}
+            >
+              {dict.auth.login}
+            </Typography>
+          </Link>
         </Stack>
 
         <SignUpStepper />

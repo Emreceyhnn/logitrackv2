@@ -335,6 +335,7 @@ function DataTable<TRow extends { id: string }>({
   onRequestSort,
   tableTitle,
   wrapCard = false,
+  sx,
 }: DataTableProps<TRow>) {
   const theme = useTheme();
   const dict = useDictionary();
@@ -385,7 +386,7 @@ function DataTable<TRow extends { id: string }>({
       {loading ? (
         <TableSkeleton rows={5} columns={colCount} />
       ) : (
-        <TableContainer sx={{ p: 0 }}>
+        <TableContainer sx={{ p: 0, flex: 1, overflowY: "auto" }}>
           <Table size="small">
             <TableHead
               sx={{ bgcolor: (theme.palette.primary as unknown as Record<string, string | undefined>).main_03 }}
@@ -527,12 +528,18 @@ function DataTable<TRow extends { id: string }>({
     </>
   );
 
-  return wrapCard ? (
-    <CustomCard sx={{ padding: 0, overflow: "hidden" }}>
+  const finalContent = (
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", ...sx }}>
       {innerContent}
+    </Box>
+  );
+
+  return wrapCard ? (
+    <CustomCard sx={{ padding: 0, overflow: "hidden", height: "100%", ...sx }}>
+      {finalContent}
     </CustomCard>
   ) : (
-    innerContent
+    finalContent
   );
 }
 

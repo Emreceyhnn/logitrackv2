@@ -64,6 +64,12 @@
       "nov": "Kas",
       "dec": "Ara"
     },
+    "ranges": {
+      "1w": "1 Hafta",
+      "2w": "2 Hafta",
+      "1m": "1 Ay",
+      "6m": "6 Ay"
+    },
     "units": {
       "kg": "kg",
       "m3": "m³",
@@ -92,6 +98,7 @@
     "noEmail": "E-posta Yok",
     "noPhone": "Telefon Yok",
     "contactInfo": "İletişim Bilgileri",
+    "none": "Yok",
     "details": "Detaylar",
     "kg": "kg",
     "km": "km",
@@ -501,9 +508,57 @@
     "oneOf": "Lütfen geçerli bir {field} seçin",
     "number": "{field} bir sayı olmalıdır",
     "integer": "{field} tam sayı olmalıdır",
-    "positive": "{field} pozitif bir sayı olmalıdır",
+"positive": "{field} pozitif bir sayı olmalıdır",
     "url": "Geçersiz URL",
     "genericFormError": "Lütfen gerekli alanları doğru şekilde doldurun"
+  },
+  "vehicles": {
+    "title": "Araçlar",
+    "subtitle": "Filo varlıklarınızı yönetin ve takip edin",
+    "addVehicle": "Araç Ekle",
+    "kpis": {
+      "totalVehicles": "Toplam Araç",
+      "available": "Müsait",
+      "inService": "Bakımda",
+      "onTrip": "Seferde",
+      "openIssues": "Açık Sorunlar",
+      "docsExpiring": "Süresi Dolan Belgeler"
+    },
+    "tabs": {
+      "vehicles": "Araçlar",
+      "trailers": "Treylerler"
+    }
+  },
+  "trailers": {
+    "title": "Treylerler",
+    "subtitle": "Treyler filonuzu yönetin ve takip edin",
+    "addTrailer": "Treyler Ekle",
+    "plate": "Plaka",
+    "fleetNo": "Filo No",
+    "type": "Tip",
+    "capacity": "Kapasite (m³)",
+    "maxLoad": "Azami Yük (kg)",
+    "coldChain": "Soğuk Zincir",
+    "status": "Durum",
+    "currentVehicle": "Mevcut Araç",
+    "assigned": "Atandı",
+    "notAssigned": "Atanmadı",
+    "assignToVehicle": "Araca Ata",
+    "detach": "Ayır",
+    "types": {
+      "DRY_VAN": "Kapalı Kasa",
+      "REEFER": "Frigorifik (Soğuk)",
+      "FLATBED": "Sal Kasa",
+      "TANKER": "Tanker",
+      "CURTAINSIDE": "Tenteli",
+      "CONTAINER_CHASSIS": "Konteyner Taşıyıcı"
+    },
+    "statuses": {
+      "AVAILABLE": "Müsait",
+      "IN_USE": "Kullanımda",
+      "MAINTENANCE": "Bakımda",
+      "RETIRED": "Emekli"
+    }
   },
   "overview": {
     "title": "Genel Bakış",
@@ -648,6 +703,10 @@
       "complianceDates": "Uyumluluk Tarihleri",
       "registrationExpiry": "Ruhsat Geçerlilik Tarihi",
       "inspectionExpiry": "Muayene Geçerlilik Tarihi",
+      "attachDocument": "Belge / Fotoğraf Ekle (Opsiyonel)",
+      "newFileUpload": "Yeni Dosya Yükle",
+      "viewDocument": "Belge Görüntüle",
+      "deleteAttachmentNote": "Yeni dosya için önce silin",
       "enableAlerts": "Süre Sonu Uyarılarını Etkinleştir",
       "alertsDesc": "Belgelerin süresi dolmadan 30 gün önce filo yöneticilerini bilgilendir.",
       "requiredDocs": "Gerekli Belgeler",
@@ -775,9 +834,47 @@
       "activeIssues": "{count} aktif sorun",
       "noOpenIssues": "Açık sorun bulunamadı"
     },
+    "tabs": {
+      "vehicles": "Araçlar",
+      "trailers": "Dorseler"
+    },
     "vehicleList": "Araç Listesi",
     "deleteTitle": "Aracı Sil?",
     "deleteDesc": "Bu aracı silmek istediğinize emin misiniz? Bu işlem aracı ve tüm ilişkili verileri kalıcı olarak silecektir."
+  },
+  "trailers": {
+    "title": "Dorseler",
+    "subtitle": "Dorse filonuzu yönetin ve takip edin",
+    "addTrailer": "Dorse Ekle",
+    "plate": "Plaka",
+    "fleetNo": "Filo No",
+    "type": "Tip",
+    "capacity": "Kapasite (m³)",
+    "maxLoad": "Maks. Yük (kg)",
+    "coldChain": "Soğuk Zincir",
+    "status": "Durum",
+    "currentVehicle": "Mevcut Araç",
+    "assigned": "Atanmış",
+    "notAssigned": "Atanmamış",
+    "assignToVehicle": "Araca Ata",
+    "detach": "Ayır",
+    "assignTrailer": "Treyler Ata",
+    "selectTrailer": "Treyler Seç",
+    "types": {
+      "DRY_VAN": "Kapalı Kasa",
+      "REEFER": "Frigorifik (Soğutmalı)",
+      "FLATBED": "Sal Dorse",
+      "TANKER": "Tanker",
+      "CURTAINSIDE": "Tenteli",
+      "CONTAINER_CHASSIS": "Konteyner Taşıyıcı"
+    },
+    "statuses": {
+      "AVAILABLE": "Müsait",
+      "IN_USE": "Kullanımda",
+      "MAINTENANCE": "Bakımda",
+      "RETIRED": "Hizmet Dışı"
+    },
+    "emptyMessage": "Dorse bulunamadı"
   },
   "drivers": {
     "title": "Sürücü Yönetimi",

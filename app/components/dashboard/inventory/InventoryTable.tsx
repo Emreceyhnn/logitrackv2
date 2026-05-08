@@ -185,7 +185,7 @@ const InventoryTable = ({
         ),
       },
     ],
-    [dict, formatFrom]
+    [dict, formatFrom, currencyLoading]
   );
 
   const rowActions: DataTableRowAction<InventoryWithRelations>[] = useMemo(
@@ -212,7 +212,7 @@ const InventoryTable = ({
         color: "error",
       },
     ],
-    [onSelect, onDelete, dict]
+    [onSelect, onDelete, onEdit, dict]
   );
 
   return (

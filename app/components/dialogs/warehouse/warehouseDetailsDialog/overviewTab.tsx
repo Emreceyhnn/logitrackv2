@@ -50,8 +50,12 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
 
   const t = dict.warehouses.dialogs.details;
   const dateSettings = useDateSettings();
-  const [nowInWhTz, setNowInWhTz] = useState(getUserNow(warehouse.timezone || "UTC"));
-  const [nowInUserTz, setNowInUserTz] = useState(getUserNow(dateSettings.timezone));
+  const [nowInWhTz, setNowInWhTz] = useState(
+    getUserNow(warehouse.timezone || "UTC")
+  );
+  const [nowInUserTz, setNowInUserTz] = useState(
+    getUserNow(dateSettings.timezone)
+  );
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -117,62 +121,72 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
     : dict.warehouses.dialogs.status?.closed || "CLOSED";
 
   return (
-    <Box sx={{ pb: 4 }}>
-      <Grid container spacing={3}>
+    <Box>
+      <Grid container spacing={4}>
         {/* Top Info Cards */}
         <Grid size={{ xs: 12, md: 4 }}>
           <CustomCard
             sx={{
-              p: 3,
+              p: 1.5,
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: theme.palette.kpi.indigo_alpha.main_10,
-              borderColor: theme.palette.kpi.indigo_alpha.main_20,
+              bgcolor: theme.palette.kpi.amber_alpha.main_10,
+              borderColor: theme.palette.kpi.amber_alpha.main_20,
               borderWidth: 1,
               borderStyle: "solid",
             }}
           >
-            <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+            <Stack direction="row" spacing={1.5} alignItems="center" mb={1.5}>
               <Box
                 sx={{
-                  p: 1.5,
-                  borderRadius: 2,
-                  bgcolor: theme.palette.kpi.indigo_alpha.main_20,
-                  color: theme.palette.kpi.indigo,
+                  p: 0.8,
+                  borderRadius: 1.5,
+                  bgcolor: theme.palette.kpi.amber_alpha.main_20,
+                  color: theme.palette.kpi.amber,
                 }}
               >
-                <MapIcon />
+                <MapIcon sx={{ fontSize: 20 }} />
               </Box>
               <Typography
-                variant="subtitle1"
+                variant="subtitle2"
                 fontWeight={700}
                 color="text.primary"
               >
                 {t.locationDetails}
               </Typography>
             </Stack>
-            <Stack spacing={1.5}>
+            <Stack spacing={1}>
               <Box>
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block", fontSize: "0.65rem", lineHeight: 1 }}
+                >
                   {t.address}
                 </Typography>
                 <Typography
-                  variant="body2"
+                  variant="caption"
                   color="text.primary"
                   fontWeight={600}
+                  sx={{ display: "block" }}
                 >
                   {warehouse.address}
                 </Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block", fontSize: "0.65rem", lineHeight: 1 }}
+                >
                   {t.cityCountry}
                 </Typography>
                 <Typography
-                  variant="body2"
+                  variant="caption"
                   color="text.primary"
                   fontWeight={600}
+                  sx={{ display: "block" }}
                 >
                   {warehouse.city}, {warehouse.country}
                 </Typography>
@@ -180,196 +194,32 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
             </Stack>
           </CustomCard>
         </Grid>
-
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <CustomCard
             sx={{
-              p: 3,
+              p: 1.5,
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: theme.palette.kpi.teal_alpha.main_10,
-              borderColor: theme.palette.kpi.teal_alpha.main_20,
+              bgcolor: theme.palette.kpi.violet_alpha.main_10,
+              borderColor: theme.palette.kpi.violet_alpha.main_20,
               borderWidth: 1,
               borderStyle: "solid",
             }}
           >
-            <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+            <Stack direction="row" spacing={1.5} alignItems="center" mb={1}>
               <Box
                 sx={{
-                  p: 1.5,
-                  borderRadius: 2,
-                  bgcolor: theme.palette.kpi.teal_alpha.main_20,
-                  color: theme.palette.kpi.emerald,
-                }}
-              >
-                <BusinessCenterIcon />
-              </Box>
-              <Typography
-                variant="subtitle1"
-                fontWeight={700}
-                color="text.primary"
-              >
-                {t.operations}
-              </Typography>
-            </Stack>
-            <Stack spacing={1.5}>
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  {t.facilityType}
-                </Typography>
-                <Box sx={{ mt: 0.5 }}>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      px: 1,
-                      py: 0.3,
-                      borderRadius: 1,
-                      bgcolor: theme.palette.primary._alpha.main_10,
-                      color: theme.palette.primary.main,
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      fontSize: "0.65rem",
-                    }}
-                  >
-                    {dict.warehouses.categories.types[
-                      warehouse.type as keyof typeof dict.warehouses.categories.types
-                    ] || warehouse.type}
-                  </Typography>
-                </Box>
-              </Box>
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  {t.operatingHours}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.primary"
-                  fontWeight={600}
-                >
-                  {operatingHoursStr} (LCL)
-                </Typography>
-                {!is247 && userOpeningTime && (
-                  <Typography variant="caption" color="text.secondary">
-                    {userOpeningTime} - {userClosingTime} ({dict.common.yourTime || "Your Time"})
-                  </Typography>
-                )}
-                <Stack spacing={1} sx={{ mt: 1.5 }}>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Box
-                      sx={{
-                        px: 1,
-                        py: 0.3,
-                        borderRadius: 1,
-                        bgcolor: isOpen
-                          ? theme.palette.success._alpha.main_10
-                          : theme.palette.error._alpha.main_10,
-                        color: isOpen ? theme.palette.success.main : theme.palette.error.main,
-                        fontWeight: 700,
-                        fontSize: "0.65rem",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 0.5,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          width: 6,
-                          height: 6,
-                          borderRadius: "50%",
-                          bgcolor: isOpen ? theme.palette.success.main : theme.palette.error.main,
-                          boxShadow: isOpen
-                            ? `0 0 6px ${theme.palette.success.main}`
-                            : "none",
-                        }}
-                      />
-                      {statusText.toUpperCase()}
-                    </Box>
-                    {nextStateMsg && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        fontWeight={600}
-                        sx={{ opacity: 0.8 }}
-                      >
-                        • {nextStateMsg}
-                      </Typography>
-                    )}
-                  </Stack>
-                  <Stack direction="row" spacing={2}>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 0.5,
-                        fontWeight: 600,
-                      }}
-                    >
-                      <AccessTimeIcon sx={{ fontSize: 14 }} />
-                      {nowInWhTz.format("HH:mm")} (LCL)
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 0.5,
-                        fontWeight: 600,
-                        opacity: 0.7,
-                      }}
-                    >
-                      {nowInUserTz.format("HH:mm")} (YOU)
-                    </Typography>
-                  </Stack>
-                </Stack>
-              </Box>
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  {t.manager}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.primary"
-                  fontWeight={600}
-                >
-                  {warehouse.manager
-                    ? `${warehouse.manager.name} ${warehouse.manager.surname}`
-                    : t.notAssigned}
-                </Typography>
-              </Box>
-            </Stack>
-          </CustomCard>
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 4 }}>
-          <CustomCard
-            sx={{
-              p: 3,
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              bgcolor: theme.palette.kpi.deepPurple_alpha.main_10,
-              borderColor: theme.palette.kpi.deepPurple_alpha.main_20,
-              borderWidth: 1,
-              borderStyle: "solid",
-            }}
-          >
-            <Stack direction="row" spacing={2} alignItems="center" mb={2}>
-              <Box
-                sx={{
-                  p: 1.5,
-                  borderRadius: 2,
-                  bgcolor: theme.palette.kpi.deepPurple_alpha.main_20,
+                  p: 0.8,
+                  borderRadius: 1.5,
+                  bgcolor: theme.palette.kpi.violet_alpha.main_20,
                   color: theme.palette.kpi.violet,
                 }}
               >
-                <InventoryIcon />
+                <InventoryIcon sx={{ fontSize: 20 }} />
               </Box>
               <Typography
-                variant="subtitle1"
+                variant="subtitle2"
                 fontWeight={700}
                 color="text.primary"
               >
@@ -384,21 +234,149 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 justifyContent: "center",
               }}
             >
-              <Typography variant="h3" fontWeight={800} color="text.primary">
+              <Typography variant="h5" fontWeight={800} color="text.primary">
                 {warehouse._count?.inventory || 0}
               </Typography>
             </Box>
           </CustomCard>
         </Grid>
+        <Grid size={{ xs: 12, md: 5 }}>
+          <CustomCard
+            sx={{
+              p: 1.5,
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              bgcolor: theme.palette.kpi.sky_alpha.main_10,
+              borderColor: theme.palette.kpi.sky_alpha.main_20,
+              borderWidth: 1,
+              borderStyle: "solid",
+            }}
+          >
+            <Stack direction="row" spacing={1.5} alignItems="center" mb={1.5}>
+              <Box
+                sx={{
+                  p: 0.8,
+                  borderRadius: 1.5,
+                  bgcolor: theme.palette.kpi.sky_alpha.main_20,
+                  color: theme.palette.kpi.sky,
+                }}
+              >
+                <BusinessCenterIcon sx={{ fontSize: 20 }} />
+              </Box>
+              <Typography
+                variant="subtitle2"
+                fontWeight={700}
+                color="text.primary"
+              >
+                {t.operations}
+              </Typography>
+            </Stack>
+            <Grid container spacing={1.5}>
+              <Grid size={6}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block", fontSize: "0.65rem" }}
+                >
+                  {t.facilityType}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.primary"
+                  fontWeight={700}
+                  sx={{ textTransform: "uppercase", fontSize: "0.65rem" }}
+                >
+                  {dict.warehouses.categories.types[
+                    warehouse.type as keyof typeof dict.warehouses.categories.types
+                  ] || warehouse.type}
+                </Typography>
+              </Grid>
+              <Grid size={6}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block", fontSize: "0.65rem" }}
+                >
+                  {t.manager}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.primary"
+                  fontWeight={600}
+                >
+                  {warehouse.manager
+                    ? `${warehouse.manager.name} ${warehouse.manager.surname}`
+                    : t.notAssigned}
+                </Typography>
+              </Grid>
+              <Grid size={12}>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: "block", fontSize: "0.65rem" }}
+                    >
+                      {t.operatingHours}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.primary"
+                      fontWeight={600}
+                    >
+                      {operatingHoursStr} (LCL)
+                    </Typography>
+                  </Box>
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <Box
+                      sx={{
+                        px: 0.8,
+                        py: 0.2,
+                        borderRadius: 1,
+                        bgcolor: isOpen
+                          ? theme.palette.success._alpha.main_10
+                          : theme.palette.error._alpha.main_10,
+                        color: isOpen
+                          ? theme.palette.success.main
+                          : theme.palette.error.main,
+                        fontWeight: 700,
+                        fontSize: "0.6rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.4,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 4,
+                          height: 4,
+                          borderRadius: "50%",
+                          bgcolor: isOpen
+                            ? theme.palette.success.main
+                            : theme.palette.error.main,
+                        }}
+                      />
+                      {statusText.toUpperCase()}
+                    </Box>
+                  </Stack>
+                </Stack>
+              </Grid>
+            </Grid>
+          </CustomCard>
+        </Grid>
 
-        {/* Capacity Utilization */}
         <Grid size={{ xs: 12 }}>
           <Typography
-            variant="h6"
+            variant="subtitle1"
             fontWeight={800}
             color="text.primary"
-            mb={2}
-            mt={2}
+            mb={1}
+            mt={1}
           >
             {t.capacityUtilization}
           </Typography>
@@ -407,47 +385,56 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
         <Grid size={{ xs: 12, md: 6 }}>
           <CustomCard
             sx={{
-              p: 3,
+              p: 1.5,
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
+              bgcolor: theme.palette.kpi.indigo_alpha.main_10,
+              borderColor: theme.palette.kpi.indigo_alpha.main_20,
+              borderWidth: 1,
+              borderStyle: "solid",
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={2} mb={3}>
+            <Stack direction="row" alignItems="center" spacing={1.5} mb={1.5}>
               <Box
                 sx={{
-                  p: 1.5,
-                  borderRadius: 2,
-                  bgcolor: theme.palette.primary._alpha.main_10,
-                  color: theme.palette.primary.main,
+                  p: 0.8,
+                  borderRadius: 1.5,
+                  bgcolor: theme.palette.kpi.indigo_alpha.main_20,
+                  color: theme.palette.kpi.indigo,
                 }}
               >
-                <BusinessCenterIcon />
+                <BusinessCenterIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box flex={1}>
                 <Typography
-                  variant="subtitle1"
+                  variant="caption"
                   fontWeight={700}
                   color="text.primary"
+                  sx={{ display: "block", lineHeight: 1 }}
                 >
                   {t.palletStorage}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ fontSize: "0.6rem" }}
+                >
                   {t.standardEuroPallets}
                 </Typography>
               </Box>
-              <Typography variant="h5" fontWeight={800} color="text.primary">
+              <Typography variant="body2" fontWeight={800} color="text.primary">
                 {palletPct.toFixed(1)}%
               </Typography>
             </Stack>
 
-            <Box sx={{ position: "relative", mb: 2 }}>
+            <Box sx={{ position: "relative", mb: 1 }}>
               <LinearProgress
                 variant="determinate"
                 value={100}
                 sx={{
-                  height: 12,
-                  borderRadius: 6,
+                  height: 8,
+                  borderRadius: 4,
                   bgcolor: theme.palette.divider_alpha.main_10,
                   "& .MuiLinearProgress-bar": { display: "none" },
                 }}
@@ -460,11 +447,11 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   top: 0,
                   left: 0,
                   right: 0,
-                  height: 12,
-                  borderRadius: 6,
+                  height: 8,
+                  borderRadius: 4,
                   bgcolor: "transparent",
                   "& .MuiLinearProgress-bar": {
-                    borderRadius: 6,
+                    borderRadius: 4,
                     bgcolor: theme.palette.primary.main,
                   },
                 }}
@@ -472,10 +459,19 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
             </Box>
 
             <Stack direction="row" justifyContent="space-between">
-              <Typography variant="body2" color="text.primary" fontWeight={600}>
+              <Typography
+                variant="caption"
+                color="text.primary"
+                fontWeight={600}
+                sx={{ fontSize: "0.7rem" }}
+              >
                 {mockUsedPallets.toLocaleString()} {t.used}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ fontSize: "0.7rem" }}
+              >
                 {totalPallets.toLocaleString()} {t.totalCapacity}
               </Typography>
             </Stack>
@@ -485,47 +481,56 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
         <Grid size={{ xs: 12, md: 6 }}>
           <CustomCard
             sx={{
-              p: 3,
+              p: 1.5,
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
+              bgcolor: theme.palette.kpi.teal_alpha.main_10,
+              borderColor: theme.palette.kpi.teal_alpha.main_20,
+              borderWidth: 1,
+              borderStyle: "solid",
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={2} mb={3}>
+            <Stack direction="row" alignItems="center" spacing={1.5} mb={1.5}>
               <Box
                 sx={{
-                  p: 1.5,
-                  borderRadius: 2,
-                  bgcolor: theme.palette.success._alpha.main_10,
-                  color: theme.palette.success.main,
+                  p: 0.8,
+                  borderRadius: 1.5,
+                  bgcolor: theme.palette.kpi.teal_alpha.main_20,
+                  color: theme.palette.kpi.teal,
                 }}
               >
-                <LocalShippingIcon />
+                <LocalShippingIcon sx={{ fontSize: 18 }} />
               </Box>
               <Box flex={1}>
                 <Typography
-                  variant="subtitle1"
+                  variant="caption"
                   fontWeight={700}
                   color="text.primary"
+                  sx={{ display: "block", lineHeight: 1 }}
                 >
                   {t.volumeCapacity}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ fontSize: "0.6rem" }}
+                >
                   {t.totalCubicMeters}
                 </Typography>
               </Box>
-              <Typography variant="h5" fontWeight={800} color="text.primary">
+              <Typography variant="body2" fontWeight={800} color="text.primary">
                 {volumePct.toFixed(1)}%
               </Typography>
             </Stack>
 
-            <Box sx={{ position: "relative", mb: 2 }}>
+            <Box sx={{ position: "relative", mb: 1 }}>
               <LinearProgress
                 variant="determinate"
                 value={100}
                 sx={{
-                  height: 12,
-                  borderRadius: 6,
+                  height: 8,
+                  borderRadius: 4,
                   bgcolor: theme.palette.divider_alpha.main_10,
                   "& .MuiLinearProgress-bar": { display: "none" },
                 }}
@@ -539,11 +544,11 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   top: 0,
                   left: 0,
                   right: 0,
-                  height: 12,
-                  borderRadius: 6,
+                  height: 8,
+                  borderRadius: 4,
                   bgcolor: "transparent",
                   "& .MuiLinearProgress-bar": {
-                    borderRadius: 6,
+                    borderRadius: 4,
                     bgcolor: theme.palette.success.main,
                   },
                 }}
@@ -551,41 +556,54 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
             </Box>
 
             <Stack direction="row" justifyContent="space-between">
-              <Typography variant="body2" color="text.primary" fontWeight={600}>
+              <Typography
+                variant="caption"
+                color="text.primary"
+                fontWeight={600}
+                sx={{ fontSize: "0.7rem" }}
+              >
                 {mockUsedVolume.toLocaleString()} {t.m3Used}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ fontSize: "0.7rem" }}
+              >
                 {totalVolume.toLocaleString()} {t.m3TotalCapacity}
               </Typography>
             </Stack>
           </CustomCard>
         </Grid>
 
-        {/* Feature Flags */}
         <Grid size={{ xs: 12 }}>
-          <Divider sx={{ my: 2, borderColor: "divider" }} />
-          <Typography variant="h6" fontWeight={800} color="text.primary" mb={2}>
+          <Divider sx={{ my: 1, borderColor: "divider" }} />
+          <Typography
+            variant="subtitle2"
+            fontWeight={800}
+            color="text.primary"
+            mb={1}
+          >
             {t.facilityCapabilities}
           </Typography>
-          <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
             {warehouse.manager && (
               <Stack
                 direction="row"
                 alignItems="center"
-                spacing={1.5}
+                spacing={1}
                 sx={{
-                  mb: 2,
+                  mb: 1,
                   bgcolor: theme.palette.info._alpha.main_10,
                   color: theme.palette.info.main,
-                  px: 2,
-                  py: 1.5,
-                  borderRadius: 2,
+                  px: 1.2,
+                  py: 0.6,
+                  borderRadius: 1.5,
                   border: "1px solid",
                   borderColor: theme.palette.info._alpha.main_20,
                 }}
               >
-                <ThermostatIcon />
-                <Typography variant="button" fontWeight={600}>
+                <ThermostatIcon sx={{ fontSize: 16 }} />
+                <Typography variant="caption" fontWeight={600}>
                   {t.managedFacility}
                 </Typography>
               </Stack>
@@ -606,20 +624,20 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   key={index}
                   direction="row"
                   alignItems="center"
-                  spacing={1.5}
+                  spacing={1}
                   sx={{
-                    mb: 2,
-                    bgcolor: theme.palette.divider_alpha.main_05,
+                    mb: 1,
+                    bgcolor: "transparent",
                     color: "text.secondary",
-                    px: 2,
-                    py: 1.5,
-                    borderRadius: 2,
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 1.5,
                     border: "1px solid",
                     borderColor: "divider",
                   }}
                 >
-                  <BusinessCenterIcon />
-                  <Typography variant="button" fontWeight={600}>
+                  <BusinessCenterIcon sx={{ fontSize: 16 }} />
+                  <Typography variant="caption" fontWeight={600}>
                     {dict.warehouses.categories.specs[
                       key as keyof typeof dict.warehouses.categories.specs
                     ] || spec}
@@ -633,19 +651,19 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               <Stack
                 direction="row"
                 alignItems="center"
-                spacing={1.5}
+                spacing={1}
                 sx={{
-                  mb: 2,
+                  mb: 1,
                   bgcolor: theme.palette.divider_alpha.main_05,
                   color: "text.secondary",
-                  px: 2,
-                  py: 1.5,
-                  borderRadius: 2,
+                  px: 1.2,
+                  py: 0.6,
+                  borderRadius: 1.5,
                   border: `1px solid ${theme.palette.divider}`,
                 }}
               >
-                <BusinessCenterIcon />
-                <Typography variant="button" fontWeight={600}>
+                <BusinessCenterIcon sx={{ fontSize: 16 }} />
+                <Typography variant="caption" fontWeight={600}>
                   {t.standardStorage}
                 </Typography>
               </Stack>
@@ -658,4 +676,3 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
 };
 
 export default OverviewTab;
-

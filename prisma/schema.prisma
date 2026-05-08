@@ -24,6 +24,7 @@ model Company {
   shipments          Shipment[]
   users              User[]
   vehicles           Vehicle[]
+  trailers           Trailer[]
   warehouses         Warehouse[]
 
   @@map("companies")
@@ -56,6 +57,7 @@ model User {
   dateFormat         String              @default("DD/MM/YYYY")
   timeFormat         String              @default("24h")
   currency           String              @default("USD")
+  language           String              @default("en")
   notifEmailShipment Boolean             @default(true)
   notifEmailMaint    Boolean             @default(true)
   notifEmailWeekly   Boolean             @default(false)
@@ -140,6 +142,8 @@ model Vehicle {
   maintenanceRecords MaintenanceRecord[]
   routes             Route[]
   company            Company?            @relation(fields: [companyId], references: [id])
+  currentTrailer     Trailer?
+  trailerAssignments TrailerAssignment[]
 
   @@map("vehicles")
 }
@@ -153,6 +157,7 @@ model MaintenanceRecord {
   status      MaintenanceStatus @default(COMPLETED)
   description String?
   currency    String            @default("USD")
+  documentUrl String?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   vehicle     Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
@@ -293,6 +298,7 @@ model Shipment {
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   originWarehouseId  String?
+  trailerId          String?
   issues             Issue[]
   history            ShipmentHistory[]
   items              ShipmentItem[]
@@ -302,6 +308,7 @@ model Shipment {
   driver             Driver?           @relation(fields: [driverId], references: [id])
   originWarehouse    Warehouse?        @relation("ShipmentOrigin", fields: [originWarehouseId], references: [id])
   route              Route?            @relation(fields: [routeId], references: [id])
+  trailer            Trailer?          @relation(fields: [trailerId], references: [id])
 
   @@map("shipments")
 }
@@ -362,6 +369,8 @@ model Document {
   company    Company?  @relation(fields: [companyId], references: [id])
   driver     Driver?   @relation(fields: [driverId], references: [id])
   vehicle    Vehicle?  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  trailerId  String?
+  trailer    Trailer?  @relation(fields: [trailerId], references: [id], onDelete: Cascade)
 
   @@map("documents")
 }
@@ -405,6 +414,8 @@ model Issue {
   driver      Driver?       @relation(fields: [driverId], references: [id])
   shipment    Shipment?     @relation(fields: [shipmentId], references: [id])
   vehicle     Vehicle?      @relation(fields: [vehicleId], references: [id])
+  trailerId   String?
+  trailer     Trailer?      @relation(fields: [trailerId], references: [id])
 
   @@map("issues")
 }
@@ -482,6 +493,22 @@ enum VehicleType {
   VAN
 }
 
+enum TrailerType {
+  DRY_VAN
+  REEFER
+  FLATBED
+  TANKER
+  CURTAINSIDE
+  CONTAINER_CHASSIS
+}
+
+enum TrailerStatus {
+  AVAILABLE
+  IN_USE
+  MAINTENANCE
+  RETIRED
+}
+
 enum VehicleStatus {
   AVAILABLE
   ON_TRIP
@@ -556,6 +583,7 @@ enum IssueType {
   VEHICLE
   DRIVER
   SHIPMENT
+  TRAILER
   OTHER
 }
 
@@ -575,4 +603,42 @@ model ExchangeRate {
   updatedAt DateTime @updatedAt
 
   @@map("exchange_rates")
+}
+
+model Trailer {
+  id               String              @id @default(cuid())
+  fleetNo          String              @unique
+  plate            String              @unique
+  type             TrailerType
+  capacityVolumeM3 Float
+  maxLoadKg        Int
+  isColdChain      Boolean             @default(false)
+  status           TrailerStatus       @default(AVAILABLE)
+  currentVehicleId String?             @unique
+  companyId        String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  
+  company          Company?            @relation(fields: [companyId], references: [id])
+  currentVehicle   Vehicle?            @relation(fields: [currentVehicleId], references: [id])
+  shipments        Shipment[]
+  assignments      TrailerAssignment[]
+  documents        Document[]
+  issues           Issue[]
+
+  @@map("trailers")
+}
+
+model TrailerAssignment {
+  id         String    @id @default(cuid())
+  trailerId  String
+  vehicleId  String
+  assignedAt DateTime  @default(now())
+  detachedAt DateTime?
+  notes      String?
+  
+  trailer    Trailer   @relation(fields: [trailerId], references: [id], onDelete: Cascade)
+  vehicle    Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@map("trailer_assignments")
 }

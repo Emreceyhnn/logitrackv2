@@ -51,6 +51,9 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
  * olmalı. İçeride tanımlanırsa React her render'da yeni bir component tipi
  * oluşturur, unmount/remount yapar ve useEffect sonsuz döngüye girer.
  * ───────────────────────────────────────────────────────────────────────── */
+import { getTrailers } from "@/app/lib/controllers/trailer";
+import { TrailerWithRelations } from "@/app/lib/type/trailer.types";
+
 interface FormikInventorySyncProps {
   onWarehouseChange: (id: string) => void;
 }
@@ -104,20 +107,23 @@ const EditShipmentDialog = ({
   const [warehouses, setWarehouses] = useState<WarehouseWithRelations[]>([]);
   const [customers, setCustomers] = useState<CustomerWithRelations[]>([]);
   const [routes, setRoutes] = useState<RouteWithRelations[]>([]);
+  const [trailers, setTrailers] = useState<TrailerWithRelations[]>([]);
 
   /* ------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (open && user) {
       const fetchData = async () => {
         try {
-          const [wRes, cRes, rRes] = await Promise.all([
+          const [wRes, cRes, rRes, tRes] = await Promise.all([
             getWarehouses(),
             getCustomers(),
             getRoutes(),
+            getTrailers(),
           ]);
           setWarehouses(wRes);
           setCustomers(cRes);
           setRoutes(rRes.routes);
+          setTrailers(tRes);
         } catch (error) {
           console.error("Failed to fetch dialog data", error);
         }
@@ -168,6 +174,7 @@ const EditShipmentDialog = ({
         palletCount: 0,
         cargoType: "General Cargo",
         assignedRouteId: null,
+        trailerId: null,
         inventoryItems: [],
       };
     }
@@ -196,6 +203,7 @@ const EditShipmentDialog = ({
       palletCount: shipment.palletCount || 0,
       cargoType: shipment.cargoType || "General Cargo",
       assignedRouteId: shipment.routeId || null,
+      trailerId: (shipment as any).trailerId || null,
       inventoryItems:
         shipment.items?.map((item) => ({
           id: item.id,
@@ -231,6 +239,7 @@ const EditShipmentDialog = ({
         customerLocationId: sanitize(values.customerLocationId),
         originWarehouseId: sanitize(values.originWarehouseId) ?? undefined,
         routeId: sanitize(values.assignedRouteId),
+        trailerId: sanitize(values.trailerId),
         origin: originName,
         destination: values.destination,
         itemsCount: values.inventoryItems.length || shipment.itemsCount || 1,
@@ -429,6 +438,7 @@ const EditShipmentDialog = ({
                         <LogisticsSection
                           warehouses={warehouses}
                           customers={customers}
+                          trailers={trailers}
                         />
                       </Stack>
                     ) : (

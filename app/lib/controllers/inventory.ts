@@ -67,7 +67,7 @@ export const createInventoryItem = authenticatedAction(
         throw new Error("Item with this SKU already exists in this warehouse");
       }
 
-      const { newItem } = await db.$transaction(async (tx) => {
+      const { newItem } = await db.$transaction(async (tx: Prisma.TransactionClient) => {
         const item = await tx.inventory.create({
           data: {
             warehouseId,
@@ -454,12 +454,9 @@ export const getInventoryWithDashboardData = authenticatedAction(
       }
 
       // Sort logic
-      const orderBy: Prisma.InventoryOrderByWithRelationInput = {};
-      if (sortBy) {
-        (orderBy as any)[sortBy as keyof Prisma.InventoryOrderByWithRelationInput] = sortOrder || "asc";
-      } else {
-        orderBy.name = "asc";
-      }
+      const orderBy: Prisma.InventoryOrderByWithRelationInput = sortBy 
+        ? { [sortBy]: sortOrder || "asc" } 
+        : { name: "asc" };
 
       // ── Parallel Orchestration ──────────────────────────────────────────
       const cacheKey = inventoryCacheKeys.dashboard(

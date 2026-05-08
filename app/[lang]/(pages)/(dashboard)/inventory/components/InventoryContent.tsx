@@ -17,7 +17,6 @@ import InventoryDetailsDialog from "@/app/components/dialogs/inventory/Inventory
 import InventoryEditDialog from "@/app/components/dialogs/inventory/InventoryEditDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import AddInventoryDialog from "@/app/components/dialogs/inventory/addInventoryDialog";
-import InventoryFilterDialog from "@/app/components/dialogs/inventory/InventoryFilterDialog";
 import {
   Inventory as InventoryIcon,
   Warning,
@@ -56,7 +55,6 @@ export default function InventoryContent() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
@@ -198,8 +196,13 @@ export default function InventoryContent() {
       <InventoryHeader
         value={displaySearch}
         onSearch={(val) => setDisplaySearch(val)}
-        onFilterClick={() => setIsFilterOpen(true)}
         onAddClick={() => setIsAddOpen(true)}
+        warehouseId={filters.warehouseId}
+        status={filters.status}
+        onWarehouseChange={(id) =>
+          actions.updateFilters({ warehouseId: id || undefined })
+        }
+        onStatusChange={(status) => actions.updateFilters({ status })}
       />
       <KpiCards kpis={kpiItems} loading={loading} />
 
@@ -264,18 +267,6 @@ export default function InventoryContent() {
         loading={deleteMutation.isPending}
       />
 
-      <InventoryFilterDialog
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        filters={{
-          warehouseId: filters.warehouseId,
-          status: filters.status,
-        }}
-        onApply={(newFilters) => {
-          setFilters((prev) => ({ ...prev, ...newFilters }));
-          setPagination((prev) => ({ ...prev, page: 1 }));
-        }}
-      />
     </Box>
   );
 }

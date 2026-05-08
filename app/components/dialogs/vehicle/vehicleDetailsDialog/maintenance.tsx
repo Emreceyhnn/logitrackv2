@@ -18,7 +18,7 @@ import { VehicleStatus, IssueStatus } from "@/app/lib/type/enums";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import AddIcon from "@mui/icons-material/Add";
 import { PriorityChip } from "../../../chips/priorityChips";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDate } from "@/app/lib/utils/date";
 import ReportIssueDialog from "../reportIssueDialog";
@@ -45,6 +45,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   const dict = useDictionary();
   const dateSettings = useDateSettings();
   const { formatFrom, isLoading: currencyLoading } = useCurrency();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   /* --------------------------------- states --------------------------------- */
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
@@ -54,6 +55,19 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
     useState<MaintenanceRecord | null>(null);
   const [issueDetailOpen, setIssueDetailOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+
+  /* -------------------------------- effects --------------------------------- */
+  useEffect(() => {
+    if (scrollRef.current) {
+      // Use a small timeout to ensure DOM is fully rendered before scrolling
+      const timer = setTimeout(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [vehicle?.maintenanceRecords]);
 
   if (!vehicle) {
     return <Typography color="text.secondary">{dict.common.noData}</Typography>;
@@ -340,16 +354,57 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                           }}
                         />
                         <Stack flexGrow={1} minWidth={0}>
-                          <Typography
-                            noWrap
-                            sx={{
-                              fontSize: 16,
-                              fontWeight: 700,
-                              color: "text.primary",
-                            }}
-                          >
-                            {i.title}
-                          </Typography>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <Typography
+                              noWrap
+                              sx={{
+                                fontSize: 16,
+                                fontWeight: 700,
+                                color: "text.primary",
+                              }}
+                            >
+                              {i.title}
+                            </Typography>
+                            {i.status === IssueStatus.IN_PROGRESS && (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 0.5,
+                                  px: 1,
+                                  py: 0.25,
+                                  borderRadius: "10px",
+                                  bgcolor: "info._alpha.main_10",
+                                  border: "1px solid",
+                                  borderColor: "info._alpha.main_20",
+                                }}
+                              >
+                                <PendingIcon
+                                  sx={{
+                                    fontSize: 14,
+                                    color: "info.main",
+                                    animation: "pulse 2s infinite ease-in-out",
+                                    "@keyframes pulse": {
+                                      "0%": { opacity: 1, transform: "scale(1)" },
+                                      "50%": { opacity: 0.5, transform: "scale(1.2)" },
+                                      "100%": { opacity: 1, transform: "scale(1)" },
+                                    },
+                                  }}
+                                />
+                                <Typography
+                                  sx={{
+                                    fontSize: 10,
+                                    fontWeight: 700,
+                                    color: "info.main",
+                                    textTransform: "uppercase",
+                                    letterSpacing: 0.5,
+                                  }}
+                                >
+                                  {dict.vehicles.statuses.IN_PROGRESS}
+                                </Typography>
+                              </Box>
+                            )}
+                          </Stack>
                           <Typography
                             sx={{
                               fontSize: 12,
@@ -409,6 +464,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
             </Button>
           </Stack>
           <Box
+            ref={scrollRef}
             sx={{
               overflowX: "auto",
               overflowY: "auto",
