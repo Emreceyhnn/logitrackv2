@@ -1,4 +1,13 @@
-import { Shipment, Driver, Route, Warehouse, Inventory, User, Customer, ShipmentHistory } from "@prisma/client";
+import {
+  Shipment,
+  Driver,
+  Route,
+  Warehouse,
+  Inventory,
+  User,
+  Customer,
+  ShipmentHistory,
+} from "@prisma/client";
 
 export type ActivityEvent = {
   id: string;
@@ -18,7 +27,12 @@ export interface DashboardStats {
   growth: number;
 }
 
-export type ShipmentStatus = "PENDING" | "IN_TRANSIT" | "DELIVERED" | "CANCELLED" | "DELAYED";
+export type ShipmentStatus =
+  | "PENDING"
+  | "IN_TRANSIT"
+  | "DELIVERED"
+  | "CANCELLED"
+  | "DELAYED";
 export type Priority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
 export interface ShipmentWithRelations extends Shipment {

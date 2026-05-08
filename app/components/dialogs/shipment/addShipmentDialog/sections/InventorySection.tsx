@@ -14,6 +14,7 @@ import {
   ListItemButton,
   IconButton,
   Box,
+  useTheme,
 } from "@mui/material";
 import { useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
@@ -35,6 +36,7 @@ const InventorySection = ({
   availableInventory,
   isLoadingInventory,
 }: InventorySectionProps) => {
+  const theme = useTheme();
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
 
@@ -206,8 +208,8 @@ const InventorySection = ({
               p: 4,
               textAlign: "center",
               borderRadius: 2,
-              border: `1px dashed theme.palette.divider_alpha.main_10`,
-              bgcolor: "theme.palette.divider_alpha.main_02",
+              border: (theme) => `1px dashed ${theme.palette.divider_alpha.main_10}`,
+              bgcolor: (theme) => theme.palette.divider_alpha.main_02,
             }}
           >
             <Typography variant="body2" color="text.secondary">
@@ -386,7 +388,7 @@ const InventorySection = ({
         PaperProps={{
           sx: {
             borderRadius: 3,
-            border: "1px solid theme.palette.divider_alpha.main_10",
+            border: (theme) => `1px solid ${theme.palette.divider_alpha.main_10}`,
           },
         }}
       >
@@ -396,7 +398,7 @@ const InventorySection = ({
         <DialogContent
           dividers
           sx={{
-            borderColor: "theme.palette.divider_alpha.main_10",
+            borderColor: (theme) => theme.palette.divider_alpha.main_10,
           }}
         >
           <List>
@@ -407,7 +409,7 @@ const InventorySection = ({
                   sx={{
                     borderRadius: 2,
                     "&:hover": {
-                      bgcolor: "theme.palette.primary._alpha.main_10",
+                      bgcolor: (theme) => theme.palette.primary._alpha.main_10,
                     },
                   }}
                 >

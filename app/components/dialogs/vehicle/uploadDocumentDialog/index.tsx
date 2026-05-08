@@ -11,7 +11,6 @@ import {
   Stack,
   Alert,
   CircularProgress,
-  
   IconButton,
   Typography,
   useTheme,
@@ -95,8 +94,8 @@ export default function UploadDocumentDialog({
 
       // 2. Upload to Supabase (using 'documents' bucket)
       const uploadResult = await uploadImageAction(
-        base64, 
-        "documents", 
+        base64,
+        "documents",
         `vehicles/${vehicleId}`
       );
 
@@ -113,7 +112,11 @@ export default function UploadDocumentDialog({
       handleClose();
     } catch (err: unknown) {
       console.error(err);
-      const errorMessage = err instanceof Error ? err.message : dict.vehicles.dialogs.failedToUploadDocument || "Failed to upload document";
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : dict.vehicles.dialogs.failedToUploadDocument ||
+            "Failed to upload document";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -231,9 +234,12 @@ export default function UploadDocumentDialog({
               variant="filled"
               sx={{
                 borderRadius: 2,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "error._alpha.main_10" : "error._alpha.main_05",
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "error._alpha.main_10"
+                    : "error._alpha.main_05",
                 color: "error.light",
-                border: (theme) => `1px solid ${theme.palette.error._alpha.main_20}`,
+                border: "1px solid theme.palette.error._alpha.main_20",
               }}
             >
               {error}
@@ -256,7 +262,9 @@ export default function UploadDocumentDialog({
             </Typography>
             <Stack spacing={2.5}>
               <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: "text.secondary" }}>{dict.common.docType}</InputLabel>
+                <InputLabel sx={{ color: "text.secondary" }}>
+                  {dict.common.docType}
+                </InputLabel>
                 <Select
                   value={type}
                   label={dict.common.docType}
@@ -271,16 +279,8 @@ export default function UploadDocumentDialog({
                   }}
                 >
                   {DOCUMENT_TYPES.map((dt) => (
-                    <MenuItem
-                      key={dt.value}
-                      value={dt.value}
-                      sx={{ py: 1.5 }}
-                    >
-                      <Stack
-                        direction="row"
-                        spacing={1.5}
-                        alignItems="center"
-                      >
+                    <MenuItem key={dt.value} value={dt.value} sx={{ py: 1.5 }}>
+                      <Stack direction="row" spacing={1.5} alignItems="center">
                         <Box
                           sx={{
                             color: theme.palette.primary.main,
@@ -345,22 +345,39 @@ export default function UploadDocumentDialog({
                 borderRadius: 3,
                 borderStyle: "dashed",
                 borderWidth: 2,
-                borderColor: (theme) => theme.palette.mode === "dark" ? theme.palette.primary._alpha.main_30 : theme.palette.primary._alpha.main_40,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? theme.palette.primary._alpha.main_02 : "rgba(0,0,0,0.02)",
+                borderColor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? theme.palette.primary._alpha.main_30
+                    : theme.palette.primary._alpha.main_40,
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? theme.palette.primary._alpha.main_02
+                    : "rgba(0,0,0,0.02)",
                 flexDirection: "column",
                 gap: 1,
                 textTransform: "none",
                 "&:hover": {
-                  bgcolor: (theme) => theme.palette.mode === "dark" ? theme.palette.primary._alpha.main_05 : "rgba(0,0,0,0.04)",
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? theme.palette.primary._alpha.main_05
+                      : "rgba(0,0,0,0.04)",
                   borderColor: theme.palette.primary.main,
                 },
               }}
             >
               <Stack spacing={0.5} alignItems="center">
-                <Typography variant="body2" fontWeight={700} color="text.primary">
+                <Typography
+                  variant="body2"
+                  fontWeight={700}
+                  color="text.primary"
+                >
                   {file ? file.name : dict.vehicles.dialogs.selectOrDragFile}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  fontWeight={500}
+                >
                   {dict.vehicles.dialogs.fileFormats}
                 </Typography>
               </Stack>
@@ -398,7 +415,10 @@ export default function UploadDocumentDialog({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.03)"
+                      : "rgba(0,0,0,0.02)",
                   position: "relative",
                 }}
               >

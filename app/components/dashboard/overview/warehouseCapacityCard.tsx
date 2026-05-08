@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Box,
   Divider,
@@ -57,10 +59,10 @@ const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
               const isDanger = w.capacity > 85;
               const isWarning = w.capacity > 65 && !isDanger;
               const barColor = isDanger
-                ? "error.main"
+                ? theme.palette.error.main
                 : isWarning
-                  ? "warning.main"
-                  : "success.main";
+                  ? theme.palette.warning.main
+                  : theme.palette.success.main;
 
               return (
                 <Stack key={index} spacing={1}>
@@ -90,7 +92,7 @@ const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
                     variant="determinate"
                     sx={{
                       height: 8,
-                      bgcolor: "theme.palette.divider_alpha.main_10",
+                      bgcolor: theme.palette.divider_alpha.main_10,
                       borderRadius: 4,
                       "& .MuiLinearProgress-bar": {
                         borderRadius: 4,

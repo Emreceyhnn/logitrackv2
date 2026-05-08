@@ -1,4 +1,6 @@
-import { Box, Divider, Stack, Typography } from "@mui/material";
+"use client";
+
+import { Box, Divider, Stack, Typography, useTheme } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { PicksAndPacksData } from "@/app/lib/type/overview";
 import InventoryIcon from "@mui/icons-material/Inventory";
@@ -12,6 +14,7 @@ interface PicksPacksDailyCardProps {
 
 const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
   const dict = useDictionary();
+  const theme = useTheme();
 
   const { picks, packs } = values || { picks: 0, packs: 0 };
 
@@ -51,7 +54,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
                 width: 48,
                 height: 48,
                 borderRadius: "12px",
-                bgcolor: "theme.palette.info._alpha.main_10",
+                bgcolor: theme.palette.info._alpha.main_10,
                 color: "info.main",
               }}
             >
@@ -77,7 +80,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
               sx={{
                 width: 2,
                 height: 24,
-                bgcolor: "theme.palette.divider_alpha.main_50",
+                bgcolor: theme.palette.divider_alpha.main_50,
               }}
             />
           </Box>
@@ -92,7 +95,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
                 width: 48,
                 height: 48,
                 borderRadius: "12px",
-                bgcolor: "theme.palette.success._alpha.main_10",
+                bgcolor: theme.palette.success._alpha.main_10,
                 color: "success.main",
               }}
             >
@@ -126,7 +129,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
             {dict.dashboard.overview.warehouseThroughput.netDifference}:{" "}
             <span
               style={{
-                color: picks > packs ? "warning.main" : "success.main",
+                color: picks > packs ? theme.palette.warning.main : theme.palette.success.main,
               }}
             >
               {Math.abs(picks - packs)}

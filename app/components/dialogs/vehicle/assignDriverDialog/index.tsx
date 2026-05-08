@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Dialog,
   DialogContent,
@@ -14,7 +16,6 @@ import {
   CircularProgress,
   IconButton,
   useTheme,
-  
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonIcon from "@mui/icons-material/Person";
@@ -47,6 +48,8 @@ export default function AssignDriverDialog({
   onSuccess,
 }: AssignDriverDialogProps) {
   const dict = useDictionary();
+  const theme = useTheme();
+
   /* --------------------------------- states --------------------------------- */
   const [drivers, setDrivers] = useState<DriverWithUser[]>([]);
   const [selectedDriverId, setSelectedDriverId] = useState<string>("");
@@ -108,8 +111,6 @@ export default function AssignDriverDialog({
   };
 
   /* ---------------------------------- styles --------------------------------- */
-  const theme = useTheme();
-
   const textFieldSx = {
     "& .MuiOutlinedInput-root": {
       borderRadius: 2,
@@ -130,10 +131,10 @@ export default function AssignDriverDialog({
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      fullWidth 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
       maxWidth="xs"
       PaperProps={{
         sx: {
@@ -142,30 +143,47 @@ export default function AssignDriverDialog({
       }}
     >
       <Box sx={{ p: 3, pb: 2 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="h6" fontWeight={800} color="text.primary">
             {dict.vehicles.dialogs.manageDriver}
           </Typography>
-          <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }}>
+          <IconButton
+            onClick={onClose}
+            size="small"
+            sx={{ color: "text.secondary" }}
+          >
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block", fontWeight: 500 }}>
-          {dict.vehicles.fields.plate}: <span style={{ color: theme.palette.primary.main, fontWeight: 700 }}>{vehiclePlate}</span>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ mt: 0.5, display: "block", fontWeight: 500 }}
+        >
+          {dict.vehicles.fields.plate}:{" "}
+          <span style={{ color: theme.palette.primary.main, fontWeight: 700 }}>
+            {vehiclePlate}
+          </span>
         </Typography>
       </Box>
 
       <DialogContent sx={{ p: 3, pt: 1 }}>
         {error && (
-          <Alert 
-            severity="error" 
+          <Alert
+            severity="error"
             variant="filled"
-            sx={{ 
-              mb: 3, 
+            sx={{
+              mb: 3,
               borderRadius: 2,
-              bgcolor: (theme) => theme.palette.mode === "dark" ? "error._alpha.main_10" : "error._alpha.main_05",
+              bgcolor: theme.palette.mode === "dark"
+                  ? theme.palette.error._alpha.main_10
+                  : theme.palette.error._alpha.main_05,
               color: "error.light",
-              border: (theme) => `1px solid ${theme.palette.error._alpha.main_20}`,
+              border: `1px solid ${theme.palette.error._alpha.main_20}`,
             }}
           >
             {error}
@@ -174,9 +192,16 @@ export default function AssignDriverDialog({
 
         <Stack spacing={4}>
           <Box>
-            <Typography 
-              variant="caption" 
-              sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+                fontWeight: 700,
+                mb: 1.5,
+                display: "block",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
             >
               {dict.vehicles.dialogs.currentAssignment}
             </Typography>
@@ -185,47 +210,56 @@ export default function AssignDriverDialog({
                 sx={{
                   p: 2.5,
                   borderRadius: 3,
-                  bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                  bgcolor: theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.03)"
+                      : "rgba(0,0,0,0.02)",
                   border: `1px solid ${theme.palette.divider}`,
                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  background: (theme) => theme.palette.mode === "dark" 
-                    ? `linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.05) 100%)`
-                    : `linear-gradient(135deg, rgba(0,0,0,0.01) 0%, rgba(0,0,0,0.03) 100%)`,
+                  background: theme.palette.mode === "dark"
+                      ? `linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.05) 100%)`
+                      : `linear-gradient(135deg, rgba(0,0,0,0.01) 0%, rgba(0,0,0,0.03) 100%)`,
                 }}
               >
                 <Stack direction="row" alignItems="center" spacing={2.5}>
                   <Box sx={{ position: "relative" }}>
                     <Avatar
                       src={currentDriver.user.avatarUrl || ""}
-                      sx={{ 
-                        width: 56, 
+                      sx={{
+                        width: 56,
                         height: 56,
-                        border: (theme) => `2px solid ${theme.palette.primary._alpha.main_30}`,
+                        border:
+                          `2px solid ${theme.palette.primary._alpha.main_30}`,
                       }}
                     >
                       <PersonIcon />
                     </Avatar>
-                    <Box 
-                      sx={{ 
-                        position: "absolute", 
-                        bottom: -4, 
-                        right: -4, 
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: -4,
+                        right: -4,
                         bgcolor: theme.palette.success.main,
                         width: 14,
                         height: 14,
                         borderRadius: "50%",
-                        border: (theme) => `2px solid ${theme.palette.background.paper}`,
-                      }} 
+                        border: `2px solid ${theme.palette.background.paper}`,
+                      }}
                     />
                   </Box>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography variant="subtitle1" fontWeight={800} color="text.primary" noWrap>
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight={800}
+                      color="text.primary"
+                      noWrap
+                    >
                       {currentDriver.user.name} {currentDriver.user.surname}
                     </Typography>
                     <Stack direction="row" spacing={1} alignItems="center">
                       <StarIcon sx={{ fontSize: 14, color: "#FFB400" }} />
                       <Typography variant="caption" color="text.secondary">
-                        {currentDriver.rating || dict.common.na}/5 {dict.vehicles.dialogs.rating}
+                        {currentDriver.rating || dict.common.na}/5{" "}
+                        {dict.vehicles.dialogs.rating}
                       </Typography>
                     </Stack>
                   </Box>
@@ -235,16 +269,16 @@ export default function AssignDriverDialog({
                     variant="outlined"
                     onClick={handleUnassign}
                     disabled={actionLoading}
-                    sx={{ 
+                    sx={{
                       borderRadius: 2,
                       textTransform: "none",
                       fontWeight: 600,
                       px: 2,
-                      borderColor: (theme) => theme.palette.error._alpha.main_30,
+                      borderColor: theme.palette.error._alpha.main_30,
                       "&:hover": {
-                        bgcolor: (theme) => theme.palette.error._alpha.main_10,
-                        borderColor: (theme) => theme.palette.error.main,
-                      }
+                        bgcolor: theme.palette.error._alpha.main_10,
+                        borderColor: theme.palette.error.main,
+                      },
                     }}
                   >
                     {dict.vehicles.dialogs.unassign}
@@ -252,20 +286,30 @@ export default function AssignDriverDialog({
                 </Stack>
               </Box>
             ) : (
-                <Box
-                  sx={{
-                    p: 3,
-                    borderRadius: 3,
-                    border: (theme) => `1px dashed ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)"}`,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 1,
-                    bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
-                  }}
+              <Box
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  border: (theme) =>
+                    `1px dashed ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)"}`,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 1,
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.02)"
+                      : "rgba(0,0,0,0.01)",
+                }}
+              >
+                <EmojiPeopleIcon
+                  sx={{ color: "text.disabled", fontSize: 32, opacity: 0.5 }}
+                />
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontWeight: 600 }}
                 >
-                <EmojiPeopleIcon sx={{ color: "text.disabled", fontSize: 32, opacity: 0.5 }} />
-                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
                   {dict.vehicles.dialogs.noDriverAssigned}
                 </Typography>
               </Box>
@@ -273,9 +317,16 @@ export default function AssignDriverDialog({
           </Box>
 
           <Box>
-            <Typography 
-              variant="caption" 
-              sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+                fontWeight: 700,
+                mb: 1.5,
+                display: "block",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
             >
               {dict.vehicles.dialogs.assignNewDriver}
             </Typography>
@@ -285,7 +336,9 @@ export default function AssignDriverDialog({
               </Box>
             ) : (
               <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: "text.secondary" }}>{dict.vehicles.dialogs.selectDriver}</InputLabel>
+                <InputLabel sx={{ color: "text.secondary" }}>
+                  {dict.vehicles.dialogs.selectDriver}
+                </InputLabel>
                 <Select
                   value={selectedDriverId}
                   label={dict.vehicles.dialogs.selectDriver}
@@ -297,32 +350,58 @@ export default function AssignDriverDialog({
                         mt: 1,
                         "& .MuiMenuItem-root": {
                           py: 1.5,
-                        }
-                      }
-                    }
+                        },
+                      },
+                    },
                   }}
                 >
                   {drivers.length === 0 ? (
-                    <MenuItem disabled value="" sx={{ color: "text.secondary" }}>
+                    <MenuItem
+                      disabled
+                      value=""
+                      sx={{ color: "text.secondary" }}
+                    >
                       {dict.vehicles.dialogs.noDriversFound}
                     </MenuItem>
                   ) : (
                     drivers.map((driver) => (
                       <MenuItem key={driver.id} value={driver.id}>
-                        <Stack direction="row" alignItems="center" spacing={2} sx={{ width: '100%' }}>
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing={2}
+                          sx={{ width: "100%" }}
+                        >
                           <Avatar
                             src={driver.user?.avatarUrl || ""}
-                            sx={{ width: 32, height: 32, border: (theme) => `1px solid ${theme.palette.divider}` }}
+                            sx={{
+                              width: 32,
+                              height: 32,
+                              border: `1px solid ${theme.palette.divider}`,
+                            }}
                           >
-                            <PersonIcon sx={{ fontSize: 18 }} />
+                            <PersonIcon />
                           </Avatar>
                           <Box sx={{ flex: 1 }}>
-                            <Typography variant="body2" fontWeight={700} color="text.primary">
+                            <Typography
+                              variant="body2"
+                              fontWeight={700}
+                              color="text.primary"
+                            >
                               {driver.user?.name} {driver.user?.surname}
                             </Typography>
-                            <Stack direction="row" spacing={0.5} alignItems="center">
-                              <StarIcon sx={{ fontSize: 10, color: "#FFB400" }} />
-                              <Typography variant="caption" color="text.secondary">
+                            <Stack
+                              direction="row"
+                              spacing={0.5}
+                              alignItems="center"
+                            >
+                              <StarIcon
+                                sx={{ fontSize: 10, color: "#FFB400" }}
+                              />
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
                                 {driver.rating}/{dict.vehicles.dialogs.rating}
                               </Typography>
                             </Stack>
@@ -338,15 +417,17 @@ export default function AssignDriverDialog({
         </Stack>
       </DialogContent>
 
-      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+      <Box
+        sx={{ p: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}
+      >
         <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button 
-            onClick={onClose} 
+          <Button
+            onClick={onClose}
             disabled={actionLoading}
-            sx={{ 
-              color: "text.secondary", 
-              textTransform: "none", 
-              fontWeight: 600 
+            sx={{
+              color: "text.secondary",
+              textTransform: "none",
+              fontWeight: 600,
             }}
           >
             {dict.common.cancel}
@@ -369,7 +450,9 @@ export default function AssignDriverDialog({
                 <CircularProgress size={16} color="inherit" />
                 <span>{dict.vehicles.dialogs.assigning}</span>
               </Stack>
-            ) : dict.vehicles.dialogs.assignDriver}
+            ) : (
+              dict.vehicles.dialogs.assignDriver
+            )}
           </Button>
         </Stack>
       </Box>

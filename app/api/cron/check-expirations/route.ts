@@ -209,8 +209,8 @@ export async function GET(req: Request) {
     for (const wh of warehouses) {
       if (!wh.companyId) continue;
 
-      const currentPallets = wh.inventory.reduce((acc, item) => acc + (item.palletCount || 0) * item.quantity, 0);
-      const currentVolume = wh.inventory.reduce((acc, item) => acc + (item.volumeM3 || 0) * item.quantity, 0);
+      const currentPallets = wh.inventory.reduce((acc: number, item: any) => acc + (item.palletCount || 0) * item.quantity, 0);
+      const currentVolume = wh.inventory.reduce((acc: number, item: any) => acc + (item.volumeM3 || 0) * item.quantity, 0);
 
       const palletUsage = wh.capacityPallets ? (currentPallets / wh.capacityPallets) * 100 : 0;
       const volumeUsage = wh.capacityVolumeM3 ? (currentVolume / wh.capacityVolumeM3) * 100 : 0;

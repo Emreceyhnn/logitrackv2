@@ -36,7 +36,7 @@ import {
 import {
   checkPermission,
 } from "@/app/lib/controllers/utils/checkPermission";
-import { IssueStatus, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import type { VehicleDashboardProps, VehicleFilters, VehicleWithRelations } from "@/app/lib/type/vehicle";
 
 export async function GET(req: NextRequest) {
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
       }
       if (filters.hasIssues) {
         whereClause.issues = {
-          some: { status: { in: [IssueStatus.OPEN, IssueStatus.IN_PROGRESS] } },
+          some: { status: { in: ["OPEN", "IN_PROGRESS"] } },
         };
       }
       if (filters.hasDriver === true) {

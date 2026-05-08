@@ -1,8 +1,7 @@
-import { Avatar, Button, Stack, Typography } from "@mui/material";
+import { Avatar, Stack, Typography } from "@mui/material";
 import CustomCard from "./card";
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import CustomRating from "../rating";
-import ChatIcon from "@mui/icons-material/Chat";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const DriverCard = (params: DriverWithRelations | null) => {

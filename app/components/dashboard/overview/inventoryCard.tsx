@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Box,
   Divider,
@@ -9,6 +11,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  useTheme,
 } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { LowStockItemStat } from "@/app/lib/type/overview";
@@ -22,6 +25,7 @@ interface AlertInventoryCardProps {
 
 const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
   const dict = useDictionary();
+  const theme = useTheme();
 
   return (
     <CustomCard
@@ -47,7 +51,7 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
               display: "flex",
               alignItems: "center",
               gap: 0.5,
-              bgcolor: "error._alpha.main_10",
+              bgcolor: theme.palette.error._alpha.main_10,
               color: "error.main",
               px: 1,
               py: 0.25,
@@ -88,8 +92,8 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
                 <TableRow>
                   <TableCell
                     sx={{
-                      bgcolor: "theme.palette.primary._alpha.main_03",
-                      borderColor: "theme.palette.divider_alpha.main_10",
+                      bgcolor: theme.palette.primary._alpha.main_03,
+                      borderColor: theme.palette.divider_alpha.main_10,
                       fontSize: "0.75rem",
                       fontWeight: 700,
                     }}
@@ -98,8 +102,8 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
                   </TableCell>
                   <TableCell
                     sx={{
-                      bgcolor: "theme.palette.primary._alpha.main_03",
-                      borderColor: "theme.palette.divider_alpha.main_10",
+                      bgcolor: theme.palette.primary._alpha.main_03,
+                      borderColor: theme.palette.divider_alpha.main_10,
                       fontSize: "0.75rem",
                       fontWeight: 700,
                     }}
@@ -109,8 +113,8 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
                   <TableCell
                     align="right"
                     sx={{
-                      bgcolor: "theme.palette.primary._alpha.main_03",
-                      borderColor: "theme.palette.divider_alpha.main_10",
+                      bgcolor: theme.palette.primary._alpha.main_03,
+                      borderColor: theme.palette.divider_alpha.main_10,
                       fontSize: "0.75rem",
                       fontWeight: 700,
                     }}
@@ -120,8 +124,8 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
                   <TableCell
                     align="right"
                     sx={{
-                      bgcolor: "theme.palette.primary._alpha.main_03",
-                      borderColor: "theme.palette.divider_alpha.main_10",
+                      bgcolor: theme.palette.primary._alpha.main_03,
+                      borderColor: theme.palette.divider_alpha.main_10,
                       fontSize: "0.75rem",
                       fontWeight: 700,
                     }}
@@ -137,7 +141,7 @@ const AlertInventoryCard = ({ inventory = [] }: AlertInventoryCardProps) => {
                     hover
                     sx={{
                       "& td": {
-                        borderColor: "theme.palette.divider_alpha.main_10",
+                        borderColor: theme.palette.divider_alpha.main_10,
                       },
                     }}
                   >

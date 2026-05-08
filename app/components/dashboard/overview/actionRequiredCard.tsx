@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Box,
   Divider,
@@ -139,8 +141,8 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
         {alerts.length > 0 && (
           <Box
             sx={{
-              bgcolor: (theme) => theme.palette.error._alpha.main_10,
-              color: "error.main",
+              bgcolor: theme.palette.error._alpha.main_10,
+              color: theme.palette.error.main,
               px: 1,
               py: 0.25,
               borderRadius: "12px",

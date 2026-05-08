@@ -7,6 +7,7 @@ import {
   Stack,
   InputAdornment,
   IconButton,
+  useTheme,
 } from "@mui/material";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import CloseIcon from "@mui/icons-material/Close";
@@ -21,6 +22,7 @@ const FirstStep = ({
 }: {
   onFileSelect?: (file: File) => void;
 }) => {
+  const theme = useTheme();
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
 
@@ -80,7 +82,7 @@ const FirstStep = ({
           sx={{
             width: "100%",
             aspectRatio: "1/1",
-            border: `2px dashed ${photoPreview ? "transparent" : "theme.palette.divider_alpha.main_10"}`,
+            border: (theme) => `2px dashed ${photoPreview ? "transparent" : theme.palette.divider_alpha.main_10}`,
             borderRadius: 3,
             display: "flex",
             flexDirection: "column",
@@ -91,12 +93,12 @@ const FirstStep = ({
             position: "relative",
             overflow: "hidden",
             "&:hover": {
-              borderColor: photoPreview
+              borderColor: (theme) => photoPreview
                 ? "none"
-                : "theme.palette.primary._alpha.main_30",
-              bgcolor: photoPreview
+                : theme.palette.primary._alpha.main_30,
+              bgcolor: (theme) => photoPreview
                 ? "none"
-                : "theme.palette.primary._alpha.main_02",
+                : theme.palette.primary._alpha.main_02,
             },
           }}
         >
@@ -176,11 +178,11 @@ const FirstStep = ({
               width: 56,
               height: 56,
               borderRadius: 1,
-              bgcolor: "theme.palette.divider_alpha.main_10",
+              bgcolor: (theme) => theme.palette.divider_alpha.main_10,
               overflow: "hidden",
-              border: photoPreview
-                ? `2px solid theme.palette.primary.main`
-                : `1px solid theme.palette.divider_alpha.main_10`,
+              border: (theme) => photoPreview
+                ? `2px solid ${theme.palette.primary.main}`
+                : `1px solid ${theme.palette.divider_alpha.main_10}`,
             }}
           >
             {photoPreview ? (

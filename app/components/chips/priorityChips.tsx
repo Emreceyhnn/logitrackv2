@@ -22,7 +22,8 @@ export const PriorityChip = ({ status }: { status: string }) => {
         border: "none",
         textTransform: "uppercase",
         letterSpacing: "0.02em",
-        boxShadow: (theme) => `0 2px 8px ${(theme.palette as any)[paletteKey]._alpha.main_30}`,
+        boxShadow: (theme) =>
+          `0 2px 8px ${(theme.palette as any)[paletteKey]._alpha.main_30}`,
         "& .MuiChip-label": {
           px: 1,
         },
@@ -30,4 +31,3 @@ export const PriorityChip = ({ status }: { status: string }) => {
     />
   );
 };
-

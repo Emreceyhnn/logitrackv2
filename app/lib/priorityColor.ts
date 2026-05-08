@@ -1,4 +1,6 @@
 import { ChipProps } from "@mui/material";
+import { Dictionary } from "./language/language";
+import { NotificationType } from "./notifications";
 
 export const getPriorityColor = (priority: string): ChipProps["color"] => {
   const normalizedPriority = priority?.toUpperCase();
@@ -15,9 +17,6 @@ export const getPriorityColor = (priority: string): ChipProps["color"] => {
       return "default";
   }
 };
-
-import { Dictionary } from "./language/language";
-import { NotificationType } from "./notifications";
 
 export const getStatusMeta = (status?: string, dict?: Dictionary) => {
   const s = status?.toUpperCase() || "";

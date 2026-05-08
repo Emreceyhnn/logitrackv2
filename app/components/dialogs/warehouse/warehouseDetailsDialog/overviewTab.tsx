@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Box,
   Stack,
@@ -125,8 +127,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: "theme.palette.kpi.indigo_alpha.main_10",
-              borderColor: "theme.palette.kpi.indigo_alpha.main_20",
+              bgcolor: theme.palette.kpi.indigo_alpha.main_10,
+              borderColor: theme.palette.kpi.indigo_alpha.main_20,
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -136,8 +138,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: "theme.palette.kpi.indigo_alpha.main_20",
-                  color: "theme.palette.kpi.indigo",
+                  bgcolor: theme.palette.kpi.indigo_alpha.main_20,
+                  color: theme.palette.kpi.indigo,
                 }}
               >
                 <MapIcon />
@@ -186,8 +188,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: "theme.palette.kpi.teal_alpha.main_10",
-              borderColor: "theme.palette.kpi.teal_alpha.main_20",
+              bgcolor: theme.palette.kpi.teal_alpha.main_10,
+              borderColor: theme.palette.kpi.teal_alpha.main_20,
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -197,8 +199,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: "theme.palette.kpi.teal_alpha.main_20",
-                  color: "theme.palette.kpi.emerald",
+                  bgcolor: theme.palette.kpi.teal_alpha.main_20,
+                  color: theme.palette.kpi.emerald,
                 }}
               >
                 <BusinessCenterIcon />
@@ -223,8 +225,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                       px: 1,
                       py: 0.3,
                       borderRadius: 1,
-                      bgcolor: "theme.palette.primary._alpha.main_10",
-                      color: "primary.main",
+                      bgcolor: theme.palette.primary._alpha.main_10,
+                      color: theme.palette.primary.main,
                       fontWeight: 700,
                       textTransform: "uppercase",
                       fontSize: "0.65rem",
@@ -260,9 +262,9 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                         py: 0.3,
                         borderRadius: 1,
                         bgcolor: isOpen
-                          ? "theme.palette.success._alpha.main_10"
-                          : "theme.palette.error._alpha.main_10",
-                        color: isOpen ? "success.main" : "error.main",
+                          ? theme.palette.success._alpha.main_10
+                          : theme.palette.error._alpha.main_10,
+                        color: isOpen ? theme.palette.success.main : theme.palette.error.main,
                         fontWeight: 700,
                         fontSize: "0.65rem",
                         display: "flex",
@@ -275,7 +277,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                           width: 6,
                           height: 6,
                           borderRadius: "50%",
-                          bgcolor: isOpen ? "success.main" : "error.main",
+                          bgcolor: isOpen ? theme.palette.success.main : theme.palette.error.main,
                           boxShadow: isOpen
                             ? `0 0 6px ${theme.palette.success.main}`
                             : "none",
@@ -349,8 +351,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               height: "100%",
               display: "flex",
               flexDirection: "column",
-              bgcolor: "theme.palette.kpi.deepPurple_alpha.main_10",
-              borderColor: "theme.palette.kpi.deepPurple_alpha.main_20",
+              bgcolor: theme.palette.kpi.deepPurple_alpha.main_10,
+              borderColor: theme.palette.kpi.deepPurple_alpha.main_20,
               borderWidth: 1,
               borderStyle: "solid",
             }}
@@ -360,8 +362,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: "theme.palette.kpi.deepPurple_alpha.main_20",
-                  color: "theme.palette.kpi.violet",
+                  bgcolor: theme.palette.kpi.deepPurple_alpha.main_20,
+                  color: theme.palette.kpi.violet,
                 }}
               >
                 <InventoryIcon />
@@ -416,8 +418,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: "theme.palette.primary._alpha.main_10",
-                  color: "primary.main",
+                  bgcolor: theme.palette.primary._alpha.main_10,
+                  color: theme.palette.primary.main,
                 }}
               >
                 <BusinessCenterIcon />
@@ -446,7 +448,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   height: 12,
                   borderRadius: 6,
-                  bgcolor: "theme.palette.divider_alpha.main_10",
+                  bgcolor: theme.palette.divider_alpha.main_10,
                   "& .MuiLinearProgress-bar": { display: "none" },
                 }}
               />
@@ -463,7 +465,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   bgcolor: "transparent",
                   "& .MuiLinearProgress-bar": {
                     borderRadius: 6,
-                    bgcolor: "theme.palette.primary.main",
+                    bgcolor: theme.palette.primary.main,
                   },
                 }}
               />
@@ -494,8 +496,8 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: "theme.palette.success._alpha.main_10",
-                  color: "success.main",
+                  bgcolor: theme.palette.success._alpha.main_10,
+                  color: theme.palette.success.main,
                 }}
               >
                 <LocalShippingIcon />
@@ -524,7 +526,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 sx={{
                   height: 12,
                   borderRadius: 6,
-                  bgcolor: "theme.palette.divider_alpha.main_10",
+                  bgcolor: theme.palette.divider_alpha.main_10,
                   "& .MuiLinearProgress-bar": { display: "none" },
                 }}
               />
@@ -542,7 +544,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   bgcolor: "transparent",
                   "& .MuiLinearProgress-bar": {
                     borderRadius: 6,
-                    bgcolor: "theme.palette.success.main",
+                    bgcolor: theme.palette.success.main,
                   },
                 }}
               />
@@ -573,13 +575,13 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 spacing={1.5}
                 sx={{
                   mb: 2,
-                  bgcolor: "theme.palette.info._alpha.main_10",
-                  color: "info.main",
+                  bgcolor: theme.palette.info._alpha.main_10,
+                  color: theme.palette.info.main,
                   px: 2,
                   py: 1.5,
                   borderRadius: 2,
                   border: "1px solid",
-                  borderColor: "theme.palette.info._alpha.main_20",
+                  borderColor: theme.palette.info._alpha.main_20,
                 }}
               >
                 <ThermostatIcon />
@@ -607,7 +609,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                   spacing={1.5}
                   sx={{
                     mb: 2,
-                    bgcolor: "theme.palette.divider_alpha.main_05",
+                    bgcolor: theme.palette.divider_alpha.main_05,
                     color: "text.secondary",
                     px: 2,
                     py: 1.5,
@@ -634,12 +636,12 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 spacing={1.5}
                 sx={{
                   mb: 2,
-                  bgcolor: "theme.palette.divider_alpha.main_05",
+                  bgcolor: theme.palette.divider_alpha.main_05,
                   color: "text.secondary",
                   px: 2,
                   py: 1.5,
                   borderRadius: 2,
-                  border: `1px solid theme.palette.divider`,
+                  border: `1px solid ${theme.palette.divider}`,
                 }}
               >
                 <BusinessCenterIcon />
@@ -656,3 +658,4 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
 };
 
 export default OverviewTab;
+

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Skeleton,
   Table,
@@ -24,6 +26,8 @@ export default function TableSkeleton({
   title,
   sx,
 }: TableSkeletonProps) {
+  const theme = useTheme();
+
   return (
     <TableContainer
       sx={[
@@ -32,22 +36,20 @@ export default function TableSkeleton({
       ]}
     >
       <Table sx={{ minWidth: 750 }}>
-        <TableHead
-          sx={{ bgcolor: (theme) => theme.palette.primary._alpha.main_03 }}
-        >
+        <TableHead sx={{ bgcolor: theme.palette.primary._alpha.main_03 }}>
           <TableRow>
             {Array.from(new Array(columns)).map((_, i) => (
               <TableCell
                 key={i}
                 sx={{
-                  borderColor: (theme) => theme.palette.divider_alpha.main_10,
+                  borderColor: theme.palette.divider_alpha.main_10,
                 }}
               >
                 <Skeleton
                   variant="text"
                   width="60%"
                   sx={{
-                    bgcolor: (theme) => theme.palette.text.primary_alpha.main_10,
+                    bgcolor: theme.palette.text.primary_alpha.main_10,
                   }}
                 />
               </TableCell>
@@ -62,7 +64,7 @@ export default function TableSkeleton({
                 <TableCell
                   key={colIndex}
                   sx={{
-                    borderColor: (theme) => theme.palette.divider_alpha.main_10,
+                    borderColor: theme.palette.divider_alpha.main_10,
                     py: 1.5,
                   }}
                 >
@@ -72,8 +74,7 @@ export default function TableSkeleton({
                     width={colIndex === 1 ? 80 : "80%"}
                     height={colIndex === 1 ? 24 : 24}
                     sx={{
-                      bgcolor: (theme) =>
-                        theme.palette.text.primary_alpha.main_05,
+                      bgcolor: theme.palette.text.primary_alpha.main_05,
                       borderRadius: 1,
                     }}
                   />

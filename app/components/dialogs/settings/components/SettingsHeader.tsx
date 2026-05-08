@@ -26,12 +26,10 @@ export default function SettingsHeader({ onClose }: HeaderProps) {
               alignItems: "center",
               justifyContent: "center",
               backdropFilter: "blur(10px)",
-              border: (theme) => `1px solid ${theme.palette.primary._alpha.main_20}`,
+              border: "1px solid theme.palette.primary._alpha.main_20",
             }}
           >
-            <SettingsIcon
-              sx={{ fontSize: 20, color: "primary.main" }}
-            />
+            <SettingsIcon sx={{ fontSize: 20, color: "primary.main" }} />
           </Box>
           <Box>
             <Typography

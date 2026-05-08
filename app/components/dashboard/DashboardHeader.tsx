@@ -20,7 +20,7 @@ export default function DashboardHeader({
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        bgcolor: "theme.palette.background.paper_alpha.main_50",
+        bgcolor: (theme) => theme.palette.background.paper_alpha.main_50,
         backdropFilter: "blur(12px) saturate(150%)",
         borderBottom: "1px solid",
         borderColor: "divider",
@@ -36,7 +36,7 @@ export default function DashboardHeader({
           fontWeight={800}
           sx={{
             color: "primary.main",
-            bgcolor: "theme.palette.primary._alpha.main_10",
+            bgcolor: (theme) => theme.palette.primary._alpha.main_10,
             px: 1.5,
             py: 0.5,
             borderRadius: 1.5,

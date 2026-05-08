@@ -64,7 +64,12 @@ export default function AddFuelLogDialog({
 
   /* -------------------------------- handlers -------------------------------- */
   const handleSubmit = async () => {
-    if (!formData.volumeLiter || !formData.cost || !formData.odometerKm || !formData.driverId) {
+    if (
+      !formData.volumeLiter ||
+      !formData.cost ||
+      !formData.odometerKm ||
+      !formData.driverId
+    ) {
       setError(dict.common.fillAllFields);
       return;
     }
@@ -130,10 +135,10 @@ export default function AddFuelLogDialog({
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={handleClose} 
-      fullWidth 
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      fullWidth
       maxWidth="sm"
       PaperProps={{
         sx: {
@@ -142,15 +147,27 @@ export default function AddFuelLogDialog({
       }}
     >
       <Box sx={{ p: 3, pb: 2 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="h6" fontWeight={800} color="text.primary">
             {dict.fuel.dialogs.addTitle} - {vehiclePlate}
           </Typography>
-          <IconButton onClick={handleClose} size="small" sx={{ color: "text.secondary" }}>
+          <IconButton
+            onClick={handleClose}
+            size="small"
+            sx={{ color: "text.secondary" }}
+          >
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block", fontWeight: 500 }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ mt: 0.5, display: "block", fontWeight: 500 }}
+        >
           {dict.fuel.addLogDesc}
         </Typography>
       </Box>
@@ -163,9 +180,12 @@ export default function AddFuelLogDialog({
               variant="filled"
               sx={{
                 borderRadius: 2,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "error._alpha.main_10" : "error._alpha.main_05",
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "error._alpha.main_10"
+                    : "error._alpha.main_05",
                 color: "error.light",
-                border: (theme) => `1px solid ${theme.palette.error._alpha.main_20}`,
+                border: `1px solid theme.palette.error._alpha.main_20`,
               }}
             >
               {error}
@@ -173,13 +193,24 @@ export default function AddFuelLogDialog({
           )}
 
           {!currentDriverId && (
-             <Alert severity="warning" sx={{ borderRadius: 2 }}>
-               {dict.drivers.table.noVehicle || "No driver assigned to this vehicle. Please assign a driver first."}
-             </Alert>
+            <Alert severity="warning" sx={{ borderRadius: 2 }}>
+              {dict.drivers.table.noVehicle ||
+                "No driver assigned to this vehicle. Please assign a driver first."}
+            </Alert>
           )}
 
           <Box>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 700, mb: 1.5, display: "block", textTransform: "uppercase", letterSpacing: 1 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+                fontWeight: 700,
+                mb: 1.5,
+                display: "block",
+                textTransform: "uppercase",
+                letterSpacing: 1,
+              }}
+            >
               {dict.fuel.info}
             </Typography>
             <Stack spacing={2.5}>
@@ -194,12 +225,14 @@ export default function AddFuelLogDialog({
                     textField: {
                       fullWidth: true,
                       sx: textFieldSx,
-                      InputLabelProps: { shrink: true }
-                    }
+                      InputLabelProps: { shrink: true },
+                    },
                   }}
                 />
                 <FormControl fullWidth sx={textFieldSx}>
-                  <InputLabel sx={{ color: "text.secondary" }}>{dict.fuel.fields.fuelType}</InputLabel>
+                  <InputLabel sx={{ color: "text.secondary" }}>
+                    {dict.fuel.fields.fuelType}
+                  </InputLabel>
                   <Select
                     value={formData.fuelType}
                     label={dict.fuel.fields.fuelType}
@@ -207,10 +240,18 @@ export default function AddFuelLogDialog({
                       setFormData({ ...formData, fuelType: e.target.value })
                     }
                   >
-                    <MenuItem value="DIESEL">{dict.vehicles.fuelTypes.DIESEL}</MenuItem>
-                    <MenuItem value="GASOLINE">{dict.vehicles.fuelTypes.GASOLINE}</MenuItem>
-                    <MenuItem value="ELECTRIC">{dict.vehicles.fuelTypes.ELECTRIC}</MenuItem>
-                    <MenuItem value="HYBRID">{dict.vehicles.fuelTypes.HYBRID}</MenuItem>
+                    <MenuItem value="DIESEL">
+                      {dict.vehicles.fuelTypes.DIESEL}
+                    </MenuItem>
+                    <MenuItem value="GASOLINE">
+                      {dict.vehicles.fuelTypes.GASOLINE}
+                    </MenuItem>
+                    <MenuItem value="ELECTRIC">
+                      {dict.vehicles.fuelTypes.ELECTRIC}
+                    </MenuItem>
+                    <MenuItem value="HYBRID">
+                      {dict.vehicles.fuelTypes.HYBRID}
+                    </MenuItem>
                   </Select>
                 </FormControl>
               </Stack>
@@ -230,7 +271,11 @@ export default function AddFuelLogDialog({
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
-                        <Typography sx={{ color: "text.secondary", fontSize: "0.8rem" }}>L</Typography>
+                        <Typography
+                          sx={{ color: "text.secondary", fontSize: "0.8rem" }}
+                        >
+                          L
+                        </Typography>
                       </InputAdornment>
                     ),
                   }}
@@ -249,7 +294,11 @@ export default function AddFuelLogDialog({
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>{userCurrency}</Typography>
+                        <Typography
+                          sx={{ color: "text.secondary", fontSize: "0.9rem" }}
+                        >
+                          {userCurrency}
+                        </Typography>
                       </InputAdornment>
                     ),
                   }}
@@ -270,7 +319,11 @@ export default function AddFuelLogDialog({
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <Typography sx={{ color: "text.secondary", fontSize: "0.8rem" }}>km</Typography>
+                      <Typography
+                        sx={{ color: "text.secondary", fontSize: "0.8rem" }}
+                      >
+                        km
+                      </Typography>
                     </InputAdornment>
                   ),
                 }}
@@ -292,15 +345,17 @@ export default function AddFuelLogDialog({
         </Stack>
       </DialogContent>
 
-      <Box sx={{ p: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+      <Box
+        sx={{ p: 3, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}
+      >
         <Stack direction="row" spacing={2} justifyContent="flex-end">
-          <Button 
-            onClick={handleClose} 
+          <Button
+            onClick={handleClose}
             disabled={loading}
-            sx={{ 
-              color: "text.secondary", 
-              textTransform: "none", 
-              fontWeight: 600 
+            sx={{
+              color: "text.secondary",
+              textTransform: "none",
+              fontWeight: 600,
             }}
           >
             {dict.common.cancel}
@@ -323,7 +378,9 @@ export default function AddFuelLogDialog({
                 <CircularProgress size={16} color="inherit" />
                 <span>{dict.common.saving}</span>
               </Stack>
-            ) : dict.common.save}
+            ) : (
+              dict.common.save
+            )}
           </Button>
         </Stack>
       </Box>

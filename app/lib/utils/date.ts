@@ -76,12 +76,6 @@ export function utcToUserTz(
   return dayjs.utc(utcDate).tz(userTimezone);
 }
 
-/**
- * Formats a date for notifications:
- * - If today: HH:mm
- * - If not today: DD/MM/YYYY HH:mm
- * (formats respect user settings)
- */
 export function formatSmartTimestamp(
   date: string | Date | number | null | undefined,
   settings: DateSettings = defaultSettings

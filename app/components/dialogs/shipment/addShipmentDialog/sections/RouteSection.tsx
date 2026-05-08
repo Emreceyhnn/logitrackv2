@@ -6,6 +6,7 @@ import {
   Typography,
   MenuItem,
   Card,
+  useTheme,
 } from "@mui/material";
 import { useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
@@ -23,6 +24,7 @@ interface RouteSectionProps {
 }
 
 const RouteSection = ({ routes }: RouteSectionProps) => {
+  const theme = useTheme();
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
   const dateSettings = useDateSettings();
@@ -59,7 +61,7 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
             onClick={() => {}}
             sx={{
               color: "primary.main",
-              borderColor: "theme.palette.primary._alpha.main_30",
+              borderColor: (theme) => theme.palette.primary._alpha.main_30,
               fontWeight: 600,
               textTransform: "none",
               borderRadius: 2,
@@ -122,8 +124,8 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                 sx={{
                   p: 2,
                   borderRadius: 2,
-                  bgcolor: "theme.palette.text.darkBlue._alpha.main_50",
-                  border: "1px solid theme.palette.divider_alpha.main_10",
+                  bgcolor: (theme) => theme.palette.text.darkBlue._alpha.main_50,
+                  border: (theme) => `1px solid ${theme.palette.divider_alpha.main_10}`,
                   backgroundImage: "none",
                 }}
               >
@@ -190,8 +192,8 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                   alignItems: "center",
                   justifyContent: "center",
                   borderRadius: 2,
-                  bgcolor: "theme.palette.divider_alpha.main_02",
-                  border: "1px dashed theme.palette.divider_alpha.main_10",
+                  bgcolor: (theme) => theme.palette.divider_alpha.main_02,
+                  border: (theme) => `1px dashed ${theme.palette.divider_alpha.main_10}`,
                 }}
               >
                 <Typography variant="caption" color="text.secondary">

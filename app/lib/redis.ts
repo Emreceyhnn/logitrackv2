@@ -53,7 +53,7 @@ export const shipmentCacheKeys = {
   kpis: (companyId: string) => `shipments:${companyId}:kpis`,
 };
 
-export const OVERVIEW_CACHE_TTL = 60; // 1 minute TTL for global overview to stay fresh
+export const OVERVIEW_CACHE_TTL = 60;
 
 export const overviewCacheKeys = {
   dashboard: (companyId: string) => `overview:${companyId}:dashboard`,

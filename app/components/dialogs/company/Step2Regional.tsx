@@ -8,6 +8,7 @@ import {
   FormControlLabel,
   Checkbox,
   Grid,
+  useTheme,
 } from "@mui/material";
 import { CompanyStepProps } from "@/app/lib/type/create-company";
 import PublicIcon from "@mui/icons-material/Public";
@@ -19,6 +20,7 @@ import { useFormikContext } from "formik";
 import { CompanyFormData } from "@/app/lib/type/create-company";
 
 export default function Step2Regional({ state, actions }: CompanyStepProps) {
+  const theme = useTheme();
   const dict = useDictionary();
   const { formData } = state;
   const { errors, touched, handleBlur } = useFormikContext<CompanyFormData>();
@@ -54,7 +56,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
             sx={{
               mb: 1.5,
               fontWeight: 700,
-              color: "theme.palette.text.primary_alpha.main_70",
+              color: (theme) => theme.palette.text.primary_alpha.main_70,
             }}
           >
             {dict.company.dialogs.steps.timezone}
@@ -71,16 +73,16 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                 <PublicIcon
                   sx={{
                     mr: 1,
-                    color: "theme.palette.text.primary_alpha.main_30",
+                    color: (theme) => theme.palette.text.primary_alpha.main_30,
                     fontSize: 20,
                   }}
                 />
               }
               sx={{
-                bgcolor: "theme.palette.background.paper_alpha.main_50",
+                bgcolor: (theme) => theme.palette.background.paper_alpha.main_50,
                 borderRadius: 3,
                 "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: "theme.palette.divider_alpha.main_10",
+                  borderColor: (theme) => theme.palette.divider_alpha.main_10,
                 },
               }}
             >
@@ -108,7 +110,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
               sx={{
                 mb: 1.5,
                 fontWeight: 700,
-                color: "theme.palette.text.primary_alpha.main_70",
+                color: (theme) => theme.palette.text.primary_alpha.main_70,
               }}
             >
               {dict.company.dialogs.steps.currency}
@@ -128,7 +130,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                   <PaymentsIcon
                     sx={{
                       mr: 1,
-                      color: "theme.palette.text.primary_alpha.main_30",
+                      color: (theme) => theme.palette.text.primary_alpha.main_30,
                       fontSize: 20,
                     }}
                   />
@@ -163,7 +165,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
               sx={{
                 mb: 1.5,
                 fontWeight: 700,
-                color: "theme.palette.text.primary_alpha.main_70",
+                color: (theme) => theme.palette.text.primary_alpha.main_70,
               }}
             >
               {dict.company.dialogs.steps.language}
@@ -183,7 +185,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                   <LanguageIcon
                     sx={{
                       mr: 1,
-                      color: "theme.palette.text.primary_alpha.main_30",
+                      color: (theme) => theme.palette.text.primary_alpha.main_30,
                       fontSize: 20,
                     }}
                   />
@@ -216,13 +218,13 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
           sx={{
             p: 3,
             borderRadius: 4,
-            bgcolor: "theme.palette.primary._alpha.main_04",
-            border: "1px solid theme.palette.primary._alpha.main_15",
+            bgcolor: (theme) => theme.palette.primary._alpha.main_04,
+            border: (theme) => `1px solid ${theme.palette.primary._alpha.main_15}`,
             display: "flex",
             gap: 2.5,
             transition: "0.2s",
             "&:hover": {
-              bgcolor: "theme.palette.primary._alpha.main_06",
+              bgcolor: (theme) => theme.palette.primary._alpha.main_06,
             },
           }}
         >
@@ -234,7 +236,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
             <Typography
               variant="caption"
               sx={{
-                color: "theme.palette.text.secondary_alpha.main_70",
+                color: (theme) => theme.palette.text.secondary_alpha.main_70,
                 display: "block",
                 mb: 2,
                 lineHeight: 1.5,
@@ -252,7 +254,7 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                     })
                   }
                   sx={{
-                    color: "theme.palette.primary._alpha.main_50",
+                    color: (theme) => theme.palette.primary._alpha.main_50,
                     "&.Mui-checked": { color: "primary.main" },
                   }}
                 />

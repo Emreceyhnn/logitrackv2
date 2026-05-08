@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Box,
   CircularProgress,
@@ -60,7 +62,7 @@ const CapacityUtilization = ({
           const capacityPct = Math.round((usedPallets / totalPallets) * 100);
 
           const isCritical = capacityPct > 85;
-          const mainColor = isCritical ? "error.main" : "primary.main";
+          const mainColor = isCritical ? theme.palette.error.main : theme.palette.primary.main;
 
           return (
             <Stack key={warehouse.id} alignItems="center" spacing={3}>
@@ -71,7 +73,7 @@ const CapacityUtilization = ({
                   size={140}
                   thickness={3}
                   sx={{
-                    color: "theme.palette.divider_alpha.main_05",
+                    color: theme.palette.divider_alpha.main_05,
                   }}
                 />
                 <CircularProgress
@@ -85,8 +87,8 @@ const CapacityUtilization = ({
                     left: 0,
                     filter: `drop-shadow(0 0 8px ${
                       isCritical
-                        ? "theme.palette.error._alpha.main_30"
-                        : "theme.palette.primary._alpha.main_40"
+                        ? theme.palette.error._alpha.main_30
+                        : theme.palette.primary._alpha.main_40
                     })`,
                     [`& .MuiCircularProgress-circle`]: {
                       strokeLinecap: "round",
@@ -119,7 +121,7 @@ const CapacityUtilization = ({
                     sx={{
                       textTransform: "uppercase",
                       fontWeight: 700,
-                      color: "theme.palette.text.primary_alpha.main_40",
+                      color: theme.palette.text.primary_alpha.main_40,
                       letterSpacing: "0.1em",
                       fontSize: "0.65rem",
                     }}

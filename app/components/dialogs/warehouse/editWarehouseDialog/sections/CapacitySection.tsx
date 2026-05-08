@@ -1,4 +1,4 @@
-import { Box, Grid, Stack, Typography, Button } from "@mui/material";
+import { Box, Grid, Stack, Typography, Button, useTheme } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   EditWarehouseCapacity,
@@ -53,6 +53,7 @@ const SPECIFICATIONS = (dict: Dictionary) => [
 ];
 
 const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
+  const theme = useTheme();
   const dict = useDictionary();
 
   const f = dict.warehouses.dialogs.fields;
@@ -75,7 +76,7 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
               height: 10,
               borderRadius: "50%",
               bgcolor: "primary.main",
-              boxShadow: `0 0 10px theme.palette.primary.main`,
+              boxShadow: (theme) => `0 0 10px ${theme.palette.primary.main}`,
             }}
           />
           <Typography variant="subtitle1" fontWeight={700} color="white">
@@ -156,9 +157,9 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                     sx={{
                       height: 80,
                       borderRadius: 3,
-                      border: `1px solid ${isActive ? "primary.main" : "theme.palette.divider_alpha.main_10"}`,
-                      bgcolor: isActive
-                        ? "theme.palette.primary._alpha.main_05"
+                      border: (theme) => `1px solid ${isActive ? theme.palette.primary.main : theme.palette.divider_alpha.main_10}`,
+                      bgcolor: (theme) => isActive
+                        ? theme.palette.primary._alpha.main_05
                         : "transparent",
                       display: "flex",
                       flexDirection: "column",
@@ -167,12 +168,12 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
                       color: isActive ? "white" : "text.secondary",
                       transition: "all 0.2s ease-in-out",
                       "&:hover": {
-                        bgcolor: isActive
-                          ? "theme.palette.primary._alpha.main_10"
-                          : "theme.palette.divider_alpha.main_05",
-                        borderColor: isActive
-                          ? "primary.main"
-                          : "theme.palette.divider_alpha.main_20",
+                        bgcolor: (theme) => isActive
+                          ? theme.palette.primary._alpha.main_10
+                          : theme.palette.divider_alpha.main_05,
+                        borderColor: (theme) => isActive
+                          ? theme.palette.primary.main
+                          : theme.palette.divider_alpha.main_20,
                         transform: "translateY(-2px)",
                       },
                     }}
@@ -202,8 +203,8 @@ const CapacitySection = ({ state, actions }: CapacitySectionProps) => {
           sx={{
             p: 2.5,
             borderRadius: 3,
-            bgcolor: "theme.palette.info._alpha.main_05",
-            border: `1px solid theme.palette.info._alpha.main_10`,
+            bgcolor: (theme) => theme.palette.info._alpha.main_05,
+            border: (theme) => `1px solid ${theme.palette.info._alpha.main_10}`,
           }}
         >
           <Typography

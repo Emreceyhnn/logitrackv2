@@ -67,7 +67,7 @@ export default function CompanyMemberDetailsDialog({
                 height: 80,
                 fontSize: "2rem",
                 fontWeight: 700,
-                bgcolor: (theme) => theme.palette.primary._alpha.main_10,
+                bgcolor: "theme.palette.primary._alpha.main_10",
                 color: "primary.main",
                 borderRadius: 3,
               }}
@@ -83,7 +83,7 @@ export default function CompanyMemberDetailsDialog({
                   label={member.roleName || dict.company.memberDetails.noRole}
                   size="small"
                   sx={{
-                    bgcolor: (theme) => theme.palette.secondary._alpha.main_10,
+                    bgcolor: "theme.palette.secondary._alpha.main_10",
                     color: "secondary.light",
                     fontWeight: 700,
                     fontSize: "0.7rem",
@@ -117,7 +117,7 @@ export default function CompanyMemberDetailsDialog({
               sx={{
                 p: 3,
                 borderRadius: 3,
-                bgcolor: (theme) => theme.palette.background.paper_alpha.main_03,
+                bgcolor: "theme.palette.background.paper_alpha.main_03",
                 border: `1px solid theme.palette.divider_alpha.main_05`,
               }}
             >
@@ -140,7 +140,7 @@ export default function CompanyMemberDetailsDialog({
                     sx={{
                       width: 32,
                       height: 32,
-                      bgcolor: (theme) => theme.palette.info._alpha.main_10,
+                      bgcolor: "theme.palette.info._alpha.main_10",
                       color: "info.main",
                     }}
                   >
@@ -160,7 +160,7 @@ export default function CompanyMemberDetailsDialog({
                     sx={{
                       width: 32,
                       height: 32,
-                      bgcolor: (theme) => theme.palette.success._alpha.main_10,
+                      bgcolor: "theme.palette.success._alpha.main_10",
                       color: "success.main",
                     }}
                   >
@@ -184,7 +184,7 @@ export default function CompanyMemberDetailsDialog({
               sx={{
                 p: 3,
                 borderRadius: 3,
-                bgcolor: (theme) => theme.palette.warning._alpha.main_03,
+                bgcolor: "theme.palette.warning._alpha.main_03",
                 border: `1px solid theme.palette.warning._alpha.main_05`,
               }}
             >
@@ -233,11 +233,11 @@ export default function CompanyMemberDetailsDialog({
               fontWeight: 700,
               textTransform: "none",
               color: "text.secondary",
-              borderColor: (theme) => theme.palette.divider_alpha.main_20,
+              borderColor: "theme.palette.divider_alpha.main_20",
               "&:hover": {
                 borderColor: "white",
                 color: "white",
-                bgcolor: (theme) => theme.palette.common.white_alpha.main_02,
+                bgcolor: "theme.palette.common.white_alpha.main_02",
               },
             }}
           >

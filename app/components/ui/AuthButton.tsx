@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, ButtonProps, CircularProgress, Box } from "@mui/material";
+import { Button, ButtonProps, CircularProgress, Box, useTheme } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AuthButtonProps extends ButtonProps {
@@ -16,6 +16,7 @@ const AuthButton = ({
   sx,
   ...props
 }: AuthButtonProps) => {
+  const theme = useTheme();
   return (
     <Button
       fullWidth
@@ -34,10 +35,10 @@ const AuthButton = ({
           bgcolor: "primary.dark",
         },
         "&.Mui-disabled": {
-          bgcolor: "theme.palette.primary._alpha.main_50",
-          color: "theme.palette.common.white_alpha.main_50",
+          bgcolor: theme.palette.primary._alpha.main_50,
+          color: theme.palette.common.white_alpha.main_50,
         },
-        boxShadow: `0 8px 16px theme.palette.primary._alpha.main_25`,
+        boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_25}`,
         transition: "all 0.2s ease-in-out",
         ...sx,
       }}

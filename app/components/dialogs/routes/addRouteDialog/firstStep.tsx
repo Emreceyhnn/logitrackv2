@@ -1,4 +1,4 @@
-import { Box, Grid, Stack, Typography, MenuItem } from "@mui/material";
+import { Box, Grid, Stack, Typography, MenuItem, useTheme } from "@mui/material";
 import { useFormikContext } from "formik";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { RouteFormValues } from "@/app/lib/type/routes";
@@ -22,6 +22,7 @@ const FirstRouteDialogStep = ({
   onShipmentSelect,
 }: FirstRouteDialogStepProps) => {
   const dict = useDictionary();
+  const theme = useTheme();
   const { user } = useUser();
 
   const userTz = user?.timezone || "UTC";
@@ -50,7 +51,7 @@ const FirstRouteDialogStep = ({
               width: 40,
               height: 40,
               borderRadius: "50%",
-              bgcolor: "theme.palette.primary._alpha.main_10",
+              bgcolor: theme.palette.primary._alpha.main_10,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -74,7 +75,7 @@ const FirstRouteDialogStep = ({
               <Stack direction="row" spacing={1} alignItems="center">
                 <BoltIcon
                   sx={{
-                    color: "theme.palette.warning.main",
+                    color: theme.palette.warning.main,
                     fontSize: 18,
                   }}
                 />
@@ -212,15 +213,15 @@ const FirstRouteDialogStep = ({
           sx={{
             p: 2,
             borderRadius: 2,
-            bgcolor: "theme.palette.primary._alpha.main_05",
-            border: "1px solid theme.palette.primary._alpha.main_10",
+            bgcolor: theme.palette.primary._alpha.main_05,
+            border: `1px solid ${theme.palette.primary._alpha.main_10}`,
             display: "flex",
             gap: 2,
           }}
         >
           <InfoOutlinedIcon
             fontSize="small"
-            sx={{ color: "theme.palette.primary.main", mt: 0.3 }}
+            sx={{ color: theme.palette.primary.main, mt: 0.3 }}
           />
           <Typography
             variant="caption"

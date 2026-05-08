@@ -104,9 +104,6 @@ export function authenticatedAction<T, Args extends unknown[]>(
   };
 }
 
-/**
- * Server Action Wrapper: Passes user if authenticated, null otherwise.
- */
 export function maybeAuthenticatedAction<T, Args extends unknown[]>(
   action: (user: AuthenticatedUser | null, ...args: Args) => Promise<T>
 ) {
