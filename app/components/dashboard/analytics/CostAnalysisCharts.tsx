@@ -2,6 +2,8 @@ import { PieChart } from "@mui/x-charts/PieChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { Stack, Typography, Grid, Paper, Box } from "@mui/material";
+import { useState, useMemo } from "react";
+import TimeRangeSelector, { TimeRange } from "../../charts/TimeRangeSelector";
 
 interface CostData {
   months: string[];
@@ -18,6 +20,7 @@ interface CostAnalysisChartsProps {
 export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
   /* ------------------------------- variables ------------------------------- */
   const dict = useDictionary();
+  const [range, setRange] = useState<TimeRange>("6m");
 
   const monthsArray = [
     dict.common.months.jan,
@@ -26,13 +29,41 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
     dict.common.months.apr,
     dict.common.months.may,
     dict.common.months.jun,
+    dict.common.months.jul,
+    dict.common.months.aug,
+    dict.common.months.sep,
+    dict.common.months.oct,
+    dict.common.months.nov,
+    dict.common.months.dec,
   ];
 
-  // We ignore data.months if it's returning short English names to force localization
-  const months = monthsArray;
-  const fuelCosts = data?.fuel || [0, 0, 0, 0, 0, 0];
-  const maintenanceCosts = data?.maintenance || [0, 0, 0, 0, 0, 0];
-  const overheadCosts = data?.overhead || [0, 0, 0, 0, 0, 0];
+  // Logic to get the last N months based on range
+  // Note: Cost data is usually monthly, so 1w/2w might show just the current month
+  // We'll map: 1w -> 1m, 2w -> 1m, 1m -> 1m, 6m -> 6m
+  const displayCount = range === "6m" ? 6 : 1;
+
+  const currentMonthIndex = new Date().getMonth();
+  const months = useMemo(() => {
+    const result = [];
+    for (let i = displayCount - 1; i >= 0; i--) {
+      const idx = (currentMonthIndex - i + 12) % 12;
+      result.push(monthsArray[idx]);
+    }
+    return result;
+  }, [displayCount, currentMonthIndex, monthsArray]);
+
+  const fuelCosts = useMemo(
+    () => (data?.fuel || [0, 0, 0, 0, 0, 0]).slice(-displayCount),
+    [data, displayCount]
+  );
+  const maintenanceCosts = useMemo(
+    () => (data?.maintenance || [0, 0, 0, 0, 0, 0]).slice(-displayCount),
+    [data, displayCount]
+  );
+  const overheadCosts = useMemo(
+    () => (data?.overhead || [0, 0, 0, 0, 0, 0]).slice(-displayCount),
+    [data, displayCount]
+  );
 
   const defaultCostDistribution = [
     {
@@ -92,12 +123,15 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
             alignItems="center"
             mb={2}
           >
-            <Typography variant="h6" fontWeight={600}>
-              {dict.analytics.costs.title}
-            </Typography>
-            <Typography variant="subtitle2" color="text.secondary">
-              {dict.analytics.costs.subtitle}
-            </Typography>
+            <Box>
+              <Typography variant="h6" fontWeight={600}>
+                {dict.analytics.costs.title}
+              </Typography>
+              <Typography variant="subtitle2" color="text.secondary">
+                {dict.analytics.costs.subtitle}
+              </Typography>
+            </Box>
+            <TimeRangeSelector value={range} onChange={setRange} dict={dict} />
           </Stack>
 
           <LineChart

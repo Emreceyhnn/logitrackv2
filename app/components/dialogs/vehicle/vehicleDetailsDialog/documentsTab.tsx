@@ -159,7 +159,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.03)"
+                    : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
                 border: `1px solid ${theme.palette.divider}`,
@@ -183,7 +186,12 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 {dict.common.active}
               </Typography>
               <Typography
-                sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}
+                sx={{
+                  fontSize: 18,
+                  marginTop: "auto",
+                  color: "text.primary",
+                  fontWeight: 800,
+                }}
               >
                 {activeCount}
               </Typography>
@@ -194,7 +202,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.03)"
+                    : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
                 border: `1px solid ${theme.palette.divider}`,
@@ -218,7 +229,12 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 {dict.common.expiring}
               </Typography>
               <Typography
-                sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}
+                sx={{
+                  fontSize: 18,
+                  marginTop: "auto",
+                  color: "text.primary",
+                  fontWeight: 800,
+                }}
               >
                 {expiringSoonCount}
               </Typography>
@@ -231,7 +247,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.03)"
+                    : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
                 border: `1px solid ${theme.palette.divider}`,
@@ -255,7 +274,12 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 {dict.common.missing}
               </Typography>
               <Typography
-                sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}
+                sx={{
+                  fontSize: 18,
+                  marginTop: "auto",
+                  color: "text.primary",
+                  fontWeight: 800,
+                }}
               >
                 {missingOrExpiredCount}
               </Typography>
@@ -266,7 +290,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 borderRadius: "8px",
                 width: "100%",
                 gap: 2,
-                bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(255,255,255,0.03)"
+                    : "rgba(0,0,0,0.02)",
                 backgroundImage: "none",
                 boxShadow: "none",
                 border: `1px solid ${theme.palette.divider}`,
@@ -290,7 +317,12 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                 {dict.common.upload}
               </Typography>
               <Typography
-                sx={{ fontSize: 18, marginTop: "auto", color: "text.primary", fontWeight: 800 }}
+                sx={{
+                  fontSize: 18,
+                  marginTop: "auto",
+                  color: "text.primary",
+                  fontWeight: 800,
+                }}
               >
                 {lastUploadDate.getTime() > 0
                   ? formatDisplayDate(lastUploadDate, dateSettings)
@@ -318,7 +350,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
               p: 2,
               borderRadius: "8px",
               gap: 2,
-              bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
+              bgcolor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.03)"
+                  : "rgba(0,0,0,0.02)",
               backgroundImage: "none",
               boxShadow: "none",
               border: `1px solid ${theme.palette.divider}`,
@@ -338,8 +373,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   <TableCell
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor:
-                        theme.palette.common.white_alpha.main_05,
+                      borderBottomColor: "divider",
                     }}
                   >
                     {dict.common.status}
@@ -347,8 +381,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                   <TableCell
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor:
-                        theme.palette.common.white_alpha.main_05,
+                      borderBottomColor: "divider",
                     }}
                   >
                     {dict.common.expiryDate}
@@ -357,8 +390,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                     align="center"
                     sx={{
                       color: "text.secondary",
-                      borderBottomColor:
-                        theme.palette.common.white_alpha.main_05,
+                      borderBottomColor: "divider",
                     }}
                   >
                     {dict.common.actions}
@@ -387,14 +419,20 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       sx={{
                         cursor: "pointer",
                         "&:hover": {
-                          bgcolor: (theme) => theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)",
+                          bgcolor: (theme) =>
+                            theme.palette.mode === "dark"
+                              ? "rgba(255,255,255,0.03)"
+                              : "rgba(0,0,0,0.03)",
                         },
                       }}
                       onClick={() => handleViewDoc(v.url, v.name)}
                     >
                       <TableCell
                         sx={{
-                          borderBottomColor: "divider",
+                          borderBottom:
+                            index === vehicle.documents.length - 1
+                              ? "none"
+                              : `1px solid ${theme.palette.divider}`,
                         }}
                       >
                         <Stack>
@@ -421,7 +459,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       </TableCell>
                       <TableCell
                         sx={{
-                          borderBottomColor: "divider",
+                          borderBottom:
+                            index === vehicle.documents.length - 1
+                              ? "none"
+                              : `1px solid ${theme.palette.divider}`,
                         }}
                       >
                         <StatusChip status={v.status} />
@@ -430,7 +471,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                         sx={{
                           color: "text.primary",
                           fontWeight: 600,
-                          borderBottomColor: "divider",
+                          borderBottom:
+                            index === vehicle.documents.length - 1
+                              ? "none"
+                              : `1px solid ${theme.palette.divider}`,
                         }}
                       >
                         {v.expiryDate
@@ -440,7 +484,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                       <TableCell
                         align="center"
                         sx={{
-                          borderBottomColor: "divider",
+                          borderBottom:
+                            index === vehicle.documents.length - 1
+                              ? "none"
+                              : `1px solid ${theme.palette.divider}`,
                         }}
                       >
                         <Stack

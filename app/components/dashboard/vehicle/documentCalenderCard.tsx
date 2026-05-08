@@ -1,3 +1,4 @@
+"use client";
 import dayjs from "dayjs";
 import "dayjs/locale/tr";
 import "dayjs/locale/en";

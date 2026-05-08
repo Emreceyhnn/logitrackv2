@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  
   Avatar,
   Box,
   Dialog,
@@ -50,9 +49,7 @@ function CustomTabPanel(props: TabPanelProps) {
       aria-labelledby={`warehouse-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3, minHeight: 400 }}>{children}</Box>
-      )}
+      {value === index && <Box sx={{ p: 2, minHeight: 400 }}>{children}</Box>}
     </div>
   );
 }
@@ -114,20 +111,16 @@ const WarehouseDetailsDialog = ({
               sx={{
                 bgcolor: theme.palette.primary._alpha.main_10,
                 color: theme.palette.primary.main,
-                width: 72,
-                height: 72,
+                width: 48,
+                height: 48,
                 borderRadius: 2,
               }}
             >
-              <WarehouseIcon fontSize="large" />
+              <WarehouseIcon fontSize="medium" />
             </Avatar>
             <Stack spacing={0.5}>
               <Stack direction="row" spacing={1} alignItems="center">
-                <Typography
-                  variant="h4"
-                  fontWeight={800}
-                  color="text.primary"
-                >
+                <Typography variant="h5" fontWeight={800} color="text.primary">
                   {warehouseData.name}
                 </Typography>
               </Stack>
@@ -158,7 +151,7 @@ const WarehouseDetailsDialog = ({
               size="small"
               sx={{
                 color: "text.secondary",
-                "& :hover": { color: theme.palette.primary.main }
+                "& :hover": { color: theme.palette.primary.main },
               }}
             >
               <EditIcon fontSize="small" />
@@ -190,8 +183,14 @@ const WarehouseDetailsDialog = ({
               onChange={handleChange}
               aria-label="warehouse details tabs"
             >
-              <Tab label={dict.warehouses.dialogs.details.overview} {...a11yProps(0)} />
-              <Tab label={dict.warehouses.dialogs.details.inventory} {...a11yProps(1)} />
+              <Tab
+                label={dict.warehouses.dialogs.details.overview}
+                {...a11yProps(0)}
+              />
+              <Tab
+                label={dict.warehouses.dialogs.details.inventory}
+                {...a11yProps(1)}
+              />
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
@@ -202,7 +201,7 @@ const WarehouseDetailsDialog = ({
           </CustomTabPanel>
         </Stack>
       </DialogContent>
-      
+
       <EditWarehouseDialog
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}

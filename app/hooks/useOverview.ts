@@ -37,6 +37,7 @@ export function useOverviewData() {
       alerts: data?.alerts ?? [],
       dailyOps: data?.dailyOps ?? null,
       fuelStats: data?.fuelStats ?? [],
+      fuelLogs: data?.fuelLogs ?? [],
       warehouseCapacity: data?.warehouseCapacity ?? [],
       lowStockItems: data?.lowStockItems ?? [],
       shipmentStatus: data?.shipmentStatus ?? [],

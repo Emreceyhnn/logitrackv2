@@ -1,6 +1,6 @@
 "use client";
 
-import { Chip, useTheme } from "@mui/material";
+import { Chip, useTheme, type Palette, type PaletteColor } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
@@ -18,18 +18,18 @@ export const StatusChip = ({ status }: { status: string }) => {
   // Determine colors based on paletteKey and mode
   const isLight = theme.palette.mode === "light";
 
+  const colorObj = theme.palette[paletteKey as keyof Palette] as PaletteColor;
+  
   // Use custom alpha tokens for background in light mode, or default to meta.color with alpha
   const backgroundColor = isLight
-    ? (theme.palette as any)[paletteKey]?._alpha?.main_10 || `${meta.color}1A`
-    : (theme.palette as any)[paletteKey]?._alpha?.main_20 || `${meta.color}33`;
+    ? colorObj?._alpha?.main_10 || `${meta.color}1A`
+    : colorObj?._alpha?.main_20 || `${meta.color}33`;
 
-  const textColor = isLight
-    ? (theme.palette as any)[paletteKey]?.main || meta.color
-    : (theme.palette as any)[paletteKey]?.main || meta.color;
+  const textColor = colorObj?.main || meta.color;
 
   const borderColor = isLight
-    ? (theme.palette as any)[paletteKey]?._alpha?.main_20 || `${meta.color}33`
-    : (theme.palette as any)[paletteKey]?._alpha?.main_40 || `${meta.color}66`;
+    ? colorObj?._alpha?.main_20 || `${meta.color}33`
+    : colorObj?._alpha?.main_40 || `${meta.color}66`;
 
   return (
     <Chip

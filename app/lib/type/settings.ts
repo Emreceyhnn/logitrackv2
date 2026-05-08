@@ -1,7 +1,7 @@
 // ─── Settings Page Domain Types ───────────────────────────────────────────
 
 export type AppearanceMode = "light" | "dark" | "system";
-export type LanguageCode = "EN" | "TR";
+export type LanguageCode = "en" | "tr";
 export type CurrencyCode = "USD" | "EUR" | "TRY" | "GBP";
 
 export interface RegionalSettings {

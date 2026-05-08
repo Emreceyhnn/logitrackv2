@@ -28,8 +28,14 @@ export interface DailyOperationsData {
 export interface FuelStat {
   id: string;
   plate: string;
-  value: number; // volumeLiter (30-day sum)
+  value: number; // volumeLiter (sum)
   totalCost: number;
+}
+
+export interface FuelLogStat {
+  plate: string;
+  amount: number;
+  date: string;
 }
 
 export interface WarehouseCapacityStat {
@@ -80,6 +86,7 @@ export interface DashboardData {
   stats: OverviewStats | null;
   dailyOps: DailyOperationsData | null;
   fuelStats: FuelStat[];
+  fuelLogs: FuelLogStat[];
   warehouseCapacity: WarehouseCapacityStat[];
   lowStockItems: LowStockItemStat[];
   shipmentStatus: string[];

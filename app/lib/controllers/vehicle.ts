@@ -552,6 +552,7 @@ export const addMaintenanceRecord = authenticatedAction(
       currency?: string;
       status?: MaintenanceStatus;
       description?: string;
+      documentUrl?: string;
     }
   ) => {
     const userId = user?.id || "";
@@ -899,6 +900,7 @@ export const updateMaintenanceRecord = authenticatedAction(
       currency?: string;
       status?: MaintenanceStatus;
       description?: string;
+      documentUrl?: string;
     }
   ) => {
     const userId = user?.id || "";

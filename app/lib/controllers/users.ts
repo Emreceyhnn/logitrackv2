@@ -226,6 +226,7 @@ export const LoginUser = maybeAuthenticatedAction(
           dateFormat: foundUser.dateFormat,
           timeFormat: foundUser.timeFormat,
           currency: foundUser.currency || "USD",
+          language: foundUser.language || "en",
         },
       };
     } catch (error) {
@@ -490,6 +491,7 @@ export const updateUserRegionalSettings = authenticatedAction(
           timezone: settings.timezone,
           dateFormat: settings.dateFormat,
           timeFormat: settings.timeFormat,
+          language: settings.language || "en",
           ...(settings.currency ? { currency: settings.currency } : {}),
         },
       });

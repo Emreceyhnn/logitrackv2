@@ -149,5 +149,6 @@ export interface ShipmentFormValues {
   palletCount: number;
   cargoType: string;
   assignedRouteId: string | null;
+  trailerId: string | null;
   inventoryItems: InventoryShipmentItem[];
 }

@@ -16,7 +16,8 @@ export const createMaintenanceRecord = authenticatedAction(
     date: Date,
     cost: number,
     description?: string,
-    currency: string = "USD"
+    currency: string = "USD",
+    documentUrl?: string
   ) => {
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
@@ -58,6 +59,7 @@ export const createMaintenanceRecord = authenticatedAction(
           cost: normalizedCost,
           description,
           currency: "USD",
+          documentUrl,
         },
         include: { vehicle: { select: { plate: true } } },
       });

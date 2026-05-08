@@ -69,7 +69,9 @@ export default function Providers({
     const modeToUse = initialMode || stored;
     const resolved = resolveMode(modeToUse);
     
-    setModeState(resolved);
+    if (resolved !== mode) {
+      setModeState(resolved);
+    }
 
     // If system mode, listen for OS preference changes
     if (stored === "system") {

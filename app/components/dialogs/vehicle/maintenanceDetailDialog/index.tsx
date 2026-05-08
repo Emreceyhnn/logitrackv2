@@ -18,6 +18,7 @@ import {
   Box,
   useTheme,
   Divider,
+  Tooltip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import BuildIcon from "@mui/icons-material/Build";
@@ -27,13 +28,17 @@ import TireRepairIcon from "@mui/icons-material/TireRepair";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import { useState, useEffect } from "react";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ImageIcon from "@mui/icons-material/Image";
+import { useState, useEffect, useRef } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateMaintenanceRecord } from "@/app/lib/controllers/vehicle";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { MaintenanceStatus, MaintenanceRecord } from "@/app/lib/type/enums";
 import { useCurrency } from "@/app/hooks/useCurrency";
+import { uploadImageAction } from "@/app/lib/actions/upload";
 
 interface MaintenanceDetailDialogProps {
   open: boolean;
@@ -50,6 +55,8 @@ export default function MaintenanceDetailDialog({
 }: MaintenanceDetailDialogProps) {
   const dict = useDictionary();
   const { convertFrom, symbol, currency: userCurrency } = useCurrency();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   /* --------------------------------- states --------------------------------- */
   const [formData, setFormData] = useState<{
     type: string;
@@ -57,27 +64,63 @@ export default function MaintenanceDetailDialog({
     cost: string;
     status: MaintenanceStatus;
     description: string;
+    documentUrl: string;
   }>({
     type: "",
     date: dayjs(),
     cost: "",
     status: "COMPLETED",
     description: "",
+    documentUrl: "",
   });
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  /* -------------------------------- handlers -------------------------------- */
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        try {
+          const result = await uploadImageAction(
+            reader.result as string,
+            "documents",
+            `maintenance/${record?.vehicleId}`
+          );
+          if (result.success) {
+            setFormData((prev) => ({ ...prev, documentUrl: result.url }));
+          }
+        } catch (err) {
+          console.error("Upload error:", err);
+          setError("Upload failed");
+        } finally {
+          setUploading(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to read file");
+      setUploading(false);
+    }
+  };
 
   useEffect(() => {
     if (record) {
       setFormData({
         type: record.type,
         date: dayjs(record.date),
-        cost: convertFrom(
-          record.cost,
-          record.currency || "USD"
-        ).toFixed(2),
+        cost: convertFrom(record.cost, record.currency || "USD").toFixed(2),
         status: (record.status as MaintenanceStatus) || "COMPLETED",
         description: record.description || "",
+        documentUrl: record.documentUrl || "",
       });
     }
   }, [record, convertFrom]);
@@ -101,6 +144,7 @@ export default function MaintenanceDetailDialog({
         currency: userCurrency,
         status: formData.status,
         description: formData.description,
+        documentUrl: formData.documentUrl,
       });
 
       onSuccess();
@@ -421,29 +465,154 @@ export default function MaintenanceDetailDialog({
             >
               {dict.vehicles.dialogs.additionalInfo}
             </Typography>
-            <TextField
-              label={dict.vehicles.dialogs.technicianNotes}
-              placeholder={
-                dict.vehicles.dialogs.technicianNotesDesc ||
-                "Briefly describe the work performed..."
-              }
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              fullWidth
-              multiline
-              rows={4}
-              sx={{
-                ...textFieldSx,
-                "& .MuiOutlinedInput-root": {
-                  ...textFieldSx["& .MuiOutlinedInput-root"],
-                  height: "auto",
-                  padding: "12px 14px",
-                },
-              }}
-              InputLabelProps={{ shrink: true }}
-            />
+            <Stack spacing={2.5}>
+              <TextField
+                label={dict.vehicles.dialogs.technicianNotes}
+                placeholder={
+                  dict.vehicles.dialogs.technicianNotesDesc ||
+                  "Briefly describe the work performed..."
+                }
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                fullWidth
+                multiline
+                rows={3}
+                sx={{
+                  ...textFieldSx,
+                  "& .MuiOutlinedInput-root": {
+                    ...textFieldSx["& .MuiOutlinedInput-root"],
+                    height: "auto",
+                    padding: "12px 14px",
+                  },
+                }}
+                InputLabelProps={{ shrink: true }}
+              />
+
+              {/* Document Upload Section */}
+              <Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: 600,
+                    mb: 1,
+                    display: "block",
+                  }}
+                >
+                  {dict.vehicles.dialogs.attachDocument}
+                </Typography>
+
+                {!formData.documentUrl ? (
+                  <Button
+                    component="label"
+                    variant="outlined"
+                    fullWidth
+                    disabled={uploading}
+                    startIcon={
+                      uploading ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <CloudUploadIcon />
+                      )
+                    }
+                    sx={{
+                      height: 80,
+                      borderStyle: "dashed",
+                      borderRadius: 2,
+                      textTransform: "none",
+                      color: "text.secondary",
+                      borderColor: "divider",
+                      "&:hover": {
+                        borderColor: "primary.main",
+                        bgcolor: "primary._alpha.main_05",
+                      },
+                    }}
+                  >
+                    {uploading ? dict.toasts.loading : dict.vehicles.dialogs.newFileUpload}
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*,application/pdf"
+                      onChange={handleFileChange}
+                      ref={fileInputRef}
+                    />
+                  </Button>
+                ) : (
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      bgcolor: "background.paper",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 1,
+                        bgcolor: "primary._alpha.main_10",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "primary.main",
+                        overflow: "hidden",
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        window.open(formData.documentUrl, "_blank")
+                      }
+                    >
+                      {formData.documentUrl.match(
+                        /\.(jpg|jpeg|png|webp|gif)$/i
+                      ) ? (
+                        <Box
+                          component="img"
+                          src={formData.documentUrl}
+                          sx={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : (
+                        <ImageIcon />
+                      )}
+                    </Box>
+                    <Box
+                      sx={{ flexGrow: 1, minWidth: 0, cursor: "pointer" }}
+                      onClick={() =>
+                        window.open(formData.documentUrl, "_blank")
+                      }
+                    >
+                      <Typography variant="body2" noWrap fontWeight={600}>
+                        {dict.vehicles.dialogs.viewDocument}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {dict.vehicles.dialogs.deleteAttachmentNote}
+                      </Typography>
+                    </Box>
+                    <Tooltip title="Sil">
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() =>
+                          setFormData({ ...formData, documentUrl: "" })
+                        }
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                )}
+              </Box>
+            </Stack>
           </Box>
         </Stack>
       </DialogContent>
@@ -454,7 +623,7 @@ export default function MaintenanceDetailDialog({
         <Stack direction="row" spacing={2} justifyContent="flex-end">
           <Button
             onClick={onClose}
-            disabled={loading}
+            disabled={loading || uploading}
             sx={{
               color: "text.secondary",
               textTransform: "none",
@@ -466,7 +635,7 @@ export default function MaintenanceDetailDialog({
           <Button
             variant="contained"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || uploading}
             sx={{
               textTransform: "none",
               borderRadius: 2,

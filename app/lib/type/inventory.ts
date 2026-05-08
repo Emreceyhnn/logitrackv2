@@ -71,6 +71,7 @@ export interface InventoryPageState {
   filters: {
     warehouseId?: string;
     search?: string;
+    status?: string[];
   };
   loading: boolean;
   error: string | null;

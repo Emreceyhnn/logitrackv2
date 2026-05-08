@@ -1,4 +1,4 @@
-import { Chip } from "@mui/material";
+import { Chip, type Palette, type PaletteColor } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
@@ -22,8 +22,10 @@ export const PriorityChip = ({ status }: { status: string }) => {
         border: "none",
         textTransform: "uppercase",
         letterSpacing: "0.02em",
-        boxShadow: (theme) =>
-          `0 2px 8px ${(theme.palette as any)[paletteKey]._alpha.main_30}`,
+        boxShadow: (theme) => {
+          const colorObj = theme.palette[paletteKey as keyof Palette] as PaletteColor;
+          return `0 2px 8px ${colorObj?._alpha?.main_30 || "rgba(0,0,0,0.1)"}`;
+        },
         "& .MuiChip-label": {
           px: 1,
         },

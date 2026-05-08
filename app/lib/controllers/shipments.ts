@@ -59,6 +59,7 @@ export const createShipment = authenticatedAction(
       contactEmail?: string;
       billingAccount?: string;
       originWarehouseId?: string;
+      trailerId?: string | null;
       inventoryItems?: InventoryShipmentItem[];
     }
   ) => {
@@ -87,6 +88,7 @@ export const createShipment = authenticatedAction(
       contactEmail,
       billingAccount,
       originWarehouseId,
+      trailerId,
       inventoryItems = [],
     } = data;
     try {
@@ -145,6 +147,30 @@ export const createShipment = authenticatedAction(
               ? firstCustomerLocation.lng
               : undefined;
 
+      // ── Trailer Capacity Validation ──────────────────────────────────────────
+      if (trailerId) {
+        const trailer = await db.trailer.findUnique({ where: { id: trailerId } });
+        if (trailer) {
+          const currentLoad = await db.shipment.aggregate({
+            where: { 
+              trailerId, 
+              status: { in: [ShipmentStatus.PENDING, ShipmentStatus.PROCESSING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.ASSIGNED, ShipmentStatus.PLANNED, ShipmentStatus.DELAYED] } 
+            },
+            _sum: { weightKg: true, volumeM3: true }
+          });
+          
+          const totalWeight = (currentLoad._sum.weightKg || 0) + weightKg;
+          const totalVolume = (currentLoad._sum.volumeM3 || 0) + volumeM3;
+
+          if (totalWeight > trailer.maxLoadKg) {
+            throw new Error(`Trailer capacity exceeded: Current load ${totalWeight}kg > Max ${trailer.maxLoadKg}kg`);
+          }
+          if (totalVolume > trailer.capacityVolumeM3) {
+            throw new Error(`Trailer capacity exceeded: Current volume ${totalVolume}m³ > Max ${trailer.capacityVolumeM3}m³`);
+          }
+        }
+      }
+
       const newShipment = await db.$transaction(async (tx: Prisma.TransactionClient) => {
         const shipment = await tx.shipment.create({
           data: {
@@ -170,6 +196,7 @@ export const createShipment = authenticatedAction(
             slaDeadline,
             contactEmail,
             billingAccount,
+            trailerId: trailerId || undefined,
             history: {
               create: {
                 status: status,
@@ -572,7 +599,7 @@ export const updateShipment = authenticatedAction(
       }
 
       // FK alanlarında boş string geldiyse undefined'a çevir (Prisma P2003 önlemi)
-      const fkFields = ["customerId", "customerLocationId", "routeId", "originWarehouseId", "driverId"];
+      const fkFields = ["customerId", "customerLocationId", "routeId", "originWarehouseId", "driverId", "trailerId"];
       for (const field of fkFields) {
         if ((updateData as any)[field] === "" || (updateData as any)[field] === null) {
           (updateData as any)[field] = undefined;
@@ -722,6 +749,28 @@ export const updateShipment = authenticatedAction(
         data: updateData,
       });
 
+      // ── Trailer Status Management ──────────────────────────────────────────
+      if (updatedShipment.trailerId && (updatedShipment.status === ShipmentStatus.DELIVERED || updatedShipment.status === ShipmentStatus.CANCELLED || updatedShipment.status === ShipmentStatus.COMPLETED)) {
+        // Check if there are any other active shipments on this trailer
+        const otherActiveShipments = await db.shipment.count({
+          where: {
+            trailerId: updatedShipment.trailerId,
+            status: { in: [ShipmentStatus.PENDING, ShipmentStatus.PROCESSING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.ASSIGNED, ShipmentStatus.PLANNED, ShipmentStatus.DELAYED] },
+            id: { not: shipmentId }
+          }
+        });
+
+        if (otherActiveShipments === 0) {
+          // If no other active shipments, we could potentially set trailer to AVAILABLE 
+          // but only if it's not currently attached to a vehicle in a way that implies it's still "IN_USE"
+          // However, user specifically asked for "automatic AVAILABLE"
+          await db.trailer.update({
+            where: { id: updatedShipment.trailerId },
+            data: { status: "AVAILABLE" }
+          });
+        }
+      }
+
       invalidateShipmentCache(companyId!, shipmentId).catch(err => 
         console.error("Cache invalidation failed:", err)
       );
@@ -749,7 +798,7 @@ export const deleteShipment = authenticatedAction(
         throw new Error("Shipment not found or unauthorized");
       }
 
-      await db.$transaction(async (tx: any) => {
+      await db.$transaction(async (tx: Prisma.TransactionClient) => {
         // Restore inventory stock
         const warehouseId = existingShipment.originWarehouseId;
         if (warehouseId) {
@@ -920,7 +969,7 @@ export const getShipmentStatusDistribution = authenticatedAction(
         _count: { status: true },
       });
 
-      return statusCounts.map((s: any) => ({
+      return statusCounts.map((s) => ({
         status: s.status,
         count: s._count.status,
       }));

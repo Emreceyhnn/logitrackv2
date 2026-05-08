@@ -43,6 +43,9 @@ import RouteSection from "./sections/RouteSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
+import { getTrailers } from "@/app/lib/controllers/trailer";
+import { TrailerWithRelations } from "@/app/lib/type/trailer.types";
+
 const initialValues: ShipmentFormValues = {
   referenceNumber: "",
   priority: ShipmentPriority.MEDIUM,
@@ -63,6 +66,7 @@ const initialValues: ShipmentFormValues = {
   palletCount: 0,
   cargoType: "General Cargo",
   assignedRouteId: null,
+  trailerId: null,
   inventoryItems: [],
 };
 
@@ -98,20 +102,23 @@ const AddShipmentDialog = ({
   const [warehouses, setWarehouses] = useState<WarehouseWithRelations[]>([]);
   const [customers, setCustomers] = useState<CustomerWithRelations[]>([]);
   const [routes, setRoutes] = useState<RouteWithRelations[]>([]);
+  const [trailers, setTrailers] = useState<TrailerWithRelations[]>([]);
 
   /* ------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (open && user) {
       const fetchData = async () => {
         try {
-          const [wRes, cRes, rRes] = await Promise.all([
+          const [wRes, cRes, rRes, tRes] = await Promise.all([
             getWarehouses(),
             getCustomers(),
             getRoutes(),
+            getTrailers(),
           ]);
           setWarehouses(wRes);
           setCustomers(cRes);
           setRoutes(rRes.routes);
+          setTrailers(tRes);
         } catch (error) {
           console.error("Failed to fetch dialog data", error);
         }
@@ -173,6 +180,7 @@ const AddShipmentDialog = ({
         contactEmail: values.contactEmail,
         billingAccount: values.billingAccount,
         inventoryItems: values.inventoryItems,
+        trailerId: values.trailerId,
       });
 
       toast.success(dict.toasts.successAdd);
@@ -338,6 +346,7 @@ const AddShipmentDialog = ({
                         <LogisticsSection
                           warehouses={warehouses}
                           customers={customers}
+                          trailers={trailers}
                         />
                       </Stack>
                     ) : (

@@ -140,7 +140,7 @@ const RecentStockMovements = ({
   );
 
   return (
-    <CustomCard sx={{ flex: 7, p: 0, overflow: 'hidden' }}>
+    <CustomCard sx={{ flex: 7, p: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ p: 3, pb: 1 }}>
         <Stack direction="row" spacing={1.5} alignItems="center">
           <Box sx={{ 
@@ -158,7 +158,7 @@ const RecentStockMovements = ({
         </Stack>
       </Box>
 
-      <Box sx={{ borderTop: `1px solid ${theme.palette.divider_alpha.main_05}` }}>
+      <Box sx={{ borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`, flex: 1, display: 'flex', flexDirection: 'column' }}>
         <DataTable<InventoryMovementWithRelations>
           rows={paginatedMovements}
           columns={columns}
@@ -166,6 +166,7 @@ const RecentStockMovements = ({
           meta={meta}
           onPageChange={handlePageChange}
           onLimitChange={handleLimitChange}
+          sx={{ flex: 1 }}
         />
       </Box>
     </CustomCard>

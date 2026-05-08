@@ -4,6 +4,8 @@ import CustomCard from "../../cards/card";
 import { ShipmentDayStat } from "@/app/lib/type/overview";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import TimeRangeSelector, { TimeRange } from "../../charts/TimeRangeSelector";
+import { useState, useMemo } from "react";
 
 interface ShipmentVolumeCardProps {
   values: ShipmentDayStat[];
@@ -11,6 +13,14 @@ interface ShipmentVolumeCardProps {
 
 const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
   const dict = useDictionary();
+  const [range, setRange] = useState<TimeRange>("1w");
+
+  const filteredValues = useMemo(() => {
+    if (!values) return [];
+    const days =
+      range === "1w" ? 7 : range === "2w" ? 14 : range === "1m" ? 30 : 180;
+    return values.slice(-days);
+  }, [values, range]);
 
   if (!values) return null;
 
@@ -23,9 +33,17 @@ const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
         flexDirection: "column",
       }}
     >
-      <Typography sx={{ fontSize: 18, fontWeight: 600, p: 2 }}>
-        {dict.dashboard.overview.shipmentVolume.title}
-      </Typography>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ p: 2 }}
+      >
+        <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
+          {dict.dashboard.overview.shipmentVolume.title}
+        </Typography>
+        <TimeRangeSelector value={range} onChange={setRange} dict={dict} />
+      </Stack>
       <Divider />
 
       <Box
@@ -50,10 +68,10 @@ const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
             xAxis={[
               {
                 scaleType: "band",
-                data: values.map((v) => v.date),
+                data: filteredValues.map((v) => v.date),
                 tickLabelStyle: {
                   fill: "text.secondary",
-                  fontSize: 12,
+                  fontSize: 10,
                 },
               },
             ]}
@@ -67,7 +85,7 @@ const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
             ]}
             series={[
               {
-                data: values.map((v) => v.count),
+                data: filteredValues.map((v) => v.count),
                 color: "#ff9800",
                 valueFormatter: (value: number | null) =>
                   dict.dashboard.overview.shipmentVolume.shipmentsCount.replace(

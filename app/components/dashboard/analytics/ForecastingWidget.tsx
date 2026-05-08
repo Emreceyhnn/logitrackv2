@@ -2,6 +2,8 @@ import { LineChart } from "@mui/x-charts/LineChart";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { Stack, Typography, Paper, Chip, Box } from "@mui/material";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import { useState, useMemo } from "react";
+import TimeRangeSelector, { TimeRange } from "../../charts/TimeRangeSelector";
 
 interface ForecastData {
   weeks: string[];
@@ -17,6 +19,7 @@ export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
   /* -------------------------------- variables ------------------------------- */
 
   const dict = useDictionary();
+  const [range, setRange] = useState<TimeRange>("6m");
 
   const weekPrefix = dict.analytics.forecasting.weekPrefix;
   const generateWeeks = () =>
@@ -25,20 +28,17 @@ export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
   const weeks =
     data?.weeks?.map((w) => w.replace("W", weekPrefix)) || generateWeeks();
   const actualsSeries = data?.actuals || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  const predictedSeries = data?.predicted || [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-  ];
+  const predictedSeries = data?.predicted || Array(12).fill(null);
+
+  const displayCount = useMemo(() => {
+    if (range === "1w") return 4;
+    if (range === "2w") return 8;
+    return weeks.length;
+  }, [range, weeks]);
+
+  const filteredWeeks = useMemo(() => weeks.slice(-displayCount), [weeks, displayCount]);
+  const filteredActuals = useMemo(() => actualsSeries.slice(-displayCount), [actualsSeries, displayCount]);
+  const filteredPredicted = useMemo(() => predictedSeries.slice(-displayCount), [predictedSeries, displayCount]);
 
   return (
     <Paper sx={{ p: 3, borderRadius: 3, mt: 3, bgcolor: "background.paper" }}>
@@ -65,19 +65,20 @@ export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
             {dict.analytics.forecasting.subtitle}
           </Typography>
         </Box>
+        <TimeRangeSelector value={range} onChange={setRange} dict={dict} />
       </Stack>
 
       <LineChart
-        xAxis={[{ data: weeks, scaleType: "point" }]}
+        xAxis={[{ data: filteredWeeks, scaleType: "point" }]}
         series={[
           {
-            data: actualsSeries,
+            data: filteredActuals,
             label: dict.analytics.forecasting.actualVolume,
             color: "#8b5cf6",
             showMark: true,
           },
           {
-            data: predictedSeries,
+            data: filteredPredicted,
             label: dict.analytics.forecasting.predicted,
             color: "#10b981",
             showMark: true,

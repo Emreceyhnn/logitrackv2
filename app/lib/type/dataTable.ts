@@ -100,4 +100,5 @@ export interface DataTableProps<TRow extends { id: string }> {
   // Standardization styling
   tableTitle?: string;
   wrapCard?: boolean;
+  sx?: import("@mui/material").SxProps<import("@mui/material").Theme>;
 }

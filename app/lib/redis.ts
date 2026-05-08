@@ -17,6 +17,19 @@ export const vehicleCacheKeys = {
     `vehicles:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
   kpis: (companyId: string) => `vehicles:${companyId}:kpis`,
 };
+
+export const TRAILER_CACHE_TTL = 3600;
+
+export const trailerCacheKeys = {
+  companyPattern: (companyId: string) => `trailers:${companyId}:*`,
+  detail: (trailerId: string) => `trailers:detail:${trailerId}`,
+  list: (companyId: string, filtersHash: string) =>
+    `trailers:${companyId}:list:${filtersHash}`,
+  dashboard: (companyId: string, filtersHash?: string) =>
+    `trailers:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
+  kpis: (companyId: string) => `trailers:${companyId}:kpis`,
+};
+
 export const DRIVER_CACHE_TTL = 3600;
 
 export const driverCacheKeys = {

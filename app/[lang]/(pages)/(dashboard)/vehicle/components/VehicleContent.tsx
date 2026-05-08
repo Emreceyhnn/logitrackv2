@@ -1,49 +1,50 @@
 "use client";
 
+import React, { useState, useCallback, useMemo, useEffect } from "react";
+import {
+  Box,
+  Typography,
+  Stack,
+  Button,
+  useTheme,
+} from "@mui/material";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useSearchParams } from "next/navigation";
+import {
+  LocalShipping,
+  CheckCircle,
+  Build,
+  DirectionsCar,
+  ReportProblem,
+  Description,
+  Add as AddIcon,
+} from "@mui/icons-material";
+
+// Components
+import KpiCards from "@/app/components/cards/KpiCards";
+import VehicleTable from "@/app/components/dashboard/vehicle/vehicleTable";
 import DocumentCalenderCard from "@/app/components/dashboard/vehicle/documentCalenderCard";
 import VehicleCapacityChart from "@/app/components/dashboard/vehicle/maxLoad";
-import VehicleTable from "@/app/components/dashboard/vehicle/vehicleTable";
+import TrailerTable from "@/app/components/dashboard/vehicle/trailerTable";
+
+// Dialogs
 import AddVehicleDialog from "@/app/components/dialogs/vehicle/addVehicleDialog";
+import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
 import VehicleDialog from "@/app/components/dialogs/vehicle/vehicleDetailsDialog";
+import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
+import AddTrailerDialog from "@/app/components/dialogs/vehicle/addTrailerDialog";
+import TrailerAssignmentDialog from "@/app/components/dialogs/vehicle/trailerAssignmentDialog";
+
+// Hooks & Types
+import { useVehicleWithDashboard, useVehicleMutations } from "@/app/hooks/useVehicles";
+import { useTrailers, useTrailerMutations } from "@/app/hooks/useTrailers";
 import {
-  useVehicleMutations,
-  useVehicleWithDashboard,
-} from "@/app/hooks/useVehicles";
-import {
-  VehiclePageActions,
   VehiclePageState,
+  VehiclePageActions,
   VehicleWithRelations,
 } from "@/app/lib/type/vehicle";
-import { Box, Stack, Typography, Button, useTheme } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import {
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-} from "react";
-import { useSearchParams } from "next/navigation";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
-import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import {
-  Build,
-  CheckCircle,
-  Description,
-  DirectionsCar,
-  LocalShipping,
-  ReportProblem,
-} from "@mui/icons-material";
-import KpiCards from "@/app/components/cards/KpiCards";
+import { TrailerWithRelations } from "@/app/lib/type/trailer.types";
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   VehicleContent
-   ─ Runs fully on the CLIENT.
-   ─ On first render, TanStack Query finds its cache already populated
-     (hydrated from the SSR dehydrated state in page.tsx), so there's
-     NO waterfall / loading flicker for the initial paint.
-   ─ When the user changes filters the hook issues a fresh CSR fetch.
-───────────────────────────────────────────────────────────────────────────── */
 export default function VehicleContent() {
   /* ─── Context ─────────────────────────────────────────────────────────── */
   const theme = useTheme();
@@ -53,6 +54,7 @@ export default function VehicleContent() {
   const tabFromUrl = searchParams.get("tab");
 
   /* ─── Page State ──────────────────────────────────────────────────────── */
+  const [activeTab, setActiveTab] = useState(0); // 0: Vehicles, 1: Trailers
   const [state, setState] = useState<{
     filters: VehiclePageState["filters"];
     selectedVehicleId: string | null;
@@ -67,11 +69,12 @@ export default function VehicleContent() {
   const [actionVehicle, setActionVehicle] =
     useState<VehicleWithRelations | null>(null);
 
-  /* ─── Data Fetching ───────────────────────────────────────────────────── 
-     staleTime is set to 5 min in the hook. On initial render the cache is
-     already warm (hydrated from SSR), so no network call is made. 
-     Subsequent filter changes trigger a fresh CSR fetch automatically.
-  ──────────────────────────────────────────────────────────────────────── */
+  // Trailer states
+  const [addTrailerOpen, setAddTrailerOpen] = useState(false);
+  const [assignTrailerOpen, setAssignTrailerOpen] = useState(false);
+  const [actionTrailer, setActionTrailer] = useState<TrailerWithRelations | null>(null);
+
+  /* ─── Data Fetching ───────────────────────────────────────────────────── */
   const {
     data: dashboardData,
     isLoading: isVehiclesLoading,
@@ -79,11 +82,18 @@ export default function VehicleContent() {
     refetch: refetchVehicleWithDashboard,
   } = useVehicleWithDashboard(state.filters);
 
+  const {
+    data: trailers,
+    isLoading: isTrailersLoading,
+    isFetching: isTrailersFetching,
+  } = useTrailers();
+
   const vehicles = dashboardData?.vehicles;
-  const loading = isVehiclesLoading; // True only on hard load (if no cache/placeholder)
-  const isFetching = isVehiclesFetching; // True whenever a background fetch is happening
+  const loading = isVehiclesLoading || (activeTab === 1 && isTrailersLoading);
+  const isFetching = isVehiclesFetching || (activeTab === 1 && isTrailersFetching);
 
   const { deleteVehicle: deleteMutation } = useVehicleMutations();
+  const { deleteTrailer: deleteTrailerMut, assignTrailer: detachTrailerMut } = useTrailerMutations();
 
   /* ─── Page Actions ────────────────────────────────────────────────────── */
   const refreshAll = useCallback(async () => {
@@ -154,20 +164,51 @@ export default function VehicleContent() {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!actionVehicle) return;
-    try {
-      await deleteMutation.mutateAsync(actionVehicle.id);
-      setDeleteDialogOpen(false);
-      if (state.selectedVehicleId === actionVehicle.id) {
-        actions.selectVehicle(null);
+    if (activeTab === 0 && actionVehicle) {
+      try {
+        await deleteMutation.mutateAsync(actionVehicle.id);
+        setDeleteDialogOpen(false);
+        if (state.selectedVehicleId === actionVehicle.id) {
+          actions.selectVehicle(null);
+        }
+      } catch (error) {
+        console.error("Failed to delete vehicle:", error);
       }
-    } catch (error) {
-      console.error("Failed to delete vehicle:", error);
+    } else if (activeTab === 1 && actionTrailer) {
+      try {
+        await deleteTrailerMut.mutateAsync(actionTrailer.id);
+        setDeleteDialogOpen(false);
+      } catch (error) {
+        console.error("Failed to delete trailer:", error);
+      }
     }
   };
 
   const handleDialogDeleteSuccess = () => {
     actions.selectVehicle(null);
+  };
+
+  // Trailer handlers
+  const handleTrailerEdit = (trailer: TrailerWithRelations) => {
+    // Implement trailer edit if needed, or just open a generic edit dialog
+  };
+
+  const handleTrailerDelete = (trailer: TrailerWithRelations) => {
+    setActionTrailer(trailer);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleTrailerAssign = (trailer: TrailerWithRelations) => {
+    setActionTrailer(trailer);
+    setAssignTrailerOpen(true);
+  };
+
+  const handleTrailerDetach = async (trailer: TrailerWithRelations) => {
+    try {
+      await detachTrailerMut.mutateAsync({ trailerId: trailer.id, vehicleId: null });
+    } catch (error) {
+      console.error("Failed to detach trailer:", error);
+    }
   };
 
   const selectedVehicle = vehicles?.find(
@@ -231,62 +272,133 @@ export default function VehicleContent() {
           <Typography
             sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
           >
-            {dict.vehicles.title}
+            {activeTab === 0 ? dict.vehicles.title : dict.trailers.title}
           </Typography>
           <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
-            {dict.vehicles.subtitle}
+            {activeTab === 0 ? dict.vehicles.subtitle : dict.trailers.subtitle}
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setAddDialogOpen(true)}
-          sx={{ textTransform: "none", borderRadius: 2 }}
-        >
-          {dict.vehicles.addVehicle}
-        </Button>
+        <Stack direction="row" spacing={2}>
+          {/* Tab Switcher */}
+          <Box
+            sx={{
+              display: "flex",
+              p: 0.5,
+              bgcolor: "background.paper",
+              borderRadius: 2,
+              border: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <Button
+              onClick={() => setActiveTab(0)}
+              sx={{
+                px: 3,
+                textTransform: "none",
+                borderRadius: 1.5,
+                bgcolor: activeTab === 0 ? theme.palette.primary._alpha.main_10 : "transparent",
+                color: activeTab === 0 ? "primary.main" : "text.secondary",
+                fontWeight: activeTab === 0 ? 700 : 500,
+                "&:hover": {
+                  bgcolor: activeTab === 0 ? theme.palette.primary._alpha.main_15 : theme.palette.action.hover,
+                },
+              }}
+            >
+              {dict.vehicles.tabs.vehicles}
+            </Button>
+            <Button
+              onClick={() => setActiveTab(1)}
+              sx={{
+                px: 3,
+                textTransform: "none",
+                borderRadius: 1.5,
+                bgcolor: activeTab === 1 ? theme.palette.primary._alpha.main_10 : "transparent",
+                color: activeTab === 1 ? "primary.main" : "text.secondary",
+                fontWeight: activeTab === 1 ? 700 : 500,
+                "&:hover": {
+                  bgcolor: activeTab === 1 ? theme.palette.primary._alpha.main_15 : theme.palette.action.hover,
+                },
+              }}
+            >
+              {dict.vehicles.tabs.trailers}
+            </Button>
+          </Box>
+          
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => activeTab === 0 ? setAddDialogOpen(true) : setAddTrailerOpen(true)}
+            sx={{ textTransform: "none", borderRadius: 2 }}
+          >
+            {activeTab === 0 ? dict.vehicles.addVehicle : dict.trailers.addTrailer}
+          </Button>
+        </Stack>
       </Stack>
 
       {/* KPI Cards — rendered with SSR data on first paint */}
       <KpiCards kpis={kpiItems} loading={loading} />
 
-      {/* Vehicle Table */}
+      {/* Content based on Tab */}
       <Stack mt={2}>
-        <VehicleTable
-          state={
-            {
-              ...state,
-              vehicles,
-              dashboardData: dashboardData ?? null,
-              loading: isFetching, // Use isFetching so the table shows its own spinner on filter change
-              error: null,
-            } as VehiclePageState
-          }
-          actions={{
-            ...actions,
-            onEdit: handleEdit,
-            onDelete: handleDelete,
-          }}
-        />
+        {activeTab === 0 ? (
+          <VehicleTable
+            state={
+              {
+                ...state,
+                vehicles,
+                dashboardData: dashboardData ?? null,
+                loading: isFetching,
+                error: null,
+              } as VehiclePageState
+            }
+            actions={{
+              ...actions,
+              onEdit: handleEdit,
+              onDelete: handleDelete,
+            }}
+          />
+        ) : (
+          <TrailerTable
+            trailers={trailers || []}
+            loading={isFetching}
+            onEdit={handleTrailerEdit}
+            onDelete={handleTrailerDelete}
+            onAssign={handleTrailerAssign}
+            onDetach={handleTrailerDetach}
+          />
+        )}
       </Stack>
 
-      {/* Charts */}
-      <Stack mt={2} direction={{ xs: "column", md: "row" }} spacing={2}>
-        <DocumentCalenderCard
-          data={dashboardData?.expiringDocs || []}
-          maintenanceData={dashboardData?.plannedServices || []}
-        />
-        <VehicleCapacityChart
-          data={dashboardData?.vehiclesCapacity || []}
-          loading={loading}
-        />
-      </Stack>
+      {/* Charts (Only show on Vehicles tab or shared if relevant) */}
+      {activeTab === 0 && (
+        <Stack mt={2} direction={{ xs: "column", md: "row" }} spacing={2}>
+          <DocumentCalenderCard
+            data={dashboardData?.expiringDocs || []}
+            maintenanceData={dashboardData?.plannedServices || []}
+          />
+          <VehicleCapacityChart
+            data={dashboardData?.vehiclesCapacity || []}
+            loading={loading}
+          />
+        </Stack>
+      )}
 
       {/* Dialogs */}
       <AddVehicleDialog
         open={addDialogOpen}
         onClose={() => setAddDialogOpen(false)}
         onSuccess={handleAddSuccess}
+      />
+
+      <AddTrailerDialog
+        open={addTrailerOpen}
+        onClose={() => setAddTrailerOpen(false)}
+        onSuccess={refreshAll}
+      />
+
+      <TrailerAssignmentDialog
+        open={assignTrailerOpen}
+        onClose={() => setAssignTrailerOpen(false)}
+        trailer={actionTrailer}
       />
 
       {selectedVehicle && (
@@ -315,8 +427,8 @@ export default function VehicleContent() {
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
         title={dict.common.confirmDelete}
-        description={`${dict.common.deleteDocumentDesc || "Are you sure you want to delete this item?"} (${actionVehicle?.plate})`}
-        loading={deleteMutation.isPending}
+        description={`${dict.common.deleteDocumentDesc || "Are you sure you want to delete this item?"} (${activeTab === 0 ? actionVehicle?.plate : actionTrailer?.plate})`}
+        loading={activeTab === 0 ? deleteMutation.isPending : deleteTrailerMut.isPending}
       />
     </Box>
   );

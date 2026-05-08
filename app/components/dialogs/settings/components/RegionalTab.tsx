@@ -67,7 +67,7 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
               label={dict.company.dialogs.interfaceLanguage}
               onChange={(e) =>
                 actions.updateRegional({
-                  language: e.target.value as "EN" | "TR",
+                  language: e.target.value as "en" | "tr",
                 })
               }
               startAdornment={
@@ -81,8 +81,8 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
               }
               sx={ssX}
             >
-              <MenuItem value="EN">🇺🇸 {dict.languages.en} (Global)</MenuItem>
-              <MenuItem value="TR">🇹🇷 {dict.languages.tr}</MenuItem>
+              <MenuItem value="en">🇺🇸 {dict.languages.en}</MenuItem>
+              <MenuItem value="tr">🇹🇷 {dict.languages.tr}</MenuItem>
             </Select>
           </FormControl>
 
