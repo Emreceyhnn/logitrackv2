@@ -15,6 +15,7 @@ export type AuthenticatedUser = {
   dateFormat: string;
   timeFormat: string;
   currency: string;
+  language: string;
   notifEmailShipment: boolean;
   notifEmailMaint: boolean;
   notifEmailWeekly: boolean;
@@ -41,6 +42,7 @@ export const getAuthenticatedUser = cache(
           dateFormat: sessionUser.dateFormat,
           timeFormat: sessionUser.timeFormat,
           currency: sessionUser.currency || "USD",
+          language: sessionUser.language || "en",
           notifEmailShipment: sessionUser.notifEmailShipment,
           notifEmailMaint: sessionUser.notifEmailMaint,
           notifEmailWeekly: sessionUser.notifEmailWeekly,
@@ -68,6 +70,7 @@ export const getAuthenticatedUser = cache(
             dateFormat: sessionUser.dateFormat,
             timeFormat: sessionUser.timeFormat,
             currency: sessionUser.currency || "USD",
+            language: sessionUser.language || "en",
             notifEmailShipment: sessionUser.notifEmailShipment,
             notifEmailMaint: sessionUser.notifEmailMaint,
             notifEmailWeekly: sessionUser.notifEmailWeekly,

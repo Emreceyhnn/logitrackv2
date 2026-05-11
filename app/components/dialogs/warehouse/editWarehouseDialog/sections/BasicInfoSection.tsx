@@ -14,10 +14,11 @@ import {
   EditWarehousePageActions,
 } from "@/app/lib/type/edit-warehouse";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
-import { COMMON_TIMEZONES } from "@/app/lib/constants/timezones";
+
 import { getUserNow } from "@/app/lib/utils/date";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useState, useEffect } from "react";
+import { COMMON_TIMEZONES } from "@/app/lib/constants";
 
 interface BasicInfoSectionProps {
   state: EditWarehouseBasicInfo;
@@ -163,8 +164,9 @@ const BasicInfoSection = ({ state, actions }: BasicInfoSectionProps) => {
                 }}
               >
                 <AccessTimeIcon sx={{ fontSize: 14 }} />
-                {dict.common.currentTimeAtLocation || "Current time at location"}:{" "}
-                {localTime.format("HH:mm:ss")}
+                {dict.common.currentTimeAtLocation ||
+                  "Current time at location"}
+                : {localTime.format("HH:mm:ss")}
               </Typography>
             </Stack>
           </Grid>

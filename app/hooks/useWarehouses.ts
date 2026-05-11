@@ -89,7 +89,6 @@ export function useWarehousesWithDashboard(
   });
 }
 
-
 export function useWarehouseMutations() {
   const queryClient = useQueryClient();
 

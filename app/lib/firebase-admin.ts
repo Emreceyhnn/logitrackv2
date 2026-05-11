@@ -2,13 +2,11 @@ import admin from "firebase-admin";
 import * as dotenv from "dotenv";
 import path from "path";
 
-// Load environment variables for non-Next.js environments (like scripts)
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 const firebaseAdminConfig = {
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  // Replace escaped newlines in the private key
   privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
 };
 
@@ -18,7 +16,11 @@ let adminAuth: admin.auth.Auth | undefined;
 
 if (!admin.apps.length) {
   try {
-    if (firebaseAdminConfig.clientEmail && firebaseAdminConfig.privateKey && firebaseAdminConfig.privateKey.includes("BEGIN PRIVATE KEY")) {
+    if (
+      firebaseAdminConfig.clientEmail &&
+      firebaseAdminConfig.privateKey &&
+      firebaseAdminConfig.privateKey.includes("BEGIN PRIVATE KEY")
+    ) {
       admin.initializeApp({
         credential: admin.credential.cert(firebaseAdminConfig),
         databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
@@ -27,7 +29,9 @@ if (!admin.apps.length) {
       adminMessaging = admin.messaging();
       adminAuth = admin.auth();
     } else {
-      console.warn("⚠️ Firebase credentials missing or invalid in .env. Realtime features will be disabled.");
+      console.warn(
+        "⚠️ Firebase credentials missing or invalid in .env. Realtime features will be disabled."
+      );
     }
   } catch (error) {
     console.error("❌ Firebase admin initialization error:", error);
@@ -39,4 +43,3 @@ if (!admin.apps.length) {
 }
 
 export { adminDb, adminMessaging, adminAuth };
-

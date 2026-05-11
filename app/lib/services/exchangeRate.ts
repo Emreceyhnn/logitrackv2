@@ -19,7 +19,6 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // 1. Try to read from DB (Today's rates)
   try {
     const cachedDb = await db.exchangeRate.findFirst({
       where: {
@@ -43,7 +42,6 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     console.warn("[exchangeRate] DB get failed:", err);
   }
 
-  // 2. Try to read from Redis cache as a fast fallback
   try {
     const cached = await redis.get<ExchangeRates>(EXCHANGE_RATES_CACHE_KEY);
     if (cached) {
@@ -53,9 +51,8 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     console.warn("[exchangeRate] Redis get failed:", err);
   }
 
-  // 3. Fetch fresh rates from the API
   const response = await fetch(`${EXCHANGE_RATE_BASE_URL}/latest/USD`, {
-    next: { revalidate: 0 }, // Do not use Next.js fetch cache
+    next: { revalidate: 0 },
   });
 
   if (!response.ok) {
@@ -76,7 +73,6 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     lastUpdated: new Date().toISOString(),
   };
 
-  // 4. Store in DB
   try {
     await db.exchangeRate.create({
       data: {
@@ -89,7 +85,6 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     console.warn("[exchangeRate] DB save failed:", err);
   }
 
-  // 5. Store in Redis for 24 hours
   try {
     await redis.set(EXCHANGE_RATES_CACHE_KEY, rates, {
       ex: EXCHANGE_RATES_TTL,
@@ -101,10 +96,6 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
   return rates;
 }
 
-/**
- * Returns the exchange rate for a given currency relative to USD.
- * Returns 1 if currency is USD or if the rate is not found.
- */
 export async function getExchangeRate(
   currency: SupportedCurrency
 ): Promise<number> {
@@ -115,7 +106,7 @@ export async function getExchangeRate(
     return rates.rates[currency] ?? 1;
   } catch (err) {
     console.error("[exchangeRate] Failed to get exchange rate:", err);
-    return 1; // Fallback to 1:1 to avoid breaking the UI
+    return 1;
   }
 }
 

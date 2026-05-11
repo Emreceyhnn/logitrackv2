@@ -1,12 +1,3 @@
-/**
- * Vehicle Query Keys
- *
- * Extracted into a standalone, directive-free module so it can be safely
- * imported by BOTH Server Components (page.tsx prefetchQuery) and Client
- * Components / hooks (useVehicles.ts). Adding "use client" to this file
- * would prevent Server Components from importing it.
- */
-
 import type { VehicleFilters } from "@/app/lib/type/vehicle";
 
 export const vehicleKeys = {

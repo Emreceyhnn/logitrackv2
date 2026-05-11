@@ -18,7 +18,7 @@ export function useAnalyticsData() {
   return useQuery({
     queryKey: analyticsKeys.dashboard(),
     queryFn: () => fetchAnalyticsDashboard(),
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: 1000 * 60 * 10,
     placeholderData: (previousData) => previousData,
   });
 }

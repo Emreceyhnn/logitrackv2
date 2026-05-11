@@ -36,6 +36,7 @@ export type SessionUser = {
   dateFormat: string;
   timeFormat: string;
   currency: string;
+  language: string;
   notifEmailShipment: boolean;
   notifEmailMaint: boolean;
   notifEmailWeekly: boolean;
@@ -198,6 +199,7 @@ export async function validateSession(): Promise<SessionUser | null> {
             dateFormat: true,
             timeFormat: true,
             currency: true,
+            language: true,
             notifEmailShipment: true,
             notifEmailMaint: true,
             notifEmailWeekly: true,
@@ -271,6 +273,7 @@ export async function validateSession(): Promise<SessionUser | null> {
       dateFormat: session.user.dateFormat,
       timeFormat: session.user.timeFormat,
       currency: session.user.currency || "USD",
+      language: session.user.language || "en",
       notifEmailShipment: session.user.notifEmailShipment,
       notifEmailMaint: session.user.notifEmailMaint,
       notifEmailWeekly: session.user.notifEmailWeekly,
@@ -322,6 +325,7 @@ export async function refreshSession(): Promise<boolean> {
             dateFormat: true,
             timeFormat: true,
             currency: true,
+            language: true,
             notifEmailShipment: true,
             notifEmailMaint: true,
             notifEmailWeekly: true,

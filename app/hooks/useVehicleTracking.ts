@@ -5,9 +5,6 @@ import {
   VehicleLocation,
 } from "@/app/lib/vehicleTracking";
 
-/**
- * Hook to track all vehicles in real-time.
- */
 export const useAllVehiclesTracking = () => {
   const [vehicleLocations, setVehicleLocations] = useState<
     Record<string, VehicleLocation>

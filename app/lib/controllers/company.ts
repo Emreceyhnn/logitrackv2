@@ -22,7 +22,12 @@ async function invalidateCompanyCache(companyId: string) {
 }
 
 export const createCompany = authenticatedAction(
-  async (user, name: string, avatarUrl?: string) => {
+  async (
+    user,
+    name: string,
+    avatarUrl?: string,
+    regional?: { timezone: string; currency: string; language: string }
+  ) => {
     const existingCompany = await db.company.findUnique({ where: { name } });
     if (existingCompany) throw new Error("Company name already exists");
 
@@ -85,6 +90,13 @@ export const createCompany = authenticatedAction(
       data: {
         companyId: newCompany.id,
         roleId: role?.id ?? "role_admin",
+        ...(regional
+          ? {
+              timezone: regional.timezone,
+              currency: regional.currency,
+              language: regional.language.toLowerCase(),
+            }
+          : {}),
       },
     });
 

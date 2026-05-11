@@ -18,6 +18,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useFormikContext } from "formik";
 import { CompanyFormData } from "@/app/lib/type/create-company";
+import { COMMON_TIMEZONES } from "@/app/lib/constants";
 
 export default function Step2Regional({ state, actions }: CompanyStepProps) {
   const theme = useTheme();
@@ -79,17 +80,19 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                 />
               }
               sx={{
-                bgcolor: (theme) => theme.palette.background.paper_alpha.main_50,
+                bgcolor: (theme) =>
+                  theme.palette.background.paper_alpha.main_50,
                 borderRadius: 3,
                 "& .MuiOutlinedInput-notchedOutline": {
                   borderColor: (theme) => theme.palette.divider_alpha.main_10,
                 },
               }}
             >
-              <MenuItem value="UTC">UTC (Universal Coordinated Time)</MenuItem>
-              <MenuItem value="EST">Eastern Time (US & Canada)</MenuItem>
-              <MenuItem value="TR">Turkey Standard Time (GMT+03:00)</MenuItem>
-              <MenuItem value="CET">Central European Time (GMT+01:00)</MenuItem>
+              {COMMON_TIMEZONES.map((tz) => (
+                <MenuItem key={tz.value} value={tz.value}>
+                  {tz.label}
+                </MenuItem>
+              ))}
             </Select>
             {touched.timezone && errors.timezone && (
               <Typography
@@ -130,16 +133,18 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                   <PaymentsIcon
                     sx={{
                       mr: 1,
-                      color: (theme) => theme.palette.text.primary_alpha.main_30,
+                      color: (theme) =>
+                        theme.palette.text.primary_alpha.main_30,
                       fontSize: 20,
                     }}
                   />
                 }
                 sx={{
-                  bgcolor: "theme.palette.background.paper_alpha.main_50",
+                  bgcolor: (theme) =>
+                    theme.palette.background.paper_alpha.main_50,
                   borderRadius: 3,
                   "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "theme.palette.divider_alpha.main_10",
+                    borderColor: (theme) => theme.palette.divider_alpha.main_10,
                   },
                 }}
               >
@@ -185,21 +190,23 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
                   <LanguageIcon
                     sx={{
                       mr: 1,
-                      color: (theme) => theme.palette.text.primary_alpha.main_30,
+                      color: (theme) =>
+                        theme.palette.text.primary_alpha.main_30,
                       fontSize: 20,
                     }}
                   />
                 }
                 sx={{
-                  bgcolor: "theme.palette.background.paper_alpha.main_50",
+                  bgcolor: (theme) =>
+                    theme.palette.background.paper_alpha.main_50,
                   borderRadius: 3,
                   "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "theme.palette.divider_alpha.main_10",
+                    borderColor: (theme) => theme.palette.divider_alpha.main_10,
                   },
                 }}
               >
-                <MenuItem value="EN">{dict.languages.en}</MenuItem>
-                <MenuItem value="TR">{dict.languages.tr}</MenuItem>
+                <MenuItem value="en">{dict.languages.en}</MenuItem>
+                <MenuItem value="tr">{dict.languages.tr}</MenuItem>
               </Select>
               {touched.language && errors.language && (
                 <Typography
@@ -219,7 +226,8 @@ export default function Step2Regional({ state, actions }: CompanyStepProps) {
             p: 3,
             borderRadius: 4,
             bgcolor: (theme) => theme.palette.primary._alpha.main_04,
-            border: (theme) => `1px solid ${theme.palette.primary._alpha.main_15}`,
+            border: (theme) =>
+              `1px solid ${theme.palette.primary._alpha.main_15}`,
             display: "flex",
             gap: 2.5,
             transition: "0.2s",

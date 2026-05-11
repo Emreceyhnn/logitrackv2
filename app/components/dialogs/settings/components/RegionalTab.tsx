@@ -18,12 +18,14 @@ import {
   Save as SaveIcon,
   ScheduleOutlined as TimezoneIcon,
 } from "@mui/icons-material";
+
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import type {
   SettingsPageState,
   SettingsPageActions,
 } from "@/app/lib/type/settings";
 import { selectSxFactory, inputLabelSxFactory } from "./SettingsStyles";
+import { COMMON_TIMEZONES } from "@/app/lib/constants";
 
 interface RegionalTabProps {
   state: SettingsPageState;
@@ -143,24 +145,11 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
               }
               sx={ssX}
             >
-              <MenuItem value="UTC">
-                UTC ({dict.settings.dialogs.regional.timezones.universal})
-              </MenuItem>
-              <MenuItem value="Europe/Istanbul">
-                {dict.settings.dialogs.regional.timezones.istanbul} (GMT+3)
-              </MenuItem>
-              <MenuItem value="Europe/Berlin">
-                {dict.settings.dialogs.regional.timezones.centralEurope} (GMT+1)
-              </MenuItem>
-              <MenuItem value="America/New_York">
-                {dict.settings.dialogs.regional.timezones.easternTime} (GMT-5)
-              </MenuItem>
-              <MenuItem value="America/Los_Angeles">
-                {dict.settings.dialogs.regional.timezones.pacificTime} (GMT-8)
-              </MenuItem>
-              <MenuItem value="Asia/Tokyo">
-                {dict.settings.dialogs.regional.timezones.tokyoSeoul} (GMT+9)
-              </MenuItem>
+              {COMMON_TIMEZONES.map((tz) => (
+                <MenuItem key={tz.value} value={tz.value}>
+                  {tz.label}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -194,8 +183,12 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
               }
               sx={ssX}
             >
-              <MenuItem value="24h">24 {dict.settings.dialogs.regional.timeFormats.hour}</MenuItem>
-              <MenuItem value="12h">12 {dict.settings.dialogs.regional.timeFormats.hour} (AM/PM)</MenuItem>
+              <MenuItem value="24h">
+                24 {dict.settings.dialogs.regional.timeFormats.hour}
+              </MenuItem>
+              <MenuItem value="12h">
+                12 {dict.settings.dialogs.regional.timeFormats.hour} (AM/PM)
+              </MenuItem>
             </Select>
           </FormControl>
         </Stack>

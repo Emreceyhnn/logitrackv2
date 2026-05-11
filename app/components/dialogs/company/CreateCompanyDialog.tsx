@@ -40,7 +40,7 @@ const initialFormData: CompanyFormData = {
   industry: "",
   timezone: "UTC",
   currency: "USD",
-  language: "EN",
+  language: "en",
   regionalVisibility: true,
 };
 
@@ -80,7 +80,11 @@ export default function CreateCompanyDialog({
         logoUrl = uploadResult.url;
       }
 
-      await createCompany(values.name, logoUrl || "");
+      await createCompany(values.name, logoUrl || "", {
+        timezone: values.timezone,
+        currency: values.currency,
+        language: values.language,
+      });
 
       toast.success(dict.toasts.successAdd);
       onSuccess?.();

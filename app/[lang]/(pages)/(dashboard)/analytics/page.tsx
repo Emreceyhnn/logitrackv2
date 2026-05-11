@@ -1,7 +1,3 @@
-/**
- * Analytics Page — Hybrid SSR + CSR
- */
-
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {

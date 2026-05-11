@@ -466,7 +466,9 @@ export const updateInventoryItem = authenticatedAction(
           await tx.inventoryMovement.create({
             data: {
               warehouseId: currentItem.warehouseId,
-              sku: (typeof updateData.sku === "string" ? updateData.sku : null) || currentItem.sku,
+              sku:
+                (typeof updateData.sku === "string" ? updateData.sku : null) ||
+                currentItem.sku,
               quantity: data.quantity - currentItem.quantity,
               type: "ADJUSTMENT",
               userId: user.id,
@@ -632,7 +634,7 @@ export const getRecentStockMovements = authenticatedAction(async (user) => {
     });
 
     const enrichedMovements = await Promise.all(
-      movements.map(async (m: typeof movements[number]) => {
+      movements.map(async (m: (typeof movements)[number]) => {
         const inventoryItem = await db.inventory.findFirst({
           where: {
             warehouseId: m.warehouseId,
@@ -739,7 +741,7 @@ export const getWarehousesWithDashboardData = authenticatedAction(
 
         // Enriched Movements
         const enrichedMovements = await Promise.all(
-          movements.map(async (m: typeof movements[number]) => {
+          movements.map(async (m: (typeof movements)[number]) => {
             const inventoryItem = await db.inventory.findFirst({
               where: {
                 warehouseId: m.warehouseId,
