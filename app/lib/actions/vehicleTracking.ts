@@ -49,7 +49,7 @@ export async function updateVehicleDataAction(
   }
 }
 
-export async function syncVehicleToFirebaseAction(vehicle: any) {
+export async function syncVehicleToFirebaseAction(vehicle: { id: string } & Record<string, unknown>) {
   try {
     if (!adminDb) throw new Error("Firebase not initialized");
     const path = `vehicles/registry/${vehicle.id}`;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import { VehicleStatus, VehicleType } from "@/app/lib/type/enums";
 import DataTable from "@/app/components/ui/DataTable";
 import type {
@@ -23,6 +23,7 @@ import { useState } from "react";
 import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
 import { toast } from "sonner";
 
+import { useTheme } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const VehicleTable = ({ state, actions }: VehicleTableProps) => {
@@ -201,7 +202,22 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         key: "fuelLevel",
         label: dict.vehicles.fields.fuelLevel,
         align: "right",
-        render: (row) => `${row.fuelLevel ?? 0}%`,
+        render: (row) => {
+          const percentage = row.fuelLevel ?? 0;
+          const capacity = row.fuelCapacity || 0;
+          const currentLiters = capacity > 0 ? Math.round((percentage / 100) * capacity) : 0;
+          
+          return (
+            <Box sx={{ textAlign: "right" }}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>{percentage}%</Typography>
+              {capacity > 0 && (
+                <Typography variant="caption" color="text.secondary" sx={{ display: "block", fontSize: "10px", mt: -0.5, fontWeight: 700 }}>
+                  {currentLiters}lt / {capacity}lt
+                </Typography>
+              )}
+            </Box>
+          );
+        },
       },
     ],
     [vehicles, dict]

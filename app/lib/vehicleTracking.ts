@@ -54,6 +54,6 @@ export const subscribeToAllVehicles = (
   return () => off(vehiclesRef);
 };
 
-export const syncVehicleToFirebase = async (vehicle: any) => {
+export const syncVehicleToFirebase = async (vehicle: { id: string } & Record<string, unknown>) => {
   return syncVehicleToFirebaseAction(vehicle);
 };

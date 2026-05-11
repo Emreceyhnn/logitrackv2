@@ -26,6 +26,8 @@ import type {
   SettingsPageState,
   SettingsPageActions,
   CurrencyCode,
+  LanguageCode,
+  AppearanceMode,
 } from "@/app/lib/type/settings";
 
 // Extracted Components
@@ -55,7 +57,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
     isSaving: false,
     error: null,
     regional: {
-      language: currentLang as any,
+      language: currentLang as LanguageCode,
       currency: (user?.currency as CurrencyCode) || "USD",
       timezone: user?.timezone || "UTC",
       dateFormat: user?.dateFormat || "DD/MM/YYYY",
@@ -71,6 +73,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
     appearance: { mode: "dark" },
   });
 
+  // Sync user data to state when opening or user changes
   useEffect(() => {
     if (open && user) {
       setState((s) => {
@@ -89,14 +92,13 @@ export default function SettingsDialog({ open, onClose }: Props) {
           pushDelayAlerts: user.notifPushDelay ?? true,
         };
 
-        // Deep comparison or just checking key fields to avoid cascading renders
-        if (
-          s.regional.currency === newRegional.currency &&
-          s.regional.timezone === newRegional.timezone &&
-          s.notifications.emailShipmentUpdates === newNotifications.emailShipmentUpdates
-        ) {
-          return s;
-        }
+        // Check if we actually need to update to avoid cascading renders
+        const needsUpdate = 
+          s.regional.currency !== newRegional.currency ||
+          s.regional.timezone !== newRegional.timezone ||
+          s.notifications.emailShipmentUpdates !== newNotifications.emailShipmentUpdates;
+
+        if (!needsUpdate) return s;
 
         return {
           ...s,
@@ -107,13 +109,14 @@ export default function SettingsDialog({ open, onClose }: Props) {
     }
   }, [open, user]);
 
+  // Sync theme mode from localStorage
   useEffect(() => {
     if (open) {
       const stored = localStorage.getItem("logitrack-theme-mode");
       if (stored) {
         setState((s) => {
-          if (s.appearance.mode === (stored as any)) return s;
-          return { ...s, appearance: { mode: stored as any } };
+          if (s.appearance.mode === (stored as AppearanceMode)) return s;
+          return { ...s, appearance: { mode: stored as AppearanceMode } };
         });
       }
     }

@@ -169,7 +169,7 @@ const InventoryTable = ({
         render: (row) =>
           currencyLoading
             ? "..."
-            : formatFrom(row.unitValue || 0, (row as any).currency || "USD", 2),
+            : formatFrom(row.unitValue || 0, row.currency || "USD", 2),
       },
       {
         key: "warehouse",

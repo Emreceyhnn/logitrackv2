@@ -3,14 +3,14 @@
 import React from "react";
 import DataTable from "@/app/components/ui/DataTable";
 import { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTable";
-import { TrailerWithRelations } from "@/app/lib/type/trailer.types";
+import { TrailerWithRelations } from "@/app/lib/type/trailer";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   Box,
   Typography,
   Chip,
-  IconButton,
   Tooltip,
+  Stack,
 } from "@mui/material";
 import {
   Edit,
@@ -18,7 +18,7 @@ import {
   Link,
   LinkOff,
   AcUnit,
-  Inventory,
+  LocalShipping,
 } from "@mui/icons-material";
 import { TrailerStatus, TrailerType } from "@/app/lib/type/enums";
 
@@ -87,67 +87,67 @@ export default function TrailerTable({
       key: "status",
       label: dict.trailers.status,
       render: (row) => {
-      const colors: Record<string, "success" | "warning" | "error" | "default" | "primary"> = {
-        AVAILABLE: "success",
-        IN_USE: "primary",
-        MAINTENANCE: "warning",
-        RETIRED: "default",
-      };
-      return (
-        <Chip
-          label={dict.trailers.statuses[row.status as keyof typeof dict.trailers.statuses]}
-          color={colors[row.status] || "default"}
-          size="small"
-          variant="outlined"
-        />
-      );
+        const colors: Record<string, "success" | "warning" | "error" | "default" | "primary"> = {
+          AVAILABLE: "success",
+          IN_USE: "primary",
+          MAINTENANCE: "warning",
+          RETIRED: "default",
+        };
+        return (
+          <Chip
+            label={dict.trailers.statuses[row.status as keyof typeof dict.trailers.statuses]}
+            color={colors[row.status] || "default"}
+            size="small"
+            variant="outlined"
+          />
+        );
+      },
     },
-  },
-  {
-    key: "currentVehicle",
-    label: dict.trailers.currentVehicle,
-    render: (row) => (
-      row.currentVehicle ? (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <LocalShipping sx={{ fontSize: 18, color: "text.secondary" }} />
-          <Typography variant="body2">
-            {row.currentVehicle.plate}
+    {
+      key: "currentVehicle",
+      label: dict.trailers.currentVehicle,
+      render: (row) => (
+        row.currentVehicle ? (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <LocalShipping sx={{ fontSize: 18, color: "text.secondary" }} />
+            <Typography variant="body2">
+              {row.currentVehicle.plate}
+            </Typography>
+          </Box>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            {dict.trailers.notAssigned}
           </Typography>
-        </Box>
-      ) : (
-        <Typography variant="body2" color="text.secondary">
-          {dict.trailers.notAssigned}
-        </Typography>
-      )
-    ),
-  },
-];
+        )
+      ),
+    },
+  ];
 
-const rowActions: DataTableRowAction<TrailerWithRelations>[] = [
-  {
-    label: dict.common.edit,
-    icon: <Edit fontSize="small" />,
-    onClick: onEdit,
-  },
-  {
-    label: dict.trailers.assignToVehicle,
-    icon: <Link fontSize="small" />,
-    onClick: (row) => onAssign(row),
-    hidden: (row) => !!row.currentVehicle,
-  },
-  {
-    label: dict.trailers.detach,
-    icon: <LinkOff fontSize="small" />,
-    onClick: (row) => onDetach(row),
-    hidden: (row) => !row.currentVehicle,
-  },
-  {
-    label: dict.common.delete,
-    icon: <Delete fontSize="small" />,
-    onClick: onDelete,
-    color: "error",
-  },
-];
+  const rowActions: DataTableRowAction<TrailerWithRelations>[] = [
+    {
+      label: dict.common.edit,
+      icon: <Edit fontSize="small" />,
+      onClick: onEdit,
+    },
+    {
+      label: dict.trailers.assignToVehicle,
+      icon: <Link fontSize="small" />,
+      onClick: (row) => onAssign(row),
+      hidden: (row) => !!row.currentVehicle,
+    },
+    {
+      label: dict.trailers.detach,
+      icon: <LinkOff fontSize="small" />,
+      onClick: (row) => onDetach(row),
+      hidden: (row) => !row.currentVehicle,
+    },
+    {
+      label: dict.common.delete,
+      icon: <Delete fontSize="small" />,
+      onClick: onDelete,
+      color: "error",
+    },
+  ];
 
   return (
     <DataTable
@@ -161,6 +161,3 @@ const rowActions: DataTableRowAction<TrailerWithRelations>[] = [
     />
   );
 }
-
-import { Stack } from "@mui/material";
-import { LocalShipping } from "@mui/icons-material";

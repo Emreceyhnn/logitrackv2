@@ -6,13 +6,41 @@ import MonitorWeightIcon from "@mui/icons-material/MonitorWeight";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { TrailerWithRelations } from "@/app/lib/type/trailer";
 
-const CargoSection = () => {
+interface CargoSectionProps {
+  trailers: TrailerWithRelations[];
+}
+
+const CargoSection = ({ trailers }: CargoSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
 
   const { values, setFieldValue, handleBlur, touched, errors } =
     useFormikContext<ShipmentFormValues>();
+
+  const selectedTrailer = trailers.find((t) => t.id === values.trailerId);
+  
+  // Calculate available capacity
+  // Note: For editing, this component needs to know the original shipment load to correctly show "Available" 
+  // but since we are focusing on providing immediate feedback, we'll use the current trailer's stated load.
+  const currentOccupancyWeight = selectedTrailer?.currentWeightKg || 0;
+  const currentOccupancyVolume = selectedTrailer?.currentVolumeM3 || 0;
+  
+  const availableWeight = selectedTrailer ? selectedTrailer.maxLoadKg - currentOccupancyWeight : 0;
+  const availableVolume = selectedTrailer ? selectedTrailer.capacityVolumeM3 - currentOccupancyVolume : 0;
+
+  // Use a small epsilon for floating point comparisons and ensure capacity is defined
+  const tolerance = 0.01;
+  const isWeightOver =
+    selectedTrailer &&
+    selectedTrailer.maxLoadKg > 0 &&
+    Math.round(values.weightKg * 100) / 100 > availableWeight + tolerance;
+    
+  const isVolumeOver =
+    selectedTrailer &&
+    selectedTrailer.capacityVolumeM3 > 0 &&
+    Math.round(values.volumeM3 * 100) / 100 > availableVolume + tolerance;
 
   return (
     <Box>
@@ -47,9 +75,9 @@ const CargoSection = () => {
                 placeholder="0.00"
                 value={values.weightKg.toString()}
                 onBlur={handleBlur}
-                error={touched.weightKg && Boolean(errors.weightKg)}
+                error={Boolean(errors.weightKg)}
                 helperText={
-                  touched.weightKg ? (errors.weightKg as string) : undefined
+                  (errors.weightKg as string) || undefined
                 }
                 onChange={(e) =>
                   setFieldValue("weightKg", parseFloat(e.target.value) || 0)
@@ -77,9 +105,9 @@ const CargoSection = () => {
                 placeholder="0.00"
                 value={values.volumeM3.toString()}
                 onBlur={handleBlur}
-                error={touched.volumeM3 && Boolean(errors.volumeM3)}
+                error={Boolean(errors.volumeM3)}
                 helperText={
-                  touched.volumeM3 ? (errors.volumeM3 as string) : undefined
+                  (errors.volumeM3 as string) || undefined
                 }
                 onChange={(e) =>
                   setFieldValue("volumeM3", parseFloat(e.target.value) || 0)
@@ -148,6 +176,60 @@ const CargoSection = () => {
             </Stack>
           </Grid>
         </Grid>
+
+        {/* Trailer Capacity Alerts */}
+        {(isWeightOver || isVolumeOver) && (
+          <Stack spacing={1} sx={{ mt: 1 }}>
+            {isWeightOver && (
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                sx={{
+                  color: "error.main",
+                  bgcolor: (theme) => theme.palette.error._alpha.main_10,
+                  px: 2,
+                  py: 1,
+                  borderRadius: 2,
+                  border: (theme) =>
+                    `1px solid ${theme.palette.error._alpha.main_20}`,
+                }}
+              >
+                <MonitorWeightIcon sx={{ fontSize: 18 }} />
+                <Typography variant="caption" fontWeight={700}>
+                  {dict.shipments.dialogs.fields.exceedsTrailerWeight}
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8, ml: "auto" }}>
+                  Available: <b>{availableWeight.toFixed(2)} kg</b> (Max: {selectedTrailer?.maxLoadKg})
+                </Typography>
+              </Stack>
+            )}
+            {isVolumeOver && (
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                sx={{
+                  color: "error.main",
+                  bgcolor: (theme) => theme.palette.error._alpha.main_10,
+                  px: 2,
+                  py: 1,
+                  borderRadius: 2,
+                  border: (theme) =>
+                    `1px solid ${theme.palette.error._alpha.main_20}`,
+                }}
+              >
+                <ViewInArIcon sx={{ fontSize: 18 }} />
+                <Typography variant="caption" fontWeight={700}>
+                  {dict.shipments.dialogs.fields.exceedsTrailerVolume}
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8, ml: "auto" }}>
+                  Available: <b>{availableVolume.toFixed(2)} m³</b> (Max: {selectedTrailer?.capacityVolumeM3})
+                </Typography>
+              </Stack>
+            )}
+          </Stack>
+        )}
       </Stack>
     </Box>
   );

@@ -1,4 +1,4 @@
-import { TrailerFilters } from "../type/trailer.types";
+import { TrailerFilters } from "@/app/lib/type/trailer";
 
 export const trailerKeys = {
   all: ["trailers"] as const,

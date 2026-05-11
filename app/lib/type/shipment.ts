@@ -57,6 +57,17 @@ export interface ShipmentWithRelations
   company?: Company | null;
   history?: ShipmentHistory[];
   items?: ShipmentItem[];
+  stops?: ShipmentStopWithRelations[];
+}
+
+export interface ShipmentStopWithRelations {
+  id?: string;
+  customerId: string | null;
+  customerLocationId: string | null;
+  address: string;
+  lat: number | null;
+  lng: number | null;
+  sequence: number;
 }
 
 // KPI / Stats
@@ -151,4 +162,5 @@ export interface ShipmentFormValues {
   assignedRouteId: string | null;
   trailerId: string | null;
   inventoryItems: InventoryShipmentItem[];
+  stops: ShipmentStopWithRelations[];
 }

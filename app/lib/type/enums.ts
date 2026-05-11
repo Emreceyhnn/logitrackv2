@@ -312,6 +312,7 @@ export interface Shipment {
   contactEmail?: string | null;
   billingAccount?: string | null;
   routeId?: string | null;
+  trailerId?: string | null;
   companyId?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
@@ -360,6 +361,7 @@ export interface Inventory {
   imageUrl?: string | null;
   unitValue?: number | null;
   unit?: string;
+  currency: string;
   weightKg?: number | null;
   volumeM3?: number | null;
   palletCount?: number | null;

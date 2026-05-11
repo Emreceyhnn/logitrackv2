@@ -343,36 +343,97 @@ const InventorySection = ({
                 </Stack>
 
                 {/* Row Feedback */}
-                <Stack direction="row" spacing={3} sx={{ px: 1.5, mb: 1.5 }}>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: "text.secondary", fontSize: "10px" }}
-                  >
-                    {dict.shipments.dialogs.fields.calculatedPallets}:{" "}
-                    <b>
-                      {(item.unit === "Pallet"
-                        ? item.quantity
-                        : item.palletCount && item.palletCount > 0
-                          ? item.quantity / item.palletCount
-                          : 0
-                      ).toFixed(2)}
-                    </b>
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: "text.secondary", fontSize: "10px" }}
-                  >
-                    {dict.shipments.dialogs.fields.rowWeight}:{" "}
-                    <b>
-                      {(item.unit === "Pallet"
-                        ? (item.weightKg || 0) *
-                          (item.palletCount || 0) *
-                          item.quantity
-                        : (item.weightKg || 0) * item.quantity
-                      ).toFixed(2)}{" "}
-                      KG
-                    </b>
-                  </Typography>
+                <Stack
+                  direction="row"
+                  spacing={3}
+                  alignItems="center"
+                  sx={{ px: 1.5, mb: 1.5 }}
+                >
+                  <Stack direction="row" spacing={3}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "text.secondary", fontSize: "10px" }}
+                    >
+                      {dict.shipments.dialogs.fields.calculatedPallets}:{" "}
+                      <b>
+                        {(item.unit === "Pallet"
+                          ? item.quantity
+                          : item.palletCount && item.palletCount > 0
+                            ? item.quantity / item.palletCount
+                            : 0
+                        ).toFixed(2)}
+                      </b>
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "text.secondary", fontSize: "10px" }}
+                    >
+                      {dict.shipments.dialogs.fields.rowWeight}:{" "}
+                      <b>
+                        {(item.unit === "Pallet"
+                          ? (item.weightKg || 0) *
+                            (item.palletCount || 0) *
+                            item.quantity
+                          : (item.weightKg || 0) * item.quantity
+                        ).toFixed(2)}{" "}
+                        KG
+                      </b>
+                    </Typography>
+                  </Stack>
+
+                  {/* Stock Alert */}
+                  {item.maxQuantity !== undefined && (
+                    <Box sx={{ ml: "auto" }}>
+                      {(() => {
+                        const isPallet = item.unit === "Pallet";
+                        const available = isPallet
+                          ? item.palletCount && item.palletCount > 0
+                            ? Math.floor(item.maxQuantity / item.palletCount)
+                            : 0
+                          : item.maxQuantity;
+
+                        const isOverStock = item.quantity > available;
+
+                        if (isOverStock) {
+                          return (
+                            <Stack
+                              direction="row"
+                              spacing={0.5}
+                              alignItems="center"
+                              sx={{
+                                color: "error.main",
+                                bgcolor: (theme) =>
+                                  theme.palette.error._alpha.main_10,
+                                px: 1,
+                                py: 0.5,
+                                borderRadius: 1.5,
+                                border: (theme) =>
+                                  `1px solid ${theme.palette.error._alpha.main_20}`,
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                fontWeight={800}
+                                sx={{ fontSize: "10px", textTransform: "uppercase" }}
+                              >
+                                {dict.shipments.dialogs.fields.insufficientStock}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{ fontSize: "10px", fontWeight: 600 }}
+                              >
+                                ({dict.shipments.dialogs.fields.availableStock}:{" "}
+                                <Box component="span" sx={{ color: "error.main", fontWeight: 900 }}>
+                                  {available} {isPallet ? (dict.shipments.dialogs.types.pallet || "Pallet") : (dict.shipments.dialogs.types.each || "Each")}
+                                </Box>)
+                              </Typography>
+                            </Stack>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </Box>
+                  )}
                 </Stack>
               </Box>
             ))}

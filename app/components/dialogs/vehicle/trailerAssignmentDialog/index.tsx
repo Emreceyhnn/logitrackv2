@@ -16,7 +16,7 @@ import {
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useTrailerMutations } from "@/app/hooks/useTrailers";
 import { useVehicles } from "@/app/hooks/useVehicles";
-import { TrailerWithRelations } from "@/app/lib/type/trailer.types";
+import { TrailerWithRelations } from "@/app/lib/type/trailer";
 
 interface TrailerAssignmentDialogProps {
   open: boolean;

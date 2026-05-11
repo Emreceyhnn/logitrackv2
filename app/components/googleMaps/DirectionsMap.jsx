@@ -94,10 +94,19 @@ const VehicleMarker = ({ position, name }) => {
   );
 };
 
+/**
+ * @param {Object} props
+ * @param {string|{lat:number, lng:number}} [props.origin]
+ * @param {string|{lat:number, lng:number}} [props.destination]
+ * @param {Array<{location: string|{lat:number, lng:number}, stopover?:boolean}>} [props.waypoints]
+ * @param {{lat:number, lng:number, name:string, id:string}|null} [props.vehicleLocation]
+ * @param {Function} [props.onRouteInfoUpdate]
+ */
 export const DirectionsMap = ({
   origin,
   destination,
-  vehicleLocation,
+  waypoints = [],
+  vehicleLocation = null,
   onRouteInfoUpdate,
 }) => {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -107,7 +116,7 @@ export const DirectionsMap = ({
   const [response, setResponse] = useState(null);
   const [errorCount, setErrorCount] = useState(0);
   const [isRequesting, setIsRequesting] = useState(false);
-  const lastRequestRef = useRef({ originKey: "", destinationKey: "" });
+  const lastRequestRef = useRef({ originKey: "", destinationKey: "", waypointsKey: "" });
 
   /* -------------------------------- LIFECYCLE ------------------------------- */
   useEffect(() => {
@@ -123,6 +132,7 @@ export const DirectionsMap = ({
 
     const originKey = getKey(origin);
     const destinationKey = getKey(destination);
+    const waypointsKey = (waypoints || []).map(wp => getKey(wp.location)).join("|");
 
     if (!originKey || !destinationKey) {
       return;
@@ -130,12 +140,13 @@ export const DirectionsMap = ({
 
     if (
       lastRequestRef.current.originKey === originKey &&
-      lastRequestRef.current.destinationKey === destinationKey
+      lastRequestRef.current.destinationKey === destinationKey &&
+      lastRequestRef.current.waypointsKey === waypointsKey
     ) {
       return;
     }
 
-    lastRequestRef.current = { originKey, destinationKey };
+    lastRequestRef.current = { originKey, destinationKey, waypointsKey };
 
     const timer = setTimeout(() => setIsRequesting(true), 0);
 
@@ -154,6 +165,8 @@ export const DirectionsMap = ({
       {
         origin: origin,
         destination: destination,
+        waypoints: waypoints || [],
+        optimizeWaypoints: false,
         travelMode: window.google.maps.TravelMode.DRIVING,
       },
       (result, status) => {
@@ -162,11 +175,14 @@ export const DirectionsMap = ({
           setResponse(result);
           setErrorCount(0);
 
-          const leg = result.routes[0].legs[0];
+          // Calculate total distance and duration across all legs
+          const totalDistance = result.routes[0].legs.reduce((acc, leg) => acc + leg.distance.value, 0);
+          const totalDuration = result.routes[0].legs.reduce((acc, leg) => acc + leg.duration.value, 0);
+
           if (onRouteInfoUpdate) {
             onRouteInfoUpdate({
-              distanceKm: parseFloat((leg.distance.value / 1000).toFixed(1)),
-              durationMin: Math.ceil(leg.duration.value / 60),
+              distanceKm: parseFloat((totalDistance / 1000).toFixed(1)),
+              durationMin: Math.ceil(totalDuration / 60),
             });
           }
         } else {
@@ -178,7 +194,7 @@ export const DirectionsMap = ({
     );
 
     return () => clearTimeout(timer);
-  }, [origin, destination, onRouteInfoUpdate]);
+  }, [origin, destination, waypoints, onRouteInfoUpdate]);
 
   const mapCenter = useMemo(() => {
     if (vehicleLocation?.lat && vehicleLocation?.lng) {
@@ -199,13 +215,6 @@ export const DirectionsMap = ({
     []
   );
 
-  const rendererOptions = useMemo(
-    () => ({
-      directions: response,
-      suppressMarkers: false,
-    }),
-    [response]
-  );
 
   return (
     <div className="relative w-full h-full">
@@ -223,20 +232,81 @@ export const DirectionsMap = ({
         zoom={12}
         options={mapOptions}
       >
-        {!response && origin && (
+        <DirectionsRenderer 
+          options={{
+            directions: response,
+            suppressMarkers: true, // We will render our own markers for a premium look
+            polylineOptions: {
+              strokeColor: "#3182CE",
+              strokeWeight: 5,
+              strokeOpacity: 0.8,
+            }
+          }} 
+        />
+
+        {/* Custom Markers */}
+        {origin && typeof origin !== "string" && origin.lat && origin.lng && (
           <Marker
-            position={typeof origin === "string" ? null : origin}
-            label="A"
-          />
-        )}
-        {!response && destination && (
-          <Marker
-            position={typeof destination === "string" ? null : destination}
-            label="B"
+            position={origin}
+            icon={{
+              path: window.google?.maps.SymbolPath.CIRCLE,
+              fillColor: "#3182CE",
+              fillOpacity: 1,
+              strokeColor: "#FFFFFF",
+              strokeWeight: 2,
+              scale: 8,
+            }}
+            label={{
+              text: "A",
+              color: "white",
+              fontSize: "12px",
+              fontWeight: "bold"
+            }}
           />
         )}
 
-        {response && <DirectionsRenderer options={rendererOptions} />}
+        {waypoints?.map((wp, idx) => (
+          wp.location && typeof wp.location !== "string" && wp.location.lat && wp.location.lng && (
+            <Marker
+              key={`wp-${idx}`}
+              position={wp.location}
+              icon={{
+                path: window.google?.maps.SymbolPath.CIRCLE,
+                fillColor: "#4299E1",
+                fillOpacity: 1,
+                strokeColor: "#FFFFFF",
+                strokeWeight: 2,
+                scale: 7,
+              }}
+              label={{
+                text: (idx + 1).toString(),
+                color: "white",
+                fontSize: "10px",
+                fontWeight: "bold"
+              }}
+            />
+          )
+        ))}
+
+        {destination && typeof destination !== "string" && destination.lat && destination.lng && (
+          <Marker
+            position={destination}
+            icon={{
+              path: window.google?.maps.SymbolPath.CIRCLE,
+              fillColor: "#48BB78",
+              fillOpacity: 1,
+              strokeColor: "#FFFFFF",
+              strokeWeight: 2,
+              scale: 8,
+            }}
+            label={{
+              text: "B",
+              color: "white",
+              fontSize: "12px",
+              fontWeight: "bold"
+            }}
+          />
+        )}
 
         {vehicleLocation?.lat && vehicleLocation?.lng && (
           <VehicleMarker

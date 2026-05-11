@@ -68,6 +68,7 @@ export const createVehicle = authenticatedAction(
         maxLoadKg?: number | string;
         fuelLevel?: number | string;
         avgFuelConsumption?: number | string;
+        fuelCapacity?: number | string;
         nextServiceKm?: number | string;
         registrationExpiry?: string | Date;
         inspectionExpiry?: string | Date;
@@ -90,6 +91,7 @@ export const createVehicle = authenticatedAction(
         maxLoadKg,
         fuelLevel,
         avgFuelConsumption,
+        fuelCapacity,
         nextServiceKm,
         registrationExpiry,
         inspectionExpiry,
@@ -144,6 +146,7 @@ export const createVehicle = authenticatedAction(
           avgFuelConsumption: avgFuelConsumption
             ? parseFloat(avgFuelConsumption.toString())
             : null,
+          fuelCapacity: fuelCapacity ? parseInt(fuelCapacity.toString()) : null,
           nextServiceKm: nextServiceKm
             ? parseInt(nextServiceKm.toString())
             : null,

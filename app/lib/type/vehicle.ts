@@ -82,6 +82,7 @@ export interface VehicleWithRelations {
   status: VehicleStatus;
   odometerKm: number | null;
   fuelLevel: number | null;
+  fuelCapacity: number | null;
   currentLat: number | null;
   currentLng: number | null;
   driver: DriverWithUser | null;
@@ -171,6 +172,8 @@ export interface EditVehicleDialogProps {
     odometerKm?: number | null;
     nextServiceKm?: number | null;
     avgFuelConsumption?: number | null;
+    fuelLevel?: number | null;
+    fuelCapacity?: number | null;
   };
 }
 
@@ -206,6 +209,7 @@ export interface VehicleStep2Data {
   maxLoadKg: number | "";
   fuelType: string;
   fuelLevel: number | "";
+  fuelCapacity: number | "";
   avgFuelConsumption: number | "";
   engineSize: string;
   transmission: string;

@@ -139,6 +139,48 @@ export default function RouteDialog({
         }
       : route.endAddress || "";
 
+  const waypoints = (route.shipments || []).flatMap(shipment => {
+    const stops = [];
+    
+    // Add origin if not the same as route start
+    if (shipment.originLat && shipment.originLng) {
+      stops.push({
+        location: { lat: shipment.originLat, lng: shipment.originLng },
+        stopover: true
+      });
+    } else if (shipment.origin) {
+      stops.push({
+        location: shipment.origin,
+        stopover: true
+      });
+    }
+
+    // Add intermediate stops
+    if ((shipment as any).stops) {
+      (shipment as any).stops.forEach((stop: any) => {
+        stops.push({
+          location: stop.lat && stop.lng ? { lat: stop.lat, lng: stop.lng } : stop.address,
+          stopover: true
+        });
+      });
+    }
+
+    // Add destination if not the same as route end
+    if (shipment.destinationLat && shipment.destinationLng) {
+      stops.push({
+        location: { lat: shipment.destinationLat, lng: shipment.destinationLng },
+        stopover: true
+      });
+    } else if (shipment.destination) {
+      stops.push({
+        location: shipment.destination,
+        stopover: true
+      });
+    }
+
+    return stops;
+  });
+
   return (
     <>
       <Dialog
@@ -464,6 +506,7 @@ export default function RouteDialog({
                 <MapRoutesDialogCard
                   origin={mapOrigin}
                   destination={mapDestination}
+                  waypoints={waypoints}
                   onRouteInfoUpdate={setLiveMetrics}
                   vehicleLocation={
                     route.vehicle &&

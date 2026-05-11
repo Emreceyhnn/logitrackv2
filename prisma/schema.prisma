@@ -122,6 +122,7 @@ model Vehicle {
   currentLat         Float?
   currentLng         Float?
   fuelLevel          Int?
+  fuelCapacity       Int?
   odometerKm         Int?
   companyId          String?
   nextServiceKm      Int?
@@ -208,6 +209,7 @@ model Customer {
   locations CustomerLocation[]
   company   Company?           @relation(fields: [companyId], references: [id])
   shipments Shipment[]
+  stops     ShipmentStop[]
 
   @@map("customers")
 }
@@ -224,6 +226,7 @@ model CustomerLocation {
   updatedAt  DateTime   @updatedAt
   customer   Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
   shipments  Shipment[]
+  stops      ShipmentStop[]
 
   @@map("customer_locations")
 }
@@ -302,6 +305,7 @@ model Shipment {
   issues             Issue[]
   history            ShipmentHistory[]
   items              ShipmentItem[]
+  stops              ShipmentStop[]
   company            Company?          @relation(fields: [companyId], references: [id])
   customer           Customer?         @relation(fields: [customerId], references: [id])
   customerLocation   CustomerLocation? @relation(fields: [customerLocationId], references: [id])
@@ -324,6 +328,27 @@ model ShipmentHistory {
   shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
 
   @@map("shipment_history")
+}
+
+model ShipmentStop {
+  id                 String            @id @default(cuid())
+  shipmentId         String
+  customerId         String?
+  customerLocationId String?
+  address            String
+  lat                Float?
+  lng                Float?
+  sequence           Int
+  status             ShipmentStatus    @default(PENDING)
+  arrivalDate        DateTime?
+  departureDate      DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  shipment           Shipment          @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  customer           Customer?         @relation(fields: [customerId], references: [id])
+  customerLocation   CustomerLocation? @relation(fields: [customerLocationId], references: [id])
+
+  @@map("shipment_stops")
 }
 
 model Route {

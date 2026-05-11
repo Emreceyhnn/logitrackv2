@@ -533,6 +533,7 @@
     "title": "Treylerler",
     "subtitle": "Treyler filonuzu yönetin ve takip edin",
     "addTrailer": "Treyler Ekle",
+    "editTrailer": "Treyleri Düzenle",
     "plate": "Plaka",
     "fleetNo": "Filo No",
     "type": "Tip",
@@ -598,6 +599,7 @@
       "odometer": "Kilometre (km)",
       "fuelType": "Yakıt Tipi",
       "fuelLevel": "Yakıt Seviyesi",
+      "fuelCapacity": "Yakıt Kapasitesi",
       "avgFuelConsumption": "Ort. Yakıt Tüketimi",
       "engineSize": "Motor Hacmi",
       "service": "Bir Sonraki Servis (km)",
@@ -654,6 +656,7 @@
       "type": "Tip",
       "status": "Durum",
       "fuelLevel": "YAKIT SEVİYESİ",
+      "fuelCapacity": "Yakıt Kapasitesi",
       "fleetNo": "Filo No",
       "brand": "Marka",
       "model": "Model",
@@ -726,7 +729,7 @@
       "manageAvailability": "Genel uygunluğu yönetin",
       "openIssues": "Açık Sorunlar",
       "reportIssue": "Sorun Bildir",
-      "noOpenIssues": "Açık sorun bulunmadı.",
+      "noOpenIssues": "Açık sorun bulunamadı.",
       "reportedOn": "Bildirildi:",
       "recentMaintenance": "Son Bakımlar",
       "addRecord": "Kayıt Ekle",
@@ -846,6 +849,7 @@
     "title": "Dorseler",
     "subtitle": "Dorse filonuzu yönetin ve takip edin",
     "addTrailer": "Dorse Ekle",
+    "editTrailer": "Dorse Düzenle",
     "plate": "Plaka",
     "fleetNo": "Filo No",
     "type": "Tip",
@@ -1451,7 +1455,11 @@
         "logisticsParties": "Lojistik ve Taraflar",
         "cargoDetails": "Kargo Detayları",
         "inventoryDetail": "Envanter Detayı",
-        "routeManagement": "Rota Yönetimi"
+        "routeManagement": "Rota Yönetimi",
+        "shipmentStops": "Sevkiyat Durakları",
+        "noStopsDefined": "Henüz durak belirlenmedi. Eklemek için + butonuna tıklayın.",
+        "stop": "Durak",
+        "addStop": "Durak Ekle"
       },
       "fields": {
         "shipmentIdRef": "SEVKİYAT KİMLİĞİ / REF (Opsiyonel)",
@@ -1493,7 +1501,15 @@
         "rowWeight": "Satır Ağırlığı",
         "warehouseInventory": "Depo Envanteri",
         "manual": "Manuel",
-        "warehouse": "Depo"
+        "warehouse": "Depo",
+        "insufficientStock": "Uyarı: Bu ürün için yetersiz envanter stoğu",
+        "availableStock": "Mevcut Kullanılabilir",
+        "exceedsTrailerWeight": "KRİTİK: Sevkiyat ağırlığı trailer yük kapasitesini aşıyor!",
+        "exceedsTrailerVolume": "KRİTİK: Sevkiyat hacmi trailer m3 kapasitesini aşıyor!",
+        "stops": "Sevkiyat Durakları",
+        "addStop": "Durak Ekle",
+        "stop": "Durak",
+        "stopSequence": "Durak Sırası"
       },
       "buttons": {
         "assignToExistingRoute": "Mevcut Rotaya Ata"

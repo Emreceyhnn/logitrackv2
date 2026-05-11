@@ -23,4 +23,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
 export { ref, push, set, update, onValue, off };
-export type { DataSnapshot } from "firebase/database";
+export type { DataSnapshot, DatabaseReference } from "firebase/database";

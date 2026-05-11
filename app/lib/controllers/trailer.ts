@@ -106,17 +106,42 @@ export const getTrailers = authenticatedAction(
         ...(filters.isColdChain !== undefined && { isColdChain: filters.isColdChain }),
       };
 
-      return await db.trailer.findMany({
+      const trailers = await db.trailer.findMany({
         where,
         include: {
           currentVehicle: {
             select: { id: true, plate: true, fleetNo: true }
+          },
+          shipments: {
+            where: {
+              status: {
+                in: ["PENDING", "PROCESSING", "IN_TRANSIT", "ASSIGNED", "PLANNED", "DELAYED"]
+              }
+            },
+            select: {
+              weightKg: true,
+              volumeM3: true
+            }
           },
           _count: {
             select: { shipments: true, issues: true, documents: true }
           }
         },
         orderBy: { createdAt: "desc" },
+      });
+
+      // Calculate current load totals
+      return trailers.map(trailer => {
+        const currentWeightKg = trailer.shipments.reduce((sum, s) => sum + (s.weightKg || 0), 0);
+        const currentVolumeM3 = trailer.shipments.reduce((sum, s) => sum + (s.volumeM3 || 0), 0);
+        
+        // Remove shipments array from return to keep it lightweight
+        const { shipments, ...rest } = trailer;
+        return {
+          ...rest,
+          currentWeightKg,
+          currentVolumeM3
+        };
       });
     });
   }

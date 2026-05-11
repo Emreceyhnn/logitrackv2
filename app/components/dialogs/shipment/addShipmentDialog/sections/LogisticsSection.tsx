@@ -1,4 +1,4 @@
-import { Box, Grid, Stack, Typography, MenuItem } from "@mui/material";
+import { Box, Grid, Stack, Typography, MenuItem, useTheme } from "@mui/material";
 import { useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
@@ -10,8 +10,10 @@ import WarehouseIcon from "@mui/icons-material/Warehouse";
 import PersonIcon from "@mui/icons-material/Person";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
-import { TrailerWithRelations } from "@/app/lib/type/trailer.types";
+import { TrailerWithRelations } from "@/app/lib/type/trailer";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import MonitorWeightIcon from "@mui/icons-material/MonitorWeight";
+import ViewInArIcon from "@mui/icons-material/ViewInAr";
 
 interface LogisticsSectionProps {
   warehouses: WarehouseWithRelations[];
@@ -21,6 +23,7 @@ interface LogisticsSectionProps {
 
 const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
+  const theme = useTheme();
   const dict = useDictionary();
 
   const { values, setFieldValue, handleBlur, touched, errors } =
@@ -161,191 +164,6 @@ const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionP
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Stack spacing={1}>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontWeight={600}
-              >
-                {dict.shipments.dialogs.fields.destination}
-              </Typography>
-              <AddressAutocomplete
-                placeholder={
-                  dict.shipments.dialogs.fields.destinationPlaceholder
-                }
-                name="destination"
-                value={values.destination}
-                onBlur={handleBlur}
-                error={touched.destination && Boolean(errors.destination)}
-                helperText={
-                  touched.destination
-                    ? (errors.destination as string)
-                    : undefined
-                }
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setFieldValue("destination", e.target.value)
-                }
-                onAddressSelect={(data: {
-                  formattedAddress: string;
-                  lat: number;
-                  lng: number;
-                }) => {
-                  setFieldValue("destination", data.formattedAddress);
-                  setFieldValue("destinationLat", data.lat);
-                  setFieldValue("destinationLng", data.lng);
-                }}
-              />
-            </Stack>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Stack spacing={1}>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontWeight={600}
-              >
-                {dict.shipments.dialogs.fields.customerClient}
-              </Typography>
-              <CustomTextArea
-                name="customerId"
-                select
-                placeholder={dict.shipments.dialogs.fields.customerPlaceholder}
-                value={values.customerId}
-                onBlur={handleBlur}
-                error={touched.customerId && Boolean(errors.customerId)}
-                helperText={
-                  touched.customerId ? (errors.customerId as string) : undefined
-                }
-                onChange={(e) => {
-                  const customerId = e.target.value;
-                  if (!customerId) {
-                    setFieldValue("customerId", "");
-                    setFieldValue("customerLocationId", "");
-                    setFieldValue("contactEmail", "");
-                    return;
-                  }
-
-                  const selectedCustomer = customers.find(
-                    (c) => c.id === customerId
-                  );
-                  const defaultLoc =
-                    selectedCustomer?.locations?.find((l) => l.isDefault) ||
-                    selectedCustomer?.locations?.[0];
-
-                  setFieldValue("customerId", customerId);
-                  setFieldValue("customerLocationId", defaultLoc?.id || "");
-                  setFieldValue(
-                    "destination",
-                    defaultLoc?.address || values.destination
-                  );
-                  setFieldValue(
-                    "destinationLat",
-                    defaultLoc?.lat ?? values.destinationLat
-                  );
-                  setFieldValue(
-                    "destinationLng",
-                    defaultLoc?.lng ?? values.destinationLng
-                  );
-                  setFieldValue(
-                    "contactEmail",
-                    selectedCustomer?.email || values.contactEmail
-                  );
-                }}
-              >
-                <MenuItem value="">
-                  <Typography variant="body2" color="text.secondary">
-                    None / Manual Entry
-                  </Typography>
-                </MenuItem>
-                {customers.map((c) => (
-                  <MenuItem key={c.id} value={c.id}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <PersonIcon
-                        sx={{ fontSize: 18, color: "text.secondary" }}
-                      />
-                      <Typography variant="body2">{c.name}</Typography>
-                    </Stack>
-                  </MenuItem>
-                ))}
-              </CustomTextArea>
-            </Stack>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Stack spacing={1}>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontWeight={600}
-              >
-                {dict.shipments.dialogs.fields.deliveryLocation ||
-                  "DELIVERY LOCATION"}
-              </Typography>
-              <CustomTextArea
-                name="customerLocationId"
-                select
-                placeholder={
-                  dict.shipments.dialogs.fields.locationPlaceholder ||
-                  "Select depot"
-                }
-                disabled={!values.customerId}
-                value={values.customerLocationId}
-                onBlur={handleBlur}
-                error={
-                  touched.customerLocationId &&
-                  Boolean(errors.customerLocationId)
-                }
-                helperText={
-                  touched.customerLocationId
-                    ? (errors.customerLocationId as string)
-                    : undefined
-                }
-                onChange={(e) => {
-                  const locationId = e.target.value;
-                  const selectedCustomer = customers.find(
-                    (c) => c.id === values.customerId
-                  );
-                  const selectedLoc = selectedCustomer?.locations?.find(
-                    (l) => l.id === locationId
-                  );
-
-                  if (selectedLoc) {
-                    setFieldValue("customerLocationId", locationId);
-                    setFieldValue("destination", selectedLoc.address);
-                    setFieldValue(
-                      "destinationLat",
-                      selectedLoc.lat ?? undefined
-                    );
-                    setFieldValue(
-                      "destinationLng",
-                      selectedLoc.lng ?? undefined
-                    );
-                  } else {
-                    setFieldValue("customerLocationId", locationId);
-                  }
-                }}
-              >
-                {values.customerId ? (
-                  customers
-                    .find((c) => c.id === values.customerId)
-                    ?.locations?.map((l) => (
-                      <MenuItem key={l.id} value={l.id}>
-                        <Typography variant="body2">
-                          {l.name} {l.isDefault ? "(Default)" : ""}
-                        </Typography>
-                      </MenuItem>
-                    ))
-                ) : (
-                  <MenuItem value="" disabled>
-                    {dict.shipments.dialogs.fields.selectCustomerFirst ||
-                      "Select a customer first"}
-                  </MenuItem>
-                )}
-              </CustomTextArea>
-            </Stack>
-          </Grid>
 
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1}>
@@ -366,7 +184,9 @@ const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionP
                 helperText={
                   touched.trailerId ? (errors.trailerId as string) : undefined
                 }
-                onChange={(e) => setFieldValue("trailerId", e.target.value || null)}
+                onChange={(e) =>
+                  setFieldValue("trailerId", e.target.value || null)
+                }
               >
                 <MenuItem value="">
                   <Typography variant="body2" color="text.secondary">
@@ -392,6 +212,86 @@ const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionP
                 ))}
               </CustomTextArea>
             </Stack>
+
+            {/* Trailer Capacity Alerts */}
+            {(() => {
+              const selectedTrailer = trailers.find(
+                (t) => t.id === values.trailerId
+              );
+              
+              const tolerance = 0.01;
+              const isWeightOver =
+                selectedTrailer &&
+                selectedTrailer.maxLoadKg > 0 &&
+                Math.round(values.weightKg * 100) / 100 > selectedTrailer.maxLoadKg + tolerance;
+                
+              const isVolumeOver =
+                selectedTrailer &&
+                selectedTrailer.capacityVolumeM3 > 0 &&
+                Math.round(values.volumeM3 * 100) / 100 > selectedTrailer.capacityVolumeM3 + tolerance;
+
+              if (isWeightOver || isVolumeOver) {
+                return (
+                  <Stack spacing={1} sx={{ mt: 1 }}>
+                    {isWeightOver && (
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                        sx={{
+                          color: "error.main",
+                          bgcolor: (theme) => theme.palette.error._alpha.main_10,
+                          px: 2,
+                          py: 1,
+                          borderRadius: 2,
+                          border: (theme) =>
+                            `1px solid ${theme.palette.error._alpha.main_20}`,
+                        }}
+                      >
+                        <MonitorWeightIcon sx={{ fontSize: 18 }} />
+                        <Typography variant="caption" fontWeight={700}>
+                          {dict.shipments.dialogs.fields.exceedsTrailerWeight}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{ opacity: 0.8, ml: "auto" }}
+                        >
+                          Max: <b>{selectedTrailer?.maxLoadKg} kg</b>
+                        </Typography>
+                      </Stack>
+                    )}
+                    {isVolumeOver && (
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        alignItems="center"
+                        sx={{
+                          color: "error.main",
+                          bgcolor: (theme) => theme.palette.error._alpha.main_10,
+                          px: 2,
+                          py: 1,
+                          borderRadius: 2,
+                          border: (theme) =>
+                            `1px solid ${theme.palette.error._alpha.main_20}`,
+                        }}
+                      >
+                        <ViewInArIcon sx={{ fontSize: 18 }} />
+                        <Typography variant="caption" fontWeight={700}>
+                          {dict.shipments.dialogs.fields.exceedsTrailerVolume}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{ opacity: 0.8, ml: "auto" }}
+                        >
+                          Max: <b>{selectedTrailer?.capacityVolumeM3} m³</b>
+                        </Typography>
+                      </Stack>
+                    )}
+                  </Stack>
+                );
+              }
+              return null;
+            })()}
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }}>
@@ -452,6 +352,7 @@ const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionP
             </Stack>
           </Grid>
         </Grid>
+
       </Stack>
     </Box>
   );

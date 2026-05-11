@@ -685,6 +685,12 @@ export const getAddShipmentValidationSchema = (dict: Dictionary) =>
       )
       .min(0)
       .integer(),
+    weightKg: Yup.number()
+      .nullable()
+      .min(0, formatMessage(dict.validation.positive, { field: "Weight" })),
+    volumeM3: Yup.number()
+      .nullable()
+      .min(0, formatMessage(dict.validation.positive, { field: "Volume" })),
   });
 
 export const getEditShipmentValidationSchema = (dict: Dictionary) =>

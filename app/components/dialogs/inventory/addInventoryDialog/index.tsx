@@ -58,21 +58,17 @@ const AddInventoryDialog = ({
   const [itemDetails, setItemDetails] =
     useState<AddInventoryItemDetails>(initialItemDetails);
   const [storageLevels, setStorageLevels] =
-    useState<AddInventoryStorageLevels>(initialStorageLevels);
+    useState<AddInventoryStorageLevels>(() => ({
+      ...initialStorageLevels,
+      warehouseId: initialWarehouseId || "",
+    }));
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formKey, setFormKey] = useState(0);
 
   /* --------------------------------- effects --------------------------------- */
-  useEffect(() => {
-    if (open && initialWarehouseId) {
-      setStorageLevels((prev) => ({
-        ...prev,
-        warehouseId: initialWarehouseId,
-      }));
-    }
-  }, [open, initialWarehouseId]);
+  // We handle initialWarehouseId via useState initializer and resetForm
 
   /* ---------------------------------- handlers --------------------------------- */
   const updateItemDetails = (data: Partial<AddInventoryItemDetails>) =>
@@ -124,7 +120,10 @@ const AddInventoryDialog = ({
 
   const resetForm = () => {
     setItemDetails(initialItemDetails);
-    setStorageLevels(initialStorageLevels);
+    setStorageLevels({
+      ...initialStorageLevels,
+      warehouseId: initialWarehouseId || "",
+    });
     setCurrentStep(1);
     setIsLoading(false);
     setError(null);

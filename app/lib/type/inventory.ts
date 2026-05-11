@@ -12,6 +12,7 @@ export interface InventoryWithRelations extends Omit<
   imageUrl: string | null;
   unitValue: number | null;
   unit: string;
+  currency: string;
 }
 
 export interface LowStockItem extends Inventory {

@@ -8,6 +8,8 @@ export interface TrailerWithRelations extends Trailer {
     fleetNo: string;
   } | null;
   assignments?: TrailerAssignment[];
+  currentWeightKg?: number;
+  currentVolumeM3?: number;
   _count?: {
     shipments: number;
     issues: number;

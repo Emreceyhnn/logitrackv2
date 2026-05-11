@@ -11,7 +11,7 @@ export async function saveUserTheme(mode: string) {
     await redis.set(`user:${user.id}:theme`, mode);
     return { success: true };
   } catch (err) {
-    if ((err as any)?.digest === "DYNAMIC_SERVER_USAGE") {
+    if (err && typeof err === "object" && "digest" in err && err.digest === "DYNAMIC_SERVER_USAGE") {
       throw err;
     }
     console.error("Failed to save theme to Redis", err);
@@ -27,7 +27,7 @@ export async function getUserTheme(): Promise<string | null> {
     const theme = await redis.get<string>(`user:${user.id}:theme`);
     return theme;
   } catch (err) {
-    if ((err as any)?.digest === "DYNAMIC_SERVER_USAGE") {
+    if (err && typeof err === "object" && "digest" in err && err.digest === "DYNAMIC_SERVER_USAGE") {
       throw err;
     }
     console.error("Failed to get theme from Redis", err);

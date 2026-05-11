@@ -5,9 +5,10 @@ export async function GET(req: NextRequest) {
   try {
     const data = await getAnalyticsDashboardData();
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[/api/analytics/dashboard] error:", error);
-    if (error?.message === "NEXT_REDIRECT") {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage === "NEXT_REDIRECT") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     return NextResponse.json(
