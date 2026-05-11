@@ -26,11 +26,13 @@ import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getCustomers } from "@/app/lib/controllers/customer";
 import { getInventory } from "@/app/lib/controllers/inventory";
 import { getRoutes } from "@/app/lib/controllers/routes";
+import { getTrailers } from "@/app/lib/controllers/trailer";
 import { useUser } from "@/app/hooks/useUser";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
+import { TrailerWithRelations } from "@/app/lib/type/trailer";
 import {
   ShipmentWithRelations,
   ShipmentFormValues,
@@ -42,17 +44,9 @@ import BasicInfoSection from "./addShipmentDialog/sections/BasicInfoSection";
 import LogisticsSection from "./addShipmentDialog/sections/LogisticsSection";
 import CargoSection from "./addShipmentDialog/sections/CargoSection";
 import InventorySection from "./addShipmentDialog/sections/InventorySection";
-import RouteSection from "./addShipmentDialog/sections/RouteSection";
+import StopsSection from "./addShipmentDialog/sections/StopsSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-
-/* ─────────────────────────────────────────────────────────────────────────────
- * FormikInventorySync — tanımlanması ZORUNLU OLARAK bileşenin DIŞINDA
- * olmalı. İçeride tanımlanırsa React her render'da yeni bir component tipi
- * oluşturur, unmount/remount yapar ve useEffect sonsuz döngüye girer.
- * ───────────────────────────────────────────────────────────────────────── */
-import { getTrailers } from "@/app/lib/controllers/trailer";
-import { TrailerWithRelations } from "@/app/lib/type/trailer.types";
 
 interface FormikInventorySyncProps {
   onWarehouseChange: (id: string) => void;
@@ -65,7 +59,6 @@ const FormikInventorySync = ({
   const lastFetchedId = useRef<string | null>(null);
 
   useEffect(() => {
-    // Aynı warehouse için tekrar fetch yapma
     if (values.originWarehouseId === lastFetchedId.current) return;
     lastFetchedId.current = values.originWarehouseId;
     onWarehouseChange(values.originWarehouseId);
@@ -87,7 +80,6 @@ const EditShipmentDialog = ({
   onSuccess,
   shipment,
 }: EditShipmentDialogProps) => {
-  /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const { user } = useUser();
   const dict = useDictionary();
@@ -96,7 +88,6 @@ const EditShipmentDialog = ({
     [dict]
   );
 
-  /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingInventory, setIsLoadingInventory] = useState(false);
@@ -109,7 +100,6 @@ const EditShipmentDialog = ({
   const [routes, setRoutes] = useState<RouteWithRelations[]>([]);
   const [trailers, setTrailers] = useState<TrailerWithRelations[]>([]);
 
-  /* ------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (open && user) {
       const fetchData = async () => {
@@ -176,6 +166,7 @@ const EditShipmentDialog = ({
         assignedRouteId: null,
         trailerId: null,
         inventoryItems: [],
+        stops: [],
       };
     }
 
@@ -203,23 +194,30 @@ const EditShipmentDialog = ({
       palletCount: shipment.palletCount || 0,
       cargoType: shipment.cargoType || "General Cargo",
       assignedRouteId: shipment.routeId || null,
-      trailerId: (shipment as any).trailerId || null,
+      trailerId: (shipment as unknown as { trailerId: string }).trailerId || null,
       inventoryItems:
         shipment.items?.map((item) => ({
           id: item.id,
           sku: item.sku,
           name: item.name,
           quantity: item.quantity,
-          unit: item.unit as any,
+          unit: (item.unit as any) || "Each",
           weightKg: item.weightKg || 0,
           volumeM3: item.volumeM3 || 0,
           palletCount: item.palletCount || 1,
           cargoType: item.cargoType || "General Cargo",
         })) || [],
+      stops:
+        shipment.stops?.map((stop) => ({
+          customerId: stop.customerId || "",
+          customerLocationId: stop.customerLocationId || "",
+          address: stop.address,
+          lat: stop.lat ?? null,
+          lng: stop.lng ?? null,
+          sequence: stop.sequence,
+        })) || [],
     };
   };
-
-  // FormikInventorySync artık dosyanın üst seviyesinde tanımlı (sonsuz döngüyü önlemek için)
 
   const onSubmit = async (values: ShipmentFormValues) => {
     if (!user || !shipment) return;
@@ -230,7 +228,6 @@ const EditShipmentDialog = ({
       );
       const originName = selectedWarehouse?.name || values.originWarehouseId;
 
-      // Boş string FK alanlarını null'a çevir — Prisma FK constraint ihlalini önler
       const sanitize = (val: string | null | undefined) =>
         val && val.trim() !== "" ? val : null;
 
@@ -258,7 +255,8 @@ const EditShipmentDialog = ({
         contactEmail: sanitize(values.contactEmail) ?? undefined,
         billingAccount: values.billingAccount,
         inventoryItems: values.inventoryItems,
-      } as any);
+        stops: values.stops,
+      });
 
       toast.success(dict.toasts.successUpdate);
       setTimeout(() => {
@@ -296,6 +294,38 @@ const EditShipmentDialog = ({
       <Formik
         initialValues={getInitialValues()}
         validationSchema={validationSchema}
+        validate={(values) => {
+          const errors: Partial<Record<keyof ShipmentFormValues, string>> = {};
+          const selectedTrailer = trailers.find((t) => t.id === values.trailerId);
+          if (selectedTrailer) {
+            const tolerance = 0.01;
+            
+            const isSameTrailer = selectedTrailer.id === shipment.trailerId;
+            const otherLoadWeight = isSameTrailer 
+              ? (selectedTrailer.currentWeightKg || 0) - (shipment.weightKg || 0)
+              : (selectedTrailer.currentWeightKg || 0);
+            const otherLoadVolume = isSameTrailer 
+              ? (selectedTrailer.currentVolumeM3 || 0) - (shipment.volumeM3 || 0)
+              : (selectedTrailer.currentVolumeM3 || 0);
+
+            const availableWeight = selectedTrailer.maxLoadKg - otherLoadWeight;
+            const availableVolume = selectedTrailer.capacityVolumeM3 - otherLoadVolume;
+
+            if (
+              selectedTrailer.maxLoadKg > 0 &&
+              Math.round(values.weightKg * 100) / 100 > availableWeight + tolerance
+            ) {
+              errors.weightKg = dict.shipments.dialogs.fields.exceedsTrailerWeight;
+            }
+            if (
+              selectedTrailer.capacityVolumeM3 > 0 &&
+              Math.round(values.volumeM3 * 100) / 100 > availableVolume + tolerance
+            ) {
+              errors.volumeM3 = dict.shipments.dialogs.fields.exceedsTrailerVolume;
+            }
+          }
+          return errors;
+        }}
         onSubmit={onSubmit}
         enableReinitialize
       >
@@ -435,6 +465,12 @@ const EditShipmentDialog = ({
                             borderColor: theme.palette.divider_alpha.main_05,
                           }}
                         />
+                        <StopsSection customers={customers} />
+                        <Divider
+                          sx={{
+                            borderColor: theme.palette.divider_alpha.main_05,
+                          }}
+                        />
                         <LogisticsSection
                           warehouses={warehouses}
                           customers={customers}
@@ -445,7 +481,7 @@ const EditShipmentDialog = ({
                       <Stack spacing={6}>
                         <Grid container spacing={6}>
                           <Grid size={{ xs: 12, lg: 12 }}>
-                            <CargoSection />
+                            <CargoSection trailers={trailers} />
                           </Grid>
                         </Grid>
                         <Divider

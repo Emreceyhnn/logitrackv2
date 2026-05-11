@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { db, ref, onValue, off, type DataSnapshot } from "@/app/lib/firebase";
+import { db, ref, onValue, off, type DataSnapshot, type DatabaseReference } from "@/app/lib/firebase";
 import { NotificationType } from "@/app/lib/notifications";
 import { markAsReadAction, deleteNotificationAction } from "@/app/lib/actions/notifications";
 
@@ -48,7 +48,7 @@ export const useNotifications = (user: UserContext | undefined) => {
       ...(user.companyId && user.roleId ? [{ key: "role", path: `notifications/groups/company_${user.companyId}_role_${user.roleId}` }] : []),
     ];
 
-    const listeners: Array<{ nodeRef: any; listener: (snap: DataSnapshot) => void; path: string }> = [];
+    const listeners: Array<{ nodeRef: DatabaseReference; listener: (snap: DataSnapshot) => void; path: string }> = [];
 
     setLoading(true);
     let pathsLoaded = 0;

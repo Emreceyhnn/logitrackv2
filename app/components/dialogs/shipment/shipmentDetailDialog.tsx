@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Avatar,
   Box,
@@ -44,7 +44,7 @@ const PillTab = ({
   onClick,
   theme,
 }: {
-  id: "overview" | "items";
+  id?: string;
   icon: React.ReactNode;
   label: string;
   badge?: number;
@@ -54,6 +54,7 @@ const PillTab = ({
 }) => {
   return (
     <Box
+      id={id}
       component="button"
       onClick={onClick}
       sx={{
@@ -118,29 +119,41 @@ export default function ShipmentDetailDialog({
   const theme = useTheme();
   const [tab, setTab] = useState<"overview" | "items">("overview");
 
+  const items: ShipmentItem[] = shipment?.items ?? [];
+
+  const stopsSorted = useMemo(() => {
+    return shipment?.stops ? [...shipment.stops].sort((a, b) => a.sequence - b.sequence) : [];
+  }, [shipment?.stops]);
+
+  const hasStops = stopsSorted.length > 0;
+
   if (!shipment) return null;
 
-  const items: ShipmentItem[] = shipment.items ?? [];
-
-   
+  // --- Map Calculation Logic ---
   const mapOrigin =
     shipment.originLat && shipment.originLng
       ? { lat: Number(shipment.originLat), lng: Number(shipment.originLng) }
-      : shipment.route?.startLat && shipment.route?.startLng
-        ? {
-            lat: Number(shipment.route.startLat),
-            lng: Number(shipment.route.startLng),
-          }
-        : undefined;
+      : shipment.origin || "";
 
-   
-  const mapDestination =
-    shipment.destinationLat && shipment.destinationLng
-      ? {
-          lat: Number(shipment.destinationLat),
-          lng: Number(shipment.destinationLng),
-        }
-      : undefined;
+  const mapDestination = hasStops
+    ? (stopsSorted[stopsSorted.length - 1].lat && stopsSorted[stopsSorted.length - 1].lng
+        ? { 
+            lat: Number(stopsSorted[stopsSorted.length - 1].lat), 
+            lng: Number(stopsSorted[stopsSorted.length - 1].lng) 
+          }
+        : stopsSorted[stopsSorted.length - 1].address)
+    : (shipment.destinationLat && shipment.destinationLng
+        ? { lat: Number(shipment.destinationLat), lng: Number(shipment.destinationLng) }
+        : shipment.destination || "");
+
+  const waypoints = hasStops && stopsSorted.length > 1
+    ? stopsSorted.slice(0, -1).map(stop => ({
+        location: stop.lat && stop.lng 
+          ? { lat: Number(stop.lat), lng: Number(stop.lng) } 
+          : stop.address,
+        stopover: true
+      }))
+    : [];
 
   return (
     <Dialog
@@ -324,92 +337,128 @@ export default function ShipmentDetailDialog({
                       </Stack>
 
                       <Box sx={{ position: "relative", pl: 4.5 }}>
-                        {/* Dashed connector */}
+                        {/* Continuous Vertical Line */}
                         <Box
                           sx={{
                             position: "absolute",
                             left: 10,
                             top: 10,
-                            bottom: 35,
-                            width: 0,
-                            borderLeft: "1.5px dashed",
-                            borderColor: theme.palette.divider,
-                            opacity: 0.6,
+                            bottom: 10,
+                            width: "2px",
+                            bgcolor: theme.palette.divider,
+                            opacity: 0.5,
+                            "&::after": {
+                              content: '""',
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              backgroundImage: `linear-gradient(to bottom, ${theme.palette.primary.main} 0%, ${theme.palette.info.main} 50%, ${theme.palette.secondary.main} 100%)`,
+                              opacity: 0.3,
+                            }
                           }}
                         />
-                        <Stack spacing={6}>
-                          {/* Origin */}
+                        <Stack spacing={4}>
+                          {/* 1. Origin (Warehouse) */}
                           <Box sx={{ position: "relative" }}>
                             <Box
                               sx={{
                                 position: "absolute",
-                                left: -38,
+                                left: -44,
                                 top: 0,
-                                width: 26,
-                                height: 26,
-                                borderRadius: "8px",
-                                bgcolor: "background.paper",
-                                border: "1.5px solid",
-                                borderColor: "primary.main",
+                                width: 32,
+                                height: 32,
+                                borderRadius: "10px",
+                                bgcolor: theme.palette.primary.main,
+                                border: `4px solid ${theme.palette.background.default}`,
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                color: "primary.main",
+                                color: "white",
+                                zIndex: 1,
+                                boxShadow: `0 4px 10px ${theme.palette.primary._alpha.main_30}`,
                               }}
                             >
-                              <BusinessIcon sx={{ fontSize: 14 }} />
+                              <BusinessIcon sx={{ fontSize: 16 }} />
                             </Box>
                             <Stack spacing={0.25}>
-                              <Typography
-                                variant="body2"
-                                fontWeight={700}
-                                color="text.primary"
-                              >
+                              <Typography variant="caption" fontWeight={800} color="primary.main" sx={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
                                 {dict.shipments.details.pickupOrigin}
                               </Typography>
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
+                              <Typography variant="body2" fontWeight={700} color="text.primary">
                                 {shipment.origin || dict.common.noData}
                               </Typography>
                             </Stack>
                           </Box>
 
-                          {/* Destination */}
+                          {/* 2. Intermediate Stops */}
+                          {hasStops && stopsSorted.length > 1 && (
+                            stopsSorted.slice(0, -1).map((stop, index) => (
+                              <Box key={stop.id} sx={{ position: "relative" }}>
+                                <Box
+                                  sx={{
+                                    position: "absolute",
+                                    left: -44,
+                                    top: 0,
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: "10px",
+                                    bgcolor: theme.palette.info.main,
+                                    border: `4px solid ${theme.palette.background.default}`,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    color: "white",
+                                    zIndex: 1,
+                                    fontSize: "0.75rem",
+                                    fontWeight: 900
+                                  }}
+                                >
+                                  {index + 1}
+                                </Box>
+                                <Stack spacing={0.25}>
+                                  <Typography variant="caption" fontWeight={800} color="info.main" sx={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                    {dict.shipments.dialogs.sections.stop || "Stop"} {index + 1}
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight={600} color="text.primary">
+                                    {stop.address}
+                                  </Typography>
+                                </Stack>
+                              </Box>
+                            ))
+                          )}
+
+                          {/* 3. Final Destination */}
                           <Box sx={{ position: "relative" }}>
                             <Box
                               sx={{
                                 position: "absolute",
-                                left: -38,
+                                left: -44,
                                 top: 0,
-                                width: 26,
-                                height: 26,
-                                borderRadius: "8px",
-                                bgcolor: "background.paper",
-                                border: "1.5px solid",
-                                borderColor: "error.main",
+                                width: 32,
+                                height: 32,
+                                borderRadius: "10px",
+                                bgcolor: theme.palette.secondary.main,
+                                border: `4px solid ${theme.palette.background.default}`,
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                color: "error.main",
+                                color: "white",
+                                zIndex: 1,
+                                boxShadow: `0 4px 10px ${theme.palette.secondary._alpha.main_30}`,
                               }}
                             >
-                              <LocationOnIcon sx={{ fontSize: 15 }} />
+                              <LocationOnIcon sx={{ fontSize: 18 }} />
                             </Box>
                             <Stack spacing={0.25}>
-                              <Typography
-                                variant="body2"
-                                fontWeight={700}
-                                color="text.primary"
-                              >
+                              <Typography variant="caption" fontWeight={800} color="secondary.main" sx={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
                                 {dict.shipments.details.finalDelivery}
                               </Typography>
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                              >
-                                {shipment.destination || dict.common.noData}
+                              <Typography variant="body2" fontWeight={700} color="text.primary">
+                                {hasStops 
+                                  ? stopsSorted[stopsSorted.length - 1].address 
+                                  : (shipment.destination || dict.common.noData)}
                               </Typography>
                             </Stack>
                           </Box>
@@ -851,6 +900,7 @@ export default function ShipmentDetailDialog({
             <MapRoutesDialogCard
               origin={mapOrigin}
               destination={mapDestination}
+              waypoints={waypoints}
               vehicleLocation={null}
             />
 

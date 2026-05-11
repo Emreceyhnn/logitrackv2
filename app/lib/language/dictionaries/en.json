@@ -550,6 +550,7 @@
       "odometer": "Odometer (km)",
       "fuelType": "Fuel Type",
       "fuelLevel": "Fuel Level",
+      "fuelCapacity": "Fuel Capacity",
       "avgFuelConsumption": "Avg. Fuel Consumption",
       "engineSize": "Engine Size",
       "service": "Next Service (km)",
@@ -606,6 +607,7 @@
       "type": "Type",
       "status": "Status",
       "fuelLevel": "Fuel Level",
+      "fuelCapacity": "Fuel Capacity",
       "fleetNo": "Fleet No",
       "brand": "Brand",
       "model": "Model",
@@ -797,6 +799,7 @@
     "title": "Trailers",
     "subtitle": "Manage and track your trailer fleet",
     "addTrailer": "Add Trailer",
+    "editTrailer": "Edit Trailer",
     "plate": "Plate",
     "fleetNo": "Fleet No",
     "type": "Type",
@@ -1402,7 +1405,11 @@
         "logisticsParties": "Logistics & Parties",
         "cargoDetails": "Cargo Details",
         "inventoryDetail": "Inventory Detail",
-        "routeManagement": "Route Management"
+        "routeManagement": "Route Management",
+        "shipmentStops": "Shipment Stops",
+        "noStopsDefined": "No stops defined. Click + to add stops.",
+        "stop": "Stop",
+        "addStop": "Add Stop"
       },
       "fields": {
         "shipmentIdRef": "SHIPMENT ID / REF (Optional)",
@@ -1444,7 +1451,15 @@
         "rowWeight": "Row Weight",
         "warehouseInventory": "Warehouse Inventory",
         "manual": "Manual",
-        "warehouse": "Warehouse"
+        "warehouse": "Warehouse",
+        "insufficientStock": "Warning: Insufficient inventory stock for this item",
+        "availableStock": "Current Available",
+        "exceedsTrailerWeight": "CRITICAL: Shipment weight exceeds trailer payload capacity!",
+        "exceedsTrailerVolume": "CRITICAL: Shipment volume exceeds trailer cubic capacity!",
+        "stops": "Shipment Stops",
+        "addStop": "Add Stop",
+        "stop": "Stop",
+        "stopSequence": "Stop Sequence"
       },
       "buttons": {
         "assignToExistingRoute": "Assign to Existing Route"

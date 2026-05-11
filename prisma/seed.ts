@@ -67,11 +67,12 @@ const VEHICLE_BRANDS = [
 ];
 
 const INVENTORY_ITEMS = [
-  { sku: "PALET-STD", name: "Standard Pallet", unit: "Each", cargo: "General Cargo" },
-  { sku: "KOLI-KRT-B", name: "Large Cardboard Box", unit: "Each", cargo: "General Cargo" },
-  { sku: "AKUM-12V", name: "Battery 12V", unit: "Each", cargo: "Automotive Parts" },
-  { sku: "GSDA-DON", name: "Food - Frozen", unit: "kg", cargo: "Perishable" },
-  { sku: "KMKL-AZOT", name: "Chemical - Nitrogen Cylinder", unit: "Cylinder", cargo: "Hazardous Material" },
+  { sku: "PALET-STD", name: "Standard EURO Pallet (Mixed)", unit: "Pallet", cargo: "General Cargo", palletCount: 1, weightKg: 25, volumeM3: 1.2 },
+  { sku: "KOLI-KRT-B", name: "Large Cardboard Box (Electronics)", unit: "Each", cargo: "General Cargo", palletCount: 20, weightKg: 15, volumeM3: 0.06 },
+  { sku: "AKUM-12V", name: "High-Capacity Battery 12V", unit: "Each", cargo: "Automotive Parts", palletCount: 40, weightKg: 22, volumeM3: 0.025 },
+  { sku: "GSDA-DON", name: "Frozen Meat (Industrial Bulk)", unit: "kg", cargo: "Perishable", palletCount: 600, weightKg: 1, volumeM3: 0.0018 },
+  { sku: "KMKL-AZOT", name: "Nitrogen Cylinder (Industrial)", unit: "Cylinder", cargo: "Hazardous Material", palletCount: 8, weightKg: 65, volumeM3: 0.12 },
+  { sku: "TEKS-RULO", name: "Textile Fabric Roll", unit: "Roll", cargo: "General Cargo", palletCount: 15, weightKg: 30, volumeM3: 0.08 },
 ];
 
 const FIRST_NAMES = ["Ahmet", "Mehmet", "Mustafa", "Ali", "Hüseyin", "Hasan", "İbrahim", "İsmail", "Ömer", "Yusuf", "Murat", "Osman", "Ramazan", "Serkan", "Burak", "Emre", "Can", "Berk"];
@@ -237,8 +238,9 @@ async function main() {
             unit: item.unit,
             cargoType: item.cargo,
             unitValue: randFloat(1, 100),
-            weightKg: randFloat(0.5, 20),
-            volumeM3: randFloat(0.1, 1),
+            weightKg: item.weightKg,
+            volumeM3: item.volumeM3,
+            palletCount: item.palletCount,
             companyId: company.id,
           }
         });
@@ -279,6 +281,7 @@ async function main() {
           currentLng: city.lng + randFloat(-0.05, 0.05),
           fuelLevel: rand(20, 100),
           odometerKm: rand(1000, 450000),
+          fuelCapacity: i % 5 === 0 ? rand(70, 100) : rand(400, 800),
           companyId: company.id,
           nextServiceKm: rand(5000, 15000),
           avgFuelConsumption: randFloat(7.5, 35.0),
@@ -487,17 +490,23 @@ async function main() {
       });
 
       for (let j = 1; j <= rand(2, 5); j++) {
+        const itemDef = pick(INVENTORY_ITEMS);
+        const itemQty = rand(20, 500);
+        const itemPallets = itemDef.palletCount && itemDef.palletCount > 0 
+          ? Math.ceil(itemQty / itemDef.palletCount) 
+          : 1;
+
         const shipment = await prisma.shipment.create({
           data: {
             trackingId: `LT-${cd.slug}-${rand(1000000, 9999999)}`,
             customerId: pick(customerIds),
             status: route.status === "COMPLETED" ? "DELIVERED" : "IN_TRANSIT",
             priority: pick(["LOW", "MEDIUM", "HIGH", "CRITICAL"]) as ShipmentPriority,
-            destination: "Client Warehouse 7",
-            weightKg: randFloat(200, 15000),
-            volumeM3: randFloat(1, 50),
-            palletCount: rand(1, 33),
-            cargoType: "Finished Goods",
+            destination: `Customer Depot ${rand(1, 50)}`,
+            weightKg: itemQty * (itemDef.weightKg || 1),
+            volumeM3: itemQty * 0.05,
+            palletCount: itemPallets,
+            cargoType: itemDef.cargo,
             billingAccount: "Net-30 Corporate",
             slaDeadline: daysFromNow(2),
             routeId: route.id,
@@ -510,11 +519,14 @@ async function main() {
         await prisma.shipmentItem.create({
           data: {
             shipmentId: shipment.id,
-            sku: `SKU-${rand(1000, 9999)}`,
-            name: "Mixed Industrial Cargo",
-            quantity: rand(1, 100),
-            weightKg: shipment.weightKg,
-            palletCount: shipment.palletCount
+            sku: `${itemDef.sku}-${rand(100, 999)}`,
+            name: itemDef.name,
+            quantity: itemQty,
+            unit: itemDef.unit,
+            weightKg: itemDef.weightKg,
+            volumeM3: 0.05,
+            palletCount: itemDef.palletCount, // Units per pallet
+            cargoType: itemDef.cargo
           }
         });
 

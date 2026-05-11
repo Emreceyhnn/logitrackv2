@@ -322,6 +322,13 @@ export const getRouteById = authenticatedAction(
               },
             },
           },
+          shipments: {
+            include: {
+              stops: {
+                orderBy: { sequence: "asc" }
+              }
+            }
+          }
         },
       });
 

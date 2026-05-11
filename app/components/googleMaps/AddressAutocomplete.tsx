@@ -5,7 +5,7 @@ import { Autocomplete } from "@react-google-maps/api";
 import { TextField, useTheme } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
-interface AddressData {
+export interface AddressData {
   formattedAddress: string;
   lat: number;
   lng: number;

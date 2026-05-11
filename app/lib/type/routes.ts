@@ -38,7 +38,12 @@ export interface RouteWithRelations extends Route {
     id: string;
     status: string;
     origin: string | null;
+    originLat?: number | null;
+    originLng?: number | null;
     destination: string;
+    destinationLat?: number | null;
+    destinationLng?: number | null;
+    stops?: any[];
   }[];
   metrics?: {
     totalDistanceKm?: number;

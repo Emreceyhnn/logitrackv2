@@ -5,6 +5,7 @@ import { DirectionsMap } from "../../googleMaps/DirectionsMap";
 interface MapRoutesDialogCardProps {
   origin?: string | { lat: number; lng: number };
   destination?: string | { lat: number; lng: number };
+  waypoints?: Array<{ location: string | { lat: number; lng: number }; stopover?: boolean }>;
   addrA?: string;
   addrB?: string;
   vehicleLocation?: {
@@ -25,6 +26,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 const MapRoutesDialogCard = ({
   origin,
   destination,
+  waypoints,
   addrA,
   addrB,
   vehicleLocation,
@@ -40,6 +42,7 @@ const MapRoutesDialogCard = ({
         <DirectionsMap
           origin={origin}
           destination={destination}
+          waypoints={waypoints}
           vehicleLocation={vehicleLocation}
           onRouteInfoUpdate={onRouteInfoUpdate}
         />

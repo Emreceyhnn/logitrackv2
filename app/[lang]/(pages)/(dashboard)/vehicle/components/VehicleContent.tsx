@@ -33,6 +33,7 @@ import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialo
 import VehicleDialog from "@/app/components/dialogs/vehicle/vehicleDetailsDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import AddTrailerDialog from "@/app/components/dialogs/vehicle/addTrailerDialog";
+import EditTrailerDialog from "@/app/components/dialogs/vehicle/editTrailerDialog";
 import TrailerAssignmentDialog from "@/app/components/dialogs/vehicle/trailerAssignmentDialog";
 
 // Hooks & Types
@@ -43,7 +44,7 @@ import {
   VehiclePageActions,
   VehicleWithRelations,
 } from "@/app/lib/type/vehicle";
-import { TrailerWithRelations } from "@/app/lib/type/trailer.types";
+import { TrailerWithRelations } from "@/app/lib/type/trailer";
 
 export default function VehicleContent() {
   /* ─── Context ─────────────────────────────────────────────────────────── */
@@ -71,6 +72,7 @@ export default function VehicleContent() {
 
   // Trailer states
   const [addTrailerOpen, setAddTrailerOpen] = useState(false);
+  const [editTrailerOpen, setEditTrailerOpen] = useState(false);
   const [assignTrailerOpen, setAssignTrailerOpen] = useState(false);
   const [actionTrailer, setActionTrailer] = useState<TrailerWithRelations | null>(null);
 
@@ -190,7 +192,8 @@ export default function VehicleContent() {
 
   // Trailer handlers
   const handleTrailerEdit = (trailer: TrailerWithRelations) => {
-    // Implement trailer edit if needed, or just open a generic edit dialog
+    setActionTrailer(trailer);
+    setEditTrailerOpen(true);
   };
 
   const handleTrailerDelete = (trailer: TrailerWithRelations) => {
@@ -395,6 +398,17 @@ export default function VehicleContent() {
         onSuccess={refreshAll}
       />
 
+      <EditTrailerDialog
+        key={`edit-trailer-${actionTrailer?.id}`}
+        open={editTrailerOpen}
+        onClose={() => {
+          setEditTrailerOpen(false);
+          setActionTrailer(null);
+        }}
+        onSuccess={refreshAll}
+        trailer={actionTrailer}
+      />
+
       <TrailerAssignmentDialog
         open={assignTrailerOpen}
         onClose={() => setAssignTrailerOpen(false)}
@@ -415,8 +429,12 @@ export default function VehicleContent() {
 
       {actionVehicle && (
         <EditVehicleDialog
+          key={`edit-vehicle-${actionVehicle.id}`}
           open={editDialogOpen}
-          onClose={() => setEditDialogOpen(false)}
+          onClose={() => {
+            setEditDialogOpen(false);
+            setActionVehicle(null);
+          }}
           onSuccess={handleEditFormSuccess}
           vehicle={actionVehicle}
         />

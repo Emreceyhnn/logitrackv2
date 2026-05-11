@@ -40,11 +40,12 @@ import LogisticsSection from "./sections/LogisticsSection";
 import CargoSection from "./sections/CargoSection";
 import InventorySection from "./sections/InventorySection";
 import RouteSection from "./sections/RouteSection";
+import StopsSection from "./sections/StopsSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import { getTrailers } from "@/app/lib/controllers/trailer";
-import { TrailerWithRelations } from "@/app/lib/type/trailer.types";
+import { TrailerWithRelations } from "@/app/lib/type/trailer";
 
 const initialValues: ShipmentFormValues = {
   referenceNumber: "",
@@ -68,6 +69,7 @@ const initialValues: ShipmentFormValues = {
   assignedRouteId: null,
   trailerId: null,
   inventoryItems: [],
+  stops: [],
 };
 
 const FormikInventorySync = ({
@@ -181,6 +183,7 @@ const AddShipmentDialog = ({
         billingAccount: values.billingAccount,
         inventoryItems: values.inventoryItems,
         trailerId: values.trailerId,
+        stops: values.stops,
       });
 
       toast.success(dict.toasts.successAdd);
@@ -218,6 +221,29 @@ const AddShipmentDialog = ({
           () => addShipmentValidationSchema(dict),
           [dict]
         )}
+        validate={(values) => {
+          const errors: any = {};
+          const selectedTrailer = trailers.find((t) => t.id === values.trailerId);
+          if (selectedTrailer) {
+            const tolerance = 0.01;
+            const availableWeight = selectedTrailer.maxLoadKg - (selectedTrailer.currentWeightKg || 0);
+            const availableVolume = selectedTrailer.capacityVolumeM3 - (selectedTrailer.currentVolumeM3 || 0);
+
+            if (
+              selectedTrailer.maxLoadKg > 0 &&
+              Math.round(values.weightKg * 100) / 100 > availableWeight + tolerance
+            ) {
+              errors.weightKg = dict.shipments.dialogs.fields.exceedsTrailerWeight;
+            }
+            if (
+              selectedTrailer.capacityVolumeM3 > 0 &&
+              Math.round(values.volumeM3 * 100) / 100 > availableVolume + tolerance
+            ) {
+              errors.volumeM3 = dict.shipments.dialogs.fields.exceedsTrailerVolume;
+            }
+          }
+          return errors;
+        }}
         onSubmit={onSubmit}
         enableReinitialize
       >
@@ -343,6 +369,12 @@ const AddShipmentDialog = ({
                             borderColor: theme.palette.divider_alpha.main_05,
                           }}
                         />
+                        <StopsSection customers={customers} />
+                        <Divider
+                          sx={{
+                            borderColor: theme.palette.divider_alpha.main_05,
+                          }}
+                        />
                         <LogisticsSection
                           warehouses={warehouses}
                           customers={customers}
@@ -353,7 +385,7 @@ const AddShipmentDialog = ({
                       <Stack spacing={6}>
                         <Grid container spacing={6}>
                           <Grid size={{ xs: 12, lg: 12 }}>
-                            <CargoSection />
+                            <CargoSection trailers={trailers} />
                           </Grid>
                         </Grid>
                         <Divider

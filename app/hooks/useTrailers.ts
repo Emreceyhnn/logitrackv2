@@ -9,7 +9,7 @@ import {
   deleteTrailer,
   assignTrailerToVehicle,
 } from "@/app/lib/controllers/trailer";
-import { TrailerFilters } from "@/app/lib/type/trailer.types";
+import { TrailerFilters } from "@/app/lib/type/trailer";
 import { trailerKeys } from "@/app/lib/query-keys/trailer.keys";
 import { vehicleKeys } from "@/app/lib/query-keys/vehicle.keys";
 import { toast } from "sonner";

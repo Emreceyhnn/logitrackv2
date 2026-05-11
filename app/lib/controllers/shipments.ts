@@ -34,6 +34,15 @@ interface CustomerWithLocations extends Customer {
   locations: CustomerLocation[];
 }
 
+export interface ShipmentStopInput {
+  customerId?: string | null;
+  customerLocationId?: string | null;
+  address: string;
+  lat: number | null;
+  lng: number | null;
+  sequence: number;
+}
+
 export const createShipment = authenticatedAction(
   async (
     user,
@@ -61,6 +70,7 @@ export const createShipment = authenticatedAction(
       originWarehouseId?: string;
       trailerId?: string | null;
       inventoryItems?: InventoryShipmentItem[];
+      stops?: ShipmentStopInput[];
     }
   ) => {
     const userId = user?.id;
@@ -90,6 +100,7 @@ export const createShipment = authenticatedAction(
       originWarehouseId,
       trailerId,
       inventoryItems = [],
+      stops = [],
     } = data;
     try {
       await checkPermission(userId, companyId, [
@@ -162,11 +173,12 @@ export const createShipment = authenticatedAction(
           const totalWeight = (currentLoad._sum.weightKg || 0) + weightKg;
           const totalVolume = (currentLoad._sum.volumeM3 || 0) + volumeM3;
 
-          if (totalWeight > trailer.maxLoadKg) {
-            throw new Error(`Trailer capacity exceeded: Current load ${totalWeight}kg > Max ${trailer.maxLoadKg}kg`);
+          const tolerance = 0.01;
+          if (Math.round(totalWeight * 100) / 100 > trailer.maxLoadKg + tolerance) {
+            throw new Error(`Trailer capacity exceeded: Current load ${totalWeight.toFixed(2)}kg > Max ${trailer.maxLoadKg}kg`);
           }
-          if (totalVolume > trailer.capacityVolumeM3) {
-            throw new Error(`Trailer capacity exceeded: Current volume ${totalVolume}m³ > Max ${trailer.capacityVolumeM3}m³`);
+          if (Math.round(totalVolume * 100) / 100 > trailer.capacityVolumeM3 + tolerance) {
+            throw new Error(`Trailer capacity exceeded: Current volume ${totalVolume.toFixed(2)}m³ > Max ${trailer.capacityVolumeM3}m³`);
           }
         }
       }
@@ -214,6 +226,16 @@ export const createShipment = authenticatedAction(
                 volumeM3: item.volumeM3,
                 palletCount: item.palletCount,
                 cargoType: item.cargoType,
+              })),
+            },
+            stops: {
+              create: stops.map((stop: ShipmentStopInput) => ({
+                customerId: stop.customerId || undefined,
+                customerLocationId: stop.customerLocationId || undefined,
+                address: stop.address,
+                lat: stop.lat,
+                lng: stop.lng,
+                sequence: stop.sequence,
               })),
             },
           },
@@ -513,6 +535,7 @@ export const getShipments = authenticatedAction(async (user) => {
         },
         route: true,
         items: true,
+        stops: true,
       },
       orderBy: { createdAt: "desc" },
       });
@@ -554,6 +577,11 @@ export const getShipmentById = authenticatedAction(
             },
           },
           items: true,
+          stops: {
+            orderBy: {
+              sequence: "asc",
+            },
+          },
         },
       });
 
@@ -573,7 +601,10 @@ export const updateShipment = authenticatedAction(
   async (
     user,
     shipmentId: string,
-    data: Prisma.ShipmentUpdateInput | Prisma.ShipmentUncheckedUpdateInput
+    data: (Prisma.ShipmentUpdateInput | Prisma.ShipmentUncheckedUpdateInput) & {
+      inventoryItems?: InventoryShipmentItem[];
+      stops?: ShipmentStopInput[];
+    }
   ) => {
     const userId = user?.id;
     const companyId = user?.companyId;
@@ -593,7 +624,10 @@ export const updateShipment = authenticatedAction(
         throw new Error("Shipment not found or unauthorized");
       }
 
-      const updateData = { ...data } as Prisma.ShipmentUpdateInput & { inventoryItems?: InventoryShipmentItem[] };
+      const updateData = { ...data } as Prisma.ShipmentUpdateInput & { 
+        inventoryItems?: InventoryShipmentItem[];
+        stops?: ShipmentStopInput[];
+      };
       if (updateData.trackingId === "") {
         updateData.trackingId = `TRK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
       }
@@ -601,13 +635,14 @@ export const updateShipment = authenticatedAction(
       // FK alanlarında boş string geldiyse undefined'a çevir (Prisma P2003 önlemi)
       const fkFields = ["customerId", "customerLocationId", "routeId", "originWarehouseId", "driverId", "trailerId"];
       for (const field of fkFields) {
-        if ((updateData as any)[field] === "" || (updateData as any)[field] === null) {
-          (updateData as any)[field] = undefined;
+        const val = (updateData as Record<string, unknown>)[field];
+        if (val === "" || val === null) {
+          (updateData as Record<string, unknown>)[field] = undefined;
         }
       }
 
       // Handle items synchronization if provided
-      const items = (updateData as any).inventoryItems;
+      const items = updateData.inventoryItems;
       if (items) {
         delete updateData.inventoryItems;
         
@@ -669,12 +704,18 @@ export const updateShipment = authenticatedAction(
             }
           }
 
-          // 3. Delete existing shipment items
+          // 3. Delete existing shipment items and stops
           await tx.shipmentItem.deleteMany({
             where: { shipmentId },
           });
+          await tx.shipmentStop.deleteMany({
+            where: { shipmentId },
+          });
 
-          // 4. Update shipment and create new items
+          // 4. Update shipment and create new items/stops
+          const stops = updateData.stops || [];
+          delete updateData.stops;
+
           const updated = await tx.shipment.update({
             where: { id: shipmentId },
             data: {
@@ -691,8 +732,18 @@ export const updateShipment = authenticatedAction(
                   cargoType: item.cargoType,
                 })),
               },
+              stops: {
+                create: stops.map((stop: ShipmentStopInput) => ({
+                  customerId: stop.customerId || undefined,
+                  customerLocationId: stop.customerLocationId || undefined,
+                  address: stop.address,
+                  lat: stop.lat,
+                  lng: stop.lng,
+                  sequence: stop.sequence,
+                })),
+              },
             },
-            include: { items: true },
+            include: { items: true, stops: true },
           });
 
           // 5. Decrement new inventory if applicable

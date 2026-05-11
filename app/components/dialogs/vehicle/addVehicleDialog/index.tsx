@@ -46,6 +46,7 @@ interface VehicleCreateInput {
   fuelType: string;
   avgFuelConsumption?: number;
   fuelLevel?: number;
+  fuelCapacity?: number;
   engineSize?: string;
   transmission?: string;
   techNotes?: string;
@@ -69,6 +70,7 @@ const initialValues: VehicleFormValues = {
   fuelLevel: 50,
   status: "AVAILABLE",
   avgFuelConsumption: "",
+  fuelCapacity: "",
   engineSize: "",
   transmission: "",
   techNotes: "",
@@ -136,6 +138,7 @@ const AddVehicleDialog = ({
         fuelType: values.fuelType,
         avgFuelConsumption: Number(values.avgFuelConsumption),
         fuelLevel: Number(values.fuelLevel),
+        fuelCapacity: Number(values.fuelCapacity),
         engineSize: values.engineSize,
         transmission: values.transmission,
         techNotes: values.techNotes,

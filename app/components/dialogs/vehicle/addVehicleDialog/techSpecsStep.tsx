@@ -11,6 +11,7 @@ import ShutterSpeedIcon from "@mui/icons-material/ShutterSpeed";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TuneIcon from "@mui/icons-material/Tune";
+import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useFormikContext } from "formik";
 import { VehicleFormValues } from "@/app/lib/type/vehicle";
@@ -111,7 +112,6 @@ const TechSpecsStep = () => {
           </TextField>
         </Box>
       </Stack>
-
       <Stack direction="row" spacing={3}>
         <Box sx={{ flex: 1 }}>
           <Typography
@@ -120,23 +120,23 @@ const TechSpecsStep = () => {
             color="text.secondary"
             mb={1}
           >
-            {dict.vehicles.fields.fuelLevel}
+            {dict.vehicles.fields.fuelCapacity || "Fuel Capacity"}
           </Typography>
           <TextField
             fullWidth
-            name="fuelLevel"
+            name="fuelCapacity"
             type="number"
-            placeholder="50"
-            value={values.fuelLevel}
+            placeholder="130"
+            value={values.fuelCapacity}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={touched.fuelLevel && Boolean(errors.fuelLevel)}
-            helperText={touched.fuelLevel && (errors.fuelLevel as string)}
+            error={touched.fuelCapacity && Boolean(errors.fuelCapacity)}
+            helperText={touched.fuelCapacity && (errors.fuelCapacity as string)}
             sx={textFieldSx}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <ShutterSpeedIcon
+                  <LocalGasStationIcon
                     sx={{ fontSize: 20, color: "text.secondary" }}
                   />
                 </InputAdornment>
@@ -144,13 +144,17 @@ const TechSpecsStep = () => {
               endAdornment: (
                 <InputAdornment position="end">
                   <Typography variant="body2" color="text.secondary">
-                    %
+                    L
                   </Typography>
                 </InputAdornment>
               ),
             }}
           />
         </Box>
+        <Box sx={{ flex: 1 }} />
+      </Stack>
+
+      <Stack direction="row" spacing={3}>
         <Box sx={{ flex: 1 }}>
           <Typography
             variant="subtitle2"
@@ -192,6 +196,7 @@ const TechSpecsStep = () => {
             }}
           />
         </Box>
+        <Box sx={{ flex: 1 }} />
       </Stack>
 
       <Stack direction="row" spacing={3}>

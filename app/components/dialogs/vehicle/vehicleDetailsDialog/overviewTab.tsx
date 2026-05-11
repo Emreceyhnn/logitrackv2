@@ -131,11 +131,21 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                 >
                   {dict.vehicles.fields.fuelLevel}
                 </Typography>
-                <Typography
-                  sx={{ fontSize: 22, color: "text.primary", fontWeight: 800 }}
-                >
-                  %{vehicle.fuelLevel}
-                </Typography>
+                <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
+                  <Typography
+                    sx={{ fontSize: 22, color: "text.primary", fontWeight: 800 }}
+                  >
+                    %{vehicle.fuelLevel}
+                  </Typography>
+                  {vehicle.fuelCapacity && vehicle.fuelCapacity > 0 && (
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "text.secondary", fontWeight: 600 }}
+                    >
+                      ({Math.round(((vehicle.fuelLevel || 0) / 100) * vehicle.fuelCapacity)}L / {vehicle.fuelCapacity}L)
+                    </Typography>
+                  )}
+                </Box>
                 <Box sx={{ mt: 1, mb: 2 }}>
                   <LinearProgress
                     variant="determinate"
