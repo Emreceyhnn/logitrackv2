@@ -4,7 +4,6 @@ import { Box, useTheme } from "@mui/material";
 import SideBar from "@/app/components/sidebar";
 import DashboardHeader from "@/app/components/dashboard/DashboardHeader";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
-import { UserProvider } from "@/app/lib/context/UserContext";
 
 interface DashboardLayoutClientProps {
   children: React.ReactNode;
@@ -29,7 +28,7 @@ export default function DashboardLayoutClient({
         component="nav"
         sx={{
           display: { xs: "none", md: "block" },
-          width: 200,
+          width: 240,
           flexShrink: 0,
           position: "relative",
           zIndex: theme.zIndex.drawer,
@@ -41,7 +40,7 @@ export default function DashboardLayoutClient({
         component="main"
         sx={{
           flexGrow: 1,
-          width: { xs: "100%", md: "calc(100% - 200px)" },
+          width: { xs: "100%", md: "calc(100% - 240px)" },
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",

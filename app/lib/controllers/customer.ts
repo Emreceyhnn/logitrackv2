@@ -13,6 +13,7 @@ import {
   customerCacheKeys,
   CUSTOMER_CACHE_TTL,
 } from "../redis";
+import { calcTrend, daysAgo } from "./utils/trendUtils";
 
 async function invalidateCustomerCache(companyId: string, customerId?: string) {
   await Promise.all([
@@ -125,6 +126,9 @@ export const getCustomersWithDashboardData = authenticatedAction(
       activeCustomers: number;
       totalShipments: number;
     };
+    statsTrends?: {
+      totalCustomers?: { value: number; isUp: boolean };
+    };
   }> => {
     const userId = user?.id;
     const companyId = user?.companyId;
@@ -154,6 +158,7 @@ export const getCustomersWithDashboardData = authenticatedAction(
           customers,
           totalCount,
           statsRaw,
+          prevTotalCustomers,
         ] = await Promise.all([
         checkPermission(userId, companyId, ["role_admin", "role_manager", "role_dispatcher"]),
         db.customer.findMany({
@@ -177,6 +182,7 @@ export const getCustomersWithDashboardData = authenticatedAction(
             },
           },
         }),
+        db.customer.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } }),
       ]);
 
       // Stats Calculation
@@ -191,9 +197,12 @@ export const getCustomersWithDashboardData = authenticatedAction(
           totalCustomers,
           activeCustomers,
           totalShipments,
-          },
-        };
-      });
+        },
+        statsTrends: {
+          totalCustomers: calcTrend(totalCustomers, prevTotalCustomers as number),
+        },
+      };
+    });
     } catch (error) {
       console.error("Failed to get customers combined data:", error);
       throw error;

@@ -191,37 +191,41 @@ function DriverContent() {
       {
         label: dict.drivers.totalDrivers,
         value: dashboardData?.driversKpis?.totalDrivers ?? 0,
-        icon: <Groups sx={{ fontSize: 22 }} />,
+        icon: <Groups />,
         color: theme.palette.primary.main,
+        trend: dashboardData?.kpiTrends?.totalDrivers,
       },
       {
         label: dict.drivers.onDuty,
         value: dashboardData?.driversKpis?.onDuty ?? 0,
-        icon: <Work sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.emerald,
+        icon: <Work />,
+        color: theme.palette.success.main,
       },
       {
         label: dict.drivers.offDuty,
         value: dashboardData?.driversKpis?.offDuty ?? 0,
-        icon: <Home sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.amber,
+        icon: <Home />,
+        color: theme.palette.warning.main,
       },
       {
         label: dict.drivers.complianceIssues,
         value: dashboardData?.driversKpis?.complianceIssues ?? 0,
-        icon: <ReportProblem sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.error,
+        icon: <ReportProblem />,
+        color:
+          (dashboardData?.driversKpis?.complianceIssues ?? 0) > 0
+            ? theme.palette.error.main
+            : theme.palette.success.main,
       },
       {
         label: dict.drivers.safetyRating,
-        value: dashboardData?.driversKpis?.avgSafetyScore ?? 0,
-        icon: <Shield sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.indigo,
+        value: dashboardData?.driversKpis?.avgSafetyScore?.toFixed(1) ?? 0,
+        icon: <Shield />,
+        color: theme.palette.info.main,
       },
       {
         label: dict.drivers.efficiencyRating,
-        value: dashboardData?.driversKpis?.avgEfficiencyScore ?? 0,
-        icon: <RocketLaunch sx={{ fontSize: 22 }} />,
+        value: dashboardData?.driversKpis?.avgEfficiencyScore?.toFixed(1) ?? 0,
+        icon: <RocketLaunch />,
         color: theme.palette.kpi.violet,
       },
     ],
@@ -240,11 +244,12 @@ function DriverContent() {
       >
         <Box>
           <Typography
-            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
+            variant="h4"
+            sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {dict.drivers.title}
           </Typography>
-          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
             {dict.drivers.subtitle}
           </Typography>
         </Box>

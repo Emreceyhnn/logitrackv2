@@ -20,6 +20,7 @@ import {
   routeCacheKeys,
   ROUTE_CACHE_TTL,
 } from "../redis";
+import { calcTrend, daysAgo } from "./utils/trendUtils";
 
 async function invalidateRouteCache(companyId: string, routeId?: string) {
   await Promise.all([
@@ -1010,6 +1011,9 @@ export const getRoutesWithDashboardData = authenticatedAction(
         totalVehicles,
         vehiclesOnTrip,
         locationsData,
+        prevActiveCount,
+        prevCompletedCount,
+        prevDelayedCount,
       ] = await Promise.all([
         checkPermission(userId, companyId, [
           "role_admin",
@@ -1101,6 +1105,16 @@ export const getRoutesWithDashboardData = authenticatedAction(
             name: true,
           },
         }),
+        // Previous period counts (30–60 days ago) for trend calculation
+        db.route.count({
+          where: { companyId, status: { in: ["ACTIVE", "PLANNED"] }, createdAt: { gte: daysAgo(60), lt: daysAgo(30) } },
+        }),
+        db.route.count({
+          where: { companyId, status: "COMPLETED", createdAt: { gte: daysAgo(60), lt: daysAgo(30) } },
+        }),
+        db.route.count({
+          where: { companyId, status: { not: "COMPLETED" }, endTime: { lt: daysAgo(30) }, createdAt: { gte: daysAgo(60) } },
+        }),
       ]);
 
       const utilization =
@@ -1114,6 +1128,11 @@ export const getRoutesWithDashboardData = authenticatedAction(
           inProgress: inProgressCount,
           completedToday: completedCount,
           delayed: delayedCount,
+        },
+        statsTrends: {
+          active: calcTrend(activeCount, prevActiveCount),
+          completedToday: calcTrend(completedCount, prevCompletedCount),
+          delayed: calcTrend(delayedCount, prevDelayedCount),
         },
         efficiency: {
           fuelConsumption: 24.5,

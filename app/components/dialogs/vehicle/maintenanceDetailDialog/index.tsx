@@ -27,7 +27,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import TireRepairIcon from "@mui/icons-material/TireRepair";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ImageIcon from "@mui/icons-material/Image";
@@ -530,7 +529,9 @@ export default function MaintenanceDetailDialog({
                       },
                     }}
                   >
-                    {uploading ? dict.toasts.loading : dict.vehicles.dialogs.newFileUpload}
+                    {uploading
+                      ? dict.toasts.loading
+                      : dict.vehicles.dialogs.newFileUpload}
                     <input
                       type="file"
                       hidden

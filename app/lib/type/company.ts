@@ -32,6 +32,14 @@ export interface CompanyMember {
 export interface CompanyPageData {
   profile: CompanyProfile;
   stats: CompanyStats;
+  statsTrends?: {
+    users?: { value: number; isUp: boolean };
+    vehicles?: { value: number; isUp: boolean };
+    drivers?: { value: number; isUp: boolean };
+    warehouses?: { value: number; isUp: boolean };
+    customers?: { value: number; isUp: boolean };
+    shipments?: { value: number; isUp: boolean };
+  };
   members: CompanyMember[];
   totalCount: number;
   meta: PaginationMeta;

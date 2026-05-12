@@ -35,6 +35,7 @@ import {
   VEHICLE_CACHE_TTL,
 } from "../redis";
 import { syncVehicleToFirebaseAction as syncVehicleToFirebase } from "../actions/vehicleTracking";
+import { calcTrend, daysAgo } from "./utils/trendUtils";
 
 // ── Cache invalidation helper ─────────────────────────────────────────────────
 async function invalidateVehicleCache(
@@ -958,7 +959,7 @@ export const updateMaintenanceRecord = authenticatedAction(
 
       // Dispatch Notification if status changed
       const oldStatus = foundRecord.status;
-      const newStatus = (typeof data.status === 'string' ? data.status : (data.status as any)?.set) || updatedRecord.status;
+      const newStatus = data.status || updatedRecord.status;
 
       if (newStatus !== oldStatus) {
         let title = "Bakım Güncellendi 👨‍🔧";
@@ -1133,6 +1134,12 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
         },
       });
 
+      // Previous period snapshot for trend calculation
+      const prevPeriodEnd = daysAgo(30);
+      const prevVehicleCount = await db.vehicle.count({
+        where: { companyId, createdAt: { lt: prevPeriodEnd } },
+      });
+
       const vehiclesKpis = VehicleKpiConverter(
         vehicles as unknown as VehicleDashboardProps[]
       );
@@ -1146,7 +1153,11 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
         vehicles as unknown as VehicleDashboardProps[]
       );
 
-      return { vehiclesKpis, vehiclesCapacity, expiringDocs, plannedServices };
+      const kpiTrends = {
+        totalVehicles: calcTrend(vehiclesKpis.totalVehicles, prevVehicleCount),
+      };
+
+      return { vehiclesKpis, vehiclesCapacity, expiringDocs, plannedServices, kpiTrends };
     });
   } catch (error) {
     console.error("Failed to get vehicle kpi cards:", error);

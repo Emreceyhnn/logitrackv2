@@ -23,6 +23,7 @@ import {
   driverCacheKeys,
   DRIVER_CACHE_TTL,
 } from "../redis";
+import { calcTrend, daysAgo } from "./utils/trendUtils";
 
 async function invalidateDriverCache(companyId: string, driverId?: string) {
   await Promise.all([
@@ -919,6 +920,7 @@ export const getDriverWithDashboardData = authenticatedAction(
         safetyScoreAgg,
         topDrivers,
         complianceIssuesCount,
+        prevTotalDrivers,
       ] = await Promise.all([
         checkPermission(userId, companyId, [
           "role_admin",
@@ -1000,7 +1002,13 @@ export const getDriverWithDashboardData = authenticatedAction(
             ],
           },
         }),
+        // Previous period driver count for trend
+        db.driver.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } }),
       ]);
+
+      const kpiTrends = {
+        totalDrivers: calcTrend(totalDrivers, prevTotalDrivers),
+      };
 
       return {
         drivers: drivers as unknown as DriverWithRelations[],
@@ -1019,6 +1027,7 @@ export const getDriverWithDashboardData = authenticatedAction(
           avgSafetyScore: safetyScoreAgg._avg.safetyScore || 0,
           avgEfficiencyScore: safetyScoreAgg._avg.efficiencyScore || 0,
         },
+        kpiTrends,
         topPerformers: topDrivers.map((d) => ({
           id: d.id,
           name: d.user.name,

@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   AddInventoryDialogProps,
   AddInventoryItemDetails,
@@ -103,7 +103,7 @@ const AddInventoryDialog = ({
         itemDetails.cargoType || "General Cargo",
         finalImageUrl,
         itemDetails.unitValue || 0,
-        (user as any).currency || "USD"
+        user.currency || "USD"
       );
 
       toast.success(dict.toasts.successAdd);

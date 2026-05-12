@@ -56,6 +56,7 @@ export default function CompanyContent() {
         ? {
             profile: result.profile as CompanyProfile,
             stats: result.stats as CompanyStats,
+            statsTrends: result.statsTrends,
             members: result.members as CompanyMember[],
             totalCount: result.totalCount,
             meta: result.meta,
@@ -100,38 +101,44 @@ export default function CompanyContent() {
     {
       label: dict.company.kpi.totalUsers,
       value: state.data?.stats?.users ?? 0,
-      icon: <People sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.indigo,
+      icon: <People />,
+      color: theme.palette.primary.main,
+      trend: state.data?.statsTrends?.users,
     },
     {
       label: dict.company.kpi.vehicles,
       value: state.data?.stats?.vehicles ?? 0,
-      icon: <DirectionsCar sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.sky,
+      icon: <DirectionsCar />,
+      color: theme.palette.info.main,
+      trend: state.data?.statsTrends?.vehicles,
     },
     {
       label: dict.company.kpi.drivers,
       value: state.data?.stats?.drivers ?? 0,
-      icon: <Badge sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.emerald,
+      icon: <Badge />,
+      color: theme.palette.success.main,
+      trend: state.data?.statsTrends?.drivers,
     },
     {
       label: dict.company.kpi.warehouses,
       value: state.data?.stats?.warehouses ?? 0,
-      icon: <Warehouse sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.amber,
+      icon: <Warehouse />,
+      color: theme.palette.warning.main,
+      trend: state.data?.statsTrends?.warehouses,
     },
     {
       label: dict.company.kpi.customers,
       value: state.data?.stats?.customers ?? 0,
-      icon: <Groups sx={{ fontSize: 22 }} />,
+      icon: <Groups />,
       color: theme.palette.kpi.pink,
+      trend: state.data?.statsTrends?.customers,
     },
     {
       label: dict.company.kpi.shipments,
       value: state.data?.stats?.shipments ?? 0,
-      icon: <LocalShipping sx={{ fontSize: 22 }} />,
+      icon: <LocalShipping />,
       color: theme.palette.kpi.violet,
+      trend: state.data?.statsTrends?.shipments,
     },
   ];
 
@@ -145,12 +152,13 @@ export default function CompanyContent() {
       >
         <Box>
           <Typography
-            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
+            variant="h4"
+            sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {dict.company.title}
           </Typography>
-          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
-            {dict.company.overview}
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
+            {dict.company.subtitle}
           </Typography>
         </Box>
         <Button

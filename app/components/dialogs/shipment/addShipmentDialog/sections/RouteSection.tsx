@@ -6,7 +6,6 @@ import {
   Typography,
   MenuItem,
   Card,
-  useTheme,
 } from "@mui/material";
 import { useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
@@ -24,7 +23,6 @@ interface RouteSectionProps {
 }
 
 const RouteSection = ({ routes }: RouteSectionProps) => {
-  const theme = useTheme();
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
   const dateSettings = useDateSettings();
@@ -124,8 +122,10 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                 sx={{
                   p: 2,
                   borderRadius: 2,
-                  bgcolor: (theme) => theme.palette.text.darkBlue._alpha.main_50,
-                  border: (theme) => `1px solid ${theme.palette.divider_alpha.main_10}`,
+                  bgcolor: (theme) =>
+                    theme.palette.text.darkBlue._alpha.main_50,
+                  border: (theme) =>
+                    `1px solid ${theme.palette.divider_alpha.main_10}`,
                   backgroundImage: "none",
                 }}
               >
@@ -193,7 +193,8 @@ const RouteSection = ({ routes }: RouteSectionProps) => {
                   justifyContent: "center",
                   borderRadius: 2,
                   bgcolor: (theme) => theme.palette.divider_alpha.main_02,
-                  border: (theme) => `1px dashed ${theme.palette.divider_alpha.main_10}`,
+                  border: (theme) =>
+                    `1px dashed ${theme.palette.divider_alpha.main_10}`,
                 }}
               >
                 <Typography variant="caption" color="text.secondary">

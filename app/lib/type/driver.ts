@@ -81,6 +81,9 @@ export interface DriverDashboardResponseType {
     days: (string | number)[]; // Accommodate both string (ISO/Labels) and number (timestamps/offsets)
     values: number[]; // Added for chart compatibility
   }[];
+  kpiTrends?: {
+    totalDrivers?: { value: number; isUp: boolean };
+  };
 }
 
 export interface DriverFilters {

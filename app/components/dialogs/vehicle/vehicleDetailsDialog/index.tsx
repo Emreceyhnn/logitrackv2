@@ -23,12 +23,6 @@ import DocumentsTab from "./documentsTab";
 import MaintenanceTab from "./maintenance";
 import FuelTab from "./fuel";
 import CloseIcon from "@mui/icons-material/Close";
-
-import BuildIcon from "@mui/icons-material/Build";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
-import { VehicleStatus } from "@/app/lib/type/enums";
-
 import DeleteIcon from "@mui/icons-material/Delete";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -92,9 +86,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
   const [value, setValue] = useState(initialTab ?? 0);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [statusLoading, setStatusLoading] = useState(false);
-
-  /* -------------------------------- handlers -------------------------------- */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
@@ -120,20 +111,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
 
   const handleDeleteCancel = () => {
     setDeleteConfirmOpen(false);
-  };
-
-  const handleStatusUpdate = async (newStatus: VehicleStatus) => {
-    if (!vehicleData) return;
-    try {
-      setStatusLoading(true);
-      await updateVehicleStatus(vehicleData.id, newStatus);
-
-      onUpdateSuccess?.();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setStatusLoading(false);
-    }
   };
 
   /* -------------------------------- variables ------------------------------- */

@@ -8,7 +8,6 @@ import {
   FormControlLabel,
   Checkbox,
   Grid,
-  useTheme,
 } from "@mui/material";
 import { CompanyStepProps } from "@/app/lib/type/create-company";
 import PublicIcon from "@mui/icons-material/Public";
@@ -21,7 +20,6 @@ import { CompanyFormData } from "@/app/lib/type/create-company";
 import { COMMON_TIMEZONES } from "@/app/lib/constants";
 
 export default function Step2Regional({ state, actions }: CompanyStepProps) {
-  const theme = useTheme();
   const dict = useDictionary();
   const { formData } = state;
   const { errors, touched, handleBlur } = useFormikContext<CompanyFormData>();

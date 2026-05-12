@@ -1,14 +1,11 @@
-import { Box, Grid, Stack, Typography, MenuItem, useTheme } from "@mui/material";
+import { Box, Grid, Stack, Typography, MenuItem } from "@mui/material";
 import { useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
+
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
-import { CustomerWithRelations } from "@/app/lib/type/customer";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
-import PersonIcon from "@mui/icons-material/Person";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 import { TrailerWithRelations } from "@/app/lib/type/trailer";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
@@ -17,13 +14,15 @@ import ViewInArIcon from "@mui/icons-material/ViewInAr";
 
 interface LogisticsSectionProps {
   warehouses: WarehouseWithRelations[];
-  customers: CustomerWithRelations[];
   trailers: TrailerWithRelations[];
 }
 
-const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionProps) => {
+const LogisticsSection = ({
+  warehouses,
+  trailers,
+}: LogisticsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
-  const theme = useTheme();
+
   const dict = useDictionary();
 
   const { values, setFieldValue, handleBlur, touched, errors } =
@@ -164,7 +163,6 @@ const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionP
             </Stack>
           </Grid>
 
-
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={1}>
               <Typography
@@ -190,7 +188,7 @@ const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionP
               >
                 <MenuItem value="">
                   <Typography variant="body2" color="text.secondary">
-                    {(dict.common as any).none || "None"}
+                    {dict.common.none || "None"}
                   </Typography>
                 </MenuItem>
                 {trailers.map((t) => (
@@ -218,17 +216,19 @@ const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionP
               const selectedTrailer = trailers.find(
                 (t) => t.id === values.trailerId
               );
-              
+
               const tolerance = 0.01;
               const isWeightOver =
                 selectedTrailer &&
                 selectedTrailer.maxLoadKg > 0 &&
-                Math.round(values.weightKg * 100) / 100 > selectedTrailer.maxLoadKg + tolerance;
-                
+                Math.round(values.weightKg * 100) / 100 >
+                  selectedTrailer.maxLoadKg + tolerance;
+
               const isVolumeOver =
                 selectedTrailer &&
                 selectedTrailer.capacityVolumeM3 > 0 &&
-                Math.round(values.volumeM3 * 100) / 100 > selectedTrailer.capacityVolumeM3 + tolerance;
+                Math.round(values.volumeM3 * 100) / 100 >
+                  selectedTrailer.capacityVolumeM3 + tolerance;
 
               if (isWeightOver || isVolumeOver) {
                 return (
@@ -240,7 +240,8 @@ const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionP
                         alignItems="center"
                         sx={{
                           color: "error.main",
-                          bgcolor: (theme) => theme.palette.error._alpha.main_10,
+                          bgcolor: (theme) =>
+                            theme.palette.error._alpha.main_10,
                           px: 2,
                           py: 1,
                           borderRadius: 2,
@@ -267,7 +268,8 @@ const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionP
                         alignItems="center"
                         sx={{
                           color: "error.main",
-                          bgcolor: (theme) => theme.palette.error._alpha.main_10,
+                          bgcolor: (theme) =>
+                            theme.palette.error._alpha.main_10,
                           px: 2,
                           py: 1,
                           borderRadius: 2,
@@ -352,7 +354,6 @@ const LogisticsSection = ({ warehouses, customers, trailers }: LogisticsSectionP
             </Stack>
           </Grid>
         </Grid>
-
       </Stack>
     </Box>
   );

@@ -2,7 +2,7 @@
 export const routeTranslations: Record<string, Record<string, string>> = {
   tr: {
     "overview": "genel-bakis",
-    "vehicle": "araclar",
+    "vehicles": "araclar",
     "drivers": "suruculer",
     "routes": "rotalar",
     "shipments": "sevkiyatlar",
@@ -22,7 +22,7 @@ export const routeTranslations: Record<string, Record<string, string>> = {
   },
   en: {
     "overview": "overview",
-    "vehicle": "vehicle",
+    "vehicles": "vehicle",
     "drivers": "drivers",
     "routes": "routes",
     "shipments": "shipments",

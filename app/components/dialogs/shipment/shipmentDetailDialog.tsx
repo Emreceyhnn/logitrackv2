@@ -121,9 +121,10 @@ export default function ShipmentDetailDialog({
 
   const items: ShipmentItem[] = shipment?.items ?? [];
 
+  const stops = shipment?.stops;
   const stopsSorted = useMemo(() => {
-    return shipment?.stops ? [...shipment.stops].sort((a, b) => a.sequence - b.sequence) : [];
-  }, [shipment?.stops]);
+    return stops ? [...stops].sort((a, b) => a.sequence - b.sequence) : [];
+  }, [stops]);
 
   const hasStops = stopsSorted.length > 0;
 

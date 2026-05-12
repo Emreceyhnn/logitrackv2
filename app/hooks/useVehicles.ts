@@ -73,9 +73,9 @@ export function useVehicleMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: Error | unknown) => {
+  const handleError = (message: string, error: unknown) => {
     console.error(message, error);
-    toast.error((error as Error)?.message || message);
+    toast.error(error instanceof Error ? error.message : message);
   };
 
   const createMutation = useMutation({

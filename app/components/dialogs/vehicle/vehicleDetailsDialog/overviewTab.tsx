@@ -8,6 +8,7 @@ import {
   Box,
   useTheme,
   Grid,
+  Theme,
 } from "@mui/material";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import SpeedIcon from "@mui/icons-material/Speed";
@@ -50,13 +51,13 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
     flexDirection: "column",
     borderRadius: "8px",
     height: "100%",
-    bgcolor: (theme: any) =>
+    bgcolor: (theme: Theme) =>
       theme.palette.mode === "dark"
         ? "rgba(255,255,255,0.03)"
         : "rgba(0,0,0,0.02)",
     backgroundImage: "none",
     boxShadow: "none",
-    border: (theme: any) => `1px solid ${theme.palette.divider}`,
+    border: (theme: Theme) => `1px solid ${theme.palette.divider}`,
   };
 
   return (

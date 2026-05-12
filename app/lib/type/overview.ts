@@ -17,6 +17,19 @@ export interface OverviewStats {
   inventorySkus: number;
 }
 
+export type KpiTrend = { value: number; isUp: boolean } | undefined;
+
+export interface OverviewStatsTrends {
+  activeShipments: KpiTrend;
+  delayedShipments: KpiTrend;
+  vehiclesOnTrip: KpiTrend;
+  vehiclesInService: KpiTrend;
+  availableVehicles: KpiTrend;
+  activeDrivers: KpiTrend;
+  warehouses: KpiTrend;
+  inventorySkus: KpiTrend;
+}
+
 export interface DailyOperationsData {
   plannedRoutes: number;
   completedDeliveries: number;
@@ -84,6 +97,7 @@ export interface MapData {
 
 export interface DashboardData {
   stats: OverviewStats | null;
+  statsTrends?: OverviewStatsTrends;
   dailyOps: DailyOperationsData | null;
   fuelStats: FuelStat[];
   fuelLogs: FuelLogStat[];

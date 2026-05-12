@@ -23,7 +23,6 @@ import { useState } from "react";
 import { updateVehicleStatus } from "@/app/lib/controllers/vehicle";
 import { toast } from "sonner";
 
-import { useTheme } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const VehicleTable = ({ state, actions }: VehicleTableProps) => {

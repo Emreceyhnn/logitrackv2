@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Typography, Tabs, Tab, Skeleton } from "@mui/material";
+import { Box, Typography, Tabs, Tab } from "@mui/material";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import InventoryIcon from "@mui/icons-material/Inventory";

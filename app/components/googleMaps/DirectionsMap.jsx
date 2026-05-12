@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import Image from "next/image";
 import {
   GoogleMap,
   DirectionsRenderer,
@@ -37,18 +38,18 @@ const VehicleMarker = ({ position, name }) => {
         {/* Plate badge */}
         <div
           style={{
-            background: "rgba(11, 16, 25, 0.92)",
+            background: "rgba(15, 23, 42, 0.95)",
             backdropFilter: "blur(8px)",
-            border: "1px solid rgba(99, 179, 237, 0.5)",
-            color: "#63B3ED",
-            fontSize: "10px",
+            border: "1.5px solid rgba(59, 130, 246, 0.5)",
+            color: "#FFFFFF",
+            fontSize: "12px",
             fontWeight: 800,
-            padding: "2px 8px",
-            borderRadius: "6px",
+            padding: "4px 10px",
+            borderRadius: "8px",
             whiteSpace: "nowrap",
             letterSpacing: "0.05em",
-            marginBottom: "4px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+            marginBottom: "6px",
+            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.4)",
           }}
         >
           {name}
@@ -56,33 +57,35 @@ const VehicleMarker = ({ position, name }) => {
         {/* Truck icon bubble */}
         <div
           style={{
-            width: 36,
-            height: 36,
+            width: 40,
+            height: 40,
             borderRadius: "50% 50% 50% 0",
             transform: "rotate(-45deg)",
-            background: "linear-gradient(135deg, #3182CE, #63B3ED)",
-            border: "2px solid rgba(255,255,255,0.3)",
-            boxShadow: "0 4px 16px rgba(49, 130, 206, 0.5)",
+            background: "linear-gradient(135deg, #2563EB, #3B82F6)",
+            border: "2.5px solid #FFFFFF",
+            boxShadow: "0 10px 15px -3px rgba(37, 99, 235, 0.3)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          <span
-            style={{
+          <Image 
+            src="/icons/truck.svg" 
+            alt="truck"
+            width={20}
+            height={20}
+            style={{ 
               transform: "rotate(45deg)",
-              fontSize: "16px",
-              lineHeight: 1,
-            }}
-          >
-            🚛
-          </span>
+              filter: "brightness(0) invert(1)"
+            }} 
+            unoptimized
+          />
         </div>
         {/* Drop shadow dot */}
         <div
           style={{
-            width: 8,
-            height: 4,
+            width: 10,
+            height: 5,
             borderRadius: "50%",
             background: "rgba(0,0,0,0.3)",
             marginTop: 2,

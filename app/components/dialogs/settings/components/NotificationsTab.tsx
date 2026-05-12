@@ -5,7 +5,6 @@ import {
   Button,
   Divider,
   CircularProgress,
-  useTheme,
 } from "@mui/material";
 import {
   NotificationsActive as NotifIcon,
@@ -28,7 +27,6 @@ export default function NotificationsTab({
   state,
   actions,
 }: NotificationsTabProps) {
-  const theme = useTheme();
   const dict = useDictionary();
 
   return (
@@ -153,10 +151,13 @@ export default function NotificationsTab({
             borderRadius: 2.5,
             px: 4,
             py: 1,
-            background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
-            boxShadow: (theme) => `0 8px 32px ${theme.palette.primary._alpha.main_25}`,
+            background: (theme) =>
+              `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+            boxShadow: (theme) =>
+              `0 8px 32px ${theme.palette.primary._alpha.main_25}`,
             "&:hover": {
-              boxShadow: (theme) => `0 12px 40px ${theme.palette.primary._alpha.main_35}`,
+              boxShadow: (theme) =>
+                `0 12px 40px ${theme.palette.primary._alpha.main_35}`,
               transform: "translateY(-1px)",
             },
             transition: "all 0.2s",

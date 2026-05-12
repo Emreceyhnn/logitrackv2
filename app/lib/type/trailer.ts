@@ -22,6 +22,8 @@ export interface TrailerFilters {
   status?: TrailerStatus[];
   type?: TrailerType[];
   isColdChain?: boolean;
+  page?: number;
+  limit?: number;
 }
 
 export interface TrailerPageState {

@@ -7,7 +7,6 @@ import {
   Stack,
   InputAdornment,
   IconButton,
-  useTheme,
 } from "@mui/material";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import CloseIcon from "@mui/icons-material/Close";
@@ -22,7 +21,6 @@ const FirstStep = ({
 }: {
   onFileSelect?: (file: File) => void;
 }) => {
-  const theme = useTheme();
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
 

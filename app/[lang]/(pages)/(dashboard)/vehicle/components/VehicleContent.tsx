@@ -44,7 +44,7 @@ import {
   VehiclePageActions,
   VehicleWithRelations,
 } from "@/app/lib/type/vehicle";
-import { TrailerWithRelations } from "@/app/lib/type/trailer";
+import { TrailerWithRelations, TrailerFilters } from "@/app/lib/type/trailer";
 
 export default function VehicleContent() {
   /* ─── Context ─────────────────────────────────────────────────────────── */
@@ -62,6 +62,12 @@ export default function VehicleContent() {
   }>({
     filters: {},
     selectedVehicleId: null,
+  });
+
+  const [trailerFilters, setTrailerFilters] = useState<TrailerFilters>({
+    page: 1,
+    limit: 10,
+    search: "",
   });
 
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -85,10 +91,13 @@ export default function VehicleContent() {
   } = useVehicleWithDashboard(state.filters);
 
   const {
-    data: trailers,
+    data: trailerData,
     isLoading: isTrailersLoading,
     isFetching: isTrailersFetching,
-  } = useTrailers();
+  } = useTrailers(trailerFilters);
+
+  const trailers = trailerData?.trailers || [];
+  const trailerMeta = trailerData?.meta;
 
   const vehicles = dashboardData?.vehicles;
   const loading = isVehiclesLoading || (activeTab === 1 && isTrailersLoading);
@@ -111,6 +120,18 @@ export default function VehicleContent() {
       setState((prev) => ({
         ...prev,
         filters: { ...prev.filters, ...newFilters },
+      }));
+    },
+    []
+  );
+
+  const updateTrailerFilters = useCallback(
+    (newFilters: Partial<TrailerFilters>) => {
+      setTrailerFilters((prev) => ({
+        ...prev,
+        ...newFilters,
+        // Reset to page 1 on filter change
+        ...(newFilters.page === undefined ? { page: 1 } : {}),
       }));
     },
     []
@@ -224,38 +245,45 @@ export default function VehicleContent() {
       {
         label: dict.vehicles.kpis.totalVehicles,
         value: dashboardData?.vehiclesKpis?.totalVehicles ?? 0,
-        icon: <LocalShipping sx={{ fontSize: 22 }} />,
+        icon: <LocalShipping />,
         color: theme.palette.primary.main,
+        trend: dashboardData?.kpiTrends?.totalVehicles,
       },
       {
         label: dict.vehicles.kpis.available,
         value: dashboardData?.vehiclesKpis?.available ?? 0,
-        icon: <CheckCircle sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.emerald,
+        icon: <CheckCircle />,
+        color: theme.palette.success.main,
       },
       {
         label: dict.vehicles.kpis.inService,
         value: dashboardData?.vehiclesKpis?.inService ?? 0,
-        icon: <Build sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.amber,
+        icon: <Build />,
+        color: theme.palette.warning.main,
       },
       {
         label: dict.vehicles.kpis.onTrip,
         value: dashboardData?.vehiclesKpis?.onTrip ?? 0,
-        icon: <DirectionsCar sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.sky,
+        icon: <DirectionsCar />,
+        color: theme.palette.info.main,
       },
       {
         label: dict.vehicles.kpis.openIssues,
         value: dashboardData?.vehiclesKpis?.openIssues ?? 0,
-        icon: <ReportProblem sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.error,
+        icon: <ReportProblem />,
+        color:
+          (dashboardData?.vehiclesKpis?.openIssues ?? 0) > 0
+            ? theme.palette.error.main
+            : theme.palette.success.main,
       },
       {
         label: dict.vehicles.kpis.docsExpiring,
         value: dashboardData?.vehiclesKpis?.docsDueSoon ?? 0,
-        icon: <Description sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.amber,
+        icon: <Description />,
+        color:
+          (dashboardData?.vehiclesKpis?.docsDueSoon ?? 0) > 0
+            ? theme.palette.warning.main
+            : theme.palette.success.main,
       },
     ],
     [dashboardData, theme, dict]
@@ -273,11 +301,12 @@ export default function VehicleContent() {
       >
         <Box>
           <Typography
-            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
+            variant="h4"
+            sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {activeTab === 0 ? dict.vehicles.title : dict.trailers.title}
           </Typography>
-          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
             {activeTab === 0 ? dict.vehicles.subtitle : dict.trailers.subtitle}
           </Typography>
         </Box>
@@ -298,12 +327,18 @@ export default function VehicleContent() {
                 px: 3,
                 textTransform: "none",
                 borderRadius: 1.5,
-                bgcolor: activeTab === 0 ? theme.palette.primary._alpha.main_10 : "transparent",
+                bgcolor: activeTab === 0 ? theme.palette.primary._alpha.main_15 : "transparent",
                 color: activeTab === 0 ? "primary.main" : "text.secondary",
                 fontWeight: activeTab === 0 ? 700 : 500,
+                fontSize: 15,
+                transition: "all 0.2s ease-in-out",
                 "&:hover": {
-                  bgcolor: activeTab === 0 ? theme.palette.primary._alpha.main_15 : theme.palette.action.hover,
+                  bgcolor: activeTab === 0 ? theme.palette.primary._alpha.main_20 : theme.palette.action.hover,
                 },
+                ...(activeTab === 0 && {
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                  border: `1px solid ${theme.palette.primary._alpha.main_20}`,
+                }),
               }}
             >
               {dict.vehicles.tabs.vehicles}
@@ -314,12 +349,18 @@ export default function VehicleContent() {
                 px: 3,
                 textTransform: "none",
                 borderRadius: 1.5,
-                bgcolor: activeTab === 1 ? theme.palette.primary._alpha.main_10 : "transparent",
+                bgcolor: activeTab === 1 ? theme.palette.primary._alpha.main_15 : "transparent",
                 color: activeTab === 1 ? "primary.main" : "text.secondary",
                 fontWeight: activeTab === 1 ? 700 : 500,
+                fontSize: 15,
+                transition: "all 0.2s ease-in-out",
                 "&:hover": {
-                  bgcolor: activeTab === 1 ? theme.palette.primary._alpha.main_15 : theme.palette.action.hover,
+                  bgcolor: activeTab === 1 ? theme.palette.primary._alpha.main_20 : theme.palette.action.hover,
                 },
+                ...(activeTab === 1 && {
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                  border: `1px solid ${theme.palette.primary._alpha.main_20}`,
+                }),
               }}
             >
               {dict.vehicles.tabs.trailers}
@@ -367,6 +408,13 @@ export default function VehicleContent() {
             onDelete={handleTrailerDelete}
             onAssign={handleTrailerAssign}
             onDetach={handleTrailerDetach}
+            filters={trailerFilters}
+            meta={trailerMeta}
+            actions={{
+              updateFilters: updateTrailerFilters,
+              setPage: (page: number) => updateTrailerFilters({ page }),
+              setLimit: (limit: number) => updateTrailerFilters({ limit }),
+            }}
           />
         )}
       </Stack>

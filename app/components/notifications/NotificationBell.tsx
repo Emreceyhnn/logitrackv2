@@ -30,9 +30,7 @@ import { getStatusColor, resolveStatusAlpha } from "@/app/lib/priorityColor";
 import { formatSmartTimestamp } from "@/app/lib/utils/date";
 import { useNotifications } from "@/app/hooks/useNotifications";
 
-export default function NotificationBell({
-  user: initialUser,
-}: {
+export default function NotificationBell({}: {
   user: AuthenticatedUser | null;
 }) {
   const theme = useTheme();

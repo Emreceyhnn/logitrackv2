@@ -1,12 +1,8 @@
 import { overviewKeys } from "@/app/lib/query-keys/overview.keys";
-
 import { useQuery } from "@tanstack/react-query";
+import { DashboardData, ActionRequiredItems } from "@/app/lib/type/overview";
 
-/**
- * Unified hook for fetching all Overview Dashboard data in a single request.
- * This optimizes performance by consolidating 10 separate queries into one.
- */
-async function fetchOverviewDashboard() {
+async function fetchOverviewDashboard(): Promise<DashboardData & { alerts: ActionRequiredItems[] }> {
   const res = await fetch("/api/overview/dashboard", {
     method: "GET",
     credentials: "include",
@@ -19,12 +15,8 @@ async function fetchOverviewDashboard() {
   return res.json();
 }
 
-/**
- * Unified hook for fetching all Overview Dashboard data in a single request.
- * This optimizes performance by consolidating 10 separate queries into one.
- */
 export function useOverviewData() {
-  const { data, isLoading, isError, refetch, isFetching } = useQuery({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery<DashboardData & { alerts: ActionRequiredItems[] }>({
     queryKey: overviewKeys.dashboard(),
     queryFn: () => fetchOverviewDashboard(),
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -34,6 +26,7 @@ export function useOverviewData() {
   return {
     data: {
       stats: data?.stats ?? null,
+      statsTrends: data?.statsTrends ?? undefined,
       alerts: data?.alerts ?? [],
       dailyOps: data?.dailyOps ?? null,
       fuelStats: data?.fuelStats ?? [],

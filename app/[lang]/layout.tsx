@@ -130,7 +130,7 @@ export default async function LangLayout({
       <body className={poppins.variable}>
         <JsonLd data={organizationSchema} />
         <UserProvider initialUser={user}>
-          <Providers initialMode={(userTheme as any) || undefined}>
+          <Providers initialMode={(userTheme as "light" | "dark" | "system") || undefined}>
             <DictionaryProvider dict={dict}>{children}</DictionaryProvider>
           </Providers>
         </UserProvider>

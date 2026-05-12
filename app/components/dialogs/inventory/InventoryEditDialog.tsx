@@ -27,10 +27,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useWarehouses } from "@/app/hooks/useWarehouses";
 import { MenuItem } from "@mui/material";
-import {
-  InventoryEditProps,
-  InventoryWithRelations,
-} from "@/app/lib/type/inventory";
+import { InventoryEditProps } from "@/app/lib/type/inventory";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -120,10 +117,7 @@ export default function InventoryEditDialog({
       palletCount: item?.palletCount || 0,
       unitValue: item
         ? parseFloat(
-            convertFrom(
-              item.unitValue || 0,
-              (item as any).currency || "USD"
-            ).toFixed(2)
+            convertFrom(item.unitValue || 0, item.currency || "USD").toFixed(2)
           )
         : 0,
       cargoType: item?.cargoType || "General Cargo",
@@ -150,10 +144,7 @@ export default function InventoryEditDialog({
 
   const convertedInitialUnitValue = item
     ? parseFloat(
-        convertFrom(
-          item.unitValue || 0,
-          (item as any).currency || "USD"
-        ).toFixed(2)
+        convertFrom(item.unitValue || 0, item.currency || "USD").toFixed(2)
       )
     : 0;
   const [localUnitValue, setLocalUnitValue] = useState(
@@ -202,7 +193,7 @@ export default function InventoryEditDialog({
         ...data,
         imageUrl: finalImageUrl,
         currency: userCurrency,
-      } as Partial<any>);
+      });
 
       toast.success(
         dict.common.saveSuccess || "Inventory updated successfully"

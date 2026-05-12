@@ -6,22 +6,24 @@ import {
   Stack,
   Typography,
   useTheme,
+  Tooltip,
 } from "@mui/material";
 import Image from "next/image";
-import MonitorIcon from "@mui/icons-material/Monitor";
-import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
-import KeyboardCommandKeyIcon from "@mui/icons-material/KeyboardCommandKey";
-import AnalyticsIcon from "@mui/icons-material/Analytics";
+import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlined";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
+import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { SidebarList } from "./listItem";
 import LogoutIcon from "@mui/icons-material/Logout";
+import CloseIcon from "@mui/icons-material/Close";
 import { useRouter, useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useMemo } from "react";
 import { clearAuthCookies } from "@/app/lib/controllers/session";
 import { getLocalizedPath } from "@/app/lib/language/navigation";
 
-const SideBar = () => {
+const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const router = useRouter();
@@ -45,8 +47,8 @@ const SideBar = () => {
         title: dict.sidebar.overview,
         href: "/overview",
         icon: (
-          <MonitorIcon
-            sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
+          <SpaceDashboardOutlinedIcon
+            sx={{ fontSize: 20, color: theme?.palette?.icon?.secondary }}
           />
         ),
       },
@@ -54,8 +56,8 @@ const SideBar = () => {
         title: dict.sidebar.operation,
         href: "/vehicle",
         icon: (
-          <PrecisionManufacturingIcon
-            sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
+          <LocalShippingOutlinedIcon
+            sx={{ fontSize: 20, color: theme?.palette?.icon?.secondary }}
           />
         ),
         subTitles: [
@@ -69,8 +71,8 @@ const SideBar = () => {
         title: dict.sidebar.management,
         href: "/warehouses",
         icon: (
-          <KeyboardCommandKeyIcon
-            sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
+          <WarehouseOutlinedIcon
+            sx={{ fontSize: 20, color: theme?.palette?.icon?.secondary }}
           />
         ),
         subTitles: [
@@ -84,8 +86,8 @@ const SideBar = () => {
         title: dict.sidebar.analytics,
         href: "/reports",
         icon: (
-          <AnalyticsIcon
-            sx={{ fontSize: 18, color: theme?.palette?.icon?.secondary }}
+          <InsightsOutlinedIcon
+            sx={{ fontSize: 20, color: theme?.palette?.icon?.secondary }}
           />
         ),
         subTitles: [
@@ -103,36 +105,62 @@ const SideBar = () => {
         position: "fixed",
         top: 0,
         left: 0,
-        minWidth: 200,
+        minWidth: 280,
         height: "100dvh",
-        backgroundColor: theme.palette.background.sidebar,
+        backgroundColor:
+          theme.palette.mode === "dark"
+            ? theme.palette.background.paper_alpha.main_40
+            : theme.palette.background.sidebar,
+        backdropFilter: "blur(20px)",
+        borderRight: `1px solid ${theme.palette.divider_alpha.main_20}`,
+        boxShadow:
+          theme.palette.mode === "dark"
+            ? "4px 0 24px rgba(0,0,0,0.4)"
+            : "4px 0 24px rgba(0,0,0,0.02)",
+        zIndex: theme.zIndex.drawer + 1,
+        transition: "all 0.3s ease",
       }}
     >
+      {onMobileClose && (
+        <IconButton
+          onClick={onMobileClose}
+          sx={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            display: { md: "none" },
+            zIndex: 10,
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      )}
       <Stack spacing={1} height={"100%"}>
         <Stack p={3}>
           <Stack direction="row" spacing={1.5} alignItems="center">
             <Box
               sx={{
-                width: 32,
-                height: 32,
-                borderRadius: "8px",
-                background: "linear-gradient(135deg, #38bdf8, #6366f1)",
+                width: 36,
+                height: 36,
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #38bdf8 0%, #6366f1 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                boxShadow: "0 4px 12px rgba(56, 189, 248, 0.3)",
               }}
             >
               <Image
                 src="/logo-white.svg"
                 alt="LogiTrack"
-                width={20}
-                height={20}
+                width={22}
+                height={22}
               />
             </Box>
             <Typography
               sx={{
                 fontWeight: 800,
-                letterSpacing: "-3%",
+                letterSpacing: "-0.02em",
                 fontSize: 20,
                 textTransform: "uppercase",
                 color: theme.palette.text.primary,
@@ -142,71 +170,70 @@ const SideBar = () => {
             </Typography>
           </Stack>
         </Stack>
-        <Divider />
+        <Divider sx={{ mx: 2, opacity: 0.5 }} />
 
-        <Stack justifyContent={"start"} alignItems={"start"} height={"100%"}>
-          <SidebarList items={sideBarItemsParents} lang={lang} />
+        <Stack
+          justifyContent={"start"}
+          alignItems={"start"}
+          height={"100%"}
+          pt={1}
+        >
+          <SidebarList items={sideBarItemsParents} lang={lang} onMobileClose={onMobileClose} />
+
           <Stack
             justifyContent={"start"}
-            px={2}
+            px={1.5}
             marginTop={"auto"}
-            mb={2}
-            spacing={2}
+            mb={3}
+            spacing={0.5}
+            width="100%"
           >
-            <IconButton
-              sx={{
-                ":hover": {
-                  width: "100%",
-                  borderRadius: "8px",
-                  backgroundColor: "transparent",
-                },
-                ":active": {
-                  width: "100%",
-                  borderRadius: "8px",
-                  backgroundColor: "transparent",
-                },
-
-                gap: 1,
-              }}
-            >
-              <HelpOutlineIcon
+            <Tooltip title={dict.common.needHelp} arrow placement="right">
+              <IconButton
                 sx={{
-                  fontSize: 24,
-                  p: 0,
-                  color: theme?.palette?.icon?.secondary,
+                  width: "100%",
+                  justifyContent: "flex-start",
+                  borderRadius: "8px",
+                  px: 1.5,
+                  py: 1,
+                  gap: 1.5,
+                  color: "text.secondary",
+                  ":hover": {
+                    backgroundColor: theme.palette.action.hover,
+                    color: "text.primary",
+                  },
                 }}
-              />
-              <Typography>{dict.common.needHelp}</Typography>
-            </IconButton>
-            <IconButton
-              onClick={handleLogout}
-              sx={{
-                display: "flex",
-                justifyContent: "start",
+              >
+                <HelpOutlineIcon sx={{ fontSize: 22 }} />
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
+                  {dict.common.needHelp}
+                </Typography>
+              </IconButton>
+            </Tooltip>
 
-                ":hover": {
-                  width: "100%",
-                  borderRadius: "8px",
-                  backgroundColor: "transparent",
-                },
-                ":active": {
-                  width: "100%",
-                  borderRadius: "8px",
-                  backgroundColor: "transparent",
-                },
-
-                gap: 1,
-              }}
-            >
-              <LogoutIcon
+            <Tooltip title={dict.common.logout} arrow placement="right">
+              <IconButton
+                onClick={handleLogout}
                 sx={{
-                  fontSize: 24,
-                  p: 0,
-                  color: theme?.palette?.icon?.secondary,
+                  width: "100%",
+                  justifyContent: "flex-start",
+                  borderRadius: "8px",
+                  px: 1.5,
+                  py: 1,
+                  gap: 1.5,
+                  color: "text.secondary",
+                  ":hover": {
+                    backgroundColor: theme.palette.error._alpha.main_10,
+                    color: theme.palette.error.main,
+                  },
                 }}
-              />
-              <Typography>{dict.common.logout}</Typography>
-            </IconButton>
+              >
+                <LogoutIcon sx={{ fontSize: 22 }} />
+                <Typography sx={{ fontWeight: 500, fontSize: 14 }}>
+                  {dict.common.logout}
+                </Typography>
+              </IconButton>
+            </Tooltip>
           </Stack>
         </Stack>
       </Stack>

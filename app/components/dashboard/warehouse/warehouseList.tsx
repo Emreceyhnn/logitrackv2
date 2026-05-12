@@ -97,7 +97,10 @@ const WarehouseListTable = ({
               fontWeight: 800,
               fontSize: "0.6rem",
               textTransform: "uppercase",
-              width: "fit-content",
+              width: 110,
+              display: "flex",
+              justifyContent: "center",
+              textAlign: "center",
             }}
           >
             {dict.warehouses.categories.types[row.type as keyof typeof dict.warehouses.categories.types] || row.type}

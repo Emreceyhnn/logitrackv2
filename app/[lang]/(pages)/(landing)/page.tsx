@@ -310,13 +310,16 @@ export default function LandingPage() {
                       borderRadius: "999px",
                       background: "linear-gradient(135deg, #22d3ee, #2563eb)",
                       boxShadow: "0 18px 40px rgba(37, 99, 235, 0.45)",
+                      transition: "all 0.3s ease",
                       "&:hover": {
                         background: "linear-gradient(135deg, #0ea5e9, #1d4ed8)",
+                        transform: "translateY(-2px)",
+                        boxShadow: "0 22px 50px rgba(37, 99, 235, 0.55)",
                       },
                     }}
                     endIcon={<PlayArrowRoundedIcon />}
                   >
-                    {dict.landing.hero.discover}
+                    {dict.landing.hero.startTrial || "Denemeyi Başlat"}
                   </Button>
                   <Button
                     variant="outlined"

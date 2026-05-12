@@ -18,6 +18,7 @@ import {
   warehouseCacheKeys,
   WAREHOUSE_CACHE_TTL,
 } from "../redis";
+import { calcTrend, daysAgo } from "./utils/trendUtils";
 
 async function invalidateWarehouseCache(
   companyId: string,
@@ -665,6 +666,9 @@ export const getWarehousesWithDashboardData = authenticatedAction(
     warehouses: WarehouseWithRelations[];
     totalCount: number;
     stats: WarehouseStats;
+    statsTrends?: {
+      totalWarehouses?: { value: number; isUp: boolean };
+    };
     recentMovements: InventoryMovementWithRelations[];
   }> => {
     const userId = user?.id;
@@ -682,7 +686,7 @@ export const getWarehousesWithDashboardData = authenticatedAction(
       );
 
       return await withCache(cacheKey, WAREHOUSE_CACHE_TTL, async () => {
-        const [, warehouses, totalCount, statsRaw, inventoryStats, movements] =
+        const [, warehouses, totalCount, statsRaw, inventoryStats, movements, prevTotalWarehouses] =
           await Promise.all([
             checkPermission(userId, companyId, ["role_admin", "role_manager"]),
             db.warehouse.findMany({
@@ -726,6 +730,7 @@ export const getWarehousesWithDashboardData = authenticatedAction(
               take: 10,
               orderBy: { date: "desc" },
             }),
+            db.warehouse.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } })
           ]);
 
         // Stats Calculation
@@ -765,6 +770,9 @@ export const getWarehousesWithDashboardData = authenticatedAction(
             totalItems: inventoryStats._sum.quantity || 0,
             totalCapacityPallets,
             totalCapacityVolume,
+          },
+          statsTrends: {
+            totalWarehouses: calcTrend(totalWarehouses, prevTotalWarehouses as number),
           },
           recentMovements: enrichedMovements,
         };

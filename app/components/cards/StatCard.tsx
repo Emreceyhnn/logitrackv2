@@ -193,16 +193,21 @@ const StatCard = ({
                   sx={{
                     position: "relative",
                     zIndex: 1,
-                    p: 1.8,
-                    borderRadius: "20px",
+                    width: 48,
+                    height: 48,
+                    borderRadius: "16px",
                     color: color,
-                    bgcolor: statusAlpha.main_12,
+                    bgcolor: statusAlpha.main_10,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: `inset 0 0 10px ${statusAlpha.main_10}`,
+                    boxShadow: `inset 0 0 10px ${statusAlpha.main_05}`,
                     transition:
                       "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                    "& svg": {
+                      fontSize: "24px !important",
+                      transition: "all 0.3s ease",
+                    },
                   }}
                 >
                   {icon}

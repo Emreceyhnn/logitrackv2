@@ -22,6 +22,7 @@ import {
   SHIPMENT_CACHE_TTL,
 } from "../redis";
 import { invalidateInventoryCache } from "./inventory";
+import { calcTrend, daysAgo } from "./utils/trendUtils";
 
 export async function invalidateShipmentCache(companyId: string, shipmentId?: string) {
   await Promise.all([
@@ -1055,6 +1056,11 @@ export const getShipmentsWithDashboardData = authenticatedAction(
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
+      // Trend windows
+      const periodStart = daysAgo(30);
+      const prevPeriodStart = daysAgo(60);
+      const prevPeriodEnd = periodStart;
+
       const where: Prisma.ShipmentWhereInput = { companyId };
       if (status && status !== "ALL") {
         where.status = status;
@@ -1085,6 +1091,10 @@ export const getShipmentsWithDashboardData = authenticatedAction(
         inTransit,
         rawVolumeHistory,
         statusCounts,
+        prevTotal,
+        prevActive,
+        prevDelayed,
+        prevInTransit,
       ] = await Promise.all([
         checkPermission(userId, companyId, [
           "role_admin",
@@ -1137,6 +1147,17 @@ export const getShipmentsWithDashboardData = authenticatedAction(
           where: { companyId },
           _count: { status: true },
         }),
+        // Previous period stats (30–60 days ago)
+        db.shipment.count({ where: { companyId, createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd } } }),
+        db.shipment.count({
+          where: {
+            companyId,
+            status: { in: [ShipmentStatus.PENDING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.PROCESSING] },
+            createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd },
+          },
+        }),
+        db.shipment.count({ where: { companyId, status: ShipmentStatus.DELAYED, createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd } } }),
+        db.shipment.count({ where: { companyId, status: ShipmentStatus.IN_TRANSIT, createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd } } }),
       ]);
 
       // Volume History Transformation
@@ -1151,10 +1172,18 @@ export const getShipmentsWithDashboardData = authenticatedAction(
         volume: volumeByDay[day] || 0,
       }));
 
+      const statsTrends = {
+        total: calcTrend(total, prevTotal),
+        active: calcTrend(active, prevActive),
+        delayed: calcTrend(delayed, prevDelayed),
+        inTransit: calcTrend(inTransit, prevInTransit),
+      };
+
       return {
         shipments: shipments as unknown as ShipmentWithRelations[],
         totalCount,
         stats: { total, active, delayed, inTransit },
+        statsTrends,
         volumeHistory,
         statusDistribution: statusCounts.map((s: { status: ShipmentStatus; _count: { status: number } }) => ({
           status: s.status,

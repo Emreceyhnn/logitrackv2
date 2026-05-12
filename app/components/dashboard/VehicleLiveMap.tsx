@@ -23,10 +23,12 @@ import { useAllVehiclesTracking } from "@/app/hooks/useVehicleTracking";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import VehicleDialog from "@/app/components/dialogs/vehicle/vehicleDetailsDialog";
 
 export const VehicleLiveMap = () => {
   const [vehicles, setVehicles] = useState<VehicleWithRelations[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { vehicleLocations } = useAllVehiclesTracking();
   const [initialLoading, setInitialLoading] = useState(true);
   const dict = useDictionary();
@@ -65,6 +67,7 @@ export const VehicleLiveMap = () => {
       const position = live ? { lat: live.lat, lng: live.lng } : (v.currentLat && v.currentLng ? { lat: v.currentLat, lng: v.currentLng } : { lat: 41.0082, lng: 28.9784 });
       
       return {
+        id: v.id,
         position,
         label: v.plate,
         type: "vehicle",
@@ -92,8 +95,8 @@ export const VehicleLiveMap = () => {
         height={600} 
         markers={markers} 
         onMarkerClick={(m) => {
-          const v = vehicles.find(veh => veh.plate === m.label);
-          if (v) setSelectedVehicleId(v.id);
+          setSelectedVehicleId(m.id || null);
+          setIsDialogOpen(true);
         }}
         center={selectedLive ? { lat: selectedLive.lat, lng: selectedLive.lng } : undefined}
         zoom={selectedLive ? 15 : undefined}
@@ -156,6 +159,7 @@ export const VehicleLiveMap = () => {
                   icon={<TruckIcon sx={{ fontSize: 14 }} />} 
                   label={selectedVehicle.plate} 
                   sx={{ bgcolor: colors.accent, color: "black", fontWeight: 800, mb: 1 }} 
+                  onClick={() => setIsDialogOpen(true)}
                 />
                 <Typography variant="h6" sx={{ color: colors.textPrimary, fontWeight: 700, lineHeight: 1.2 }}>
                   {selectedVehicle.brand} {selectedVehicle.model}
@@ -220,6 +224,13 @@ export const VehicleLiveMap = () => {
           </Paper>
         </Box>
       )}
+
+      {/* Full Details Dialog */}
+      <VehicleDialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        vehicleData={selectedVehicle}
+      />
     </Box>
   );
 };

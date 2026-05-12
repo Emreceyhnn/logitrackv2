@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState, useMemo } from "react";
-import { Box, Stack, useTheme } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
@@ -139,28 +139,29 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
       {
         label: dict.inventory.totalItems,
         value: stats?.totalItems ?? 0,
-        icon: <InventoryIcon sx={{ fontSize: 22 }} />,
+        icon: <InventoryIcon />,
         color: theme.palette.primary.main,
+        trend: dashboardData?.statsTrends?.totalItems,
       },
       {
         label: dict.inventory.lowStock,
         value: stats?.lowStockCount ?? 0,
-        icon: <Warning sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.amber,
-        trend:
-          (stats?.lowStockCount || 0) > 0
-            ? { value: stats!.lowStockCount, isUp: true }
-            : undefined,
+        icon: <Warning />,
+        color:
+          (stats?.lowStockCount ?? 0) > 0
+            ? theme.palette.warning.main
+            : theme.palette.success.main,
+        trend: dashboardData?.statsTrends?.lowStock,
       },
       {
         label: dict.inventory.outOfStock,
         value: stats?.outOfStockCount ?? 0,
-        icon: <ErrorIcon sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.error,
-        trend:
-          (stats?.outOfStockCount || 0) > 0
-            ? { value: stats!.outOfStockCount, isUp: true }
-            : undefined,
+        icon: <ErrorIcon />,
+        color:
+          (stats?.outOfStockCount ?? 0) > 0
+            ? theme.palette.error.main
+            : theme.palette.success.main,
+        trend: dashboardData?.statsTrends?.outOfStock,
       },
       {
         label: dict.inventory.totalValue,
@@ -172,11 +173,19 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
                 maximumFractionDigits: 0,
               }).format(stats.totalValue)
             : "—",
-        icon: <AttachMoney sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.emerald,
+        icon: <AttachMoney />,
+        color: theme.palette.success.main,
       },
     ],
-    [stats, theme, dict, lang]
+    [
+      stats,
+      theme,
+      dict,
+      lang,
+      dashboardData?.statsTrends?.totalItems,
+      dashboardData?.statsTrends?.lowStock,
+      dashboardData?.statsTrends?.outOfStock,
+    ]
   );
 
   return (
@@ -254,7 +263,6 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
         )}
         loading={deleteMutation.isPending}
       />
-
     </Box>
   );
 };

@@ -8,11 +8,11 @@ import {
   useTheme,
 } from "@mui/material";
 import CustomCard from "../../cards/card";
-import DirectionsIcon from "@mui/icons-material/Directions";
-import PlaceIcon from "@mui/icons-material/Place";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import RouteIcon from "@mui/icons-material/Route";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
+import TimerIcon from "@mui/icons-material/Timer";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { DailyOperationsData } from "@/app/lib/type/overview";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useMemo } from "react";
@@ -31,28 +31,28 @@ const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {
       {
         label: dict.dashboard.overview.dailyOperations.plannedRoutes,
         value: values.plannedRoutes,
-        icon: <DirectionsIcon sx={{ fontSize: 20 }} />,
+        icon: <RouteIcon sx={{ fontSize: 20 }} />,
         color: theme.palette.kpi.indigo,
         bgColor: theme.palette.kpi.indigo_alpha.main_10,
       },
       {
         label: dict.dashboard.overview.dailyOperations.completedDeliveries,
         value: values.completedDeliveries,
-        icon: <PlaceIcon sx={{ fontSize: 20 }} />,
+        icon: <CheckCircleIcon sx={{ fontSize: 20 }} />,
         color: theme.palette.kpi.emerald,
         bgColor: theme.palette.kpi.emerald_alpha.main_10,
       },
       {
         label: dict.dashboard.overview.dailyOperations.failedDeliveries,
         value: values.failedDeliveries,
-        icon: <ErrorOutlineIcon sx={{ fontSize: 20 }} />,
+        icon: <ErrorIcon sx={{ fontSize: 20 }} />,
         color: theme.palette.kpi.error,
-        bgColor: theme.palette.error._alpha.main_10,
+        bgColor: theme.palette.kpi.error_alpha.main_10,
       },
       {
         label: dict.dashboard.overview.dailyOperations.avgDuration,
         value: values.avgDeliveryTimeMin || "--",
-        icon: <AccessTimeIcon sx={{ fontSize: 20 }} />,
+        icon: <TimerIcon sx={{ fontSize: 20 }} />,
         color: theme.palette.kpi.amber,
         bgColor: theme.palette.kpi.amber_alpha.main_10,
       },
@@ -91,11 +91,17 @@ const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                p: 1.5,
-                borderRadius: 2,
-                bgcolor: theme.palette.background.default_alpha.main_60,
-                boxShadow: `0 2px 8px ${theme.palette.common.black_alpha.main_04}`,
-                border: `1px solid ${theme.palette.divider_alpha.main_50}`,
+                p: 1.2,
+                borderRadius: "16px",
+                bgcolor: theme.palette.background.paper_alpha.main_40,
+                border: `1px solid ${theme.palette.divider_alpha.main_08}`,
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                "&:hover": {
+                  transform: "translateX(4px)",
+                  bgcolor: theme.palette.background.paper_alpha.main_60,
+                  borderColor: theme.palette.divider_alpha.main_20,
+                  boxShadow: `0 4px 12px ${theme.palette.common.black_alpha.main_08}`,
+                },
               }}
             >
               <Stack direction="row" spacing={2} alignItems="center">
@@ -109,6 +115,8 @@ const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {
                     borderRadius: "10px",
                     bgcolor: item.bgColor,
                     color: item.color,
+                    boxShadow: `inset 0 0 10px ${theme.palette.getColorAlpha(item.color).main_10}`,
+                    transition: "all 0.3s ease",
                   }}
                 >
                   {item.icon}
@@ -123,8 +131,9 @@ const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {
               </Stack>
               <Typography
                 variant="subtitle1"
-                fontWeight={700}
+                fontWeight={800}
                 color="text.primary"
+                sx={{ letterSpacing: "-0.02em" }}
               >
                 {item.value}
               </Typography>

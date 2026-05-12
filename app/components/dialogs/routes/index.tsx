@@ -156,8 +156,8 @@ export default function RouteDialog({
     }
 
     // Add intermediate stops
-    if ((shipment as any).stops) {
-      (shipment as any).stops.forEach((stop: any) => {
+    if (shipment.stops) {
+      shipment.stops.forEach((stop) => {
         stops.push({
           location: stop.lat && stop.lng ? { lat: stop.lat, lng: stop.lng } : stop.address,
           stopover: true

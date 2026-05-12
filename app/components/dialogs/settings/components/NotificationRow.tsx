@@ -1,4 +1,4 @@
-import { Box, Typography, Switch, useTheme } from "@mui/material";
+import { Box, Typography, Switch } from "@mui/material";
 
 interface NotifRowProps {
   label: string;
@@ -13,8 +13,6 @@ export default function NotificationRow({
   checked,
   onChange,
 }: NotifRowProps) {
-  const theme = useTheme();
-
   return (
     <Box
       sx={{
@@ -24,18 +22,22 @@ export default function NotificationRow({
         px: 2.5,
         py: 2,
         borderRadius: 3,
-        border: (theme) => `1px solid ${checked ? theme.palette.common.white_alpha.main_10 : theme.palette.common.white_alpha.main_05}`,
-        bgcolor: (theme) => checked
-          ? theme.palette.primary._alpha.main_05
-          : theme.palette.common.white_alpha.main_02,
+        border: (theme) =>
+          `1px solid ${checked ? theme.palette.common.white_alpha.main_10 : theme.palette.common.white_alpha.main_05}`,
+        bgcolor: (theme) =>
+          checked
+            ? theme.palette.primary._alpha.main_05
+            : theme.palette.common.white_alpha.main_02,
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         "&:hover": {
-          bgcolor: (theme) => checked
-            ? theme.palette.primary._alpha.main_08
-            : theme.palette.common.white_alpha.main_03,
-          borderColor: (theme) => checked
-            ? theme.palette.primary._alpha.main_30
-            : theme.palette.primary._alpha.main_10,
+          bgcolor: (theme) =>
+            checked
+              ? theme.palette.primary._alpha.main_08
+              : theme.palette.common.white_alpha.main_03,
+          borderColor: (theme) =>
+            checked
+              ? theme.palette.primary._alpha.main_30
+              : theme.palette.primary._alpha.main_10,
         },
       }}
     >
@@ -74,9 +76,10 @@ export default function NotificationRow({
             bgcolor: (theme) => theme.palette.common.white_alpha.main_10,
           },
           "& .MuiSwitch-thumb": {
-            boxShadow: (theme) => checked
-              ? `0 0 10px ${theme.palette.primary._alpha.main_60}`
-              : "none",
+            boxShadow: (theme) =>
+              checked
+                ? `0 0 10px ${theme.palette.primary._alpha.main_60}`
+                : "none",
           },
         }}
       />

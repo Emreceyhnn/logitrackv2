@@ -10,7 +10,7 @@ import type {
 import RouteDetailsDialog from "@/app/components/dialogs/routes";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { RouteTableProps, RouteWithRelations } from "@/app/lib/type/routes";
-import { useUser } from "@/app/hooks/useUser";
+
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDateTime } from "@/app/lib/utils/date";
 
@@ -42,7 +42,7 @@ const RouteTable = ({
   onRefresh,
 }: ExtendedRouteTableProps) => {
   const dict = useDictionary();
-  const { user } = useUser();
+
   const dateSettings = useDateSettings();
 
   /* --------------------------------- states --------------------------------- */

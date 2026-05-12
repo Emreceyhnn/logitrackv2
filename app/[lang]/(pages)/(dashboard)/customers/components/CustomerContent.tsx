@@ -9,6 +9,7 @@ import {
   Paper,
   Typography,
   Button,
+  Chip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -22,7 +23,7 @@ import EditCustomerDialog from "@/app/components/dialogs/customer/editCustomerDi
 import AddCustomerDialog from "@/app/components/dialogs/customer/addCustomerDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import CustomerList from "@/app/components/dashboard/customer/CustomerList";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import {
   CustomerPageActions,
   CustomerWithRelations,
@@ -170,6 +171,24 @@ export default function CustomerContent() {
               {dict.common.add}
             </Button>
           </Stack>
+          {filters.search && (
+            <Stack direction="row" spacing={1} sx={{ mt: 1.5 }}>
+              <Chip
+                label={`${dict.common.search}: ${filters.search}`}
+                size="small"
+                onDelete={() => actions.updateFilters({ search: "" })}
+                sx={{
+                  bgcolor: "primary._alpha.main_10",
+                  color: "primary.main",
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                  borderRadius: "6px",
+                  border: "1px solid",
+                  borderColor: "primary._alpha.main_20",
+                }}
+              />
+            </Stack>
+          )}
         </Paper>
         <Box sx={{ flex: 1, overflow: "hidden" }}>
           <CustomerList

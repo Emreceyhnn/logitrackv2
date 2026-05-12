@@ -52,34 +52,48 @@ const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
     if (!values) return [];
 
     const config: Record<string, { label: string; color: string }> = {
+      PENDING: {
+        label: dict.shipments.statuses.PENDING,
+        color: theme.palette.kpi.sky,
+      },
+      ASSIGNED: {
+        label: dict.shipments.statuses.ASSIGNED,
+        color: theme.palette.kpi.cyan,
+      },
       IN_TRANSIT: {
         label: dict.shipments.statuses.IN_TRANSIT,
         color: theme.palette.kpi.indigo,
+      },
+      COMPLETED: {
+        label: dict.shipments.statuses.COMPLETED,
+        color: theme.palette.kpi.emerald,
       },
       DELAYED: {
         label: dict.shipments.statuses.DELAYED,
         color: theme.palette.kpi.error,
       },
-      PLANNED: {
-        label: dict.shipments.statuses.PENDING,
-        color: theme.palette.kpi.sky,
-      },
-      DELIVERED: {
-        label: dict.shipments.statuses.DELIVERED,
-        color: theme.palette.kpi.emerald,
-      },
-      PROCESSING: {
-        label: dict.shipments.statuses.PROCESSING,
-        color: theme.palette.kpi.amber,
-      },
-      CANCELLED: {
-        label: dict.shipments.statuses.CANCELLED,
-        color: theme.palette.grey[500],
+      FAILED: {
+        label: dict.shipments.statuses.FAILED,
+        color: theme.palette.error.main,
       },
     };
 
+    const statusMapping: Record<string, string> = {
+      PENDING: "PENDING",
+      PROCESSING: "PENDING",
+      PLANNED: "PENDING",
+      ASSIGNED: "ASSIGNED",
+      IN_TRANSIT: "IN_TRANSIT",
+      DELIVERED: "COMPLETED",
+      COMPLETED: "COMPLETED",
+      DELAYED: "DELAYED",
+      CANCELLED: "FAILED",
+      FAILED: "FAILED",
+    };
+
     const statusCounts = values.reduce<Record<string, number>>((acc, s) => {
-      acc[s] = (acc[s] || 0) + 1;
+      const mappedStatus = statusMapping[s] || "PENDING";
+      acc[mappedStatus] = (acc[mappedStatus] || 0) + 1;
       return acc;
     }, {});
 
@@ -114,7 +128,7 @@ const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          p: 2,
+          p: 1,
         }}
       >
         {total === 0 ? (
@@ -129,29 +143,36 @@ const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
             sx={{
               position: "relative",
               width: "100%",
-              height: 260,
+              height: 300, // Increased height
               display: "flex",
               justifyContent: "center",
+              "& .MuiChartsLegend-root": {
+                "& text": {
+                  fontSize: "11px !important",
+                  fontWeight: "600 !important",
+                },
+              },
             }}
           >
             <PieChart
               series={[
                 {
                   data,
-                  innerRadius: 60,
-                  outerRadius: 100,
+                  innerRadius: 50,
+                  outerRadius: 85,
                   paddingAngle: 2,
-                  cornerRadius: 4,
+                  cornerRadius: 6,
                   highlightScope: { fade: "global", highlight: "item" },
-                  faded: { innerRadius: 50, color: "gray" },
+                  faded: { innerRadius: 40, color: "gray" },
                 },
               ]}
               slotProps={{
                 legend: {
+                  direction: "horizontal",
                   position: { vertical: "bottom", horizontal: "center" },
                 },
               }}
-              margin={{ top: 10, bottom: 60, left: 10, right: 10 }}
+              margin={{ top: 0, bottom: 90, left: 10, right: 10 }}
             >
               <PieCenterLabel
                 total={total}

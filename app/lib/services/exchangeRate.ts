@@ -15,6 +15,12 @@ export interface ExchangeRates {
   lastUpdated: string;
 }
 
+interface ExchangeRateApiResponse {
+  result: string;
+  conversion_rates: Record<string, number>;
+  "error-type"?: string;
+}
+
 export async function getExchangeRates(): Promise<ExchangeRates> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -61,7 +67,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     );
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as ExchangeRateApiResponse;
 
   if (data.result !== "success") {
     throw new Error(`ExchangeRate-API returned: ${data["error-type"]}`);
@@ -77,7 +83,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     await db.exchangeRate.create({
       data: {
         base: "USD",
-        rates: data.conversion_rates as any,
+        rates: data.conversion_rates as unknown as import("@prisma/client").Prisma.InputJsonValue,
         date: new Date(),
       },
     });

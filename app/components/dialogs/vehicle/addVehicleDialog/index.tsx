@@ -16,6 +16,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { Dictionary } from "@/app/lib/language/language";
 import { useMemo, useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import FirstStep from "./firstStep";
@@ -30,7 +31,7 @@ import {
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { fileToBase64 } from "@/app/lib/utils/fileUtils";
 import { toast } from "sonner";
-import { Formik, FormikHelpers } from "formik";
+import { Formik, FormikHelpers, useFormikContext } from "formik";
 import { addVehicleValidationSchema } from "@/app/lib/validationSchema";
 
 interface VehicleCreateInput {
@@ -202,198 +203,239 @@ const AddVehicleDialog = ({
     dict.vehicles.dialogs.steps.docs,
   ];
 
+  const StepSync = ({
+    currentStep,
+    setCurrentStep,
+    dict,
+  }: {
+    currentStep: number;
+    setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
+    dict: Dictionary;
+  }) => {
+    const { errors, submitCount } = useFormikContext<VehicleFormValues>();
+
+    useEffect(() => {
+      if (submitCount > 0 && Object.keys(errors).length > 0) {
+        const getStepForField = (fieldName: string): number => {
+          const step1Fields = [
+            "plate",
+            "fleetNo",
+            "brand",
+            "model",
+            "type",
+            "year",
+            "odometerKm",
+            "photo",
+          ];
+          const step2Fields = [
+            "maxLoadKg",
+            "fuelType",
+            "avgFuelConsumption",
+            "fuelLevel",
+            "engineSize",
+            "transmission",
+            "techNotes",
+          ];
+          if (step1Fields.includes(fieldName)) return 1;
+          if (step2Fields.includes(fieldName)) return 2;
+          return 3;
+        };
+
+        const firstErrorField = Object.keys(errors)[0];
+        const targetStep = getStepForField(firstErrorField);
+        if (targetStep !== currentStep) {
+          setCurrentStep(targetStep);
+          toast.error(
+            dict.validation.genericFormError ||
+              "Please check errors in the highlighted step."
+          );
+        }
+      }
+    }, [submitCount, errors, currentStep, setCurrentStep, dict]);
+
+    return null;
+  };
+
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={useMemo(() => addVehicleValidationSchema(dict), [dict])}
       onSubmit={handleSubmit}
     >
-      {({ isSubmitting, submitForm, setFieldValue, submitCount, errors }) => {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        useEffect(() => {
-          if (submitCount > 0 && Object.keys(errors).length > 0) {
-            const getStepForField = (fieldName: string): number => {
-              const step1Fields = ["plate", "fleetNo", "brand", "model", "type", "year", "odometerKm", "photo"];
-              const step2Fields = ["maxLoadKg", "fuelType", "avgFuelConsumption", "fuelLevel", "engineSize", "transmission", "techNotes"];
-              if (step1Fields.includes(fieldName)) return 1;
-              if (step2Fields.includes(fieldName)) return 2;
-              return 3;
-            };
-
-            const firstErrorField = Object.keys(errors)[0];
-            const targetStep = getStepForField(firstErrorField);
-            if (targetStep !== currentStep) {
-              setCurrentStep(targetStep);
-              // Also show a toast to let user know we moved them
-              toast.error(dict.validation.genericFormError || "Please check errors in the highlighted step.");
-            }
-          }
-        }, [submitCount]);
-
-        return (
-        <Dialog
-          open={open}
-          onClose={closeDialog}
-          maxWidth="md"
-          fullWidth
-          PaperProps={{
-            sx: {
-              overflow: "hidden",
-            },
-          }}
-        >
-          <Box sx={{ p: 3, pb: 0 }}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Typography variant="h6" fontWeight={800} color="text.primary">
-                {dict.vehicles.dialogs.addTitle}
-              </Typography>
-              <IconButton
-                onClick={closeDialog}
-                size="small"
-                sx={{ color: "text.secondary" }}
+      {({ isSubmitting, submitForm, setFieldValue }) => (
+        <>
+          <StepSync
+            currentStep={currentStep}
+            setCurrentStep={setCurrentStep}
+            dict={dict}
+          />
+          <Dialog
+            open={open}
+            onClose={closeDialog}
+            maxWidth="md"
+            fullWidth
+            PaperProps={{
+              sx: {
+                overflow: "hidden",
+              },
+            }}
+          >
+            <Box sx={{ p: 3, pb: 0 }}>
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
               >
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </Stack>
+                <Typography variant="h6" fontWeight={800} color="text.primary">
+                  {dict.vehicles.dialogs.addTitle}
+                </Typography>
+                <IconButton
+                  onClick={closeDialog}
+                  size="small"
+                  sx={{ color: "text.secondary" }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Stack>
 
-            {error && (
+              {error && (
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: theme.palette.error._alpha.main_10,
+                    border: `1px solid ${theme.palette.error._alpha.main_20}`,
+                  }}
+                >
+                  <Typography variant="caption" color="error.light">
+                    {error}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
+            <DialogContent sx={{ p: 3 }}>
+              <Box sx={{ mb: 4, px: 2 }}>
+                <Stepper
+                  activeStep={currentStep - 1}
+                  sx={{
+                    "& .MuiStepConnector-line": {
+                      borderColor: theme.palette.divider_alpha.main_10,
+                    },
+                  }}
+                >
+                  {steps.map((label, index) => (
+                    <Step key={label}>
+                      <StepLabel
+                        StepIconProps={{
+                          sx: {
+                            "&.Mui-active": {
+                              color: theme.palette.primary.main,
+                            },
+                            "&.Mui-completed": {
+                              color: theme.palette.primary.main,
+                            },
+                          },
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          fontWeight={700}
+                          color={
+                            currentStep - 1 >= index
+                              ? "text.primary"
+                              : "text.disabled"
+                          }
+                        >
+                          {label}
+                        </Typography>
+                      </StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
+              </Box>
+
+              <Divider
+                sx={{ mb: 4, borderColor: theme.palette.divider_alpha.main_05 }}
+              />
+
+              <Box sx={{ minHeight: 400 }}>
+                {currentStep === 1 && (
+                  <FirstStep
+                    onFileSelect={(file) => setFieldValue("photo", file)}
+                  />
+                )}
+                {currentStep === 2 && <TechSpecsStep />}
+                {currentStep === 3 && <DocumentsStep />}
+              </Box>
+
               <Box
                 sx={{
-                  mt: 2,
-                  p: 2,
-                  borderRadius: 2,
-                  bgcolor: theme.palette.error._alpha.main_10,
-                  border: `1px solid ${theme.palette.error._alpha.main_20}`,
+                  mt: 4,
+                  pt: 3,
+                  borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`,
                 }}
               >
-                <Typography variant="caption" color="error.light">
-                  {error}
-                </Typography>
-              </Box>
-            )}
-          </Box>
-
-          <DialogContent sx={{ p: 3 }}>
-            <Box sx={{ mb: 4, px: 2 }}>
-              <Stepper
-                activeStep={currentStep - 1}
-                sx={{
-                  "& .MuiStepConnector-line": {
-                    borderColor: theme.palette.divider_alpha.main_10,
-                  },
-                }}
-              >
-                {steps.map((label, index) => (
-                  <Step key={label}>
-                    <StepLabel
-                      StepIconProps={{
-                        sx: {
-                          "&.Mui-active": { color: theme.palette.primary.main },
-                          "&.Mui-completed": {
-                            color: theme.palette.primary.main,
-                          },
-                        },
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        fontWeight={700}
-                        color={
-                          currentStep - 1 >= index ? "text.primary" : "text.disabled"
-                        }
-                      >
-                        {label}
-                      </Typography>
-                    </StepLabel>
-                  </Step>
-                ))}
-              </Stepper>
-            </Box>
-
-            <Divider
-              sx={{ mb: 4, borderColor: theme.palette.divider_alpha.main_05 }}
-            />
-
-            <Box sx={{ minHeight: 400 }}>
-              {currentStep === 1 && (
-                <FirstStep
-                  onFileSelect={(file) => setFieldValue("photo", file)}
-                />
-              )}
-              {currentStep === 2 && <TechSpecsStep />}
-              {currentStep === 3 && <DocumentsStep />}
-            </Box>
-
-            <Box
-              sx={{
-                mt: 4,
-                pt: 3,
-                borderTop: `1px solid ${theme.palette.divider_alpha.main_05}`,
-              }}
-            >
-              <Stack direction="row" spacing={2} justifyContent="flex-end">
-                <Button
-                  variant="text"
-                  onClick={closeDialog}
-                  sx={{
-                    color: "text.secondary",
-                    textTransform: "none",
-                    fontWeight: 600,
-                  }}
-                >
-                  {dict.common.cancel}
-                </Button>
-                {currentStep > 1 && (
+                <Stack direction="row" spacing={2} justifyContent="flex-end">
                   <Button
-                    variant="outlined"
-                    onClick={() => setCurrentStep((prev) => prev - 1)}
+                    variant="text"
+                    onClick={closeDialog}
                     sx={{
+                      color: "text.secondary",
                       textTransform: "none",
-                      borderRadius: 2,
-                      fontWeight: 700,
+                      fontWeight: 600,
                     }}
                   >
-                    {dict.common.back}
+                    {dict.common.cancel}
                   </Button>
-                )}
-                <Button
-                  variant="contained"
-                  onClick={
-                    currentStep === 3
-                      ? submitForm
-                      : () => setCurrentStep((prev) => prev + 1)
-                  }
-                  disabled={isSubmitting}
-                  endIcon={
-                    isSubmitting ? (
-                      <CircularProgress size={16} color="inherit" />
-                    ) : null
-                  }
-                  sx={{
-                    textTransform: "none",
-                    px: currentStep === 3 ? 3 : 4,
-                    borderRadius: 2,
-                    boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
-                    fontWeight: 700,
-                    minWidth: 140,
-                  }}
-                >
-                  {isSubmitting
-                    ? dict.toasts.loading
-                    : currentStep === 3
-                      ? dict.common.save
-                      : dict.common.next}
-                </Button>
-              </Stack>
-            </Box>
-          </DialogContent>
-        </Dialog>
-        );
-      }}
+                  {currentStep > 1 && (
+                    <Button
+                      variant="outlined"
+                      onClick={() => setCurrentStep((prev) => prev - 1)}
+                      sx={{
+                        textTransform: "none",
+                        borderRadius: 2,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {dict.common.back}
+                    </Button>
+                  )}
+                  <Button
+                    variant="contained"
+                    onClick={
+                      currentStep === 3
+                        ? submitForm
+                        : () => setCurrentStep((prev) => prev + 1)
+                    }
+                    disabled={isSubmitting}
+                    endIcon={
+                      isSubmitting ? (
+                        <CircularProgress size={16} color="inherit" />
+                      ) : null
+                    }
+                    sx={{
+                      textTransform: "none",
+                      px: currentStep === 3 ? 3 : 4,
+                      borderRadius: 2,
+                      boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
+                      fontWeight: 700,
+                      minWidth: 140,
+                    }}
+                  >
+                    {isSubmitting
+                      ? dict.toasts.loading
+                      : currentStep === 3
+                        ? dict.common.save
+                        : dict.common.next}
+                  </Button>
+                </Stack>
+              </Box>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
     </Formik>
   );
 };

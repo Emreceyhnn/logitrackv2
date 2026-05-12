@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { reportsKeys } from "@/app/lib/query-keys/reports.keys";
+import { ReportsData } from "@/app/lib/type/reports";
 
-async function fetchReportsDashboard() {
+async function fetchReportsDashboard(): Promise<ReportsData> {
   const res = await fetch("/api/reports/dashboard", {
     method: "GET",
     credentials: "include",
@@ -15,7 +16,7 @@ async function fetchReportsDashboard() {
 }
 
 export function useReportsData() {
-  return useQuery({
+  return useQuery<ReportsData>({
     queryKey: reportsKeys.dashboard(),
     queryFn: () => fetchReportsDashboard(),
     staleTime: 1000 * 60 * 15, // 15 minutes

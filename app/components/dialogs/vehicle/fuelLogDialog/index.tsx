@@ -19,7 +19,6 @@ import {
   useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import { useState } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { createFuelLog } from "@/app/lib/controllers/fuel";

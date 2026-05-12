@@ -22,13 +22,19 @@ export default function ForecastingWidget({ data }: ForecastingWidgetProps) {
   const [range, setRange] = useState<TimeRange>("6m");
 
   const weekPrefix = dict.analytics.forecasting.weekPrefix;
-  const generateWeeks = () =>
-    Array.from({ length: 13 }, (_, i) => `${weekPrefix}${i + 1}`);
+  const weeks = useMemo(() => {
+    const generateWeeks = () =>
+      Array.from({ length: 13 }, (_, i) => `${weekPrefix}${i + 1}`);
+    return data?.weeks?.map((w) => w.replace("W", weekPrefix)) || generateWeeks();
+  }, [data?.weeks, weekPrefix]);
 
-  const weeks =
-    data?.weeks?.map((w) => w.replace("W", weekPrefix)) || generateWeeks();
-  const actualsSeries = data?.actuals || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  const predictedSeries = data?.predicted || Array(12).fill(null);
+  const actualsSeries = useMemo(() => 
+    data?.actuals || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [data?.actuals]);
+
+  const predictedSeries = useMemo(() => 
+    data?.predicted || Array(12).fill(null),
+  [data?.predicted]);
 
   const displayCount = useMemo(() => {
     if (range === "1w") return 4;

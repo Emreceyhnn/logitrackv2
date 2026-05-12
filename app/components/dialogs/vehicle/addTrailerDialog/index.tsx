@@ -13,10 +13,9 @@ import {
   Checkbox,
   Grid,
   Typography,
-  Box,
 } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { TrailerType, TrailerStatus } from "@/app/lib/type/enums";
+import { TrailerType } from "@/app/lib/type/enums";
 import { useTrailerMutations } from "@/app/hooks/useTrailers";
 
 interface AddTrailerDialogProps {
@@ -56,7 +55,11 @@ export default function AddTrailerDialog({
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await createTrailer.mutateAsync(formData);
+      await createTrailer.mutateAsync({
+        ...formData,
+        capacityVolumeM3: Number(formData.capacityVolumeM3),
+        maxLoadKg: Number(formData.maxLoadKg),
+      });
       onSuccess?.();
       onClose();
       setFormData({
@@ -117,7 +120,11 @@ export default function AddTrailerDialog({
               >
                 {Object.values(TrailerType).map((type) => (
                   <MenuItem key={type} value={type}>
-                    {dict.trailers.types[type as keyof typeof dict.trailers.types]}
+                    {
+                      dict.trailers.types[
+                        type as keyof typeof dict.trailers.types
+                      ]
+                    }
                   </MenuItem>
                 ))}
               </TextField>
@@ -161,7 +168,11 @@ export default function AddTrailerDialog({
           </Grid>
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={onClose} color="inherit" sx={{ textTransform: "none" }}>
+          <Button
+            onClick={onClose}
+            color="inherit"
+            sx={{ textTransform: "none" }}
+          >
             {dict.common.cancel}
           </Button>
           <Button

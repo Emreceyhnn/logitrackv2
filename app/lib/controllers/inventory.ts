@@ -19,6 +19,7 @@ import {
   INVENTORY_CACHE_TTL,
 } from "../redis";
 import { getExchangeRates } from "../services/exchangeRate";
+import { calcTrend, daysAgo } from "./utils/trendUtils";
 
 
 export async function invalidateInventoryCache(companyId: string, inventoryId?: string) {
@@ -85,7 +86,7 @@ export const createInventoryItem = authenticatedAction(
           },
         });
 
-        const mvt = await tx.inventoryMovement.create({
+        await tx.inventoryMovement.create({
           data: {
             warehouseId,
             sku: itemSku,
@@ -471,6 +472,7 @@ export const getInventoryWithDashboardData = authenticatedAction(
           totalCount,
           allStatsItems,
           ratesData,
+          prevTotalItems,
         ] = await Promise.all([
           checkPermission(userId!, companyId, ["role_admin", "role_manager", "role_warehouse"]),
           db.inventory.findMany({
@@ -499,6 +501,8 @@ export const getInventoryWithDashboardData = authenticatedAction(
             },
           }),
           getExchangeRates(),
+          // Previous period total items count for trend
+          db.inventory.count({ where: { companyId, updatedAt: { lt: daysAgo(30) } } }),
         ]);
 
         // KPI Calculations & Low Stock Extract
@@ -525,6 +529,10 @@ export const getInventoryWithDashboardData = authenticatedAction(
           totalValue += item.quantity * itemValueInUsd;
         });
 
+        const statsTrends = {
+          totalItems: calcTrend(totalItems, prevTotalItems),
+        };
+
         return {
           items: items as unknown as InventoryWithRelations[],
           totalCount,
@@ -534,6 +542,7 @@ export const getInventoryWithDashboardData = authenticatedAction(
             outOfStockCount,
             totalValue,
           },
+          statsTrends,
           lowStockItems: lowStockItems as unknown as LowStockItem[],
         };
       });

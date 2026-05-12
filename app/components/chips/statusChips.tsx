@@ -1,6 +1,12 @@
 "use client";
 
-import { Chip, useTheme, type Palette, type PaletteColor } from "@mui/material";
+import {
+  Chip,
+  useTheme,
+  Tooltip,
+  type Palette,
+  type PaletteColor,
+} from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
@@ -19,7 +25,7 @@ export const StatusChip = ({ status }: { status: string }) => {
   const isLight = theme.palette.mode === "light";
 
   const colorObj = theme.palette[paletteKey as keyof Palette] as PaletteColor;
-  
+
   // Use custom alpha tokens for background in light mode, or default to meta.color with alpha
   const backgroundColor = isLight
     ? colorObj?._alpha?.main_10 || `${meta.color}1A`
@@ -32,24 +38,26 @@ export const StatusChip = ({ status }: { status: string }) => {
     : colorObj?._alpha?.main_40 || `${meta.color}66`;
 
   return (
-    <Chip
-      variant="filled"
-      size="small"
-      label={meta.label}
-      sx={{
-        borderRadius: "6px",
-        height: "22px",
-        fontSize: "0.72rem",
-        fontWeight: 700,
-        backgroundColor: backgroundColor,
-        color: textColor,
-        border: `1px solid ${borderColor}`,
-        textTransform: "uppercase",
-        letterSpacing: "0.02em",
-        "& .MuiChip-label": {
-          px: 1,
-        },
-      }}
-    />
+    <Tooltip title={meta.label} arrow>
+      <Chip
+        variant="filled"
+        size="small"
+        label={meta.label}
+        sx={{
+          borderRadius: "6px",
+          height: "24px",
+          fontSize: "0.75rem",
+          fontWeight: 800,
+          backgroundColor: backgroundColor,
+          color: textColor,
+          border: `1px solid ${borderColor}`,
+          textTransform: "uppercase",
+          letterSpacing: "0.04em",
+          "& .MuiChip-label": {
+            px: 2,
+          },
+        }}
+      />
+    </Tooltip>
   );
 };

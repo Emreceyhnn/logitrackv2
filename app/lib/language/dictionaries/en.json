@@ -21,6 +21,21 @@
     "import": "Import",
     "apply": "Apply",
     "reset": "Reset",
+    "clearAll": "Clear All",
+    "tooltips": {
+      "actions": "Actions",
+      "edit": "Edit",
+      "delete": "Delete",
+      "details": "View Details",
+      "refresh": "Refresh",
+      "search": "Search",
+      "clearFilter": "Clear this filter",
+      "clearAllFilters": "Clear all active filters",
+      "filterBy": "Filtering by {value}",
+      "notifications": "Notifications",
+      "account": "Account",
+      "changeLanguage": "Change Language"
+    },
     "actions": "Actions",
     "status": "Status",
     "date": "Date",
@@ -98,6 +113,8 @@
     "noEmail": "No Email",
     "noPhone": "No Phone",
     "contactInfo": "Contact Info",
+    "yes": "Yes",
+    "no": "No",
     "none": "None",
     "details": "Details",
     "kg": "kg",
@@ -106,7 +123,8 @@
     "unassigned": "Unassigned",
     "pagination": {
       "rowsPerPage": "Rows per page:",
-      "of": "of"
+      "of": "of",
+      "totalRecords": "Showing {count} records"
     },
     "filtersActive": "{count} filters active",
     "moreThan": "more than {count}",
@@ -204,6 +222,7 @@
       "title": "Orchestrate every shipment with live intelligence.",
       "description": "Synchronize dispatch, fleets, and customer promises in one immersive dashboard. Forecast issues before they happen and keep routes optimized with predictive AI.",
       "discover": "Discover Now",
+      "startTrial": "Start Trial",
       "demo": "Request a Demo",
       "metrics": {
         "activeRoutes": "Active Routes",
@@ -1018,6 +1037,8 @@
       "lng": "Lng Boundary",
       "isDefault": "Default",
       "mainOffice": "Main Office",
+      "phone": "Phone",
+      "email": "Email",
       "selectIndustry": "Select an industry"
     }
   },
@@ -1318,7 +1339,11 @@
       "DELIVERED": "Delivered",
       "DELAYED": "Delayed",
       "CANCELLED": "Cancelled",
-      "PROCESSING": "Processing"
+      "PROCESSING": "Processing",
+      "ASSIGNED": "Assigned",
+      "PLANNED": "Planned",
+      "COMPLETED": "Completed",
+      "FAILED": "Failed"
     },
     "dashboard": {
       "statusOverview": "Status Overview",
@@ -1492,7 +1517,7 @@
       "onTimePerformance": "On-Time Performance",
       "vehicleUtilization": "Vehicle Utilization",
       "recentNotifications": "Recent Notifications",
-      "noNotifications": "No recent notifications",
+      "noNotifications": "No notifications yet — everything looks good",
       "notification": "Notification"
     },
     "table": {
@@ -2121,7 +2146,8 @@
     }
   },
   "company": {
-    "title": "Company",
+    "title": "Company Configuration",
+    "subtitle": "Manage your organization, team members, and regional settings.",
     "overview": "Manage your organization, members and settings.",
     "addMember": "Add Member",
     "kpi": {

@@ -18,7 +18,7 @@ import {
   ShipmentWithRelations,
 } from "@/app/lib/type/shipment";
 import { ShipmentStatus } from "@/app/lib/type/enums";
-import { useUserContext } from "@/app/lib/context/UserContext";
+
 import { formatDisplayDate } from "@/app/lib/utils/date";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -31,7 +31,7 @@ const ShipmentTable = ({
   onLimitChange,
 }: ShipmentTableProps) => {
   const dict = useDictionary();
-  const { user } = useUserContext();
+
   const dateSettings = useDateSettings();
   const { shipments, loading = false, filters } = state;
   const { selectShipment, onEdit, onDelete, updateFilters } = actions;

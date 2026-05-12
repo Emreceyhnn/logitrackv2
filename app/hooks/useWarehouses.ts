@@ -9,7 +9,7 @@ import {
   deleteWarehouse,
   assignManagerToWarehouse,
 } from "@/app/lib/controllers/warehouse";
-import { Warehouse } from "@/app/lib/type/enums";
+import type { Warehouse } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 
 import { warehouseKeys } from "@/app/lib/query-keys/warehouse.keys";
@@ -59,6 +59,9 @@ async function fetchWarehouseDashboard(
   warehouses: WarehouseWithRelations[];
   totalCount: number;
   stats: WarehouseStats;
+  statsTrends?: {
+    totalWarehouses?: { value: number; isUp: boolean };
+  };
   recentMovements: InventoryMovementWithRelations[];
 }> {
   const params = new URLSearchParams();
@@ -97,9 +100,9 @@ export function useWarehouseMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: Error | unknown) => {
+  const handleError = (message: string, error: unknown) => {
     console.error(message, error);
-    toast.error((error as Error)?.message || message);
+    toast.error(error instanceof Error ? error.message : message);
   };
 
   const createMutation = useMutation({

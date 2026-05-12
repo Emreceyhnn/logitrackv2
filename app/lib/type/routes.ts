@@ -1,4 +1,5 @@
 import { Route, RouteStatus } from "./enums";
+import { ShipmentStopWithRelations } from "./shipment";
 
 // Domain Models
 export interface RouteWithRelations extends Route {
@@ -43,7 +44,7 @@ export interface RouteWithRelations extends Route {
     destination: string;
     destinationLat?: number | null;
     destinationLng?: number | null;
-    stops?: any[];
+    stops?: ShipmentStopWithRelations[];
   }[];
   metrics?: {
     totalDistanceKm?: number;

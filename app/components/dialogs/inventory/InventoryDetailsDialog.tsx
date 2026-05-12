@@ -48,6 +48,7 @@ import {
 import {
   InventoryDetailsProps,
   InventoryMovement,
+  InventoryWithRelations,
 } from "@/app/lib/type/inventory";
 import {
   getInventoryMovements,
@@ -81,8 +82,6 @@ function CustomTabPanel(props: TabPanelProps) {
   );
 }
 
-import { useParams } from "next/navigation";
-
 export default function InventoryDetailsDialog({
   isOpen,
   onClose,
@@ -91,15 +90,15 @@ export default function InventoryDetailsDialog({
 }: InventoryDetailsProps) {
   const theme = useTheme();
   const dict = useDictionary();
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
   const [tabValue, setTabValue] = useState(0);
   const { formatFrom } = useCurrency();
   const dateSettings = useDateSettings();
 
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(false);
-  const [otherLocations, setOtherLocations] = useState<any[]>([]);
+  const [otherLocations, setOtherLocations] = useState<
+    InventoryWithRelations[]
+  >([]);
 
   const loadMovements = React.useCallback(async () => {
     if (!item) return;
@@ -134,8 +133,9 @@ export default function InventoryDetailsDialog({
       setAdjustAmount(0);
       setAdjustNote("");
       loadMovements();
-    } catch (err: any) {
-      toast.error(err.message || dict.common.errorOccurred);
+    } catch (err) {
+      const error = err as Error;
+      toast.error(error.message || dict.common.errorOccurred);
     }
   };
 
@@ -143,7 +143,9 @@ export default function InventoryDetailsDialog({
     if (!item) return;
     try {
       const data = await getInventoryBySku(item.sku);
-      setOtherLocations(data.filter((l: any) => l.id !== item.id));
+      setOtherLocations(
+        data.filter((l: InventoryWithRelations) => l.id !== item.id)
+      );
     } catch (err) {
       console.error("Failed to load other locations", err);
     }
@@ -641,7 +643,7 @@ export default function InventoryDetailsDialog({
                         >
                           {formatFrom(
                             item.unitValue || 0,
-                            (item as any).currency || "USD"
+                            item.currency || "USD"
                           )}
                         </Typography>
                       </Box>

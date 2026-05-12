@@ -1,7 +1,7 @@
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
 import { BarChart } from "@mui/x-charts";
-import { FuelStat } from "@/app/lib/type/overview";
+
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { FuelLogStat } from "@/app/lib/type/overview";

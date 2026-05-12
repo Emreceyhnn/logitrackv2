@@ -7,8 +7,10 @@ import {
 } from "@mui/material";
 import CustomCard from "../../cards/card";
 import WarningIcon from "@mui/icons-material/Warning";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { RouteNotification, RouteEfficiencyStats } from "@/app/lib/type/routes";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
 
 interface RouteEfficiencyProps {
   data: RouteEfficiencyStats | null;
@@ -176,15 +178,34 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
               )
             )
           ) : (
-            <Typography
+            <Stack
+              direction="row"
+              spacing={1.5}
+              alignItems="center"
               sx={{
-                fontSize: 14,
-                color: "text.secondary",
-                fontStyle: "italic",
+                p: 2,
+                borderRadius: 2,
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(16, 185, 129, 0.05)"
+                    : "rgba(16, 185, 129, 0.02)",
+                border: (theme) =>
+                  `1px dashed ${theme.palette.success._alpha.main_30}`,
               }}
             >
-              {dict.routes.dashboard.noNotifications}
-            </Typography>
+              <CheckCircleOutlineIcon
+                sx={{ color: "success.main", fontSize: 20 }}
+              />
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  color: "success.main",
+                  fontWeight: 500,
+                }}
+              >
+                {dict.routes.dashboard.noNotifications}
+              </Typography>
+            </Stack>
           )}
         </Stack>
       </Stack>

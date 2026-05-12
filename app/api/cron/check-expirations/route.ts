@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { db } from "@/app/lib/db";
 import { sendNotificationAction } from "@/app/lib/actions/notifications";
 
-export async function GET(req: Request) {
+export async function GET() {
   // Security check: simple token check if needed
-  // const authHeader = req.headers.get('authorization');
+  // const authHeader = _req.headers.get('authorization');
   // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
   //   return new Response('Unauthorized', { status: 401 });
   // }
@@ -209,8 +209,8 @@ export async function GET(req: Request) {
     for (const wh of warehouses) {
       if (!wh.companyId) continue;
 
-      const currentPallets = wh.inventory.reduce((acc: number, item: any) => acc + (item.palletCount || 0) * item.quantity, 0);
-      const currentVolume = wh.inventory.reduce((acc: number, item: any) => acc + (item.volumeM3 || 0) * item.quantity, 0);
+      const currentPallets = wh.inventory.reduce((acc: number, item: { palletCount: number | null; quantity: number }) => acc + (item.palletCount || 0) * item.quantity, 0);
+      const currentVolume = wh.inventory.reduce((acc: number, item: { volumeM3: number | null; quantity: number }) => acc + (item.volumeM3 || 0) * item.quantity, 0);
 
       const palletUsage = wh.capacityPallets ? (currentPallets / wh.capacityPallets) * 100 : 0;
       const volumeUsage = wh.capacityVolumeM3 ? (currentVolume / wh.capacityVolumeM3) * 100 : 0;

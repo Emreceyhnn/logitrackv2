@@ -1,9 +1,7 @@
-"use client";
-
-import React from "react";
+import { useCallback, useMemo } from "react";
 import DataTable from "@/app/components/ui/DataTable";
-import { DataTableColumn, DataTableRowAction } from "@/app/lib/type/dataTable";
-import { TrailerWithRelations } from "@/app/lib/type/trailer";
+import { DataTableColumn, DataTableRowAction, PaginationMeta } from "@/app/lib/type/dataTable";
+import { TrailerWithRelations, TrailerFilters } from "@/app/lib/type/trailer";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   Box,
@@ -29,6 +27,13 @@ interface TrailerTableProps {
   onDelete: (trailer: TrailerWithRelations) => void;
   onAssign: (trailer: TrailerWithRelations) => void;
   onDetach: (trailer: TrailerWithRelations) => void;
+  filters?: TrailerFilters;
+  meta?: PaginationMeta;
+  actions?: {
+    updateFilters: (filters: Partial<TrailerFilters>) => void;
+    setPage: (page: number) => void;
+    setLimit: (limit: number) => void;
+  };
 }
 
 export default function TrailerTable({
@@ -38,8 +43,66 @@ export default function TrailerTable({
   onDelete,
   onAssign,
   onDetach,
+  filters = {},
+  meta,
+  actions,
 }: TrailerTableProps) {
   const dict = useDictionary();
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      actions?.updateFilters({ search: value });
+    },
+    [actions]
+  );
+
+  const handleFilterChange = useCallback(
+    (key: string, values: string | string[]) => {
+      actions?.updateFilters({ [key]: values });
+    },
+    [actions]
+  );
+
+  const TRAILER_FILTERS = useMemo(
+    () => [
+      {
+        key: "status",
+        label: dict.trailers.status,
+        options: Object.values(TrailerStatus).map((s) => ({
+          label: dict.trailers.statuses[s as keyof typeof dict.trailers.statuses] || s,
+          value: s,
+        })),
+        multiple: true,
+      },
+      {
+        key: "type",
+        label: dict.trailers.type,
+        options: Object.values(TrailerType).map((t) => ({
+          label: dict.trailers.types[t as keyof typeof dict.trailers.types] || t,
+          value: t,
+        })),
+        multiple: true,
+      },
+      {
+        key: "isColdChain",
+        label: dict.trailers.coldChain,
+        options: [
+          { label: dict.common.yes, value: "true" },
+          { label: dict.common.no, value: "false" },
+        ],
+      },
+    ],
+    [dict]
+  );
+
+  const activeFilters = useMemo(
+    () => ({
+      ...(filters.status?.length ? { status: filters.status } : {}),
+      ...(filters.type?.length ? { type: filters.type } : {}),
+      ...(filters.isColdChain !== undefined ? { isColdChain: [String(filters.isColdChain)] } : {}),
+    }),
+    [filters]
+  );
 
   const columns: DataTableColumn<TrailerWithRelations>[] = [
     {
@@ -47,7 +110,7 @@ export default function TrailerTable({
       label: dict.trailers.plate,
       render: (row) => (
         <Box>
-          <Typography variant="subtitle2" fontWeight={600}>
+          <Typography variant="subtitle2" fontWeight={600} sx={{ fontSize: 13 }}>
             {row.plate}
           </Typography>
           <Typography variant="caption" color="text.secondary">
@@ -62,7 +125,7 @@ export default function TrailerTable({
       label: dict.trailers.type,
       render: (row) => (
         <Stack direction="row" spacing={1} alignItems="center">
-          <Typography variant="body2">
+          <Typography variant="body2" sx={{ fontSize: 13 }}>
             {dict.trailers.types[row.type as keyof typeof dict.trailers.types]}
           </Typography>
           {row.isColdChain && (
@@ -77,7 +140,7 @@ export default function TrailerTable({
       key: "capacity",
       label: dict.trailers.capacity,
       render: (row) => (
-        <Typography variant="body2">
+        <Typography variant="body2" sx={{ fontSize: 13 }}>
           {row.capacityVolumeM3} m³
         </Typography>
       ),
@@ -99,6 +162,7 @@ export default function TrailerTable({
             color={colors[row.status] || "default"}
             size="small"
             variant="outlined"
+            sx={{ fontSize: "11px", fontWeight: 600 }}
           />
         );
       },
@@ -110,12 +174,12 @@ export default function TrailerTable({
         row.currentVehicle ? (
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <LocalShipping sx={{ fontSize: 18, color: "text.secondary" }} />
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{ fontSize: 13 }}>
               {row.currentVehicle.plate}
             </Typography>
           </Box>
         ) : (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13 }}>
             {dict.trailers.notAssigned}
           </Typography>
         )
@@ -157,6 +221,14 @@ export default function TrailerTable({
       rowActions={rowActions}
       tableTitle={dict.trailers.title}
       emptyMessage={dict.trailers.emptyMessage || "No trailers found"}
+      searchValue={filters.search || ""}
+      onSearchChange={handleSearchChange}
+      filters={TRAILER_FILTERS}
+      activeFilters={activeFilters}
+      onFilterChange={handleFilterChange}
+      meta={meta}
+      onPageChange={actions?.setPage}
+      onLimitChange={actions?.setLimit}
       wrapCard
     />
   );

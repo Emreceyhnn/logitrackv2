@@ -75,6 +75,7 @@ async function fetchDriverDashboard(
     driversKpis: DriverDashboardResponseType["driversKpis"];
     topPerformers: DriverDashboardResponseType["topPerformers"];
     performanceCharts: DriverDashboardResponseType["performanceCharts"];
+    kpiTrends: DriverDashboardResponseType["kpiTrends"];
 }> {
   const params = new URLSearchParams();
   if (filters.page) params.set("page", String(filters.page));
@@ -127,7 +128,7 @@ export function useDriverWithDashboard(
         sortOrder,
       }),
     staleTime: 1000 * 60 * 5,
-    placeholderData: (previousData, previousQuery) => previousData,
+    placeholderData: (previousData) => previousData,
   });
 }
 
@@ -139,9 +140,9 @@ export function useDriverMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: Error | unknown) => {
+  const handleError = (message: string, error: unknown) => {
     console.error(message, error);
-    toast.error((error as Error)?.message || message);
+    toast.error(error instanceof Error ? error.message : message);
   };
 
   const createMutation = useMutation({

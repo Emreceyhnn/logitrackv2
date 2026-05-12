@@ -22,21 +22,6 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
   const dict = useDictionary();
   const [range, setRange] = useState<TimeRange>("6m");
 
-  const monthsArray = [
-    dict.common.months.jan,
-    dict.common.months.feb,
-    dict.common.months.mar,
-    dict.common.months.apr,
-    dict.common.months.may,
-    dict.common.months.jun,
-    dict.common.months.jul,
-    dict.common.months.aug,
-    dict.common.months.sep,
-    dict.common.months.oct,
-    dict.common.months.nov,
-    dict.common.months.dec,
-  ];
-
   // Logic to get the last N months based on range
   // Note: Cost data is usually monthly, so 1w/2w might show just the current month
   // We'll map: 1w -> 1m, 2w -> 1m, 1m -> 1m, 6m -> 6m
@@ -44,13 +29,27 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
 
   const currentMonthIndex = new Date().getMonth();
   const months = useMemo(() => {
+    const monthsArray = [
+      dict.common.months.jan,
+      dict.common.months.feb,
+      dict.common.months.mar,
+      dict.common.months.apr,
+      dict.common.months.may,
+      dict.common.months.jun,
+      dict.common.months.jul,
+      dict.common.months.aug,
+      dict.common.months.sep,
+      dict.common.months.oct,
+      dict.common.months.nov,
+      dict.common.months.dec,
+    ];
     const result = [];
     for (let i = displayCount - 1; i >= 0; i--) {
       const idx = (currentMonthIndex - i + 12) % 12;
       result.push(monthsArray[idx]);
     }
     return result;
-  }, [displayCount, currentMonthIndex, monthsArray]);
+  }, [displayCount, currentMonthIndex, dict.common.months]);
 
   const fuelCosts = useMemo(
     () => (data?.fuel || [0, 0, 0, 0, 0, 0]).slice(-displayCount),

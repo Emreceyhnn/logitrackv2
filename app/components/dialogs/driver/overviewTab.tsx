@@ -20,7 +20,7 @@ import { useState } from "react";
 import DriverHistoryDialog from "./DriverHistoryDialog";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateDriverStatus } from "@/app/lib/controllers/driver";
-import { MenuItem, Select, FormControl, Divider } from "@mui/material";
+import { MenuItem, Select, FormControl } from "@mui/material";
 import { DriverStatus } from "@prisma/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -45,11 +45,16 @@ const KPICard = ({
   theme: Theme;
 }) => {
   const resolveAlpha = (targetColor: string) => {
-    if (targetColor === theme.palette.primary.main) return theme.palette.primary._alpha;
-    if (targetColor === theme.palette.success.main) return theme.palette.success._alpha;
-    if (targetColor === theme.palette.error.main) return theme.palette.error._alpha;
-    if (targetColor === theme.palette.warning.main) return theme.palette.warning._alpha;
-    if (targetColor === theme.palette.info.main) return theme.palette.info._alpha;
+    if (targetColor === theme.palette.primary.main)
+      return theme.palette.primary._alpha;
+    if (targetColor === theme.palette.success.main)
+      return theme.palette.success._alpha;
+    if (targetColor === theme.palette.error.main)
+      return theme.palette.error._alpha;
+    if (targetColor === theme.palette.warning.main)
+      return theme.palette.warning._alpha;
+    if (targetColor === theme.palette.info.main)
+      return theme.palette.info._alpha;
     return theme.palette.primary._alpha;
   };
 
@@ -125,7 +130,11 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
   };
 
   if (!driver) {
-    return <Typography color="text.secondary">{dict.drivers.noDriverSelected}</Typography>;
+    return (
+      <Typography color="text.secondary">
+        {dict.drivers.noDriverSelected}
+      </Typography>
+    );
   }
 
   return (
@@ -196,7 +205,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
-              height: '100%'
+              height: "100%",
             }}
           >
             <Stack direction="row" spacing={1} alignItems="center">
@@ -204,7 +213,11 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                 fontSize="small"
                 sx={{ color: "text.secondary" }}
               />
-              <Typography variant="body2" color="text.secondary" fontWeight={600}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                fontWeight={600}
+              >
                 {dict.drivers.fields.licenseExpiry}
               </Typography>
             </Stack>
@@ -225,11 +238,19 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
-              height: '100%'
+              height: "100%",
             }}
           >
-            <Stack direction="row" alignItems="center" justifyContent="space-between">
-              <Typography variant="body2" color="text.secondary" fontWeight={600}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                fontWeight={600}
+              >
                 {dict.drivers.fields.status}
               </Typography>
               <Box
@@ -249,7 +270,9 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
             <FormControl fullWidth size="small" sx={{ mt: 1 }}>
               <Select
                 value={driver.status}
-                onChange={(e) => handleStatusChange(e.target.value as DriverStatus)}
+                onChange={(e) =>
+                  handleStatusChange(e.target.value as DriverStatus)
+                }
                 disabled={isUpdating}
                 sx={{
                   color: "text.primary",
@@ -293,19 +316,25 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
               display: "flex",
               flexDirection: "column",
               gap: 1.5,
-              height: '100%'
+              height: "100%",
             }}
           >
             <Stack direction="row" spacing={1} alignItems="center">
-              <HomeWorkIcon
-                fontSize="small"
-                sx={{ color: "text.secondary" }}
-              />
-              <Typography variant="body2" color="text.secondary" fontWeight={600}>
+              <HomeWorkIcon fontSize="small" sx={{ color: "text.secondary" }} />
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                fontWeight={600}
+              >
                 {dict.drivers.labels.base}
               </Typography>
             </Stack>
-            <Typography variant="h6" fontWeight={700} color="text.primary" noWrap>
+            <Typography
+              variant="h6"
+              fontWeight={700}
+              color="text.primary"
+              noWrap
+            >
               {driver.homeBaseWarehouse?.name || dict.common.noData}
             </Typography>
             <Typography variant="caption" color="text.secondary">

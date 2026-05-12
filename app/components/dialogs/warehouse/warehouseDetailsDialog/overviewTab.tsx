@@ -13,9 +13,7 @@ import { useState, useEffect } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { getUserNow } from "@/app/lib/utils/date";
-import { useDateSettings } from "@/app/hooks/useDateSettings";
 import dayjs from "dayjs";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import ThermostatIcon from "@mui/icons-material/Thermostat";
@@ -49,34 +47,25 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
         : "08:00 - 18:00";
 
   const t = dict.warehouses.dialogs.details;
-  const dateSettings = useDateSettings();
   const [nowInWhTz, setNowInWhTz] = useState(
     getUserNow(warehouse.timezone || "UTC")
-  );
-  const [nowInUserTz, setNowInUserTz] = useState(
-    getUserNow(dateSettings.timezone)
   );
 
   useEffect(() => {
     const timer = setInterval(() => {
       setNowInWhTz(getUserNow(warehouse.timezone || "UTC"));
-      setNowInUserTz(getUserNow(dateSettings.timezone));
     }, 10000);
     return () => clearInterval(timer);
-  }, [warehouse.timezone, dateSettings.timezone]);
+  }, [warehouse.timezone]);
 
   const is247 = operatingHoursStr === "24/7";
   let isOpen = is247;
   let statusText = "Open";
-  let nextStateMsg = "";
 
   const parseTime = (timeStr: string, tz: string) => {
     const [h, m] = timeStr.split(":").map(Number);
     return dayjs().tz(tz).set("hour", h).set("minute", m).set("second", 0);
   };
-
-  let userOpeningTime = "";
-  let userClosingTime = "";
 
   if (!is247 && operatingHoursStr.includes(" - ")) {
     const [opening, closing] = operatingHoursStr.split(" - ");
@@ -95,25 +84,6 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
     isOpen =
       (nowInWhTz.isAfter(whOpening) || nowInWhTz.isSame(whOpening)) &&
       nowInWhTz.isBefore(whClosing);
-
-    userOpeningTime = whOpening.tz(dateSettings.timezone).format("HH:mm");
-    userClosingTime = whClosing.tz(dateSettings.timezone).format("HH:mm");
-
-    if (isOpen) {
-      const diff = whClosing.diff(nowInWhTz, "minute");
-      const hours = Math.floor(diff / 60);
-      const minutes = diff % 60;
-      nextStateMsg = `${dict.common.closingIn || "Closing in"} ${hours}h ${minutes}m`;
-    } else {
-      let nextOpening = whOpening;
-      if (nowInWhTz.isAfter(whOpening)) {
-        nextOpening = whOpening.add(1, "day");
-      }
-      const diff = nextOpening.diff(nowInWhTz, "minute");
-      const hours = Math.floor(diff / 60);
-      const minutes = diff % 60;
-      nextStateMsg = `${dict.common.openingIn || "Opening in"} ${hours}h ${minutes}m`;
-    }
   }
 
   statusText = isOpen

@@ -7,7 +7,6 @@ import {
   InputAdornment,
 } from "@mui/material";
 import ScaleIcon from "@mui/icons-material/Scale";
-import ShutterSpeedIcon from "@mui/icons-material/ShutterSpeed";
 import OpacityIcon from "@mui/icons-material/Opacity";
 import SettingsIcon from "@mui/icons-material/Settings";
 import TuneIcon from "@mui/icons-material/Tune";

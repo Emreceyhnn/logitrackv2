@@ -1,7 +1,7 @@
 "use server";
 
 import { adminDb } from "@/app/lib/firebase-admin";
-import { Notification, NotificationTarget, NotificationCategory } from "../notifications";
+import { Notification, NotificationTarget } from "../notifications";
 import { db } from "../db";
 
 /**
@@ -14,20 +14,29 @@ export async function sendNotificationAction(
 ) {
   try {
     if (!adminDb) {
-      console.warn("⚠️ Firebase Admin SDK not initialized. Skipping notification.");
+      console.warn(
+        "⚠️ Firebase Admin SDK not initialized. Skipping notification."
+      );
       return { success: false, error: "Firebase not initialized" };
     }
     let path = "";
 
     // If it's a company broadcast with a specific category, we iterate and target individuals
     // who have that notification type enabled in their settings.
-    if (target.companyId && !target.userId && !target.isGlobal && notification.category) {
-      console.log(`[sendNotificationAction] 🎯 Targeted broadcast for category: ${notification.category}`);
-      
+    if (
+      target.companyId &&
+      !target.userId &&
+      !target.isGlobal &&
+      notification.category
+    ) {
+      console.log(
+        `[sendNotificationAction] 🎯 Targeted broadcast for category: ${notification.category}`
+      );
+
       const users = await db.user.findMany({
-        where: { 
+        where: {
           companyId: target.companyId,
-          ...(target.roleId ? { roleId: target.roleId } : {})
+          ...(target.roleId ? { roleId: target.roleId } : {}),
         },
         select: {
           id: true,
@@ -35,21 +44,27 @@ export async function sendNotificationAction(
           notifEmailMaint: true,
           notifPushAssignment: true,
           notifPushDelay: true,
-        }
+        },
       });
 
       const promises = users.map(async (u) => {
         let shouldSend = true;
-        
+
         // Map category to user preference field
-        if (notification.category === "SHIPMENT_UPDATE") shouldSend = u.notifEmailShipment;
-        if (notification.category === "MAINTENANCE_ALERT") shouldSend = u.notifEmailMaint;
-        if (notification.category === "NEW_ASSIGNMENT") shouldSend = u.notifPushAssignment;
-        if (notification.category === "DELAY_ALERT") shouldSend = u.notifPushDelay;
+        if (notification.category === "SHIPMENT_UPDATE")
+          shouldSend = u.notifEmailShipment;
+        if (notification.category === "MAINTENANCE_ALERT")
+          shouldSend = u.notifEmailMaint;
+        if (notification.category === "NEW_ASSIGNMENT")
+          shouldSend = u.notifPushAssignment;
+        if (notification.category === "DELAY_ALERT")
+          shouldSend = u.notifPushDelay;
         // SYSTEM and others always send for now
 
         if (!shouldSend) {
-          console.log(`[sendNotificationAction] 🔇 Skipping user ${u.id} due to settings`);
+          console.log(
+            `[sendNotificationAction] 🔇 Skipping user ${u.id} due to settings`
+          );
           return;
         }
 
@@ -116,7 +131,10 @@ export async function markAsReadAction(path: string, notificationId: string) {
 /**
  * Deletes a specific notification.
  */
-export async function deleteNotificationAction(path: string, notificationId: string) {
+export async function deleteNotificationAction(
+  path: string,
+  notificationId: string
+) {
   try {
     if (!adminDb) throw new Error("Firebase not initialized");
     await adminDb.ref(`${path}/${notificationId}`).remove();

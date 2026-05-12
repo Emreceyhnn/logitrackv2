@@ -69,9 +69,10 @@ export default function Providers({
     const modeToUse = initialMode || stored;
     const resolved = resolveMode(modeToUse);
     
-    if (resolved !== mode) {
-      setModeState(resolved);
-    }
+    // Defer state update to avoid cascading render warning
+    queueMicrotask(() => {
+      setModeState((prev) => (prev !== resolved ? resolved : prev));
+    });
 
     // If system mode, listen for OS preference changes
     if (stored === "system") {

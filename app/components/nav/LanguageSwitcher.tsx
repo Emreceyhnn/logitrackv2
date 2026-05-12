@@ -2,12 +2,13 @@
 
 import React from "react";
 import {
-  IconButton,
   Menu,
   MenuItem,
   ListItemText,
   Typography,
   useTheme,
+  Box,
+  Tooltip,
 } from "@mui/material";
 import LanguageIcon from "@mui/icons-material/Language";
 import CheckIcon from "@mui/icons-material/Check";
@@ -68,26 +69,46 @@ const LanguageSwitcher = () => {
 
   return (
     <>
-      <IconButton
-        onClick={handleClick}
-        size="small"
-        sx={{
-          ml: 1,
-          bgcolor: theme.palette.primary._alpha.main_05,
-          border: `1px solid ${theme.palette.divider_alpha.main_10}`,
-          "&:hover": {
-            bgcolor: theme.palette.primary._alpha.main_10,
-          },
-        }}
-        aria-controls={open ? "language-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
-      >
-        <LanguageIcon
-          fontSize="small"
-          sx={{ color: theme.palette.text.secondary }}
-        />
-      </IconButton>
+      <Tooltip title={dict.common.tooltips.changeLanguage} arrow>
+        <Box
+          onClick={handleClick}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            px: 1.5,
+            py: 0.8,
+            borderRadius: 2,
+            cursor: "pointer",
+            bgcolor: theme.palette.primary._alpha.main_05,
+            border: `1px solid ${theme.palette.divider}`,
+            transition: "all 0.2s ease",
+            "&:hover": {
+              bgcolor: theme.palette.primary._alpha.main_10,
+              borderColor: theme.palette.primary._alpha.main_20,
+            },
+          }}
+          aria-controls={open ? "language-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? "true" : undefined}
+        >
+          <LanguageIcon
+            fontSize="small"
+            sx={{ color: theme.palette.text.secondary }}
+          />
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: 700,
+              color: "text.primary",
+              textTransform: "uppercase",
+              fontSize: "0.7rem",
+            }}
+          >
+            {currentLang}
+          </Typography>
+        </Box>
+      </Tooltip>
       <Menu
         anchorEl={anchorEl}
         id="language-menu"

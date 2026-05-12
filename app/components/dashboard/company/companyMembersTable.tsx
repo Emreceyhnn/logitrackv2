@@ -159,7 +159,7 @@ export default function CompanyMembersTable({
         ),
       },
     ],
-    [theme, dict]
+    [theme, dict, dateSettings]
   );
 
   const rowActions: DataTableRowAction<CompanyMember>[] = useMemo(

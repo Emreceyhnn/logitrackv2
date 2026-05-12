@@ -55,6 +55,9 @@ export interface VehicleDashboardResponseType {
     serviceType: string;
     serviceDate: Date;
   }[];
+  kpiTrends?: {
+    totalVehicles?: { value: number; isUp: boolean };
+  };
 }
 
 export interface DriverWithUser {

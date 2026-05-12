@@ -6,6 +6,7 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Tooltip,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
@@ -29,9 +30,22 @@ const RowActions = (params: DetailsMenuParams) => {
 
   return (
     <>
-      <IconButton size="small" onClick={(e) => setAnchorEl(e.currentTarget)}>
-        <MoreVertIcon fontSize="small" />
-      </IconButton>
+      <Tooltip title={dict.common.tooltips?.actions || "Actions"}>
+        <IconButton
+          onClick={(e) => setAnchorEl(e.currentTarget)}
+          sx={{
+            width: 38,
+            height: 38,
+            "&:hover": {
+              bgcolor: "primary._alpha.main_10",
+              color: "primary.main",
+            },
+            transition: "all 0.2s ease",
+          }}
+        >
+          <MoreVertIcon sx={{ fontSize: 22 }} />
+        </IconButton>
+      </Tooltip>
 
       <Menu
         anchorEl={anchorEl}

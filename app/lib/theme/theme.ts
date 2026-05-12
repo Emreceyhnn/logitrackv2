@@ -1,4 +1,4 @@
-import { createTheme, type PaletteOptions } from "@mui/material/styles";
+import { alpha, createTheme, type PaletteOptions } from "@mui/material/styles";
 import type {} from "@mui/x-date-pickers/themeAugmentation";
 import { palettes } from "./palette";
 
@@ -173,7 +173,8 @@ import { getScrollbarStyles } from "@/app/components/scrollbar";
 export type ThemeMode = "light" | "dark";
 
 export const getTheme = (mode: ThemeMode) => {
-  const basePalette = (palettes[mode] ?? palettes.dark) as unknown as typeof palettes.dark;
+  const basePalette = (palettes[mode] ??
+    palettes.dark) as unknown as typeof palettes.dark;
 
   return createTheme({
     palette: {
@@ -263,6 +264,40 @@ export const getTheme = (mode: ThemeMode) => {
       },
     },
     components: {
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundImage: "none",
+            border:
+              mode === "dark" ? "1px solid rgba(255, 255, 255, 0.08)" : "none",
+            boxShadow:
+              mode === "dark"
+                ? "0 10px 30px -10px rgba(0, 0, 0, 0.5)"
+                : "0 10px 30px -10px rgba(0, 0, 0, 0.05)",
+            "&.MuiPaper-elevation1": {
+              boxShadow:
+                mode === "dark"
+                  ? "0 4px 20px rgba(0,0,0,0.4)"
+                  : "0 4px 20px rgba(0,0,0,0.05)",
+              border: `1px solid ${mode === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`,
+            },
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            backgroundImage: "none",
+            borderRadius: "16px",
+            border:
+              mode === "dark" ? "1px solid rgba(255, 255, 255, 0.08)" : "none",
+            boxShadow:
+              mode === "dark"
+                ? "0 4px 24px rgba(0,0,0,0.4)"
+                : "0 4px 24px rgba(0,0,0,0.05)",
+          },
+        },
+      },
       MuiCssBaseline: {
         styleOverrides: {
           body: {
@@ -273,10 +308,24 @@ export const getTheme = (mode: ThemeMode) => {
           },
         },
       },
-      MuiPaper: {
+      MuiTooltip: {
         styleOverrides: {
-          root: {
-            backgroundImage: "none",
+          tooltip: {
+            backgroundColor: mode === "dark" ? "#161B26" : "#0F172A",
+            color: "#FFF",
+            fontSize: "0.75rem",
+            fontWeight: 500,
+            borderRadius: "8px",
+            padding: "8px 12px",
+            boxShadow:
+              mode === "dark"
+                ? "0 4px 20px rgba(0,0,0,0.5)"
+                : "0 4px 20px rgba(0,0,0,0.1)",
+            border: `1px solid ${mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}`,
+            backdropFilter: "blur(8px)",
+          },
+          arrow: {
+            color: mode === "dark" ? "#161B26" : "#0F172A",
           },
         },
       },
@@ -288,9 +337,10 @@ export const getTheme = (mode: ThemeMode) => {
             backgroundImage: "none",
             border: `1px solid ${palettes[mode].divider}`,
             borderRadius: 16,
-            boxShadow: mode === "dark" 
-              ? "0 20px 40px rgba(0,0,0,0.4)"
-              : "0 20px 40px rgba(0,0,0,0.1)",
+            boxShadow:
+              mode === "dark"
+                ? "0 20px 40px rgba(0,0,0,0.6)"
+                : "0 20px 40px rgba(0,0,0,0.1)",
           },
         },
       },
@@ -349,21 +399,62 @@ export const getTheme = (mode: ThemeMode) => {
             marginBottom: "20px",
             "& .MuiOutlinedInput-root": {
               borderRadius: 8,
-              backgroundColor: mode === "dark" 
-                ? "rgba(255, 255, 255, 0.03)"
-                : "rgba(0, 0, 0, 0.01)",
+              backgroundColor:
+                mode === "dark"
+                  ? "rgba(255, 255, 255, 0.03)"
+                  : "rgba(0, 0, 0, 0.01)",
               "& fieldset": {
                 borderColor: palettes[mode].divider,
               },
               "&:hover fieldset": {
-                borderColor: mode === "dark"
-                  ? "rgba(255, 255, 255, 0.2)"
-                  : "rgba(0, 0, 0, 0.2)",
+                borderColor:
+                  mode === "dark"
+                    ? "rgba(255, 255, 255, 0.2)"
+                    : "rgba(0, 0, 0, 0.2)",
               },
               "&.Mui-focused fieldset": {
                 borderColor: palettes[mode].primary.main,
               },
             },
+          },
+        },
+      },
+      MuiTableRow: {
+        styleOverrides: {
+          root: {
+            transition: "all 0.2s ease-in-out",
+            "&.MuiTableRow-hover:hover": {
+              backgroundColor:
+                mode === "dark"
+                  ? alpha(palettes[mode].primary.main, 0.12)
+                  : alpha(palettes[mode].primary.main, 0.06),
+            },
+            "&.Mui-selected": {
+              backgroundColor: alpha(palettes[mode].primary.main, 0.16),
+              "&:hover": {
+                backgroundColor: alpha(palettes[mode].primary.main, 0.2),
+              },
+            },
+          },
+        },
+      },
+      MuiTableCell: {
+        styleOverrides: {
+          root: {
+            borderColor:
+              palettes[mode].divider_alpha?.main_10 || palettes[mode].divider,
+            padding: "12px 16px",
+          },
+          head: {
+            fontWeight: 700,
+            textTransform: "uppercase",
+            fontSize: "0.75rem",
+            letterSpacing: "0.05em",
+            color: palettes[mode].text.secondary,
+            backgroundColor:
+              mode === "dark"
+                ? alpha(palettes[mode].primary.main, 0.05)
+                : alpha(palettes[mode].primary.main, 0.02),
           },
         },
       },
@@ -389,9 +480,10 @@ export const getTheme = (mode: ThemeMode) => {
           paper: {
             minWidth: 160,
             borderRadius: "12px",
-            boxShadow: mode === "dark" 
-              ? "0 8px 32px rgba(0,0,0,0.5)"
-              : "0 8px 32px rgba(0,0,0,0.1)",
+            boxShadow:
+              mode === "dark"
+                ? "0 8px 32px rgba(0,0,0,0.6)"
+                : "0 8px 32px rgba(0,0,0,0.1)",
             border: `1px solid ${palettes[mode].divider}`,
             backgroundColor: palettes[mode].background.paper,
             backdropFilter: "blur(12px)",
@@ -435,14 +527,16 @@ export const getTheme = (mode: ThemeMode) => {
           paper: {
             borderRadius: 20,
             backgroundImage: "none",
-            backgroundColor: mode === "dark" 
-              ? (palettes.dark.background.midnight?._alpha?.main_85 || "rgba(11, 16, 25, 0.85)")
-              : "rgba(255, 255, 255, 0.9)",
+            backgroundColor:
+              mode === "dark"
+                ? "rgba(11, 15, 25, 0.85)"
+                : "rgba(255, 255, 255, 0.9)",
             backdropFilter: "blur(24px) saturate(180%)",
-            border: `1px solid ${mode === "dark" ? palettes.dark.divider_alpha.main_10 : palettes.light.divider_alpha.main_20}`,
-            boxShadow: mode === "dark"
-              ? "0 24px 64px rgba(0,0,0,0.6)"
-              : "0 24px 64px rgba(0,0,0,0.1)",
+            border: `1px solid ${mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+            boxShadow:
+              mode === "dark"
+                ? "0 24px 64px rgba(0,0,0,0.7)"
+                : "0 24px 64px rgba(0,0,0,0.1)",
           },
         },
       },
@@ -450,7 +544,7 @@ export const getTheme = (mode: ThemeMode) => {
         styleOverrides: {
           root: {
             padding: "24px 24px 16px",
-            "\u0026 .MuiTypography-root": {
+            "& .MuiTypography-root": {
               fontWeight: 800,
               fontSize: "1.25rem",
               color: palettes[mode].text.primary,

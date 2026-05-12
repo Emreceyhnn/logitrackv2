@@ -25,12 +25,10 @@ import { createShipment } from "@/app/lib/controllers/shipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getCustomers } from "@/app/lib/controllers/customer";
 import { getInventory } from "@/app/lib/controllers/inventory";
-import { getRoutes } from "@/app/lib/controllers/routes";
 import { useUser } from "@/app/hooks/useUser";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
-import { RouteWithRelations } from "@/app/lib/type/routes";
 import { ShipmentStatus, ShipmentPriority } from "@/app/lib/type/enums";
 import { Formik, Form, useFormikContext } from "formik";
 import { addShipmentValidationSchema } from "@/app/lib/validationSchema";
@@ -39,7 +37,7 @@ import BasicInfoSection from "./sections/BasicInfoSection";
 import LogisticsSection from "./sections/LogisticsSection";
 import CargoSection from "./sections/CargoSection";
 import InventorySection from "./sections/InventorySection";
-import RouteSection from "./sections/RouteSection";
+
 import StopsSection from "./sections/StopsSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -103,7 +101,6 @@ const AddShipmentDialog = ({
   >([]);
   const [warehouses, setWarehouses] = useState<WarehouseWithRelations[]>([]);
   const [customers, setCustomers] = useState<CustomerWithRelations[]>([]);
-  const [routes, setRoutes] = useState<RouteWithRelations[]>([]);
   const [trailers, setTrailers] = useState<TrailerWithRelations[]>([]);
 
   /* ------------------------------- lifecycle ------------------------------- */
@@ -111,16 +108,14 @@ const AddShipmentDialog = ({
     if (open && user) {
       const fetchData = async () => {
         try {
-          const [wRes, cRes, rRes, tRes] = await Promise.all([
+          const [wRes, cRes, tRes] = await Promise.all([
             getWarehouses(),
             getCustomers(),
-            getRoutes(),
             getTrailers(),
           ]);
           setWarehouses(wRes);
           setCustomers(cRes);
-          setRoutes(rRes.routes);
-          setTrailers(tRes);
+          setTrailers(tRes.trailers);
         } catch (error) {
           console.error("Failed to fetch dialog data", error);
         }
@@ -222,24 +217,34 @@ const AddShipmentDialog = ({
           [dict]
         )}
         validate={(values) => {
-          const errors: any = {};
-          const selectedTrailer = trailers.find((t) => t.id === values.trailerId);
+          const errors: Partial<Record<keyof ShipmentFormValues, string>> = {};
+          const selectedTrailer = trailers.find(
+            (t) => t.id === values.trailerId
+          );
           if (selectedTrailer) {
             const tolerance = 0.01;
-            const availableWeight = selectedTrailer.maxLoadKg - (selectedTrailer.currentWeightKg || 0);
-            const availableVolume = selectedTrailer.capacityVolumeM3 - (selectedTrailer.currentVolumeM3 || 0);
+            const availableWeight =
+              selectedTrailer.maxLoadKg -
+              (selectedTrailer.currentWeightKg || 0);
+            const availableVolume =
+              selectedTrailer.capacityVolumeM3 -
+              (selectedTrailer.currentVolumeM3 || 0);
 
             if (
               selectedTrailer.maxLoadKg > 0 &&
-              Math.round(values.weightKg * 100) / 100 > availableWeight + tolerance
+              Math.round(values.weightKg * 100) / 100 >
+                availableWeight + tolerance
             ) {
-              errors.weightKg = dict.shipments.dialogs.fields.exceedsTrailerWeight;
+              errors.weightKg =
+                dict.shipments.dialogs.fields.exceedsTrailerWeight;
             }
             if (
               selectedTrailer.capacityVolumeM3 > 0 &&
-              Math.round(values.volumeM3 * 100) / 100 > availableVolume + tolerance
+              Math.round(values.volumeM3 * 100) / 100 >
+                availableVolume + tolerance
             ) {
-              errors.volumeM3 = dict.shipments.dialogs.fields.exceedsTrailerVolume;
+              errors.volumeM3 =
+                dict.shipments.dialogs.fields.exceedsTrailerVolume;
             }
           }
           return errors;
@@ -377,7 +382,6 @@ const AddShipmentDialog = ({
                         />
                         <LogisticsSection
                           warehouses={warehouses}
-                          customers={customers}
                           trailers={trailers}
                         />
                       </Stack>

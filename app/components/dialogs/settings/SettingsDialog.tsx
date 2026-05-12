@@ -76,35 +76,37 @@ export default function SettingsDialog({ open, onClose }: Props) {
   // Sync user data to state when opening or user changes
   useEffect(() => {
     if (open && user) {
-      setState((s) => {
-        const newRegional = {
-          ...s.regional,
-          currency: (user.currency as CurrencyCode) || "USD",
-          timezone: user.timezone || "UTC",
-          dateFormat: user.dateFormat || "DD/MM/YYYY",
-          timeFormat: user.timeFormat || "24h",
-        };
-        const newNotifications = {
-          emailShipmentUpdates: user.notifEmailShipment ?? true,
-          emailMaintenanceAlerts: user.notifEmailMaint ?? true,
-          emailWeeklyReports: user.notifEmailWeekly ?? false,
-          pushNewAssignments: user.notifPushAssignment ?? true,
-          pushDelayAlerts: user.notifPushDelay ?? true,
-        };
+      queueMicrotask(() => {
+        setState((s) => {
+          const newRegional = {
+            ...s.regional,
+            currency: (user.currency as CurrencyCode) || "USD",
+            timezone: user.timezone || "UTC",
+            dateFormat: user.dateFormat || "DD/MM/YYYY",
+            timeFormat: user.timeFormat || "24h",
+          };
+          const newNotifications = {
+            emailShipmentUpdates: user.notifEmailShipment ?? true,
+            emailMaintenanceAlerts: user.notifEmailMaint ?? true,
+            emailWeeklyReports: user.notifEmailWeekly ?? false,
+            pushNewAssignments: user.notifPushAssignment ?? true,
+            pushDelayAlerts: user.notifPushDelay ?? true,
+          };
 
-        // Check if we actually need to update to avoid cascading renders
-        const needsUpdate = 
-          s.regional.currency !== newRegional.currency ||
-          s.regional.timezone !== newRegional.timezone ||
-          s.notifications.emailShipmentUpdates !== newNotifications.emailShipmentUpdates;
+          const needsUpdate =
+            s.regional.currency !== newRegional.currency ||
+            s.regional.timezone !== newRegional.timezone ||
+            s.notifications.emailShipmentUpdates !==
+              newNotifications.emailShipmentUpdates;
 
-        if (!needsUpdate) return s;
+          if (!needsUpdate) return s;
 
-        return {
-          ...s,
-          regional: newRegional,
-          notifications: newNotifications,
-        };
+          return {
+            ...s,
+            regional: newRegional,
+            notifications: newNotifications,
+          };
+        });
       });
     }
   }, [open, user]);
@@ -114,9 +116,11 @@ export default function SettingsDialog({ open, onClose }: Props) {
     if (open) {
       const stored = localStorage.getItem("logitrack-theme-mode");
       if (stored) {
-        setState((s) => {
-          if (s.appearance.mode === (stored as AppearanceMode)) return s;
-          return { ...s, appearance: { mode: stored as AppearanceMode } };
+        queueMicrotask(() => {
+          setState((s) => {
+            if (s.appearance.mode === (stored as AppearanceMode)) return s;
+            return { ...s, appearance: { mode: stored as AppearanceMode } };
+          });
         });
       }
     }
@@ -163,7 +167,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
           const newPathname = `/${newLang}${localized}`;
 
           // Set cookie for persistence
-          // eslint-disable-next-line react-hooks/immutability
+           
           document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
           
           router.push(newPathname);
@@ -174,7 +178,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
 
         setState((s) => ({ ...s, isSaving: false }));
         showToast("success", dict.settings.dialogs.success.regional);
-      } catch (error) {
+      } catch {
         setState((s) => ({ ...s, isSaving: false }));
         showToast("error", "Failed to save settings");
       }
@@ -186,7 +190,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
         setState((s) => ({ ...s, isSaving: false }));
         showToast("success", dict.settings.dialogs.success.notifications);
         router.refresh();
-      } catch (error) {
+      } catch {
         setState((s) => ({ ...s, isSaving: false }));
         showToast("error", "Failed to save notifications");
       }

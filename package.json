@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && next build && eslint",
     "start": "dotenv -e .env -- node .next/standalone/server.js",
     "lint": "eslint",
     "lint:fix": "eslint --fix",

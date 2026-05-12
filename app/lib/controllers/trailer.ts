@@ -16,6 +16,9 @@ import {
   trailerCacheKeys,
   TRAILER_CACHE_TTL,
 } from "../redis";
+import {
+  TrailerFilters,
+} from "../type/trailer";
 
 // ── Cache invalidation helper ─────────────────────────────────────────────────
 async function invalidateTrailerCache(
@@ -28,8 +31,17 @@ async function invalidateTrailerCache(
   ]);
 }
 
+interface TrailerInput {
+  plate?: string;
+  fleetNo?: string;
+  type?: TrailerType;
+  capacityVolumeM3?: number | string;
+  maxLoadKg?: number | string;
+  isColdChain?: boolean;
+}
+
 export const createTrailer = authenticatedAction(
-  async (user, trailerData: Record<string, unknown>) => {
+  async (user, trailerData: TrailerInput) => {
     const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
@@ -48,7 +60,7 @@ export const createTrailer = authenticatedAction(
         capacityVolumeM3,
         maxLoadKg,
         isColdChain,
-      } = trailerData as any;
+      } = trailerData;
 
       if (!plate) throw new Error("Plate is required");
       if (!type) throw new Error("Trailer type is required");
@@ -85,7 +97,7 @@ export const createTrailer = authenticatedAction(
 );
 
 export const getTrailers = authenticatedAction(
-  async (user, filters: any = {}) => {
+  async (user, filters: TrailerFilters = {}) => {
     const companyId = user?.companyId || "";
     if (!companyId) throw new Error("User has no company");
 
@@ -106,36 +118,44 @@ export const getTrailers = authenticatedAction(
         ...(filters.isColdChain !== undefined && { isColdChain: filters.isColdChain }),
       };
 
-      const trailers = await db.trailer.findMany({
-        where,
-        include: {
-          currentVehicle: {
-            select: { id: true, plate: true, fleetNo: true }
-          },
-          shipments: {
-            where: {
-              status: {
-                in: ["PENDING", "PROCESSING", "IN_TRANSIT", "ASSIGNED", "PLANNED", "DELAYED"]
+      const [trailers, total] = await Promise.all([
+        db.trailer.findMany({
+          where,
+          include: {
+            currentVehicle: {
+              select: { id: true, plate: true, fleetNo: true }
+            },
+            shipments: {
+              where: {
+                status: {
+                  in: ["PENDING", "PROCESSING", "IN_TRANSIT", "ASSIGNED", "PLANNED", "DELAYED"]
+                }
+              },
+              select: {
+                weightKg: true,
+                volumeM3: true
               }
             },
-            select: {
-              weightKg: true,
-              volumeM3: true
+            _count: {
+              select: { shipments: true, issues: true, documents: true }
             }
           },
-          _count: {
-            select: { shipments: true, issues: true, documents: true }
-          }
-        },
-        orderBy: { createdAt: "desc" },
-      });
+          orderBy: { createdAt: "desc" },
+          ...(filters.page && filters.limit && {
+            skip: (filters.page - 1) * filters.limit,
+            take: filters.limit,
+          }),
+        }),
+        db.trailer.count({ where }),
+      ]);
 
       // Calculate current load totals
-      return trailers.map(trailer => {
-        const currentWeightKg = trailer.shipments.reduce((sum, s) => sum + (s.weightKg || 0), 0);
-        const currentVolumeM3 = trailer.shipments.reduce((sum, s) => sum + (s.volumeM3 || 0), 0);
+      const formattedTrailers = trailers.map(trailer => {
+        const currentWeightKg = trailer.shipments.reduce((sum: number, s: { weightKg: number | null }) => sum + (s.weightKg || 0), 0);
+        const currentVolumeM3 = trailer.shipments.reduce((sum: number, s: { volumeM3: number | null }) => sum + (s.volumeM3 || 0), 0);
         
         // Remove shipments array from return to keep it lightweight
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { shipments, ...rest } = trailer;
         return {
           ...rest,
@@ -143,6 +163,15 @@ export const getTrailers = authenticatedAction(
           currentVolumeM3
         };
       });
+
+      return {
+        trailers: formattedTrailers,
+        meta: {
+          total,
+          page: filters.page || 1,
+          limit: filters.limit || total,
+        },
+      };
     });
   }
 );

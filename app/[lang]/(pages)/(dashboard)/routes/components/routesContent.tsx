@@ -120,32 +120,35 @@ export default function RoutesContent() {
   };
 
   /* --------------------------------- KPI --------------------------------- */
-  const kpiItems = [
+  const kpiItems = useMemo(() => [
     {
       label: dict.routes.active,
       value: stats?.active || 0,
-      icon: <AltRoute sx={{ fontSize: 22 }} />,
+      icon: <AltRoute />,
       color: theme.palette.primary.main,
+      trend: dashboardData?.statsTrends?.active,
     },
     {
       label: dict.routes.inProgress,
       value: stats?.inProgress || 0,
-      icon: <Loop sx={{ fontSize: 22 }} />,
-      color: "#0ea5e9", // Sky
+      icon: <Loop />,
+      color: theme.palette.info.main,
     },
     {
       label: dict.routes.completedToday,
       value: stats?.completedToday || 0,
-      icon: <CheckCircle sx={{ fontSize: 22 }} />,
-      color: "#10b981", // Emerald
+      icon: <CheckCircle />,
+      color: theme.palette.success.main,
+      trend: dashboardData?.statsTrends?.completedToday,
     },
     {
       label: dict.routes.delayed,
       value: stats?.delayed || 0,
-      icon: <Warning sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.error,
+      icon: <Warning />,
+      color: (stats?.delayed || 0) > 0 ? theme.palette.error.main : theme.palette.success.main,
+      trend: dashboardData?.statsTrends?.delayed,
     },
-  ];
+  ], [stats, dashboardData?.statsTrends, theme, dict]);
 
   return (
     <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
@@ -157,11 +160,12 @@ export default function RoutesContent() {
       >
         <Box>
           <Typography
-            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
+            variant="h4"
+            sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {dict.routes.title}
           </Typography>
-          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
             {dict.routes.subtitle}
           </Typography>
         </Box>

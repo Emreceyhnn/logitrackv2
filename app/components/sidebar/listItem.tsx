@@ -1,4 +1,4 @@
-import { ReactNode, useState, useMemo, useCallback, useEffect, memo } from "react";
+import { ReactNode, useState, useCallback, useEffect, memo } from "react";
 import {
   List,
   ListItemButton,
@@ -22,10 +22,11 @@ export type SidebarItem = {
 export type Params = {
   items: SidebarItem[];
   lang: string;
+  onMobileClose?: () => void;
 };
 
 export const SidebarList = memo(function SidebarList(params: Params) {
-  const { items, lang } = params;
+  const { items, lang, onMobileClose } = params;
 
   /* --------------------------------- states --------------------------------- */
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -56,7 +57,7 @@ export const SidebarList = memo(function SidebarList(params: Params) {
   }, [pathname, items, isActive]);
 
   /* --------------------------------- handlers --------------------------------- */
-  const handleToggle = useCallback((title: string, e?: React.MouseEvent) => {
+  const handleToggle = useCallback((title: string) => {
     // If it's a toggle click on the arrow, prevent default if needed
     // But here we want it to toggle regardless
     setOpenKey((prev) => (prev === title ? null : title));
@@ -91,10 +92,15 @@ export const SidebarList = memo(function SidebarList(params: Params) {
               onClick: () => handleToggle(item.title) 
             };
 
+        const onClickProps = item.href && onMobileClose 
+          ? { onClick: onMobileClose } 
+          : {};
+
         return (
           <div key={item.title} style={{ width: "100%" }}>
             <ListItemButton
               {...buttonProps}
+              {...onClickProps}
               selected={activeItem}
               sx={{
                 px: 3,
@@ -179,6 +185,7 @@ export const SidebarList = memo(function SidebarList(params: Params) {
                         key={sub.title}
                         component={Link}
                         href={getFullLocalizedPath(sub.href)}
+                        onClick={onMobileClose}
                         selected={subActive}
                         sx={{
                           pl: 7,

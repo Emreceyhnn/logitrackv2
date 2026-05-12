@@ -14,7 +14,6 @@ import {
   ListItemButton,
   IconButton,
   Box,
-  useTheme,
 } from "@mui/material";
 import { useFormikContext } from "formik";
 import { ShipmentFormValues } from "@/app/lib/type/shipment";
@@ -36,7 +35,6 @@ const InventorySection = ({
   availableInventory,
   isLoadingInventory,
 }: InventorySectionProps) => {
-  const theme = useTheme();
   /* -------------------------------- variables ------------------------------- */
   const dict = useDictionary();
 
@@ -208,7 +206,8 @@ const InventorySection = ({
               p: 4,
               textAlign: "center",
               borderRadius: 2,
-              border: (theme) => `1px dashed ${theme.palette.divider_alpha.main_10}`,
+              border: (theme) =>
+                `1px dashed ${theme.palette.divider_alpha.main_10}`,
               bgcolor: (theme) => theme.palette.divider_alpha.main_02,
             }}
           >
@@ -414,18 +413,33 @@ const InventorySection = ({
                               <Typography
                                 variant="caption"
                                 fontWeight={800}
-                                sx={{ fontSize: "10px", textTransform: "uppercase" }}
+                                sx={{
+                                  fontSize: "10px",
+                                  textTransform: "uppercase",
+                                }}
                               >
-                                {dict.shipments.dialogs.fields.insufficientStock}
+                                {
+                                  dict.shipments.dialogs.fields
+                                    .insufficientStock
+                                }
                               </Typography>
                               <Typography
                                 variant="caption"
                                 sx={{ fontSize: "10px", fontWeight: 600 }}
                               >
                                 ({dict.shipments.dialogs.fields.availableStock}:{" "}
-                                <Box component="span" sx={{ color: "error.main", fontWeight: 900 }}>
-                                  {available} {isPallet ? (dict.shipments.dialogs.types.pallet || "Pallet") : (dict.shipments.dialogs.types.each || "Each")}
-                                </Box>)
+                                <Box
+                                  component="span"
+                                  sx={{ color: "error.main", fontWeight: 900 }}
+                                >
+                                  {available}{" "}
+                                  {isPallet
+                                    ? dict.shipments.dialogs.types.pallet ||
+                                      "Pallet"
+                                    : dict.shipments.dialogs.types.each ||
+                                      "Each"}
+                                </Box>
+                                )
                               </Typography>
                             </Stack>
                           );
@@ -449,7 +463,8 @@ const InventorySection = ({
         PaperProps={{
           sx: {
             borderRadius: 3,
-            border: (theme) => `1px solid ${theme.palette.divider_alpha.main_10}`,
+            border: (theme) =>
+              `1px solid ${theme.palette.divider_alpha.main_10}`,
           },
         }}
       >

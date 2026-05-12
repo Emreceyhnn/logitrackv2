@@ -21,6 +21,21 @@
     "import": "İçe Aktar",
     "apply": "Uygula",
     "reset": "Sıfırla",
+    "clearAll": "Tümünü Temizle",
+    "tooltips": {
+      "actions": "İşlemler",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "details": "Detayları Görüntüle",
+      "refresh": "Yenile",
+      "search": "Ara",
+      "clearFilter": "Bu filtreyi kaldır",
+      "clearAllFilters": "Tüm aktif filtreleri temizle",
+      "filterBy": "{value} ile filtreleniyor",
+      "notifications": "Bildirimler",
+      "account": "Hesap",
+      "changeLanguage": "Dili Değiştir"
+    },
     "actions": "İşlemler",
     "status": "Durum",
     "date": "Tarih",
@@ -98,6 +113,8 @@
     "noEmail": "E-posta Yok",
     "noPhone": "Telefon Yok",
     "contactInfo": "İletişim Bilgileri",
+    "yes": "Evet",
+    "no": "Hayır",
     "none": "Yok",
     "details": "Detaylar",
     "kg": "kg",
@@ -106,7 +123,8 @@
     "unassigned": "Atanmadı",
     "pagination": {
       "rowsPerPage": "Sayfa başına satır:",
-      "of": "üzerinden"
+      "of": "üzerinden",
+      "totalRecords": "{count} kayıt gösteriliyor"
     },
     "filtersActive": "{count} aktif filtre",
     "moreThan": "{count} taneden fazla",
@@ -204,6 +222,7 @@
       "title": "Her sevkiyatı canlı zeka ile yönetin.",
       "description": "Sevkiyatı, filoları ve müşteri sözlerini tek bir etkileyici panelde senkronize edin. Sorunları gerçekleşmeden önce tahmin edin ve rotaları yapay zeka ile optimize edin.",
       "discover": "Keşfet",
+      "startTrial": "Denemeyi Başlat",
       "demo": "Demo İste",
       "metrics": {
         "activeRoutes": "Aktif Rotalar",
@@ -1068,6 +1087,8 @@
       "lng": "Boylam Sınırı",
       "isDefault": "Varsayılan",
       "mainOffice": "Merkez Ofis",
+      "phone": "Telefon",
+      "email": "E-posta",
       "selectIndustry": "Bir sektör seçin"
     }
   },
@@ -1368,7 +1389,11 @@
       "DELIVERED": "Teslim Edildi",
       "DELAYED": "Gecikmiş",
       "CANCELLED": "İptal Edildi",
-      "PROCESSING": "İşleniyor"
+      "PROCESSING": "İşleniyor",
+      "ASSIGNED": "Atandı",
+      "PLANNED": "Planlandı",
+      "COMPLETED": "Tamamlandı",
+      "FAILED": "Başarısız"
     },
     "dashboard": {
       "statusOverview": "Durum Özeti",
@@ -1542,7 +1567,7 @@
       "onTimePerformance": "Zamanında Performans",
       "vehicleUtilization": "Araç Kullanım Oranı",
       "recentNotifications": "Son Bildirimler",
-      "noNotifications": "Son bildirim bulunamadı",
+      "noNotifications": "Henüz bildirim yok — her şey yolunda görünüyor",
       "notification": "Bildirim"
     },
     "table": {
@@ -2172,7 +2197,8 @@
     }
   },
   "company": {
-    "title": "Şirket",
+    "title": "Şirket Yapılandırması",
+    "subtitle": "Organizasyonunuzu, üyelerinizi ve bölgesel ayarlarınızı yönetin.",
     "overview": "Organizasyonunuzu, üyelerinizi ve ayarlarınızı yönetin.",
     "addMember": "Üye Ekle",
     "kpi": {

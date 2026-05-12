@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Typography, Avatar, Stack, Chip, Box } from "@mui/material";
+import { useMemo, useState, useCallback } from "react";
+import { Typography, Avatar, Stack, Chip, Box, useTheme, Tooltip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import InfoIcon from "@mui/icons-material/Info";
 import EditIcon from "@mui/icons-material/Edit";
@@ -43,11 +43,54 @@ const InventoryTable = ({
   sortOrder,
   onRequestSort,
 }: InventoryTableProps) => {
+  const theme = useTheme();
   const dict = useDictionary();
   const [localPage, setLocalPage] = useState(1);
   const [localLimit, setLocalLimit] = useState(10);
 
   const { formatFrom, isLoading: currencyLoading } = useCurrency();
+
+  const getCategoryStyles = useCallback((cargoType: string | null | undefined) => {
+    const type = cargoType?.toUpperCase() || "";
+    // Using theme.palette.kpi colors
+    if (type.includes("FROZEN") || type.includes("COLD"))
+      return {
+        main: theme.palette.kpi.sky,
+        alpha: theme.palette.kpi.sky_alpha.main_10,
+        alphaHover: theme.palette.kpi.sky_alpha.main_20,
+      };
+    if (type.includes("BATTERY") || type.includes("ELECTRO"))
+      return {
+        main: theme.palette.kpi.purple,
+        alpha: theme.palette.kpi.purple_alpha.main_10,
+        alphaHover: theme.palette.kpi.purple_alpha.main_20,
+      };
+    if (type.includes("HAZMAT") || type.includes("HAZARD"))
+      return {
+        main: theme.palette.kpi.amber,
+        alpha: theme.palette.kpi.amber_alpha.main_10,
+        alphaHover: theme.palette.kpi.amber_alpha.main_20,
+      };
+    if (type.includes("FOOD") || type.includes("PERISH"))
+      return {
+        main: theme.palette.kpi.emerald,
+        alpha: theme.palette.kpi.emerald_alpha.main_10,
+        alphaHover: theme.palette.kpi.emerald_alpha.main_20,
+      };
+    if (type.includes("LIQUID") || type.includes("OIL"))
+      return {
+        main: theme.palette.kpi.indigo,
+        alpha: theme.palette.kpi.indigo_alpha.main_10,
+        alphaHover: theme.palette.kpi.indigo_alpha.main_20,
+      };
+
+    // Default: Indigo/Primary
+    return {
+      main: theme.palette.primary.main,
+      alpha: theme.palette.primary._alpha.main_10,
+      alphaHover: theme.palette.primary._alpha.main_20,
+    };
+  }, [theme]);
 
   const currentMeta = meta || {
     page: localPage,
@@ -82,28 +125,34 @@ const InventoryTable = ({
         label: dict.inventory.table.productName,
         sortable: true,
         sortKey: "name",
-        render: (row) => (
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Avatar
-              variant="rounded"
-              src={row.imageUrl || undefined}
-              sx={{
-                bgcolor: "primary.light",
-                color: "primary.main",
-                width: 40,
-                height: 40,
-                fontSize: "1rem",
-                fontWeight: 600,
-                "& img": { objectFit: "cover" },
-              }}
-            >
-              {!row.imageUrl && row.name.charAt(0)}
-            </Avatar>
-            <Typography variant="body2" fontWeight={600}>
-              {row.name}
-            </Typography>
-          </Stack>
-        ),
+        render: (row) => {
+          const styles = getCategoryStyles(row.cargoType);
+          return (
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Tooltip title={row.name} arrow>
+                <Avatar
+                  variant="rounded"
+                  src={row.imageUrl || undefined}
+                  sx={{
+                    bgcolor: styles.alpha,
+                    color: styles.main,
+                    width: 40,
+                    height: 40,
+                    fontSize: "1rem",
+                    fontWeight: 800,
+                    border: `1px solid ${styles.alpha}`,
+                    "& img": { objectFit: "cover" },
+                  }}
+                >
+                  {!row.imageUrl && row.name.charAt(0)}
+                </Avatar>
+              </Tooltip>
+              <Typography variant="body2" fontWeight={600}>
+                {row.name}
+              </Typography>
+            </Stack>
+          );
+        },
       },
       {
         key: "sku",
@@ -114,13 +163,27 @@ const InventoryTable = ({
       {
         key: "category",
         label: dict.inventory.table.category,
-        render: () => (
-          <Chip
-            label={dict.inventory.category.general}
-            size="small"
-            variant="outlined"
-          />
-        ),
+        render: (row) => {
+          const styles = getCategoryStyles(row.cargoType);
+          return (
+            <Chip
+              label={row.cargoType || dict.inventory.category.general}
+              size="small"
+              sx={{
+                fontWeight: 800,
+                fontSize: "0.65rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                bgcolor: styles.alpha,
+                color: styles.main,
+                border: `1px solid ${styles.alpha}`,
+                borderRadius: "6px",
+                height: 24,
+                "& .MuiChip-label": { px: 1.5 },
+              }}
+            />
+          );
+        },
       },
       {
         key: "stockLevel",
@@ -130,34 +193,36 @@ const InventoryTable = ({
         render: (row) => {
           const status = getStatus(row.quantity, row.minStock);
           return (
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  bgcolor: `${getStockColor(status)}.main`,
-                }}
-              />
-              <Typography
-                variant="body2"
-                sx={{ color: `${getStockColor(status)}.main`, fontWeight: 500 }}
-              >
-                {row.quantity - (row.allocatedQuantity || 0)}{" "}
-                {row.allocatedQuantity > 0 && (
-                  <Typography
-                    component="span"
-                    variant="caption"
-                    sx={{ color: "warning.main", ml: 0.5 }}
-                  >
-                    ({row.allocatedQuantity}{" "}
-                    {dict.inventory.status.blocked || "Blokeli"})
-                  </Typography>
-                )}
-                {status === "LOW_STOCK" && ` (${dict.inventory.status.low})`}
-                {status === "OUT_OF_STOCK" && ` (${dict.inventory.status.out})`}
-              </Typography>
-            </Stack>
+            <Tooltip title={dict.inventory.table.stockLevel} arrow>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    bgcolor: `${getStockColor(status)}.main`,
+                  }}
+                />
+                <Typography
+                  variant="body2"
+                  sx={{ color: `${getStockColor(status)}.main`, fontWeight: 500 }}
+                >
+                  {row.quantity - (row.allocatedQuantity || 0)}{" "}
+                  {row.allocatedQuantity > 0 && (
+                    <Typography
+                      component="span"
+                      variant="caption"
+                      sx={{ color: "warning.main", ml: 0.5 }}
+                    >
+                      ({row.allocatedQuantity}{" "}
+                      {dict.inventory.status.blocked || "Blokeli"})
+                    </Typography>
+                  )}
+                  {status === "LOW_STOCK" && ` (${dict.inventory.status.low})`}
+                  {status === "OUT_OF_STOCK" && ` (${dict.inventory.status.out})`}
+                </Typography>
+              </Stack>
+            </Tooltip>
           );
         },
       },
@@ -185,7 +250,7 @@ const InventoryTable = ({
         ),
       },
     ],
-    [dict, formatFrom, currencyLoading]
+    [dict, formatFrom, currencyLoading, getCategoryStyles]
   );
 
   const rowActions: DataTableRowAction<InventoryWithRelations>[] = useMemo(

@@ -19,8 +19,8 @@ import {
 } from "@/app/lib/type/shipment";
 import { ShipmentStatus, ShipmentPriority } from "@/app/lib/type/enums";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-
 import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
+import type { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
 
 export function useShipments() {
   return useQuery({
@@ -88,6 +88,12 @@ async function fetchShipmentDashboard(
   shipments: ShipmentWithRelations[];
   totalCount: number;
   stats: ShipmentStats;
+  statsTrends?: {
+    total?: { value: number; isUp: boolean };
+    active?: { value: number; isUp: boolean };
+    delayed?: { value: number; isUp: boolean };
+    inTransit?: { value: number; isUp: boolean };
+  };
   volumeData: ShipmentVolumeData[];
   statusData: ShipmentStatusData[];
 }> {
@@ -133,13 +139,13 @@ export function useShipmentMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: Error | unknown) => {
+  const handleError = (message: string, error: unknown) => {
     console.error(message, error);
-    toast.error((error as Error)?.message || message);
+    toast.error(error instanceof Error ? error.message : message);
   };
 
   const createMutation = useMutation({
-    mutationFn: (data: Partial<ShipmentWithRelations> & { customerId: string; origin: string; destination: string; status: ShipmentStatus }) =>
+    mutationFn: (data: Partial<ShipmentWithRelations> & { customerId: string; origin: string; destination: string; status: ShipmentStatus; inventoryItems?: InventoryShipmentItem[] }) =>
       createShipment({
         customerId: data.customerId!,
         origin: data.origin!,
@@ -161,7 +167,7 @@ export function useShipmentMutations() {
         slaDeadline: data.slaDeadline ? new Date(data.slaDeadline) : null,
         contactEmail: data.contactEmail || "",
         billingAccount: data.billingAccount || "",
-        inventoryItems: (data as any).inventoryItems || [],
+        inventoryItems: data.inventoryItems || [],
       }),
     onSuccess: () => handleSuccess(dict.toasts.successAdd),
     onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),

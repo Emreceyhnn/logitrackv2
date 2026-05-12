@@ -77,9 +77,9 @@ export default function LandingNavbar() {
             <Stack direction="row" spacing={1.5} alignItems="center">
               <Box
                 sx={{
-                  width: trigger ? 36 : 44,
-                  height: trigger ? 36 : 44,
-                  borderRadius: "12px",
+                  width: trigger ? 32 : 36,
+                  height: trigger ? 32 : 36,
+                  borderRadius: "10px",
                   background: "linear-gradient(135deg, #38bdf8, #6366f1)",
                   display: "flex",
                   alignItems: "center",
@@ -90,8 +90,8 @@ export default function LandingNavbar() {
                 <Image
                   src="/logo-white.svg"
                   alt="LogiTrack"
-                  width={trigger ? 22 : 28}
-                  height={trigger ? 22 : 28}
+                  width={trigger ? 20 : 22}
+                  height={trigger ? 20 : 22}
                 />
               </Box>
               <Typography

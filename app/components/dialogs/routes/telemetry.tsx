@@ -1,4 +1,4 @@
-import { LinearProgress, Stack, Typography, Box, useTheme } from "@mui/material";
+import { LinearProgress, Stack, Typography, Box } from "@mui/material";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 
 interface Params {
@@ -10,7 +10,6 @@ interface Params {
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const RoutesTelemetryCards = (params: Params) => {
-  const theme = useTheme();
   const dict = useDictionary();
   const { route, liveDistanceKm } = params;
   if (!route) return null;
@@ -31,7 +30,8 @@ const RoutesTelemetryCards = (params: Params) => {
             p: 3,
             borderRadius: 3,
             bgcolor: (theme) => theme.palette.divider_alpha.main_05,
-            border: (theme) => `1px solid ${theme.palette.divider_alpha.main_10}`,
+            border: (theme) =>
+              `1px solid ${theme.palette.divider_alpha.main_10}`,
             flex: 1,
           }}
         >
@@ -58,7 +58,8 @@ const RoutesTelemetryCards = (params: Params) => {
             p: 3,
             borderRadius: 3,
             bgcolor: (theme) => theme.palette.divider_alpha.main_05,
-            border: (theme) => `1px solid ${theme.palette.divider_alpha.main_10}`,
+            border: (theme) =>
+              `1px solid ${theme.palette.divider_alpha.main_10}`,
             flex: 1,
           }}
         >

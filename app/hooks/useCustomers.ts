@@ -28,6 +28,9 @@ async function fetchCustomerDashboard(
     activeCustomers: number;
     totalShipments: number;
   };
+  statsTrends?: {
+    totalCustomers?: { value: number; isUp: boolean };
+  };
 }> {
   const params = new URLSearchParams();
   params.set("page", String(page));

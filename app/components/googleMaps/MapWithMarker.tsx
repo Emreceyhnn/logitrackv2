@@ -1,7 +1,6 @@
-"use client";
-
-import React, { useCallback, useRef, useMemo } from "react";
-import { GoogleMap, MarkerF } from "@react-google-maps/api";
+import React, { useCallback, useRef, useMemo, useState } from "react";
+import { GoogleMap, MarkerF, OverlayView } from "@react-google-maps/api";
+import Image from "next/image";
 
 /* --------------------------------- STYLES --------------------------------- */
 const containerStyle = {
@@ -9,12 +8,6 @@ const containerStyle = {
   height: "100%",
   borderRadius: "12px",
 };
-
-const PIN_SVG =
-  "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z";
-const TRUCK_SVG =
-  "M20 8h-3V4H3v13h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zM18 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z";
-const WAREHOUSE_SVG = "M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z";
 
 export type MarkerType =
   | "customer"
@@ -24,6 +17,7 @@ export type MarkerType =
   | "default";
 
 export interface MarkerData {
+  id?: string;
   position: { lat: number; lng: number };
   label?: string;
   type?: MarkerType;
@@ -42,64 +36,142 @@ const OptimizedMarker = React.memo(
   ({
     marker,
     onClick,
+    offset = { x: 0, y: 0 },
+    isExpanded = false,
   }: {
     marker: MarkerData;
     onClick?: (m: MarkerData) => void;
+    offset?: { x: number; y: number };
+    isExpanded?: boolean;
   }) => {
+    const isVehicle = marker.type === "vehicle";
+
     const iconConfig = useMemo(() => {
-      if (typeof window === "undefined" || !window.google || !marker.type)
+      if (
+        typeof window === "undefined" ||
+        !window.google ||
+        !marker.type ||
+        isVehicle
+      )
         return undefined;
 
-      let path = PIN_SVG;
-      let fillColor = "#EA4335";
-      let scale = 1.6;
-      let anchor = new window.google.maps.Point(12, 24);
-      let labelOrigin = new window.google.maps.Point(12, 9);
+      let url = "/icons/pin.svg";
+      const scale = 1.6;
 
       switch (marker.type) {
         case "warehouse":
-          fillColor = "#8B5CF6";
-          path = WAREHOUSE_SVG;
+          url = "/icons/warehouse.svg";
           break;
         case "customer":
-          fillColor = "#3B82F6";
-          path = PIN_SVG;
-          break;
-        case "vehicle":
-          fillColor = "#10B981";
-          path = TRUCK_SVG;
-          scale = 1.3;
-          anchor = new window.google.maps.Point(12, 12);
-          labelOrigin = new window.google.maps.Point(12, -4);
-          break;
-        case "route":
-          fillColor = "#F59E0B";
-          scale = 1.2;
-          anchor = new window.google.maps.Point(12, 12);
+          url = "/icons/pin.svg";
           break;
       }
 
+      // Note: For MarkerF, we'd need to use a complex icon or Symbol.
+      // But since user wants SVGs in public, we'll use a simple URL if possible.
       return {
-        path,
-        fillColor,
-        fillOpacity: 1,
-        strokeWeight: 1.5,
-        strokeColor: "#FFFFFF",
-        scale,
-        anchor,
-        labelOrigin,
+        url,
+        scaledSize: new window.google.maps.Size(24 * scale, 24 * scale),
+        anchor: new window.google.maps.Point(12 * scale, 24 * scale),
       };
-    }, [marker.type]);
+    }, [marker.type, isVehicle]);
 
     const labelConfig = useMemo(() => {
-      if (!marker.label) return undefined;
+      if (!marker.label || isVehicle) return undefined;
       return {
         text: marker.label.charAt(0).toUpperCase(),
-        color: marker.type === "vehicle" ? "#000" : "#FFF",
+        color: "#FFF",
         fontWeight: "bold",
         fontSize: "12px",
       };
-    }, [marker.label, marker.type]);
+    }, [marker.label, isVehicle]);
+
+    if (isVehicle) {
+      return (
+        <OverlayView
+          position={marker.position}
+          mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+        >
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.(marker);
+            }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              cursor: "pointer",
+              zIndex: isExpanded ? 2000 : 1000,
+              position: "absolute",
+              // Use transform for smooth animation of the blooming offset
+              // calc(-50% + offset.x) centers the marker and then applies the spiderfier offset
+              transform: `translate(calc(-50% + ${offset.x}px), calc(-100% + ${offset.y}px)) ${isExpanded ? "scale(1.15)" : "scale(1)"}`,
+              transition: "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              pointerEvents: "auto",
+            }}
+          >
+            {/* Plate badge */}
+            <div
+              style={{
+                background: "rgba(15, 23, 42, 0.95)",
+                backdropFilter: "blur(4px)",
+                border: "1.5px solid rgba(59, 130, 246, 0.5)",
+                color: "#FFFFFF",
+                fontSize: "12px",
+                fontWeight: 700,
+                padding: "4px 10px",
+                borderRadius: "8px",
+                whiteSpace: "nowrap",
+                marginBottom: "6px",
+                boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.4)",
+              }}
+            >
+              {marker.label}
+            </div>
+
+            {/* Marker shape with icon from public folder */}
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                background: "linear-gradient(135deg, #2563EB, #3B82F6)",
+                borderRadius: "50% 50% 50% 0",
+                transform: "rotate(-45deg)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "2.5px solid #FFFFFF",
+                boxShadow: "0 10px 15px -3px rgba(37, 99, 235, 0.3)",
+              }}
+            >
+              <Image
+                src="/icons/truck.svg"
+                alt="truck"
+                width={20}
+                height={20}
+                style={{
+                  transform: "rotate(45deg)",
+                  filter: "brightness(0) invert(1)", // Make it white
+                }}
+                unoptimized
+              />
+            </div>
+
+            <div
+              style={{
+                width: 10,
+                height: 5,
+                background: "rgba(0,0,0,0.2)",
+                borderRadius: "50%",
+                marginTop: 2,
+                filter: "blur(2px)",
+              }}
+            />
+          </div>
+        </OverlayView>
+      );
+    }
 
     return (
       <MarkerF
@@ -124,6 +196,7 @@ export const MapWithMarker = ({
   options,
 }: MapWithMarkerProps) => {
   const mapRef = useRef<google.maps.Map | null>(null);
+  const [expandedGroupId, setExpandedGroupId] = useState<string | null>(null);
 
   const fitBoundsFired = useRef(false);
 
@@ -143,6 +216,20 @@ export const MapWithMarker = ({
     }),
     [options]
   );
+
+  // Group markers by proximity (simple Spiderfier logic)
+  const groupedMarkers = useMemo(() => {
+    const groups: { [key: string]: MarkerData[] } = {};
+    const threshold = 0.0001; // Proximity threshold
+
+    markers.forEach((m) => {
+      const key = `${Math.round(m.position.lat / threshold)},${Math.round(m.position.lng / threshold)}`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(m);
+    });
+
+    return groups;
+  }, [markers]);
 
   const onLoad = useCallback(
     (map: google.maps.Map) => {
@@ -194,7 +281,6 @@ export const MapWithMarker = ({
     }
   }, [markers, center]);
 
-  // Reset fitBounds tracking if the explicit center prop changes
   React.useEffect(() => {
     if (center) {
       fitBoundsFired.current = false;
@@ -212,14 +298,47 @@ export const MapWithMarker = ({
         zoom={zoom}
         onLoad={onLoad}
         options={mapOptions}
+        onClick={() => setExpandedGroupId(null)}
       >
-        {markers.map((marker, index) => (
-          <OptimizedMarker
-            key={`${marker.label || "m"}-${index}`}
-            marker={marker}
-            onClick={onMarkerClick}
-          />
-        ))}
+        {Object.entries(groupedMarkers).map(([groupId, groupMarkers]) => {
+          const isExpanded = expandedGroupId === groupId;
+          const count = groupMarkers.length;
+
+          return groupMarkers.map((marker, index) => {
+            let offset = { x: 0, y: 0 };
+
+            if (count > 1) {
+              if (isExpanded) {
+                // Bloom effect: Spread markers in a circle
+                const angle = (index / count) * 2 * Math.PI;
+                const radius = 80; // increased radius for better visibility
+                offset = {
+                  x: Math.cos(angle) * radius,
+                  y: Math.sin(angle) * radius,
+                };
+              } else if (index > 0) {
+                // Hide overlapping markers when not expanded
+                return null;
+              }
+            }
+
+            return (
+              <OptimizedMarker
+                key={`${marker.id || marker.label}-${index}`}
+                marker={marker}
+                offset={offset}
+                isExpanded={isExpanded}
+                onClick={(m) => {
+                  if (count > 1 && !isExpanded) {
+                    setExpandedGroupId(groupId);
+                  } else {
+                    onMarkerClick?.(m);
+                  }
+                }}
+              />
+            );
+          });
+        })}
       </GoogleMap>
     </div>
   );

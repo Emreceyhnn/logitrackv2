@@ -120,43 +120,39 @@ export default function WarehouseContent() {
 
 
   /* --------------------------------- KPI --------------------------------- */
-  const kpiItems = [
+  const kpiItems = useMemo(() => [
     {
       label: dict.warehouses.kpi.totalWarehouses,
       value: stats?.totalWarehouses || 0,
-      icon: <WarehouseIcon sx={{ fontSize: 22 }} />,
+      icon: <WarehouseIcon />,
       color: theme.palette.primary.main,
-      trend: { value: 2, isUp: true },
+      trend: dashboardData?.statsTrends?.totalWarehouses,
     },
     {
       label: dict.warehouses.kpi.inventorySkus,
       value: stats?.totalSkus?.toLocaleString() || 0,
-      icon: <Inventory2 sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.cyan,
-      trend: { value: 12, isUp: true },
+      icon: <Inventory2 />,
+      color: theme.palette.info.main,
     },
     {
       label: dict.warehouses.kpi.totalItems,
       value: stats?.totalItems?.toLocaleString() || 0,
-      icon: <ListAlt sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.violet,
-      trend: { value: 8, isUp: true },
+      icon: <ListAlt />,
+      color: theme.palette.secondary.main,
     },
     {
       label: dict.warehouses.kpi.palletCapacity,
       value: stats?.totalCapacityPallets?.toLocaleString() || 0,
-      icon: <Category sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.amber,
-      trend: { value: 5, isUp: true },
+      icon: <Category />,
+      color: theme.palette.warning.main,
     },
     {
       label: dict.warehouses.kpi.stockedVolume,
       value: `${stats?.totalCapacityVolume?.toLocaleString() || 0} M³`,
-      icon: <Storage sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.emerald,
-      trend: { value: 15, isUp: true },
+      icon: <Storage />,
+      color: theme.palette.success.main,
     },
-  ];
+  ], [stats, dashboardData?.statsTrends, theme, dict]);
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>
@@ -168,11 +164,12 @@ export default function WarehouseContent() {
       >
         <Box>
           <Typography
-            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
+            variant="h4"
+            sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {dict.warehouses.title}
           </Typography>
-          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
             {dict.warehouses.subtitle}
           </Typography>
         </Box>

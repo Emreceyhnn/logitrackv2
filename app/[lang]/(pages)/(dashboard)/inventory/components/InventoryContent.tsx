@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useState, useMemo, useEffect } from "react";
-import { useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
@@ -22,6 +21,7 @@ import {
   Warning,
   Error as ErrorIcon,
   AttachMoney,
+  CheckCircle,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import KpiCards from "@/app/components/cards/KpiCards";
@@ -31,8 +31,6 @@ export default function InventoryContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
   const { format, isLoading: currencyLoading } = useCurrency();
 
   /* ---------------------------------- STATE --------------------------------- */
@@ -158,37 +156,36 @@ export default function InventoryContent() {
       {
         label: dict.inventory.totalItems,
         value: stats?.totalItems ?? 0,
-        icon: <InventoryIcon sx={{ fontSize: 22 }} />,
+        icon: <InventoryIcon />,
         color: theme.palette.primary.main,
+        trend: dashboardData?.statsTrends?.totalItems,
       },
       {
         label: dict.inventory.lowStock,
         value: stats?.lowStockCount ?? 0,
-        icon: <Warning sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.amber,
-        trend:
-          (stats?.lowStockCount || 0) > 0
-            ? { value: stats!.lowStockCount, isUp: true }
-            : undefined,
+        icon: (stats?.lowStockCount ?? 0) > 0 ? <Warning /> : <CheckCircle />,
+        color:
+          (stats?.lowStockCount ?? 0) > 0
+            ? theme.palette.warning.main
+            : theme.palette.success.main,
       },
       {
         label: dict.inventory.outOfStock,
         value: stats?.outOfStockCount ?? 0,
-        icon: <ErrorIcon sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.error,
-        trend:
-          (stats?.outOfStockCount || 0) > 0
-            ? { value: stats!.outOfStockCount, isUp: true }
-            : undefined,
+        icon: (stats?.outOfStockCount ?? 0) > 0 ? <ErrorIcon /> : <CheckCircle />,
+        color:
+          (stats?.outOfStockCount ?? 0) > 0
+            ? theme.palette.error.main
+            : theme.palette.success.main,
       },
       {
         label: dict.inventory.totalValue,
         value: currencyLoading ? "..." : format(stats?.totalValue || 0),
-        icon: <AttachMoney sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.emerald,
+        icon: <AttachMoney />,
+        color: theme.palette.success.main,
       },
     ],
-    [stats, theme, dict, format, currencyLoading]
+    [stats, dashboardData?.statsTrends, theme, dict, format, currencyLoading]
   );
 
   return (

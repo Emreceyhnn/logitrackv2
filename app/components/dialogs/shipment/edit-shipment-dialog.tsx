@@ -25,12 +25,10 @@ import { updateShipment } from "@/app/lib/controllers/shipments";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { getCustomers } from "@/app/lib/controllers/customer";
 import { getInventory } from "@/app/lib/controllers/inventory";
-import { getRoutes } from "@/app/lib/controllers/routes";
 import { getTrailers } from "@/app/lib/controllers/trailer";
 import { useUser } from "@/app/hooks/useUser";
 import { WarehouseWithRelations } from "@/app/lib/type/warehouse";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
-import { RouteWithRelations } from "@/app/lib/type/routes";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import { TrailerWithRelations } from "@/app/lib/type/trailer";
 import {
@@ -47,6 +45,7 @@ import InventorySection from "./addShipmentDialog/sections/InventorySection";
 import StopsSection from "./addShipmentDialog/sections/StopsSection";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
 
 interface FormikInventorySyncProps {
   onWarehouseChange: (id: string) => void;
@@ -97,23 +96,20 @@ const EditShipmentDialog = ({
 
   const [warehouses, setWarehouses] = useState<WarehouseWithRelations[]>([]);
   const [customers, setCustomers] = useState<CustomerWithRelations[]>([]);
-  const [routes, setRoutes] = useState<RouteWithRelations[]>([]);
   const [trailers, setTrailers] = useState<TrailerWithRelations[]>([]);
 
   useEffect(() => {
     if (open && user) {
       const fetchData = async () => {
         try {
-          const [wRes, cRes, rRes, tRes] = await Promise.all([
+          const [wRes, cRes, tRes] = await Promise.all([
             getWarehouses(),
             getCustomers(),
-            getRoutes(),
             getTrailers(),
           ]);
           setWarehouses(wRes);
           setCustomers(cRes);
-          setRoutes(rRes.routes);
-          setTrailers(tRes);
+          setTrailers(tRes.trailers);
         } catch (error) {
           console.error("Failed to fetch dialog data", error);
         }
@@ -194,14 +190,15 @@ const EditShipmentDialog = ({
       palletCount: shipment.palletCount || 0,
       cargoType: shipment.cargoType || "General Cargo",
       assignedRouteId: shipment.routeId || null,
-      trailerId: (shipment as unknown as { trailerId: string }).trailerId || null,
+      trailerId:
+        (shipment as unknown as { trailerId: string }).trailerId || null,
       inventoryItems:
         shipment.items?.map((item) => ({
           id: item.id,
           sku: item.sku,
           name: item.name,
           quantity: item.quantity,
-          unit: (item.unit as any) || "Each",
+          unit: (item.unit as InventoryShipmentItem["unit"]) || "Each",
           weightKg: item.weightKg || 0,
           volumeM3: item.volumeM3 || 0,
           palletCount: item.palletCount || 1,
@@ -296,32 +293,41 @@ const EditShipmentDialog = ({
         validationSchema={validationSchema}
         validate={(values) => {
           const errors: Partial<Record<keyof ShipmentFormValues, string>> = {};
-          const selectedTrailer = trailers.find((t) => t.id === values.trailerId);
+          const selectedTrailer = trailers.find(
+            (t) => t.id === values.trailerId
+          );
           if (selectedTrailer) {
             const tolerance = 0.01;
-            
+
             const isSameTrailer = selectedTrailer.id === shipment.trailerId;
-            const otherLoadWeight = isSameTrailer 
-              ? (selectedTrailer.currentWeightKg || 0) - (shipment.weightKg || 0)
-              : (selectedTrailer.currentWeightKg || 0);
-            const otherLoadVolume = isSameTrailer 
-              ? (selectedTrailer.currentVolumeM3 || 0) - (shipment.volumeM3 || 0)
-              : (selectedTrailer.currentVolumeM3 || 0);
+            const otherLoadWeight = isSameTrailer
+              ? (selectedTrailer.currentWeightKg || 0) -
+                (shipment.weightKg || 0)
+              : selectedTrailer.currentWeightKg || 0;
+            const otherLoadVolume = isSameTrailer
+              ? (selectedTrailer.currentVolumeM3 || 0) -
+                (shipment.volumeM3 || 0)
+              : selectedTrailer.currentVolumeM3 || 0;
 
             const availableWeight = selectedTrailer.maxLoadKg - otherLoadWeight;
-            const availableVolume = selectedTrailer.capacityVolumeM3 - otherLoadVolume;
+            const availableVolume =
+              selectedTrailer.capacityVolumeM3 - otherLoadVolume;
 
             if (
               selectedTrailer.maxLoadKg > 0 &&
-              Math.round(values.weightKg * 100) / 100 > availableWeight + tolerance
+              Math.round(values.weightKg * 100) / 100 >
+                availableWeight + tolerance
             ) {
-              errors.weightKg = dict.shipments.dialogs.fields.exceedsTrailerWeight;
+              errors.weightKg =
+                dict.shipments.dialogs.fields.exceedsTrailerWeight;
             }
             if (
               selectedTrailer.capacityVolumeM3 > 0 &&
-              Math.round(values.volumeM3 * 100) / 100 > availableVolume + tolerance
+              Math.round(values.volumeM3 * 100) / 100 >
+                availableVolume + tolerance
             ) {
-              errors.volumeM3 = dict.shipments.dialogs.fields.exceedsTrailerVolume;
+              errors.volumeM3 =
+                dict.shipments.dialogs.fields.exceedsTrailerVolume;
             }
           }
           return errors;
@@ -473,7 +479,6 @@ const EditShipmentDialog = ({
                         />
                         <LogisticsSection
                           warehouses={warehouses}
-                          customers={customers}
                           trailers={trailers}
                         />
                       </Stack>

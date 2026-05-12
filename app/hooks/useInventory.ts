@@ -10,7 +10,7 @@ import {
   logWarehouseFulfillment,
   adjustInventoryStock,
 } from "@/app/lib/controllers/inventory";
-import { Inventory } from "@/app/lib/type/enums";
+import type { Inventory } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 
 import { inventoryKeys } from "@/app/lib/query-keys/inventory.keys";
@@ -43,6 +43,11 @@ async function fetchInventoryDashboard(
     lowStockCount: number;
     outOfStockCount: number;
     totalValue: number;
+  };
+  statsTrends?: {
+    totalItems?: { value: number; isUp: boolean };
+    lowStock?: { value: number; isUp: boolean };
+    outOfStock?: { value: number; isUp: boolean };
   };
   lowStockItems: LowStockItem[];
 }> {
@@ -139,9 +144,9 @@ export function useInventoryMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: Error | unknown) => {
+  const handleError = (message: string, error: unknown) => {
     console.error(message, error);
-    toast.error((error as Error)?.message || message);
+    toast.error(error instanceof Error ? error.message : message);
   };
 
   const createMutation = useMutation({

@@ -32,6 +32,7 @@ import {
 } from "../redis";
 import { getExchangeRates } from "../services/exchangeRate";
 import { formatDisplayDate } from "../utils/date";
+import { calcTrend, daysAgo } from "./utils/trendUtils";
 
 /**
  * Aggregates all data required for the Overview Dashboard in a single server-side pass.
@@ -70,6 +71,10 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
 
+    // Trend windows: current = last 30 days, previous = 30–60 days ago
+    const prevPeriodStart = daysAgo(60);
+    const prevPeriodEnd = daysAgo(30);
+
     const cacheKey = overviewCacheKeys.dashboard(companyId);
 
     return await withCache(cacheKey, OVERVIEW_CACHE_TTL, async () => {
@@ -89,7 +94,8 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       shipmentStatusRaw,
       inventoryMovements,
       shipmentVolumeRaw,
-      mapDataRaw
+      mapDataRaw,
+      prevStatsCounts,
     ] = await Promise.all([
       // 0. Parallel Permission Check
       checkPermission(user.id, companyId, [], { allowNoCompany: true }),
@@ -263,7 +269,27 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
           where: { companyId }, 
           select: { id: true, name: true } 
         }),
-      ])
+      ]),
+
+      // 12. Previous period counts for trend calculations (30–60 days ago)
+      Promise.all([
+        db.shipment.count({
+          where: {
+            companyId,
+            status: { notIn: [ShipmentStatus.DELIVERED, ShipmentStatus.CANCELLED, ShipmentStatus.COMPLETED] },
+            createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd },
+          },
+        }),
+        db.shipment.count({
+          where: { companyId, status: ShipmentStatus.DELAYED, createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd } },
+        }),
+        db.vehicle.count({ where: { companyId, status: VehicleStatus.ON_TRIP } }),
+        db.vehicle.count({ where: { companyId, status: VehicleStatus.MAINTENANCE } }),
+        db.vehicle.count({ where: { companyId, status: VehicleStatus.AVAILABLE } }),
+        db.driver.count({ where: { companyId, status: "ON_JOB", createdAt: { lte: prevPeriodEnd } } }),
+        db.warehouse.count({ where: { companyId, createdAt: { lte: prevPeriodEnd } } }),
+        db.inventory.count({ where: { companyId, updatedAt: { lte: prevPeriodEnd } } }),
+      ]),
     ]);
 
     // Data Processing
@@ -278,6 +304,18 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       activeDrivers: statsCounts[5],
       warehouses: statsCounts[6],
       inventorySkus: statsCounts[7],
+    };
+
+    // Trend data: current vs. previous 30-day period
+    const statsTrends = {
+      activeShipments: calcTrend(statsCounts[0], prevStatsCounts[0]),
+      delayedShipments: calcTrend(statsCounts[1], prevStatsCounts[1]),
+      vehiclesOnTrip: calcTrend(statsCounts[2], prevStatsCounts[2]),
+      vehiclesInService: calcTrend(statsCounts[3], prevStatsCounts[3]),
+      availableVehicles: calcTrend(statsCounts[4], prevStatsCounts[4]),
+      activeDrivers: calcTrend(statsCounts[5], prevStatsCounts[5]),
+      warehouses: calcTrend(statsCounts[6], prevStatsCounts[6]),
+      inventorySkus: calcTrend(statsCounts[7], prevStatsCounts[7]),
     };
 
     // 2 & 3. Alerts (Issues + Docs)
@@ -435,6 +473,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
 
     return {
       stats,
+      statsTrends,
       dailyOps,
       fuelStats,
       fuelLogs: fuelLogsRaw.map((log) => ({

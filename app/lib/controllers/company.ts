@@ -13,6 +13,7 @@ import {
   companyCacheKeys,
   COMPANY_CACHE_TTL,
 } from "../redis";
+import { calcTrend, daysAgo } from "./utils/trendUtils";
 
 async function invalidateCompanyCache(companyId: string) {
   await Promise.all([
@@ -601,6 +602,12 @@ export const getCompanyWithDashboardData = authenticatedAction(
         warehouseCount,
         customerCount,
         shipmentCount,
+        prevUserCount,
+        prevVehicleCount,
+        prevDriverCount,
+        prevWarehouseCount,
+        prevCustomerCount,
+        prevShipmentCount,
       ] = await Promise.all([
         db.company.findUnique({
           where: { id: companyId },
@@ -619,6 +626,12 @@ export const getCompanyWithDashboardData = authenticatedAction(
         db.warehouse.count({ where: { companyId } }),
         db.customer.count({ where: { companyId } }),
         db.shipment.count({ where: { companyId } }),
+        db.user.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } }),
+        db.vehicle.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } }),
+        db.driver.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } }),
+        db.warehouse.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } }),
+        db.customer.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } }),
+        db.shipment.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } }),
       ]);
 
       if (!company) {
@@ -657,6 +670,14 @@ export const getCompanyWithDashboardData = authenticatedAction(
           warehouses: warehouseCount,
           customers: customerCount,
           shipments: shipmentCount,
+          },
+          statsTrends: {
+            users: calcTrend(totalUserCount, prevUserCount as number),
+            vehicles: calcTrend(vehicleCount, prevVehicleCount as number),
+            drivers: calcTrend(driverCount, prevDriverCount as number),
+            warehouses: calcTrend(warehouseCount, prevWarehouseCount as number),
+            customers: calcTrend(customerCount, prevCustomerCount as number),
+            shipments: calcTrend(shipmentCount, prevShipmentCount as number),
           },
         };
       });

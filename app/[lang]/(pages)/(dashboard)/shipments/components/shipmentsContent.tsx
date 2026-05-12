@@ -141,32 +141,39 @@ export default function ShipmentContent() {
     (s) => s.id === state.selectedShipmentId
   );
 
-  const kpiItems = [
+  const kpiItems = useMemo(() => [
     {
       label: dict.shipments.dashboard.totalShipments,
       value: state.stats?.total || 0,
-      icon: <Inventory sx={{ fontSize: 22 }} />,
+      icon: <Inventory />,
       color: theme.palette.primary.main,
+      trend: dashboardData?.statsTrends?.total,
     },
     {
       label: dict.shipments.dashboard.activeShipments,
       value: state.stats?.active || 0,
-      icon: <LocalShipping sx={{ fontSize: 22 }} />,
-      color: "#0ea5e9", // Sky
+      icon: <LocalShipping />,
+      color: theme.palette.info.main,
+      trend: dashboardData?.statsTrends?.active,
     },
     {
       label: dict.shipments.dashboard.delayedShipments,
       value: state.stats?.delayed || 0,
-      icon: <AccessTime sx={{ fontSize: 22 }} />,
-      color: theme.palette.kpi.error,
+      icon: <AccessTime />,
+      color:
+        (state.stats?.delayed || 0) > 0
+          ? theme.palette.error.main
+          : theme.palette.success.main,
+      trend: dashboardData?.statsTrends?.delayed,
     },
     {
       label: dict.shipments.dashboard.inTransit,
       value: state.stats?.inTransit || 0,
-      icon: <DirectionsBoat sx={{ fontSize: 22 }} />,
-      color: "#10b981", // Emerald
+      icon: <DirectionsBoat />,
+      color: theme.palette.success.main,
+      trend: dashboardData?.statsTrends?.inTransit,
     },
-  ];
+  ], [state.stats, dashboardData?.statsTrends, theme, dict]);
 
   return (
     <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
@@ -178,11 +185,12 @@ export default function ShipmentContent() {
       >
         <Box>
           <Typography
-            sx={{ fontSize: 24, fontWeight: 700, color: "text.primary" }}
+            variant="h4"
+            sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {dict.shipments.title}
           </Typography>
-          <Typography sx={{ fontSize: 14, color: "text.secondary" }}>
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
             {dict.shipments.subtitle}
           </Typography>
         </Box>

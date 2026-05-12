@@ -10,6 +10,7 @@ import {
   assignTrailerToVehicle,
 } from "@/app/lib/controllers/trailer";
 import { TrailerFilters } from "@/app/lib/type/trailer";
+import type { Trailer } from "@/app/lib/type/enums";
 import { trailerKeys } from "@/app/lib/query-keys/trailer.keys";
 import { vehicleKeys } from "@/app/lib/query-keys/vehicle.keys";
 import { toast } from "sonner";
@@ -41,19 +42,19 @@ export function useTrailerMutations() {
     toast.success(message);
   };
 
-  const handleError = (message: string, error: Error | unknown) => {
+  const handleError = (message: string, error: unknown) => {
     console.error(message, error);
-    toast.error((error as Error)?.message || message);
+    toast.error(error instanceof Error ? error.message : message);
   };
 
   const createMut = useMutation({
-    mutationFn: (data: any) => createTrailer(data),
+    mutationFn: (data: Partial<Trailer>) => createTrailer(data),
     onSuccess: () => handleSuccess("Trailer created successfully"),
     onError: (error: Error) => handleError("Failed to create trailer", error),
   });
 
   const updateMut = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => updateTrailer(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<Trailer> }) => updateTrailer(id, data),
     onSuccess: () => handleSuccess("Trailer updated successfully"),
     onError: (error: Error) => handleError("Failed to update trailer", error),
   });

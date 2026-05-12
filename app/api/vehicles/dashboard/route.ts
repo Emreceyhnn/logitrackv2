@@ -26,8 +26,8 @@ import {
   VehicleKpiConverter,
   VehicleServiceConverter,
 } from "@/app/lib/controllers/utils/vehicleUtils";
+import { calcTrend, daysAgo } from "@/app/lib/controllers/utils/trendUtils";
 import {
-  redis,
   withCache,
   hashFilters,
   vehicleCacheKeys,
@@ -112,50 +112,53 @@ export async function GET(req: NextRequest) {
       }
 
       /* ── DB query ───────────────────────────────────────────────────── */
-      const vehicles = await db.vehicle.findMany({
-        where: whereClause,
-        select: {
-          id: true, fleetNo: true, plate: true, brand: true, model: true,
-          year: true, type: true, fuelType: true, maxLoadKg: true,
-          nextServiceKm: true, avgFuelConsumption: true, status: true,
-          odometerKm: true, fuelLevel: true, currentLat: true,
-          currentLng: true, photo: true, createdAt: true, updatedAt: true,
-          driver: {
-            select: {
-              id: true, rating: true,
-              user: { select: { name: true, surname: true, avatarUrl: true } },
+      const [vehicles, prevTotalVehicles] = await Promise.all([
+        db.vehicle.findMany({
+          where: whereClause,
+          select: {
+            id: true, fleetNo: true, plate: true, brand: true, model: true,
+            year: true, type: true, fuelType: true, maxLoadKg: true,
+            nextServiceKm: true, avgFuelConsumption: true, status: true,
+            odometerKm: true, fuelLevel: true, currentLat: true,
+            currentLng: true, photo: true, createdAt: true, updatedAt: true,
+            driver: {
+              select: {
+                id: true, rating: true,
+                user: { select: { name: true, surname: true, avatarUrl: true } },
+              },
+            },
+            issues: {
+              select: {
+                id: true, title: true, type: true, priority: true,
+                status: true, description: true, vehicleId: true,
+                companyId: true, createdAt: true, updatedAt: true,
+              },
+            },
+            documents: {
+              select: {
+                id: true, type: true, name: true, url: true,
+                expiryDate: true, status: true, vehicleId: true,
+                companyId: true, createdAt: true,
+              },
+            },
+            maintenanceRecords: {
+              select: {
+                id: true, type: true, date: true, cost: true, status: true,
+                description: true, vehicleId: true, createdAt: true, updatedAt: true,
+              },
+            },
+            routes: {
+              select: {
+                id: true, status: true, startAddress: true, startLat: true,
+                startLng: true, endAddress: true, endLat: true, endLng: true,
+                createdAt: true, updatedAt: true,
+              },
             },
           },
-          issues: {
-            select: {
-              id: true, title: true, type: true, priority: true,
-              status: true, description: true, vehicleId: true,
-              companyId: true, createdAt: true, updatedAt: true,
-            },
-          },
-          documents: {
-            select: {
-              id: true, type: true, name: true, url: true,
-              expiryDate: true, status: true, vehicleId: true,
-              companyId: true, createdAt: true,
-            },
-          },
-          maintenanceRecords: {
-            select: {
-              id: true, type: true, date: true, cost: true, status: true,
-              description: true, vehicleId: true, createdAt: true, updatedAt: true,
-            },
-          },
-          routes: {
-            select: {
-              id: true, status: true, startAddress: true, startLat: true,
-              startLng: true, endAddress: true, endLat: true, endLng: true,
-              createdAt: true, updatedAt: true,
-            },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-      });
+          orderBy: { createdAt: "desc" },
+        }),
+        db.vehicle.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } })
+      ]);
 
       const dashboardInput = vehicles as unknown as VehicleDashboardProps[];
 
@@ -165,12 +168,18 @@ export async function GET(req: NextRequest) {
         vehiclesCapacity: VehicleCapacityConverter(dashboardInput),
         expiringDocs: VehicleDocumentConverter(dashboardInput),
         plannedServices: VehicleServiceConverter(dashboardInput),
+        kpiTrends: {
+          totalVehicles: calcTrend(vehicles.length, prevTotalVehicles),
+        },
       };
     });
 
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[/api/vehicles/dashboard] error:", error);
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

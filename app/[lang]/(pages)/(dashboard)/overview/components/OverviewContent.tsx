@@ -58,58 +58,64 @@ export default function OverviewContent() {
       {
         label: dict.overview.activeShipments,
         value: data.stats?.activeShipments || 0,
-        icon: <LocalShipping sx={{ fontSize: 22 }} />,
+        icon: <LocalShipping />,
         color: theme.palette.primary.main,
-        trend: { value: 4, isUp: true },
+        trend: data.statsTrends?.activeShipments,
       },
       {
         label: dict.overview.delayedShipments,
         value: data.stats?.delayedShipments || 0,
-        icon: <AccessTime sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.pink,
-        trend: { value: 1, isUp: false },
+        icon: <AccessTime />,
+        color:
+          (data.stats?.delayedShipments || 0) > 0
+            ? theme.palette.error.main
+            : theme.palette.success.main,
+        trend: data.statsTrends?.delayedShipments,
       },
       {
         label: dict.overview.vehiclesOnTrip,
         value: data.stats?.vehiclesOnTrip || 0,
-        icon: <DirectionsCar sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.cyan,
-        trend: { value: 6, isUp: true },
+        icon: <DirectionsCar />,
+        color: theme.palette.info.main,
+        trend: data.statsTrends?.vehiclesOnTrip,
       },
       {
         label: dict.overview.vehiclesInService,
         value: data.stats?.vehiclesInService || 0,
-        color: theme.palette.kpi.amber,
-        icon: <Build sx={{ fontSize: 22 }} />,
+        color: theme.palette.warning.main,
+        icon: <Build />,
+        trend: data.statsTrends?.vehiclesInService,
       },
       {
         label: dict.overview.availableVehicles,
         value: data.stats?.availableVehicles || 0,
-        icon: <CheckCircle sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.emerald,
-        trend: { value: 2, isUp: true },
+        icon: <CheckCircle />,
+        color: theme.palette.success.main,
+        trend: data.statsTrends?.availableVehicles,
       },
       {
         label: dict.overview.activeDrivers,
         value: data.stats?.activeDrivers || 0,
-        icon: <Person sx={{ fontSize: 22 }} />,
+        icon: <Person />,
         color: theme.palette.kpi.violet,
+        trend: data.statsTrends?.activeDrivers,
       },
       {
         label: dict.overview.warehouses,
         value: data.stats?.warehouses || 0,
-        icon: <Warehouse sx={{ fontSize: 22 }} />,
+        icon: <Warehouse />,
         color: theme.palette.kpi.indigo,
+        trend: data.statsTrends?.warehouses,
       },
       {
         label: dict.overview.inventorySkus,
         value: data.stats?.inventorySkus || 0,
-        icon: <Inventory sx={{ fontSize: 22 }} />,
-        color: theme.palette.kpi.cyan,
-        trend: { value: 8, isUp: true },
+        icon: <Inventory />,
+        color: theme.palette.kpi.sky,
+        trend: data.statsTrends?.inventorySkus,
       },
     ],
-    [data.stats, theme, dict]
+    [data.stats, data.statsTrends, theme, dict]
   );
 
   const mapData: MapData[] = useMemo(

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getAnalyticsDashboardData } from "@/app/lib/controllers/analytics";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const data = await getAnalyticsDashboardData();
     return NextResponse.json(data);

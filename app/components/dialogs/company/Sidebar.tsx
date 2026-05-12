@@ -1,4 +1,4 @@
-import { Box, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import BusinessIcon from "@mui/icons-material/Business";
 import LanguageIcon from "@mui/icons-material/Language";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -9,7 +9,6 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeStep }: SidebarProps) {
-  const theme = useTheme();
   const dict = useDictionary();
 
   const steps = [
