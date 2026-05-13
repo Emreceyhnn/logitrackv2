@@ -221,7 +221,8 @@
     "hero": {
       "badge": "Yapay zeka lojistik kontrol kulesi",
       "trusted": "Dünya çapında güveniliyor",
-      "title": "Her sevkiyatı canlı zeka ile yönetin.",
+      "titleMain": "Her sevkiyatı canlı zeka ile yönetin.",
+      "titleHighlight": "Mutlak Şeffaflık.",
       "description": "Sevkiyatı, filoları ve müşteri sözlerini tek bir etkileyici panelde senkronize edin. Sorunları gerçekleşmeden önce tahmin edin ve rotaları yapay zeka ile optimize edin.",
       "discover": "Keşfet",
       "startTrial": "Denemeyi Başlat",
@@ -233,6 +234,49 @@
         "slaTrend": "Son 30 günde +%14",
         "predictiveEtaReady": "Tahmin Edici ETA Hazır",
         "lastUpdate": "Son güncelleme 45 saniye önce"
+      }
+    },
+    "operations": {
+      "tabs": {
+        "overview": "Genel Bakış",
+        "fleet": "Aktif Filo",
+        "routes": "Rota Optimizasyonu"
+      },
+      "stats": {
+        "totalFleet": "Toplam Filo",
+        "inTransit": "Transit Halinde",
+        "maintenance": "Bakımda",
+        "onTime": "Zamanında",
+        "activeRoutes": "Aktif Rotalar",
+        "fuelSaved": "Yakıt Tasarrufu",
+        "timeSaved": "Zaman Tasarrufu",
+        "deviations": "Sapmalar",
+        "activeUnits": "Aktif Birimler",
+        "efficiency": "Verimlilik",
+        "avgSpeed": "Ort. Hız",
+        "co2Reduced": "CO2 Azaltımı"
+      },
+      "telemetry": {
+        "title": "CANLI TELEMETRİ AKIŞI",
+        "activeIntelligence": "Aktif Zeka",
+        "routeOptimized": "Rota {id} optimize edildi.",
+        "efficiencyIncreased": "Mevcut trafiğe göre verimlilik %{value} arttı.",
+        "systemLog": "Sistem Günlüğü",
+        "globalCommand": "KÜRESEL OPERASYON KOMUTASI // AKTİF",
+        "nodeStatus": "DÜĞÜM DURUMU",
+        "systemsNominal": "SİSTEMLER NORMAL"
+      },
+      "fleet": {
+        "title": "CANLI FİLO TAKİBİ",
+        "onSchedule": "ZAMANINDA",
+        "delayed": "GECİKMELİ",
+        "arriving": "VARIYOR"
+      },
+      "routes": {
+        "title": "YAPAY ZEKA ROTA ANALİZİ",
+        "originalEta": "ORİJİNAL ETA",
+        "optimizedEta": "OPTİMİZE ETA",
+        "timeSaved": "KAZANILAN ZAMAN"
       }
     },
     "stats": {
@@ -495,14 +539,31 @@
       }
     },
     "footer": {
-      "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır.",
-      "builtFor": "Kurumlar için inşa edildi, yollar için optimize edildi.",
-      "links": {
+      "description": "Küresel lojistik için zeka katmanı. Dünyayı hassasiyetle hareket ettirmek için gereken kritik verileri sağlıyoruz.",
+      "sections": {
+        "platform": "Platform",
+        "solutions": "Çözümler",
+        "company": "Şirket",
+        "support": "Destek",
+        "globalTracking": "Küresel Takip",
+        "routeIntelligence": "Rota Zekası",
+        "telemetryHub": "Telemetri Merkezi",
+        "securityCenter": "Güvenlik Merkezi",
+        "enterprise": "Kurumsal",
+        "smbLogistics": "KOBİ Lojistik",
+        "supplyChain": "Tedarik Zinciri",
+        "customApi": "Özel API",
+        "ourMission": "Misyonumuz",
+        "engineering": "Mühendislik",
+        "pressKit": "Basın Kiti",
+        "careers": "Kariyer",
+        "devDocs": "Geliştirici Dokümanları",
+        "helpCenter": "Yardım Merkezi",
         "privacy": "Gizlilik",
-        "terms": "Şartlar",
-        "security": "Güvenlik",
-        "status": "Durum"
-      }
+        "sla": "SLA"
+      },
+      "rights": "© 2026 LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır. Hassas üretim.",
+      "status": "SİSTEM DURUMU: OPERASYONEL"
     }
   },
   "navbar": {

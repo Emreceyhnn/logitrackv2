@@ -221,7 +221,8 @@
     "hero": {
       "badge": "AI logistics control tower",
       "trusted": "Trusted worldwide",
-      "title": "Orchestrate every shipment with live intelligence.",
+      "titleMain": "Orchestrate every shipment with live intelligence",
+      "titleHighlight": "Absolute Clarity.",
       "description": "Synchronize dispatch, fleets, and customer promises in one immersive dashboard. Forecast issues before they happen and keep routes optimized with predictive AI.",
       "discover": "Discover Now",
       "startTrial": "Start Trial",
@@ -233,6 +234,49 @@
         "slaTrend": "+14% in the last 30 days",
         "predictiveEtaReady": "Predictive ETA ready",
         "lastUpdate": "Last update 45 seconds ago"
+      }
+    },
+    "operations": {
+      "tabs": {
+        "overview": "Overview",
+        "fleet": "Active Fleet",
+        "routes": "Route Optimization"
+      },
+      "stats": {
+        "totalFleet": "Total Fleet",
+        "inTransit": "In Transit",
+        "maintenance": "Maintenance",
+        "onTime": "On Time",
+        "activeRoutes": "Active Routes",
+        "fuelSaved": "Fuel Saved",
+        "timeSaved": "Time Saved",
+        "deviations": "Deviations",
+        "activeUnits": "Active Units",
+        "efficiency": "Efficiency",
+        "avgSpeed": "Avg. Speed",
+        "co2Reduced": "CO2 Reduced"
+      },
+      "telemetry": {
+        "title": "LIVE TELEMETRY FEED",
+        "activeIntelligence": "Active Intelligence",
+        "routeOptimized": "Route {id} optimized.",
+        "efficiencyIncreased": "Efficiency increased by {value} based on current traffic.",
+        "systemLog": "System Log",
+        "globalCommand": "GLOBAL OPERATIONS COMMAND // ACTIVE",
+        "nodeStatus": "NODE STATUS",
+        "systemsNominal": "SYSTEMS NOMINAL"
+      },
+      "fleet": {
+        "title": "LIVE FLEET TRACKING",
+        "onSchedule": "ON SCHEDULE",
+        "delayed": "DELAYED",
+        "arriving": "ARRIVING"
+      },
+      "routes": {
+        "title": "AI ROUTE ANALYSIS",
+        "originalEta": "ORIGINAL ETA",
+        "optimizedEta": "OPTIMIZED ETA",
+        "timeSaved": "TIME SAVED"
       }
     },
     "stats": {
@@ -495,14 +539,31 @@
       }
     },
     "footer": {
-      "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved.",
-      "builtFor": "Built for the enterprise, optimized for the road.",
-      "links": {
+      "description": "The intelligence layer for global logistics. We provide the mission-critical data required to move the world with precision.",
+      "sections": {
+        "platform": "Platform",
+        "solutions": "Solutions",
+        "company": "Company",
+        "support": "Support",
+        "globalTracking": "Global Tracking",
+        "routeIntelligence": "Route Intelligence",
+        "telemetryHub": "Telemetry Hub",
+        "securityCenter": "Security Center",
+        "enterprise": "Enterprise",
+        "smbLogistics": "SMB Logistics",
+        "supplyChain": "Supply Chain",
+        "customApi": "Custom API",
+        "ourMission": "Our Mission",
+        "engineering": "Engineering",
+        "pressKit": "Press Kit",
+        "careers": "Careers",
+        "devDocs": "Developer Docs",
+        "helpCenter": "Help Center",
         "privacy": "Privacy",
-        "terms": "Terms",
-        "security": "Security",
-        "status": "Status"
-      }
+        "sla": "SLA"
+      },
+      "rights": "© 2026 LogiTrack Intelligence Systems. All rights reserved. Precision-built.",
+      "status": "SYSTEM STATUS: OPERATIONAL"
     }
   },
   "navbar": {
