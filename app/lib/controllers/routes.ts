@@ -167,10 +167,10 @@ export const createRoute = authenticatedAction(
             where: { id: shipmentId },
             data: {
               routeId: route.id,
-              status: "PLANNED",
+              status: "ASSIGNED",
               history: {
                 create: {
-                  status: "PLANNED",
+                  status: "ASSIGNED",
                   description: `Assigned to route: ${finalName}`,
                   createdBy: user.id,
                 },
@@ -883,13 +883,13 @@ export const updateRouteStatus = authenticatedAction(
             if (route.shipments.length > 0) {
               await tx.shipment.updateMany({
                 where: { routeId: route.id },
-                data: { status: "COMPLETED" },
+                data: { status: "DELIVERED" },
               });
               for (const shipment of route.shipments) {
                 await tx.shipmentHistory.create({
                   data: {
                     shipmentId: shipment.id,
-                    status: "COMPLETED",
+                    status: "DELIVERED",
                     location: route.endAddress || "Destination",
                     description: "Route completed - Shipment completed",
                     createdBy: userId || "",

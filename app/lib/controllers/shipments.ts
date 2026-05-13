@@ -166,7 +166,7 @@ export const createShipment = authenticatedAction(
           const currentLoad = await db.shipment.aggregate({
             where: { 
               trailerId, 
-              status: { in: [ShipmentStatus.PENDING, ShipmentStatus.PROCESSING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.ASSIGNED, ShipmentStatus.PLANNED, ShipmentStatus.DELAYED] } 
+              status: { in: [ShipmentStatus.PENDING, ShipmentStatus.PROCESSING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.ASSIGNED, ShipmentStatus.DELAYED] } 
             },
             _sum: { weightKg: true, volumeM3: true }
           });
@@ -391,10 +391,10 @@ export const assignRouteToShipment = authenticatedAction(
         where: { id: shipmentId },
         data: {
           routeId,
-          status: ShipmentStatus.PLANNED,
+          status: ShipmentStatus.ASSIGNED,
           history: {
             create: {
-              status: ShipmentStatus.PLANNED,
+              status: ShipmentStatus.ASSIGNED,
               description: `Route assigned`,
               createdBy: userId,
             },
@@ -464,18 +464,18 @@ export const updateShipmentStatus = authenticatedAction(
       await invalidateShipmentCache(companyId!, shipmentId);
 
       // Dispatch Notification for critical status changes
-      if (status === ShipmentStatus.DELAYED || status === ShipmentStatus.FAILED) {
+      if (status === ShipmentStatus.DELAYED || status === ShipmentStatus.CANCELLED) {
         await createNotification(
           { companyId: companyId! },
           {
-            title: status === ShipmentStatus.DELAYED ? "Sevkiyat Gecikmesi ⏳" : "Sevkiyat Başarısız ❌",
-            message: `${updatedShipment.trackingId} numaralı sevkiyatın durumu ${status} olarak güncellendi.`,
+            title: status === ShipmentStatus.DELAYED ? "Sevkiyat Gecikmesi ⏳" : "Sevkiyat İptal Edildi ❌",
+            message: `${updatedShipment.trackingId} numaralı sevkiyatın durumu ${status === ShipmentStatus.DELAYED ? 'GECİKMİŞ' : 'İPTAL EDİLDİ'} olarak güncellendi.`,
             type: status === ShipmentStatus.DELAYED ? "WARNING" : "ERROR",
             category: status === ShipmentStatus.DELAYED ? "DELAY_ALERT" : "SHIPMENT_UPDATE",
             link: `/dashboard/shipments/${updatedShipment.id}`,
           }
         );
-      } else if (status === ShipmentStatus.DELIVERED || status === ShipmentStatus.COMPLETED) {
+      } else if (status === ShipmentStatus.DELIVERED) {
         await createNotification(
           { companyId: companyId! },
           {
@@ -802,12 +802,12 @@ export const updateShipment = authenticatedAction(
       });
 
       // ── Trailer Status Management ──────────────────────────────────────────
-      if (updatedShipment.trailerId && (updatedShipment.status === ShipmentStatus.DELIVERED || updatedShipment.status === ShipmentStatus.CANCELLED || updatedShipment.status === ShipmentStatus.COMPLETED)) {
+      if (updatedShipment.trailerId && (updatedShipment.status === ShipmentStatus.DELIVERED || updatedShipment.status === ShipmentStatus.CANCELLED)) {
         // Check if there are any other active shipments on this trailer
         const otherActiveShipments = await db.shipment.count({
           where: {
             trailerId: updatedShipment.trailerId,
-            status: { in: [ShipmentStatus.PENDING, ShipmentStatus.PROCESSING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.ASSIGNED, ShipmentStatus.PLANNED, ShipmentStatus.DELAYED] },
+            status: { in: [ShipmentStatus.PENDING, ShipmentStatus.PROCESSING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.ASSIGNED, ShipmentStatus.DELAYED] },
             id: { not: shipmentId }
           }
         });

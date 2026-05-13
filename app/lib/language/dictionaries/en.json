@@ -132,7 +132,9 @@
     "closingIn": "Closing in",
     "openingIn": "Opening in",
     "yourTime": "Your Time",
-    "currentTimeAtLocation": "Current time at location"
+    "currentTimeAtLocation": "Current time at location",
+    "confirmLogoutDescription": "Are you sure you want to end your session?",
+    "logoutWarning": "All your active session data will be cleared and you will be redirected to the login page."
   },
   "primaryColors": {
     "title": "Color Configuration",
@@ -1335,15 +1337,12 @@
     "deleteDesc": "Are you sure you want to delete shipment {id}?",
     "statuses": {
       "PENDING": "Pending",
+      "PROCESSING": "Processing",
+      "ASSIGNED": "Assigned",
       "IN_TRANSIT": "In Transit",
       "DELIVERED": "Delivered",
       "DELAYED": "Delayed",
-      "CANCELLED": "Cancelled",
-      "PROCESSING": "Processing",
-      "ASSIGNED": "Assigned",
-      "PLANNED": "Planned",
-      "COMPLETED": "Completed",
-      "FAILED": "Failed"
+      "CANCELLED": "Cancelled"
     },
     "dashboard": {
       "statusOverview": "Status Overview",

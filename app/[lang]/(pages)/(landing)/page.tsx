@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import { keyframes } from "@mui/system";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
-import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 export default function LandingPage() {
@@ -317,9 +316,8 @@ export default function LandingPage() {
                         boxShadow: "0 22px 50px rgba(37, 99, 235, 0.55)",
                       },
                     }}
-                    endIcon={<PlayArrowRoundedIcon />}
                   >
-                    {dict.landing.hero.startTrial || "Denemeyi Başlat"}
+                    {dict.landing.cta.trial || "Denemeyi Başlat"}
                   </Button>
                   <Button
                     variant="outlined"
@@ -337,7 +335,7 @@ export default function LandingPage() {
                       },
                     }}
                   >
-                    {dict.landing.hero.demo}
+                    {dict.landing.cta.sales || "Satışla Görüş"}
                   </Button>
                 </Stack>
 

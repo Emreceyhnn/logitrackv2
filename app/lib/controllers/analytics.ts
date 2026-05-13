@@ -38,7 +38,7 @@ export const getOverviewStats = authenticatedAction(async (user) => {
       db.shipment.count({
         where: {
           companyId: user.companyId,
-          status: { notIn: [ShipmentStatus.DELIVERED, ShipmentStatus.CANCELLED, ShipmentStatus.COMPLETED] },
+          status: { notIn: [ShipmentStatus.DELIVERED, ShipmentStatus.CANCELLED] },
         },
       }),
       db.shipment.count({

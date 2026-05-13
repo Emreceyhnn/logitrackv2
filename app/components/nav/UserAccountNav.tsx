@@ -24,6 +24,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ProfileDialog from "../dialogs/profile/ProfileDialog";
 import SettingsDialog from "../dialogs/settings/SettingsDialog";
+import LogoutConfirmationDialog from "../dialogs/logoutConfirmationDialog";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 
 export default function UserAccountNav({
@@ -88,6 +89,8 @@ export default function UserAccountNav({
   const [profileOpen, setProfileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
   /* --------------------------------- ACTIONS -------------------------------- */
   const fetchSession = async () => {
     try {
@@ -128,7 +131,6 @@ export default function UserAccountNav({
   };
 
   const handleLogout = async () => {
-    handleMenuClose();
     await logoutAction();
     window.location.href = `/${lang}`;
   };
@@ -245,7 +247,10 @@ export default function UserAccountNav({
           }}
         />
         <MenuItem
-          onClick={handleLogout}
+          onClick={() => {
+            handleMenuClose();
+            setLogoutDialogOpen(true);
+          }}
           sx={{ color: "#f43f5e !important", gap: 1.5 }}
         >
           <ListItemIcon sx={{ minWidth: "auto !important" }}>
@@ -259,6 +264,11 @@ export default function UserAccountNav({
       <SettingsDialog
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+      />
+      <LogoutConfirmationDialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+        onConfirm={handleLogout}
       />
     </>
   );

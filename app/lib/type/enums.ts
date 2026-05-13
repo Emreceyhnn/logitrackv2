@@ -87,13 +87,10 @@ export const ShipmentStatus = {
   PENDING: "PENDING",
   PROCESSING: "PROCESSING",
   ASSIGNED: "ASSIGNED",
-  PLANNED: "PLANNED",
   IN_TRANSIT: "IN_TRANSIT",
   DELIVERED: "DELIVERED",
   DELAYED: "DELAYED",
   CANCELLED: "CANCELLED",
-  COMPLETED: "COMPLETED",
-  FAILED: "FAILED",
 } as const;
 export type ShipmentStatus = typeof ShipmentStatus[keyof typeof ShipmentStatus];
 

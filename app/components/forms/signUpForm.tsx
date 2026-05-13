@@ -14,7 +14,7 @@ export default async function RegisterForm({
 
   return (
     <Box
-      maxWidth={{ sm: 600, xs: "95%" }}
+      maxWidth={{ sm: 420, xs: "95%" }}
       width={"100%"}
       bgcolor={"rgba(8, 12, 24, 0.75)"}
       sx={{

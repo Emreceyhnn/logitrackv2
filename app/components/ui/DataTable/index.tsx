@@ -255,27 +255,36 @@ function DataTableToolbar({
             "& .MuiOutlinedInput-root": {
               borderRadius: 3,
               fontSize: 14,
-              bgcolor: theme.palette.background.paper_alpha.main_40,
+              bgcolor:
+                theme.palette.mode === "dark"
+                  ? "rgba(255, 255, 255, 0.03)"
+                  : "rgba(0, 0, 0, 0.02)",
               transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               "& fieldset": {
-                borderColor: theme.palette.divider_alpha.main_10,
+                borderColor: theme.palette.divider,
+                opacity: 0.8,
                 transition: "all 0.3s ease",
               },
               "&:hover fieldset": {
                 borderColor: "primary.main",
+                opacity: 1,
               },
               "&.Mui-focused": {
-                bgcolor: theme.palette.background.paper,
+                bgcolor:
+                  theme.palette.mode === "dark"
+                    ? "rgba(255, 255, 255, 0.05)"
+                    : "#fff",
                 boxShadow: `0 0 0 4px ${theme.palette.primary._alpha.main_15}`,
                 "& fieldset": {
                   borderColor: "primary.main",
                   borderWidth: "1.5px",
+                  opacity: 1,
                 },
               },
               "& input::placeholder": {
-                color: "text.secondary",
-                opacity: 0.9,
-                fontWeight: 500,
+                color: theme.palette.text.secondary,
+                opacity: 1, // Increased contrast
+                fontWeight: 600, // Slightly bolder for readability
               },
             },
           }}

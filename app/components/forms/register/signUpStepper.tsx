@@ -14,6 +14,7 @@ import {
   StepConnector,
   stepConnectorClasses,
 } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
 import { Form, Formik, FormikHelpers } from "formik";
 import Step1PersonalInfo from "./step1PersonalInfo";
 import Step2Security from "./step2Security";
@@ -27,9 +28,9 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const ColorlibConnector = styled(StepConnector)(() => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    top: 25,
-    left: "calc(-50% + 25px)",
-    right: "calc(50% + 25px)",
+    top: 22,
+    left: "calc(-50% + 22px)",
+    right: "calc(50% + 22px)",
   },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
@@ -46,10 +47,10 @@ const ColorlibConnector = styled(StepConnector)(() => ({
     },
   },
   [`& .${stepConnectorClasses.line}`]: {
-    height: 2,
+    height: 4,
     border: 0,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 1,
+    borderRadius: 2,
     transition: "all 0.4s ease",
     opacity: 0.5,
   },
@@ -62,37 +63,44 @@ const ColorlibStepIconRoot = styled("div")<{
   backgroundColor: "rgba(255, 255, 255, 0.05)",
   zIndex: 1,
   color: "#fff",
-  width: 50,
-  height: 50,
+  width: 44,
+  height: 44,
   display: "flex",
   borderRadius: "50%",
   justifyContent: "center",
   alignItems: "center",
-  border: "1px solid rgba(255, 255, 255, 0.1)",
+  border: "2px solid rgba(255, 255, 255, 0.1)",
   transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
   ...(active && {
     backgroundImage:
       "linear-gradient( 136deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)",
-    boxShadow: "0 0 20px rgba(56, 189, 248, 0.3)",
-    border: "none",
-    transform: "scale(1.1)",
+    boxShadow: "0 0 20px rgba(56, 189, 248, 0.4)",
+    borderColor: "transparent",
+    transform: "scale(1.15)",
   }),
   ...(completed && {
     backgroundImage:
       "linear-gradient( 136deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)",
     boxShadow: "0 0 15px rgba(56, 189, 248, 0.2)",
+    borderColor: "transparent",
   }),
 }));
 
 function ColorlibStepIcon(props: {
   active?: boolean;
   completed?: boolean;
-  icon: React.ReactNode;
+  icon: number;
 }) {
   const { active, completed, icon } = props;
   return (
     <ColorlibStepIconRoot active={active} completed={completed}>
-      {icon}
+      {completed ? (
+        <CheckIcon sx={{ fontSize: 24, fontWeight: 900 }} />
+      ) : (
+        <Typography variant="body2" fontWeight={800}>
+          {icon}
+        </Typography>
+      )}
     </ColorlibStepIconRoot>
   );
 }

@@ -574,13 +574,10 @@ enum ShipmentStatus {
   PENDING
   PROCESSING
   ASSIGNED
-  PLANNED
   IN_TRANSIT
   DELIVERED
   DELAYED
   CANCELLED
-  COMPLETED
-  FAILED
 }
 
 enum ShipmentPriority {
