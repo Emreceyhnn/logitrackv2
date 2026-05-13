@@ -175,6 +175,7 @@ export default function OperationsDashboard() {
             background: "conic-gradient(from 0deg, transparent 70%, rgba(0, 242, 255, 0.1) 95%, rgba(0, 242, 255, 0.4) 100%)",
             pointerEvents: "none",
             animationDuration: "4s",
+            willChange: "transform",
           }}
         />
 
@@ -208,6 +209,7 @@ export default function OperationsDashboard() {
                 border: "1px solid rgba(0, 242, 255, 0.5)",
                 animation: "pulse 2s infinite",
                 animationDelay: node.delay,
+                willChange: "opacity, transform",
               }
             }}
           />

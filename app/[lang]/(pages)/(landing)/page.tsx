@@ -1,13 +1,35 @@
 import { Box } from "@mui/material";
+import dynamic from "next/dynamic";
 import HeroSection from "@/app/components/landing/HeroSection";
-import SocialProof from "@/app/components/landing/SocialProof";
-import OperationsDashboard from "@/app/components/landing/OperationsDashboard";
-import FeaturesSection from "@/app/components/landing/FeaturesSection";
-import LandingFooter from "@/app/components/landing/LandingFooter";
+
+const SocialProof = dynamic(
+  () => import("@/app/components/landing/SocialProof"),
+  {
+    ssr: true,
+  }
+);
+const OperationsDashboard = dynamic(
+  () => import("@/app/components/landing/OperationsDashboard"),
+  {
+    ssr: true,
+  }
+);
+const FeaturesSection = dynamic(
+  () => import("@/app/components/landing/FeaturesSection"),
+  {
+    ssr: true,
+  }
+);
+const LandingFooter = dynamic(
+  () => import("@/app/components/landing/LandingFooter"),
+  {
+    ssr: true,
+  }
+);
 
 export default function LandingPage() {
   return (
-    <Box>
+    <Box component="main">
       <HeroSection />
       <SocialProof />
       <OperationsDashboard />

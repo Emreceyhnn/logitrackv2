@@ -41,6 +41,8 @@ export default function HeroSection() {
           alt="LogiTrack Background"
           fill
           priority
+          quality={75}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
           style={{ objectFit: "cover", objectPosition: "center" }}
         />
         <Box
@@ -49,6 +51,7 @@ export default function HeroSection() {
             position: "absolute",
             inset: 0,
             opacity: 0.1,
+            willChange: "transform", // Optimize for GPU
           }}
         />
       </Box>
@@ -141,10 +144,15 @@ export default function HeroSection() {
           </motion.div>
 
           {/* Title */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+          <Box
+            sx={{
+              animation: "fadeInUp 0.8s ease-out forwards",
+              opacity: 0,
+              "@keyframes fadeInUp": {
+                from: { opacity: 0, transform: "translateY(20px)" },
+                to: { opacity: 1, transform: "translateY(0)" },
+              },
+            }}
           >
             <Typography
               variant="h1"
@@ -171,7 +179,7 @@ export default function HeroSection() {
                 {dict.landing.hero.titleHighlight}
               </Box>
             </Typography>
-          </motion.div>
+          </Box>
 
           {/* Description */}
           <motion.div
