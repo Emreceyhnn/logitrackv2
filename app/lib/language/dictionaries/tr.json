@@ -132,7 +132,9 @@
     "closingIn": "Kapanıyor:",
     "openingIn": "Açılıyor:",
     "yourTime": "Sizin Saatiniz",
-    "currentTimeAtLocation": "Konumdaki Güncel Saat"
+    "currentTimeAtLocation": "Konumdaki Güncel Saat",
+    "confirmLogoutDescription": "Oturumunuzu sonlandırmak istediğinize emin misiniz?",
+    "logoutWarning": "Tüm aktif oturum verileriniz temizlenecek ve giriş sayfasına yönlendirileceksiniz."
   },
   "primaryColors": {
     "title": "Renk Yapılandırması",
@@ -1385,15 +1387,12 @@
     "deleteDesc": "{id} numaralı sevkiyatı silmek istediğinizden emin misiniz?",
     "statuses": {
       "PENDING": "Beklemede",
+      "PROCESSING": "İşleniyor",
+      "ASSIGNED": "Atandı",
       "IN_TRANSIT": "Yolda",
       "DELIVERED": "Teslim Edildi",
       "DELAYED": "Gecikmiş",
-      "CANCELLED": "İptal Edildi",
-      "PROCESSING": "İşleniyor",
-      "ASSIGNED": "Atandı",
-      "PLANNED": "Planlandı",
-      "COMPLETED": "Tamamlandı",
-      "FAILED": "Başarısız"
+      "CANCELLED": "İptal Edildi"
     },
     "dashboard": {
       "statusOverview": "Durum Özeti",

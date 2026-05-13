@@ -173,7 +173,7 @@ export async function GET() {
     const delayedShipments = await db.shipment.findMany({
       where: {
         slaDeadline: { lt: now },
-        status: { notIn: ["COMPLETED", "DELIVERED", "CANCELLED", "FAILED"] },
+        status: { notIn: ["DELIVERED", "CANCELLED"] },
         companyId: { not: null }
       }
     });

@@ -19,9 +19,10 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import CloseIcon from "@mui/icons-material/Close";
 import { useRouter, useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { clearAuthCookies } from "@/app/lib/controllers/session";
 import { getLocalizedPath } from "@/app/lib/language/navigation";
+import LogoutConfirmationDialog from "../dialogs/logoutConfirmationDialog";
 
 const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
   /* -------------------------------- variables ------------------------------- */
@@ -30,6 +31,8 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
   const params = useParams();
   const lang = (params?.lang as string) || "en";
   const dict = useDictionary();
+
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -105,7 +108,7 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
         position: "fixed",
         top: 0,
         left: 0,
-        minWidth: 280,
+        minWidth: 240,
         height: "100dvh",
         backgroundColor:
           theme.palette.mode === "dark"
@@ -136,7 +139,7 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
         </IconButton>
       )}
       <Stack spacing={1} height={"100%"}>
-        <Stack p={3}>
+        <Stack p={2} alignItems={"center"} justifyContent={"center"}>
           <Stack direction="row" spacing={1.5} alignItems="center">
             <Box
               sx={{
@@ -178,13 +181,17 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
           height={"100%"}
           pt={1}
         >
-          <SidebarList items={sideBarItemsParents} lang={lang} onMobileClose={onMobileClose} />
+          <SidebarList
+            items={sideBarItemsParents}
+            lang={lang}
+            onMobileClose={onMobileClose}
+          />
 
           <Stack
             justifyContent={"start"}
             px={1.5}
             marginTop={"auto"}
-            mb={3}
+            mb={2}
             spacing={0.5}
             width="100%"
           >
@@ -211,9 +218,11 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
               </IconButton>
             </Tooltip>
 
+            <Divider sx={{ my: 1, mx: 1.5, opacity: 0.5 }} />
+
             <Tooltip title={dict.common.logout} arrow placement="right">
               <IconButton
-                onClick={handleLogout}
+                onClick={() => setLogoutDialogOpen(true)}
                 sx={{
                   width: "100%",
                   justifyContent: "flex-start",
@@ -237,6 +246,12 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
           </Stack>
         </Stack>
       </Stack>
+
+      <LogoutConfirmationDialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+        onConfirm={handleLogout}
+      />
     </Box>
   );
 };

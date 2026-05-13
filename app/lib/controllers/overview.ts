@@ -105,7 +105,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
         db.shipment.count({
           where: {
             companyId,
-            status: { notIn: [ShipmentStatus.DELIVERED, ShipmentStatus.CANCELLED, ShipmentStatus.COMPLETED] },
+            status: { notIn: [ShipmentStatus.DELIVERED, ShipmentStatus.CANCELLED] },
           },
         }),
         db.shipment.count({
@@ -276,7 +276,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
         db.shipment.count({
           where: {
             companyId,
-            status: { notIn: [ShipmentStatus.DELIVERED, ShipmentStatus.CANCELLED, ShipmentStatus.COMPLETED] },
+            status: { notIn: [ShipmentStatus.DELIVERED, ShipmentStatus.CANCELLED] },
             createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd },
           },
         }),

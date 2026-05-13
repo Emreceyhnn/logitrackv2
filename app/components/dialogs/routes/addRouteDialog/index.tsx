@@ -74,7 +74,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
       const fetchData = async () => {
         try {
           const [shipmentsData, warehousesData] = await Promise.all([
-            getShipments(),
+            getShipments() as unknown as ShipmentWithRelations[],
             getWarehouses(),
           ]);
           setShipments(

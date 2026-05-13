@@ -128,7 +128,7 @@ export const getTrailers = authenticatedAction(
             shipments: {
               where: {
                 status: {
-                  in: ["PENDING", "PROCESSING", "IN_TRANSIT", "ASSIGNED", "PLANNED", "DELAYED"]
+                  in: ["PENDING", "PROCESSING", "IN_TRANSIT", "ASSIGNED", "DELAYED"]
                 }
               },
               select: {

@@ -64,16 +64,16 @@ const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
         label: dict.shipments.statuses.IN_TRANSIT,
         color: theme.palette.kpi.indigo,
       },
-      COMPLETED: {
-        label: dict.shipments.statuses.COMPLETED,
+      DELIVERED: {
+        label: dict.shipments.statuses.DELIVERED,
         color: theme.palette.kpi.emerald,
       },
       DELAYED: {
         label: dict.shipments.statuses.DELAYED,
         color: theme.palette.kpi.error,
       },
-      FAILED: {
-        label: dict.shipments.statuses.FAILED,
+      CANCELLED: {
+        label: dict.shipments.statuses.CANCELLED,
         color: theme.palette.error.main,
       },
     };
@@ -84,11 +84,11 @@ const ShipmentOnStatusCard = ({ values }: ShipmentOnStatusCardProps) => {
       PLANNED: "PENDING",
       ASSIGNED: "ASSIGNED",
       IN_TRANSIT: "IN_TRANSIT",
-      DELIVERED: "COMPLETED",
-      COMPLETED: "COMPLETED",
+      DELIVERED: "DELIVERED",
+      COMPLETED: "DELIVERED",
       DELAYED: "DELAYED",
-      CANCELLED: "FAILED",
-      FAILED: "FAILED",
+      CANCELLED: "CANCELLED",
+      FAILED: "CANCELLED",
     };
 
     const statusCounts = values.reduce<Record<string, number>>((acc, s) => {

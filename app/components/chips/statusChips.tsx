@@ -44,17 +44,17 @@ export const StatusChip = ({ status }: { status: string }) => {
         size="small"
         label={meta.label}
         sx={{
-          borderRadius: "6px",
-          height: "24px",
+          borderRadius: "8px",
+          height: "28px",
           fontSize: "0.75rem",
           fontWeight: 800,
           backgroundColor: backgroundColor,
           color: textColor,
           border: `1px solid ${borderColor}`,
           textTransform: "uppercase",
-          letterSpacing: "0.04em",
+          letterSpacing: "0.05em",
           "& .MuiChip-label": {
-            px: 2,
+            px: 2.5,
           },
         }}
       />
