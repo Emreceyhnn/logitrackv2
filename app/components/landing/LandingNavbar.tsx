@@ -8,11 +8,11 @@ import {
   Toolbar,
   Typography,
   useScrollTrigger,
-  useTheme,
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import LandingHeaderAuth from "./LandingHeaderAuth";
+import LanguageSwitcher from "../nav/LanguageSwitcher";
 import { useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { getLocalizedPath } from "@/app/lib/language/navigation";
@@ -20,7 +20,6 @@ import { getLocalizedPath } from "@/app/lib/language/navigation";
 export default function LandingNavbar() {
   /* -------------------------------- VARIABLES ------------------------------- */
   const params = useParams();
-  const theme = useTheme();
   const dict = useDictionary();
   const lang = (params?.lang as string) || "tr";
   const trigger = useScrollTrigger({
@@ -34,7 +33,7 @@ export default function LandingNavbar() {
       elevation={0}
       sx={{
         background: "transparent",
-        top: trigger ? 10 : 20,
+        top: trigger ? 0 : 0,
         transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
         border: "none",
         boxShadow: "none",
@@ -45,32 +44,15 @@ export default function LandingNavbar() {
         <Toolbar
           disableGutters
           sx={{
-            py: trigger ? 1 : 1.5,
-            px: { xs: 2, md: 4 },
-            borderRadius: "24px",
-            background: trigger
-              ? theme.palette.mode === "dark"
-                ? theme.palette.background.deepNavy?._alpha.main_85
-                : "rgba(255, 255, 255, 0.9)"
-              : theme.palette.mode === "dark"
-                ? theme.palette.kpi.slateDeep_alpha.main_40
-                : "rgba(255, 255, 255, 0.4)",
-            backdropFilter: "blur(20px)",
-            border: (theme) =>
-              `1px solid ${
-                trigger
-                  ? theme.palette.mode === "dark"
-                    ? theme.palette.kpi.cyan_alpha.main_20
-                    : "rgba(0, 0, 0, 0.1)"
-                  : theme.palette.mode === "dark"
-                    ? theme.palette.kpi.slateLight_alpha.main_10
-                    : "rgba(0, 0, 0, 0.05)"
-              }`,
-            boxShadow: trigger
-              ? theme.palette.mode === "dark"
-                ? "0 20px 40px rgba(0,0,0,0.4)"
-                : "0 10px 30px rgba(0,0,0,0.05)"
-              : "none",
+            py: trigger ? 1 : 2,
+            px: { xs: 2, md: 6 },
+            width: "100%",
+            maxWidth: "100%",
+            background: trigger ? "rgba(10, 14, 20, 0.8)" : "transparent",
+            backdropFilter: trigger ? "blur(20px)" : "none",
+            borderBottom: trigger
+              ? "1px solid rgba(0, 242, 255, 0.1)"
+              : "1px solid rgba(255, 255, 255, 0.05)",
             transition: "all 0.4s ease",
             justifyContent: "space-between",
           }}
@@ -81,47 +63,51 @@ export default function LandingNavbar() {
                 sx={{
                   width: trigger ? 32 : 36,
                   height: trigger ? 32 : 36,
-                  borderRadius: "10px",
-                  background: "linear-gradient(135deg, #38bdf8, #6366f1)",
+                  borderRadius: "8px",
+                  background: "linear-gradient(135deg, #00f2ff, #6366f1)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   transition: "all 0.4s ease",
+                  boxShadow: trigger
+                    ? "none"
+                    : "0 0 20px rgba(0, 242, 255, 0.2)",
                 }}
               >
                 <Image
                   src="/logo-white.svg"
                   alt="LogiTrack"
-                  width={trigger ? 20 : 22}
-                  height={trigger ? 20 : 22}
+                  width={trigger ? 18 : 20}
+                  height={trigger ? 18 : 20}
                 />
               </Box>
               <Typography
                 variant="h6"
                 sx={{
-                  fontWeight: 800,
-                  letterSpacing: 1.5,
-                  fontSize: trigger ? "1rem" : "1.25rem",
-                  color: theme.palette.logo.text,
+                  fontWeight: 900,
+                  letterSpacing: 2,
+                  fontSize: trigger ? "0.875rem" : "1.125rem",
+                  color: "white",
                   transition: "all 0.4s ease",
                   display: { xs: "none", sm: "block" },
+                  textTransform: "uppercase",
                 }}
               >
-                {dict.common.logitrack.toUpperCase()}
+                {dict.common.logitrack}
               </Typography>
             </Stack>
           </Link>
 
           <Stack
             direction="row"
-            spacing={4}
+            spacing={6}
             alignItems="center"
             sx={{ display: { xs: "none", md: "flex" } }}
           >
             {[
               {
                 label: dict.navbar.features,
-                href: `/${lang}${getLocalizedPath("/features", lang)}`,
+                href: "#solutions",
               },
               {
                 label: dict.navbar.pricing,
@@ -142,11 +128,14 @@ export default function LandingNavbar() {
                 href={item.href}
                 variant="body2"
                 sx={{
-                  fontWeight: 600,
+                  fontWeight: 700,
                   textDecoration: "none",
-                  color: theme.palette.text.secondary,
+                  color: "rgba(255, 255, 255, 0.6)",
                   transition: "all 0.2s ease",
-                  "&:hover": { color: theme.palette.primary.main },
+                  fontSize: "0.75rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  "&:hover": { color: "#00f2ff" },
                 }}
               >
                 {item.label}
@@ -154,7 +143,10 @@ export default function LandingNavbar() {
             ))}
           </Stack>
 
-          <LandingHeaderAuth />
+          <Stack direction="row" spacing={2} alignItems="center">
+            <LanguageSwitcher />
+            <LandingHeaderAuth />
+          </Stack>
         </Toolbar>
       </Container>
     </AppBar>
