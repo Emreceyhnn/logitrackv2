@@ -17,6 +17,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   getLocalizedPath,
   getCanonicalPath,
+  buildLocalizedHref,
 } from "@/app/lib/language/navigation";
 
 const LanguageSwitcher = () => {
@@ -49,18 +50,15 @@ const LanguageSwitcher = () => {
     if (lang === currentLang) return;
 
     const segments = pathname.split("/");
-    const pathWithoutLang = segments.slice(2).join("/"); // skip empty and lang
+    const pathWithoutLang = "/" + segments.slice(2).join("/");
 
-    // 1. Get canonical path (English-like) from current localized path
+    // 1. Get canonical path from current localized path
     const canonical = getCanonicalPath(pathWithoutLang, currentLang);
 
-    // 2. Get localized path for target language
-    const localized = getLocalizedPath(canonical, lang);
+    // 2. Build the full localized URL for the target language
+    const newPathname = buildLocalizedHref(canonical, lang);
 
-    const newPathname = `/${lang}${localized}`;
-
-    // Set cookie for persistence
-    // eslint-disable-next-line react-hooks/immutability
+    // Persist preference
     document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000; SameSite=Lax`;
 
     router.push(newPathname);

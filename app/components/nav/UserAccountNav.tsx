@@ -147,7 +147,7 @@ export default function UserAccountNav({
   return (
     <>
       <Stack direction="row" spacing={2} alignItems="center">
-        <LanguageSwitcher />
+        {/* <LanguageSwitcher /> */}
         <Box
           onClick={handleMenuOpen}
           sx={{

@@ -21,7 +21,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useMemo, useState } from "react";
 import { clearAuthCookies } from "@/app/lib/controllers/session";
-import { getLocalizedPath } from "@/app/lib/language/navigation";
+import { buildLocalizedHref } from "@/app/lib/language/navigation";
 import LogoutConfirmationDialog from "../dialogs/logoutConfirmationDialog";
 
 const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
@@ -37,8 +37,9 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
   const handleLogout = async () => {
     try {
       await clearAuthCookies();
-      const logoutPath = getLocalizedPath("/auth/sign-in", lang);
-      router.push(`/${lang}${logoutPath}`);
+      // Build the localized sign-in URL (e.g. /tr/giris/oturuk-ac or /en/auth/sign-in)
+      const logoutHref = buildLocalizedHref("/auth/sign-in", lang);
+      router.push(logoutHref);
     } catch (error) {
       console.error("Logout failed:", error);
     }

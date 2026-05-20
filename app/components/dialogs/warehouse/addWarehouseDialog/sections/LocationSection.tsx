@@ -47,13 +47,25 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
     const fetchManagers = async () => {
       try {
         const users = await getMyCompanyUsersAction();
-        const relevantUsers = users.filter(
-          (u) =>
-            u.role?.name === "ADMIN" ||
-            u.role?.name === "MANAGER" ||
-            u.role?.name === "role_admin" ||
-            u.role?.name === "role_manager"
-        );
+        const relevantUsers = users.filter((u) => {
+          const name = u.role?.name?.toLowerCase() || "";
+          const id = u.roleId?.toLowerCase() || "";
+          
+          const isAdmin = 
+            id === "role_admin" || 
+            name === "admin" || 
+            name === "administrator" || 
+            name === "company admin" || 
+            name === "super admin";
+            
+          const isManager = 
+            id === "role_manager" || 
+            name === "manager" || 
+            name === "operations manager" || 
+            name === "fleet manager";
+            
+          return isAdmin || isManager;
+        });
         setManagers(relevantUsers);
       } catch (error) {
         console.error("Failed to fetch managers:", error);

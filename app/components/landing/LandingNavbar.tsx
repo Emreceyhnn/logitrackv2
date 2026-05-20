@@ -81,20 +81,7 @@ export default function LandingNavbar() {
                   height={trigger ? 18 : 20}
                 />
               </Box>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 900,
-                  letterSpacing: 2,
-                  fontSize: trigger ? "0.875rem" : "1.125rem",
-                  color: "white",
-                  transition: "all 0.4s ease",
-                  display: { xs: "none", sm: "block" },
-                  textTransform: "uppercase",
-                }}
-              >
-                {dict.common.logitrack}
-              </Typography>
+            
             </Stack>
           </Link>
 

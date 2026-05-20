@@ -11,6 +11,7 @@ import {
   invalidatePattern,
   hashFilters,
   companyCacheKeys,
+  driverCacheKeys,
   COMPANY_CACHE_TTL,
 } from "../redis";
 import { calcTrend, daysAgo } from "./utils/trendUtils";
@@ -442,7 +443,18 @@ export const getCompanyStats = authenticatedAction(async (user) => {
 });
 
 export const addCompanyUser = authenticatedAction(
-  async (user, targetUserId: string, roleName: string) => {
+  async (
+    user,
+    targetUserId: string,
+    roleName: string,
+    driverData?: {
+      employeeId: string;
+      phone: string;
+      licenseType?: string;
+      licenseNumber?: string;
+      licenseExpiry?: string;
+    }
+  ) => {
     const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
@@ -477,13 +489,67 @@ export const addCompanyUser = authenticatedAction(
         });
       }
 
-      const updatedUser = await db.user.update({
-        where: { id: targetUserId },
-        data: {
-          companyId,
-          roleId: roleName,
-        },
-      });
+      let updatedUser;
+
+      if (roleName === "role_driver" && driverData) {
+        // Run as a transaction to ensure both user update and driver creation succeed
+        updatedUser = await db.$transaction(async (tx) => {
+          // Check if employeeId is already taken
+          if (driverData.employeeId) {
+            const existingEmployee = await tx.driver.findUnique({
+              where: { employeeId: driverData.employeeId },
+            });
+            if (existingEmployee) {
+              throw new Error("A driver with this Employee ID already exists");
+            }
+          }
+
+          // Check if user already has a driver record
+          const existingDriver = await tx.driver.findUnique({
+            where: { userId: targetUserId },
+          });
+          if (existingDriver) {
+            throw new Error("This user is already registered as a driver");
+          }
+
+          const userUpdate = await tx.user.update({
+            where: { id: targetUserId },
+            data: {
+              companyId,
+              roleId: roleName,
+            },
+          });
+
+          await tx.driver.create({
+            data: {
+              companyId,
+              userId: targetUserId,
+              phone: driverData.phone,
+              employeeId: driverData.employeeId,
+              licenseType: driverData.licenseType || null,
+              licenseNumber: driverData.licenseNumber || null,
+              licenseExpiry: driverData.licenseExpiry ? new Date(driverData.licenseExpiry) : null,
+              status: "OFF_DUTY",
+              safetyScore: 100,
+              efficiencyScore: 100,
+              rating: 5.0,
+            },
+          });
+
+          return userUpdate;
+        });
+
+        // Invalidate driver lists cache
+        await invalidatePattern(driverCacheKeys.companyPattern(companyId));
+      } else {
+        updatedUser = await db.user.update({
+          where: { id: targetUserId },
+          data: {
+            companyId,
+            roleId: roleName,
+          },
+        });
+      }
 
       await invalidateCompanyCache(companyId);
       return updatedUser;

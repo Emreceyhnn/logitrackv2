@@ -29,6 +29,20 @@ import { updateCompanyMember } from "@/app/lib/controllers/company";
 import { UserStatus } from "@/app/lib/type/enums";
 import { editCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
 
+const mapToStandardRoleId = (roleId: string | null, roleName: string | null): string => {
+  if (!roleId) return "role_default";
+  
+  const idLower = roleId.toLowerCase();
+  const nameLower = (roleName || "").toLowerCase();
+  
+  if (idLower === "role_admin" || nameLower.includes("admin")) return "role_admin";
+  if (idLower === "role_manager" || nameLower.includes("manager")) return "role_manager";
+  if (idLower === "role_dispatcher" || nameLower.includes("dispatcher")) return "role_dispatcher";
+  if (idLower === "role_warehouse" || nameLower.includes("warehouse")) return "role_warehouse";
+  if (idLower === "role_driver" || nameLower.includes("driver")) return "role_driver";
+  
+  return "role_default";
+};
 
 interface EditCompanyMemberDialogProps {
   open: boolean;
@@ -72,7 +86,7 @@ export default function EditCompanyMemberDialog({
       reset({
         name: member.name,
         surname: member.surname,
-        roleId: member.roleId || "role_default",
+        roleId: mapToStandardRoleId(member.roleId, member.roleName),
         status: member.status,
       });
     }
@@ -199,24 +213,34 @@ export default function EditCompanyMemberDialog({
              <Controller
                name="roleId"
                control={control}
-               render={({ field }) => (
-                 <TextField
-                   {...field}
-                   select
-                   label={dict.company.editMember.systemRole}
-                   fullWidth
-                   error={!!errors.roleId}
-                   helperText={errors.roleId?.message}
-                   sx={textFieldSx}
-                 >
-                   <MenuItem value="role_default">{dict.company.roles.default}</MenuItem>
-                   <MenuItem value="role_admin">{dict.company.roles.admin}</MenuItem>
-                   <MenuItem value="role_manager">{dict.company.roles.manager}</MenuItem>
-                   <MenuItem value="role_dispatcher">{dict.company.roles.dispatcher}</MenuItem>
-                   <MenuItem value="role_warehouse">{dict.company.roles.warehouse}</MenuItem>
-                   <MenuItem value="role_driver">{dict.company.roles.driver}</MenuItem>
-                 </TextField>
-               )}
+               render={({ field }) => {
+                 const isDriver = mapToStandardRoleId(member.roleId, member.roleName) === "role_driver";
+                 return (
+                   <TextField
+                     {...field}
+                     select
+                     label={dict.company.editMember.systemRole}
+                     fullWidth
+                     disabled={isDriver}
+                     error={!!errors.roleId}
+                     helperText={
+                       isDriver
+                         ? "Driver roles must be managed from the Drivers dashboard."
+                         : errors.roleId?.message
+                     }
+                     sx={textFieldSx}
+                   >
+                     <MenuItem value="role_default">{dict.company.roles.default}</MenuItem>
+                     <MenuItem value="role_admin">{dict.company.roles.admin}</MenuItem>
+                     <MenuItem value="role_manager">{dict.company.roles.manager}</MenuItem>
+                     <MenuItem value="role_dispatcher">{dict.company.roles.dispatcher}</MenuItem>
+                     <MenuItem value="role_warehouse">{dict.company.roles.warehouse}</MenuItem>
+                     <MenuItem value="role_driver" disabled={!isDriver}>
+                       {dict.company.roles.driver}
+                     </MenuItem>
+                   </TextField>
+                 );
+               }}
              />
  
             <Controller

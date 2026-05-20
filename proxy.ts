@@ -9,59 +9,70 @@ import {
   LOCALES,
   DEFAULT_LOCALE,
   SIGN_IN_ROUTE,
-  Locale
+  Locale,
 } from "@/app/lib/constants";
-import { getCanonicalPath } from "@/app/lib/language/navigation";
+import { buildLocalizedHref, getCanonicalPath } from "@/app/lib/language/navigation";
+
+/* -------------------------------------------------------------------------- */
+/*  Helpers                                                                     */
+/* -------------------------------------------------------------------------- */
 
 function getLocaleFromPathname(pathname: string): {
   locale: Locale;
   restPath: string;
 } {
   const segments = pathname.split("/").filter(Boolean);
-  const firstSegment = segments[0];
+  const first = segments[0];
 
-  if (LOCALES.includes(firstSegment as Locale)) {
-    const restPath = "/" + segments.slice(1).join("/");
-    return { locale: firstSegment as Locale, restPath: restPath === "/" ? "" : restPath };
+  if (LOCALES.includes(first as Locale)) {
+    const rest = "/" + segments.slice(1).join("/");
+    return {
+      locale: first as Locale,
+      restPath: rest === "/" ? "" : rest,
+    };
   }
 
   return { locale: DEFAULT_LOCALE, restPath: pathname };
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Proxy (Next.js 16+ middleware convention)                                   */
+/* -------------------------------------------------------------------------- */
+
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip static/internal paths
+  // Skip Next.js internals, static files, API routes
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
-    /\.(.*)$/.test(pathname)
+    /\.(.+)$/.test(pathname)
   ) {
     return NextResponse.next();
   }
 
-  const { locale, restPath } = getLocaleFromPathname(pathname);
-
-  // If no locale prefix → redirect to default locale variant
+  // ── 1. Locale redirect ─────────────────────────────────────────────────────
   const hasLocalePrefix = LOCALES.some(
     (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`)
   );
 
   if (!hasLocalePrefix) {
-    // Priority: 1. Cookie, 2. Default
     const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
-    const locale = (cookieLocale && (LOCALES as readonly string[]).includes(cookieLocale))
-      ? cookieLocale as Locale
-      : DEFAULT_LOCALE;
+    const locale =
+      cookieLocale && (LOCALES as readonly string[]).includes(cookieLocale)
+        ? (cookieLocale as Locale)
+        : DEFAULT_LOCALE;
 
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
     return NextResponse.redirect(url);
   }
 
-  // Handle URL translation for languages other than English (e.g., Turkish)
-  if (locale === 'tr') {
-    const canonicalPath = getCanonicalPath(restPath || "/", 'tr');
+  const { locale, restPath } = getLocaleFromPathname(pathname);
+
+  // ── 2. URL translation rewrite (e.g. /tr/araclar → /tr/vehicle) ────────────
+  if (locale !== "en") {
+    const canonicalPath = getCanonicalPath(restPath || "/", locale);
     if (canonicalPath !== (restPath || "/")) {
       const url = request.nextUrl.clone();
       url.pathname = `/${locale}${canonicalPath}`;
@@ -69,9 +80,9 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
+  // ── 3. Auth gate ────────────────────────────────────────────────────────────
   const token = request.cookies.get("token")?.value;
   const refreshToken = request.cookies.get("refreshToken")?.value;
-
   const currentPath = restPath || "/";
 
   const isProtectedRoute = PROTECTED_ROUTES.some(
@@ -84,12 +95,14 @@ export default async function proxy(request: NextRequest) {
     (p) => currentPath === p || currentPath.startsWith(p + "/")
   );
 
+  // Unauthenticated access to protected page → redirect to sign-in
   if (isProtectedRoute && !token && !refreshToken) {
     const url = request.nextUrl.clone();
-    url.pathname = `/${locale}${SIGN_IN_ROUTE}`;
+    url.pathname = buildLocalizedHref(SIGN_IN_ROUTE, locale);
     return NextResponse.redirect(url);
   }
 
+  // Validate JWT
   let companyId: string | null = null;
   let isTokenValid = false;
 
@@ -106,28 +119,34 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
+  // Already authenticated on auth routes → redirect to dashboard
   if (isAuthRoute && isTokenValid && companyId) {
     const url = request.nextUrl.clone();
-    url.pathname = `/${locale}${DEFAULT_REDIRECT_AFTER_LOGIN}`;
+    url.pathname = buildLocalizedHref(DEFAULT_REDIRECT_AFTER_LOGIN, locale);
     return NextResponse.redirect(url);
   }
 
+  // Company-required routes enforcement
   if (isCompanyRequired) {
     if (isTokenValid && !companyId && currentPath !== ONBOARDING_ROUTE) {
       const url = request.nextUrl.clone();
-      url.pathname = `/${locale}${ONBOARDING_ROUTE}`;
+      url.pathname = buildLocalizedHref(ONBOARDING_ROUTE, locale);
       return NextResponse.redirect(url);
     }
 
     if (!isTokenValid && !refreshToken) {
       const url = request.nextUrl.clone();
-      url.pathname = `/${locale}${SIGN_IN_ROUTE}`;
+      url.pathname = buildLocalizedHref(SIGN_IN_ROUTE, locale);
       return NextResponse.redirect(url);
     }
   }
 
   return NextResponse.next();
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Matcher                                                                     */
+/* -------------------------------------------------------------------------- */
 
 export const config = {
   matcher: [

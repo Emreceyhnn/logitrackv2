@@ -113,7 +113,11 @@ export default function AddCompanyMemberDialog({
         await schema.validate(driverData, { abortEarly: false });
       }
 
-      await addCompanyUser(selectedUserId, selectedRole);
+      await addCompanyUser(
+        selectedUserId,
+        selectedRole,
+        selectedRole === "role_driver" ? driverData : undefined
+      );
       toast.success(dict.toasts.successAdd);
       onSuccess?.();
       onClose();

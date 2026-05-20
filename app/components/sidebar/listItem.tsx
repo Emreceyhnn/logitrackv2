@@ -1,3 +1,5 @@
+"use client";
+
 import { ReactNode, useState, useCallback, useEffect, memo } from "react";
 import {
   List,
@@ -6,17 +8,25 @@ import {
   ListItemText,
   Collapse,
   useTheme,
+  Box,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getLocalizedPath } from "@/app/lib/language/navigation";
+import {
+  buildLocalizedHref,
+  isPathActive,
+} from "@/app/lib/language/navigation";
+
+/* -------------------------------------------------------------------------- */
+/*  Types                                                                       */
+/* -------------------------------------------------------------------------- */
 
 export type SidebarItem = {
   title: string;
   icon: ReactNode;
+  href: string;
   subTitles?: { title: string; href: string }[];
-  href?: string;
 };
 
 export type Params = {
@@ -25,83 +35,97 @@ export type Params = {
   onMobileClose?: () => void;
 };
 
-export const SidebarList = memo(function SidebarList(params: Params) {
-  const { items, lang, onMobileClose } = params;
+/* -------------------------------------------------------------------------- */
+/*  SidebarList                                                                 */
+/* -------------------------------------------------------------------------- */
 
-  /* --------------------------------- states --------------------------------- */
-  const [openKey, setOpenKey] = useState<string | null>(null);
+export const SidebarList = memo(function SidebarList({
+  items,
+  lang,
+  onMobileClose,
+}: Params) {
   const pathname = usePathname();
   const theme = useTheme();
 
-  /* -------------------------------- memoized values -------------------------- */
-  const getFullLocalizedPath = useCallback((path: string) => {
-    const localizedPath = getLocalizedPath(path, lang);
-    return `/${lang}${localizedPath}`;
-  }, [lang]);
+  // Track which section is open by its canonical href
+  const [openKey, setOpenKey] = useState<string | null>(null);
 
-  const isActive = useCallback((href?: string) => {
-    if (!href) return false;
-    const fullPath = getFullLocalizedPath(href);
-    return pathname === fullPath;
-  }, [pathname, getFullLocalizedPath]);
+  /* ---------------------------------------------------------------------- */
+  /*  Helpers                                                                  */
+  /* ---------------------------------------------------------------------- */
 
-  /* --------------------------------- effects --------------------------------- */
-  // Auto-expand sidebar section based on current path
-  useEffect(() => {
-    items.forEach((item) => {
-      const hasActiveChild = item.subTitles?.some((sub) => isActive(sub.href));
-      if (hasActiveChild || isActive(item.href)) {
-        setOpenKey(item.title);
+  /** Is a sub-item's canonical path the currently active page? */
+  const isSubActive = useCallback(
+    (href: string) => isPathActive(pathname, href, lang, true),
+    [pathname, lang]
+  );
+
+  /** Is a parent item active: either its own page or any child page */
+  const isParentActive = useCallback(
+    (item: SidebarItem): boolean => {
+      if (item.subTitles?.length) {
+        return item.subTitles.some((sub) => isSubActive(sub.href));
       }
-    });
-  }, [pathname, items, isActive]);
+      return isPathActive(pathname, item.href, lang, true);
+    },
+    [pathname, lang, isSubActive]
+  );
 
-  /* --------------------------------- handlers --------------------------------- */
-  const handleToggle = useCallback((title: string) => {
-    // If it's a toggle click on the arrow, prevent default if needed
-    // But here we want it to toggle regardless
-    setOpenKey((prev) => (prev === title ? null : title));
+  /* ---------------------------------------------------------------------- */
+  /*  Auto-expand the correct section on path change                          */
+  /* ---------------------------------------------------------------------- */
+  useEffect(() => {
+    for (const item of items) {
+      if (isParentActive(item)) {
+        setOpenKey(item.href);
+        return;
+      }
+    }
+    // Don't collapse manually-opened sections on page nav —
+    // only set if we found a match.
+  }, [pathname, items, isParentActive]);
+
+  /* ---------------------------------------------------------------------- */
+  /*  Handlers                                                                 */
+  /* ---------------------------------------------------------------------- */
+
+  const handleToggle = useCallback((key: string) => {
+    setOpenKey((prev) => (prev === key ? null : key));
   }, []);
+
+  /* ---------------------------------------------------------------------- */
+  /*  Render                                                                   */
+  /* ---------------------------------------------------------------------- */
 
   return (
     <List
       disablePadding
       sx={{
         display: "flex",
-        gap: 0.5,
         flexDirection: "column",
-        padding: 0,
+        gap: 0.5,
         width: "100%",
+        px: 0,
       }}
     >
       {items.map((item) => {
         const hasChildren = Boolean(item.subTitles?.length);
-        const isOpen = openKey === item.title;
-        const activeItem =
-          isActive(item.href) ||
-          item.subTitles?.some((sub) => isActive(sub.href));
-
-        // High-performance navigation props
-        const buttonProps = item.href 
-          ? { 
-              component: Link, 
-              href: getFullLocalizedPath(item.href),
-              prefetch: true,
-            } 
-          : { 
-              onClick: () => handleToggle(item.title) 
-            };
-
-        const onClickProps = item.href && onMobileClose 
-          ? { onClick: onMobileClose } 
-          : {};
+        const isOpen = openKey === item.href;
+        const parentActive = isParentActive(item);
+        const localizedHref = buildLocalizedHref(item.href, lang);
 
         return (
-          <div key={item.title} style={{ width: "100%" }}>
+          <Box key={item.href} sx={{ width: "100%" }}>
+            {/* ---- Parent row ---- */}
             <ListItemButton
-              {...buttonProps}
-              {...onClickProps}
-              selected={activeItem}
+              component={hasChildren ? "div" : Link}
+              {...(hasChildren ? {} : { href: localizedHref, prefetch: true })}
+              onClick={
+                hasChildren
+                  ? () => handleToggle(item.href)
+                  : onMobileClose
+              }
+              selected={parentActive}
               sx={{
                 px: 3,
                 py: 1.2,
@@ -109,10 +133,11 @@ export const SidebarList = memo(function SidebarList(params: Params) {
                 mx: 1,
                 width: "calc(100% - 16px)",
                 transition: "all 0.2s ease-in-out",
-                bgcolor: activeItem
+                cursor: "pointer",
+                bgcolor: parentActive
                   ? theme.palette.primary._alpha.main_10
                   : "transparent",
-                color: activeItem
+                color: parentActive
                   ? theme.palette.primary.main
                   : "text.secondary",
                 "&.Mui-selected": {
@@ -137,7 +162,7 @@ export const SidebarList = memo(function SidebarList(params: Params) {
               <ListItemIcon
                 sx={{
                   minWidth: 32,
-                  color: activeItem ? theme.palette.primary.main : "inherit",
+                  color: parentActive ? theme.palette.primary.main : "inherit",
                   transition: "color 0.2s",
                 }}
               >
@@ -147,7 +172,7 @@ export const SidebarList = memo(function SidebarList(params: Params) {
               <ListItemText
                 primary={item.title}
                 primaryTypographyProps={{
-                  fontWeight: activeItem ? 700 : 500,
+                  fontWeight: parentActive ? 700 : 500,
                   fontSize: 14,
                   letterSpacing: "0.01em",
                 }}
@@ -155,17 +180,11 @@ export const SidebarList = memo(function SidebarList(params: Params) {
 
               {hasChildren && (
                 <ExpandMoreIcon
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleToggle(item.title);
-                  }}
                   sx={{
                     fontSize: 18,
                     transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
                     transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                     opacity: 0.7,
-                    zIndex: 2, // Ensure it's clickable over the link
                     "&:hover": {
                       opacity: 1,
                       color: theme.palette.primary.main,
@@ -175,16 +194,20 @@ export const SidebarList = memo(function SidebarList(params: Params) {
               )}
             </ListItemButton>
 
+            {/* ---- Children ---- */}
             {hasChildren && (
               <Collapse in={isOpen} timeout={300} unmountOnExit>
                 <List disablePadding sx={{ width: "100%", mt: 0.5 }}>
-                  {item?.subTitles?.map((sub) => {
-                    const subActive = isActive(sub.href);
+                  {item.subTitles?.map((sub) => {
+                    const subActive = isSubActive(sub.href);
+                    const subLocalizedHref = buildLocalizedHref(sub.href, lang);
+
                     return (
                       <ListItemButton
-                        key={sub.title}
+                        key={sub.href}
                         component={Link}
-                        href={getFullLocalizedPath(sub.href)}
+                        href={subLocalizedHref}
+                        prefetch={true}
                         onClick={onMobileClose}
                         selected={subActive}
                         sx={{
@@ -228,7 +251,7 @@ export const SidebarList = memo(function SidebarList(params: Params) {
                 </List>
               </Collapse>
             )}
-          </div>
+          </Box>
         );
       })}
     </List>
