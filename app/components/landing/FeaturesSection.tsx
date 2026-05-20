@@ -57,7 +57,7 @@ export default function FeaturesSection() {
                 fontWeight: 900,
               }}
             >
-              Infrastructure
+              {dict.landing.features.overline}
             </Typography>
             <Typography
               variant="h2"
@@ -68,7 +68,7 @@ export default function FeaturesSection() {
                 mb: 3,
               }}
             >
-              Engineered for Massive Scale
+              {dict.landing.features.title}
             </Typography>
             <Typography
               variant="body1"
@@ -80,8 +80,7 @@ export default function FeaturesSection() {
                 lineHeight: 1.6,
               }}
             >
-              Deploy a robust, global infrastructure that visualizes complex
-              supply chains instantly with zero latency across every continent.
+              {dict.landing.features.description}
             </Typography>
           </motion.div>
         </Box>
@@ -108,6 +107,9 @@ export default function FeaturesSection() {
                     flexDirection: "column",
                     gap: 4,
                     transition: "all 0.3s ease",
+                    transform: feature.translateY 
+                      ? { xs: "none", md: `translateY(${feature.translateY.md}px)` }
+                      : "none",
                     "&:hover": {
                       bgcolor: "rgba(255, 255, 255, 0.08)",
                       borderColor: `${feature.color}66`,

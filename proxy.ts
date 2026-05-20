@@ -115,8 +115,19 @@ export default async function proxy(request: NextRequest) {
       companyId = (payload.companyId as string) || null;
       isTokenValid = true;
     } catch {
+      // jwtVerify throws errors.JWTExpired if expired, or other errors if invalid
       isTokenValid = false;
     }
+  }
+
+  // ── 4. Token Refresh Flow ───────────────────────────────────────────────────
+  // If access token is invalid/expired, but a refresh token exists, redirect
+  // to the refresh endpoint before hitting any Server Components.
+  if (!isTokenValid && refreshToken) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/api/auth/refresh`;
+    url.searchParams.set("redirect_to", request.nextUrl.pathname + request.nextUrl.search);
+    return NextResponse.redirect(url);
   }
 
   // Already authenticated on auth routes → redirect to dashboard

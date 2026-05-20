@@ -9,13 +9,9 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getCompanyWithDashboardData } from "@/app/lib/controllers/company";
 import { companyKeys } from "@/app/lib/query-keys/company.keys";
 import CompanyContent from "./components/CompanyContent";
-import { redirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
 
 function CompanyPageSkeleton() {
   return (
@@ -32,10 +28,6 @@ function CompanyPageSkeleton() {
 }
 
 export default async function CompanyPage() {
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    redirect("/");
-  }
 
   const queryClient = new QueryClient({
     defaultOptions: {

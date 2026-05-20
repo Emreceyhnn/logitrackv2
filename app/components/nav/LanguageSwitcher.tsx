@@ -15,7 +15,6 @@ import CheckIcon from "@mui/icons-material/Check";
 import { useRouter, usePathname, useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
-  getLocalizedPath,
   getCanonicalPath,
   buildLocalizedHref,
 } from "@/app/lib/language/navigation";
@@ -59,6 +58,7 @@ const LanguageSwitcher = () => {
     const newPathname = buildLocalizedHref(canonical, lang);
 
     // Persist preference
+    // eslint-disable-next-line react-hooks/immutability
     document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000; SameSite=Lax`;
 
     router.push(newPathname);

@@ -5,7 +5,7 @@ import {
   getCanonicalPath,
   buildLocalizedHref,
   isPathActive,
-} from "../language/navigation.ts";
+} from "../language/navigation";
 
 test("navigation utility functions", async (t) => {
   await t.test("getLocalizedPath translations", () => {

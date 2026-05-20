@@ -21,7 +21,6 @@ import {
 import { useParams } from "next/navigation";
 import { getUserSession, logoutAction } from "@/app/lib/actions/auth";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import LanguageSwitcher from "./LanguageSwitcher";
 import ProfileDialog from "../dialogs/profile/ProfileDialog";
 import SettingsDialog from "../dialogs/settings/SettingsDialog";
 import LogoutConfirmationDialog from "../dialogs/logoutConfirmationDialog";
