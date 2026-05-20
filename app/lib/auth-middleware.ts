@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import { validateSession, refreshSession } from "./controllers/session";
+import { validateSession } from "./controllers/session";
 
 export type AuthenticatedUser = {
   id: string;
@@ -26,7 +26,7 @@ export type AuthenticatedUser = {
 export const getAuthenticatedUser = cache(
   async (): Promise<AuthenticatedUser | null> => {
     try {
-      let sessionUser = await validateSession();
+      const sessionUser = await validateSession();
 
       if (sessionUser) {
         return {
@@ -50,35 +50,11 @@ export const getAuthenticatedUser = cache(
           notifPushDelay: sessionUser.notifPushDelay,
         };
       }
+      
+      // If validateSession returns null, it means the token is invalid/revoked.
+      // We no longer attempt refreshSession() here because Server Components cannot
+      // set cookies. Middleware now handles token expiration via /api/auth/refresh.
 
-      console.log("[getAuthenticatedUser] 🔄 Attempting session refresh...");
-      const refreshed = await refreshSession();
-
-      if (refreshed) {
-        sessionUser = await validateSession();
-        if (sessionUser) {
-          return {
-            id: sessionUser.id,
-            name: sessionUser.name,
-            surname: sessionUser.surname,
-            avatarUrl: sessionUser.avatarUrl,
-            companyId: sessionUser.companyId,
-            roleId: sessionUser.roleId,
-            roleName: sessionUser.roleName,
-            sessionId: sessionUser.sessionId,
-            timezone: sessionUser.timezone,
-            dateFormat: sessionUser.dateFormat,
-            timeFormat: sessionUser.timeFormat,
-            currency: sessionUser.currency || "USD",
-            language: sessionUser.language || "en",
-            notifEmailShipment: sessionUser.notifEmailShipment,
-            notifEmailMaint: sessionUser.notifEmailMaint,
-            notifEmailWeekly: sessionUser.notifEmailWeekly,
-            notifPushAssignment: sessionUser.notifPushAssignment,
-            notifPushDelay: sessionUser.notifPushDelay,
-          };
-        }
-      }
     } catch (error) {
       if ((error as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") {
         throw error;

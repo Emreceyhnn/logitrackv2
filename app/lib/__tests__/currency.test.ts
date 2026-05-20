@@ -4,7 +4,7 @@ import {
   formatCurrency,
   formatCurrencyCompact,
   createCurrencyFormatter,
-} from "../utils/currency.ts";
+} from "../utils/currency";
 
 const cleanWhitespace = (str: string) => str.replace(/[\u00a0\u202f\s]+/g, " ");
 

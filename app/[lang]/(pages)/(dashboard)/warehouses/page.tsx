@@ -9,13 +9,9 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getWarehousesWithDashboardData } from "@/app/lib/controllers/warehouse";
 import { warehouseKeys } from "@/app/lib/query-keys/warehouse.keys";
 import WarehouseContent from "./components/WarehouseContent";
-import { redirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
 
 function WarehousePageSkeleton() {
   return (
@@ -32,10 +28,6 @@ function WarehousePageSkeleton() {
 }
 
 export default async function WarehousePage() {
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    redirect("/");
-  }
 
   const queryClient = new QueryClient({
     defaultOptions: {

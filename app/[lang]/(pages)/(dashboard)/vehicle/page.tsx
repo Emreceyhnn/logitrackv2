@@ -5,8 +5,7 @@
  * ──────────────────
  * ┌─────────────────────────────────────────────────────────────────────┐
  * │  SERVER (this file)                                                 │
- * │  1. Authenticate user via getAuthenticatedUser() (React cache)      │
- * │  2. Call getVehiclesWithDashboard() directly — hits Redis first,    │
+ * │  1. Call getVehiclesWithDashboard() directly — hits Redis first,    │
  * │     falls back to Prisma if cache cold. No extra round-trip.        │
  * │  3. Serialize data into TanStack Query's dehydrated state.          │
  * │  4. Stream HTML to the browser — users see populated content        │
@@ -29,16 +28,14 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getVehiclesWithDashboard } from "@/app/lib/controllers/vehicle";
 import { vehicleKeys } from "@/app/lib/query-keys/vehicle.keys";
 import VehicleContent from "./components/VehicleContent";
-import { redirect } from "next/navigation";
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* ────────────────────────────────────────────────────────────────────────────────
    Page metadata (optional — add per-page title/description here if needed)
-───────────────────────────────────────────────────────────────────────────── */
-export const dynamic = "force-dynamic"; // Always SSR; never statically generated
+──────────────────────────────────────────────────────────────────────────────── */
+// Auth handled by proxy.ts middleware — no force-dynamic needed.
 
 /* ─────────────────────────────────────────────────────────────────────────────
    SSR fallback skeleton shown while the server streams the component tree
@@ -61,16 +58,10 @@ function VehiclePageSkeleton() {
    Server Component — VehiclePage
 ───────────────────────────────────────────────────────────────────────────── */
 export default async function VehiclePage() {
-  /* ── 1. Auth guard ──────────────────────────────────────────────────── */
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    redirect("/");
-  }
-
-  /* ── 2. Create a fresh QueryClient for this request ─────────────────── 
+  /* ── 1. Create a fresh QueryClient for this request ───────────────── 
      Each SSR request gets its own QueryClient so there is NO shared state
      between concurrent requests (critical for multi-tenant correctness).
-  ──────────────────────────────────────────────────────────────────────── */
+  ────────────────────────────────────────────────────────────────────────── */
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {

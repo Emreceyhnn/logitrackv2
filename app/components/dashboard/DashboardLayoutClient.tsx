@@ -3,18 +3,17 @@
 import { Box, useTheme } from "@mui/material";
 import SideBar from "@/app/components/sidebar";
 import DashboardHeader from "@/app/components/dashboard/DashboardHeader";
-import { AuthenticatedUser } from "@/app/lib/auth-middleware";
+import { useUserContext } from "@/app/lib/context/UserContext";
 
 interface DashboardLayoutClientProps {
   children: React.ReactNode;
-  user: AuthenticatedUser | null;
 }
 
 export default function DashboardLayoutClient({
   children,
-  user,
 }: DashboardLayoutClientProps) {
   const theme = useTheme();
+  const { user } = useUserContext();
 
   return (
     <Box

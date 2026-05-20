@@ -10,7 +10,7 @@ import {
   utcToUserTz,
   formatSmartTimestamp,
   DateSettings,
-} from "../utils/date.ts";
+} from "../utils/date";
 
 const istanbulSettings: DateSettings = {
   timezone: "Europe/Istanbul",

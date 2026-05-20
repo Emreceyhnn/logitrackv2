@@ -5,13 +5,9 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getAnalyticsDashboardData } from "@/app/lib/controllers/analytics";
 import { analyticsKeys } from "@/app/lib/query-keys/analytics.keys";
 import AnalyticsContent from "./components/AnalyticsContent";
-import { redirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
 
 function AnalyticsPageSkeleton() {
   return (
@@ -28,10 +24,6 @@ function AnalyticsPageSkeleton() {
 }
 
 export default async function AnalyticsPage() {
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    redirect("/");
-  }
 
   const queryClient = new QueryClient({
     defaultOptions: {

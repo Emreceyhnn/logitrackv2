@@ -5,8 +5,7 @@
  * ──────────────────
  * ┌─────────────────────────────────────────────────────────────────────┐
  * │  SERVER (this file)                                                 │
- * │  1. Authenticate user via getAuthenticatedUser() (React cache)      │
- * │  2. Call getDriverWithDashboardData() directly — hits Redis first,  │
+ * │  1. Call getDriverWithDashboardData() directly — hits Redis first,  │
  * │     falls back to Prisma if cache cold. No extra round-trip.        │
  * │  3. Serialize data into TanStack Query's dehydrated state.          │
  * │  4. Stream HTML to the browser — users see populated content        │
@@ -29,13 +28,9 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getDriverWithDashboardData } from "@/app/lib/controllers/driver";
 import { driverKeys } from "@/app/lib/query-keys/driver.keys";
 import DriverContent from "./components/DriverContent";
-import { redirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
 
 function DriverPageSkeleton() {
   return (
@@ -52,10 +47,6 @@ function DriverPageSkeleton() {
 }
 
 export default async function DriverPage() {
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    redirect("/");
-  }
 
   const queryClient = new QueryClient({
     defaultOptions: {

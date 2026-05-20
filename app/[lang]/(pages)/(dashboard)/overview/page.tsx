@@ -9,13 +9,9 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getOverviewDashboardData } from "@/app/lib/controllers/overview";
 import { overviewKeys } from "@/app/lib/query-keys/overview.keys";
 import OverviewContent from "./components/OverviewContent";
-import { redirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
 
 function OverviewPageSkeleton() {
   return (
@@ -32,10 +28,6 @@ function OverviewPageSkeleton() {
 }
 
 export default async function OverviewPage() {
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    redirect("/");
-  }
 
   const queryClient = new QueryClient({
     defaultOptions: {

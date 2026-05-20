@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState, useCallback, useEffect, memo } from "react";
+import { ReactNode, useState, useCallback, useMemo, memo } from "react";
 import {
   List,
   ListItemButton,
@@ -47,20 +47,17 @@ export const SidebarList = memo(function SidebarList({
   const pathname = usePathname();
   const theme = useTheme();
 
-  // Track which section is open by its canonical href
-  const [openKey, setOpenKey] = useState<string | null>(null);
-
   /* ---------------------------------------------------------------------- */
-  /*  Helpers                                                                  */
+  /*  Helpers — pure functions, no side effects                               */
   /* ---------------------------------------------------------------------- */
 
-  /** Is a sub-item's canonical path the currently active page? */
+  /** True if the localized sub-item path matches the current pathname exactly. */
   const isSubActive = useCallback(
     (href: string) => isPathActive(pathname, href, lang, true),
     [pathname, lang]
   );
 
-  /** Is a parent item active: either its own page or any child page */
+  /** True if this parent item (or any of its children) is the active page. */
   const isParentActive = useCallback(
     (item: SidebarItem): boolean => {
       if (item.subTitles?.length) {
@@ -72,23 +69,41 @@ export const SidebarList = memo(function SidebarList({
   );
 
   /* ---------------------------------------------------------------------- */
-  /*  Auto-expand the correct section on path change                          */
+  /*  Open-section state                                                       */
+  /*                                                                          */
+  /*  React 18 "adjusting state during render" pattern:                       */
+  /*  – autoOpenKey is derived via useMemo (pure, no side effects)            */
+  /*  – when the pathname changes, autoOpenKey changes too                    */
+  /*  – we compare it against prevAutoOpenKey stored in state; when they      */
+  /*    differ we update both synchronously during this render pass,          */
+  /*    triggering an immediate re-render without an extra effect commit.     */
+  /*  This avoids the "calling setState synchronously within an effect"       */
+  /*  anti-pattern flagged by react-hooks/set-state-in-effect.                */
   /* ---------------------------------------------------------------------- */
-  useEffect(() => {
+
+  const autoOpenKey = useMemo<string | null>(() => {
     for (const item of items) {
-      if (isParentActive(item)) {
-        setOpenKey(item.href);
-        return;
-      }
+      if (isParentActive(item)) return item.href;
     }
-    // Don't collapse manually-opened sections on page nav —
-    // only set if we found a match.
-  }, [pathname, items, isParentActive]);
+    return null;
+  }, [items, isParentActive]);
+
+  const [openKey, setOpenKey] = useState<string | null>(autoOpenKey);
+  const [prevAutoOpenKey, setPrevAutoOpenKey] = useState<string | null>(
+    autoOpenKey
+  );
+
+  // Synchronise openKey with pathname changes without an effect.
+  if (prevAutoOpenKey !== autoOpenKey) {
+    setPrevAutoOpenKey(autoOpenKey);
+    setOpenKey(autoOpenKey);
+  }
 
   /* ---------------------------------------------------------------------- */
   /*  Handlers                                                                 */
   /* ---------------------------------------------------------------------- */
 
+  /** Toggle a collapsible parent section open / closed. */
   const handleToggle = useCallback((key: string) => {
     setOpenKey((prev) => (prev === key ? null : key));
   }, []);

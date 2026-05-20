@@ -9,13 +9,9 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getReportsDataAction } from "@/app/lib/controllers/reports";
 import { reportsKeys } from "@/app/lib/query-keys/reports.keys";
 import ReportsContent from "./components/ReportsContent";
-import { redirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
 
 function ReportsPageSkeleton() {
   return (
@@ -32,10 +28,6 @@ function ReportsPageSkeleton() {
 }
 
 export default async function ReportsPage() {
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    redirect("/");
-  }
 
   const queryClient = new QueryClient({
     defaultOptions: {

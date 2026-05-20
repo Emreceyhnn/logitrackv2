@@ -9,13 +9,9 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getInventoryWithDashboardData } from "@/app/lib/controllers/inventory";
 import { inventoryKeys } from "@/app/lib/query-keys/inventory.keys";
 import InventoryContent from "./components/InventoryContent";
-import { redirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
 
 function InventoryPageSkeleton() {
   return (
@@ -32,10 +28,6 @@ function InventoryPageSkeleton() {
 }
 
 export default async function InventoryPage() {
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    redirect("/");
-  }
 
   const queryClient = new QueryClient({
     defaultOptions: {

@@ -5,8 +5,7 @@
  * ──────────────────
  * ┌─────────────────────────────────────────────────────────────────────┐
  * │  SERVER (this file)                                                 │
- * │  1. Authenticate user via getAuthenticatedUser() (React cache)      │
- * │  2. Call getShipmentsWithDashboardData() directly — hits Redis first│
+ * │  1. Call getShipmentsWithDashboardData() directly — hits Redis first│
  * │     falls back to Prisma if cache cold. No extra round-trip.        │
  * │  3. Serialize data into TanStack Query's dehydrated state.          │
  * │  4. Stream HTML to the browser — users see populated content        │
@@ -29,13 +28,9 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getShipmentsWithDashboardData } from "@/app/lib/controllers/shipments";
 import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
 import ShipmentContent from "./components/shipmentsContent";
-import { redirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
 
 function ShipmentPageSkeleton() {
   return (
@@ -52,10 +47,6 @@ function ShipmentPageSkeleton() {
 }
 
 export default async function ShipmentPage() {
-  const user = await getAuthenticatedUser();
-  if (!user) {
-    redirect("/");
-  }
 
   const queryClient = new QueryClient({
     defaultOptions: {
