@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  CircularProgress,
   Divider,
   IconButton,
   Stack,
@@ -26,7 +25,10 @@ import {
 } from "@/app/lib/type/driver";
 import { DriverStatus } from "@/app/lib/type/enums";
 import { toast } from "sonner";
-import { createDriver, getEligibleUsersForDriver } from "@/app/lib/controllers/driver";
+import {
+  createDriver,
+  getEligibleUsersForDriver,
+} from "@/app/lib/controllers/driver";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { addDriverValidationSchema } from "@/app/lib/validationSchema";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -78,95 +80,93 @@ const AddDriverDialog = ({
   /* -------------------------------- handlers --------------------------------- */
   const handleSubmit = async (
     values: DriverFormValues,
-    { setSubmitting, setStatus, resetForm }: FormikHelpers<DriverFormValues>
+    { resetForm }: FormikHelpers<DriverFormValues>
   ) => {
-    try {
-      setSubmitting(true);
-      setStatus(null);
+    // 1. Close dialog immediately
+    onClose();
+    resetForm();
+    setCurrentStep(1);
 
-      const fileToBase64 = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = (error) => reject(error);
-        });
-      };
+    const fileToBase64 = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+      });
+    };
 
-      // 1. Upload Licence Photo if exists
-      let licensePhotoUrl = "";
-      if (values.licencePhoto) {
-        const base64 = await fileToBase64(values.licencePhoto);
-        const uploadResult = await uploadImageAction(
-          base64,
-          "documents",
-          `drivers/${values.userId}/license`
+    // 2. Run upload and create behind a loading toast
+    await toast.promise(
+      (async () => {
+        let licensePhotoUrl = "";
+        if (values.licencePhoto) {
+          const base64 = await fileToBase64(values.licencePhoto);
+          const uploadResult = await uploadImageAction(
+            base64,
+            "documents",
+            `drivers/${values.userId}/license`
+          );
+          licensePhotoUrl = uploadResult.url;
+        }
+
+        const uploadedDocs = await Promise.all(
+          values.documents.map(async (doc) => {
+            if (doc.file) {
+              const base64 = await fileToBase64(doc.file);
+              const uploadResult = await uploadImageAction(
+                base64,
+                "documents",
+                `drivers/${values.userId}/docs`
+              );
+              return {
+                name: doc.name,
+                type: doc.type,
+                url: uploadResult.url,
+                expiryDate: doc.expiryDate || undefined,
+              };
+            }
+            return null;
+          })
         );
-        licensePhotoUrl = uploadResult.url;
-      }
 
-      // 2. Upload additional documents if exist
-      const uploadedDocs = await Promise.all(
-        values.documents.map(async (doc) => {
-          if (doc.file) {
-            const base64 = await fileToBase64(doc.file);
-            const uploadResult = await uploadImageAction(
-              base64,
-              "documents",
-              `drivers/${values.userId}/docs`
-            );
-            return {
-              name: doc.name,
-              type: doc.type,
-              url: uploadResult.url,
-              expiryDate: doc.expiryDate || undefined,
-            };
-          }
-          return null;
-        })
-      );
+        const payload = {
+          userId: values.userId,
+          phone: values.phone,
+          employeeId: values.employeeId,
+          licenseNumber: values.licenseNumber,
+          licenseExpiry: values.licenseExpiry,
+          licenseType: values.licenseType,
+          status: values.status as DriverStatus,
+          currentVehicleId: values.currentVehicleId || null,
+          homeBaseWarehouseId: values.homeWareHouseId || null,
+          languages: values.languages,
+          hazmatCertified: values.hazmatCertified,
+          licensePhotoUrl,
+          documents: uploadedDocs.filter((d) => d !== null) as {
+            name: string;
+            type: string;
+            url: string;
+            expiryDate?: Date;
+          }[],
+        };
 
-      const payload = {
-        userId: values.userId,
-        phone: values.phone,
-        employeeId: values.employeeId,
-        licenseNumber: values.licenseNumber,
-        licenseExpiry: values.licenseExpiry,
-        licenseType: values.licenseType,
-        status: values.status as DriverStatus,
-        currentVehicleId: values.currentVehicleId || null,
-        homeBaseWarehouseId: values.homeWareHouseId || null,
-        languages: values.languages,
-        hazmatCertified: values.hazmatCertified,
-        licensePhotoUrl,
-        documents: (uploadedDocs.filter((d) => d !== null) as {
-          name: string;
-          type: string;
-          url: string;
-          expiryDate?: Date;
-        }[]),
-      };
-
-      await createDriver(payload);
-
-      toast.success(dict.common.saveSuccess);
-
-      setTimeout(() => {
-        onClose();
+        await createDriver(payload);
         onSuccess?.();
-        resetForm();
-        setCurrentStep(1);
-      }, 1500);
-    } catch (err: unknown) {
-      const message = (err as Error).message || dict.common.errorOccurred;
-      setStatus(message);
-      toast.error(message);
-    } finally {
-      setSubmitting(false);
-    }
+      })(),
+      {
+        loading: dict.toasts?.loading || "Saving...",
+        success: dict.common.saveSuccess,
+        error: (err: unknown) =>
+          (err as Error).message || dict.common.errorOccurred,
+      }
+    );
   };
 
-  const steps = [dict.drivers.tabs.personalInfo, dict.drivers.tabs.operationalInfo];
+  const steps = [
+    dict.drivers.tabs.personalInfo,
+    dict.drivers.tabs.operationalInfo,
+  ];
 
   return (
     <Dialog
@@ -185,17 +185,14 @@ const AddDriverDialog = ({
     >
       <Formik
         initialValues={initialValues}
-        validationSchema={useMemo(() => addDriverValidationSchema(dict), [dict])}
+        validationSchema={useMemo(
+          () => addDriverValidationSchema(dict),
+          [dict]
+        )}
         onSubmit={handleSubmit}
         validateOnMount
       >
-        {({
-          handleSubmit: formikSubmit,
-          isSubmitting,
-          status,
-          validateForm,
-          setFieldTouched,
-        }) => {
+        {({ handleSubmit: formikSubmit, validateForm, setFieldTouched }) => {
           const handleNext = async () => {
             const errors = await validateForm();
             // Fields to check for Step 1
@@ -207,14 +204,17 @@ const AddDriverDialog = ({
               "licenseType",
               "licenseExpiry",
             ];
-            
+
             const hasStep1Errors = step1Fields.some(
               (field) => !!(errors as Record<string, string>)[field]
             );
 
             if (hasStep1Errors) {
               step1Fields.forEach((field) => setFieldTouched(field, true));
-              toast.error(dict.common.errorOccurred || "Please fill in all required fields correctly");
+              toast.error(
+                dict.common.errorOccurred ||
+                  "Please fill in all required fields correctly"
+              );
               return;
             }
             setCurrentStep(2);
@@ -240,7 +240,6 @@ const AddDriverDialog = ({
                     onClick={() => onClose()}
                     size="small"
                     sx={{ color: "text.secondary" }}
-                    disabled={isSubmitting}
                   >
                     <CloseIcon fontSize="small" />
                   </IconButton>
@@ -261,7 +260,9 @@ const AddDriverDialog = ({
                         <StepLabel
                           StepIconProps={{
                             sx: {
-                              "&.Mui-active": { color: theme.palette.primary.main },
+                              "&.Mui-active": {
+                                color: theme.palette.primary.main,
+                              },
                               "&.Mui-completed": {
                                 color: theme.palette.primary.main,
                               },
@@ -285,24 +286,13 @@ const AddDriverDialog = ({
                   </Stepper>
                 </Box>
                 <Divider
-                  sx={{ mb: 4, borderColor: theme.palette.divider_alpha.main_05 }}
+                  sx={{
+                    mb: 4,
+                    borderColor: theme.palette.divider_alpha.main_05,
+                  }}
                 />
 
                 <Box sx={{ minHeight: 400 }}>
-                  {status && (
-                    <Box
-                      mb={3}
-                      p={2}
-                      sx={{
-                        bgcolor: theme.palette.error._alpha.main_10,
-                        borderRadius: 2,
-                      }}
-                    >
-                      <Typography variant="caption" color="error">
-                        {status}
-                      </Typography>
-                    </Box>
-                  )}
                   {currentStep === 1 && (
                     <FirstDriverDialogStep eligibleUsers={eligibleUsers} />
                   )}
@@ -314,12 +304,15 @@ const AddDriverDialog = ({
                   )}
                 </Box>
               </DialogContent>
-              <DialogActions sx={{ p: 3, pt: 0, justifyContent: "space-between" }}>
+              <DialogActions
+                sx={{ p: 3, pt: 0, justifyContent: "space-between" }}
+              >
                 <Button
                   onClick={
-                    currentStep === 1 ? () => onClose() : () => setCurrentStep(1)
+                    currentStep === 1
+                      ? () => onClose()
+                      : () => setCurrentStep(1)
                   }
-                  disabled={isSubmitting}
                   sx={{
                     color: "text.secondary",
                     "&:hover": { bgcolor: theme.palette.divider_alpha.main_05 },
@@ -332,12 +325,6 @@ const AddDriverDialog = ({
                   onClick={
                     currentStep === 1 ? handleNext : () => formikSubmit()
                   }
-                  disabled={isSubmitting}
-                  startIcon={
-                    isSubmitting && (
-                      <CircularProgress size={16} color="inherit" />
-                    )
-                  }
                   sx={{
                     borderRadius: 2,
                     px: 4,
@@ -345,11 +332,9 @@ const AddDriverDialog = ({
                     boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
                   }}
                 >
-                  {isSubmitting
-                    ? (dict.common.saving || "Saving...")
-                    : currentStep === 1
-                    ? (dict.common.next || "Next")
-                    : (dict.common.save || "Save")}
+                  {currentStep === 1
+                    ? dict.common.next || "Next"
+                    : dict.common.save || "Save"}
                 </Button>
               </DialogActions>
             </>

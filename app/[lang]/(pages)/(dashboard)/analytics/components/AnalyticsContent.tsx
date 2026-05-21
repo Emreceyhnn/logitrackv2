@@ -8,16 +8,16 @@ import ForecastingWidget from "@/app/components/dashboard/analytics/ForecastingW
 import { useAnalyticsData } from "@/app/hooks/useAnalytics";
 
 export default function AnalyticsContent() {
-  const { data: state, isLoading } = useAnalyticsData();
+  const { state } = useAnalyticsData();
 
-  if (isLoading) {
+  if (state.loading && !state.data) {
     return (
       <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
         <AnalyticsHeader />
         <Stack spacing={3} mt={3}>
-          <Skeleton variant="rounded" height={200} />
-          <Skeleton variant="rounded" height={400} />
-          <Skeleton variant="rounded" height={300} />
+          <Skeleton variant="rounded" height={200} sx={{ borderRadius: "16px" }} />
+          <Skeleton variant="rounded" height={400} sx={{ borderRadius: "16px" }} />
+          <Skeleton variant="rounded" height={300} sx={{ borderRadius: "16px" }} />
         </Stack>
       </Box>
     );
@@ -27,16 +27,16 @@ export default function AnalyticsContent() {
     <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
       <AnalyticsHeader />
 
-      <Box sx={{ mb: 3 }}>
-        <PerformanceGauges data={state?.performance} />
+      <Box sx={{ mb: 4 }}>
+        <PerformanceGauges state={state.data?.performance} />
       </Box>
 
-      <Box sx={{ mb: 3 }}>
-        <CostAnalysisCharts data={state?.costs} />
+      <Box sx={{ mb: 4 }}>
+        <ForecastingWidget state={state.data?.forecast} />
       </Box>
 
       <Box>
-        <ForecastingWidget data={state?.forecast} />
+        <CostAnalysisCharts state={state.data?.costs} />
       </Box>
     </Box>
   );

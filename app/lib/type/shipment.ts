@@ -68,6 +68,7 @@ export interface ShipmentStopWithRelations {
   lat: number | null;
   lng: number | null;
   sequence: number;
+  contactEmail?: string | null;
 }
 
 // KPI / Stats

@@ -5,16 +5,18 @@ export interface AnalyticsPerformance {
   satisfactionCount: number;
 }
 
+export interface AnalyticsCostDistribution {
+  id: number;
+  value: number;
+  label: string;
+}
+
 export interface AnalyticsCosts {
   months: string[];
   fuel: number[];
   maintenance: number[];
   overhead: number[];
-  distribution: {
-    id: number;
-    value: number;
-    label: string;
-  }[];
+  distribution: AnalyticsCostDistribution[];
 }
 
 export interface AnalyticsForecast {
@@ -23,17 +25,26 @@ export interface AnalyticsForecast {
   predicted: (number | null)[];
 }
 
-export interface AnalyticsPageState {
+export interface AnalyticsDashboardData {
   performance: AnalyticsPerformance;
   costs: AnalyticsCosts;
   forecast: AnalyticsForecast;
 }
 
-export interface AnalyticsPageProps {
-  // Page props for Analytics
-  [key: string]: unknown;
+// Page State
+export interface AnalyticsPageState {
+  data: AnalyticsDashboardData | null;
+  loading: boolean;
+  error: string | null;
 }
 
+// Page Actions
 export interface AnalyticsPageActions {
-  fetchData: () => Promise<void>;
+  fetchAnalytics: () => Promise<void>;
+}
+
+// Component Props
+export interface AnalyticsPageProps {
+  state: AnalyticsPageState;
+  actions: AnalyticsPageActions;
 }

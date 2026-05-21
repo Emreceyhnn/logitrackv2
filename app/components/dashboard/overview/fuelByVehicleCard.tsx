@@ -77,7 +77,7 @@ const FuelByVehicleCard = ({ logs }: FuelByVehicleCardProps) => {
           <Stack alignItems="center" spacing={2} sx={{ opacity: 0.5 }}>
             <LocalGasStationIcon sx={{ fontSize: 48 }} />
             <Typography variant="body2">
-              {dict.dashboard.overview.fuelConsumption.noLogs}
+              {dict.fuel?.noLogs || "No logs found."}
             </Typography>
           </Stack>
         ) : (
@@ -87,9 +87,17 @@ const FuelByVehicleCard = ({ logs }: FuelByVehicleCardProps) => {
               {
                 scaleType: "band",
                 data: aggregatedValues.map((v) => v.plate),
+                valueFormatter: (value: string, context?: { location: string }) => {
+                  if (context?.location === "tick") {
+                    const idx = aggregatedValues.findIndex((v) => v.plate === value);
+                    return `#${idx + 1}`;
+                  }
+                  return value;
+                },
                 tickLabelStyle: {
                   fill: "text.secondary",
-                  fontSize: 10,
+                  fontSize: 12,
+                  fontWeight: 800,
                 },
               },
             ]}

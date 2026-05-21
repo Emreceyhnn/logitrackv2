@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   getInventory,
   getInventoryItemById,
@@ -102,7 +102,7 @@ export function useInventoryWithDashboard(
         status
       ),
     staleTime: 1000 * 60 * 5,
-    placeholderData: (previousData) => previousData,
+    placeholderData: keepPreviousData,
   });
 }
 

@@ -10,7 +10,6 @@ import {
   Typography,
   useTheme,
   Button,
-  CircularProgress,
   Stepper,
   Step,
   StepLabel,
@@ -57,14 +56,13 @@ const AddInventoryDialog = ({
   /* --------------------------------- states --------------------------------- */
   const [itemDetails, setItemDetails] =
     useState<AddInventoryItemDetails>(initialItemDetails);
-  const [storageLevels, setStorageLevels] =
-    useState<AddInventoryStorageLevels>(() => ({
+  const [storageLevels, setStorageLevels] = useState<AddInventoryStorageLevels>(
+    () => ({
       ...initialStorageLevels,
       warehouseId: initialWarehouseId || "",
-    }));
+    })
+  );
   const [currentStep, setCurrentStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [formKey, setFormKey] = useState(0);
 
   /* --------------------------------- effects --------------------------------- */
@@ -80,42 +78,46 @@ const AddInventoryDialog = ({
   const handleSubmit = async () => {
     if (!user) return;
 
-    setIsLoading(true);
-    setError(null);
-    try {
-      let finalImageUrl = itemDetails.imageUrl || "";
+    // 1. Close dialog immediately
+    closeDialog();
 
-      // If it's a base64 string (starts with data:), upload it first
-      if (finalImageUrl.startsWith("data:")) {
-        const uploadResult = await uploadImageAction(finalImageUrl, "general");
-        finalImageUrl = uploadResult.url;
+    // 2. Run add request behind a toast promise
+    await toast.promise(
+      (async () => {
+        let finalImageUrl = itemDetails.imageUrl || "";
+
+        // If it's a base64 string (starts with data:), upload it first
+        if (finalImageUrl.startsWith("data:")) {
+          const uploadResult = await uploadImageAction(
+            finalImageUrl,
+            "general"
+          );
+          finalImageUrl = uploadResult.url;
+        }
+
+        await addInventoryItem(
+          storageLevels.warehouseId,
+          itemDetails.sku,
+          itemDetails.name,
+          storageLevels.initialQuantity,
+          storageLevels.minStockLevel,
+          itemDetails.weightKg || 0,
+          itemDetails.volumeM3 || 0,
+          itemDetails.palletCount || 0,
+          itemDetails.cargoType || "General Cargo",
+          finalImageUrl,
+          itemDetails.unitValue || 0,
+          user.currency || "USD"
+        );
+        onSuccess?.();
+      })(),
+      {
+        loading: dict.toasts?.loading || "Adding item...",
+        success: dict.toasts.successAdd,
+        error: (err: unknown) =>
+          err instanceof Error ? err.message : dict.common.errorOccurred,
       }
-
-      await addInventoryItem(
-        storageLevels.warehouseId,
-        itemDetails.sku,
-        itemDetails.name,
-        storageLevels.initialQuantity,
-        storageLevels.minStockLevel,
-        itemDetails.weightKg || 0,
-        itemDetails.volumeM3 || 0,
-        itemDetails.palletCount || 0,
-        itemDetails.cargoType || "General Cargo",
-        finalImageUrl,
-        itemDetails.unitValue || 0,
-        user.currency || "USD"
-      );
-
-      toast.success(dict.toasts.successAdd);
-      onSuccess?.();
-      closeDialog();
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : dict.common.errorOccurred;
-      setError(message);
-      setIsLoading(false);
-      toast.error(message);
-    }
+    );
   };
 
   const resetForm = () => {
@@ -125,8 +127,6 @@ const AddInventoryDialog = ({
       warehouseId: initialWarehouseId || "",
     });
     setCurrentStep(1);
-    setIsLoading(false);
-    setError(null);
     setFormKey((prev) => prev + 1);
   };
 
@@ -240,20 +240,6 @@ const AddInventoryDialog = ({
       </Box>
 
       <DialogContent sx={{ pb: 4, minHeight: 450 }}>
-        {error && (
-          <Box
-            mb={2}
-            p={2}
-            sx={{
-              bgcolor: theme.palette.error._alpha.main_10,
-              borderRadius: 1,
-            }}
-          >
-            <Typography color="error" variant="caption">
-              {error}
-            </Typography>
-          </Box>
-        )}
         {currentStep === 1 && (
           <ItemDetailsSection
             key={`item-details-${formKey}`}
@@ -302,7 +288,6 @@ const AddInventoryDialog = ({
         <Button
           variant="contained"
           disabled={
-            isLoading ||
             (currentStep === 1 &&
               (!itemDetails.name ||
                 !itemDetails.category ||
@@ -324,17 +309,12 @@ const AddInventoryDialog = ({
             boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
             py: 1.2,
           }}
-          startIcon={
-            isLoading && <CircularProgress size={16} color="inherit" />
-          }
         >
-          {isLoading
-            ? dict.common.save
-            : currentStep === 1
+          {currentStep === 1
+            ? `${dict.common.next} →`
+            : currentStep === 2
               ? `${dict.common.next} →`
-              : currentStep === 2
-                ? `${dict.common.next} →`
-                : dict.common.save}
+              : dict.common.save}
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Typography, Tabs, Tab } from "@mui/material";
+import { Box, Typography, Tabs, Tab, CircularProgress } from "@mui/material";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import InventoryIcon from "@mui/icons-material/Inventory";
@@ -37,13 +37,29 @@ function CustomTabPanel(props: TabPanelProps) {
 
 export default function ReportsContent() {
   const dict = useDictionary();
-  const { data, isLoading } = useReportsData();
+  const { state } = useReportsData();
   const [tabIndex, setTabIndex] = useState(0);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
+
+  if (state.loading && !state.data) {
+    return (
+      <Box
+        sx={{
+          p: 3,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3 }}>
@@ -60,62 +76,105 @@ export default function ReportsContent() {
         </Typography>
       </Box>
 
-      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 4 }}>
+      <Box sx={{ display: "flex", flexDirection: "column" }}>
         <Tabs
           value={tabIndex}
           onChange={handleChange}
           aria-label="report tabs"
+          variant="standard"
           sx={{
+            minHeight: 48,
+            overflow: "visible",
+            "& .MuiTabs-indicator": {
+              display: "none", // Hide default indicator for the folder look
+            },
+            "& .MuiTabs-scroller": {
+              overflow: "visible !important",
+            },
             "& .MuiTab-root": {
               textTransform: "none",
-              fontWeight: 600,
+              fontWeight: 700,
               fontSize: "1rem",
               minHeight: 48,
+              mr: 1,
+              px: 3,
+              borderRadius: "12px 12px 0 0",
+              transition: "all 0.2s",
+              color: "text.secondary",
+              border: 1,
+              borderColor: "transparent",
+              borderBottom: "none",
+              position: "relative",
+              top: "1px", // Overlap the border of the content box below
+              zIndex: 0,
+              "&.Mui-selected": {
+                color: "primary.main",
+                bgcolor: "background.paper",
+                borderColor: "divider",
+                zIndex: 2,
+              },
+              "&:hover:not(.Mui-selected)": {
+                color: "text.primary",
+                bgcolor: "action.hover",
+              },
             },
           }}
         >
           <Tab
-            icon={<LocalShippingIcon />}
+            icon={<LocalShippingIcon fontSize="small" />}
             iconPosition="start"
             label={dict.reports.tabs.shipment}
           />
           <Tab
-            icon={<DirectionsCarIcon />}
+            icon={<DirectionsCarIcon fontSize="small" />}
             iconPosition="start"
             label={dict.reports.tabs.fleet}
           />
           <Tab
-            icon={<InventoryIcon />}
+            icon={<InventoryIcon fontSize="small" />}
             iconPosition="start"
             label={dict.reports.tabs.inventory}
           />
         </Tabs>
       </Box>
 
-      <ReportSummaryCards
-        tabIndex={tabIndex}
-        metrics={data?.metrics}
-        loading={isLoading}
-        dict={dict}
-      />
+      <Box
+        sx={{
+          bgcolor: "background.paper",
+          borderRadius: "12px",
+          borderTopLeftRadius: tabIndex === 0 ? 0 : 12,
+          border: 1,
+          borderColor: "divider",
+          p: { xs: 2, md: 3 },
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        <ReportSummaryCards
+          tabIndex={tabIndex}
+          metrics={state.data?.metrics}
+          loading={state.loading}
+          dict={dict}
+        />
 
-      <Box sx={{ mt: 2 }}>
-        <CustomTabPanel value={tabIndex} index={0}>
-          <ShipmentCharts
-            data={data?.shipments}
-            loading={isLoading}
-            dict={dict}
-          />
-        </CustomTabPanel>
-        <CustomTabPanel value={tabIndex} index={1}>
-          <FleetCharts data={data?.fleet || []} dict={dict} />
-        </CustomTabPanel>
-        <CustomTabPanel value={tabIndex} index={2}>
-          <InventoryCharts
-            data={data?.inventory?.categoryStats || {}}
-            dict={dict}
-          />
-        </CustomTabPanel>
+        <Box sx={{ mt: 2 }}>
+          <CustomTabPanel value={tabIndex} index={0}>
+            <ShipmentCharts
+              data={state.data?.shipments}
+              loading={state.loading}
+              dict={dict}
+            />
+          </CustomTabPanel>
+          <CustomTabPanel value={tabIndex} index={1}>
+            <FleetCharts data={state.data?.fleet || []} dict={dict} />
+          </CustomTabPanel>
+          <CustomTabPanel value={tabIndex} index={2}>
+            <InventoryCharts
+              data={state.data?.inventory?.categoryStats || {}}
+              dict={dict}
+            />
+          </CustomTabPanel>
+        </Box>
       </Box>
     </Box>
   );

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   getCustomers,
   deleteCustomer,
@@ -58,7 +58,7 @@ export function useCustomersWithDashboard(
     queryKey: customerKeys.dashboardWithFilters(page, pageSize, search),
     queryFn: () => fetchCustomerDashboard(page, pageSize, search),
     staleTime: 1000 * 60 * 5,
-    placeholderData: (previousData) => previousData,
+    placeholderData: keepPreviousData,
   });
 }
 

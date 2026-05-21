@@ -10,7 +10,6 @@ import {
   Typography,
   useTheme,
   Button,
-  CircularProgress,
   Stepper,
   Step,
   StepLabel,
@@ -100,9 +99,12 @@ const AddWarehouseDialog = ({
     handleSubmit: async () => {
       if (!user || !user.companyId) return;
 
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
-      try {
-        await createWarehouse(
+      // 1. Close dialog immediately
+      actions.closeDialog();
+
+      // 2. Run the request inside a toast promise
+      await toast.promise(
+        createWarehouse(
           state.data.basicInfo.name,
           state.data.basicInfo.code,
           state.data.basicInfo.type,
@@ -119,21 +121,16 @@ const AddWarehouseDialog = ({
             : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
           state.data.basicInfo.timezone,
           state.data.capacity.specifications
-        );
+        ),
+        {
+          loading: dict.toasts.loading,
+          success: dict.toasts.successAdd,
+          error: (err: unknown) =>
+            err instanceof Error ? err.message : dict.toasts.errorGeneric,
+        }
+      );
 
-        toast.success(dict.toasts.successAdd);
-        onSuccess?.();
-        actions.closeDialog();
-      } catch (err: unknown) {
-        const errorMessage =
-          err instanceof Error ? err.message : dict.toasts.errorGeneric;
-        setState((prev) => ({
-          ...prev,
-          isLoading: false,
-          error: errorMessage,
-        }));
-        toast.error(errorMessage);
-      }
+      onSuccess?.();
     },
     closeDialog: () => {
       onClose();
@@ -281,7 +278,6 @@ const AddWarehouseDialog = ({
           <Button
             variant="contained"
             disabled={
-              state.isLoading ||
               (state.currentStep === 1 && !state.data.basicInfo.name) ||
               (state.currentStep === 2 &&
                 (!state.data.location.address || !state.data.location.city))
@@ -298,15 +294,10 @@ const AddWarehouseDialog = ({
               fontWeight: 600,
               boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
             }}
-            startIcon={
-              state.isLoading && <CircularProgress size={16} color="inherit" />
-            }
           >
-            {state.isLoading
-              ? dict.toasts.loading
-              : state.currentStep < 3
-                ? dict.common.next
-                : dict.warehouses.dialogs.createButton}
+            {state.currentStep < 3
+              ? dict.common.next
+              : dict.warehouses.dialogs.createButton}
           </Button>
         </DialogActions>
       </Dialog>

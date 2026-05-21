@@ -177,6 +177,13 @@ export const getAddVehicleValidationSchema = (dict: Dictionary) =>
           field: dict.vehicles.fields.capacity,
         })
       )
+      .max(
+        2_000_000,
+        formatMessage(dict.validation.max, {
+          field: dict.vehicles.fields.capacity,
+          max: "2,000,000",
+        })
+      )
       .integer(
         formatMessage(dict.validation.integer, {
           field: dict.vehicles.fields.capacity,
@@ -206,6 +213,13 @@ export const getAddVehicleValidationSchema = (dict: Dictionary) =>
           field: dict.vehicles.fields.odometer,
         })
       )
+      .max(
+        9_999_999,
+        formatMessage(dict.validation.max, {
+          field: dict.vehicles.fields.odometer,
+          max: "9,999,999",
+        })
+      )
       .integer(
         formatMessage(dict.validation.integer, {
           field: dict.vehicles.fields.odometer,
@@ -221,6 +235,13 @@ export const getAddVehicleValidationSchema = (dict: Dictionary) =>
         0,
         formatMessage(dict.validation.positive, {
           field: dict.vehicles.fields.service,
+        })
+      )
+      .max(
+        9_999_999,
+        formatMessage(dict.validation.max, {
+          field: dict.vehicles.fields.service,
+          max: "9,999,999",
         })
       )
       .integer(
@@ -275,6 +296,19 @@ export const getAddVehicleValidationSchema = (dict: Dictionary) =>
         formatMessage(dict.validation.integer, {
           field: dict.vehicles.fields.fuelLevel,
         })
+      ),
+    fuelCapacity: Yup.number()
+      .nullable()
+      .min(
+        0,
+        formatMessage(dict.validation.positive, { field: "Fuel Capacity" })
+      )
+      .max(
+        10_000,
+        formatMessage(dict.validation.max, { field: "Fuel Capacity", max: "10,000" })
+      )
+      .integer(
+        formatMessage(dict.validation.integer, { field: "Fuel Capacity" })
       ),
   });
 
@@ -410,6 +444,13 @@ export const getEditVehicleValidationSchema = (dict: Dictionary) =>
           field: dict.vehicles.fields.odometer,
         })
       )
+      .max(
+        9_999_999,
+        formatMessage(dict.validation.max, {
+          field: dict.vehicles.fields.odometer,
+          max: "9,999,999",
+        })
+      )
       .integer(
         formatMessage(dict.validation.integer, {
           field: dict.vehicles.fields.odometer,
@@ -421,6 +462,13 @@ export const getEditVehicleValidationSchema = (dict: Dictionary) =>
         0,
         formatMessage(dict.validation.positive, {
           field: dict.vehicles.fields.service,
+        })
+      )
+      .max(
+        9_999_999,
+        formatMessage(dict.validation.max, {
+          field: dict.vehicles.fields.service,
+          max: "9,999,999",
         })
       )
       .integer(
@@ -676,9 +724,8 @@ export const getAddShipmentValidationSchema = (dict: Dictionary) =>
     customerLocationId: Yup.string().optional(),
     contactEmail: Yup.string()
       .email(dict.validation.email)
-      .required(
-        formatMessage(dict.validation.required, { field: "Contact Email" })
-      ),
+      .nullable()
+      .optional(),
     palletCount: Yup.number()
       .required(
         formatMessage(dict.validation.required, { field: "Pallet Count" })

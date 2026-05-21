@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   getShipments,
   getShipmentById,
@@ -123,9 +123,9 @@ export function useShipmentsWithDashboard(
 ) {
   return useQuery({
     queryKey: shipmentKeys.dashboardWithFilters(page, pageSize, status, search),
-    queryFn: () => fetchShipmentDashboard(page + 1, pageSize, status, search),
+    queryFn: () => fetchShipmentDashboard(page, pageSize, status, search),
     staleTime: 1000 * 60 * 5,
-    placeholderData: (previousData) => previousData,
+    placeholderData: keepPreviousData,
   });
 }
 

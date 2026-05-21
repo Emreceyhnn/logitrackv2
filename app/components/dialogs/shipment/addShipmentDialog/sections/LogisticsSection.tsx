@@ -17,10 +17,7 @@ interface LogisticsSectionProps {
   trailers: TrailerWithRelations[];
 }
 
-const LogisticsSection = ({
-  warehouses,
-  trailers,
-}: LogisticsSectionProps) => {
+const LogisticsSection = ({ warehouses, trailers }: LogisticsSectionProps) => {
   /* -------------------------------- variables ------------------------------- */
 
   const dict = useDictionary();
@@ -163,7 +160,7 @@ const LogisticsSection = ({
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Stack spacing={1}>
               <Typography
                 variant="caption"
@@ -294,31 +291,6 @@ const LogisticsSection = ({
               }
               return null;
             })()}
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 3 }}>
-            <Stack spacing={1}>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontWeight={600}
-              >
-                {dict.shipments.dialogs.fields.contactEmail}
-              </Typography>
-              <CustomTextArea
-                name="contactEmail"
-                placeholder="client@example.com"
-                value={values.contactEmail}
-                onBlur={handleBlur}
-                error={touched.contactEmail && Boolean(errors.contactEmail)}
-                helperText={
-                  touched.contactEmail
-                    ? (errors.contactEmail as string)
-                    : undefined
-                }
-                onChange={(e) => setFieldValue("contactEmail", e.target.value)}
-              />
-            </Stack>
           </Grid>
 
           <Grid size={{ xs: 12, md: 3 }}>

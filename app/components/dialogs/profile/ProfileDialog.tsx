@@ -123,7 +123,10 @@ export default function ProfileDialog({ open, onClose }: Props) {
           avatarUrl: state.profileForm.avatarUrl,
         });
         if ("error" in r) showToast("error", String(r.error));
-        else showToast("success", dict.profile.messages.saveSuccess);
+        else {
+          showToast("success", dict.profile.messages.saveSuccess);
+          window.dispatchEvent(new Event("profile-updated"));
+        }
       } catch {
         showToast("error", dict.profile.messages.networkError);
       } finally {

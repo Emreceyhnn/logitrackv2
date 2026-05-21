@@ -21,7 +21,6 @@ import { useState } from "react";
 import OverviewTab from "./overviewTab";
 import DocumentsTab from "./documentsTab";
 import MaintenanceTab from "./maintenance";
-import FuelTab from "./fuel";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -58,6 +57,11 @@ function CustomTabPanel(props: TabPanelProps) {
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
+      style={{
+        flex: 1,
+        overflowY: "auto",
+        display: value === index ? "block" : "none",
+      }}
     >
       {value === index && <Box sx={{ px: 3, py: 2.5 }}>{children}</Box>}
     </div>
@@ -260,7 +264,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                 label={dict.vehicles.dialogs.tabs.maintenance}
                 {...a11yProps(2)}
               />
-              <Tab label={dict.vehicles.dialogs.tabs.fuel} {...a11yProps(3)} />
+              {/* <Tab label={dict.vehicles.dialogs.tabs.fuel} {...a11yProps(3)} /> */}
             </Tabs>
           </Box>
           <CustomTabPanel value={value} index={0}>
@@ -272,9 +276,9 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           <CustomTabPanel value={value} index={2}>
             <MaintenanceTab vehicle={vehicleData} onUpdate={onUpdateSuccess} />
           </CustomTabPanel>
-          <CustomTabPanel value={value} index={3}>
+          {/* <CustomTabPanel value={value} index={3}>
             <FuelTab vehicle={vehicleData} onUpdate={onUpdateSuccess} />
-          </CustomTabPanel>
+          </CustomTabPanel> */}
         </Stack>
 
         <Box

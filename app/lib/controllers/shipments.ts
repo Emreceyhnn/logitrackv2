@@ -42,6 +42,7 @@ export interface ShipmentStopInput {
   lat: number | null;
   lng: number | null;
   sequence: number;
+  contactEmail?: string | null;
 }
 
 export const createShipment = authenticatedAction(
@@ -237,6 +238,7 @@ export const createShipment = authenticatedAction(
                 lat: stop.lat,
                 lng: stop.lng,
                 sequence: stop.sequence,
+                contactEmail: stop.contactEmail || undefined,
               })),
             },
           },
@@ -741,6 +743,7 @@ export const updateShipment = authenticatedAction(
                   lat: stop.lat,
                   lng: stop.lng,
                   sequence: stop.sequence,
+                  contactEmail: stop.contactEmail || undefined,
                 })),
               },
             },
@@ -1043,6 +1046,12 @@ export const getShipmentsWithDashboardData = authenticatedAction(
     shipments: ShipmentWithRelations[];
     totalCount: number;
     stats: ShipmentStats;
+    statsTrends: {
+      total: { value: number; isUp: boolean } | undefined;
+      active: { value: number; isUp: boolean } | undefined;
+      delayed: { value: number; isUp: boolean } | undefined;
+      inTransit: { value: number; isUp: boolean } | undefined;
+    };
     volumeHistory: ShipmentVolumeData[];
     statusDistribution: ShipmentStatusData[];
   }> => {
@@ -1186,7 +1195,7 @@ export const getShipmentsWithDashboardData = authenticatedAction(
         statsTrends,
         volumeHistory,
         statusDistribution: statusCounts.map((s: { status: ShipmentStatus; _count: { status: number } }) => ({
-          status: s.status,
+          status: s.status as import("../type/enums").ShipmentStatus,
           count: s._count.status,
         })),
         };

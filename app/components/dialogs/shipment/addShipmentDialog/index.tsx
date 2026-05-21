@@ -12,7 +12,6 @@ import {
   Typography,
   useTheme,
   Button,
-  CircularProgress,
   Stepper,
   Step,
   StepLabel,
@@ -94,7 +93,6 @@ const AddShipmentDialog = ({
 
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingInventory, setIsLoadingInventory] = useState(false);
   const [availableInventory, setAvailableInventory] = useState<
     InventoryWithRelations[]
@@ -147,14 +145,19 @@ const AddShipmentDialog = ({
 
   const onSubmit = async (values: ShipmentFormValues) => {
     if (!user) return;
-    setIsLoading(true);
-    try {
-      const selectedWarehouse = warehouses.find(
-        (w) => w.id === values.originWarehouseId
-      );
-      const originName = selectedWarehouse?.name || values.originWarehouseId;
 
-      await createShipment({
+    // 1. Close dialog immediately for optimistic UX
+    onClose();
+    setCurrentStep(1);
+
+    // 2. Run async work behind a loading toast
+    const selectedWarehouse = warehouses.find(
+      (w) => w.id === values.originWarehouseId
+    );
+    const originName = selectedWarehouse?.name || values.originWarehouseId;
+
+    await toast.promise(
+      createShipment({
         customerId: values.customerId,
         origin: originName,
         originWarehouseId: values.originWarehouseId,
@@ -179,28 +182,21 @@ const AddShipmentDialog = ({
         inventoryItems: values.inventoryItems,
         trailerId: values.trailerId,
         stops: values.stops,
-      });
+      }),
+      {
+        loading: dict.toasts.loading,
+        success: dict.toasts.successAdd,
+        error: (err: unknown) =>
+          err instanceof Error ? err.message : dict.toasts.errorGeneric,
+      }
+    );
 
-      toast.success(dict.toasts.successAdd);
-      setTimeout(() => {
-        onClose();
-        onSuccess?.();
-        setCurrentStep(1);
-      }, 1500);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : dict.toasts.errorGeneric;
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
+    onSuccess?.();
   };
 
   const closeDialog = () => {
-    if (!isLoading) {
-      onClose();
-      setCurrentStep(1);
-    }
+    onClose();
+    setCurrentStep(1);
   };
 
   const steps = [
@@ -435,7 +431,6 @@ const AddShipmentDialog = ({
                   <Stack direction="row" spacing={2}>
                     <Button
                       variant="contained"
-                      disabled={isLoading}
                       onClick={
                         currentStep === 1
                           ? handleNextStep
@@ -456,17 +451,8 @@ const AddShipmentDialog = ({
                           transform: "translateY(0)",
                         },
                       }}
-                      startIcon={
-                        isLoading && (
-                          <CircularProgress size={16} color="inherit" />
-                        )
-                      }
                     >
-                      {isLoading
-                        ? dict.toasts.loading
-                        : currentStep === 1
-                          ? dict.common.next
-                          : dict.common.save}
+                      {currentStep === 1 ? dict.common.next : dict.common.save}
                     </Button>
                   </Stack>
                 </DialogActions>

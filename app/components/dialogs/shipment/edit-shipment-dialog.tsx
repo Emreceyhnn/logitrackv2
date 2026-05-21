@@ -12,7 +12,6 @@ import {
   Typography,
   useTheme,
   Button,
-  CircularProgress,
   Stepper,
   Step,
   StepLabel,
@@ -88,7 +87,6 @@ const EditShipmentDialog = ({
   );
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingInventory, setIsLoadingInventory] = useState(false);
   const [availableInventory, setAvailableInventory] = useState<
     InventoryWithRelations[]
@@ -218,17 +216,21 @@ const EditShipmentDialog = ({
 
   const onSubmit = async (values: ShipmentFormValues) => {
     if (!user || !shipment) return;
-    setIsLoading(true);
-    try {
-      const selectedWarehouse = warehouses.find(
-        (w) => w.id === values.originWarehouseId
-      );
-      const originName = selectedWarehouse?.name || values.originWarehouseId;
 
-      const sanitize = (val: string | null | undefined) =>
-        val && val.trim() !== "" ? val : null;
+    // 1. Close dialog immediately
+    onClose();
+    setCurrentStep(1);
 
-      await updateShipment(shipment.id, {
+    const selectedWarehouse = warehouses.find(
+      (w) => w.id === values.originWarehouseId
+    );
+    const originName = selectedWarehouse?.name || values.originWarehouseId;
+    const sanitize = (val: string | null | undefined) =>
+      val && val.trim() !== "" ? val : null;
+
+    // 2. Run async work behind a loading toast
+    await toast.promise(
+      updateShipment(shipment.id, {
         customerId: sanitize(values.customerId),
         customerLocationId: sanitize(values.customerLocationId),
         originWarehouseId: sanitize(values.originWarehouseId) ?? undefined,
@@ -253,27 +255,21 @@ const EditShipmentDialog = ({
         billingAccount: values.billingAccount,
         inventoryItems: values.inventoryItems,
         stops: values.stops,
-      });
+      }),
+      {
+        loading: dict.toasts.loading,
+        success: dict.toasts.successUpdate,
+        error: (err: unknown) =>
+          err instanceof Error ? err.message : dict.toasts.errorGeneric,
+      }
+    );
 
-      toast.success(dict.toasts.successUpdate);
-      setTimeout(() => {
-        onClose();
-        onSuccess?.();
-      }, 1500);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : dict.toasts.errorGeneric;
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
+    onSuccess?.();
   };
 
   const closeDialog = () => {
-    if (!isLoading) {
-      onClose();
-      setCurrentStep(1);
-    }
+    onClose();
+    setCurrentStep(1);
   };
 
   const steps = useMemo(
@@ -522,7 +518,6 @@ const EditShipmentDialog = ({
 
                   <Button
                     variant="contained"
-                    disabled={isLoading}
                     onClick={
                       currentStep === 1 ? handleNextStep : () => handleSubmit()
                     }
@@ -533,17 +528,8 @@ const EditShipmentDialog = ({
                       fontWeight: 600,
                       boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
                     }}
-                    startIcon={
-                      isLoading && (
-                        <CircularProgress size={16} color="inherit" />
-                      )
-                    }
                   >
-                    {isLoading
-                      ? dict.toasts.loading
-                      : currentStep === 1
-                        ? dict.common.next
-                        : dict.common.save}
+                    {currentStep === 1 ? dict.common.next : dict.common.save}
                   </Button>
                 </DialogActions>
               </Dialog>

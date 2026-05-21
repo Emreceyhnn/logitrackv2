@@ -10,7 +10,6 @@ import {
   IconButton,
   Stack,
   useTheme,
-  CircularProgress,
   Stepper,
   Step,
   StepLabel,
@@ -21,7 +20,7 @@ import {
   CustomerFormValues,
 } from "@/app/lib/type/customer";
 import { updateCustomer } from "@/app/lib/controllers/customer";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useUser } from "@/app/hooks/useUser";
 import IdentitySection from "./addCustomerDialog/sections/IdentitySection";
@@ -49,38 +48,37 @@ export default function EditCustomerDialog({
   const theme = useTheme();
   const dict = useDictionary();
 
-  const [isPending, startTransition] = useTransition();
   const [currentStep, setCurrentStep] = useState(1);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (values: CustomerFormValues) => {
     if (!customer || !user) return;
 
-    startTransition(async () => {
-      try {
-        setError(null);
-        await updateCustomer(customer.id, {
-          name: values.name,
-          code: values.code,
-          industry: values.industry,
-          taxId: values.taxId,
-          email: values.email,
-          phone: values.phone,
-          locations: values.locations.filter((l) => l.address.trim() !== ""),
-        });
-        toast.success(dict.customers.dialogs.successUpdate);
-        onSuccess();
-        onClose();
-      } catch (err: unknown) {
-        const message =
+    // 1. Close dialog immediately
+    onClose();
+    setCurrentStep(1);
+
+    // 2. Run update within toast.promise
+    await toast.promise(
+      updateCustomer(customer.id, {
+        name: values.name,
+        code: values.code,
+        industry: values.industry,
+        taxId: values.taxId,
+        email: values.email,
+        phone: values.phone,
+        locations: values.locations.filter((l) => l.address.trim() !== ""),
+      }),
+      {
+        loading: dict.toasts?.loading || "Updating...",
+        success: dict.customers.dialogs.successUpdate,
+        error: (err: unknown) =>
           err instanceof Error
             ? err.message
-            : dict.customers.dialogs.errorUpdate;
-        setError(message);
-        console.error(err);
-        toast.error(message);
+            : dict.customers.dialogs.errorUpdate,
       }
-    });
+    );
+
+    onSuccess();
   };
 
   const validationSchema = useMemo(
@@ -231,25 +229,6 @@ export default function EditCustomerDialog({
               </Box>
 
               <DialogContent sx={{ pb: 4, minHeight: 450 }}>
-                {error && (
-                  <Box
-                    sx={{
-                      p: 2,
-                      mb: 3,
-                      borderRadius: 2,
-                      bgcolor: theme.palette.error._alpha.main_05,
-                      border: `1px solid ${theme.palette.error._alpha.main_10}`,
-                    }}
-                  >
-                    <Typography
-                      variant="caption"
-                      color="error"
-                      fontWeight={600}
-                    >
-                      {error}
-                    </Typography>
-                  </Box>
-                )}
 
                 {currentStep === 1 && <IdentitySection />}
                 {currentStep === 2 && <ContactSection />}
@@ -280,7 +259,6 @@ export default function EditCustomerDialog({
                   variant="contained"
                   type={currentStep === 2 ? "submit" : "button"}
                   disabled={
-                    isPending ||
                     (currentStep === 1 &&
                       (!values.name ||
                         !!errors.name ||
@@ -298,13 +276,8 @@ export default function EditCustomerDialog({
                     boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
                     py: 1.2,
                   }}
-                  startIcon={
-                    isPending && <CircularProgress size={16} color="inherit" />
-                  }
                 >
-                  {isPending
-                    ? dict.common.updating
-                    : currentStep < 2
+                  {currentStep < 2
                       ? dict.common.nextStep
                       : dict.common.saveChanges}
                 </Button>

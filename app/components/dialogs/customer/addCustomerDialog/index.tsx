@@ -10,7 +10,6 @@ import {
   Typography,
   useTheme,
   Button,
-  CircularProgress,
   Stepper,
   Step,
   StepLabel,
@@ -62,7 +61,6 @@ const AddCustomerDialog = ({
   const dict = useDictionary();
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [error, setError] = useState<string | null>(null);
 
   const initialValues = {
     ...initialIdentity,
@@ -73,19 +71,22 @@ const AddCustomerDialog = ({
     onClose();
     setTimeout(() => {
       setCurrentStep(1);
-      setError(null);
     }, 300);
   };
 
   const handleSubmit = async (
     values: typeof initialValues,
-    { setSubmitting, resetForm }: FormikHelpers<typeof initialValues>
+    { resetForm }: FormikHelpers<typeof initialValues>
   ) => {
     if (!user) return;
 
-    setError(null);
-    try {
-      await createCustomer(
+    // 1. Close dialog immediately
+    closeDialog();
+    resetForm();
+
+    // 2. Run async work behind a loading toast
+    await toast.promise(
+      createCustomer(
         values.name,
         values.code,
         values.industry || undefined,
@@ -93,20 +94,16 @@ const AddCustomerDialog = ({
         values.email || undefined,
         values.phone || undefined,
         values.locations.filter((l) => l.address.trim() !== "")
-      );
+      ),
+      {
+        loading: dict.toasts?.loading || "Creating...",
+        success: dict.customers.dialogs.successAdd,
+        error: (err: unknown) =>
+          err instanceof Error ? err.message : dict.customers.dialogs.errorAdd,
+      }
+    );
 
-      toast.success(dict.customers.dialogs.successAdd);
-      onSuccess?.();
-      closeDialog();
-      resetForm();
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : dict.customers.dialogs.errorAdd;
-      setError(message);
-      toast.error(message);
-    } finally {
-      setSubmitting(false);
-    }
+    onSuccess?.();
   };
 
   const steps = [
@@ -149,7 +146,7 @@ const AddCustomerDialog = ({
           )}
           onSubmit={handleSubmit}
         >
-          {({ handleSubmit: formikSubmit, isSubmitting, validateForm }) => (
+          {({ handleSubmit: formikSubmit, validateForm }) => (
             <>
               <Box sx={{ p: 3, pb: 0 }}>
                 <Stack
@@ -269,25 +266,6 @@ const AddCustomerDialog = ({
               </Box>
 
               <DialogContent sx={{ pb: 4, minHeight: 350 }}>
-                {error && (
-                  <Box
-                    sx={{
-                      p: 2,
-                      mb: 3,
-                      borderRadius: 2,
-                      bgcolor: theme.palette.error._alpha.main_05,
-                      border: `1px solid ${theme.palette.error._alpha.main_10}`,
-                    }}
-                  >
-                    <Typography
-                      variant="caption"
-                      color="error"
-                      fontWeight={600}
-                    >
-                      {error}
-                    </Typography>
-                  </Box>
-                )}
                 {currentStep === 1 && <IdentitySection />}
                 {currentStep === 2 && <ContactSection />}
               </DialogContent>
@@ -322,7 +300,6 @@ const AddCustomerDialog = ({
 
                 <Button
                   variant="contained"
-                  disabled={isSubmitting}
                   onClick={async () => {
                     if (currentStep < 2) {
                       const stepErrors = await validateForm();
@@ -359,19 +336,12 @@ const AddCustomerDialog = ({
                     },
                   }}
                   endIcon={
-                    !isSubmitting && currentStep < 2 ? (
+                    currentStep < 2 ? (
                       <ArrowForwardIcon />
                     ) : undefined
                   }
-                  startIcon={
-                    isSubmitting && (
-                      <CircularProgress size={16} color="inherit" />
-                    )
-                  }
                 >
-                  {isSubmitting
-                    ? dict.common.creating
-                    : currentStep < 2
+                  {currentStep < 2
                       ? dict.common.nextStep
                       : dict.customers.addCustomer}
                 </Button>
