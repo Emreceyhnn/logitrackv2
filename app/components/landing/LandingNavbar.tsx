@@ -100,7 +100,7 @@ export default function LandingNavbar() {
             {[
               {
                 label: dict.navbar.features,
-                href: "#solutions",
+                href: `/${lang}${getLocalizedPath("/features", lang)}`,
               },
               {
                 label: dict.navbar.pricing,
