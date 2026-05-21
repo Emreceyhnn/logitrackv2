@@ -339,6 +339,7 @@ model ShipmentStop {
   lat                Float?
   lng                Float?
   sequence           Int
+  contactEmail       String?
   status             ShipmentStatus    @default(PENDING)
   arrivalDate        DateTime?
   departureDate      DateTime?

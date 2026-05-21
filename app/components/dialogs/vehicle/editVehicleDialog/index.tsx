@@ -31,7 +31,7 @@ import { updateVehicle } from "@/app/lib/controllers/vehicle";
 import { uploadImageAction } from "@/app/lib/actions/upload";
 import { toast } from "sonner";
 import { VehicleType } from "@/app/lib/type/enums";
-import { Formik, FormikHelpers, useFormikContext } from "formik";
+import { Formik, useFormikContext } from "formik";
 import { editVehicleValidationSchema } from "@/app/lib/validationSchema";
 
 export interface EditVehicleDialogProps {
@@ -123,79 +123,72 @@ const EditVehicleDialog = ({
     onClose();
     setTimeout(() => {
       setCurrentStep(1);
-      setError(null);
     }, 300);
   };
 
-  const handleSubmit = async (
-    values: VehicleFormValues,
-    { setSubmitting }: FormikHelpers<VehicleFormValues>
-  ) => {
-    try {
-      setError(null);
+  const handleSubmit = async (values: VehicleFormValues) => {
+    // 1. Close dialog immediately
+    closeDialog();
 
-      const fileToBase64 = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = (err) => reject(err);
-        });
-      };
+    const fileToBase64 = (file: File): Promise<string> =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (err) => reject(err);
+      });
 
-      let photoUrl = values.photo;
-      if (values.photo instanceof File) {
-        const base64 = await fileToBase64(values.photo);
-        const uploadResult = await uploadImageAction(base64, "vehicles");
-        photoUrl = uploadResult.url;
-      }
+    // 2. Run async update behind a loading toast
+    await toast.promise(
+      (async () => {
+        let photoUrl = values.photo;
+        if (values.photo instanceof File) {
+          const base64 = await fileToBase64(values.photo);
+          const uploadResult = await uploadImageAction(base64, "vehicles");
+          photoUrl = uploadResult.url;
+        }
 
-      const updateData = {
-        fleetNo: values.fleetNo || undefined,
-        plate: values.plate,
-        type: values.type as VehicleType,
-        brand: values.brand,
-        model: values.model,
-        year: Number(values.year),
-        odometerKm: values.odometerKm ? Number(values.odometerKm) : null,
-        maxLoadKg: values.maxLoadKg ? Number(values.maxLoadKg) : 0,
-        fuelType: values.fuelType,
-        avgFuelConsumption: values.avgFuelConsumption
-          ? Number(values.avgFuelConsumption)
-          : null,
-        fuelLevel: values.fuelLevel ? Number(values.fuelLevel) : null,
-        fuelCapacity: values.fuelCapacity ? Number(values.fuelCapacity) : null,
-        nextServiceKm: values.nextServiceKm
-          ? Number(values.nextServiceKm)
-          : null,
-        status: values.status,
-        engineSize: values.engineSize,
-        transmission: values.transmission,
-        techNotes: values.techNotes,
-        photo: (photoUrl as string) || null,
-      };
+        const updateData = {
+          fleetNo: values.fleetNo || undefined,
+          plate: values.plate,
+          type: values.type as VehicleType,
+          brand: values.brand,
+          model: values.model,
+          year: Number(values.year),
+          odometerKm: values.odometerKm ? Number(values.odometerKm) : null,
+          maxLoadKg: values.maxLoadKg ? Number(values.maxLoadKg) : 0,
+          fuelType: values.fuelType,
+          avgFuelConsumption: values.avgFuelConsumption
+            ? Number(values.avgFuelConsumption)
+            : null,
+          fuelLevel: values.fuelLevel ? Number(values.fuelLevel) : null,
+          fuelCapacity: values.fuelCapacity
+            ? Number(values.fuelCapacity)
+            : null,
+          nextServiceKm: values.nextServiceKm
+            ? Number(values.nextServiceKm)
+            : null,
+          status: values.status,
+          engineSize: values.engineSize,
+          transmission: values.transmission,
+          techNotes: values.techNotes,
+          photo: (photoUrl as string) || null,
+        };
 
-      await updateVehicle(
-        vehicle.id,
-        updateData as Parameters<typeof updateVehicle>[1]
-      );
+        await updateVehicle(
+          vehicle.id,
+          updateData as Parameters<typeof updateVehicle>[1]
+        );
 
-      toast.success(dict.toasts.successUpdate);
-
-      // Give a tiny delay for DB sequence processing
-      setTimeout(() => {
-        onClose();
         onSuccess?.();
-      }, 500);
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : dict.toasts.errorGeneric;
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setSubmitting(false);
-      // Let Formik keep state if it errored out.
-    }
+      })(),
+      {
+        loading: dict.toasts.loading,
+        success: dict.toasts.successUpdate,
+        error: (err: unknown) =>
+          err instanceof Error ? err.message : dict.toasts.errorGeneric,
+      }
+    );
   };
 
   const steps = [

@@ -40,20 +40,27 @@ export default function LandingNavbar() {
         zIndex: 1100,
       }}
     >
-      <Container maxWidth="lg">
+      <Container
+        sx={{
+          maxWidth: "100vw !important",
+          background: trigger ? "rgba(10, 14, 20, 0.8)" : "transparent",
+          backdropFilter: trigger ? "blur(20px)" : "none",
+          borderBottom: trigger
+            ? "1px solid rgba(0, 242, 255, 0.1)"
+            : "1px solid rgba(255, 255, 255, 0.05)",
+          transition: "all 0.4s ease",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <Toolbar
           disableGutters
           sx={{
             py: trigger ? 1 : 2,
             px: { xs: 2, md: 6 },
             width: "100%",
-            maxWidth: "100%",
-            background: trigger ? "rgba(10, 14, 20, 0.8)" : "transparent",
-            backdropFilter: trigger ? "blur(20px)" : "none",
-            borderBottom: trigger
-              ? "1px solid rgba(0, 242, 255, 0.1)"
-              : "1px solid rgba(255, 255, 255, 0.05)",
-            transition: "all 0.4s ease",
+            maxWidth: "lg",
             justifyContent: "space-between",
           }}
         >
@@ -81,7 +88,6 @@ export default function LandingNavbar() {
                   height={trigger ? 18 : 20}
                 />
               </Box>
-            
             </Stack>
           </Link>
 

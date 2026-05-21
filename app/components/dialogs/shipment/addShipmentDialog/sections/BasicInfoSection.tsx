@@ -132,25 +132,28 @@ const BasicInfoSection = () => {
               </Typography>
               <ButtonGroup
                 fullWidth
-                sx={{ borderRadius: 2, overflow: "hidden" }}
+                sx={{ borderRadius: 2, overflow: "hidden", height: "56px" }}
               >
                 {priorities.map((p) => (
                   <Button
                     key={p.value}
                     onClick={() => setFieldValue("priority", p.value)}
                     sx={{
-                      py: 1.5,
+                      height: "100%",
                       bgcolor:
                         values.priority === p.value
                           ? (
-                              (theme.palette as unknown as Record<string, { _alpha: Record<string, string> }>)[
-                                p.value === "LOW"
-                                  ? "success"
-                                  : p.value === "MEDIUM"
-                                    ? "warning"
-                                    : "error"
-                              ]
-                            )?._alpha.main_10
+                              theme.palette as unknown as Record<
+                                string,
+                                { _alpha: Record<string, string> }
+                              >
+                            )[
+                              p.value === "LOW"
+                                ? "success"
+                                : p.value === "MEDIUM"
+                                  ? "warning"
+                                  : "error"
+                            ]?._alpha.main_10
                           : theme.palette.text.darkBlue._alpha.main_50,
                       color:
                         values.priority === p.value
@@ -163,14 +166,17 @@ const BasicInfoSection = () => {
                         bgcolor:
                           values.priority === p.value
                             ? (
-                                (theme.palette as unknown as Record<string, { _alpha: Record<string, string> }>)[
-                                  p.value === "LOW"
-                                    ? "success"
-                                    : p.value === "MEDIUM"
-                                      ? "warning"
-                                      : "error"
-                                ]
-                              )?._alpha.main_20
+                                theme.palette as unknown as Record<
+                                  string,
+                                  { _alpha: Record<string, string> }
+                                >
+                              )[
+                                p.value === "LOW"
+                                  ? "success"
+                                  : p.value === "MEDIUM"
+                                    ? "warning"
+                                    : "error"
+                              ]?._alpha.main_20
                             : theme.palette.text.darkBlue._alpha.main_60,
                       },
                     }}
@@ -223,7 +229,7 @@ const BasicInfoSection = () => {
                 {dict.shipments.dialogs.fields.slaDeadline}
               </Typography>
               <DateTimePicker
-                label={dict.shipments.dialogs.fields.slaDeadline}
+                sx={{ width: "100%" }}
                 value={values.slaDeadline ? dayjs(values.slaDeadline) : null}
                 onChange={(val) =>
                   setFieldValue("slaDeadline", val ? val.toDate() : null)
@@ -236,6 +242,32 @@ const BasicInfoSection = () => {
                     helperText: touched.slaDeadline
                       ? (errors.slaDeadline as string)
                       : undefined,
+                    sx: {
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
+                        borderRadius: 2,
+                        height: "56px",
+                        "& fieldset": {
+                          borderColor: theme.palette.divider_alpha.main_10,
+                        },
+                        "&:hover fieldset": {
+                          borderColor: theme.palette.primary._alpha.main_30,
+                        },
+                        "&.Mui-focused fieldset": {
+                          borderColor: "primary.main",
+                        },
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "text.secondary",
+                        fontSize: "0.85rem",
+                        "&.Mui-focused": {
+                          color: "primary.main",
+                        },
+                      },
+                      "& .MuiOutlinedInput-input": {
+                        color: "white",
+                      },
+                    },
                   },
                 }}
               />

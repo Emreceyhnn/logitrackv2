@@ -38,6 +38,8 @@ async function fetchVehicleDashboard(
   filters: VehicleFilters
 ): Promise<VehicleDashboardResponseType & { vehicles: VehicleWithRelations[] }> {
   const params = new URLSearchParams();
+  if (filters.page) params.set("page", String(filters.page));
+  if (filters.limit) params.set("pageSize", String(filters.limit));
   if (filters.search) params.set("search", filters.search);
   if (filters.status?.length) filters.status.forEach((s) => params.append("status", s));
   if (filters.type?.length) filters.type.forEach((t) => params.append("type", t));

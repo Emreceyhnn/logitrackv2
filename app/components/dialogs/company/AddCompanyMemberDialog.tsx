@@ -11,7 +11,6 @@ import {
   TextField,
   Typography,
   IconButton,
-  
   useTheme,
   Stack,
   Avatar,
@@ -61,14 +60,17 @@ export default function AddCompanyMemberDialog({
   const theme = useTheme();
   const dict = useDictionary();
 
-  const roles = useMemo(() => [
-    { id: "role_admin", label: dict.company.roles.admin },
-    { id: "role_manager", label: dict.company.roles.manager },
-    { id: "role_dispatcher", label: dict.company.roles.dispatcher },
-    { id: "role_warehouse", label: dict.company.roles.warehouse },
-    { id: "role_default", label: dict.company.roles.default },
-    { id: "role_driver", label: dict.company.roles.driver },
-  ], [dict]);
+  const roles = useMemo(
+    () => [
+      { id: "role_admin", label: dict.company.roles.admin },
+      { id: "role_manager", label: dict.company.roles.manager },
+      { id: "role_dispatcher", label: dict.company.roles.dispatcher },
+      { id: "role_warehouse", label: dict.company.roles.warehouse },
+      { id: "role_default", label: dict.company.roles.default },
+      { id: "role_driver", label: dict.company.roles.driver },
+    ],
+    [dict]
+  );
 
   /* ---------------------------------- State --------------------------------- */
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,9 +79,10 @@ export default function AddCompanyMemberDialog({
   const [selectedRole, setSelectedRole] = useState("role_default");
   const [driverData, setDriverData] =
     useState<DriverStateData>(initialDriverData);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   /* ---------------------------------- Handlers ------------------------------- */
   const handleDriverDataChange = (
@@ -95,7 +98,6 @@ export default function AddCompanyMemberDialog({
     setSelectedUserId(null);
     setSelectedRole("role_default");
     setDriverData(initialDriverData);
-    setLoading(false);
     setError(null);
     setValidationErrors({});
   };
@@ -103,7 +105,6 @@ export default function AddCompanyMemberDialog({
   const handleSubmit = async () => {
     if (!selectedUserId) return;
 
-    setLoading(true);
     setError(null);
     setValidationErrors({});
 
@@ -113,15 +114,26 @@ export default function AddCompanyMemberDialog({
         await schema.validate(driverData, { abortEarly: false });
       }
 
-      await addCompanyUser(
-        selectedUserId,
-        selectedRole,
-        selectedRole === "role_driver" ? driverData : undefined
-      );
-      toast.success(dict.toasts.successAdd);
-      onSuccess?.();
+      // 1. Validation passed, close dialog immediately
       onClose();
       resetDialog();
+
+      // 2. Run API call behind toast.promise
+      await toast.promise(
+        addCompanyUser(
+          selectedUserId,
+          selectedRole,
+          selectedRole === "role_driver" ? driverData : undefined
+        ),
+        {
+          loading: dict.toasts?.loading || "Adding member...",
+          success: dict.toasts.successAdd,
+          error: (err: unknown) =>
+            err instanceof Error ? err.message : dict.toasts.errorGeneric,
+        }
+      );
+
+      onSuccess?.();
     } catch (err: unknown) {
       if (err instanceof ValidationError) {
         const errors: Record<string, string> = {};
@@ -132,11 +144,10 @@ export default function AddCompanyMemberDialog({
         toast.error(dict.validation.genericFormError);
       } else {
         setError(dict.toasts.errorGeneric);
-        const message = err instanceof Error ? err.message : dict.toasts.errorGeneric;
+        const message =
+          err instanceof Error ? err.message : dict.toasts.errorGeneric;
         toast.error(message);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -144,15 +155,12 @@ export default function AddCompanyMemberDialog({
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (searchQuery.length >= 2) {
-        setLoading(true);
         try {
           const searchResults = await searchPlatformUsers(searchQuery);
           setResults(searchResults);
         } catch (err) {
           console.error("Search error:", err);
           setResults([]);
-        } finally {
-          setLoading(false);
         }
       } else if (searchQuery.length === 0) {
         setResults([]);
@@ -439,9 +447,16 @@ export default function AddCompanyMemberDialog({
                 />
                 <DatePicker
                   label={dict.drivers.fields.licenseExpiry}
-                  value={driverData.licenseExpiry ? dayjs(driverData.licenseExpiry) : null}
+                  value={
+                    driverData.licenseExpiry
+                      ? dayjs(driverData.licenseExpiry)
+                      : null
+                  }
                   onChange={(val) =>
-                    handleDriverDataChange("licenseExpiry", val ? val.toISOString().split("T")[0] : "")
+                    handleDriverDataChange(
+                      "licenseExpiry",
+                      val ? val.toISOString().split("T")[0] : ""
+                    )
                   }
                   slotProps={{
                     textField: {
@@ -472,7 +487,6 @@ export default function AddCompanyMemberDialog({
           onClick={handleSubmit}
           disabled={
             !selectedUserId ||
-            loading ||
             (selectedRole === "role_driver" &&
               (!driverData.employeeId || !driverData.phone))
           }
@@ -485,7 +499,7 @@ export default function AddCompanyMemberDialog({
             boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
           }}
         >
-          {loading ? dict.toasts.loading : dict.company.dialogs.addToCompany}
+          {dict.company.dialogs.addToCompany}
         </Button>
       </DialogActions>
     </Dialog>

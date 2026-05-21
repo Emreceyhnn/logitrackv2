@@ -105,10 +105,20 @@ export default function UserAccountNav({
   /* -------------------------------- LIFECYCLE ------------------------------- */
 
   useEffect(() => {
-    if (!initialUser) {
+    if (initialUser) {
+      setUser(initialUser);
+    } else {
       fetchSession();
     }
   }, [initialUser]);
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      fetchSession();
+    };
+    window.addEventListener("profile-updated", handleProfileUpdate);
+    return () => window.removeEventListener("profile-updated", handleProfileUpdate);
+  }, []);
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {

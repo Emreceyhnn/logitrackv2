@@ -1,15 +1,14 @@
 import { BarChart } from "@mui/x-charts/BarChart";
-import { Card, Stack, Typography, Box } from "@mui/material";
+import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
+import { Card, Stack, Typography, Box, useTheme, Grid } from "@mui/material";
 import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
 import { Dictionary } from "@/app/lib/language/language";
-
-interface ShipmentChartData {
-  statusCounts: { status: string; count: number }[];
-  routeCounts: { route: string; count: number }[];
-}
+import { ReportsShipments } from "@/app/lib/type/reports";
+import RouteIcon from "@mui/icons-material/Route";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 
 interface ShipmentChartsProps {
-  data?: ShipmentChartData;
+  data?: ReportsShipments | null;
   loading?: boolean;
   dict: Dictionary;
 }
@@ -19,7 +18,7 @@ export default function ShipmentCharts({
   loading = false,
   dict,
 }: ShipmentChartsProps) {
-  /* -------------------------------- variables ------------------------------- */
+  const theme = useTheme();
 
   if (loading || !data) {
     return (
@@ -27,63 +26,164 @@ export default function ShipmentCharts({
     );
   }
 
-  const statusMap: Record<string, number> = {};
-  if (data?.statusCounts) {
-    data.statusCounts.forEach((item) => {
-      statusMap[item.status] = item.count;
-    });
-  }
-
   const routeShipmentCounts = data?.routeCounts || [];
+  
+  // Prepare status data for PieChart
+  const statusColors: Record<string, string> = {
+    DELIVERED: theme.palette.success.main,
+    IN_TRANSIT: theme.palette.primary.main,
+    DELAYED: theme.palette.warning.main,
+    PENDING: theme.palette.info.main,
+    CANCELLED: theme.palette.error.main,
+  };
+
+  const statusPieData = (data?.statusCounts || []).map((s, index) => ({
+    id: index,
+    value: s.count,
+    label: s.status.replace("_", " "),
+    color: statusColors[s.status] || theme.palette.secondary.main,
+  }));
+
+  const cardStyle = {
+    p: 3,
+    borderRadius: "20px",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+    border: `1px solid ${theme.palette.divider}`,
+    transition: "box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out",
+    "&:hover": {
+      transform: "translateY(-4px)",
+      boxShadow: theme.palette.mode === "dark" 
+        ? "0 12px 30px rgba(0,0,0,0.4)" 
+        : "0 12px 30px rgba(0,0,0,0.06)",
+    }
+  };
 
   return (
-    <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Card
-          sx={{
-            flex: 1,
-            p: 2.5,
-            flexDirection: "column",
-            borderRadius: "16px",
-            boxShadow: 2,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            background: `theme.palette.background.paper`,
-            "&:hover": {
-              transform: "translateY(-4px)",
-              boxShadow: 8,
-            },
-          }}
-        >
-          <Stack spacing={0.5} sx={{ mb: 3, width: "100%" }}>
-            <Typography variant="h6" fontWeight={700}>
-              {dict.reports.charts.shipment.volumeByRoute}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {dict.reports.charts.shipment.volumeByRouteSubtitle}
-            </Typography>
+    <Grid container spacing={3}>
+      <Grid size={{ xs: 12, md: 5 }}>
+        <Card sx={cardStyle}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1.5}
+            mb={3}
+          >
+            <Box
+              sx={{
+                p: 1,
+                borderRadius: "10px",
+                bgcolor: "success.main",
+                color: "white",
+                display: "flex",
+              }}
+            >
+              <AssignmentTurnedInIcon fontSize="small" />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.01em" }}>
+                Status Distribution
+              </Typography>
+            </Box>
+          </Stack>
+
+          <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", minHeight: 300 }}>
+            {statusPieData.length > 0 ? (
+              <PieChart
+                series={[
+                  {
+                    data: statusPieData,
+                    innerRadius: 60,
+                    outerRadius: 110,
+                    paddingAngle: 3,
+                    cornerRadius: 8,
+                    highlightScope: { fade: "global", highlight: "item" },
+                    faded: { innerRadius: 50, additionalRadius: -20, color: "gray" },
+                  },
+                ]}
+                height={280}
+                sx={{
+                  [`& .${pieArcLabelClasses.root}`]: {
+                    fill: "white",
+                    fontWeight: "bold",
+                  },
+                }}
+                slotProps={{
+                  legend: {
+                    position: { vertical: "bottom", horizontal: "center" }
+                  },
+                }}
+              />
+            ) : (
+              <Typography color="text.secondary">No status data available</Typography>
+            )}
+          </Box>
+        </Card>
+      </Grid>
+
+      <Grid size={{ xs: 12, md: 7 }}>
+        <Card sx={cardStyle}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={1.5}
+            mb={3}
+          >
+            <Box
+              sx={{
+                p: 1,
+                borderRadius: "10px",
+                bgcolor: "primary.main",
+                color: "white",
+                display: "flex",
+              }}
+            >
+              <RouteIcon fontSize="small" />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.01em" }}>
+                {dict.reports.charts.shipment.volumeByRoute}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                {dict.reports.charts.shipment.volumeByRouteSubtitle}
+              </Typography>
+            </Box>
           </Stack>
 
           <Box sx={{ flex: 1, minHeight: 300, width: "100%" }}>
             <BarChart
-              dataset={routeShipmentCounts}
-              xAxis={[{ scaleType: "band", dataKey: "route" }]}
+              dataset={routeShipmentCounts as unknown as Record<string, string | number>[]}
+              layout="horizontal"
+              yAxis={[{ 
+                scaleType: "band", 
+                dataKey: "route",
+                tickLabelStyle: { fill: theme.palette.text.secondary, fontSize: 12, fontWeight: 600 }
+              }]}
+              xAxis={[{
+                tickLabelStyle: { fill: theme.palette.text.secondary, fontSize: 12, fontWeight: 600 }
+              }]}
               series={[
                 {
                   dataKey: "count",
                   label: dict.shipments.dashboard.totalShipments,
-                  color: "#8b5cf6",
+                  color: theme.palette.primary.main,
                 },
               ]}
-              height={300}
-              borderRadius={5}
-              grid={{ horizontal: true }}
+              height={320}
+              margin={{ left: 100, right: 20, top: 20, bottom: 30 }}
+              slotProps={{ bar: { rx: 4, ry: 4 } }}
+              grid={{ vertical: true }}
+              sx={{
+                "& .MuiChartsLegend-root": {
+                  display: "none",
+                },
+              }}
             />
           </Box>
         </Card>
-      </Box>
-    </Stack>
+      </Grid>
+    </Grid>
   );
 }

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   getCompanyProfile,
   removeCompanyUser,
@@ -37,7 +37,7 @@ export function useCompanyWithDashboard(filters: {
   return useQuery({
     queryKey: companyKeys.dashboardWithFilters(filters),
     queryFn: () => fetchCompanyDashboard(filters),
-    placeholderData: (previousData) => previousData,
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

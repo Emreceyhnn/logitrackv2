@@ -1,19 +1,13 @@
 "use server";
 
 import { db } from "../db";
-import { getUserFromToken } from "./users";
-import { cookies } from "next/headers";
 import { ReportsData } from "../type/reports";
+import { authenticatedAction } from "../auth-middleware";
 
-export async function getReportsDataAction(): Promise<ReportsData | null> {
+export const getReportsDataAction = authenticatedAction(async (user): Promise<ReportsData | null> => {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
-    if (!token) return null;
-
-    const requester = (await getUserFromToken(token)) as { companyId?: string | null } | null;
-    if (!requester || !requester.companyId) return null;
-    const companyId = requester.companyId;
+    if (!user.companyId) return null;
+    const companyId = user.companyId;
 
     const shipmentStatusCounts = await db.shipment.groupBy({
       by: ["status"],
@@ -129,7 +123,10 @@ export async function getReportsDataAction(): Promise<ReportsData | null> {
       },
     };
   } catch (error) {
+    if ((error as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") {
+      throw error;
+    }
     console.error("Failed to get reports data:", error);
     return null;
   }
-}
+});

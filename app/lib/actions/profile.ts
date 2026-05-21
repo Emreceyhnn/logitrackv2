@@ -2,6 +2,7 @@
 
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
+import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 
 // ─── Get Current User Profile ─────────────────────────────────────────────
@@ -51,6 +52,8 @@ export const updateMyProfile = authenticatedAction(
         avatarUrl: true,
       },
     });
+
+    revalidatePath("/", "layout");
 
     return { user: updated };
   }

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   getRoutes,
   getRouteStats,
@@ -24,7 +24,7 @@ export function useRoutes(page: number, pageSize: number, status?: string) {
       routes: RouteWithRelations[];
       totalCount: number;
     }> => {
-      const res = await getRoutes(page + 1, pageSize, status);
+      const res = await getRoutes(page, pageSize, status);
       return res as { routes: RouteWithRelations[]; totalCount: number };
     },
     staleTime: 1000 * 60 * 5,
@@ -93,9 +93,9 @@ export function useRoutesWithDashboard(
 ) {
   return useQuery({
     queryKey: routeKeys.dashboardWithFilters(page, pageSize, status),
-    queryFn: () => fetchRouteDashboard(page + 1, pageSize, status),
+    queryFn: () => fetchRouteDashboard(page, pageSize, status),
     staleTime: 1000 * 60 * 5,
-    placeholderData: (previousData) => previousData,
+    placeholderData: keepPreviousData,
   });
 }
 

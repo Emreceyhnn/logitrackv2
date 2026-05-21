@@ -176,7 +176,8 @@ export default function ShipmentContent() {
   ], [state.stats, dashboardData?.statsTrends, theme, dict]);
 
   return (
-    <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
+    <div style={{ width: "100%" }}>
+      <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -258,6 +259,7 @@ export default function ShipmentContent() {
         )}
         loading={deleteMutation.isPending}
       />
-    </Box>
+      </Box>
+    </div>
   );
 }

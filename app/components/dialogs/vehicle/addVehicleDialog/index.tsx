@@ -91,110 +91,107 @@ const AddVehicleDialog = ({
   const dict = useDictionary();
   const theme = useTheme();
   const [currentStep, setCurrentStep] = useState(1);
-  const [error, setError] = useState<string | null>(null);
 
   const closeDialog = () => {
     onClose();
     setTimeout(() => {
       setCurrentStep(1);
-      setError(null);
     }, 300);
   };
 
   const handleSubmit = async (
     values: VehicleFormValues,
-    { setSubmitting, resetForm }: FormikHelpers<VehicleFormValues>
+    { resetForm }: FormikHelpers<VehicleFormValues>
   ) => {
-    try {
-      // Logic for documents validation
-      const requiredTypes = ["REGISTRATION", "INSPECTION", "INSURANCE"];
-      const uploadedTypes = values.documents.map((d) => d.type);
-      const missingTypes = requiredTypes.filter(
-        (t) => !uploadedTypes.includes(t)
-      );
+    // Validate documents before closing
+    const requiredTypes = ["REGISTRATION", "INSPECTION", "INSURANCE"];
+    const uploadedTypes = values.documents.map((d) => d.type);
+    const missingTypes = requiredTypes.filter((t) => !uploadedTypes.includes(t));
 
-      if (missingTypes.length > 0) {
-        throw new Error(dict.toasts.errorGeneric);
-      }
-
-      setError(null);
-
-      let photoUrl = values.photo;
-      if (values.photo instanceof File) {
-        const base64 = await fileToBase64(values.photo);
-        const uploadResult = await uploadImageAction(base64, "vehicles");
-        photoUrl = uploadResult.url;
-      }
-
-      const payload: VehicleCreateInput = {
-        fleetNo: values.fleetNo || undefined,
-        plate: values.plate,
-        type: values.type as VehicleType,
-        brand: values.brand,
-        model: values.model,
-        year: Number(values.year),
-        odometerKm: Number(values.odometerKm),
-        photo: (photoUrl as string) || undefined,
-        maxLoadKg: Number(values.maxLoadKg),
-        fuelType: values.fuelType,
-        avgFuelConsumption: Number(values.avgFuelConsumption),
-        fuelLevel: Number(values.fuelLevel),
-        fuelCapacity: Number(values.fuelCapacity),
-        engineSize: values.engineSize,
-        transmission: values.transmission,
-        techNotes: values.techNotes,
-        registrationExpiry: values.registrationExpiry
-          ? values.registrationExpiry.toDate()
-          : undefined,
-        inspectionExpiry: values.inspectionExpiry
-          ? values.inspectionExpiry.toDate()
-          : undefined,
-        nextServiceKm:
-          Number(values.nextServiceKm) || Number(values.nextServiceDueKm),
-        enableAlerts: values.enableExpiryAlerts,
-      };
-
-      const createdVehicle = await createVehicle(
-        payload as unknown as Record<string, unknown>
-      );
-
-      const docPromises = values.documents
-        .filter((doc) => doc.file)
-        .map(async (doc) => {
-          const base64 = await fileToBase64(doc.file!);
-          const uploadResult = await uploadImageAction(
-            base64,
-            "documents",
-            `vehicles/${createdVehicle.id}`
-          );
-
-          return uploadVehicleDocument(createdVehicle.id, {
-            type: doc.type || "OTHER",
-            name: doc.name,
-            url: uploadResult.url,
-            status: "ACTIVE",
-            expiryDate: values.registrationExpiry
-              ? values.registrationExpiry.toDate()
-              : undefined,
-          });
-        });
-
-      if (docPromises.length > 0) {
-        await Promise.all(docPromises);
-      }
-
-      toast.success(dict.toasts.successAdd);
-      onSuccess?.();
-      closeDialog();
-      resetForm();
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : dict.toasts.errorGeneric;
-      setError(message);
-      toast.error(message);
-    } finally {
-      setSubmitting(false);
+    if (missingTypes.length > 0) {
+      toast.error(dict.toasts.errorGeneric);
+      return;
     }
+
+    // 1. Close dialog immediately
+    closeDialog();
+    resetForm();
+
+    // 2. Run the full create+upload flow behind a loading toast
+    await toast.promise(
+      (async () => {
+        let photoUrl = values.photo;
+        if (values.photo instanceof File) {
+          const base64 = await fileToBase64(values.photo);
+          const uploadResult = await uploadImageAction(base64, "vehicles");
+          photoUrl = uploadResult.url;
+        }
+
+        const payload: VehicleCreateInput = {
+          fleetNo: values.fleetNo || undefined,
+          plate: values.plate,
+          type: values.type as VehicleType,
+          brand: values.brand,
+          model: values.model,
+          year: Number(values.year),
+          odometerKm: Number(values.odometerKm),
+          photo: (photoUrl as string) || undefined,
+          maxLoadKg: Number(values.maxLoadKg),
+          fuelType: values.fuelType,
+          avgFuelConsumption: Number(values.avgFuelConsumption),
+          fuelLevel: Number(values.fuelLevel),
+          fuelCapacity: Number(values.fuelCapacity),
+          engineSize: values.engineSize,
+          transmission: values.transmission,
+          techNotes: values.techNotes,
+          registrationExpiry: values.registrationExpiry
+            ? values.registrationExpiry.toDate()
+            : undefined,
+          inspectionExpiry: values.inspectionExpiry
+            ? values.inspectionExpiry.toDate()
+            : undefined,
+          nextServiceKm:
+            Number(values.nextServiceKm) || Number(values.nextServiceDueKm),
+          enableAlerts: values.enableExpiryAlerts,
+        };
+
+        const createdVehicle = await createVehicle(
+          payload as unknown as Record<string, unknown>
+        );
+
+        const docPromises = values.documents
+          .filter((doc) => doc.file)
+          .map(async (doc) => {
+            const base64 = await fileToBase64(doc.file!);
+            const uploadResult = await uploadImageAction(
+              base64,
+              "documents",
+              `vehicles/${createdVehicle.id}`
+            );
+            return uploadVehicleDocument(createdVehicle.id, {
+              type: doc.type || "OTHER",
+              name: doc.name,
+              url: uploadResult.url,
+              status: "ACTIVE",
+              expiryDate: values.registrationExpiry
+                ? values.registrationExpiry.toDate()
+                : undefined,
+            });
+          });
+
+        if (docPromises.length > 0) {
+          await Promise.all(docPromises);
+        }
+
+        onSuccess?.();
+      })(),
+      {
+        loading: dict.toasts.loading,
+        success: dict.toasts.successAdd,
+        error: (err: unknown) =>
+          err instanceof Error ? err.message : dict.toasts.errorGeneric,
+      }
+    );
   };
 
   const steps = [
@@ -297,22 +294,6 @@ const AddVehicleDialog = ({
                   <CloseIcon fontSize="small" />
                 </IconButton>
               </Stack>
-
-              {error && (
-                <Box
-                  sx={{
-                    mt: 2,
-                    p: 2,
-                    borderRadius: 2,
-                    bgcolor: theme.palette.error._alpha.main_10,
-                    border: `1px solid ${theme.palette.error._alpha.main_20}`,
-                  }}
-                >
-                  <Typography variant="caption" color="error.light">
-                    {error}
-                  </Typography>
-                </Box>
-              )}
             </Box>
 
             <DialogContent sx={{ p: 3 }}>

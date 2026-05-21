@@ -150,10 +150,7 @@ const TechSpecsStep = () => {
             }}
           />
         </Box>
-        <Box sx={{ flex: 1 }} />
-      </Stack>
 
-      <Stack direction="row" spacing={3}>
         <Box sx={{ flex: 1 }}>
           <Typography
             variant="subtitle2"
@@ -195,7 +192,6 @@ const TechSpecsStep = () => {
             }}
           />
         </Box>
-        <Box sx={{ flex: 1 }} />
       </Stack>
 
       <Stack direction="row" spacing={3}>

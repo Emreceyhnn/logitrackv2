@@ -1,6 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { reportsKeys } from "@/app/lib/query-keys/reports.keys";
-import { ReportsData } from "@/app/lib/type/reports";
+import { 
+  ReportsData, 
+  ReportsPageState, 
+  ReportsPageActions 
+} from "@/app/lib/type/reports";
 
 async function fetchReportsDashboard(): Promise<ReportsData> {
   const res = await fetch("/api/reports/dashboard", {
@@ -15,11 +20,28 @@ async function fetchReportsDashboard(): Promise<ReportsData> {
   return res.json();
 }
 
-export function useReportsData() {
-  return useQuery<ReportsData>({
+export function useReportsData(): { state: ReportsPageState; actions: ReportsPageActions } {
+  const queryClient = useQueryClient();
+  const query = useQuery<ReportsData>({
     queryKey: reportsKeys.dashboard(),
     queryFn: () => fetchReportsDashboard(),
     staleTime: 1000 * 60 * 15, // 15 minutes
     placeholderData: (previousData) => previousData,
   });
+
+  const fetchReports = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: reportsKeys.dashboard() });
+  }, [queryClient]);
+
+  const state: ReportsPageState = {
+    data: query.data || null,
+    loading: query.isLoading || query.isFetching,
+    error: query.error ? String(query.error) : null,
+  };
+
+  const actions: ReportsPageActions = {
+    fetchReports,
+  };
+
+  return { state, actions };
 }

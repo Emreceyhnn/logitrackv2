@@ -14,7 +14,6 @@ import {
   Typography,
   useTheme,
   Button,
-  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useMemo } from "react";
@@ -50,7 +49,6 @@ const EditRouteDialog = ({
 
   /* --------------------------------- states --------------------------------- */
   const [currentStep, setCurrentStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
 
   /* -------------------------------- handlers --------------------------------- */
   const getInitialValues = (): RouteFormValues => {
@@ -102,16 +100,20 @@ const EditRouteDialog = ({
 
   const onSubmit = async (values: RouteFormValues) => {
     if (!user || !route) return;
-    setIsLoading(true);
-    try {
-      // Convert user-local wall-clock times back to UTC for storage
-      const userTz = user.timezone || "UTC";
-      const startUTC = values.startTime
-        ? toUTC(values.startTime, userTz)
-        : undefined;
-      const endUTC = values.endTime ? toUTC(values.endTime, userTz) : undefined;
 
-      await updateRoute(route.id, {
+    // 1. Close dialog immediately
+    onClose();
+    setCurrentStep(1);
+
+    const userTz = user.timezone || "UTC";
+    const startUTC = values.startTime
+      ? toUTC(values.startTime, userTz)
+      : undefined;
+    const endUTC = values.endTime ? toUTC(values.endTime, userTz) : undefined;
+
+    // 2. Run async work behind a loading toast
+    await toast.promise(
+      updateRoute(route.id, {
         name: values.name,
         startTime: startUTC,
         endTime: endUTC,
@@ -129,27 +131,21 @@ const EditRouteDialog = ({
         vehicle: values.vehicleId
           ? { connect: { id: values.vehicleId } }
           : { disconnect: true },
-      });
+      }),
+      {
+        loading: dict.toasts.loading,
+        success: dict.toasts.successUpdate,
+        error: (err: unknown) =>
+          err instanceof Error ? err.message : dict.toasts.errorGeneric,
+      }
+    );
 
-      toast.success(dict.toasts.successUpdate);
-      setTimeout(() => {
-        onClose();
-        onSuccess?.();
-      }, 1500);
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : dict.toasts.errorGeneric;
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
+    onSuccess?.();
   };
 
   const closeDialog = () => {
-    if (!isLoading) {
-      onClose();
-      setCurrentStep(1);
-    }
+    onClose();
+    setCurrentStep(1);
   };
 
   const steps = [
@@ -296,7 +292,6 @@ const EditRouteDialog = ({
                       ? closeDialog
                       : () => setCurrentStep((prev) => prev - 1)
                   }
-                  disabled={isLoading}
                   sx={{
                     color: "text.secondary",
                     "&:hover": { bgcolor: theme.palette.divider_alpha.main_05 },
@@ -311,10 +306,6 @@ const EditRouteDialog = ({
                       ? () => handleSubmit()
                       : handleNextStep
                   }
-                  disabled={isLoading}
-                  startIcon={
-                    isLoading && <CircularProgress size={16} color="inherit" />
-                  }
                   sx={{
                     borderRadius: 2,
                     px: 4,
@@ -322,11 +313,9 @@ const EditRouteDialog = ({
                     boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
                   }}
                 >
-                  {isLoading
-                    ? dict.toasts.loading
-                    : currentStep === steps.length
-                      ? dict.common.save
-                      : dict.common.next}
+                  {currentStep === steps.length
+                    ? dict.common.save
+                    : dict.common.next}
                 </Button>
               </DialogActions>
             </Dialog>

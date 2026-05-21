@@ -20,7 +20,7 @@ import ShipmentOnStatusCard from "@/app/components/dashboard/overview/shipmentsB
 import PicksPacksDailyCard from "@/app/components/dashboard/overview/picsPacksDailyCard";
 import ShipmentVolumeCard from "@/app/components/dashboard/overview/onTimeTrends";
 import OverviewMapCard from "@/app/components/dashboard/overview/overViewMapCard";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useOverviewData } from "@/app/hooks/useOverview";
@@ -45,7 +45,14 @@ export default function OverviewContent() {
   /* ---------------------------------- HOOKS --------------------------------- */
   const { data, isLoading, refetch } = useOverviewData();
   const dateSettings = useDateSettings();
-  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(new Date());
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLastRefreshed(new Date());
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleRefresh = async () => {
     await refetch();
@@ -131,7 +138,7 @@ export default function OverviewContent() {
   );
 
   return (
-    <Box position={"relative"} p={4} width={"100%"}>
+    <Box p={4} width={"100%"}>
       <Stack
         direction="row"
         justifyContent="space-between"
