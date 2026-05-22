@@ -4,7 +4,7 @@ export interface FuelLog {
   id: string;
   vehicleId: string;
   driverId: string;
-  companyId: string;
+  companyId: string | null;
   date: Date | string;
   volumeLiter: number;
   cost: number;

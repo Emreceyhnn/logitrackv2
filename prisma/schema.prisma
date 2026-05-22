@@ -43,35 +43,36 @@ model Role {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  email              String              @unique
-  name               String
-  surname            String
-  password           String?
-  avatarUrl          String?
-  roleId             String?
-  status             UserStatus          @default(ACTIVE)
-  lastLoginAt        DateTime?
-  companyId          String?
-  timezone           String              @default("UTC")
-  dateFormat         String              @default("DD/MM/YYYY")
-  timeFormat         String              @default("24h")
-  currency           String              @default("USD")
-  language           String              @default("en")
-  notifEmailShipment Boolean             @default(true)
-  notifEmailMaint    Boolean             @default(true)
-  notifEmailWeekly   Boolean             @default(false)
-  notifPushAssignment Boolean            @default(true)
-  notifPushDelay     Boolean             @default(true)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  auditLogs          AuditLog[]
-  driver             Driver?
-  inventoryMovements InventoryMovement[]
-  sessions           Session[]
-  company            Company?            @relation(fields: [companyId], references: [id])
-  role               Role?               @relation(fields: [roleId], references: [id])
-  managedWarehouses  Warehouse[]
+  id                     String              @id @default(cuid())
+  email                  String              @unique
+  name                   String
+  surname                String
+  password               String?
+  avatarUrl              String?
+  roleId                 String?
+  status                 UserStatus          @default(ACTIVE)
+  lastLoginAt            DateTime?
+  companyId              String?
+  timezone               String              @default("UTC")
+  dateFormat             String              @default("DD/MM/YYYY")
+  timeFormat             String              @default("24h")
+  currency               String              @default("USD")
+  language               String              @default("en")
+  notifEmailShipment     Boolean             @default(true)
+  notifEmailMaint        Boolean             @default(true)
+  notifEmailWeekly       Boolean             @default(false)
+  notifPushAssignment    Boolean             @default(true)
+  notifPushDelay         Boolean             @default(true)
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  auditLogs              AuditLog[]
+  driver                 Driver?
+  inventoryMovements     InventoryMovement[]
+  sessions               Session[]
+  company                Company?            @relation(fields: [companyId], references: [id])
+  role                   Role?               @relation(fields: [roleId], references: [id])
+  managedWarehouses      Warehouse[]
+  shipmentHistoryEntries ShipmentHistory[]   @relation("ShipmentHistoryCreatedBy")
 
   @@map("users")
 }
@@ -105,6 +106,7 @@ model Driver {
   routes              Route[]
   shipments           Shipment[]
 
+  @@index([companyId, status])
   @@map("drivers")
 }
 
@@ -215,16 +217,16 @@ model Customer {
 }
 
 model CustomerLocation {
-  id         String     @id @default(cuid())
+  id         String         @id @default(cuid())
   customerId String
   name       String
   address    String
   lat        Float?
   lng        Float?
-  isDefault  Boolean    @default(false)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  customer   Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  isDefault  Boolean        @default(false)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  customer   Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
   shipments  Shipment[]
   stops      ShipmentStop[]
 
@@ -247,6 +249,7 @@ model Inventory {
   volumeM3          Float?    @default(0)
   palletCount       Float?    @default(0)
   cargoType         String?   @default("General Cargo")
+  createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   companyId         String?
   company           Company?  @relation(fields: [companyId], references: [id])
@@ -264,12 +267,14 @@ model InventoryMovement {
   type        String
   notes       String?
   date        DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   userId      String?
   companyId   String?
   company     Company?  @relation(fields: [companyId], references: [id])
   user        User?     @relation(fields: [userId], references: [id])
   warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
 
+  @@index([warehouseId, sku, date])
   @@map("inventory_movements")
 }
 
@@ -314,19 +319,24 @@ model Shipment {
   route              Route?            @relation(fields: [routeId], references: [id])
   trailer            Trailer?          @relation(fields: [trailerId], references: [id])
 
+  @@index([companyId, status])
+  @@index([companyId, trackingId])
   @@map("shipments")
 }
 
 model ShipmentHistory {
-  id          String   @id @default(cuid())
-  shipmentId  String
-  status      String
-  location    String?
-  description String?
-  createdAt   DateTime @default(now())
-  createdBy   String?
-  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  id            String   @id @default(cuid())
+  shipmentId    String
+  status        String
+  location      String?
+  description   String?
+  createdAt     DateTime @default(now())
+  createdById   String?
+  shipment      Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  createdByUser User?    @relation("ShipmentHistoryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
 
+  @@index([shipmentId])
+  @@index([createdById])
   @@map("shipment_history")
 }
 
@@ -405,7 +415,7 @@ model FuelLog {
   id          String   @id @default(cuid())
   vehicleId   String
   driverId    String
-  companyId   String
+  companyId   String?
   date        DateTime @default(now())
   volumeLiter Float
   cost        Float
@@ -416,10 +426,11 @@ model FuelLog {
   receiptUrl  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  company     Company  @relation(fields: [companyId], references: [id])
+  company     Company? @relation(fields: [companyId], references: [id])
   driver      Driver   @relation(fields: [driverId], references: [id])
   vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
+  @@index([companyId, date])
   @@map("fuel_logs")
 }
 
@@ -472,7 +483,7 @@ model AuditLog {
   action     AuditAction
   ipAddress  String?
   deviceInfo String?
-  metadata   String?
+  metadata   Json?
   createdAt  DateTime    @default(now())
   user       User?       @relation(fields: [userId], references: [id])
 
@@ -497,15 +508,6 @@ model ShipmentItem {
   shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
 
   @@map("shipment_items")
-}
-
-enum UserRole {
-  ADMIN
-  MANAGER
-  DISPATCHER
-  DRIVER
-  WAREHOUSE
-  DEFAULT
 }
 
 enum UserStatus {
@@ -620,7 +622,7 @@ enum MaintenanceStatus {
 model ExchangeRate {
   id        String   @id @default(cuid())
   base      String   @default("USD")
-  rates     Json     // Stores the rates as a JSON object
+  rates     Json // Stores the rates as a JSON object
   date      DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -629,25 +631,25 @@ model ExchangeRate {
 }
 
 model Trailer {
-  id               String              @id @default(cuid())
-  fleetNo          String              @unique
-  plate            String              @unique
+  id               String        @id @default(cuid())
+  fleetNo          String        @unique
+  plate            String        @unique
   type             TrailerType
   capacityVolumeM3 Float
   maxLoadKg        Int
-  isColdChain      Boolean             @default(false)
-  status           TrailerStatus       @default(AVAILABLE)
-  currentVehicleId String?             @unique
+  isColdChain      Boolean       @default(false)
+  status           TrailerStatus @default(AVAILABLE)
+  currentVehicleId String?       @unique
   companyId        String?
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
-  
-  company          Company?            @relation(fields: [companyId], references: [id])
-  currentVehicle   Vehicle?            @relation(fields: [currentVehicleId], references: [id])
-  shipments        Shipment[]
-  assignments      TrailerAssignment[]
-  documents        Document[]
-  issues           Issue[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  company        Company?            @relation(fields: [companyId], references: [id])
+  currentVehicle Vehicle?            @relation(fields: [currentVehicleId], references: [id])
+  shipments      Shipment[]
+  assignments    TrailerAssignment[]
+  documents      Document[]
+  issues         Issue[]
 
   @@map("trailers")
 }
@@ -659,9 +661,9 @@ model TrailerAssignment {
   assignedAt DateTime  @default(now())
   detachedAt DateTime?
   notes      String?
-  
-  trailer    Trailer   @relation(fields: [trailerId], references: [id], onDelete: Cascade)
-  vehicle    Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  trailer Trailer @relation(fields: [trailerId], references: [id], onDelete: Cascade)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
   @@map("trailer_assignments")
 }

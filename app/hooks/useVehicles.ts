@@ -2,7 +2,6 @@
 
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
-  getVehicles,
   createVehicle,
   updateVehicle,
   deleteVehicle,
@@ -16,10 +15,32 @@ import { toast } from "sonner";
 // "@/app/lib/query-keys/vehicle.keys" to avoid the "use client" boundary.
 import { vehicleKeys } from "@/app/lib/query-keys/vehicle.keys";
 
+async function fetchVehicles(filters: VehicleFilters): Promise<VehicleWithRelations[]> {
+  const params = new URLSearchParams();
+  if (filters.page) params.set("page", String(filters.page));
+  if (filters.limit) params.set("pageSize", String(filters.limit));
+  if (filters.search) params.set("search", filters.search);
+  if (filters.status?.length) filters.status.forEach((s) => params.append("status", s));
+  if (filters.type?.length) filters.type.forEach((t) => params.append("type", t));
+  if (filters.hasIssues !== undefined) params.set("hasIssues", String(filters.hasIssues));
+  if (filters.hasDriver !== undefined) params.set("hasDriver", String(filters.hasDriver));
+
+  const res = await fetch(`/api/vehicles?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useVehicles] fetch failed: ${res.status}`);
+  }
+
+  return res.json() as Promise<VehicleWithRelations[]>;
+}
+
 export function useVehicles(filters: VehicleFilters = {}) {
   return useQuery({
     queryKey: vehicleKeys.list(filters),
-    queryFn: () => getVehicles(filters),
+    queryFn: () => fetchVehicles(filters),
     staleTime: 1000 * 60 * 5,
     placeholderData: keepPreviousData,
   });

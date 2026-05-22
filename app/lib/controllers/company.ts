@@ -118,7 +118,7 @@ export const getCompanyById = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -145,11 +145,10 @@ export const getCompanyById = authenticatedAction(async (user) => {
 
 export const updateCompany = authenticatedAction(
   async (user, data: { name?: string; avatarUrl?: string }) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
     try {
-      await checkPermission(userId, companyId, ["role_admin"]);
+      await checkPermission(user, companyId, ["role_admin"]);
 
       const updatedCompany = await db.company.update({
         where: { id: companyId },
@@ -170,11 +169,10 @@ export const updateCompany = authenticatedAction(
 );
 
 export const deleteCompany = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
 
   try {
-    await checkPermission(userId, companyId, ["role_admin"]);
+    await checkPermission(user, companyId, ["role_admin"]);
 
     const deletedCompany = await db.company.delete({
       where: { id: companyId },
@@ -189,11 +187,10 @@ export const deleteCompany = authenticatedAction(async (user) => {
 });
 
 export const getCompanyUsers = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
 
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -203,6 +200,24 @@ export const getCompanyUsers = authenticatedAction(async (user) => {
 
     const users = await db.user.findMany({
       where: { companyId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        surname: true,
+        avatarUrl: true,
+        roleId: true,
+        status: true,
+        companyId: true,
+        createdAt: true,
+        updatedAt: true,
+        lastLoginAt: true,
+        timezone: true,
+        dateFormat: true,
+        timeFormat: true,
+        currency: true,
+        language: true,
+      },
     });
     return users;
   } catch (error) {
@@ -214,11 +229,10 @@ export const getCompanyUsers = authenticatedAction(async (user) => {
 });
 
 export const getCompanyWarehouses = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
 
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -240,11 +254,10 @@ export const getCompanyWarehouses = authenticatedAction(async (user) => {
 });
 
 export const getCompanyVehicles = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
 
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -264,11 +277,10 @@ export const getCompanyVehicles = authenticatedAction(async (user) => {
 });
 
 export const getCompanyDrivers = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
 
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -288,11 +300,10 @@ export const getCompanyDrivers = authenticatedAction(async (user) => {
 });
 
 export const getCompanyCustomers = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
 
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -313,11 +324,10 @@ export const getCompanyCustomers = authenticatedAction(async (user) => {
 
 export const removeCompanyUser = authenticatedAction(
   async (user, targetUserId: string) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const updatedUser = await db.user.update({
         where: { id: targetUserId },
@@ -337,11 +347,10 @@ export const removeCompanyUser = authenticatedAction(
 );
 
 export const getCompanyProfile = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
 
   try {
-    await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+    await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
     const company = await db.company.findUnique({
       where: { id: companyId, users: { some: { id: user.id } } },
@@ -404,11 +413,10 @@ export const getCompanyProfile = authenticatedAction(async (user) => {
 });
 
 export const getCompanyStats = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
 
   try {
-    await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+    await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
     const [
       userCount,
@@ -455,11 +463,10 @@ export const addCompanyUser = authenticatedAction(
       licenseExpiry?: string;
     }
   ) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const standardRoles: Record<string, { name: string; desc: string }> = {
         role_admin: { name: "Administrator", desc: "Full system access" },
@@ -568,11 +575,10 @@ export const updateCompanyMember = authenticatedAction(
     targetUserId: string,
     data: { name: string; surname: string; roleId: string; status: UserStatus }
   ) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       // Ensure standard roles exist in the global roles table before assigning them
       const standardRoles: Record<string, { name: string; desc: string }> = {
@@ -625,7 +631,6 @@ export const updateCompanyMember = authenticatedAction(
 );
 export const getCompanyWithDashboardData = authenticatedAction(
   async (user, filters: { page: number; pageSize: number; search?: string }) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
     if (!companyId) {
@@ -633,7 +638,7 @@ export const getCompanyWithDashboardData = authenticatedAction(
     }
 
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const page = Math.max(1, filters.page || 1);
       const pageSize = Math.max(1, filters.pageSize || 10);

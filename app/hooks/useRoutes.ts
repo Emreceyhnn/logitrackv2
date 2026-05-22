@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
-  getRoutes,
   getRouteStats,
   getRouteEfficiencyStats,
   getActiveRoutesLocations,
@@ -17,16 +16,31 @@ import {
 
 import { routeKeys } from "@/app/lib/query-keys/route.keys";
 
+async function fetchRoutes(page: number, pageSize: number, status?: string): Promise<{
+  routes: RouteWithRelations[];
+  totalCount: number;
+}> {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("pageSize", String(pageSize));
+  if (status) params.set("status", status);
+
+  const res = await fetch(`/api/routes?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useRoutes] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
 export function useRoutes(page: number, pageSize: number, status?: string) {
   return useQuery({
     queryKey: routeKeys.lists(page, pageSize, status),
-    queryFn: async (): Promise<{
-      routes: RouteWithRelations[];
-      totalCount: number;
-    }> => {
-      const res = await getRoutes(page, pageSize, status);
-      return res as { routes: RouteWithRelations[]; totalCount: number };
-    },
+    queryFn: () => fetchRoutes(page, pageSize, status),
     staleTime: 1000 * 60 * 5,
   });
 }

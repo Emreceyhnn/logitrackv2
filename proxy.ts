@@ -12,6 +12,7 @@ import {
   Locale,
 } from "@/app/lib/constants";
 import { buildLocalizedHref, getCanonicalPath } from "@/app/lib/language/navigation";
+import { rateLimit } from "@/app/lib/rate-limiter";
 
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                     */
@@ -36,11 +37,36 @@ function getLocaleFromPathname(pathname: string): {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Proxy (Next.js 16+ middleware convention)                                   */
+/*  Proxy (Next.js 16+ proxy/middleware convention)                             */
 /* -------------------------------------------------------------------------- */
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // ── Rate Limiting for API Routes ───────────────────────────────────────────
+  if (pathname.startsWith("/api")) {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+      request.headers.get("x-real-ip") ||
+      "127.0.0.1";
+
+    const limitResult = await rateLimit(ip, 120, 60, "rate-limit:api:");
+
+    if (!limitResult.success) {
+      return new NextResponse(
+        JSON.stringify({ error: "Too many requests. Please try again later." }),
+        {
+          status: 429,
+          headers: {
+            "Content-Type": "application/json",
+            "X-RateLimit-Limit": limitResult.limit.toString(),
+            "X-RateLimit-Remaining": limitResult.remaining.toString(),
+            "X-RateLimit-Reset": limitResult.reset.toString(),
+          },
+        }
+      );
+    }
+  }
 
   // Skip Next.js internals, static files, API routes
   if (

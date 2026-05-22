@@ -19,7 +19,7 @@ import { getExchangeRates } from "../services/exchangeRate";
 
 export const getOverviewStats = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 
@@ -78,7 +78,7 @@ export const getOverviewStats = authenticatedAction(async (user) => {
 
 export const getActionRequired = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 
@@ -154,7 +154,7 @@ export const getActionRequired = authenticatedAction(async (user) => {
 
 export const getDailyOperations = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 
@@ -221,7 +221,7 @@ export const getDailyOperations = authenticatedAction(async (user) => {
 
 export const getFuelStats = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 
@@ -280,7 +280,7 @@ export const getFuelStats = authenticatedAction(async (user) => {
 
 export const getWarehouseCapacity = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 
@@ -339,7 +339,7 @@ export const getWarehouseCapacity = authenticatedAction(async (user) => {
 
 export const getLowStockItems = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 
@@ -390,7 +390,7 @@ export const getLowStockItems = authenticatedAction(async (user) => {
 
 export const getShipmentStatusStats = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 
@@ -410,7 +410,7 @@ export const getShipmentStatusStats = authenticatedAction(async (user) => {
 
 export const getPicksAndPacks = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 
@@ -446,7 +446,7 @@ export const getPicksAndPacks = authenticatedAction(async (user) => {
 
 export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 
@@ -493,7 +493,7 @@ export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
 // Keep for backward compat (on-time trends replaced by shipment volume)
 export const getOnTimeTrends = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 
@@ -530,7 +530,7 @@ export const getOnTimeTrends = authenticatedAction(async (user) => {
 
 export const getMapData = authenticatedAction(async (user): Promise<MapData[]> => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 
@@ -573,7 +573,7 @@ export const getMapData = authenticatedAction(async (user): Promise<MapData[]> =
 
 export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [], {
+    await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,6 @@ import {
   Box,
   IconButton,
   Stack,
-  
   useTheme,
   Divider,
   MenuItem,
@@ -21,8 +20,7 @@ import {
   Save as SaveIcon,
   Edit as EditIcon,
 } from "@mui/icons-material";
-import { useForm, Controller, Resolver } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { Formik } from "formik";
 import { CompanyMember } from "@/app/lib/type/company";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateCompanyMember } from "@/app/lib/controllers/company";
@@ -66,40 +64,34 @@ export default function EditCompanyMemberDialog({
 }: EditCompanyMemberDialogProps) {
   const theme = useTheme();
   const dict = useDictionary();
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting, errors },
-  } = useForm<FormData>({
-    resolver: yupResolver(useMemo(() => editCompanyMemberValidationSchema(dict), [dict])) as unknown as Resolver<FormData>,
-    defaultValues: {
+
+  const initialValues = useMemo(() => {
+    if (member) {
+      return {
+        name: member.name || "",
+        surname: member.surname || "",
+        roleId: mapToStandardRoleId(member.roleId, member.roleName),
+        status: member.status || "",
+      };
+    }
+    return {
       name: "",
       surname: "",
       roleId: "",
       status: "",
-    },
-  });
+    };
+  }, [member]);
 
-  useEffect(() => {
-    if (member && open) {
-      reset({
-        name: member.name,
-        surname: member.surname,
-        roleId: mapToStandardRoleId(member.roleId, member.roleName),
-        status: member.status,
-      });
-    }
-  }, [member, open, reset]);
+  const validationSchema = useMemo(() => editCompanyMemberValidationSchema(dict), [dict]);
 
-  const onSubmit = async (data: FormData) => {
+  const handleSubmitForm = async (values: FormData) => {
     if (!member) return;
     try {
       await updateCompanyMember(member.id, {
-        name: data.name,
-        surname: data.surname,
-        roleId: data.roleId,
-        status: data.status as UserStatus,
+        name: values.name,
+        surname: values.surname,
+        roleId: values.roleId,
+        status: values.status as UserStatus,
       });
       onSuccess();
       onClose();
@@ -170,129 +162,123 @@ export default function EditCompanyMemberDialog({
         </Stack>
       </Box>
  
-       <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
+      <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
  
-       <form onSubmit={handleSubmit(onSubmit)}>
-         <DialogContent sx={{ p: 4 }}>
-           <Stack spacing={3}>
-             <Grid container spacing={2}>
-               <Grid size={6}>
-                 <Controller
-                   name="name"
-                   control={control}
-                   render={({ field }) => (
-                     <TextField
-                       {...field}
-                       label={dict.company.editMember.firstName}
-                       fullWidth
-                       error={!!errors.name}
-                       helperText={errors.name?.message}
-                       sx={textFieldSx}
-                     />
-                   )}
-                 />
-               </Grid>
-               <Grid size={6}>
-                 <Controller
-                   name="surname"
-                   control={control}
-                   render={({ field }) => (
-                     <TextField
-                       {...field}
-                       label={dict.company.editMember.lastName}
-                       fullWidth
-                       error={!!errors.surname}
-                       helperText={errors.surname?.message}
-                       sx={textFieldSx}
-                     />
-                   )}
-                 />
-               </Grid>
-             </Grid>
+      <Formik
+        enableReinitialize
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmitForm}
+      >
+        {({ values, errors, touched, handleChange, handleBlur, isSubmitting, handleSubmit }) => (
+          <form onSubmit={handleSubmit}>
+            <DialogContent sx={{ p: 4 }}>
+              <Stack spacing={3}>
+                <Grid container spacing={2}>
+                  <Grid size={6}>
+                    <TextField
+                      name="name"
+                      label={dict.company.editMember.firstName}
+                      fullWidth
+                      value={values.name}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.name && !!errors.name}
+                      helperText={touched.name && errors.name}
+                      sx={textFieldSx}
+                    />
+                  </Grid>
+                  <Grid size={6}>
+                    <TextField
+                      name="surname"
+                      label={dict.company.editMember.lastName}
+                      fullWidth
+                      value={values.surname}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.surname && !!errors.surname}
+                      helperText={touched.surname && errors.surname}
+                      sx={textFieldSx}
+                    />
+                  </Grid>
+                </Grid>
  
-             <Controller
-               name="roleId"
-               control={control}
-               render={({ field }) => {
-                 const isDriver = mapToStandardRoleId(member.roleId, member.roleName) === "role_driver";
-                 return (
-                   <TextField
-                     {...field}
-                     select
-                     label={dict.company.editMember.systemRole}
-                     fullWidth
-                     disabled={isDriver}
-                     error={!!errors.roleId}
-                     helperText={
-                       isDriver
-                         ? "Driver roles must be managed from the Drivers dashboard."
-                         : errors.roleId?.message
-                     }
-                     sx={textFieldSx}
-                   >
-                     <MenuItem value="role_default">{dict.company.roles.default}</MenuItem>
-                     <MenuItem value="role_admin">{dict.company.roles.admin}</MenuItem>
-                     <MenuItem value="role_manager">{dict.company.roles.manager}</MenuItem>
-                     <MenuItem value="role_dispatcher">{dict.company.roles.dispatcher}</MenuItem>
-                     <MenuItem value="role_warehouse">{dict.company.roles.warehouse}</MenuItem>
-                     <MenuItem value="role_driver" disabled={!isDriver}>
-                       {dict.company.roles.driver}
-                     </MenuItem>
-                   </TextField>
-                 );
-               }}
-             />
- 
-            <Controller
-              name="status"
-              control={control}
-              render={({ field }) => (
                 <TextField
-                  {...field}
+                  name="roleId"
+                  select
+                  label={dict.company.editMember.systemRole}
+                  fullWidth
+                  value={values.roleId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  disabled={mapToStandardRoleId(member.roleId, member.roleName) === "role_driver"}
+                  error={touched.roleId && !!errors.roleId}
+                  helperText={
+                    mapToStandardRoleId(member.roleId, member.roleName) === "role_driver"
+                      ? "Driver roles must be managed from the Drivers dashboard."
+                      : touched.roleId && (errors.roleId as string)
+                  }
+                  sx={textFieldSx}
+                >
+                  <MenuItem value="role_default">{dict.company.roles.default}</MenuItem>
+                  <MenuItem value="role_admin">{dict.company.roles.admin}</MenuItem>
+                  <MenuItem value="role_manager">{dict.company.roles.manager}</MenuItem>
+                  <MenuItem value="role_dispatcher">{dict.company.roles.dispatcher}</MenuItem>
+                  <MenuItem value="role_warehouse">{dict.company.roles.warehouse}</MenuItem>
+                  <MenuItem value="role_driver" disabled={mapToStandardRoleId(member.roleId, member.roleName) !== "role_driver"}>
+                    {dict.company.roles.driver}
+                  </MenuItem>
+                </TextField>
+ 
+                <TextField
+                  name="status"
                   select
                   label={dict.company.editMember.accountStatus}
                   fullWidth
-                   error={!!errors.status}
-                   helperText={errors.status?.message}
+                  value={values.status}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.status && !!errors.status}
+                  helperText={touched.status && (errors.status as string)}
                   sx={textFieldSx}
                 >
-                   <MenuItem value="ACTIVE">{dict.company.editMember.statuses.ACTIVE}</MenuItem>
-                   <MenuItem value="INACTIVE">{dict.company.editMember.statuses.INACTIVE}</MenuItem>
-                   <MenuItem value="SUSPENDED">{dict.company.editMember.statuses.SUSPENDED}</MenuItem>
+                  <MenuItem value="ACTIVE">{dict.company.editMember.statuses.ACTIVE}</MenuItem>
+                  <MenuItem value="INACTIVE">{dict.company.editMember.statuses.INACTIVE}</MenuItem>
+                  <MenuItem value="SUSPENDED">{dict.company.editMember.statuses.SUSPENDED}</MenuItem>
                 </TextField>
-              )}
-            />
-          </Stack>
-        </DialogContent>
+              </Stack>
+            </DialogContent>
  
-        <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
+            <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
  
-        <Box sx={{ p: 3, px: 4, bgcolor: theme.palette.background.default_alpha.main_10 }}>
-          <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button 
-              onClick={onClose}
-              sx={{ px: 3, fontWeight: 600, color: "text.secondary", textTransform: "none" }}
-            >
-              {dict.common.cancel}
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={isSubmitting}
-              startIcon={<SaveIcon />}
-              sx={{ 
-                minWidth: 160,
-                borderRadius: 2, 
-                fontWeight: 700,
-                textTransform: "none",
-                boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
-              }}
-            >
-              {isSubmitting ? dict.company.editMember.saving : dict.common.save}
-            </Button>
-          </Stack>
-        </Box>
-      </form>
+            <Box sx={{ p: 3, px: 4, bgcolor: theme.palette.background.default_alpha.main_10 }}>
+              <Stack direction="row" spacing={2} justifyContent="flex-end">
+                <Button 
+                  onClick={onClose}
+                  sx={{ px: 3, fontWeight: 600, color: "text.secondary", textTransform: "none" }}
+                >
+                  {dict.common.cancel}
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={isSubmitting}
+                  startIcon={<SaveIcon />}
+                  sx={{ 
+                    minWidth: 160,
+                    borderRadius: 2, 
+                    fontWeight: 700,
+                    textTransform: "none",
+                    boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
+                  }}
+                >
+                  {isSubmitting ? dict.company.editMember.saving : dict.common.save}
+                </Button>
+              </Stack>
+            </Box>
+          </form>
+        )}
+      </Formik>
     </Dialog>
   );
 }

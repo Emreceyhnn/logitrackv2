@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,8 +22,7 @@ import {
   Inventory as InventoryIcon,
   SettingsSuggest as SettingsIcon,
 } from "@mui/icons-material";
-import { useForm, Controller, Resolver } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { Formik } from "formik";
 import * as yup from "yup";
 import { useWarehouses } from "@/app/hooks/useWarehouses";
 import { MenuItem } from "@mui/material";
@@ -60,7 +59,7 @@ export default function InventoryEditDialog({
   const { data: warehouses } = useWarehouses();
   const { convertFrom, symbol, currency: userCurrency } = useCurrency();
 
-  const validationSchema = React.useMemo(
+  const validationSchema = useMemo(
     () =>
       yup.object({
         name: yup.string().required(dict.common.noData),
@@ -98,14 +97,8 @@ export default function InventoryEditDialog({
     [dict]
   );
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { isSubmitting, errors },
-  } = useForm<FormData>({
-    resolver: yupResolver(validationSchema) as unknown as Resolver<FormData>,
-    defaultValues: {
+  const initialValues = useMemo(() => {
+    return {
       name: item?.name || "",
       sku: item?.sku || "",
       warehouseId: item?.warehouseId || "",
@@ -121,59 +114,39 @@ export default function InventoryEditDialog({
           )
         : 0,
       cargoType: item?.cargoType || "General Cargo",
-    },
-  });
+    };
+  }, [item, convertFrom]);
 
   /* ---------------------------------- state --------------------------------- */
   // Local string state for smooth numeric input
-  const [localQuantity, setLocalQuantity] = useState(
-    item?.quantity?.toString() || ""
-  );
-  const [localMinStock, setLocalMinStock] = useState(
-    item?.minStock?.toString() || ""
-  );
-  const [localWeight, setLocalWeight] = useState(
-    item?.weightKg ? item.weightKg.toString() : ""
-  );
-  const [localVolume, setLocalVolume] = useState(
-    item?.volumeM3 ? item.volumeM3.toString() : ""
-  );
-  const [localPalletCount, setLocalPalletCount] = useState(
-    item?.palletCount ? item.palletCount.toString() : ""
-  );
-
-  const convertedInitialUnitValue = item
-    ? parseFloat(
-        convertFrom(item.unitValue || 0, item.currency || "USD").toFixed(2)
-      )
-    : 0;
-  const [localUnitValue, setLocalUnitValue] = useState(
-    convertedInitialUnitValue ? convertedInitialUnitValue.toString() : ""
-  );
-
-  // We don't need useEffect to sync values because the component is keyed and re-mounts when item changes.
-  // However, reset is still useful if item updates while open (though key on ID covers most cases).
-  useEffect(() => {
-    if (item && isOpen) {
-      // Only reset if we actually have an item and it's open, but key=item.id should handle most cases.
-      // We keep it as a safety if item properties change without ID change.
-    }
-  }, [item, isOpen, reset]);
+  const [localQuantity, setLocalQuantity] = useState(() => item?.quantity?.toString() || "0");
+  const [localMinStock, setLocalMinStock] = useState(() => item?.minStock?.toString() || "0");
+  const [localWeight, setLocalWeight] = useState(() => item?.weightKg ? item.weightKg.toString() : "0");
+  const [localVolume, setLocalVolume] = useState(() => item?.volumeM3 ? item.volumeM3.toString() : "0");
+  const [localPalletCount, setLocalPalletCount] = useState(() => item?.palletCount ? item.palletCount.toString() : "0");
+  const [localUnitValue, setLocalUnitValue] = useState(() => {
+    if (!item) return "0";
+    const converted = parseFloat(
+      convertFrom(item.unitValue || 0, item.currency || "USD").toFixed(2)
+    );
+    return converted ? converted.toString() : "0";
+  });
 
   const handleNumChange = (
     val: string,
     setLocal: (v: string) => void,
-    fieldChange: (v: number | null) => void,
+    setFieldValue: (field: string, value: number | null) => void,
+    fieldName: string,
     isFloat: boolean = false
   ) => {
     setLocal(val);
     if (val === "") {
-      fieldChange(0);
+      setFieldValue(fieldName, 0);
       return;
     }
     const parsed = isFloat ? parseFloat(val) : parseInt(val);
     if (!isNaN(parsed)) {
-      fieldChange(parsed);
+      setFieldValue(fieldName, parsed);
     }
   };
 
@@ -289,69 +262,69 @@ export default function InventoryEditDialog({
 
       <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogContent
-          sx={{
-            p: 4,
-            maxHeight: "calc(90vh - 160px)",
-            overflowY: "auto",
-            "&::-webkit-scrollbar": { width: "8px" },
-            "&::-webkit-scrollbar-track": { bgcolor: "transparent" },
-            "&::-webkit-scrollbar-thumb": {
-              bgcolor: theme.palette.divider_alpha.main_10,
-              borderRadius: "4px",
-              "&:hover": { bgcolor: theme.palette.divider_alpha.main_20 },
-            },
-          }}
-        >
-          <Stack spacing={4}>
-            {/* Section 1: Stock Levels */}
-            <Box>
-              <Stack direction="row" spacing={1} alignItems="center" mb={2}>
-                <InventoryIcon
-                  sx={{ color: theme.palette.primary.main, fontSize: "1.2rem" }}
-                />
-                <Typography
-                  variant="caption"
-                  fontWeight={700}
-                  color="text.secondary"
-                  sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
-                >
-                  {dict.inventory.dialogs.productInfo}
-                </Typography>
-              </Stack>
+      <Formik
+        enableReinitialize
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={onSubmit}
+      >
+        {({ values, errors, touched, handleChange, handleBlur, setFieldValue, isSubmitting, handleSubmit }) => (
+          <form onSubmit={handleSubmit}>
+            <DialogContent
+              sx={{
+                p: 4,
+                maxHeight: "calc(90vh - 160px)",
+                overflowY: "auto",
+                "&::-webkit-scrollbar": { width: "8px" },
+                "&::-webkit-scrollbar-track": { bgcolor: "transparent" },
+                "&::-webkit-scrollbar-thumb": {
+                  bgcolor: theme.palette.divider_alpha.main_10,
+                  borderRadius: "4px",
+                  "&:hover": { bgcolor: theme.palette.divider_alpha.main_20 },
+                },
+              }}
+            >
+              <Stack spacing={4}>
+                {/* Section 1: Stock Levels */}
+                <Box>
+                  <Stack direction="row" spacing={1} alignItems="center" mb={2}>
+                    <InventoryIcon
+                      sx={{ color: theme.palette.primary.main, fontSize: "1.2rem" }}
+                    />
+                    <Typography
+                      variant="caption"
+                      fontWeight={700}
+                      color="text.secondary"
+                      sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
+                    >
+                      {dict.inventory.dialogs.productInfo}
+                    </Typography>
+                  </Stack>
 
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12 }}>
-                  <Controller
-                    name="name"
-                    control={control}
-                    render={({ field }) => (
+                  <Grid container spacing={3}>
+                    <Grid size={{ xs: 12 }}>
                       <TextField
-                        {...field}
+                        name="name"
                         label={dict.inventory.fields?.name || "Product Name"}
                         placeholder="Enter product name"
                         fullWidth
-                        error={!!errors.name}
-                        helperText={errors.name?.message}
+                        value={values.name}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.name && !!errors.name}
+                        helperText={touched.name && errors.name}
                         sx={textFieldSx}
                       />
-                    )}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    fontWeight={700}
-                    sx={{ display: "block", mb: 1.5 }}
-                  >
-                    {dict.inventory.dialogs.productImage}
-                  </Typography>
-                  <Controller
-                    name="imageUrl"
-                    control={control}
-                    render={({ field }) => (
+                    </Grid>
+                    <Grid size={{ xs: 12 }}>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        fontWeight={700}
+                        sx={{ display: "block", mb: 1.5 }}
+                      >
+                        {dict.inventory.dialogs.productImage}
+                      </Typography>
                       <Box
                         sx={{
                           width: "100%",
@@ -373,7 +346,7 @@ export default function InventoryEditDialog({
                           },
                         }}
                       >
-                        {field.value ? (
+                        {values.imageUrl ? (
                           <Box
                             sx={{
                               position: "relative",
@@ -383,7 +356,7 @@ export default function InventoryEditDialog({
                           >
                             <Box
                               component="img"
-                              src={field.value}
+                              src={values.imageUrl}
                               sx={{
                                 width: "100%",
                                 height: "100%",
@@ -393,7 +366,7 @@ export default function InventoryEditDialog({
                             />
                             <IconButton
                               size="small"
-                              onClick={() => field.onChange("")}
+                              onClick={() => setFieldValue("imageUrl", "")}
                               sx={{
                                 position: "absolute",
                                 top: 8,
@@ -420,7 +393,8 @@ export default function InventoryEditDialog({
                                 if (file) {
                                   const reader = new FileReader();
                                   reader.onload = (event) => {
-                                    field.onChange(
+                                    setFieldValue(
+                                      "imageUrl",
                                       event.target?.result as string
                                     );
                                   };
@@ -458,36 +432,30 @@ export default function InventoryEditDialog({
                           </>
                         )}
                       </Box>
-                    )}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <Controller
-                    name="sku"
-                    control={control}
-                    render={({ field }) => (
+                    </Grid>
+                    <Grid size={{ xs: 12 }}>
                       <TextField
-                        {...field}
+                        name="sku"
                         label={dict.inventory.dialogs.skuOptional}
                         placeholder={dict.inventory.dialogs.skuPlaceholder}
                         fullWidth
+                        value={values.sku}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
                         sx={textFieldSx}
                       />
-                    )}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <Controller
-                    name="warehouseId"
-                    control={control}
-                    render={({ field }) => (
+                    </Grid>
+                    <Grid size={{ xs: 12 }}>
                       <TextField
-                        {...field}
+                        name="warehouseId"
                         select
                         label={dict.inventory.filters?.warehouse || "Warehouse"}
                         fullWidth
-                        error={!!errors.warehouseId}
-                        helperText={errors.warehouseId?.message}
+                        value={values.warehouseId}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.warehouseId && !!errors.warehouseId}
+                        helperText={touched.warehouseId && errors.warehouseId}
                         sx={textFieldSx}
                       >
                         {warehouses?.map((w) => (
@@ -496,16 +464,10 @@ export default function InventoryEditDialog({
                           </MenuItem>
                         ))}
                       </TextField>
-                    )}
-                  />
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Controller
-                    name="quantity"
-                    control={control}
-                    render={({ field }) => (
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
                       <TextField
-                        {...field}
+                        name="quantity"
                         label={dict.inventory.fields.quantity}
                         type="number"
                         fullWidth
@@ -514,23 +476,19 @@ export default function InventoryEditDialog({
                           handleNumChange(
                             e.target.value,
                             setLocalQuantity,
-                            field.onChange
+                            setFieldValue,
+                            "quantity"
                           )
                         }
-                        error={!!errors.quantity}
-                        helperText={errors.quantity?.message}
+                        onBlur={handleBlur}
+                        error={touched.quantity && !!errors.quantity}
+                        helperText={touched.quantity && errors.quantity}
                         sx={textFieldSx}
                       />
-                    )}
-                  />
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Controller
-                    name="minStock"
-                    control={control}
-                    render={({ field }) => (
+                    </Grid>
+                    <Grid size={{ xs: 6 }}>
                       <TextField
-                        {...field}
+                        name="minStock"
                         label={dict.inventory.dialogs.safetyThreshold}
                         type="number"
                         fullWidth
@@ -539,68 +497,64 @@ export default function InventoryEditDialog({
                           handleNumChange(
                             e.target.value,
                             setLocalMinStock,
-                            field.onChange
+                            setFieldValue,
+                            "minStock"
                           )
                         }
-                        error={!!errors.minStock}
-                        helperText={errors.minStock?.message}
+                        onBlur={handleBlur}
+                        error={touched.minStock && !!errors.minStock}
+                        helperText={touched.minStock && errors.minStock}
                         sx={textFieldSx}
                       />
-                    )}
-                  />
-                </Grid>
-              </Grid>
+                    </Grid>
+                  </Grid>
 
-              <Box
-                sx={{
-                  mt: 3,
-                  p: 2,
-                  borderRadius: 2.5,
-                  bgcolor: theme.palette.warning._alpha.main_05,
-                  border: `1px solid ${theme.palette.warning._alpha.main_10}`,
-                  display: "flex",
-                  gap: 1.5,
-                  alignItems: "center",
-                }}
-              >
-                <WarningIcon color="warning" sx={{ fontSize: "1.1rem" }} />
-                <Typography
-                  variant="caption"
-                  color="warning.light"
-                  sx={{ fontWeight: 600, lineHeight: 1.4 }}
-                >
-                  {dict.inventory.dialogs.auditWarning}
-                </Typography>
-              </Box>
-            </Box>
+                  <Box
+                    sx={{
+                      mt: 3,
+                      p: 2,
+                      borderRadius: 2.5,
+                      bgcolor: theme.palette.warning._alpha.main_05,
+                      border: `1px solid ${theme.palette.warning._alpha.main_10}`,
+                      display: "flex",
+                      gap: 1.5,
+                      alignItems: "center",
+                    }}
+                  >
+                    <WarningIcon color="warning" sx={{ fontSize: "1.1rem" }} />
+                    <Typography
+                      variant="caption"
+                      color="warning.light"
+                      sx={{ fontWeight: 600, lineHeight: 1.4 }}
+                    >
+                      {dict.inventory.dialogs.auditWarning}
+                    </Typography>
+                  </Box>
+                </Box>
 
-            {/* Section 2: Physical Attributes */}
-            <Box>
-              <Stack direction="row" spacing={1} alignItems="center" mb={2}>
-                <SettingsIcon
-                  sx={{
-                    color: theme.palette.secondary.main,
-                    fontSize: "1.2rem",
-                  }}
-                />
-                <Typography
-                  variant="caption"
-                  fontWeight={700}
-                  color="text.secondary"
-                  sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
-                >
-                  {dict.inventory.dialogs.loadParams}
-                </Typography>
-              </Stack>
+                {/* Section 2: Physical Attributes */}
+                <Box>
+                  <Stack direction="row" spacing={1} alignItems="center" mb={2}>
+                    <SettingsIcon
+                      sx={{
+                        color: theme.palette.secondary.main,
+                        fontSize: "1.2rem",
+                      }}
+                    />
+                    <Typography
+                      variant="caption"
+                      fontWeight={700}
+                      color="text.secondary"
+                      sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
+                    >
+                      {dict.inventory.dialogs.loadParams}
+                    </Typography>
+                  </Stack>
 
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 4 }}>
-                  <Controller
-                    name="weightKg"
-                    control={control}
-                    render={({ field }) => (
+                  <Grid container spacing={2}>
+                    <Grid size={{ xs: 4 }}>
                       <TextField
-                        {...field}
+                        name="weightKg"
                         label={dict.inventory.dialogs.unitWeight}
                         type="number"
                         fullWidth
@@ -609,10 +563,12 @@ export default function InventoryEditDialog({
                           handleNumChange(
                             e.target.value,
                             setLocalWeight,
-                            field.onChange,
+                            setFieldValue,
+                            "weightKg",
                             true
                           )
                         }
+                        onBlur={handleBlur}
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">Kg</InputAdornment>
@@ -620,16 +576,10 @@ export default function InventoryEditDialog({
                         }}
                         sx={textFieldSx}
                       />
-                    )}
-                  />
-                </Grid>
-                <Grid size={{ xs: 4 }}>
-                  <Controller
-                    name="volumeM3"
-                    control={control}
-                    render={({ field }) => (
+                    </Grid>
+                    <Grid size={{ xs: 4 }}>
                       <TextField
-                        {...field}
+                        name="volumeM3"
                         label={dict.inventory.dialogs.totalVolume}
                         type="number"
                         fullWidth
@@ -638,10 +588,12 @@ export default function InventoryEditDialog({
                           handleNumChange(
                             e.target.value,
                             setLocalVolume,
-                            field.onChange,
+                            setFieldValue,
+                            "volumeM3",
                             true
                           )
                         }
+                        onBlur={handleBlur}
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">M³</InputAdornment>
@@ -649,16 +601,10 @@ export default function InventoryEditDialog({
                         }}
                         sx={textFieldSx}
                       />
-                    )}
-                  />
-                </Grid>
-                <Grid size={{ xs: 4 }}>
-                  <Controller
-                    name="palletCount"
-                    control={control}
-                    render={({ field }) => (
+                    </Grid>
+                    <Grid size={{ xs: 4 }}>
                       <TextField
-                        {...field}
+                        name="palletCount"
                         label={dict.inventory.dialogs.palletSpots}
                         type="number"
                         fullWidth
@@ -667,37 +613,30 @@ export default function InventoryEditDialog({
                           handleNumChange(
                             e.target.value,
                             setLocalPalletCount,
-                            field.onChange
+                            setFieldValue,
+                            "palletCount"
                           )
                         }
+                        onBlur={handleBlur}
                         sx={textFieldSx}
                       />
-                    )}
-                  />
-                </Grid>
+                    </Grid>
 
-                <Grid size={{ xs: 6 }}>
-                  <Controller
-                    name="cargoType"
-                    control={control}
-                    render={({ field }) => (
+                    <Grid size={{ xs: 6 }}>
                       <TextField
-                        {...field}
+                        name="cargoType"
                         label={dict.inventory.table?.cargoType || "Cargo Type"}
                         fullWidth
+                        value={values.cargoType || ""}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
                         sx={textFieldSx}
                       />
-                    )}
-                  />
-                </Grid>
+                    </Grid>
 
-                <Grid size={{ xs: 6 }}>
-                  <Controller
-                    name="unitValue"
-                    control={control}
-                    render={({ field }) => (
+                    <Grid size={{ xs: 6 }}>
                       <TextField
-                        {...field}
+                        name="unitValue"
                         label={dict.inventory.table?.unitPrice || "Unit Value"}
                         type="number"
                         fullWidth
@@ -706,10 +645,12 @@ export default function InventoryEditDialog({
                           handleNumChange(
                             e.target.value,
                             setLocalUnitValue,
-                            field.onChange,
+                            setFieldValue,
+                            "unitValue",
                             true
                           )
                         }
+                        onBlur={handleBlur}
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
@@ -719,64 +660,64 @@ export default function InventoryEditDialog({
                         }}
                         sx={textFieldSx}
                       />
-                    )}
-                  />
-                </Grid>
-              </Grid>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </Stack>
+            </DialogContent>
+
+            <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
+
+            <Box
+              sx={{
+                p: 3,
+                px: 4,
+                bgcolor: theme.palette.background.default_alpha.main_10,
+              }}
+            >
+              <Stack direction="row" spacing={2} justifyContent="flex-end">
+                <Button
+                  onClick={onClose}
+                  sx={{
+                    px: 3,
+                    fontWeight: 600,
+                    color: "text.secondary",
+                    textTransform: "none",
+                    "&:hover": { color: "white" },
+                  }}
+                >
+                  {dict.inventory.dialogs.discardChanges}
+                </Button>
+                {Object.keys(errors).length > 0 && (
+                  <Typography
+                    variant="caption"
+                    color="error"
+                    sx={{ alignSelf: "center", fontWeight: 600 }}
+                  >
+                    {dict.common.fillRequired ||
+                      "Lütfen formdaki hataları kontrol edin"}
+                  </Typography>
+                )}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={isSubmitting}
+                  sx={{
+                    minWidth: 160,
+                    borderRadius: 2,
+                    fontWeight: 700,
+                    textTransform: "none",
+                    boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
+                    py: 1.2,
+                  }}
+                >
+                  {dict.inventory.dialogs.commitUpdate}
+                </Button>
+              </Stack>
             </Box>
-          </Stack>
-        </DialogContent>
-
-        <Divider sx={{ borderColor: theme.palette.divider_alpha.main_10 }} />
-
-        <Box
-          sx={{
-            p: 3,
-            px: 4,
-            bgcolor: theme.palette.background.default_alpha.main_10,
-          }}
-        >
-          <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button
-              onClick={onClose}
-              sx={{
-                px: 3,
-                fontWeight: 600,
-                color: "text.secondary",
-                textTransform: "none",
-                "&:hover": { color: "white" },
-              }}
-            >
-              {dict.inventory.dialogs.discardChanges}
-            </Button>
-            {Object.keys(errors).length > 0 && (
-              <Typography
-                variant="caption"
-                color="error"
-                sx={{ alignSelf: "center", fontWeight: 600 }}
-              >
-                {dict.common.fillRequired ||
-                  "Lütfen formdaki hataları kontrol edin"}
-              </Typography>
-            )}
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={isSubmitting}
-              sx={{
-                minWidth: 160,
-                borderRadius: 2,
-                fontWeight: 700,
-                textTransform: "none",
-                boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_20}`,
-                py: 1.2,
-              }}
-            >
-              {dict.inventory.dialogs.commitUpdate}
-            </Button>
-          </Stack>
-        </Box>
-      </form>
+          </form>
+        )}
+      </Formik>
     </Dialog>
   );
 }

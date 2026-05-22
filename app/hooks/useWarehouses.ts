@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
-  getWarehouses,
   getWarehouseById,
   getWarehouseStats,
   getRecentStockMovements,
@@ -19,10 +18,23 @@ import {
   InventoryMovementWithRelations,
 } from "@/app/lib/type/warehouse";
 
+async function fetchWarehouses(): Promise<WarehouseWithRelations[]> {
+  const res = await fetch(`/api/warehouses`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useWarehouses] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
 export function useWarehouses() {
   return useQuery({
     queryKey: warehouseKeys.lists(),
-    queryFn: () => getWarehouses(),
+    queryFn: () => fetchWarehouses(),
     staleTime: 1000 * 60 * 5,
   });
 }

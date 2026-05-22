@@ -20,9 +20,8 @@ export const createMaintenanceRecord = authenticatedAction(
     documentUrl?: string
   ) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -90,10 +89,9 @@ export const createMaintenanceRecord = authenticatedAction(
 
 export const getMaintenanceRecords = authenticatedAction(
   async (user, vehicleId?: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const whereClause: Prisma.MaintenanceRecordWhereInput = {
         vehicle: {
@@ -132,10 +130,9 @@ export const getMaintenanceRecords = authenticatedAction(
 
 export const getMaintenanceRecordById = authenticatedAction(
   async (user, recordId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
       const record = await db.maintenanceRecord.findUnique({
         where: { id: recordId },
         include: {
@@ -146,7 +143,7 @@ export const getMaintenanceRecordById = authenticatedAction(
       if (!record) throw new Error("Maintenance record not found");
 
       if (record.vehicle?.companyId) {
-        await checkPermission(userId, record.vehicle.companyId, [
+        await checkPermission(user, record.vehicle.companyId, [
           "role_admin",
           "role_manager",
         ]);
@@ -166,10 +163,9 @@ export const getMaintenanceRecordById = authenticatedAction(
 
 export const updateMaintenanceRecord = authenticatedAction(
   async (user, recordId: string, data: Prisma.MaintenanceRecordUpdateInput) => {
-    const userId = user?.id;
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
       const existingRecord = await db.maintenanceRecord.findUnique({
         where: { id: recordId },
         select: {
@@ -187,7 +183,7 @@ export const updateMaintenanceRecord = authenticatedAction(
       if (!existingRecord?.vehicle?.companyId)
         throw new Error("Maintenance record not found");
 
-      await checkPermission(userId, existingRecord.vehicle.companyId, [
+      await checkPermission(user, existingRecord.vehicle.companyId, [
         "role_admin",
         "role_manager",
       ]);
@@ -275,10 +271,9 @@ export const updateMaintenanceRecord = authenticatedAction(
 
 export const deleteMaintenanceRecord = authenticatedAction(
   async (user, recordId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
       const existingRecord = await db.maintenanceRecord.findUnique({
         where: { id: recordId },
         select: {
@@ -296,7 +291,7 @@ export const deleteMaintenanceRecord = authenticatedAction(
       if (!existingRecord?.vehicle?.companyId)
         throw new Error("Maintenance record not found");
 
-      await checkPermission(userId, existingRecord.vehicle.companyId, [
+      await checkPermission(user, existingRecord.vehicle.companyId, [
         "role_admin",
         "role_manager",
       ]);
@@ -330,10 +325,9 @@ export const deleteMaintenanceRecord = authenticatedAction(
 );
 
 export const getMaintenanceStats = authenticatedAction(async (user) => {
-  const userId = user?.id;
   const companyId = user?.companyId || "";
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_driver",

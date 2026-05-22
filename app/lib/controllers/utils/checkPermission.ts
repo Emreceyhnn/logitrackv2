@@ -1,9 +1,17 @@
 "use server";
 
 import { db } from "../../db";
+import rolesConfig from "@/roles.json";
+
+export interface CheckPermissionUser {
+  id: string;
+  companyId: string | null;
+  roleName?: string | null;
+  role?: { name: string } | null;
+}
 
 export async function checkPermission(
-  userId: string,
+  userOrUserId: CheckPermissionUser | string,
   companyId: string | null,
   requiredRoles: string[] = [],
   options: { allowNoCompany?: boolean } = {}
@@ -12,42 +20,51 @@ export async function checkPermission(
     throw new Error("No company assigned to this user");
   }
 
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    select: {
-      roleId: true,
-      companyId: true,
-      role: { select: { name: true } },
-    },
-  });
+  let resolvedUser: {
+    id: string;
+    companyId: string | null;
+    roleName: string | null;
+  };
 
-  if (!user || user.companyId !== companyId) {
+  if (typeof userOrUserId === "string") {
+    const dbUser = await db.user.findUnique({
+      where: { id: userOrUserId },
+      select: {
+        id: true,
+        companyId: true,
+        role: { select: { name: true } },
+      },
+    });
+
+    if (!dbUser) {
+      throw new Error("User not found");
+    }
+
+    resolvedUser = {
+      id: dbUser.id,
+      companyId: dbUser.companyId,
+      roleName: dbUser.role?.name ?? null,
+    };
+  } else {
+    resolvedUser = {
+      id: userOrUserId.id,
+      companyId: userOrUserId.companyId,
+      roleName: userOrUserId.roleName ?? userOrUserId.role?.name ?? null,
+    };
+  }
+
+  if (resolvedUser.companyId !== companyId) {
     throw new Error("User is not authorized to access this company");
   }
 
   if (requiredRoles.length > 0) {
-    const userRoleName = user.role?.name ?? "";
+    const userRoleName = resolvedUser.roleName ?? "";
 
-    // Map internal role identifiers to all possible DB role names (case-insensitive)
-    const roleMapping: Record<string, string[]> = {
-      role_admin: [
-        "administrator",
-        "admin",
-        "company admin",
-        "super admin",
-        "companyadmin",
-        "superadmin",
-      ],
-      role_manager: ["manager", "operations manager", "fleet manager"],
-      role_dispatcher: ["dispatcher"],
-      role_driver: ["driver"],
-      role_warehouse: [
-        "warehouse",
-        "warehouse manager",
-        "warehouse operator",
-        "warehouseoperator",
-      ],
-    };
+    // Map internal role identifiers dynamically from roles.json (case-insensitive)
+    const roleMapping: Record<string, string[]> = {};
+    for (const r of rolesConfig) {
+      roleMapping[r.id] = (r.names || [r.name]).map((name) => name.toLowerCase());
+    }
 
     const normalizedRequired = requiredRoles.flatMap((r) => {
       const roleKey = r.toLowerCase();
@@ -65,5 +82,5 @@ export async function checkPermission(
     }
   }
 
-  return user;
+  return resolvedUser;
 }

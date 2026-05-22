@@ -66,7 +66,7 @@ export const shipmentCacheKeys = {
   kpis: (companyId: string) => `shipments:${companyId}:kpis`,
 };
 
-export const OVERVIEW_CACHE_TTL = 60;
+export const OVERVIEW_CACHE_TTL = 300;
 
 export const overviewCacheKeys = {
   dashboard: (companyId: string) => `overview:${companyId}:dashboard`,
@@ -127,6 +127,37 @@ export function hashFilters(filters: any) {
   return Buffer.from(JSON.stringify(filters)).toString("base64");
 }
 
+// Helper to determine the set key for key tracking
+function getTrackingSetKey(key: string): string | null {
+  const parts = key.split(":");
+  const categories = [
+    "vehicles",
+    "trailers",
+    "drivers",
+    "routes",
+    "shipments",
+    "warehouses",
+    "inventories",
+    "customers",
+    "companies",
+  ];
+  if (parts.length >= 3 && categories.includes(parts[0])) {
+    if (parts[1] !== "detail") {
+      return `keysSet:${parts[0]}:${parts[1]}`;
+    }
+  }
+  return null;
+}
+
+// Helper to determine the set key from invalidation pattern
+function getTrackingSetKeyFromPattern(pattern: string): string | null {
+  const parts = pattern.split(":");
+  if (parts.length >= 2) {
+    return `keysSet:${parts[0]}:${parts[1]}`;
+  }
+  return null;
+}
+
 export async function withCache<T>(
   key: string,
   arg2: (() => Promise<T>) | number,
@@ -150,37 +181,106 @@ export async function withCache<T>(
 
   try {
     const cached = await redis.get<T>(key);
-    if (cached) return cached;
+    if (cached !== null && cached !== undefined) return cached;
   } catch (err) {
     console.error("Redis get error:", err);
   }
 
-  const data = await fetcher();
+  const lockKey = `lock:${key}`;
+  const lockValue = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+  const lockTtl = 15; // 15 seconds lock duration
+  let lockAcquired = false;
 
   try {
-    await redis.set(key, data, { ex: ttl });
+    const acquired = await redis.set(lockKey, lockValue, { nx: true, ex: lockTtl });
+    lockAcquired = acquired === "OK";
   } catch (err) {
-    console.error("Redis set error:", err);
+    console.error("Redis lock acquire error:", err);
   }
-  return data;
+
+  if (!lockAcquired) {
+    // Poll the cache to see if the concurrent request has finished setting it
+    let retries = 0;
+    const maxRetries = 20; // 20 * 100ms = 2.0 seconds max wait
+    while (retries < maxRetries) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      retries++;
+      try {
+        const cached = await redis.get<T>(key);
+        if (cached !== null && cached !== undefined) return cached;
+      } catch (err) {
+        console.error("Redis get retry error:", err);
+      }
+    }
+    // Fallback: If lock owner timed out, call the fetcher directly
+    return fetcher();
+  }
+
+  try {
+    const data = await fetcher();
+    try {
+      const p = redis.pipeline();
+      p.set(key, data, { ex: ttl });
+      
+      const setKey = getTrackingSetKey(key);
+      if (setKey) {
+        p.sadd(setKey, key);
+        p.expire(setKey, ttl + 60);
+      }
+      await p.exec();
+    } catch (err) {
+      console.error("Redis cache set error:", err);
+    }
+    return data;
+  } finally {
+    if (lockAcquired) {
+      try {
+        // Lua script to atomically unlock only if we are the owner
+        await redis.eval(
+          "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
+          [lockKey],
+          [lockValue]
+        );
+      } catch (err) {
+        console.error("Redis lock release error:", err);
+      }
+    }
+  }
 }
 
 export async function invalidatePattern(pattern: string) {
-  try {
-    let cursor = 0;
-    do {
-      const result = await redis.scan(cursor, { match: pattern, count: 100 });
-      cursor = Number(result[0] || 0);
+  const setKey = getTrackingSetKeyFromPattern(pattern);
+  if (!setKey) {
+    // Fallback to standard SCAN if we cannot determine tracking set key from the pattern
+    try {
+      let cursor = 0;
+      do {
+        const result = await redis.scan(cursor, { match: pattern, count: 100 });
+        cursor = Number(result[0] || 0);
 
-      const keys = result[1];
-      if (keys && keys.length > 0) {
-        // pipeline to del keys
-        const p = redis.pipeline();
-        keys.forEach((key) => p.del(key));
-        await p.exec();
-      }
-    } while (cursor !== 0);
+        const keys = result[1];
+        if (keys && keys.length > 0) {
+          const p = redis.pipeline();
+          keys.forEach((key) => p.del(key));
+          await p.exec();
+        }
+      } while (cursor !== 0);
+    } catch (err) {
+      console.error("Redis invalidate scan fallback error:", err);
+    }
+    return;
+  }
+
+  try {
+    const keys = await redis.smembers<string[]>(setKey);
+    if (keys && keys.length > 0) {
+      const p = redis.pipeline();
+      keys.forEach((key) => p.del(key));
+      p.del(setKey);
+      await p.exec();
+    }
   } catch (err) {
-    console.error("Redis invalidate error:", err);
+    console.error("Redis invalidate pattern error:", err);
   }
 }
+

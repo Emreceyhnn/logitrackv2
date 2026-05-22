@@ -56,7 +56,7 @@ export const createRoute = authenticatedAction(
     shipmentId?: string
   ) => {
     try {
-      await checkPermission(user.id, user.companyId, [
+      await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -172,7 +172,7 @@ export const createRoute = authenticatedAction(
                 create: {
                   status: "ASSIGNED",
                   description: `Assigned to route: ${finalName}`,
-                  createdBy: user.id,
+                  createdById: user.id,
                 },
               },
             },
@@ -209,10 +209,9 @@ export const createRoute = authenticatedAction(
 
 export const getRoutes = authenticatedAction(
   async (user, page: number = 1, pageSize: number = 10, status?: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -288,10 +287,9 @@ export const getRoutes = authenticatedAction(
 
 export const getRouteById = authenticatedAction(
   async (user, routeId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -347,10 +345,9 @@ export const getRouteById = authenticatedAction(
 
 export const updateRoute = authenticatedAction(
   async (user, routeId: string, data: Prisma.RouteUpdateInput) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -385,10 +382,9 @@ export const updateRoute = authenticatedAction(
 
 export const deleteRoute = authenticatedAction(
   async (user, routeId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -417,10 +413,9 @@ export const deleteRoute = authenticatedAction(
 
 export const assignDriverToRoute = authenticatedAction(
   async (user, routeId: string, driverId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -452,10 +447,9 @@ export const assignDriverToRoute = authenticatedAction(
 
 export const assignVehicleToRoute = authenticatedAction(
   async (user, routeId: string, vehicleId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -487,10 +481,9 @@ export const assignVehicleToRoute = authenticatedAction(
 
 export const unassignDriverFromRoute = authenticatedAction(
   async (user, routeId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -522,10 +515,9 @@ export const unassignDriverFromRoute = authenticatedAction(
 
 export const unassignVehicleFromRoute = authenticatedAction(
   async (user, routeId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -557,10 +549,9 @@ export const unassignVehicleFromRoute = authenticatedAction(
 
 export const getDriverRoutes = authenticatedAction(
   async (user, driverId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -580,10 +571,9 @@ export const getDriverRoutes = authenticatedAction(
 
 export const getVehicleRoutes = authenticatedAction(
   async (user, vehicleId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -602,10 +592,9 @@ export const getVehicleRoutes = authenticatedAction(
 );
 
 export const getCompanyRoutes = authenticatedAction(async (user) => {
-  const userId = user?.id;
   const companyId = user?.companyId;
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -626,9 +615,8 @@ export const getCompanyRoutes = authenticatedAction(async (user) => {
 
 export const getRouteStats = authenticatedAction(async (user) => {
   try {
-    const userId = user?.id;
     const companyId = user?.companyId;
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -683,9 +671,8 @@ export const getRouteStats = authenticatedAction(async (user) => {
 
 export const getRouteEfficiencyStats = authenticatedAction(async (user) => {
   try {
-    const userId = user?.id;
     const companyId = user?.companyId;
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -724,9 +711,8 @@ export const getRouteEfficiencyStats = authenticatedAction(async (user) => {
 
 export const getActiveRoutesLocations = authenticatedAction(async (user) => {
   try {
-    const userId = user?.id;
     const companyId = user?.companyId;
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -791,7 +777,7 @@ export const updateRouteStatus = authenticatedAction(
     const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -850,7 +836,7 @@ export const updateRouteStatus = authenticatedAction(
                     shipmentId: shipment.id,
                     status: "IN_TRANSIT",
                     description: "Route started - Shipment in transit",
-                    createdBy: userId || "",
+                    createdById: userId || "",
                   },
                 });
               }
@@ -892,7 +878,7 @@ export const updateRouteStatus = authenticatedAction(
                     status: "DELIVERED",
                     location: route.endAddress || "Destination",
                     description: "Route completed - Shipment completed",
-                    createdBy: userId || "",
+                    createdById: userId || "",
                   },
                 });
               }
@@ -933,7 +919,7 @@ export const updateRouteStatus = authenticatedAction(
                     shipmentId: shipment.id,
                     status: "PENDING",
                     description: "Route canceled - Shipment reverted to pending",
-                    createdBy: userId || "",
+                    createdById: userId || "",
                   },
                 });
               }
@@ -976,7 +962,6 @@ export const getRoutesWithDashboardData = authenticatedAction(
     efficiency: RouteEfficiencyStats;
     mapData: MapRouteData[];
   }> => {
-    const userId = user?.id;
     const companyId = user?.companyId;
 
     try {
@@ -1015,7 +1000,7 @@ export const getRoutesWithDashboardData = authenticatedAction(
         prevCompletedCount,
         prevDelayedCount,
       ] = await Promise.all([
-        checkPermission(userId, companyId, [
+        checkPermission(user, companyId, [
           "role_admin",
           "role_manager",
           "role_dispatcher",

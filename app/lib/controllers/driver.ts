@@ -35,9 +35,8 @@ async function invalidateDriverCache(companyId: string, driverId?: string) {
 export const getDriverById = authenticatedAction(
   async (user, driverId: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -74,9 +73,8 @@ export const getDriverById = authenticatedAction(
 export const createDriver = authenticatedAction(
   async (user, data: CreateDriverFormData) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const targetUser = await db.user.findUnique({
         where: { id: data.userId },
@@ -197,9 +195,8 @@ export const createDriver = authenticatedAction(
 export const updateDriver = authenticatedAction(
   async (user, driverId: string, data: Partial<CreateDriverFormData>) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const foundDriver = await db.driver.findUnique({
         where: { id: driverId },
@@ -291,9 +288,8 @@ export const updateDriver = authenticatedAction(
 export const deleteDriver = authenticatedAction(
   async (user, driverId: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const foundDriver = await db.driver.findUnique({
         where: { id: driverId },
@@ -335,9 +331,8 @@ export const deleteDriver = authenticatedAction(
 export const updateDriverStatus = authenticatedAction(
   async (user, driverId: string, status: DriverStatus) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -396,9 +391,8 @@ export const updateDriverStatus = authenticatedAction(
 export const assignVehicleToDriver = authenticatedAction(
   async (user, driverId: string, vehicleId: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -436,9 +430,8 @@ export const assignVehicleToDriver = authenticatedAction(
 export const unassignVehicleFromDriver = authenticatedAction(
   async (user, driverId: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -471,9 +464,8 @@ export const unassignVehicleFromDriver = authenticatedAction(
 
 export const getEligibleUsersForDriver = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
-  const userId = user?.id || "";
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -501,10 +493,9 @@ export const getEligibleUsersForDriver = authenticatedAction(async (user) => {
 export const getDriverHistory = authenticatedAction(
   async (user, driverId: string): Promise<DriverHistory> => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
 
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -606,10 +597,9 @@ export const getDrivers = authenticatedAction(
     sortField?: string,
     sortOrder?: "asc" | "desc"
   ): Promise<PaginatedResponse<DriverWithRelations>> => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -738,9 +728,8 @@ export const getDrivers = authenticatedAction(
 
 export const getDriverDashboardData = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
-  const userId = user?.id || "";
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -842,7 +831,6 @@ export const getDriverWithDashboardData = authenticatedAction(
     topPerformers: DriverDashboardResponseType["topPerformers"];
     performanceCharts: DriverDashboardResponseType["performanceCharts"];
   }> => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
     try {
@@ -922,7 +910,7 @@ export const getDriverWithDashboardData = authenticatedAction(
         complianceIssuesCount,
         prevTotalDrivers,
       ] = await Promise.all([
-        checkPermission(userId, companyId, [
+        checkPermission(user, companyId, [
           "role_admin",
           "role_manager",
           "role_dispatcher",

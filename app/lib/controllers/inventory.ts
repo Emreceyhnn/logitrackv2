@@ -34,7 +34,7 @@ export const createInventoryItem = authenticatedAction(
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_warehouse",
@@ -113,9 +113,8 @@ export const createInventoryItem = authenticatedAction(
 export const getInventory = authenticatedAction(
   async (user, warehouseId?: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId);
+      await checkPermission(user, companyId);
 
       if (!companyId) throw new Error("User has no company");
 
@@ -149,9 +148,8 @@ export const getInventory = authenticatedAction(
 export const getInventoryItemById = authenticatedAction(
   async (user, inventoryId: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId);
+      await checkPermission(user, companyId);
 
       const cacheKey = inventoryCacheKeys.detail(inventoryId);
 
@@ -182,7 +180,7 @@ export const updateInventoryItem = authenticatedAction(
     const userId = user?.id || "";
     console.log(`[updateInventoryItem] Start update for ${inventoryId}`, { data, companyId, userId });
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_warehouse",
@@ -252,9 +250,8 @@ export const updateInventoryItem = authenticatedAction(
 export const getInventoryBySku = authenticatedAction(
   async (user, sku: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId);
+      await checkPermission(user, companyId);
       if (!companyId) throw new Error("User has no company");
 
       const items = await db.inventory.findMany({
@@ -281,7 +278,7 @@ export const adjustInventoryStock = authenticatedAction(
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_warehouse",
@@ -333,9 +330,8 @@ export const adjustInventoryStock = authenticatedAction(
 export const deleteInventoryItem = authenticatedAction(
   async (user, inventoryId: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_warehouse",
@@ -365,9 +361,8 @@ export const deleteInventoryItem = authenticatedAction(
 
 export const getLowStockItems = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
-  const userId = user?.id || "";
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_warehouse",
@@ -418,7 +413,6 @@ export const getInventoryWithDashboardData = authenticatedAction(
     };
     lowStockItems: LowStockItem[];
   }> => {
-    const userId = user?.id;
     const companyId = user?.companyId;
 
     try {
@@ -474,7 +468,7 @@ export const getInventoryWithDashboardData = authenticatedAction(
           ratesData,
           prevTotalItems,
         ] = await Promise.all([
-          checkPermission(userId!, companyId, ["role_admin", "role_manager", "role_warehouse"]),
+          checkPermission(user, companyId, ["role_admin", "role_manager", "role_warehouse"]),
           db.inventory.findMany({
             where,
             include: {
@@ -557,9 +551,8 @@ export const getInventoryWithDashboardData = authenticatedAction(
 export const getInventoryMovements = authenticatedAction(
   async (user, sku: string, warehouseId: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId);
+      await checkPermission(user, companyId);
 
       const cacheKey = inventoryCacheKeys.movements(companyId, warehouseId, sku);
 
@@ -599,7 +592,7 @@ export const logWarehouseFulfillment = authenticatedAction(
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_warehouse",

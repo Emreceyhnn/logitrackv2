@@ -105,7 +105,7 @@ export const createShipment = authenticatedAction(
       stops = [],
     } = data;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -215,7 +215,7 @@ export const createShipment = authenticatedAction(
               create: {
                 status: status,
                 description: "Shipment created",
-                createdBy: userId,
+                createdById: userId,
               },
             },
             items: {
@@ -317,7 +317,7 @@ export const assignDriverToShipment = authenticatedAction(
     const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -341,7 +341,7 @@ export const assignDriverToShipment = authenticatedAction(
             create: {
               status: ShipmentStatus.ASSIGNED,
               description: `Driver assigned`,
-              createdBy: userId,
+              createdById: userId,
             },
           },
         },
@@ -374,7 +374,7 @@ export const assignRouteToShipment = authenticatedAction(
     const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -398,7 +398,7 @@ export const assignRouteToShipment = authenticatedAction(
             create: {
               status: ShipmentStatus.ASSIGNED,
               description: `Route assigned`,
-              createdBy: userId,
+              createdById: userId,
             },
           },
         },
@@ -437,7 +437,7 @@ export const updateShipmentStatus = authenticatedAction(
     const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId);
+      await checkPermission(user, companyId);
 
       const existingShipment = await db.shipment.findUnique({
         where: { id: shipmentId },
@@ -457,7 +457,7 @@ export const updateShipmentStatus = authenticatedAction(
               status,
               location,
               description: description || `Status updated to ${status}`,
-              createdBy: userId,
+              createdById: userId,
             },
           },
         },
@@ -509,53 +509,120 @@ export const updateShipmentStatus = authenticatedAction(
   }
 );
 
-export const getShipments = authenticatedAction(async (user) => {
-  const userId = user?.id;
-  const companyId = user?.companyId;
-  try {
-    await checkPermission(userId, companyId, [
-      "role_admin",
-      "role_manager",
-      "role_dispatcher",
-    ]);
+export const getShipments = authenticatedAction(
+  async (
+    user,
+    filters?: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      status?: ShipmentStatus;
+      unassigned?: boolean;
+    }
+  ): Promise<
+    | ShipmentWithRelations[]
+    | { shipments: ShipmentWithRelations[]; totalCount: number }
+  > => {
+    const companyId = user?.companyId;
+    try {
+      await checkPermission(user, companyId, [
+        "role_admin",
+        "role_manager",
+        "role_dispatcher",
+      ]);
 
-    if (!companyId) throw new Error("User has no company");
+      if (!companyId) throw new Error("User has no company");
 
-    const cacheKey = shipmentCacheKeys.list(companyId, hashFilters({}));
-    return await withCache(cacheKey, SHIPMENT_CACHE_TTL, async () => {
-      const shipments = await db.shipment.findMany({
-      where: { companyId },
-      include: {
-        customer: {
-          include: { locations: true },
-        },
-        driver: {
-          include: {
-            user: {
-              select: { name: true, surname: true, avatarUrl: true },
+      const where: Prisma.ShipmentWhereInput = { companyId };
+
+      if (filters) {
+        if (filters.status) {
+          where.status = filters.status;
+        }
+        if (filters.unassigned) {
+          where.routeId = null;
+        }
+        if (filters.search) {
+          where.OR = [
+            { trackingId: { contains: filters.search, mode: "insensitive" } },
+            { origin: { contains: filters.search, mode: "insensitive" } },
+            { destination: { contains: filters.search, mode: "insensitive" } },
+          ];
+        }
+      }
+
+      const cacheKey = shipmentCacheKeys.list(
+        companyId,
+        hashFilters(filters || {})
+      );
+
+      return await withCache(cacheKey, SHIPMENT_CACHE_TTL, async () => {
+        const skip =
+          filters?.page && filters?.limit
+            ? (filters.page - 1) * filters.limit
+            : undefined;
+        const take = filters?.limit;
+
+        if (skip !== undefined && take !== undefined) {
+          const [shipments, totalCount] = await Promise.all([
+            db.shipment.findMany({
+              where,
+              include: {
+                customer: { include: { locations: true } },
+                driver: {
+                  include: {
+                    user: {
+                      select: { name: true, surname: true, avatarUrl: true },
+                    },
+                  },
+                },
+                route: true,
+                items: true,
+                stops: true,
+              },
+              orderBy: { createdAt: "desc" },
+              skip,
+              take,
+            }),
+            db.shipment.count({ where }),
+          ]);
+          return {
+            shipments: shipments as unknown as ShipmentWithRelations[],
+            totalCount,
+          };
+        } else {
+          const shipments = await db.shipment.findMany({
+            where,
+            include: {
+              customer: { include: { locations: true } },
+              driver: {
+                include: {
+                  user: {
+                    select: { name: true, surname: true, avatarUrl: true },
+                  },
+                },
+              },
+              route: true,
+              items: true,
+              stops: true,
             },
-          },
-        },
-        route: true,
-        items: true,
-        stops: true,
-      },
-      orderBy: { createdAt: "desc" },
+            orderBy: { createdAt: "desc" },
+          });
+          return shipments as unknown as ShipmentWithRelations[];
+        }
       });
-      return shipments;
-    });
-  } catch (error) {
-    console.error("Failed to get shipments:", error);
-    throw error;
+    } catch (error) {
+      console.error("Failed to get shipments:", error);
+      throw error;
+    }
   }
-});
+);
 
 export const getShipmentById = authenticatedAction(
   async (user, shipmentId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -612,7 +679,7 @@ export const updateShipment = authenticatedAction(
     const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -842,7 +909,7 @@ export const deleteShipment = authenticatedAction(
     const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const existingShipment = await db.shipment.findUnique({
         where: { id: shipmentId },
@@ -910,10 +977,9 @@ export const deleteShipment = authenticatedAction(
 
 export const getShipmentByTrackingId = authenticatedAction(
   async (user, trackingId: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId);
+      await checkPermission(user, companyId);
 
       const shipment = await db.shipment.findUnique({
         where: { trackingId },
@@ -942,10 +1008,9 @@ export const getShipmentByTrackingId = authenticatedAction(
 );
 
 export const getShipmentStats = authenticatedAction(async (user) => {
-  const userId = user?.id;
   const companyId = user?.companyId;
   try {
-    await checkPermission(userId, companyId);
+    await checkPermission(user, companyId);
 
     if (!companyId) throw new Error("User has no company");
 
@@ -973,10 +1038,9 @@ export const getShipmentStats = authenticatedAction(async (user) => {
 });
 
 export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
-  const userId = user?.id;
   const companyId = user?.companyId;
   try {
-    await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+    await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
     if (!companyId) throw new Error("User has no company");
 
@@ -1011,10 +1075,9 @@ export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
 
 export const getShipmentStatusDistribution = authenticatedAction(
   async (user) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       if (!companyId) throw new Error("User has no company");
 
@@ -1055,7 +1118,6 @@ export const getShipmentsWithDashboardData = authenticatedAction(
     volumeHistory: ShipmentVolumeData[];
     statusDistribution: ShipmentStatusData[];
   }> => {
-    const userId = user?.id;
     const companyId = user?.companyId;
 
     try {
@@ -1105,7 +1167,7 @@ export const getShipmentsWithDashboardData = authenticatedAction(
         prevDelayed,
         prevInTransit,
       ] = await Promise.all([
-        checkPermission(userId, companyId, [
+        checkPermission(user, companyId, [
           "role_admin",
           "role_manager",
           "role_dispatcher",

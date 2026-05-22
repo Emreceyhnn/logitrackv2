@@ -8,10 +8,9 @@ import { getExchangeRates } from "@/app/lib/services/exchangeRate";
 
 export const getFuelLogs = authenticatedAction(
   async (user, filters: FuelPageState["filters"]) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId);
+      await checkPermission(user, companyId);
       if (!companyId) {
         throw new Error("User has no company assigned");
       }
@@ -78,10 +77,9 @@ export const createFuelLog = authenticatedAction(
       currency?: string;
     }
   ) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId);
+      await checkPermission(user, companyId);
       if (!companyId) throw new Error("User has no company assigned");
 
       // Normalize cost to USD
@@ -113,10 +111,9 @@ export const createFuelLog = authenticatedAction(
 );
 
 export const getFuelStats = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
   try {
-    await checkPermission(userId, companyId);
+    await checkPermission(user, companyId);
     if (!companyId) {
       throw new Error("User has no company assigned");
     }

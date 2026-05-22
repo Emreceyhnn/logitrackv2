@@ -52,10 +52,9 @@ async function invalidateVehicleCache(
 
 export const createVehicle = authenticatedAction(
   async (user, vehicleData: Record<string, unknown>) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -181,10 +180,9 @@ export const createVehicle = authenticatedAction(
 
 export const getVehicleById = authenticatedAction(
   async (user, vehicleId: string) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -228,10 +226,9 @@ export const getVehicleById = authenticatedAction(
 
 export const updateVehicle = authenticatedAction(
   async (user, vehicleId: string, data: Partial<Prisma.VehicleUpdateInput>) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -302,10 +299,9 @@ export const updateVehicle = authenticatedAction(
 
 export const deleteVehicle = authenticatedAction(
   async (user, vehicleId: string) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const foundVehicle = await db.vehicle.findUnique({
         where: { id: vehicleId },
@@ -340,10 +336,9 @@ export const createVehicleIssue = authenticatedAction(
       description?: string;
     }
   ) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -402,10 +397,9 @@ export const createVehicleIssue = authenticatedAction(
 
 export const assignDriverToVehicle = authenticatedAction(
   async (user, vehicleId: string, driverId: string | null) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -498,10 +492,9 @@ export const assignDriverToVehicle = authenticatedAction(
 
 export const updateVehicleStatus = authenticatedAction(
   async (user, vehicleId: string, status: VehicleStatus) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -559,10 +552,9 @@ export const addMaintenanceRecord = authenticatedAction(
       documentUrl?: string;
     }
   ) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -627,10 +619,9 @@ export const addMaintenanceRecord = authenticatedAction(
 );
 
 export const getOpenIssuesForUser = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -675,10 +666,9 @@ export const getOpenIssuesForUser = authenticatedAction(async (user) => {
 
 export const unassignDriverFromVehicle = authenticatedAction(
   async (user, vehicleId: string) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -714,10 +704,9 @@ export const unassignDriverFromVehicle = authenticatedAction(
 );
 
 export const getAvailableDrivers = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -729,7 +718,7 @@ export const getAvailableDrivers = authenticatedAction(async (user) => {
       where: {
         companyId,
         currentVehicleId: null,
-        status: { not: "OFF_DUTY" },
+        status: "ON_JOB",
       },
       select: {
         id: true,
@@ -764,10 +753,9 @@ export const uploadVehicleDocument = authenticatedAction(
       status: string;
     }
   ) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const foundVehicle = await db.vehicle.findUnique({
         where: { id: vehicleId },
@@ -836,10 +824,9 @@ export const updateIssue = authenticatedAction(
       description?: string;
     }
   ) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -907,10 +894,9 @@ export const updateMaintenanceRecord = authenticatedAction(
       documentUrl?: string;
     }
   ) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -1011,10 +997,9 @@ export const updateMaintenanceRecord = authenticatedAction(
 
 export const getVehicles = authenticatedAction(
   async (user, filters?: VehicleFilters): Promise<VehicleWithRelations[]> => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -1084,10 +1069,9 @@ export const getVehicles = authenticatedAction(
 );
 
 export const getVehiclesDashboardData = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -1176,7 +1160,6 @@ export const getVehiclesWithDashboard = authenticatedAction(
     expiringDocs: ReturnType<typeof VehicleDocumentConverter>;
     plannedServices: ReturnType<typeof VehicleServiceConverter>;
   }> => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
     try {
@@ -1223,7 +1206,7 @@ export const getVehiclesWithDashboard = authenticatedAction(
       // (~400-800ms) beklenirken eş zamanlı tamamlanır → toplam süre max() olur.
       // checkPermission başarısız olursa Promise.all hemen reject eder.
       const [, vehicles] = await Promise.all([
-        checkPermission(userId, companyId, [
+        checkPermission(user, companyId, [
           "role_admin",
           "role_manager",
           "role_dispatcher",

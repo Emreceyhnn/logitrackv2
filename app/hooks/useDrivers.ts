@@ -2,8 +2,6 @@
 
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
-  getDrivers,
-  getDriverDashboardData,
   createDriver,
   updateDriver,
   deleteDriver,
@@ -19,6 +17,36 @@ import { toast } from "sonner";
 // Server Components (page.tsx) import driverKeys directly from
 // "@/app/lib/query-keys/driver.keys" to avoid the "use client" boundary.
 import { driverKeys } from "@/app/lib/query-keys/driver.keys";
+
+async function fetchDrivers(
+  page: number,
+  limit: number,
+  search?: string,
+  status?: DriverStatus[],
+  hasVehicle?: boolean,
+  sortField?: string,
+  sortOrder?: "asc" | "desc"
+): Promise<PaginatedResponse<DriverWithRelations>> {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("limit", String(limit));
+  if (search) params.set("search", search);
+  if (status?.length) status.forEach((s) => params.append("status", s));
+  if (hasVehicle !== undefined) params.set("hasVehicle", String(hasVehicle));
+  if (sortField) params.set("sortField", sortField);
+  if (sortOrder) params.set("sortOrder", sortOrder);
+
+  const res = await fetch(`/api/drivers?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useDrivers] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
+}
 
 export function useDrivers(
   page: number = 1,
@@ -40,7 +68,7 @@ export function useDrivers(
       sortOrder,
     }),
     queryFn: () =>
-      getDrivers(page, limit, search, status, hasVehicle, sortField, sortOrder),
+      fetchDrivers(page, limit, search, status, hasVehicle, sortField, sortOrder),
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -48,7 +76,16 @@ export function useDrivers(
 export function useDriverDashboardData() {
   return useQuery({
     queryKey: driverKeys.dashboard(),
-    queryFn: () => getDriverDashboardData(),
+    queryFn: async () => {
+      const res = await fetch(`/api/drivers/dashboard`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error(`[useDriverDashboardData] fetch failed: ${res.status}`);
+      }
+      return res.json();
+    },
     staleTime: 1000 * 60 * 5,
   });
 }

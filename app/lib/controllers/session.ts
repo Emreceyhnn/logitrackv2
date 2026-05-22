@@ -2,8 +2,10 @@
 
 import crypto from "crypto";
 import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
+import { SignJWT, jwtVerify, JWTPayload } from "jose";
 import { db } from "../db";
+import { redis } from "../redis";
+import { Prisma } from "@prisma/client";
 import type { AuditAction } from "@prisma/client";
 
 const getJwtSecret = (): string => {
@@ -50,7 +52,7 @@ export type SessionUser = {
   notifPushDelay: boolean;
 };
 
-export interface SessionJWTPayload extends jwt.JwtPayload {
+export interface SessionJWTPayload extends JWTPayload {
   id: string;
 
   role?: string | null;
@@ -59,23 +61,23 @@ export interface SessionJWTPayload extends jwt.JwtPayload {
 
 // ─── Token Generation ───────────────────────────────────────────────────────
 
-function generateAccessToken(user: {
+async function generateAccessToken(user: {
   id: string;
 
   roleId?: string | null;
   companyId?: string | null;
-}): string {
-  return jwt.sign(
-    {
-      id: user.id,
+}): Promise<string> {
+  const secret = new TextEncoder().encode(JWT_SECRET);
+  return new SignJWT({
+    id: user.id,
 
-      role: user.roleId,
-      companyId: user.companyId ?? null,
-      jti: crypto.randomUUID(), // Ensure every token is uniquely hashable
-    },
-    JWT_SECRET,
-    { expiresIn: ACCESS_TOKEN_EXPIRY }
-  );
+    role: user.roleId,
+    companyId: user.companyId ?? null,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setJti(crypto.randomUUID())
+    .setExpirationTime(ACCESS_TOKEN_EXPIRY)
+    .sign(secret);
 }
 
 function generateRefreshToken(): string {
@@ -111,10 +113,11 @@ export async function createSession(
   deviceInfo?: string,
   ipAddress?: string
 ): Promise<{ accessToken: string; sessionId: string }> {
-  const accessToken = generateAccessToken(user);
+  const accessToken = await generateAccessToken(user);
   const refreshToken = generateRefreshToken();
 
   const tokenHash = hashToken(accessToken);
+  const refreshTokenHash = hashToken(refreshToken);
   const expiresAt = new Date(
     Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000
   );
@@ -125,7 +128,7 @@ export async function createSession(
       data: {
         userId: user.id,
         token: tokenHash,
-        refreshToken: refreshToken,
+        refreshToken: refreshTokenHash,
         deviceInfo: deviceInfo || null,
         ipAddress: ipAddress || null,
         expiresAt,
@@ -176,7 +179,9 @@ export async function validateSession(): Promise<SessionUser | null> {
     // Verify JWT signature & expiry
     let decoded: SessionJWTPayload;
     try {
-      decoded = jwt.verify(accessToken, JWT_SECRET) as SessionJWTPayload;
+      const secret = new TextEncoder().encode(JWT_SECRET);
+      const { payload } = await jwtVerify(accessToken, secret);
+      decoded = payload as unknown as SessionJWTPayload;
     } catch (jwtErr) {
       console.log("[validateSession] ❌ JWT verify failed:", jwtErr);
       return null;
@@ -187,39 +192,63 @@ export async function validateSession(): Promise<SessionUser | null> {
       return null;
     }
 
-    // Look up session in DB by token hash
+    // Check cache for session
     const tokenHash = hashToken(accessToken);
-    const session = await db.session.findUnique({
-      where: { token: tokenHash },
-      include: {
-        user: {
-          select: {
-            id: true,
-            companyId: true,
-            roleId: true,
-            status: true,
-            name: true,
-            surname: true,
-            avatarUrl: true,
-            timezone: true,
-            dateFormat: true,
-            timeFormat: true,
-            currency: true,
-            language: true,
-            notifEmailShipment: true,
-            notifEmailMaint: true,
-            notifEmailWeekly: true,
-            notifPushAssignment: true,
-            notifPushDelay: true,
-            role: {
-              select: {
-                name: true,
+    const cacheKey = `session:${tokenHash}`;
+    let session: any = null;
+
+    try {
+      const cached = await redis.get<any>(cacheKey);
+      if (cached) {
+        cached.expiresAt = new Date(cached.expiresAt);
+        cached.lastActivityAt = new Date(cached.lastActivityAt);
+        session = cached;
+      }
+    } catch (err) {
+      console.warn("[validateSession] Redis get failed:", err);
+    }
+
+    if (!session) {
+      session = await db.session.findUnique({
+        where: { token: tokenHash },
+        include: {
+          user: {
+            select: {
+              id: true,
+              companyId: true,
+              roleId: true,
+              status: true,
+              name: true,
+              surname: true,
+              avatarUrl: true,
+              timezone: true,
+              dateFormat: true,
+              timeFormat: true,
+              currency: true,
+              language: true,
+              notifEmailShipment: true,
+              notifEmailMaint: true,
+              notifEmailWeekly: true,
+              notifPushAssignment: true,
+              notifPushDelay: true,
+              role: {
+                select: {
+                  name: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      });
+
+      if (session) {
+        const remainingTtl = Math.max(
+          1,
+          Math.min(300, Math.round((new Date(session.expiresAt).getTime() - Date.now()) / 1000))
+        );
+        await redis.set(cacheKey, session, { ex: remainingTtl }).catch(() => {});
+      }
+    }
 
     if (!session) {
       console.log(
@@ -236,7 +265,7 @@ export async function validateSession(): Promise<SessionUser | null> {
       return null;
     }
 
-    if (session.expiresAt < new Date()) {
+    if (new Date(session.expiresAt) < new Date()) {
       console.log("[validateSession] ❌ Session is expired. Clearing cookies.");
       await clearAuthCookies();
       return null;
@@ -252,12 +281,21 @@ export async function validateSession(): Promise<SessionUser | null> {
     }
 
     // Throttled update of lastActivityAt
-    const timeSinceLastActivity = Date.now() - session.lastActivityAt.getTime();
+    const timeSinceLastActivity = Date.now() - new Date(session.lastActivityAt).getTime();
     if (timeSinceLastActivity > ACTIVITY_THROTTLE_MS) {
+      const newActivity = new Date();
       db.session
         .update({
           where: { id: session.id },
-          data: { lastActivityAt: new Date() },
+          data: { lastActivityAt: newActivity },
+        })
+        .then(async () => {
+          session.lastActivityAt = newActivity;
+          const remainingTtl = Math.max(
+            1,
+            Math.min(300, Math.round((new Date(session.expiresAt).getTime() - Date.now()) / 1000))
+          );
+          await redis.set(cacheKey, session, { ex: remainingTtl }).catch(() => {});
         })
         .catch(() => {});
     }
@@ -313,9 +351,11 @@ export async function refreshSession(): Promise<boolean> {
       return false;
     }
 
+    const hashedRefreshToken = hashToken(refreshToken);
+
     // Find session by refresh token
     const session = await db.session.findUnique({
-      where: { refreshToken },
+      where: { refreshToken: hashedRefreshToken },
       include: {
         user: {
           select: {
@@ -353,16 +393,23 @@ export async function refreshSession(): Promise<boolean> {
     }
 
     // Generate new tokens
-    const newAccessToken = generateAccessToken(session.user);
+    const newAccessToken = await generateAccessToken(session.user);
     const newRefreshToken = generateRefreshToken();
     const newTokenHash = hashToken(newAccessToken);
+    const newRefreshTokenHash = hashToken(newRefreshToken);
+
+    // Invalidate old token cache entry
+    const oldAccessToken = cookieStore.get("token")?.value;
+    if (oldAccessToken) {
+      await redis.del(`session:${hashToken(oldAccessToken)}`).catch(() => {});
+    }
 
     // Rotate tokens in DB
     await db.session.update({
       where: { id: session.id },
       data: {
         token: newTokenHash,
-        refreshToken: newRefreshToken,
+        refreshToken: newRefreshTokenHash,
         lastActivityAt: new Date(),
       },
     });
@@ -409,20 +456,34 @@ export async function refreshSession(): Promise<boolean> {
  * Revokes a specific session (soft-delete).
  */
 export async function revokeSession(sessionId: string): Promise<void> {
-  await db.session.update({
+  const session = await db.session.update({
     where: { id: sessionId },
     data: { isRevoked: true },
   });
+  if (session?.token) {
+    await redis.del(`session:${session.token}`).catch(() => {});
+  }
 }
 
 /**
  * Revokes ALL sessions for a user (e.g. password change, security event).
  */
 export async function revokeAllUserSessions(userId: string): Promise<void> {
+  const activeSessions = await db.session.findMany({
+    where: { userId, isRevoked: false },
+    select: { token: true },
+  });
+
   await db.session.updateMany({
     where: { userId, isRevoked: false },
     data: { isRevoked: true },
   });
+
+  for (const s of activeSessions) {
+    if (s.token) {
+      await redis.del(`session:${s.token}`).catch(() => {});
+    }
+  }
 }
 
 /**
@@ -473,7 +534,7 @@ export async function logAuditEvent(params: {
         action: params.action,
         ipAddress: params.ipAddress || null,
         deviceInfo: params.deviceInfo || null,
-        metadata: params.metadata ? JSON.stringify(params.metadata) : null,
+        metadata: params.metadata !== undefined ? (params.metadata as Prisma.InputJsonValue) : Prisma.DbNull,
       },
     });
   } catch (error) {
