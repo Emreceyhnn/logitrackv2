@@ -1,30 +1,22 @@
-import { PieChart } from "@mui/x-charts/PieChart";
-import { LineChart } from "@mui/x-charts/LineChart";
+import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
+import { BarChart } from "@mui/x-charts/BarChart";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { Stack, Typography, Grid, Paper, Box } from "@mui/material";
+import { Stack, Typography, Grid, Box, useTheme } from "@mui/material";
 import { useState, useMemo } from "react";
 import TimeRangeSelector, { TimeRange } from "../../charts/TimeRangeSelector";
-
-interface CostData {
-  months: string[];
-  fuel: number[];
-  maintenance: number[];
-  overhead: number[];
-  distribution: { id: number; value: number; label: string; color?: string }[];
-}
+import { AnalyticsCosts } from "@/app/lib/type/analytics";
+import DonutSmallIcon from "@mui/icons-material/DonutSmall";
+import BarChartIcon from "@mui/icons-material/BarChart";
 
 interface CostAnalysisChartsProps {
-  data?: CostData;
+  state?: AnalyticsCosts | null;
 }
 
-export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
-  /* ------------------------------- variables ------------------------------- */
+export default function CostAnalysisCharts({ state }: CostAnalysisChartsProps) {
   const dict = useDictionary();
+  const theme = useTheme();
   const [range, setRange] = useState<TimeRange>("6m");
 
-  // Logic to get the last N months based on range
-  // Note: Cost data is usually monthly, so 1w/2w might show just the current month
-  // We'll map: 1w -> 1m, 2w -> 1m, 1m -> 1m, 6m -> 6m
   const displayCount = range === "6m" ? 6 : 1;
 
   const currentMonthIndex = new Date().getMonth();
@@ -52,16 +44,16 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
   }, [displayCount, currentMonthIndex, dict.common.months]);
 
   const fuelCosts = useMemo(
-    () => (data?.fuel || [0, 0, 0, 0, 0, 0]).slice(-displayCount),
-    [data, displayCount]
+    () => (state?.fuel || [0, 0, 0, 0, 0, 0]).slice(-displayCount),
+    [state, displayCount]
   );
   const maintenanceCosts = useMemo(
-    () => (data?.maintenance || [0, 0, 0, 0, 0, 0]).slice(-displayCount),
-    [data, displayCount]
+    () => (state?.maintenance || [0, 0, 0, 0, 0, 0]).slice(-displayCount),
+    [state, displayCount]
   );
   const overheadCosts = useMemo(
-    () => (data?.overhead || [0, 0, 0, 0, 0, 0]).slice(-displayCount),
-    [data, displayCount]
+    () => (state?.overhead || [0, 0, 0, 0, 0, 0]).slice(-displayCount),
+    [state, displayCount]
   );
 
   const defaultCostDistribution = [
@@ -69,25 +61,25 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
       id: 0,
       value: 35,
       label: dict.analytics.costs.categories.fuel,
-      color: "#fca5a5",
+      color: theme.palette.error.main,
     },
     {
       id: 1,
       value: 25,
       label: dict.analytics.costs.categories.maintenance,
-      color: "#fcd34d",
+      color: theme.palette.warning.main,
     },
     {
       id: 2,
       value: 30,
       label: dict.analytics.costs.categories.salaries,
-      color: "#94a3b8",
+      color: theme.palette.info.main,
     },
     {
       id: 3,
       value: 10,
       label: dict.analytics.costs.categories.insuranceOps,
-      color: "#10b981",
+      color: theme.palette.success.main,
     },
   ];
 
@@ -104,100 +96,157 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
   };
 
   const costDistribution =
-    data?.distribution.map((d, i) => ({
+    state?.distribution.map((d, i) => ({
       ...d,
-      color:
-        d.color ||
-        (defaultCostDistribution[i % 4]?.color ?? "primary.main"),
+      color: defaultCostDistribution[i % 4]?.color ?? theme.palette.primary.main,
       label: translateLabel(d.label),
     })) || defaultCostDistribution;
+
+  const cardStyle = {
+    p: 3,
+    borderRadius: "16px",
+    height: "100%",
+    bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+    border: `1px solid ${theme.palette.divider}`,
+    transition: "box-shadow 0.2s ease-in-out",
+    "&:hover": {
+      boxShadow: theme.palette.mode === "dark" 
+        ? "0 8px 24px rgba(0,0,0,0.4)" 
+        : "0 8px 24px rgba(0,0,0,0.05)",
+    }
+  };
 
   return (
     <Grid container spacing={3}>
       <Grid size={{ xs: 12, lg: 8 }}>
-        <Paper sx={{ p: 3, borderRadius: 3 }}>
+        <Box sx={cardStyle}>
           <Stack
             direction="row"
             justifyContent="space-between"
             alignItems="center"
-            mb={2}
+            mb={4}
           >
             <Box>
-              <Typography variant="h6" fontWeight={600}>
-                {dict.analytics.costs.title}
-              </Typography>
-              <Typography variant="subtitle2" color="text.secondary">
+              <Stack direction="row" alignItems="center" spacing={1.5}>
+                <Box
+                  sx={{
+                    p: 1,
+                    borderRadius: "10px",
+                    bgcolor: "error.main",
+                    color: "white",
+                    display: "flex",
+                    opacity: 0.9,
+                  }}
+                >
+                  <BarChartIcon fontSize="small" />
+                </Box>
+                <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.01em" }}>
+                  {dict.analytics.costs.title}
+                </Typography>
+              </Stack>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontWeight: 500 }}>
                 {dict.analytics.costs.subtitle}
               </Typography>
             </Box>
             <TimeRangeSelector value={range} onChange={setRange} dict={dict} />
           </Stack>
 
-          <LineChart
-            xAxis={[{ data: months, scaleType: "point" }]}
-            series={[
-              {
-                data: fuelCosts,
-                label: dict.analytics.costs.categories.fuel,
-                area: true,
-                stack: "total",
-                showMark: false,
-                color: "#fca5a5",
-              },
-              {
-                data: maintenanceCosts,
-                label: dict.analytics.costs.categories.maintenance,
-                area: true,
-                stack: "total",
-                showMark: false,
-                color: "#fcd34d",
-              },
-              {
-                data: overheadCosts,
-                label: dict.analytics.costs.categories.overhead,
-                area: true,
-                stack: "total",
-                showMark: false,
-                color: "#94a3b8",
-              },
-            ]}
-            height={300}
-            grid={{ vertical: true, horizontal: true }}
-          />
-        </Paper>
+          <Box sx={{ width: "100%", height: 320 }}>
+            <BarChart
+              xAxis={[{ 
+                data: months, 
+                scaleType: "band",
+                tickLabelStyle: { fill: theme.palette.text.secondary, fontSize: 12, fontWeight: 600 } 
+              }]}
+              yAxis={[{
+                tickLabelStyle: { fill: theme.palette.text.secondary, fontSize: 12, fontWeight: 600 }
+              }]}
+              series={[
+                {
+                  data: fuelCosts,
+                  label: dict.analytics.costs.categories.fuel,
+                  stack: "total",
+                  color: theme.palette.error.main,
+                },
+                {
+                  data: maintenanceCosts,
+                  label: dict.analytics.costs.categories.maintenance,
+                  stack: "total",
+                  color: theme.palette.warning.main,
+                },
+                {
+                  data: overheadCosts,
+                  label: dict.analytics.costs.categories.overhead,
+                  stack: "total",
+                  color: theme.palette.info.main,
+                },
+              ]}
+              margin={{ top: 20, right: 20, bottom: 30, left: 40 }}
+              grid={{ horizontal: true }}
+              slotProps={{ bar: { rx: 4, ry: 4 } }}
+              sx={{
+                "& .MuiChartsLegend-root": {
+                  display: "none",
+                },
+              }}
+            />
+          </Box>
+        </Box>
       </Grid>
 
       <Grid size={{ xs: 12, lg: 4 }}>
-        <Paper sx={{ p: 3, borderRadius: 3, height: "100%" }}>
-          <Typography variant="h6" fontWeight={600} gutterBottom>
-            {dict.analytics.costs.breakdown}
-          </Typography>
+        <Box sx={cardStyle}>
+          <Stack direction="row" alignItems="center" spacing={1.5} mb={4}>
+            <Box
+              sx={{
+                p: 1,
+                borderRadius: "10px",
+                bgcolor: "warning.main",
+                color: "white",
+                display: "flex",
+                opacity: 0.9,
+              }}
+            >
+              <DonutSmallIcon fontSize="small" />
+            </Box>
+            <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.01em" }}>
+              {dict.analytics.costs.breakdown}
+            </Typography>
+          </Stack>
+          
           <Box
             sx={{
               display: "flex",
               justifyContent: "center",
               height: "100%",
               alignItems: "center",
+              minHeight: 320,
             }}
           >
             <PieChart
               series={[
                 {
                   data: costDistribution,
-                  innerRadius: 60,
-                  outerRadius: 100,
-                  paddingAngle: 2,
-                  cornerRadius: 4,
+                  innerRadius: 80,
+                  outerRadius: 120,
+                  paddingAngle: 3,
+                  cornerRadius: 8,
                   highlightScope: { fade: "global", highlight: "item" },
                   faded: {
-                    innerRadius: 30,
-                    additionalRadius: -30,
+                    innerRadius: 60,
+                    additionalRadius: -20,
                     color: "gray",
                   },
                 },
               ]}
-              height={260}
+              height={300}
               width={300}
+              sx={{
+                [`& .${pieArcLabelClasses.root}`]: {
+                  fill: "white",
+                  fontWeight: "bold",
+                },
+              }}
               slotProps={{
                 legend: {
                   position: { vertical: "bottom", horizontal: "center" },
@@ -205,7 +254,7 @@ export default function CostAnalysisCharts({ data }: CostAnalysisChartsProps) {
               }}
             />
           </Box>
-        </Paper>
+        </Box>
       </Grid>
     </Grid>
   );

@@ -1,14 +1,18 @@
-import { PieChart } from "@mui/x-charts/PieChart";
-import { Card, Stack, Typography, Box } from "@mui/material";
-import { InventoryCategoryStats } from "@/app/lib/type/reports";
+import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
+import { Card, Stack, Typography, Box, useTheme, Grid } from "@mui/material";
+import { ReportsInventoryCategory } from "@/app/lib/type/reports";
 import { Dictionary } from "@/app/lib/language/language";
+import CategoryIcon from "@mui/icons-material/Category";
+import InventoryIcon from "@mui/icons-material/Inventory";
 
 interface InventoryChartsProps {
-  data: InventoryCategoryStats;
+  data: Record<string, ReportsInventoryCategory>;
   dict: Dictionary;
 }
 
 export default function InventoryCharts({ data, dict }: InventoryChartsProps) {
+  const theme = useTheme();
+
   if (!data) return null;
 
   // Convert Record to Array for charts
@@ -34,32 +38,47 @@ export default function InventoryCharts({ data, dict }: InventoryChartsProps) {
     label: item.category,
   }));
 
+  const cardStyle = {
+    p: 3,
+    borderRadius: "20px",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+    bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.01)",
+    border: `1px solid ${theme.palette.divider}`,
+    transition: "box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out",
+    "&:hover": {
+      transform: "translateY(-4px)",
+      boxShadow: theme.palette.mode === "dark" 
+        ? "0 12px 30px rgba(0,0,0,0.4)" 
+        : "0 12px 30px rgba(0,0,0,0.06)",
+    }
+  };
+
   return (
-    <Stack direction={{ xs: "column", md: "row" }} spacing={3}>
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Card
-          sx={{
-            flex: 1,
-            p: 2.5,
-            borderRadius: "16px",
-            boxShadow: 2,
-            display: "flex",
-            flexDirection: "column",
-            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            background: "background.paper",
-            "&:hover": {
-              transform: "translateY(-4px)",
-              boxShadow: 8,
-            },
-          }}
-        >
-          <Stack spacing={0.5} sx={{ mb: 3 }}>
-            <Typography variant="h6" fontWeight={700}>
-              {dict.reports.charts.inventory.valueTitle}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {dict.reports.charts.inventory.valueSubtitle}
-            </Typography>
+    <Grid container spacing={3}>
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={cardStyle}>
+          <Stack direction="row" alignItems="center" spacing={1.5} mb={3}>
+            <Box
+              sx={{
+                p: 1,
+                borderRadius: "10px",
+                bgcolor: "success.main",
+                color: "white",
+                display: "flex",
+              }}
+            >
+              <InventoryIcon fontSize="small" />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.01em" }}>
+                {dict.reports.charts.inventory.valueTitle}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                {dict.reports.charts.inventory.valueSubtitle}
+              </Typography>
+            </Box>
           </Stack>
 
           <Box
@@ -87,45 +106,55 @@ export default function InventoryCharts({ data, dict }: InventoryChartsProps) {
                         ],
                   highlightScope: { fade: "global", highlight: "item" },
                   faded: {
-                    innerRadius: 30,
-                    additionalRadius: -30,
+                    innerRadius: 50,
+                    additionalRadius: -20,
                     color: "gray",
                   },
-                  innerRadius: 40,
-                  paddingAngle: 2,
-                  cornerRadius: 4,
+                  innerRadius: 60,
+                  outerRadius: 110,
+                  paddingAngle: 3,
+                  cornerRadius: 8,
                 },
               ]}
               height={300}
+              sx={{
+                [`& .${pieArcLabelClasses.root}`]: {
+                  fill: "white",
+                  fontWeight: "bold",
+                },
+              }}
+              slotProps={{
+                legend: {
+                  position: { vertical: "bottom", horizontal: "center" }
+                },
+              }}
             />
           </Box>
         </Card>
-      </Box>
+      </Grid>
 
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Card
-          sx={{
-            flex: 1,
-            p: 2.5,
-            borderRadius: "16px",
-            boxShadow: 2,
-            display: "flex",
-            flexDirection: "column",
-            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            background: "background.paper",
-            "&:hover": {
-              transform: "translateY(-4px)",
-              boxShadow: 8,
-            },
-          }}
-        >
-          <Stack spacing={0.5} sx={{ mb: 3 }}>
-            <Typography variant="h6" fontWeight={700}>
-              {dict.reports.charts.inventory.countTitle}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {dict.reports.charts.inventory.countSubtitle}
-            </Typography>
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Card sx={cardStyle}>
+          <Stack direction="row" alignItems="center" spacing={1.5} mb={3}>
+            <Box
+              sx={{
+                p: 1,
+                borderRadius: "10px",
+                bgcolor: "primary.main",
+                color: "white",
+                display: "flex",
+              }}
+            >
+              <CategoryIcon fontSize="small" />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.01em" }}>
+                {dict.reports.charts.inventory.countTitle}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                {dict.reports.charts.inventory.countSubtitle}
+              </Typography>
+            </Box>
           </Stack>
 
           <Box
@@ -153,21 +182,39 @@ export default function InventoryCharts({ data, dict }: InventoryChartsProps) {
                         ],
                   highlightScope: { fade: "global", highlight: "item" },
                   faded: {
-                    innerRadius: 30,
-                    additionalRadius: -30,
+                    innerRadius: 50,
+                    additionalRadius: -20,
                     color: "gray",
                   },
-                  innerRadius: 40,
-                  paddingAngle: 2,
-                  cornerRadius: 4,
+                  innerRadius: 60,
+                  outerRadius: 110,
+                  paddingAngle: 3,
+                  cornerRadius: 8,
                 },
               ]}
               height={300}
-              colors={["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]}
+              colors={[
+                theme.palette.primary.main, 
+                theme.palette.success.main, 
+                theme.palette.warning.main, 
+                theme.palette.error.main,
+                theme.palette.info.main
+              ]}
+              sx={{
+                [`& .${pieArcLabelClasses.root}`]: {
+                  fill: "white",
+                  fontWeight: "bold",
+                },
+              }}
+              slotProps={{
+                legend: {
+                  position: { vertical: "bottom", horizontal: "center" }
+                },
+              }}
             />
           </Box>
         </Card>
-      </Box>
-    </Stack>
+      </Grid>
+    </Grid>
   );
 }

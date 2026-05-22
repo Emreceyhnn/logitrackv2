@@ -14,7 +14,6 @@ import {
   Stepper,
   Step,
   StepLabel,
-  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -54,7 +53,6 @@ export default function CreateCompanyDialog({
 
   const [activeStep, setActiveStep] = useState(0);
   const [direction, setDirection] = useState(0); // For framer-motion slide direction
-  const [loading, setLoading] = useState(false);
 
   /* -------------------------------- Handlers -------------------------------- */
   const handleNext = () => {
@@ -67,35 +65,38 @@ export default function CreateCompanyDialog({
   };
 
   const handleSubmit = async (values: CompanyFormData) => {
-    setLoading(true);
-    try {
-      let logoUrl = values.logo;
+    // 1. Close dialog immediately
+    onClose();
+    setActiveStep(0);
 
-      if (logoUrl && logoUrl.startsWith("data:image")) {
-        const uploadResult = await uploadImageAction(
-          logoUrl,
-          "general",
-          "logos"
-        );
-        logoUrl = uploadResult.url;
+    // 2. Run upload and create behind a loading toast
+    await toast.promise(
+      (async () => {
+        let logoUrl = values.logo;
+
+        if (logoUrl && logoUrl.startsWith("data:image")) {
+          const uploadResult = await uploadImageAction(
+            logoUrl,
+            "general",
+            "logos"
+          );
+          logoUrl = uploadResult.url;
+        }
+
+        await createCompany(values.name, logoUrl || "", {
+          timezone: values.timezone,
+          currency: values.currency,
+          language: values.language,
+        });
+        onSuccess?.();
+      })(),
+      {
+        loading: dict.toasts?.loading || "Creating company...",
+        success: dict.toasts.successAdd,
+        error: (err: unknown) =>
+          err instanceof Error ? err.message : dict.toasts.errorGeneric,
       }
-
-      await createCompany(values.name, logoUrl || "", {
-        timezone: values.timezone,
-        currency: values.currency,
-        language: values.language,
-      });
-
-      toast.success(dict.toasts.successAdd);
-      onSuccess?.();
-      onClose();
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : dict.toasts.errorGeneric;
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
   const variants = {
@@ -239,7 +240,7 @@ export default function CreateCompanyDialog({
                       state={{
                         activeStep,
                         formData: values,
-                        loading,
+                        loading: false,
                         error: null,
                       }}
                       actions={{
@@ -260,7 +261,7 @@ export default function CreateCompanyDialog({
                       state={{
                         activeStep,
                         formData: values,
-                        loading,
+                        loading: false,
                         error: null,
                       }}
                       actions={{
@@ -320,11 +321,8 @@ export default function CreateCompanyDialog({
                     submitForm();
                   }
                 }}
-                disabled={loading}
                 endIcon={
-                  loading ? (
-                    <CircularProgress size={16} color="inherit" />
-                  ) : activeStep === 1 ? (
+                  activeStep === 1 ? (
                     <CheckIcon />
                   ) : (
                     <NavigateNextIcon />
@@ -343,9 +341,7 @@ export default function CreateCompanyDialog({
                   },
                 }}
               >
-                {loading
-                  ? dict.toasts.loading
-                  : activeStep === 1
+                {activeStep === 1
                     ? dict.common.save
                     : dict.common.next}
               </Button>

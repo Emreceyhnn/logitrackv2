@@ -179,30 +179,33 @@ export default function InventoryEditDialog({
 
   const onSubmit = async (data: FormData) => {
     if (!item) return;
-    try {
-      console.log("Submitting inventory update:", data);
-      let finalImageUrl = data.imageUrl || "";
 
-      // If it's a new base64 image, upload it
-      if (finalImageUrl.startsWith("data:")) {
-        const uploadResult = await uploadImageAction(finalImageUrl, "general");
-        finalImageUrl = uploadResult.url;
+    // 1. Close dialog immediately
+    onClose();
+
+    // 2. Run update behind a loading toast
+    await toast.promise(
+      (async () => {
+        let finalImageUrl = data.imageUrl || "";
+
+        if (finalImageUrl.startsWith("data:")) {
+          const uploadResult = await uploadImageAction(finalImageUrl, "general");
+          finalImageUrl = uploadResult.url;
+        }
+
+        await onUpdate(item.id, {
+          ...data,
+          imageUrl: finalImageUrl,
+          currency: userCurrency,
+        });
+      })(),
+      {
+        loading: dict.toasts?.loading || "Updating...",
+        success: dict.common.saveSuccess || "Inventory updated successfully",
+        error: (error: unknown) =>
+          (error as Error).message || "Failed to update inventory",
       }
-
-      await onUpdate(item.id, {
-        ...data,
-        imageUrl: finalImageUrl,
-        currency: userCurrency,
-      });
-
-      toast.success(
-        dict.common.saveSuccess || "Inventory updated successfully"
-      );
-      onClose();
-    } catch (error) {
-      console.error("Failed to update inventory", error);
-      toast.error((error as Error).message || "Failed to update inventory");
-    }
+    );
   };
 
   if (!item) return null;
@@ -769,9 +772,7 @@ export default function InventoryEditDialog({
                 py: 1.2,
               }}
             >
-              {isSubmitting
-                ? dict.common.saving
-                : dict.inventory.dialogs.commitUpdate}
+              {dict.inventory.dialogs.commitUpdate}
             </Button>
           </Stack>
         </Box>

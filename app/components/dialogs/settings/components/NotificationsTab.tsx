@@ -30,7 +30,7 @@ export default function NotificationsTab({
   const dict = useDictionary();
 
   return (
-    <Stack spacing={3.5}>
+    <Stack spacing={2.2}>
       <Box>
         <Stack direction="row" alignItems="center" gap={1} mb={2}>
           <Box

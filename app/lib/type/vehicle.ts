@@ -111,6 +111,8 @@ export interface VehicleFilters {
   type?: VehicleType[];
   hasIssues?: boolean;
   hasDriver?: boolean;
+  page?: number;
+  limit?: number;
 }
 
 import { PaginationMeta } from "./dataTable";

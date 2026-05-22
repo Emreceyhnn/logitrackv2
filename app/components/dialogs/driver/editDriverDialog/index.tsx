@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  CircularProgress,
   Divider,
   IconButton,
   Stack,
@@ -18,7 +17,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useMemo, useState } from "react";
-import { Formik, FormikHelpers } from "formik";
+import { Formik } from "formik";
 import {
   EditDriverDialogProps,
   EditDriverFormValues,
@@ -47,7 +46,10 @@ const EditDriverDialog = ({
   const dict = useDictionary();
   const dateSettings = useDateSettings();
 
-  const validationSchema = useMemo(() => editDriverValidationSchema(dict), [dict]);
+  const validationSchema = useMemo(
+    () => editDriverValidationSchema(dict),
+    [dict]
+  );
   if (!driver) return null;
 
   const initialValues: EditDriverFormValues = {
@@ -74,97 +76,92 @@ const EditDriverDialog = ({
   };
 
   /* -------------------------------- handlers --------------------------------- */
-  const handleSubmit = async (
-    values: EditDriverFormValues,
-    { setSubmitting, setStatus }: FormikHelpers<EditDriverFormValues>
-  ) => {
-    try {
-      setSubmitting(true);
-      setStatus(null);
+  const handleSubmit = async (values: EditDriverFormValues) => {
+    // 1. Close immediately
+    onClose();
+    setCurrentStep(1);
 
-      const fileToBase64 = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = (error) => reject(error);
-        });
-      };
+    const fileToBase64 = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+      });
+    };
 
-      // 1. Upload Licence Photo if exists
-      let licensePhotoUrl = "";
-      if (values.licencePhoto) {
-        const base64 = await fileToBase64(values.licencePhoto);
-        const uploadResult = await uploadImageAction(
-          base64,
-          "documents",
-          `drivers/${driver.user.id}/license`
+    // 2. Run update within a toast.promise
+    await toast.promise(
+      (async () => {
+        let licensePhotoUrl = "";
+        if (values.licencePhoto) {
+          const base64 = await fileToBase64(values.licencePhoto);
+          const uploadResult = await uploadImageAction(
+            base64,
+            "documents",
+            `drivers/${driver.user.id}/license`
+          );
+          licensePhotoUrl = uploadResult.url;
+        }
+
+        const uploadedDocs = await Promise.all(
+          values.documents.map(async (doc) => {
+            if (doc.file) {
+              const base64 = await fileToBase64(doc.file);
+              const uploadResult = await uploadImageAction(
+                base64,
+                "documents",
+                `drivers/${driver.user.id}/docs`
+              );
+              return {
+                name: doc.name,
+                type: doc.type,
+                url: uploadResult.url,
+                expiryDate: doc.expiryDate || undefined,
+              };
+            }
+            return null;
+          })
         );
-        licensePhotoUrl = uploadResult.url;
-      }
 
-      // 2. Upload additional documents if exist
-      const uploadedDocs = await Promise.all(
-        values.documents.map(async (doc) => {
-          if (doc.file) {
-            const base64 = await fileToBase64(doc.file);
-            const uploadResult = await uploadImageAction(
-              base64,
-              "documents",
-              `drivers/${driver.user.id}/docs`
-            );
-            return {
-              name: doc.name,
-              type: doc.type,
-              url: uploadResult.url,
-              expiryDate: doc.expiryDate || undefined,
-            };
-          }
-          return null;
-        })
-      );
+        const payload = {
+          phone: values.phone,
+          employeeId: values.employeeId,
+          licenseNumber: values.licenseNumber,
+          licenseExpiry: values.licenseExpiry,
+          licenseType: values.licenseType,
+          status: values.status as DriverStatus,
+          currentVehicleId: values.currentVehicleId || null,
+          homeBaseWarehouseId: values.homeWareHouseId || null,
+          languages: values.languages,
+          hazmatCertified: values.hazmatCertified,
+          ...(licensePhotoUrl && { licensePhotoUrl }),
+          ...(uploadedDocs.length > 0 && {
+            documents: uploadedDocs.filter((d) => d !== null) as {
+              name: string;
+              type: string;
+              url: string;
+              expiryDate?: Date;
+            }[],
+          }),
+        };
 
-      const payload = {
-        phone: values.phone,
-        employeeId: values.employeeId,
-        licenseNumber: values.licenseNumber,
-        licenseExpiry: values.licenseExpiry,
-        licenseType: values.licenseType,
-        status: values.status as DriverStatus,
-        currentVehicleId: values.currentVehicleId || null,
-        homeBaseWarehouseId: values.homeWareHouseId || null,
-        languages: values.languages,
-        hazmatCertified: values.hazmatCertified,
-        ...(licensePhotoUrl && { licensePhotoUrl }),
-        ...(uploadedDocs.length > 0 && {
-          documents: (uploadedDocs.filter((d) => d !== null) as {
-            name: string;
-            type: string;
-            url: string;
-            expiryDate?: Date;
-          }[]),
-        }),
-      };
-
-      await updateDriver(driver.id, payload);
-
-      toast.success(dict.common.saveSuccess);
-
-      setTimeout(() => {
-        onClose();
+        await updateDriver(driver.id, payload);
         onSuccess?.();
-        setCurrentStep(1);
-      }, 1500);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : dict.common.errorOccurred;
-      setStatus(message);
-      toast.error(message);
-    } finally {
-      setSubmitting(false);
-    }
+      })(),
+      {
+        loading: dict.toasts?.loading || "Saving...",
+        success: dict.common.saveSuccess,
+        error: (err: unknown) =>
+          err instanceof Error ? err.message : dict.common.errorOccurred,
+      }
+    );
   };
 
-  const steps = [dict.drivers.tabs.personalInfo, dict.drivers.tabs.operationalInfo];
+  const steps = [
+    dict.drivers.tabs.personalInfo,
+    dict.drivers.tabs.operationalInfo,
+  ];
 
   return (
     <Dialog
@@ -187,13 +184,7 @@ const EditDriverDialog = ({
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({
-          handleSubmit: formikSubmit,
-          isSubmitting,
-          status,
-          validateForm,
-          setFieldTouched,
-        }) => {
+        {({ handleSubmit: formikSubmit, validateForm, setFieldTouched }) => {
           const handleNext = async () => {
             const errors = await validateForm();
             const step1Fields = [
@@ -203,7 +194,7 @@ const EditDriverDialog = ({
               "licenseType",
               "licenseExpiry",
             ];
-            
+
             const hasStep1Errors = step1Fields.some(
               (field) => !!(errors as Record<string, string>)[field]
             );
@@ -226,7 +217,8 @@ const EditDriverDialog = ({
                 >
                   <Stack spacing={0.5}>
                     <Typography variant="h6" fontWeight={600} color="white">
-                      {dict.drivers.dialogs.editTitle}: {driver.user.name} {driver.user.surname}
+                      {dict.drivers.dialogs.editTitle}: {driver.user.name}{" "}
+                      {driver.user.surname}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {dict.drivers.dialogs.editSubtitle}
@@ -236,7 +228,6 @@ const EditDriverDialog = ({
                     onClick={() => onClose()}
                     size="small"
                     sx={{ color: "text.secondary" }}
-                    disabled={isSubmitting}
                   >
                     <CloseIcon fontSize="small" />
                   </IconButton>
@@ -257,7 +248,9 @@ const EditDriverDialog = ({
                         <StepLabel
                           StepIconProps={{
                             sx: {
-                              "&.Mui-active": { color: theme.palette.primary.main },
+                              "&.Mui-active": {
+                                color: theme.palette.primary.main,
+                              },
                               "&.Mui-completed": {
                                 color: theme.palette.primary.main,
                               },
@@ -281,24 +274,13 @@ const EditDriverDialog = ({
                   </Stepper>
                 </Box>
                 <Divider
-                  sx={{ mb: 4, borderColor: theme.palette.divider_alpha.main_05 }}
+                  sx={{
+                    mb: 4,
+                    borderColor: theme.palette.divider_alpha.main_05,
+                  }}
                 />
 
                 <Box sx={{ minHeight: 400 }}>
-                  {status && (
-                    <Box
-                      mb={3}
-                      p={2}
-                      sx={{
-                        bgcolor: theme.palette.error._alpha.main_10,
-                        borderRadius: 2,
-                      }}
-                    >
-                      <Typography variant="caption" color="error">
-                        {status}
-                      </Typography>
-                    </Box>
-                  )}
                   {currentStep === 1 && <FirstEditDriverDialogStep />}
                   {currentStep === 2 && (
                     <SecondEditDriverDialogStep
@@ -308,12 +290,15 @@ const EditDriverDialog = ({
                   )}
                 </Box>
               </DialogContent>
-              <DialogActions sx={{ p: 3, pt: 0, justifyContent: "space-between" }}>
+              <DialogActions
+                sx={{ p: 3, pt: 0, justifyContent: "space-between" }}
+              >
                 <Button
                   onClick={
-                    currentStep === 1 ? () => onClose() : () => setCurrentStep(1)
+                    currentStep === 1
+                      ? () => onClose()
+                      : () => setCurrentStep(1)
                   }
-                  disabled={isSubmitting}
                   sx={{
                     color: "text.secondary",
                     "&:hover": { bgcolor: theme.palette.divider_alpha.main_05 },
@@ -326,12 +311,6 @@ const EditDriverDialog = ({
                   onClick={
                     currentStep === 1 ? handleNext : () => formikSubmit()
                   }
-                  disabled={isSubmitting}
-                  startIcon={
-                    isSubmitting && (
-                      <CircularProgress size={16} color="inherit" />
-                    )
-                  }
                   sx={{
                     borderRadius: 2,
                     px: 4,
@@ -339,11 +318,7 @@ const EditDriverDialog = ({
                     boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
                   }}
                 >
-                  {isSubmitting
-                    ? dict.toasts.loading
-                    : currentStep === 1
-                    ? dict.common.next
-                    : dict.common.save}
+                  {currentStep === 1 ? dict.common.next : dict.common.save}
                 </Button>
               </DialogActions>
             </>
