@@ -6,11 +6,14 @@ import jwt from "jsonwebtoken";
 import { db } from "../db";
 import type { AuditAction } from "@prisma/client";
 
-// ─── Secrets ────────────────────────────────────────────────────────────────
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is not defined");
-}
+const getJwtSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET environment variable is not defined");
+  }
+  return secret;
+};
+const JWT_SECRET = getJwtSecret();
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 const ACCESS_TOKEN_EXPIRY = "24h"; // 24 hours
