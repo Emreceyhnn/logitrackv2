@@ -108,9 +108,10 @@ export default async function proxy(request: NextRequest) {
 
   if (token) {
     try {
-      const secret = new TextEncoder().encode(
-        process.env.JWT_SECRET || "fallback_secret_for_dev_only"
-      );
+      if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is not defined");
+      }
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       const { payload } = await jwtVerify(token, secret);
       companyId = (payload.companyId as string) || null;
       isTokenValid = true;
