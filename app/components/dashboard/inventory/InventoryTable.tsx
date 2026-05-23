@@ -1,7 +1,15 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
-import { Typography, Avatar, Stack, Chip, Box, useTheme, Tooltip } from "@mui/material";
+import { useMemo, useCallback } from "react";
+import {
+  Typography,
+  Avatar,
+  Stack,
+  Chip,
+  Box,
+  useTheme,
+  Tooltip,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import InfoIcon from "@mui/icons-material/Info";
 import EditIcon from "@mui/icons-material/Edit";
@@ -48,47 +56,50 @@ const InventoryTable = ({
 
   const { formatFrom, isLoading: currencyLoading } = useCurrency();
 
-  const getCategoryStyles = useCallback((cargoType: string | null | undefined) => {
-    const type = cargoType?.toUpperCase() || "";
-    // Using theme.palette.kpi colors
-    if (type.includes("FROZEN") || type.includes("COLD"))
-      return {
-        main: theme.palette.kpi.sky,
-        alpha: theme.palette.kpi.sky_alpha.main_10,
-        alphaHover: theme.palette.kpi.sky_alpha.main_20,
-      };
-    if (type.includes("BATTERY") || type.includes("ELECTRO"))
-      return {
-        main: theme.palette.kpi.purple,
-        alpha: theme.palette.kpi.purple_alpha.main_10,
-        alphaHover: theme.palette.kpi.purple_alpha.main_20,
-      };
-    if (type.includes("HAZMAT") || type.includes("HAZARD"))
-      return {
-        main: theme.palette.kpi.amber,
-        alpha: theme.palette.kpi.amber_alpha.main_10,
-        alphaHover: theme.palette.kpi.amber_alpha.main_20,
-      };
-    if (type.includes("FOOD") || type.includes("PERISH"))
-      return {
-        main: theme.palette.kpi.emerald,
-        alpha: theme.palette.kpi.emerald_alpha.main_10,
-        alphaHover: theme.palette.kpi.emerald_alpha.main_20,
-      };
-    if (type.includes("LIQUID") || type.includes("OIL"))
-      return {
-        main: theme.palette.kpi.indigo,
-        alpha: theme.palette.kpi.indigo_alpha.main_10,
-        alphaHover: theme.palette.kpi.indigo_alpha.main_20,
-      };
+  const getCategoryStyles = useCallback(
+    (cargoType: string | null | undefined) => {
+      const type = cargoType?.toUpperCase() || "";
+      // Using theme.palette.kpi colors
+      if (type.includes("FROZEN") || type.includes("COLD"))
+        return {
+          main: theme.palette.kpi.sky,
+          alpha: theme.palette.kpi.sky_alpha.main_10,
+          alphaHover: theme.palette.kpi.sky_alpha.main_20,
+        };
+      if (type.includes("BATTERY") || type.includes("ELECTRO"))
+        return {
+          main: theme.palette.kpi.purple,
+          alpha: theme.palette.kpi.purple_alpha.main_10,
+          alphaHover: theme.palette.kpi.purple_alpha.main_20,
+        };
+      if (type.includes("HAZMAT") || type.includes("HAZARD"))
+        return {
+          main: theme.palette.kpi.amber,
+          alpha: theme.palette.kpi.amber_alpha.main_10,
+          alphaHover: theme.palette.kpi.amber_alpha.main_20,
+        };
+      if (type.includes("FOOD") || type.includes("PERISH"))
+        return {
+          main: theme.palette.kpi.emerald,
+          alpha: theme.palette.kpi.emerald_alpha.main_10,
+          alphaHover: theme.palette.kpi.emerald_alpha.main_20,
+        };
+      if (type.includes("LIQUID") || type.includes("OIL"))
+        return {
+          main: theme.palette.kpi.indigo,
+          alpha: theme.palette.kpi.indigo_alpha.main_10,
+          alphaHover: theme.palette.kpi.indigo_alpha.main_20,
+        };
 
-    // Default: Indigo/Primary
-    return {
-      main: theme.palette.primary.main,
-      alpha: theme.palette.primary._alpha.main_10,
-      alphaHover: theme.palette.primary._alpha.main_20,
-    };
-  }, [theme]);
+      // Default: Indigo/Primary
+      return {
+        main: theme.palette.primary.main,
+        alpha: theme.palette.primary._alpha.main_10,
+        alphaHover: theme.palette.primary._alpha.main_20,
+      };
+    },
+    [theme]
+  );
 
   const currentMeta = meta || {
     page: 1,
@@ -198,7 +209,10 @@ const InventoryTable = ({
                 />
                 <Typography
                   variant="body2"
-                  sx={{ color: `${getStockColor(status)}.main`, fontWeight: 500 }}
+                  sx={{
+                    color: `${getStockColor(status)}.main`,
+                    fontWeight: 500,
+                  }}
                 >
                   {row.quantity - (row.allocatedQuantity || 0)}{" "}
                   {row.allocatedQuantity > 0 && (
@@ -212,7 +226,8 @@ const InventoryTable = ({
                     </Typography>
                   )}
                   {status === "LOW_STOCK" && ` (${dict.inventory.status.low})`}
-                  {status === "OUT_OF_STOCK" && ` (${dict.inventory.status.out})`}
+                  {status === "OUT_OF_STOCK" &&
+                    ` (${dict.inventory.status.out})`}
                 </Typography>
               </Stack>
             </Tooltip>

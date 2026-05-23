@@ -583,6 +583,7 @@ function DataTable<TRow extends { id: string }>({
     }
   }, [searchValue, isServerSide]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: rows,
     columns: tanstackColumns,
