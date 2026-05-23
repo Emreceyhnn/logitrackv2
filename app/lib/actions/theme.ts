@@ -6,7 +6,7 @@ import { getAuthenticatedUser } from "../auth-middleware";
 
 const THEME_COOKIE = "logitrack-theme";
 const VALID_THEMES = ["light", "dark", "system"] as const;
-type ThemeValue = (typeof VALID_THEMES)[number];
+export type ThemeValue = (typeof VALID_THEMES)[number];
 
 function isValidTheme(value: string): value is ThemeValue {
   return (VALID_THEMES as readonly string[]).includes(value);
@@ -56,7 +56,7 @@ export async function saveUserTheme(mode: string) {
  * Reads the user's stored theme preference.
  * Priority: HTTP cookie (zero-latency) → Redis fallback (first visit / cross-device).
  */
-export async function getUserTheme(): Promise<string | null> {
+export async function getUserTheme(): Promise<ThemeValue | null> {
   try {
     // 1. Cookie-first: no network call needed
     const cookieStore = await cookies();

@@ -42,10 +42,9 @@ interface TrailerInput {
 
 export const createTrailer = authenticatedAction(
   async (user, trailerData: TrailerInput) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",

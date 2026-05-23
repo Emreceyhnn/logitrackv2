@@ -1,12 +1,11 @@
 export type NotificationType = "INFO" | "WARNING" | "ERROR" | "SUCCESS";
 
-export type NotificationCategory = 
-  | "SHIPMENT_UPDATE" 
-  | "MAINTENANCE_ALERT" 
-  | "NEW_ASSIGNMENT" 
-  | "DELAY_ALERT" 
+export type NotificationCategory =
+  | "SHIPMENT_UPDATE"
+  | "MAINTENANCE_ALERT"
+  | "NEW_ASSIGNMENT"
+  | "DELAY_ALERT"
   | "SYSTEM";
-
 
 export interface NotificationTarget {
   userId?: string;

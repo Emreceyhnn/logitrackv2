@@ -17,9 +17,8 @@ export const createDocument = authenticatedAction(
     vehicleId?: string
   ) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -103,9 +102,8 @@ export const createDocument = authenticatedAction(
 export const getDocuments = authenticatedAction(
   async (user, entityType?: "driver" | "vehicle", entityId?: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -142,9 +140,8 @@ export const getDocuments = authenticatedAction(
 export const getDocumentById = authenticatedAction(
   async (user, documentId: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -160,7 +157,7 @@ export const getDocumentById = authenticatedAction(
       if (!document) throw new Error("Document not found");
 
       if (document.companyId) {
-        await checkPermission(user.id, document.companyId);
+        await checkPermission(user, document.companyId);
       }
 
       return document;
@@ -176,9 +173,8 @@ export const getDocumentById = authenticatedAction(
 export const deleteDocument = authenticatedAction(
   async (user, documentId: string) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -190,7 +186,7 @@ export const deleteDocument = authenticatedAction(
 
       if (!existingDocument?.companyId) throw new Error("Document not found");
 
-      await checkPermission(userId, existingDocument.companyId, [
+      await checkPermission(user, existingDocument.companyId, [
         "role_admin",
         "role_manager",
       ]);
@@ -212,9 +208,8 @@ export const deleteDocument = authenticatedAction(
 export const getExpiringDocuments = authenticatedAction(
   async (user, daysThreshold: number = 30) => {
     const companyId = user?.companyId || "";
-    const userId = user?.id || "";
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",

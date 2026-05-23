@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import {
   subscribeToAllVehicles,
   subscribeToVehicleLocation,
-  VehicleLocation,
 } from "@/app/lib/vehicleTracking";
+import { VehicleLocation } from "@/app/lib/type/vehicle";
 
 export const useAllVehiclesTracking = () => {
   const [vehicleLocations, setVehicleLocations] = useState<

@@ -13,15 +13,7 @@
 
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
-export const UserRole = {
-  ADMIN: "ADMIN",
-  MANAGER: "MANAGER",
-  DISPATCHER: "DISPATCHER",
-  DRIVER: "DRIVER",
-  WAREHOUSE: "WAREHOUSE",
-  DEFAULT: "DEFAULT",
-} as const;
-export type UserRole = typeof UserRole[keyof typeof UserRole];
+
 
 export const UserStatus = {
   ACTIVE: "ACTIVE",
@@ -322,7 +314,7 @@ export interface ShipmentHistory {
   location?: string | null;
   description?: string | null;
   createdAt: Date;
-  createdBy?: string | null;
+  createdById?: string | null;
 }
 
 export interface Route {

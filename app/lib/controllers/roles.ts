@@ -12,11 +12,10 @@ export const createRole = authenticatedAction(
     description?: string,
     permissions: string[] = []
   ) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
 
     try {
-      await checkPermission(userId, companyId, ["role_admin"]);
+      await checkPermission(user, companyId, ["role_admin"]);
 
       const existingRole = await db.role.findUnique({
         where: { name },
@@ -45,11 +44,10 @@ export const createRole = authenticatedAction(
 );
 
 export const getRoles = authenticatedAction(async (user) => {
-  const userId = user?.id;
   const companyId = user?.companyId;
 
   try {
-    await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+    await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
     const roles = await db.role.findMany({
       orderBy: { name: "asc" },
@@ -69,11 +67,10 @@ export const getRoles = authenticatedAction(async (user) => {
 });
 
 export const getRoleById = authenticatedAction(async (user, roleId: string) => {
-  const userId = user?.id;
   const companyId = user?.companyId;
 
   try {
-    await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+    await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
     const role = await db.role.findUnique({
       where: { id: roleId },
@@ -103,11 +100,10 @@ export const getRoleById = authenticatedAction(async (user, roleId: string) => {
 
 export const updateRole = authenticatedAction(
   async (user, roleId: string, data: Prisma.RoleUpdateInput) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
 
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const updatedRole = await db.role.update({
         where: { id: roleId },
@@ -127,11 +123,10 @@ export const updateRole = authenticatedAction(
 );
 
 export const deleteRole = authenticatedAction(async (user, roleId: string) => {
-  const userId = user?.id;
   const companyId = user?.companyId;
 
   try {
-    await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+    await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
     const roleInUse = await db.user.findFirst({
       where: { roleId },
@@ -158,11 +153,10 @@ export const deleteRole = authenticatedAction(async (user, roleId: string) => {
 
 export const addPermissionToRole = authenticatedAction(
   async (user, roleId: string, permission: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
 
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const role = await db.role.findUnique({ where: { id: roleId } });
       if (!role) throw new Error("Role not found");
@@ -193,11 +187,10 @@ export const addPermissionToRole = authenticatedAction(
 
 export const removePermissionFromRole = authenticatedAction(
   async (user, roleId: string, permission: string) => {
-    const userId = user?.id;
     const companyId = user?.companyId;
 
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const role = await db.role.findUnique({ where: { id: roleId } });
       if (!role) throw new Error("Role not found");

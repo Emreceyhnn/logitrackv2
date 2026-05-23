@@ -1,31 +1,5 @@
 import { db as firebase, ref, onValue, off } from "./firebase";
-import { 
-  updateVehicleLocationAction, 
-  updateVehicleDataAction, 
-  syncVehicleToFirebaseAction 
-} from "./actions/vehicleTracking";
-
-export interface VehicleLocation {
-  lat: number;
-  lng: number;
-  speed?: number;
-  heading?: number;
-  lastUpdated: number;
-}
-
-export const updateVehicleLocation = async (
-  vehicleId: string,
-  location: Omit<VehicleLocation, "lastUpdated">
-) => {
-  return updateVehicleLocationAction(vehicleId, location);
-};
-
-export const updateVehicleData = async (
-  vehicleId: string,
-  data: Partial<VehicleLocation>
-) => {
-  return updateVehicleDataAction(vehicleId, data);
-};
+import { VehicleLocation } from "@/app/lib/type/vehicle";
 
 export const subscribeToVehicleLocation = (
   vehicleId: string,
@@ -52,8 +26,4 @@ export const subscribeToAllVehicles = (
   });
 
   return () => off(vehiclesRef);
-};
-
-export const syncVehicleToFirebase = async (vehicle: { id: string } & Record<string, unknown>) => {
-  return syncVehicleToFirebaseAction(vehicle);
 };

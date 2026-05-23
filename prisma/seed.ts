@@ -17,6 +17,7 @@
 import { PrismaClient, DriverStatus, VehicleStatus, WarehouseType, RouteStatus, TrailerType, TrailerStatus, ShipmentPriority } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { adminDb } from "../app/lib/firebase-admin";
+import rolesConfig from "../roles.json";
 
 const prisma = new PrismaClient();
 
@@ -135,20 +136,23 @@ async function main() {
   });
 
   // 3. ROLES
-  console.log("🔑 Seeding Roles...");
-  const roleDefs = [
-    { name: "Super Admin", description: "Global platform access", permissions: ["*"] },
-    { name: "Company Admin", description: "Full company control", permissions: ["MANAGE_USERS", "MANAGE_FLEET", "MANAGE_OPS", "VIEW_FINANCE"] },
-    { name: "Manager", description: "Operational management", permissions: ["MANAGE_FLEET", "MANAGE_OPS", "VIEW_REPORTS"] },
-    { name: "Dispatcher", description: "Route and shipment planning", permissions: ["MANAGE_ROUTES", "MANAGE_SHIPMENTS", "VIEW_FLEET"] },
-    { name: "Warehouse Operator", description: "Inventory and stock management", permissions: ["MANAGE_INVENTORY", "VIEW_SHIPMENTS"] },
-    { name: "Driver", description: "Mobile app access", permissions: ["VIEW_OWN_ROUTES", "UPDATE_STATUS"] },
-  ];
-
+  console.log("🔑 Seeding Roles from roles.json...");
   const roles: Record<string, string> = {};
-  for (const r of roleDefs) {
-    const role = await prisma.role.create({ data: r });
+  for (const r of rolesConfig) {
+    const role = await prisma.role.create({
+      data: {
+        name: r.name,
+        description: r.description,
+        permissions: r.permissions,
+      },
+    });
+    roles[r.id] = role.id;
     roles[r.name] = role.id;
+    if (r.names) {
+      for (const name of r.names) {
+        roles[name] = role.id;
+      }
+    }
   }
 
   // 4. SUPER ADMIN
@@ -158,7 +162,7 @@ async function main() {
       name: "Super",
       surname: "Admin",
       password: hashedPassword,
-      roleId: roles["Super Admin"],
+      roleId: roles["role_admin"],
       timezone: "Europe/Istanbul",
       dateFormat: "DD/MM/YYYY",
       currency: "USD"
@@ -182,7 +186,7 @@ async function main() {
         name: pick(FIRST_NAMES),
         surname: pick(LAST_NAMES),
         password: hashedPassword,
-        roleId: roles["Company Admin"],
+        roleId: roles["role_admin"],
         companyId: company.id,
         timezone: "Europe/Istanbul",
         currency: "USD"
@@ -195,7 +199,7 @@ async function main() {
         name: pick(FIRST_NAMES),
         surname: pick(LAST_NAMES),
         password: hashedPassword,
-        roleId: roles["Manager"],
+        roleId: roles["role_manager"],
         companyId: company.id,
         timezone: "Europe/Istanbul",
       }
@@ -382,7 +386,7 @@ async function main() {
           name: pick(FIRST_NAMES),
           surname: pick(LAST_NAMES),
           password: hashedPassword,
-          roleId: roles["Driver"],
+          roleId: roles["role_driver"],
           companyId: company.id,
         }
       });

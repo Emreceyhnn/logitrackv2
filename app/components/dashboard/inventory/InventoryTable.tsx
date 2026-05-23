@@ -45,8 +45,6 @@ const InventoryTable = ({
 }: InventoryTableProps) => {
   const theme = useTheme();
   const dict = useDictionary();
-  const [localPage, setLocalPage] = useState(1);
-  const [localLimit, setLocalLimit] = useState(10);
 
   const { formatFrom, isLoading: currencyLoading } = useCurrency();
 
@@ -93,8 +91,8 @@ const InventoryTable = ({
   }, [theme]);
 
   const currentMeta = meta || {
-    page: localPage,
-    limit: localLimit,
+    page: 1,
+    limit: 10,
     total: items.length,
   };
 
@@ -107,15 +105,10 @@ const InventoryTable = ({
 
   const handlePageChange = (newPage: number) => {
     if (onPageChange) onPageChange(newPage);
-    else setLocalPage(newPage);
   };
 
   const handleLimitChange = (newLimit: number) => {
     if (onLimitChange) onLimitChange(newLimit);
-    else {
-      setLocalLimit(newLimit);
-      setLocalPage(1);
-    }
   };
 
   const columns: DataTableColumn<InventoryWithRelations>[] = useMemo(

@@ -2,8 +2,9 @@
 
 import bcrypt from "bcryptjs";
 import { checkPermission } from "./utils/checkPermission";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 import { db } from "../db";
+import { redis } from "../redis";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import {
   authenticatedAction,
@@ -18,6 +19,8 @@ import {
   validateSession,
   SessionJWTPayload,
 } from "./session";
+import { headers } from "next/headers";
+import { rateLimit } from "../rate-limiter";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -34,12 +37,13 @@ export const getUserFromToken = authenticatedAction(
     },
     "password"
   > | null> => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
     try {
-      await checkPermission(userId, companyId);
+      await checkPermission(user, companyId);
 
-      const decoded = jwt.verify(token, JWT_SECRET) as SessionJWTPayload;
+      const secret = new TextEncoder().encode(JWT_SECRET);
+      const { payload } = await jwtVerify(token, secret);
+      const decoded = payload as unknown as SessionJWTPayload;
       if (!decoded || typeof decoded !== "object" || !decoded.id) {
         throw new Error("Invalid token");
       }
@@ -65,7 +69,7 @@ export const getUserFromToken = authenticatedAction(
 
 export const getUsers = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId, [
+    await checkPermission(user, user.companyId, [
       "role_admin",
       "role_manager",
     ]);
@@ -98,9 +102,18 @@ export const RegisterUser = maybeAuthenticatedAction(
     ipAddress?: string
   ) => {
     try {
+      const headerStore = await headers();
+      const ip = ipAddress || headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+
+      // Rate limit registration by IP: Max 5 attempts per hour
+      const ipLimit = await rateLimit(ip, 5, 3600, "rate-limit:register-ip:");
+      if (!ipLimit.success) {
+        return { error: "Too many registration attempts from this IP. Please try again in an hour." };
+      }
+
       // If user exists, they must be an admin to register others
       if (user) {
-        await checkPermission(user.id, user.companyId, ["role_admin"]);
+        await checkPermission(user, user.companyId, ["role_admin"]);
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -169,6 +182,21 @@ export const LoginUser = maybeAuthenticatedAction(
     ipAddress?: string
   ) => {
     try {
+      const headerStore = await headers();
+      const ip = ipAddress || headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+
+      // 1. IP Rate Limiting: Max 5 login attempts per minute
+      const ipLimit = await rateLimit(ip, 5, 60, "rate-limit:login-ip:");
+      if (!ipLimit.success) {
+        return { error: "Too many login attempts. Please try again later." };
+      }
+
+      // 2. Email Rate Limiting: Max 5 login attempts per minute per email (prevent distributed brute force on single account)
+      const emailLimit = await rateLimit(email.toLowerCase().trim(), 5, 60, "rate-limit:login-email:");
+      if (!emailLimit.success) {
+        return { error: "Too many login attempts for this account. Please try again later." };
+      }
+
       // Note: Login typically doesn't check companyId since they might not be in one yet
       // But authenticatedAction already verifies the user.
 
@@ -284,7 +312,7 @@ export const updateUser = authenticatedAction(
     role: string
   ) => {
     try {
-      await checkPermission(user.id, user.companyId, ["role_admin"]);
+      await checkPermission(user, user.companyId, ["role_admin"]);
 
       // Check if we are updating ourselves or if we are admin
       const foundUser = await db.user.upsert({
@@ -295,8 +323,7 @@ export const updateUser = authenticatedAction(
           email,
           avatarUrl,
           roleId: role,
-          // Password update logic should be handled separately and hashed
-          // password: password ? await bcrypt.hash(password, 10) : undefined,
+          password: password ? await bcrypt.hash(password, 10) : undefined,
         },
         create: {
           name,
@@ -308,6 +335,18 @@ export const updateUser = authenticatedAction(
           companyId: user.companyId, // Set current user's company
         },
       });
+
+      // Invalidate the updated user's cached sessions to ensure they reflect updated profile fields immediately
+      const activeSessions = await db.session.findMany({
+        where: { userId: foundUser.id },
+        select: { token: true },
+      });
+      for (const s of activeSessions) {
+        if (s.token) {
+          await redis.del(`session:${s.token}`).catch(() => {});
+        }
+      }
+
       return foundUser;
     } catch (error) {
       console.error("Failed to update user:", error);
@@ -329,7 +368,7 @@ export const createUserForCompany = authenticatedAction(
     }
   ) => {
     try {
-      await checkPermission(user.id, user.companyId, [
+      await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
       ]);
@@ -389,7 +428,7 @@ export const createUserForCompany = authenticatedAction(
 export const getUsersForMyCompany = authenticatedAction(
   async (user, token: string) => {
     try {
-      await checkPermission(user.id, user.companyId);
+      await checkPermission(user, user.companyId);
 
       const requester = await getUserFromToken(token);
       if (!requester || !requester.companyId) {
@@ -420,7 +459,7 @@ export const getUsersForMyCompany = authenticatedAction(
 
 export const getMyCompanyUsersAction = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user, user.companyId);
 
     if (!user.companyId) {
       throw new Error("Unauthorized or No Company");
@@ -449,7 +488,7 @@ export const searchPlatformUsers = authenticatedAction(
     }
 
     try {
-      await checkPermission(user.id, user.companyId);
+      await checkPermission(user, user.companyId);
 
       const users = await db.user.findMany({
         where: {

@@ -268,3 +268,11 @@ export interface AddVehiclePageProps {
   onClose: () => void;
   onSuccess?: () => void;
 }
+
+export interface VehicleLocation {
+  lat: number;
+  lng: number;
+  speed?: number;
+  heading?: number;
+  lastUpdated: number;
+}

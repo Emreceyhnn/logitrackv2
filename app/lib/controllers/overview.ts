@@ -98,7 +98,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       prevStatsCounts,
     ] = await Promise.all([
       // 0. Parallel Permission Check
-      checkPermission(user.id, companyId, [], { allowNoCompany: true }),
+      checkPermission(user, companyId, [], { allowNoCompany: true }),
 
       // 1. Basic Stats
       Promise.all([
@@ -222,7 +222,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       db.inventory.findMany({
         where: {
           companyId,
-          quantity: { lte: db.inventory.fields.minStock as unknown as number },
+          quantity: { lte: db.inventory.fields.minStock },
         },
         take: 8,
         include: { warehouse: true },
@@ -267,7 +267,17 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
         }),
         db.customer.findMany({ 
           where: { companyId }, 
-          select: { id: true, name: true } 
+          select: { 
+            id: true, 
+            name: true,
+            locations: {
+              select: {
+                lat: true,
+                lng: true,
+                isDefault: true,
+              }
+            }
+          } 
         }),
       ]),
 
@@ -463,12 +473,18 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
         id: v.id,
         type: "V" as const,
       })),
-      ...mapCustomers.map((c) => ({
-        position: { lat: 40.75, lng: -74.05 }, // Mocked as in original
-        name: c.name,
-        id: c.id,
-        type: "C" as const,
-      })),
+      ...mapCustomers.map((c) => {
+        const defaultLoc = c.locations.find((l) => l.isDefault) || c.locations[0];
+        return {
+          position: {
+            lat: defaultLoc?.lat ?? 40.7128,
+            lng: defaultLoc?.lng ?? -74.006,
+          },
+          name: c.name,
+          id: c.id,
+          type: "C" as const,
+        };
+      }),
     ];
 
     return {

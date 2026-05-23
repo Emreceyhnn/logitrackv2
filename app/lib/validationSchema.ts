@@ -265,7 +265,7 @@ export const getAddVehicleValidationSchema = (dict: Dictionary) =>
         })
       )
       .oneOf(
-        ["MANUAL", "AUTOMATIC", "AMULTI"],
+        ["MANUAL", "AUTOMATIC", "SEMI_AUTOMATIC"],
         formatMessage(dict.validation.oneOf, {
           field: dict.vehicles.fields.transmission,
         })
@@ -305,7 +305,10 @@ export const getAddVehicleValidationSchema = (dict: Dictionary) =>
       )
       .max(
         10_000,
-        formatMessage(dict.validation.max, { field: "Fuel Capacity", max: "10,000" })
+        formatMessage(dict.validation.max, {
+          field: "Fuel Capacity",
+          max: "10,000",
+        })
       )
       .integer(
         formatMessage(dict.validation.integer, { field: "Fuel Capacity" })
@@ -492,7 +495,7 @@ export const getEditVehicleValidationSchema = (dict: Dictionary) =>
         })
       )
       .oneOf(
-        ["MANUAL", "AUTOMATIC", "AMULTI"],
+        ["MANUAL", "AUTOMATIC", "SEMI_AUTOMATIC"],
         formatMessage(dict.validation.oneOf, {
           field: dict.vehicles.fields.transmission,
         })
@@ -741,7 +744,29 @@ export const getAddShipmentValidationSchema = (dict: Dictionary) =>
   });
 
 export const getEditShipmentValidationSchema = (dict: Dictionary) =>
-  getAddShipmentValidationSchema(dict);
+  Yup.object().shape({
+    referenceNumber: Yup.string().optional(),
+    priority: Yup.string()
+      .optional()
+      .oneOf(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
+    type: Yup.string().optional(),
+    slaDeadline: Yup.date().nullable().optional(),
+    originWarehouseId: Yup.string().optional(),
+    destination: Yup.string().optional(),
+    customerId: Yup.string().optional(),
+    customerLocationId: Yup.string().optional(),
+    contactEmail: Yup.string()
+      .email(dict.validation.email)
+      .nullable()
+      .optional(),
+    palletCount: Yup.number().optional().min(0).integer(),
+    weightKg: Yup.number()
+      .nullable()
+      .min(0, formatMessage(dict.validation.positive, { field: "Weight" })),
+    volumeM3: Yup.number()
+      .nullable()
+      .min(0, formatMessage(dict.validation.positive, { field: "Volume" })),
+  });
 
 /* --------------------------- Route Validation --------------------------- */
 export const getAddRouteValidationSchema = (dict: Dictionary) =>

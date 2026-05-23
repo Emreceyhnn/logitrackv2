@@ -1,6 +1,8 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { validateSession } from "./controllers/session";
+import { headers } from "next/headers";
+import { DEFAULT_LOCALE, LOCALES } from "./constants";
 
 export type AuthenticatedUser = {
   id: string;
@@ -69,6 +71,25 @@ export const getAuthenticatedUser = cache(
   }
 );
 
+async function getLocaleFromReferer(): Promise<string> {
+  try {
+    const headerStore = await headers();
+    const referer = headerStore?.get("referer");
+    if (referer) {
+      const url = new URL(referer);
+      const pathname = url.pathname;
+      const segments = pathname.split("/").filter(Boolean);
+      const possibleLocale = segments[0];
+      if (possibleLocale && (LOCALES as readonly string[]).includes(possibleLocale)) {
+        return possibleLocale;
+      }
+    }
+  } catch {
+    // Fail-safe default if headers context is not available (e.g. testing)
+  }
+  return DEFAULT_LOCALE;
+}
+
 export function authenticatedAction<T, Args extends unknown[]>(
   action: (user: AuthenticatedUser, ...args: Args) => Promise<T>
 ) {
@@ -76,7 +97,8 @@ export function authenticatedAction<T, Args extends unknown[]>(
     const user = await getAuthenticatedUser();
 
     if (!user) {
-      redirect("/");
+      const locale = await getLocaleFromReferer();
+      redirect(`/${locale}`);
     }
 
     return action(user, ...args);

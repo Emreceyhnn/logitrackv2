@@ -1,14 +1,7 @@
 "use server";
 
 import { adminDb } from "@/app/lib/firebase-admin";
-
-export interface VehicleLocation {
-  lat: number;
-  lng: number;
-  speed?: number;
-  heading?: number;
-  lastUpdated: number;
-}
+import { VehicleLocation } from "@/app/lib/type/vehicle";
 
 export async function updateVehicleLocationAction(
   vehicleId: string,

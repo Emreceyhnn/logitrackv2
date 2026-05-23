@@ -72,14 +72,10 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
       const fetchData = async () => {
         try {
           const [shipmentsData, warehousesData] = await Promise.all([
-            getShipments() as unknown as ShipmentWithRelations[],
+            getShipments({ unassigned: true, status: "PENDING" }) as unknown as ShipmentWithRelations[],
             getWarehouses(),
           ]);
-          setShipments(
-            shipmentsData.filter(
-              (s: ShipmentWithRelations) => !s.routeId && s.status === "PENDING"
-            )
-          );
+          setShipments(shipmentsData);
           setWarehouses(warehousesData);
         } catch (error) {
           console.error("Failed to fetch available data for route", error);

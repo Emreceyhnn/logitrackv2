@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
-  getCustomers,
   deleteCustomer,
 } from "@/app/lib/controllers/customer";
 import { toast } from "sonner";
@@ -8,10 +7,23 @@ import { toast } from "sonner";
 import { customerKeys } from "@/app/lib/query-keys/customer.keys";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 
+async function fetchCustomers(): Promise<CustomerWithRelations[]> {
+  const res = await fetch(`/api/customers`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useCustomers] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
 export function useCustomers() {
   return useQuery({
     queryKey: customerKeys.lists(),
-    queryFn: () => getCustomers(),
+    queryFn: () => fetchCustomers(),
     staleTime: 1000 * 60 * 5,
   });
 }

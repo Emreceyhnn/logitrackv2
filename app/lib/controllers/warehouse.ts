@@ -53,7 +53,7 @@ export const createWarehouse = authenticatedAction(
     try {
       const companyId = user.companyId;
 
-      await checkPermission(user.id, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const warehouseCode =
         code ||
@@ -110,7 +110,7 @@ export const createWarehouse = authenticatedAction(
 
 export const getWarehouses = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user, user.companyId);
 
     if (!user.companyId) throw new Error("User has no company");
 
@@ -148,7 +148,7 @@ export const getWarehouses = authenticatedAction(async (user) => {
 export const getWarehouseById = authenticatedAction(
   async (user, warehouseId: string) => {
     try {
-      await checkPermission(user.id, user.companyId);
+      await checkPermission(user, user.companyId);
 
       const warehouse = await db.warehouse.findUnique({
         where: { id: warehouseId },
@@ -192,7 +192,7 @@ export const updateWarehouse = authenticatedAction(
     data: Prisma.WarehouseUpdateInput & { managerId?: string | null }
   ) => {
     try {
-      await checkPermission(user.id, user.companyId, [
+      await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
       ]);
@@ -245,7 +245,7 @@ export const updateWarehouse = authenticatedAction(
 export const deleteWarehouse = authenticatedAction(
   async (user, warehouseId: string) => {
     try {
-      await checkPermission(user.id, user.companyId, ["role_admin"]);
+      await checkPermission(user, user.companyId, ["role_admin"]);
 
       const existingWarehouse = await db.warehouse.findUnique({
         where: { id: warehouseId },
@@ -275,7 +275,7 @@ export const deleteWarehouse = authenticatedAction(
 export const assignManagerToWarehouse = authenticatedAction(
   async (user, warehouseId: string, managerId: string) => {
     try {
-      await checkPermission(user.id, user.companyId, ["role_admin"]);
+      await checkPermission(user, user.companyId, ["role_admin"]);
 
       const existingWarehouse = await db.warehouse.findUnique({
         where: { id: warehouseId },
@@ -334,7 +334,7 @@ export const addInventoryItem = authenticatedAction(
     currency: string = "USD"
   ) => {
     try {
-      await checkPermission(user.id, user.companyId, [
+      await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
         "role_warehouse",
@@ -428,7 +428,7 @@ export const addInventoryItem = authenticatedAction(
 export const updateInventoryItem = authenticatedAction(
   async (user, inventoryId: string, data: Prisma.InventoryUpdateInput) => {
     try {
-      await checkPermission(user.id, user.companyId, [
+      await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
         "role_warehouse",
@@ -507,7 +507,7 @@ export const updateInventoryItem = authenticatedAction(
 export const deleteInventoryItem = authenticatedAction(
   async (user, inventoryId: string) => {
     try {
-      await checkPermission(user.id, user.companyId, [
+      await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
         "role_warehouse",
@@ -537,7 +537,7 @@ export const deleteInventoryItem = authenticatedAction(
 export const getLowStockItems = authenticatedAction(
   async (user, warehouseId: string) => {
     try {
-      await checkPermission(user.id, user.companyId, [
+      await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
         "role_warehouse",
@@ -574,7 +574,7 @@ export const getLowStockItems = authenticatedAction(
 
 export const getWarehouseStats = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user, user.companyId);
 
     if (!user.companyId) throw new Error("User has no company");
 
@@ -621,7 +621,7 @@ export const getWarehouseStats = authenticatedAction(async (user) => {
 
 export const getRecentStockMovements = authenticatedAction(async (user) => {
   try {
-    await checkPermission(user.id, user.companyId);
+    await checkPermission(user, user.companyId);
 
     if (!user.companyId) throw new Error("User has no company");
 
@@ -671,7 +671,6 @@ export const getWarehousesWithDashboardData = authenticatedAction(
     };
     recentMovements: InventoryMovementWithRelations[];
   }> => {
-    const userId = user?.id;
     const companyId = user?.companyId;
 
     try {
@@ -686,52 +685,61 @@ export const getWarehousesWithDashboardData = authenticatedAction(
       );
 
       return await withCache(cacheKey, WAREHOUSE_CACHE_TTL, async () => {
-        const [, warehouses, totalCount, statsRaw, inventoryStats, movements, prevTotalWarehouses] =
-          await Promise.all([
-            checkPermission(userId, companyId, ["role_admin", "role_manager"]),
-            db.warehouse.findMany({
-              where: { companyId },
-              include: {
-                manager: {
-                  select: {
-                    id: true,
-                    name: true,
-                    surname: true,
-                    email: true,
-                    avatarUrl: true,
-                  },
-                },
-                _count: {
-                  select: {
-                    inventory: true,
-                    drivers: true,
-                  },
+        const [
+          ,
+          warehouses,
+          totalCount,
+          statsRaw,
+          inventoryStats,
+          movements,
+          prevTotalWarehouses,
+        ] = await Promise.all([
+          checkPermission(user, companyId, ["role_admin", "role_manager"]),
+          db.warehouse.findMany({
+            where: { companyId },
+            include: {
+              manager: {
+                select: {
+                  id: true,
+                  name: true,
+                  surname: true,
+                  email: true,
+                  avatarUrl: true,
                 },
               },
-              orderBy: { createdAt: "desc" },
-              skip,
-              take: pageSize,
-            }),
-            db.warehouse.count({ where: { companyId } }),
-            db.warehouse.findMany({
-              where: { companyId },
-              select: { capacityPallets: true, capacityVolumeM3: true },
-            }),
-            db.inventory.aggregate({
-              where: { companyId },
-              _count: { sku: true },
-              _sum: { quantity: true },
-            }),
-            db.inventoryMovement.findMany({
-              where: { companyId },
-              include: {
-                warehouse: { select: { code: true, name: true } },
+              _count: {
+                select: {
+                  inventory: true,
+                  drivers: true,
+                },
               },
-              take: 10,
-              orderBy: { date: "desc" },
-            }),
-            db.warehouse.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } })
-          ]);
+            },
+            orderBy: { createdAt: "desc" },
+            skip,
+            take: pageSize,
+          }),
+          db.warehouse.count({ where: { companyId } }),
+          db.warehouse.findMany({
+            where: { companyId },
+            select: { capacityPallets: true, capacityVolumeM3: true },
+          }),
+          db.inventory.aggregate({
+            where: { companyId },
+            _count: { sku: true },
+            _sum: { quantity: true },
+          }),
+          db.inventoryMovement.findMany({
+            where: { companyId },
+            include: {
+              warehouse: { select: { code: true, name: true } },
+            },
+            take: 10,
+            orderBy: { date: "desc" },
+          }),
+          db.warehouse.count({
+            where: { companyId, createdAt: { lt: daysAgo(30) } },
+          }),
+        ]);
 
         // Stats Calculation
         const totalWarehouses = statsRaw.length;
@@ -772,7 +780,10 @@ export const getWarehousesWithDashboardData = authenticatedAction(
             totalCapacityVolume,
           },
           statsTrends: {
-            totalWarehouses: calcTrend(totalWarehouses, prevTotalWarehouses as number),
+            totalWarehouses: calcTrend(
+              totalWarehouses,
+              prevTotalWarehouses as number
+            ),
           },
           recentMovements: enrichedMovements,
         };

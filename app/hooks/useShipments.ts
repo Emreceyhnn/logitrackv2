@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
-  getShipments,
   getShipmentById,
   getShipmentStats,
   getShipmentVolumeHistory,
@@ -22,13 +21,42 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
 import type { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
 
-export function useShipments() {
+async function fetchShipments(filters?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: ShipmentStatus;
+  unassigned?: boolean;
+}): Promise<ShipmentWithRelations[] | { shipments: ShipmentWithRelations[]; totalCount: number }> {
+  const params = new URLSearchParams();
+  if (filters?.page) params.set("page", String(filters.page));
+  if (filters?.limit) params.set("limit", String(filters.limit));
+  if (filters?.search) params.set("search", filters.search);
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.unassigned !== undefined) params.set("unassigned", String(filters.unassigned));
+
+  const res = await fetch(`/api/shipments?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useShipments] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export function useShipments(filters?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: ShipmentStatus;
+  unassigned?: boolean;
+}) {
   return useQuery({
     queryKey: shipmentKeys.lists(),
-    queryFn: async () => {
-      const result = await getShipments();
-      return result as ShipmentWithRelations[];
-    },
+    queryFn: () => fetchShipments(filters),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

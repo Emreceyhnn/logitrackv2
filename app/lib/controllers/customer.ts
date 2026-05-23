@@ -34,7 +34,7 @@ export const createCustomer = authenticatedAction(
     locations?: { name: string; address: string; lat?: number; lng?: number; isDefault?: boolean }[]
   ) => {
     try {
-      await checkPermission(user.id, user.companyId, [
+      await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -84,11 +84,10 @@ export const createCustomer = authenticatedAction(
 );
 
 export const getCustomers = authenticatedAction(async (user) => {
-  const userId = user?.id || "";
   const companyId = user?.companyId || "";
 
   try {
-    await checkPermission(userId, companyId, [
+    await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
       "role_dispatcher",
@@ -130,7 +129,6 @@ export const getCustomersWithDashboardData = authenticatedAction(
       totalCustomers?: { value: number; isUp: boolean };
     };
   }> => {
-    const userId = user?.id;
     const companyId = user?.companyId;
 
     try {
@@ -160,7 +158,7 @@ export const getCustomersWithDashboardData = authenticatedAction(
           statsRaw,
           prevTotalCustomers,
         ] = await Promise.all([
-        checkPermission(userId, companyId, ["role_admin", "role_manager", "role_dispatcher"]),
+        checkPermission(user, companyId, ["role_admin", "role_manager", "role_dispatcher"]),
         db.customer.findMany({
           where,
           include: {
@@ -213,11 +211,10 @@ export const getCustomersWithDashboardData = authenticatedAction(
 
 export const getCustomerById = authenticatedAction(
   async (user, customerId: string) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -263,11 +260,10 @@ export const updateCustomer = authenticatedAction(
       }[];
     }
   ) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
     try {
-      await checkPermission(userId, companyId, [
+      await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
         "role_dispatcher",
@@ -348,11 +344,10 @@ export const updateCustomer = authenticatedAction(
 
 export const deleteCustomer = authenticatedAction(
   async (user, customerId: string) => {
-    const userId = user?.id || "";
     const companyId = user?.companyId || "";
 
     try {
-      await checkPermission(userId, companyId, ["role_admin", "role_manager"]);
+      await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const existingCustomer = await db.customer.findUnique({
         where: { id: customerId },

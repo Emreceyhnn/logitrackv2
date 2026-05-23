@@ -2,7 +2,6 @@
 
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
-  getTrailers,
   getTrailerById,
   createTrailer,
   updateTrailer,
@@ -15,10 +14,38 @@ import { trailerKeys } from "@/app/lib/query-keys/trailer.keys";
 import { vehicleKeys } from "@/app/lib/query-keys/vehicle.keys";
 import { toast } from "sonner";
 
+async function fetchTrailers(filters: TrailerFilters): Promise<{
+  trailers: import("@/app/lib/type/trailer").TrailerWithRelations[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+  };
+}> {
+  const params = new URLSearchParams();
+  if (filters.page) params.set("page", String(filters.page));
+  if (filters.limit) params.set("limit", String(filters.limit));
+  if (filters.search) params.set("search", filters.search);
+  if (filters.status?.length) filters.status.forEach((s) => params.append("status", s));
+  if (filters.type?.length) filters.type.forEach((t) => params.append("type", t));
+  if (filters.isColdChain !== undefined) params.set("isColdChain", String(filters.isColdChain));
+
+  const res = await fetch(`/api/trailers?${params.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error(`[useTrailers] fetch failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
 export function useTrailers(filters: TrailerFilters = {}) {
   return useQuery({
     queryKey: trailerKeys.list(filters),
-    queryFn: () => getTrailers(filters),
+    queryFn: () => fetchTrailers(filters),
     staleTime: 1000 * 60 * 5,
     placeholderData: keepPreviousData,
   });

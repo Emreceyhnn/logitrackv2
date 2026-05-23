@@ -11,6 +11,7 @@ import {
   useInventoryWithDashboard,
   useInventoryMutations,
 } from "@/app/hooks/useInventory";
+import { useTableParams } from "@/app/hooks/useTableParams";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
 import InventoryDetailsDialog from "@/app/components/dialogs/inventory/InventoryDetailsDialog";
 import InventoryEditDialog from "@/app/components/dialogs/inventory/InventoryEditDialog";
@@ -34,20 +35,25 @@ export default function InventoryContent() {
   const { format, isLoading: currencyLoading } = useCurrency();
 
   /* ---------------------------------- STATE --------------------------------- */
-  const [filters, setFilters] = useState({
-    search: "",
-    warehouseId: undefined as string | undefined,
-    status: [] as string[],
-  });
-  const [sort, setSort] = useState<{ field?: string; order: "asc" | "desc" }>({
-    field: "name",
-    order: "asc",
-  });
-  const [displaySearch, setDisplaySearch] = useState("");
-  const [pagination, setPagination] = useState({
-    page: 1,
-    pageSize: 10,
-  });
+  const {
+    page,
+    pageSize,
+    search,
+    sortField,
+    sortOrder,
+    getFilter,
+    getArrayFilter,
+    setPage,
+    setPageSize,
+    setSearch,
+    setSort,
+    setFilter,
+  } = useTableParams({ defaultSortField: "name" });
+
+  const warehouseId = getFilter("warehouseId");
+  const status = getArrayFilter("status");
+
+  const [displaySearch, setDisplaySearch] = useState(search);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -60,24 +66,25 @@ export default function InventoryContent() {
     isLoading,
     refetch,
   } = useInventoryWithDashboard(
-    pagination.page,
-    pagination.pageSize,
-    filters.warehouseId,
-    filters.search,
-    sort.field,
-    sort.order,
-    filters.status
+    page,
+    pageSize,
+    warehouseId,
+    search,
+    sortField,
+    sortOrder,
+    status
   );
 
   // Debouncing effect
   useEffect(() => {
     const timer = setTimeout(() => {
-      setFilters((prev) => ({ ...prev, search: displaySearch }));
-      setPagination((prev) => ({ ...prev, page: 1 }));
+      if (displaySearch !== search) {
+        setSearch(displaySearch);
+      }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [displaySearch]);
+  }, [displaySearch, search, setSearch]);
 
   const { deleteItem: deleteMutation, updateItem: updateMutation } =
     useInventoryMutations();
@@ -113,10 +120,14 @@ export default function InventoryContent() {
     },
 
     updateFilters: (newFilters) => {
-      setFilters((prev) => ({ ...prev, ...newFilters }));
-      setPagination((prev) => ({ ...prev, page: 1 }));
+      if (newFilters.warehouseId !== undefined) {
+        setFilter("warehouseId", newFilters.warehouseId);
+      }
+      if (newFilters.status !== undefined) {
+        setFilter("status", newFilters.status);
+      }
     },
-  }), [refreshAll, updateMutation]);
+  }), [refreshAll, updateMutation, setFilter]);
 
   const items = dashboardData?.items || [];
   const stats = dashboardData?.stats;
@@ -126,18 +137,13 @@ export default function InventoryContent() {
       (i: InventoryWithRelations) => i.id === selectedItemId
     ) || null;
 
-  /* -------------------------------- HANDLERS -------------------------------- */
   const handleDeleteRequest = (id: string) => {
     setSelectedItemId(id);
     setIsDeleteOpen(true);
   };
 
   const handleSortRequest = (field: string) => {
-    setSort((prev) => ({
-      field,
-      order: prev.field === field && prev.order === "asc" ? "desc" : "asc",
-    }));
-    setPagination((prev) => ({ ...prev, page: 1 }));
+    setSort(field);
   };
 
   const handleDeleteConfirm = async () => {
@@ -194,12 +200,12 @@ export default function InventoryContent() {
         value={displaySearch}
         onSearch={(val) => setDisplaySearch(val)}
         onAddClick={() => setIsAddOpen(true)}
-        warehouseId={filters.warehouseId}
-        status={filters.status}
+        warehouseId={warehouseId}
+        status={status}
         onWarehouseChange={(id) =>
           actions.updateFilters({ warehouseId: id || undefined })
         }
-        onStatusChange={(status) => actions.updateFilters({ status })}
+        onStatusChange={(newStatus) => actions.updateFilters({ status: newStatus })}
       />
       <KpiCards kpis={kpiItems} loading={loading} />
 
@@ -216,16 +222,14 @@ export default function InventoryContent() {
             onEdit={(item) => actions.openEdit(item.id)}
             onDelete={handleDeleteRequest}
             meta={{
-              page: pagination.page,
-              limit: pagination.pageSize,
+              page: page,
+              limit: pageSize,
               total: dashboardData?.totalCount || 0,
             }}
-            onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
-            onLimitChange={(pageSize) =>
-              setPagination({ page: 1, pageSize: pageSize })
-            }
-            sortField={sort.field}
-            sortOrder={sort.order}
+            onPageChange={(p) => setPage(p)}
+            onLimitChange={(limit) => setPageSize(limit)}
+            sortField={sortField}
+            sortOrder={sortOrder}
             onRequestSort={handleSortRequest}
           />
         </CustomCard>
