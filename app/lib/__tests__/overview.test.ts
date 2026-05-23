@@ -13,7 +13,7 @@ const mockToken = await new SignJWT({ id: "test-user-id" })
 mock.module("next/headers", {
   namedExports: {
     cookies: async () => ({
-      get: () => {
+      get: (name: string) => {
         if (name === "token") return { value: mockToken };
         return null;
       },
@@ -127,8 +127,8 @@ test("overview controller tests", async (t) => {
     db.shipment.findMany = (async () => []) as never;
     db.inventoryMovement.groupBy = (async () => []) as never;
 
-    let customerFindManyArgs: Record<string, unknown> | null = null;
-    db.customer.findMany = (async (args: Record<string, unknown>) => {
+    let customerFindManyArgs: any = null;
+    db.customer.findMany = (async (args: any) => {
       customerFindManyArgs = args;
       return [
         {

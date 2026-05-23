@@ -13,7 +13,7 @@ let mockCookiesState: { token?: string; refreshToken?: string } = {};
 mock.module("next/headers", {
   namedExports: {
     cookies: async () => ({
-      get: () => {
+      get: (name: string) => {
         if (name === "token") return mockCookiesState.token ? { value: mockCookiesState.token } : null;
         if (name === "refreshToken") return mockCookiesState.refreshToken ? { value: mockCookiesState.refreshToken } : null;
         return null;

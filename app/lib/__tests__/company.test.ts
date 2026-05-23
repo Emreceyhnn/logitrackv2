@@ -13,7 +13,7 @@ const mockToken = await new SignJWT({ id: "test-user-id" })
 mock.module("next/headers", {
   namedExports: {
     cookies: async () => ({
-      get: () => {
+      get: (name: string) => {
         if (name === "token") return { value: mockToken };
         return null;
       },
@@ -71,7 +71,7 @@ test("getCompanyUsers controller action tests", async (t) => {
       };
     }) as never;
 
-    db.user.findMany = (async (args: Record<string, unknown>) => {
+    db.user.findMany = (async (args: any) => {
       userCalls++;
       assert.ok(args.select);
       assert.strictEqual(args.select.password, undefined); // Ensure password is excluded

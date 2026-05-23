@@ -17,7 +17,7 @@ const mockToken = await new SignJWT({ id: "test-user-id" })
 mock.module("next/headers", {
   namedExports: {
     cookies: async () => ({
-      get: () => {
+      get: (name: string) => {
         if (name === "token") return { value: mockToken };
         return null;
       },
