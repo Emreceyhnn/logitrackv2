@@ -1,7 +1,7 @@
 "use server";
 
 import { adminDb } from "@/app/lib/firebase-admin";
-import { Notification, NotificationTarget } from "../notifications";
+import { Notification, NotificationTarget } from "../type/notification";
 import { db } from "../db";
 
 /**

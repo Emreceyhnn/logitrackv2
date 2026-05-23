@@ -305,7 +305,10 @@ export const getAddVehicleValidationSchema = (dict: Dictionary) =>
       )
       .max(
         10_000,
-        formatMessage(dict.validation.max, { field: "Fuel Capacity", max: "10,000" })
+        formatMessage(dict.validation.max, {
+          field: "Fuel Capacity",
+          max: "10,000",
+        })
       )
       .integer(
         formatMessage(dict.validation.integer, { field: "Fuel Capacity" })
@@ -756,10 +759,7 @@ export const getEditShipmentValidationSchema = (dict: Dictionary) =>
       .email(dict.validation.email)
       .nullable()
       .optional(),
-    palletCount: Yup.number()
-      .optional()
-      .min(0)
-      .integer(),
+    palletCount: Yup.number().optional().min(0).integer(),
     weightKg: Yup.number()
       .nullable()
       .min(0, formatMessage(dict.validation.positive, { field: "Weight" })),

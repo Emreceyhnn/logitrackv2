@@ -46,7 +46,9 @@ async function invalidateVehicleCache(
     // Wipe all dashboard + kpi keys for this company
     invalidatePattern(vehicleCacheKeys.companyPattern(companyId)),
     // Wipe the specific vehicle detail key (if applicable)
-    vehicleId ? redis.del(vehicleCacheKeys.detail(vehicleId)) : Promise.resolve(),
+    vehicleId
+      ? redis.del(vehicleCacheKeys.detail(vehicleId))
+      : Promise.resolve(),
   ]);
 }
 
@@ -165,11 +167,12 @@ export const createVehicle = authenticatedAction(
         },
       });
 
-
       await invalidateVehicleCache(companyId);
       // Sync to Firebase (background)
-      syncVehicleToFirebase(newVehicle).catch(err => console.error("Firebase sync failed:", err));
-      
+      syncVehicleToFirebase(newVehicle).catch((err) =>
+        console.error("Firebase sync failed:", err)
+      );
+
       return newVehicle;
     } catch (error) {
       console.error("Failed to create vehicle:", error);
@@ -460,15 +463,15 @@ export const assignDriverToVehicle = authenticatedAction(
       if (driverId) {
         const driverUser = await db.user.findFirst({
           where: { driver: { id: driverId } },
-          select: { id: true }
+          select: { id: true },
         });
-        
+
         if (driverUser) {
           const vehicle = await db.vehicle.findUnique({
             where: { id: vehicleId },
-            select: { plate: true }
+            select: { plate: true },
           });
-          
+
           await createNotification(
             { userId: driverUser.id },
             {
@@ -847,7 +850,10 @@ export const updateIssue = authenticatedAction(
         include: { vehicle: { select: { plate: true } } },
       });
 
-      await invalidateVehicleCache(companyId, foundIssue.vehicleId ?? undefined);
+      await invalidateVehicleCache(
+        companyId,
+        foundIssue.vehicleId ?? undefined
+      );
 
       // Dispatch Notification for status changes
       if (data.status === "IN_PROGRESS") {
@@ -904,14 +910,14 @@ export const updateMaintenanceRecord = authenticatedAction(
 
       const foundRecord = await db.maintenanceRecord.findUnique({
         where: { id: recordId },
-        include: { 
-          vehicle: { 
-            select: { 
-              companyId: true, 
+        include: {
+          vehicle: {
+            select: {
+              companyId: true,
               id: true,
-              plate: true
-            } 
-          } 
+              plate: true,
+            },
+          },
         },
       });
 
@@ -931,7 +937,7 @@ export const updateMaintenanceRecord = authenticatedAction(
           console.warn("[vehicle] Currency conversion failed in update:", err);
         }
       } else if (data.currency) {
-        // If currency is provided but cost is not, we might need more complex logic, 
+        // If currency is provided but cost is not, we might need more complex logic,
         // but usually they come together from the dialog.
         // For now, if currency is USD, just set it.
         finalData.currency = "USD";
@@ -1141,7 +1147,13 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
         totalVehicles: calcTrend(vehiclesKpis.totalVehicles, prevVehicleCount),
       };
 
-      return { vehiclesKpis, vehiclesCapacity, expiringDocs, plannedServices, kpiTrends };
+      return {
+        vehiclesKpis,
+        vehiclesCapacity,
+        expiringDocs,
+        plannedServices,
+        kpiTrends,
+      };
     });
   } catch (error) {
     console.error("Failed to get vehicle kpi cards:", error);
@@ -1171,149 +1183,149 @@ export const getVehiclesWithDashboard = authenticatedAction(
       );
 
       return await withCache(cacheKey, VEHICLE_CACHE_TTL, async () => {
-      const whereClause: Prisma.VehicleWhereInput = { companyId };
+        const whereClause: Prisma.VehicleWhereInput = { companyId };
 
-      if (filters) {
-        if (filters.search) {
-          whereClause.OR = [
-            { plate: { contains: filters.search, mode: "insensitive" } },
-            { brand: { contains: filters.search, mode: "insensitive" } },
-            { model: { contains: filters.search, mode: "insensitive" } },
-          ];
+        if (filters) {
+          if (filters.search) {
+            whereClause.OR = [
+              { plate: { contains: filters.search, mode: "insensitive" } },
+              { brand: { contains: filters.search, mode: "insensitive" } },
+              { model: { contains: filters.search, mode: "insensitive" } },
+            ];
+          }
+          if (filters.status && filters.status.length > 0) {
+            whereClause.status = { in: filters.status };
+          }
+          if (filters.type && filters.type.length > 0) {
+            whereClause.type = { in: filters.type };
+          }
+          if (filters.hasIssues) {
+            whereClause.issues = {
+              some: {
+                status: { in: [IssueStatus.OPEN, IssueStatus.IN_PROGRESS] },
+              },
+            };
+          }
+          if (filters.hasDriver === true) {
+            whereClause.driver = { isNot: null };
+          } else if (filters.hasDriver === false) {
+            whereClause.driver = { is: null };
+          }
         }
-        if (filters.status && filters.status.length > 0) {
-          whereClause.status = { in: filters.status };
-        }
-        if (filters.type && filters.type.length > 0) {
-          whereClause.type = { in: filters.type };
-        }
-        if (filters.hasIssues) {
-          whereClause.issues = {
-            some: {
-              status: { in: [IssueStatus.OPEN, IssueStatus.IN_PROGRESS] },
-            },
-          };
-        }
-        if (filters.hasDriver === true) {
-          whereClause.driver = { isNot: null };
-        } else if (filters.hasDriver === false) {
-          whereClause.driver = { is: null };
-        }
-      }
 
-      // ── Promise.all: checkPermission + findMany paralel ─────────────────────
-      // Her iki DB çağrısı aynı anda başlar; checkPermission (~200ms) findMany
-      // (~400-800ms) beklenirken eş zamanlı tamamlanır → toplam süre max() olur.
-      // checkPermission başarısız olursa Promise.all hemen reject eder.
-      const [, vehicles] = await Promise.all([
-        checkPermission(user, companyId, [
-          "role_admin",
-          "role_manager",
-          "role_dispatcher",
-        ]),
-        db.vehicle.findMany({
-          where: whereClause,
-          select: {
-            // ── Scalars (VehicleWithRelations) ──────────────────────────────
-            id: true,
-            fleetNo: true,
-            plate: true,
-            brand: true,
-            model: true,
-            year: true,
-            type: true,
-            fuelType: true,
-            maxLoadKg: true,
-            nextServiceKm: true,
-            avgFuelConsumption: true,
-            status: true,
-            odometerKm: true,
-            fuelLevel: true,
-            currentLat: true,
-            currentLng: true,
-            photo: true,
-            createdAt: true,
-            updatedAt: true,
+        // ── Promise.all: checkPermission + findMany paralel ─────────────────────
+        // Her iki DB çağrısı aynı anda başlar; checkPermission (~200ms) findMany
+        // (~400-800ms) beklenirken eş zamanlı tamamlanır → toplam süre max() olur.
+        // checkPermission başarısız olursa Promise.all hemen reject eder.
+        const [, vehicles] = await Promise.all([
+          checkPermission(user, companyId, [
+            "role_admin",
+            "role_manager",
+            "role_dispatcher",
+          ]),
+          db.vehicle.findMany({
+            where: whereClause,
+            select: {
+              // ── Scalars (VehicleWithRelations) ──────────────────────────────
+              id: true,
+              fleetNo: true,
+              plate: true,
+              brand: true,
+              model: true,
+              year: true,
+              type: true,
+              fuelType: true,
+              maxLoadKg: true,
+              nextServiceKm: true,
+              avgFuelConsumption: true,
+              status: true,
+              odometerKm: true,
+              fuelLevel: true,
+              currentLat: true,
+              currentLng: true,
+              photo: true,
+              createdAt: true,
+              updatedAt: true,
 
-            // ── Driver ──────────────────────────────────────────────────────
-            driver: {
-              select: {
-                id: true,
-                rating: true,
-                user: {
-                  select: { name: true, surname: true, avatarUrl: true },
+              // ── Driver ──────────────────────────────────────────────────────
+              driver: {
+                select: {
+                  id: true,
+                  rating: true,
+                  user: {
+                    select: { name: true, surname: true, avatarUrl: true },
+                  },
+                },
+              },
+
+              // ── Issues ──────────────────────────────────────────────────────
+              issues: {
+                select: {
+                  id: true,
+                  title: true,
+                  type: true,
+                  priority: true,
+                  status: true,
+                  description: true,
+                  vehicleId: true,
+                  companyId: true,
+                  createdAt: true,
+                  updatedAt: true,
+                },
+              },
+
+              // ── Documents ───────────────────────────────────────────────────
+              documents: {
+                select: {
+                  id: true,
+                  type: true,
+                  name: true,
+                  url: true,
+                  expiryDate: true,
+                  status: true,
+                  vehicleId: true,
+                  companyId: true,
+                  createdAt: true,
+                },
+              },
+
+              // ── Maintenance records ──────────────────────────────────────────
+              maintenanceRecords: {
+                select: {
+                  id: true,
+                  type: true,
+                  date: true,
+                  cost: true,
+                  currency: true,
+                  status: true,
+                  description: true,
+                  vehicleId: true,
+                  createdAt: true,
+                  updatedAt: true,
+                },
+              },
+
+              // ── Routes ──────────────────────────────────────────────────────
+              routes: {
+                select: {
+                  id: true,
+                  status: true,
+                  startAddress: true,
+                  startLat: true,
+                  startLng: true,
+                  endAddress: true,
+                  endLat: true,
+                  endLng: true,
+                  createdAt: true,
+                  updatedAt: true,
                 },
               },
             },
+            orderBy: { createdAt: "desc" },
+          }),
+        ]);
 
-            // ── Issues ──────────────────────────────────────────────────────
-            issues: {
-              select: {
-                id: true,
-                title: true,
-                type: true,
-                priority: true,
-                status: true,
-                description: true,
-                vehicleId: true,
-                companyId: true,
-                createdAt: true,
-                updatedAt: true,
-              },
-            },
-
-            // ── Documents ───────────────────────────────────────────────────
-            documents: {
-              select: {
-                id: true,
-                type: true,
-                name: true,
-                url: true,
-                expiryDate: true,
-                status: true,
-                vehicleId: true,
-                companyId: true,
-                createdAt: true,
-              },
-            },
-
-            // ── Maintenance records ──────────────────────────────────────────
-            maintenanceRecords: {
-              select: {
-                id: true,
-                type: true,
-                date: true,
-                cost: true,
-                currency: true,
-                status: true,
-                description: true,
-                vehicleId: true,
-                createdAt: true,
-                updatedAt: true,
-              },
-            },
-
-            // ── Routes ──────────────────────────────────────────────────────
-            routes: {
-              select: {
-                id: true,
-                status: true,
-                startAddress: true,
-                startLat: true,
-                startLng: true,
-                endAddress: true,
-                endLat: true,
-                endLng: true,
-                createdAt: true,
-                updatedAt: true,
-              },
-            },
-          },
-          orderBy: { createdAt: "desc" },
-        }),
-      ]);
-
-      const dashboardInput = vehicles as unknown as VehicleDashboardProps[];
+        const dashboardInput = vehicles as unknown as VehicleDashboardProps[];
 
         return {
           vehicles: vehicles as unknown as VehicleWithRelations[],

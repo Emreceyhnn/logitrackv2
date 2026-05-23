@@ -1,11 +1,8 @@
-import { redis } from "@/app/lib/redis";
+import { redis, EXCHANGE_RATE_CACHE_TTL, exchangeRateCacheKeys } from "@/app/lib/redis";
 import { db } from "@/app/lib/db";
 
-const EXCHANGE_RATE_API_KEY = "cf902cb44fb580b66f2e31a2";
-const EXCHANGE_RATE_BASE_URL = `https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}`;
-
-const EXCHANGE_RATES_CACHE_KEY = "exchange_rates:usd:v1";
-const EXCHANGE_RATES_TTL = 24 * 60 * 60;
+const EXCHANGE_RATE_API_KEY = process.env.EXCHANGE_RATE_API_KEY;
+const EXCHANGE_RATE_BASE_URL = process.env.EXCHANGE_RATE_BASE_URL || (EXCHANGE_RATE_API_KEY ? `https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}` : "");
 
 export type SupportedCurrency = "USD" | "EUR" | "TRY" | "GBP";
 
@@ -49,12 +46,18 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
   }
 
   try {
-    const cached = await redis.get<ExchangeRates>(EXCHANGE_RATES_CACHE_KEY);
+    const cached = await redis.get<ExchangeRates>(exchangeRateCacheKeys.exchangeRate());
     if (cached) {
       return cached;
     }
   } catch (err) {
     console.warn("[exchangeRate] Redis get failed:", err);
+  }
+
+  if (!EXCHANGE_RATE_BASE_URL) {
+    throw new Error(
+      "[exchangeRate] EXCHANGE_RATE_API_KEY is not set in environment variables."
+    );
   }
 
   const response = await fetch(`${EXCHANGE_RATE_BASE_URL}/latest/USD`, {
@@ -83,7 +86,8 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     await db.exchangeRate.create({
       data: {
         base: "USD",
-        rates: data.conversion_rates as unknown as import("@prisma/client").Prisma.InputJsonValue,
+        rates:
+          data.conversion_rates as unknown as import("@prisma/client").Prisma.InputJsonValue,
         date: new Date(),
       },
     });
@@ -92,8 +96,8 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
   }
 
   try {
-    await redis.set(EXCHANGE_RATES_CACHE_KEY, rates, {
-      ex: EXCHANGE_RATES_TTL,
+    await redis.set(exchangeRateCacheKeys.exchangeRate(), rates, {
+      ex: EXCHANGE_RATE_CACHE_TTL,
     });
   } catch (err) {
     console.warn("[exchangeRate] Redis set failed:", err);
@@ -153,7 +157,7 @@ export async function convertCurrency(
  */
 export async function refreshExchangeRates(): Promise<ExchangeRates> {
   try {
-    await redis.del(EXCHANGE_RATES_CACHE_KEY);
+    await redis.del(exchangeRateCacheKeys.exchangeRate());
   } catch {
     // Ignore Redis errors
   }

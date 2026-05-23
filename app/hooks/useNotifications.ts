@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { db, ref, onValue, off, type DataSnapshot, type DatabaseReference } from "@/app/lib/firebase";
-import { NotificationType } from "@/app/lib/notifications";
+import { NotificationType } from "@/app/lib/type/notification";
 import { markAsReadAction, deleteNotificationAction } from "@/app/lib/actions/notifications";
 
 export interface Notification {

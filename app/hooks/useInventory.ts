@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import {
   getInventory,
   getInventoryItemById,
@@ -14,10 +19,7 @@ import type { Inventory } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 
 import { inventoryKeys } from "@/app/lib/query-keys/inventory.keys";
-import {
-  InventoryWithRelations,
-  LowStockItem,
-} from "@/app/lib/type/inventory";
+import { InventoryWithRelations, LowStockItem } from "@/app/lib/type/inventory";
 
 export function useInventory(warehouseId?: string) {
   return useQuery({
@@ -106,7 +108,6 @@ export function useInventoryWithDashboard(
   });
 }
 
-
 export function useInventoryItem(id: string | null) {
   return useQuery({
     queryKey: inventoryKeys.details(id || ""),
@@ -161,8 +162,7 @@ export function useInventoryMutations() {
       palletCount?: number;
       cargoType?: string;
       unitValue?: number;
-    }) =>
-      createInventoryItem(data),
+    }) => createInventoryItem(data),
     onSuccess: () => handleSuccess("Item added to inventory successfully"),
     onError: (error: Error) =>
       handleError("Failed to add inventory item", error),
@@ -199,7 +199,7 @@ export function useInventoryMutations() {
     onSuccess: () => handleSuccess("Fulfillment logged successfully"),
     onError: (error: Error) => handleError("Failed to log fulfillment", error),
   });
-  
+
   const adjustStockMutation = useMutation({
     mutationFn: (data: {
       id: string;

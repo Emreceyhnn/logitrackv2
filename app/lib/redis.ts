@@ -121,6 +121,12 @@ export const companyCacheKeys = {
   kpis: (companyId: string) => `companies:${companyId}:kpis`,
 };
 
+export const EXCHANGE_RATE_CACHE_TTL = 3600;
+
+export const exchangeRateCacheKeys = {
+  exchangeRate: () => `exchange_rates:usd:v1`,
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function hashFilters(filters: any) {
   if (!filters || Object.keys(filters).length === 0) return "all";
@@ -192,7 +198,10 @@ export async function withCache<T>(
   let lockAcquired = false;
 
   try {
-    const acquired = await redis.set(lockKey, lockValue, { nx: true, ex: lockTtl });
+    const acquired = await redis.set(lockKey, lockValue, {
+      nx: true,
+      ex: lockTtl,
+    });
     lockAcquired = acquired === "OK";
   } catch (err) {
     console.error("Redis lock acquire error:", err);
@@ -221,7 +230,7 @@ export async function withCache<T>(
     try {
       const p = redis.pipeline();
       p.set(key, data, { ex: ttl });
-      
+
       const setKey = getTrackingSetKey(key);
       if (setKey) {
         p.sadd(setKey, key);
@@ -283,4 +292,3 @@ export async function invalidatePattern(pattern: string) {
     console.error("Redis invalidate pattern error:", err);
   }
 }
-
