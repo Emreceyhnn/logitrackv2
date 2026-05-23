@@ -222,7 +222,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       db.inventory.findMany({
         where: {
           companyId,
-          quantity: { lte: db.inventory.fields.minStock as unknown as number },
+          quantity: { lte: db.inventory.fields.minStock },
         },
         take: 8,
         include: { warehouse: true },

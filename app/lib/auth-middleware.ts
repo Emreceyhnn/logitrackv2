@@ -84,7 +84,7 @@ async function getLocaleFromReferer(): Promise<string> {
         return possibleLocale;
       }
     }
-  } catch (error) {
+  } catch {
     // Fail-safe default if headers context is not available (e.g. testing)
   }
   return DEFAULT_LOCALE;

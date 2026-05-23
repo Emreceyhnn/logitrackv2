@@ -178,7 +178,6 @@ export const updateInventoryItem = authenticatedAction(
   async (user, inventoryId: string, data: UpdateInventoryInput) => {
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
-    console.log(`[updateInventoryItem] Start update for ${inventoryId}`, { data, companyId, userId });
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -219,7 +218,6 @@ export const updateInventoryItem = authenticatedAction(
           where: { id: inventoryId },
           data: data as Prisma.InventoryUpdateInput,
         });
-        console.log(`[updateInventoryItem] Item updated in DB:`, item.id);
 
         // Log movement if quantity changed
         if (data.quantity !== undefined && data.quantity !== currentItem.quantity) {

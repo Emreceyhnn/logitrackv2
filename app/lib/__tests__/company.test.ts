@@ -13,13 +13,13 @@ const mockToken = await new SignJWT({ id: "test-user-id" })
 mock.module("next/headers", {
   namedExports: {
     cookies: async () => ({
-      get: (name: string) => {
+      get: () => {
         if (name === "token") return { value: mockToken };
         return null;
       },
     }),
     headers: async () => ({
-      get: (name: string) => {
+      get: () => {
         return null;
       },
     }),
@@ -69,9 +69,9 @@ test("getCompanyUsers controller action tests", async (t) => {
           },
         },
       };
-    }) as any;
+    }) as never;
 
-    db.user.findMany = (async (args: any) => {
+    db.user.findMany = (async (args: Record<string, unknown>) => {
       userCalls++;
       assert.ok(args.select);
       assert.strictEqual(args.select.password, undefined); // Ensure password is excluded
@@ -89,7 +89,7 @@ test("getCompanyUsers controller action tests", async (t) => {
           updatedAt: new Date(),
         },
       ];
-    }) as any;
+    }) as never;
 
     try {
       const result = await getCompanyUsers();

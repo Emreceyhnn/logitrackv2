@@ -348,7 +348,7 @@ export const getLowStockItems = authenticatedAction(async (user) => {
     const lowStock = await db.inventory.findMany({
       where: {
         companyId: user.companyId,
-        quantity: { lte: db.inventory.fields.minStock as unknown as number },
+        quantity: { lte: db.inventory.fields.minStock },
       },
       take: 8,
       include: { warehouse: true },

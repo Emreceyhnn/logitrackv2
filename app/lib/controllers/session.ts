@@ -172,7 +172,6 @@ export async function validateSession(): Promise<SessionUser | null> {
     const accessToken = cookieStore.get("token")?.value;
 
     if (!accessToken) {
-      console.log("[validateSession] ❌ No 'token' cookie found");
       return null;
     }
 
@@ -182,23 +181,52 @@ export async function validateSession(): Promise<SessionUser | null> {
       const secret = new TextEncoder().encode(JWT_SECRET);
       const { payload } = await jwtVerify(accessToken, secret);
       decoded = payload as unknown as SessionJWTPayload;
-    } catch (jwtErr) {
-      console.log("[validateSession] ❌ JWT verify failed:", jwtErr);
+    } catch {
       return null;
     }
 
     if (!decoded?.id) {
-      console.log("[validateSession] ❌ decoded JWT has no id");
       return null;
     }
 
     // Check cache for session
     const tokenHash = hashToken(accessToken);
     const cacheKey = `session:${tokenHash}`;
-    let session: any = null;
+    type SessionWithUser = Prisma.SessionGetPayload<{
+      include: {
+        user: {
+          select: {
+            id: true;
+            companyId: true;
+            roleId: true;
+            status: true;
+            name: true;
+            surname: true;
+            avatarUrl: true;
+            timezone: true;
+            dateFormat: true;
+            timeFormat: true;
+            currency: true;
+            language: true;
+            notifEmailShipment: true;
+            notifEmailMaint: true;
+            notifEmailWeekly: true;
+            notifPushAssignment: true;
+            notifPushDelay: true;
+            role: {
+              select: {
+                name: true;
+              };
+            };
+          };
+        };
+      };
+    }>;
+
+    let session: SessionWithUser | null = null;
 
     try {
-      const cached = await redis.get<any>(cacheKey);
+      const cached = await redis.get<SessionWithUser>(cacheKey);
       if (cached) {
         cached.expiresAt = new Date(cached.expiresAt);
         cached.lastActivityAt = new Date(cached.lastActivityAt);
@@ -251,32 +279,23 @@ export async function validateSession(): Promise<SessionUser | null> {
     }
 
     if (!session) {
-      console.log(
-        "[validateSession] ❌ No session found in DB for token hash. Clearing cookies."
-      );
       await clearAuthCookies();
       return null;
     }
 
     // Check session validity
     if (session.isRevoked) {
-      console.log("[validateSession] ❌ Session is revoked. Clearing cookies.");
       await clearAuthCookies();
       return null;
     }
 
     if (new Date(session.expiresAt) < new Date()) {
-      console.log("[validateSession] ❌ Session is expired. Clearing cookies.");
       await clearAuthCookies();
       return null;
     }
 
     // Check user is still active
     if (session.user.status !== "ACTIVE") {
-      console.log(
-        "[validateSession] ❌ User status is not ACTIVE:",
-        session.user.status
-      );
       return null;
     }
 
@@ -300,10 +319,6 @@ export async function validateSession(): Promise<SessionUser | null> {
         .catch(() => {});
     }
 
-    console.log(
-      "[validateSession] ✅ Valid session for user:",
-      session.user.id
-    );
     return {
       id: session.user.id,
       companyId: session.user.companyId,

@@ -13,13 +13,13 @@ const mockToken = await new SignJWT({ id: "test-user-id" })
 mock.module("next/headers", {
   namedExports: {
     cookies: async () => ({
-      get: (name: string) => {
+      get: () => {
         if (name === "token") return { value: mockToken };
         return null;
       },
     }),
     headers: async () => ({
-      get: (name: string) => {
+      get: () => {
         return null;
       },
     }),
@@ -33,7 +33,7 @@ const mockRedisModule = {
       set: async () => "OK",
       del: async () => 1,
     },
-    withCache: async (key: string, ttl: number, fetcher: () => Promise<any>) => {
+    withCache: async (key: string, ttl: number, fetcher: () => Promise<unknown>) => {
       return fetcher();
     },
     overviewCacheKeys: {
@@ -100,35 +100,35 @@ test("overview controller tests", async (t) => {
           name: "Administrator",
         },
       },
-    })) as any;
+    })) as never;
 
-    db.shipment.count = (async () => 0) as any;
-    db.vehicle.count = (async () => 0) as any;
-    db.driver.count = (async () => 0) as any;
-    db.warehouse.count = (async () => 0) as any;
-    db.inventory.count = (async () => 0) as any;
-    db.issue.findMany = (async () => []) as any;
-    db.document.findMany = (async () => []) as any;
-    db.route.count = (async () => 0) as any;
-    db.fuelLog.aggregate = (async () => ({ _sum: { volumeLiter: 0 } })) as any;
-    db.route.aggregate = (async () => ({ _avg: { durationMin: 0 } })) as any;
-    db.fuelLog.findMany = (async () => []) as any;
+    db.shipment.count = (async () => 0) as never;
+    db.vehicle.count = (async () => 0) as never;
+    db.driver.count = (async () => 0) as never;
+    db.warehouse.count = (async () => 0) as never;
+    db.inventory.count = (async () => 0) as never;
+    db.issue.findMany = (async () => []) as never;
+    db.document.findMany = (async () => []) as never;
+    db.route.count = (async () => 0) as never;
+    db.fuelLog.aggregate = (async () => ({ _sum: { volumeLiter: 0 } })) as never;
+    db.route.aggregate = (async () => ({ _avg: { durationMin: 0 } })) as never;
+    db.fuelLog.findMany = (async () => []) as never;
 
     db.exchangeRate.findFirst = (async () => ({
       base: "USD",
       rates: { USD: 1, EUR: 0.9, TRY: 30 },
       date: new Date(),
-    })) as any;
+    })) as never;
 
-    db.vehicle.findMany = (async () => []) as any;
-    db.warehouse.findMany = (async () => []) as any;
-    db.inventory.groupBy = (async () => []) as any;
-    db.inventory.findMany = (async () => []) as any;
-    db.shipment.findMany = (async () => []) as any;
-    db.inventoryMovement.groupBy = (async () => []) as any;
+    db.vehicle.findMany = (async () => []) as never;
+    db.warehouse.findMany = (async () => []) as never;
+    db.inventory.groupBy = (async () => []) as never;
+    db.inventory.findMany = (async () => []) as never;
+    db.shipment.findMany = (async () => []) as never;
+    db.inventoryMovement.groupBy = (async () => []) as never;
 
-    let customerFindManyArgs: any = null;
-    db.customer.findMany = (async (args: any) => {
+    let customerFindManyArgs: Record<string, unknown> | null = null;
+    db.customer.findMany = (async (args: Record<string, unknown>) => {
       customerFindManyArgs = args;
       return [
         {
@@ -152,7 +152,7 @@ test("overview controller tests", async (t) => {
           locations: [],
         },
       ];
-    }) as any;
+    }) as never;
 
     try {
       const result = await getOverviewDashboardData();

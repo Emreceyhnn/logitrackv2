@@ -13,13 +13,13 @@ const mockToken = await new SignJWT({ id: "test-user-id" })
 mock.module("next/headers", {
   namedExports: {
     cookies: async () => ({
-      get: (name: string) => {
+      get: () => {
         if (name === "token") return { value: mockToken };
         return null;
       },
     }),
     headers: async () => ({
-      get: (name: string) => {
+      get: () => {
         return null;
       },
     }),
@@ -68,7 +68,7 @@ test("vehicle controller tests", async (t) => {
           },
         },
       };
-    }) as any;
+    }) as never;
 
     db.driver.findMany = (async (args: { where?: { companyId: string; currentVehicleId: null; status: string } }) => {
       findManyCalls++;
@@ -85,7 +85,7 @@ test("vehicle controller tests", async (t) => {
           },
         },
       ];
-    }) as any;
+    }) as never;
 
     try {
       const result = await getAvailableDrivers();

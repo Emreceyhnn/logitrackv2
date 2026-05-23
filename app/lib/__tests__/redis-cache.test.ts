@@ -10,7 +10,7 @@ test("redis caching and lock logic", async (t) => {
   const { withCache, invalidatePattern } = await import("../redis");
 
   const originalFetch = globalThis.fetch;
-  let dbState: Record<string, any> = {};
+  let dbState: Record<string, unknown> = {};
   let setDbState: Record<string, Set<string>> = {};
   let fetcherCalledTimes = 0;
 
@@ -34,7 +34,7 @@ test("redis caching and lock logic", async (t) => {
       const isNested = Array.isArray(body[0]);
       const commands = isNested ? body : [body];
 
-      const results = commands.map((cmdArray: any[]) => {
+      const results = commands.map((cmdArray: string[]) => {
         const cmd = cmdArray[0].toLowerCase();
 
         if (cmd === "get") {
@@ -114,7 +114,7 @@ test("redis caching and lock logic", async (t) => {
         headers: new Headers({ "content-type": "application/json" }),
         text: async () => JSON.stringify(responsePayload)
       } as Response;
-    }) as any;
+    }) as never;
   });
 
   t.afterEach(() => {
