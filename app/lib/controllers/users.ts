@@ -22,10 +22,11 @@ import {
 import { headers } from "next/headers";
 import { rateLimit } from "../rate-limiter";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is not defined");
-}
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error("JWT_SECRET environment variable is not defined");
+  return secret;
+};
 
 export const getUserFromToken = authenticatedAction(
   async (
@@ -41,7 +42,7 @@ export const getUserFromToken = authenticatedAction(
     try {
       await checkPermission(user, companyId);
 
-      const secret = new TextEncoder().encode(JWT_SECRET);
+      const secret = new TextEncoder().encode(getJwtSecret());
       const { payload } = await jwtVerify(token, secret);
       const decoded = payload as unknown as SessionJWTPayload;
       if (!decoded || typeof decoded !== "object" || !decoded.id) {

@@ -15,7 +15,6 @@ const getJwtSecret = (): string => {
   }
   return secret;
 };
-const JWT_SECRET = getJwtSecret();
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 const ACCESS_TOKEN_EXPIRY = "24h"; // 24 hours
@@ -67,7 +66,7 @@ async function generateAccessToken(user: {
   roleId?: string | null;
   companyId?: string | null;
 }): Promise<string> {
-  const secret = new TextEncoder().encode(JWT_SECRET);
+  const secret = new TextEncoder().encode(getJwtSecret());
   return new SignJWT({
     id: user.id,
 
@@ -178,7 +177,7 @@ export async function validateSession(): Promise<SessionUser | null> {
     // Verify JWT signature & expiry
     let decoded: SessionJWTPayload;
     try {
-      const secret = new TextEncoder().encode(JWT_SECRET);
+      const secret = new TextEncoder().encode(getJwtSecret());
       const { payload } = await jwtVerify(accessToken, secret);
       decoded = payload as unknown as SessionJWTPayload;
     } catch {

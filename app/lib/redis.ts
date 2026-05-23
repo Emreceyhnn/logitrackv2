@@ -1,11 +1,11 @@
 import { Redis } from "@upstash/redis";
 
 export const redis = new Redis({
-  url: process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "",
+  url: process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "https://dummy.upstash.io",
   token:
-    process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "",
+    process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "dummy",
 });
-/* --------------------------------- comment -------------------------------- */
+
 export const VEHICLE_CACHE_TTL = 3600;
 
 export const vehicleCacheKeys = {
