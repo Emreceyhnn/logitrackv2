@@ -37,6 +37,9 @@ jobs:
       - name: ʦ Type Check
         run: npx tsc --noEmit
 
+      - name: 📝 Create .env file from Secrets
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
       - name: 🧪 Run Unit Tests
         run: npm run test
 
@@ -49,9 +52,6 @@ jobs:
           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
-
-      - name: 📝 Create .env file from Secrets
-        run: echo "${{ secrets.ENV_FILE }}" > .env
 
       - name: 🏗️ Build Project
         run: npm run build
