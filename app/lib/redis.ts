@@ -1,5 +1,13 @@
 import { Redis } from "@upstash/redis";
 
+// CI/CD (GitHub Actions vb.) ortamlarında eğer şifreler yüklenemezse sistemi fail-fast (anında çökert) ile durduruyoruz.
+// Böylece 50 saniyelik anlamsız timeout'lar yerine hatanın ne olduğunu saniyesinde görüyoruz.
+if (process.env.CI && !process.env.KV_REST_API_URL) {
+  throw new Error(
+    "🚨 CRITICAL CI ERROR: 'KV_REST_API_URL' bulunamadı! GitHub 'ENV_FILE' secret'ınız BOŞ geliyor veya hatalı tanımlanmış."
+  );
+}
+
 export const redis = new Redis({
   url:
     process.env.KV_REST_API_URL ||
