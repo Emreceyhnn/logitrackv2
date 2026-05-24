@@ -40,7 +40,7 @@ jobs:
       - name: 📝 Create .env file from Secrets
         env:
           ENV_FILE_CONTENT: ${{ secrets.ENV_FILE }}
-        run: echo "$ENV_FILE_CONTENT" > .env
+        run: echo "$ENV_FILE" > .env
 
       - name: 🧪 Run Unit Tests
         run: npm run test
