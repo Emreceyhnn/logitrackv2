@@ -38,7 +38,9 @@ jobs:
         run: npx tsc --noEmit
 
       - name: 📝 Create .env file from Secrets
-        run: echo "${{ secrets.ENV_FILE }}" > .env
+        env:
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE }}
+        run: echo "$ENV_FILE_CONTENT" > .env
 
       - name: 🧪 Run Unit Tests
         run: npm run test
