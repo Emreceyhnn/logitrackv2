@@ -1,8 +1,11 @@
-import { redis, EXCHANGE_RATE_CACHE_TTL, exchangeRateCacheKeys } from "@/app/lib/redis";
+import {
+  redis,
+  EXCHANGE_RATE_CACHE_TTL,
+  exchangeRateCacheKeys,
+} from "@/app/lib/redis";
 import { db } from "@/app/lib/db";
-
-const EXCHANGE_RATE_API_KEY = process.env.EXCHANGE_RATE_API_KEY;
-const EXCHANGE_RATE_BASE_URL = process.env.EXCHANGE_RATE_BASE_URL || (EXCHANGE_RATE_API_KEY ? `https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}` : "");
+// Matches Prisma's InputJsonValue — avoids a hard dependency on prisma generate
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 export type SupportedCurrency = "USD" | "EUR" | "TRY" | "GBP";
 
@@ -18,20 +21,26 @@ interface ExchangeRateApiResponse {
   "error-type"?: string;
 }
 
+/** Builds the base URL at call-time so env vars set after module load are respected. */
+function getBaseUrl(): string {
+  const baseUrl = process.env.EXCHANGE_RATE_BASE_URL;
+  if (baseUrl) return baseUrl;
+
+  const apiKey = process.env.EXCHANGE_RATE_API_KEY;
+  if (apiKey) return `https://v6.exchangerate-api.com/v6/${apiKey}`;
+
+  return "";
+}
+
 export async function getExchangeRates(): Promise<ExchangeRates> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // 1. Try DB cache first (most reliable, persists across restarts)
   try {
     const cachedDb = await db.exchangeRate.findFirst({
-      where: {
-        date: {
-          gte: today,
-        },
-      },
-      orderBy: {
-        date: "desc",
-      },
+      where: { date: { gte: today } },
+      orderBy: { date: "desc" },
     });
 
     if (cachedDb) {
@@ -45,24 +54,25 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     console.warn("[exchangeRate] DB get failed:", err);
   }
 
+  // 2. Fall through to Redis cache (fast, in-memory)
   try {
-    const cached = await redis.get<ExchangeRates>(exchangeRateCacheKeys.exchangeRate());
-    if (cached) {
-      return cached;
-    }
+    const cached = await redis.get<ExchangeRates>(
+      exchangeRateCacheKeys.exchangeRate()
+    );
+    if (cached) return cached;
   } catch (err) {
     console.warn("[exchangeRate] Redis get failed:", err);
   }
 
-  if (!EXCHANGE_RATE_BASE_URL) {
+  // 3. Fetch from external API
+  const baseUrl = getBaseUrl();
+  if (!baseUrl) {
     throw new Error(
       "[exchangeRate] EXCHANGE_RATE_API_KEY is not set in environment variables."
     );
   }
 
-  const response = await fetch(`${EXCHANGE_RATE_BASE_URL}/latest/USD`, {
-    next: { revalidate: 0 },
-  });
+  const response = await fetch(`${baseUrl}/latest/USD`);
 
   if (!response.ok) {
     throw new Error(
@@ -82,12 +92,12 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     lastUpdated: new Date().toISOString(),
   };
 
+  // 4. Persist to DB (fire-and-forget, non-blocking)
   try {
     await db.exchangeRate.create({
       data: {
         base: "USD",
-        rates:
-          data.conversion_rates as unknown as import("@prisma/client").Prisma.InputJsonValue,
+        rates: data.conversion_rates as unknown as JsonValue,
         date: new Date(),
       },
     });
@@ -95,6 +105,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     console.warn("[exchangeRate] DB save failed:", err);
   }
 
+  // 5. Persist to Redis (fire-and-forget, non-blocking)
   try {
     await redis.set(exchangeRateCacheKeys.exchangeRate(), rates, {
       ex: EXCHANGE_RATE_CACHE_TTL,
@@ -109,6 +120,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
 export async function getExchangeRate(
   currency: SupportedCurrency
 ): Promise<number> {
+  // USD is always 1:1 — no network call needed
   if (currency === "USD") return 1;
 
   try {
@@ -116,7 +128,7 @@ export async function getExchangeRate(
     return rates.rates[currency] ?? 1;
   } catch (err) {
     console.error("[exchangeRate] Failed to get exchange rate:", err);
-    return 1;
+    return 1; // Fail-open: default to 1 to avoid breaking the UI
   }
 }
 
@@ -134,6 +146,7 @@ export async function convertFromUSD(
 
 /**
  * Converts an amount from any supported currency to any other supported currency.
+ * Uses USD as the intermediate pivot currency.
  */
 export async function convertCurrency(
   amount: number,
@@ -142,13 +155,13 @@ export async function convertCurrency(
 ): Promise<number> {
   if (fromCurrency === toCurrency) return amount;
 
-  const rates = await getExchangeRates();
-  const rateFrom = rates.rates[fromCurrency] ?? 1;
-  const rateTo = rates.rates[toCurrency] ?? 1;
+  const { rates } = await getExchangeRates();
+  const rateFrom = rates[fromCurrency] ?? 1;
+  const rateTo = rates[toCurrency] ?? 1;
 
-  // Convert from origin currency to USD, then from USD to target currency
-  const usdAmount = amount / rateFrom;
-  return usdAmount * rateTo;
+  // Step 1: Convert source currency → USD
+  // Step 2: Convert USD → target currency
+  return (amount / rateFrom) * rateTo;
 }
 
 /**
@@ -159,7 +172,7 @@ export async function refreshExchangeRates(): Promise<ExchangeRates> {
   try {
     await redis.del(exchangeRateCacheKeys.exchangeRate());
   } catch {
-    // Ignore Redis errors
+    // Ignore Redis errors — we still want to attempt a fresh fetch
   }
   return getExchangeRates();
 }

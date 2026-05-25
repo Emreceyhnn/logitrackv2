@@ -14,7 +14,7 @@
     "db:run": "prisma studio",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
-    "test": "dotenv -c -- tsx --experimental-test-module-mocks --test app/**/*.test.ts",
+    "test": "dotenv -c -- tsx --experimental-test-module-mocks --test-force-exit --test app/**/*.test.ts",
     "test:users": "tsx scripts/test-users.ts",
     "firebase:seed-location": "tsx scripts/seed-firebase-locations.ts",
     "firebase:simulate-trip": "tsx scripts/simulate-trip.ts",
