@@ -1,0 +1,49 @@
+import "global-jsdom/register";
+import { describe, it, before, mock, afterEach } from "node:test";
+import { expect } from "expect";
+import { render, screen, cleanup, waitFor } from "@testing-library/react";
+import React from "react";
+
+// 1. Mock Server-Side Data Fetching
+const mockGetDriverWithDashboardData = mock.fn(async () => ({
+  drivers: [],
+}));
+
+mock.module("@/app/lib/controllers/driver", {
+  namedExports: { getDriverWithDashboardData: mockGetDriverWithDashboardData },
+});
+
+// 2. Mock Components
+mock.module("./components/DriverContent", {
+  defaultExport: () => <div data-testid="driver-content">Driver Content</div>,
+});
+
+describe("DriverPage Component", () => {
+  let DriverPage: any;
+
+  before(async () => {
+    const mod = await import("./page");
+    DriverPage = mod.default;
+  });
+
+  afterEach(() => {
+    cleanup();
+    mockGetDriverWithDashboardData.mock.resetCalls();
+  });
+
+  describe("DriverPage() Render Testleri", () => {
+    it("should_RenderDriverContent_WithHydratedState", async () => {
+      // Act
+      const PageComponent = await DriverPage();
+      render(PageComponent);
+
+      // Assert basic renders
+      await waitFor(() => {
+        expect(screen.getByTestId("driver-content")).toBeTruthy();
+      });
+
+      // Verify server side prefetching was called
+      expect(mockGetDriverWithDashboardData.mock.calls.length).toBe(1);
+    });
+  });
+});

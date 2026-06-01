@@ -4,8 +4,7 @@ import {
   exchangeRateCacheKeys,
 } from "@/app/lib/redis";
 import { db } from "@/app/lib/db";
-// Matches Prisma's InputJsonValue — avoids a hard dependency on prisma generate
-type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+import { Prisma } from "@prisma/client";
 
 export type SupportedCurrency = "USD" | "EUR" | "TRY" | "GBP";
 
@@ -97,7 +96,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     await db.exchangeRate.create({
       data: {
         base: "USD",
-        rates: data.conversion_rates as unknown as JsonValue,
+        rates: data.conversion_rates as unknown as Prisma.InputJsonValue,
         date: new Date(),
       },
     });
