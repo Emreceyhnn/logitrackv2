@@ -16,10 +16,7 @@ const ROOT = process.cwd();
 const ENV_FILE = path.join(ROOT, '.env');
 const TSCONFIG_TEST = path.join(ROOT, 'tsconfig.test.json');
 
-// Set TSX_TSCONFIG_PATH so tsx's ESM loader resolves @/ path aliases
-// from the project root (required for Linux CI where tsconfig paths
-// without baseUrl are resolved relative to the test file directory)
-process.env.TSX_TSCONFIG_PATH = TSCONFIG_TEST;
+// TSX_TSCONFIG_PATH removed since tsconfig.json handles it correctly now
 
 // Tüm test dosyalarını bul
 function findTests(dir, extensions = ['.test.ts', '.test.tsx']) {
