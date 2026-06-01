@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it } from "node:test";
 import { expect } from "expect";
 import dayjs from "dayjs";

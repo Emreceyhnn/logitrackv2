@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 import { rateLimit } from "./rate-limiter";
