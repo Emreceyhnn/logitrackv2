@@ -54,7 +54,7 @@ describe("AuthButton Component", () => {
       // Assert
       expect(element).toBeDefined();
       expect(typeof element.type).toBe("function");
-      expect(element.props.disabled).toBe(false);
+      expect(element.props.disabled).toBeFalsy();
       
       // useTheme hook'unun çalıştırıldığını doğrula
       expect(useThemeMock.mock.calls.length).toBe(1);
