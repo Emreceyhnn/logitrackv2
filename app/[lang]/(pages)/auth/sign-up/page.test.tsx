@@ -6,7 +6,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
 // Mock child component
-mock.module("@/app/components/forms/signUpForm", {
+mock.module("../../../../components/forms/signUpForm", {
   defaultExport: () => <div data-testid="sign-up-form">Sign Up Form</div>,
 });
 

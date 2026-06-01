@@ -10,7 +10,7 @@ const mockGetInventoryWithDashboardData = mock.fn(async () => ({
   items: [],
 }));
 
-mock.module("@/app/lib/controllers/inventory", {
+mock.module("../../../../lib/controllers/inventory", {
   namedExports: { getInventoryWithDashboardData: mockGetInventoryWithDashboardData },
 });
 

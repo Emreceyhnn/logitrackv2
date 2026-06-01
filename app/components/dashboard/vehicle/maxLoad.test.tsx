@@ -17,7 +17,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -25,7 +25,7 @@ mock.module("../../cards/card", {
   defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
-mock.module("@/app/components/skeletons/AnalyticsSkeleton", {
+mock.module("../../skeletons/AnalyticsSkeleton", {
   defaultExport: () => <div data-testid="analytics-skeleton">Loading...</div>,
 });
 

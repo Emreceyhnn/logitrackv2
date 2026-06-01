@@ -37,11 +37,11 @@ mock.module("next/navigation", {
   namedExports: { useParams: useParamsMock }
 });
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock }
 });
 
-mock.module("@/app/lib/actions/auth", {
+mock.module("../../lib/actions/auth", {
   namedExports: {
     getUserSession: getUserSessionMock,
     logoutAction: logoutActionMock

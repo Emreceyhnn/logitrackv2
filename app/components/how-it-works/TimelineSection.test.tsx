@@ -30,7 +30,7 @@ const useDictionaryMock = mock.fn(() => ({
   common: { step: "Adım" }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
 
 mock.module("@mui/material", {
   namedExports: {

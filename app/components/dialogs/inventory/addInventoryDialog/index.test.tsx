@@ -32,7 +32,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -46,19 +46,19 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("@/app/lib/controllers/warehouse", {
+mock.module("../../../../lib/controllers/warehouse", {
   namedExports: { 
     addInventoryItem: mock.fn(async () => ({}))
   },
 });
 
-mock.module("@/app/hooks/useUser", {
+mock.module("../../../../hooks/useUser", {
   namedExports: { 
     useUser: mock.fn(() => ({ user: { currency: "USD" } }))
   },
 });
 
-mock.module("@/app/lib/actions/upload", {
+mock.module("../../../../lib/actions/upload", {
   namedExports: { 
     uploadImageAction: mock.fn(async () => ({ url: "https://example.com/image.png" }))
   },

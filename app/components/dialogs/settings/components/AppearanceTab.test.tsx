@@ -30,11 +30,11 @@ const useThemeModeMock = mock.fn(() => ({
   setMode: setModeMock,
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/lib/theme/themeContext", {
+mock.module("../../../../lib/theme/themeContext", {
   namedExports: { useThemeMode: useThemeModeMock },
 });
 

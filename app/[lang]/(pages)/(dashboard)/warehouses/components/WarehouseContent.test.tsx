@@ -28,12 +28,12 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 const mockMutateAsync = mock.fn(async () => {});
-mock.module("@/app/hooks/useWarehouses", {
+mock.module("../../../../../hooks/useWarehouses", {
   namedExports: { 
     useWarehousesWithDashboard: mock.fn(() => ({
       data: {
@@ -55,36 +55,36 @@ mock.module("sonner", {
 });
 
 // Mock child components
-mock.module("@/app/components/cards/KpiCards", {
+mock.module("../../../../../components/cards/KpiCards", {
   defaultExport: ({ kpis }: any) => <div data-testid="kpi-cards">KPI Cards {kpis.length}</div>,
 });
-mock.module("@/app/components/dashboard/warehouse/warehouseList", {
+mock.module("../../../../../components/dashboard/warehouse/warehouseList", {
   defaultExport: ({ onDelete }: any) => (
     <div data-testid="warehouse-list">
       <button onClick={() => onDelete("wh-1")}>Delete WH-1</button>
     </div>
   ),
 });
-mock.module("@/app/components/dashboard/warehouse/capacityUtilization", {
+mock.module("../../../../../components/dashboard/warehouse/capacityUtilization", {
   defaultExport: () => <div data-testid="capacity-chart">Capacity Chart</div>,
 });
-mock.module("@/app/components/dashboard/warehouse/recentStockMovements", {
+mock.module("../../../../../components/dashboard/warehouse/recentStockMovements", {
   defaultExport: () => <div data-testid="movements-table">Movements Table</div>,
 });
 
-mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
+mock.module("../../../../../components/googleMaps/GoogleMapsProvider", {
   namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div> },
 });
-mock.module("@/app/components/dialogs/warehouse/addWarehouseDialog", {
+mock.module("../../../../../components/dialogs/warehouse/addWarehouseDialog", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
-mock.module("@/app/components/dialogs/warehouse/warehouseDetailsDialog", {
+mock.module("../../../../../components/dialogs/warehouse/warehouseDetailsDialog", {
   defaultExport: () => <div data-testid="details-dialog">Details Dialog</div>,
 });
-mock.module("@/app/components/dialogs/warehouse/editWarehouseDialog", {
+mock.module("../../../../../components/dialogs/warehouse/editWarehouseDialog", {
   defaultExport: () => <div data-testid="edit-dialog">Edit Dialog</div>,
 });
-mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
+mock.module("../../../../../components/dialogs/deleteConfirmationDialog", {
   defaultExport: ({ open, onConfirm }: any) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>

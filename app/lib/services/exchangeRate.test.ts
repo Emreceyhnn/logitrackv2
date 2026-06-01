@@ -20,11 +20,11 @@ const redisMock = {
 
 const fetchMock = mock.fn<(...args: any[]) => any>();
 
-mock.module("@/app/lib/db", {
+mock.module("../db", {
   namedExports: { db: dbMock },
 });
 
-mock.module("@/app/lib/redis", {
+mock.module("../redis", {
   namedExports: {
     redis: redisMock,
     EXCHANGE_RATE_CACHE_TTL: 3600,

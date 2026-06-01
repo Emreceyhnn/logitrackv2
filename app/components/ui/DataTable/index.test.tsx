@@ -43,7 +43,7 @@ mock.module("react", {
   }
 });
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock }
 });
 
@@ -82,8 +82,8 @@ mock.module("@mui/material", {
 
 mock.module("@mui/icons-material/Search", { defaultExport: () => ({ type: "SearchIcon" }) });
 mock.module("@mui/icons-material/MoreVert", { defaultExport: () => ({ type: "MoreVertIcon" }) });
-mock.module("@/app/components/skeletons/TableSkeleton", { defaultExport: () => ({ type: "TableSkeleton" }) });
-mock.module("@/app/components/cards/card", { defaultExport: () => ({ type: "CustomCard" }) });
+mock.module("../../skeletons/TableSkeleton", { defaultExport: () => ({ type: "TableSkeleton" }) });
+mock.module("../../cards/card", { defaultExport: () => ({ type: "CustomCard" }) });
 
 const useReactTableMock = mock.fn(() => ({
   getAllColumns: () => [],

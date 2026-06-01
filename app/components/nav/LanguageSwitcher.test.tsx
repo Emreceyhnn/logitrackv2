@@ -38,11 +38,11 @@ mock.module("next/navigation", {
   }
 });
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock }
 });
 
-mock.module("@/app/lib/language/navigation", {
+mock.module("../../lib/language/navigation", {
   namedExports: {
     getCanonicalPath: getCanonicalPathMock,
     buildLocalizedHref: buildLocalizedHrefMock

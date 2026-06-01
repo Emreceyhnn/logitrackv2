@@ -28,15 +28,15 @@ const useDictionaryMock = mock.fn(() => ({
 const deleteVehicleMock = mock.fn(async () => ({}));
 const getStatusMetaMock = mock.fn(() => ({ label: "Available", color: "green", paletteKey: "success" }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle", {
   namedExports: { deleteVehicle: deleteVehicleMock },
 });
 
-mock.module("@/app/lib/priorityColor", {
+mock.module("../../../../lib/priorityColor", {
   namedExports: { getStatusMeta: getStatusMetaMock },
 });
 

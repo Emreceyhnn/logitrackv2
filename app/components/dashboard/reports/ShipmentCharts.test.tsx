@@ -6,7 +6,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
 // 1. Mocks
-mock.module("@/app/components/skeletons/AnalyticsSkeleton", {
+mock.module("../../skeletons/AnalyticsSkeleton", {
   defaultExport: ({ title }: any) => (
     <div data-testid="analytics-skeleton">{title}</div>
   ),

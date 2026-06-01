@@ -13,7 +13,7 @@ const mockGetAnalyticsDashboardData = mock.fn(async () => ({
   performance: {},
 }));
 
-mock.module("@/app/lib/controllers/analytics", {
+mock.module("../../../../lib/controllers/analytics", {
   namedExports: { getAnalyticsDashboardData: mockGetAnalyticsDashboardData },
 });
 

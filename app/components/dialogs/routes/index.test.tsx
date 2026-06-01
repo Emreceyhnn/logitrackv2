@@ -38,7 +38,7 @@ const useDictionaryMock = mock.fn(() => ({
   },
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -52,7 +52,7 @@ mock.module("sonner", {
 });
 
 const updateRouteStatusMock = mock.fn(async () => ({}));
-mock.module("@/app/lib/controllers/routes", {
+mock.module("../../../lib/controllers/routes", {
   namedExports: { updateRouteStatus: updateRouteStatusMock },
 });
 

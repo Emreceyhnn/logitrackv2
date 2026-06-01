@@ -35,7 +35,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -50,24 +50,24 @@ mock.module("sonner", {
 });
 
 const updateRouteMock = mock.fn(async () => ({}));
-mock.module("@/app/lib/controllers/routes", {
+mock.module("../../../lib/controllers/routes", {
   namedExports: { updateRoute: updateRouteMock },
 });
 
 const useUserMock = mock.fn(() => ({
   user: { timezone: "UTC" }
 }));
-mock.module("@/app/hooks/useUser", {
+mock.module("../../../hooks/useUser", {
   namedExports: { useUser: useUserMock },
 });
 
 // Mock Validation
-mock.module("@/app/lib/validationSchema", {
+mock.module("../../../lib/validationSchema", {
   namedExports: { editRouteValidationSchema: () => ({}) },
 });
 
 // Mock Date Utils
-mock.module("@/app/lib/utils/date", {
+mock.module("../../../lib/utils/date", {
   namedExports: {
     toUTC: (d: any) => d,
     utcToUserTz: (d: any) => ({ toDate: () => new Date(d) }),
@@ -75,7 +75,7 @@ mock.module("@/app/lib/utils/date", {
 });
 
 // Mock Subcomponents
-mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
+mock.module("../../googleMaps/GoogleMapsProvider", {
   namedExports: { GoogleMapsProvider: ({ children }: any) => <>{children}</> },
 });
 mock.module("./addRouteDialog/firstStep", {

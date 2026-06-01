@@ -42,11 +42,11 @@ const useUserMock = mock.fn(() => ({
   user: { id: "u1", currency: "USD" },
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/hooks/useUser", {
+mock.module("../../../hooks/useUser", {
   namedExports: { useUser: useUserMock },
 });
 
@@ -57,28 +57,28 @@ const getInventoryMock = mock.fn(async () => []);
 const getTrailersMock = mock.fn(async () => ({ trailers: [], pagination: {} }));
 const updateShipmentMock = mock.fn(async () => ({}));
 
-mock.module("@/app/lib/controllers/warehouse", {
+mock.module("../../../lib/controllers/warehouse", {
   namedExports: { getWarehouses: getWarehousesMock },
 });
 
-mock.module("@/app/lib/controllers/customer", {
+mock.module("../../../lib/controllers/customer", {
   namedExports: { getCustomers: getCustomersMock },
 });
 
-mock.module("@/app/lib/controllers/inventory", {
+mock.module("../../../lib/controllers/inventory", {
   namedExports: { getInventory: getInventoryMock },
 });
 
-mock.module("@/app/lib/controllers/trailer", {
+mock.module("../../../lib/controllers/trailer", {
   namedExports: { getTrailers: getTrailersMock },
 });
 
-mock.module("@/app/lib/controllers/shipments", {
+mock.module("../../../lib/controllers/shipments", {
   namedExports: { updateShipment: updateShipmentMock },
 });
 
 import * as Yup from "yup";
-mock.module("@/app/lib/validationSchema", {
+mock.module("../../../lib/validationSchema", {
   namedExports: {
     addShipmentValidationSchema: () => Yup.object(),
     editShipmentValidationSchema: () => Yup.object(),
@@ -90,7 +90,7 @@ mock.module("sonner", {
   namedExports: { toast: { promise: mock.fn(), error: mock.fn() } },
 });
 
-mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
+mock.module("../../googleMaps/GoogleMapsProvider", {
   namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="maps-provider">{children}</div> },
 });
 

@@ -48,7 +48,7 @@ mock.module("react", {
   }
 });
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock }
 });
 

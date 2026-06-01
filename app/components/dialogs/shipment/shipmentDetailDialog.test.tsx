@@ -48,7 +48,7 @@ const useDictionaryMock = mock.fn(() => ({
   },
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -63,7 +63,7 @@ mock.module("framer-motion", {
 });
 
 // 3. Mock External Components
-mock.module("@/app/components/chips/statusChips", {
+mock.module("../../chips/statusChips", {
   namedExports: { StatusChip: () => <div data-testid="status-chip" /> },
 });
 

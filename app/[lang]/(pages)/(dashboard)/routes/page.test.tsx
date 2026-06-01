@@ -10,7 +10,7 @@ const mockGetRoutesWithDashboardData = mock.fn(async () => ({
   routes: [],
 }));
 
-mock.module("@/app/lib/controllers/routes", {
+mock.module("../../../../lib/controllers/routes", {
   namedExports: { getRoutesWithDashboardData: mockGetRoutesWithDashboardData },
 });
 

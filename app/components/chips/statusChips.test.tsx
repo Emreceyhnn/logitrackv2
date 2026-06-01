@@ -6,11 +6,11 @@ import React from "react";
 global.React = React;
 
 // MOCKLAR
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: mock.fn(() => ({ dict: "mocked" })) }
 });
 
-mock.module("@/app/lib/priorityColor", {
+mock.module("../../lib/priorityColor", {
   namedExports: { 
     getStatusMeta: mock.fn((status) => ({ 
       label: `MockLabel-${status}`, 

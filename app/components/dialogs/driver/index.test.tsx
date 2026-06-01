@@ -20,11 +20,11 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/lib/priorityColor", {
+mock.module("../../../lib/priorityColor", {
   namedExports: { 
     getStatusMeta: mock.fn(() => ({ paletteKey: "success", color: "green", label: "Active" }))
   },

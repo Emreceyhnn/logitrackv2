@@ -15,9 +15,9 @@ mock.module("next/navigation", {
   namedExports: { useRouter: mock.fn(() => ({ push: mock.fn(), refresh: mock.fn() })), useParams: mock.fn(() => ({ lang: "en" })) }
 });
 
-mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("@/app/lib/controllers/users", { namedExports: { RegisterUser: mock.fn() } });
-mock.module("@/app/lib/validationSchema", { namedExports: { signUpValidationSchema: mock.fn(() => [{}, {}, {}]) } });
+mock.module("../../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../../lib/controllers/users", { namedExports: { RegisterUser: mock.fn() } });
+mock.module("../../../lib/validationSchema", { namedExports: { signUpValidationSchema: mock.fn(() => [{}, {}, {}]) } });
 mock.module("../../ui/AuthButton", { defaultExport: ({ children }: any) => <button data-testid="AuthButton">{children}</button> });
 
 mock.module("./step1PersonalInfo", { defaultExport: () => <div data-testid="Step1PersonalInfo" /> });

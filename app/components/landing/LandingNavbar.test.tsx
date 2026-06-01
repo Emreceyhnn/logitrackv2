@@ -11,8 +11,8 @@ const getLocalizedPathMock = mock.fn((path) => path);
 const useScrollTriggerMock = mock.fn(() => false);
 
 mock.module("next/navigation", { namedExports: { useParams: useParamsMock } });
-mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("@/app/lib/language/navigation", { namedExports: { getLocalizedPath: getLocalizedPathMock } });
+mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/navigation", { namedExports: { getLocalizedPath: getLocalizedPathMock } });
 
 mock.module("@mui/material", {
   namedExports: {

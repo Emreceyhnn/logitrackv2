@@ -17,7 +17,7 @@ mock.module("next/server", {
 });
 
 const getRoutesWithDashboardDataMock = mock.fn();
-mock.module("@/app/lib/controllers/routes", {
+mock.module("../../../lib/controllers/routes", {
   namedExports: { getRoutesWithDashboardData: getRoutesWithDashboardDataMock },
 });
 

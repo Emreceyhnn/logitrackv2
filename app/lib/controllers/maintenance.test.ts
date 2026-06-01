@@ -50,11 +50,11 @@ mock.module("./utils/checkPermission", {
   namedExports: checkPermissionMock,
 });
 
-mock.module("@/app/lib/actions/notifications", {
+mock.module("../actions/notifications", {
   namedExports: { sendNotificationAction: notificationsMock.sendNotificationAction },
 });
 
-mock.module("@/app/lib/services/exchangeRate", {
+mock.module("../services/exchangeRate", {
   namedExports: exchangeRateMock,
 });
 

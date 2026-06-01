@@ -7,7 +7,7 @@ global.React = React;
 
 // MOCKLAR
 mock.module("next/link", { defaultExport: ({ children }: any) => <a data-testid="Link">{children}</a> });
-mock.module("@/app/lib/language/language", { namedExports: { getDictionary: mock.fn(async () => ({ auth: { register: "Register", login: "Login" } })) } });
+mock.module("../../lib/language/language", { namedExports: { getDictionary: mock.fn(async () => ({ auth: { register: "Register", login: "Login" } })) } });
 mock.module("./register/signUpStepper", { defaultExport: () => <div data-testid="SignUpStepper" /> });
 
 mock.module("@mui/material", {

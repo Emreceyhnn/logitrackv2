@@ -6,7 +6,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
 // Mock Child Component
-mock.module("@/app/components/landing/LandingNavbar", {
+mock.module("../../../components/landing/LandingNavbar", {
   defaultExport: () => <div data-testid="landing-navbar">Landing Navbar</div>,
 });
 

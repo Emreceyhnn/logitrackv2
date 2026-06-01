@@ -17,7 +17,7 @@ const mockFirebaseRef = {
   set: mock.fn(async () => {}),
   once: mock.fn(async () => ({ val: () => ({ lat: 41.0, lng: 29.0, speed: 60, heading: 90 }) })),
 };
-mock.module("@/app/lib/firebase-admin", {
+mock.module("../../../../lib/firebase-admin", {
   namedExports: {
     adminDb: { ref: mock.fn(() => mockFirebaseRef) },
   },
@@ -25,7 +25,7 @@ mock.module("@/app/lib/firebase-admin", {
 
 // Mock Prisma
 const vehicleFindUniqueMock = mock.fn();
-mock.module("@/app/lib/db", {
+mock.module("../../../../lib/db", {
   namedExports: {
     db: { vehicle: { findUnique: vehicleFindUniqueMock } },
   },

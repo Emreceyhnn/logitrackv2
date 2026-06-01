@@ -21,11 +21,11 @@ const mockDict = {
   },
 };
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: () => mockDict },
 });
 
-mock.module("@/app/components/skeletons/AnalyticsSkeleton", {
+mock.module("../../skeletons/AnalyticsSkeleton", {
   defaultExport: ({ title }: any) => <div data-testid="analytics-skeleton">{title}</div>,
 });
 

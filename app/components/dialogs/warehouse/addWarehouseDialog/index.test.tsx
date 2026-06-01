@@ -68,22 +68,22 @@ mock.module("react", {
   }
 });
 
-mock.module("@/app/lib/controllers/warehouse", {
+mock.module("../../../../lib/controllers/warehouse", {
   namedExports: { createWarehouse: createWarehouseMock }
 });
 
-mock.module("@/app/hooks/useUser", {
+mock.module("../../../../hooks/useUser", {
   namedExports: { useUser: useUserMock }
 });
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock }
 });
 
 mock.module("./sections/BasicInfoSection", { defaultExport: () => ({ type: "BasicInfoSection" }) });
 mock.module("./sections/LocationSection", { defaultExport: () => ({ type: "LocationSection" }) });
 mock.module("./sections/CapacitySection", { defaultExport: () => ({ type: "CapacitySection" }) });
-mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
+mock.module("../../../googleMaps/GoogleMapsProvider", {
   namedExports: { GoogleMapsProvider: (props: any) => ({ type: "GoogleMapsProvider", props }) }
 });
 

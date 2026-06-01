@@ -22,7 +22,7 @@ mock.module("next/server", {
 });
 
 const getVehiclesMock = mock.fn();
-mock.module("@/app/lib/controllers/vehicle", {
+mock.module("../../lib/controllers/vehicle", {
   namedExports: { getVehicles: getVehiclesMock },
 });
 

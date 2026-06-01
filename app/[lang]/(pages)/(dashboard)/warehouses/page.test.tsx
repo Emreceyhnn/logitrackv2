@@ -10,7 +10,7 @@ const mockGetWarehousesWithDashboardData = mock.fn(async () => ({
   warehouses: [],
 }));
 
-mock.module("@/app/lib/controllers/warehouse", {
+mock.module("../../../../lib/controllers/warehouse", {
   namedExports: { getWarehousesWithDashboardData: mockGetWarehousesWithDashboardData },
 });
 

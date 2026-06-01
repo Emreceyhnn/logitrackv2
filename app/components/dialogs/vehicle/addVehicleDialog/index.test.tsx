@@ -35,22 +35,22 @@ const useDictionaryMock = mock.fn(() => ({
 const createVehicleMock = mock.fn(async () => ({ id: "vehicle-1" }));
 const uploadVehicleDocumentMock = mock.fn(async () => ({}));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle", {
   namedExports: {
     createVehicle: createVehicleMock,
     uploadVehicleDocument: uploadVehicleDocumentMock,
   },
 });
 
-mock.module("@/app/lib/actions/upload", {
+mock.module("../../../../lib/actions/upload", {
   namedExports: { uploadImageAction: mock.fn() },
 });
 
-mock.module("@/app/lib/validationSchema", {
+mock.module("../../../../lib/validationSchema", {
   namedExports: { addVehicleValidationSchema: mock.fn(() => ({})) },
 });
 

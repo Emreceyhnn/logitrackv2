@@ -30,7 +30,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -44,20 +44,20 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("@/app/lib/controllers/driver", {
+mock.module("../../../../lib/controllers/driver", {
   namedExports: { 
     createDriver: mock.fn(async () => ({})),
     getEligibleUsersForDriver: mock.fn(async () => [])
   },
 });
 
-mock.module("@/app/lib/actions/upload", {
+mock.module("../../../../lib/actions/upload", {
   namedExports: { 
     uploadImageAction: mock.fn(async () => ({ url: "https://example.com/image.png" }))
   },
 });
 
-mock.module("@/app/lib/validationSchema", {
+mock.module("../../../../lib/validationSchema", {
   namedExports: {
     addDriverValidationSchema: mock.fn(() => ({
       validate: async () => true,

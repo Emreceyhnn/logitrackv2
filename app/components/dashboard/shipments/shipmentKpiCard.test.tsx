@@ -18,11 +18,11 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/components/skeletons/KpiSkeleton", {
+mock.module("../../skeletons/KpiSkeleton", {
   defaultExport: ({ count }: any) => <div data-testid="kpi-skeleton">Loading {count} KPIs</div>,
 });
 

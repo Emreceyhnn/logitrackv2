@@ -56,19 +56,19 @@ const updateMaintenanceRecordMock = mock.fn(async () => ({}));
 const convertFromMock = (val: any) => val || 0;
 const useCurrencyMock = mock.fn(() => ({ convertFrom: convertFromMock, symbol: "$", currency: "USD" }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle", {
   namedExports: { updateMaintenanceRecord: updateMaintenanceRecordMock },
 });
 
-mock.module("@/app/hooks/useCurrency", {
+mock.module("../../../../hooks/useCurrency", {
   namedExports: { useCurrency: useCurrencyMock },
 });
 
-mock.module("@/app/lib/actions/upload", {
+mock.module("../../../../lib/actions/upload", {
   namedExports: { uploadImageAction: mock.fn() },
 });
 

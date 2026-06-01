@@ -8,7 +8,7 @@ import React from "react";
 // 1. Mock Server-Side Data Fetching
 const mockGetReportsDataAction = mock.fn(async () => ({}));
 
-mock.module("@/app/lib/controllers/reports", {
+mock.module("../../../../lib/controllers/reports", {
   namedExports: { getReportsDataAction: mockGetReportsDataAction },
 });
 

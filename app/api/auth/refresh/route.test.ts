@@ -18,15 +18,15 @@ mock.module("next/server", {
 });
 
 const refreshSessionMock = mock.fn();
-mock.module("@/app/lib/controllers/session", {
+mock.module("../../../lib/controllers/session", {
   namedExports: { refreshSession: refreshSessionMock },
 });
 
-mock.module("@/app/lib/constants", {
+mock.module("../../../lib/constants", {
   namedExports: { DEFAULT_LOCALE: "en", SIGN_IN_ROUTE: "/sign-in" },
 });
 
-mock.module("@/app/lib/language/navigation", {
+mock.module("../../../lib/language/navigation", {
   namedExports: { buildLocalizedHref: (route: string, locale: string) => `/${locale}${route}` },
 });
 

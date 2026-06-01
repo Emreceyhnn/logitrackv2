@@ -22,15 +22,15 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/hooks/useDateSettings", {
+mock.module("../../../hooks/useDateSettings", {
   namedExports: { useDateSettings: mock.fn(() => ({})) },
 });
 
-mock.module("@/app/lib/utils/date", {
+mock.module("../../../lib/utils/date", {
   namedExports: { 
     formatDisplayDate: mock.fn(() => "01/01/2026"),
     formatDisplayTime: mock.fn(() => "12:00 PM")
@@ -41,7 +41,7 @@ mock.module("../../cards/card", {
   defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
-mock.module("@/app/components/ui/DataTable", {
+mock.module("../../ui/DataTable", {
   defaultExport: ({ rows, columns, emptyMessage }: any) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (

@@ -33,14 +33,14 @@ const useDictionaryMock = mock.fn(() => ({
   common: { loading: "Loading" }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 const mockRefetch = mock.fn(async () => {});
 const mockDeleteMutateAsync = mock.fn(async () => {});
 
-mock.module("@/app/hooks/useDrivers", {
+mock.module("../../../../../hooks/useDrivers", {
   namedExports: { 
     useDriverWithDashboard: mock.fn(() => ({
       data: {
@@ -60,30 +60,30 @@ mock.module("@/app/hooks/useDrivers", {
 });
 
 // Mock child components
-mock.module("@/app/components/cards/KpiCards", {
+mock.module("../../../../../components/cards/KpiCards", {
   defaultExport: () => <div data-testid="kpi-cards">KPI Cards</div>,
 });
-mock.module("@/app/components/dashboard/driver/driverTable", {
+mock.module("../../../../../components/dashboard/driver/driverTable", {
   defaultExport: ({ onDelete }: any) => (
     <div data-testid="driver-table">
       <button onClick={() => onDelete("d1")}>Delete D1</button>
     </div>
   ),
 });
-mock.module("@/app/components/dashboard/driver/driverPerformanceCharts", {
+mock.module("../../../../../components/dashboard/driver/driverPerformanceCharts", {
   defaultExport: () => <div data-testid="performance-charts">Charts</div>,
 });
 
-mock.module("@/app/components/dialogs/driver/addDriverDialog", {
+mock.module("../../../../../components/dialogs/driver/addDriverDialog", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
-mock.module("@/app/components/dialogs/driver/editDriverDialog", {
+mock.module("../../../../../components/dialogs/driver/editDriverDialog", {
   defaultExport: () => <div data-testid="edit-dialog">Edit Dialog</div>,
 });
-mock.module("@/app/components/dialogs/driver", {
+mock.module("../../../../../components/dialogs/driver", {
   defaultExport: () => <div data-testid="driver-dialog">Details Dialog</div>,
 });
-mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
+mock.module("../../../../../components/dialogs/deleteConfirmationDialog", {
   defaultExport: ({ open, onConfirm }: any) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>

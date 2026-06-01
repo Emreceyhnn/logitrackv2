@@ -37,15 +37,15 @@ const mockDict = {
   },
 };
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: () => mockDict },
 });
 
-mock.module("@/app/hooks/useDateSettings", {
+mock.module("../../../hooks/useDateSettings", {
   namedExports: { useDateSettings: () => ({ format: "YYYY-MM-DD" }) },
 });
 
-mock.module("@/app/lib/utils/date", {
+mock.module("../../../lib/utils/date", {
   namedExports: { formatDisplayDate: () => "2024-01-01" },
 });
 
@@ -83,7 +83,7 @@ mock.module("../../dialogs/deleteConfirmationDialog", {
 
 // Mock DataTable
 let dataTableProps: any = null;
-mock.module("@/app/components/ui/DataTable", {
+mock.module("../../ui/DataTable", {
   defaultExport: (props: any) => {
     dataTableProps = props;
     return <div data-testid="data-table">{props.emptyMessage}</div>;

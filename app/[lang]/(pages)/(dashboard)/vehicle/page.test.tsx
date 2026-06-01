@@ -10,7 +10,7 @@ const mockGetVehiclesWithDashboard = mock.fn(async () => ({
   vehicles: [],
 }));
 
-mock.module("@/app/lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle", {
   namedExports: { getVehiclesWithDashboard: mockGetVehiclesWithDashboard },
 });
 

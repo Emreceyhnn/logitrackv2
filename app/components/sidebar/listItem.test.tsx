@@ -51,7 +51,7 @@ mock.module("next/link", { defaultExport: () => ({ type: "Link" }) });
 const isPathActiveMock = mock.fn(() => true);
 const buildLocalizedHrefMock = mock.fn((href) => `/en${href}`);
 
-mock.module("@/app/lib/language/navigation", {
+mock.module("../../lib/language/navigation", {
   namedExports: {
     isPathActive: isPathActiveMock,
     buildLocalizedHref: buildLocalizedHrefMock

@@ -16,10 +16,10 @@ mock.module("next/navigation", {
 
 mock.module("next/link", { defaultExport: ({ children }: any) => <a data-testid="Link">{children}</a> });
 
-mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("@/app/lib/controllers/users", { namedExports: { LoginUser: mock.fn() } });
-mock.module("@/app/lib/validationSchema", { namedExports: { loginValidationSchema: mock.fn() } });
-mock.module("@/app/lib/styled/styledFieldBox", { namedExports: { StyledTextFieldAuth: () => <input data-testid="StyledTextFieldAuth" /> } });
+mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/controllers/users", { namedExports: { LoginUser: mock.fn() } });
+mock.module("../../lib/validationSchema", { namedExports: { loginValidationSchema: mock.fn() } });
+mock.module("../../lib/styled/styledFieldBox", { namedExports: { StyledTextFieldAuth: () => <input data-testid="StyledTextFieldAuth" /> } });
 mock.module("../ui/AuthButton", { defaultExport: ({ children }: any) => <button data-testid="AuthButton">{children}</button> });
 
 mock.module("formik", {

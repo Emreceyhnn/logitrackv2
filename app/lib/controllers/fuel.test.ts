@@ -39,7 +39,7 @@ mock.module("./utils/checkPermission", {
   namedExports: checkPermissionMock,
 });
 
-mock.module("@/app/lib/services/exchangeRate", {
+mock.module("../services/exchangeRate", {
   namedExports: exchangeRateMock,
 });
 

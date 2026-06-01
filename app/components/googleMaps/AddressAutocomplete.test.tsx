@@ -9,7 +9,7 @@ const useDictionaryMock = mock.fn(() => ({
   maps: { searchAddress: "Search" }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
 
 mock.module("@mui/material", {
   namedExports: {

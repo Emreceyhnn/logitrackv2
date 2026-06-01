@@ -25,19 +25,19 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 const useUserMock = mock.fn(() => ({ user: { id: "u1" } }));
-mock.module("@/app/hooks/useUser", {
+mock.module("../../../../../hooks/useUser", {
   namedExports: { useUser: useUserMock },
 });
 
 const mockRefetch = mock.fn(async () => {});
 const mockDeleteMutateAsync = mock.fn(async () => {});
 
-mock.module("@/app/hooks/useCustomers", {
+mock.module("../../../../../hooks/useCustomers", {
   namedExports: { 
     useCustomersWithDashboard: mock.fn(() => ({
       data: {
@@ -58,7 +58,7 @@ mock.module("sonner", {
 });
 
 // Mock child components
-mock.module("@/app/components/dashboard/customer/CustomerList", {
+mock.module("../../../../../components/dashboard/customer/CustomerList", {
   defaultExport: ({ onEdit, onDelete }: any) => (
     <div data-testid="customer-list">
       <button onClick={() => onEdit({ id: "c1", name: "C1" })}>Edit C1</button>
@@ -66,23 +66,23 @@ mock.module("@/app/components/dashboard/customer/CustomerList", {
     </div>
   ),
 });
-mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
+mock.module("../../../../../components/googleMaps/GoogleMapsProvider", {
   namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div> },
 });
-mock.module("@/app/components/googleMaps/MapWithMarker", {
+mock.module("../../../../../components/googleMaps/MapWithMarker", {
   namedExports: { MapWithMarker: () => <div data-testid="map-with-marker">Map</div> },
 });
 
-mock.module("@/app/components/dialogs/customer/customerDetailDialog", {
+mock.module("../../../../../components/dialogs/customer/customerDetailDialog", {
   defaultExport: () => <div data-testid="detail-dialog">Detail Dialog</div>,
 });
-mock.module("@/app/components/dialogs/customer/editCustomerDialog", {
+mock.module("../../../../../components/dialogs/customer/editCustomerDialog", {
   defaultExport: () => <div data-testid="edit-dialog">Edit Dialog</div>,
 });
-mock.module("@/app/components/dialogs/customer/addCustomerDialog", {
+mock.module("../../../../../components/dialogs/customer/addCustomerDialog", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
-mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
+mock.module("../../../../../components/dialogs/deleteConfirmationDialog", {
   defaultExport: ({ open, onConfirm }: any) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>

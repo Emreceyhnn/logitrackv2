@@ -53,7 +53,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -66,7 +66,7 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("@/app/lib/controllers/inventory", {
+mock.module("../../../lib/controllers/inventory", {
   namedExports: { 
     getInventoryMovements: mock.fn(async () => []),
     getInventoryBySku: mock.fn(async () => []),
@@ -74,7 +74,7 @@ mock.module("@/app/lib/controllers/inventory", {
 });
 
 const mutateAsyncMock = mock.fn(async () => ({}));
-mock.module("@/app/hooks/useInventory", {
+mock.module("../../../hooks/useInventory", {
   namedExports: {
     useInventoryMutations: mock.fn(() => ({
       adjustStock: { mutateAsync: mutateAsyncMock, isPending: false }
@@ -82,7 +82,7 @@ mock.module("@/app/hooks/useInventory", {
   }
 });
 
-mock.module("@/app/hooks/useCurrency", {
+mock.module("../../../hooks/useCurrency", {
   namedExports: {
     useCurrency: mock.fn(() => ({
       formatFrom: (val: number, cur: string) => `${val} ${cur}`
@@ -90,13 +90,13 @@ mock.module("@/app/hooks/useCurrency", {
   }
 });
 
-mock.module("@/app/hooks/useDateSettings", {
+mock.module("../../../hooks/useDateSettings", {
   namedExports: {
     useDateSettings: mock.fn(() => ({}))
   }
 });
 
-mock.module("@/app/lib/utils/date", {
+mock.module("../../../lib/utils/date", {
   namedExports: {
     formatDisplayDateTime: mock.fn(() => "Formatted Date")
   }

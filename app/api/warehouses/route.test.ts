@@ -19,7 +19,7 @@ mock.module("next/server", {
 
 const getWarehousesMock = mock.fn();
 const getWarehousesWithDashboardDataMock = mock.fn();
-mock.module("@/app/lib/controllers/warehouse", {
+mock.module("../../lib/controllers/warehouse", {
   namedExports: {
     getWarehouses: getWarehousesMock,
     getWarehousesWithDashboardData: getWarehousesWithDashboardDataMock,

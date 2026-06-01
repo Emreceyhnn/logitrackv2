@@ -10,7 +10,7 @@ const mockGetCompanyWithDashboardData = mock.fn(async () => ({
   stats: { users: 5 },
 }));
 
-mock.module("@/app/lib/controllers/company", {
+mock.module("../../../../lib/controllers/company", {
   namedExports: { getCompanyWithDashboardData: mockGetCompanyWithDashboardData },
 });
 

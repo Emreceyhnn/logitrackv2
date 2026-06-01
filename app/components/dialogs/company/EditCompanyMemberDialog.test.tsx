@@ -41,18 +41,18 @@ const useDictionaryMock = mock.fn(() => ({
   },
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 const updateCompanyMemberMock = mock.fn(async () => ({}));
-mock.module("@/app/lib/controllers/company", {
+mock.module("../../../lib/controllers/company", {
   namedExports: { 
     updateCompanyMember: updateCompanyMemberMock
   },
 });
 
-mock.module("@/app/lib/validationSchema", {
+mock.module("../../../lib/validationSchema", {
   namedExports: {
     editCompanyMemberValidationSchema: mock.fn(() => ({
       validate: async () => true,

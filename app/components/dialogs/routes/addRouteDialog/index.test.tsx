@@ -35,7 +35,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -50,39 +50,39 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("@/app/lib/controllers/routes", {
+mock.module("../../../../lib/controllers/routes", {
   namedExports: { createRoute: mock.fn(async () => ({})) },
 });
 
-mock.module("@/app/lib/controllers/shipments", {
+mock.module("../../../../lib/controllers/shipments", {
   namedExports: { getShipments: mock.fn(async () => []) },
 });
 
-mock.module("@/app/lib/controllers/warehouse", {
+mock.module("../../../../lib/controllers/warehouse", {
   namedExports: { getWarehouses: mock.fn(async () => []) },
 });
 
 const useUserMock = mock.fn(() => ({
   user: { timezone: "UTC" }
 }));
-mock.module("@/app/hooks/useUser", {
+mock.module("../../../../hooks/useUser", {
   namedExports: { useUser: useUserMock },
 });
 
 // Mock Validation
-mock.module("@/app/lib/validationSchema", {
+mock.module("../../../../lib/validationSchema", {
   namedExports: { addRouteValidationSchema: () => ({}) },
 });
 
 // Mock Date Utils
-mock.module("@/app/lib/utils/date", {
+mock.module("../../../../lib/utils/date", {
   namedExports: {
     toUTC: (d: any) => d,
   },
 });
 
 // Mock Subcomponents
-mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
+mock.module("../../../googleMaps/GoogleMapsProvider", {
   namedExports: { GoogleMapsProvider: ({ children }: any) => <>{children}</> },
 });
 mock.module("./firstStep", {

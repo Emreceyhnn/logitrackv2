@@ -70,16 +70,16 @@ mock.module("@mui/icons-material/Close", { defaultExport: () => ({ type: "Icon" 
 
 // API servisleri
 const clearAuthCookiesMock = mock.fn();
-mock.module("@/app/lib/controllers/session", {
+mock.module("../../lib/controllers/session", {
   namedExports: { clearAuthCookies: clearAuthCookiesMock }
 });
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock }
 });
 
 const buildLocalizedHrefMock = mock.fn((href) => `/en${href}`);
-mock.module("@/app/lib/language/navigation", {
+mock.module("../../lib/language/navigation", {
   namedExports: { buildLocalizedHref: buildLocalizedHrefMock }
 });
 

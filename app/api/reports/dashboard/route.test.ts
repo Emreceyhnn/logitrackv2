@@ -13,7 +13,7 @@ mock.module("next/server", {
 });
 
 const getReportsDataActionMock = mock.fn();
-mock.module("@/app/lib/controllers/reports", {
+mock.module("../../../lib/controllers/reports", {
   namedExports: { getReportsDataAction: getReportsDataActionMock },
 });
 

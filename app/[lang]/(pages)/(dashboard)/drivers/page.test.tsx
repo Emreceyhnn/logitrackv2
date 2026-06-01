@@ -10,7 +10,7 @@ const mockGetDriverWithDashboardData = mock.fn(async () => ({
   drivers: [],
 }));
 
-mock.module("@/app/lib/controllers/driver", {
+mock.module("../../../../lib/controllers/driver", {
   namedExports: { getDriverWithDashboardData: mockGetDriverWithDashboardData },
 });
 

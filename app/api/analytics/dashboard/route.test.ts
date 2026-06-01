@@ -22,7 +22,7 @@ mock.module("next/server", {
 
 // ─── Controller mocks ────────────────────────────────────────────────────────
 const getAnalyticsDashboardDataMock = mock.fn();
-mock.module("@/app/lib/controllers/analytics", {
+mock.module("../../../lib/controllers/analytics", {
   namedExports: { getAnalyticsDashboardData: getAnalyticsDashboardDataMock },
 });
 

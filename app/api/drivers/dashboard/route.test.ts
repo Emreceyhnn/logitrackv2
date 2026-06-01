@@ -22,7 +22,7 @@ mock.module("next/server", {
 });
 
 const getDriverWithDashboardDataMock = mock.fn();
-mock.module("@/app/lib/controllers/driver", {
+mock.module("../../../lib/controllers/driver", {
   namedExports: { getDriverWithDashboardData: getDriverWithDashboardDataMock },
 });
 

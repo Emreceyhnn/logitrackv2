@@ -7,7 +7,7 @@ const useDictionaryMock = mock.fn(() => ({
   landing: { trusted: "Güvenilen Firmalar" }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
 
 mock.module("@mui/material", {
   namedExports: {

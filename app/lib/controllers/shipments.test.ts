@@ -85,7 +85,7 @@ mock.module("./utils/checkPermission", {
   namedExports: checkPermissionMock,
 });
 
-mock.module("@/app/lib/actions/notifications", {
+mock.module("../actions/notifications", {
   namedExports: { sendNotificationAction: notificationsMock.sendNotificationAction },
 });
 

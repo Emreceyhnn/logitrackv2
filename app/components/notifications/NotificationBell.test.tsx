@@ -80,15 +80,15 @@ mock.module("@mui/icons-material", {
 });
 
 // Hook ve Utiller
-mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("@/app/hooks/useDateSettings", { namedExports: { useDateSettings: useDateSettingsMock } });
-mock.module("@/app/hooks/useUser", { namedExports: { useUser: useUserMock } });
-mock.module("@/app/hooks/useNotifications", { namedExports: { useNotifications: useNotificationsMock } });
+mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../hooks/useDateSettings", { namedExports: { useDateSettings: useDateSettingsMock } });
+mock.module("../../hooks/useUser", { namedExports: { useUser: useUserMock } });
+mock.module("../../hooks/useNotifications", { namedExports: { useNotifications: useNotificationsMock } });
 
-mock.module("@/app/lib/priorityColor", {
+mock.module("../../lib/priorityColor", {
   namedExports: { getStatusColor: mock.fn(), resolveStatusAlpha: mock.fn() }
 });
-mock.module("@/app/lib/utils/date", {
+mock.module("../../lib/utils/date", {
   namedExports: { formatSmartTimestamp: mock.fn() }
 });
 

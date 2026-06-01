@@ -11,7 +11,7 @@ const useDictionaryMock = mock.fn(() => ({
   drivers: { card: { license: "Lic {type}", vehicle: "Veh {plate}", noVehicle: "No Veh" } }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
 mock.module("./card", { defaultExport: ({ children }: any) => <div data-testid="CustomCard">{children}</div> });
 mock.module("../rating", { defaultExport: () => <div data-testid="CustomRating" /> });
 

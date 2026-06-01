@@ -19,7 +19,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -27,7 +27,7 @@ const mockRefetch = mock.fn(async () => {});
 const mockDeleteMutateAsync = mock.fn(async () => {});
 const mockUpdateMutateAsync = mock.fn(async () => {});
 
-mock.module("@/app/hooks/useInventory", {
+mock.module("../../../../../hooks/useInventory", {
   namedExports: { 
     useInventoryWithDashboard: mock.fn(() => ({
       data: {
@@ -46,7 +46,7 @@ mock.module("@/app/hooks/useInventory", {
   },
 });
 
-mock.module("@/app/hooks/useTableParams", {
+mock.module("../../../../../hooks/useTableParams", {
   namedExports: { 
     useTableParams: mock.fn(() => ({
       page: 1,
@@ -65,7 +65,7 @@ mock.module("@/app/hooks/useTableParams", {
   },
 });
 
-mock.module("@/app/hooks/useCurrency", {
+mock.module("../../../../../hooks/useCurrency", {
   namedExports: { 
     useCurrency: mock.fn(() => ({
       format: (val: number) => `$${val}`,
@@ -75,29 +75,29 @@ mock.module("@/app/hooks/useCurrency", {
 });
 
 // Mock child components
-mock.module("@/app/components/cards/KpiCards", {
+mock.module("../../../../../components/cards/KpiCards", {
   defaultExport: () => <div data-testid="kpi-cards">KPI Cards</div>,
 });
-mock.module("@/app/components/dashboard/inventory/InventoryHeader", {
+mock.module("../../../../../components/dashboard/inventory/InventoryHeader", {
   defaultExport: () => <div data-testid="inventory-header">Header</div>,
 });
-mock.module("@/app/components/dashboard/inventory/InventoryTable", {
+mock.module("../../../../../components/dashboard/inventory/InventoryTable", {
   defaultExport: ({ onDelete }: any) => (
     <div data-testid="inventory-table">
       <button onClick={() => onDelete("i1")}>Delete i1</button>
     </div>
   ),
 });
-mock.module("@/app/components/dialogs/inventory/InventoryDetailsDialog", {
+mock.module("../../../../../components/dialogs/inventory/InventoryDetailsDialog", {
   defaultExport: () => <div data-testid="detail-dialog">Details Dialog</div>,
 });
-mock.module("@/app/components/dialogs/inventory/InventoryEditDialog", {
+mock.module("../../../../../components/dialogs/inventory/InventoryEditDialog", {
   defaultExport: () => <div data-testid="edit-dialog">Edit Dialog</div>,
 });
-mock.module("@/app/components/dialogs/inventory/addInventoryDialog", {
+mock.module("../../../../../components/dialogs/inventory/addInventoryDialog", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
-mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
+mock.module("../../../../../components/dialogs/deleteConfirmationDialog", {
   defaultExport: ({ open, onConfirm }: any) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>

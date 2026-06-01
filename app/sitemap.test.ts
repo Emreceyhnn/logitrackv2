@@ -3,7 +3,7 @@ import { describe, it, before, mock } from "node:test";
 import { expect } from "expect";
 
 // Mock navigation
-mock.module("@/app/lib/language/navigation", {
+mock.module("./lib/language/navigation", {
   namedExports: {
     getLocalizedPath: (route: string, lang: string) => `/${route}`
   }

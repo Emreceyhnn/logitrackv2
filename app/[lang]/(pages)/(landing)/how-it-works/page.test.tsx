@@ -16,12 +16,12 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 // Mock Child Component
-mock.module("@/app/components/how-it-works/TimelineSection", {
+mock.module("../../../../components/how-it-works/TimelineSection", {
   defaultExport: () => <div data-testid="timeline-section">Timeline Section</div>,
 });
 

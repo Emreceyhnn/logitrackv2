@@ -6,7 +6,7 @@ import { render, screen, cleanup, waitFor } from "@testing-library/react";
 import React from "react";
 
 // Mock child component
-mock.module("@/app/components/dashboard/DashboardLayoutClient", {
+mock.module("../../../components/dashboard/DashboardLayoutClient", {
   defaultExport: ({ children }: any) => <div data-testid="dashboard-layout-client">{children}</div>,
 });
 

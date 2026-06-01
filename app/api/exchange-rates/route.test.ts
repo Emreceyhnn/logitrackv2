@@ -20,7 +20,7 @@ mock.module("next/server", {
 
 const getExchangeRatesMock = mock.fn();
 const refreshExchangeRatesMock = mock.fn();
-mock.module("@/app/lib/services/exchangeRate", {
+mock.module("../../lib/services/exchangeRate", {
   namedExports: {
     getExchangeRates: getExchangeRatesMock,
     refreshExchangeRates: refreshExchangeRatesMock,

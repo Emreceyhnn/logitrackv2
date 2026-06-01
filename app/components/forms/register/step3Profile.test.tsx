@@ -10,8 +10,8 @@ const useDictionaryMock = mock.fn(() => ({
   auth: { finalTouches: "Final", profileDescription: "Desc", uploading: "Uping", changePhoto: "Change", uploadProfilePicture: "Upload", termsAgreement: "Terms" }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("@/app/lib/actions/upload", { namedExports: { uploadImageAction: mock.fn() } });
+mock.module("../../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../../lib/actions/upload", { namedExports: { uploadImageAction: mock.fn() } });
 
 mock.module("formik", {
   namedExports: {

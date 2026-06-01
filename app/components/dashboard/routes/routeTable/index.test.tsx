@@ -27,28 +27,28 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/hooks/useDateSettings", {
+mock.module("../../../../hooks/useDateSettings", {
   namedExports: { useDateSettings: mock.fn(() => ({})) },
 });
 
-mock.module("@/app/lib/utils/date", {
+mock.module("../../../../lib/utils/date", {
   namedExports: { formatDisplayDateTime: mock.fn(() => "31/05/2026 14:00") },
 });
 
-mock.module("@/app/lib/type/enums", {
+mock.module("../../../../lib/type/enums", {
   namedExports: { RouteStatus: { PLANNED: "PLANNED", ACTIVE: "ACTIVE", COMPLETED: "COMPLETED" } }
 });
 
 const mockUpdateRouteStatus = mock.fn(async () => {});
-mock.module("@/app/lib/controllers/routes", {
+mock.module("../../../../lib/controllers/routes", {
   namedExports: { updateRouteStatus: mockUpdateRouteStatus }
 });
 
-mock.module("@/app/lib/priorityColor", {
+mock.module("../../../../lib/priorityColor", {
   namedExports: {
     getStatusMeta: mock.fn((_status: string, _dict: any) => ({ label: "Active" }))
   }
@@ -58,13 +58,13 @@ mock.module("sonner", {
   namedExports: { toast: { success: mock.fn(), error: mock.fn() } }
 });
 
-mock.module("@/app/components/chips/statusChips", {
+mock.module("../../../chips/statusChips", {
   namedExports: {
     StatusChip: ({ status }: any) => <span data-testid={`status-chip-${status}`}>{status}</span>
   }
 });
 
-mock.module("@/app/components/dialogs/routes", {
+mock.module("../../../dialogs/routes", {
   defaultExport: ({ open, onClose }: any) => open ? (
     <div data-testid="route-details-dialog">
       <button onClick={onClose}>Close</button>
@@ -72,7 +72,7 @@ mock.module("@/app/components/dialogs/routes", {
   ) : null,
 });
 
-mock.module("@/app/components/ui/DataTable", {
+mock.module("../../../ui/DataTable", {
   defaultExport: ({ rows, columns, rowActions, emptyMessage }: any) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (

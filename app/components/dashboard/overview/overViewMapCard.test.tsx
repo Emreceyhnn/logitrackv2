@@ -9,13 +9,13 @@ mock.module("../../cards/card", {
   defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
-mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
+mock.module("../../googleMaps/GoogleMapsProvider", {
   namedExports: {
     GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div>,
   },
 });
 
-mock.module("@/app/components/googleMaps/MapWithMarker", {
+mock.module("../../googleMaps/MapWithMarker", {
   namedExports: {
     MapWithMarker: ({ markers }: any) => (
       <div data-testid="map-with-marker">

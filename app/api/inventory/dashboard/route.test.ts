@@ -13,7 +13,7 @@ mock.module("next/server", {
 });
 
 const getInventoryWithDashboardDataMock = mock.fn();
-mock.module("@/app/lib/controllers/inventory", {
+mock.module("../../../lib/controllers/inventory", {
   namedExports: { getInventoryWithDashboardData: getInventoryWithDashboardDataMock },
 });
 

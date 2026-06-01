@@ -31,18 +31,18 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/lib/type/enums", {
+mock.module("../../../../lib/type/enums", {
   namedExports: {
     TrailerStatus: { AVAILABLE: "AVAILABLE", IN_USE: "IN_USE" },
     TrailerType: { FLATBED: "FLATBED", REEFER: "REEFER" },
   }
 });
 
-mock.module("@/app/components/ui/DataTable", {
+mock.module("../../../ui/DataTable", {
   defaultExport: ({ rows, columns, rowActions, emptyMessage }: any) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (

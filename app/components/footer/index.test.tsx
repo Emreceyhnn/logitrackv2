@@ -6,7 +6,7 @@ import React from "react";
 global.React = React;
 
 // MOCKLAR
-mock.module("@/app/lib/language/language", { 
+mock.module("../../lib/language/language", { 
   namedExports: { 
     getDictionary: mock.fn(async () => ({ 
       common: { logitrack: "LogiTrack" },

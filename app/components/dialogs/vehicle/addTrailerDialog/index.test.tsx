@@ -32,11 +32,11 @@ const useTrailerMutationsMock = mock.fn(() => ({
   createTrailer: { mutateAsync: createTrailerMock, isPending: false },
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/hooks/useTrailers", {
+mock.module("../../../../hooks/useTrailers", {
   namedExports: { useTrailerMutations: useTrailerMutationsMock },
 });
 

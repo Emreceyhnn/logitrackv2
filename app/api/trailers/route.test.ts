@@ -22,7 +22,7 @@ mock.module("next/server", {
 });
 
 const getTrailersMock = mock.fn();
-mock.module("@/app/lib/controllers/trailer", {
+mock.module("../../lib/controllers/trailer", {
   namedExports: { getTrailers: getTrailersMock },
 });
 

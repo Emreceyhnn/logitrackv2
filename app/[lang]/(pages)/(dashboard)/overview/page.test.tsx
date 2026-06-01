@@ -10,7 +10,7 @@ const mockGetOverviewDashboardData = mock.fn(async () => ({
   stats: { activeShipments: 10 },
 }));
 
-mock.module("@/app/lib/controllers/overview", {
+mock.module("../../../../lib/controllers/overview", {
   namedExports: { getOverviewDashboardData: mockGetOverviewDashboardData },
 });
 

@@ -35,7 +35,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -50,19 +50,19 @@ mock.module("sonner", {
 });
 
 const createCompanyMock = mock.fn(async () => ({}));
-mock.module("@/app/lib/controllers/company", {
+mock.module("../../../lib/controllers/company", {
   namedExports: { 
     createCompany: createCompanyMock
   },
 });
 
-mock.module("@/app/lib/actions/upload", {
+mock.module("../../../lib/actions/upload", {
   namedExports: { 
     uploadImageAction: mock.fn(async () => ({ url: "https://example.com/logo.png" }))
   },
 });
 
-mock.module("@/app/lib/validationSchema", {
+mock.module("../../../lib/validationSchema", {
   namedExports: {
     createCompanyValidationSchema: mock.fn(() => ({
       validate: async () => true,

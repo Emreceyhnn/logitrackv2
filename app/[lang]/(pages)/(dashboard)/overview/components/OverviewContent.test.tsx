@@ -25,12 +25,12 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 const mockRefetch = mock.fn(async () => {});
-mock.module("@/app/hooks/useOverview", {
+mock.module("../../../../../hooks/useOverview", {
   namedExports: { 
     useOverviewData: mock.fn(() => ({
       data: {
@@ -52,7 +52,7 @@ mock.module("@/app/hooks/useOverview", {
   },
 });
 
-mock.module("@/app/hooks/useDateSettings", {
+mock.module("../../../../../hooks/useDateSettings", {
   namedExports: { 
     useDateSettings: mock.fn(() => ({
       timezone: "UTC",
@@ -62,34 +62,34 @@ mock.module("@/app/hooks/useDateSettings", {
 });
 
 // Mock child components
-mock.module("@/app/components/cards/KpiCards", {
+mock.module("../../../../../components/cards/KpiCards", {
   defaultExport: ({ kpis }: any) => <div data-testid="kpi-cards">KPI Cards {kpis.length}</div>,
 });
-mock.module("@/app/components/dashboard/overview/dailyOperations", {
+mock.module("../../../../../components/dashboard/overview/dailyOperations", {
   defaultExport: () => <div data-testid="daily-ops">Daily Ops</div>,
 });
-mock.module("@/app/components/dashboard/overview/fuelByVehicleCard", {
+mock.module("../../../../../components/dashboard/overview/fuelByVehicleCard", {
   defaultExport: () => <div data-testid="fuel-logs">Fuel Logs</div>,
 });
-mock.module("@/app/components/dashboard/overview/shipmentsByStatusCard", {
+mock.module("../../../../../components/dashboard/overview/shipmentsByStatusCard", {
   defaultExport: () => <div data-testid="shipment-status">Shipment Status</div>,
 });
-mock.module("@/app/components/dashboard/overview/actionRequiredCard", {
+mock.module("../../../../../components/dashboard/overview/actionRequiredCard", {
   defaultExport: () => <div data-testid="alerts">Alerts</div>,
 });
-mock.module("@/app/components/dashboard/overview/warehouseCapacityCard", {
+mock.module("../../../../../components/dashboard/overview/warehouseCapacityCard", {
   defaultExport: () => <div data-testid="warehouse-cap">Warehouse Capacity</div>,
 });
-mock.module("@/app/components/dashboard/overview/picsPacksDailyCard", {
+mock.module("../../../../../components/dashboard/overview/picsPacksDailyCard", {
   defaultExport: () => <div data-testid="picks-packs">Picks Packs</div>,
 });
-mock.module("@/app/components/dashboard/overview/onTimeTrends", {
+mock.module("../../../../../components/dashboard/overview/onTimeTrends", {
   defaultExport: () => <div data-testid="shipment-volume">Shipment Volume</div>,
 });
-mock.module("@/app/components/dashboard/overview/inventoryCard", {
+mock.module("../../../../../components/dashboard/overview/inventoryCard", {
   defaultExport: () => <div data-testid="low-stock">Low Stock</div>,
 });
-mock.module("@/app/components/dashboard/overview/overViewMapCard", {
+mock.module("../../../../../components/dashboard/overview/overViewMapCard", {
   defaultExport: () => <div data-testid="overview-map">Overview Map</div>,
 });
 

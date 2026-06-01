@@ -13,7 +13,7 @@ mock.module("@mui/material", {
   }
 });
 
-mock.module("@/app/components/cards/card", {
+mock.module("../cards/card", {
   defaultExport: (props: any) => ({ type: "CustomCard", props }),
 });
 

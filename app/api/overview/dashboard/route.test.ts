@@ -13,7 +13,7 @@ mock.module("next/server", {
 });
 
 const getOverviewDashboardDataMock = mock.fn();
-mock.module("@/app/lib/controllers/overview", {
+mock.module("../../../lib/controllers/overview", {
   namedExports: { getOverviewDashboardData: getOverviewDashboardDataMock },
 });
 

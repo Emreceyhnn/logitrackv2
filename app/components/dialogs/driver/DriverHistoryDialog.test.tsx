@@ -23,7 +23,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -41,19 +41,19 @@ const mockHistory = {
   ]
 };
 
-mock.module("@/app/lib/controllers/driver", {
+mock.module("../../../lib/controllers/driver", {
   namedExports: { 
     getDriverHistory: mock.fn(async () => mockHistory)
   },
 });
 
-mock.module("@/app/hooks/useDateSettings", {
+mock.module("../../../hooks/useDateSettings", {
   namedExports: { 
     useDateSettings: mock.fn(() => ({}))
   },
 });
 
-mock.module("@/app/lib/utils/date", {
+mock.module("../../../lib/utils/date", {
   namedExports: { 
     formatDisplayDateTime: mock.fn(() => "01/01/2026 10:00")
   },

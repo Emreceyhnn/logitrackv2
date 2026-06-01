@@ -103,7 +103,7 @@ mock.module("../rate-limiter", {
   namedExports: rateLimiterMock,
 });
 
-mock.module("@/app/lib/actions/notifications", {
+mock.module("../actions/notifications", {
   namedExports: { sendNotificationAction: notificationsMock.sendNotificationAction },
 });
 

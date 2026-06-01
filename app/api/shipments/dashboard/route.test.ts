@@ -17,11 +17,11 @@ mock.module("next/server", {
 });
 
 const getShipmentsWithDashboardDataMock = mock.fn();
-mock.module("@/app/lib/controllers/shipments", {
+mock.module("../../../lib/controllers/shipments", {
   namedExports: { getShipmentsWithDashboardData: getShipmentsWithDashboardDataMock },
 });
 
-mock.module("@/app/lib/type/enums", {
+mock.module("../../../lib/type/enums", {
   namedExports: { ShipmentStatus: {} },
 });
 

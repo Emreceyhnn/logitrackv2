@@ -56,8 +56,8 @@ const dictContextMock = {
 
 mock.module("@tanstack/react-query", { namedExports: reactQueryMock });
 mock.module("sonner", { namedExports: sonnerMock });
-mock.module("@/app/lib/controllers/shipments", { namedExports: shipmentsControllerMock });
-mock.module("@/app/lib/language/DictionaryContext", { namedExports: dictContextMock });
+mock.module("../lib/controllers/shipments", { namedExports: shipmentsControllerMock });
+mock.module("../lib/language/DictionaryContext", { namedExports: dictContextMock });
 
 const globalFetchMock = mock.fn();
 (globalThis as any).fetch = globalFetchMock;

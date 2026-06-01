@@ -6,7 +6,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
 // Mock Hooks
-mock.module("@/app/hooks/useAnalytics", {
+mock.module("../../../../../hooks/useAnalytics", {
   namedExports: { 
     useAnalyticsData: mock.fn(() => ({
       state: {
@@ -22,16 +22,16 @@ mock.module("@/app/hooks/useAnalytics", {
 });
 
 // Mock child components
-mock.module("@/app/components/dashboard/analytics/AnalyticsHeader", {
+mock.module("../../../../../components/dashboard/analytics/AnalyticsHeader", {
   defaultExport: () => <div data-testid="analytics-header">Header</div>,
 });
-mock.module("@/app/components/dashboard/analytics/PerformanceGauges", {
+mock.module("../../../../../components/dashboard/analytics/PerformanceGauges", {
   defaultExport: () => <div data-testid="performance-gauges">Gauges</div>,
 });
-mock.module("@/app/components/dashboard/analytics/CostAnalysisCharts", {
+mock.module("../../../../../components/dashboard/analytics/CostAnalysisCharts", {
   defaultExport: () => <div data-testid="cost-analysis">Costs</div>,
 });
-mock.module("@/app/components/dashboard/analytics/ForecastingWidget", {
+mock.module("../../../../../components/dashboard/analytics/ForecastingWidget", {
   defaultExport: () => <div data-testid="forecasting-widget">Forecast</div>,
 });
 

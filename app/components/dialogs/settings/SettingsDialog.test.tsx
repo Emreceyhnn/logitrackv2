@@ -38,11 +38,11 @@ const useUserContextMock = mock.fn(() => ({
   },
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/lib/context/UserContext", {
+mock.module("../../../lib/context/UserContext", {
   namedExports: { useUserContext: useUserContextMock },
 });
 
@@ -64,14 +64,14 @@ mock.module("sonner", {
   namedExports: { toast: { success: mock.fn(), error: mock.fn() } },
 });
 
-mock.module("@/app/lib/controllers/users", {
+mock.module("../../../lib/controllers/users", {
   namedExports: {
     updateUserRegionalSettings: mock.fn(async () => ({})),
     updateUserNotificationSettings: mock.fn(async () => ({})),
   },
 });
 
-mock.module("@/app/lib/language/navigation", {
+mock.module("../../../lib/language/navigation", {
   namedExports: {
     getLocalizedPath: mock.fn(() => "/en/dashboard"),
     getCanonicalPath: mock.fn(() => "/dashboard"),

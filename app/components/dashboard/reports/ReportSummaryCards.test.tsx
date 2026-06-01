@@ -11,11 +11,11 @@ const useCurrencyMock = mock.fn(() => ({
   format: (v: number) => `$${v}.00`,
 }));
 
-mock.module("@/app/hooks/useCurrency", {
+mock.module("../../../hooks/useCurrency", {
   namedExports: { useCurrency: useCurrencyMock },
 });
 
-mock.module("@/app/components/skeletons/KpiSkeleton", {
+mock.module("../../skeletons/KpiSkeleton", {
   defaultExport: ({ count }: any) => (
     <div data-testid="kpi-skeleton">Loading {count} KPIs</div>
   ),

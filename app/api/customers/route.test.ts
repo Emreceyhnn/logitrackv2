@@ -13,7 +13,7 @@ mock.module("next/server", {
 });
 
 const getCustomersMock = mock.fn();
-mock.module("@/app/lib/controllers/customer", {
+mock.module("../../lib/controllers/customer", {
   namedExports: { getCustomers: getCustomersMock },
 });
 

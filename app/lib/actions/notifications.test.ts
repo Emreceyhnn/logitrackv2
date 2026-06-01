@@ -20,7 +20,7 @@ const dbMock = {
   },
 };
 
-mock.module("@/app/lib/firebase-admin", { namedExports: { adminDb: adminDbMock } });
+mock.module("../firebase-admin", { namedExports: { adminDb: adminDbMock } });
 mock.module("../db", { namedExports: { db: dbMock } });
 
 // 2. TEST GRUPLARI

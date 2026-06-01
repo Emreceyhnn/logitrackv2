@@ -10,7 +10,7 @@ const mockGetCustomersWithDashboardData = mock.fn(async () => ({
   customers: [],
 }));
 
-mock.module("@/app/lib/controllers/customer", {
+mock.module("../../../../lib/controllers/customer", {
   namedExports: { getCustomersWithDashboardData: mockGetCustomersWithDashboardData },
 });
 

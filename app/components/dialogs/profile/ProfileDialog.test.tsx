@@ -26,7 +26,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -48,7 +48,7 @@ const getMyProfileMock = mock.fn(async () => ({
   createdAt: new Date(),
 }));
 
-mock.module("@/app/lib/actions/profile", {
+mock.module("../../../lib/actions/profile", {
   namedExports: { 
     getMyProfile: getMyProfileMock,
     updateMyProfile: mock.fn(async () => ({})),

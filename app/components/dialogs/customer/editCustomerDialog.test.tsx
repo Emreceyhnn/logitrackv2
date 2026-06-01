@@ -34,15 +34,15 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("@/app/hooks/useUser", {
+mock.module("../../../hooks/useUser", {
   namedExports: { useUser: mock.fn(() => ({ user: { id: "user-1" } })) },
 });
 
-mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
+mock.module("../../googleMaps/GoogleMapsProvider", {
   namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div> },
 });
 
@@ -56,13 +56,13 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("@/app/lib/controllers/customer", {
+mock.module("../../../lib/controllers/customer", {
   namedExports: { 
     updateCustomer: mock.fn(async () => ({}))
   },
 });
 
-mock.module("@/app/lib/validationSchema", {
+mock.module("../../../lib/validationSchema", {
   namedExports: {
     editCustomerValidationSchema: mock.fn(() => ({
       validate: async () => true,

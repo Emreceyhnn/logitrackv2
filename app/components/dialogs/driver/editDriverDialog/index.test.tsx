@@ -33,7 +33,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -47,19 +47,19 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("@/app/lib/controllers/driver", {
+mock.module("../../../../lib/controllers/driver", {
   namedExports: { 
     updateDriver: mock.fn(async () => ({}))
   },
 });
 
-mock.module("@/app/lib/actions/upload", {
+mock.module("../../../../lib/actions/upload", {
   namedExports: { 
     uploadImageAction: mock.fn(async () => ({ url: "https://example.com/image.png" }))
   },
 });
 
-mock.module("@/app/lib/validationSchema", {
+mock.module("../../../../lib/validationSchema", {
   namedExports: {
     editDriverValidationSchema: mock.fn(() => ({
       validate: async () => true,
@@ -67,13 +67,13 @@ mock.module("@/app/lib/validationSchema", {
   }
 });
 
-mock.module("@/app/hooks/useDateSettings", {
+mock.module("../../../../hooks/useDateSettings", {
   namedExports: { 
     useDateSettings: mock.fn(() => ({}))
   },
 });
 
-mock.module("@/app/lib/utils/date", {
+mock.module("../../../../lib/utils/date", {
   namedExports: { 
     formatDisplayDate: mock.fn(() => "01/01/2026")
   },

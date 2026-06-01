@@ -32,14 +32,14 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("@/app/lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 const mockRefetch = mock.fn(async () => {});
 const mockDeleteMutateAsync = mock.fn(async () => {});
 
-mock.module("@/app/hooks/useShipments", {
+mock.module("../../../../../hooks/useShipments", {
   namedExports: { 
     useShipmentsWithDashboard: mock.fn(() => ({
       data: {
@@ -60,29 +60,29 @@ mock.module("@/app/hooks/useShipments", {
 });
 
 // Mock child components
-mock.module("@/app/components/cards/KpiCards", {
+mock.module("../../../../../components/cards/KpiCards", {
   defaultExport: () => <div data-testid="kpi-cards">KPI Cards</div>,
 });
-mock.module("@/app/components/dashboard/shipments/shipmentTable", {
+mock.module("../../../../../components/dashboard/shipments/shipmentTable", {
   defaultExport: ({ actions }: any) => (
     <div data-testid="shipment-table">
       <button onClick={() => actions.onDelete("s1")}>Delete s1</button>
     </div>
   ),
 });
-mock.module("@/app/components/dashboard/shipments/ShipmentAnalytics", {
+mock.module("../../../../../components/dashboard/shipments/ShipmentAnalytics", {
   defaultExport: () => <div data-testid="shipment-analytics">Analytics</div>,
 });
-mock.module("@/app/components/dialogs/shipment/shipmentDetailDialog", {
+mock.module("../../../../../components/dialogs/shipment/shipmentDetailDialog", {
   defaultExport: () => <div data-testid="detail-dialog">Details Dialog</div>,
 });
-mock.module("@/app/components/dialogs/shipment/edit-shipment-dialog", {
+mock.module("../../../../../components/dialogs/shipment/edit-shipment-dialog", {
   defaultExport: () => <div data-testid="edit-dialog">Edit Dialog</div>,
 });
-mock.module("@/app/components/dialogs/shipment/addShipmentDialog", {
+mock.module("../../../../../components/dialogs/shipment/addShipmentDialog", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
-mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
+mock.module("../../../../../components/dialogs/deleteConfirmationDialog", {
   defaultExport: ({ open, onConfirm }: any) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
