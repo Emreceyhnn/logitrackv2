@@ -48,6 +48,9 @@ function chunk(arr, size) {
   return chunks;
 }
 
+// Alias resolver hook path (absolute, forward-slash for cross-platform)
+const ALIAS_RESOLVER = path.join(ROOT, 'scripts', 'alias-resolver.mjs').replace(/\\/g, '/');
+
 // Tek bir batch'i çalıştır
 function runBatch(files, batchIndex, total) {
   const quoted = files.map((f) => `"${f}"`).join(' ');
@@ -55,8 +58,9 @@ function runBatch(files, batchIndex, total) {
     'npx dotenv-cli',
     `-e "${ENV_FILE}"`,
     '--',
-    'tsx',
-    `--tsconfig ${TSCONFIG_TEST}`,
+    'node',
+    '--import tsx',
+    `--import "file:///${ALIAS_RESOLVER}"`,
     '--experimental-test-module-mocks',
     '--test-force-exit',
     `--test-concurrency=${CONCURRENCY}`,
