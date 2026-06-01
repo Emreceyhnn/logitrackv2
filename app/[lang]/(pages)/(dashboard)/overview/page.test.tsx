@@ -19,7 +19,7 @@ mock.module("./components/OverviewContent", {
 });
 
 describe("OverviewPage Component", () => {
-  let OverviewPage: React.ElementType;
+  let OverviewPage: any;
 
   before(async () => {
     const mod = await import("./page");

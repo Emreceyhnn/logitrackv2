@@ -2,7 +2,7 @@ import { describe, it, before } from "node:test";
 import { expect } from "expect";
 
 describe("Robots Generate", () => {
-  let robots: unknown;
+  let robots: any;
 
   before(async () => {
     const mod = await import("./robots");

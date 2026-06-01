@@ -24,7 +24,7 @@ mock.module("@/app/hooks/useDateSettings", {
 });
 
 mock.module("@/app/lib/utils/date", {
-  namedExports: { formatDisplayDate: (d: unknown) => `formatted-${d}` },
+  namedExports: { formatDisplayDate: (d: any) => `formatted-${d}` },
 });
 
 const customTheme = createTheme({ palette: { mode: "light" } });
@@ -38,7 +38,7 @@ mock.module("@mui/material", {
 });
 
 describe("CompanyInfoCard RTL Component", () => {
-  let CompanyInfoCard: React.ElementType;
+  let CompanyInfoCard: any;
 
   before(async () => {
     const mod = await import("./companyInfoCard");
@@ -57,7 +57,7 @@ describe("CompanyInfoCard RTL Component", () => {
 
       render(
         <ThemeProvider theme={customTheme}>
-          <CompanyInfoCard props={mockProps as unknown} />
+          <CompanyInfoCard props={mockProps as any} />
         </ThemeProvider>
       );
 
@@ -80,7 +80,7 @@ describe("CompanyInfoCard RTL Component", () => {
 
       render(
         <ThemeProvider theme={customTheme}>
-          <CompanyInfoCard props={mockProps as unknown} />
+          <CompanyInfoCard props={mockProps as any} />
         </ThemeProvider>
       );
 

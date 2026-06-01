@@ -21,15 +21,15 @@ mock.module("@/app/lib/language/language", {
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: { children?: React.ReactNode }) => <div data-testid="Box">{children}</div>,
-    Stack: ({ children }: { children?: React.ReactNode }) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: { children?: React.ReactNode }) => <div data-testid="Typography">{children}</div>,
+    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
+    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>,
     Divider: () => <hr data-testid="Divider" />
   }
 });
 
 describe("Footer Component", () => {
-  let Footer: React.ElementType;
+  let Footer: any;
 
   before(async () => {
     const mod = await import("./index");

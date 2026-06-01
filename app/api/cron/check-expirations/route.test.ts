@@ -9,11 +9,11 @@ function makeRequest(authHeader?: string) {
         return null;
       },
     },
-  } as unknown;
+  } as any;
 }
 
 const mockNextResponse = {
-  json: mock.fn((body: unknown, init?: { status?: number }) => ({
+  json: mock.fn((body: any, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -42,10 +42,10 @@ mock.module("@/app/lib/actions/notifications", {
 });
 
 describe("GET /api/cron/check-expirations", () => {
-  let GET: React.ElementType;
+  let GET: any;
 
   before(async () => {
-    (process.env as unknown).CRON_SECRET = "cron-secret-123";
+    (process.env as any).CRON_SECRET = "cron-secret-123";
     const mod = await import("./route");
     GET = mod.GET;
   });
@@ -62,19 +62,19 @@ describe("GET /api/cron/check-expirations", () => {
   });
 
   it("should_Return401_WhenAuthHeaderIsMissing", async () => {
-    const res: unknown = await GET(makeRequest());
+    const res: any = await GET(makeRequest());
     expect(res._status).toBe(401);
     expect(res._body).toEqual({ error: "Unauthorized" });
   });
 
   it("should_Return401_WhenAuthHeaderIsWrong", async () => {
-    const res: unknown = await GET(makeRequest("Bearer wrong-secret"));
+    const res: any = await GET(makeRequest("Bearer wrong-secret"));
     expect(res._status).toBe(401);
   });
 
   it("should_RunAllChecks_AndReturnSuccess_WhenAuthorized", async () => {
     // All findMany return empty arrays (no expirations)
-    const res: unknown = await GET(makeRequest("Bearer cron-secret-123"));
+    const res: any = await GET(makeRequest("Bearer cron-secret-123"));
 
     expect(res._body.success).toBe(true);
     expect(typeof res._body.checked).toBe("number");
@@ -102,7 +102,7 @@ describe("GET /api/cron/check-expirations", () => {
       },
     ]);
 
-    const res: unknown = await GET(makeRequest("Bearer cron-secret-123"));
+    const res: any = await GET(makeRequest("Bearer cron-secret-123"));
 
     expect(res._body.success).toBe(true);
     expect(sendNotificationActionMock.mock.calls.length).toBe(1);
@@ -116,7 +116,7 @@ describe("GET /api/cron/check-expirations", () => {
       throw new Error("DB crash");
     });
 
-    const res: unknown = await GET(makeRequest("Bearer cron-secret-123"));
+    const res: any = await GET(makeRequest("Bearer cron-secret-123"));
     expect(res._status).toBe(500);
     expect(res._body.success).toBe(false);
   });

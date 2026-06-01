@@ -5,20 +5,20 @@ import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
 mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
   namedExports: {
-    GoogleMapsProvider: ({ children }: { children?: React.ReactNode }) => <div data-testid="gmaps-provider">{children}</div>,
+    GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div>,
   },
 });
 
 mock.module("@/app/components/googleMaps/MapWithMarker", {
   namedExports: {
-    MapWithMarker: ({ markers }: unknown) => (
+    MapWithMarker: ({ markers }: any) => (
       <div data-testid="map-with-marker">
-        {markers.map((m: unknown, i: number) => (
+        {markers.map((m: any, i: number) => (
           <div key={i} data-testid={`marker-${m.label}`}>{m.type}</div>
         ))}
       </div>
@@ -27,7 +27,7 @@ mock.module("@/app/components/googleMaps/MapWithMarker", {
 });
 
 describe("OverviewMapCard RTL Component", () => {
-  let OverviewMapCard: React.ElementType;
+  let OverviewMapCard: any;
 
   before(async () => {
     const mod = await import("./overViewMapCard");
@@ -52,7 +52,7 @@ describe("OverviewMapCard RTL Component", () => {
     });
 
     it("should_RenderMapWithMarkers_MappedToCorrectTypes", async () => {
-      render(<OverviewMapCard stats={mockStats as unknown} />);
+      render(<OverviewMapCard stats={mockStats as any} />);
       
       expect(screen.getByTestId("gmaps-provider")).toBeTruthy();
       expect(screen.getByTestId("map-with-marker")).toBeTruthy();

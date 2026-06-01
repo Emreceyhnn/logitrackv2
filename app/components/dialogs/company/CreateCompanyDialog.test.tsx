@@ -71,7 +71,7 @@ mock.module("@/app/lib/validationSchema", {
 
 // Mock step components
 mock.module("./Step1Branding", {
-  defaultExport: ({ actions }: unknown) => {
+  defaultExport: ({ actions }: any) => {
     return (
       <div data-testid="step1">
         <button onClick={() => actions.updateFormData({ name: "My Company", industry: "Tech" })}>Fill Valid Step 1</button>
@@ -87,18 +87,18 @@ mock.module("./Step2Regional", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    primary: { main: "#1976d2", dark: "#115293" } as any,
   }
 });
 
 const mockAlpha = { main_05: "rgba(0,0,0,0.5)", main_10: "rgba(0,0,0,0.5)", main_20: "rgba(0,0,0,0.5)", main_25: "rgba(0,0,0,0.5)", main_35: "rgba(0,0,0,0.5)", main_40: "rgba(0,0,0,0.5)", main_80: "rgba(0,0,0,0.5)" };
-(customTheme.palette.primary as unknown)._alpha = mockAlpha;
-(customTheme.palette as unknown).divider_alpha = mockAlpha;
-(customTheme.palette.background as unknown).paper_alpha = mockAlpha;
-(customTheme.palette.text as unknown).primary_alpha = mockAlpha;
-(customTheme.palette.text as unknown).secondary_alpha = mockAlpha;
-(customTheme.palette.error as unknown)._alpha = mockAlpha;
-(customTheme.palette.common as unknown) = { white_alpha: mockAlpha };
+(customTheme.palette.primary as any)._alpha = mockAlpha;
+(customTheme.palette as any).divider_alpha = mockAlpha;
+(customTheme.palette.background as any).paper_alpha = mockAlpha;
+(customTheme.palette.text as any).primary_alpha = mockAlpha;
+(customTheme.palette.text as any).secondary_alpha = mockAlpha;
+(customTheme.palette.error as any)._alpha = mockAlpha;
+(customTheme.palette.common as any) = { white_alpha: mockAlpha };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -110,7 +110,7 @@ mock.module("@mui/material", {
 });
 
 describe("CreateCompanyDialog RTL Component", () => {
-  let CreateCompanyDialog: React.ElementType;
+  let CreateCompanyDialog: any;
 
   before(async () => {
     const mod = await import("./CreateCompanyDialog");

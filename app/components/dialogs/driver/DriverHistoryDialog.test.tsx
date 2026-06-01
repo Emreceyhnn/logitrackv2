@@ -62,24 +62,24 @@ mock.module("@/app/lib/utils/date", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as unknown,
-    success: { main: "#2e7d32" } as unknown,
-    error: { main: "#d32f2f" } as unknown,
-    warning: { main: "#ed6c02" } as unknown,
-    info: { main: "#0288d1" } as unknown,
-    text: { secondary: "#757575" } as unknown,
+    primary: { main: "#1976d2" } as any,
+    success: { main: "#2e7d32" } as any,
+    error: { main: "#d32f2f" } as any,
+    warning: { main: "#ed6c02" } as any,
+    info: { main: "#0288d1" } as any,
+    text: { secondary: "#757575" } as any,
   }
 });
 
 const mockAlpha = { main_05: "rgba()", main_10: "rgba()", main_15: "rgba()", main_30: "rgba()" };
-(customTheme.palette.primary as unknown)._alpha = mockAlpha;
-(customTheme.palette.success as unknown)._alpha = mockAlpha;
-(customTheme.palette.error as unknown)._alpha = mockAlpha;
-(customTheme.palette.warning as unknown)._alpha = mockAlpha;
-(customTheme.palette.info as unknown)._alpha = mockAlpha;
+(customTheme.palette.primary as any)._alpha = mockAlpha;
+(customTheme.palette.success as any)._alpha = mockAlpha;
+(customTheme.palette.error as any)._alpha = mockAlpha;
+(customTheme.palette.warning as any)._alpha = mockAlpha;
+(customTheme.palette.info as any)._alpha = mockAlpha;
 
-(customTheme.palette as unknown).divider_alpha = mockAlpha;
-(customTheme.palette.background as unknown).paper_alpha = mockAlpha;
+(customTheme.palette as any).divider_alpha = mockAlpha;
+(customTheme.palette.background as any).paper_alpha = mockAlpha;
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -91,7 +91,7 @@ mock.module("@mui/material", {
 });
 
 describe("DriverHistoryDialog RTL Component", () => {
-  let DriverHistoryDialog: React.ElementType;
+  let DriverHistoryDialog: any;
 
   before(async () => {
     const mod = await import("./DriverHistoryDialog");

@@ -7,7 +7,7 @@ global.React = React;
 // MOCKLAR
 mock.module("@mui/material", {
   namedExports: {
-    Card: ({ children }: { children?: React.ReactNode }) => <div data-testid="Card">{children}</div>,
+    Card: ({ children }: any) => <div data-testid="Card">{children}</div>,
     useTheme: mock.fn(() => ({
       palette: {
         mode: "light",
@@ -19,7 +19,7 @@ mock.module("@mui/material", {
 });
 
 describe("CustomCard Component", () => {
-  let CustomCard: React.ElementType;
+  let CustomCard: any;
 
   before(async () => {
     const mod = await import("./card");

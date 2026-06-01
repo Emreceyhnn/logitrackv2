@@ -23,13 +23,13 @@ const useDictionaryMock = mock.fn(() => ({
 mock.module("@mui/material", {
   namedExports: { 
     useTheme: useThemeMock,
-    Dialog: (props: unknown) => ({ type: "Dialog", props }),
-    DialogContent: (props: unknown) => ({ type: "DialogContent", props }),
-    Button: (props: unknown) => ({ type: "Button", props }),
-    Typography: (props: unknown) => ({ type: "Typography", props }),
-    Box: (props: unknown) => ({ type: "Box", props }),
-    Stack: (props: unknown) => ({ type: "Stack", props }),
-    IconButton: (props: unknown) => ({ type: "IconButton", props })
+    Dialog: (props: any) => ({ type: "Dialog", props }),
+    DialogContent: (props: any) => ({ type: "DialogContent", props }),
+    Button: (props: any) => ({ type: "Button", props }),
+    Typography: (props: any) => ({ type: "Typography", props }),
+    Box: (props: any) => ({ type: "Box", props }),
+    Stack: (props: any) => ({ type: "Stack", props }),
+    IconButton: (props: any) => ({ type: "IconButton", props })
   }
 });
 
@@ -45,7 +45,7 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 describe("DeleteConfirmationDialog Component", () => {
-  let DeleteConfirmationDialog: React.ElementType;
+  let DeleteConfirmationDialog: any;
 
   before(async () => {
     const mod = await import("./deleteConfirmationDialog");

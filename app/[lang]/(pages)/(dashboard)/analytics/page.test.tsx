@@ -19,7 +19,7 @@ mock.module("./components/AnalyticsContent", {
 });
 
 describe("AnalyticsPage Component", () => {
-  let AnalyticsPage: React.ElementType;
+  let AnalyticsPage: any;
 
   before(async () => {
     const mod = await import("./page");

@@ -21,16 +21,16 @@ mock.module("@mui/material", {
         primary: { main: "blue" }
       }
     })),
-    Box: ({ children }: { children?: React.ReactNode }) => <div data-testid="Box">{children}</div>,
+    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
     CircularProgress: () => <div data-testid="CircularProgress" />,
-    Typography: ({ children }: { children?: React.ReactNode }) => <div data-testid="Typography">{children}</div>
+    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>
   }
 });
 
 mock.module("@mui/icons-material/WarningAmber", { defaultExport: () => () => <div data-testid="WarningAmberIcon" /> });
 
 describe("GoogleMapsProvider Component", () => {
-  let GoogleMapsProvider: React.ElementType;
+  let GoogleMapsProvider: any;
 
   before(async () => {
     const mod = await import("./GoogleMapsProvider");

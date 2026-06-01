@@ -32,14 +32,14 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("@/app/components/skeletons/AnalyticsSkeleton", {
-  defaultExport: ({ title }: unknown) => <div data-testid={`skeleton-${title}`}>{title}</div>,
+  defaultExport: ({ title }: any) => <div data-testid={`skeleton-${title}`}>{title}</div>,
 });
 
 mock.module("@mui/x-charts/BarChart", {
   namedExports: {
-    BarChart: ({ dataset, series }: unknown) => (
+    BarChart: ({ dataset, series }: any) => (
       <div data-testid="bar-chart">
-        {dataset?.map((d: unknown, i: number) => (
+        {dataset?.map((d: any, i: number) => (
           <div key={i} data-testid={`bar-day-${d.day}`}>{d.volume}</div>
         ))}
         <div data-testid="bar-series-label">{series?.[0]?.label}</div>
@@ -50,9 +50,9 @@ mock.module("@mui/x-charts/BarChart", {
 
 mock.module("@mui/x-charts/PieChart", {
   namedExports: {
-    PieChart: ({ series }: unknown) => (
+    PieChart: ({ series }: any) => (
       <div data-testid="pie-chart">
-        {series?.[0]?.data?.map((d: unknown) => (
+        {series?.[0]?.data?.map((d: any) => (
           <div key={d.id} data-testid={`pie-slice-${d.label}`}>{d.value}</div>
         ))}
       </div>
@@ -64,11 +64,11 @@ mock.module("@mui/x-charts/PieChart", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as unknown,
-    success: { main: "#2e7d32" } as unknown,
-    info: { main: "#0288d1" } as unknown,
-    error: { main: "#d32f2f" } as unknown,
-    warning: { main: "#ed6c02" } as unknown,
+    primary: { main: "#1976d2" } as any,
+    success: { main: "#2e7d32" } as any,
+    info: { main: "#0288d1" } as any,
+    error: { main: "#d32f2f" } as any,
+    warning: { main: "#ed6c02" } as any,
   }
 });
 
@@ -81,7 +81,7 @@ mock.module("@mui/material", {
 });
 
 describe("ShipmentAnalytics RTL Component", () => {
-  let ShipmentAnalytics: React.ElementType;
+  let ShipmentAnalytics: any;
 
   before(async () => {
     const mod = await import("./ShipmentAnalytics");

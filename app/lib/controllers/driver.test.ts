@@ -95,7 +95,7 @@ mock.module("./utils/trendUtils", {
 
 // 2. TEST GRUPLARI
 describe("Driver Controller", () => {
-  let driverController: unknown;
+  let driverController: any;
 
   before(async () => {
     driverController = await import("./driver");
@@ -200,7 +200,7 @@ describe("Driver Controller", () => {
       expect(dbMock.driver.update.mock.calls.length).toBe(1);
       
       expect(notificationsMock.sendNotificationAction.mock.calls.length).toBe(1);
-      const notifArgs = notificationsMock.sendNotificationAction.mock.calls[0].arguments[1] as unknown;
+      const notifArgs = notificationsMock.sendNotificationAction.mock.calls[0].arguments[1] as any;
       expect(notifArgs.title).toContain("Görevde");
     });
   });

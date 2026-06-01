@@ -13,15 +13,15 @@ const useThemeMock = mock.fn(() => ({
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    TextField: (props: unknown) => ({ type: "TextField", props }),
-    InputAdornment: (props: unknown) => ({ type: "InputAdornment", props })
+    TextField: (props: any) => ({ type: "TextField", props }),
+    InputAdornment: (props: any) => ({ type: "InputAdornment", props })
   }
 });
 
 mock.module("@mui/icons-material/KeyboardArrowDown", { defaultExport: () => ({ type: "KeyboardArrowDownIcon" }) });
 
 describe("CustomTextArea Component", () => {
-  let CustomTextArea: React.ElementType;
+  let CustomTextArea: any;
 
   before(async () => {
     const mod = await import("./customTextArea");

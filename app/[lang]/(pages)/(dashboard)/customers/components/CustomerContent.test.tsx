@@ -58,7 +58,7 @@ mock.module("sonner", {
 
 // Mock child components
 mock.module("@/app/components/dashboard/customer/CustomerList", {
-  defaultExport: ({ onEdit, onDelete }: unknown) => (
+  defaultExport: ({ onEdit, onDelete }: any) => (
     <div data-testid="customer-list">
       <button onClick={() => onEdit({ id: "c1", name: "C1" })}>Edit C1</button>
       <button onClick={() => onDelete({ id: "c1", name: "C1" })}>Delete C1</button>
@@ -66,7 +66,7 @@ mock.module("@/app/components/dashboard/customer/CustomerList", {
   ),
 });
 mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
-  namedExports: { GoogleMapsProvider: ({ children }: { children?: React.ReactNode }) => <div data-testid="gmaps-provider">{children}</div> },
+  namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div> },
 });
 mock.module("@/app/components/googleMaps/MapWithMarker", {
   namedExports: { MapWithMarker: () => <div data-testid="map-with-marker">Map</div> },
@@ -82,7 +82,7 @@ mock.module("@/app/components/dialogs/customer/addCustomerDialog", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
 mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
-  defaultExport: ({ open, onConfirm }: unknown) => open ? (
+  defaultExport: ({ open, onConfirm }: any) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
@@ -93,7 +93,7 @@ mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as unknown,
+    primary: { main: "#1976d2" } as any,
   }
 });
 import * as originalMui from "@mui/material";
@@ -106,7 +106,7 @@ mock.module("@mui/material", {
 });
 
 describe("CustomerContent Component", () => {
-  let CustomerContent: React.ElementType;
+  let CustomerContent: any;
 
   before(async () => {
     const mod = await import("./CustomerContent");

@@ -67,7 +67,7 @@ mock.module("@mui/material", {
 });
 
 describe("AssignDriverDialog RTL Component", () => {
-  let AssignDriverDialog: React.ElementType;
+  let AssignDriverDialog: any;
 
   before(async () => {
     const mod = await import("./index");

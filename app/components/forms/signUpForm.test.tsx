@@ -5,20 +5,20 @@ import React from "react";
 global.React = React;
 
 // MOCKLAR
-mock.module("next/link", { defaultExport: ({ children }: { children?: React.ReactNode }) => <a data-testid="Link">{children}</a> });
+mock.module("next/link", { defaultExport: ({ children }: any) => <a data-testid="Link">{children}</a> });
 mock.module("@/app/lib/language/language", { namedExports: { getDictionary: mock.fn(async () => ({ auth: { register: "Register", login: "Login" } })) } });
 mock.module("./register/signUpStepper", { defaultExport: () => <div data-testid="SignUpStepper" /> });
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: { children?: React.ReactNode }) => <div data-testid="Box">{children}</div>,
-    Stack: ({ children }: { children?: React.ReactNode }) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: { children?: React.ReactNode }) => <div data-testid="Typography">{children}</div>
+    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
+    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>
   }
 });
 
 describe("RegisterForm Component", () => {
-  let RegisterForm: React.ElementType;
+  let RegisterForm: any;
 
   before(async () => {
     const mod = await import("./signUpForm");

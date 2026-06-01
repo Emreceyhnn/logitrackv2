@@ -34,16 +34,16 @@ mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDiction
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Box: (props: unknown) => ({ type: "Box", props }),
-    Stack: (props: unknown) => ({ type: "Stack", props }),
-    Typography: (props: unknown) => ({ type: "Typography", props })
+    Box: (props: any) => ({ type: "Box", props }),
+    Stack: (props: any) => ({ type: "Stack", props }),
+    Typography: (props: any) => ({ type: "Typography", props })
   }
 });
 
-mock.module("framer-motion", { namedExports: { motion: { div: (props: unknown) => ({ type: "MotionDiv", props }) } } });
+mock.module("framer-motion", { namedExports: { motion: { div: (props: any) => ({ type: "MotionDiv", props }) } } });
 
 describe("TimelineSection Component", () => {
-  let TimelineSection: React.ElementType;
+  let TimelineSection: any;
 
   before(async () => {
     const mod = await import("./TimelineSection");

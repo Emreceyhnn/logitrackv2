@@ -91,7 +91,7 @@ mock.module("@/app/lib/services/exchangeRate", {
 
 // 2. TEST GRUPLARI
 describe("Vehicle Controller", () => {
-  let vehicleController: unknown;
+  let vehicleController: any;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -122,7 +122,7 @@ describe("Vehicle Controller", () => {
     it("should_CreateVehicle_AndSyncToFirebase_WhenValidDataProvided", async () => {
       // Arrange
       dbMock.vehicle.findFirst.mock.mockImplementation(async () => null); // No existing vehicle
-      dbMock.vehicle.create.mock.mockImplementation(async (args: unknown) => ({
+      dbMock.vehicle.create.mock.mockImplementation(async (args: any) => ({
         id: "veh-1",
         ...args.data,
       }));

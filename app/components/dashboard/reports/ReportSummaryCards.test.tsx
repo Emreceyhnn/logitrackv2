@@ -15,7 +15,7 @@ mock.module("@/app/hooks/useCurrency", {
 });
 
 mock.module("@/app/components/skeletons/KpiSkeleton", {
-  defaultExport: ({ count }: unknown) => (
+  defaultExport: ({ count }: any) => (
     <div data-testid="kpi-skeleton">Loading {count} KPIs</div>
   ),
 });
@@ -66,10 +66,10 @@ const mockDict = {
       deadStock: "Dead Stock",
     },
   },
-} as unknown;
+} as any;
 
 describe("ReportSummaryCards RTL Component", () => {
-  let ReportSummaryCards: React.ElementType;
+  let ReportSummaryCards: any;
 
   before(async () => {
     const mod = await import("./ReportSummaryCards");
@@ -83,7 +83,7 @@ describe("ReportSummaryCards RTL Component", () => {
     onTimeRate: 92.5,
     activeVehicles: 18,
     totalInventoryValue: 550000,
-  } as unknown;
+  } as any;
 
   describe("ReportSummaryCards() bileşeni", () => {
     it("should_RenderKpiSkeleton_WhenLoadingIsTrue", async () => {

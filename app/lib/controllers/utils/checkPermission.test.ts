@@ -19,7 +19,7 @@ mock.module("@/roles.json", { defaultExport: rolesMock });
 
 // 2. TEST GRUPLARI
 describe("Check Permission Utility", () => {
-  let checkPermissionMod: unknown;
+  let checkPermissionMod: any;
 
   before(async () => {
     checkPermissionMod = await import("./checkPermission");

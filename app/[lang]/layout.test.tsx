@@ -18,14 +18,14 @@ mock.module("@/app/lib/auth-middleware", {
 });
 
 // Mock providers and components
-mock.module("@/app/lib/theme/themeProviders", { defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="theme-provider">{children}</div> });
-mock.module("@/app/lib/language/DictionaryContext", { namedExports: { DictionaryProvider: ({ children }: { children?: React.ReactNode }) => <div data-testid="dict-provider">{children}</div> } });
-mock.module("@/app/lib/context/UserContext", { namedExports: { UserProvider: ({ children }: { children?: React.ReactNode }) => <div data-testid="user-provider">{children}</div> } });
+mock.module("@/app/lib/theme/themeProviders", { defaultExport: ({ children }: any) => <div data-testid="theme-provider">{children}</div> });
+mock.module("@/app/lib/language/DictionaryContext", { namedExports: { DictionaryProvider: ({ children }: any) => <div data-testid="dict-provider">{children}</div> } });
+mock.module("@/app/lib/context/UserContext", { namedExports: { UserProvider: ({ children }: any) => <div data-testid="user-provider">{children}</div> } });
 mock.module("@/app/components/seo/JsonLd", { defaultExport: () => <script data-testid="json-ld" /> });
 mock.module("@vercel/speed-insights/next", { namedExports: { SpeedInsights: () => <div data-testid="speed-insights" /> } });
 
 describe("RootLayout Component", () => {
-  let RootLayout: React.ElementType;
+  let RootLayout: any;
 
   before(async () => {
     const mod = await import("./layout");

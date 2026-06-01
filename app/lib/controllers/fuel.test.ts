@@ -44,7 +44,7 @@ mock.module("@/app/lib/services/exchangeRate", {
 
 // 2. TEST GRUPLARI
 describe("Fuel Controller", () => {
-  let fuelController: unknown;
+  let fuelController: any;
 
   before(async () => {
     fuelController = await import("./fuel");
@@ -79,7 +79,7 @@ describe("Fuel Controller", () => {
       expect(result.id).toBe("log-1");
       expect(dbMock.fuelLog.create.mock.calls.length).toBe(1);
       
-      const createArgs = dbMock.fuelLog.create.mock.calls[0].arguments[0] as unknown;
+      const createArgs = dbMock.fuelLog.create.mock.calls[0].arguments[0] as any;
       expect(createArgs.data.cost).toBe(100); // 3000 / 30.0 = 100
       expect(createArgs.data.currency).toBe("USD");
     });

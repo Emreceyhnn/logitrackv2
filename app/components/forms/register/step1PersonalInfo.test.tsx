@@ -14,20 +14,20 @@ mock.module("@/app/lib/styled/styledFieldBox", { namedExports: { StyledTextField
 
 mock.module("formik", {
   namedExports: {
-    Field: ({ children, name }: unknown) => <div data-testid={`Field-${name}`}>{typeof children === "function" ? children({ field: { name }, meta: {} }) : children}</div>
+    Field: ({ children, name }: any) => <div data-testid={`Field-${name}`}>{typeof children === "function" ? children({ field: { name }, meta: {} }) : children}</div>
   }
 });
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: { children?: React.ReactNode }) => <div data-testid="Box">{children}</div>,
-    Stack: ({ children }: { children?: React.ReactNode }) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: { children?: React.ReactNode }) => <div data-testid="Typography">{children}</div>
+    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
+    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>
   }
 });
 
 describe("Step1PersonalInfo Component", () => {
-  let Step1PersonalInfo: React.ElementType;
+  let Step1PersonalInfo: any;
 
   before(async () => {
     const mod = await import("./step1PersonalInfo");

@@ -3,7 +3,7 @@ import { expect } from "expect";
 import { renderToString } from "react-dom/server";
 import React from "react";
 global.React = React;
-(global as unknown).window = { google: { maps: { SymbolPath: { CIRCLE: 0 } } } };
+(global as any).window = { google: { maps: { SymbolPath: { CIRCLE: 0 } } } };
 
 // MOCKLAR
 const useDictionaryMock = mock.fn(() => ({
@@ -15,15 +15,15 @@ mock.module("next/image", { defaultExport: () => () => <div data-testid="Image" 
 
 mock.module("@react-google-maps/api", {
   namedExports: {
-    GoogleMap: ({ children }: { children?: React.ReactNode }) => <div data-testid="GoogleMap">{children}</div>,
+    GoogleMap: ({ children }: any) => <div data-testid="GoogleMap">{children}</div>,
     DirectionsRenderer: () => <div data-testid="DirectionsRenderer" />,
     Marker: () => <div data-testid="Marker" />,
-    OverlayView: ({ children }: { children?: React.ReactNode }) => <div data-testid="OverlayView">{children}</div>
+    OverlayView: ({ children }: any) => <div data-testid="OverlayView">{children}</div>
   }
 });
 
 describe("DirectionsMap Component", () => {
-  let DirectionsMap: React.ElementType;
+  let DirectionsMap: any;
 
   before(async () => {
     const mod = await import("./DirectionsMap");

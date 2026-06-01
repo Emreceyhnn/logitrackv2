@@ -92,7 +92,7 @@ mock.module("./utils/trendUtils", {
 
 // 2. TEST GRUPLARI
 describe("Inventory Controller", () => {
-  let inventoryController: unknown;
+  let inventoryController: any;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -147,7 +147,7 @@ describe("Inventory Controller", () => {
       expect(dbMock.inventory.create.mock.calls.length).toBe(1);
       expect(dbMock.inventoryMovement.create.mock.calls.length).toBe(1); // Should log putaway
       
-      const moveArgs = dbMock.inventoryMovement.create.mock.calls[0].arguments[0] as unknown;
+      const moveArgs = dbMock.inventoryMovement.create.mock.calls[0].arguments[0] as any;
       expect(moveArgs.data.type).toBe("PUTAWAY");
       
       expect(cacheUtilsMock.invalidatePattern.mock.calls.length).toBe(1); // Cache invalidated
@@ -204,11 +204,11 @@ describe("Inventory Controller", () => {
       expect(result.quantity).toBe(120);
       expect(dbMock.inventory.update.mock.calls.length).toBe(1);
       
-      const updateArgs = dbMock.inventory.update.mock.calls[0].arguments[0] as unknown;
+      const updateArgs = dbMock.inventory.update.mock.calls[0].arguments[0] as any;
       expect(updateArgs.data.quantity.increment).toBe(20);
       
       expect(dbMock.inventoryMovement.create.mock.calls.length).toBe(1);
-      const moveArgs = dbMock.inventoryMovement.create.mock.calls[0].arguments[0] as unknown;
+      const moveArgs = dbMock.inventoryMovement.create.mock.calls[0].arguments[0] as any;
       expect(moveArgs.data.quantity).toBe(20);
       expect(moveArgs.data.type).toBe("ADJUSTMENT");
     });

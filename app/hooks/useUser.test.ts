@@ -10,7 +10,7 @@ mock.module("../lib/context/UserContext", { namedExports: userContextMock });
 
 // 2. TEST GRUPLARI
 describe("useUser Hook", () => {
-  let useUserMod: unknown;
+  let useUserMod: any;
 
   before(async () => {
     useUserMod = await import("./useUser");

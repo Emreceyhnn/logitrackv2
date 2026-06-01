@@ -10,10 +10,10 @@ mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDiction
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: (props: unknown) => ({ type: "Box", props }),
-    Container: (props: unknown) => ({ type: "Container", props }),
-    Stack: (props: unknown) => ({ type: "Stack", props }),
-    Typography: (props: unknown) => ({ type: "Typography", props })
+    Box: (props: any) => ({ type: "Box", props }),
+    Container: (props: any) => ({ type: "Container", props }),
+    Stack: (props: any) => ({ type: "Stack", props }),
+    Typography: (props: any) => ({ type: "Typography", props })
   }
 });
 
@@ -23,7 +23,7 @@ mock.module("@mui/icons-material/PrecisionManufacturing", { defaultExport: () =>
 mock.module("@mui/icons-material/Public", { defaultExport: () => ({ type: "Icon" }) });
 
 describe("SocialProof Component", () => {
-  let SocialProof: React.ElementType;
+  let SocialProof: any;
 
   before(async () => {
     const mod = await import("./SocialProof");

@@ -7,20 +7,20 @@ global.React = React;
 // MOCKLAR
 mock.module("@mui/material", {
   namedExports: {
-    ToggleButton: ({ children }: { children?: React.ReactNode }) => <button data-testid="ToggleButton">{children}</button>,
-    ToggleButtonGroup: ({ children }: { children?: React.ReactNode }) => <div data-testid="ToggleButtonGroup">{children}</div>
+    ToggleButton: ({ children }: any) => <button data-testid="ToggleButton">{children}</button>,
+    ToggleButtonGroup: ({ children }: any) => <div data-testid="ToggleButtonGroup">{children}</div>
   }
 });
 
 describe("TimeRangeSelector Component", () => {
-  let TimeRangeSelector: React.ElementType;
+  let TimeRangeSelector: any;
 
   before(async () => {
     const mod = await import("./TimeRangeSelector");
     TimeRangeSelector = mod.default;
   });
 
-  const mockDict: unknown = {
+  const mockDict: any = {
     common: { ranges: { "1w": "1 Week", "2w": "2 Weeks", "1m": "1 Month", "6m": "6 Months" } }
   };
 

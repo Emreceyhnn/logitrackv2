@@ -37,18 +37,18 @@ mock.module("@/app/lib/language/DictionaryContext", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as unknown,
-    error: { main: "#d32f2f" } as unknown,
-    warning: { main: "#ed6c02" } as unknown,
-    success: { main: "#2e7d32" } as unknown,
+    primary: { main: "#1976d2", dark: "#115293" } as any,
+    error: { main: "#d32f2f" } as any,
+    warning: { main: "#ed6c02" } as any,
+    success: { main: "#2e7d32" } as any,
   }
 });
-(customTheme.palette.primary as unknown)._alpha = { main_06: "rgba()", main_10: "rgba()", main_15: "rgba()", main_30: "rgba()", main_40: "rgba()" };
-(customTheme.palette.error as unknown)._alpha = { main_40: "rgba()" };
-(customTheme.palette.warning as unknown)._alpha = { main_40: "rgba()" };
-(customTheme.palette.success as unknown)._alpha = { main_40: "rgba()" };
-(customTheme.palette as unknown).divider_alpha = { main_08: "rgba()" };
-(customTheme.palette.common as unknown) = { 
+(customTheme.palette.primary as any)._alpha = { main_06: "rgba()", main_10: "rgba()", main_15: "rgba()", main_30: "rgba()", main_40: "rgba()" };
+(customTheme.palette.error as any)._alpha = { main_40: "rgba()" };
+(customTheme.palette.warning as any)._alpha = { main_40: "rgba()" };
+(customTheme.palette.success as any)._alpha = { main_40: "rgba()" };
+(customTheme.palette as any).divider_alpha = { main_08: "rgba()" };
+(customTheme.palette.common as any) = { 
   white_alpha: { main_03: "rgba()", main_05: "rgba()", main_06: "rgba()", main_10: "rgba()", main_20: "rgba()", main_30: "rgba()", main_40: "rgba()", main_45: "rgba()" }
 };
 
@@ -62,7 +62,7 @@ mock.module("@mui/material", {
 });
 
 describe("SecurityTab RTL Component", () => {
-  let SecurityTab: React.ElementType;
+  let SecurityTab: any;
 
   before(async () => {
     const mod = await import("./SecurityTab");
@@ -92,7 +92,7 @@ describe("SecurityTab RTL Component", () => {
       // Act
       render(
         <ThemeProvider theme={customTheme}>
-          <SecurityTab state={mockState as unknown} actions={mockActions as unknown} />
+          <SecurityTab state={mockState as any} actions={mockActions as any} />
         </ThemeProvider>
       );
 
@@ -113,7 +113,7 @@ describe("SecurityTab RTL Component", () => {
       // Act
       render(
         <ThemeProvider theme={customTheme}>
-          <SecurityTab state={mockState as unknown} actions={mockActions as unknown} />
+          <SecurityTab state={mockState as any} actions={mockActions as any} />
         </ThemeProvider>
       );
 

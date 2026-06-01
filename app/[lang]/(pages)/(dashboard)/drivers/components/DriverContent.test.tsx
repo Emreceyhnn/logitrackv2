@@ -63,7 +63,7 @@ mock.module("@/app/components/cards/KpiCards", {
   defaultExport: () => <div data-testid="kpi-cards">KPI Cards</div>,
 });
 mock.module("@/app/components/dashboard/driver/driverTable", {
-  defaultExport: ({ onDelete }: unknown) => (
+  defaultExport: ({ onDelete }: any) => (
     <div data-testid="driver-table">
       <button onClick={() => onDelete("d1")}>Delete D1</button>
     </div>
@@ -83,7 +83,7 @@ mock.module("@/app/components/dialogs/driver", {
   defaultExport: () => <div data-testid="driver-dialog">Details Dialog</div>,
 });
 mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
-  defaultExport: ({ open, onConfirm }: unknown) => open ? (
+  defaultExport: ({ open, onConfirm }: any) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
@@ -94,12 +94,12 @@ mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as unknown,
-    success: { main: "#2e7d32" } as unknown,
-    warning: { main: "#ed6c02" } as unknown,
-    error: { main: "#d32f2f" } as unknown,
-    info: { main: "#0288d1" } as unknown,
-    kpi: { violet: "#ccc" } as unknown,
+    primary: { main: "#1976d2" } as any,
+    success: { main: "#2e7d32" } as any,
+    warning: { main: "#ed6c02" } as any,
+    error: { main: "#d32f2f" } as any,
+    info: { main: "#0288d1" } as any,
+    kpi: { violet: "#ccc" } as any,
   }
 });
 import * as originalMui from "@mui/material";
@@ -112,7 +112,7 @@ mock.module("@mui/material", {
 });
 
 describe("DriverContent Component", () => {
-  let DriverContent: React.ElementType;
+  let DriverContent: any;
 
   before(async () => {
     const mod = await import("./DriverContent");

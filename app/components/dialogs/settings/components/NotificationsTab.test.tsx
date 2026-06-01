@@ -37,7 +37,7 @@ mock.module("@/app/lib/language/DictionaryContext", {
 
 // Mock NotificationRow to easily trigger onChange
 mock.module("./NotificationRow", {
-  defaultExport: ({ label, checked, onChange }: unknown) => (
+  defaultExport: ({ label, checked, onChange }: any) => (
     <div data-testid={`notification-row-${label}`}>
       <span>{label}</span>
       <input 
@@ -54,11 +54,11 @@ mock.module("./NotificationRow", {
 const customTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    primary: { main: "#1976d2", dark: "#115293" } as any,
   }
 });
-(customTheme.palette.primary as unknown)._alpha = { main_10: "rgba()", main_25: "rgba()", main_35: "rgba()" };
-(customTheme.palette.common as unknown) = { white_alpha: { main_05: "rgba()", main_60: "rgba()" } };
+(customTheme.palette.primary as any)._alpha = { main_10: "rgba()", main_25: "rgba()", main_35: "rgba()" };
+(customTheme.palette.common as any) = { white_alpha: { main_05: "rgba()", main_60: "rgba()" } };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -70,7 +70,7 @@ mock.module("@mui/material", {
 });
 
 describe("NotificationsTab RTL Component", () => {
-  let NotificationsTab: React.ElementType;
+  let NotificationsTab: any;
 
   before(async () => {
     const mod = await import("./NotificationsTab");

@@ -24,7 +24,7 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("../../charts/TimeRangeSelector", {
-  defaultExport: ({ value, onChange }: unknown) => (
+  defaultExport: ({ value, onChange }: any) => (
     <div data-testid="time-range-selector">
       Current: {value}
       <button onClick={() => onChange("1w")}>Change to 1w</button>
@@ -34,9 +34,9 @@ mock.module("../../charts/TimeRangeSelector", {
 
 mock.module("@mui/x-charts/LineChart", {
   namedExports: {
-    LineChart: ({ series }: unknown) => (
+    LineChart: ({ series }: any) => (
       <div data-testid="line-chart">
-        {series.map((s: unknown) => (
+        {series.map((s: any) => (
           <span key={s.label}>{s.label}:{s.data.length}items</span>
         ))}
       </div>
@@ -47,7 +47,7 @@ mock.module("@mui/x-charts/LineChart", {
 });
 
 const customTheme = createTheme({ palette: { mode: "light" } });
-Object.assign((customTheme.palette.secondary as unknown), {
+Object.assign((customTheme.palette.secondary as any), {
   _alpha: { main_10: "rgba(156,39,176,0.1)", main_20: "rgba(156,39,176,0.2)" }
 });
 
@@ -60,7 +60,7 @@ mock.module("@mui/material", {
 });
 
 describe("ForecastingWidget RTL Component", () => {
-  let ForecastingWidget: React.ElementType;
+  let ForecastingWidget: any;
 
   before(async () => {
     const mod = await import("./ForecastingWidget");

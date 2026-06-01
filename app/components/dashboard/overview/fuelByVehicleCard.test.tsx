@@ -23,11 +23,11 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
 mock.module("../../charts/TimeRangeSelector", {
-  defaultExport: ({ value, onChange }: unknown) => (
+  defaultExport: ({ value, onChange }: any) => (
     <div data-testid="time-range-selector">
       <span>{value}</span>
       <button onClick={() => onChange("1m")}>Set 1m</button>
@@ -37,7 +37,7 @@ mock.module("../../charts/TimeRangeSelector", {
 
 mock.module("@mui/x-charts", {
   namedExports: {
-    BarChart: ({ series, xAxis }: unknown) => (
+    BarChart: ({ series, xAxis }: any) => (
       <div data-testid="bar-chart">
         {xAxis?.[0]?.data?.map((plate: string, i: number) => (
           <div key={plate} data-testid={`bar-${plate}`}>
@@ -50,7 +50,7 @@ mock.module("@mui/x-charts", {
 });
 
 describe("FuelByVehicleCard RTL Component", () => {
-  let FuelByVehicleCard: React.ElementType;
+  let FuelByVehicleCard: any;
 
   before(async () => {
     const mod = await import("./fuelByVehicleCard");

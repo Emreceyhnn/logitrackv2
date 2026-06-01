@@ -22,11 +22,11 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("@/app/components/skeletons/KpiSkeleton", {
-  defaultExport: ({ count }: unknown) => <div data-testid="kpi-skeleton">Loading {count} KPIs</div>,
+  defaultExport: ({ count }: any) => <div data-testid="kpi-skeleton">Loading {count} KPIs</div>,
 });
 
 mock.module("../../cards/StatCard", {
-  defaultExport: ({ title, value }: unknown) => (
+  defaultExport: ({ title, value }: any) => (
     <div data-testid={`stat-card-${title}`}>
       <span>{title}</span>
       <span data-testid={`value-${title}`}>{value}</span>
@@ -37,7 +37,7 @@ mock.module("../../cards/StatCard", {
 mock.module("framer-motion", {
   namedExports: {
     motion: {
-      div: ({ children, ...rest }: unknown) => <div {...rest}>{children}</div>
+      div: ({ children, ...rest }: any) => <div {...rest}>{children}</div>
     }
   }
 });
@@ -46,12 +46,12 @@ mock.module("framer-motion", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as unknown,
+    primary: { main: "#1976d2" } as any,
   }
 });
 
 const mockAlpha = { sky: "#38bdf8", error: "#ef4444", emerald: "#10b981" };
-(customTheme.palette as unknown).kpi = mockAlpha;
+(customTheme.palette as any).kpi = mockAlpha;
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -62,7 +62,7 @@ mock.module("@mui/material", {
 });
 
 describe("ShipmentKpiCard RTL Component", () => {
-  let ShipmentKpiCard: React.ElementType;
+  let ShipmentKpiCard: any;
 
   before(async () => {
     const mod = await import("./shipmentKpiCard");

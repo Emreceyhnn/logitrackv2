@@ -6,18 +6,18 @@ import { expect } from "expect";
 
 const dbMock = {
   exchangeRate: {
-    findFirst: mock.fn<(...args: unknown[]) => unknown>(),
-    create: mock.fn<(...args: unknown[]) => unknown>(),
+    findFirst: mock.fn<(...args: any[]) => any>(),
+    create: mock.fn<(...args: any[]) => any>(),
   },
 };
 
 const redisMock = {
-  get: mock.fn<(...args: unknown[]) => unknown>(),
-  set: mock.fn<(...args: unknown[]) => unknown>(),
-  del: mock.fn<(...args: unknown[]) => unknown>(),
+  get: mock.fn<(...args: any[]) => any>(),
+  set: mock.fn<(...args: any[]) => any>(),
+  del: mock.fn<(...args: any[]) => any>(),
 };
 
-const fetchMock = mock.fn<(...args: unknown[]) => unknown>();
+const fetchMock = mock.fn<(...args: any[]) => any>();
 
 mock.module("@/app/lib/db", {
   namedExports: { db: dbMock },
@@ -69,11 +69,11 @@ function makeFetchResponse(body: object, ok = true, status = 200) {
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 describe("exchangeRate service", () => {
-  let getExchangeRates: unknown;
-  let getExchangeRate: unknown;
-  let convertFromUSD: unknown;
-  let convertCurrency: unknown;
-  let refreshExchangeRates: unknown;
+  let getExchangeRates: any;
+  let getExchangeRate: any;
+  let convertFromUSD: any;
+  let convertCurrency: any;
+  let refreshExchangeRates: any;
 
   before(async () => {
     // Set env vars before importing the module
@@ -82,7 +82,7 @@ describe("exchangeRate service", () => {
       "https://v6.exchangerate-api.com/v6/test-api-key";
 
     // Inject fetch mock into globalThis
-    (globalThis as unknown).fetch = fetchMock;
+    (globalThis as any).fetch = fetchMock;
 
     const mod = await import("./exchangeRate");
     getExchangeRates = mod.getExchangeRates;
@@ -341,7 +341,7 @@ describe("exchangeRate service", () => {
       expect(result).toBeCloseTo(expected, 2);
     });
 
-    it("should default to rate 1 for unknown currencies", async () => {
+    it("should default to rate 1 for any currencies", async () => {
       dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => MOCK_DB_ROW);
 
       // Unknown → Unknown: (100 / 1) * 1 = 100

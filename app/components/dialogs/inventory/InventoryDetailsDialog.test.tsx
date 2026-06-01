@@ -105,27 +105,27 @@ mock.module("@/app/lib/utils/date", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293", light: "#42a5f5" } as unknown,
-    secondary: { main: "#9c27b0" } as unknown,
-    success: { main: "#2e7d32", light: "#4caf50" } as unknown,
-    error: { main: "#d32f2f", light: "#ef5350" } as unknown,
-    warning: { main: "#ed6c02", light: "#ff9800" } as unknown,
-    info: { main: "#0288d1", light: "#03a9f4" } as unknown,
+    primary: { main: "#1976d2", dark: "#115293", light: "#42a5f5" } as any,
+    secondary: { main: "#9c27b0" } as any,
+    success: { main: "#2e7d32", light: "#4caf50" } as any,
+    error: { main: "#d32f2f", light: "#ef5350" } as any,
+    warning: { main: "#ed6c02", light: "#ff9800" } as any,
+    info: { main: "#0288d1", light: "#03a9f4" } as any,
   }
 });
 
 const mockAlpha = { main_05: "rgba()", main_10: "rgba()", main_20: "rgba()" };
-(customTheme.palette.primary as unknown)._alpha = mockAlpha;
-(customTheme.palette.secondary as unknown)._alpha = mockAlpha;
-(customTheme.palette.success as unknown)._alpha = mockAlpha;
-(customTheme.palette.error as unknown)._alpha = mockAlpha;
-(customTheme.palette.warning as unknown)._alpha = mockAlpha;
-(customTheme.palette.info as unknown)._alpha = mockAlpha;
+(customTheme.palette.primary as any)._alpha = mockAlpha;
+(customTheme.palette.secondary as any)._alpha = mockAlpha;
+(customTheme.palette.success as any)._alpha = mockAlpha;
+(customTheme.palette.error as any)._alpha = mockAlpha;
+(customTheme.palette.warning as any)._alpha = mockAlpha;
+(customTheme.palette.info as any)._alpha = mockAlpha;
 
-(customTheme.palette as unknown).divider_alpha = mockAlpha;
-(customTheme.palette.background as unknown).default_alpha = mockAlpha;
-(customTheme.palette.background as unknown).paper_alpha = mockAlpha;
-(customTheme.palette.text as unknown).secondary_alpha = { main_50: "rgba()" };
+(customTheme.palette as any).divider_alpha = mockAlpha;
+(customTheme.palette.background as any).default_alpha = mockAlpha;
+(customTheme.palette.background as any).paper_alpha = mockAlpha;
+(customTheme.palette.text as any).secondary_alpha = { main_50: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -137,7 +137,7 @@ mock.module("@mui/material", {
 });
 
 describe("InventoryDetailsDialog RTL Component", () => {
-  let InventoryDetailsDialog: React.ElementType;
+  let InventoryDetailsDialog: any;
 
   before(async () => {
     const mod = await import("./InventoryDetailsDialog");

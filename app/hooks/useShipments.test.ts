@@ -8,8 +8,8 @@ const queryClientMock = {
 
 const reactQueryMock = {
   useQuery: mock.fn(() => ({ data: null })),
-  useMutation: mock.fn((options: unknown) => ({
-    mutateAsync: async (variables: unknown) => {
+  useMutation: mock.fn((options: any) => ({
+    mutateAsync: async (variables: any) => {
       try {
         const res = await options.mutationFn(variables);
         options.onSuccess?.(res);
@@ -59,11 +59,11 @@ mock.module("@/app/lib/controllers/shipments", { namedExports: shipmentsControll
 mock.module("@/app/lib/language/DictionaryContext", { namedExports: dictContextMock });
 
 const globalFetchMock = mock.fn();
-(globalThis as unknown).fetch = globalFetchMock;
+(globalThis as any).fetch = globalFetchMock;
 
 // 2. TEST GRUPLARI
 describe("useShipments Hook", () => {
-  let useShipmentsMod: unknown;
+  let useShipmentsMod: any;
 
   before(async () => {
     useShipmentsMod = await import("./useShipments");

@@ -68,7 +68,7 @@ mock.module("@mui/material", {
 });
 
 describe("ReportsContent Component", () => {
-  let ReportsContent: React.ElementType;
+  let ReportsContent: any;
 
   before(async () => {
     const mod = await import("./ReportsContent");

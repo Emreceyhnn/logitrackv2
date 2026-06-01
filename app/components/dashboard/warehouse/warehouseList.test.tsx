@@ -58,7 +58,7 @@ mock.module("dayjs", {
 });
 
 mock.module("@/app/components/ui/DataTable", {
-  defaultExport: ({ rows, columns, rowActions, emptyMessage }: unknown) => (
+  defaultExport: ({ rows, columns, rowActions, emptyMessage }: any) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (
         <div>{emptyMessage}</div>
@@ -66,22 +66,22 @@ mock.module("@/app/components/ui/DataTable", {
         <table>
           <thead>
             <tr>
-              {columns.map((c: unknown) => (
+              {columns.map((c: any) => (
                 <th key={c.key}>{c.label}</th>
               ))}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row: unknown, i: number) => (
+            {rows.map((row: any, i: number) => (
               <tr key={i}>
-                {columns.map((c: unknown) => (
+                {columns.map((c: any) => (
                   <td key={c.key} data-testid={`cell-${c.key}`}>
                     {c.render(row)}
                   </td>
                 ))}
                 <td>
-                  {rowActions?.map((action: unknown, aIdx: number) => (
+                  {rowActions?.map((action: any, aIdx: number) => (
                     <button key={aIdx} onClick={() => action.onClick(row)}>
                       {action.label}
                     </button>
@@ -100,17 +100,17 @@ mock.module("@/app/components/ui/DataTable", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as unknown,
-    error: { main: "#d32f2f" } as unknown,
-    success: { main: "#2e7d32" } as unknown,
+    primary: { main: "#1976d2", dark: "#115293" } as any,
+    error: { main: "#d32f2f" } as any,
+    success: { main: "#2e7d32" } as any,
   }
 });
 
 const mockAlpha = { main_05: "rgba(0,0,0,0.05)", main_10: "rgba(0,0,0,0.1)", main_30: "rgba(0,0,0,0.3)", main_40: "rgba(0,0,0,0.4)" };
-(customTheme.palette as unknown).divider_alpha = mockAlpha;
-(customTheme.palette.error as unknown)._alpha = mockAlpha;
-(customTheme.palette.primary as unknown)._alpha = mockAlpha;
-(customTheme.palette.success as unknown)._alpha = mockAlpha;
+(customTheme.palette as any).divider_alpha = mockAlpha;
+(customTheme.palette.error as any)._alpha = mockAlpha;
+(customTheme.palette.primary as any)._alpha = mockAlpha;
+(customTheme.palette.success as any)._alpha = mockAlpha;
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -122,7 +122,7 @@ mock.module("@mui/material", {
 });
 
 describe("WarehouseListTable RTL Component", () => {
-  let WarehouseListTable: React.ElementType;
+  let WarehouseListTable: any;
 
   before(async () => {
     const mod = await import("./warehouseList");

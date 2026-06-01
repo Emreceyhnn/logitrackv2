@@ -6,16 +6,16 @@ import React from "react";
 
 // 1. Mocks
 mock.module("@/app/components/skeletons/AnalyticsSkeleton", {
-  defaultExport: ({ title }: unknown) => (
+  defaultExport: ({ title }: any) => (
     <div data-testid="analytics-skeleton">{title}</div>
   ),
 });
 
 mock.module("@mui/x-charts/PieChart", {
   namedExports: {
-    PieChart: ({ series }: unknown) => (
+    PieChart: ({ series }: any) => (
       <div data-testid="pie-chart">
-        {series?.[0]?.data?.map((d: unknown) => (
+        {series?.[0]?.data?.map((d: any) => (
           <div key={d.id} data-testid={`pie-slice-${d.label}`}>
             {d.value}
           </div>
@@ -28,9 +28,9 @@ mock.module("@mui/x-charts/PieChart", {
 
 mock.module("@mui/x-charts/BarChart", {
   namedExports: {
-    BarChart: ({ dataset, series }: unknown) => (
+    BarChart: ({ dataset, series }: any) => (
       <div data-testid="bar-chart">
-        {dataset?.map((d: unknown, i: number) => (
+        {dataset?.map((d: any, i: number) => (
           <div key={i} data-testid={`bar-${d.route}`}>{d.count}</div>
         ))}
         <div data-testid="bar-series-label">{series?.[0]?.label}</div>
@@ -76,10 +76,10 @@ const mockDict = {
       totalShipments: "Total Shipments",
     },
   },
-} as unknown;
+} as any;
 
 describe("ShipmentCharts RTL Component", () => {
-  let ShipmentCharts: React.ElementType;
+  let ShipmentCharts: any;
 
   before(async () => {
     const mod = await import("./ShipmentCharts");

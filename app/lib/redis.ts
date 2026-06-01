@@ -140,7 +140,7 @@ export const exchangeRateCacheKeys = {
   exchangeRate: () => `exchange_rates:usd:v1`,
 };
 
-export function hashFilters(filters: Record<string, unknown> | null | undefined) {
+export function hashFilters<T>(filters: T) {
   if (!filters || Object.keys(filters).length === 0) return "all";
   return Buffer.from(JSON.stringify(filters)).toString("base64");
 }

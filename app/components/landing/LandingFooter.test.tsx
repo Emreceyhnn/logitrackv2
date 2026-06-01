@@ -38,13 +38,13 @@ mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDiction
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: (props: unknown) => ({ type: "Box", props }),
-    Container: (props: unknown) => ({ type: "Container", props }),
-    Divider: (props: unknown) => ({ type: "Divider", props }),
-    Grid: (props: unknown) => ({ type: "Grid", props }),
-    Stack: (props: unknown) => ({ type: "Stack", props }),
-    Typography: (props: unknown) => ({ type: "Typography", props }),
-    Link: (props: unknown) => ({ type: "MuiLink", props })
+    Box: (props: any) => ({ type: "Box", props }),
+    Container: (props: any) => ({ type: "Container", props }),
+    Divider: (props: any) => ({ type: "Divider", props }),
+    Grid: (props: any) => ({ type: "Grid", props }),
+    Stack: (props: any) => ({ type: "Stack", props }),
+    Typography: (props: any) => ({ type: "Typography", props }),
+    Link: (props: any) => ({ type: "MuiLink", props })
   }
 });
 
@@ -53,7 +53,7 @@ mock.module("@mui/icons-material/Twitter", { defaultExport: () => ({ type: "Twit
 mock.module("next/image", { defaultExport: () => ({ type: "Image" }) });
 
 describe("LandingFooter Component", () => {
-  let LandingFooter: React.ElementType;
+  let LandingFooter: any;
 
   before(async () => {
     const mod = await import("./LandingFooter");

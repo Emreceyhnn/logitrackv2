@@ -4,12 +4,12 @@ import { expect } from "expect";
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function makeRes() {
   return {
-    calls: [] as Array<{ body: unknown; status: number }>,
+    calls: [] as Array<{ body: any; status: number }>,
   };
 }
 
 const mockNextResponse = {
-  json: mock.fn((body: unknown, init?: { status?: number }) => ({
+  json: mock.fn((body: any, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -26,7 +26,7 @@ mock.module("@/app/lib/controllers/analytics", {
 });
 
 describe("GET /api/analytics/dashboard", () => {
-  let GET: React.ElementType;
+  let GET: any;
 
   before(async () => {
     const mod = await import("./route");
@@ -42,7 +42,7 @@ describe("GET /api/analytics/dashboard", () => {
     const fakeData = { kpis: { shipments: 10 } };
     getAnalyticsDashboardDataMock.mock.mockImplementationOnce(async () => fakeData);
 
-    const res: unknown = await GET();
+    const res: any = await GET();
 
     expect(getAnalyticsDashboardDataMock.mock.calls.length).toBe(1);
     expect(res._body).toEqual(fakeData);
@@ -54,7 +54,7 @@ describe("GET /api/analytics/dashboard", () => {
       throw new Error("NEXT_REDIRECT");
     });
 
-    const res: unknown = await GET();
+    const res: any = await GET();
 
     expect(res._body).toEqual({ error: "Unauthorized" });
     expect(res._status).toBe(401);
@@ -65,7 +65,7 @@ describe("GET /api/analytics/dashboard", () => {
       throw new Error("DB connection failed");
     });
 
-    const res: unknown = await GET();
+    const res: any = await GET();
 
     expect(res._body).toEqual({ error: "Internal server error" });
     expect(res._status).toBe(500);

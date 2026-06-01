@@ -53,17 +53,17 @@ mock.module("react", {
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Box: (props: unknown) => ({ type: "Box", props }),
-    IconButton: (props: unknown) => ({ type: "IconButton", props }),
-    Badge: (props: unknown) => ({ type: "Badge", props }),
-    Popover: (props: unknown) => ({ type: "Popover", props }),
-    Typography: (props: unknown) => ({ type: "Typography", props }),
-    Divider: (props: unknown) => ({ type: "Divider", props }),
-    List: (props: unknown) => ({ type: "List", props }),
-    ListItem: (props: unknown) => ({ type: "ListItem", props }),
-    Stack: (props: unknown) => ({ type: "Stack", props }),
-    Button: (props: unknown) => ({ type: "Button", props }),
-    Tooltip: (props: unknown) => ({ type: "Tooltip", props }),
+    Box: (props: any) => ({ type: "Box", props }),
+    IconButton: (props: any) => ({ type: "IconButton", props }),
+    Badge: (props: any) => ({ type: "Badge", props }),
+    Popover: (props: any) => ({ type: "Popover", props }),
+    Typography: (props: any) => ({ type: "Typography", props }),
+    Divider: (props: any) => ({ type: "Divider", props }),
+    List: (props: any) => ({ type: "List", props }),
+    ListItem: (props: any) => ({ type: "ListItem", props }),
+    Stack: (props: any) => ({ type: "Stack", props }),
+    Button: (props: any) => ({ type: "Button", props }),
+    Tooltip: (props: any) => ({ type: "Tooltip", props }),
   }
 });
 
@@ -93,7 +93,7 @@ mock.module("@/app/lib/utils/date", {
 
 
 describe("NotificationBell Component", () => {
-  let NotificationBell: React.ElementType;
+  let NotificationBell: any;
 
   before(async () => {
     // Modülü dinamik olarak yüklüyoruz

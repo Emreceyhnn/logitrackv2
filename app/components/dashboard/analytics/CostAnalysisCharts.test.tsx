@@ -35,7 +35,7 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("../../charts/TimeRangeSelector", {
-  defaultExport: ({ value, onChange }: unknown) => (
+  defaultExport: ({ value, onChange }: any) => (
     <div data-testid="time-range-selector">
       Current: {value}
       <button onClick={() => onChange("12m")}>Change to 12m</button>
@@ -45,9 +45,9 @@ mock.module("../../charts/TimeRangeSelector", {
 
 mock.module("@mui/x-charts/PieChart", {
   namedExports: {
-    PieChart: ({ series }: unknown) => (
+    PieChart: ({ series }: any) => (
       <div data-testid="pie-chart">
-        {series[0].data.map((d: unknown) => (
+        {series[0].data.map((d: any) => (
           <span key={d.label}>{d.label}-{d.value}</span>
         ))}
       </div>
@@ -58,9 +58,9 @@ mock.module("@mui/x-charts/PieChart", {
 
 mock.module("@mui/x-charts/BarChart", {
   namedExports: {
-    BarChart: ({ series }: unknown) => (
+    BarChart: ({ series }: any) => (
       <div data-testid="bar-chart">
-        {series.map((s: unknown) => (
+        {series.map((s: any) => (
           <span key={s.label}>{s.label}:{s.data.join(",")}</span>
         ))}
       </div>
@@ -78,7 +78,7 @@ mock.module("@mui/material", {
 });
 
 describe("CostAnalysisCharts RTL Component", () => {
-  let CostAnalysisCharts: React.ElementType;
+  let CostAnalysisCharts: any;
 
   before(async () => {
     const mod = await import("./CostAnalysisCharts");

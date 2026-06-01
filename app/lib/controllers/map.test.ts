@@ -14,7 +14,7 @@ const checkPermissionMock = {
 
 // Global Fetch Mock
 const fetchMock = mock.fn();
-(globalThis as unknown).fetch = fetchMock;
+(globalThis as any).fetch = fetchMock;
 
 // Modülleri Sisteme Enjekte Etme
 mock.module("../auth-middleware", {
@@ -27,7 +27,7 @@ mock.module("./utils/checkPermission", {
 
 // 2. TEST GRUPLARI
 describe("Map Controller", () => {
-  let mapController: unknown;
+  let mapController: any;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -52,7 +52,7 @@ describe("Map Controller", () => {
 
     it("should_ReturnNull_WhenOriginOrDestinationIsMissing", async () => {
       // Act
-      const result = await mapController.getDirections(mockUser, null as unknown, "Dest");
+      const result = await mapController.getDirections(mockUser, null as any, "Dest");
 
       // Assert
       expect(result).toBeNull();

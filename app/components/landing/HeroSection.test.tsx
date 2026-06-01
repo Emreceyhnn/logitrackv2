@@ -19,20 +19,20 @@ mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDiction
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: (props: unknown) => ({ type: "Box", props }),
-    Button: (props: unknown) => ({ type: "Button", props }),
-    Container: (props: unknown) => ({ type: "Container", props }),
-    Stack: (props: unknown) => ({ type: "Stack", props }),
-    Typography: (props: unknown) => ({ type: "Typography", props })
+    Box: (props: any) => ({ type: "Box", props }),
+    Button: (props: any) => ({ type: "Button", props }),
+    Container: (props: any) => ({ type: "Container", props }),
+    Stack: (props: any) => ({ type: "Stack", props }),
+    Typography: (props: any) => ({ type: "Typography", props })
   }
 });
 
 mock.module("next/image", { defaultExport: () => ({ type: "Image" }) });
 mock.module("@mui/icons-material/PlayCircleOutline", { defaultExport: () => ({ type: "PlayCircleOutlineIcon" }) });
-mock.module("framer-motion", { namedExports: { motion: { div: (props: unknown) => ({ type: "MotionDiv", props }) } } });
+mock.module("framer-motion", { namedExports: { motion: { div: (props: any) => ({ type: "MotionDiv", props }) } } });
 
 describe("HeroSection Component", () => {
-  let HeroSection: React.ElementType;
+  let HeroSection: any;
 
   before(async () => {
     const mod = await import("./HeroSection");

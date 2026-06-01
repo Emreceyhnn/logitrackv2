@@ -21,7 +21,7 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
 mock.module("@/app/components/skeletons/AnalyticsSkeleton", {
@@ -30,7 +30,7 @@ mock.module("@/app/components/skeletons/AnalyticsSkeleton", {
 
 mock.module("@mui/x-charts/BarChart", {
   namedExports: {
-    BarChart: ({ xAxis, series }: unknown) => {
+    BarChart: ({ xAxis, series }: any) => {
       const plates = xAxis[0]?.data || [];
       const weights = series[0]?.data || [];
       return (
@@ -47,7 +47,7 @@ mock.module("@mui/x-charts/BarChart", {
 });
 
 describe("VehicleCapacityChart RTL Component", () => {
-  let VehicleCapacityChart: React.ElementType;
+  let VehicleCapacityChart: any;
 
   before(async () => {
     const mod = await import("./maxLoad");

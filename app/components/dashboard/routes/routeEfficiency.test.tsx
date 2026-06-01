@@ -26,17 +26,17 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
 // 2. Theme with success._alpha
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    success: { main: "#2e7d32" } as unknown,
+    success: { main: "#2e7d32" } as any,
   }
 });
-(customTheme.palette.success as unknown)._alpha = { main_30: "rgba(46,125,50,0.3)" };
+(customTheme.palette.success as any)._alpha = { main_30: "rgba(46,125,50,0.3)" };
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -47,7 +47,7 @@ mock.module("@mui/material", {
 });
 
 describe("RouteEfficiency RTL Component", () => {
-  let RouteEfficiency: React.ElementType;
+  let RouteEfficiency: any;
 
   before(async () => {
     const mod = await import("./routeEfficiency");

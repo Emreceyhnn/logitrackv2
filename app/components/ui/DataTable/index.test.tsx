@@ -49,33 +49,33 @@ mock.module("@/app/lib/language/DictionaryContext", {
 mock.module("@mui/material", {
   namedExports: { 
     useTheme: useThemeMock,
-    Table: (props: unknown) => ({ type: "Table", props }),
-    TableBody: (props: unknown) => ({ type: "TableBody", props }),
-    TableCell: (props: unknown) => ({ type: "TableCell", props }),
-    TableContainer: (props: unknown) => ({ type: "TableContainer", props }),
-    TableHead: (props: unknown) => ({ type: "TableHead", props }),
-    TableRow: (props: unknown) => ({ type: "TableRow", props }),
-    TablePagination: (props: unknown) => ({ type: "TablePagination", props }),
-    TableSortLabel: (props: unknown) => ({ type: "TableSortLabel", props }),
-    Typography: (props: unknown) => ({ type: "Typography", props }),
-    Stack: (props: unknown) => ({ type: "Stack", props }),
-    TextField: (props: unknown) => ({ type: "TextField", props }),
-    InputAdornment: (props: unknown) => ({ type: "InputAdornment", props }),
-    IconButton: (props: unknown) => ({ type: "IconButton", props }),
-    Menu: (props: unknown) => ({ type: "Menu", props }),
-    MenuItem: (props: unknown) => ({ type: "MenuItem", props }),
-    ListItemIcon: (props: unknown) => ({ type: "ListItemIcon", props }),
-    ListItemText: (props: unknown) => ({ type: "ListItemText", props }),
-    FormControl: (props: unknown) => ({ type: "FormControl", props }),
-    InputLabel: (props: unknown) => ({ type: "InputLabel", props }),
-    Select: (props: unknown) => ({ type: "Select", props }),
-    OutlinedInput: (props: unknown) => ({ type: "OutlinedInput", props }),
-    Checkbox: (props: unknown) => ({ type: "Checkbox", props }),
-    Divider: (props: unknown) => ({ type: "Divider", props }),
-    Box: (props: unknown) => ({ type: "Box", props }),
-    Chip: (props: unknown) => ({ type: "Chip", props }),
-    Button: (props: unknown) => ({ type: "Button", props }),
-    Tooltip: (props: unknown) => ({ type: "Tooltip", props }),
+    Table: (props: any) => ({ type: "Table", props }),
+    TableBody: (props: any) => ({ type: "TableBody", props }),
+    TableCell: (props: any) => ({ type: "TableCell", props }),
+    TableContainer: (props: any) => ({ type: "TableContainer", props }),
+    TableHead: (props: any) => ({ type: "TableHead", props }),
+    TableRow: (props: any) => ({ type: "TableRow", props }),
+    TablePagination: (props: any) => ({ type: "TablePagination", props }),
+    TableSortLabel: (props: any) => ({ type: "TableSortLabel", props }),
+    Typography: (props: any) => ({ type: "Typography", props }),
+    Stack: (props: any) => ({ type: "Stack", props }),
+    TextField: (props: any) => ({ type: "TextField", props }),
+    InputAdornment: (props: any) => ({ type: "InputAdornment", props }),
+    IconButton: (props: any) => ({ type: "IconButton", props }),
+    Menu: (props: any) => ({ type: "Menu", props }),
+    MenuItem: (props: any) => ({ type: "MenuItem", props }),
+    ListItemIcon: (props: any) => ({ type: "ListItemIcon", props }),
+    ListItemText: (props: any) => ({ type: "ListItemText", props }),
+    FormControl: (props: any) => ({ type: "FormControl", props }),
+    InputLabel: (props: any) => ({ type: "InputLabel", props }),
+    Select: (props: any) => ({ type: "Select", props }),
+    OutlinedInput: (props: any) => ({ type: "OutlinedInput", props }),
+    Checkbox: (props: any) => ({ type: "Checkbox", props }),
+    Divider: (props: any) => ({ type: "Divider", props }),
+    Box: (props: any) => ({ type: "Box", props }),
+    Chip: (props: any) => ({ type: "Chip", props }),
+    Button: (props: any) => ({ type: "Button", props }),
+    Tooltip: (props: any) => ({ type: "Tooltip", props }),
   }
 });
 
@@ -104,7 +104,7 @@ mock.module("@tanstack/react-table", {
 });
 
 describe("DataTable Component", () => {
-  let DataTable: React.ElementType;
+  let DataTable: any;
 
   before(async () => {
     const mod = await import("./index");
@@ -121,7 +121,7 @@ describe("DataTable Component", () => {
   describe("DataTable() bileşeni", () => {
     it("should_InitializeTable_WhenValidPropsProvided", async () => {
       // Arrange
-      const columns = [{ key: "id", label: "ID", render: (r: unknown) => r.id }];
+      const columns = [{ key: "id", label: "ID", render: (r: any) => r.id }];
       const rows = [{ id: "1" }];
       
       // Act

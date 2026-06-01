@@ -75,7 +75,7 @@ mock.module("./utils/trendUtils", { namedExports: trendUtilsMock });
 
 // 2. TEST GRUPLARI
 describe("Company Controller", () => {
-  let companyController: unknown;
+  let companyController: any;
 
   before(async () => {
     companyController = await import("./company");

@@ -29,13 +29,13 @@ mock.module("next/navigation", {
 });
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
 // Mock MUI Date Pickers to just render the custom day slot with today's date for testing the tooltip/badge
 mock.module("@mui/x-date-pickers/DateCalendar", {
   namedExports: {
-    DateCalendar: ({ slots }: unknown) => {
+    DateCalendar: ({ slots }: any) => {
       const DayComponent = slots?.day;
       if (DayComponent) {
         return (
@@ -52,13 +52,13 @@ mock.module("@mui/x-date-pickers/DateCalendar", {
 
 mock.module("@mui/x-date-pickers/PickersDay", {
   namedExports: {
-    PickersDay: ({ day }: unknown) => <div data-testid={`picker-day-${day.format("YYYY-MM-DD")}`}>{day.format("DD")}</div>
+    PickersDay: ({ day }: any) => <div data-testid={`picker-day-${day.format("YYYY-MM-DD")}`}>{day.format("DD")}</div>
   }
 });
 
 mock.module("@mui/x-date-pickers/LocalizationProvider", {
   namedExports: {
-    LocalizationProvider: ({ children }: { children?: React.ReactNode }) => <>{children}</>
+    LocalizationProvider: ({ children }: any) => <>{children}</>
   }
 });
 
@@ -71,23 +71,23 @@ mock.module("@mui/x-date-pickers/AdapterDayjs", {
 // Mock only Tooltip and Badge — no need to spread full @mui/material
 mock.module("@mui/material", {
   namedExports: {
-    Badge: ({ color, children }: unknown) => (
+    Badge: ({ color, children }: any) => (
       <div data-testid={`badge-${color}`}>
         {children}
       </div>
     ),
     Divider: () => <hr />,
-    Tooltip: ({ title, children }: unknown) => (
+    Tooltip: ({ title, children }: any) => (
       <div data-testid={`tooltip-${title}`}>
         {children}
       </div>
     ),
-    Typography: ({ children, sx, ...rest }: unknown) => <span {...rest}>{children}</span>,
+    Typography: ({ children, sx, ...rest }: any) => <span {...rest}>{children}</span>,
   }
 });
 
 describe("DocumentCalenderCard RTL Component", () => {
-  let DocumentCalenderCard: React.ElementType;
+  let DocumentCalenderCard: any;
 
   before(async () => {
     const mod = await import("./documentCalenderCard");

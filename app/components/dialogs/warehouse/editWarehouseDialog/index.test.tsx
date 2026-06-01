@@ -36,18 +36,18 @@ const updateWarehouseMock = mock.fn();
 mock.module("@mui/material", {
   namedExports: { 
     useTheme: useThemeMock,
-    Dialog: (props: unknown) => ({ type: "Dialog", props }),
-    DialogContent: (props: unknown) => ({ type: "DialogContent", props }),
-    DialogActions: (props: unknown) => ({ type: "DialogActions", props }),
-    Button: (props: unknown) => ({ type: "Button", props }),
-    Typography: (props: unknown) => ({ type: "Typography", props }),
-    Box: (props: unknown) => ({ type: "Box", props }),
-    Stack: (props: unknown) => ({ type: "Stack", props }),
-    IconButton: (props: unknown) => ({ type: "IconButton", props }),
-    Stepper: (props: unknown) => ({ type: "Stepper", props }),
-    Step: (props: unknown) => ({ type: "Step", props }),
-    StepLabel: (props: unknown) => ({ type: "StepLabel", props }),
-    CircularProgress: (props: unknown) => ({ type: "CircularProgress", props }),
+    Dialog: (props: any) => ({ type: "Dialog", props }),
+    DialogContent: (props: any) => ({ type: "DialogContent", props }),
+    DialogActions: (props: any) => ({ type: "DialogActions", props }),
+    Button: (props: any) => ({ type: "Button", props }),
+    Typography: (props: any) => ({ type: "Typography", props }),
+    Box: (props: any) => ({ type: "Box", props }),
+    Stack: (props: any) => ({ type: "Stack", props }),
+    IconButton: (props: any) => ({ type: "IconButton", props }),
+    Stepper: (props: any) => ({ type: "Stepper", props }),
+    Step: (props: any) => ({ type: "Step", props }),
+    StepLabel: (props: any) => ({ type: "StepLabel", props }),
+    CircularProgress: (props: any) => ({ type: "CircularProgress", props }),
   }
 });
 
@@ -58,9 +58,9 @@ import * as originalReact from "react";
 mock.module("react", {
   namedExports: {
     ...originalReact,
-    useState: (init: unknown) => [init, mock.fn()],
-    useEffect: (fn: unknown) => fn(),
-    useRef: (init: unknown) => ({ current: init })
+    useState: (init: any) => [init, mock.fn()],
+    useEffect: (fn: any) => fn(),
+    useRef: (init: any) => ({ current: init })
   }
 });
 
@@ -80,11 +80,11 @@ mock.module("./sections/BasicInfoSection", { defaultExport: () => ({ type: "Basi
 mock.module("./sections/LocationSection", { defaultExport: () => ({ type: "LocationSection" }) });
 mock.module("./sections/CapacitySection", { defaultExport: () => ({ type: "CapacitySection" }) });
 mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
-  namedExports: { GoogleMapsProvider: (props: unknown) => ({ type: "GoogleMapsProvider", props }) }
+  namedExports: { GoogleMapsProvider: (props: any) => ({ type: "GoogleMapsProvider", props }) }
 });
 
 describe("EditWarehouseDialog Component", () => {
-  let EditWarehouseDialog: React.ElementType;
+  let EditWarehouseDialog: any;
 
   before(async () => {
     const mod = await import("./index");

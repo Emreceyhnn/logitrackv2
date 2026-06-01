@@ -35,7 +35,7 @@ mock.module("@/app/lib/utils/currency", { namedExports: currencyUtilsMock });
 
 // 2. TEST GRUPLARI
 describe("useCurrency Hook", () => {
-  let useCurrencyMod: unknown;
+  let useCurrencyMod: any;
 
   before(async () => {
     useCurrencyMod = await import("./useCurrency");

@@ -25,7 +25,7 @@ mock.module("@/app/lib/vehicleTracking", { namedExports: vehicleTrackingMock });
 
 // 2. TEST GRUPLARI
 describe("useVehicleTracking Hooks", () => {
-  let trackingMod: unknown;
+  let trackingMod: any;
 
   before(async () => {
     trackingMod = await import("./useVehicleTracking");

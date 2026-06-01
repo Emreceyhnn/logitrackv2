@@ -7,14 +7,14 @@ mock.module("next/image", { defaultExport: () => () => <div data-testid="Image" 
 
 mock.module("@react-google-maps/api", {
   namedExports: {
-    GoogleMap: ({ children }: { children?: React.ReactNode }) => <div data-testid="GoogleMap">{children}</div>,
+    GoogleMap: ({ children }: any) => <div data-testid="GoogleMap">{children}</div>,
     MarkerF: () => <div data-testid="MarkerF" />,
-    OverlayView: ({ children }: { children?: React.ReactNode }) => <div data-testid="OverlayView">{children}</div>
+    OverlayView: ({ children }: any) => <div data-testid="OverlayView">{children}</div>
   }
 });
 
 describe("MapWithMarker Component", () => {
-  let MapWithMarker: React.ElementType;
+  let MapWithMarker: any;
 
   before(async () => {
     const mod = await import("./MapWithMarker");

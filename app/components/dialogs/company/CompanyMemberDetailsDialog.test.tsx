@@ -47,19 +47,19 @@ mock.module("@/app/lib/utils/date", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    primary: { main: "#1976d2", dark: "#115293" } as any,
   }
 });
 
 const mockAlpha = { main_02: "rgba()", main_03: "rgba()", main_05: "rgba()", main_10: "rgba()", main_20: "rgba()" };
-(customTheme.palette.primary as unknown)._alpha = mockAlpha;
-(customTheme.palette as unknown).divider_alpha = mockAlpha;
-(customTheme.palette as unknown).secondary = { _alpha: mockAlpha, light: "#ccc" };
-(customTheme.palette as unknown).info = { _alpha: mockAlpha, main: "#ccc" };
-(customTheme.palette as unknown).success = { _alpha: mockAlpha, main: "#ccc" };
-(customTheme.palette as unknown).warning = { _alpha: mockAlpha, main: "#ccc", light: "#ccc" };
-(customTheme.palette.background as unknown) = { paper_alpha: mockAlpha };
-(customTheme.palette.common as unknown) = { white_alpha: mockAlpha };
+(customTheme.palette.primary as any)._alpha = mockAlpha;
+(customTheme.palette as any).divider_alpha = mockAlpha;
+(customTheme.palette as any).secondary = { _alpha: mockAlpha, light: "#ccc" };
+(customTheme.palette as any).info = { _alpha: mockAlpha, main: "#ccc" };
+(customTheme.palette as any).success = { _alpha: mockAlpha, main: "#ccc" };
+(customTheme.palette as any).warning = { _alpha: mockAlpha, main: "#ccc", light: "#ccc" };
+(customTheme.palette.background as any) = { paper_alpha: mockAlpha };
+(customTheme.palette.common as any) = { white_alpha: mockAlpha };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -71,7 +71,7 @@ mock.module("@mui/material", {
 });
 
 describe("CompanyMemberDetailsDialog RTL Component", () => {
-  let CompanyMemberDetailsDialog: React.ElementType;
+  let CompanyMemberDetailsDialog: any;
 
   before(async () => {
     const mod = await import("./CompanyMemberDetailsDialog");

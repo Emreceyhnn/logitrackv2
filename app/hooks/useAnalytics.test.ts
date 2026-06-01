@@ -25,11 +25,11 @@ mock.module("@tanstack/react-query", { namedExports: reactQueryMock });
 
 // Fetch'i global seviyede mocklama (eğer fetch doğrudan hook içinde çağrılırsa diye)
 const globalFetchMock = mock.fn();
-(globalThis as unknown).fetch = globalFetchMock;
+(globalThis as any).fetch = globalFetchMock;
 
 // 2. TEST GRUPLARI
 describe("useAnalytics Hook", () => {
-  let useAnalyticsMod: unknown;
+  let useAnalyticsMod: any;
 
   before(async () => {
     useAnalyticsMod = await import("./useAnalytics");

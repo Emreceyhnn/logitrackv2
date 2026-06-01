@@ -54,7 +54,7 @@ mock.module("@mui/material", {
 });
 
 describe("VehicleToolbar RTL Component", () => {
-  let VehicleToolbar: React.ElementType;
+  let VehicleToolbar: any;
 
   before(async () => {
     const mod = await import("./toolbar");

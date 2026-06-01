@@ -57,18 +57,18 @@ mock.module("@/app/lib/constants", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as unknown,
-    divider_alpha: { main_08: "rgba()" } as unknown,
+    primary: { main: "#1976d2", dark: "#115293" } as any,
+    divider_alpha: { main_08: "rgba()" } as any,
   }
 });
-(customTheme.palette.primary as unknown)._alpha = { 
+(customTheme.palette.primary as any)._alpha = { 
   main_04: "rgba()", 
   main_10: "rgba()", 
   main_50: "rgba()", 
   main_25: "rgba()", 
   main_35: "rgba()" 
 };
-(customTheme.palette.common as unknown) = { 
+(customTheme.palette.common as any) = { 
   white_alpha: { main_45: "rgba()", main_60: "rgba()" } 
 };
 
@@ -82,7 +82,7 @@ mock.module("@mui/material", {
 });
 
 describe("RegionalTab RTL Component", () => {
-  let RegionalTab: React.ElementType;
+  let RegionalTab: any;
 
   before(async () => {
     const mod = await import("./RegionalTab");

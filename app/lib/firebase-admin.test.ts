@@ -41,7 +41,7 @@ describe("firebase-admin.ts Admin Connection & Initialization", async () => {
       // is already proven by the Database test above.
       const customToken = await adminAuth.createCustomToken("test-uid");
       expect(customToken).toBeDefined();
-    } catch (error: unknown) {
+    } catch (error: any) {
       throw new Error(`Firebase Admin Auth connection failed: ${error.message}`);
     }
   });

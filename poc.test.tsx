@@ -40,7 +40,7 @@ describe("AddVehicleDialog RTL Test", () => {
   let AddVehicleDialog: React.ElementType;
 
   before(async () => {
-    const mod = await import("./app/components/dialogs/vehicle/addVehicleDialog/index.tsx");
+    const mod = await import("./app/components/dialogs/vehicle/addVehicleDialog/index");
     AddVehicleDialog = mod.default;
   });
 

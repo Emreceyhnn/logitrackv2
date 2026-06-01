@@ -11,19 +11,19 @@ const useDictionaryMock = mock.fn(() => ({
 }));
 
 mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("./card", { defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="CustomCard">{children}</div> });
+mock.module("./card", { defaultExport: ({ children }: any) => <div data-testid="CustomCard">{children}</div> });
 mock.module("../rating", { defaultExport: () => <div data-testid="CustomRating" /> });
 
 mock.module("@mui/material", {
   namedExports: {
     Avatar: () => <div data-testid="Avatar" />,
-    Stack: ({ children }: { children?: React.ReactNode }) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: { children?: React.ReactNode }) => <div data-testid="Typography">{children}</div>
+    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>
   }
 });
 
 describe("DriverCard Component", () => {
-  let DriverCard: React.ElementType;
+  let DriverCard: any;
 
   before(async () => {
     const mod = await import("./driverCard");
@@ -41,11 +41,11 @@ describe("DriverCard Component", () => {
       try {
         html = renderToString(
           <DriverCard 
-            user={{ name: "John", surname: "Doe", avatarUrl: "" } as unknown}
+            user={{ name: "John", surname: "Doe", avatarUrl: "" } as any}
             rating={4}
             employeeId="EMP123"
             licenseType="B"
-            currentVehicle={{ plate: "34ABC123" } as unknown}
+            currentVehicle={{ plate: "34ABC123" } as any}
           />
         );
       } catch (e) {

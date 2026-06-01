@@ -42,7 +42,7 @@ mock.module("./utils/checkPermission", {
 
 // 2. TEST GRUPLARI
 describe("Roles Controller", () => {
-  let rolesController: unknown;
+  let rolesController: any;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -70,7 +70,7 @@ describe("Roles Controller", () => {
     it("should_CreateRole_WhenNameDoesNotExist", async () => {
       // Arrange
       dbMock.role.findUnique.mock.mockImplementation(async () => null); // Name is available
-      dbMock.role.create.mock.mockImplementation(async (args: unknown) => ({
+      dbMock.role.create.mock.mockImplementation(async (args: any) => ({
         id: "role-1",
         ...args.data,
       }));

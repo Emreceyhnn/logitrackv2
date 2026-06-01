@@ -24,7 +24,7 @@ mock.module("../db", { namedExports: { db: dbMock } });
 
 // 2. TEST GRUPLARI
 describe("Notifications Actions", () => {
-  let notificationsActions: unknown;
+  let notificationsActions: any;
 
   before(async () => {
     notificationsActions = await import("./notifications");
@@ -47,7 +47,7 @@ describe("Notifications Actions", () => {
       ]);
 
       // Act
-      const result = await notificationsActions.sendNotificationAction(target, notification as unknown);
+      const result = await notificationsActions.sendNotificationAction(target, notification as any);
 
       // Assert
       expect(result.success).toBe(true);
@@ -64,7 +64,7 @@ describe("Notifications Actions", () => {
       const notification = { title: "Global", message: "Hello", type: "SYSTEM" };
 
       // Act
-      const result = await notificationsActions.sendNotificationAction(target, notification as unknown);
+      const result = await notificationsActions.sendNotificationAction(target, notification as any);
 
       // Assert
       expect(result.success).toBe(true);

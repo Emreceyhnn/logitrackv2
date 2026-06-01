@@ -19,7 +19,7 @@ mock.module("./components/DriverContent", {
 });
 
 describe("DriverPage Component", () => {
-  let DriverPage: React.ElementType;
+  let DriverPage: any;
 
   before(async () => {
     const mod = await import("./page");

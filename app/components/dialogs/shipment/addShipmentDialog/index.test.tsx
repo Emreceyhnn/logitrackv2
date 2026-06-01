@@ -92,7 +92,7 @@ mock.module("sonner", {
 });
 
 mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
-  namedExports: { GoogleMapsProvider: ({ children }: { children?: React.ReactNode }) => <div data-testid="maps-provider">{children}</div> },
+  namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="maps-provider">{children}</div> },
 });
 
 // 4. Mock Sub-Sections
@@ -106,13 +106,13 @@ mock.module("./sections/StopsSection", { defaultExport: () => <div data-testid="
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as unknown,
-    divider_alpha: { main_05: "rgba()" } as unknown,
+    primary: { main: "#1976d2" } as any,
+    divider_alpha: { main_05: "rgba()" } as any,
   }
 });
-(customTheme.palette.primary as unknown)._alpha = { main_30: "rgba()", main_40: "rgba()", main_02: "rgba()", main_05: "rgba()", main_10: "rgba()", main_20: "rgba()" };
-(customTheme.palette.error as unknown)._alpha = { main_10: "rgba()", main_05: "rgba()", main_20: "rgba()" };
-(customTheme.palette.warning as unknown)._alpha = { main_10: "rgba()", main_05: "rgba()", main_20: "rgba()" };
+(customTheme.palette.primary as any)._alpha = { main_30: "rgba()", main_40: "rgba()", main_02: "rgba()", main_05: "rgba()", main_10: "rgba()", main_20: "rgba()" };
+(customTheme.palette.error as any)._alpha = { main_10: "rgba()", main_05: "rgba()", main_20: "rgba()" };
+(customTheme.palette.warning as any)._alpha = { main_10: "rgba()", main_05: "rgba()", main_20: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -124,7 +124,7 @@ mock.module("@mui/material", {
 });
 
 describe("AddShipmentDialog RTL Component", () => {
-  let AddShipmentDialog: React.ElementType;
+  let AddShipmentDialog: any;
 
   before(async () => {
     const mod = await import("./index");

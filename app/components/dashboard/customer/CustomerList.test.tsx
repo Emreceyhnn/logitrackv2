@@ -30,7 +30,7 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
 // Custom theme with alpha tokens and kpi palette
@@ -40,15 +40,15 @@ const customTheme = createTheme({
   },
 });
 
-Object.assign((customTheme.palette.text as unknown), {
+Object.assign((customTheme.palette.text as any), {
   primary_alpha: { main_10: "rgba(0,0,0,0.1)", main_05: "rgba(0,0,0,0.05)" }
 });
-Object.assign((customTheme.palette.primary as unknown), {
+Object.assign((customTheme.palette.primary as any), {
   _alpha: { main_10: "rgba(25,118,210,0.1)", main_08: "rgba(25,118,210,0.08)", main_20: "rgba(25,118,210,0.2)" }
 });
 
-(customTheme.palette as unknown).divider_alpha = { main_10: "rgba(0,0,0,0.1)" };
-(customTheme.palette as unknown).kpi = {
+(customTheme.palette as any).divider_alpha = { main_10: "rgba(0,0,0,0.1)" };
+(customTheme.palette as any).kpi = {
   indigo: "#6366f1", indigo_alpha: { main_20: "rgba(99,102,241,0.2)" },
   sky: "#0ea5e9", sky_alpha: { main_20: "rgba(14,165,233,0.2)" },
   emerald: "#10b981", emerald_alpha: { main_20: "rgba(16,185,129,0.2)" },
@@ -67,7 +67,7 @@ mock.module("@mui/material", {
 });
 
 describe("CustomerList RTL Component", () => {
-  let CustomerList: React.ElementType;
+  let CustomerList: any;
 
   before(async () => {
     const mod = await import("./CustomerList");

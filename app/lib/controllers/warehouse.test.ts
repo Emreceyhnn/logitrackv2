@@ -79,7 +79,7 @@ mock.module("./utils/trendUtils", {
 
 // 2. TEST GRUPLARI
 describe("Warehouse Controller", () => {
-  let warehouseController: unknown;
+  let warehouseController: any;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -107,7 +107,7 @@ describe("Warehouse Controller", () => {
     it("should_CreateWarehouse_AndSendNotification_WhenValidDataProvided", async () => {
       // Arrange
       dbMock.warehouse.findUnique.mock.mockImplementation(async () => null); // No existing warehouse
-      dbMock.warehouse.create.mock.mockImplementation(async (args: unknown) => ({
+      dbMock.warehouse.create.mock.mockImplementation(async (args: any) => ({
         id: "wh-1",
         ...args.data,
       }));

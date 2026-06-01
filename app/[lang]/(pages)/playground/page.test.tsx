@@ -5,7 +5,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
 describe("PlaygroundPage Component", () => {
-  let PlaygroundPage: React.ElementType;
+  let PlaygroundPage: any;
 
   before(async () => {
     const mod = await import("./page");

@@ -7,11 +7,11 @@ function makeRequest(params: Record<string, string | string[]> = {}) {
     if (Array.isArray(v)) v.forEach(val => sp.append(k, val));
     else sp.set(k, v);
   }
-  return { nextUrl: { searchParams: sp } } as unknown;
+  return { nextUrl: { searchParams: sp } } as any;
 }
 
 const mockNextResponse = {
-  json: mock.fn((body: unknown, init?: { status?: number }) => ({
+  json: mock.fn((body: any, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -30,7 +30,7 @@ mock.module("@/app/lib/type/enums", {
 });
 
 describe("GET /api/drivers", () => {
-  let GET: React.ElementType;
+  let GET: any;
 
   before(async () => {
     const mod = await import("./route");
@@ -74,13 +74,13 @@ describe("GET /api/drivers", () => {
 
   it("should_Return401_WhenNEXT_REDIRECT", async () => {
     getDriversMock.mock.mockImplementationOnce(async () => { throw new Error("NEXT_REDIRECT"); });
-    const res: unknown = await GET(makeRequest());
+    const res: any = await GET(makeRequest());
     expect(res._status).toBe(401);
   });
 
   it("should_Return500_WhenGenericError", async () => {
     getDriversMock.mock.mockImplementationOnce(async () => { throw new Error("fail"); });
-    const res: unknown = await GET(makeRequest());
+    const res: any = await GET(makeRequest());
     expect(res._status).toBe(500);
   });
 });

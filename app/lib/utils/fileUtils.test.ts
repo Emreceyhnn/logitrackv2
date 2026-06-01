@@ -9,10 +9,10 @@ let fileToBase64: (file: File) => Promise<string>;
 
 before(async () => {
   // Provide a minimal FileReader mock on globalThis
-  (globalThis as unknown).FileReader = class MockFileReader {
+  (globalThis as any).FileReader = class MockFileReader {
     result: string | ArrayBuffer | null = null;
     onload: (() => void) | null = null;
-    onerror: ((e: unknown) => void) | null = null;
+    onerror: ((e: any) => void) | null = null;
 
     readAsDataURL(file: Blob) {
       // Simulate async read via microtask
@@ -29,7 +29,7 @@ before(async () => {
 
 after(() => {
   // Cleanup the mock
-  delete (globalThis as unknown).FileReader;
+  delete (globalThis as any).FileReader;
 });
 
 // ─── fileToBase64 ────────────────────────────────────────────────────────────
@@ -57,10 +57,10 @@ describe("fileUtils", () => {
 
     it("should reject when FileReader fires onerror", async () => {
       // Override FileReader temporarily to simulate an error
-      const original = (globalThis as unknown).FileReader;
-      (globalThis as unknown).FileReader = class ErrorFileReader {
+      const original = (globalThis as any).FileReader;
+      (globalThis as any).FileReader = class ErrorFileReader {
         onload: (() => void) | null = null;
-        onerror: ((e: unknown) => void) | null = null;
+        onerror: ((e: any) => void) | null = null;
 
         readAsDataURL(_file: Blob) {
           Promise.resolve().then(() => {
@@ -73,7 +73,7 @@ describe("fileUtils", () => {
       await expect(fileToBase64(file)).rejects.toBeDefined();
 
       // Restore
-      (globalThis as unknown).FileReader = original;
+      (globalThis as any).FileReader = original;
     });
   });
 });

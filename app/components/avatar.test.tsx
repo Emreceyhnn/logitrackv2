@@ -4,11 +4,11 @@ import { expect } from "expect";
 // 1. MOCK'LAR
 // Rating bileşenini izole etmek için mockluyoruz
 mock.module("./rating", {
-  defaultExport: (props: unknown) => ({ type: "CustomRatingMock", props }),
+  defaultExport: (props: any) => ({ type: "CustomRatingMock", props }),
 });
 
 describe("DriverAvatar Component", () => {
-  let DriverAvatar: React.ElementType;
+  let DriverAvatar: any;
 
   before(async () => {
     // Modülü mocklamadan sonra yüklüyoruz

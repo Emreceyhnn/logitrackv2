@@ -29,7 +29,7 @@ mock.module("bcryptjs", { defaultExport: bcryptMock });
 
 // 2. TEST GRUPLARI
 describe("Profile Actions", () => {
-  let profileActions: unknown;
+  let profileActions: any;
 
   before(async () => {
     profileActions = await import("./profile");

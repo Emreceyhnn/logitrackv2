@@ -6,14 +6,14 @@ import { expect } from "expect";
 // simple identity wrapper so the underlying async function can be called directly.
 mock.module("react", {
   namedExports: {
-    cache: (fn: unknown) => fn,
+    cache: (fn: any) => fn,
   },
 });
 
 // ─── Module under test ────────────────────────────────────────────────────────
-let getDictionary: unknown;
-let formatMessage: unknown;
-let type_Locale: unknown; // used only for type annotation checks at runtime
+let getDictionary: any;
+let formatMessage: any;
+let type_Locale: any; // used only for type annotation checks at runtime
 
 before(async () => {
   const mod = await import("./language");
@@ -120,9 +120,9 @@ describe("language utils", () => {
       expect(result).toBe("Active: true");
     });
 
-    it("should leave unknown placeholders intact", () => {
-      const result = formatMessage("Hello, {unknown}!", { name: "World" });
-      expect(result).toBe("Hello, {unknown}!");
+    it("should leave any placeholders intact", () => {
+      const result = formatMessage("Hello, {any}!", { name: "World" });
+      expect(result).toBe("Hello, {any}!");
     });
 
     it("should handle a template with no placeholders", () => {

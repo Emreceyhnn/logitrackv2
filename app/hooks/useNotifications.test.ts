@@ -27,7 +27,7 @@ mock.module("@/app/lib/actions/notifications", { namedExports: notificationsActi
 
 // 2. TEST GRUPLARI
 describe("useNotifications Hook", () => {
-  let useNotificationsMod: unknown;
+  let useNotificationsMod: any;
 
   before(async () => {
     useNotificationsMod = await import("./useNotifications");

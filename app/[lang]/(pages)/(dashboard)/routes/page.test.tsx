@@ -19,7 +19,7 @@ mock.module("./components/routesContent", {
 });
 
 describe("RoutesPage Component", () => {
-  let RoutesPage: React.ElementType;
+  let RoutesPage: any;
 
   before(async () => {
     const mod = await import("./page");

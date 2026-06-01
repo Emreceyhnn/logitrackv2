@@ -13,18 +13,18 @@ const useThemeMock = mock.fn(() => ({
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Skeleton: (props: unknown) => ({ type: "Skeleton", props }),
-    Table: (props: unknown) => ({ type: "Table", props }),
-    TableBody: (props: unknown) => ({ type: "TableBody", props }),
-    TableCell: (props: unknown) => ({ type: "TableCell", props }),
-    TableContainer: (props: unknown) => ({ type: "TableContainer", props }),
-    TableHead: (props: unknown) => ({ type: "TableHead", props }),
-    TableRow: (props: unknown) => ({ type: "TableRow", props }),
+    Skeleton: (props: any) => ({ type: "Skeleton", props }),
+    Table: (props: any) => ({ type: "Table", props }),
+    TableBody: (props: any) => ({ type: "TableBody", props }),
+    TableCell: (props: any) => ({ type: "TableCell", props }),
+    TableContainer: (props: any) => ({ type: "TableContainer", props }),
+    TableHead: (props: any) => ({ type: "TableHead", props }),
+    TableRow: (props: any) => ({ type: "TableRow", props }),
   }
 });
 
 describe("TableSkeleton Component", () => {
-  let TableSkeleton: React.ElementType;
+  let TableSkeleton: any;
 
   before(async () => {
     // Modülü mocklamadan sonra yüklüyoruz

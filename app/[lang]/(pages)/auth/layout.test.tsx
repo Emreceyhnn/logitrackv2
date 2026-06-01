@@ -18,14 +18,14 @@ mock.module("@/app/lib/language/DictionaryContext", {
 
 // Mock next/image
 mock.module("next/image", {
-  defaultExport: (props: unknown) => <img {...props} data-testid="next-image" />,
+  defaultExport: (props: any) => <img {...props} data-testid="next-image" />,
 });
 
 // 2. Mock Theme
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    primary: { main: "#1976d2", dark: "#115293" } as any,
   }
 });
 import * as originalMui from "@mui/material";
@@ -38,7 +38,7 @@ mock.module("@mui/material", {
 });
 
 describe("AuthLayout Component", () => {
-  let AuthLayout: React.ElementType;
+  let AuthLayout: any;
 
   before(async () => {
     const mod = await import("./layout");
