@@ -60,7 +60,6 @@ function runBatch(files, batchIndex, total) {
     '--',
     'node',
     '--import tsx',
-    `--import "file:///${ALIAS_RESOLVER}"`,
     '--experimental-test-module-mocks',
     '--test-force-exit',
     `--test-concurrency=${CONCURRENCY}`,
