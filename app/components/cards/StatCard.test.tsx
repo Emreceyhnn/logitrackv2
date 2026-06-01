@@ -13,17 +13,17 @@ mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDiction
 
 mock.module("framer-motion", {
   namedExports: {
-    motion: { div: ({ children }: any) => <div data-testid="MotionDiv">{children}</div> },
-    AnimatePresence: ({ children }: any) => <div data-testid="AnimatePresence">{children}</div>
+    motion: { div: ({ children }: { children?: React.ReactNode }) => <div data-testid="MotionDiv">{children}</div> },
+    AnimatePresence: ({ children }: { children?: React.ReactNode }) => <div data-testid="AnimatePresence">{children}</div>
   }
 });
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
-    Card: ({ children }: any) => <div data-testid="Card">{children}</div>,
-    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>,
+    Box: ({ children }: { children?: React.ReactNode }) => <div data-testid="Box">{children}</div>,
+    Card: ({ children }: { children?: React.ReactNode }) => <div data-testid="Card">{children}</div>,
+    Stack: ({ children }: { children?: React.ReactNode }) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children }: { children?: React.ReactNode }) => <div data-testid="Typography">{children}</div>,
     useTheme: mock.fn(() => ({
       palette: {
         getColorAlpha: () => ({ main_20: "", main_05: "", main_30: "", main_50: "", main_10: "", main_40: "", main_60: "", main_15: "", main_12: "" }),
@@ -38,7 +38,7 @@ mock.module("@mui/material", {
 });
 
 describe("StatCard Component", () => {
-  let StatCard: any;
+  let StatCard: React.ElementType;
 
   before(async () => {
     const mod = await import("./StatCard");

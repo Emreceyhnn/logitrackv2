@@ -10,7 +10,7 @@ mock.module("@/app/components/forms/signInForm", {
 });
 
 describe("SignInPage Component", () => {
-  let SignInPage: any;
+  let SignInPage: React.ElementType;
 
   before(async () => {
     const mod = await import("./page");

@@ -2,11 +2,11 @@ import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
 function makeRequest(params: Record<string, string> = {}) {
-  return { nextUrl: { searchParams: new URLSearchParams(params) } } as any;
+  return { nextUrl: { searchParams: new URLSearchParams(params) } } as unknown;
 }
 
 const mockNextResponse = {
-  json: mock.fn((body: any, init?: { status?: number }) => ({
+  json: mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -25,7 +25,7 @@ mock.module("@prisma/client", {
 });
 
 describe("GET /api/shipments", () => {
-  let GET: any;
+  let GET: React.ElementType;
 
   before(async () => {
     const mod = await import("./route");
@@ -40,7 +40,7 @@ describe("GET /api/shipments", () => {
   it("should_ReturnShipmentsWithNoFilters_WhenNoParams", async () => {
     const fakeData = { shipments: [] };
     getShipmentsMock.mock.mockImplementationOnce(async () => fakeData);
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(getShipmentsMock.mock.calls[0].arguments[0]).toEqual({});
     expect(res._body).toEqual(fakeData);
   });
@@ -58,13 +58,13 @@ describe("GET /api/shipments", () => {
 
   it("should_Return401_WhenNEXT_REDIRECT", async () => {
     getShipmentsMock.mock.mockImplementationOnce(async () => { throw new Error("NEXT_REDIRECT"); });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._status).toBe(401);
   });
 
   it("should_Return500_WhenGenericError", async () => {
     getShipmentsMock.mock.mockImplementationOnce(async () => { throw new Error("fail"); });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._status).toBe(500);
   });
 });

@@ -81,7 +81,7 @@ mock.module("@/app/components/dashboard/inventory/InventoryHeader", {
   defaultExport: () => <div data-testid="inventory-header">Header</div>,
 });
 mock.module("@/app/components/dashboard/inventory/InventoryTable", {
-  defaultExport: ({ onDelete }: any) => (
+  defaultExport: ({ onDelete }: unknown) => (
     <div data-testid="inventory-table">
       <button onClick={() => onDelete("i1")}>Delete i1</button>
     </div>
@@ -97,7 +97,7 @@ mock.module("@/app/components/dialogs/inventory/addInventoryDialog", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
 mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
-  defaultExport: ({ open, onConfirm }: any) => open ? (
+  defaultExport: ({ open, onConfirm }: unknown) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
@@ -108,10 +108,10 @@ mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
-    success: { main: "#2e7d32" } as any,
-    warning: { main: "#ed6c02" } as any,
-    error: { main: "#d32f2f" } as any,
+    primary: { main: "#1976d2" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
   }
 });
 import * as originalMui from "@mui/material";
@@ -124,7 +124,7 @@ mock.module("@mui/material", {
 });
 
 describe("InventoryContent Component", () => {
-  let InventoryContent: any;
+  let InventoryContent: React.ElementType;
 
   before(async () => {
     const mod = await import("./InventoryContent");

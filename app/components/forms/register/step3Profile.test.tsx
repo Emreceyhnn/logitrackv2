@@ -20,10 +20,10 @@ mock.module("formik", {
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
-    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>,
-    Avatar: ({ children }: any) => <div data-testid="Avatar">{children}</div>,
+    Box: ({ children }: { children?: React.ReactNode }) => <div data-testid="Box">{children}</div>,
+    Stack: ({ children }: { children?: React.ReactNode }) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children }: { children?: React.ReactNode }) => <div data-testid="Typography">{children}</div>,
+    Avatar: ({ children }: { children?: React.ReactNode }) => <div data-testid="Avatar">{children}</div>,
     CircularProgress: () => <div data-testid="CircularProgress" />
   }
 });
@@ -31,7 +31,7 @@ mock.module("@mui/material", {
 mock.module("@mui/icons-material/CloudUpload", { defaultExport: () => <div data-testid="CloudUploadIcon" /> });
 
 describe("Step3Profile Component", () => {
-  let Step3Profile: any;
+  let Step3Profile: React.ElementType;
 
   before(async () => {
     const mod = await import("./step3Profile");

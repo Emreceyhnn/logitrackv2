@@ -23,7 +23,7 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
 });
 
 // Custom theme
@@ -33,10 +33,10 @@ const customTheme = createTheme({
   },
 });
 
-(customTheme.palette as any).error = { main: "#f44336" };
-(customTheme.palette as any).warning = { main: "#ff9800" };
-(customTheme.palette as any).success = { main: "#4caf50" };
-(customTheme.palette as any).divider_alpha = { main_10: "rgba(0,0,0,0.1)" };
+(customTheme.palette as unknown).error = { main: "#f44336" };
+(customTheme.palette as unknown).warning = { main: "#ff9800" };
+(customTheme.palette as unknown).success = { main: "#4caf50" };
+(customTheme.palette as unknown).divider_alpha = { main_10: "rgba(0,0,0,0.1)" };
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -47,7 +47,7 @@ mock.module("@mui/material", {
 });
 
 describe("WarehouseCapacityCard RTL Component", () => {
-  let WarehouseCapacityCard: any;
+  let WarehouseCapacityCard: React.ElementType;
 
   before(async () => {
     const mod = await import("./warehouseCapacityCard");
@@ -68,7 +68,7 @@ describe("WarehouseCapacityCard RTL Component", () => {
     it("should_ReturnNull_WhenValuesIsNull", async () => {
       const { container } = render(
         <ThemeProvider theme={customTheme}>
-          <WarehouseCapacityCard values={null as any} />
+          <WarehouseCapacityCard values={null as unknown} />
         </ThemeProvider>
       );
       expect(container.firstChild).toBeNull();

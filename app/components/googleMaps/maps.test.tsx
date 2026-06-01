@@ -18,14 +18,14 @@ const useDictionaryMock = mock.fn(() => ({
 
 mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
 
-mock.module("./GoogleMapsProvider", { namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="GoogleMapsProvider">{children}</div> } });
+mock.module("./GoogleMapsProvider", { namedExports: { GoogleMapsProvider: ({ children }: { children?: React.ReactNode }) => <div data-testid="GoogleMapsProvider">{children}</div> } });
 mock.module("./AddressAutocomplete", { namedExports: { AddressAutocomplete: () => <div data-testid="AddressAutocomplete" /> } });
 mock.module("./MapWithMarker", { namedExports: { MapWithMarker: () => <div data-testid="MapWithMarker" /> } });
 mock.module("./DirectionsMap", { namedExports: { DirectionsMap: () => <div data-testid="DirectionsMap" /> } });
 mock.module("./MapPicker", { namedExports: { MapPicker: () => <div data-testid="MapPicker" /> } });
 
 describe("maps Component", () => {
-  let GoogleMapDemo: any;
+  let GoogleMapDemo: React.ElementType;
 
   before(async () => {
     const mod = await import("./maps");

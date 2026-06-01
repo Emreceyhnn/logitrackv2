@@ -6,11 +6,11 @@ import React from "react";
 
 // Mock child component
 mock.module("@/app/components/dashboard/DashboardLayoutClient", {
-  defaultExport: ({ children }: any) => <div data-testid="dashboard-layout-client">{children}</div>,
+  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="dashboard-layout-client">{children}</div>,
 });
 
 describe("DashboardLayout Component", () => {
-  let DashboardLayout: any;
+  let DashboardLayout: React.ElementType;
 
   before(async () => {
     const mod = await import("./layout");

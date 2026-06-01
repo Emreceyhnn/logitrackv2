@@ -24,7 +24,7 @@ mock.module("../auth-middleware", { namedExports: authMiddlewareMock });
 
 // 2. TEST GRUPLARI
 describe("Upload Actions", () => {
-  let uploadActions: any;
+  let uploadActions: unknown;
 
   before(async () => {
     uploadActions = await import("./upload");
@@ -44,7 +44,7 @@ describe("Upload Actions", () => {
       supabaseStorageMock.from.mock.mockImplementation(() => ({
         upload: uploadMock,
         getPublicUrl: mock.fn(() => ({ data: { publicUrl: "http://public.url/test.png" } })),
-      } as any));
+      } as unknown));
 
       // Act
       const result = await uploadActions.uploadImageAction(mockUser, mockBase64, "general");
@@ -69,7 +69,7 @@ describe("Upload Actions", () => {
       const createSignedUrlMock = mock.fn(async () => ({ data: { signedUrl: "http://signed.url" }, error: null }));
       supabaseStorageMock.from.mock.mockImplementation(() => ({
         createSignedUrl: createSignedUrlMock,
-      } as any));
+      } as unknown));
 
       // Act
       const result = await uploadActions.getSignedUrlAction(mockUser, "http://supabase.com/documents/test.pdf", "documents");

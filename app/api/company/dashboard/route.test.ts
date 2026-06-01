@@ -3,11 +3,11 @@ import { expect } from "expect";
 
 function makeRequest(params: Record<string, string> = {}) {
   const sp = new URLSearchParams(params);
-  return { nextUrl: { searchParams: sp } } as any;
+  return { nextUrl: { searchParams: sp } } as unknown;
 }
 
 const mockNextResponse = {
-  json: mock.fn((body: any, init?: { status?: number }) => ({
+  json: mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -22,7 +22,7 @@ mock.module("@/app/lib/controllers/company", {
 });
 
 describe("GET /api/company/dashboard", () => {
-  let GET: any;
+  let GET: React.ElementType;
 
   before(async () => {
     const mod = await import("./route");
@@ -58,7 +58,7 @@ describe("GET /api/company/dashboard", () => {
     getCompanyWithDashboardDataMock.mock.mockImplementationOnce(async () => {
       throw new Error("NEXT_REDIRECT");
     });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._status).toBe(401);
   });
 
@@ -66,7 +66,7 @@ describe("GET /api/company/dashboard", () => {
     getCompanyWithDashboardDataMock.mock.mockImplementationOnce(async () => {
       throw new Error("fail");
     });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._status).toBe(500);
   });
 });

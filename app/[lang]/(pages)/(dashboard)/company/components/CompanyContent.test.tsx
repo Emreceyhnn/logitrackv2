@@ -52,7 +52,7 @@ mock.module("@/app/hooks/useCompany", {
 
 // Mock child components
 mock.module("@/app/components/cards/KpiCards", {
-  defaultExport: ({ kpis }: any) => <div data-testid="kpi-cards">KPI Cards</div>,
+  defaultExport: ({ kpis }: unknown) => <div data-testid="kpi-cards">KPI Cards</div>,
 });
 mock.module("@/app/components/dashboard/company/companyInfoCard", {
   defaultExport: () => <div data-testid="company-info-card">Company Info</div>,
@@ -61,7 +61,7 @@ mock.module("@/app/components/dashboard/company/companyMembersTable", {
   defaultExport: () => <div data-testid="company-members-table">Members Table</div>,
 });
 mock.module("@/app/components/dialogs/company/AddCompanyMemberDialog", {
-  defaultExport: ({ open, onClose }: any) => open ? (
+  defaultExport: ({ open, onClose }: unknown) => open ? (
     <div data-testid="add-member-dialog">
       <button onClick={onClose}>Close</button>
     </div>
@@ -72,13 +72,13 @@ mock.module("@/app/components/dialogs/company/AddCompanyMemberDialog", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    info: { main: "#0288d1" } as any,
-    secondary: { main: "#9c27b0" } as any,
-    warning: { main: "#ed6c02" } as any,
-    success: { main: "#2e7d32" } as any,
-    error: { main: "#d32f2f" } as any,
-    kpi: { pink: "#ccc", violet: "#ccc" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    info: { main: "#0288d1" } as unknown,
+    secondary: { main: "#9c27b0" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
+    kpi: { pink: "#ccc", violet: "#ccc" } as unknown,
   }
 });
 
@@ -92,7 +92,7 @@ mock.module("@mui/material", {
 });
 
 describe("CompanyContent Component", () => {
-  let CompanyContent: any;
+  let CompanyContent: React.ElementType;
 
   before(async () => {
     const mod = await import("./CompanyContent");

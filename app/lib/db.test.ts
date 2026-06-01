@@ -24,7 +24,7 @@ describe("db.ts Connection & Initialization", async () => {
   });
 
   it("should cache prisma instance in globalThis in development", () => {
-    const globalPrisma = (globalThis as any).prisma;
+    const globalPrisma = (globalThis as unknown).prisma;
     if (process.env.NODE_ENV !== "production") {
       expect(globalPrisma).toBeDefined();
       expect(globalPrisma).toBe(db);

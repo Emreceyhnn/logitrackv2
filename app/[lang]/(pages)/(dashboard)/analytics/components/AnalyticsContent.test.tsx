@@ -35,7 +35,7 @@ mock.module("@/app/components/dashboard/analytics/ForecastingWidget", {
 });
 
 describe("AnalyticsContent Component", () => {
-  let AnalyticsContent: any;
+  let AnalyticsContent: React.ElementType;
 
   before(async () => {
     const mod = await import("./AnalyticsContent");

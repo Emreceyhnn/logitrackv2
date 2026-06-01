@@ -64,7 +64,7 @@ mock.module("@mui/material", {
 });
 
 describe("VehicleDetailsDialog RTL Component", () => {
-  let VehicleDetailsDialog: any;
+  let VehicleDetailsDialog: React.ElementType;
 
   before(async () => {
     const mod = await import("./index");

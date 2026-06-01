@@ -116,7 +116,7 @@ mock.module("jose", {
 
 // 2. TEST GRUPLARI
 describe("Users Controller", () => {
-  let usersController: any;
+  let usersController: unknown;
 
   before(async () => {
     // Dynamically import the module after mocks are defined
@@ -141,7 +141,7 @@ describe("Users Controller", () => {
     it("should_RegisterUser_AndCreateSession_WhenDataIsValid", async () => {
       // Arrange
       dbMock.user.findFirst.mock.mockImplementation(async () => null); // Email doesn't exist
-      dbMock.user.create.mock.mockImplementation(async (args: any) => ({
+      dbMock.user.create.mock.mockImplementation(async (args: unknown) => ({
         id: "user-1",
         ...args.data,
       }));

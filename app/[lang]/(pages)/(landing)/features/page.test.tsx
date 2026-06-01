@@ -46,7 +46,7 @@ const customTheme = createTheme({
       slateDeepest_alpha: { main_50: "#000" }
     },
     common: { black_alpha: { main_50: "#000" } }
-  } as any
+  } as unknown
 });
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -58,7 +58,7 @@ mock.module("@mui/material", {
 });
 
 describe("FeaturesPage Component", () => {
-  let FeaturesPage: any;
+  let FeaturesPage: React.ElementType;
 
   before(async () => {
     const mod = await import("./page");

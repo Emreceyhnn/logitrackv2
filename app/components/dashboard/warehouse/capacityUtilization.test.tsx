@@ -24,23 +24,23 @@ mock.module("@/app/components/skeletons/AnalyticsSkeleton", {
 });
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
 });
 
 // 2. Mock Theme
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    error: { main: "#d32f2f" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
   }
 });
 
 const mockAlpha = { main_05: "rgba(0,0,0,0.05)", main_30: "rgba(0,0,0,0.3)", main_40: "rgba(0,0,0,0.4)" };
-(customTheme.palette as any).divider_alpha = mockAlpha;
-(customTheme.palette.error as any)._alpha = mockAlpha;
-(customTheme.palette.primary as any)._alpha = mockAlpha;
-(customTheme.palette.text as any).primary_alpha = mockAlpha;
+(customTheme.palette as unknown).divider_alpha = mockAlpha;
+(customTheme.palette.error as unknown)._alpha = mockAlpha;
+(customTheme.palette.primary as unknown)._alpha = mockAlpha;
+(customTheme.palette.text as unknown).primary_alpha = mockAlpha;
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -52,7 +52,7 @@ mock.module("@mui/material", {
 });
 
 describe("CapacityUtilization RTL Component", () => {
-  let CapacityUtilization: any;
+  let CapacityUtilization: React.ElementType;
 
   before(async () => {
     const mod = await import("./capacityUtilization");

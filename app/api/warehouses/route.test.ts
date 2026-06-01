@@ -3,11 +3,11 @@ import { expect } from "expect";
 
 function makeRequest(params: Record<string, string> = {}) {
   const sp = new URLSearchParams(params);
-  return { nextUrl: { searchParams: sp } } as any;
+  return { nextUrl: { searchParams: sp } } as unknown;
 }
 
 const mockNextResponse = {
-  json: mock.fn((body: any, init?: { status?: number }) => ({
+  json: mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -27,7 +27,7 @@ mock.module("@/app/lib/controllers/warehouse", {
 
 // ─── /api/warehouses ─────────────────────────────────────────────────────────
 describe("GET /api/warehouses", () => {
-  let GET: any;
+  let GET: React.ElementType;
 
   before(async () => {
     const mod = await import("./route");
@@ -42,7 +42,7 @@ describe("GET /api/warehouses", () => {
   it("should_ReturnWarehouses_WhenControllerSucceeds", async () => {
     const fakeData = [{ id: "w1" }];
     getWarehousesMock.mock.mockImplementationOnce(async () => fakeData);
-    const res: any = await GET();
+    const res: unknown = await GET();
     expect(res._body).toEqual(fakeData);
     expect(res._status).toBe(200);
   });
@@ -51,7 +51,7 @@ describe("GET /api/warehouses", () => {
     getWarehousesMock.mock.mockImplementationOnce(async () => {
       throw new Error("NEXT_REDIRECT");
     });
-    const res: any = await GET();
+    const res: unknown = await GET();
     expect(res._status).toBe(401);
   });
 
@@ -59,7 +59,7 @@ describe("GET /api/warehouses", () => {
     getWarehousesMock.mock.mockImplementationOnce(async () => {
       throw new Error("timeout");
     });
-    const res: any = await GET();
+    const res: unknown = await GET();
     expect(res._status).toBe(500);
   });
 });

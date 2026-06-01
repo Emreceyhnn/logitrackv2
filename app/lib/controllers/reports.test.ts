@@ -37,7 +37,7 @@ mock.module("../auth-middleware", {
 
 // 2. TEST GRUPLARI
 describe("Reports Controller", () => {
-  let reportsController: any;
+  let reportsController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -72,7 +72,7 @@ describe("Reports Controller", () => {
       const mockUser = { id: "user-1", companyId: "company-1" };
 
       // Mock Shipment GroupBy
-      dbMock.shipment.groupBy.mock.mockImplementation(async (args: any) => {
+      dbMock.shipment.groupBy.mock.mockImplementation(async (args: unknown) => {
         if (args.by.includes("status")) {
           return [
             { status: "DELIVERED", _count: { status: 10 } },
@@ -111,7 +111,7 @@ describe("Reports Controller", () => {
       ]);
 
       // Mock Shipment Count
-      dbMock.shipment.count.mock.mockImplementation(async (args: any) => {
+      dbMock.shipment.count.mock.mockImplementation(async (args: unknown) => {
         if (args.where?.status === "DELIVERED") return 10;
         return 15; // Total shipments
       });

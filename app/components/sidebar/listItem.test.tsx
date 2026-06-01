@@ -35,12 +35,12 @@ mock.module("next/navigation", {
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    List: (props: any) => ({ type: "List", props }),
-    ListItemButton: (props: any) => ({ type: "ListItemButton", props }),
-    ListItemIcon: (props: any) => ({ type: "ListItemIcon", props }),
-    ListItemText: (props: any) => ({ type: "ListItemText", props }),
-    Collapse: (props: any) => ({ type: "Collapse", props }),
-    Box: (props: any) => ({ type: "Box", props }),
+    List: (props: unknown) => ({ type: "List", props }),
+    ListItemButton: (props: unknown) => ({ type: "ListItemButton", props }),
+    ListItemIcon: (props: unknown) => ({ type: "ListItemIcon", props }),
+    ListItemText: (props: unknown) => ({ type: "ListItemText", props }),
+    Collapse: (props: unknown) => ({ type: "Collapse", props }),
+    Box: (props: unknown) => ({ type: "Box", props }),
   }
 });
 
@@ -58,7 +58,7 @@ mock.module("@/app/lib/language/navigation", {
 });
 
 describe("SidebarListItem Component", () => {
-  let SidebarList: any;
+  let SidebarList: React.ElementType;
 
   before(async () => {
     // Modülü yüklüyoruz. 'memo' ile sarılı olduğu için asıl bileşene erişiyoruz.

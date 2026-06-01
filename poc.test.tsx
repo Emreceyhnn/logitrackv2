@@ -37,7 +37,7 @@ mock.module("./app/components/dialogs/vehicle/addVehicleDialog/firstStep", { def
 mock.module("./app/components/dialogs/vehicle/addVehicleDialog/techSpecsStep", { defaultExport: () => <div data-testid="tech-specs-step" /> });
 
 describe("AddVehicleDialog RTL Test", () => {
-  let AddVehicleDialog: any;
+  let AddVehicleDialog: React.ElementType;
 
   before(async () => {
     const mod = await import("./app/components/dialogs/vehicle/addVehicleDialog/index.tsx");

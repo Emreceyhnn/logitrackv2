@@ -28,9 +28,9 @@ mock.module("@/app/lib/actions/auth", { namedExports: { getUserSession: getUserS
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Button: (props: any) => ({ type: "Button", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    CircularProgress: (props: any) => ({ type: "CircularProgress", props })
+    Button: (props: unknown) => ({ type: "Button", props }),
+    Stack: (props: unknown) => ({ type: "Stack", props }),
+    CircularProgress: (props: unknown) => ({ type: "CircularProgress", props })
   }
 });
 
@@ -39,7 +39,7 @@ mock.module("../dialogs/company/CreateCompanyDialog", { defaultExport: () => ({ 
 mock.module("../nav/UserAccountNav", { defaultExport: () => ({ type: "UserAccountNav" }) });
 
 describe("LandingHeaderAuth Component", () => {
-  let LandingHeaderAuth: any;
+  let LandingHeaderAuth: React.ElementType;
 
   before(async () => {
     const mod = await import("./LandingHeaderAuth");

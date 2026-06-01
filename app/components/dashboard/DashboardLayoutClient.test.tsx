@@ -24,18 +24,18 @@ mock.module("@/app/components/sidebar", {
   defaultExport: () => <div data-testid="sidebar">Sidebar</div>,
 });
 mock.module("@/app/components/dashboard/DashboardHeader", {
-  defaultExport: ({ user }: any) => <div data-testid="header">Header for {user?.name}</div>,
+  defaultExport: ({ user }: unknown) => <div data-testid="header">Header for {user?.name}</div>,
 });
 
 // 2. Mock Theme
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
 
-(customTheme.palette.background as any).dashboardBg = "#f5f5f5";
+(customTheme.palette.background as unknown).dashboardBg = "#f5f5f5";
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -47,7 +47,7 @@ mock.module("@mui/material", {
 });
 
 describe("DashboardLayoutClient RTL Component", () => {
-  let DashboardLayoutClient: any;
+  let DashboardLayoutClient: React.ElementType;
 
   before(async () => {
     const mod = await import("./DashboardLayoutClient");

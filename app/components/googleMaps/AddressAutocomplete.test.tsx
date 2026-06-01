@@ -24,11 +24,11 @@ mock.module("@mui/material", {
 });
 
 mock.module("@react-google-maps/api", {
-  namedExports: { Autocomplete: ({ children }: any) => <div data-testid="Autocomplete">{children}</div> }
+  namedExports: { Autocomplete: ({ children }: { children?: React.ReactNode }) => <div data-testid="Autocomplete">{children}</div> }
 });
 
 describe("AddressAutocomplete Component", () => {
-  let AddressAutocomplete: any;
+  let AddressAutocomplete: React.ElementType;
 
   before(async () => {
     const mod = await import("./AddressAutocomplete");

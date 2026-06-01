@@ -72,7 +72,7 @@ process.env.JWT_SECRET = "super-secret-key-for-testing-only";
 
 // 2. TEST GRUPLARI
 describe("Session Controller", () => {
-  let sessionController: any;
+  let sessionController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz

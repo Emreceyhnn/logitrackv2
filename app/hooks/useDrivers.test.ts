@@ -8,8 +8,8 @@ const queryClientMock = {
 
 const reactQueryMock = {
   useQuery: mock.fn(() => ({ data: null })),
-  useMutation: mock.fn((options: any) => ({
-    mutateAsync: async (variables: any) => {
+  useMutation: mock.fn((options: unknown) => ({
+    mutateAsync: async (variables: unknown) => {
       try {
         const res = await options.mutationFn(variables);
         options.onSuccess?.(res);
@@ -45,11 +45,11 @@ mock.module("sonner", { namedExports: sonnerMock });
 mock.module("@/app/lib/controllers/driver", { namedExports: driverControllerMock });
 
 const globalFetchMock = mock.fn();
-(globalThis as any).fetch = globalFetchMock;
+(globalThis as unknown).fetch = globalFetchMock;
 
 // 2. TEST GRUPLARI
 describe("useDrivers Hook", () => {
-  let useDriversMod: any;
+  let useDriversMod: unknown;
 
   before(async () => {
     useDriversMod = await import("./useDrivers");

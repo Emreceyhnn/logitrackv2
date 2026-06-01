@@ -58,9 +58,9 @@ mock.module("@/app/hooks/useVehicleTracking", {
 
 mock.module("../googleMaps/MapWithMarker", {
   namedExports: { 
-    MapWithMarker: ({ markers, onMarkerClick }: any) => (
+    MapWithMarker: ({ markers, onMarkerClick }: unknown) => (
       <div data-testid="map-mock">
-        {markers.map((m: any) => (
+        {markers.map((m: unknown) => (
           <button key={m.id} onClick={() => onMarkerClick(m)} data-testid={`marker-${m.id}`}>
             Marker {m.label}
           </button>
@@ -78,8 +78,8 @@ mock.module("@/app/components/dialogs/vehicle/vehicleDetailsDialog", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    success: { main: "#4caf50" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    success: { main: "#4caf50" } as unknown,
   }
 });
 
@@ -93,7 +93,7 @@ mock.module("@mui/material", {
 });
 
 describe("VehicleLiveMap RTL Component", () => {
-  let VehicleLiveMap: any;
+  let VehicleLiveMap: React.ElementType;
 
   before(async () => {
     const mod = await import("./VehicleLiveMap");

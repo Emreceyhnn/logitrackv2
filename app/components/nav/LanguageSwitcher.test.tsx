@@ -51,12 +51,12 @@ mock.module("@/app/lib/language/navigation", {
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Menu: (props: any) => ({ type: "Menu", props }),
-    MenuItem: (props: any) => ({ type: "MenuItem", props }),
-    ListItemText: (props: any) => ({ type: "ListItemText", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Box: (props: any) => ({ type: "Box", props }),
-    Tooltip: (props: any) => ({ type: "Tooltip", props }),
+    Menu: (props: unknown) => ({ type: "Menu", props }),
+    MenuItem: (props: unknown) => ({ type: "MenuItem", props }),
+    ListItemText: (props: unknown) => ({ type: "ListItemText", props }),
+    Typography: (props: unknown) => ({ type: "Typography", props }),
+    Box: (props: unknown) => ({ type: "Box", props }),
+    Tooltip: (props: unknown) => ({ type: "Tooltip", props }),
   }
 });
 
@@ -64,7 +64,7 @@ mock.module("@mui/icons-material/Language", { defaultExport: () => ({ type: "Lan
 mock.module("@mui/icons-material/Check", { defaultExport: () => ({ type: "CheckIcon" }) });
 
 describe("LanguageSwitcher Component", () => {
-  let LanguageSwitcher: any;
+  let LanguageSwitcher: React.ElementType;
 
   before(async () => {
     // Modülü dinamik olarak yüklüyoruz

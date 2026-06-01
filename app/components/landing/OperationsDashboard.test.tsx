@@ -21,11 +21,11 @@ mock.module("@/app/lib/language/DictionaryContext", { namedExports: { useDiction
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: (props: any) => ({ type: "Box", props }),
-    Container: (props: any) => ({ type: "Container", props }),
-    Grid: (props: any) => ({ type: "Grid", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Typography: (props: any) => ({ type: "Typography", props })
+    Box: (props: unknown) => ({ type: "Box", props }),
+    Container: (props: unknown) => ({ type: "Container", props }),
+    Grid: (props: unknown) => ({ type: "Grid", props }),
+    Stack: (props: unknown) => ({ type: "Stack", props }),
+    Typography: (props: unknown) => ({ type: "Typography", props })
   }
 });
 
@@ -35,10 +35,10 @@ mock.module("@mui/icons-material/Route", { defaultExport: () => ({ type: "Icon" 
 mock.module("@mui/icons-material/MyLocation", { defaultExport: () => ({ type: "Icon" }) });
 mock.module("@mui/icons-material/NotificationsActive", { defaultExport: () => ({ type: "Icon" }) });
 mock.module("@mui/icons-material/Speed", { defaultExport: () => ({ type: "Icon" }) });
-mock.module("framer-motion", { namedExports: { motion: { div: (props: any) => ({ type: "MotionDiv", props }) } } });
+mock.module("framer-motion", { namedExports: { motion: { div: (props: unknown) => ({ type: "MotionDiv", props }) } } });
 
 describe("OperationsDashboard Component", () => {
-  let OperationsDashboard: any;
+  let OperationsDashboard: React.ElementType;
 
   before(async () => {
     const mod = await import("./OperationsDashboard");

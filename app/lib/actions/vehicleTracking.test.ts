@@ -13,7 +13,7 @@ mock.module("@/app/lib/firebase-admin", { namedExports: { adminDb: adminDbMock }
 
 // 2. TEST GRUPLARI
 describe("Vehicle Tracking Actions", () => {
-  let trackingActions: any;
+  let trackingActions: unknown;
 
   before(async () => {
     trackingActions = await import("./vehicleTracking");

@@ -2,7 +2,7 @@ import { describe, it, before } from "node:test";
 import { expect } from "expect";
 
 describe("Manifest Generate", () => {
-  let manifest: any;
+  let manifest: unknown;
 
   before(async () => {
     const mod = await import("./manifest");

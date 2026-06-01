@@ -21,12 +21,12 @@ mock.module("@/app/lib/priorityColor", {
 
 mock.module("@mui/material", {
   namedExports: {
-    Chip: ({ label }: any) => <div data-testid={`Chip-${label}`}>{label}</div>,
+    Chip: ({ label }: unknown) => <div data-testid={`Chip-${label}`}>{label}</div>,
   }
 });
 
 describe("PriorityChip Component", () => {
-  let PriorityChip: any;
+  let PriorityChip: React.ElementType;
 
   before(async () => {
     const mod = await import("./priorityChips");

@@ -43,7 +43,7 @@ mock.module("@/app/lib/language/navigation", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
 
@@ -57,7 +57,7 @@ mock.module("@mui/material", {
 });
 
 describe("DashboardBreadcrumbs RTL Component", () => {
-  let DashboardBreadcrumbs: any;
+  let DashboardBreadcrumbs: React.ElementType;
 
   before(async () => {
     const mod = await import("./DashboardBreadcrumbs");

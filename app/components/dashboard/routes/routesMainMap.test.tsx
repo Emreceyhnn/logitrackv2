@@ -7,15 +7,15 @@ import React from "react";
 // 1. Mocks
 mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
   namedExports: {
-    GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div>
+    GoogleMapsProvider: ({ children }: { children?: React.ReactNode }) => <div data-testid="gmaps-provider">{children}</div>
   }
 });
 
 mock.module("@/app/components/googleMaps/MapWithMarker", {
   namedExports: {
-    MapWithMarker: ({ markers }: any) => (
+    MapWithMarker: ({ markers }: unknown) => (
       <div data-testid="map-with-marker">
-        {markers.map((m: any, i: number) => (
+        {markers.map((m: unknown, i: number) => (
           <div key={i} data-testid={`marker-${m.label}`}>{m.type}</div>
         ))}
       </div>
@@ -27,12 +27,12 @@ import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
   namedExports: {
     ...originalMui,
-    Skeleton: ({ variant }: any) => <div data-testid="loading-skeleton" data-variant={variant} />,
+    Skeleton: ({ variant }: unknown) => <div data-testid="loading-skeleton" data-variant={variant} />,
   }
 });
 
 describe("RoutesMainMap RTL Component", () => {
-  let RoutesMainMap: any;
+  let RoutesMainMap: React.ElementType;
 
   before(async () => {
     const mod = await import("./routesMainMap");

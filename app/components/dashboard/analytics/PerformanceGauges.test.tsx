@@ -25,7 +25,7 @@ mock.module("@/app/lib/language/DictionaryContext", {
 
 mock.module("@mui/x-charts/Gauge", {
   namedExports: {
-    Gauge: ({ value, valueMax = 100 }: any) => (
+    Gauge: ({ value, valueMax = 100 }: unknown) => (
       <div data-testid="gauge">
         Value: {value}/{valueMax}
       </div>
@@ -45,7 +45,7 @@ mock.module("@mui/material", {
 });
 
 describe("PerformanceGauges RTL Component", () => {
-  let PerformanceGauges: any;
+  let PerformanceGauges: React.ElementType;
 
   before(async () => {
     const mod = await import("./PerformanceGauges");

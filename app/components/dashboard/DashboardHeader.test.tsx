@@ -30,7 +30,7 @@ mock.module("../notifications/NotificationBell", {
   defaultExport: () => <div data-testid="notification-bell">Notification Bell</div>,
 });
 mock.module("../sidebar", {
-  defaultExport: ({ onMobileClose }: any) => (
+  defaultExport: ({ onMobileClose }: unknown) => (
     <div data-testid="sidebar">
       Sidebar
       <button onClick={onMobileClose}>Close Sidebar</button>
@@ -42,12 +42,12 @@ mock.module("../sidebar", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
 
 const mockAlpha = { main_10: "rgba(0,0,0,0.1)" };
-(customTheme.palette as any).divider_alpha = mockAlpha;
+(customTheme.palette as unknown).divider_alpha = mockAlpha;
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -59,7 +59,7 @@ mock.module("@mui/material", {
 });
 
 describe("DashboardHeader RTL Component", () => {
-  let DashboardHeader: any;
+  let DashboardHeader: React.ElementType;
 
   before(async () => {
     const mod = await import("./DashboardHeader");

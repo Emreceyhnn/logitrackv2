@@ -16,12 +16,12 @@ mock.module("@/app/lib/language/navigation", { namedExports: { getLocalizedPath:
 mock.module("@mui/material", {
   namedExports: {
     useScrollTrigger: useScrollTriggerMock,
-    AppBar: (props: any) => ({ type: "AppBar", props }),
-    Box: (props: any) => ({ type: "Box", props }),
-    Container: (props: any) => ({ type: "Container", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Toolbar: (props: any) => ({ type: "Toolbar", props }),
-    Typography: (props: any) => ({ type: "Typography", props })
+    AppBar: (props: unknown) => ({ type: "AppBar", props }),
+    Box: (props: unknown) => ({ type: "Box", props }),
+    Container: (props: unknown) => ({ type: "Container", props }),
+    Stack: (props: unknown) => ({ type: "Stack", props }),
+    Toolbar: (props: unknown) => ({ type: "Toolbar", props }),
+    Typography: (props: unknown) => ({ type: "Typography", props })
   }
 });
 
@@ -31,7 +31,7 @@ mock.module("./LandingHeaderAuth", { defaultExport: () => ({ type: "LandingHeade
 mock.module("../nav/LanguageSwitcher", { defaultExport: () => ({ type: "LanguageSwitcher" }) });
 
 describe("LandingNavbar Component", () => {
-  let LandingNavbar: any;
+  let LandingNavbar: React.ElementType;
 
   before(async () => {
     const mod = await import("./LandingNavbar");

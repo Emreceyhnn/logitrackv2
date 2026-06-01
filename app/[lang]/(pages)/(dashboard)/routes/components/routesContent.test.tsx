@@ -65,7 +65,7 @@ mock.module("@/app/components/dashboard/routes/routeEfficiency", {
   defaultExport: () => <div data-testid="route-efficiency">Efficiency</div>,
 });
 mock.module("@/app/components/dashboard/routes/routeTable", {
-  defaultExport: ({ onDelete }: any) => (
+  defaultExport: ({ onDelete }: unknown) => (
     <div data-testid="route-table">
       <button onClick={() => onDelete("r1")}>Delete r1</button>
     </div>
@@ -76,7 +76,7 @@ mock.module("@/app/components/dialogs/routes/edit-route-dialog", {
   defaultExport: () => <div data-testid="edit-dialog">Edit Dialog</div>,
 });
 mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
-  defaultExport: ({ open, onConfirm }: any) => open ? (
+  defaultExport: ({ open, onConfirm }: unknown) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
@@ -90,10 +90,10 @@ mock.module("@/app/components/dialogs/routes/addRouteDialog", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
-    info: { main: "#0288d1" } as any,
-    success: { main: "#2e7d32" } as any,
-    error: { main: "#d32f2f" } as any,
+    primary: { main: "#1976d2" } as unknown,
+    info: { main: "#0288d1" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
   }
 });
 import * as originalMui from "@mui/material";
@@ -106,7 +106,7 @@ mock.module("@mui/material", {
 });
 
 describe("RoutesContent Component", () => {
-  let RoutesContent: any;
+  let RoutesContent: React.ElementType;
 
   before(async () => {
     const mod = await import("./routesContent");

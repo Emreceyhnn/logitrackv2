@@ -6,12 +6,12 @@ import React from "react";
 
 // Mock NextError
 mock.module("next/error", {
-  defaultExport: ({ statusCode }: any) => <div data-testid="next-error">Error: {statusCode}</div>,
+  defaultExport: ({ statusCode }: unknown) => <div data-testid="next-error">Error: {statusCode}</div>,
 });
 
 describe("GlobalError Component", () => {
-  let GlobalError: any;
-  let consoleErrorMock: any;
+  let GlobalError: React.ElementType;
+  let consoleErrorMock: unknown;
 
   before(async () => {
     const mod = await import("./global-error");

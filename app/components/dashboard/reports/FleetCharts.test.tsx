@@ -7,9 +7,9 @@ import React from "react";
 // 1. Mocks
 mock.module("@mui/x-charts/BarChart", {
   namedExports: {
-    BarChart: ({ dataset, series }: any) => (
+    BarChart: ({ dataset, series }: unknown) => (
       <div data-testid="bar-chart">
-        {dataset?.map((d: any, i: number) => (
+        {dataset?.map((d: unknown, i: number) => (
           <div key={i} data-testid={`bar-${d.plate}`}>{d.cost}</div>
         ))}
         <div data-testid="bar-series-label">{series?.[0]?.label}</div>
@@ -20,9 +20,9 @@ mock.module("@mui/x-charts/BarChart", {
 
 mock.module("@mui/x-charts/ScatterChart", {
   namedExports: {
-    ScatterChart: ({ series }: any) => (
+    ScatterChart: ({ series }: unknown) => (
       <div data-testid="scatter-chart">
-        {series?.[0]?.data?.map((d: any) => (
+        {series?.[0]?.data?.map((d: unknown) => (
           <div key={d.id} data-testid={`scatter-point-${d.id}`}>
             {d.x},{d.y}
           </div>
@@ -64,10 +64,10 @@ const mockDict = {
       },
     },
   },
-} as any;
+} as unknown;
 
 describe("FleetCharts RTL Component", () => {
-  let FleetCharts: any;
+  let FleetCharts: React.ElementType;
 
   before(async () => {
     const mod = await import("./FleetCharts");
@@ -89,7 +89,7 @@ describe("FleetCharts RTL Component", () => {
     });
 
     it("should_RenderNoDataMessage_WhenDataIsNull", async () => {
-      render(<FleetCharts data={null as any} dict={mockDict} />);
+      render(<FleetCharts data={null as unknown} dict={mockDict} />);
       expect(screen.getByText("No fleet data")).toBeTruthy();
     });
 

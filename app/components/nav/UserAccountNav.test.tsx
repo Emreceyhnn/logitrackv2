@@ -50,15 +50,15 @@ mock.module("@/app/lib/actions/auth", {
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Stack: (props: any) => ({ type: "Stack", props }),
-    CircularProgress: (props: any) => ({ type: "CircularProgress", props }),
-    Avatar: (props: any) => ({ type: "Avatar", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Menu: (props: any) => ({ type: "Menu", props }),
-    MenuItem: (props: any) => ({ type: "MenuItem", props }),
-    ListItemIcon: (props: any) => ({ type: "ListItemIcon", props }),
-    Divider: (props: any) => ({ type: "Divider", props }),
-    Box: (props: any) => ({ type: "Box", props }),
+    Stack: (props: unknown) => ({ type: "Stack", props }),
+    CircularProgress: (props: unknown) => ({ type: "CircularProgress", props }),
+    Avatar: (props: unknown) => ({ type: "Avatar", props }),
+    Typography: (props: unknown) => ({ type: "Typography", props }),
+    Menu: (props: unknown) => ({ type: "Menu", props }),
+    MenuItem: (props: unknown) => ({ type: "MenuItem", props }),
+    ListItemIcon: (props: unknown) => ({ type: "ListItemIcon", props }),
+    Divider: (props: unknown) => ({ type: "Divider", props }),
+    Box: (props: unknown) => ({ type: "Box", props }),
   }
 });
 
@@ -77,7 +77,7 @@ mock.module("../dialogs/logoutConfirmationDialog", { defaultExport: () => ({ typ
 
 
 describe("UserAccountNav Component", () => {
-  let UserAccountNav: any;
+  let UserAccountNav: React.ElementType;
 
   before(async () => {
     const mod = await import("./UserAccountNav");

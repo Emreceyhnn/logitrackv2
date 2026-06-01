@@ -7,9 +7,9 @@ import React from "react";
 // 1. Mocks
 mock.module("@mui/x-charts/PieChart", {
   namedExports: {
-    PieChart: ({ series }: any) => (
+    PieChart: ({ series }: unknown) => (
       <div data-testid="pie-chart">
-        {series?.[0]?.data?.map((d: any) => (
+        {series?.[0]?.data?.map((d: unknown) => (
           <div key={d.id} data-testid={`pie-slice-${d.label}`}>
             {d.value}
           </div>
@@ -57,10 +57,10 @@ const mockDict = {
       },
     },
   },
-} as any;
+} as unknown;
 
 describe("InventoryCharts RTL Component", () => {
-  let InventoryCharts: any;
+  let InventoryCharts: React.ElementType;
 
   before(async () => {
     const mod = await import("./InventoryCharts");
@@ -78,7 +78,7 @@ describe("InventoryCharts RTL Component", () => {
 
   describe("InventoryCharts() bileşeni", () => {
     it("should_ReturnNull_WhenDataIsFalsy", async () => {
-      const { container } = render(<InventoryCharts data={null as any} dict={mockDict} />);
+      const { container } = render(<InventoryCharts data={null as unknown} dict={mockDict} />);
       expect(container.firstChild).toBeNull();
     });
 

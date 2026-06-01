@@ -20,15 +20,15 @@ const useDictionaryMock = mock.fn(() => ({
 mock.module("@mui/material", {
   namedExports: { 
     useTheme: useThemeMock,
-    Dialog: (props: any) => ({ type: "Dialog", props }),
-    DialogContent: (props: any) => ({ type: "DialogContent", props }),
-    Avatar: (props: any) => ({ type: "Avatar", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Box: (props: any) => ({ type: "Box", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    IconButton: (props: any) => ({ type: "IconButton", props }),
-    Tab: (props: any) => ({ type: "Tab", props }),
-    Tabs: (props: any) => ({ type: "Tabs", props }),
+    Dialog: (props: unknown) => ({ type: "Dialog", props }),
+    DialogContent: (props: unknown) => ({ type: "DialogContent", props }),
+    Avatar: (props: unknown) => ({ type: "Avatar", props }),
+    Typography: (props: unknown) => ({ type: "Typography", props }),
+    Box: (props: unknown) => ({ type: "Box", props }),
+    Stack: (props: unknown) => ({ type: "Stack", props }),
+    IconButton: (props: unknown) => ({ type: "IconButton", props }),
+    Tab: (props: unknown) => ({ type: "Tab", props }),
+    Tabs: (props: unknown) => ({ type: "Tabs", props }),
   }
 });
 
@@ -43,7 +43,7 @@ import * as originalReact from "react";
 mock.module("react", {
   namedExports: {
     ...originalReact,
-    useState: (init: any) => [init, mock.fn()]
+    useState: (init: unknown) => [init, mock.fn()]
   }
 });
 
@@ -56,7 +56,7 @@ mock.module("./inventoryTab", { defaultExport: () => ({ type: "InventoryTab" }) 
 mock.module("../editWarehouseDialog", { defaultExport: () => ({ type: "EditWarehouseDialog" }) });
 
 describe("WarehouseDetailsDialog Component", () => {
-  let WarehouseDetailsDialog: any;
+  let WarehouseDetailsDialog: React.ElementType;
 
   before(async () => {
     const mod = await import("./index");

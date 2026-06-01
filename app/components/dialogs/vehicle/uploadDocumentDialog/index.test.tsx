@@ -81,15 +81,15 @@ mock.module("@mui/material", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
+    primary: { main: "#1976d2" } as unknown,
   }
 });
 // Mutate theme object to inject custom alpha properties that MUI type definitions might reject
-(customTheme.palette.primary as any)._alpha = { main_30: "rgba()", main_40: "rgba()", main_02: "rgba()", main_05: "rgba()", main_10: "rgba()", main_20: "rgba()" };
-(customTheme.palette.error as any)._alpha = { main_10: "rgba()", main_05: "rgba()", main_20: "rgba()" };
+(customTheme.palette.primary as unknown)._alpha = { main_30: "rgba()", main_40: "rgba()", main_02: "rgba()", main_05: "rgba()", main_10: "rgba()", main_20: "rgba()" };
+(customTheme.palette.error as unknown)._alpha = { main_10: "rgba()", main_05: "rgba()", main_20: "rgba()" };
 
 describe("UploadDocumentDialog RTL Component", () => {
-  let UploadDocumentDialog: any;
+  let UploadDocumentDialog: React.ElementType;
 
   before(async () => {
     const mod = await import("./index");

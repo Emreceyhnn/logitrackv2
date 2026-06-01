@@ -6,7 +6,7 @@ import React from "react";
 
 // Mock next/dynamic
 mock.module("next/dynamic", {
-  defaultExport: (dynamicImport: any) => {
+  defaultExport: (dynamicImport: unknown) => {
     return () => {
       dynamicImport(); // Execute the import function to satisfy test coverage if needed
       return <div data-testid="dynamic-component">Dynamic Component</div>;
@@ -26,7 +26,7 @@ mock.module("@/app/components/landing/FeaturesSection", { defaultExport: () => n
 mock.module("@/app/components/landing/LandingFooter", { defaultExport: () => null });
 
 describe("LandingPage Component", () => {
-  let LandingPage: any;
+  let LandingPage: React.ElementType;
 
   before(async () => {
     const mod = await import("./page");

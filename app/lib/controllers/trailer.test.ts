@@ -71,7 +71,7 @@ mock.module("./utils/checkPermission", {
 
 // 2. TEST GRUPLARI
 describe("Trailer Controller", () => {
-  let trailerController: any;
+  let trailerController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -100,7 +100,7 @@ describe("Trailer Controller", () => {
     it("should_CreateTrailer_WhenValidDataProvided", async () => {
       // Arrange
       dbMock.trailer.findFirst.mock.mockImplementation(async () => null); // No existing trailer
-      dbMock.trailer.create.mock.mockImplementation(async (args: any) => ({
+      dbMock.trailer.create.mock.mockImplementation(async (args: unknown) => ({
         id: "trailer-1",
         ...args.data,
       }));

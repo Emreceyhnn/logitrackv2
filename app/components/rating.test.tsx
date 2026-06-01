@@ -2,7 +2,7 @@ import { describe, it, before } from "node:test";
 import { expect } from "expect";
 
 describe("CustomRating Component", () => {
-  let CustomRating: any;
+  let CustomRating: React.ElementType;
 
   before(async () => {
     // Modülü dinamik import ile yüklüyoruz

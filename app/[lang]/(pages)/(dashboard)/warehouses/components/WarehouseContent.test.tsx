@@ -55,10 +55,10 @@ mock.module("sonner", {
 
 // Mock child components
 mock.module("@/app/components/cards/KpiCards", {
-  defaultExport: ({ kpis }: any) => <div data-testid="kpi-cards">KPI Cards {kpis.length}</div>,
+  defaultExport: ({ kpis }: unknown) => <div data-testid="kpi-cards">KPI Cards {kpis.length}</div>,
 });
 mock.module("@/app/components/dashboard/warehouse/warehouseList", {
-  defaultExport: ({ onDelete }: any) => (
+  defaultExport: ({ onDelete }: unknown) => (
     <div data-testid="warehouse-list">
       <button onClick={() => onDelete("wh-1")}>Delete WH-1</button>
     </div>
@@ -72,7 +72,7 @@ mock.module("@/app/components/dashboard/warehouse/recentStockMovements", {
 });
 
 mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
-  namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div> },
+  namedExports: { GoogleMapsProvider: ({ children }: { children?: React.ReactNode }) => <div data-testid="gmaps-provider">{children}</div> },
 });
 mock.module("@/app/components/dialogs/warehouse/addWarehouseDialog", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
@@ -84,7 +84,7 @@ mock.module("@/app/components/dialogs/warehouse/editWarehouseDialog", {
   defaultExport: () => <div data-testid="edit-dialog">Edit Dialog</div>,
 });
 mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
-  defaultExport: ({ open, onConfirm }: any) => open ? (
+  defaultExport: ({ open, onConfirm }: unknown) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
@@ -95,11 +95,11 @@ mock.module("@/app/components/dialogs/deleteConfirmationDialog", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    info: { main: "#0288d1" } as any,
-    secondary: { main: "#9c27b0" } as any,
-    warning: { main: "#ed6c02" } as any,
-    success: { main: "#2e7d32" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    info: { main: "#0288d1" } as unknown,
+    secondary: { main: "#9c27b0" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
   }
 });
 
@@ -113,7 +113,7 @@ mock.module("@mui/material", {
 });
 
 describe("WarehouseContent RTL Component", () => {
-  let WarehouseContent: any;
+  let WarehouseContent: React.ElementType;
 
   before(async () => {
     const mod = await import("./WarehouseContent");

@@ -208,8 +208,7 @@ export function useShipmentMutations() {
       const { company, history, customer, driver, route, ...updateData } = data;
       // Using 'any' cast to avoid importing @prisma/client into the UI layer.
       // updateShipment server action validates the data type on the backend.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return updateShipment(id, updateData as any);
+      return updateShipment(id, updateData as unknown as Parameters<typeof updateShipment>[1]);
     },
     onSuccess: () => handleSuccess(dict.toasts.successUpdate),
     onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),

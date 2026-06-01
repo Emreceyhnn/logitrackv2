@@ -80,9 +80,9 @@ mock.module("@/app/lib/language/navigation", {
 mock.module("framer-motion", {
   namedExports: {
     motion: {
-      div: ({ children }: any) => <div data-testid="motion-div">{children}</div>,
+      div: ({ children }: { children?: React.ReactNode }) => <div data-testid="motion-div">{children}</div>,
     },
-    AnimatePresence: ({ children }: any) => <>{children}</>,
+    AnimatePresence: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
   },
 });
 
@@ -96,11 +96,11 @@ mock.module("./components/AppearanceTab", { defaultExport: () => <div data-testi
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
-    divider_alpha: { main_08: "rgba()" } as any,
+    primary: { main: "#1976d2" } as unknown,
+    divider_alpha: { main_08: "rgba()" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_50: "rgba()" };
+(customTheme.palette.primary as unknown)._alpha = { main_50: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -123,7 +123,7 @@ Object.defineProperty(globalThis, 'localStorage', {
 });
 
 describe("SettingsDialog RTL Component", () => {
-  let SettingsDialog: any;
+  let SettingsDialog: React.ElementType;
 
   before(async () => {
     const mod = await import("./SettingsDialog");

@@ -58,7 +58,7 @@ mock.module("./utils/trendUtils", { namedExports: trendUtilsMock });
 
 // 2. TEST GRUPLARI
 describe("Customer Controller", () => {
-  let customerController: any;
+  let customerController: unknown;
 
   before(async () => {
     customerController = await import("./customer");
@@ -96,7 +96,7 @@ describe("Customer Controller", () => {
       expect(result.customer.id).toBe("cust-1");
       expect(dbMock.customer.create.mock.calls.length).toBe(1);
       
-      const createArgs = dbMock.customer.create.mock.calls[0].arguments[0] as any;
+      const createArgs = dbMock.customer.create.mock.calls[0].arguments[0] as unknown;
       expect(createArgs.data.name).toBe("Acme Corp");
       
       expect(cacheUtilsMock.invalidatePattern.mock.calls.length).toBe(1);

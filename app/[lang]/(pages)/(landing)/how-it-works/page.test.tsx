@@ -25,7 +25,7 @@ mock.module("@/app/components/how-it-works/TimelineSection", {
 });
 
 describe("HowItWorksPage Component", () => {
-  let HowItWorksPage: any;
+  let HowItWorksPage: React.ElementType;
 
   before(async () => {
     const mod = await import("./page");

@@ -23,12 +23,12 @@ mock.module("@/app/lib/language/DictionaryContext", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
-    error: { main: "#d32f2f" } as any,
+    primary: { main: "#1976d2" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_12: "rgba()", main_20: "rgba()" };
-(customTheme.palette.error as any)._alpha = { main_10: "rgba()" };
+(customTheme.palette.primary as unknown)._alpha = { main_12: "rgba()", main_20: "rgba()" };
+(customTheme.palette.error as unknown)._alpha = { main_10: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -40,7 +40,7 @@ mock.module("@mui/material", {
 });
 
 describe("SettingsHeader RTL Component", () => {
-  let SettingsHeader: any;
+  let SettingsHeader: React.ElementType;
 
   before(async () => {
     const mod = await import("./SettingsHeader");

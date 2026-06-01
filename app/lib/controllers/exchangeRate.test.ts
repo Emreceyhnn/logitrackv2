@@ -21,7 +21,7 @@ mock.module("@/app/lib/services/exchangeRate", {
 
 // 2. TEST GRUPLARI
 describe("Exchange Rate Controller", () => {
-  let exchangeRateController: any;
+  let exchangeRateController: unknown;
 
   before(async () => {
     exchangeRateController = await import("./exchangeRate");

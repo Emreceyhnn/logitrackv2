@@ -19,7 +19,7 @@ mock.module("./components/VehicleContent", {
 });
 
 describe("VehiclePage Component", () => {
-  let VehiclePage: any;
+  let VehiclePage: React.ElementType;
 
   before(async () => {
     const mod = await import("./page");

@@ -40,9 +40,9 @@ mock.module("@/app/lib/theme/themeContext", {
 mock.module("framer-motion", {
   namedExports: {
     motion: {
-      div: ({ children, onClick }: any) => <div data-testid="motion-div" onClick={onClick}>{children}</div>,
+      div: ({ children, onClick }: unknown) => <div data-testid="motion-div" onClick={onClick}>{children}</div>,
     },
-    AnimatePresence: ({ children }: any) => <>{children}</>,
+    AnimatePresence: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
   },
 });
 
@@ -50,11 +50,11 @@ mock.module("framer-motion", {
 const customTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: { main: "#1976d2" } as any,
+    primary: { main: "#1976d2" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_04: "rgba()", main_08: "rgba()", main_10: "rgba()", main_20: "rgba()", main_50: "rgba()" };
-(customTheme.palette.common as any) = { white_alpha: { main_02: "rgba()", main_05: "rgba()", main_20: "rgba()", main_60: "rgba()", main_70: "rgba()" }, black_alpha: { main_50: "rgba()" } };
+(customTheme.palette.primary as unknown)._alpha = { main_04: "rgba()", main_08: "rgba()", main_10: "rgba()", main_20: "rgba()", main_50: "rgba()" };
+(customTheme.palette.common as unknown) = { white_alpha: { main_02: "rgba()", main_05: "rgba()", main_20: "rgba()", main_60: "rgba()", main_70: "rgba()" }, black_alpha: { main_50: "rgba()" } };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -66,7 +66,7 @@ mock.module("@mui/material", {
 });
 
 describe("AppearanceTab RTL Component", () => {
-  let AppearanceTab: any;
+  let AppearanceTab: React.ElementType;
 
   before(async () => {
     const mod = await import("./AppearanceTab");

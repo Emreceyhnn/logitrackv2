@@ -25,7 +25,7 @@ mock.module("@/app/lib/language/DictionaryContext", {
 
 mock.module("../../chips/priorityChips", {
   namedExports: {
-    PriorityChip: ({ status }: any) => <span data-testid="priority-chip">{status}</span>
+    PriorityChip: ({ status }: unknown) => <span data-testid="priority-chip">{status}</span>
   }
 });
 
@@ -46,7 +46,7 @@ mock.module("@mui/material", {
 });
 
 describe("VehicleIssuesCard RTL Component", () => {
-  let VehicleIssuesCard: any;
+  let VehicleIssuesCard: React.ElementType;
 
   before(async () => {
     const mod = await import("./VehicleIssuesCard");

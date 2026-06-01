@@ -23,7 +23,7 @@ mock.module("@mui/material/styles", {
 });
 
 describe("Toast Component", () => {
-  let Toaster: any;
+  let Toaster: React.ElementType;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz

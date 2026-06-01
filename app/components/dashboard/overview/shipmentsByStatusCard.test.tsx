@@ -32,7 +32,7 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
 });
 
 mock.module("@mui/x-charts/hooks", {
@@ -43,9 +43,9 @@ mock.module("@mui/x-charts/hooks", {
 
 mock.module("@mui/x-charts", {
   namedExports: {
-    PieChart: ({ series, children }: any) => (
+    PieChart: ({ series, children }: unknown) => (
       <div data-testid="pie-chart">
-        {series?.[0]?.data?.map((d: any) => (
+        {series?.[0]?.data?.map((d: unknown) => (
           <div key={d.id} data-testid={`pie-slice-${d.label}`}>
             {d.value}
           </div>
@@ -63,14 +63,14 @@ const customTheme = createTheme({
   },
 });
 
-(customTheme.palette as any).kpi = {
+(customTheme.palette as unknown).kpi = {
   sky: "#2196f3",
   cyan: "#00bcd4",
   indigo: "#3f51b5",
   emerald: "#4caf50",
   error: "#f44336",
 };
-(customTheme.palette as any).error = { main: "#f44336" };
+(customTheme.palette as unknown).error = { main: "#f44336" };
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -81,7 +81,7 @@ mock.module("@mui/material", {
 });
 
 describe("ShipmentOnStatusCard RTL Component", () => {
-  let ShipmentOnStatusCard: any;
+  let ShipmentOnStatusCard: React.ElementType;
 
   before(async () => {
     const mod = await import("./shipmentsByStatusCard");
@@ -96,7 +96,7 @@ describe("ShipmentOnStatusCard RTL Component", () => {
     it("should_ReturnNull_WhenValuesIsNull", async () => {
       const { container } = render(
         <ThemeProvider theme={customTheme}>
-          <ShipmentOnStatusCard values={null as any} />
+          <ShipmentOnStatusCard values={null as unknown} />
         </ThemeProvider>
       );
       expect(container.firstChild).toBeNull();

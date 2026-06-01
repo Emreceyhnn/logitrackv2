@@ -2,7 +2,7 @@ import { describe, it, before } from "node:test";
 import { expect } from "expect";
 
 describe("Scrollbar Styles Service", () => {
-  let getScrollbarStyles: any;
+  let getScrollbarStyles: unknown;
 
   before(async () => {
     const mod = await import("./scrollbar");

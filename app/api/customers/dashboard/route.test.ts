@@ -8,11 +8,11 @@ function makeRequest(params: Record<string, string> = {}) {
     nextUrl: {
       searchParams: sp,
     },
-  } as any;
+  } as unknown;
 }
 
 const mockNextResponse = {
-  json: mock.fn((body: any, init?: { status?: number }) => ({
+  json: mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -27,7 +27,7 @@ mock.module("@/app/lib/controllers/customer", {
 });
 
 describe("GET /api/customers/dashboard", () => {
-  let GET: any;
+  let GET: React.ElementType;
 
   before(async () => {
     const mod = await import("./route");
@@ -69,7 +69,7 @@ describe("GET /api/customers/dashboard", () => {
     getCustomersWithDashboardDataMock.mock.mockImplementationOnce(async () => {
       throw new Error("NEXT_REDIRECT");
     });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._status).toBe(401);
   });
 
@@ -77,7 +77,7 @@ describe("GET /api/customers/dashboard", () => {
     getCustomersWithDashboardDataMock.mock.mockImplementationOnce(async () => {
       throw new Error("Timeout");
     });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._status).toBe(500);
   });
 });

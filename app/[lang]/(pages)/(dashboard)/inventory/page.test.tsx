@@ -19,7 +19,7 @@ mock.module("./components/InventoryContent", {
 });
 
 describe("InventoryPage Component", () => {
-  let InventoryPage: any;
+  let InventoryPage: React.ElementType;
 
   before(async () => {
     const mod = await import("./page");

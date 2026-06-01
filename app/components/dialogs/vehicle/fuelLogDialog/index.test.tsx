@@ -84,7 +84,7 @@ mock.module("@mui/x-date-pickers/DatePicker", {
 });
 
 describe("AddFuelLogDialog RTL Component", () => {
-  let AddFuelLogDialog: any;
+  let AddFuelLogDialog: React.ElementType;
 
   before(async () => {
     const mod = await import("./index");

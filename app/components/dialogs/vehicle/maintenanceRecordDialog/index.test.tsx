@@ -95,7 +95,7 @@ mock.module("@mui/material", {
 });
 
 describe("MaintenanceRecordDialog RTL Component", () => {
-  let MaintenanceRecordDialog: any;
+  let MaintenanceRecordDialog: React.ElementType;
 
   before(async () => {
     const mod = await import("./index");

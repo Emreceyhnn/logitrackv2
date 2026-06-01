@@ -15,7 +15,7 @@ mock.module("./useUser", { namedExports: useUserMock });
 
 // 2. TEST GRUPLARI
 describe("useDateSettings Hook", () => {
-  let useDateSettingsMod: any;
+  let useDateSettingsMod: unknown;
 
   before(async () => {
     useDateSettingsMod = await import("./useDateSettings");

@@ -12,13 +12,13 @@ mock.module("../../lib/language/DictionaryContext", { namedExports: { useDiction
 
 mock.module("@react-google-maps/api", {
   namedExports: {
-    GoogleMap: ({ children }: any) => <div data-testid="GoogleMap">{children}</div>,
+    GoogleMap: ({ children }: { children?: React.ReactNode }) => <div data-testid="GoogleMap">{children}</div>,
     MarkerF: () => <div data-testid="MarkerF" />
   }
 });
 
 describe("MapPicker Component", () => {
-  let MapPicker: any;
+  let MapPicker: React.ElementType;
 
   before(async () => {
     const mod = await import("./MapPicker");

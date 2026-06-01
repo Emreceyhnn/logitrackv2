@@ -2,11 +2,11 @@ import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
 const mockNextResponse = {
-  json: mock.fn((body: any, init?: { status?: number }) => ({
+  json: mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
-  redirect: mock.fn((url: any) => ({
+  redirect: mock.fn((url: unknown) => ({
     _redirect: url.toString(),
     _status: 302,
     cookies: { delete: mock.fn() },
@@ -39,23 +39,23 @@ function makeRequest(redirectTo = "/dashboard") {
         const state = { pathname: "/", search: "" };
         return new Proxy(state, {
           set(target, key, value) {
-            (target as any)[key] = value;
+            (target as unknown)[key] = value;
             return true;
           },
           get(target, key) {
             if (key === "toString") return () => `http://localhost${target.pathname}${target.search}`;
             if (key === "origin") return "http://localhost";
-            return (target as any)[key];
+            return (target as unknown)[key];
           },
         });
       },
       origin: "http://localhost",
     },
-  } as any;
+  } as unknown;
 }
 
 describe("GET /api/auth/refresh", () => {
-  let GET: any;
+  let GET: React.ElementType;
 
   before(async () => {
     const mod = await import("./route");
@@ -70,14 +70,14 @@ describe("GET /api/auth/refresh", () => {
 
   it("should_RedirectToTarget_WhenSessionRefreshSucceeds", async () => {
     refreshSessionMock.mock.mockImplementationOnce(async () => true);
-    const res: any = await GET(makeRequest("/dashboard"));
+    const res: unknown = await GET(makeRequest("/dashboard"));
     expect(mockNextResponse.redirect.mock.calls.length).toBe(1);
     expect(res._status).toBe(302);
   });
 
   it("should_RedirectToSignIn_WhenSessionRefreshFails", async () => {
     refreshSessionMock.mock.mockImplementationOnce(async () => false);
-    const res: any = await GET(makeRequest("/en/dashboard"));
+    const res: unknown = await GET(makeRequest("/en/dashboard"));
     expect(mockNextResponse.redirect.mock.calls.length).toBe(1);
     // URL should point to sign-in
     const redirectUrl: string = res._redirect;

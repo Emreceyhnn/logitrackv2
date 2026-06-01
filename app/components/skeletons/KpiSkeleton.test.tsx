@@ -14,15 +14,15 @@ const useThemeMock = mock.fn(() => ({
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Box: (props: any) => ({ type: "Box", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Card: (props: any) => ({ type: "Card", props }),
-    Skeleton: (props: any) => ({ type: "Skeleton", props }),
+    Box: (props: unknown) => ({ type: "Box", props }),
+    Stack: (props: unknown) => ({ type: "Stack", props }),
+    Card: (props: unknown) => ({ type: "Card", props }),
+    Skeleton: (props: unknown) => ({ type: "Skeleton", props }),
   }
 });
 
 describe("KpiSkeleton Component", () => {
-  let KpiSkeleton: any;
+  let KpiSkeleton: React.ElementType;
 
   before(async () => {
     // Modülü mocklamadan sonra yüklüyoruz

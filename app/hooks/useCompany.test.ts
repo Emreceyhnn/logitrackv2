@@ -8,9 +8,9 @@ const queryClientMock = {
 
 const reactQueryMock = {
   useQuery: mock.fn(() => ({ data: null })),
-  useMutation: mock.fn((options: any) => {
+  useMutation: mock.fn((options: unknown) => {
     return {
-      mutateAsync: async (variables: any) => {
+      mutateAsync: async (variables: unknown) => {
         try {
           const res = await options.mutationFn(variables);
           options.onSuccess?.(res);
@@ -43,11 +43,11 @@ mock.module("sonner", { namedExports: sonnerMock });
 mock.module("@/app/lib/controllers/company", { namedExports: companyControllerMock });
 
 const globalFetchMock = mock.fn();
-(globalThis as any).fetch = globalFetchMock;
+(globalThis as unknown).fetch = globalFetchMock;
 
 // 2. TEST GRUPLARI
 describe("useCompany Hook", () => {
-  let useCompanyMod: any;
+  let useCompanyMod: unknown;
 
   before(async () => {
     useCompanyMod = await import("./useCompany");

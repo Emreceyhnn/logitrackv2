@@ -39,7 +39,7 @@ const dayjsUtcMock = mock.fn(() => ({
     format: mock.fn(() => "Jan 01")
   }))
 }));
-(dayjsMock as any).utc = dayjsUtcMock;
+(dayjsMock as unknown).utc = dayjsUtcMock;
 
 // Modülleri Sisteme Enjekte Etme
 mock.module("../db", { namedExports: { db: dbMock } });
@@ -51,7 +51,7 @@ mock.module("dayjs", { defaultExport: dayjsMock });
 
 // 2. TEST GRUPLARI
 describe("Analytics Controller", () => {
-  let analyticsController: any;
+  let analyticsController: unknown;
 
   before(async () => {
     analyticsController = await import("./analytics");

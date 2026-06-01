@@ -62,7 +62,7 @@ mock.module("@/app/hooks/useDateSettings", {
 
 // Mock child components
 mock.module("@/app/components/cards/KpiCards", {
-  defaultExport: ({ kpis }: any) => <div data-testid="kpi-cards">KPI Cards {kpis.length}</div>,
+  defaultExport: ({ kpis }: unknown) => <div data-testid="kpi-cards">KPI Cards {kpis.length}</div>,
 });
 mock.module("@/app/components/dashboard/overview/dailyOperations", {
   defaultExport: () => <div data-testid="daily-ops">Daily Ops</div>,
@@ -96,13 +96,13 @@ mock.module("@/app/components/dashboard/overview/overViewMapCard", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    info: { main: "#0288d1" } as any,
-    secondary: { main: "#9c27b0" } as any,
-    warning: { main: "#ed6c02" } as any,
-    success: { main: "#2e7d32" } as any,
-    error: { main: "#d32f2f" } as any,
-    kpi: { violet: "#ccc", indigo: "#ccc", sky: "#ccc" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    info: { main: "#0288d1" } as unknown,
+    secondary: { main: "#9c27b0" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
+    kpi: { violet: "#ccc", indigo: "#ccc", sky: "#ccc" } as unknown,
   }
 });
 
@@ -116,7 +116,7 @@ mock.module("@mui/material", {
 });
 
 describe("OverviewContent Component", () => {
-  let OverviewContent: any;
+  let OverviewContent: React.ElementType;
 
   before(async () => {
     const mod = await import("./OverviewContent");

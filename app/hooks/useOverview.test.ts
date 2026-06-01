@@ -9,11 +9,11 @@ const reactQueryMock = {
 mock.module("@tanstack/react-query", { namedExports: reactQueryMock });
 
 const globalFetchMock = mock.fn();
-(globalThis as any).fetch = globalFetchMock;
+(globalThis as unknown).fetch = globalFetchMock;
 
 // 2. TEST GRUPLARI
 describe("useOverview Hook", () => {
-  let useOverviewMod: any;
+  let useOverviewMod: unknown;
 
   before(async () => {
     useOverviewMod = await import("./useOverview");

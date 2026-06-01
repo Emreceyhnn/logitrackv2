@@ -4,20 +4,20 @@ import { expect } from "expect";
 // 1. MOCK'LAR
 mock.module("@mui/material", {
   namedExports: {
-    Box: (props: any) => ({ type: "Box", props }),
-    Skeleton: (props: any) => ({ type: "Skeleton", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Divider: (props: any) => ({ type: "Divider", props }),
+    Box: (props: unknown) => ({ type: "Box", props }),
+    Skeleton: (props: unknown) => ({ type: "Skeleton", props }),
+    Stack: (props: unknown) => ({ type: "Stack", props }),
+    Typography: (props: unknown) => ({ type: "Typography", props }),
+    Divider: (props: unknown) => ({ type: "Divider", props }),
   }
 });
 
 mock.module("@/app/components/cards/card", {
-  defaultExport: (props: any) => ({ type: "CustomCard", props }),
+  defaultExport: (props: unknown) => ({ type: "CustomCard", props }),
 });
 
 describe("AnalyticsSkeleton Component", () => {
-  let AnalyticsSkeleton: any;
+  let AnalyticsSkeleton: React.ElementType;
 
   before(async () => {
     // Modülü mocklamadan sonra yüklüyoruz

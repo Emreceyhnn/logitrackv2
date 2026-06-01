@@ -2,7 +2,7 @@ import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
 const mockNextResponse = {
-  json: mock.fn((body: any, init?: { status?: number }) => ({
+  json: mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -17,11 +17,11 @@ mock.module("@/app/lib/controllers/inventory", {
 });
 
 function makeRequest(params: Record<string, string> = {}) {
-  return { nextUrl: { searchParams: new URLSearchParams(params) } } as any;
+  return { nextUrl: { searchParams: new URLSearchParams(params) } } as unknown;
 }
 
 describe("GET /api/inventory/dashboard", () => {
-  let GET: (req?: any) => any;
+  let GET: (req?: unknown) => unknown;
 
   before(async () => {
     const mod = await import("./route");
@@ -36,7 +36,7 @@ describe("GET /api/inventory/dashboard", () => {
   it("should_ReturnData_WhenControllerSucceeds", async () => {
     const fakeData = { items: [] };
     getInventoryWithDashboardDataMock.mock.mockImplementationOnce(async () => fakeData);
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._body).toEqual(fakeData);
     expect(res._status).toBe(200);
   });
@@ -45,7 +45,7 @@ describe("GET /api/inventory/dashboard", () => {
     getInventoryWithDashboardDataMock.mock.mockImplementationOnce(async () => {
       throw new Error("NEXT_REDIRECT");
     });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._body).toEqual({ error: "Unauthorized" });
     expect(res._status).toBe(401);
   });
@@ -54,7 +54,7 @@ describe("GET /api/inventory/dashboard", () => {
     getInventoryWithDashboardDataMock.mock.mockImplementationOnce(async () => {
       throw new Error("DB error");
     });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._body).toEqual({ error: "Internal server error" });
     expect(res._status).toBe(500);
   });

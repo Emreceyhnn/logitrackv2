@@ -23,7 +23,7 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
 });
 
 // Custom theme with alpha tokens
@@ -33,10 +33,10 @@ const customTheme = createTheme({
   },
 });
 
-(customTheme.palette as any).info = { main: "#2196f3", _alpha: { main_10: "rgba(33,150,243,0.1)" } };
-(customTheme.palette as any).success = { main: "#4caf50", _alpha: { main_10: "rgba(76,175,80,0.1)" } };
-(customTheme.palette as any).warning = { main: "#ff9800" };
-(customTheme.palette as any).divider_alpha = { main_50: "rgba(0,0,0,0.5)" };
+(customTheme.palette as unknown).info = { main: "#2196f3", _alpha: { main_10: "rgba(33,150,243,0.1)" } };
+(customTheme.palette as unknown).success = { main: "#4caf50", _alpha: { main_10: "rgba(76,175,80,0.1)" } };
+(customTheme.palette as unknown).warning = { main: "#ff9800" };
+(customTheme.palette as unknown).divider_alpha = { main_50: "rgba(0,0,0,0.5)" };
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -47,7 +47,7 @@ mock.module("@mui/material", {
 });
 
 describe("PicksPacksDailyCard RTL Component", () => {
-  let PicksPacksDailyCard: any;
+  let PicksPacksDailyCard: React.ElementType;
 
   before(async () => {
     const mod = await import("./picsPacksDailyCard");

@@ -2,11 +2,11 @@ import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
 function makeRequest(params: Record<string, string> = {}) {
-  return { nextUrl: { searchParams: new URLSearchParams(params) } } as any;
+  return { nextUrl: { searchParams: new URLSearchParams(params) } } as unknown;
 }
 
 const mockNextResponse = {
-  json: mock.fn((body: any, init?: { status?: number }) => ({
+  json: mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -21,7 +21,7 @@ mock.module("@/app/lib/controllers/routes", {
 });
 
 describe("GET /api/routes/dashboard", () => {
-  let GET: any;
+  let GET: React.ElementType;
 
   before(async () => {
     const mod = await import("./route");
@@ -47,13 +47,13 @@ describe("GET /api/routes/dashboard", () => {
 
   it("should_Return401_WhenNEXT_REDIRECT", async () => {
     getRoutesWithDashboardDataMock.mock.mockImplementationOnce(async () => { throw new Error("NEXT_REDIRECT"); });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._status).toBe(401);
   });
 
   it("should_Return500_WhenGenericError", async () => {
     getRoutesWithDashboardDataMock.mock.mockImplementationOnce(async () => { throw new Error("fail"); });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._status).toBe(500);
   });
 });

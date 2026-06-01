@@ -25,17 +25,17 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("@/app/components/skeletons/AnalyticsSkeleton", {
-  defaultExport: ({ title }: any) => <div data-testid="analytics-skeleton">{title}</div>,
+  defaultExport: ({ title }: unknown) => <div data-testid="analytics-skeleton">{title}</div>,
 });
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
 });
 
 // Mock Recharts BarChart
 mock.module("@mui/x-charts/BarChart", {
   namedExports: {
-    BarChart: ({ series, xAxis }: any) => (
+    BarChart: ({ series, xAxis }: unknown) => (
       <div data-testid="bar-chart">
         <div data-testid="x-axis-data">
           {xAxis?.[0]?.data?.join(",")}
@@ -49,7 +49,7 @@ mock.module("@mui/x-charts/BarChart", {
 });
 
 describe("DriverPerformanceCharts RTL Component", () => {
-  let DriverPerformanceCharts: any;
+  let DriverPerformanceCharts: React.ElementType;
 
   before(async () => {
     const mod = await import("./driverPerformanceCharts");

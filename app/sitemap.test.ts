@@ -9,7 +9,7 @@ mock.module("@/app/lib/language/navigation", {
 });
 
 describe("Sitemap Generate", () => {
-  let sitemap: any;
+  let sitemap: unknown;
 
   before(async () => {
     const mod = await import("./sitemap");
@@ -22,7 +22,7 @@ describe("Sitemap Generate", () => {
     expect(Array.isArray(result)).toBe(true);
     expect(result.length).toBeGreaterThan(0); // en, tr * routes
     
-    const rootEntry = result.find((r: any) => r.priority === 1);
+    const rootEntry = result.find((r: unknown) => r.priority === 1);
     expect(rootEntry).toBeTruthy();
     expect(rootEntry.alternates.languages.en).toBeDefined();
     expect(rootEntry.alternates.languages.tr).toBeDefined();

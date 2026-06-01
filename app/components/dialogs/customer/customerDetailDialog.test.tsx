@@ -83,17 +83,17 @@ mock.module("@/app/lib/controllers/customer", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    secondary: { main: "#9c27b0", dark: "#7b1fa2" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    secondary: { main: "#9c27b0", dark: "#7b1fa2" } as unknown,
   }
 });
 
 const mockAlpha = { main_02: "rgba()", main_05: "rgba()", main_10: "rgba()", main_20: "rgba()" };
-(customTheme.palette.primary as any)._alpha = mockAlpha;
-(customTheme.palette.secondary as any)._alpha = mockAlpha;
-(customTheme.palette as any).divider_alpha = mockAlpha;
-(customTheme.palette.background as any).paper_alpha = mockAlpha;
-(customTheme.palette.common as any) = { black_alpha: mockAlpha, white_alpha: { main_70: "rgba()" } };
+(customTheme.palette.primary as unknown)._alpha = mockAlpha;
+(customTheme.palette.secondary as unknown)._alpha = mockAlpha;
+(customTheme.palette as unknown).divider_alpha = mockAlpha;
+(customTheme.palette.background as unknown).paper_alpha = mockAlpha;
+(customTheme.palette.common as unknown) = { black_alpha: mockAlpha, white_alpha: { main_70: "rgba()" } };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -105,7 +105,7 @@ mock.module("@mui/material", {
 });
 
 describe("CustomerDetailDialog RTL Component", () => {
-  let CustomerDetailDialog: any;
+  let CustomerDetailDialog: React.ElementType;
 
   before(async () => {
     const mod = await import("./customerDetailDialog");

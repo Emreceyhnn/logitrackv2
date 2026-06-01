@@ -10,7 +10,7 @@ mock.module("@/app/components/landing/LandingNavbar", {
 });
 
 describe("LandingLayout Component", () => {
-  let LandingLayout: any;
+  let LandingLayout: React.ElementType;
 
   before(async () => {
     const mod = await import("./layout");

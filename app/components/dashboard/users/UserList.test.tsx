@@ -35,11 +35,11 @@ mock.module("@/app/lib/language/DictionaryContext", {
 });
 
 mock.module("../../cards/card", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children }: { children?: React.ReactNode }) => <div data-testid="custom-card">{children}</div>,
 });
 
 mock.module("@/app/components/ui/DataTable", {
-  defaultExport: ({ rows, columns, rowActions, emptyMessage }: any) => (
+  defaultExport: ({ rows, columns, rowActions, emptyMessage }: unknown) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (
         <div>{emptyMessage}</div>
@@ -47,20 +47,20 @@ mock.module("@/app/components/ui/DataTable", {
         <table>
           <thead>
             <tr>
-              {columns.map((c: any) => <th key={c.key}>{c.label}</th>)}
+              {columns.map((c: unknown) => <th key={c.key}>{c.label}</th>)}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row: any, i: number) => (
+            {rows.map((row: unknown, i: number) => (
               <tr key={i} data-testid={`row-${row.id}`}>
-                {columns.map((c: any) => (
+                {columns.map((c: unknown) => (
                   <td key={c.key} data-testid={`cell-${c.key}-${row.id}`}>
                     {c.render(row)}
                   </td>
                 ))}
                 <td>
-                  {rowActions?.map((action: any, aIdx: number) => (
+                  {rowActions?.map((action: unknown, aIdx: number) => (
                     <button key={aIdx} onClick={() => action.onClick(row)}>
                       {action.label}
                     </button>
@@ -87,7 +87,7 @@ mock.module("@mui/material", {
 });
 
 describe("UserList RTL Component", () => {
-  let UserList: any;
+  let UserList: React.ElementType;
 
   before(async () => {
     const mod = await import("./UserList");

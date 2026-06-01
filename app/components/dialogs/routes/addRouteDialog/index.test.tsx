@@ -76,13 +76,13 @@ mock.module("@/app/lib/validationSchema", {
 // Mock Date Utils
 mock.module("@/app/lib/utils/date", {
   namedExports: {
-    toUTC: (d: any) => d,
+    toUTC: (d: unknown) => d,
   },
 });
 
 // Mock Subcomponents
 mock.module("@/app/components/googleMaps/GoogleMapsProvider", {
-  namedExports: { GoogleMapsProvider: ({ children }: any) => <>{children}</> },
+  namedExports: { GoogleMapsProvider: ({ children }: { children?: React.ReactNode }) => <>{children}</> },
 });
 mock.module("./firstStep", {
   defaultExport: () => <div data-testid="first-step">First Step</div>,
@@ -98,12 +98,12 @@ mock.module("./thirdStep", {
 const customTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
 
-(customTheme.palette.primary as any)._alpha = { main_20: "rgba()" };
-(customTheme.palette as any).divider_alpha = { main_05: "rgba()", main_10: "rgba()" };
+(customTheme.palette.primary as unknown)._alpha = { main_20: "rgba()" };
+(customTheme.palette as unknown).divider_alpha = { main_05: "rgba()", main_10: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -115,7 +115,7 @@ mock.module("@mui/material", {
 });
 
 describe("AddRouteDialog RTL Component", () => {
-  let AddRouteDialog: any;
+  let AddRouteDialog: React.ElementType;
 
   before(async () => {
     const mod = await import("./index");

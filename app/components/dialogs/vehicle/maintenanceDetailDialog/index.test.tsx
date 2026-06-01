@@ -52,7 +52,7 @@ const useDictionaryMock = mock.fn(() => ({
 }));
 
 const updateMaintenanceRecordMock = mock.fn(async () => ({}));
-const convertFromMock = (val: any) => val || 0;
+const convertFromMock = (val: unknown) => val || 0;
 const useCurrencyMock = mock.fn(() => ({ convertFrom: convertFromMock, symbol: "$", currency: "USD" }));
 
 mock.module("@/app/lib/language/DictionaryContext", {
@@ -96,7 +96,7 @@ mock.module("@mui/material", {
 });
 
 describe("MaintenanceDetailDialog RTL Component", () => {
-  let MaintenanceDetailDialog: any;
+  let MaintenanceDetailDialog: React.ElementType;
 
   before(async () => {
     const mod = await import("./index");
