@@ -29,31 +29,31 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../hooks/useDateSettings", {
+mock.module("../../../../hooks/useDateSettings.ts", {
   namedExports: { useDateSettings: mock.fn(() => ({})) },
 });
 
-mock.module("../../../../lib/utils/date", {
+mock.module("../../../../lib/utils/date.ts", {
   namedExports: { formatDisplayDate: mock.fn(() => "31/05/2026") },
 });
 
-mock.module("../../../../lib/type/enums", {
+mock.module("../../../../lib/type/enums.ts", {
   namedExports: {
     ShipmentStatus: { DELIVERED: "DELIVERED", IN_TRANSIT: "IN_TRANSIT" },
   }
 });
 
-mock.module("../../../chips/statusChips", {
+mock.module("../../../chips/statusChips.tsx", {
   namedExports: {
     StatusChip: ({ status }: any) => <span data-testid={`status-chip-${status}`}>{status}</span>
   }
 });
 
-mock.module("../../../dialogs/shipment/shipmentDetailDialog", {
+mock.module("../../../dialogs/shipment/shipmentDetailDialog.tsx", {
   defaultExport: ({ open, onClose }: any) => open ? (
     <div data-testid="detail-dialog">
       <button onClick={onClose}>Close</button>
@@ -61,7 +61,7 @@ mock.module("../../../dialogs/shipment/shipmentDetailDialog", {
   ) : null,
 });
 
-mock.module("../../../ui/DataTable", {
+mock.module("../../../ui/DataTable/index.tsx", {
   defaultExport: ({ rows, columns, rowActions, emptyMessage }: any) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (

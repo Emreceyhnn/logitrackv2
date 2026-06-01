@@ -11,8 +11,8 @@ const getLocalizedPathMock = mock.fn((path) => path);
 const useScrollTriggerMock = mock.fn(() => false);
 
 mock.module("next/navigation", { namedExports: { useParams: useParamsMock } });
-mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("../../lib/language/navigation", { namedExports: { getLocalizedPath: getLocalizedPathMock } });
+mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/navigation.ts", { namedExports: { getLocalizedPath: getLocalizedPathMock } });
 
 mock.module("@mui/material", {
   namedExports: {
@@ -28,8 +28,8 @@ mock.module("@mui/material", {
 
 mock.module("next/image", { defaultExport: () => ({ type: "Image" }) });
 mock.module("next/link", { defaultExport: () => ({ type: "Link" }) });
-mock.module("./LandingHeaderAuth", { defaultExport: () => ({ type: "LandingHeaderAuth" }) });
-mock.module("../nav/LanguageSwitcher", { defaultExport: () => ({ type: "LanguageSwitcher" }) });
+mock.module("./LandingHeaderAuth.tsx", { defaultExport: () => ({ type: "LandingHeaderAuth" }) });
+mock.module("../nav/LanguageSwitcher.tsx", { defaultExport: () => ({ type: "LanguageSwitcher" }) });
 
 describe("LandingNavbar Component", () => {
   let LandingNavbar: any;

@@ -46,7 +46,7 @@ const inventoryControllerMock = {
 
 mock.module("@tanstack/react-query", { namedExports: reactQueryMock });
 mock.module("sonner", { namedExports: sonnerMock });
-mock.module("../lib/controllers/inventory", { namedExports: inventoryControllerMock });
+mock.module("../lib/controllers/inventory.ts", { namedExports: inventoryControllerMock });
 
 const globalFetchMock = mock.fn();
 (globalThis as any).fetch = globalFetchMock;

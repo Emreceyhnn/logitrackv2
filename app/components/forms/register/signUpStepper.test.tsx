@@ -15,14 +15,14 @@ mock.module("next/navigation", {
   namedExports: { useRouter: mock.fn(() => ({ push: mock.fn(), refresh: mock.fn() })), useParams: mock.fn(() => ({ lang: "en" })) }
 });
 
-mock.module("../../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("../../../lib/controllers/users", { namedExports: { RegisterUser: mock.fn() } });
-mock.module("../../../lib/validationSchema", { namedExports: { signUpValidationSchema: mock.fn(() => [{}, {}, {}]) } });
-mock.module("../../ui/AuthButton", { defaultExport: ({ children }: any) => <button data-testid="AuthButton">{children}</button> });
+mock.module("../../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../../lib/controllers/users.ts", { namedExports: { RegisterUser: mock.fn() } });
+mock.module("../../../lib/validationSchema.ts", { namedExports: { signUpValidationSchema: mock.fn(() => [{}, {}, {}]) } });
+mock.module("../../ui/AuthButton.tsx", { defaultExport: ({ children }: any) => <button data-testid="AuthButton">{children}</button> });
 
-mock.module("./step1PersonalInfo", { defaultExport: () => <div data-testid="Step1PersonalInfo" /> });
-mock.module("./step2Security", { defaultExport: () => <div data-testid="Step2Security" /> });
-mock.module("./step3Profile", { defaultExport: () => <div data-testid="Step3Profile" /> });
+mock.module("./step1PersonalInfo.tsx", { defaultExport: () => <div data-testid="Step1PersonalInfo" /> });
+mock.module("./step2Security.tsx", { defaultExport: () => <div data-testid="Step2Security" /> });
+mock.module("./step3Profile.tsx", { defaultExport: () => <div data-testid="Step3Profile" /> });
 
 mock.module("formik", {
   namedExports: {

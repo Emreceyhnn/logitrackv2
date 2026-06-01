@@ -35,8 +35,17 @@ testFiles.forEach(file => {
     hasChanges = true;
     
     // capture is e.g. "lib/language/DictionaryContext"
-    // We want to point to ROOT/app/capture
-    const targetPath = path.join(appDir, capture);
+    let targetPath = path.join(appDir, capture);
+    
+    // Add extension if missing but file exists
+    if (!targetPath.endsWith('.ts') && !targetPath.endsWith('.tsx') && !targetPath.endsWith('.json')) {
+       if (fs.existsSync(targetPath + '.ts')) targetPath += '.ts';
+       else if (fs.existsSync(targetPath + '.tsx')) targetPath += '.tsx';
+       else if (fs.existsSync(targetPath + '/index.ts')) targetPath += '/index.ts';
+       else if (fs.existsSync(targetPath + '/index.tsx')) targetPath += '/index.tsx';
+       else if (fs.existsSync(targetPath + '.json')) targetPath += '.json';
+    }
+
     const fileDir = path.dirname(file);
     
     let relativePath = path.relative(fileDir, targetPath).replace(/\\/g, '/');

@@ -31,15 +31,15 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../cards/card", {
+mock.module("../../cards/card.tsx", {
   defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
-mock.module("../../ui/DataTable", {
+mock.module("../../ui/DataTable/index.tsx", {
   defaultExport: ({ rows, columns, rowActions, emptyMessage }: any) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (

@@ -33,12 +33,12 @@ const dbMock = {
   warehouse: { findMany: mock.fn(async () => []) },
 };
 
-mock.module("../../../lib/db", {
+mock.module("../../../lib/db.ts", {
   namedExports: { db: dbMock },
 });
 
 const sendNotificationActionMock = mock.fn(async () => {});
-mock.module("../../../lib/actions/notifications", {
+mock.module("../../../lib/actions/notifications.ts", {
   namedExports: { sendNotificationAction: sendNotificationActionMock },
 });
 

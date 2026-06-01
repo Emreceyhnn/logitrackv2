@@ -44,23 +44,23 @@ const useDictionaryMock = mock.fn(() => ({
 const updateIssueMock = mock.fn(async () => ({}));
 const useDateSettingsMock = mock.fn(() => ({ format: "DD/MM/YYYY" }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle.ts", {
   namedExports: { updateIssue: updateIssueMock },
 });
 
-mock.module("../../../../hooks/useDateSettings", {
+mock.module("../../../../hooks/useDateSettings.ts", {
   namedExports: { useDateSettings: useDateSettingsMock },
 });
 
-mock.module("../../../../lib/utils/date", {
+mock.module("../../../../lib/utils/date.ts", {
   namedExports: { formatDisplayDate: mock.fn(() => "01/01/2026") },
 });
 
-mock.module("../../../../lib/priorityColor", {
+mock.module("../../../../lib/priorityColor.ts", {
   namedExports: { getPriorityColor: mock.fn(() => "error") },
 });
 

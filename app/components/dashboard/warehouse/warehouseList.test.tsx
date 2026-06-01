@@ -34,11 +34,11 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../hooks/useDateSettings", {
+mock.module("../../../hooks/useDateSettings.ts", {
   namedExports: { useDateSettings: mock.fn(() => ({ timezone: "Europe/Istanbul" })) },
 });
 
@@ -58,7 +58,7 @@ mock.module("dayjs", {
   }),
 });
 
-mock.module("../../ui/DataTable", {
+mock.module("../../ui/DataTable/index.tsx", {
   defaultExport: ({ rows, columns, rowActions, emptyMessage }: any) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (

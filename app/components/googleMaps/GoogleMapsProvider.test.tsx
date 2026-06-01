@@ -11,7 +11,7 @@ const useDictionaryMock = mock.fn(() => ({
 
 const useJsApiLoaderMock = mock.fn(() => ({ isLoaded: true, loadError: null }));
 
-mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
 mock.module("@react-google-maps/api", { namedExports: { useJsApiLoader: useJsApiLoaderMock } });
 
 mock.module("@mui/material", {

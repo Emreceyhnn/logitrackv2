@@ -24,25 +24,25 @@ mock.module("next/server", {
 
 // ─── Auth mocks ──────────────────────────────────────────────────────────────
 const getAuthenticatedUserMock = mock.fn();
-mock.module("../../../lib/auth-middleware", {
+mock.module("../../../lib/auth-middleware.ts", {
   namedExports: { getAuthenticatedUser: getAuthenticatedUserMock },
 });
 
 const checkPermissionMock = mock.fn(async () => {});
-mock.module("../../../lib/controllers/utils/checkPermission", {
+mock.module("../../../lib/controllers/utils/checkPermission.ts", {
   namedExports: { checkPermission: checkPermissionMock },
 });
 
 // ─── DB mock ─────────────────────────────────────────────────────────────────
 const vehicleFindManyMock = mock.fn(async () => []);
 const vehicleCountMock = mock.fn(async () => 0);
-mock.module("../../../lib/db", {
+mock.module("../../../lib/db.ts", {
   namedExports: { db: { vehicle: { findMany: vehicleFindManyMock, count: vehicleCountMock } } },
 });
 
 // ─── Redis / cache mocks ─────────────────────────────────────────────────────
 // withCache should just call the factory function directly in tests
-mock.module("../../../lib/redis", {
+mock.module("../../../lib/redis.ts", {
   namedExports: {
     withCache: mock.fn(async (_key: string, _ttl: number, fn: () => Promise<any>) => fn()),
     hashFilters: mock.fn(() => "hash123"),
@@ -52,7 +52,7 @@ mock.module("../../../lib/redis", {
 });
 
 // ─── Converter mocks ─────────────────────────────────────────────────────────
-mock.module("../../../lib/controllers/utils/vehicleUtils", {
+mock.module("../../../lib/controllers/utils/vehicleUtils.ts", {
   namedExports: {
     VehicleKpiConverter: mock.fn(() => ({ total: 1 })),
     VehicleCapacityConverter: mock.fn(() => []),
@@ -61,7 +61,7 @@ mock.module("../../../lib/controllers/utils/vehicleUtils", {
   },
 });
 
-mock.module("../../../lib/controllers/utils/trendUtils", {
+mock.module("../../../lib/controllers/utils/trendUtils.ts", {
   namedExports: {
     calcTrend: mock.fn(() => 0),
     daysAgo: mock.fn(() => new Date()),
@@ -72,7 +72,7 @@ mock.module("@prisma/client", {
   namedExports: { Prisma: {} },
 });
 
-mock.module("../../../lib/type/vehicle", {
+mock.module("../../../lib/type/vehicle.ts", {
   namedExports: {},
 });
 

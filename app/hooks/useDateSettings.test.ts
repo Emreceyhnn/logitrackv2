@@ -12,7 +12,7 @@ const useUserMock = {
 };
 
 mock.module("react", { namedExports: reactMock });
-mock.module("./useUser", { namedExports: useUserMock });
+mock.module("./useUser.ts", { namedExports: useUserMock });
 
 // 2. TEST GRUPLARI
 describe("useDateSettings Hook", () => {

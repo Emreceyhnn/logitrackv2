@@ -10,12 +10,12 @@ const mockGetRoutesWithDashboardData = mock.fn(async () => ({
   routes: [],
 }));
 
-mock.module("../../../../lib/controllers/routes", {
+mock.module("../../../../lib/controllers/routes.ts", {
   namedExports: { getRoutesWithDashboardData: mockGetRoutesWithDashboardData },
 });
 
 // 2. Mock Components
-mock.module("./components/routesContent", {
+mock.module("./components/routesContent.tsx", {
   defaultExport: () => <div data-testid="routes-content">Routes Content</div>,
 });
 

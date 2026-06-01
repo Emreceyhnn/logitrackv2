@@ -43,11 +43,11 @@ const dayjsUtcMock = mock.fn(() => ({
 (dayjsMock as any).utc = dayjsUtcMock;
 
 // Modülleri Sisteme Enjekte Etme
-mock.module("../db", { namedExports: { db: dbMock } });
-mock.module("../auth-middleware", { namedExports: authMiddlewareMock });
-mock.module("./utils/checkPermission", { namedExports: checkPermissionMock });
-mock.module("../services/exchangeRate", { namedExports: exchangeRateMock });
-mock.module("../utils/date", { namedExports: dateUtilsMock });
+mock.module("../db.ts", { namedExports: { db: dbMock } });
+mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
+mock.module("./utils/checkPermission.ts", { namedExports: checkPermissionMock });
+mock.module("../services/exchangeRate.ts", { namedExports: exchangeRateMock });
+mock.module("../utils/date.ts", { namedExports: dateUtilsMock });
 mock.module("dayjs", { defaultExport: dayjsMock });
 
 // 2. TEST GRUPLARI

@@ -10,12 +10,12 @@ const mockGetDriverWithDashboardData = mock.fn(async () => ({
   drivers: [],
 }));
 
-mock.module("../../../../lib/controllers/driver", {
+mock.module("../../../../lib/controllers/driver.ts", {
   namedExports: { getDriverWithDashboardData: mockGetDriverWithDashboardData },
 });
 
 // 2. Mock Components
-mock.module("./components/DriverContent", {
+mock.module("./components/DriverContent.tsx", {
   defaultExport: () => <div data-testid="driver-content">Driver Content</div>,
 });
 

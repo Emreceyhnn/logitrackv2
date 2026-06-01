@@ -38,11 +38,11 @@ const useUserContextMock = mock.fn(() => ({
   },
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../lib/context/UserContext", {
+mock.module("../../../lib/context/UserContext.tsx", {
   namedExports: { useUserContext: useUserContextMock },
 });
 
@@ -64,14 +64,14 @@ mock.module("sonner", {
   namedExports: { toast: { success: mock.fn(), error: mock.fn() } },
 });
 
-mock.module("../../../lib/controllers/users", {
+mock.module("../../../lib/controllers/users.ts", {
   namedExports: {
     updateUserRegionalSettings: mock.fn(async () => ({})),
     updateUserNotificationSettings: mock.fn(async () => ({})),
   },
 });
 
-mock.module("../../../lib/language/navigation", {
+mock.module("../../../lib/language/navigation.ts", {
   namedExports: {
     getLocalizedPath: mock.fn(() => "/en/dashboard"),
     getCanonicalPath: mock.fn(() => "/dashboard"),
@@ -88,10 +88,10 @@ mock.module("framer-motion", {
 });
 
 // 4. Mock Subcomponents
-mock.module("./components/SettingsHeader", { defaultExport: () => <div data-testid="settings-header" /> });
-mock.module("./components/RegionalTab", { defaultExport: () => <div data-testid="regional-tab" /> });
-mock.module("./components/NotificationsTab", { defaultExport: () => <div data-testid="notifications-tab" /> });
-mock.module("./components/AppearanceTab", { defaultExport: () => <div data-testid="appearance-tab" /> });
+mock.module("./components/SettingsHeader.tsx", { defaultExport: () => <div data-testid="settings-header" /> });
+mock.module("./components/RegionalTab.tsx", { defaultExport: () => <div data-testid="regional-tab" /> });
+mock.module("./components/NotificationsTab.tsx", { defaultExport: () => <div data-testid="notifications-tab" /> });
+mock.module("./components/AppearanceTab.tsx", { defaultExport: () => <div data-testid="appearance-tab" /> });
 
 // 5. Mock Theme
 const customTheme = createTheme({

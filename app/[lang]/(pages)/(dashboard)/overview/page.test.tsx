@@ -10,12 +10,12 @@ const mockGetOverviewDashboardData = mock.fn(async () => ({
   stats: { activeShipments: 10 },
 }));
 
-mock.module("../../../../lib/controllers/overview", {
+mock.module("../../../../lib/controllers/overview.ts", {
   namedExports: { getOverviewDashboardData: mockGetOverviewDashboardData },
 });
 
 // 2. Mock Components
-mock.module("./components/OverviewContent", {
+mock.module("./components/OverviewContent.tsx", {
   defaultExport: () => <div data-testid="overview-content">Overview Content</div>,
 });
 

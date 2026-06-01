@@ -28,17 +28,17 @@ const useDictionaryMock = mock.fn(() => ({
   },
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../hooks/useDateSettings", {
+mock.module("../../../hooks/useDateSettings.ts", {
   namedExports: { 
     useDateSettings: mock.fn(() => ({}))
   },
 });
 
-mock.module("../../../lib/utils/date", {
+mock.module("../../../lib/utils/date.ts", {
   namedExports: { 
     formatDisplayDate: mock.fn(() => "01/01/2026")
   },

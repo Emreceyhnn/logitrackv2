@@ -26,7 +26,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -48,7 +48,7 @@ const getMyProfileMock = mock.fn(async () => ({
   createdAt: new Date(),
 }));
 
-mock.module("../../../lib/actions/profile", {
+mock.module("../../../lib/actions/profile.ts", {
   namedExports: { 
     getMyProfile: getMyProfileMock,
     updateMyProfile: mock.fn(async () => ({})),
@@ -66,13 +66,13 @@ mock.module("framer-motion", {
 });
 
 // Mock Subcomponents
-mock.module("./components/ProfileHeader", {
+mock.module("./components/ProfileHeader.tsx", {
   defaultExport: () => <div data-testid="profile-header">ProfileHeader</div>,
 });
-mock.module("./components/ProfileTab", {
+mock.module("./components/ProfileTab.tsx", {
   defaultExport: () => <div data-testid="profile-tab">ProfileTab</div>,
 });
-mock.module("./components/SecurityTab", {
+mock.module("./components/SecurityTab.tsx", {
   defaultExport: () => <div data-testid="security-tab">SecurityTab</div>,
 });
 

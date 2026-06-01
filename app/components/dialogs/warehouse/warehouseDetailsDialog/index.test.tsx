@@ -48,13 +48,13 @@ mock.module("react", {
   }
 });
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock }
 });
 
-mock.module("./overviewTab", { defaultExport: () => ({ type: "OverviewTab" }) });
-mock.module("./inventoryTab", { defaultExport: () => ({ type: "InventoryTab" }) });
-mock.module("../editWarehouseDialog", { defaultExport: () => ({ type: "EditWarehouseDialog" }) });
+mock.module("./overviewTab.tsx", { defaultExport: () => ({ type: "OverviewTab" }) });
+mock.module("./inventoryTab.tsx", { defaultExport: () => ({ type: "InventoryTab" }) });
+mock.module("../editWarehouseDialog/index.tsx", { defaultExport: () => ({ type: "EditWarehouseDialog" }) });
 
 describe("WarehouseDetailsDialog Component", () => {
   let WarehouseDetailsDialog: any;

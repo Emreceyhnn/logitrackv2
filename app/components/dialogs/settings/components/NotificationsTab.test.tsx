@@ -32,12 +32,12 @@ const useDictionaryMock = mock.fn(() => ({
   },
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 // Mock NotificationRow to easily trigger onChange
-mock.module("./NotificationRow", {
+mock.module("./NotificationRow.tsx", {
   defaultExport: ({ label, checked, onChange }: any) => (
     <div data-testid={`notification-row-${label}`}>
       <span>{label}</span>

@@ -27,28 +27,28 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../hooks/useDateSettings", {
+mock.module("../../../../hooks/useDateSettings.ts", {
   namedExports: { useDateSettings: mock.fn(() => ({})) },
 });
 
-mock.module("../../../../lib/utils/date", {
+mock.module("../../../../lib/utils/date.ts", {
   namedExports: { formatDisplayDateTime: mock.fn(() => "31/05/2026 14:00") },
 });
 
-mock.module("../../../../lib/type/enums", {
+mock.module("../../../../lib/type/enums.ts", {
   namedExports: { RouteStatus: { PLANNED: "PLANNED", ACTIVE: "ACTIVE", COMPLETED: "COMPLETED" } }
 });
 
 const mockUpdateRouteStatus = mock.fn(async () => {});
-mock.module("../../../../lib/controllers/routes", {
+mock.module("../../../../lib/controllers/routes.ts", {
   namedExports: { updateRouteStatus: mockUpdateRouteStatus }
 });
 
-mock.module("../../../../lib/priorityColor", {
+mock.module("../../../../lib/priorityColor.ts", {
   namedExports: {
     getStatusMeta: mock.fn((_status: string, _dict: any) => ({ label: "Active" }))
   }
@@ -58,13 +58,13 @@ mock.module("sonner", {
   namedExports: { toast: { success: mock.fn(), error: mock.fn() } }
 });
 
-mock.module("../../../chips/statusChips", {
+mock.module("../../../chips/statusChips.tsx", {
   namedExports: {
     StatusChip: ({ status }: any) => <span data-testid={`status-chip-${status}`}>{status}</span>
   }
 });
 
-mock.module("../../../dialogs/routes", {
+mock.module("../../../dialogs/routes/index.tsx", {
   defaultExport: ({ open, onClose }: any) => open ? (
     <div data-testid="route-details-dialog">
       <button onClick={onClose}>Close</button>
@@ -72,7 +72,7 @@ mock.module("../../../dialogs/routes", {
   ) : null,
 });
 
-mock.module("../../../ui/DataTable", {
+mock.module("../../../ui/DataTable/index.tsx", {
   defaultExport: ({ rows, columns, rowActions, emptyMessage }: any) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (

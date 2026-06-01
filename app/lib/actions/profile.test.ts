@@ -23,8 +23,8 @@ const bcryptMock = {
   hash: mock.fn(),
 };
 
-mock.module("../db", { namedExports: { db: dbMock } });
-mock.module("../auth-middleware", { namedExports: authMiddlewareMock });
+mock.module("../db.ts", { namedExports: { db: dbMock } });
+mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
 mock.module("next/cache", { namedExports: nextCacheMock });
 mock.module("bcryptjs", { defaultExport: bcryptMock });
 

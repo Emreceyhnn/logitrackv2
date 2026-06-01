@@ -17,7 +17,7 @@ mock.module("next/server", {
 });
 
 const getShipmentsMock = mock.fn();
-mock.module("../../lib/controllers/shipments", {
+mock.module("../../lib/controllers/shipments.ts", {
   namedExports: { getShipments: getShipmentsMock },
 });
 

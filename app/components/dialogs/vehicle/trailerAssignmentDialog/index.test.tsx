@@ -30,15 +30,15 @@ const useVehiclesMock = mock.fn(() => ({
   isLoading: false,
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../hooks/useTrailers", {
+mock.module("../../../../hooks/useTrailers.ts", {
   namedExports: { useTrailerMutations: useTrailerMutationsMock },
 });
 
-mock.module("../../../../hooks/useVehicles", {
+mock.module("../../../../hooks/useVehicles.ts", {
   namedExports: { useVehicles: useVehiclesMock },
 });
 

@@ -10,8 +10,8 @@ const useDictionaryMock = mock.fn(() => ({
   auth: { security: "Sec", securityDescription: "Desc", password: "Pass", repeatPassword: "Rep" }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("../../../lib/styled/styledFieldBox", { namedExports: { StyledTextFieldAuth: () => <input data-testid="StyledTextFieldAuth" /> } });
+mock.module("../../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../../lib/styled/styledFieldBox.ts", { namedExports: { StyledTextFieldAuth: () => <input data-testid="StyledTextFieldAuth" /> } });
 
 mock.module("formik", {
   namedExports: {

@@ -41,7 +41,7 @@ const routesControllerMock = {
 
 mock.module("@tanstack/react-query", { namedExports: reactQueryMock });
 mock.module("sonner", { namedExports: sonnerMock });
-mock.module("../lib/controllers/routes", { namedExports: routesControllerMock });
+mock.module("../lib/controllers/routes.ts", { namedExports: routesControllerMock });
 
 const globalFetchMock = mock.fn();
 (globalThis as any).fetch = globalFetchMock;

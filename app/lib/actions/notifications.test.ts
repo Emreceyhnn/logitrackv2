@@ -20,8 +20,8 @@ const dbMock = {
   },
 };
 
-mock.module("../firebase-admin", { namedExports: { adminDb: adminDbMock } });
-mock.module("../db", { namedExports: { db: dbMock } });
+mock.module("../firebase-admin.ts", { namedExports: { adminDb: adminDbMock } });
+mock.module("../db.ts", { namedExports: { db: dbMock } });
 
 // 2. TEST GRUPLARI
 describe("Notifications Actions", () => {

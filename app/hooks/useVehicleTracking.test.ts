@@ -22,7 +22,7 @@ const vehicleTrackingMock = {
 };
 
 mock.module("react", { namedExports: reactMock });
-mock.module("../lib/vehicleTracking", { namedExports: vehicleTrackingMock });
+mock.module("../lib/vehicleTracking.ts", { namedExports: vehicleTrackingMock });
 
 // 2. TEST GRUPLARI
 describe("useVehicleTracking Hooks", () => {

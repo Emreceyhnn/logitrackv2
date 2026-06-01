@@ -19,7 +19,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../../lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -27,7 +27,7 @@ const mockRefetch = mock.fn(async () => {});
 const mockDeleteMutateAsync = mock.fn(async () => {});
 const mockUpdateMutateAsync = mock.fn(async () => {});
 
-mock.module("../../../../../hooks/useInventory", {
+mock.module("../../../../../hooks/useInventory.ts", {
   namedExports: { 
     useInventoryWithDashboard: mock.fn(() => ({
       data: {
@@ -46,7 +46,7 @@ mock.module("../../../../../hooks/useInventory", {
   },
 });
 
-mock.module("../../../../../hooks/useTableParams", {
+mock.module("../../../../../hooks/useTableParams.ts", {
   namedExports: { 
     useTableParams: mock.fn(() => ({
       page: 1,
@@ -65,7 +65,7 @@ mock.module("../../../../../hooks/useTableParams", {
   },
 });
 
-mock.module("../../../../../hooks/useCurrency", {
+mock.module("../../../../../hooks/useCurrency.ts", {
   namedExports: { 
     useCurrency: mock.fn(() => ({
       format: (val: number) => `$${val}`,
@@ -75,29 +75,29 @@ mock.module("../../../../../hooks/useCurrency", {
 });
 
 // Mock child components
-mock.module("../../../../../components/cards/KpiCards", {
+mock.module("../../../../../components/cards/KpiCards.tsx", {
   defaultExport: () => <div data-testid="kpi-cards">KPI Cards</div>,
 });
-mock.module("../../../../../components/dashboard/inventory/InventoryHeader", {
+mock.module("../../../../../components/dashboard/inventory/InventoryHeader.tsx", {
   defaultExport: () => <div data-testid="inventory-header">Header</div>,
 });
-mock.module("../../../../../components/dashboard/inventory/InventoryTable", {
+mock.module("../../../../../components/dashboard/inventory/InventoryTable.tsx", {
   defaultExport: ({ onDelete }: any) => (
     <div data-testid="inventory-table">
       <button onClick={() => onDelete("i1")}>Delete i1</button>
     </div>
   ),
 });
-mock.module("../../../../../components/dialogs/inventory/InventoryDetailsDialog", {
+mock.module("../../../../../components/dialogs/inventory/InventoryDetailsDialog.tsx", {
   defaultExport: () => <div data-testid="detail-dialog">Details Dialog</div>,
 });
-mock.module("../../../../../components/dialogs/inventory/InventoryEditDialog", {
+mock.module("../../../../../components/dialogs/inventory/InventoryEditDialog.tsx", {
   defaultExport: () => <div data-testid="edit-dialog">Edit Dialog</div>,
 });
-mock.module("../../../../../components/dialogs/inventory/addInventoryDialog", {
+mock.module("../../../../../components/dialogs/inventory/addInventoryDialog/index.tsx", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
-mock.module("../../../../../components/dialogs/deleteConfirmationDialog", {
+mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
   defaultExport: ({ open, onConfirm }: any) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>

@@ -42,7 +42,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../../lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -51,7 +51,7 @@ const mockDeleteMutateAsync = mock.fn(async () => {});
 const mockDeleteTrailerMut = mock.fn(async () => {});
 const mockDetachTrailerMut = mock.fn(async () => {});
 
-mock.module("../../../../../hooks/useVehicles", {
+mock.module("../../../../../hooks/useVehicles.ts", {
   namedExports: { 
     useVehicleWithDashboard: mock.fn(() => ({
       data: {
@@ -72,7 +72,7 @@ mock.module("../../../../../hooks/useVehicles", {
   },
 });
 
-mock.module("../../../../../hooks/useTrailers", {
+mock.module("../../../../../hooks/useTrailers.ts", {
   namedExports: { 
     useTrailers: mock.fn(() => ({
       data: {
@@ -90,44 +90,44 @@ mock.module("../../../../../hooks/useTrailers", {
 });
 
 // Mock child components
-mock.module("../../../../../components/cards/KpiCards", {
+mock.module("../../../../../components/cards/KpiCards.tsx", {
   defaultExport: () => <div data-testid="kpi-cards">KPI Cards</div>,
 });
-mock.module("../../../../../components/dashboard/vehicle/vehicleTable", {
+mock.module("../../../../../components/dashboard/vehicle/vehicleTable/index.tsx", {
   defaultExport: ({ actions }: any) => (
     <div data-testid="vehicle-table">
       <button onClick={() => actions.onDelete("v1")}>Delete v1</button>
     </div>
   ),
 });
-mock.module("../../../../../components/dashboard/vehicle/trailerTable", {
+mock.module("../../../../../components/dashboard/vehicle/trailerTable/index.tsx", {
   defaultExport: () => <div data-testid="trailer-table">Trailer Table</div>,
 });
-mock.module("../../../../../components/dashboard/vehicle/documentCalenderCard", {
+mock.module("../../../../../components/dashboard/vehicle/documentCalenderCard.tsx", {
   defaultExport: () => <div data-testid="doc-card">Doc Card</div>,
 });
-mock.module("../../../../../components/dashboard/vehicle/maxLoad", {
+mock.module("../../../../../components/dashboard/vehicle/maxLoad.tsx", {
   defaultExport: () => <div data-testid="max-load">Max Load</div>,
 });
-mock.module("../../../../../components/dialogs/vehicle/addVehicleDialog", {
+mock.module("../../../../../components/dialogs/vehicle/addVehicleDialog/index.tsx", {
   defaultExport: () => <div data-testid="add-vehicle-dialog">Add Dialog</div>,
 });
-mock.module("../../../../../components/dialogs/vehicle/editVehicleDialog", {
+mock.module("../../../../../components/dialogs/vehicle/editVehicleDialog/index.tsx", {
   defaultExport: () => <div data-testid="edit-vehicle-dialog">Edit Dialog</div>,
 });
-mock.module("../../../../../components/dialogs/vehicle/vehicleDetailsDialog", {
+mock.module("../../../../../components/dialogs/vehicle/vehicleDetailsDialog/index.tsx", {
   defaultExport: () => <div data-testid="vehicle-dialog">Details Dialog</div>,
 });
-mock.module("../../../../../components/dialogs/vehicle/addTrailerDialog", {
+mock.module("../../../../../components/dialogs/vehicle/addTrailerDialog/index.tsx", {
   defaultExport: () => <div data-testid="add-trailer-dialog">Add Trailer</div>,
 });
-mock.module("../../../../../components/dialogs/vehicle/editTrailerDialog", {
+mock.module("../../../../../components/dialogs/vehicle/editTrailerDialog/index.tsx", {
   defaultExport: () => <div data-testid="edit-trailer-dialog">Edit Trailer</div>,
 });
-mock.module("../../../../../components/dialogs/vehicle/trailerAssignmentDialog", {
+mock.module("../../../../../components/dialogs/vehicle/trailerAssignmentDialog/index.tsx", {
   defaultExport: () => <div data-testid="trailer-assignment">Trailer Assignment</div>,
 });
-mock.module("../../../../../components/dialogs/deleteConfirmationDialog", {
+mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
   defaultExport: ({ open, onConfirm }: any) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>

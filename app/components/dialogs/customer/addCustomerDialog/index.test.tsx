@@ -32,15 +32,15 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../hooks/useUser", {
+mock.module("../../../../hooks/useUser.ts", {
   namedExports: { useUser: mock.fn(() => ({ user: { id: "user-1" } })) },
 });
 
-mock.module("../../../googleMaps/GoogleMapsProvider", {
+mock.module("../../../googleMaps/GoogleMapsProvider.tsx", {
   namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div> },
 });
 
@@ -54,13 +54,13 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("../../../../lib/controllers/customer", {
+mock.module("../../../../lib/controllers/customer.ts", {
   namedExports: { 
     createCustomer: mock.fn(async () => ({}))
   },
 });
 
-mock.module("../../../../lib/validationSchema", {
+mock.module("../../../../lib/validationSchema.ts", {
   namedExports: {
     addCustomerValidationSchema: mock.fn(() => ({
       validate: async () => true,
@@ -69,10 +69,10 @@ mock.module("../../../../lib/validationSchema", {
 });
 
 // Mock Sections
-mock.module("./sections/IdentitySection", {
+mock.module("./sections/IdentitySection.tsx", {
   defaultExport: () => <div data-testid="identity-section">Identity Content</div>,
 });
-mock.module("./sections/ContactSection", {
+mock.module("./sections/ContactSection.tsx", {
   defaultExport: () => <div data-testid="contact-section">Contact Content</div>,
 });
 

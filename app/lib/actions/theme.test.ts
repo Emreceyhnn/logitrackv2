@@ -22,8 +22,8 @@ const authMiddlewareMock = {
 };
 
 mock.module("next/headers", { namedExports: nextHeadersMock });
-mock.module("../redis", { namedExports: { redis: redisMock } });
-mock.module("../auth-middleware", { namedExports: authMiddlewareMock });
+mock.module("../redis.ts", { namedExports: { redis: redisMock } });
+mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
 
 // 2. TEST GRUPLARI
 describe("Theme Actions", () => {

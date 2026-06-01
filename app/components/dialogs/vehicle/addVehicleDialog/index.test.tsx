@@ -35,22 +35,22 @@ const useDictionaryMock = mock.fn(() => ({
 const createVehicleMock = mock.fn(async () => ({ id: "vehicle-1" }));
 const uploadVehicleDocumentMock = mock.fn(async () => ({}));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle.ts", {
   namedExports: {
     createVehicle: createVehicleMock,
     uploadVehicleDocument: uploadVehicleDocumentMock,
   },
 });
 
-mock.module("../../../../lib/actions/upload", {
+mock.module("../../../../lib/actions/upload.ts", {
   namedExports: { uploadImageAction: mock.fn() },
 });
 
-mock.module("../../../../lib/validationSchema", {
+mock.module("../../../../lib/validationSchema.ts", {
   namedExports: { addVehicleValidationSchema: mock.fn(() => ({})) },
 });
 
@@ -66,9 +66,9 @@ mock.module("sonner", {
 // Since Formik uses Context, testing full Formik flows without wrapping it in a valid component tree can be tricky.
 // For the dialog test, we just want to test if it renders the base structure.
 // However, since RTL evaluates everything, we provide mock children for the complex steps.
-mock.module("./firstStep", { defaultExport: () => <div data-testid="first-step" /> });
-mock.module("./techSpecsStep", { defaultExport: () => <div data-testid="tech-specs-step" /> });
-mock.module("./documentsStep", { defaultExport: () => <div data-testid="documents-step" /> });
+mock.module("./firstStep.tsx", { defaultExport: () => <div data-testid="first-step" /> });
+mock.module("./techSpecsStep.tsx", { defaultExport: () => <div data-testid="tech-specs-step" /> });
+mock.module("./documentsStep.tsx", { defaultExport: () => <div data-testid="documents-step" /> });
 
 // Provide MUI Theme Mock so custom palette variables exist during real render
 import * as originalMui from "@mui/material";

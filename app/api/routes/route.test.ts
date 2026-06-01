@@ -17,7 +17,7 @@ mock.module("next/server", {
 });
 
 const getRoutesMock = mock.fn();
-mock.module("../../lib/controllers/routes", {
+mock.module("../../lib/controllers/routes.ts", {
   namedExports: { getRoutes: getRoutesMock },
 });
 

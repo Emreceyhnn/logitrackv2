@@ -35,7 +35,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -50,19 +50,19 @@ mock.module("sonner", {
 });
 
 const createCompanyMock = mock.fn(async () => ({}));
-mock.module("../../../lib/controllers/company", {
+mock.module("../../../lib/controllers/company.ts", {
   namedExports: { 
     createCompany: createCompanyMock
   },
 });
 
-mock.module("../../../lib/actions/upload", {
+mock.module("../../../lib/actions/upload.ts", {
   namedExports: { 
     uploadImageAction: mock.fn(async () => ({ url: "https://example.com/logo.png" }))
   },
 });
 
-mock.module("../../../lib/validationSchema", {
+mock.module("../../../lib/validationSchema.ts", {
   namedExports: {
     createCompanyValidationSchema: mock.fn(() => ({
       validate: async () => true,
@@ -71,7 +71,7 @@ mock.module("../../../lib/validationSchema", {
 });
 
 // Mock step components
-mock.module("./Step1Branding", {
+mock.module("./Step1Branding.tsx", {
   defaultExport: ({ actions }: any) => {
     return (
       <div data-testid="step1">
@@ -80,7 +80,7 @@ mock.module("./Step1Branding", {
     );
   }
 });
-mock.module("./Step2Regional", {
+mock.module("./Step2Regional.tsx", {
   defaultExport: () => <div data-testid="step2">Step 2</div>,
 });
 

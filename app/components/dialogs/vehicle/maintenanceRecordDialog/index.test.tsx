@@ -55,19 +55,19 @@ const useDictionaryMock = mock.fn(() => ({
 const addMaintenanceRecordMock = mock.fn(async () => ({}));
 const useUserContextMock = mock.fn(() => ({ user: { currency: "USD" } }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle.ts", {
   namedExports: { addMaintenanceRecord: addMaintenanceRecordMock },
 });
 
-mock.module("../../../../lib/context/UserContext", {
+mock.module("../../../../lib/context/UserContext.tsx", {
   namedExports: { useUserContext: useUserContextMock },
 });
 
-mock.module("../../../../lib/actions/upload", {
+mock.module("../../../../lib/actions/upload.ts", {
   namedExports: { uploadImageAction: mock.fn() },
 });
 

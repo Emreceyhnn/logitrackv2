@@ -20,21 +20,21 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../lib/priorityColor", {
+mock.module("../../../lib/priorityColor.ts", {
   namedExports: { 
     getStatusMeta: mock.fn(() => ({ paletteKey: "success", color: "green", label: "Active" }))
   },
 });
 
 // Mock Tabs
-mock.module("./overviewTab", {
+mock.module("./overviewTab.tsx", {
   defaultExport: () => <div data-testid="overview-tab">Overview Content</div>,
 });
-mock.module("./documentsTab", {
+mock.module("./documentsTab.tsx", {
   defaultExport: () => <div data-testid="documents-tab">Documents Content</div>,
 });
 

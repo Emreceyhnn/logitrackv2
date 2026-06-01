@@ -6,13 +6,13 @@ import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
 // 1. Mocks
-mock.module("../../googleMaps/GoogleMapsProvider", {
+mock.module("../../googleMaps/GoogleMapsProvider.tsx", {
   namedExports: {
     GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div>
   }
 });
 
-mock.module("../../googleMaps/MapWithMarker", {
+mock.module("../../googleMaps/MapWithMarker.tsx", {
   namedExports: {
     MapWithMarker: ({ markers }: any) => (
       <div data-testid="map-with-marker">

@@ -41,7 +41,7 @@ mock.module("@mui/icons-material", {
   }
 });
 
-mock.module("../../lib/language/DictionaryContext", {
+mock.module("../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock }
 });
 

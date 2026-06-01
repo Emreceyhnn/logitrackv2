@@ -43,7 +43,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -74,7 +74,7 @@ const mockCustomer = {
   ]
 };
 
-mock.module("../../../lib/controllers/customer", {
+mock.module("../../../lib/controllers/customer.ts", {
   namedExports: { 
     getCustomerById: mock.fn(async () => mockCustomer)
   },

@@ -22,9 +22,9 @@ mock.module("react", {
 });
 
 mock.module("next/navigation", { namedExports: { useParams: useParamsMock } });
-mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("../../lib/language/navigation", { namedExports: { getLocalizedPath: getLocalizedPathMock } });
-mock.module("../../lib/actions/auth", { namedExports: { getUserSession: getUserSessionMock } });
+mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/navigation.ts", { namedExports: { getLocalizedPath: getLocalizedPathMock } });
+mock.module("../../lib/actions/auth.ts", { namedExports: { getUserSession: getUserSessionMock } });
 
 mock.module("@mui/material", {
   namedExports: {
@@ -36,8 +36,8 @@ mock.module("@mui/material", {
 });
 
 mock.module("next/link", { defaultExport: () => ({ type: "Link" }) });
-mock.module("../dialogs/company/CreateCompanyDialog", { defaultExport: () => ({ type: "CreateCompanyDialog" }) });
-mock.module("../nav/UserAccountNav", { defaultExport: () => ({ type: "UserAccountNav" }) });
+mock.module("../dialogs/company/CreateCompanyDialog.tsx", { defaultExport: () => ({ type: "CreateCompanyDialog" }) });
+mock.module("../nav/UserAccountNav.tsx", { defaultExport: () => ({ type: "UserAccountNav" }) });
 
 describe("LandingHeaderAuth Component", () => {
   let LandingHeaderAuth: any;

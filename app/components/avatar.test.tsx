@@ -4,7 +4,7 @@ import { expect } from "expect";
 
 // 1. MOCK'LAR
 // Rating bileşenini izole etmek için mockluyoruz
-mock.module("./rating", {
+mock.module("./rating.tsx", {
   defaultExport: (props: any) => ({ type: "CustomRatingMock", props }),
 });
 

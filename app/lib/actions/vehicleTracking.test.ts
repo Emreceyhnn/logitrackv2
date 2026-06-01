@@ -10,7 +10,7 @@ const adminDbMock = {
   })),
 };
 
-mock.module("../firebase-admin", { namedExports: { adminDb: adminDbMock } });
+mock.module("../firebase-admin.ts", { namedExports: { adminDb: adminDbMock } });
 
 // 2. TEST GRUPLARI
 describe("Vehicle Tracking Actions", () => {

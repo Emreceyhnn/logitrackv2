@@ -22,11 +22,11 @@ mock.module("next/server", {
 });
 
 const getDriversMock = mock.fn();
-mock.module("../../lib/controllers/driver", {
+mock.module("../../lib/controllers/driver.ts", {
   namedExports: { getDrivers: getDriversMock },
 });
 
-mock.module("../../lib/type/enums", {
+mock.module("../../lib/type/enums.ts", {
   namedExports: { DriverStatus: {} },
 });
 

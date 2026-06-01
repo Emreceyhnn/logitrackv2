@@ -18,7 +18,7 @@ const useDictionaryMock = mock.fn(() => ({
 const useStateMock = mock.fn((init) => [init, mock.fn()]);
 
 mock.module("react", { namedExports: { useState: useStateMock } });
-mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
 
 mock.module("@mui/material", {
   namedExports: {

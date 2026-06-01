@@ -10,12 +10,12 @@ const mockGetCustomersWithDashboardData = mock.fn(async () => ({
   customers: [],
 }));
 
-mock.module("../../../../lib/controllers/customer", {
+mock.module("../../../../lib/controllers/customer.ts", {
   namedExports: { getCustomersWithDashboardData: mockGetCustomersWithDashboardData },
 });
 
 // 2. Mock Components
-mock.module("./components/CustomerContent", {
+mock.module("./components/CustomerContent.tsx", {
   defaultExport: () => <div data-testid="customer-content">Customer Content</div>,
 });
 

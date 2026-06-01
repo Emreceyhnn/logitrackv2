@@ -19,11 +19,11 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../../lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../../hooks/useReports", {
+mock.module("../../../../../hooks/useReports.ts", {
   namedExports: { 
     useReportsData: mock.fn(() => ({
       state: {
@@ -40,16 +40,16 @@ mock.module("../../../../../hooks/useReports", {
 });
 
 // Mock child components
-mock.module("../../../../../components/dashboard/reports/ShipmentCharts", {
+mock.module("../../../../../components/dashboard/reports/ShipmentCharts.tsx", {
   defaultExport: () => <div data-testid="shipment-charts">Shipment Charts</div>,
 });
-mock.module("../../../../../components/dashboard/reports/FleetCharts", {
+mock.module("../../../../../components/dashboard/reports/FleetCharts.tsx", {
   defaultExport: () => <div data-testid="fleet-charts">Fleet Charts</div>,
 });
-mock.module("../../../../../components/dashboard/reports/InventoryCharts", {
+mock.module("../../../../../components/dashboard/reports/InventoryCharts.tsx", {
   defaultExport: () => <div data-testid="inventory-charts">Inventory Charts</div>,
 });
-mock.module("../../../../../components/dashboard/reports/ReportSummaryCards", {
+mock.module("../../../../../components/dashboard/reports/ReportSummaryCards.tsx", {
   defaultExport: () => <div data-testid="report-summary">Summary</div>,
 });
 

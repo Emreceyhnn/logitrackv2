@@ -8,12 +8,12 @@ import React from "react";
 // 1. Mock Server-Side Data Fetching
 const mockGetReportsDataAction = mock.fn(async () => ({}));
 
-mock.module("../../../../lib/controllers/reports", {
+mock.module("../../../../lib/controllers/reports.ts", {
   namedExports: { getReportsDataAction: mockGetReportsDataAction },
 });
 
 // 2. Mock Components
-mock.module("./components/ReportsContent", {
+mock.module("./components/ReportsContent.tsx", {
   defaultExport: () => <div data-testid="reports-content">Reports Content</div>,
 });
 

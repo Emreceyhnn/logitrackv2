@@ -18,7 +18,7 @@ mock.module("next/server", {
 });
 
 const getCompanyWithDashboardDataMock = mock.fn();
-mock.module("../../../lib/controllers/company", {
+mock.module("../../../lib/controllers/company.ts", {
   namedExports: { getCompanyWithDashboardData: getCompanyWithDashboardDataMock },
 });
 

@@ -20,11 +20,11 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../chips/priorityChips", {
+mock.module("../../chips/priorityChips.tsx", {
   namedExports: {
     PriorityChip: ({ status }: any) => <span data-testid="priority-chip">{status}</span>
   }

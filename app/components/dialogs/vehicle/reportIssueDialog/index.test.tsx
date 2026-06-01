@@ -44,19 +44,19 @@ const vehicleReportIssueValidationSchemaMock = mock.fn(() => ({
   validate: mock.fn(async () => true),
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle.ts", {
   namedExports: { createVehicleIssue: createVehicleIssueMock },
 });
 
-mock.module("../../../../lib/validationSchema", {
+mock.module("../../../../lib/validationSchema.ts", {
   namedExports: { vehicleReportIssueValidationSchema: vehicleReportIssueValidationSchemaMock },
 });
 
-mock.module("../../../../lib/priorityColor", {
+mock.module("../../../../lib/priorityColor.ts", {
   namedExports: { getPriorityColor: mock.fn(() => "warning") },
 });
 

@@ -36,11 +36,11 @@ const assignDriverMock = mock.fn();
 const unassignDriverMock = mock.fn();
 const getAvailableDriversMock = mock.fn(async () => []);
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle.ts", {
   namedExports: {
     assignDriverToVehicle: assignDriverMock,
     unassignDriverFromVehicle: unassignDriverMock,

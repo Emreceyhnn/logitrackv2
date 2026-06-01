@@ -22,7 +22,7 @@ const mockDict = {
   },
 };
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: () => mockDict },
 });
 

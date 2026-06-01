@@ -14,17 +14,17 @@ const MOCK_USER = {
   role: "ADMIN"
 };
 
-mock.module("../../lib/context/UserContext", {
+mock.module("../../lib/context/UserContext.tsx", {
   namedExports: { 
     useUserContext: mock.fn(() => ({ user: MOCK_USER }))
   },
 });
 
 // Mock child components
-mock.module("../sidebar", {
+mock.module("../sidebar/index.tsx", {
   defaultExport: () => <div data-testid="sidebar">Sidebar</div>,
 });
-mock.module("./DashboardHeader", {
+mock.module("./DashboardHeader.tsx", {
   defaultExport: ({ user }: any) => <div data-testid="header">Header for {user?.name}</div>,
 });
 

@@ -52,11 +52,11 @@ const joseMock = {
 };
 
 // Modülleri Sisteme Enjekte Etme
-mock.module("../db", {
+mock.module("../db.ts", {
   namedExports: { db: dbMock },
 });
 
-mock.module("../redis", {
+mock.module("../redis.ts", {
   namedExports: { redis: redisMock },
 });
 

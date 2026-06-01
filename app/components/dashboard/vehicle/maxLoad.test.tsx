@@ -17,15 +17,15 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../cards/card", {
+mock.module("../../cards/card.tsx", {
   defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
-mock.module("../../skeletons/AnalyticsSkeleton", {
+mock.module("../../skeletons/AnalyticsSkeleton.tsx", {
   defaultExport: () => <div data-testid="analytics-skeleton">Loading...</div>,
 });
 

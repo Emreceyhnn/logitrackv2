@@ -7,7 +7,7 @@ const userContextMock = {
   useUserContext: mock.fn(() => ({ user: { id: "user-1", name: "Test" }, loading: false })),
 };
 
-mock.module("../lib/context/UserContext", { namedExports: userContextMock });
+mock.module("../lib/context/UserContext.tsx", { namedExports: userContextMock });
 
 // 2. TEST GRUPLARI
 describe("useUser Hook", () => {

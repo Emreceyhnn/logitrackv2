@@ -10,12 +10,12 @@ const mockGetInventoryWithDashboardData = mock.fn(async () => ({
   items: [],
 }));
 
-mock.module("../../../../lib/controllers/inventory", {
+mock.module("../../../../lib/controllers/inventory.ts", {
   namedExports: { getInventoryWithDashboardData: mockGetInventoryWithDashboardData },
 });
 
 // 2. Mock Components
-mock.module("./components/InventoryContent", {
+mock.module("./components/InventoryContent.tsx", {
   defaultExport: () => <div data-testid="inventory-content">Inventory Content</div>,
 });
 

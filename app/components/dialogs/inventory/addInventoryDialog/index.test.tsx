@@ -32,7 +32,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -46,32 +46,32 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("../../../../lib/controllers/warehouse", {
+mock.module("../../../../lib/controllers/warehouse.ts", {
   namedExports: { 
     addInventoryItem: mock.fn(async () => ({}))
   },
 });
 
-mock.module("../../../../hooks/useUser", {
+mock.module("../../../../hooks/useUser.ts", {
   namedExports: { 
     useUser: mock.fn(() => ({ user: { currency: "USD" } }))
   },
 });
 
-mock.module("../../../../lib/actions/upload", {
+mock.module("../../../../lib/actions/upload.ts", {
   namedExports: { 
     uploadImageAction: mock.fn(async () => ({ url: "https://example.com/image.png" }))
   },
 });
 
 // Mock Sections
-mock.module("./sections/ItemDetailsSection", {
+mock.module("./sections/ItemDetailsSection.tsx", {
   defaultExport: () => <div data-testid="item-details-section">Item Details</div>,
 });
-mock.module("./sections/StorageLevelsSection", {
+mock.module("./sections/StorageLevelsSection.tsx", {
   defaultExport: () => <div data-testid="storage-levels-section">Storage Levels</div>,
 });
-mock.module("./sections/ReviewSection", {
+mock.module("./sections/ReviewSection.tsx", {
   defaultExport: () => <div data-testid="review-section">Review</div>,
 });
 

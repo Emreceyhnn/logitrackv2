@@ -15,7 +15,7 @@ const rolesMock = [
   { id: "role_manager", name: "Manager", names: ["Manager", "Yönetici"] }
 ];
 
-mock.module("../../db", { namedExports: { db: dbMock } });
+mock.module("../../db.ts", { namedExports: { db: dbMock } });
 mock.module("@/roles.json", { defaultExport: rolesMock });
 
 // 2. TEST GRUPLARI

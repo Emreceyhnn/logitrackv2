@@ -35,7 +35,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -50,24 +50,24 @@ mock.module("sonner", {
 });
 
 const updateRouteMock = mock.fn(async () => ({}));
-mock.module("../../../lib/controllers/routes", {
+mock.module("../../../lib/controllers/routes.ts", {
   namedExports: { updateRoute: updateRouteMock },
 });
 
 const useUserMock = mock.fn(() => ({
   user: { timezone: "UTC" }
 }));
-mock.module("../../../hooks/useUser", {
+mock.module("../../../hooks/useUser.ts", {
   namedExports: { useUser: useUserMock },
 });
 
 // Mock Validation
-mock.module("../../../lib/validationSchema", {
+mock.module("../../../lib/validationSchema.ts", {
   namedExports: { editRouteValidationSchema: () => ({}) },
 });
 
 // Mock Date Utils
-mock.module("../../../lib/utils/date", {
+mock.module("../../../lib/utils/date.ts", {
   namedExports: {
     toUTC: (d: any) => d,
     utcToUserTz: (d: any) => ({ toDate: () => new Date(d) }),
@@ -75,16 +75,16 @@ mock.module("../../../lib/utils/date", {
 });
 
 // Mock Subcomponents
-mock.module("../../googleMaps/GoogleMapsProvider", {
+mock.module("../../googleMaps/GoogleMapsProvider.tsx", {
   namedExports: { GoogleMapsProvider: ({ children }: any) => <>{children}</> },
 });
-mock.module("./addRouteDialog/firstStep", {
+mock.module("./addRouteDialog/firstStep.tsx", {
   defaultExport: () => <div data-testid="first-step">First Step</div>,
 });
-mock.module("./addRouteDialog/secondStep", {
+mock.module("./addRouteDialog/secondStep.tsx", {
   defaultExport: () => <div data-testid="second-step">Second Step</div>,
 });
-mock.module("./addRouteDialog/thirdStep", {
+mock.module("./addRouteDialog/thirdStep.tsx", {
   defaultExport: () => <div data-testid="third-step">Third Step</div>,
 });
 

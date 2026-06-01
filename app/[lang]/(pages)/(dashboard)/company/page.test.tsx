@@ -10,12 +10,12 @@ const mockGetCompanyWithDashboardData = mock.fn(async () => ({
   stats: { users: 5 },
 }));
 
-mock.module("../../../../lib/controllers/company", {
+mock.module("../../../../lib/controllers/company.ts", {
   namedExports: { getCompanyWithDashboardData: mockGetCompanyWithDashboardData },
 });
 
 // 2. Mock Components
-mock.module("./components/CompanyContent", {
+mock.module("./components/CompanyContent.tsx", {
   defaultExport: () => <div data-testid="company-content">Company Content</div>,
 });
 

@@ -16,11 +16,11 @@ mock.module("next/navigation", {
 
 mock.module("next/link", { defaultExport: ({ children }: any) => <a data-testid="Link">{children}</a> });
 
-mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
-mock.module("../../lib/controllers/users", { namedExports: { LoginUser: mock.fn() } });
-mock.module("../../lib/validationSchema", { namedExports: { loginValidationSchema: mock.fn() } });
-mock.module("../../lib/styled/styledFieldBox", { namedExports: { StyledTextFieldAuth: () => <input data-testid="StyledTextFieldAuth" /> } });
-mock.module("../ui/AuthButton", { defaultExport: ({ children }: any) => <button data-testid="AuthButton">{children}</button> });
+mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/controllers/users.ts", { namedExports: { LoginUser: mock.fn() } });
+mock.module("../../lib/validationSchema.ts", { namedExports: { loginValidationSchema: mock.fn() } });
+mock.module("../../lib/styled/styledFieldBox.ts", { namedExports: { StyledTextFieldAuth: () => <input data-testid="StyledTextFieldAuth" /> } });
+mock.module("../ui/AuthButton.tsx", { defaultExport: ({ children }: any) => <button data-testid="AuthButton">{children}</button> });
 
 mock.module("formik", {
   namedExports: {

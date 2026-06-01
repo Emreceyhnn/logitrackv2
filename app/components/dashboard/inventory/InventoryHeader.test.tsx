@@ -26,7 +26,7 @@ const mockDict = {
   },
 };
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: () => mockDict },
 });
 
@@ -37,7 +37,7 @@ const mockUseWarehouses = mock.fn(() => ({
   ],
 }));
 
-mock.module("../../../hooks/useWarehouses", {
+mock.module("../../../hooks/useWarehouses.ts", {
   namedExports: { useWarehouses: mockUseWarehouses },
 });
 

@@ -48,7 +48,7 @@ const useDictionaryMock = mock.fn(() => ({
   },
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -63,15 +63,15 @@ mock.module("framer-motion", {
 });
 
 // 3. Mock External Components
-mock.module("../../chips/statusChips", {
+mock.module("../../chips/statusChips.tsx", {
   namedExports: { StatusChip: () => <div data-testid="status-chip" /> },
 });
 
-mock.module("../../cards/driverCard", {
+mock.module("../../cards/driverCard.tsx", {
   defaultExport: () => <div data-testid="driver-card" />,
 });
 
-mock.module("../routes/map", {
+mock.module("../routes/map.tsx", {
   defaultExport: () => <div data-testid="map-routes" />,
 });
 

@@ -34,12 +34,12 @@ const mockDict = {
   },
 };
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: () => mockDict },
 });
 
 const mockFormatFrom = mock.fn((val: number, cur: string, dec: number) => `$${val}`);
-mock.module("../../../hooks/useCurrency", {
+mock.module("../../../hooks/useCurrency.ts", {
   namedExports: {
     useCurrency: () => ({ formatFrom: mockFormatFrom, isLoading: false }),
   },
@@ -47,7 +47,7 @@ mock.module("../../../hooks/useCurrency", {
 
 // Mock DataTable to expose columns rendering
 let dataTableProps: any = null;
-mock.module("../../ui/DataTable", {
+mock.module("../../ui/DataTable/index.tsx", {
   defaultExport: (props: any) => {
     dataTableProps = props;
     return (

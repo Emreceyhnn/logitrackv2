@@ -12,11 +12,11 @@ const exchangeRateMock = {
 };
 
 // Modülleri Sisteme Enjekte Etme
-mock.module("../auth-middleware", {
+mock.module("../auth-middleware.ts", {
   namedExports: authMiddlewareMock,
 });
 
-mock.module("../services/exchangeRate", {
+mock.module("../services/exchangeRate.ts", {
   namedExports: exchangeRateMock,
 });
 

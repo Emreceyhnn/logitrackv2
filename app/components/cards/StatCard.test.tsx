@@ -10,7 +10,7 @@ const useDictionaryMock = mock.fn(() => ({
   common: { fromLastMonth: "FROM LAST MONTH" }
 }));
 
-mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
 
 mock.module("framer-motion", {
   namedExports: {

@@ -13,12 +13,12 @@ const mockGetAnalyticsDashboardData = mock.fn(async () => ({
   performance: {},
 }));
 
-mock.module("../../../../lib/controllers/analytics", {
+mock.module("../../../../lib/controllers/analytics.ts", {
   namedExports: { getAnalyticsDashboardData: mockGetAnalyticsDashboardData },
 });
 
 // 2. Mock Components
-mock.module("./components/AnalyticsContent", {
+mock.module("./components/AnalyticsContent.tsx", {
   defaultExport: () => <div data-testid="analytics-content">Analytics Content</div>,
 });
 

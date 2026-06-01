@@ -6,7 +6,7 @@ const validateSessionMock = mock.fn<(...args: any[]) => any>();
 const redirectMock = mock.fn<(...args: any[]) => any>();
 const headersMock = mock.fn<(...args: any[]) => any>();
 
-mock.module("./controllers/session", {
+mock.module("./controllers/session.ts", {
   namedExports: {
     validateSession: validateSessionMock,
   },
@@ -30,7 +30,7 @@ mock.module("react", {
   },
 });
 
-mock.module("./constants", {
+mock.module("./constants.ts", {
   namedExports: {
     DEFAULT_LOCALE: "en",
     LOCALES: ["en", "tr", "de"],

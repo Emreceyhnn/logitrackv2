@@ -38,7 +38,7 @@ const useDictionaryMock = mock.fn(() => ({
   },
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -52,21 +52,21 @@ mock.module("sonner", {
 });
 
 const updateRouteStatusMock = mock.fn(async () => ({}));
-mock.module("../../../lib/controllers/routes", {
+mock.module("../../../lib/controllers/routes.ts", {
   namedExports: { updateRouteStatus: updateRouteStatusMock },
 });
 
 // Mock Heavy Components
-mock.module("../../cards/driverCard", {
+mock.module("../../cards/driverCard.tsx", {
   defaultExport: () => <div data-testid="driver-card-mock">DriverCard</div>,
 });
-mock.module("./map", {
+mock.module("./map.tsx", {
   defaultExport: () => <div data-testid="map-mock">Map</div>,
 });
-mock.module("./progress", {
+mock.module("./progress.tsx", {
   defaultExport: () => <div data-testid="progress-mock">Progress</div>,
 });
-mock.module("./telemetry", {
+mock.module("./telemetry.tsx", {
   defaultExport: () => <div data-testid="telemetry-mock">Telemetry</div>,
 });
 

@@ -47,7 +47,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -61,7 +61,7 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("../../../hooks/useWarehouses", {
+mock.module("../../../hooks/useWarehouses.ts", {
   namedExports: { 
     useWarehouses: mock.fn(() => ({
       data: [{ id: "wh-1", name: "Main Warehouse", code: "WH-M" }]
@@ -69,13 +69,13 @@ mock.module("../../../hooks/useWarehouses", {
   },
 });
 
-mock.module("../../../lib/actions/upload", {
+mock.module("../../../lib/actions/upload.ts", {
   namedExports: { 
     uploadImageAction: mock.fn(async () => ({ url: "https://example.com/image.png" }))
   },
 });
 
-mock.module("../../../hooks/useCurrency", {
+mock.module("../../../hooks/useCurrency.ts", {
   namedExports: {
     useCurrency: mock.fn(() => ({
       convertFrom: (val: number) => val,

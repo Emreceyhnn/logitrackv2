@@ -30,7 +30,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -44,20 +44,20 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("../../../../lib/controllers/driver", {
+mock.module("../../../../lib/controllers/driver.ts", {
   namedExports: { 
     createDriver: mock.fn(async () => ({})),
     getEligibleUsersForDriver: mock.fn(async () => [])
   },
 });
 
-mock.module("../../../../lib/actions/upload", {
+mock.module("../../../../lib/actions/upload.ts", {
   namedExports: { 
     uploadImageAction: mock.fn(async () => ({ url: "https://example.com/image.png" }))
   },
 });
 
-mock.module("../../../../lib/validationSchema", {
+mock.module("../../../../lib/validationSchema.ts", {
   namedExports: {
     addDriverValidationSchema: mock.fn(() => ({
       validate: async () => true,
@@ -66,10 +66,10 @@ mock.module("../../../../lib/validationSchema", {
 });
 
 // Mock Sections
-mock.module("./firstStep", {
+mock.module("./firstStep.tsx", {
   defaultExport: () => <div data-testid="first-step-section">First Step Content</div>,
 });
-mock.module("./secondStep", {
+mock.module("./secondStep.tsx", {
   defaultExport: () => <div data-testid="second-step-section">Second Step Content</div>,
 });
 

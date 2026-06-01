@@ -17,11 +17,11 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
 
-mock.module("./GoogleMapsProvider", { namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="GoogleMapsProvider">{children}</div> } });
-mock.module("./AddressAutocomplete", { namedExports: { AddressAutocomplete: () => <div data-testid="AddressAutocomplete" /> } });
-mock.module("./MapWithMarker", { namedExports: { MapWithMarker: () => <div data-testid="MapWithMarker" /> } });
+mock.module("./GoogleMapsProvider.tsx", { namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="GoogleMapsProvider">{children}</div> } });
+mock.module("./AddressAutocomplete.tsx", { namedExports: { AddressAutocomplete: () => <div data-testid="AddressAutocomplete" /> } });
+mock.module("./MapWithMarker.tsx", { namedExports: { MapWithMarker: () => <div data-testid="MapWithMarker" /> } });
 mock.module("./DirectionsMap", { namedExports: { DirectionsMap: () => <div data-testid="DirectionsMap" /> } });
 mock.module("./MapPicker", { namedExports: { MapPicker: () => <div data-testid="MapPicker" /> } });
 

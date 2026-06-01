@@ -17,15 +17,15 @@ const mockDict = {
   },
 };
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: () => mockDict },
 });
 
-mock.module("../../cards/card", {
+mock.module("../../cards/card.tsx", {
   defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
 });
 
-mock.module("../../charts/TimeRangeSelector", {
+mock.module("../../charts/TimeRangeSelector.tsx", {
   defaultExport: ({ value, onChange }: any) => (
     <div data-testid="time-range-selector">
       <span>{value}</span>

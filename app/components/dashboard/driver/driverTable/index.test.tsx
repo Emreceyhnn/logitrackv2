@@ -42,12 +42,12 @@ const mockDict = {
   },
 };
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: () => mockDict },
 });
 
 // Mock StatusChip
-mock.module("../../../chips/statusChips", {
+mock.module("../../../chips/statusChips.tsx", {
   namedExports: {
     StatusChip: ({ status }: any) => <span data-testid="status-chip">{status}</span>,
   },
@@ -55,7 +55,7 @@ mock.module("../../../chips/statusChips", {
 
 // Mock DataTable
 let dataTableProps: any = null;
-mock.module("../../../ui/DataTable", {
+mock.module("../../../ui/DataTable/index.tsx", {
   defaultExport: (props: any) => {
     dataTableProps = props;
     return (

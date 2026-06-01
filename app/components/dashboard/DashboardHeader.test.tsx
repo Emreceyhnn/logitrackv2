@@ -16,21 +16,21 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../lib/language/DictionaryContext", {
+mock.module("../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 // Mock child components
-mock.module("./DashboardBreadcrumbs", {
+mock.module("./DashboardBreadcrumbs.tsx", {
   defaultExport: () => <div data-testid="breadcrumbs">Breadcrumbs</div>,
 });
-mock.module("../nav/UserAccountNav", {
+mock.module("../nav/UserAccountNav.tsx", {
   defaultExport: () => <div data-testid="user-nav">User Nav</div>,
 });
-mock.module("../notifications/NotificationBell", {
+mock.module("../notifications/NotificationBell.tsx", {
   defaultExport: () => <div data-testid="notification-bell">Notification Bell</div>,
 });
-mock.module("../sidebar", {
+mock.module("../sidebar/index.tsx", {
   defaultExport: ({ onMobileClose }: any) => (
     <div data-testid="sidebar">
       Sidebar

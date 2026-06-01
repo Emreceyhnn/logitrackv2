@@ -9,7 +9,7 @@ const mockOnValue = mock.fn();
 const mockOff = mock.fn();
 
 // Mock the firebase module BEFORE importing the code that uses it
-mock.module("./firebase", {
+mock.module("./firebase.ts", {
   namedExports: {
     db: {},
     ref: mockRef,

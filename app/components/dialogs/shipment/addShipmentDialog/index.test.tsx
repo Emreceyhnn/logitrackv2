@@ -44,11 +44,11 @@ const useUserMock = mock.fn(() => ({
   user: mockUser,
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../hooks/useUser", {
+mock.module("../../../../hooks/useUser.ts", {
   namedExports: { useUser: useUserMock },
 });
 
@@ -59,28 +59,28 @@ const getInventoryMock = mock.fn(async () => []);
 const getTrailersMock = mock.fn(async () => ({ trailers: [], pagination: {} }));
 const createShipmentMock = mock.fn(async () => ({}));
 
-mock.module("../../../../lib/controllers/warehouse", {
+mock.module("../../../../lib/controllers/warehouse.ts", {
   namedExports: { getWarehouses: getWarehousesMock },
 });
 
-mock.module("../../../../lib/controllers/customer", {
+mock.module("../../../../lib/controllers/customer.ts", {
   namedExports: { getCustomers: getCustomersMock },
 });
 
-mock.module("../../../../lib/controllers/inventory", {
+mock.module("../../../../lib/controllers/inventory.ts", {
   namedExports: { getInventory: getInventoryMock },
 });
 
-mock.module("../../../../lib/controllers/trailer", {
+mock.module("../../../../lib/controllers/trailer.ts", {
   namedExports: { getTrailers: getTrailersMock },
 });
 
-mock.module("../../../../lib/controllers/shipments", {
+mock.module("../../../../lib/controllers/shipments.ts", {
   namedExports: { createShipment: createShipmentMock },
 });
 
 import * as Yup from "yup";
-mock.module("../../../../lib/validationSchema", {
+mock.module("../../../../lib/validationSchema.ts", {
   namedExports: {
     addShipmentValidationSchema: () => Yup.object(),
     editShipmentValidationSchema: () => Yup.object(),
@@ -92,16 +92,16 @@ mock.module("sonner", {
   namedExports: { toast: { promise: mock.fn(), error: mock.fn() } },
 });
 
-mock.module("../../../googleMaps/GoogleMapsProvider", {
+mock.module("../../../googleMaps/GoogleMapsProvider.tsx", {
   namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="maps-provider">{children}</div> },
 });
 
 // 4. Mock Sub-Sections
-mock.module("./sections/BasicInfoSection", { defaultExport: () => <div data-testid="basic-info-section" /> });
-mock.module("./sections/LogisticsSection", { defaultExport: () => <div data-testid="logistics-section" /> });
-mock.module("./sections/CargoSection", { defaultExport: () => <div data-testid="cargo-section" /> });
-mock.module("./sections/InventorySection", { defaultExport: () => <div data-testid="inventory-section" /> });
-mock.module("./sections/StopsSection", { defaultExport: () => <div data-testid="stops-section" /> });
+mock.module("./sections/BasicInfoSection.tsx", { defaultExport: () => <div data-testid="basic-info-section" /> });
+mock.module("./sections/LogisticsSection.tsx", { defaultExport: () => <div data-testid="logistics-section" /> });
+mock.module("./sections/CargoSection.tsx", { defaultExport: () => <div data-testid="cargo-section" /> });
+mock.module("./sections/InventorySection.tsx", { defaultExport: () => <div data-testid="inventory-section" /> });
+mock.module("./sections/StopsSection.tsx", { defaultExport: () => <div data-testid="stops-section" /> });
 
 // 5. Mock Theme
 const customTheme = createTheme({

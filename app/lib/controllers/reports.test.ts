@@ -28,11 +28,11 @@ const authMiddlewareMock = {
 };
 
 // Modülleri Sisteme Enjekte Etme
-mock.module("../db", {
+mock.module("../db.ts", {
   namedExports: { db: dbMock },
 });
 
-mock.module("../auth-middleware", {
+mock.module("../auth-middleware.ts", {
   namedExports: authMiddlewareMock,
 });
 

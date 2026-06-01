@@ -16,15 +16,15 @@ mock.module("next/dynamic", {
 });
 
 // Mock static component
-mock.module("../../../components/landing/HeroSection", {
+mock.module("../../../components/landing/HeroSection.tsx", {
   defaultExport: () => <div data-testid="hero-section">Hero Section</div>,
 });
 
 // Mock dynamic components (so their import() doesn't fail if they don't exist yet, or just let next/dynamic mock handle it. Next/dynamic mock calls the import, so we need to mock the files)
-mock.module("../../../components/landing/SocialProof", { defaultExport: () => null });
-mock.module("../../../components/landing/OperationsDashboard", { defaultExport: () => null });
-mock.module("../../../components/landing/FeaturesSection", { defaultExport: () => null });
-mock.module("../../../components/landing/LandingFooter", { defaultExport: () => null });
+mock.module("../../../components/landing/SocialProof.tsx", { defaultExport: () => null });
+mock.module("../../../components/landing/OperationsDashboard.tsx", { defaultExport: () => null });
+mock.module("../../../components/landing/FeaturesSection.tsx", { defaultExport: () => null });
+mock.module("../../../components/landing/LandingFooter.tsx", { defaultExport: () => null });
 
 describe("LandingPage Component", () => {
   let LandingPage: any;

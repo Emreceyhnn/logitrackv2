@@ -30,9 +30,9 @@ const currencyUtilsMock = {
 
 mock.module("react", { namedExports: reactMock });
 mock.module("@tanstack/react-query", { namedExports: reactQueryMock });
-mock.module("../lib/context/UserContext", { namedExports: userContextMock });
-mock.module("../lib/controllers/exchangeRate", { namedExports: exchangeRateControllerMock });
-mock.module("../lib/utils/currency", { namedExports: currencyUtilsMock });
+mock.module("../lib/context/UserContext.tsx", { namedExports: userContextMock });
+mock.module("../lib/controllers/exchangeRate.ts", { namedExports: exchangeRateControllerMock });
+mock.module("../lib/utils/currency.ts", { namedExports: currencyUtilsMock });
 
 // 2. TEST GRUPLARI
 describe("useCurrency Hook", () => {

@@ -28,11 +28,11 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../skeletons/AnalyticsSkeleton", {
+mock.module("../../skeletons/AnalyticsSkeleton.tsx", {
   defaultExport: ({ title }: any) => <div data-testid={`skeleton-${title}`}>{title}</div>,
 });
 

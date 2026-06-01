@@ -28,12 +28,12 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../../lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 const mockMutateAsync = mock.fn(async () => {});
-mock.module("../../../../../hooks/useWarehouses", {
+mock.module("../../../../../hooks/useWarehouses.ts", {
   namedExports: { 
     useWarehousesWithDashboard: mock.fn(() => ({
       data: {
@@ -55,36 +55,36 @@ mock.module("sonner", {
 });
 
 // Mock child components
-mock.module("../../../../../components/cards/KpiCards", {
+mock.module("../../../../../components/cards/KpiCards.tsx", {
   defaultExport: ({ kpis }: any) => <div data-testid="kpi-cards">KPI Cards {kpis.length}</div>,
 });
-mock.module("../../../../../components/dashboard/warehouse/warehouseList", {
+mock.module("../../../../../components/dashboard/warehouse/warehouseList.tsx", {
   defaultExport: ({ onDelete }: any) => (
     <div data-testid="warehouse-list">
       <button onClick={() => onDelete("wh-1")}>Delete WH-1</button>
     </div>
   ),
 });
-mock.module("../../../../../components/dashboard/warehouse/capacityUtilization", {
+mock.module("../../../../../components/dashboard/warehouse/capacityUtilization.tsx", {
   defaultExport: () => <div data-testid="capacity-chart">Capacity Chart</div>,
 });
-mock.module("../../../../../components/dashboard/warehouse/recentStockMovements", {
+mock.module("../../../../../components/dashboard/warehouse/recentStockMovements.tsx", {
   defaultExport: () => <div data-testid="movements-table">Movements Table</div>,
 });
 
-mock.module("../../../../../components/googleMaps/GoogleMapsProvider", {
+mock.module("../../../../../components/googleMaps/GoogleMapsProvider.tsx", {
   namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div> },
 });
-mock.module("../../../../../components/dialogs/warehouse/addWarehouseDialog", {
+mock.module("../../../../../components/dialogs/warehouse/addWarehouseDialog/index.tsx", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
-mock.module("../../../../../components/dialogs/warehouse/warehouseDetailsDialog", {
+mock.module("../../../../../components/dialogs/warehouse/warehouseDetailsDialog/index.tsx", {
   defaultExport: () => <div data-testid="details-dialog">Details Dialog</div>,
 });
-mock.module("../../../../../components/dialogs/warehouse/editWarehouseDialog", {
+mock.module("../../../../../components/dialogs/warehouse/editWarehouseDialog/index.tsx", {
   defaultExport: () => <div data-testid="edit-dialog">Edit Dialog</div>,
 });
-mock.module("../../../../../components/dialogs/deleteConfirmationDialog", {
+mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
   defaultExport: ({ open, onConfirm }: any) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>

@@ -23,14 +23,14 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../../lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 const mockRefetch = mock.fn(async () => {});
 const mockDeleteMutateAsync = mock.fn(async () => {});
 
-mock.module("../../../../../hooks/useCompany", {
+mock.module("../../../../../hooks/useCompany.ts", {
   namedExports: { 
     useCompanyWithDashboard: mock.fn(() => ({
       data: {
@@ -52,16 +52,16 @@ mock.module("../../../../../hooks/useCompany", {
 });
 
 // Mock child components
-mock.module("../../../../../components/cards/KpiCards", {
+mock.module("../../../../../components/cards/KpiCards.tsx", {
   defaultExport: ({ kpis }: any) => <div data-testid="kpi-cards">KPI Cards</div>,
 });
-mock.module("../../../../../components/dashboard/company/companyInfoCard", {
+mock.module("../../../../../components/dashboard/company/companyInfoCard.tsx", {
   defaultExport: () => <div data-testid="company-info-card">Company Info</div>,
 });
-mock.module("../../../../../components/dashboard/company/companyMembersTable", {
+mock.module("../../../../../components/dashboard/company/companyMembersTable.tsx", {
   defaultExport: () => <div data-testid="company-members-table">Members Table</div>,
 });
-mock.module("../../../../../components/dialogs/company/AddCompanyMemberDialog", {
+mock.module("../../../../../components/dialogs/company/AddCompanyMemberDialog.tsx", {
   defaultExport: ({ open, onClose }: any) => open ? (
     <div data-testid="add-member-dialog">
       <button onClick={onClose}>Close</button>

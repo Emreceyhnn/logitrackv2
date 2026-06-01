@@ -62,31 +62,31 @@ const vehicleTrackingMock = {
 };
 
 // Modülleri Sisteme Enjekte Etme
-mock.module("../db", {
+mock.module("../db.ts", {
   namedExports: { db: dbMock },
 });
 
-mock.module("../redis", {
+mock.module("../redis.ts", {
   namedExports: cacheUtilsMock,
 });
 
-mock.module("../auth-middleware", {
+mock.module("../auth-middleware.ts", {
   namedExports: authMiddlewareMock,
 });
 
-mock.module("./utils/checkPermission", {
+mock.module("./utils/checkPermission.ts", {
   namedExports: checkPermissionMock,
 });
 
-mock.module("../actions/notifications", {
+mock.module("../actions/notifications.ts", {
   namedExports: { sendNotificationAction: notificationsMock.sendNotificationAction },
 });
 
-mock.module("../actions/vehicleTracking", {
+mock.module("../actions/vehicleTracking.ts", {
   namedExports: { syncVehicleToFirebaseAction: vehicleTrackingMock.syncVehicleToFirebaseAction },
 });
 
-mock.module("../services/exchangeRate", {
+mock.module("../services/exchangeRate.ts", {
   namedExports: { getExchangeRates: mock.fn() },
 });
 

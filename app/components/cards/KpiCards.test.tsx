@@ -12,7 +12,7 @@ mock.module("framer-motion", {
   }
 });
 
-mock.module("../cards/StatCard", { defaultExport: () => <div data-testid="StatCard" /> });
+mock.module("../cards/StatCard.tsx", { defaultExport: () => <div data-testid="StatCard" /> });
 
 mock.module("@mui/material", {
   namedExports: {

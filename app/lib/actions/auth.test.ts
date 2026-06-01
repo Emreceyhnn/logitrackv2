@@ -16,9 +16,9 @@ const sessionControllerMock = {
 };
 
 // Modülleri Sisteme Enjekte Etme
-mock.module("../auth-middleware", { namedExports: authMiddlewareMock });
-mock.module("../controllers/users", { namedExports: usersControllerMock });
-mock.module("../controllers/session", { namedExports: sessionControllerMock });
+mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
+mock.module("../controllers/users.ts", { namedExports: usersControllerMock });
+mock.module("../controllers/session.ts", { namedExports: sessionControllerMock });
 
 // 2. TEST GRUPLARI
 describe("Auth Actions", () => {

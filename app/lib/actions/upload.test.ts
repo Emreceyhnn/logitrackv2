@@ -20,8 +20,8 @@ const authMiddlewareMock = {
   maybeAuthenticatedAction: mock.fn((cb) => cb),
 };
 
-mock.module("../supabase", { namedExports: { supabase: supabaseMock } });
-mock.module("../auth-middleware", { namedExports: authMiddlewareMock });
+mock.module("../supabase.ts", { namedExports: { supabase: supabaseMock } });
+mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
 
 // 2. TEST GRUPLARI
 describe("Upload Actions", () => {

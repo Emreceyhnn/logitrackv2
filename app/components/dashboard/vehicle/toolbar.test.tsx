@@ -27,11 +27,11 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../lib/type/enums", {
+mock.module("../../../lib/type/enums.ts", {
   namedExports: {
     VehicleStatus: { ACTIVE: "ACTIVE", MAINTENANCE: "MAINTENANCE" },
     VehicleType: { TRUCK: "TRUCK", VAN: "VAN" },

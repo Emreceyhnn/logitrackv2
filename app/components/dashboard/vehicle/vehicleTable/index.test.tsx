@@ -49,11 +49,11 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/type/enums", {
+mock.module("../../../../lib/type/enums.ts", {
   namedExports: {
     VehicleStatus: { AVAILABLE: "AVAILABLE", MAINTENANCE: "MAINTENANCE" },
     VehicleType: { TRUCK: "TRUCK" },
@@ -61,7 +61,7 @@ mock.module("../../../../lib/type/enums", {
 });
 
 const mockUpdateVehicleStatus = mock.fn(async () => {});
-mock.module("../../../../lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle.ts", {
   namedExports: { updateVehicleStatus: mockUpdateVehicleStatus }
 });
 
@@ -69,15 +69,15 @@ mock.module("sonner", {
   namedExports: { toast: { success: mock.fn(), error: mock.fn() } }
 });
 
-mock.module("../../../chips/statusChips", {
+mock.module("../../../chips/statusChips.tsx", {
   namedExports: { StatusChip: ({ status }: any) => <span data-testid={`status-chip-${status}`}>{status}</span> }
 });
 
-mock.module("../../../avatar", {
+mock.module("../../../avatar.tsx", {
   defaultExport: ({ name, surname }: any) => <div data-testid="driver-avatar">{name} {surname}</div>
 });
 
-mock.module("../../../ui/DataTable", {
+mock.module("../../../ui/DataTable/index.tsx", {
   defaultExport: ({ rows, columns, rowActions, emptyMessage }: any) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (

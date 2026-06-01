@@ -49,15 +49,15 @@ const useUserContextMock = mock.fn(() => ({
 
 const createFuelLogMock = mock.fn(async () => ({ id: "log-1" }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/context/UserContext", {
+mock.module("../../../../lib/context/UserContext.tsx", {
   namedExports: { useUserContext: useUserContextMock },
 });
 
-mock.module("../../../../lib/controllers/fuel", {
+mock.module("../../../../lib/controllers/fuel.ts", {
   namedExports: { createFuelLog: createFuelLogMock },
 });
 

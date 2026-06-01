@@ -10,12 +10,12 @@ const mockGetVehiclesWithDashboard = mock.fn(async () => ({
   vehicles: [],
 }));
 
-mock.module("../../../../lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle.ts", {
   namedExports: { getVehiclesWithDashboard: mockGetVehiclesWithDashboard },
 });
 
 // 2. Mock Components
-mock.module("./components/VehicleContent", {
+mock.module("./components/VehicleContent.tsx", {
   defaultExport: () => <div data-testid="vehicle-content">Vehicle Content</div>,
 });
 

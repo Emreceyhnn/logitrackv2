@@ -37,20 +37,20 @@ const mockDict = {
   },
 };
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: () => mockDict },
 });
 
-mock.module("../../../hooks/useDateSettings", {
+mock.module("../../../hooks/useDateSettings.ts", {
   namedExports: { useDateSettings: () => ({ format: "YYYY-MM-DD" }) },
 });
 
-mock.module("../../../lib/utils/date", {
+mock.module("../../../lib/utils/date.ts", {
   namedExports: { formatDisplayDate: () => "2024-01-01" },
 });
 
 // Mock Dialogs
-mock.module("../../dialogs/company/CompanyMemberDetailsDialog", {
+mock.module("../../dialogs/company/CompanyMemberDetailsDialog.tsx", {
   defaultExport: ({ open, onClose, member }: any) =>
     open ? (
       <div data-testid="details-dialog">
@@ -60,7 +60,7 @@ mock.module("../../dialogs/company/CompanyMemberDetailsDialog", {
     ) : null,
 });
 
-mock.module("../../dialogs/company/EditCompanyMemberDialog", {
+mock.module("../../dialogs/company/EditCompanyMemberDialog.tsx", {
   defaultExport: ({ open, onClose, member }: any) =>
     open ? (
       <div data-testid="edit-dialog">
@@ -70,7 +70,7 @@ mock.module("../../dialogs/company/EditCompanyMemberDialog", {
     ) : null,
 });
 
-mock.module("../../dialogs/deleteConfirmationDialog", {
+mock.module("../../dialogs/deleteConfirmationDialog.tsx", {
   defaultExport: ({ open, onClose, onConfirm, description }: any) =>
     open ? (
       <div data-testid="delete-dialog">
@@ -83,7 +83,7 @@ mock.module("../../dialogs/deleteConfirmationDialog", {
 
 // Mock DataTable
 let dataTableProps: any = null;
-mock.module("../../ui/DataTable", {
+mock.module("../../ui/DataTable/index.tsx", {
   defaultExport: (props: any) => {
     dataTableProps = props;
     return <div data-testid="data-table">{props.emptyMessage}</div>;

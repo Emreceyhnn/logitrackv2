@@ -28,22 +28,22 @@ const useDictionaryMock = mock.fn(() => ({
 const deleteVehicleMock = mock.fn(async () => ({}));
 const getStatusMetaMock = mock.fn(() => ({ label: "Available", color: "green", paletteKey: "success" }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle.ts", {
   namedExports: { deleteVehicle: deleteVehicleMock },
 });
 
-mock.module("../../../../lib/priorityColor", {
+mock.module("../../../../lib/priorityColor.ts", {
   namedExports: { getStatusMeta: getStatusMetaMock },
 });
 
-mock.module("./overviewTab", { defaultExport: () => <div data-testid="overview-tab" /> });
-mock.module("./documentsTab", { defaultExport: () => <div data-testid="documents-tab" /> });
-mock.module("./maintenance", { defaultExport: () => <div data-testid="maintenance-tab" /> });
-mock.module("../../deleteConfirmationDialog", { defaultExport: () => <div data-testid="delete-confirm-dialog" /> });
+mock.module("./overviewTab.tsx", { defaultExport: () => <div data-testid="overview-tab" /> });
+mock.module("./documentsTab.tsx", { defaultExport: () => <div data-testid="documents-tab" /> });
+mock.module("./maintenance.tsx", { defaultExport: () => <div data-testid="maintenance-tab" /> });
+mock.module("../../deleteConfirmationDialog.tsx", { defaultExport: () => <div data-testid="delete-confirm-dialog" /> });
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => ({

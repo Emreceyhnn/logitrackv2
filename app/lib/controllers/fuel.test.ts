@@ -27,19 +27,19 @@ const exchangeRateMock = {
 };
 
 // Modülleri Sisteme Enjekte Etme
-mock.module("../db", {
+mock.module("../db.ts", {
   namedExports: { db: dbMock },
 });
 
-mock.module("../auth-middleware", {
+mock.module("../auth-middleware.ts", {
   namedExports: authMiddlewareMock,
 });
 
-mock.module("./utils/checkPermission", {
+mock.module("./utils/checkPermission.ts", {
   namedExports: checkPermissionMock,
 });
 
-mock.module("../services/exchangeRate", {
+mock.module("../services/exchangeRate.ts", {
   namedExports: exchangeRateMock,
 });
 

@@ -16,15 +16,15 @@ const mockDict = {
   },
 };
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: () => mockDict },
 });
 
-mock.module("../../../hooks/useDateSettings", {
+mock.module("../../../hooks/useDateSettings.ts", {
   namedExports: { useDateSettings: () => ({ format: "DD/MM/YYYY" }) },
 });
 
-mock.module("../../../lib/utils/date", {
+mock.module("../../../lib/utils/date.ts", {
   namedExports: { formatDisplayDate: (d: any) => `formatted-${d}` },
 });
 

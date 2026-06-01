@@ -24,7 +24,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../lib/language/DictionaryContext", {
+mock.module("../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -41,13 +41,13 @@ const getVehiclesMock = mock.fn(async () => [
   }
 ]);
 
-mock.module("../../lib/controllers/vehicle", {
+mock.module("../../lib/controllers/vehicle.ts", {
   namedExports: { 
     getVehicles: getVehiclesMock
   },
 });
 
-mock.module("../../hooks/useVehicleTracking", {
+mock.module("../../hooks/useVehicleTracking.ts", {
   namedExports: { 
     useAllVehiclesTracking: mock.fn(() => ({
       vehicleLocations: {
@@ -57,7 +57,7 @@ mock.module("../../hooks/useVehicleTracking", {
   },
 });
 
-mock.module("../googleMaps/MapWithMarker", {
+mock.module("../googleMaps/MapWithMarker.tsx", {
   namedExports: { 
     MapWithMarker: ({ markers, onMarkerClick }: any) => (
       <div data-testid="map-mock">
@@ -71,7 +71,7 @@ mock.module("../googleMaps/MapWithMarker", {
   },
 });
 
-mock.module("../dialogs/vehicle/vehicleDetailsDialog", {
+mock.module("../dialogs/vehicle/vehicleDetailsDialog/index.tsx", {
   defaultExport: () => <div data-testid="vehicle-dialog">Vehicle Dialog</div>,
 });
 

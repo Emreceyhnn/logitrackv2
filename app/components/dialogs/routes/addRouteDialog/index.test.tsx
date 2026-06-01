@@ -35,7 +35,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -50,48 +50,48 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("../../../../lib/controllers/routes", {
+mock.module("../../../../lib/controllers/routes.ts", {
   namedExports: { createRoute: mock.fn(async () => ({})) },
 });
 
-mock.module("../../../../lib/controllers/shipments", {
+mock.module("../../../../lib/controllers/shipments.ts", {
   namedExports: { getShipments: mock.fn(async () => []) },
 });
 
-mock.module("../../../../lib/controllers/warehouse", {
+mock.module("../../../../lib/controllers/warehouse.ts", {
   namedExports: { getWarehouses: mock.fn(async () => []) },
 });
 
 const useUserMock = mock.fn(() => ({
   user: { timezone: "UTC" }
 }));
-mock.module("../../../../hooks/useUser", {
+mock.module("../../../../hooks/useUser.ts", {
   namedExports: { useUser: useUserMock },
 });
 
 // Mock Validation
-mock.module("../../../../lib/validationSchema", {
+mock.module("../../../../lib/validationSchema.ts", {
   namedExports: { addRouteValidationSchema: () => ({}) },
 });
 
 // Mock Date Utils
-mock.module("../../../../lib/utils/date", {
+mock.module("../../../../lib/utils/date.ts", {
   namedExports: {
     toUTC: (d: any) => d,
   },
 });
 
 // Mock Subcomponents
-mock.module("../../../googleMaps/GoogleMapsProvider", {
+mock.module("../../../googleMaps/GoogleMapsProvider.tsx", {
   namedExports: { GoogleMapsProvider: ({ children }: any) => <>{children}</> },
 });
-mock.module("./firstStep", {
+mock.module("./firstStep.tsx", {
   defaultExport: () => <div data-testid="first-step">First Step</div>,
 });
-mock.module("./secondStep", {
+mock.module("./secondStep.tsx", {
   defaultExport: () => <div data-testid="second-step">Second Step</div>,
 });
-mock.module("./thirdStep", {
+mock.module("./thirdStep.tsx", {
   defaultExport: () => <div data-testid="third-step">Third Step</div>,
 });
 

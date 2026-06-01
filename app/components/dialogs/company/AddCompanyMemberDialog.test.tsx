@@ -50,7 +50,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
@@ -64,7 +64,7 @@ mock.module("sonner", {
   namedExports: { toast: toastMock },
 });
 
-mock.module("../../../lib/controllers/users", {
+mock.module("../../../lib/controllers/users.ts", {
   namedExports: { 
     searchPlatformUsers: mock.fn(async () => [
       { id: "user-1", name: "Alice", email: "alice@example.com", avatar: null }
@@ -72,13 +72,13 @@ mock.module("../../../lib/controllers/users", {
   },
 });
 
-mock.module("../../../lib/controllers/company", {
+mock.module("../../../lib/controllers/company.ts", {
   namedExports: { 
     addCompanyUser: mock.fn(async () => ({}))
   },
 });
 
-mock.module("../../../lib/validationSchema", {
+mock.module("../../../lib/validationSchema.ts", {
   namedExports: {
     addCompanyMemberValidationSchema: mock.fn(() => ({
       validate: async () => true,

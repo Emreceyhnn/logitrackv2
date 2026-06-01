@@ -78,31 +78,31 @@ const trendUtilsMock = {
 };
 
 // Modülleri Sisteme Enjekte Etme
-mock.module("../db", {
+mock.module("../db.ts", {
   namedExports: { db: dbMock },
 });
 
-mock.module("../redis", {
+mock.module("../redis.ts", {
   namedExports: cacheUtilsMock,
 });
 
-mock.module("./shipments", {
+mock.module("./shipments.ts", {
   namedExports: shipmentsCacheMock,
 });
 
-mock.module("../auth-middleware", {
+mock.module("../auth-middleware.ts", {
   namedExports: authMiddlewareMock,
 });
 
-mock.module("./utils/checkPermission", {
+mock.module("./utils/checkPermission.ts", {
   namedExports: checkPermissionMock,
 });
 
-mock.module("../actions/notifications", {
+mock.module("../actions/notifications.ts", {
   namedExports: { sendNotificationAction: notificationsMock.sendNotificationAction },
 });
 
-mock.module("./utils/trendUtils", {
+mock.module("./utils/trendUtils.ts", {
   namedExports: trendUtilsMock,
 });
 

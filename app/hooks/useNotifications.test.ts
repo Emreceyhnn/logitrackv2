@@ -23,8 +23,8 @@ const notificationsActionMock = {
 };
 
 mock.module("react", { namedExports: reactMock });
-mock.module("../lib/firebase", { namedExports: firebaseMock });
-mock.module("../lib/actions/notifications", { namedExports: notificationsActionMock });
+mock.module("../lib/firebase.ts", { namedExports: firebaseMock });
+mock.module("../lib/actions/notifications.ts", { namedExports: notificationsActionMock });
 
 // 2. TEST GRUPLARI
 describe("useNotifications Hook", () => {

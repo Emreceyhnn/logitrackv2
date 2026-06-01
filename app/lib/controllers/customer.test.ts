@@ -51,11 +51,11 @@ const trendUtilsMock = {
 };
 
 // Modülleri Sisteme Enjekte Etme
-mock.module("../db", { namedExports: { db: dbMock } });
-mock.module("../redis", { namedExports: cacheUtilsMock });
-mock.module("../auth-middleware", { namedExports: authMiddlewareMock });
-mock.module("./utils/checkPermission", { namedExports: checkPermissionMock });
-mock.module("./utils/trendUtils", { namedExports: trendUtilsMock });
+mock.module("../db.ts", { namedExports: { db: dbMock } });
+mock.module("../redis.ts", { namedExports: cacheUtilsMock });
+mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
+mock.module("./utils/checkPermission.ts", { namedExports: checkPermissionMock });
+mock.module("./utils/trendUtils.ts", { namedExports: trendUtilsMock });
 
 // 2. TEST GRUPLARI
 describe("Customer Controller", () => {

@@ -23,19 +23,19 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../../lib/language/DictionaryContext", {
+mock.module("../../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 const useUserMock = mock.fn(() => ({ user: { id: "u1" } }));
-mock.module("../../../../../hooks/useUser", {
+mock.module("../../../../../hooks/useUser.ts", {
   namedExports: { useUser: useUserMock },
 });
 
 const mockRefetch = mock.fn(async () => {});
 const mockDeleteMutateAsync = mock.fn(async () => {});
 
-mock.module("../../../../../hooks/useRoutes", {
+mock.module("../../../../../hooks/useRoutes.ts", {
   namedExports: { 
     useRoutesWithDashboard: mock.fn(() => ({
       data: {
@@ -56,16 +56,16 @@ mock.module("../../../../../hooks/useRoutes", {
 });
 
 // Mock child components
-mock.module("../../../../../components/cards/KpiCards", {
+mock.module("../../../../../components/cards/KpiCards.tsx", {
   defaultExport: () => <div data-testid="kpi-cards">KPI Cards</div>,
 });
-mock.module("../../../../../components/dashboard/routes/routesMainMap", {
+mock.module("../../../../../components/dashboard/routes/routesMainMap.tsx", {
   defaultExport: () => <div data-testid="main-map">Map</div>,
 });
-mock.module("../../../../../components/dashboard/routes/routeEfficiency", {
+mock.module("../../../../../components/dashboard/routes/routeEfficiency.tsx", {
   defaultExport: () => <div data-testid="route-efficiency">Efficiency</div>,
 });
-mock.module("../../../../../components/dashboard/routes/routeTable", {
+mock.module("../../../../../components/dashboard/routes/routeTable/index.tsx", {
   defaultExport: ({ onDelete }: any) => (
     <div data-testid="route-table">
       <button onClick={() => onDelete("r1")}>Delete r1</button>
@@ -73,17 +73,17 @@ mock.module("../../../../../components/dashboard/routes/routeTable", {
   ),
 });
 
-mock.module("../../../../../components/dialogs/routes/edit-route-dialog", {
+mock.module("../../../../../components/dialogs/routes/edit-route-dialog.tsx", {
   defaultExport: () => <div data-testid="edit-dialog">Edit Dialog</div>,
 });
-mock.module("../../../../../components/dialogs/deleteConfirmationDialog", {
+mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
   defaultExport: ({ open, onConfirm }: any) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
   ) : null,
 });
-mock.module("../../../../../components/dialogs/routes/addRouteDialog", {
+mock.module("../../../../../components/dialogs/routes/addRouteDialog/index.tsx", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
 

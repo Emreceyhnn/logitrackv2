@@ -40,12 +40,12 @@ const useDictionaryMock = mock.fn(() => ({
   },
 }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
 // Mock Constants so we don't depend on actual implementation details for the test
-mock.module("../../../../lib/constants", {
+mock.module("../../../../lib/constants.ts", {
   namedExports: {
     COMMON_TIMEZONES: [
       { value: "UTC", label: "UTC" },

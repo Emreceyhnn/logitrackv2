@@ -37,11 +37,11 @@ mock.module("next/navigation", {
   namedExports: { useParams: useParamsMock }
 });
 
-mock.module("../../lib/language/DictionaryContext", {
+mock.module("../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock }
 });
 
-mock.module("../../lib/actions/auth", {
+mock.module("../../lib/actions/auth.ts", {
   namedExports: {
     getUserSession: getUserSessionMock,
     logoutAction: logoutActionMock
@@ -72,9 +72,9 @@ mock.module("@mui/icons-material", {
 });
 
 // Dialog bileşenleri
-mock.module("../dialogs/profile/ProfileDialog", { defaultExport: () => ({ type: "ProfileDialog" }) });
-mock.module("../dialogs/settings/SettingsDialog", { defaultExport: () => ({ type: "SettingsDialog" }) });
-mock.module("../dialogs/logoutConfirmationDialog", { defaultExport: () => ({ type: "LogoutConfirmationDialog" }) });
+mock.module("../dialogs/profile/ProfileDialog.tsx", { defaultExport: () => ({ type: "ProfileDialog" }) });
+mock.module("../dialogs/settings/SettingsDialog.tsx", { defaultExport: () => ({ type: "SettingsDialog" }) });
+mock.module("../dialogs/logoutConfirmationDialog.tsx", { defaultExport: () => ({ type: "LogoutConfirmationDialog" }) });
 
 
 describe("UserAccountNav Component", () => {

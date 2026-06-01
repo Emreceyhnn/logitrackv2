@@ -44,15 +44,15 @@ const useDictionaryMock = mock.fn(() => ({
 const uploadVehicleDocumentMock = mock.fn(async () => ({}));
 const uploadImageActionMock = mock.fn(async () => ({ url: "https://example.com/doc.pdf" }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle.ts", {
   namedExports: { uploadVehicleDocument: uploadVehicleDocumentMock },
 });
 
-mock.module("../../../../lib/actions/upload", {
+mock.module("../../../../lib/actions/upload.ts", {
   namedExports: { uploadImageAction: uploadImageActionMock },
 });
 

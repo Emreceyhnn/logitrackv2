@@ -9,7 +9,7 @@ const useDictionaryMock = mock.fn(() => ({
   maps: { clickToMark: "Click" }
 }));
 
-mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
 
 mock.module("@react-google-maps/api", {
   namedExports: {

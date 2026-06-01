@@ -18,11 +18,11 @@ const fetchMock = mock.fn();
 (globalThis as any).fetch = fetchMock;
 
 // Modülleri Sisteme Enjekte Etme
-mock.module("../auth-middleware", {
+mock.module("../auth-middleware.ts", {
   namedExports: authMiddlewareMock,
 });
 
-mock.module("./utils/checkPermission", {
+mock.module("./utils/checkPermission.ts", {
   namedExports: checkPermissionMock,
 });
 

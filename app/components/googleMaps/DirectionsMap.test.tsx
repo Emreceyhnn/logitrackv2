@@ -11,7 +11,7 @@ const useDictionaryMock = mock.fn(() => ({
   maps: { calculatingRoute: "Calculating", unableCalculateRoute: "Error" }
 }));
 
-mock.module("../../lib/language/DictionaryContext", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
 mock.module("next/image", { defaultExport: () => () => <div data-testid="Image" /> });
 
 mock.module("@react-google-maps/api", {

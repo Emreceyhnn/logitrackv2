@@ -31,11 +31,11 @@ const mockDict = {
   }
 };
 
-mock.module("../../../lib/language/DictionaryContext", {
+mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: () => mockDict },
 });
 
-mock.module("../../charts/TimeRangeSelector", {
+mock.module("../../charts/TimeRangeSelector.tsx", {
   defaultExport: ({ value, onChange }: any) => (
     <div data-testid="time-range-selector">
       Current: {value}

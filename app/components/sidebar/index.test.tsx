@@ -56,8 +56,8 @@ mock.module("@mui/material", {
 });
 
 // Alt bileşenler ve ikonlar
-mock.module("./listItem", { namedExports: { SidebarList: () => ({ type: "SidebarList" }) } });
-mock.module("../dialogs/logoutConfirmationDialog", { defaultExport: () => ({ type: "LogoutConfirmationDialog" }) });
+mock.module("./listItem.tsx", { namedExports: { SidebarList: () => ({ type: "SidebarList" }) } });
+mock.module("../dialogs/logoutConfirmationDialog.tsx", { defaultExport: () => ({ type: "LogoutConfirmationDialog" }) });
 mock.module("next/image", { defaultExport: () => ({ type: "Image" }) });
 
 mock.module("@mui/icons-material/SpaceDashboardOutlined", { defaultExport: () => ({ type: "Icon" }) });
@@ -70,16 +70,16 @@ mock.module("@mui/icons-material/Close", { defaultExport: () => ({ type: "Icon" 
 
 // API servisleri
 const clearAuthCookiesMock = mock.fn();
-mock.module("../../lib/controllers/session", {
+mock.module("../../lib/controllers/session.ts", {
   namedExports: { clearAuthCookies: clearAuthCookiesMock }
 });
 
-mock.module("../../lib/language/DictionaryContext", {
+mock.module("../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock }
 });
 
 const buildLocalizedHrefMock = mock.fn((href) => `/en${href}`);
-mock.module("../../lib/language/navigation", {
+mock.module("../../lib/language/navigation.ts", {
   namedExports: { buildLocalizedHref: buildLocalizedHrefMock }
 });
 

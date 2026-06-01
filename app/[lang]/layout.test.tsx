@@ -6,23 +6,23 @@ import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
 // Mock utilities
-mock.module("../lib/language/language", {
+mock.module("../lib/language/language.ts", {
   namedExports: {
     getDictionary: mock.fn(async () => ({ landing: { metaTitle: "LogiTrack" } }))
   }
 });
-mock.module("../lib/actions/theme", {
+mock.module("../lib/actions/theme.ts", {
   namedExports: { getUserTheme: mock.fn(async () => "dark") }
 });
-mock.module("../lib/auth-middleware", {
+mock.module("../lib/auth-middleware.ts", {
   namedExports: { getAuthenticatedUser: mock.fn(async () => null) }
 });
 
 // Mock providers and components
-mock.module("../lib/theme/themeProviders", { defaultExport: ({ children }: any) => <div data-testid="theme-provider">{children}</div> });
-mock.module("../lib/language/DictionaryContext", { namedExports: { DictionaryProvider: ({ children }: any) => <div data-testid="dict-provider">{children}</div> } });
-mock.module("../lib/context/UserContext", { namedExports: { UserProvider: ({ children }: any) => <div data-testid="user-provider">{children}</div> } });
-mock.module("../components/seo/JsonLd", { defaultExport: () => <script data-testid="json-ld" /> });
+mock.module("../lib/theme/themeProviders.tsx", { defaultExport: ({ children }: any) => <div data-testid="theme-provider">{children}</div> });
+mock.module("../lib/language/DictionaryContext.tsx", { namedExports: { DictionaryProvider: ({ children }: any) => <div data-testid="dict-provider">{children}</div> } });
+mock.module("../lib/context/UserContext.tsx", { namedExports: { UserProvider: ({ children }: any) => <div data-testid="user-provider">{children}</div> } });
+mock.module("../components/seo/JsonLd.tsx", { defaultExport: () => <script data-testid="json-ld" /> });
 mock.module("@vercel/speed-insights/next", { namedExports: { SpeedInsights: () => <div data-testid="speed-insights" /> } });
 
 describe("RootLayout Component", () => {

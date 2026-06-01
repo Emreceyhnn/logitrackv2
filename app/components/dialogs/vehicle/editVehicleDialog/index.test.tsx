@@ -34,17 +34,17 @@ const useDictionaryMock = mock.fn(() => ({
 
 const updateVehicleMock = mock.fn(async () => ({ id: "vehicle-1" }));
 
-mock.module("../../../../lib/language/DictionaryContext", {
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
   namedExports: { useDictionary: useDictionaryMock },
 });
 
-mock.module("../../../../lib/controllers/vehicle", {
+mock.module("../../../../lib/controllers/vehicle.ts", {
   namedExports: {
     updateVehicle: updateVehicleMock,
   },
 });
 
-mock.module("../../../../lib/actions/upload", {
+mock.module("../../../../lib/actions/upload.ts", {
   namedExports: { uploadImageAction: mock.fn() },
 });
 
@@ -57,12 +57,12 @@ mock.module("sonner", {
   },
 });
 
-mock.module("../../../../lib/validationSchema", {
+mock.module("../../../../lib/validationSchema.ts", {
   namedExports: { editVehicleValidationSchema: mock.fn(() => ({})) },
 });
 
-mock.module("../addVehicleDialog/firstStep", { defaultExport: () => <div data-testid="first-step" /> });
-mock.module("../addVehicleDialog/techSpecsStep", { defaultExport: () => <div data-testid="tech-specs-step" /> });
+mock.module("../addVehicleDialog/firstStep.tsx", { defaultExport: () => <div data-testid="first-step" /> });
+mock.module("../addVehicleDialog/techSpecsStep.tsx", { defaultExport: () => <div data-testid="tech-specs-step" /> });
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => ({
