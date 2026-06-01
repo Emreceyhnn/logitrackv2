@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import "global-jsdom/register"; // This is required to initialize JSDOM
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
@@ -37,7 +38,7 @@ mock.module("./app/components/dialogs/vehicle/addVehicleDialog/firstStep", { def
 mock.module("./app/components/dialogs/vehicle/addVehicleDialog/techSpecsStep", { defaultExport: () => <div data-testid="tech-specs-step" /> });
 
 describe("AddVehicleDialog RTL Test", () => {
-  let AddVehicleDialog: React.ElementType;
+  let AddVehicleDialog: any;
 
   before(async () => {
     const mod = await import("./app/components/dialogs/vehicle/addVehicleDialog/index");

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, mock, before, beforeEach } from "node:test";
 import { expect } from "expect";
 

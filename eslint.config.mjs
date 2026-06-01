@@ -13,7 +13,6 @@ const eslintConfig = defineConfig([
   {
     files: ["**/*.test.ts", "**/*.test.tsx"],
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "@next/next/no-img-element": "off",
       "jsx-a11y/alt-text": "off"

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import "global-jsdom/register";
 import { describe, it, before, afterEach } from "node:test";
 import { expect } from "expect";
