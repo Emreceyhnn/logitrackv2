@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // 'node:test' modülü Node.js'in kendi test çalıştırıcısıdır (test runner). 
 // 'describe': Testleri mantıksal gruplara ayırmak için kullanılır (örn: "getPriorityColor fonksiyonu testleri").
 // 'it': Tek bir test senaryosunu tanımlar (örn: "şu girdiyi verince şu çıktıyı vermeli").
@@ -42,13 +43,13 @@ describe("priorityColor Utils", () => {
       expect(getPriorityColor("low")).toBe("info");
     });
 
-    it("should return 'default' for unknown, null, or undefined priorities", () => {
+    it("should return 'default' for any, null, or undefined priorities", () => {
       expect(getPriorityColor("UNKNOWN")).toBe("default");
       expect(getPriorityColor("")).toBe("default"); // Boş string durumu
       
       // Beklenmedik tiplerin (null veya undefined) fonksiyona gelmesi durumunu test ediyoruz.
-      expect(getPriorityColor(null as unknown as string)).toBe("default");
-      expect(getPriorityColor(undefined as unknown as string)).toBe("default");
+      expect(getPriorityColor(null as any as string)).toBe("default");
+      expect(getPriorityColor(undefined as any as string)).toBe("default");
     });
   });
 
@@ -86,7 +87,7 @@ describe("priorityColor Utils", () => {
       common: {
         UNKNOWN_STATUS: "Bilinmeyen",
       },
-    } as unknown as Dictionary; // TypeScript tip hatası vermesin diye "as unknown as Dictionary" dedik.
+    } as any as Dictionary; // TypeScript tip hatası vermesin diye "as any as Dictionary" dedik.
 
     it("should return correct meta for info statuses", () => {
       const meta = getStatusMeta("IN_PROGRESS", mockDict);
@@ -127,7 +128,7 @@ describe("priorityColor Utils", () => {
       });
     });
 
-    it("should fallback to secondary for unknown statuses", () => {
+    it("should fallback to secondary for any statuses", () => {
       const meta = getStatusMeta("UNKNOWN_STATE", mockDict);
       expect(meta).toEqual({
         color: "#mockSecondary",
@@ -180,10 +181,10 @@ describe("priorityColor Utils", () => {
       expect(getStatusColor("ERROR" as NotificationType)).toBe("error.main");
     });
 
-    it("should fallback to info.main for INFO or unknown notification types", () => {
+    it("should fallback to info.main for INFO or any notification types", () => {
       expect(getStatusColor("INFO" as NotificationType)).toBe("info.main");
       expect(getStatusColor("UNKNOWN" as NotificationType)).toBe("info.main");
-      expect(getStatusColor(undefined as unknown as NotificationType)).toBe("info.main");
+      expect(getStatusColor(undefined as any as NotificationType)).toBe("info.main");
     });
   });
 
@@ -194,10 +195,10 @@ describe("priorityColor Utils", () => {
       expect(resolveStatusAlpha("ERROR" as NotificationType)).toBe("error._alpha.main_20");
     });
 
-    it("should fallback to info alpha variant for INFO or unknown notification types", () => {
+    it("should fallback to info alpha variant for INFO or any notification types", () => {
       expect(resolveStatusAlpha("INFO" as NotificationType)).toBe("info._alpha.main_20");
       expect(resolveStatusAlpha("UNKNOWN" as NotificationType)).toBe("info._alpha.main_20");
-      expect(resolveStatusAlpha(undefined as unknown as NotificationType)).toBe("info._alpha.main_20");
+      expect(resolveStatusAlpha(undefined as any as NotificationType)).toBe("info._alpha.main_20");
     });
   });
 });

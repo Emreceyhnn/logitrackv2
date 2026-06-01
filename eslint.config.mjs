@@ -9,6 +9,15 @@ const eslintConfig = defineConfig([
   prettierConfig,
 
   globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+      "@next/next/no-img-element": "off",
+      "jsx-a11y/alt-text": "off"
+    }
+  }
 ]);
 
 export default eslintConfig;

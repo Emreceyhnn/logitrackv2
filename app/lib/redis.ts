@@ -140,8 +140,7 @@ export const exchangeRateCacheKeys = {
   exchangeRate: () => `exchange_rates:usd:v1`,
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function hashFilters(filters: any) {
+export function hashFilters<T>(filters: T) {
   if (!filters || Object.keys(filters).length === 0) return "all";
   return Buffer.from(JSON.stringify(filters)).toString("base64");
 }

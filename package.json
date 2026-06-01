@@ -14,7 +14,8 @@
     "db:run": "prisma studio",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
-    "test": "dotenv -c -- tsx --experimental-test-module-mocks --test app/**/*.test.ts",
+     "test": "node scripts/run-tests.mjs",
+    "test:single": "dotenv -c -- tsx --experimental-test-module-mocks --test-force-exit --test",
     "test:users": "tsx scripts/test-users.ts",
     "firebase:seed-location": "tsx scripts/seed-firebase-locations.ts",
     "firebase:simulate-trip": "tsx scripts/simulate-trip.ts",
@@ -50,6 +51,8 @@
     "yup": "^1.7.1"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
@@ -63,6 +66,8 @@
     "eslint-config-next": "^16.2.6",
     "eslint-config-prettier": "^10.1.8",
     "expect": "^30.4.1",
+    "global-jsdom": "^29.0.0",
+    "jsdom": "^29.1.1",
     "prettier": "^3.8.1",
     "prisma": "^5.10.2",
     "shx": "^0.4.0",
