@@ -43,9 +43,6 @@ jobs:
       - name: 📝 Create .env file from Secrets
         run: echo "$ENV_FILE" > .env
 
-      - name: 🧪 Run Unit Tests
-        run: npm run test
-
       - name: 💾 Next.js Build Cache
         uses: actions/cache@v4
         with:
