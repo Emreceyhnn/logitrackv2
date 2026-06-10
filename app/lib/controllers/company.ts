@@ -329,6 +329,11 @@ export const removeCompanyUser = authenticatedAction(
     try {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
+      const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
+      if (!targetUser || targetUser.companyId !== companyId) {
+        throw new Error("Unauthorized: User not found or not in your company");
+      }
+
       const updatedUser = await db.user.update({
         where: { id: targetUserId },
         data: {
@@ -468,6 +473,12 @@ export const addCompanyUser = authenticatedAction(
     try {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
+      const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
+      if (!targetUser) throw new Error("User not found");
+      if (targetUser.companyId && targetUser.companyId !== companyId) {
+        throw new Error("Unauthorized: User is already associated with another company");
+      }
+
       const standardRoles: Record<string, { name: string; desc: string }> = {
         role_admin: { name: "Administrator", desc: "Full system access" },
         role_manager: { name: "Manager", desc: "Company management access" },
@@ -579,6 +590,11 @@ export const updateCompanyMember = authenticatedAction(
 
     try {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
+
+      const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
+      if (!targetUser || targetUser.companyId !== companyId) {
+        throw new Error("Unauthorized: User not found or not in your company");
+      }
 
       // Ensure standard roles exist in the global roles table before assigning them
       const standardRoles: Record<string, { name: string; desc: string }> = {

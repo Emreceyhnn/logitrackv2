@@ -21,6 +21,7 @@
  * └─────────────────────────────────────────────────────────────────────┘
  */
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -31,6 +32,12 @@ import {
 import { getShipmentsWithDashboardData } from "@/app/lib/controllers/shipments";
 import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
 import ShipmentContent from "./components/shipmentsContent";
+
+export const metadata: Metadata = {
+  title: "Shipments | LogiTrack",
+  description:
+    "Manage and track all shipments — filter by status, search by tracking code, and monitor delivery performance.",
+};
 
 function ShipmentPageSkeleton() {
   return (

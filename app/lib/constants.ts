@@ -22,7 +22,6 @@ export const PROTECTED_ROUTES = [
   "/reports",
   "/users",
   "/company",
-  "/onboarding",
 ];
 
 export const COMPANY_REQUIRED_ROUTES = [
@@ -42,7 +41,6 @@ export const COMPANY_REQUIRED_ROUTES = [
 ];
 
 export const DEFAULT_REDIRECT_AFTER_LOGIN = "/overview";
-export const ONBOARDING_ROUTE = "/onboarding";
 export const SIGN_IN_ROUTE = "/auth/sign-in";
 
 export function localePath(locale: string, path: string): string {

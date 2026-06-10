@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * run-tests.mjs
  * Tüm test dosyalarını küçük gruplar halinde sırayla çalıştırır.
@@ -6,20 +7,19 @@
  * bu script BATCH_SIZE kadar dosyayı her seferinde işler.
  */
 
-import fs from 'fs';
-import path from 'path';
-import { execSync } from 'child_process';
+import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
 
 const BATCH_SIZE = 8; // Her seferinde kaç test dosyası çalıştırılacak
 const CONCURRENCY = 4; // Her batch içindeki eşzamanlı test sayısı
 const ROOT = process.cwd();
-const ENV_FILE = path.join(ROOT, '.env');
-const TSCONFIG_TEST = path.join(ROOT, 'tsconfig.test.json');
+const ENV_FILE = path.join(ROOT, ".env");
 
 // TSX_TSCONFIG_PATH removed since tsconfig.json handles it correctly now
 
 // Tüm test dosyalarını bul
-function findTests(dir, extensions = ['.test.ts', '.test.tsx']) {
+function findTests(dir, extensions = [".test.ts", ".test.tsx"]) {
   const results = [];
   if (!fs.existsSync(dir)) return results;
 
@@ -46,32 +46,34 @@ function chunk(arr, size) {
 }
 
 // Alias resolver hook path (absolute, forward-slash for cross-platform)
-const ALIAS_RESOLVER = path.join(ROOT, 'scripts', 'alias-resolver.mjs').replace(/\\/g, '/');
+const ALIAS_RESOLVER = path
+  .join(ROOT, "scripts", "alias-resolver.mjs")
+  .replace(/\\/g, "/");
 
 // Tek bir batch'i çalıştır
 function runBatch(files, batchIndex, total) {
-  const quoted = files.map((f) => `"${f}"`).join(' ');
+  const quoted = files.map((f) => `"${f}"`).join(" ");
   const cmd = [
-    'npx dotenv-cli',
+    "npx dotenv-cli",
     `-e "${ENV_FILE}"`,
-    '--',
-    'node',
-    '--import tsx',
-    '--experimental-test-module-mocks',
-    '--test-force-exit',
+    "--",
+    "node",
+    "--import tsx",
+    "--experimental-test-module-mocks",
+    "--test-force-exit",
     `--test-concurrency=${CONCURRENCY}`,
-    '--test',
+    "--test",
     quoted,
-  ].join(' ');
+  ].join(" ");
 
   console.log(
-    `\n${'═'.repeat(60)}\n📦 Batch ${batchIndex} / ${total}  (${files.length} dosya)\n${'═'.repeat(60)}`
+    `\n${"═".repeat(60)}\n📦 Batch ${batchIndex} / ${total}  (${files.length} dosya)\n${"═".repeat(60)}`
   );
   files.forEach((f) => console.log(`  • ${path.relative(ROOT, f)}`));
-  console.log('');
+  console.log("");
 
   try {
-    execSync(cmd, { stdio: 'inherit', cwd: ROOT });
+    execSync(cmd, { stdio: "inherit", cwd: ROOT });
     return true;
   } catch {
     return false;
@@ -79,7 +81,7 @@ function runBatch(files, batchIndex, total) {
 }
 
 // ── Ana akış ────────────────────────────────────────────────────────────────
-const appDir = path.join(ROOT, 'app');
+const appDir = path.join(ROOT, "app");
 const files = findTests(appDir);
 
 console.log(`\n🔍 ${files.length} test dosyası bulundu.`);
@@ -93,7 +95,7 @@ for (let i = 0; i < batches.length; i++) {
   if (!ok) failedBatches++;
 }
 
-console.log(`\n${'═'.repeat(60)}`);
+console.log(`\n${"═".repeat(60)}`);
 if (failedBatches === 0) {
   console.log(`✅ Tüm ${batches.length} batch başarıyla tamamlandı.`);
 } else {

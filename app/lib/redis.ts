@@ -220,11 +220,12 @@ export async function withCache<T>(
   }
 
   if (!lockAcquired) {
-    // Poll the cache to see if the concurrent request has finished setting it
+    // Poll the cache to see if the concurrent request has finished setting it.
+    // Max wait: 5 × 50ms = 250ms (was 20 × 100ms = 2,000ms).
     let retries = 0;
-    const maxRetries = 20; // 20 * 100ms = 2.0 seconds max wait
+    const maxRetries = 5;
     while (retries < maxRetries) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 50));
       retries++;
       try {
         const cached = await redis.get<T>(key);

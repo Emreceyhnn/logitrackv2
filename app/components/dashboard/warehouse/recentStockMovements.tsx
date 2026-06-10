@@ -111,7 +111,7 @@ const RecentStockMovements = ({
             color={isPick ? "warning.main" : "success.main"}
           >
             {isPick ? "-" : "+"}
-            {row.quantity}
+            {Math.abs(row.quantity)}
           </Typography>
         );
       },

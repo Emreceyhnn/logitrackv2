@@ -216,20 +216,6 @@ export default function LoginForm() {
               >
                 {dict.auth.logInNow}
               </AuthButton>
-
-              <Typography
-                variant="body2"
-                align="center"
-                sx={{ color: "rgba(255, 255, 255, 0.4)", mt: 2 }}
-              >
-                {dict.auth.forgotPasswordPrompt}{" "}
-                <Link
-                  href="#"
-                  style={{ color: "#38bdf8", textDecoration: "none" }}
-                >
-                  {dict.auth.resetIt}
-                </Link>
-              </Typography>
             </Stack>
           </Form>
         </Formik>

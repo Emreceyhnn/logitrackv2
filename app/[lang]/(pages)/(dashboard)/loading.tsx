@@ -1,179 +1,184 @@
-"use client";
-
-import { Box, Skeleton, Stack } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import { memo } from "react";
+/**
+ * Dashboard Loading Skeleton — Server Component
+ *
+ * This file intentionally has NO "use client" directive.
+ * Keeping it as a Server Component allows Next.js to stream it
+ * instantly as static HTML while the async Server Component page
+ * is still executing its data fetches — giving users instant visual
+ * feedback without waiting for client JS hydration.
+ *
+ * Do NOT add useTheme() or any React hooks here.
+ * Use CSS custom properties or static color values instead.
+ */
 
 /* -------------------------------------------------------------------------- */
-/*  Reusable skeleton primitives                                               */
+/*  Reusable skeleton primitives (no hooks, pure JSX)                          */
 /* -------------------------------------------------------------------------- */
 
-const CardSkeleton = memo(function CardSkeleton({ height = 110 }: { height?: number }) {
+function CardSkeleton({ height = 110 }: { height?: number }) {
   return (
-    <Skeleton
-      variant="rounded"
-      height={height}
-      sx={{ borderRadius: "16px", transform: "none" }}
+    <div
+      style={{
+        height,
+        borderRadius: 16,
+        background: "rgba(255,255,255,0.06)",
+        animation: "pulse 1.5s ease-in-out infinite",
+      }}
     />
   );
-});
+}
+
+function TextSkeleton({ width, height = 18 }: { width: number; height?: number }) {
+  return (
+    <div
+      style={{
+        width,
+        height,
+        borderRadius: 6,
+        background: "rgba(255,255,255,0.06)",
+        animation: "pulse 1.5s ease-in-out infinite",
+      }}
+    />
+  );
+}
 
 /* -------------------------------------------------------------------------- */
 /*  Dashboard Loading                                                           */
 /*                                                                              */
-/*  Next.js shows this file while the Server Component for a dashboard page   */
-/*  is still streaming. It renders inside the existing Layout (sidebar +       */
-/*  header are already visible), so only the main content area is replaced.   */
+/*  Next.js shows this file while the Server Component page is still streaming.*/
+/*  It renders inside the existing Layout (sidebar + header already visible),  */
+/*  so only the main content area is skeleton-replaced.                        */
 /* -------------------------------------------------------------------------- */
 
 export default function DashboardLoading() {
-  const theme = useTheme();
-
   return (
-    <Box
-      sx={{
-        p: { xs: 2, md: 3 },
-        width: "100%",
-        minHeight: "calc(100vh - 64px)",
-        // Smooth fade-in so it doesn't feel jarring
-        animation: "fadeIn 0.15s ease-in",
-        "@keyframes fadeIn": { from: { opacity: 0 }, to: { opacity: 1 } },
-      }}
-    >
-      {/* ── Page header ─────────────────────────────────────────────── */}
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        mb={3}
-        flexWrap="wrap"
-        gap={1}
-      >
-        <Box>
-          <Skeleton
-            variant="text"
-            width={220}
-            height={34}
-            sx={{ borderRadius: 1, transform: "none", mb: 0.75 }}
-          />
-          <Skeleton
-            variant="text"
-            width={340}
-            height={20}
-            sx={{ borderRadius: 1, transform: "none" }}
-          />
-        </Box>
+    <>
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+      `}</style>
 
-        <Stack direction="row" gap={1}>
-          <Skeleton variant="rounded" width={110} height={36} sx={{ borderRadius: "8px", transform: "none" }} />
-          <Skeleton variant="rounded" width={36}  height={36} sx={{ borderRadius: "8px", transform: "none" }} />
-        </Stack>
-      </Stack>
-
-      {/* ── KPI metric cards ────────────────────────────────────────── */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "1fr 1fr",
-            sm: "repeat(3, 1fr)",
-            md: "repeat(4, 1fr)",
-          },
-          gap: 2,
-          mb: 3,
+      <div
+        style={{
+          padding: "24px 32px",
+          width: "100%",
+          minHeight: "calc(100vh - 64px)",
+          animation: "fadeIn 0.15s ease-in",
+          boxSizing: "border-box",
         }}
       >
-        {Array.from({ length: 4 }).map((_, i) => (
-          <CardSkeleton key={i} height={110} />
-        ))}
-      </Box>
-
-      {/* ── Main content area (chart + side panel) ──────────────────── */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", lg: "2fr 1fr" },
-          gap: 2,
-          mb: 2,
-        }}
-      >
-        <CardSkeleton height={320} />
-        <CardSkeleton height={320} />
-      </Box>
-
-      {/* ── Secondary table / list area ─────────────────────────────── */}
-      <Box
-        sx={{
-          borderRadius: "16px",
-          border: `1px solid ${
-            theme.palette.mode === "dark"
-              ? "rgba(255,255,255,0.07)"
-              : "rgba(0,0,0,0.06)"
-          }`,
-          overflow: "hidden",
-        }}
-      >
-        {/* Table header */}
-        <Box
-          sx={{
-            px: 2,
-            py: 1.5,
-            bgcolor:
-              theme.palette.mode === "dark"
-                ? "rgba(255,255,255,0.03)"
-                : "rgba(0,0,0,0.02)",
-            borderBottom: `1px solid ${
-              theme.palette.mode === "dark"
-                ? "rgba(255,255,255,0.07)"
-                : "rgba(0,0,0,0.06)"
-            }`,
+        {/* ── Page header ──────────────────────────────────────────────── */}
+        <div
+          style={{
             display: "flex",
-            gap: 4,
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 24,
+            flexWrap: "wrap",
+            gap: 8,
           }}
         >
-          {[160, 100, 80, 90, 70].map((w, i) => (
-            <Skeleton
-              key={i}
-              variant="text"
-              width={w}
-              height={18}
-              sx={{ borderRadius: 1, transform: "none" }}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <TextSkeleton width={220} height={34} />
+            <TextSkeleton width={340} height={20} />
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <div
+              style={{
+                width: 110,
+                height: 36,
+                borderRadius: 8,
+                background: "rgba(255,255,255,0.06)",
+                animation: "pulse 1.5s ease-in-out infinite",
+              }}
             />
-          ))}
-        </Box>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: "rgba(255,255,255,0.06)",
+                animation: "pulse 1.5s ease-in-out infinite",
+              }}
+            />
+          </div>
+        </div>
 
-        {/* Table rows */}
-        {Array.from({ length: 6 }).map((_, rowIdx) => (
-          <Box
-            key={rowIdx}
-            sx={{
-              px: 2,
-              py: 1.75,
+        {/* ── KPI metric cards ─────────────────────────────────────────── */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: 16,
+            marginBottom: 24,
+          }}
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <CardSkeleton key={i} height={110} />
+          ))}
+        </div>
+
+        {/* ── Main content area (chart + side panel) ───────────────────── */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "2fr 1fr",
+            gap: 16,
+            marginBottom: 16,
+          }}
+        >
+          <CardSkeleton height={320} />
+          <CardSkeleton height={320} />
+        </div>
+
+        {/* ── Secondary table area ─────────────────────────────────────── */}
+        <div
+          style={{
+            borderRadius: 16,
+            border: "1px solid rgba(255,255,255,0.07)",
+            overflow: "hidden",
+          }}
+        >
+          {/* Table header */}
+          <div
+            style={{
+              padding: "12px 16px",
+              background: "rgba(255,255,255,0.03)",
+              borderBottom: "1px solid rgba(255,255,255,0.07)",
               display: "flex",
-              gap: 4,
-              alignItems: "center",
-              borderBottom:
-                rowIdx < 5
-                  ? `1px solid ${
-                      theme.palette.mode === "dark"
-                        ? "rgba(255,255,255,0.04)"
-                        : "rgba(0,0,0,0.04)"
-                    }`
-                  : "none",
+              gap: 32,
             }}
           >
-            {[160, 100, 80, 90, 70].map((w, colIdx) => (
-              <Skeleton
-                key={colIdx}
-                variant="text"
-                width={w * (0.6 + Math.random() * 0.5)}
-                height={16}
-                sx={{ borderRadius: 1, transform: "none" }}
-              />
+            {[160, 100, 80, 90, 70].map((w, i) => (
+              <TextSkeleton key={i} width={w} height={18} />
             ))}
-          </Box>
-        ))}
-      </Box>
-    </Box>
+          </div>
+          {/* Table rows */}
+          {[0, 1, 2, 3, 4, 5].map((rowIdx) => (
+            <div
+              key={rowIdx}
+              style={{
+                padding: "14px 16px",
+                display: "flex",
+                gap: 32,
+                alignItems: "center",
+                borderBottom:
+                  rowIdx < 5 ? "1px solid rgba(255,255,255,0.04)" : "none",
+              }}
+            >
+              {[160, 100, 80, 90, 70].map((w, colIdx) => (
+                <TextSkeleton key={colIdx} width={Math.round(w * 0.75)} height={16} />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }

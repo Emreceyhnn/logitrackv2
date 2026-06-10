@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -8,6 +9,12 @@ import {
 import { getAnalyticsDashboardData } from "@/app/lib/controllers/analytics";
 import { analyticsKeys } from "@/app/lib/query-keys/analytics.keys";
 import AnalyticsContent from "./components/AnalyticsContent";
+
+export const metadata: Metadata = {
+  title: "Analytics | LogiTrack",
+  description:
+    "Deep-dive analytics — on-time rates, cost trends, fleet utilisation and operational KPIs.",
+};
 
 function AnalyticsPageSkeleton() {
   return (

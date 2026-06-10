@@ -13,7 +13,7 @@ interface ShipmentVolumeCardProps {
 
 const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
   const dict = useDictionary();
-  const [range, setRange] = useState<TimeRange>("1w");
+  const [range, setRange] = useState<TimeRange>("1m");
 
   const filteredValues = useMemo(() => {
     if (!values) return [];

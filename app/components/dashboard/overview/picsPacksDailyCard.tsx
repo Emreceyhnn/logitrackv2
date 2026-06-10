@@ -69,7 +69,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
                 {dict.dashboard.overview.warehouseThroughput.itemsPicked}
               </Typography>
               <Typography variant="h5" fontWeight={700} color="text.primary">
-                {picks.toLocaleString()}
+                {picks.toLocaleString("en-US")}
               </Typography>
             </Box>
           </Stack>
@@ -110,7 +110,7 @@ const PicksPacksDailyCard = ({ values }: PicksPacksDailyCardProps) => {
                 {dict.dashboard.overview.warehouseThroughput.itemsPacked}
               </Typography>
               <Typography variant="h5" fontWeight={700} color="text.primary">
-                {packs.toLocaleString()}
+                {packs.toLocaleString("en-US")}
               </Typography>
             </Box>
           </Stack>

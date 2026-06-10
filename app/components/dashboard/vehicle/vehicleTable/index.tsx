@@ -169,7 +169,7 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         label: dict.vehicles.fields.odometer,
         render: (row) =>
           row.odometerKm
-            ? `${row.odometerKm.toLocaleString()} ${dict.common.km}`
+            ? `${row.odometerKm.toLocaleString("en-US")} ${dict.common.km}`
             : dict.common.na,
       },
       {

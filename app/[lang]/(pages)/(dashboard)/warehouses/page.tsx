@@ -2,6 +2,7 @@
  * Warehouses Page — Hybrid SSR + CSR
  */
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -12,6 +13,12 @@ import {
 import { getWarehousesWithDashboardData } from "@/app/lib/controllers/warehouse";
 import { warehouseKeys } from "@/app/lib/query-keys/warehouse.keys";
 import WarehouseContent from "./components/WarehouseContent";
+
+export const metadata: Metadata = {
+  title: "Warehouses | LogiTrack",
+  description:
+    "Manage warehouse locations, capacity, inventory levels and storage utilisation.",
+};
 
 function WarehousePageSkeleton() {
   return (

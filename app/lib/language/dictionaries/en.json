@@ -2039,7 +2039,7 @@
         "fuelConsumed": "Fuel Consumed (L)"
       },
       "fuelConsumption": {
-        "title": "Fuel Consumption (30 Days)",
+        "title": "Fuel Consumption",
         "noLogs": "No fuel logs found for the last 30 days"
       },
       "inventoryAlerts": {

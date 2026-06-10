@@ -205,13 +205,11 @@ export default function CompanyMemberDetailsDialog({
                 variant="body2"
                 color="text.secondary"
                 sx={{ fontSize: "0.85rem", lineHeight: 1.6 }}
-                dangerouslySetInnerHTML={{
-                  __html: dict.company.memberDetails.adminDataDesc.replace(
-                    "{role}",
-                    `<strong>${member.roleName || "read-only"}</strong>`
-                  ),
-                }}
-              />
+              >
+                {dict.company.memberDetails.adminDataDesc.split("{role}")[0]}
+                <strong>{member.roleName || "read-only"}</strong>
+                {dict.company.memberDetails.adminDataDesc.split("{role}")[1]}
+              </Typography>
             </Box>
           </Grid>
         </Grid>

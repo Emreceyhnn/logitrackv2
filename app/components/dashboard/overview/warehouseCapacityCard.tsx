@@ -104,13 +104,13 @@ const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
                   <Stack direction="row" justifyContent="space-between">
                     <Typography variant="caption" color="text.secondary">
                       {dict.dashboard.overview.warehouseUtilization.palletsUnit
-                        .replace("{used}", w.palletUsed.toLocaleString())
-                        .replace("{total}", w.palletCapacity.toLocaleString())}
+                        .replace("{used}", w.palletUsed.toLocaleString("en-US"))
+                        .replace("{total}", w.palletCapacity.toLocaleString("en-US"))}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {dict.dashboard.overview.warehouseUtilization.volumeUnit
-                        .replace("{used}", w.volumeUsed.toLocaleString())
-                        .replace("{total}", w.volumeCapacity.toLocaleString())}
+                        .replace("{used}", w.volumeUsed.toLocaleString("en-US"))
+                        .replace("{total}", w.volumeCapacity.toLocaleString("en-US"))}
                     </Typography>
                   </Stack>
                 </Stack>

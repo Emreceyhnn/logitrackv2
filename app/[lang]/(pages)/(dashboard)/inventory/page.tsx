@@ -2,6 +2,7 @@
  * Inventory Page — Hybrid SSR + CSR
  */
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -12,6 +13,12 @@ import {
 import { getInventoryWithDashboardData } from "@/app/lib/controllers/inventory";
 import { inventoryKeys } from "@/app/lib/query-keys/inventory.keys";
 import InventoryContent from "./components/InventoryContent";
+
+export const metadata: Metadata = {
+  title: "Inventory | LogiTrack",
+  description:
+    "Track stock levels, warehouse inventory, picks and packs — get alerts on low-stock SKUs.",
+};
 
 function InventoryPageSkeleton() {
   return (

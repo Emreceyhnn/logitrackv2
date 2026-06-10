@@ -2,6 +2,7 @@
  * Customers Page — Hybrid SSR + CSR
  */
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -12,6 +13,12 @@ import {
 import { getCustomersWithDashboardData } from "@/app/lib/controllers/customer";
 import { customerKeys } from "@/app/lib/query-keys/customer.keys";
 import CustomerContent from "./components/CustomerContent";
+
+export const metadata: Metadata = {
+  title: "Customers | LogiTrack",
+  description:
+    "View and manage customers — locations, shipment history and contact details.",
+};
 
 function CustomersPageSkeleton() {
   return (

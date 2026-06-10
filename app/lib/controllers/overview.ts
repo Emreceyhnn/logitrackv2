@@ -440,22 +440,25 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
     });
     const picksAndPacks: PicksAndPacksData = { picks, packs };
 
-    // 10. Shipment Volume History
+    // 10. Shipment Volume History — O(n) single pass instead of O(n×180)
+    // Build a Map of "YYYY-MM-DD" → count first, then read each day in O(1).
+    const shipmentCountByDay = new Map<string, number>();
+    for (const s of shipmentVolumeRaw) {
+      const d = new Date(s.createdAt);
+      // Shift to the user's timezone via dayjs to get the correct local date
+      const localDate = dayjs.utc(d).tz(user.timezone || "UTC").format("YYYY-MM-DD");
+      shipmentCountByDay.set(localDate, (shipmentCountByDay.get(localDate) ?? 0) + 1);
+    }
+
     const shipmentVolume: ShipmentDayStat[] = [];
     for (let i = 179; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       d.setHours(0, 0, 0, 0);
-      
       const dayjsDate = dayjs.utc(d).tz(user.timezone || "UTC");
       const label = dayjsDate.format("MMM DD");
-      const dayStart = d.getTime();
-      const dayEnd = dayStart + 86399999;
-      const count = shipmentVolumeRaw.filter((s) => {
-        const t = new Date(s.createdAt).getTime();
-        return t >= dayStart && t <= dayEnd;
-      }).length;
-      shipmentVolume.push({ date: label, count });
+      const key   = dayjsDate.format("YYYY-MM-DD");
+      shipmentVolume.push({ date: label, count: shipmentCountByDay.get(key) ?? 0 });
     }
 
     // 11. Map Data

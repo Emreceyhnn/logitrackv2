@@ -68,7 +68,7 @@ export default function KpiCards({ kpis, loading }: KpiCardsProps) {
           {!loading ? (
             <StatCard
               title={kpi.label}
-              value={kpi.value.toLocaleString()}
+              value={kpi.value.toLocaleString("en-US")}
               icon={kpi.icon}
               color={kpi.color}
               trend={kpi.trend}

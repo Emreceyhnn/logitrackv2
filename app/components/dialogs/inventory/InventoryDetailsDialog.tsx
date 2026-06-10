@@ -382,7 +382,7 @@ export default function InventoryDetailsDialog({
                         >
                           {(
                             item.quantity - (item.allocatedQuantity || 0)
-                          ).toLocaleString()}
+                          ).toLocaleString("en-US")}
                         </Typography>
                       </Box>
                     </Stack>
@@ -420,7 +420,7 @@ export default function InventoryDetailsDialog({
                             fontWeight={800}
                             color="text.primary"
                           >
-                            {item.allocatedQuantity.toLocaleString()}
+                            {item.allocatedQuantity.toLocaleString("en-US")}
                           </Typography>
                         </Box>
                       </Stack>
@@ -458,7 +458,7 @@ export default function InventoryDetailsDialog({
                           fontWeight={800}
                           color="text.primary"
                         >
-                          {item.quantity.toLocaleString()}
+                          {item.quantity.toLocaleString("en-US")}
                         </Typography>
                       </Box>
                     </Stack>
@@ -604,7 +604,7 @@ export default function InventoryDetailsDialog({
                           {dict.inventory.dialogs.safetyStock}
                         </Typography>
                         <Typography variant="h5" fontWeight={800} color="white">
-                          {item.minStock.toLocaleString()}
+                          {item.minStock.toLocaleString("en-US")}
                         </Typography>
                       </Box>
                     </Stack>

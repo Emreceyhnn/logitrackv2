@@ -2,6 +2,7 @@
  * Company Page — Hybrid SSR + CSR
  */
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -12,6 +13,12 @@ import {
 import { getCompanyWithDashboardData } from "@/app/lib/controllers/company";
 import { companyKeys } from "@/app/lib/query-keys/company.keys";
 import CompanyContent from "./components/CompanyContent";
+
+export const metadata: Metadata = {
+  title: "Company | LogiTrack",
+  description:
+    "Manage your company profile, team members, roles and billing settings.",
+};
 
 function CompanyPageSkeleton() {
   return (

@@ -227,7 +227,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
               sx={{ fontSize: 13, fontWeight: 300, color: "info.main" }}
             >
               {vehicle.nextServiceKm && vehicle.odometerKm
-                ? `${(vehicle.nextServiceKm - vehicle.odometerKm).toLocaleString()} ${dict.vehicles.dialogs.kmLeft}`
+                ? `${(vehicle.nextServiceKm - vehicle.odometerKm).toLocaleString("en-US")} ${dict.vehicles.dialogs.kmLeft}`
                 : dict.common.na}
             </Typography>
           </Stack>

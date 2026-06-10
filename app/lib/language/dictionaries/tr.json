@@ -590,7 +590,7 @@
     "oneOf": "Lütfen geçerli bir {field} seçin",
     "number": "{field} bir sayı olmalıdır",
     "integer": "{field} tam sayı olmalıdır",
-"positive": "{field} pozitif bir sayı olmalıdır",
+    "positive": "{field} pozitif bir sayı olmalıdır",
     "url": "Geçersiz URL",
     "genericFormError": "Lütfen gerekli alanları doğru şekilde doldurun"
   },
@@ -2090,7 +2090,7 @@
         "fuelConsumed": "Tüketilen Yakıt (L)"
       },
       "fuelConsumption": {
-        "title": "Yakıt Tüketimi (30 Gün)",
+        "title": "Yakıt Tüketimi",
         "noLogs": "Son 30 güne ait yakıt kaydı bulunamadı"
       },
       "inventoryAlerts": {

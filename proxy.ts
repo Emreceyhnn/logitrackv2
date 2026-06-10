@@ -4,14 +4,16 @@ import {
   AUTH_ROUTES,
   COMPANY_REQUIRED_ROUTES,
   PROTECTED_ROUTES,
-  ONBOARDING_ROUTE,
   DEFAULT_REDIRECT_AFTER_LOGIN,
   LOCALES,
   DEFAULT_LOCALE,
   SIGN_IN_ROUTE,
   Locale,
 } from "@/app/lib/constants";
-import { buildLocalizedHref, getCanonicalPath } from "@/app/lib/language/navigation";
+import {
+  buildLocalizedHref,
+  getCanonicalPath,
+} from "@/app/lib/language/navigation";
 import { rateLimit } from "@/app/lib/rate-limiter";
 
 /* -------------------------------------------------------------------------- */
@@ -84,10 +86,20 @@ export default async function proxy(request: NextRequest) {
 
   if (!hasLocalePrefix) {
     const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
-    const locale =
-      cookieLocale && (LOCALES as readonly string[]).includes(cookieLocale)
-        ? (cookieLocale as Locale)
-        : DEFAULT_LOCALE;
+    let locale = DEFAULT_LOCALE;
+
+    if (cookieLocale && (LOCALES as readonly string[]).includes(cookieLocale)) {
+      locale = cookieLocale as Locale;
+    } else {
+      const acceptLanguage = request.headers.get("accept-language");
+      if (acceptLanguage) {
+        // 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7' -> pick the first matching language
+        const preferredLang = acceptLanguage.split(',')[0].split('-')[0].toLowerCase();
+        if ((LOCALES as readonly string[]).includes(preferredLang)) {
+          locale = preferredLang as Locale;
+        }
+      }
+    }
 
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
@@ -153,7 +165,10 @@ export default async function proxy(request: NextRequest) {
   if (!isTokenValid && refreshToken) {
     const url = request.nextUrl.clone();
     url.pathname = `/api/auth/refresh`;
-    url.searchParams.set("redirect_to", request.nextUrl.pathname + request.nextUrl.search);
+    url.searchParams.set(
+      "redirect_to",
+      request.nextUrl.pathname + request.nextUrl.search
+    );
     return NextResponse.redirect(url);
   }
 
@@ -166,9 +181,9 @@ export default async function proxy(request: NextRequest) {
 
   // Company-required routes enforcement
   if (isCompanyRequired) {
-    if (isTokenValid && !companyId && currentPath !== ONBOARDING_ROUTE) {
+    if (isTokenValid && !companyId) {
       const url = request.nextUrl.clone();
-      url.pathname = buildLocalizedHref(ONBOARDING_ROUTE, locale);
+      url.pathname = buildLocalizedHref("/onboarding", locale);
       return NextResponse.redirect(url);
     }
 

@@ -88,11 +88,11 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
     );
 
     const totalShipments = await db.shipment.count({ where: { companyId } });
-    const onTimeShipments = await db.shipment.count({
-      where: { companyId, status: "DELIVERED" },
+    const delayedShipments = await db.shipment.count({
+      where: { companyId, status: "DELAYED" },
     });
     const onTimeRate =
-      totalShipments > 0 ? (onTimeShipments / totalShipments) * 100 : 0;
+      totalShipments > 0 ? ((totalShipments - delayedShipments) / totalShipments) * 100 : 100;
 
     const activeVehicles = await db.vehicle.count({
       where: { companyId, status: { not: "MAINTENANCE" } },

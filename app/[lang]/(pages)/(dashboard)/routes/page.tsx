@@ -21,6 +21,7 @@
  * └─────────────────────────────────────────────────────────────────────┘
  */
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -31,6 +32,12 @@ import {
 import { getRoutesWithDashboardData } from "@/app/lib/controllers/routes";
 import { routeKeys } from "@/app/lib/query-keys/route.keys";
 import RoutesContent from "./components/routesContent";
+
+export const metadata: Metadata = {
+  title: "Routes | LogiTrack",
+  description:
+    "Plan and manage delivery routes — view route status, duration, driver assignments and optimisation.",
+};
 
 function RoutesPageSkeleton() {
   return (

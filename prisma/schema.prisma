@@ -78,33 +78,35 @@ model User {
 }
 
 model Driver {
-  id                  String       @id @default(cuid())
-  userId              String       @unique
-  employeeId          String       @unique
+  id                  String            @id @default(cuid())
+  userId              String            @unique
+  employeeId          String            @unique
   licenseNumber       String?
   licenseType         String?
   licenseExpiry       DateTime?
   phone               String
-  status              DriverStatus @default(OFF_DUTY)
+  status              DriverStatus      @default(OFF_DUTY)
   safetyScore         Int?
   efficiencyScore     Int?
   rating              Float?
-  hazmatCertified     Boolean      @default(false)
+  hazmatCertified     Boolean           @default(false)
   languages           String[]
-  currentVehicleId    String?      @unique
+  currentVehicleId    String?           @unique
   companyId           String?
   homeBaseWarehouseId String?
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
   documents           Document[]
-  company             Company?     @relation(fields: [companyId], references: [id])
-  currentVehicle      Vehicle?     @relation(fields: [currentVehicleId], references: [id])
-  homeBaseWarehouse   Warehouse?   @relation(fields: [homeBaseWarehouseId], references: [id])
-  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company             Company?          @relation(fields: [companyId], references: [id])
+  currentVehicle      Vehicle?          @relation(fields: [currentVehicleId], references: [id])
+  homeBaseWarehouse   Warehouse?        @relation(fields: [homeBaseWarehouseId], references: [id])
+  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   fuelLogs            FuelLog[]
   issues              Issue[]
   routes              Route[]
   shipments           Shipment[]
+  DeliveryAttempt     DeliveryAttempt[]
+  DriverShift         DriverShift[]
 
   @@index([companyId, status])
   @@map("drivers")
@@ -318,6 +320,7 @@ model Shipment {
   originWarehouse    Warehouse?        @relation("ShipmentOrigin", fields: [originWarehouseId], references: [id])
   route              Route?            @relation(fields: [routeId], references: [id])
   trailer            Trailer?          @relation(fields: [trailerId], references: [id])
+  DeliveryAttempt    DeliveryAttempt[]
 
   @@index([companyId, status])
   @@index([companyId, trackingId])
@@ -664,4 +667,35 @@ enum MaintenanceStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+model DeliveryAttempt {
+  id          String   @id @default(cuid())
+  shipmentId  String
+  driverId    String?
+  attemptedAt DateTime @default(now())
+  reasonCode  String?
+  notes       String?
+  lat         Float?
+  lng         Float?
+  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  driver      Driver?  @relation(fields: [driverId], references: [id])
+
+  @@index([shipmentId])
+  @@map("delivery_attempts")
+}
+
+model DriverShift {
+  id               String    @id @default(cuid())
+  driverId         String
+  shiftStartTime   DateTime  @default(now())
+  shiftEndTime     DateTime?
+  dailyHoursDriven Float     @default(0)
+  status           String    @default("ACTIVE")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  driver           Driver    @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@index([driverId])
+  @@map("driver_shifts")
 }

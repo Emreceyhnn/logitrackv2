@@ -2,6 +2,7 @@
  * Overview Page — Hybrid SSR + CSR
  */
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -12,6 +13,12 @@ import {
 import { getOverviewDashboardData } from "@/app/lib/controllers/overview";
 import { overviewKeys } from "@/app/lib/query-keys/overview.keys";
 import OverviewContent from "./components/OverviewContent";
+
+export const metadata: Metadata = {
+  title: "Overview | LogiTrack",
+  description:
+    "Real-time logistics dashboard — active shipments, fleet status, warehouse capacity and KPIs at a glance.",
+};
 
 function OverviewPageSkeleton() {
   return (

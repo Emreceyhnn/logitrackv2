@@ -139,8 +139,8 @@ const CapacityUtilization = ({
                   {warehouse.name}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {usedPallets.toLocaleString()} /{" "}
-                  {totalPallets.toLocaleString()}{" "}
+                  {usedPallets.toLocaleString("en-US")} /{" "}
+                  {totalPallets.toLocaleString("en-US")}{" "}
                   {dict.dashboard.warehouse.pallets}
                 </Typography>
               </Stack>

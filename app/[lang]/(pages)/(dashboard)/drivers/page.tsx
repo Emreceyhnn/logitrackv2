@@ -21,6 +21,7 @@
  * └─────────────────────────────────────────────────────────────────────┘
  */
 
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -31,6 +32,12 @@ import {
 import { getDriverWithDashboardData } from "@/app/lib/controllers/driver";
 import { driverKeys } from "@/app/lib/query-keys/driver.keys";
 import DriverContent from "./components/DriverContent";
+
+export const metadata: Metadata = {
+  title: "Drivers | LogiTrack",
+  description:
+    "Manage your driver roster — view assignments, performance scores, license status and activity.",
+};
 
 function DriverPageSkeleton() {
   return (

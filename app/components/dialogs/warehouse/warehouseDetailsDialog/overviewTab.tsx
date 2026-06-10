@@ -435,14 +435,14 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 fontWeight={600}
                 sx={{ fontSize: "0.7rem" }}
               >
-                {mockUsedPallets.toLocaleString()} {t.used}
+                {mockUsedPallets.toLocaleString("en-US")} {t.used}
               </Typography>
               <Typography
                 variant="caption"
                 color="text.secondary"
                 sx={{ fontSize: "0.7rem" }}
               >
-                {totalPallets.toLocaleString()} {t.totalCapacity}
+                {totalPallets.toLocaleString("en-US")} {t.totalCapacity}
               </Typography>
             </Stack>
           </CustomCard>
@@ -532,14 +532,14 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                 fontWeight={600}
                 sx={{ fontSize: "0.7rem" }}
               >
-                {mockUsedVolume.toLocaleString()} {t.m3Used}
+                {mockUsedVolume.toLocaleString("en-US")} {t.m3Used}
               </Typography>
               <Typography
                 variant="caption"
                 color="text.secondary"
                 sx={{ fontSize: "0.7rem" }}
               >
-                {totalVolume.toLocaleString()} {t.m3TotalCapacity}
+                {totalVolume.toLocaleString("en-US")} {t.m3TotalCapacity}
               </Typography>
             </Stack>
           </CustomCard>

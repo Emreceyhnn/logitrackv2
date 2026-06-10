@@ -126,7 +126,7 @@ const WarehouseListTable = ({
                 {dict.dashboard.warehouse.utilized.replace("{percent}", palletPct.toFixed(0))}
               </Typography>
               <Typography variant="caption" sx={{ fontFamily: "monospace", opacity: 0.6 }}>
-                {usedPallets.toLocaleString()} / {totalPallets.toLocaleString()}
+                {usedPallets.toLocaleString("en-US")} / {totalPallets.toLocaleString("en-US")}
               </Typography>
             </Stack>
             <LinearProgress
@@ -162,7 +162,7 @@ const WarehouseListTable = ({
                 {dict.dashboard.warehouse.space.replace("{percent}", volumePct.toFixed(0))}
               </Typography>
               <Typography variant="caption" sx={{ fontFamily: "monospace", opacity: 0.6 }}>
-                {usedVolume.toLocaleString()} / {totalVolume.toLocaleString()} m³
+                {usedVolume.toLocaleString("en-US")} / {totalVolume.toLocaleString("en-US")} m³
               </Typography>
             </Stack>
             <LinearProgress

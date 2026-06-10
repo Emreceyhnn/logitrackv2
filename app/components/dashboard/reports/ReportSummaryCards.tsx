@@ -171,7 +171,7 @@ export default function ReportSummaryCards({
         return [
           {
             title: dict.reports.metrics.totalShipments,
-            value: metrics?.totalShipments.toLocaleString() || "0",
+            value: metrics?.totalShipments.toLocaleString("en-US") || "0",
             change: "12%",
             positive: true,
             icon: <LocalShippingIcon />,

@@ -433,7 +433,7 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                     <TableCell sx={{ fontWeight: 700, color: "primary.main" }}>
                       {formatFrom(log.cost, log.currency || "USD")}
                     </TableCell>
-                    <TableCell>{log.odometerKm.toLocaleString()} km</TableCell>
+                    <TableCell>{log.odometerKm.toLocaleString("en-US")} km</TableCell>
                     <TableCell>
                       <Typography variant="caption" color="text.secondary">
                         {log.location || "-"}
