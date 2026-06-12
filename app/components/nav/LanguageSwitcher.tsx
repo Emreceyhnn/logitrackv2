@@ -73,9 +73,10 @@ const LanguageSwitcher = () => {
           sx={{
             display: "flex",
             alignItems: "center",
+            height: 40,
+            boxSizing: "border-box",
             gap: 1,
             px: 1.5,
-            py: 0.8,
             borderRadius: 2,
             cursor: "pointer",
             bgcolor: theme.palette.primary._alpha.main_05,

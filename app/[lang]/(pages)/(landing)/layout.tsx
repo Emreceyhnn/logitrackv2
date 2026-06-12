@@ -2,6 +2,7 @@
 
 import { Box } from "@mui/material";
 import LandingNavbar from "@/app/components/landing/LandingNavbar";
+import LandingThemeProvider from "@/app/lib/theme/LandingThemeProvider";
 
 export default function LandingLayout({
   children,
@@ -9,11 +10,21 @@ export default function LandingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <LandingNavbar />
-      <Box component="main" sx={{ flexGrow: 1 }}>
-        {children}
+    <LandingThemeProvider>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+          bgcolor: "background.default",
+          color: "text.primary",
+        }}
+      >
+        <LandingNavbar />
+        <Box component="main" sx={{ flexGrow: 1 }}>
+          {children}
+        </Box>
       </Box>
-    </Box>
+    </LandingThemeProvider>
   );
 }

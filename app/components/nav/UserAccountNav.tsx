@@ -117,7 +117,8 @@ export default function UserAccountNav({
       fetchSession();
     };
     window.addEventListener("profile-updated", handleProfileUpdate);
-    return () => window.removeEventListener("profile-updated", handleProfileUpdate);
+    return () =>
+      window.removeEventListener("profile-updated", handleProfileUpdate);
   }, []);
 
   /* -------------------------------- HANDLERS -------------------------------- */
@@ -155,7 +156,12 @@ export default function UserAccountNav({
 
   return (
     <>
-      <Stack direction="row" spacing={2} alignItems="center">
+      <Stack
+        direction="row"
+        spacing={2}
+        alignItems="center"
+        sx={{ height: 40 }}
+      >
         {/* <LanguageSwitcher /> */}
         <Box
           onClick={handleMenuOpen}
@@ -163,9 +169,11 @@ export default function UserAccountNav({
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
+            height: 40,
+            boxSizing: "border-box",
             gap: 1.5,
             cursor: "pointer",
-            padding: "6px 12px",
+            padding: "0 12px",
             borderRadius: 3,
             transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             bgcolor: isLight

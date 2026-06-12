@@ -117,7 +117,7 @@ export default function LandingHeaderAuth() {
   }
 
   return (
-    <Stack direction="row" spacing={2}>
+    <Stack direction="row" spacing={2} alignItems="center">
       <Button
         variant="text"
         component={Link}
@@ -126,6 +126,7 @@ export default function LandingHeaderAuth() {
           color: theme.palette.text.primary,
           fontWeight: 600,
           textTransform: "none",
+          height: 40,
           "&:hover": { color: theme.palette.primary.main },
         }}
       >

@@ -5,7 +5,7 @@ import "dayjs/locale/en";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -84,13 +84,33 @@ export default function Providers({
     }
   }, [initialMode]);
 
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const setMode = useCallback((newMode: ThemeMode | "system") => {
+    // Skip if the value in localStorage is already the same (prevents duplicate calls)
+    const currentStored = typeof window !== "undefined"
+      ? localStorage.getItem(THEME_STORAGE_KEY)
+      : null;
+    if (currentStored === newMode) {
+      // Still update visual state in case SSR/client mismatch
+      setModeState(resolveMode(newMode as StoredMode));
+      return;
+    }
+
     try {
       localStorage.setItem(THEME_STORAGE_KEY, newMode);
-      saveUserTheme(newMode).catch((err) => console.error("Redis theme sync error", err));
     } catch {
       // localStorage not available (private browsing, etc.)
     }
+
+    // Debounce server-action call — only fires if user stops clicking for 600ms
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      saveUserTheme(newMode).catch((err) =>
+        console.error("Redis theme sync error", err)
+      );
+    }, 600);
+
     const resolved = resolveMode(newMode as StoredMode);
     setModeState(resolved);
 
@@ -99,7 +119,6 @@ export default function Providers({
       const mq = window.matchMedia("(prefers-color-scheme: dark)");
       const handler = (e: MediaQueryListEvent) =>
         setModeState(e.matches ? "dark" : "light");
-      // Remove any old listeners first (simple approach: refresh the component won't keep old ones)
       mq.addEventListener("change", handler);
     }
   }, []);
