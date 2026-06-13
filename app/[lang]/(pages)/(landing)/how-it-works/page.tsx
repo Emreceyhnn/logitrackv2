@@ -1,12 +1,12 @@
-"use client";
-
 import { Box, Container, Typography, Stack, Button } from "@mui/material";
 import TimelineSection from "@/app/components/how-it-works/TimelineSection";
 import Link from "next/link";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { getServerDictionary } from "@/app/lib/language/i18n-server";
+import type { Dictionary } from "@/app/lib/language/language";
 
-export default function HowItWorksPage() {
-  const dict = useDictionary();
+export default async function HowItWorksPage(props: { params: Promise<{ lang: string }> }) {
+  const params = await props.params;
+  const dict = getServerDictionary(params.lang) as Dictionary;
   const hDict = dict.landing.howItWorksPage;
 
   return (

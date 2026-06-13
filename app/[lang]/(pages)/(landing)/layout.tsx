@@ -1,4 +1,3 @@
-"use client";
 
 import { Box } from "@mui/material";
 import LandingNavbar from "@/app/components/landing/LandingNavbar";

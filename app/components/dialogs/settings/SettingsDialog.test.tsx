@@ -6,21 +6,25 @@ import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
-// 1. Mock Contexts
-const useDictionaryMock = mock.fn(() => ({
-  settings: {
-    dialogs: {
-      success: {
-        regional: "Regional settings saved",
-        notifications: "Notifications saved",
-      },
-      tabs: {
-        localization: "Localization",
-        signals: "Signals",
-        visualEngine: "Visual Engine",
+const changeLanguageMock = mock.fn();
+const useLanguageMock = mock.fn(() => ({
+  lang: "tr",
+  dict: {
+    settings: {
+      dialogs: {
+        success: {
+          regional: "Regional settings saved",
+          notifications: "Notifications saved",
+        },
+        tabs: {
+          localization: "Localization",
+          signals: "Signals",
+          visualEngine: "Visual Engine",
+        },
       },
     },
   },
+  changeLanguage: changeLanguageMock,
 }));
 
 const useUserContextMock = mock.fn(() => ({
@@ -39,23 +43,18 @@ const useUserContextMock = mock.fn(() => ({
 }));
 
 mock.module("../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: useDictionaryMock },
+  namedExports: { useLanguage: useLanguageMock },
 });
 
 mock.module("../../../lib/context/UserContext.tsx", {
   namedExports: { useUserContext: useUserContextMock },
 });
 
-// 2. Mock next/navigation
 const useRouterMock = mock.fn(() => ({ push: mock.fn(), refresh: mock.fn() }));
-const usePathnameMock = mock.fn(() => "/tr/dashboard");
-const useParamsMock = mock.fn(() => ({ lang: "tr" }));
 
 mock.module("next/navigation", {
   namedExports: {
     useRouter: useRouterMock,
-    usePathname: usePathnameMock,
-    useParams: useParamsMock,
   },
 });
 
@@ -71,12 +70,7 @@ mock.module("../../../lib/controllers/users.ts", {
   },
 });
 
-mock.module("../../../lib/language/navigation.ts", {
-  namedExports: {
-    getLocalizedPath: mock.fn(() => "/en/dashboard"),
-    getCanonicalPath: mock.fn(() => "/dashboard"),
-  },
-});
+
 
 mock.module("framer-motion", {
   namedExports: {
