@@ -131,7 +131,7 @@ export default async function LangLayout({
         <JsonLd data={organizationSchema} />
         <UserProvider initialUser={user}>
           <Providers initialMode={userTheme || undefined}>
-            <DictionaryProvider dict={dict}>{children}</DictionaryProvider>
+            <DictionaryProvider dict={dict} lang={lang}>{children}</DictionaryProvider>
           </Providers>
         </UserProvider>
         <SpeedInsights />

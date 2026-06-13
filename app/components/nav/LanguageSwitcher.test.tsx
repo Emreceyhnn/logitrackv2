@@ -13,40 +13,25 @@ const useThemeMock = mock.fn(() => ({
   }
 }));
 
-const useRouterMock = mock.fn(() => ({ push: mock.fn() }));
-const usePathnameMock = mock.fn(() => "/tr/overview");
-const useParamsMock = mock.fn(() => ({ lang: "tr" }));
+const changeLanguageMock = mock.fn();
 
-const useDictionaryMock = mock.fn(() => ({
-  languages: { tr: "Türkçe", en: "English" },
-  common: { tooltips: { changeLanguage: "Dili Değiştir" } }
+const useLanguageMock = mock.fn(() => ({
+  lang: "tr",
+  dict: {
+    languages: { tr: "Türkçe", en: "English" },
+    common: { tooltips: { changeLanguage: "Dili Değiştir" } }
+  },
+  changeLanguage: changeLanguageMock,
 }));
 
-const getCanonicalPathMock = mock.fn(() => "/overview");
-const buildLocalizedHrefMock = mock.fn((href, lang) => `/${lang}${href}`);
 const useStateMock = mock.fn((init) => [init, mock.fn()]);
 
 mock.module("react", {
   namedExports: { useState: useStateMock }
 });
 
-mock.module("next/navigation", {
-  namedExports: { 
-    useRouter: useRouterMock, 
-    usePathname: usePathnameMock, 
-    useParams: useParamsMock 
-  }
-});
-
 mock.module("../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: useDictionaryMock }
-});
-
-mock.module("../../lib/language/navigation.ts", {
-  namedExports: {
-    getCanonicalPath: getCanonicalPathMock,
-    buildLocalizedHref: buildLocalizedHrefMock
-  }
+  namedExports: { useLanguage: useLanguageMock }
 });
 
 mock.module("@mui/material", {
@@ -75,8 +60,8 @@ describe("LanguageSwitcher Component", () => {
 
   beforeEach(() => {
     useThemeMock.mock.resetCalls();
-    useRouterMock.mock.resetCalls();
-    useDictionaryMock.mock.resetCalls();
+    useLanguageMock.mock.resetCalls();
+    changeLanguageMock.mock.resetCalls();
   });
 
   describe("LanguageSwitcher() bileşeni", () => {
@@ -92,7 +77,7 @@ describe("LanguageSwitcher Component", () => {
       // Assert
       expect(LanguageSwitcher).toBeDefined();
       expect(useThemeMock.mock.calls.length).toBeGreaterThan(0);
-      expect(useDictionaryMock.mock.calls.length).toBeGreaterThan(0);
+      expect(useLanguageMock.mock.calls.length).toBeGreaterThan(0);
     });
   });
 });

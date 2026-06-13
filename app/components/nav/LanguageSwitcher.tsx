@@ -12,12 +12,7 @@ import {
 } from "@mui/material";
 import LanguageIcon from "@mui/icons-material/Language";
 import CheckIcon from "@mui/icons-material/Check";
-import { useRouter, usePathname, useParams } from "next/navigation";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import {
-  getCanonicalPath,
-  buildLocalizedHref,
-} from "@/app/lib/language/navigation";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 
 const LanguageSwitcher = () => {
   /* --------------------------------- STATES --------------------------------- */
@@ -25,11 +20,7 @@ const LanguageSwitcher = () => {
   const open = Boolean(anchorEl);
   /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
-  const router = useRouter();
-  const pathname = usePathname();
-  const params = useParams();
-  const dict = useDictionary();
-  const currentLang = (params?.lang as string) || "tr";
+  const { lang: currentLang, dict, changeLanguage } = useLanguage();
 
   const languages = [
     { code: "tr", label: dict.languages.tr, flag: "🇹🇷" },
@@ -48,20 +39,8 @@ const LanguageSwitcher = () => {
   const handleLanguageChange = (lang: string) => {
     if (lang === currentLang) return;
 
-    const segments = pathname.split("/");
-    const pathWithoutLang = "/" + segments.slice(2).join("/");
-
-    // 1. Get canonical path from current localized path
-    const canonical = getCanonicalPath(pathWithoutLang, currentLang);
-
-    // 2. Build the full localized URL for the target language
-    const newPathname = buildLocalizedHref(canonical, lang);
-
-    // Persist preference
-    // eslint-disable-next-line react-hooks/immutability
-    document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000; SameSite=Lax`;
-
-    router.push(newPathname);
+    // Instant switch — no full page navigation
+    changeLanguage(lang);
     handleClose();
   };
 

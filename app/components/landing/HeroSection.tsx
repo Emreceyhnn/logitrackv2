@@ -41,6 +41,8 @@ export default function HeroSection() {
           alt="LogiTrack Background"
           fill
           priority
+          fetchPriority="high"
+          unoptimized
           quality={75}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
           style={{ objectFit: "cover", objectPosition: "center" }}

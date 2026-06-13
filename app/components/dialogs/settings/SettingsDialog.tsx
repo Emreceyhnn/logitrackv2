@@ -17,11 +17,10 @@ import {
   Contrast as AppearanceIcon,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { useUserContext } from "@/app/lib/context/UserContext";
 import { updateUserRegionalSettings, updateUserNotificationSettings } from "@/app/lib/controllers/users";
-import { useRouter, usePathname, useParams } from "next/navigation";
-import { getLocalizedPath, getCanonicalPath } from "@/app/lib/language/navigation";
+import { useRouter } from "next/navigation";
 import type {
   SettingsPageState,
   SettingsPageActions,
@@ -44,12 +43,9 @@ interface Props {
 
 export default function SettingsDialog({ open, onClose }: Props) {
   const theme = useTheme();
-  const dict = useDictionary();
+  const { lang: currentLang, dict, changeLanguage } = useLanguage();
   const { user } = useUserContext();
   const router = useRouter();
-  const pathname = usePathname();
-  const params = useParams();
-  const currentLang = (params?.lang as string) || "tr";
 
   const [state, setState] = useState<SettingsPageState>({
     activeTab: 0,
@@ -157,32 +153,20 @@ export default function SettingsDialog({ open, onClose }: Props) {
       try {
         await updateUserRegionalSettings(state.regional);
         
-        // Handle Language Redirection if changed
+        // Handle Language change — instant, no server round-trip
         const newLang = state.regional.language;
         if (newLang !== currentLang) {
-          const segments = pathname.split("/");
-          const pathWithoutLang = segments.slice(2).join("/");
-          const canonical = getCanonicalPath(pathWithoutLang, currentLang);
-          const localized = getLocalizedPath(canonical, newLang);
-          const newPathname = `/${newLang}${localized}`;
-
-          // Set cookie for persistence
-           
-          document.cookie = `NEXT_LOCALE=${newLang}; path=/; max-age=31536000; SameSite=Lax`;
-          
-          router.push(newPathname);
-          onClose(); // Close dialog as we are redirecting
-        } else {
-          router.refresh();
+          changeLanguage(newLang);
         }
 
         setState((s) => ({ ...s, isSaving: false }));
         showToast("success", dict.settings.dialogs.success.regional);
+        onClose();
       } catch {
         setState((s) => ({ ...s, isSaving: false }));
         showToast("error", "Failed to save settings");
       }
-    }, [state.regional, currentLang, pathname, router, onClose, showToast, dict.settings.dialogs.success.regional]),
+    }, [state.regional, currentLang, changeLanguage, onClose, showToast, dict.settings.dialogs.success.regional]),
     saveNotifications: useCallback(async () => {
       setState((s) => ({ ...s, isSaving: true }));
       try {
