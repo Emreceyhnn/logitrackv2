@@ -4,7 +4,6 @@ import { Box, Container, Typography, Stack, Button } from "@mui/material";
 import TimelineSection from "@/app/components/how-it-works/TimelineSection";
 import Link from "next/link";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useEffect, useState } from "react";
 
 export default function HowItWorksClient() {
   const dict = useDictionary();

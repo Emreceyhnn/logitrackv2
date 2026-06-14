@@ -594,11 +594,6 @@ export const addMaintenanceRecord = authenticatedAction(
         },
       });
 
-      await db.vehicle.update({
-        where: { id: vehicleId },
-        data: { status: "MAINTENANCE" },
-      });
-
       await invalidateVehicleCache(companyId, vehicleId);
 
       // Dispatch Notification
@@ -1241,6 +1236,7 @@ export const getVehiclesWithDashboard = authenticatedAction(
               status: true,
               odometerKm: true,
               fuelLevel: true,
+              fuelCapacity: true,
               currentLat: true,
               currentLng: true,
               photo: true,

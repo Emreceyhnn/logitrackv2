@@ -106,6 +106,7 @@ export default function UserAccountNav({
 
   useEffect(() => {
     if (initialUser) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(initialUser);
     } else {
       fetchSession();

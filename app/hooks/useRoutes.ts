@@ -81,12 +81,16 @@ export function useRouteLocations() {
 async function fetchRouteDashboard(
   page: number,
   pageSize: number,
-  status?: string
+  status?: string | string[]
 ) {
   const params = new URLSearchParams();
   params.set("page", String(page));
   params.set("pageSize", String(pageSize));
-  if (status) params.set("status", status);
+  if (Array.isArray(status)) {
+    status.forEach((s) => params.append("status", s));
+  } else if (status) {
+    params.set("status", status);
+  }
 
   const res = await fetch(`/api/routes/dashboard?${params.toString()}`, {
     method: "GET",
@@ -103,7 +107,7 @@ async function fetchRouteDashboard(
 export function useRoutesWithDashboard(
   page: number,
   pageSize: number,
-  status?: string
+  status?: string | string[]
 ) {
   return useQuery({
     queryKey: routeKeys.dashboardWithFilters(page, pageSize, status),

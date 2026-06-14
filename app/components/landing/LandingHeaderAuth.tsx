@@ -39,6 +39,7 @@ export default function LandingHeaderAuth() {
   };
   /* -------------------------------- LIFECYCLE ------------------------------- */
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkAuth();
   }, []);
 

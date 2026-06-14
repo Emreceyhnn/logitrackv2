@@ -84,6 +84,7 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     case "FAILED":
     case "DELAYED":
     case "CANCELLED":
+    case "OUT_OF_ORDER":
       return {
         color: getDictColor("error", "#F56565"),
         paletteKey: "error",

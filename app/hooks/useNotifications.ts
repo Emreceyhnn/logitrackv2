@@ -50,6 +50,7 @@ export const useNotifications = (user: UserContext | undefined) => {
 
     const listeners: Array<{ nodeRef: DatabaseReference; listener: (snap: DataSnapshot) => void; path: string }> = [];
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     let pathsLoaded = 0;
 

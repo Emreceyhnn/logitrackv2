@@ -16,6 +16,13 @@ import { toast } from "sonner";
 
 async function fetchTrailers(filters: TrailerFilters): Promise<{
   trailers: import("@/app/lib/type/trailer").TrailerWithRelations[];
+  kpis: {
+    total: number;
+    available: number;
+    inUse: number;
+    maintenance: number;
+    issues: number;
+  };
   meta: {
     total: number;
     page: number;

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Autocomplete } from "@react-google-maps/api";
-import { TextField, useTheme } from "@mui/material";
+import { Autocomplete as MuiAutocomplete, TextField, useTheme, Typography, Grid } from "@mui/material";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export interface AddressData {
@@ -35,39 +35,67 @@ export const AddressAutocomplete = ({
   helperText,
   onBlur,
 }: AddressAutocompleteProps) => {
-  /* -------------------------------- VARIABLES ------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
 
-  /* --------------------------------- STATES --------------------------------- */
-  const [address, setAddress] = useState(value);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const [inputValue, setInputValue] = useState(value);
+  const [options, setOptions] = useState<readonly google.maps.places.AutocompletePrediction[]>([]);
 
-  /* -------------------------------- LIFECYCLE ------------------------------- */
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+  const geocoder = useRef<google.maps.Geocoder | null>(null);
+
   useEffect(() => {
-    setAddress(value);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setInputValue(value);
   }, [value]);
 
-  /* --------------------------------- ACTIONS -------------------------------- */
-  const onLoad = (autocomplete: google.maps.places.Autocomplete) => {
-    autocompleteRef.current = autocomplete;
-  };
+  const fetchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const onPlaceChanged = () => {
-    if (autocompleteRef.current !== null) {
-      const place = autocompleteRef.current.getPlace();
-      if (place.geometry && place.geometry.location) {
-        const addressData: AddressData = {
-          formattedAddress: place.formatted_address || place.name || "",
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng(),
-          address_components: place.address_components,
-        };
-        setAddress(addressData.formattedAddress);
-        if (onAddressSelect) onAddressSelect(addressData);
-      }
+  useEffect(() => {
+    let active = true;
+
+    if (typeof window !== "undefined" && window.google && !autocompleteService.current) {
+      autocompleteService.current = new window.google.maps.places.AutocompleteService();
+      geocoder.current = new window.google.maps.Geocoder();
     }
-  };
+
+    if (inputValue === "") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setOptions(value ? [{ description: value } as google.maps.places.AutocompletePrediction] : []);
+      return undefined;
+    }
+
+    if (fetchTimeout.current) {
+      clearTimeout(fetchTimeout.current);
+    }
+
+    fetchTimeout.current = setTimeout(() => {
+      if (autocompleteService.current) {
+        autocompleteService.current.getPlacePredictions(
+          { input: inputValue },
+          (results: google.maps.places.AutocompletePrediction[] | null) => {
+            if (active) {
+              let newOptions: readonly google.maps.places.AutocompletePrediction[] = [];
+
+              if (value) {
+                newOptions = [{ description: value } as google.maps.places.AutocompletePrediction];
+              }
+
+              if (results) {
+                newOptions = [...newOptions, ...results];
+              }
+
+              setOptions(newOptions);
+            }
+          }
+        );
+      }
+    }, 200);
+
+    return () => {
+      active = false;
+    };
+  }, [value, inputValue]);
 
   /* --------------------------------- STYLES --------------------------------- */
   const textFieldStyles = {
@@ -96,28 +124,83 @@ export const AddressAutocomplete = ({
     },
   };
 
-  /* -------------------------------- HANDLERS -------------------------------- */
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAddress(e.target.value);
-    if (onChange) onChange(e);
-  };
-
   return (
-    <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
-      <TextField
-        fullWidth
-        name={name}
-        value={address}
-        onChange={handleInputChange}
-        placeholder={placeholder || dict.maps.searchAddress}
-        disabled={disabled}
-        error={error}
-        helperText={helperText}
-        onBlur={onBlur}
-        sx={textFieldStyles}
-        variant="outlined"
-      />
-    </Autocomplete>
+    <MuiAutocomplete
+      fullWidth
+      getOptionLabel={(option) => typeof option === 'string' ? option : option.description}
+      filterOptions={(x) => x}
+      options={options}
+      autoComplete
+      includeInputInList
+      filterSelectedOptions
+      value={value}
+      noOptionsText={dict.maps?.searchAddress || "No locations"}
+      onChange={(event: React.SyntheticEvent, newValue: google.maps.places.AutocompletePrediction | string | null) => {
+        setOptions(newValue ? [typeof newValue === 'string' ? { description: newValue } as google.maps.places.AutocompletePrediction : newValue, ...options] : options);
+        
+        const selectedDesc = typeof newValue === 'string' ? newValue : newValue?.description || "";
+        
+        if (onChange) {
+           const e = { target: { name, value: selectedDesc } } as React.ChangeEvent<HTMLInputElement>;
+           onChange(e);
+        }
+
+        if (newValue && typeof newValue !== 'string' && newValue.place_id && geocoder.current) {
+          geocoder.current.geocode({ placeId: newValue.place_id }, (results, status) => {
+            if (status === "OK" && results && results[0] && onAddressSelect) {
+              const data = results[0];
+              onAddressSelect({
+                formattedAddress: data.formatted_address,
+                lat: data.geometry.location.lat(),
+                lng: data.geometry.location.lng(),
+                address_components: data.address_components
+              });
+            }
+          });
+        }
+      }}
+      onInputChange={(event, newInputValue) => {
+        setInputValue(newInputValue);
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          name={name}
+          placeholder={placeholder || dict.maps?.searchAddress || "Search destination..."}
+          disabled={disabled}
+          error={error}
+          helperText={helperText}
+          onBlur={onBlur}
+          sx={textFieldStyles}
+          variant="outlined"
+        />
+      )}
+      renderOption={(props, option) => {
+        const { key, ...otherProps } = props as React.HTMLAttributes<HTMLLIElement> & { key?: React.Key };
+        const placeId = typeof option === 'string' ? option : option.place_id;
+        const description = typeof option === 'string' ? option : option.description;
+        const mainText = typeof option === 'string' ? option : option.structured_formatting?.main_text || description;
+        const secondaryText = typeof option === 'string' ? "" : option.structured_formatting?.secondary_text || "";
+
+        return (
+          <li key={key || placeId || description} {...otherProps}>
+            <Grid container alignItems="center" spacing={2}>
+              <Grid sx={{ display: 'flex', width: 44 }}>
+                <LocationOnIcon sx={{ color: 'text.secondary' }} />
+              </Grid>
+              <Grid sx={{ width: 'calc(100% - 44px)', wordWrap: 'break-word' }}>
+                <Typography variant="body2" color="text.primary">
+                  {mainText}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {secondaryText}
+                </Typography>
+              </Grid>
+            </Grid>
+          </li>
+        );
+      }}
+    />
   );
 };
 

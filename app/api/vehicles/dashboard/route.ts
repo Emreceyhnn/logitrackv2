@@ -119,7 +119,7 @@ export async function GET(req: NextRequest) {
             id: true, fleetNo: true, plate: true, brand: true, model: true,
             year: true, type: true, fuelType: true, maxLoadKg: true,
             nextServiceKm: true, avgFuelConsumption: true, status: true,
-            odometerKm: true, fuelLevel: true, currentLat: true,
+            odometerKm: true, fuelLevel: true, fuelCapacity: true, currentLat: true,
             currentLng: true, photo: true, createdAt: true, updatedAt: true,
             driver: {
               select: {

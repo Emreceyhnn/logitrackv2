@@ -98,7 +98,6 @@ const EditWarehouseDialog = ({
         }
       }
 
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState({
         data: {
           basicInfo: {

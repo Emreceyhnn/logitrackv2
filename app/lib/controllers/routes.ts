@@ -954,7 +954,7 @@ export const getRoutesWithDashboardData = authenticatedAction(
     user,
     page: number = 1,
     pageSize: number = 10,
-    status?: string
+    status?: string | string[]
   ): Promise<{
     routes: RouteWithRelations[];
     totalCount: number;
@@ -973,7 +973,13 @@ export const getRoutesWithDashboardData = authenticatedAction(
 
       const where: Prisma.RouteWhereInput = { companyId };
       if (status && status !== "ALL") {
-        where.status = status as RouteStatus;
+        if (Array.isArray(status)) {
+          if (status.length > 0) {
+            where.status = { in: status as RouteStatus[] };
+          }
+        } else {
+          where.status = status as RouteStatus;
+        }
       }
 
       // ── Parallel Orchestration ──────────────────────────────────────────

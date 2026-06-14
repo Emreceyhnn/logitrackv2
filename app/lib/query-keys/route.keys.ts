@@ -7,6 +7,6 @@ export const routeKeys = {
   locations: () => [...routeKeys.all, "locations"] as const,
   details: (id: string) => [...routeKeys.all, "detail", id] as const,
   dashboard: () => [...routeKeys.all, "dashboard"] as const,
-  dashboardWithFilters: (page: number, pageSize: number, status?: string) =>
+  dashboardWithFilters: (page: number, pageSize: number, status?: string | string[]) =>
     [...routeKeys.dashboard(), { page, pageSize, status }] as const,
 };

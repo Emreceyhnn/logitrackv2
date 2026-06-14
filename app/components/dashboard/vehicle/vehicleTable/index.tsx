@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, Tooltip } from "@mui/material";
 import { VehicleStatus, VehicleType } from "@/app/lib/type/enums";
 import DataTable from "@/app/components/ui/DataTable";
 import type {
@@ -13,6 +13,8 @@ import DriverAvatar from "@/app/components/avatar";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import WarningIcon from "@mui/icons-material/Warning";
+import { getStatusMeta } from "@/app/lib/priorityColor";
 import type {
   VehicleTableProps,
   VehicleWithRelations,
@@ -162,7 +164,27 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
       {
         key: "status",
         label: dict.vehicles.fields.status,
-        render: (row) => <StatusChip status={row.status} />,
+        render: (row) => {
+          const openIssue = row.issues?.find(
+            (i) => i.status === "OPEN" || i.status === "IN_PROGRESS"
+          );
+          
+          return (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <StatusChip status={row.status} />
+              {openIssue && (
+                <Tooltip title={openIssue.title || dict.vehicles.statuses.OUT_OF_ORDER}>
+                  <WarningIcon 
+                    sx={{ 
+                      fontSize: 20, 
+                      color: getStatusMeta(openIssue.priority, dict).color 
+                    }} 
+                  />
+                </Tooltip>
+              )}
+            </Box>
+          );
+        },
       },
       {
         key: "odometer",
@@ -248,7 +270,7 @@ const VehicleTable = ({ state, actions }: VehicleTableProps) => {
         icon: <CheckCircleOutlineIcon fontSize="small" />,
         onClick: (row) =>
           handleStatusUpdate(row.id, "AVAILABLE" as VehicleStatus),
-        hidden: (row) => row.status !== "MAINTENANCE",
+        hidden: (row) => row.status !== "MAINTENANCE" && row.status !== "OUT_OF_ORDER",
       },
       {
         label: dict.common.delete,

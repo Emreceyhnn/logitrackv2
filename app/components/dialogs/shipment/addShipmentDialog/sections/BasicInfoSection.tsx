@@ -246,7 +246,6 @@ const BasicInfoSection = () => {
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: theme.palette.text.darkBlue._alpha.main_50,
                         borderRadius: 2,
-                        height: "56px",
                         "& fieldset": {
                           borderColor: theme.palette.divider_alpha.main_10,
                         },

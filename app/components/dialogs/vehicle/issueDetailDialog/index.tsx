@@ -54,6 +54,7 @@ export default function IssueDetailDialog({
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (issue) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus(issue.status as IssueStatus);
       setPriority(issue.priority as IssuePriority);
     }

@@ -74,6 +74,7 @@ export default function AssignDriverDialog({
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchDrivers();
       setSelectedDriverId("");
       setError(null);

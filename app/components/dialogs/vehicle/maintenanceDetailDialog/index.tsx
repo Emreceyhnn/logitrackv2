@@ -113,6 +113,7 @@ export default function MaintenanceDetailDialog({
 
   useEffect(() => {
     if (record) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         type: record.type,
         date: dayjs(record.date),
