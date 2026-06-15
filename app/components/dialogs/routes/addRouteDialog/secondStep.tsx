@@ -1,10 +1,11 @@
 "use client";
 
-import {  Box, Grid, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Grid, Stack, Typography, useTheme, Button, IconButton } from "@mui/material";
 import { useFormikContext } from "formik";
 import { RouteFormValues } from "@/app/lib/type/routes";
 import ExploreIcon from "@mui/icons-material/Explore";
 import ElectricBoltIcon from "@mui/icons-material/ElectricBolt";
+import CloseIcon from "@mui/icons-material/Close";
 import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useMemo } from "react";
@@ -27,6 +28,15 @@ const SecondRouteDialogStep = () => {
     () => (values.endLat && values.endLng ? { lat: values.endLat, lng: values.endLng } : values.endAddress),
     [values.endLat, values.endLng, values.endAddress]
   );
+  
+  const mapWaypoints = useMemo(() => {
+    return values.waypoints
+      ?.filter((wp) => wp.address || (wp.lat && wp.lng))
+      .map((wp) => ({
+        location: wp.lat && wp.lng ? { lat: wp.lat, lng: wp.lng } : wp.address,
+        stopover: true,
+      }));
+  }, [values.waypoints]);
 
   return (
     <GoogleMapsProvider>
@@ -97,6 +107,69 @@ const SecondRouteDialogStep = () => {
                   />
                 </Stack>
 
+                {/* Waypoints Array */}
+                <Stack spacing={2}>
+                  {values.waypoints?.map((waypoint, index) => (
+                    <Stack spacing={1} key={index}>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Typography
+                          variant="body2"
+                          component="div"
+                          fontWeight={600}
+                          color="text.secondary"
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Box
+                            sx={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: "50%",
+                              bgcolor: "warning.main",
+                            }}
+                          />
+                          Stop {index + 1}
+                        </Typography>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => {
+                            const newWaypoints = [...(values.waypoints || [])];
+                            newWaypoints.splice(index, 1);
+                            setFieldValue("waypoints", newWaypoints);
+                          }}
+                        >
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      </Stack>
+                      <AddressAutocomplete
+                        value={waypoint.address}
+                        onAddressSelect={({ lat, lng, formattedAddress }: { lat: number; lng: number; formattedAddress: string }) => {
+                          setFieldValue(`waypoints[${index}]`, {
+                            address: formattedAddress,
+                            lat,
+                            lng,
+                          });
+                        }}
+                      />
+                    </Stack>
+                  ))}
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    color="inherit"
+                    onClick={() => {
+                      setFieldValue("waypoints", [
+                        ...(values.waypoints || []),
+                        { address: "", lat: 0, lng: 0 },
+                      ]);
+                    }}
+                    sx={{ alignSelf: "flex-start", mt: values.waypoints?.length ? 0 : 1 }}
+                  >
+                    + Add Stop
+                  </Button>
+                </Stack>
+
                 <Stack spacing={1}>
                   <Typography
                     variant="body2"
@@ -152,7 +225,7 @@ const SecondRouteDialogStep = () => {
                     >
                       {dict.routes.dialogs.distanceKmLabel}
                     </Typography>
-                    <Typography variant="h6" fontWeight={700} color="white">
+                    <Typography component="div" variant="h6" fontWeight={700} color="white">
                       {values.distanceKm > 0 ? values.distanceKm.toFixed(1) : "--"}
                     </Typography>
                   </Box>
@@ -172,7 +245,7 @@ const SecondRouteDialogStep = () => {
                     >
                       {dict.routes.dialogs.durationMinLabel}
                     </Typography>
-                    <Typography variant="h6" fontWeight={700} color="white">
+                    <Typography component="div" variant="h6" fontWeight={700} color="white">
                       {values.durationMin > 0 ? values.durationMin : "--"}
                     </Typography>
                   </Box>
@@ -224,6 +297,7 @@ const SecondRouteDialogStep = () => {
                 <DirectionsMap
                   origin={origin}
                   destination={destination}
+                  waypoints={mapWaypoints}
                   vehicleLocation={null}
                   onRouteInfoUpdate={(data: { distanceKm?: number; durationMin?: number }) => {
                     if (data.distanceKm !== undefined) setFieldValue("distanceKm", data.distanceKm);

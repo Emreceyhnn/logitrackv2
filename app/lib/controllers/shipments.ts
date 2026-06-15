@@ -1183,6 +1183,11 @@ export const getShipmentsWithDashboardData = authenticatedAction(
             },
             route: true,
             items: true,
+            stops: {
+              orderBy: {
+                sequence: "asc",
+              },
+            },
           },
           orderBy: { createdAt: "desc" },
           skip,

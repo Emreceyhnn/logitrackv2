@@ -239,7 +239,7 @@ export default function InventoryDetailsDialog({
             </Avatar>
             <Stack spacing={0.5}>
               <Stack direction="row" spacing={1.5} alignItems="center">
-                <Typography variant="h6" fontWeight={800} color="text.primary">
+                <Typography component="div" variant="h6" fontWeight={800} color="text.primary">
                   {item.name}
                 </Typography>
                 <Chip
@@ -726,7 +726,7 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.weight.toUpperCase()}
                       </Typography>
-                      <Typography
+                      <Typography component="div"
                         variant="h6"
                         fontWeight={800}
                         color="text.primary"
@@ -754,7 +754,7 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.volume.toUpperCase()}
                       </Typography>
-                      <Typography
+                      <Typography component="div"
                         variant="h6"
                         fontWeight={800}
                         color="text.primary"
@@ -782,7 +782,7 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.pallets.toUpperCase()}
                       </Typography>
-                      <Typography
+                      <Typography component="div"
                         variant="h6"
                         fontWeight={800}
                         color="text.primary"
@@ -882,7 +882,7 @@ export default function InventoryDetailsDialog({
                               </Box>
                             </Stack>
                             <Box sx={{ textAlign: "right" }}>
-                              <Typography
+                              <Typography component="div"
                                 variant="h6"
                                 color="primary.light"
                                 fontWeight={800}

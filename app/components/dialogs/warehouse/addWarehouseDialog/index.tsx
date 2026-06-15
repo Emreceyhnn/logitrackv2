@@ -99,38 +99,39 @@ const AddWarehouseDialog = ({
     handleSubmit: async () => {
       if (!user || !user.companyId) return;
 
-      // 1. Close dialog immediately
-      actions.closeDialog();
+      try {
+        await toast.promise(
+          createWarehouse(
+            state.data.basicInfo.name,
+            state.data.basicInfo.code,
+            state.data.basicInfo.type,
+            state.data.location.address,
+            state.data.location.city,
+            state.data.location.country,
+            state.data.location.lat,
+            state.data.location.lng,
+            state.data.location.managerId || undefined,
+            state.data.capacity.capacityPallets,
+            state.data.capacity.capacityVolumeM3,
+            state.data.basicInfo.is247
+              ? "24/7"
+              : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
+            state.data.basicInfo.timezone,
+            state.data.capacity.specifications
+          ),
+          {
+            loading: dict.toasts.loading,
+            success: dict.toasts.successAdd,
+            error: (err: unknown) =>
+              err instanceof Error ? err.message : dict.toasts.errorGeneric,
+          }
+        );
 
-      // 2. Run the request inside a toast promise
-      await toast.promise(
-        createWarehouse(
-          state.data.basicInfo.name,
-          state.data.basicInfo.code,
-          state.data.basicInfo.type,
-          state.data.location.address,
-          state.data.location.city,
-          state.data.location.country,
-          state.data.location.lat,
-          state.data.location.lng,
-          state.data.location.managerId || undefined,
-          state.data.capacity.capacityPallets,
-          state.data.capacity.capacityVolumeM3,
-          state.data.basicInfo.is247
-            ? "24/7"
-            : `${state.data.basicInfo.openingTime} - ${state.data.basicInfo.closingTime}`,
-          state.data.basicInfo.timezone,
-          state.data.capacity.specifications
-        ),
-        {
-          loading: dict.toasts.loading,
-          success: dict.toasts.successAdd,
-          error: (err: unknown) =>
-            err instanceof Error ? err.message : dict.toasts.errorGeneric,
-        }
-      );
-
-      onSuccess?.();
+        onSuccess?.();
+        actions.closeDialog();
+      } catch (error) {
+        console.error(error);
+      }
     },
     closeDialog: () => {
       onClose();
@@ -179,7 +180,7 @@ const AddWarehouseDialog = ({
             sx={{ mb: 3 }}
           >
             <Stack spacing={0.5}>
-              <Typography variant="h6" fontWeight={800} color="text.primary">
+              <Typography component="div" variant="h6" fontWeight={800} color="text.primary">
                 {state.currentStep === 1
                   ? dict.warehouses.dialogs.addTitle
                   : state.currentStep === 2

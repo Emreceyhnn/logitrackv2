@@ -235,17 +235,19 @@ export const DirectionsMap = ({
         zoom={12}
         options={mapOptions}
       >
-        <DirectionsRenderer 
-          options={{
-            directions: response,
-            suppressMarkers: true, // We will render our own markers for a premium look
-            polylineOptions: {
-              strokeColor: "#3182CE",
-              strokeWeight: 5,
-              strokeOpacity: 0.8,
-            }
-          }} 
-        />
+        {response && (
+          <DirectionsRenderer 
+            options={{
+              directions: response,
+              suppressMarkers: true, // We will render our own markers for a premium look
+              polylineOptions: {
+                strokeColor: "#3182CE",
+                strokeWeight: 5,
+                strokeOpacity: 0.8,
+              }
+            }} 
+          />
+        )}
 
         {/* Custom Markers */}
         {origin && typeof origin !== "string" && origin.lat && origin.lng && (

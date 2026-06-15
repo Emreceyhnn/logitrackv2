@@ -49,7 +49,7 @@ export default function Sidebar({ activeStep }: SidebarProps) {
         >
           {dict.company.sidebar.currentStep}
         </Typography>
-        <Typography
+        <Typography component="div"
           variant="h6"
           sx={{ color: "text.primary", fontWeight: 800 }}
         >

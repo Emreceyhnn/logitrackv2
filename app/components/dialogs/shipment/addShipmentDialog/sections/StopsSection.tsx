@@ -365,7 +365,7 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
           };
 
           return (
-            <Stack spacing={3}>
+            <Stack spacing={3} sx={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
             <Box
               sx={{
                 p: 2.5,
@@ -375,6 +375,7 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
                     ? "rgba(255, 255, 255, 0.03)"
                     : "rgba(0, 0, 0, 0.02)",
                 border: (theme) => `1px solid ${theme.palette.divider}`,
+                flexShrink: 0,
               }}
             >
               <Stack spacing={2}>
@@ -530,14 +531,15 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
               </Stack>
             </Box>
 
-            <Stack spacing={2}>
-              <Stack direction="row" spacing={1} alignItems="center">
+            <Stack spacing={2} sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
                 <LocationOnIcon color="primary" fontSize="small" />
                 <Typography variant="subtitle2" fontWeight={700}>
                   {dict.shipments.dialogs.sections.shipmentStops || "Planned Route"} ({values.stops.length})
                 </Typography>
               </Stack>
 
+              <Box sx={{ flex: 1, overflowY: "auto", pr: 1, minHeight: 0 }}>
             {values.stops.length === 0 ? (
               <Box
                 sx={{
@@ -577,6 +579,7 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
                 </AnimatePresence>
               </Reorder.Group>
             )}
+              </Box>
             </Stack>
           </Stack>
         );

@@ -143,7 +143,7 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
         </Box>
 
         <Box sx={{ flex: 1, zIndex: 1 }}>
-          <Typography
+          <Typography component="div"
             fontWeight={800}
             color="white"
             variant="h6"

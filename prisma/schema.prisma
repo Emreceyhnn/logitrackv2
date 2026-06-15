@@ -383,6 +383,7 @@ model Route {
   driverId     String?
   vehicleId    String?
   companyId    String?
+  waypoints    Json?
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   company      Company?    @relation(fields: [companyId], references: [id])

@@ -156,7 +156,7 @@ export default function CreateCompanyDialog({
                 sx={{ mb: 3 }}
               >
                 <Stack spacing={0.5}>
-                  <Typography
+                  <Typography component="div"
                     variant="h6"
                     fontWeight={800}
                     sx={{ letterSpacing: "-0.02em" }}

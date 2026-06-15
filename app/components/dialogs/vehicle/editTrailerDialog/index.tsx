@@ -95,7 +95,7 @@ export default function EditTrailerDialog({
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <form onSubmit={handleSubmit}>
         <DialogTitle>
-          <Typography variant="h6" fontWeight={700}>
+          <Typography component="div" variant="h6" fontWeight={700}>
             {dict.trailers.editTrailer || "Edit Trailer"}
           </Typography>
         </DialogTitle>

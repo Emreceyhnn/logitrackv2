@@ -204,22 +204,20 @@ const EditShipmentDialog = ({
         })) || [],
       stops:
         shipment.stops?.map((stop) => ({
+          id: stop.id,
           customerId: stop.customerId || "",
           customerLocationId: stop.customerLocationId || "",
           address: stop.address,
           lat: stop.lat ?? null,
           lng: stop.lng ?? null,
           sequence: stop.sequence,
+          contactEmail: stop.contactEmail || "",
         })) || [],
     };
   };
 
   const onSubmit = async (values: ShipmentFormValues) => {
     if (!user || !shipment) return;
-
-    // 1. Close dialog immediately
-    onClose();
-    setCurrentStep(1);
 
     const selectedWarehouse = warehouses.find(
       (w) => w.id === values.originWarehouseId
@@ -228,43 +226,48 @@ const EditShipmentDialog = ({
     const sanitize = (val: string | null | undefined) =>
       val && val.trim() !== "" ? val : null;
 
-    // 2. Run async work behind a loading toast
-    await toast.promise(
-      updateShipment(shipment.id, {
-        customerId: sanitize(values.customerId),
-        customerLocationId: sanitize(values.customerLocationId),
-        originWarehouseId: sanitize(values.originWarehouseId) ?? undefined,
-        routeId: sanitize(values.assignedRouteId),
-        trailerId: sanitize(values.trailerId),
-        origin: originName,
-        destination: values.destination,
-        itemsCount: values.inventoryItems.length || shipment.itemsCount || 1,
-        weightKg: values.weightKg,
-        volumeM3: values.volumeM3,
-        palletCount: values.palletCount,
-        cargoType: values.cargoType,
-        destinationLat: values.destinationLat,
-        destinationLng: values.destinationLng,
-        originLat: values.originLat,
-        originLng: values.originLng,
-        trackingId: values.referenceNumber,
-        priority: values.priority,
-        type: values.type,
-        slaDeadline: values.slaDeadline,
-        contactEmail: sanitize(values.contactEmail) ?? undefined,
-        billingAccount: values.billingAccount,
-        inventoryItems: values.inventoryItems,
-        stops: values.stops,
-      }),
-      {
-        loading: dict.toasts.loading,
-        success: dict.toasts.successUpdate,
-        error: (err: unknown) =>
-          err instanceof Error ? err.message : dict.toasts.errorGeneric,
-      }
-    );
+    try {
+      await toast.promise(
+        updateShipment(shipment.id, {
+          customerId: sanitize(values.customerId),
+          customerLocationId: sanitize(values.customerLocationId),
+          originWarehouseId: sanitize(values.originWarehouseId) ?? undefined,
+          routeId: sanitize(values.assignedRouteId),
+          trailerId: sanitize(values.trailerId),
+          origin: originName,
+          destination: values.destination,
+          itemsCount: values.inventoryItems.length || shipment.itemsCount || 1,
+          weightKg: values.weightKg,
+          volumeM3: values.volumeM3,
+          palletCount: values.palletCount,
+          cargoType: values.cargoType,
+          destinationLat: values.destinationLat,
+          destinationLng: values.destinationLng,
+          originLat: values.originLat,
+          originLng: values.originLng,
+          trackingId: values.referenceNumber,
+          priority: values.priority,
+          type: values.type,
+          slaDeadline: values.slaDeadline,
+          contactEmail: sanitize(values.contactEmail) ?? undefined,
+          billingAccount: values.billingAccount,
+          inventoryItems: values.inventoryItems,
+          stops: values.stops,
+        }),
+        {
+          loading: dict.toasts.loading,
+          success: dict.toasts.successUpdate,
+          error: (err: unknown) =>
+            err instanceof Error ? err.message : dict.toasts.errorGeneric,
+        }
+      );
 
-    onSuccess?.();
+      onSuccess?.();
+      onClose();
+      setCurrentStep(1);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const closeDialog = () => {
@@ -395,7 +398,7 @@ const EditShipmentDialog = ({
                         <EditIcon />
                       </Box>
                       <Stack spacing={0.5}>
-                        <Typography
+                        <Typography component="div"
                           variant="h6"
                           fontWeight={800}
                           color="text.primary"

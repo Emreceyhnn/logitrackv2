@@ -306,7 +306,7 @@ const EditVehicleDialog = ({
                   alignItems="center"
                 >
                   <Stack direction="row" spacing={2} alignItems="center">
-                    <Typography
+                    <Typography component="div"
                       variant="h6"
                       fontWeight={800}
                       color="text.primary"

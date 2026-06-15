@@ -267,7 +267,7 @@ export default function DocumentViewerDialog({
               sx={{ fontSize: 64, color: theme.palette.error._alpha.main_50 }}
             />
             <Box>
-              <Typography variant="h6" color="white" gutterBottom>
+              <Typography component="div" variant="h6" color="white" gutterBottom>
                 {dict.documentViewer.previewUnavailable}
               </Typography>
               <Typography

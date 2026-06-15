@@ -216,7 +216,7 @@ const EditDriverDialog = ({
                   alignItems="center"
                 >
                   <Stack spacing={0.5}>
-                    <Typography variant="h6" fontWeight={600} color="white">
+                    <Typography component="div" variant="h6" fontWeight={600} color="white">
                       {dict.drivers.dialogs.editTitle}: {driver.user.name}{" "}
                       {driver.user.surname}
                     </Typography>

@@ -258,7 +258,7 @@ export default function MaintenanceDetailDialog({
           justifyContent="space-between"
           alignItems="center"
         >
-          <Typography variant="h6" fontWeight={800} color="text.primary">
+          <Typography component="div" variant="h6" fontWeight={800} color="text.primary">
             {dict.vehicles.dialogs.maintenanceDetails}
           </Typography>
           <IconButton

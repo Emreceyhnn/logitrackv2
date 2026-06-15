@@ -151,7 +151,7 @@ export default function AddFuelLogDialog({
           justifyContent="space-between"
           alignItems="center"
         >
-          <Typography variant="h6" fontWeight={800} color="text.primary">
+          <Typography component="div" variant="h6" fontWeight={800} color="text.primary">
             {dict.fuel.dialogs.addTitle} - {vehiclePlate}
           </Typography>
           <IconButton

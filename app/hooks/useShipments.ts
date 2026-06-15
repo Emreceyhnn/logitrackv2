@@ -35,6 +35,7 @@ async function fetchShipments(filters?: {
   if (filters?.search) params.set("search", filters.search);
   if (filters?.status) params.set("status", filters.status);
   if (filters?.unassigned !== undefined) params.set("unassigned", String(filters.unassigned));
+  params.set("_t", Date.now().toString());
 
   const res = await fetch(`/api/shipments?${params.toString()}`, {
     method: "GET",
@@ -131,6 +132,7 @@ async function fetchShipmentDashboard(
   params.set("pageSize", String(pageSize));
   if (status && (status as string) !== "ALL") params.set("status", status);
   if (search) params.set("search", search);
+  params.set("_t", Date.now().toString());
 
   const res = await fetch(`/api/shipments/dashboard?${params.toString()}`, {
     method: "GET",

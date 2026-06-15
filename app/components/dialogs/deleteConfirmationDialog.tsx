@@ -66,7 +66,7 @@ export default function DeleteConfirmationDialog({
               <WarningIcon />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={800} color="text.primary">
+              <Typography component="div" variant="h6" fontWeight={800} color="text.primary">
                 {title}
               </Typography>
               <Typography

@@ -238,7 +238,7 @@ export default function InventoryEditDialog({
               <EditIcon />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={700} color="white">
+              <Typography component="div" variant="h6" fontWeight={700} color="white">
                 {dict.inventory.dialogs.editItem}
               </Typography>
               <Typography

@@ -104,6 +104,7 @@ export const RegisterUser = maybeAuthenticatedAction(
     try {
       const headerStore = await headers();
       const ip = ipAddress || headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const userAgent = deviceInfo || headerStore.get("user-agent") || "Unknown Device";
 
       // Rate limit registration by IP: Max 5 attempts per hour
       const ipLimit = await rateLimit(ip, 5, 3600, "rate-limit:register-ip:");
@@ -141,14 +142,14 @@ export const RegisterUser = maybeAuthenticatedAction(
 
       // Create server-side session (sets httpOnly cookies automatically)
       // Note: This creates a session for the newly registered user, not the admin.
-      await createSession(newUser, deviceInfo, ipAddress);
+      await createSession(newUser, userAgent, ip);
 
       // Audit log
       await logAuditEvent({
         userId: newUser.id,
         action: "REGISTER",
-        ipAddress,
-        deviceInfo,
+        ipAddress: ip,
+        deviceInfo: userAgent,
         metadata: { email, avatarUrl },
       });
 
@@ -184,6 +185,7 @@ export const LoginUser = maybeAuthenticatedAction(
     try {
       const headerStore = await headers();
       const ip = ipAddress || headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const userAgent = deviceInfo || headerStore.get("user-agent") || "Unknown Device";
 
       // 1. IP Rate Limiting: Max 5 login attempts per minute
       const ipLimit = await rateLimit(ip, 5, 60, "rate-limit:login-ip:");
@@ -207,8 +209,8 @@ export const LoginUser = maybeAuthenticatedAction(
       if (!foundUser) {
         await logAuditEvent({
           action: "LOGIN_FAILED",
-          ipAddress,
-          deviceInfo,
+          ipAddress: ip,
+          deviceInfo: userAgent,
           metadata: { email, reason: "User not found" },
         });
         return { error: "Invalid credentials" };
@@ -222,8 +224,8 @@ export const LoginUser = maybeAuthenticatedAction(
         await logAuditEvent({
           userId: foundUser.id,
           action: "LOGIN_FAILED",
-          ipAddress,
-          deviceInfo,
+          ipAddress: ip,
+          deviceInfo: userAgent,
           metadata: { email, reason: "Invalid password" },
         });
         return { error: "Invalid credentials" };
@@ -236,14 +238,14 @@ export const LoginUser = maybeAuthenticatedAction(
       });
 
       // Create server-side session
-      await createSession(foundUser, deviceInfo, ipAddress);
+      await createSession(foundUser, userAgent, ip);
 
       // Log successful login
       await logAuditEvent({
         userId: foundUser.id,
         action: "LOGIN",
-        ipAddress,
-        deviceInfo,
+        ipAddress: ip,
+        deviceInfo: userAgent,
       });
 
       return {
@@ -280,10 +282,16 @@ export const LogoutUser = authenticatedAction(async () => {
       // Revoke the session in DB
       await revokeSession(sessionUser.sessionId);
 
+      const headerStore = await headers();
+      const ip = headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const userAgent = headerStore.get("user-agent") || "Unknown Device";
+
       // Log logout
       await logAuditEvent({
         userId: sessionUser.id,
         action: "LOGOUT",
+        ipAddress: ip,
+        deviceInfo: userAgent,
       });
     }
 
@@ -530,10 +538,16 @@ export const updateUserRegionalSettings = authenticatedAction(
         },
       });
 
+      const headerStore = await headers();
+      const ip = headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const userAgent = headerStore.get("user-agent") || "Unknown Device";
+
       // Log audit event
       await logAuditEvent({
         userId: user.id,
         action: "SETTINGS_UPDATE",
+        ipAddress: ip,
+        deviceInfo: userAgent,
         metadata: { ...settings, type: "regional_settings_update" },
       });
 
@@ -567,10 +581,16 @@ export const updateUserNotificationSettings = authenticatedAction(
         },
       });
 
+      const headerStore = await headers();
+      const ip = headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const userAgent = headerStore.get("user-agent") || "Unknown Device";
+
       // Log audit event
       await logAuditEvent({
         userId: user.id,
         action: "SETTINGS_UPDATE",
+        ipAddress: ip,
+        deviceInfo: userAgent,
         metadata: { ...settings, type: "notification_settings_update" },
       });
 

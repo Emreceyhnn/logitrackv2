@@ -101,46 +101,47 @@ const EditRouteDialog = ({
   const onSubmit = async (values: RouteFormValues) => {
     if (!user || !route) return;
 
-    // 1. Close dialog immediately
-    onClose();
-    setCurrentStep(1);
-
     const userTz = user.timezone || "UTC";
     const startUTC = values.startTime
       ? toUTC(values.startTime, userTz)
       : undefined;
     const endUTC = values.endTime ? toUTC(values.endTime, userTz) : undefined;
 
-    // 2. Run async work behind a loading toast
-    await toast.promise(
-      updateRoute(route.id, {
-        name: values.name,
-        startTime: startUTC,
-        endTime: endUTC,
-        startAddress: values.startAddress,
-        startLat: values.startLat,
-        startLng: values.startLng,
-        endAddress: values.endAddress,
-        endLat: values.endLat,
-        endLng: values.endLng,
-        distanceKm: values.distanceKm,
-        durationMin: values.durationMin,
-        driver: values.driverId
-          ? { connect: { id: values.driverId } }
-          : { disconnect: true },
-        vehicle: values.vehicleId
-          ? { connect: { id: values.vehicleId } }
-          : { disconnect: true },
-      }),
-      {
-        loading: dict.toasts.loading,
-        success: dict.toasts.successUpdate,
-        error: (err: unknown) =>
-          err instanceof Error ? err.message : dict.toasts.errorGeneric,
-      }
-    );
+    try {
+      await toast.promise(
+        updateRoute(route.id, {
+          name: values.name,
+          startTime: startUTC,
+          endTime: endUTC,
+          startAddress: values.startAddress,
+          startLat: values.startLat,
+          startLng: values.startLng,
+          endAddress: values.endAddress,
+          endLat: values.endLat,
+          endLng: values.endLng,
+          distanceKm: values.distanceKm,
+          durationMin: values.durationMin,
+          driver: values.driverId
+            ? { connect: { id: values.driverId } }
+            : { disconnect: true },
+          vehicle: values.vehicleId
+            ? { connect: { id: values.vehicleId } }
+            : { disconnect: true },
+        }),
+        {
+          loading: dict.toasts.loading,
+          success: dict.toasts.successUpdate,
+          error: (err: unknown) =>
+            err instanceof Error ? err.message : dict.toasts.errorGeneric,
+        }
+      );
 
-    onSuccess?.();
+      onSuccess?.();
+      onClose();
+      setCurrentStep(1);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const closeDialog = () => {
@@ -212,7 +213,7 @@ const EditRouteDialog = ({
                   alignItems="center"
                 >
                   <Stack spacing={0.5}>
-                    <Typography variant="h6" fontWeight={600} color="white">
+                    <Typography component="div" variant="h6" fontWeight={600} color="white">
                       {dict.routes.dialogs.editTitle}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">

@@ -175,15 +175,19 @@ export const AddressAutocomplete = ({
           variant="outlined"
         />
       )}
-      renderOption={(props, option) => {
-        const { key, ...otherProps } = props as React.HTMLAttributes<HTMLLIElement> & { key?: React.Key };
+      renderOption={(props, option, state) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { key: _key, ...otherProps } = props as React.HTMLAttributes<HTMLLIElement> & { key?: React.Key };
         const placeId = typeof option === 'string' ? option : option.place_id;
         const description = typeof option === 'string' ? option : option.description;
         const mainText = typeof option === 'string' ? option : option.structured_formatting?.main_text || description;
         const secondaryText = typeof option === 'string' ? "" : option.structured_formatting?.secondary_text || "";
 
+        // Ensure key is ALWAYS unique using state.index and placeId to avoid duplicate key errors
+        const uniqueKey = placeId ? `place-${placeId}-${state.index}` : `opt-${state.index}`;
+
         return (
-          <li key={key || placeId || description} {...otherProps}>
+          <li key={uniqueKey} {...otherProps}>
             <Grid container alignItems="center" spacing={2}>
               <Grid sx={{ display: 'flex', width: 44 }}>
                 <LocationOnIcon sx={{ color: 'text.secondary' }} />

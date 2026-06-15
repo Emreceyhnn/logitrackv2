@@ -151,7 +151,7 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
               >
                 {dict.drivers.labels.licenseStatus}
               </Typography>
-              <Typography
+              <Typography component="div"
                 variant="h6"
                 fontWeight={700}
                 color={hasValidLicense ? "success.main" : "error.main"}

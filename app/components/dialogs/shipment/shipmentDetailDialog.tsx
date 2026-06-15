@@ -67,9 +67,7 @@ const PillTab = ({
         border: "none",
         cursor: "pointer",
         transition: "all 0.18s ease",
-        bgcolor: active
-          ? theme.palette.primary._alpha.main_15
-          : "transparent",
+        bgcolor: active ? theme.palette.primary._alpha.main_15 : "transparent",
         color: active ? "primary.main" : "text.secondary",
         "&:hover": {
           bgcolor: active
@@ -79,9 +77,7 @@ const PillTab = ({
         },
       }}
     >
-      <Box sx={{ display: "flex", fontSize: 15, color: "inherit" }}>
-        {icon}
-      </Box>
+      <Box sx={{ display: "flex", fontSize: 15, color: "inherit" }}>{icon}</Box>
       <Typography
         variant="caption"
         fontWeight={active ? 700 : 500}
@@ -137,24 +133,30 @@ export default function ShipmentDetailDialog({
       : shipment.origin || "";
 
   const mapDestination = hasStops
-    ? (stopsSorted[stopsSorted.length - 1].lat && stopsSorted[stopsSorted.length - 1].lng
-        ? { 
-            lat: Number(stopsSorted[stopsSorted.length - 1].lat), 
-            lng: Number(stopsSorted[stopsSorted.length - 1].lng) 
-          }
-        : stopsSorted[stopsSorted.length - 1].address)
-    : (shipment.destinationLat && shipment.destinationLng
-        ? { lat: Number(shipment.destinationLat), lng: Number(shipment.destinationLng) }
-        : shipment.destination || "");
+    ? stopsSorted[stopsSorted.length - 1].lat &&
+      stopsSorted[stopsSorted.length - 1].lng
+      ? {
+          lat: Number(stopsSorted[stopsSorted.length - 1].lat),
+          lng: Number(stopsSorted[stopsSorted.length - 1].lng),
+        }
+      : stopsSorted[stopsSorted.length - 1].address
+    : shipment.destinationLat && shipment.destinationLng
+      ? {
+          lat: Number(shipment.destinationLat),
+          lng: Number(shipment.destinationLng),
+        }
+      : shipment.destination || "";
 
-  const waypoints = hasStops && stopsSorted.length > 1
-    ? stopsSorted.slice(0, -1).map(stop => ({
-        location: stop.lat && stop.lng 
-          ? { lat: Number(stop.lat), lng: Number(stop.lng) } 
-          : stop.address,
-        stopover: true
-      }))
-    : [];
+  const waypoints =
+    hasStops && stopsSorted.length > 1
+      ? stopsSorted.slice(0, -1).map((stop) => ({
+          location:
+            stop.lat && stop.lng
+              ? { lat: Number(stop.lat), lng: Number(stop.lng) }
+              : stop.address,
+          stopover: true,
+        }))
+      : [];
 
   return (
     <Dialog
@@ -174,9 +176,10 @@ export default function ShipmentDetailDialog({
         sx={{
           px: 3,
           py: 2.5,
-          background: theme.palette.mode === "dark" 
-            ? `linear-gradient(135deg, ${theme.palette.primary._alpha.main_10} 0%, transparent 60%)`
-            : `linear-gradient(135deg, ${theme.palette.primary._alpha.main_05} 0%, transparent 100%)`,
+          background:
+            theme.palette.mode === "dark"
+              ? `linear-gradient(135deg, ${theme.palette.primary._alpha.main_10} 0%, transparent 60%)`
+              : `linear-gradient(135deg, ${theme.palette.primary._alpha.main_05} 0%, transparent 100%)`,
           borderBottom: `1px solid ${theme.palette.divider}`,
         }}
       >
@@ -257,7 +260,7 @@ export default function ShipmentDetailDialog({
       </Box>
 
       {/* ─── Body ────────────────────────────────────────────── */}
-      <DialogContent sx={{ p: 0 }}>
+      <DialogContent sx={{ p: 0, overflow: "hidden" }}>
         <Stack direction={{ xs: "column", md: "row" }}>
           {/* ── LEFT PANEL (400px, switches content by tab) ── */}
           <Box
@@ -337,30 +340,31 @@ export default function ShipmentDetailDialog({
                         </Typography>
                       </Stack>
 
-                      <Box sx={{ position: "relative", pl: 4.5 }}>
-                        {/* Continuous Vertical Line */}
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            left: 10,
-                            top: 10,
-                            bottom: 10,
-                            width: "2px",
-                            bgcolor: theme.palette.divider,
-                            opacity: 0.5,
-                            "&::after": {
-                              content: '""',
+                      <Box sx={{ position: "relative", maxHeight: 150, overflow: "auto", pr: 1 }}>
+                        <Stack spacing={4} sx={{ position: "relative", pl: 5.5, py: 1 }}>
+                          {/* Continuous Vertical Line */}
+                          <Box
+                            sx={{
                               position: "absolute",
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              bottom: 0,
-                              backgroundImage: `linear-gradient(to bottom, ${theme.palette.primary.main} 0%, ${theme.palette.info.main} 50%, ${theme.palette.secondary.main} 100%)`,
-                              opacity: 0.3,
-                            }
-                          }}
-                        />
-                        <Stack spacing={4}>
+                              left: 16,
+                              top: 10,
+                              bottom: 10,
+                              width: "2px",
+                              bgcolor: theme.palette.divider,
+                              opacity: 0.5,
+                              "&::after": {
+                                content: '""',
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                backgroundImage: `linear-gradient(to bottom, ${theme.palette.primary.main} 0%, ${theme.palette.info.main} 50%, ${theme.palette.secondary.main} 100%)`,
+                                opacity: 0.3,
+                              },
+                            }}
+                          />
+                          
                           {/* 1. Origin (Warehouse) */}
                           <Box sx={{ position: "relative" }}>
                             <Box
@@ -384,17 +388,30 @@ export default function ShipmentDetailDialog({
                               <BusinessIcon sx={{ fontSize: 16 }} />
                             </Box>
                             <Stack spacing={0.25}>
-                              <Typography variant="caption" fontWeight={800} color="primary.main" sx={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                              <Typography
+                                variant="caption"
+                                fontWeight={800}
+                                color="primary.main"
+                                sx={{
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.05em",
+                                }}
+                              >
                                 {dict.shipments.details.pickupOrigin}
                               </Typography>
-                              <Typography variant="body2" fontWeight={700} color="text.primary">
+                              <Typography
+                                variant="body2"
+                                fontWeight={700}
+                                color="text.primary"
+                              >
                                 {shipment.origin || dict.common.noData}
                               </Typography>
                             </Stack>
                           </Box>
 
                           {/* 2. Intermediate Stops */}
-                          {hasStops && stopsSorted.length > 1 && (
+                          {hasStops &&
+                            stopsSorted.length > 1 &&
                             stopsSorted.slice(0, -1).map((stop, index) => (
                               <Box key={stop.id} sx={{ position: "relative" }}>
                                 <Box
@@ -413,22 +430,35 @@ export default function ShipmentDetailDialog({
                                     color: "white",
                                     zIndex: 1,
                                     fontSize: "0.75rem",
-                                    fontWeight: 900
+                                    fontWeight: 900,
                                   }}
                                 >
                                   {index + 1}
                                 </Box>
                                 <Stack spacing={0.25}>
-                                  <Typography variant="caption" fontWeight={800} color="info.main" sx={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                                    {dict.shipments.dialogs.sections.stop || "Stop"} {index + 1}
+                                  <Typography
+                                    variant="caption"
+                                    fontWeight={800}
+                                    color="info.main"
+                                    sx={{
+                                      textTransform: "uppercase",
+                                      letterSpacing: "0.05em",
+                                    }}
+                                  >
+                                    {dict.shipments.dialogs.sections.stop ||
+                                      "Stop"}{" "}
+                                    {index + 1}
                                   </Typography>
-                                  <Typography variant="body2" fontWeight={600} color="text.primary">
+                                  <Typography
+                                    variant="body2"
+                                    fontWeight={600}
+                                    color="text.primary"
+                                  >
                                     {stop.address}
                                   </Typography>
                                 </Stack>
                               </Box>
-                            ))
-                          )}
+                            ))}
 
                           {/* 3. Final Destination */}
                           <Box sx={{ position: "relative" }}>
@@ -453,13 +483,25 @@ export default function ShipmentDetailDialog({
                               <LocationOnIcon sx={{ fontSize: 18 }} />
                             </Box>
                             <Stack spacing={0.25}>
-                              <Typography variant="caption" fontWeight={800} color="secondary.main" sx={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                              <Typography
+                                variant="caption"
+                                fontWeight={800}
+                                color="secondary.main"
+                                sx={{
+                                  textTransform: "uppercase",
+                                  letterSpacing: "0.05em",
+                                }}
+                              >
                                 {dict.shipments.details.finalDelivery}
                               </Typography>
-                              <Typography variant="body2" fontWeight={700} color="text.primary">
-                                {hasStops 
-                                  ? stopsSorted[stopsSorted.length - 1].address 
-                                  : (shipment.destination || dict.common.noData)}
+                              <Typography
+                                variant="body2"
+                                fontWeight={700}
+                                color="text.primary"
+                              >
+                                {hasStops
+                                  ? stopsSorted[stopsSorted.length - 1].address
+                                  : shipment.destination || dict.common.noData}
                               </Typography>
                             </Stack>
                           </Box>
@@ -502,7 +544,7 @@ export default function ShipmentDetailDialog({
                           >
                             {dict.shipments.details.quantity}
                           </Typography>
-                          <Typography
+                          <Typography component="div"
                             variant="h6"
                             fontWeight={700}
                             color="text.primary"
@@ -535,7 +577,7 @@ export default function ShipmentDetailDialog({
                             >
                               {dict.shipments.details.grossWeight}
                             </Typography>
-                            <Typography
+                            <Typography component="div"
                               variant="h6"
                               fontWeight={700}
                               color="text.primary"
@@ -662,12 +704,12 @@ export default function ShipmentDetailDialog({
                                 textTransform: "uppercase",
                                 fontSize: "0.65rem",
                                 letterSpacing: "0.06em",
-                                opacity: 0.6
+                                opacity: 0.6,
                               }}
                             >
                               {dict.shipments.details.itemsTab.totalItems}
                             </Typography>
-                            <Typography
+                            <Typography component="div"
                               variant="h6"
                               fontWeight={700}
                               color="text.primary"
@@ -692,12 +734,12 @@ export default function ShipmentDetailDialog({
                                     textTransform: "uppercase",
                                     fontSize: "0.65rem",
                                     letterSpacing: "0.06em",
-                                    opacity: 0.6
+                                    opacity: 0.6,
                                   }}
                                 >
                                   {dict.shipments.details.itemsTab.totalWeight}
                                 </Typography>
-                                <Typography
+                                <Typography component="div"
                                   variant="h6"
                                   fontWeight={700}
                                   color="text.primary"
@@ -748,7 +790,7 @@ export default function ShipmentDetailDialog({
                             sx={{
                               fontSize: 24,
                               color: "text.secondary",
-                              opacity: 0.2
+                              opacity: 0.2,
                             }}
                           />
                         </Box>
@@ -809,7 +851,7 @@ export default function ShipmentDetailDialog({
                               sx={{
                                 fontFamily: "monospace",
                                 fontSize: "0.68rem",
-                                opacity: 0.5
+                                opacity: 0.5,
                               }}
                             >
                               {item.sku}
@@ -824,7 +866,7 @@ export default function ShipmentDetailDialog({
                               sx={{
                                 fontSize: "0.6rem",
                                 textTransform: "uppercase",
-                                opacity: 0.5
+                                opacity: 0.5,
                               }}
                             >
                               {dict.shipments.details.itemsTab.qty}
@@ -855,7 +897,7 @@ export default function ShipmentDetailDialog({
                                 sx={{
                                   fontSize: "0.6rem",
                                   textTransform: "uppercase",
-                                  opacity: 0.5
+                                  opacity: 0.5,
                                 }}
                               >
                                 {dict.shipments.details.itemsTab.weight}
@@ -911,9 +953,10 @@ export default function ShipmentDetailDialog({
                 bottom: 24,
                 left: 24,
                 right: 24,
-                bgcolor: (theme) => theme.palette.mode === 'dark' 
-                  ? "rgba(11,16,25,0.82)" 
-                  : theme.palette.background.paper_alpha.main_90,
+                bgcolor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(11,16,25,0.82)"
+                    : theme.palette.background.paper_alpha.main_90,
                 backdropFilter: "blur(12px)",
                 borderRadius: 3,
                 p: 2,
@@ -927,7 +970,11 @@ export default function ShipmentDetailDialog({
                 <Typography variant="caption" color="text.secondary">
                   {dict.shipments.details.mileage}
                 </Typography>
-                <Typography variant="subtitle1" fontWeight={800} color="text.primary">
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={800}
+                  color="text.primary"
+                >
                   {shipment.route?.distanceKm
                     ? `${shipment.route.distanceKm} km`
                     : dict.shipments.details.tbd}
@@ -942,7 +989,11 @@ export default function ShipmentDetailDialog({
                 <Typography variant="caption" color="text.secondary">
                   {dict.shipments.details.duration}
                 </Typography>
-                <Typography variant="subtitle1" fontWeight={800} color="text.primary">
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={800}
+                  color="text.primary"
+                >
                   {shipment.route?.durationMin
                     ? `${shipment.route.durationMin} min`
                     : dict.shipments.details.tbd}
@@ -957,7 +1008,11 @@ export default function ShipmentDetailDialog({
                 <Typography variant="caption" color="text.secondary">
                   {dict.shipments.details.fleetId}
                 </Typography>
-                <Typography variant="subtitle1" fontWeight={800} color="text.primary">
+                <Typography
+                  variant="subtitle1"
+                  fontWeight={800}
+                  color="text.primary"
+                >
                   {shipment.route?.id
                     ? `RT-${shipment.route.id.substring(0, 4).toUpperCase()}`
                     : dict.shipments.details.noUnit}

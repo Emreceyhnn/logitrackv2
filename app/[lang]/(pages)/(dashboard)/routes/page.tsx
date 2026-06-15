@@ -83,7 +83,9 @@ export default async function RoutesPage() {
   return (
     <HydrationBoundary state={dehydratedState}>
       <Suspense fallback={<RoutesPageSkeleton />}>
-        <RoutesContent />
+        <div>
+          <RoutesContent />
+        </div>
       </Suspense>
     </HydrationBoundary>
   );

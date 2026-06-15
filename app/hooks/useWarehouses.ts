@@ -24,7 +24,10 @@ import {
 } from "@/app/lib/type/warehouse";
 
 async function fetchWarehouses(): Promise<WarehouseWithRelations[]> {
-  const res = await fetch(`/api/warehouses`, {
+  const params = new URLSearchParams();
+  params.set("_t", Date.now().toString());
+
+  const res = await fetch(`/api/warehouses?${params.toString()}`, {
     method: "GET",
     credentials: "include",
   });
@@ -84,6 +87,7 @@ async function fetchWarehouseDashboard(
   const params = new URLSearchParams();
   params.set("page", String(page));
   params.set("pageSize", String(pageSize));
+  params.set("_t", Date.now().toString());
 
   const res = await fetch(`/api/warehouses/dashboard?${params.toString()}`, {
     method: "GET",
