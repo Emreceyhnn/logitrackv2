@@ -130,7 +130,7 @@ export default function IssueDetailDialog({
               <AssignmentIcon />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={800} color="text.primary">
+              <Typography component="div" variant="h6" fontWeight={800} color="text.primary">
                 {dict.vehicles.dialogs.issueDetails}
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block", fontWeight: 500 }}>

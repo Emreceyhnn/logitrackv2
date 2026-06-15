@@ -1,7 +1,7 @@
 "use server";
 
 import crypto from "crypto";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
 import { db } from "../db";
 import { redis } from "../redis";
@@ -448,12 +448,17 @@ export async function refreshSession(): Promise<boolean> {
       // The tokens will be lost if not handled by middleware, but we avoid a crash.
     }
 
+    // Extract current IP and User Agent from headers
+    const headerStore = await headers();
+    const currentIp = headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || session.ipAddress || "127.0.0.1";
+    const currentDevice = headerStore.get("user-agent") || session.deviceInfo || "Unknown Device";
+
     // Log the refresh event
     await logAuditEvent({
       userId: session.user.id,
       action: "TOKEN_REFRESH",
-      ipAddress: session.ipAddress,
-      deviceInfo: session.deviceInfo,
+      ipAddress: currentIp,
+      deviceInfo: currentDevice,
     });
 
     return true;

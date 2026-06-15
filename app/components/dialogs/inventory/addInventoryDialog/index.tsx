@@ -177,12 +177,12 @@ const AddInventoryDialog = ({
                 color: theme.palette.primary.main,
               }}
             >
-              <Typography variant="h6" sx={{ lineHeight: 1 }}>
+              <Typography component="div" variant="h6" sx={{ lineHeight: 1 }}>
                 📦
               </Typography>
             </Box>
             <Stack spacing={0.5}>
-              <Typography variant="h6" fontWeight={700} color="white">
+              <Typography component="div" variant="h6" fontWeight={700} color="white">
                 {dict.inventory.dialogs.addTitle}
               </Typography>
               <Typography variant="caption" color="text.secondary">

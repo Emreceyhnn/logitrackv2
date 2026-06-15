@@ -225,7 +225,7 @@ const EditWarehouseDialog = ({
             sx={{ mb: 3 }}
           >
             <Stack spacing={0.5}>
-              <Typography variant="h6" fontWeight={800} color="text.primary">
+              <Typography component="div" variant="h6" fontWeight={800} color="text.primary">
                 {state.currentStep === 1
                   ? dict.warehouses.dialogs.editTitle
                   : state.currentStep === 2

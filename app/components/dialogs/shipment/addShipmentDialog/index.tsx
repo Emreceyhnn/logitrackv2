@@ -146,52 +146,53 @@ const AddShipmentDialog = ({
   const onSubmit = async (values: ShipmentFormValues) => {
     if (!user) return;
 
-    // 1. Close dialog immediately for optimistic UX
-    onClose();
-    setCurrentStep(1);
-
-    // 2. Run async work behind a loading toast
     const selectedWarehouse = warehouses.find(
       (w) => w.id === values.originWarehouseId
     );
     const originName = selectedWarehouse?.name || values.originWarehouseId;
 
-    await toast.promise(
-      createShipment({
-        customerId: values.customerId,
-        origin: originName,
-        originWarehouseId: values.originWarehouseId,
-        destination: values.destination,
-        status: ShipmentStatus.PENDING,
-        itemsCount: values.inventoryItems.length || 1,
-        weightKg: values.weightKg,
-        volumeM3: values.volumeM3,
-        palletCount: values.palletCount,
-        cargoType: values.cargoType,
-        destinationLat: values.destinationLat,
-        destinationLng: values.destinationLng,
-        originLat: values.originLat,
-        originLng: values.originLng,
-        trackingId: values.referenceNumber,
-        customerLocationId: values.customerLocationId,
-        priority: values.priority,
-        type: values.type,
-        slaDeadline: values.slaDeadline,
-        contactEmail: values.contactEmail,
-        billingAccount: values.billingAccount,
-        inventoryItems: values.inventoryItems,
-        trailerId: values.trailerId,
-        stops: values.stops,
-      }),
-      {
-        loading: dict.toasts.loading,
-        success: dict.toasts.successAdd,
-        error: (err: unknown) =>
-          err instanceof Error ? err.message : dict.toasts.errorGeneric,
-      }
-    );
-
-    onSuccess?.();
+    try {
+      await toast.promise(
+        createShipment({
+          customerId: values.customerId,
+          origin: originName,
+          originWarehouseId: values.originWarehouseId,
+          destination: values.destination,
+          status: ShipmentStatus.PENDING,
+          itemsCount: values.inventoryItems.length || 1,
+          weightKg: values.weightKg,
+          volumeM3: values.volumeM3,
+          palletCount: values.palletCount,
+          cargoType: values.cargoType,
+          destinationLat: values.destinationLat,
+          destinationLng: values.destinationLng,
+          originLat: values.originLat,
+          originLng: values.originLng,
+          trackingId: values.referenceNumber,
+          customerLocationId: values.customerLocationId,
+          priority: values.priority,
+          type: values.type,
+          slaDeadline: values.slaDeadline,
+          contactEmail: values.contactEmail,
+          billingAccount: values.billingAccount,
+          inventoryItems: values.inventoryItems,
+          trailerId: values.trailerId,
+          stops: values.stops,
+        }),
+        {
+          loading: dict.toasts.loading,
+          success: dict.toasts.successAdd,
+          error: (err: unknown) =>
+            err instanceof Error ? err.message : dict.toasts.errorGeneric,
+        }
+      );
+      
+      onSuccess?.();
+      onClose();
+      setCurrentStep(1);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const closeDialog = () => {
@@ -298,7 +299,7 @@ const AddShipmentDialog = ({
                     sx={{ mb: 3 }}
                   >
                     <Stack spacing={0.5}>
-                      <Typography
+                      <Typography component="div"
                         variant="h6"
                         fontWeight={800}
                         color="text.primary"
@@ -360,29 +361,37 @@ const AddShipmentDialog = ({
                   </Stepper>
                 </Box>
 
-                <DialogContent sx={{ mt: 2, pb: 4, minHeight: 400 }}>
-                  <Form>
+                <DialogContent sx={{ mt: 2, pb: 4, height: "75vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                  <Form style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
                     {currentStep === 1 ? (
-                      <Stack spacing={6}>
-                        <BasicInfoSection />
+                      <Stack spacing={3} sx={{ flex: 1, minHeight: 0 }}>
+                        <Box sx={{ flexShrink: 0 }}>
+                          <BasicInfoSection />
+                        </Box>
                         <Divider
                           sx={{
                             borderColor: theme.palette.divider_alpha.main_05,
+                            flexShrink: 0,
                           }}
                         />
-                        <StopsSection customers={customers} />
+                        <Box sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+                          <StopsSection customers={customers} />
+                        </Box>
                         <Divider
                           sx={{
                             borderColor: theme.palette.divider_alpha.main_05,
+                            flexShrink: 0,
                           }}
                         />
-                        <LogisticsSection
-                          warehouses={warehouses}
-                          trailers={trailers}
-                        />
+                        <Box sx={{ flexShrink: 0 }}>
+                          <LogisticsSection
+                            warehouses={warehouses}
+                            trailers={trailers}
+                          />
+                        </Box>
                       </Stack>
                     ) : (
-                      <Stack spacing={6}>
+                      <Stack spacing={6} sx={{ flex: 1, overflowY: "auto", pr: 1, minHeight: 0 }}>
                         <Grid container spacing={6}>
                           <Grid size={{ xs: 12, lg: 12 }}>
                             <CargoSection trailers={trailers} />

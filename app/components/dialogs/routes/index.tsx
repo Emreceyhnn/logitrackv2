@@ -453,7 +453,7 @@ export default function RouteDialog({
                     >
                       {dict.routes.details.distance}
                     </Typography>
-                    <Typography variant="h6" fontWeight={700} color="white">
+                    <Typography component="div" variant="h6" fontWeight={700} color="white">
                       {liveMetrics?.distanceKm ||
                         route.metrics?.totalDistanceKm ||
                         route.distanceKm ||
@@ -478,7 +478,7 @@ export default function RouteDialog({
                     >
                       {dict.routes.details.stops}
                     </Typography>
-                    <Typography variant="h6" fontWeight={700} color="white">
+                    <Typography component="div" variant="h6" fontWeight={700} color="white">
                       {route.stops?.length || route.shipments?.length
                         ? (route.shipments?.length || 0) + 2
                         : 0}

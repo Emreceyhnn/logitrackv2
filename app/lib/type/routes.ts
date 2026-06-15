@@ -173,4 +173,5 @@ export interface RouteFormValues {
   durationMin: number;
   driverId: string;
   vehicleId: string;
+  waypoints?: { address: string; lat?: number; lng?: number }[];
 }

@@ -164,7 +164,7 @@ export default function DriverHistoryDialog({
               <HistoryIcon />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={700} color="white">
+              <Typography component="div" variant="h6" fontWeight={700} color="white">
                 {dict.drivers.labels.driverHistory}
               </Typography>
               <Typography variant="caption" color="text.secondary">

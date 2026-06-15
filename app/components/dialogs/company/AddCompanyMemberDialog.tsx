@@ -33,7 +33,7 @@ import {
 import { toast } from "sonner";
 import { searchPlatformUsers } from "@/app/lib/controllers/users";
 import { addCompanyUser } from "@/app/lib/controllers/company";
-import { addCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
+import { addCompanyMemberDriverValidationSchema } from "@/app/lib/validationSchema";
 import { ValidationError } from "yup";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
@@ -110,7 +110,7 @@ export default function AddCompanyMemberDialog({
 
     try {
       if (selectedRole === "role_driver") {
-        const schema = addCompanyMemberValidationSchema(dict);
+        const schema = addCompanyMemberDriverValidationSchema(dict);
         await schema.validate(driverData, { abortEarly: false });
       }
 
@@ -197,7 +197,7 @@ export default function AddCompanyMemberDialog({
         }}
       >
         <Box>
-          <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
+          <Typography component="div" variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
             {dict.company.dialogs.addMemberTitle}
           </Typography>
           <Typography variant="caption" color="text.secondary">
@@ -268,11 +268,11 @@ export default function AddCompanyMemberDialog({
               {dict.company.dialogs.searchResults}
             </Typography>
             <Stack spacing={1}>
-              {results.map((user) => {
+              {results.map((user, index) => {
                 const isSelected = selectedUserId === user.id;
                 return (
                   <Box
-                    key={user.id}
+                    key={`${user.id}-${index}`}
                     onClick={() =>
                       setSelectedUserId(isSelected ? null : user.id)
                     }
@@ -406,31 +406,33 @@ export default function AddCompanyMemberDialog({
                   fullWidth
                   size="small"
                   label={dict.drivers.fields.employeeId + " *"}
+                  placeholder="e.g. EMP-10023"
                   value={driverData.employeeId}
                   onChange={(e) =>
                     handleDriverDataChange("employeeId", e.target.value)
                   }
                   error={!!validationErrors.employeeId}
-                  helperText={validationErrors.employeeId}
+                  helperText={validationErrors.employeeId || "Company assigned unique identifier"}
                   required
                 />
                 <TextField
                   fullWidth
                   size="small"
                   label={dict.drivers.fields.phone + " *"}
+                  placeholder="e.g. +90 555 123 4567"
                   value={driverData.phone}
                   onChange={(e) =>
                     handleDriverDataChange("phone", e.target.value)
                   }
                   error={!!validationErrors.phone}
-                  helperText={validationErrors.phone}
+                  helperText={validationErrors.phone || "Required for driver contact"}
                   required
                 />
                 <TextField
                   fullWidth
                   size="small"
                   label={dict.drivers.fields.licenseType}
-                  placeholder="e.g. CDL-A"
+                  placeholder="e.g. B, C, CE, CDL-A"
                   value={driverData.licenseType}
                   onChange={(e) =>
                     handleDriverDataChange("licenseType", e.target.value)
@@ -440,6 +442,7 @@ export default function AddCompanyMemberDialog({
                   fullWidth
                   size="small"
                   label={dict.drivers.fields.licenseNumber}
+                  placeholder="e.g. 123456789"
                   value={driverData.licenseNumber}
                   onChange={(e) =>
                     handleDriverDataChange("licenseNumber", e.target.value)
@@ -458,10 +461,13 @@ export default function AddCompanyMemberDialog({
                       val ? val.toISOString().split("T")[0] : ""
                     )
                   }
+                  format="DD/MM/YYYY"
                   slotProps={{
                     textField: {
                       fullWidth: true,
                       size: "small",
+                      error: !!validationErrors.licenseExpiry,
+                      helperText: validationErrors.licenseExpiry,
                     },
                   }}
                 />

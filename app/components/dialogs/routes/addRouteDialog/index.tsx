@@ -51,6 +51,7 @@ const initialValues: RouteFormValues = {
   durationMin: 0,
   driverId: "",
   vehicleId: "",
+  waypoints: [],
 };
 
 const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
@@ -89,53 +90,55 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
   const onSubmit = async (values: RouteFormValues) => {
     if (!user) return;
 
-    // 1. Close immediately
-    onClose();
-    setCurrentStep(1);
-    setSelectedShipmentId(null);
-
     const userTz = user.timezone || "UTC";
     const startUTC = values.startTime
       ? toUTC(values.startTime, userTz)
       : new Date();
     const endUTC = values.endTime ? toUTC(values.endTime, userTz) : new Date();
 
-    // 2. Run async behind a loading toast
-    await toast.promise(
-      createRoute(
-        values.name,
-        startUTC,
-        startUTC,
-        endUTC,
-        values.distanceKm,
-        values.durationMin,
-        values.driverId,
-        values.vehicleId,
+    try {
+      await toast.promise(
+        createRoute(
+          values.name,
+          startUTC,
+          startUTC,
+          endUTC,
+          values.distanceKm,
+          values.durationMin,
+          values.driverId,
+          values.vehicleId,
+          {
+            type: values.startType,
+            id: values.startId,
+            address: values.startAddress,
+            lat: values.startLat,
+            lng: values.startLng,
+          },
+          {
+            type: values.endType,
+            id: values.endId,
+            address: values.endAddress,
+            lat: values.endLat,
+            lng: values.endLng,
+          },
+          selectedShipmentId || undefined,
+          values.waypoints
+        ),
         {
-          type: values.startType,
-          id: values.startId,
-          address: values.startAddress,
-          lat: values.startLat,
-          lng: values.startLng,
-        },
-        {
-          type: values.endType,
-          id: values.endId,
-          address: values.endAddress,
-          lat: values.endLat,
-          lng: values.endLng,
-        },
-        selectedShipmentId || undefined
-      ),
-      {
-        loading: dict.toasts.loading,
-        success: dict.toasts.successAdd,
-        error: (err: unknown) =>
-          err instanceof Error ? err.message : dict.toasts.errorGeneric,
-      }
-    );
+          loading: dict.toasts.loading,
+          success: dict.toasts.successAdd,
+          error: (err: unknown) =>
+            err instanceof Error ? err.message : dict.toasts.errorGeneric,
+        }
+      );
 
-    onSuccess?.();
+      onSuccess?.();
+      onClose();
+      setCurrentStep(1);
+      setSelectedShipmentId(null);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const closeDialog = () => {
@@ -235,6 +238,32 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   new Date(deadlineDate!.getTime() + 2 * 60 * 60 * 1000)
                 );
               }
+              
+              if (shipment.stops && shipment.stops.length > 0) {
+                // If the last stop is the same as the destination, don't add it as a waypoint
+                // as it will be used for the endAddress.
+                const destinationLocId = shipment.customerLocationId;
+                const isLastStopDestination = 
+                  (shipment.destination && shipment.stops[shipment.stops.length - 1].address === shipment.destination) ||
+                  (destinationLocId && shipment.stops[shipment.stops.length - 1].customerLocationId === destinationLocId);
+
+                const intermediateStops = isLastStopDestination 
+                  ? shipment.stops.slice(0, -1) 
+                  : shipment.stops;
+
+                if (intermediateStops.length > 0) {
+                  const waypoints = intermediateStops.map(stop => ({
+                    address: stop.address || "",
+                    lat: stop.lat ?? undefined,
+                    lng: stop.lng ?? undefined
+                  }));
+                  setFieldValue("waypoints", waypoints);
+                } else {
+                  setFieldValue("waypoints", []);
+                }
+              } else {
+                setFieldValue("waypoints", []);
+              }
 
               toast.info(
                 `${dict.routes.dialogs.prefilledFrom} ${shipment.trackingId}`
@@ -285,7 +314,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   alignItems="center"
                 >
                   <Stack spacing={0.5}>
-                    <Typography variant="h6" fontWeight={600} color="white">
+                    <Typography component="div" variant="h6" fontWeight={600} color="white">
                       {dict.routes.dialogs.addTitle}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">

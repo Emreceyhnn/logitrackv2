@@ -172,7 +172,7 @@ const AddCustomerDialog = ({
                       <BusinessIcon fontSize="small" />
                     </Box>
                     <Box>
-                      <Typography
+                      <Typography component="div"
                         variant="h6"
                         fontWeight={700}
                         color="white"

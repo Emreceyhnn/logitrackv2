@@ -116,7 +116,6 @@ export default function RoutesContent() {
 
   const handleCloseAdd = () => {
     setAddDialogOpen(false);
-    refreshAll();
   };
 
   /* --------------------------------- KPI --------------------------------- */
@@ -221,7 +220,7 @@ export default function RoutesContent() {
         description={dict.routes.deleteDesc}
         loading={deleteMutation.isPending}
       />
-      <AddRouteDialog open={addDialogOpen} onClose={handleCloseAdd} />
+      <AddRouteDialog open={addDialogOpen} onClose={handleCloseAdd} onSuccess={refreshAll} />
     </Box>
   );
 }

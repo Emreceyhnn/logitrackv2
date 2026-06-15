@@ -53,7 +53,8 @@ export const createRoute = authenticatedAction(
       lat?: number;
       lng?: number;
     },
-    shipmentId?: string
+    shipmentId?: string,
+    waypoints?: { address: string; lat?: number; lng?: number }[]
   ) => {
     try {
       await checkPermission(user, user.companyId, [
@@ -150,6 +151,7 @@ export const createRoute = authenticatedAction(
             endAddress,
             endLat,
             endLng,
+            waypoints: waypoints ? (waypoints as unknown as Prisma.InputJsonValue) : undefined,
           },
         });
 

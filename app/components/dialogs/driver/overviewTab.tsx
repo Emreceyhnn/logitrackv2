@@ -221,7 +221,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                 {dict.drivers.fields.licenseExpiry}
               </Typography>
             </Stack>
-            <Typography variant="h6" fontWeight={700} color="text.primary">
+            <Typography component="div" variant="h6" fontWeight={700} color="text.primary">
               {driver.licenseExpiry
                 ? formatDisplayDate(driver.licenseExpiry, dateSettings)
                 : dict.common.na}
@@ -329,7 +329,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                 {dict.drivers.labels.base}
               </Typography>
             </Stack>
-            <Typography
+            <Typography component="div"
               variant="h6"
               fontWeight={700}
               color="text.primary"

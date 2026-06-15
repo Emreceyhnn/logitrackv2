@@ -51,7 +51,7 @@ export default function TrailerAssignmentDialog({
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle>
-        <Typography variant="h6" fontWeight={700}>
+        <Typography component="div" variant="h6" fontWeight={700}>
           {dict.trailers.assignToVehicle}
         </Typography>
         {trailer && (

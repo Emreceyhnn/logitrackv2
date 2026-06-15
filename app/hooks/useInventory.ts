@@ -62,16 +62,17 @@ async function fetchInventoryDashboard(
   if (sortOrder) params.set("sortOrder", sortOrder);
   if (status && status.length > 0) params.set("status", status.join(","));
 
-  const res = await fetch(`/api/inventory/dashboard?${params.toString()}`, {
+  console.log("fetchInventoryDashboard params:", params.toString());
+  const response = await fetch(`/api/inventory/dashboard?${params.toString()}`, {
     method: "GET",
     credentials: "include",
   });
-
-  if (!res.ok) {
-    throw new Error(`[useInventoryWithDashboard] fetch failed: ${res.status}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch inventory dashboard data");
   }
-
-  return res.json();
+  const data = await response.json();
+  console.log("fetchInventoryDashboard response:", data);
+  return data;
 }
 
 export function useInventoryWithDashboard(

@@ -65,7 +65,7 @@ export default function LogoutConfirmationDialog({
               <LogoutIcon />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={800} color="text.primary">
+              <Typography component="div" variant="h6" fontWeight={800} color="text.primary">
                 {dict.common.logout}
               </Typography>
               <Typography

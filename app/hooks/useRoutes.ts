@@ -100,6 +100,7 @@ async function fetchRouteDashboard(
   } else if (status) {
     params.set("status", status);
   }
+  params.set("_t", Date.now().toString());
 
   const res = await fetch(`/api/routes/dashboard?${params.toString()}`, {
     method: "GET",
@@ -107,7 +108,7 @@ async function fetchRouteDashboard(
   });
 
   if (!res.ok) {
-    throw new Error(`[useRoutesWithDashboard] fetch failed: ${res.status}`);
+    throw new Error(`[useRoutes] fetch dashboard failed: ${res.status}`);
   }
 
   return res.json();

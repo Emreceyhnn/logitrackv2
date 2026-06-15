@@ -108,7 +108,7 @@ const DocumentsStep = () => {
   return (
     <Box sx={{ display: "flex", gap: 6, minHeight: 400 }}>
       <Box sx={{ flex: 1 }}>
-        <Typography
+        <Typography component="div"
           variant="h6"
           sx={{ color: "text.primary", mb: 3, fontWeight: 800 }}
         >
@@ -202,7 +202,7 @@ const DocumentsStep = () => {
       </Box>
 
       <Box sx={{ flex: 1.2 }}>
-        <Typography
+        <Typography component="div"
           variant="h6"
           sx={{ color: "text.primary", mb: 3, fontWeight: 800 }}
         >

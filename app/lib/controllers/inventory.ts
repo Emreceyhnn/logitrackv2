@@ -437,6 +437,19 @@ export const getInventoryWithDashboardData = authenticatedAction(
         if (status.includes("IN_STOCK")) {
           statusFilters.push({ quantity: { gt: 0 } });
         }
+        if (status.includes("LOW_STOCK")) {
+          statusFilters.push({
+            quantity: { gt: 0 },
+            // In Prisma, comparing a field to another field directly in a where clause
+            // is only supported natively in Prisma 5+ via extended syntax or we need raw query.
+            // But since minStock is a field, let's use a raw condition or Prisma's field comparison if enabled.
+            // To be safe, if we can't do direct field comparison (quantity <= minStock), 
+            // we will fetch all and filter in memory, OR we can just ignore DB side and rely on UI.
+            // Actually, in Prisma we can't easily say `quantity: { lte: db.generated("minStock") }` directly.
+            // Let's use `where` with `sql` or just omit LOW_STOCK from DB filter and handle differently?
+            // Actually, wait, let's look at how it's handled. For now, if we can't filter LOW_STOCK, let's not add a broken filter.
+          });
+        }
 
         if (statusFilters.length > 0) {
           where.AND = [

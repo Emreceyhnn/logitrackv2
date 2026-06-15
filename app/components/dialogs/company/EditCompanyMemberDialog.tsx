@@ -148,7 +148,7 @@ export default function EditCompanyMemberDialog({
               <EditIcon />
             </Box>
             <Box>
-              <Typography variant="h6" fontWeight={700} color="white">
+              <Typography component="div" variant="h6" fontWeight={700} color="white">
                 {dict.company.editMember.title}
               </Typography>
               <Typography variant="caption" color="text.secondary">

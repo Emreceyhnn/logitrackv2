@@ -797,6 +797,13 @@ export const getAddRouteValidationSchema = (dict: Dictionary) =>
     vehicleId: Yup.string().required(
       formatMessage(dict.validation.required, { field: "Vehicle" })
     ),
+    waypoints: Yup.array().of(
+      Yup.object().shape({
+        address: Yup.string().required(
+          formatMessage(dict.validation.required, { field: "Waypoint Address" })
+        ),
+      })
+    ).optional(),
   });
 
 export const getEditRouteValidationSchema = (dict: Dictionary) =>
@@ -907,6 +914,21 @@ export const getAddCompanyMemberValidationSchema = (dict: Dictionary) =>
     ),
   });
 
+export const getAddCompanyMemberDriverValidationSchema = (dict: Dictionary) =>
+  Yup.object({
+    employeeId: Yup.string().required(
+      formatMessage(dict.validation.required, { field: "Employee ID" })
+    ),
+    phone: Yup.string().required(
+      formatMessage(dict.validation.required, {
+        field: dict.drivers.fields.phoneNumber,
+      })
+    ),
+    licenseNumber: Yup.string().optional(),
+    licenseType: Yup.string().optional(),
+    licenseExpiry: Yup.string().nullable().optional(),
+  });
+
 export const getEditCompanyMemberValidationSchema = (dict: Dictionary) =>
   Yup.object({
     name: Yup.string().required(
@@ -993,6 +1015,8 @@ export const createCompanyValidationSchema = (dict: Dictionary) =>
   getCreateCompanyValidationSchema(dict);
 export const addCompanyMemberValidationSchema = (dict: Dictionary) =>
   getAddCompanyMemberValidationSchema(dict);
+export const addCompanyMemberDriverValidationSchema = (dict: Dictionary) =>
+  getAddCompanyMemberDriverValidationSchema(dict);
 export const editCompanyMemberValidationSchema = (dict: Dictionary) =>
   getEditCompanyMemberValidationSchema(dict);
 export const addCustomerValidationSchema = (dict: Dictionary) =>
