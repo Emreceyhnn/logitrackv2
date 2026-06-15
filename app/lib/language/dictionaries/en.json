@@ -659,6 +659,7 @@
       "AVAILABLE": "Available",
       "ON_TRIP": "On Trip",
       "MAINTENANCE": "Maintenance",
+      "OUT_OF_ORDER": "Out of Order",
       "COMPLETED": "Completed",
       "IN_PROGRESS": "In Progress",
       "SCHEDULED": "Scheduled",
@@ -880,6 +881,13 @@
   "trailers": {
     "title": "Trailers",
     "subtitle": "Manage and track your trailer fleet",
+    "kpis": {
+      "totalTrailers": "Total Trailers",
+      "available": "Available",
+      "inUse": "In Use",
+      "maintenance": "In Maintenance",
+      "openIssues": "Open Issues"
+    },
     "addTrailer": "Add Trailer",
     "editTrailer": "Edit Trailer",
     "plate": "Plate",

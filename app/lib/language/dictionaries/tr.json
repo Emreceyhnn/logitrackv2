@@ -614,6 +614,13 @@
   "trailers": {
     "title": "Treylerler",
     "subtitle": "Treyler filonuzu yönetin ve takip edin",
+    "kpis": {
+      "totalTrailers": "Toplam Treyler",
+      "available": "Müsait",
+      "inUse": "Kullanımda",
+      "maintenance": "Bakımda",
+      "openIssues": "Açık Sorunlar"
+    },
     "addTrailer": "Treyler Ekle",
     "editTrailer": "Treyleri Düzenle",
     "plate": "Plaka",
@@ -708,6 +715,7 @@
       "AVAILABLE": "Müsait",
       "ON_TRIP": "Seferde",
       "MAINTENANCE": "Bakımda",
+      "OUT_OF_ORDER": "Arızalı",
       "COMPLETED": "Tamamlandı",
       "IN_PROGRESS": "Devam Ediyor",
       "SCHEDULED": "Planlandı",
@@ -930,6 +938,13 @@
   "trailers": {
     "title": "Dorseler",
     "subtitle": "Dorse filonuzu yönetin ve takip edin",
+    "kpis": {
+      "totalTrailers": "Toplam Dorse",
+      "available": "Müsait",
+      "inUse": "Kullanımda",
+      "maintenance": "Bakımda",
+      "openIssues": "Açık Sorunlar"
+    },
     "addTrailer": "Dorse Ekle",
     "editTrailer": "Dorse Düzenle",
     "plate": "Plaka",

@@ -86,7 +86,6 @@ export default function VehicleContent() {
   const {
     data: dashboardData,
     isLoading: isVehiclesLoading,
-    isFetching: isVehiclesFetching,
     refetch: refetchVehicleWithDashboard,
   } = useVehicleWithDashboard(state.filters);
 
@@ -101,7 +100,6 @@ export default function VehicleContent() {
 
   const vehicles = dashboardData?.vehicles;
   const loading = isVehiclesLoading || (activeTab === 1 && isTrailersLoading);
-  const isFetching = isVehiclesFetching || (activeTab === 1 && isTrailersFetching);
 
   const { deleteVehicle: deleteMutation } = useVehicleMutations();
   const { deleteTrailer: deleteTrailerMut, assignTrailer: detachTrailerMut } = useTrailerMutations();
@@ -241,52 +239,92 @@ export default function VehicleContent() {
 
   /* ─── KPI cards ───────────────────────────────────────────────────────── */
   const kpiItems = useMemo(
-    () => [
-      {
-        label: dict.vehicles.kpis.totalVehicles,
-        value: dashboardData?.vehiclesKpis?.totalVehicles ?? 0,
-        icon: <LocalShipping />,
-        color: theme.palette.primary.main,
-        trend: dashboardData?.kpiTrends?.totalVehicles,
-      },
-      {
-        label: dict.vehicles.kpis.available,
-        value: dashboardData?.vehiclesKpis?.available ?? 0,
-        icon: <CheckCircle />,
-        color: theme.palette.success.main,
-      },
-      {
-        label: dict.vehicles.kpis.inService,
-        value: dashboardData?.vehiclesKpis?.inService ?? 0,
-        icon: <Build />,
-        color: theme.palette.warning.main,
-      },
-      {
-        label: dict.vehicles.kpis.onTrip,
-        value: dashboardData?.vehiclesKpis?.onTrip ?? 0,
-        icon: <DirectionsCar />,
-        color: theme.palette.info.main,
-      },
-      {
-        label: dict.vehicles.kpis.openIssues,
-        value: dashboardData?.vehiclesKpis?.openIssues ?? 0,
-        icon: <ReportProblem />,
-        color:
-          (dashboardData?.vehiclesKpis?.openIssues ?? 0) > 0
-            ? theme.palette.error.main
-            : theme.palette.success.main,
-      },
-      {
-        label: dict.vehicles.kpis.docsExpiring,
-        value: dashboardData?.vehiclesKpis?.docsDueSoon ?? 0,
-        icon: <Description />,
-        color:
-          (dashboardData?.vehiclesKpis?.docsDueSoon ?? 0) > 0
-            ? theme.palette.warning.main
-            : theme.palette.success.main,
-      },
-    ],
-    [dashboardData, theme, dict]
+    () => {
+      if (activeTab === 1) {
+        return [
+          {
+            label: dict.trailers.kpis?.totalTrailers || "Total Trailers",
+            value: trailerData?.kpis?.total ?? 0,
+            icon: <LocalShipping />,
+            color: theme.palette.primary.main,
+          },
+          {
+            label: dict.trailers.kpis?.available || "Available",
+            value: trailerData?.kpis?.available ?? 0,
+            icon: <CheckCircle />,
+            color: theme.palette.success.main,
+          },
+          {
+            label: dict.trailers.kpis?.inUse || "In Use",
+            value: trailerData?.kpis?.inUse ?? 0,
+            icon: <DirectionsCar />,
+            color: theme.palette.info.main,
+          },
+          {
+            label: dict.trailers.kpis?.maintenance || "In Maintenance",
+            value: trailerData?.kpis?.maintenance ?? 0,
+            icon: <Build />,
+            color: theme.palette.warning.main,
+          },
+          {
+            label: dict.trailers.kpis?.openIssues || "Open Issues",
+            value: trailerData?.kpis?.issues ?? 0,
+            icon: <ReportProblem />,
+            color:
+              (trailerData?.kpis?.issues ?? 0) > 0
+                ? theme.palette.error.main
+                : theme.palette.success.main,
+          },
+        ];
+      }
+
+      return [
+        {
+          label: dict.vehicles.kpis.totalVehicles,
+          value: dashboardData?.vehiclesKpis?.totalVehicles ?? 0,
+          icon: <LocalShipping />,
+          color: theme.palette.primary.main,
+          trend: dashboardData?.kpiTrends?.totalVehicles,
+        },
+        {
+          label: dict.vehicles.kpis.available,
+          value: dashboardData?.vehiclesKpis?.available ?? 0,
+          icon: <CheckCircle />,
+          color: theme.palette.success.main,
+        },
+        {
+          label: dict.vehicles.kpis.inService,
+          value: dashboardData?.vehiclesKpis?.inService ?? 0,
+          icon: <Build />,
+          color: theme.palette.warning.main,
+        },
+        {
+          label: dict.vehicles.kpis.onTrip,
+          value: dashboardData?.vehiclesKpis?.onTrip ?? 0,
+          icon: <DirectionsCar />,
+          color: theme.palette.info.main,
+        },
+        {
+          label: dict.vehicles.kpis.openIssues,
+          value: dashboardData?.vehiclesKpis?.openIssues ?? 0,
+          icon: <ReportProblem />,
+          color:
+            (dashboardData?.vehiclesKpis?.openIssues ?? 0) > 0
+              ? theme.palette.error.main
+              : theme.palette.success.main,
+        },
+        {
+          label: dict.vehicles.kpis.docsExpiring,
+          value: dashboardData?.vehiclesKpis?.docsDueSoon ?? 0,
+          icon: <Description />,
+          color:
+            (dashboardData?.vehiclesKpis?.docsDueSoon ?? 0) > 0
+              ? theme.palette.warning.main
+              : theme.palette.success.main,
+        },
+      ];
+    },
+    [activeTab, dashboardData, trailerData, theme, dict]
   );
 
   /* ─── Render ──────────────────────────────────────────────────────────── */
@@ -390,7 +428,7 @@ export default function VehicleContent() {
                 ...state,
                 vehicles,
                 dashboardData: dashboardData ?? null,
-                loading: isFetching,
+                loading: loading,
                 error: null,
               } as VehiclePageState
             }
@@ -403,7 +441,7 @@ export default function VehicleContent() {
         ) : (
           <TrailerTable
             trailers={trailers || []}
-            loading={isFetching}
+            loading={isTrailersFetching && isTrailersLoading}
             onEdit={handleTrailerEdit}
             onDelete={handleTrailerDelete}
             onAssign={handleTrailerAssign}

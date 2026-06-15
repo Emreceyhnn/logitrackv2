@@ -38,6 +38,7 @@ const DocumentCalenderCard = ({
   const dict = useDictionary();
   const params = useParams();
   const lang = (params?.lang as string) || "en";
+  const safeLang = ["en", "tr"].includes(lang) ? lang : "en";
 
   const DocumentDay = (props: PickersDayProps) => {
     const { day, ...other } = props;
@@ -95,7 +96,7 @@ const DocumentCalenderCard = ({
         {dict.vehicles.dashboard.expiringSoon}
       </Typography>
       <Divider />
-      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={safeLang}>
         <DateCalendar
           referenceDate={dayjs()}
           views={["year", "month", "day"]}

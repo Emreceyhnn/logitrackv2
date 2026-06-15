@@ -24,9 +24,11 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl;
     
-    const page = parseInt(searchParams.get("page") || "1", 10);
+    const rawPage = parseInt(searchParams.get("page") || "0", 10);
+    const page = rawPage + 1;
     const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
-    const status = searchParams.get("status") || undefined;
+    const statusParams = searchParams.getAll("status");
+    const status = statusParams.length > 0 ? statusParams : undefined;
 
     const data = await getRoutesWithDashboardData(page, pageSize, status);
 

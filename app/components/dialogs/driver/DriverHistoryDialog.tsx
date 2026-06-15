@@ -129,6 +129,7 @@ export default function DriverHistoryDialog({
 
   useEffect(() => {
     if (open && driverId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadHistory();
     }
   }, [open, driverId, loadHistory]);

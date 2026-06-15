@@ -201,6 +201,8 @@ export default function RoutesContent() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onRefresh={refreshAll}
+          filters={{ status: filters.status, search: filters.search }}
+          onFilterChange={actions.updateFilters}
         />
       </Stack>
 

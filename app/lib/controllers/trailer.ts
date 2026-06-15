@@ -117,7 +117,7 @@ export const getTrailers = authenticatedAction(
         ...(filters.isColdChain !== undefined && { isColdChain: filters.isColdChain }),
       };
 
-      const [trailers, total] = await Promise.all([
+      const [trailers, total, availableCount, inUseCount, maintenanceCount, issuesCount] = await Promise.all([
         db.trailer.findMany({
           where,
           include: {
@@ -146,6 +146,10 @@ export const getTrailers = authenticatedAction(
           }),
         }),
         db.trailer.count({ where }),
+        db.trailer.count({ where: { ...where, status: "AVAILABLE" } }),
+        db.trailer.count({ where: { ...where, status: "IN_USE" } }),
+        db.trailer.count({ where: { ...where, status: "MAINTENANCE" } }),
+        db.trailer.count({ where: { ...where, issues: { some: { status: { in: ["OPEN", "IN_PROGRESS"] } } } } }),
       ]);
 
       // Calculate current load totals
@@ -165,6 +169,13 @@ export const getTrailers = authenticatedAction(
 
       return {
         trailers: formattedTrailers,
+        kpis: {
+          total,
+          available: availableCount,
+          inUse: inUseCount,
+          maintenance: maintenanceCount,
+          issues: issuesCount
+        },
         meta: {
           total,
           page: filters.page || 1,

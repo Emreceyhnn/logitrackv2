@@ -54,6 +54,7 @@ export default function Providers({
   const theme = useMemo(() => getTheme(mode), [mode]);
   const params = useParams();
   const lang = (params?.lang as string) || "en";
+  const safeLang = ["en", "tr"].includes(lang) ? lang : "en";
 
   // Set global dayjs timezone when user preferences change
   useEffect(() => {
@@ -125,7 +126,7 @@ export default function Providers({
 
   return (
     <ThemeContext.Provider value={{ mode, setMode }}>
-      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={lang}>
+      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={safeLang}>
         <QueryProvider>
           <ThemeProvider theme={theme}>
             <Toaster />

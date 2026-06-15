@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { getServerDictionary } from "./i18n-server";
-import { resources, defaultNS, supportedLngs, fallbackLng } from "./i18n";
+import { resources, defaultNS, supportedLngs } from "./i18n";
 
 /* -------------------------------------------------------------------------- */
 /*  Types                                                                       */

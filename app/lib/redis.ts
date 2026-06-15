@@ -37,7 +37,7 @@ export const trailerCacheKeys = {
   companyPattern: (companyId: string) => `trailers:${companyId}:*`,
   detail: (trailerId: string) => `trailers:detail:${trailerId}`,
   list: (companyId: string, filtersHash: string) =>
-    `trailers:${companyId}:list:${filtersHash}`,
+    `trailers:${companyId}:list_v2:${filtersHash}`,
   dashboard: (companyId: string, filtersHash?: string) =>
     `trailers:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
   kpis: (companyId: string) => `trailers:${companyId}:kpis`,

@@ -19,6 +19,7 @@ const VehicleCapacityChart = ({
   loading = false,
 }: VehicleCapacityChartProps) => {
   const dict = useDictionary();
+  const sortedData = data.sort((a, b) => a.maxLoadKg - b.maxLoadKg);
 
   if (loading || !data) {
     return (
@@ -42,7 +43,7 @@ const VehicleCapacityChart = ({
           xAxis={[
             {
               scaleType: "band",
-              data: data?.map((v) => v.plate),
+              data: sortedData?.map((v) => v.plate),
               label: dict.vehicles.dashboard.vehiclePlate,
 
               labelStyle: { fill: "#6b7280" },
@@ -68,7 +69,7 @@ const VehicleCapacityChart = ({
             {
               yAxisId: "secondary",
               label: dict.vehicles.dashboard.maxWeightKg,
-              data: data?.map((v) => v.maxLoadKg),
+              data: sortedData?.map((v) => v.maxLoadKg),
               color: "#ff9800",
             },
           ]}

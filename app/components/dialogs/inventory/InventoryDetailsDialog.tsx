@@ -153,12 +153,14 @@ export default function InventoryDetailsDialog({
 
   useEffect(() => {
     if (isOpen && item) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadOtherLocations();
     }
   }, [isOpen, item, loadOtherLocations]);
 
   useEffect(() => {
     if (isOpen && item && tabValue === 1) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadMovements();
     }
   }, [isOpen, item, tabValue, loadMovements]);

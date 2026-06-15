@@ -199,6 +199,9 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
               <MenuItem value={VehicleStatus.MAINTENANCE}>
                 {dict.vehicles.statuses.MAINTENANCE}
               </MenuItem>
+              <MenuItem value={VehicleStatus.OUT_OF_ORDER}>
+                {dict.vehicles.statuses.OUT_OF_ORDER}
+              </MenuItem>
             </Select>
           </FormControl>
           <Typography

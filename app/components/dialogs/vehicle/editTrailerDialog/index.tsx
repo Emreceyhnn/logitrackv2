@@ -48,6 +48,7 @@ export default function EditTrailerDialog({
 
   useEffect(() => {
     if (trailer) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         plate: trailer.plate || "",
         fleetNo: trailer.fleetNo || "",

@@ -68,6 +68,7 @@ const CustomerDetailDialog = ({
       };
       fetchData();
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCustomer(null);
       setError(null);
     }

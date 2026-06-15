@@ -29,6 +29,8 @@ interface ExtendedRouteTableProps extends RouteTableProps {
   onRefresh?: () => void;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
+  filters?: { status?: RouteStatus[]; search?: string };
+  onFilterChange?: (filters: { status?: RouteStatus[]; search?: string }) => void;
 }
 
 const RouteTable = ({
@@ -40,6 +42,8 @@ const RouteTable = ({
   onEdit,
   onDelete,
   onRefresh,
+  filters,
+  onFilterChange,
 }: ExtendedRouteTableProps) => {
   const dict = useDictionary();
 
@@ -71,6 +75,7 @@ const RouteTable = ({
     if (selectedRoute) {
       const updated = routes.find((r) => r.id === selectedRoute.id);
       if (updated && updated !== selectedRoute) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedRoute(updated);
       }
     }
@@ -113,6 +118,53 @@ const RouteTable = ({
       if (!onPageChange) setLocalPage(1);
     },
     [onPageChange]
+  );
+
+  /* ---------------------------------- filters ---------------------------------- */
+  const STATUS_OPTIONS = useMemo(
+    () =>
+      Object.values(RouteStatus).map((s) => ({
+        label: getStatusMeta(s, dict).label || s.replace(/_/g, " "),
+        value: s,
+      })),
+    [dict]
+  );
+
+  const ROUTE_FILTERS = useMemo(
+    () => [
+      {
+        key: "status",
+        label: dict.routes.table.columns.status || "Status",
+        options: STATUS_OPTIONS,
+        multiple: true,
+      },
+    ],
+    [dict, STATUS_OPTIONS]
+  );
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      onFilterChange?.({ search: value });
+    },
+    [onFilterChange]
+  );
+
+  const handleFilterChange = useCallback(
+    (key: string, values: string[]) => {
+      if (key === "status") {
+        onFilterChange?.({ status: values as RouteStatus[] });
+      }
+    },
+    [onFilterChange]
+  );
+
+  const activeFilters: Record<string, string[]> = useMemo(
+    () => ({
+      ...(filters?.status && filters.status.length > 0
+        ? { status: filters.status as string[] }
+        : {}),
+    }),
+    [filters]
   );
 
   const handleStatusChange = useCallback(
@@ -230,6 +282,13 @@ const RouteTable = ({
         rowActions={rowActions}
         loading={loading || !!actionLoading}
         emptyMessage={dict.routes.table.noRoutes}
+        searchValue={filters?.search ?? ""}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        searchPlaceholder={(dict.routes.table as any).searchPlaceholder || dict.common.search || "Search route..."}
+        onSearchChange={handleSearchChange}
+        filters={ROUTE_FILTERS}
+        activeFilters={activeFilters}
+        onFilterChange={handleFilterChange}
         meta={meta}
         onPageChange={handleChangePage}
         onLimitChange={handleLimitChange}

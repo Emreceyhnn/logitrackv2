@@ -117,7 +117,7 @@ export interface RoutesPageState {
   mapData: MapRouteData[];
   // Filter Types:
   filters: {
-    status?: RouteStatus;
+    status?: RouteStatus[];
     search?: string;
     date?: Date;
   };
