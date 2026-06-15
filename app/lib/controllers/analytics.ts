@@ -539,7 +539,10 @@ export const getMapData = authenticatedAction(async (user): Promise<MapData[]> =
     const [warehouses, vehicles, customers] = await Promise.all([
       db.warehouse.findMany({ where: { companyId: user.companyId } }),
       db.vehicle.findMany({ where: { companyId: user.companyId } }),
-      db.customer.findMany({ where: { companyId: user.companyId } }),
+      db.customer.findMany({ 
+        where: { companyId: user.companyId },
+        include: { locations: true }
+      }),
     ]);
 
     return [
@@ -558,12 +561,18 @@ export const getMapData = authenticatedAction(async (user): Promise<MapData[]> =
         id: v.id,
         type: "V" as const,
       })),
-      ...customers.map((c) => ({
-        position: { lat: 40.75, lng: -74.05 },
-        name: c.name,
-        id: c.id,
-        type: "C" as const,
-      })),
+      ...customers.map((c) => {
+        const defaultLoc = c.locations.find((l) => l.isDefault) || c.locations[0];
+        return {
+          position: {
+            lat: defaultLoc?.lat ?? 40.7128,
+            lng: defaultLoc?.lng ?? -74.006,
+          },
+          name: c.name,
+          id: c.id,
+          type: "C" as const,
+        };
+      }),
     ];
   } catch (error) {
     console.error("Failed to get map data:", error);
@@ -579,7 +588,12 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
 
     if (!user.companyId) return null;
 
-    const [totalVehicles, activeVehicles, totalShipments, delayedShipments] =
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+    sixMonthsAgo.setDate(1);
+    sixMonthsAgo.setHours(0, 0, 0, 0);
+
+    const [totalVehicles, activeVehicles, totalShipments, delayedShipments, fuelLogs, maintenanceRecords] =
       await Promise.all([
         db.vehicle.count({ where: { companyId: user.companyId } }),
         db.vehicle.count({
@@ -588,6 +602,14 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
         db.shipment.count({ where: { companyId: user.companyId } }),
         db.shipment.count({
           where: { companyId: user.companyId, status: ShipmentStatus.DELAYED },
+        }),
+        db.fuelLog.findMany({
+          where: { companyId: user.companyId, date: { gte: sixMonthsAgo } },
+          select: { date: true, cost: true },
+        }),
+        db.maintenanceRecord.findMany({
+          where: { vehicle: { companyId: user.companyId }, date: { gte: sixMonthsAgo } },
+          select: { date: true, cost: true },
         }),
       ]);
 
@@ -602,6 +624,36 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
           )
         : 100;
 
+    const months: string[] = [];
+    const fuelCosts: number[] = [0, 0, 0, 0, 0, 0];
+    const maintenanceCosts: number[] = [0, 0, 0, 0, 0, 0];
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      months.push(dayjs(d).format("MMM"));
+    }
+
+    const getMonthIndex = (date: Date) => {
+      const diff = dayjs().month() - dayjs(date).month();
+      const adjustedDiff = diff < 0 ? diff + 12 : diff;
+      return 5 - adjustedDiff;
+    };
+
+    fuelLogs.forEach((log) => {
+      const idx = getMonthIndex(log.date);
+      if (idx >= 0 && idx < 6) fuelCosts[idx] += log.cost;
+    });
+
+    maintenanceRecords.forEach((record) => {
+      const idx = getMonthIndex(record.date);
+      if (idx >= 0 && idx < 6) maintenanceCosts[idx] += record.cost;
+    });
+
+    const totalFuel = fuelCosts.reduce((a, b) => a + b, 0);
+    const totalMaintenance = maintenanceCosts.reduce((a, b) => a + b, 0);
+    const totalCost = totalFuel + totalMaintenance;
+
     return {
       performance: {
         onTimeRate,
@@ -610,21 +662,21 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
         satisfactionCount: 128,
       },
       costs: {
-        months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-        fuel: [4200, 4100, 4350, 4220, 4500, 4400],
-        maintenance: [1200, 800, 1500, 950, 2100, 1100],
-        overhead: [3000, 3000, 3100, 3100, 3200, 3200],
+        months: months,
+        fuel: fuelCosts.map(c => Math.round(c)),
+        maintenance: maintenanceCosts.map(c => Math.round(c)),
+        overhead: [0, 0, 0, 0, 0, 0],
         distribution: [
-          { id: 0, value: 35, label: "Fuel" },
-          { id: 1, value: 25, label: "Maintenance" },
-          { id: 2, value: 30, label: "Driver Salaries" },
-          { id: 3, value: 10, label: "Insurance/Ops" },
+          { id: 0, value: totalCost > 0 ? Math.round((totalFuel / totalCost) * 100) : 0, label: "Fuel" },
+          { id: 1, value: totalCost > 0 ? Math.round((totalMaintenance / totalCost) * 100) : 0, label: "Maintenance" },
+          { id: 2, value: 0, label: "Driver Salaries" },
+          { id: 3, value: 0, label: "Insurance/Ops" },
         ],
       },
       forecast: {
         weeks: ["W1","W2","W3","W4","W5","W6","W7","W8","W9","W10","W11","W12","W13"],
-        actuals: [120,132,125,145,150,160,155,175,180,null,null,null,null],
-        predicted: [null,null,null,null,null,null,null,null,180,195,210,225,240],
+        actuals: [0,0,0,0,0,0,0,0,0,0,0,0,0],
+        predicted: [null,null,null,null,null,null,null,null,10,12,15,18,20],
       },
     };
   } catch (error) {

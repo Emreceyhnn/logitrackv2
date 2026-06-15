@@ -2,7 +2,9 @@ import { overviewKeys } from "@/app/lib/query-keys/overview.keys";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardData, ActionRequiredItems } from "@/app/lib/type/overview";
 
-async function fetchOverviewDashboard(): Promise<DashboardData & { alerts: ActionRequiredItems[] }> {
+async function fetchOverviewDashboard(): Promise<
+  DashboardData & { alerts: ActionRequiredItems[] }
+> {
   const res = await fetch("/api/overview/dashboard", {
     method: "GET",
     credentials: "include",
@@ -16,10 +18,12 @@ async function fetchOverviewDashboard(): Promise<DashboardData & { alerts: Actio
 }
 
 export function useOverviewData() {
-  const { data, isLoading, isError, refetch, isFetching } = useQuery<DashboardData & { alerts: ActionRequiredItems[] }>({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery<
+    DashboardData & { alerts: ActionRequiredItems[] }
+  >({
     queryKey: overviewKeys.dashboard(),
     queryFn: () => fetchOverviewDashboard(),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
     placeholderData: (previousData) => previousData,
   });
 

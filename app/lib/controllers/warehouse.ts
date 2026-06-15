@@ -55,9 +55,10 @@ export const createWarehouse = authenticatedAction(
 
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-      const warehouseCode =
-        code ||
-        `WH-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      if (!code) {
+        throw new Error("Warehouse code is required");
+      }
+      const warehouseCode = code;
 
       const existingWarehouse = await db.warehouse.findUnique({
         where: { code: warehouseCode },
@@ -185,12 +186,10 @@ export const getWarehouseById = authenticatedAction(
   }
 );
 
+import { updateWarehouseSchema } from "../validationSchema";
+
 export const updateWarehouse = authenticatedAction(
-  async (
-    user,
-    warehouseId: string,
-    data: Prisma.WarehouseUpdateInput & { managerId?: string | null }
-  ) => {
+  async (user, warehouseId: string, data: Record<string, unknown>) => {
     try {
       await checkPermission(user, user.companyId, [
         "role_admin",
@@ -209,14 +208,10 @@ export const updateWarehouse = authenticatedAction(
         throw new Error("Warehouse not found or unauthorized");
       }
 
-      const { managerId, ...restData } = data as {
-        managerId?: string | null;
-      } & Prisma.WarehouseUpdateInput;
-      const updateData: Prisma.WarehouseUpdateInput = { ...restData };
+      const parsedData = updateWarehouseSchema.parse(data);
+      const { managerId, ...restData } = parsedData;
 
-      if (updateData.code === "") {
-        updateData.code = `WH-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-      }
+      const updateData: Prisma.WarehouseUpdateInput = { ...restData };
 
       if (managerId !== undefined) {
         if (managerId === null) {

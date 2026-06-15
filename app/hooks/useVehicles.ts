@@ -1,29 +1,41 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import {
   createVehicle,
   updateVehicle,
   deleteVehicle,
   updateVehicleStatus,
 } from "@/app/lib/controllers/vehicle";
-import { VehicleFilters, VehicleDashboardResponseType, VehicleWithRelations } from "@/app/lib/type/vehicle";
+import {
+  VehicleFilters,
+  VehicleDashboardResponseType,
+  VehicleWithRelations,
+} from "@/app/lib/type/vehicle";
 import { toast } from "sonner";
 
-// Imported for local use in the hooks below.
-// Server Components (page.tsx) import vehicleKeys directly from
-// "@/app/lib/query-keys/vehicle.keys" to avoid the "use client" boundary.
 import { vehicleKeys } from "@/app/lib/query-keys/vehicle.keys";
 
-async function fetchVehicles(filters: VehicleFilters): Promise<VehicleWithRelations[]> {
+async function fetchVehicles(
+  filters: VehicleFilters
+): Promise<VehicleWithRelations[]> {
   const params = new URLSearchParams();
   if (filters.page) params.set("page", String(filters.page));
   if (filters.limit) params.set("pageSize", String(filters.limit));
   if (filters.search) params.set("search", filters.search);
-  if (filters.status?.length) filters.status.forEach((s) => params.append("status", s));
-  if (filters.type?.length) filters.type.forEach((t) => params.append("type", t));
-  if (filters.hasIssues !== undefined) params.set("hasIssues", String(filters.hasIssues));
-  if (filters.hasDriver !== undefined) params.set("hasDriver", String(filters.hasDriver));
+  if (filters.status?.length)
+    filters.status.forEach((s) => params.append("status", s));
+  if (filters.type?.length)
+    filters.type.forEach((t) => params.append("type", t));
+  if (filters.hasIssues !== undefined)
+    params.set("hasIssues", String(filters.hasIssues));
+  if (filters.hasDriver !== undefined)
+    params.set("hasDriver", String(filters.hasDriver));
 
   const res = await fetch(`/api/vehicles?${params.toString()}`, {
     method: "GET",
@@ -46,26 +58,23 @@ export function useVehicles(filters: VehicleFilters = {}) {
   });
 }
 
-/**
- * Fetches vehicle dashboard data via the API route.
- *
- * We intentionally use a Route Handler instead of the Server Action
- * (getVehiclesWithDashboard) because Next.js triggers router.refresh()
- * automatically after every Server Action completes — even read-only ones.
- * This caused a full page reload on every filter/search change.
- * A plain HTTP fetch via the Route Handler has no such side-effect.
- */
 async function fetchVehicleDashboard(
   filters: VehicleFilters
-): Promise<VehicleDashboardResponseType & { vehicles: VehicleWithRelations[] }> {
+): Promise<
+  VehicleDashboardResponseType & { vehicles: VehicleWithRelations[] }
+> {
   const params = new URLSearchParams();
   if (filters.page) params.set("page", String(filters.page));
   if (filters.limit) params.set("pageSize", String(filters.limit));
   if (filters.search) params.set("search", filters.search);
-  if (filters.status?.length) filters.status.forEach((s) => params.append("status", s));
-  if (filters.type?.length) filters.type.forEach((t) => params.append("type", t));
-  if (filters.hasIssues !== undefined) params.set("hasIssues", String(filters.hasIssues));
-  if (filters.hasDriver !== undefined) params.set("hasDriver", String(filters.hasDriver));
+  if (filters.status?.length)
+    filters.status.forEach((s) => params.append("status", s));
+  if (filters.type?.length)
+    filters.type.forEach((t) => params.append("type", t));
+  if (filters.hasIssues !== undefined)
+    params.set("hasIssues", String(filters.hasIssues));
+  if (filters.hasDriver !== undefined)
+    params.set("hasDriver", String(filters.hasDriver));
 
   const res = await fetch(`/api/vehicles/dashboard?${params.toString()}`, {
     method: "GET",
@@ -76,7 +85,9 @@ async function fetchVehicleDashboard(
     throw new Error(`[useVehicleWithDashboard] fetch failed: ${res.status}`);
   }
 
-  return res.json() as Promise<VehicleDashboardResponseType & { vehicles: VehicleWithRelations[] }>;
+  return res.json() as Promise<
+    VehicleDashboardResponseType & { vehicles: VehicleWithRelations[] }
+  >;
 }
 
 export function useVehicleWithDashboard(filters: VehicleFilters = {}) {

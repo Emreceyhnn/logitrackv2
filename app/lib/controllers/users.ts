@@ -5,6 +5,7 @@ import { checkPermission } from "./utils/checkPermission";
 import { jwtVerify } from "jose";
 import { db } from "../db";
 import { redis } from "../redis";
+import { exclude } from "@/app/lib/utils/exclude";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import {
   authenticatedAction,
@@ -58,12 +59,10 @@ export const getUserFromToken = authenticatedAction(
         throw new Error("User not found");
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: _, ...safeUser } = foundUser;
-      return safeUser;
+      return exclude(foundUser, ["password"]);
     } catch (error) {
       console.error("Failed to get user from token:", error);
-      return null;
+      throw new Error("Authentication failed: Invalid token or user not found");
     }
   }
 );
@@ -446,11 +445,7 @@ export const getUsersForMyCompany = authenticatedAction(
       });
 
       // Return safe user objects
-      return users.map((u) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, ...safe } = u;
-        return safe;
-      });
+      return users.map((u) => exclude(u, ["password"]));
     } catch (error) {
       console.error("Failed to fetch company users:", error);
       throw error;
@@ -471,11 +466,7 @@ export const getMyCompanyUsersAction = authenticatedAction(async (user) => {
       include: { role: true, driver: true },
     });
 
-    return users.map((u) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password: _, ...safe } = u;
-      return safe;
-    });
+    return users.map((u) => exclude(u, ["password"]));
   } catch (error) {
     console.error("Failed to fetch company users (action):", error);
     throw error;

@@ -680,17 +680,30 @@ export const getRouteEfficiencyStats = authenticatedAction(async (user) => {
 
     if (!user.companyId) throw new Error("User has no company");
 
-    const [totalVehicles, vehiclesOnTrip] = await Promise.all([
+    const [totalVehicles, vehiclesOnTrip, totalShipments, delayedShipments, allVehicles] = await Promise.all([
       db.vehicle.count({ where: { companyId: user.companyId } }),
       db.vehicle.count({
         where: { companyId: user.companyId, status: "ON_TRIP" },
       }),
+      db.shipment.count({ where: { companyId: user.companyId } }),
+      db.shipment.count({ where: { companyId: user.companyId, status: "DELAYED" } }),
+      db.vehicle.findMany({ where: { companyId: user.companyId }, select: { avgFuelConsumption: true } }),
     ]);
 
     const vehicleUtilization =
       totalVehicles > 0 ? (vehiclesOnTrip / totalVehicles) * 100 : 0;
-    const onTimePerformance = 89;
-    const avgFuelConsumption = 24.5;
+    const onTimePerformance = 
+      totalShipments > 0 ? ((totalShipments - delayedShipments) / totalShipments) * 100 : 100;
+      
+    let totalFuelConsump = 0;
+    let vehiclesWithFuelData = 0;
+    for (const v of allVehicles) {
+      if (v.avgFuelConsumption) {
+        totalFuelConsump += v.avgFuelConsumption;
+        vehiclesWithFuelData++;
+      }
+    }
+    const avgFuelConsumption = vehiclesWithFuelData > 0 ? totalFuelConsump / vehiclesWithFuelData : 0;
 
     return {
       fuelConsumption: avgFuelConsumption,

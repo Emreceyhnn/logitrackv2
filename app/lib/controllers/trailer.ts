@@ -16,9 +16,8 @@ import {
   trailerCacheKeys,
   TRAILER_CACHE_TTL,
 } from "../redis";
-import {
-  TrailerFilters,
-} from "../type/trailer";
+import { TrailerFilters } from "../type/trailer";
+import { trailerSchema } from "../validationSchema";
 
 // ── Cache invalidation helper ─────────────────────────────────────────────────
 async function invalidateTrailerCache(
@@ -30,6 +29,8 @@ async function invalidateTrailerCache(
     trailerId ? redis.del(trailerCacheKeys.detail(trailerId)) : Promise.resolve(),
   ]);
 }
+
+
 
 interface TrailerInput {
   plate?: string;
@@ -52,21 +53,12 @@ export const createTrailer = authenticatedAction(
 
       if (!companyId) throw new Error("User has no company");
 
-      const {
-        plate,
-        fleetNo,
-        type,
-        capacityVolumeM3,
-        maxLoadKg,
-        isColdChain,
-      } = trailerData;
-
-      if (!plate) throw new Error("Plate is required");
-      if (!type) throw new Error("Trailer type is required");
+      const parsed = trailerSchema.parse(trailerData);
 
       const existingTrailer = await db.trailer.findFirst({
         where: {
-          OR: [{ plate: plate.toString() }, { fleetNo: fleetNo?.toString() }],
+          companyId,
+          OR: [{ plate: parsed.plate }, { fleetNo: parsed.fleetNo }],
         },
       });
 
@@ -76,12 +68,12 @@ export const createTrailer = authenticatedAction(
 
       const newTrailer = await db.trailer.create({
         data: {
-          plate: plate.toString(),
-          fleetNo: fleetNo?.toString() || `T-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
-          type: type as TrailerType,
-          capacityVolumeM3: parseFloat(capacityVolumeM3?.toString() || "0"),
-          maxLoadKg: parseInt(maxLoadKg?.toString() || "0"),
-          isColdChain: !!isColdChain,
+          plate: parsed.plate,
+          fleetNo: parsed.fleetNo,
+          type: parsed.type,
+          capacityVolumeM3: parsed.capacityVolumeM3,
+          maxLoadKg: parsed.maxLoadKg,
+          isColdChain: parsed.isColdChain,
           company: { connect: { id: companyId } },
         },
       });
@@ -124,17 +116,6 @@ export const getTrailers = authenticatedAction(
             currentVehicle: {
               select: { id: true, plate: true, fleetNo: true }
             },
-            shipments: {
-              where: {
-                status: {
-                  in: ["PENDING", "PROCESSING", "IN_TRANSIT", "ASSIGNED", "DELAYED"]
-                }
-              },
-              select: {
-                weightKg: true,
-                volumeM3: true
-              }
-            },
             _count: {
               select: { shipments: true, issues: true, documents: true }
             }
@@ -152,18 +133,23 @@ export const getTrailers = authenticatedAction(
         db.trailer.count({ where: { ...where, issues: { some: { status: { in: ["OPEN", "IN_PROGRESS"] } } } } }),
       ]);
 
-      // Calculate current load totals
+      const trailerIds = trailers.map(t => t.id);
+      const shipmentsSum = await db.shipment.groupBy({
+        by: ["trailerId"],
+        where: {
+          trailerId: { in: trailerIds },
+          status: { in: ["PENDING", "PROCESSING", "IN_TRANSIT", "ASSIGNED", "DELAYED"] }
+        },
+        _sum: { weightKg: true, volumeM3: true }
+      });
+      const sumMap = new Map(shipmentsSum.map(s => [s.trailerId, s._sum]));
+
       const formattedTrailers = trailers.map(trailer => {
-        const currentWeightKg = trailer.shipments.reduce((sum: number, s: { weightKg: number | null }) => sum + (s.weightKg || 0), 0);
-        const currentVolumeM3 = trailer.shipments.reduce((sum: number, s: { volumeM3: number | null }) => sum + (s.volumeM3 || 0), 0);
-        
-        // Remove shipments array from return to keep it lightweight
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { shipments, ...rest } = trailer;
+        const sums = sumMap.get(trailer.id) || { weightKg: 0, volumeM3: 0 };
         return {
-          ...rest,
-          currentWeightKg,
-          currentVolumeM3
+          ...trailer,
+          currentWeightKg: sums.weightKg || 0,
+          currentVolumeM3: sums.volumeM3 || 0
         };
       });
 

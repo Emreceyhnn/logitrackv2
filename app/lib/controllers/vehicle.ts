@@ -6,11 +6,11 @@ import {
   MaintenanceStatus,
   Prisma,
   VehicleStatus,
-  VehicleType,
   IssueStatus,
   IssuePriority,
   IssueType,
 } from "@prisma/client";
+import { vehicleSchema } from "../validationSchema";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";
@@ -64,105 +64,16 @@ export const createVehicle = authenticatedAction(
 
       if (!companyId) throw new Error("User has no company");
 
-      interface VehicleInput {
-        year?: number | string;
-        odometerKm?: number | string;
-        maxLoadKg?: number | string;
-        fuelLevel?: number | string;
-        avgFuelConsumption?: number | string;
-        fuelCapacity?: number | string;
-        nextServiceKm?: number | string;
-        registrationExpiry?: string | Date;
-        inspectionExpiry?: string | Date;
-        plate?: string;
-        fleetNo?: string;
-        brand?: string;
-        model?: string;
-        type?: VehicleType; // The enum type
-        fuelType?: string;
-        engineSize?: string;
-        transmission?: string;
-        techNotes?: string;
-        photo?: string;
-        enableAlerts?: boolean;
-      }
-
-      const {
-        year,
-        odometerKm,
-        maxLoadKg,
-        fuelLevel,
-        avgFuelConsumption,
-        fuelCapacity,
-        nextServiceKm,
-        registrationExpiry,
-        inspectionExpiry,
-        plate,
-        fleetNo,
-        brand,
-        model,
-        type,
-        fuelType,
-        engineSize,
-        transmission,
-        techNotes,
-        photo,
-        enableAlerts,
-      } = vehicleData as unknown as VehicleInput;
-
-      if (year === undefined || year === null)
-        throw new Error("Year is required");
-      if (maxLoadKg === undefined || maxLoadKg === null)
-        throw new Error("Max load capacity is required");
-      if (!plate) throw new Error("Plate is required");
-      if (!type) throw new Error("Vehicle type is required");
+      const parsedData = vehicleSchema.parse(vehicleData);
 
       const vehicleFleetNo =
-        fleetNo?.toString() ||
+        parsedData.fleetNo ||
         `FLEET-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-
-      const existingVehicle = await db.vehicle.findFirst({
-        where: {
-          OR: [{ plate: plate.toString() }, { fleetNo: vehicleFleetNo }],
-        },
-      });
-
-      if (existingVehicle) {
-        const conflictField =
-          existingVehicle.plate === plate.toString() ? "Plate" : "Fleet Number";
-        throw new Error(`${conflictField} already exists in the system.`);
-      }
 
       const newVehicle = await db.vehicle.create({
         data: {
-          plate: plate.toString(),
+          ...parsedData,
           fleetNo: vehicleFleetNo,
-          brand: brand?.toString() || "",
-          model: model?.toString() || "",
-          type: type as VehicleType,
-          fuelType: fuelType?.toString() || "DIESEL",
-          year: parseInt(year.toString()),
-          maxLoadKg: parseInt(maxLoadKg.toString()),
-          odometerKm: odometerKm ? parseInt(odometerKm.toString()) : null,
-          fuelLevel: fuelLevel ? parseInt(fuelLevel.toString()) : null,
-          avgFuelConsumption: avgFuelConsumption
-            ? parseFloat(avgFuelConsumption.toString())
-            : null,
-          fuelCapacity: fuelCapacity ? parseInt(fuelCapacity.toString()) : null,
-          nextServiceKm: nextServiceKm
-            ? parseInt(nextServiceKm.toString())
-            : null,
-          registrationExpiry: registrationExpiry
-            ? new Date(registrationExpiry as string)
-            : null,
-          inspectionExpiry: inspectionExpiry
-            ? new Date(inspectionExpiry as string)
-            : null,
-          engineSize: engineSize?.toString() || null,
-          transmission: transmission?.toString() || null,
-          techNotes: techNotes?.toString() || null,
-          photo: photo?.toString() || null,
-          enableAlerts: enableAlerts === true,
           company: { connect: { id: companyId } },
         },
       });
@@ -227,8 +138,10 @@ export const getVehicleById = authenticatedAction(
   }
 );
 
+const vehicleUpdateSchema = vehicleSchema.partial();
+
 export const updateVehicle = authenticatedAction(
-  async (user, vehicleId: string, data: Partial<Prisma.VehicleUpdateInput>) => {
+  async (user, vehicleId: string, data: Record<string, unknown>) => {
     const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
@@ -246,44 +159,16 @@ export const updateVehicle = authenticatedAction(
         throw new Error("Vehicle not found or unauthorized");
       }
 
-      const updateData = { ...data };
+      const parsedData = vehicleUpdateSchema.parse(data);
+
+      const updateData = { ...parsedData };
       if (updateData.fleetNo === "") {
         updateData.fleetNo = `FLEET-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
       }
 
-      // Check for conflicts if plate or fleetNo are being updated
-      if (updateData.plate || updateData.fleetNo) {
-        const conflictCheck = await db.vehicle.findFirst({
-          where: {
-            OR: [
-              updateData.plate
-                ? { plate: updateData.plate as string }
-                : undefined,
-              updateData.fleetNo
-                ? { fleetNo: updateData.fleetNo as string }
-                : undefined,
-            ].filter(
-              (
-                condition
-              ): condition is { plate: string } | { fleetNo: string } =>
-                condition !== undefined
-            ),
-            NOT: { id: vehicleId },
-          },
-        });
-
-        if (conflictCheck) {
-          const conflictField =
-            conflictCheck.plate === updateData.plate ? "Plate" : "Fleet Number";
-          throw new Error(
-            `${conflictField} already exists in another vehicle.`
-          );
-        }
-      }
-
       const updatedVehicle = await db.vehicle.update({
         where: { id: vehicleId },
-        data: updateData,
+        data: updateData as Prisma.VehicleUpdateInput,
       });
 
       await invalidateVehicleCache(companyId, vehicleId);

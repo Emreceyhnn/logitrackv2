@@ -1,6 +1,11 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import {
   createDriver,
   updateDriver,
@@ -9,13 +14,15 @@ import {
   assignVehicleToDriver,
   unassignVehicleFromDriver,
 } from "@/app/lib/controllers/driver";
-import { DriverWithRelations, PaginatedResponse, DriverFilters, DriverDashboardResponseType } from "@/app/lib/type/driver";
+import {
+  DriverWithRelations,
+  PaginatedResponse,
+  DriverFilters,
+  DriverDashboardResponseType,
+} from "@/app/lib/type/driver";
 import { DriverStatus } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 
-// Imported for local use in the hooks below.
-// Server Components (page.tsx) import driverKeys directly from
-// "@/app/lib/query-keys/driver.keys" to avoid the "use client" boundary.
 import { driverKeys } from "@/app/lib/query-keys/driver.keys";
 
 async function fetchDrivers(
@@ -68,7 +75,15 @@ export function useDrivers(
       sortOrder,
     }),
     queryFn: () =>
-      fetchDrivers(page, limit, search, status, hasVehicle, sortField, sortOrder),
+      fetchDrivers(
+        page,
+        limit,
+        search,
+        status,
+        hasVehicle,
+        sortField,
+        sortOrder
+      ),
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -90,36 +105,27 @@ export function useDriverDashboardData() {
   });
 }
 
-/**
- * Fetches driver dashboard data via the API route.
- *
- * We intentionally use a Route Handler instead of the Server Action
- * (getDriverWithDashboardData) because Next.js triggers router.refresh()
- * automatically after every Server Action completes — even read-only ones.
- * This caused a full page reload on every filter/search change.
- * A plain HTTP fetch via the Route Handler has no such side-effect.
- */
-async function fetchDriverDashboard(
-  filters: DriverFilters
-): Promise<{
-    drivers: DriverWithRelations[];
-    meta: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
-    driversKpis: DriverDashboardResponseType["driversKpis"];
-    topPerformers: DriverDashboardResponseType["topPerformers"];
-    performanceCharts: DriverDashboardResponseType["performanceCharts"];
-    kpiTrends: DriverDashboardResponseType["kpiTrends"];
+async function fetchDriverDashboard(filters: DriverFilters): Promise<{
+  drivers: DriverWithRelations[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  driversKpis: DriverDashboardResponseType["driversKpis"];
+  topPerformers: DriverDashboardResponseType["topPerformers"];
+  performanceCharts: DriverDashboardResponseType["performanceCharts"];
+  kpiTrends: DriverDashboardResponseType["kpiTrends"];
 }> {
   const params = new URLSearchParams();
   if (filters.page) params.set("page", String(filters.page));
   if (filters.limit) params.set("limit", String(filters.limit));
   if (filters.search) params.set("search", filters.search);
-  if (filters.status?.length) filters.status.forEach((s) => params.append("status", s));
-  if (filters.hasVehicle !== undefined) params.set("hasVehicle", String(filters.hasVehicle));
+  if (filters.status?.length)
+    filters.status.forEach((s) => params.append("status", s));
+  if (filters.hasVehicle !== undefined)
+    params.set("hasVehicle", String(filters.hasVehicle));
   if (filters.sortField) params.set("sortField", filters.sortField);
   if (filters.sortOrder) params.set("sortOrder", filters.sortOrder);
 

@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import {
   getRouteStats,
   getRouteEfficiencyStats,
@@ -16,7 +21,11 @@ import {
 
 import { routeKeys } from "@/app/lib/query-keys/route.keys";
 
-async function fetchRoutes(page: number, pageSize: number, status?: string): Promise<{
+async function fetchRoutes(
+  page: number,
+  pageSize: number,
+  status?: string
+): Promise<{
   routes: RouteWithRelations[];
   totalCount: number;
 }> {
@@ -74,7 +83,7 @@ export function useRouteLocations() {
       const res = await getActiveRoutesLocations();
       return res as MapRouteData[];
     },
-    staleTime: 1000 * 30, // Locations update faster
+    staleTime: 1000 * 30,
   });
 }
 

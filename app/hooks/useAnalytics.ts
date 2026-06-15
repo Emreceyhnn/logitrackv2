@@ -1,10 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { analyticsKeys } from "@/app/lib/query-keys/analytics.keys";
-import { 
-  AnalyticsDashboardData, 
-  AnalyticsPageState, 
-  AnalyticsPageActions 
+import {
+  AnalyticsDashboardData,
+  AnalyticsPageState,
+  AnalyticsPageActions,
 } from "@/app/lib/type/analytics";
 
 async function fetchAnalyticsDashboard(): Promise<AnalyticsDashboardData> {
@@ -20,7 +20,10 @@ async function fetchAnalyticsDashboard(): Promise<AnalyticsDashboardData> {
   return res.json();
 }
 
-export function useAnalyticsData(): { state: AnalyticsPageState; actions: AnalyticsPageActions } {
+export function useAnalyticsData(): {
+  state: AnalyticsPageState;
+  actions: AnalyticsPageActions;
+} {
   const queryClient = useQueryClient();
   const query = useQuery<AnalyticsDashboardData>({
     queryKey: analyticsKeys.dashboard(),
@@ -30,7 +33,9 @@ export function useAnalyticsData(): { state: AnalyticsPageState; actions: Analyt
   });
 
   const fetchAnalytics = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: analyticsKeys.dashboard() });
+    await queryClient.invalidateQueries({
+      queryKey: analyticsKeys.dashboard(),
+    });
   }, [queryClient]);
 
   const state: AnalyticsPageState = {

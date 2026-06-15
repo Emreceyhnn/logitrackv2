@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
+import { exclude } from "@/app/lib/utils/exclude";
 import {
   getShipmentById,
   getShipmentStats,
@@ -203,11 +204,7 @@ export function useShipmentMutations() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<ShipmentWithRelations> }) => {
-      // Exclude relation fields from update data to satisfy Prisma types
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { company, history, customer, driver, route, ...updateData } = data;
-      // Using 'any' cast to avoid importing @prisma/client into the UI layer.
-      // updateShipment server action validates the data type on the backend.
+      const updateData = exclude(data, ["company", "history", "customer", "driver", "route", "items", "stops"]);
       return updateShipment(id, updateData as unknown as Parameters<typeof updateShipment>[1]);
     },
     onSuccess: () => handleSuccess(dict.toasts.successUpdate),

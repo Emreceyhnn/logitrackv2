@@ -247,41 +247,38 @@ export const createShipment = authenticatedAction(
         // Decrement inventory stock if it's from a warehouse
         const finalWarehouseId = shipment.originWarehouseId;
         if (finalWarehouseId && inventoryItems.length > 0) {
-          for (const item of inventoryItems) {
-            // Find inventory item to ensure it exists
-            const invItem = await tx.inventory.findUnique({
-              where: {
-                warehouseId_sku: {
-                  warehouseId: finalWarehouseId,
-                  sku: item.sku,
-                },
-              },
-            });
-
-            if (invItem) {
-              await tx.inventory.update({
-                where: { id: invItem.id },
-                data: {
-                  allocatedQuantity: {
-                    increment: item.quantity,
+          await Promise.all(
+            inventoryItems.map(async (item: InventoryShipmentItem) => {
+              const invItem = await tx.inventory.findUnique({
+                where: {
+                  warehouseId_sku: {
+                    warehouseId: finalWarehouseId,
+                    sku: item.sku,
                   },
                 },
               });
 
-              // Log inventory movement
-              await tx.inventoryMovement.create({
-                data: {
-                  warehouseId: finalWarehouseId,
-                  sku: item.sku,
-                  quantity: -item.quantity,
-                  type: "ALLOCATION",
-                  userId,
-                  companyId,
-                },
-              });
-            }
-          }
-          await invalidatePattern(shipmentCacheKeys.companyPattern(companyId!));
+              if (invItem) {
+                await tx.inventory.update({
+                  where: { id: invItem.id },
+                  data: {
+                    allocatedQuantity: { increment: item.quantity },
+                  },
+                });
+
+                await tx.inventoryMovement.create({
+                  data: {
+                    warehouseId: finalWarehouseId,
+                    sku: item.sku,
+                    quantity: -item.quantity,
+                    type: "ALLOCATION",
+                    userId,
+                    companyId,
+                  },
+                });
+              }
+            })
+          );
         }
 
         return shipment;
@@ -738,40 +735,39 @@ export const updateShipment = authenticatedAction(
 
           const oldWarehouseId = oldShipment.originWarehouseId;
 
-          // 2. Revert old inventory if applicable
           if (oldWarehouseId) {
-            for (const oldItem of oldShipment!.items) {
-              const invItem = await tx.inventory.findUnique({
-                where: {
-                  warehouseId_sku: {
-                    warehouseId: oldWarehouseId,
-                    sku: oldItem.sku,
-                  },
-                },
-              });
-
-              if (invItem) {
-                await tx.inventory.update({
-                  where: { id: invItem.id },
-                  data: {
-                    allocatedQuantity: {
-                      decrement: oldItem.quantity,
+            await Promise.all(
+              oldShipment!.items.map(async (oldItem) => {
+                const invItem = await tx.inventory.findUnique({
+                  where: {
+                    warehouseId_sku: {
+                      warehouseId: oldWarehouseId,
+                      sku: oldItem.sku,
                     },
                   },
                 });
 
-                await tx.inventoryMovement.create({
-                  data: {
-                    warehouseId: oldWarehouseId,
-                    sku: oldItem.sku,
-                    quantity: oldItem.quantity,
-                    type: "ALLOCATION_REVERT",
-                    userId,
-                    companyId,
-                  },
-                });
-              }
-            }
+                if (invItem) {
+                  await tx.inventory.update({
+                    where: { id: invItem.id },
+                    data: {
+                      allocatedQuantity: { decrement: oldItem.quantity },
+                    },
+                  });
+
+                  await tx.inventoryMovement.create({
+                    data: {
+                      warehouseId: oldWarehouseId,
+                      sku: oldItem.sku,
+                      quantity: oldItem.quantity,
+                      type: "ALLOCATION_REVERT",
+                      userId,
+                      companyId,
+                    },
+                  });
+                }
+              })
+            );
           }
 
           // 3. Delete existing shipment items and stops

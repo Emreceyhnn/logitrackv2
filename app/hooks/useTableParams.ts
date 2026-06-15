@@ -14,7 +14,6 @@ export function useTableParams(options?: TableParamsOptions) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Parse values from URL
   const page = Number(searchParams.get("page")) || 1;
   const pageSize =
     Number(searchParams.get("pageSize")) || options?.defaultPageSize || 10;
@@ -26,7 +25,6 @@ export function useTableParams(options?: TableParamsOptions) {
     options?.defaultSortOrder ||
     "asc";
 
-  // Generic helper for multi-select arrays
   const getArrayFilter = useCallback(
     (key: string): string[] => {
       const val = searchParams.get(key);
@@ -35,7 +33,6 @@ export function useTableParams(options?: TableParamsOptions) {
     [searchParams]
   );
 
-  // Generic helper for single-select filters
   const getFilter = useCallback(
     (key: string): string | undefined => {
       return searchParams.get(key) || undefined;
@@ -43,7 +40,6 @@ export function useTableParams(options?: TableParamsOptions) {
     [searchParams]
   );
 
-  // Update a specific parameter in the URL
   const updateParams = useCallback(
     (
       updates: Record<string, string | string[] | number | undefined | null>,
@@ -75,7 +71,6 @@ export function useTableParams(options?: TableParamsOptions) {
     [pathname, router, searchParams]
   );
 
-  // Specific setters
   const setPage = useCallback(
     (newPage: number) => {
       updateParams({ page: newPage });
@@ -92,7 +87,7 @@ export function useTableParams(options?: TableParamsOptions) {
 
   const setSearch = useCallback(
     (newSearch: string) => {
-      updateParams({ search: newSearch, page: 1 }, false); // push instead of replace for search
+      updateParams({ search: newSearch, page: 1 }, true);
     },
     [updateParams]
   );
@@ -101,7 +96,6 @@ export function useTableParams(options?: TableParamsOptions) {
     (field: string, order?: "asc" | "desc") => {
       let newOrder = order;
       if (!newOrder) {
-        // Toggle logic
         if (sortField === field) {
           newOrder = sortOrder === "asc" ? "desc" : "asc";
         } else {
@@ -115,7 +109,7 @@ export function useTableParams(options?: TableParamsOptions) {
 
   const setFilter = useCallback(
     (key: string, value: string | string[] | undefined) => {
-      updateParams({ [key]: value, page: 1 }, false);
+      updateParams({ [key]: value, page: 1 }, true);
     },
     [updateParams]
   );
@@ -126,14 +120,13 @@ export function useTableParams(options?: TableParamsOptions) {
       keysToClear.forEach((key) => {
         updates[key] = undefined;
       });
-      // Keep page, pageSize, sortBy, sortOrder
+
       updateParams({ ...updates, search: undefined, page: 1 }, false);
     },
     [updateParams]
   );
 
   return {
-    // Current state
     page,
     pageSize,
     search,
@@ -141,8 +134,6 @@ export function useTableParams(options?: TableParamsOptions) {
     sortOrder,
     getFilter,
     getArrayFilter,
-
-    // Setters
     setPage,
     setPageSize,
     setSearch,

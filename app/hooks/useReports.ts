@@ -1,10 +1,10 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { reportsKeys } from "@/app/lib/query-keys/reports.keys";
-import { 
-  ReportsData, 
-  ReportsPageState, 
-  ReportsPageActions 
+import {
+  ReportsData,
+  ReportsPageState,
+  ReportsPageActions,
 } from "@/app/lib/type/reports";
 
 async function fetchReportsDashboard(): Promise<ReportsData> {
@@ -20,12 +20,15 @@ async function fetchReportsDashboard(): Promise<ReportsData> {
   return res.json();
 }
 
-export function useReportsData(): { state: ReportsPageState; actions: ReportsPageActions } {
+export function useReportsData(): {
+  state: ReportsPageState;
+  actions: ReportsPageActions;
+} {
   const queryClient = useQueryClient();
   const query = useQuery<ReportsData>({
     queryKey: reportsKeys.dashboard(),
     queryFn: () => fetchReportsDashboard(),
-    staleTime: 1000 * 60 * 15, // 15 minutes
+    staleTime: 1000 * 60 * 15,
     placeholderData: (previousData) => previousData,
   });
 

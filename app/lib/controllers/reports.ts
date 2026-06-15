@@ -52,28 +52,39 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
 
     const vehicles = await db.vehicle.findMany({
       where: { companyId },
-      select: { plate: true, currentLat: true, currentLng: true, status: true },
+      select: { 
+        plate: true, 
+        currentLat: true, 
+        currentLng: true, 
+        status: true,
+        avgFuelConsumption: true,
+        odometerKm: true,
+        maintenanceRecords: {
+          select: { cost: true }
+        }
+      },
     });
 
-    const fleetData = vehicles.map((v) => ({
-      plate: v.plate,
-      consumption: (15 + Math.random() * 10).toFixed(1),
-      odometer: Math.floor(Math.random() * 200000),
-      maintenanceCost: Math.floor(Math.random() * 5000),
-    }));
+    const fleetData = vehicles.map((v) => {
+      const maintenanceCost = v.maintenanceRecords.reduce((sum, record) => sum + record.cost, 0);
+      return {
+        plate: v.plate,
+        consumption: (v.avgFuelConsumption ?? 0).toFixed(1),
+        odometer: v.odometerKm ?? 0,
+        maintenanceCost: maintenanceCost,
+      };
+    });
 
     const inventory = await db.inventory.findMany({
       where: { companyId },
-      select: { name: true, quantity: true, warehouseId: true },
+      select: { name: true, quantity: true, warehouseId: true, cargoType: true, unitValue: true },
     });
 
     const enrichedInventory = inventory.map((i) => {
-      const categories = ["Electronics", "Furniture", "Apparel", "Industrial"];
-      const catIndex = i.name.length % categories.length;
       return {
         ...i,
-        category: categories[catIndex],
-        unitPrice: 50 + i.name.length * 10,
+        category: i.cargoType || "Uncategorized",
+        unitPrice: i.unitValue || 0,
       };
     });
 

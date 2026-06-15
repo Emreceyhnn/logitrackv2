@@ -3,11 +3,8 @@
 import { adminDb } from "@/app/lib/firebase-admin";
 import { Notification, NotificationTarget } from "../type/notification";
 import { db } from "../db";
+import { Prisma } from "@prisma/client";
 
-/**
- * Sends a notification to a specific target (user, company, or role)
- * using the Firebase Admin SDK to bypass client-side write restrictions.
- */
 export async function sendNotificationAction(
   target: NotificationTarget,
   notification: Omit<Notification, "id" | "createdAt" | "isRead">
@@ -21,8 +18,6 @@ export async function sendNotificationAction(
     }
     let path = "";
 
-    // If it's a company broadcast with a specific category, we iterate and target individuals
-    // who have that notification type enabled in their settings.
     if (
       target.companyId &&
       !target.userId &&
@@ -33,41 +28,26 @@ export async function sendNotificationAction(
         `[sendNotificationAction] 🎯 Targeted broadcast for category: ${notification.category}`
       );
 
+      const whereClause: Prisma.UserWhereInput = {
+        companyId: target.companyId,
+        ...(target.roleId ? { roleId: target.roleId } : {}),
+      };
+
+      if (notification.category === "SHIPMENT_UPDATE")
+        whereClause.notifEmailShipment = true;
+      if (notification.category === "MAINTENANCE_ALERT")
+        whereClause.notifEmailMaint = true;
+      if (notification.category === "NEW_ASSIGNMENT")
+        whereClause.notifPushAssignment = true;
+      if (notification.category === "DELAY_ALERT")
+        whereClause.notifPushDelay = true;
+
       const users = await db.user.findMany({
-        where: {
-          companyId: target.companyId,
-          ...(target.roleId ? { roleId: target.roleId } : {}),
-        },
-        select: {
-          id: true,
-          notifEmailShipment: true,
-          notifEmailMaint: true,
-          notifPushAssignment: true,
-          notifPushDelay: true,
-        },
+        where: whereClause,
+        select: { id: true },
       });
 
       const promises = users.map(async (u) => {
-        let shouldSend = true;
-
-        // Map category to user preference field
-        if (notification.category === "SHIPMENT_UPDATE")
-          shouldSend = u.notifEmailShipment;
-        if (notification.category === "MAINTENANCE_ALERT")
-          shouldSend = u.notifEmailMaint;
-        if (notification.category === "NEW_ASSIGNMENT")
-          shouldSend = u.notifPushAssignment;
-        if (notification.category === "DELAY_ALERT")
-          shouldSend = u.notifPushDelay;
-        // SYSTEM and others always send for now
-
-        if (!shouldSend) {
-          console.log(
-            `[sendNotificationAction] 🔇 Skipping user ${u.id} due to settings`
-          );
-          return;
-        }
-
         const personalPath = `notifications/inbox/${u.id}`;
         if (!adminDb) return;
         const ref = adminDb.ref(personalPath).push();
@@ -83,7 +63,6 @@ export async function sendNotificationAction(
       return { success: true };
     }
 
-    // Default behavior for direct user targets, global, or legacy group broadcasts
     if (target.isGlobal) {
       path = "notifications/groups/everyone";
     } else if (target.userId) {
@@ -114,9 +93,6 @@ export async function sendNotificationAction(
   }
 }
 
-/**
- * Marks a specific notification as read.
- */
 export async function markAsReadAction(path: string, notificationId: string) {
   try {
     if (!adminDb) throw new Error("Firebase not initialized");
@@ -128,9 +104,6 @@ export async function markAsReadAction(path: string, notificationId: string) {
   }
 }
 
-/**
- * Deletes a specific notification.
- */
 export async function deleteNotificationAction(
   path: string,
   notificationId: string
