@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from "react";
-import { GoogleMap, MarkerF } from "@react-google-maps/api";
+import { GoogleMap } from "@react-google-maps/api";
 import { useDictionary } from "../../lib/language/DictionaryContext";
 
 /* --------------------------------- STYLES --------------------------------- */
@@ -9,11 +9,27 @@ const containerStyle = {
   borderRadius: "12px",
 };
 
+// AdvancedMarker wrapper to fix React 18 deprecation warning
+const AdvancedMarker = ({ map, position }) => {
+  React.useEffect(() => {
+    if (!map || !window.google || !position) return;
+    const marker = new window.google.maps.marker.AdvancedMarkerElement({
+      position,
+      map,
+    });
+    return () => {
+      marker.map = null;
+    };
+  }, [map, position?.lat, position?.lng]);
+  return null;
+};
+
 export const MapPicker = ({ onLocationSelect, initialCenter }) => {
   /* -------------------------------- VARIABLES ------------------------------- */
   const dict = useDictionary();
 
   /* --------------------------------- STATES --------------------------------- */
+  const [mapInstance, setMapInstance] = useState(null);
   const [marker, setMarker] = useState(null);
   const center = useMemo(
     () => initialCenter || { lat: 41.0082, lng: 28.9784 },
@@ -40,9 +56,11 @@ export const MapPicker = ({ onLocationSelect, initialCenter }) => {
         mapContainerStyle={containerStyle}
         center={center}
         zoom={12}
+        options={{ mapId: "DEMO_MAP_ID" }}
+        onLoad={setMapInstance}
         onClick={onMapClick}
       >
-        {marker && <MarkerF position={marker} />}
+        {marker && <AdvancedMarker map={mapInstance} position={marker} />}
       </GoogleMap>
       <div className="p-3 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 italic">
         {dict.maps.clickToMark}

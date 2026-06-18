@@ -4,7 +4,7 @@ import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
-const libraries: Libraries = ["places"];
+const libraries: Libraries = ["places", "marker"];
 
 interface GoogleMapsProviderProps {
   children: React.ReactNode;

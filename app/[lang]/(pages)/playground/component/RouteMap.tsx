@@ -3,11 +3,11 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   GoogleMap,
-  DirectionsRenderer,
-  MarkerF,
+  PolylineF,
   OverlayView,
 } from "@react-google-maps/api";
 import Image from "next/image";
+import polyline from "@mapbox/polyline";
 
 /* --------------------------------- TYPES ---------------------------------- */
 
@@ -38,6 +38,63 @@ const containerStyle = {
   width: "100%",
   height: "100%",
   borderRadius: "12px",
+};
+
+/* ------------------------------- ADVANCED MARKER ------------------------------- */
+// A tiny wrapper to use AdvancedMarkerElement within @react-google-maps/api
+const AdvancedMarker = ({
+  map,
+  position,
+  title,
+  label,
+  iconUrl,
+  bgColor,
+  zIndex,
+}: {
+  map: google.maps.Map | null;
+  position: LocationPoint;
+  title?: string;
+  label?: string;
+  iconUrl?: string;
+  bgColor?: string;
+  zIndex?: number;
+}) => {
+  useEffect(() => {
+    if (!map || typeof window === "undefined" || !window.google) return;
+
+    let content: HTMLElement;
+
+    if (iconUrl) {
+      const img = document.createElement("img");
+      img.src = iconUrl;
+      img.style.width = "32px";
+      img.style.height = "32px";
+      content = img;
+    } else {
+      // Use native PinElement for standard markers
+      const pin = new window.google.maps.marker.PinElement({
+        background: bgColor || "#EA4335",
+        borderColor: "#FFFFFF",
+        glyphColor: "white",
+        glyphText: label || "",
+      });
+      content = pin as unknown as HTMLElement;
+    }
+
+    const marker = new window.google.maps.marker.AdvancedMarkerElement({
+      position,
+      map,
+      title,
+      content,
+      zIndex,
+    });
+
+    return () => {
+      marker.map = null;
+    };
+  }, [map, position.lat, position.lng, title, label, iconUrl, bgColor, zIndex]);
+
+  return null;
 };
 
 /* ------------------------------- MARKER COMPONENT ------------------------------- */
@@ -127,69 +184,70 @@ export const RouteMap = ({
   markers = [],
   height = "500px",
 }: RouteMapProps) => {
-  const [response, setResponse] = useState<google.maps.DirectionsResult | null>(null);
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const [routePath, setRoutePath] = useState<LocationPoint[]>([]);
   const cachedResponseKey = useRef<string | null>(null);
-  const [apiCallCount, setApiCallCount] = useState(0); // For debugging to prove we don't spam
+  const [apiCallCount, setApiCallCount] = useState(0); 
 
-  // 1. STRICT MEMOIZATION: Generate a unique string key based on exact physical locations.
-  // This ensures that even if the parent component passes a NEW array reference for stops,
-  // we DO NOT re-trigger the route API unless the coordinates physically changed.
+  // STRICT MEMOIZATION
   const routeKey = useMemo(() => {
     if (!origin || !destination) return null;
-    
-    // Helper to format coordinate to 5 decimal places (approx 1.1 meters accuracy)
     const p = (loc: LocationPoint) => `${Number(loc.lat).toFixed(5)},${Number(loc.lng).toFixed(5)}`;
-    
-    // Format: origin|destination|stop1-stop2-stop3
     return `${p(origin)}|${p(destination)}|${stops.map(p).join("-")}`;
   }, [origin, destination, stops]);
 
-  // 2. FETCH DIRECTIONS: Only runs when routeKey changes.
+  // FETCH NEW ROUTES API v2 via REST (Supports Truck / Emission info if needed)
   useEffect(() => {
-    if (!routeKey || typeof window === "undefined" || !window.google) return;
+    if (!routeKey || !process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) return;
 
-    // VERY IMPORTANT: Check if we ALREADY successfully fetched this exact route key
-    // This prevents double-fetches in React Strict Mode or rapid re-renders.
-    if (cachedResponseKey.current === routeKey) {
-      console.log("RouteMap: using cached response for key", routeKey);
-      return;
-    }
+    if (cachedResponseKey.current === routeKey) return;
 
-    // Debounce just in case the props change rapidly within a few ms
-    const timer = setTimeout(() => {
-      console.log("RouteMap: fetching new directions for key", routeKey);
+    const timer = setTimeout(async () => {
+      console.log("RouteMap: fetching Routes API v2 for key", routeKey);
       
-      const directionsService = new window.google.maps.DirectionsService();
+      const payload = {
+        origin: { location: { latLng: { latitude: origin.lat, longitude: origin.lng } } },
+        destination: { location: { latLng: { latitude: destination.lat, longitude: destination.lng } } },
+        intermediates: stops.map(s => ({ location: { latLng: { latitude: s.lat, longitude: s.lng } } })),
+        travelMode: "DRIVE",
+        routingPreference: "TRAFFIC_AWARE",
+        // Example of what we can now add natively because we use the REST API:
+        // routeModifiers: { vehicleInfo: { emissionType: "GASOLINE" } },
+      };
 
-      directionsService.route(
-        {
-          origin,
-          destination,
-          waypoints: stops.map((stop) => ({ location: stop, stopover: true })),
-          optimizeWaypoints: false, // Strict order 1-2-3-4-5
-          travelMode: window.google.maps.TravelMode.DRIVING,
-        },
-        (result, status) => {
-          if (status === window.google.maps.DirectionsStatus.OK) {
-            setResponse(result);
-            cachedResponseKey.current = routeKey; // Save successful key to prevent refetching
-            setApiCallCount(prev => prev + 1); // Track successful calls
-          } else {
-            console.error("Directions request failed:", status);
-            setResponse(null);
-          }
+      try {
+        const res = await fetch("https://routes.googleapis.com/directions/v2:computeRoutes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+            "X-Goog-FieldMask": "routes.polyline.encodedPolyline",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        
+        if (data.routes && data.routes[0]) {
+          const encodedPolyline = data.routes[0].polyline.encodedPolyline;
+          const decoded = polyline.decode(encodedPolyline).map(([lat, lng]) => ({ lat, lng }));
+          setRoutePath(decoded);
+          cachedResponseKey.current = routeKey;
+          setApiCallCount(prev => prev + 1);
+        } else {
+          console.error("Routes API v2 failed:", data);
+          setRoutePath([]);
         }
-      );
+      } catch (err) {
+        console.error("Error fetching routes:", err);
+      }
     }, 150);
 
     return () => clearTimeout(timer);
   }, [routeKey]);
 
-  // 3. MAP CONFIGURATION
-  const mapCenter = useMemo(() => {
-    if (origin) return origin;
-    return { lat: 41.0082, lng: 28.9784 }; // Fallback
-  }, [origin]);
+  // MAP CONFIGURATION
+  const mapCenter = useMemo(() => origin || { lat: 41.0082, lng: 28.9784 }, [origin]);
 
   const mapOptions = useMemo<google.maps.MapOptions>(
     () => ({
@@ -198,6 +256,7 @@ export const RouteMap = ({
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: true,
+      mapId: "DEMO_MAP_ID", // Required for AdvancedMarkerElement
     }),
     []
   );
@@ -205,9 +264,8 @@ export const RouteMap = ({
   return (
     <div className="relative w-full overflow-hidden border border-gray-200 shadow-xl rounded-xl" style={{ height }}>
       
-      {/* Dev Tool: Prove to the user we are saving their money */}
       <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur px-3 py-2 rounded-lg shadow-sm border border-gray-100 text-xs font-mono">
-        <div className="font-bold text-gray-800">Route API Optimizer (useMemo Active)</div>
+        <div className="font-bold text-gray-800">Routes API v2 (REST)</div>
         <div className={apiCallCount > 0 ? "text-green-600" : "text-gray-500"}>
           API Calls Made: <span className="font-bold">{apiCallCount}</span> 
         </div>
@@ -218,129 +276,47 @@ export const RouteMap = ({
         center={mapCenter}
         zoom={12}
         options={mapOptions}
+        onLoad={(map) => setMapInstance(map)}
       >
-        {/* Draw Route Line */}
-        {response && (
-          <DirectionsRenderer
+        {/* Draw Route Polyline Manually */}
+        {routePath.length > 0 && (
+          <PolylineF
+            path={routePath}
             options={{
-              directions: response,
-              suppressMarkers: true, // We draw our own custom markers
-              polylineOptions: {
-                strokeColor: "#3B82F6", // Blue
-                strokeWeight: 6,
-                strokeOpacity: 0.8,
-              },
+              strokeColor: "#3B82F6",
+              strokeOpacity: 0.8,
+              strokeWeight: 6,
             }}
           />
         )}
 
-        {/* Draw Waypoints Markers (1, 2, 3, 4, 5) if route is successful */}
-        {response && stops.map((stop, index) => (
-          <MarkerF
+        {/* Draw Waypoints Markers */}
+        {routePath.length > 0 && stops.map((stop, index) => (
+          <AdvancedMarker
             key={`route-stop-${index}`}
+            map={mapInstance}
             position={stop}
-            icon={{
-              path: window.google?.maps.SymbolPath.CIRCLE,
-              fillColor: "#F59E0B", // Amber
-              fillOpacity: 1,
-              strokeColor: "#FFFFFF",
-              strokeWeight: 2,
-              scale: 8,
-            }}
-            label={{
-              text: (index + 1).toString(),
-              color: "white",
-              fontSize: "12px",
-              fontWeight: "bold",
-            }}
+            label={(index + 1).toString()}
+            bgColor="#F59E0B"
             zIndex={500}
           />
         ))}
 
-        {/* Origin Marker */}
-        {origin && (
-           <MarkerF
-           position={origin}
-           icon={{
-             path: window.google?.maps.SymbolPath.CIRCLE,
-             fillColor: "#10B981", // Emerald
-             fillOpacity: 1,
-             strokeColor: "#FFFFFF",
-             strokeWeight: 2,
-             scale: 8,
-           }}
-           label={{
-             text: "A",
-             color: "white",
-             fontSize: "12px",
-             fontWeight: "bold",
-           }}
-           zIndex={400}
-         />
-        )}
+        {/* Origin & Destination */}
+        {origin && <AdvancedMarker map={mapInstance} position={origin} label="A" bgColor="#10B981" zIndex={400} />}
+        {destination && <AdvancedMarker map={mapInstance} position={destination} label="B" bgColor="#EF4444" zIndex={400} />}
 
-        {/* Destination Marker */}
-        {destination && (
-           <MarkerF
-           position={destination}
-           icon={{
-             path: window.google?.maps.SymbolPath.CIRCLE,
-             fillColor: "#EF4444", // Red
-             fillOpacity: 1,
-             strokeColor: "#FFFFFF",
-             strokeWeight: 2,
-             scale: 8,
-           }}
-           label={{
-             text: "B",
-             color: "white",
-             fontSize: "12px",
-             fontWeight: "bold",
-           }}
-           zIndex={400}
-         />
-        )}
-
-        {/* Render Extraneous Markers (Vehicle, Warehouse, Customer) */}
+        {/* Render Extraneous Markers */}
         {markers.map((marker) => {
           if (marker.type === "vehicle") {
-            return (
-              <CustomVehicleMarker
-                key={marker.id}
-                position={marker.position}
-                label={marker.label}
-              />
-            );
+            return <CustomVehicleMarker key={marker.id} position={marker.position} label={marker.label} />;
           }
-          
           if (marker.type === "warehouse") {
-             return (
-               <MarkerF
-                 key={marker.id}
-                 position={marker.position}
-                 icon={{
-                   url: "/icons/warehouse.svg",
-                   scaledSize: window.google ? new window.google.maps.Size(32, 32) : undefined,
-                 }}
-                 title={marker.label}
-               />
-             )
+            return <AdvancedMarker key={marker.id} map={mapInstance} position={marker.position} iconUrl="/icons/warehouse.svg" title={marker.label} />;
           }
-
           if (marker.type === "customer") {
-            return (
-              <MarkerF
-                key={marker.id}
-                position={marker.position}
-                icon={{
-                  url: "/icons/pin.svg",
-                  scaledSize: window.google ? new window.google.maps.Size(32, 32) : undefined,
-                }}
-                title={marker.label}
-              />
-            )
+            return <AdvancedMarker key={marker.id} map={mapInstance} position={marker.position} iconUrl="/icons/pin.svg" title={marker.label} />;
           }
-
           return null;
         })}
       </GoogleMap>
