@@ -1,23 +1,25 @@
 import { Box, Container, Typography } from "@mui/material";
+import { PlaygroundMapWrapper } from "./component/PlaygroundMapWrapper";
 
 export default function Playground() {
   return (
-    <Container maxWidth="md" sx={{ py: 8 }}>
+    <Container maxWidth="lg" sx={{ py: 8 }}>
       <Box
         sx={{
           p: 4,
           borderRadius: 4,
           border: "1px solid",
           borderColor: "divider",
-          textAlign: "center",
         }}
       >
-        <Typography variant="h4" fontWeight={700} gutterBottom>
-          Playground
+        <Typography variant="h4" fontWeight={700} gutterBottom textAlign="center">
+          Route Optimizer Playground
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Developer sandbox — no active tests.
+        <Typography variant="body2" color="text.secondary" textAlign="center" mb={4}>
+          Strictly memoized Google Maps Directions API to prevent billing spikes.
         </Typography>
+        
+        <PlaygroundMapWrapper />
       </Box>
     </Container>
   );
