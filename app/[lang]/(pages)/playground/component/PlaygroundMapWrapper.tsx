@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { GoogleMapsProvider } from "./GoogleMapsProvider";
 import { RouteMap, LocationPoint, RouteMarker } from "./RouteMap";
 import { MapWithMarker } from "./MapWithMarker";
 
-// Some mock coordinates around Istanbul
-const MOCK_ORIGIN: LocationPoint = { lat: 41.0082, lng: 28.9784 }; // Sultanahmet
-const MOCK_DESTINATION: LocationPoint = { lat: 41.062, lng: 29.016 }; // Besiktas
+const MOCK_ORIGIN: LocationPoint = { lat: 41.0082, lng: 28.9784 };
+const MOCK_DESTINATION: LocationPoint = { lat: 41.062, lng: 29.016 };
 
 const ALL_STOPS: LocationPoint[] = [
   { lat: 41.02, lng: 28.98 }, // Stop 1: Karakoy
@@ -27,7 +26,7 @@ const MOCK_MARKERS: RouteMarker[] = [
   },
   {
     id: "wh-1",
-    position: { lat: 41.00, lng: 28.95 },
+    position: { lat: 41.0, lng: 28.95 },
     type: "warehouse",
     label: "Main Hub",
   },
@@ -50,55 +49,78 @@ export const PlaygroundMapWrapper = () => {
   return (
     <GoogleMapsProvider>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        
         {/* Section 1: Route Optimizer Map */}
-        <Box sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: 3, bgcolor: "background.paper" }}>
+        <Box
+          sx={{
+            p: 3,
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 3,
+            bgcolor: "background.paper",
+          }}
+        >
           <Typography variant="h5" fontWeight="bold" gutterBottom>
             Route Optimizer Map
           </Typography>
           <Typography variant="body2" color="text.secondary" mb={2}>
-            Watch the "API Calls Made" counter. It only increases when stops physically change.
+            Watch the &quot;API Calls Made&quot; counter. It only increases when stops
+            physically change.
           </Typography>
-          
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center", mb: 3 }}>
+
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexWrap: "wrap",
+              alignItems: "center",
+              mb: 3,
+            }}
+          >
             <Typography variant="subtitle2" fontWeight="bold">
               Stops Config:
             </Typography>
-          <Button 
-            variant="contained" 
-            size="small" 
-            disabled={stopCount >= 5}
-            onClick={() => setStopCount(prev => prev + 1)}
-          >
-            Add Stop (+1)
-          </Button>
-          <Button 
-            variant="outlined" 
-            size="small" 
-            disabled={stopCount <= 0}
-            onClick={() => setStopCount(prev => prev - 1)}
-          >
-            Remove Stop (-1)
-          </Button>
-          
-          <Box sx={{ flexGrow: 1 }} />
-          
-          {/* This button forces a re-render. 
-              The array reference `currentStops` will change, BUT the API should NOT refetch! */}
-          <Button 
-            variant="text" 
-            color="secondary"
-            size="small" 
-            onClick={() => setDummyRenderState(prev => prev + 1)}
-          >
-            Force Re-render (Test Cache)
-          </Button>
-          <Typography variant="caption" color="text.secondary">
-            Render ID: {dummyRenderState}
-          </Typography>
-        </Box>
+            <Button
+              variant="contained"
+              size="small"
+              disabled={stopCount >= 5}
+              onClick={() => setStopCount((prev) => prev + 1)}
+            >
+              Add Stop (+1)
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={stopCount <= 0}
+              onClick={() => setStopCount((prev) => prev - 1)}
+            >
+              Remove Stop (-1)
+            </Button>
 
-          <Box sx={{ width: "100%", height: "500px", borderRadius: "12px", overflow: "hidden" }}>
+            <Box sx={{ flexGrow: 1 }} />
+
+            {/* This button forces a re-render. 
+              The array reference `currentStops` will change, BUT the API should NOT refetch! */}
+            <Button
+              variant="text"
+              color="secondary"
+              size="small"
+              onClick={() => setDummyRenderState((prev) => prev + 1)}
+            >
+              Force Re-render (Test Cache)
+            </Button>
+            <Typography variant="caption" color="text.secondary">
+              Render ID: {dummyRenderState}
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              width: "100%",
+              height: "500px",
+              borderRadius: "12px",
+              overflow: "hidden",
+            }}
+          >
             <RouteMap
               origin={MOCK_ORIGIN}
               destination={MOCK_DESTINATION}
@@ -109,22 +131,30 @@ export const PlaygroundMapWrapper = () => {
         </Box>
 
         {/* Section 2: Map With Markers */}
-        <Box sx={{ p: 3, border: "1px solid", borderColor: "divider", borderRadius: 3, bgcolor: "background.paper" }}>
+        <Box
+          sx={{
+            p: 3,
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 3,
+            bgcolor: "background.paper",
+          }}
+        >
           <Typography variant="h5" fontWeight="bold" gutterBottom>
             Markers Map (Vehicle, Warehouse, Customer)
           </Typography>
           <Typography variant="body2" color="text.secondary" mb={3}>
-            Testing the MapWithMarker component with individual marker components and spiderfier blooming.
+            Testing the MapWithMarker component with individual marker
+            components and spiderfier blooming.
           </Typography>
-          
-          <MapWithMarker 
+
+          <MapWithMarker
             center={{ lat: 41.015, lng: 28.98 }}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             markers={MOCK_MARKERS as any} // using cast if type mismatches slightly
             height="500px"
           />
         </Box>
-
-
       </Box>
     </GoogleMapsProvider>
   );

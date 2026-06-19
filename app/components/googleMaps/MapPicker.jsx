@@ -20,6 +20,7 @@ const AdvancedMarker = ({ map, position }) => {
     return () => {
       marker.map = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, position?.lat, position?.lng]);
   return null;
 };

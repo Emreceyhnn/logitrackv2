@@ -71,7 +71,8 @@ const AdvancedMarker = ({
         borderColor: "#FFFFFF",
         glyphColor: "white",
         glyphText: label || "",
-      });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
       content = pin as unknown as HTMLElement;
       
       if (offset) {
@@ -98,6 +99,7 @@ const AdvancedMarker = ({
       if (listener) window.google.maps.event.removeListener(listener);
       marker.map = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, position.lat, position.lng, title, label, iconUrl, isExpanded, offset?.x, offset?.y]);
 
   return null;
