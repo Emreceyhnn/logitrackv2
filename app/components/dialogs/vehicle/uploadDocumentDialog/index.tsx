@@ -385,7 +385,7 @@ export default function UploadDocumentDialog({
                 type="file"
                 hidden
                 onChange={handleFileChange}
-                accept=".jpg,.jpeg,.png"
+                accept=".jpg,.jpeg,.png,.pdf"
               />
             </Button>
           </Box>

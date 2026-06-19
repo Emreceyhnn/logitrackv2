@@ -5,6 +5,7 @@ import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
+import { driverCacheKeys, invalidatePattern, vehicleCacheKeys } from "../redis";
 
 export const createDocument = authenticatedAction(
   async (
@@ -75,13 +76,22 @@ export const createDocument = authenticatedAction(
           vehicleId,
         },
       });
+      if (vehicleId) {
+        await invalidatePattern(vehicleCacheKeys.companyPattern(companyId));
+      }
+      if (driverId) {
+        await invalidatePattern(driverCacheKeys.companyPattern(companyId));
+      }
 
       // Dispatch Notification for expiration alerts
       if (docStatus === "EXPIRED" || docStatus === "EXPIRING_SOON") {
         await createNotification(
           { companyId },
           {
-            title: docStatus === "EXPIRED" ? "Belge Süresi Dolmuş! 🚫" : "Belge Süresi Yaklaşıyor! ⏳",
+            title:
+              docStatus === "EXPIRED"
+                ? "Belge Süresi Dolmuş! 🚫"
+                : "Belge Süresi Yaklaşıyor! ⏳",
             message: `${name} isimli belgenin durumu: ${docStatus}. Lütfen yenileyiniz.`,
             type: docStatus === "EXPIRED" ? "ERROR" : "WARNING",
             link: "/dashboard/documents",
@@ -181,7 +191,7 @@ export const deleteDocument = authenticatedAction(
       ]);
       const existingDocument = await db.document.findUnique({
         where: { id: documentId },
-        select: { companyId: true },
+        select: { companyId: true, vehicleId: true, driverId: true },
       });
 
       if (!existingDocument?.companyId) throw new Error("Document not found");
@@ -194,6 +204,17 @@ export const deleteDocument = authenticatedAction(
       await db.document.delete({
         where: { id: documentId },
       });
+
+      if (existingDocument.vehicleId) {
+        await invalidatePattern(
+          vehicleCacheKeys.companyPattern(existingDocument.companyId)
+        );
+      }
+      if (existingDocument.driverId) {
+        await invalidatePattern(
+          driverCacheKeys.companyPattern(existingDocument.companyId)
+        );
+      }
 
       return { success: true };
     } catch (error) {

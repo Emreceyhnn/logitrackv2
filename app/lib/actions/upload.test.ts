@@ -37,18 +37,31 @@ describe("Upload Actions", () => {
 
   describe("uploadImageAction() metodu", () => {
     const mockUser = { id: "user-1" };
-    const mockBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+    const mockBase64 =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
     it("should_UploadImageAndReturnPublicUrl_WhenValidBase64Provided", async () => {
       // Arrange
-      const uploadMock = mock.fn(async () => ({ data: { path: "test.png" }, error: null }));
-      supabaseStorageMock.from.mock.mockImplementation(() => ({
-        upload: uploadMock,
-        getPublicUrl: mock.fn(() => ({ data: { publicUrl: "http://public.url/test.png" } })),
-      } as any));
+      const uploadMock = mock.fn(async () => ({
+        data: { path: "test.png" },
+        error: null,
+      }));
+      supabaseStorageMock.from.mock.mockImplementation(
+        () =>
+          ({
+            upload: uploadMock,
+            getPublicUrl: mock.fn(() => ({
+              data: { publicUrl: "http://public.url/test.png" },
+            })),
+          }) as any
+      );
 
       // Act
-      const result = await uploadActions.uploadImageAction(mockUser, mockBase64, "general");
+      const result = await uploadActions.uploadImageAction(
+        mockUser,
+        mockBase64,
+        "general"
+      );
 
       // Assert
       expect(result.success).toBe(true);
@@ -57,8 +70,10 @@ describe("Upload Actions", () => {
     });
 
     it("should_ThrowError_WhenFileTypeIsUnsupported", async () => {
-      const invalidBase64 = "data:application/pdf;base64,JVBERi...";
-      await expect(uploadActions.uploadImageAction(mockUser, invalidBase64)).rejects.toThrow("Unsupported image type");
+      const invalidBase64 = "data:application/xml;base64,PHhtbD4...";
+      await expect(
+        uploadActions.uploadImageAction(mockUser, invalidBase64)
+      ).rejects.toThrow("Unsupported file type");
     });
   });
 
@@ -67,13 +82,23 @@ describe("Upload Actions", () => {
 
     it("should_GenerateSignedUrl_WhenValidUrlProvided", async () => {
       // Arrange
-      const createSignedUrlMock = mock.fn(async () => ({ data: { signedUrl: "http://signed.url" }, error: null }));
-      supabaseStorageMock.from.mock.mockImplementation(() => ({
-        createSignedUrl: createSignedUrlMock,
-      } as any));
+      const createSignedUrlMock = mock.fn(async () => ({
+        data: { signedUrl: "http://signed.url" },
+        error: null,
+      }));
+      supabaseStorageMock.from.mock.mockImplementation(
+        () =>
+          ({
+            createSignedUrl: createSignedUrlMock,
+          }) as any
+      );
 
       // Act
-      const result = await uploadActions.getSignedUrlAction(mockUser, "http://supabase.com/documents/test.pdf", "documents");
+      const result = await uploadActions.getSignedUrlAction(
+        mockUser,
+        "http://supabase.com/documents/test.pdf",
+        "documents"
+      );
 
       // Assert
       expect(result.success).toBe(true);
@@ -83,7 +108,9 @@ describe("Upload Actions", () => {
     });
 
     it("should_ThrowError_WhenUrlIsInvalid", async () => {
-      await expect(uploadActions.getSignedUrlAction(mockUser, "not-a-url")).rejects.toThrow("Invalid file URL provided.");
+      await expect(
+        uploadActions.getSignedUrlAction(mockUser, "not-a-url")
+      ).rejects.toThrow("Invalid file URL provided.");
     });
   });
 });

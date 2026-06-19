@@ -32,6 +32,8 @@ const ALLOWED_MIME_PREFIXES = [
   "data:image/png",
   "data:image/webp",
   "data:image/gif",
+  "data:image/jpg",
+  "data:application/pdf",
 ] as const;
 
 function validateBase64Image(fileData: string): void {
@@ -44,7 +46,7 @@ function validateBase64Image(fileData: string): void {
   );
   if (!isAllowedType) {
     throw new Error(
-      `Unsupported image type. Allowed formats: ${ALLOWED_MIME_PREFIXES.map(
+      `Unsupported file type. Allowed formats: ${ALLOWED_MIME_PREFIXES.map(
         (p) => p.replace("data:", "").replace(";", "")
       ).join(", ")}.`
     );

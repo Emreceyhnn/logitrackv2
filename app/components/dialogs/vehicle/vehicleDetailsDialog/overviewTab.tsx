@@ -83,377 +83,403 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
           justifyContent={"space-between"}
           alignItems="stretch"
         >
-        <Stack justifyContent={"space-between"} width={"48%"}>
-          {vehicle.photo && (
-            <Card
-              sx={{
-                borderRadius: "12px",
-                overflow: "hidden",
-                bgcolor: (theme) =>
-                  theme.palette.mode === "dark"
-                    ? "rgba(255,255,255,0.02)"
-                    : "rgba(0,0,0,0.01)",
-                backgroundImage: "none",
-                boxShadow: "none",
-                border: `1px solid ${theme.palette.divider}`,
-                position: "relative",
-              }}
-            >
-              <Box
-                component="img"
-                src={vehicle.photo}
-                alt={`${vehicle.brand} ${vehicle.model}`}
+          <Stack justifyContent={"space-between"} width={"48%"}>
+            {vehicle.photo && (
+              <Card
                 sx={{
-                  width: "100%",
-                  height: 160,
-                  objectFit: "cover",
-                  display: "block",
-                }}
-              />
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  p: 1.5,
-                  background:
-                    "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.02)"
+                      : "rgba(0,0,0,0.01)",
+                  backgroundImage: "none",
+                  boxShadow: "none",
+                  border: `1px solid ${theme.palette.divider}`,
+                  position: "relative",
                 }}
               >
-                <Typography
-                  variant="caption"
-                  sx={{ color: "white", fontWeight: 600, opacity: 0.8 }}
-                >
-                  {dict.vehicles.dialogs.preview}
-                </Typography>
-              </Box>
-            </Card>
-          )}
-
-          <Grid container spacing={4}>
-            {/* Fuel Level */}
-            <Grid size={{ xs: 6, md: 6 }}>
-              <Card sx={cardStyle}>
-                <Typography
+                <Box
+                  component="img"
+                  src={vehicle.photo}
+                  alt={`${vehicle.brand} ${vehicle.model}`}
                   sx={{
-                    fontSize: 14,
-                    color: "text.secondary",
-                    fontWeight: 600,
-                    mb: 1,
+                    width: "100%",
+                    height: 160,
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    p: 1.5,
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)",
                   }}
                 >
-                  {dict.vehicles.fields.fuelLevel}
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
                   <Typography
-                    sx={{ fontSize: 22, color: "text.primary", fontWeight: 800 }}
+                    variant="caption"
+                    sx={{ color: "white", fontWeight: 600, opacity: 0.8 }}
                   >
-                    %{vehicle.fuelLevel}
+                    {dict.vehicles.dialogs.preview}
                   </Typography>
-                  {vehicle.fuelCapacity && vehicle.fuelCapacity > 0 && (
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "text.secondary", fontWeight: 600 }}
-                    >
-                      ({Math.round(((vehicle.fuelLevel || 0) / 100) * vehicle.fuelCapacity)}L / {vehicle.fuelCapacity}L)
-                    </Typography>
-                  )}
                 </Box>
-                <Box sx={{ mt: 1, mb: 2 }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={vehicle.fuelLevel ?? 0}
+              </Card>
+            )}
+
+            <Grid container spacing={4}>
+              {/* Fuel Level */}
+              <Grid size={{ xs: 6, md: 6 }}>
+                <Card sx={cardStyle}>
+                  <Typography
                     sx={{
-                      width: "100%",
-                      height: 6,
-                      borderRadius: 3,
-                      bgcolor:
-                        theme.palette.mode === "dark"
-                          ? "rgba(255,255,255,0.1)"
-                          : "rgba(0,0,0,0.1)",
+                      fontSize: 14,
+                      color: "text.secondary",
+                      fontWeight: 600,
+                      mb: 1,
+                    }}
+                  >
+                    {dict.vehicles.fields.fuelLevel}
+                  </Typography>
+                  <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
+                    <Typography
+                      sx={{
+                        fontSize: 22,
+                        color: "text.primary",
+                        fontWeight: 800,
+                      }}
+                    >
+                      %{vehicle.fuelLevel}
+                    </Typography>
+                    {vehicle.fuelCapacity && vehicle.fuelCapacity > 0 && (
+                      <Typography
+                        variant="caption"
+                        sx={{ color: "text.secondary", fontWeight: 600 }}
+                      >
+                        (
+                        {Math.round(
+                          ((vehicle.fuelLevel || 0) / 100) *
+                            vehicle.fuelCapacity
+                        )}
+                        L / {vehicle.fuelCapacity}L)
+                      </Typography>
+                    )}
+                  </Box>
+                  <Box sx={{ mt: 1, mb: 2 }}>
+                    <LinearProgress
+                      variant="determinate"
+                      value={vehicle.fuelLevel ?? 0}
+                      sx={{
+                        width: "100%",
+                        height: 6,
+                        borderRadius: 3,
+                        bgcolor:
+                          theme.palette.mode === "dark"
+                            ? "rgba(255,255,255,0.1)"
+                            : "rgba(0,0,0,0.1)",
+                      }}
+                    />
+                  </Box>
+                  <LocalGasStationIcon
+                    sx={{
+                      fontSize: 20,
+                      marginTop: "auto",
+                      color: "text.secondary",
+                      opacity: 0.5,
                     }}
                   />
-                </Box>
-                <LocalGasStationIcon
-                  sx={{
-                    fontSize: 20,
-                    marginTop: "auto",
-                    color: "text.secondary",
-                    opacity: 0.5,
-                  }}
-                />
-              </Card>
+                </Card>
+              </Grid>
+
+              {/* Odometer */}
+              <Grid size={{ xs: 6, md: 6 }}>
+                <Card sx={cardStyle}>
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      color: "text.secondary",
+                      fontWeight: 600,
+                      mb: 1,
+                    }}
+                  >
+                    {dict.vehicles.fields.odometer}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 22,
+                      color: "text.primary",
+                      fontWeight: 800,
+                    }}
+                  >
+                    {vehicle.odometerKm?.toLocaleString("en-US")} km
+                  </Typography>
+                  <SpeedIcon
+                    sx={{
+                      fontSize: 20,
+                      marginTop: "auto",
+                      color: "text.secondary",
+                      opacity: 0.5,
+                    }}
+                  />
+                </Card>
+              </Grid>
+
+              {/* Service */}
+              <Grid size={{ xs: 6, md: 6 }}>
+                <Card sx={cardStyle}>
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      color: "text.secondary",
+                      fontWeight: 600,
+                      mb: 1,
+                    }}
+                  >
+                    {dict.vehicles.fields.service}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 22,
+                      color: "text.primary",
+                      fontWeight: 800,
+                    }}
+                  >
+                    {vehicle?.nextServiceKm && vehicle?.odometerKm
+                      ? (
+                          vehicle.nextServiceKm - vehicle.odometerKm
+                        ).toLocaleString("en-US")
+                      : dict.common.na}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary", fontWeight: 500 }}
+                  >
+                    {dict.vehicles.dialogs.kmLeft}
+                  </Typography>
+                  <ConstructionIcon
+                    sx={{
+                      fontSize: 20,
+                      marginTop: "auto",
+                      color: "text.secondary",
+                      opacity: 0.5,
+                    }}
+                  />
+                </Card>
+              </Grid>
+
+              {/* Avg Fuel Consumption */}
+              <Grid size={{ xs: 6, md: 6 }}>
+                <Card sx={cardStyle}>
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      color: "text.secondary",
+                      fontWeight: 600,
+                      mb: 1,
+                    }}
+                  >
+                    {dict.vehicles.fields.avgFuelConsumption}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 22,
+                      color: "text.primary",
+                      fontWeight: 800,
+                    }}
+                  >
+                    {vehicle?.avgFuelConsumption?.toLocaleString("en-US")}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.secondary", fontWeight: 500 }}
+                  >
+                    L/100km
+                  </Typography>
+                  <OilBarrelIcon
+                    sx={{
+                      fontSize: 20,
+                      marginTop: "auto",
+                      color: "text.secondary",
+                      opacity: 0.5,
+                    }}
+                  />
+                </Card>
+              </Grid>
             </Grid>
 
-            {/* Odometer */}
-            <Grid size={{ xs: 6, md: 6 }}>
-              <Card sx={cardStyle}>
-                <Typography
-                  sx={{
-                    fontSize: 14,
-                    color: "text.secondary",
-                    fontWeight: 600,
-                    mb: 1,
-                  }}
-                >
-                  {dict.vehicles.fields.odometer}
-                </Typography>
-                <Typography
-                  sx={{ fontSize: 22, color: "text.primary", fontWeight: 800 }}
-                >
-                  {vehicle.odometerKm?.toLocaleString("en-US")} km
-                </Typography>
-                <SpeedIcon
-                  sx={{
-                    fontSize: 20,
-                    marginTop: "auto",
-                    color: "text.secondary",
-                    opacity: 0.5,
-                  }}
-                />
-              </Card>
-            </Grid>
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{
+                mt: 3,
+                borderRadius: "8px",
+                py: 1.5,
+                bgcolor: theme.palette.primary.main,
+                textTransform: "none",
+                fontWeight: 700,
+                fontSize: 15,
+                "&:hover": { bgcolor: theme.palette.primary._alpha.main_90 },
+              }}
+              onClick={() => setAssignDialogOpen(true)}
+            >
+              {vehicle.driver
+                ? dict.drivers.dialogs.editTitle
+                : dict.vehicles.dialogs.assignDriver}
+            </Button>
+          </Stack>
 
-            {/* Service */}
-            <Grid size={{ xs: 6, md: 6 }}>
-              <Card sx={cardStyle}>
-                <Typography
-                  sx={{
-                    fontSize: 14,
-                    color: "text.secondary",
-                    fontWeight: 600,
-                    mb: 1,
-                  }}
-                >
-                  {dict.vehicles.fields.service}
-                </Typography>
-                <Typography
-                  sx={{ fontSize: 22, color: "text.primary", fontWeight: 800 }}
-                >
-                  {vehicle?.nextServiceKm && vehicle?.odometerKm
-                    ? (
-                        vehicle.nextServiceKm - vehicle.odometerKm
-                      ).toLocaleString("en-US")
-                    : dict.common.na}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "text.secondary", fontWeight: 500 }}
-                >
-                  {dict.vehicles.dialogs.kmLeft}
-                </Typography>
-                <ConstructionIcon
-                  sx={{
-                    fontSize: 20,
-                    marginTop: "auto",
-                    color: "text.secondary",
-                    opacity: 0.5,
-                  }}
-                />
-              </Card>
-            </Grid>
-
-            {/* Avg Fuel Consumption */}
-            <Grid size={{ xs: 6, md: 6 }}>
-              <Card sx={cardStyle}>
-                <Typography
-                  sx={{
-                    fontSize: 14,
-                    color: "text.secondary",
-                    fontWeight: 600,
-                    mb: 1,
-                  }}
-                >
-                  {dict.vehicles.fields.avgFuelConsumption}
-                </Typography>
-                <Typography
-                  sx={{ fontSize: 22, color: "text.primary", fontWeight: 800 }}
-                >
-                  {vehicle?.avgFuelConsumption?.toLocaleString("en-US")}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "text.secondary", fontWeight: 500 }}
-                >
-                  L/100km
-                </Typography>
-                <OilBarrelIcon
-                  sx={{
-                    fontSize: 20,
-                    marginTop: "auto",
-                    color: "text.secondary",
-                    opacity: 0.5,
-                  }}
-                />
-              </Card>
-            </Grid>
-          </Grid>
-
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{
-              borderRadius: "8px",
-              py: 1.5,
-              bgcolor: theme.palette.primary.main,
-              textTransform: "none",
-              fontWeight: 700,
-              fontSize: 15,
-              "&:hover": { bgcolor: theme.palette.primary._alpha.main_90 },
-            }}
-            onClick={() => setAssignDialogOpen(true)}
-          >
-            {vehicle.driver
-              ? dict.drivers.dialogs.editTitle
-              : dict.vehicles.dialogs.assignDriver}
-          </Button>
+          <Stack width={"50%"} sx={{ minHeight: 0 }}>
+            <MapVehicleOverviewCard
+              id={vehicle.id}
+              name={vehicle.plate}
+              dbLocation={
+                vehicle.currentLat && vehicle.currentLng
+                  ? { lat: vehicle.currentLat, lng: vehicle.currentLng }
+                  : null
+              }
+            />
+          </Stack>
         </Stack>
 
-        <Stack width={"50%"} sx={{ minHeight: 0 }}>
-          <MapVehicleOverviewCard
-            id={vehicle.id}
-            name={vehicle.plate}
-            dbLocation={
-              vehicle.currentLat && vehicle.currentLng
-                ? { lat: vehicle.currentLat, lng: vehicle.currentLng }
-                : null
-            }
-          />
-        </Stack>
-        </Stack>
-
-      {/* ───────────────────────────────────────────────────────────
+        {/* ───────────────────────────────────────────────────────────
           FUEL LOGS SECTION
       ───────────────────────────────────────────────────────────── */}
-      <Card
-        sx={{
-          borderRadius: "12px",
-          border: `1px solid ${theme.palette.divider}`,
-          bgcolor: "background.paper",
-          backgroundImage: "none",
-          boxShadow: "none",
-          overflow: "hidden",
-        }}
-      >
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
+        <Card
           sx={{
-            p: 2,
-            bgcolor: (theme) =>
-              theme.palette.mode === "dark"
-                ? "rgba(255,255,255,0.02)"
-                : "rgba(0,0,0,0.01)",
+            borderRadius: "12px",
+            border: `1px solid ${theme.palette.divider}`,
+            bgcolor: "background.paper",
+            backgroundImage: "none",
+            boxShadow: "none",
+            overflow: "hidden",
           }}
         >
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            <Box
-              sx={{
-                p: 1,
-                borderRadius: "10px",
-                bgcolor: (theme) =>
-                  theme.palette.mode === "dark"
-                    ? "primary._alpha.main_10"
-                    : "primary._alpha.main_05",
-                color: "primary.main",
-                display: "flex",
-              }}
-            >
-              <LocalGasStationIcon fontSize="small" />
-            </Box>
-            <Box>
-              <Typography variant="subtitle2" fontWeight={800}>
-                {dict.fuel.history}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {dict.fuel.addLogDesc}
-              </Typography>
-            </Box>
-          </Stack>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<AddIcon />}
-            onClick={() => setAddFuelDialogOpen(true)}
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
             sx={{
-              borderRadius: "8px",
-              textTransform: "none",
-              fontWeight: 700,
-              boxShadow: "none",
-              "&:hover": { boxShadow: "none" },
+              p: 2,
+              bgcolor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.02)"
+                  : "rgba(0,0,0,0.01)",
             }}
           >
-            {dict.fuel.addLog}
-          </Button>
-        </Stack>
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Box
+                sx={{
+                  p: 1,
+                  borderRadius: "10px",
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "primary._alpha.main_10"
+                      : "primary._alpha.main_05",
+                  color: "primary.main",
+                  display: "flex",
+                }}
+              >
+                <LocalGasStationIcon fontSize="small" />
+              </Box>
+              <Box>
+                <Typography variant="subtitle2" fontWeight={800}>
+                  {dict.fuel.history}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {dict.fuel.addLogDesc}
+                </Typography>
+              </Box>
+            </Stack>
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={() => setAddFuelDialogOpen(true)}
+              sx={{
+                borderRadius: "8px",
+                textTransform: "none",
+                fontWeight: 700,
+                boxShadow: "none",
+                "&:hover": { boxShadow: "none" },
+              }}
+            >
+              {dict.fuel.addLog}
+            </Button>
+          </Stack>
 
-        <Divider />
+          <Divider />
 
-        <Box sx={{ overflowX: "auto" }}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                  {dict.fuel.fields.date}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                  {dict.fuel.fields.fuelType}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                  {dict.fuel.fields.volume}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                  {dict.fuel.fields.cost}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                  {dict.fuel.fields.odometer}
-                </TableCell>
-                <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                  {dict.fuel.fields.location}
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {fuelHistory.length > 0 ? (
-                fuelHistory.map((log) => (
-                  <TableRow key={log.id} hover>
-                    <TableCell sx={{ py: 1.5 }}>
-                      {dayjs(log.date).format("DD MMM YYYY")}
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {dict.vehicles.fuelTypes[
-                          log.fuelType as keyof typeof dict.vehicles.fuelTypes
-                        ] || log.fuelType}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{log.volumeLiter} L</TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: "primary.main" }}>
-                      {formatFrom(log.cost, log.currency || "USD")}
-                    </TableCell>
-                    <TableCell>{log.odometerKm.toLocaleString("en-US")} km</TableCell>
-                    <TableCell>
-                      <Typography variant="caption" color="text.secondary">
-                        {log.location || "-"}
+          <Box sx={{ overflowX: "auto" }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                    {dict.fuel.fields.date}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                    {dict.fuel.fields.fuelType}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                    {dict.fuel.fields.volume}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                    {dict.fuel.fields.cost}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                    {dict.fuel.fields.odometer}
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
+                    {dict.fuel.fields.location}
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {fuelHistory.length > 0 ? (
+                  fuelHistory.map((log) => (
+                    <TableRow key={log.id} hover>
+                      <TableCell sx={{ py: 1.5 }}>
+                        {dayjs(log.date).format("DD MMM YYYY")}
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {dict.vehicles.fuelTypes[
+                            log.fuelType as keyof typeof dict.vehicles.fuelTypes
+                          ] || log.fuelType}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>{log.volumeLiter} L</TableCell>
+                      <TableCell
+                        sx={{ fontWeight: 700, color: "primary.main" }}
+                      >
+                        {formatFrom(log.cost, log.currency || "USD")}
+                      </TableCell>
+                      <TableCell>
+                        {log.odometerKm.toLocaleString("en-US")} km
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="caption" color="text.secondary">
+                          {log.location || "-"}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {dict.fuel.noLogs}
                       </Typography>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      {dict.fuel.noLogs}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </Box>
-      </Card>
+                )}
+              </TableBody>
+            </Table>
+          </Box>
+        </Card>
       </Stack>
 
       <AssignDriverDialog

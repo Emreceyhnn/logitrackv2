@@ -1,4 +1,3 @@
- 
 import { describe, it, mock } from "node:test";
 import { expect } from "expect";
 import "dotenv/config";
@@ -18,7 +17,8 @@ mock.module("next/headers", {
 
 describe("Testing Supabase Connection & Upload Actions", async () => {
   const { supabase } = await import("./supabase");
-  const { uploadImageAction, getSignedUrlAction } = await import("./actions/upload");
+  const { uploadImageAction, getSignedUrlAction } =
+    await import("./actions/upload");
 
   it("Should properly instantiate the Supabase client", () => {
     expect(supabase).toBeDefined();
@@ -28,15 +28,15 @@ describe("Testing Supabase Connection & Upload Actions", async () => {
 
   describe("uploadImageAction Validation", () => {
     it("Should reject empty file data", async () => {
-      await expect(
-        uploadImageAction("", "general", "test")
-      ).rejects.toThrow("File data is required.");
+      await expect(uploadImageAction("", "general", "test")).rejects.toThrow(
+        "File data is required."
+      );
     });
 
     it("Should reject unsupported image types", async () => {
       await expect(
         uploadImageAction("data:text/plain;base64,dGVzdA==", "general", "test")
-      ).rejects.toThrow(/Unsupported image type/);
+      ).rejects.toThrow(/Unsupported file type/);
     });
 
     it("Should reject oversized images", async () => {
@@ -55,4 +55,3 @@ describe("Testing Supabase Connection & Upload Actions", async () => {
     });
   });
 });
-
