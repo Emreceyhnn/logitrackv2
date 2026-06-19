@@ -1,6 +1,14 @@
 "use client";
 
-import { Box, Grid, Stack, Typography, useTheme, Button, IconButton } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Stack,
+  Typography,
+  useTheme,
+  Button,
+  IconButton,
+} from "@mui/material";
 import { useFormikContext } from "formik";
 import { RouteFormValues } from "@/app/lib/type/routes";
 import ExploreIcon from "@mui/icons-material/Explore";
@@ -9,33 +17,27 @@ import CloseIcon from "@mui/icons-material/Close";
 import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useMemo } from "react";
-import { DirectionsMap } from "@/app/components/googleMaps/DirectionsMap";
-
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { RouteMap } from "@/app/components/googleMaps/RouteMap";
 
 const SecondRouteDialogStep = () => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const dict = useDictionary();
-  const { values, setFieldValue, touched, errors } = useFormikContext<RouteFormValues>();
+  const { values, setFieldValue, touched, errors } =
+    useFormikContext<RouteFormValues>();
 
   /* ------------------------------- constant ------------------------------- */
-  const origin = useMemo(
-    () => (values.startLat && values.startLng ? { lat: values.startLat, lng: values.startLng } : values.startAddress),
-    [values.startLat, values.startLng, values.startAddress]
-  );
-  const destination = useMemo(
-    () => (values.endLat && values.endLng ? { lat: values.endLat, lng: values.endLng } : values.endAddress),
-    [values.endLat, values.endLng, values.endAddress]
-  );
-  
-  const mapWaypoints = useMemo(() => {
-    return values.waypoints
-      ?.filter((wp) => wp.address || (wp.lat && wp.lng))
-      .map((wp) => ({
-        location: wp.lat && wp.lng ? { lat: wp.lat, lng: wp.lng } : wp.address,
-        stopover: true,
-      }));
+
+  const stops = useMemo(() => {
+    return values.waypoints?.map((waypoint, index) => {
+      return {
+        address: waypoint.address,
+        lat: waypoint.lat,
+        lng: waypoint.lng,
+        stopOrder: index + 1,
+      };
+    });
   }, [values.waypoints]);
 
   return (
@@ -103,7 +105,11 @@ const SecondRouteDialogStep = () => {
                       setFieldValue("startAddress", formattedAddress);
                     }}
                     error={touched.startAddress && Boolean(errors.startAddress)}
-                    helperText={touched.startAddress ? (errors.startAddress as string) : undefined}
+                    helperText={
+                      touched.startAddress
+                        ? (errors.startAddress as string)
+                        : undefined
+                    }
                   />
                 </Stack>
 
@@ -111,7 +117,11 @@ const SecondRouteDialogStep = () => {
                 <Stack spacing={2}>
                   {values.waypoints?.map((waypoint, index) => (
                     <Stack spacing={1} key={index}>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
                         <Typography
                           variant="body2"
                           component="div"
@@ -143,7 +153,15 @@ const SecondRouteDialogStep = () => {
                       </Stack>
                       <AddressAutocomplete
                         value={waypoint.address}
-                        onAddressSelect={({ lat, lng, formattedAddress }: { lat: number; lng: number; formattedAddress: string }) => {
+                        onAddressSelect={({
+                          lat,
+                          lng,
+                          formattedAddress,
+                        }: {
+                          lat: number;
+                          lng: number;
+                          formattedAddress: string;
+                        }) => {
                           setFieldValue(`waypoints[${index}]`, {
                             address: formattedAddress,
                             lat,
@@ -164,7 +182,10 @@ const SecondRouteDialogStep = () => {
                         { address: "", lat: 0, lng: 0 },
                       ]);
                     }}
-                    sx={{ alignSelf: "flex-start", mt: values.waypoints?.length ? 0 : 1 }}
+                    sx={{
+                      alignSelf: "flex-start",
+                      mt: values.waypoints?.length ? 0 : 1,
+                    }}
                   >
                     + Add Stop
                   </Button>
@@ -204,7 +225,11 @@ const SecondRouteDialogStep = () => {
                       setFieldValue("endAddress", formattedAddress);
                     }}
                     error={touched.endAddress && Boolean(errors.endAddress)}
-                    helperText={touched.endAddress ? (errors.endAddress as string) : undefined}
+                    helperText={
+                      touched.endAddress
+                        ? (errors.endAddress as string)
+                        : undefined
+                    }
                   />
                 </Stack>
 
@@ -225,8 +250,15 @@ const SecondRouteDialogStep = () => {
                     >
                       {dict.routes.dialogs.distanceKmLabel}
                     </Typography>
-                    <Typography component="div" variant="h6" fontWeight={700} color="white">
-                      {values.distanceKm > 0 ? values.distanceKm.toFixed(1) : "--"}
+                    <Typography
+                      component="div"
+                      variant="h6"
+                      fontWeight={700}
+                      color="white"
+                    >
+                      {values.distanceKm > 0
+                        ? values.distanceKm.toFixed(1)
+                        : "--"}
                     </Typography>
                   </Box>
                   <Box
@@ -245,7 +277,12 @@ const SecondRouteDialogStep = () => {
                     >
                       {dict.routes.dialogs.durationMinLabel}
                     </Typography>
-                    <Typography component="div" variant="h6" fontWeight={700} color="white">
+                    <Typography
+                      component="div"
+                      variant="h6"
+                      fontWeight={700}
+                      color="white"
+                    >
                       {values.durationMin > 0 ? values.durationMin : "--"}
                     </Typography>
                   </Box>
@@ -294,15 +331,16 @@ const SecondRouteDialogStep = () => {
                   border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                 }}
               >
-                <DirectionsMap
-                  origin={origin}
-                  destination={destination}
-                  waypoints={mapWaypoints}
-                  vehicleLocation={null}
-                  onRouteInfoUpdate={(data: { distanceKm?: number; durationMin?: number }) => {
-                    if (data.distanceKm !== undefined) setFieldValue("distanceKm", data.distanceKm);
-                    if (data.durationMin !== undefined) setFieldValue("durationMin", data.durationMin);
+                <RouteMap
+                  origin={{
+                    lat: stops?.[0]?.lat ?? 0,
+                    lng: stops?.[0]?.lng ?? 0,
                   }}
+                  destination={{
+                    lat: stops?.[stops.length - 1]?.lat ?? 0,
+                    lng: stops?.[stops.length - 1]?.lng ?? 0,
+                  }}
+                  stops={stops?.map(s => ({lat: s.lat ?? 0, lng: s.lng ?? 0}))}
                 />
               </Box>
             </Grid>

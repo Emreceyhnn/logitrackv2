@@ -1,11 +1,14 @@
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { Box, Typography } from "@mui/material";
-import { DirectionsMap } from "../../googleMaps/DirectionsMap";
+import { RouteMap } from "../../googleMaps/RouteMap";
 
 interface MapRoutesDialogCardProps {
   origin?: string | { lat: number; lng: number };
   destination?: string | { lat: number; lng: number };
-  waypoints?: Array<{ location: string | { lat: number; lng: number }; stopover?: boolean }>;
+  waypoints?: Array<{
+    location: string | { lat: number; lng: number };
+    stopover?: boolean;
+  }>;
   addrA?: string;
   addrB?: string;
   vehicleLocation?: {
@@ -30,7 +33,6 @@ const MapRoutesDialogCard = ({
   addrA,
   addrB,
   vehicleLocation,
-  onRouteInfoUpdate,
 }: MapRoutesDialogCardProps) => {
   const dict = useDictionary();
   const isRoute = !!((origin || addrA) && (destination || addrB));
@@ -38,12 +40,40 @@ const MapRoutesDialogCard = ({
   return (
     <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
       <GoogleMapsProvider>
-        <DirectionsMap
-          origin={origin}
-          destination={destination}
-          waypoints={waypoints}
-          vehicleLocation={vehicleLocation}
-          onRouteInfoUpdate={onRouteInfoUpdate}
+        <RouteMap
+          origin={
+            typeof origin === "object" && origin !== null && "lat" in origin
+              ? origin
+              : { lat: 0, lng: 0 }
+          }
+          destination={
+            typeof destination === "object" &&
+            destination !== null &&
+            "lat" in destination
+              ? destination
+              : { lat: 0, lng: 0 }
+          }
+          stops={waypoints
+            ?.map((w) => w.location)
+            .filter(
+              (loc): loc is { lat: number; lng: number } =>
+                typeof loc === "object" && loc !== null && "lat" in loc
+            )}
+          markers={
+            vehicleLocation
+              ? [
+                  {
+                    id: vehicleLocation.id,
+                    position: {
+                      lat: vehicleLocation.lat,
+                      lng: vehicleLocation.lng,
+                    },
+                    type: "vehicle",
+                    label: vehicleLocation.name,
+                  },
+                ]
+              : []
+          }
         />
       </GoogleMapsProvider>
 
@@ -57,7 +87,8 @@ const MapRoutesDialogCard = ({
           px: 1.5,
           py: 0.75,
           borderRadius: "8px",
-          border: (theme) => `1px solid ${theme.palette.common.white_alpha.main_10}`,
+          border: (theme) =>
+            `1px solid ${theme.palette.common.white_alpha.main_10}`,
           zIndex: 1,
         }}
       >

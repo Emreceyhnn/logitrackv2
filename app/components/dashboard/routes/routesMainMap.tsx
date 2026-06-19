@@ -20,6 +20,7 @@ const RoutesMainMap = ({ mapData, loading }: RoutesMainMapProps) => {
       if (d.type === "V") markerType = "vehicle";
 
       return {
+        id: d.id,
         position: d.position,
         label: d.name,
         type: markerType,

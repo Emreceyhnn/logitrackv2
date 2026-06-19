@@ -125,7 +125,8 @@ export default function CustomerContent() {
 
       return c.locations
         .filter((loc) => loc.lat != null && loc.lng != null)
-        .map((loc) => ({
+        .map((loc, idx) => ({
+          id: `${c.id}-${idx}`,
           position: {
             lat: Number(loc.lat),
             lng: Number(loc.lng),

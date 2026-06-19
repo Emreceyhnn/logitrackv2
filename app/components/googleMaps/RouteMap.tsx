@@ -36,6 +36,12 @@ const containerStyle = {
   borderRadius: "12px",
 };
 
+const polylineOptions = {
+  strokeColor: "#3B82F6",
+  strokeOpacity: 0.8,
+  strokeWeight: 6,
+};
+
 /* ------------------------------- ADVANCED MARKER ------------------------------- */
 
 const AdvancedMarker = ({
@@ -295,16 +301,12 @@ export const RouteMap = ({
         center={mapCenter}
         zoom={12}
         options={mapOptions}
-        onLoad={(map) => setMapInstance(map)}
+        onLoad={setMapInstance}
       >
         {routePath.length > 0 && (
           <PolylineF
             path={routePath}
-            options={{
-              strokeColor: "#3B82F6",
-              strokeOpacity: 0.8,
-              strokeWeight: 6,
-            }}
+            options={polylineOptions}
           />
         )}
 
