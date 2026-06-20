@@ -6,7 +6,7 @@ const withBundleAnalyzer = createBundleAnalyzer({
 });
 
 const nextConfig: NextConfig = {
-  // output: "standalone",
+  output: "standalone",
 
   // ── Security & Transport ────────────────────────────────────────────────
   poweredByHeader: false, // Remove X-Powered-By header (security)
