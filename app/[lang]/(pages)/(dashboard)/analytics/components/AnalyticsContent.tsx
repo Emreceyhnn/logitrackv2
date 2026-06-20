@@ -2,9 +2,11 @@
 
 import { Box, Skeleton, Stack } from "@mui/material";
 import AnalyticsHeader from "@/app/components/dashboard/analytics/AnalyticsHeader";
-import PerformanceGauges from "@/app/components/dashboard/analytics/PerformanceGauges";
-import CostAnalysisCharts from "@/app/components/dashboard/analytics/CostAnalysisCharts";
-import ForecastingWidget from "@/app/components/dashboard/analytics/ForecastingWidget";
+import dynamic from "next/dynamic";
+
+const PerformanceGauges = dynamic(() => import("@/app/components/dashboard/analytics/PerformanceGauges"), { ssr: false });
+const CostAnalysisCharts = dynamic(() => import("@/app/components/dashboard/analytics/CostAnalysisCharts"), { ssr: false });
+const ForecastingWidget = dynamic(() => import("@/app/components/dashboard/analytics/ForecastingWidget"), { ssr: false });
 import { useAnalyticsData } from "@/app/hooks/useAnalytics";
 
 export default function AnalyticsContent() {

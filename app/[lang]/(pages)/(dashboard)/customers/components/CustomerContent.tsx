@@ -13,15 +13,15 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import {
-  MapWithMarker,
-  MarkerData,
-} from "@/app/components/googleMaps/MapWithMarker";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
-import CustomerDetailDialog from "@/app/components/dialogs/customer/customerDetailDialog";
-import EditCustomerDialog from "@/app/components/dialogs/customer/editCustomerDialog";
-import AddCustomerDialog from "@/app/components/dialogs/customer/addCustomerDialog";
-import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
+import { type MarkerData } from "@/app/components/googleMaps/MapWithMarker";
+import dynamic from "next/dynamic";
+
+const MapWithMarker = dynamic(() => import("@/app/components/googleMaps/MapWithMarker").then((m) => m.MapWithMarker), { ssr: false });
+const GoogleMapsProvider = dynamic(() => import("@/app/components/googleMaps/GoogleMapsProvider").then((m) => m.GoogleMapsProvider), { ssr: false });
+const CustomerDetailDialog = dynamic(() => import("@/app/components/dialogs/customer/customerDetailDialog"), { ssr: false });
+const EditCustomerDialog = dynamic(() => import("@/app/components/dialogs/customer/editCustomerDialog"), { ssr: false });
+const AddCustomerDialog = dynamic(() => import("@/app/components/dialogs/customer/addCustomerDialog"), { ssr: false });
+const DeleteConfirmationDialog = dynamic(() => import("@/app/components/dialogs/deleteConfirmationDialog"), { ssr: false });
 import CustomerList from "@/app/components/dashboard/customer/CustomerList";
 import { useState, useMemo } from "react";
 import {

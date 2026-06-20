@@ -17,7 +17,7 @@ import {
   TRAILER_CACHE_TTL,
 } from "../redis";
 import { TrailerFilters } from "../type/trailer";
-import { trailerSchema } from "../validationSchema";
+import { trailerSchema } from "../serverSchemas";
 
 // ── Cache invalidation helper ─────────────────────────────────────────────────
 async function invalidateTrailerCache(

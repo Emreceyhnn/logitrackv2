@@ -10,7 +10,7 @@ import {
   IssuePriority,
   IssueType,
 } from "@prisma/client";
-import { vehicleSchema } from "../validationSchema";
+import { vehicleSchema } from "../serverSchemas";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";

@@ -13,13 +13,48 @@ import {
 } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
 import DailyOperationsCard from "@/app/components/dashboard/overview/dailyOperations";
-import FuelByVehicleCard from "@/app/components/dashboard/overview/fuelByVehicleCard";
-import WarehouseCapacityCard from "@/app/components/dashboard/overview/warehouseCapacityCard";
-import AlertInventoryCard from "@/app/components/dashboard/overview/inventoryCard";
-import ShipmentOnStatusCard from "@/app/components/dashboard/overview/shipmentsByStatusCard";
-import PicksPacksDailyCard from "@/app/components/dashboard/overview/picsPacksDailyCard";
-import ShipmentVolumeCard from "@/app/components/dashboard/overview/onTimeTrends";
-import OverviewMapCard from "@/app/components/dashboard/overview/overViewMapCard";
+import dynamic from "next/dynamic";
+
+const FuelByVehicleCard = dynamic(
+  () => import("@/app/components/dashboard/overview/fuelByVehicleCard"),
+  {
+    ssr: false,
+    loading: () => <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 2 }} />
+  }
+);
+const WarehouseCapacityCard = dynamic(
+  () => import("@/app/components/dashboard/overview/warehouseCapacityCard"),
+  { ssr: false }
+);
+const AlertInventoryCard = dynamic(
+  () => import("@/app/components/dashboard/overview/inventoryCard"),
+  { ssr: false }
+);
+const ShipmentOnStatusCard = dynamic(
+  () => import("@/app/components/dashboard/overview/shipmentsByStatusCard"),
+  {
+    ssr: false,
+    loading: () => <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 2 }} />
+  }
+);
+const PicksPacksDailyCard = dynamic(
+  () => import("@/app/components/dashboard/overview/picsPacksDailyCard"),
+  { ssr: false }
+);
+const ShipmentVolumeCard = dynamic(
+  () => import("@/app/components/dashboard/overview/onTimeTrends"),
+  {
+    ssr: false,
+    loading: () => <Skeleton variant="rectangular" height={380} sx={{ borderRadius: 2 }} />
+  }
+);
+const OverviewMapCard = dynamic(
+  () => import("@/app/components/dashboard/overview/overViewMapCard"),
+  {
+    ssr: false,
+    loading: () => <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 2 }} />
+  }
+);
 import { useState, useMemo, useEffect } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import RefreshIcon from "@mui/icons-material/Refresh";

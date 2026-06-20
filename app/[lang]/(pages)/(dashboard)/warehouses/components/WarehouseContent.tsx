@@ -15,12 +15,22 @@ import {
   useWarehousesWithDashboard,
   useWarehouseMutations,
 } from "@/app/hooks/useWarehouses";
-import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseDialog";
-import WarehouseDetailsDialog from "@/app/components/dialogs/warehouse/warehouseDetailsDialog";
-import EditWarehouseDialog from "@/app/components/dialogs/warehouse/editWarehouseDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useTheme } from "@mui/material";
+import dynamic from "next/dynamic";
+
+const AddWarehouseDialog = dynamic(
+  () => import("@/app/components/dialogs/warehouse/addWarehouseDialog"),
+  { ssr: false }
+);
+const WarehouseDetailsDialog = dynamic(
+  () => import("@/app/components/dialogs/warehouse/warehouseDetailsDialog"),
+  { ssr: false }
+);
+const EditWarehouseDialog = dynamic(
+  () => import("@/app/components/dialogs/warehouse/editWarehouseDialog"),
+  { ssr: false }
+);
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import {
@@ -212,45 +222,43 @@ export default function WarehouseContent() {
         <RecentStockMovements movements={recentMovements} loading={loading} />
       </Stack>
 
-      <GoogleMapsProvider>
-        <AddWarehouseDialog
-          open={addDialogOpen}
-          onClose={() => setAddDialogOpen(false)}
-          onSuccess={refreshAll}
-        />
+      <AddWarehouseDialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        onSuccess={refreshAll}
+      />
 
-        <WarehouseDetailsDialog
-          open={detailsDialogOpen}
-          onClose={() => {
-            setDetailsDialogOpen(false);
-            actions.selectWarehouse(null);
-          }}
-          onEditSuccess={refreshAll}
-          warehouseData={
-            warehouses.find(
-              (w: WarehouseWithRelations) => w.id === selectedWarehouseId
-            ) || undefined
-          }
-        />
+      <WarehouseDetailsDialog
+        open={detailsDialogOpen}
+        onClose={() => {
+          setDetailsDialogOpen(false);
+          actions.selectWarehouse(null);
+        }}
+        onEditSuccess={refreshAll}
+        warehouseData={
+          warehouses.find(
+            (w: WarehouseWithRelations) => w.id === selectedWarehouseId
+          ) || undefined
+        }
+      />
 
-        <EditWarehouseDialog
-          open={editDialogOpen}
-          onClose={() => {
-            setEditDialogOpen(false);
-            setWarehouseToEditId(null);
-          }}
-          onSuccess={() => {
-            setEditDialogOpen(false);
-            setWarehouseToEditId(null);
-            actions.refreshAll();
-          }}
-          warehouseData={
-            warehouses.find(
-              (w: WarehouseWithRelations) => w.id === warehouseToEditId
-            ) || undefined
-          }
-        />
-      </GoogleMapsProvider>
+      <EditWarehouseDialog
+        open={editDialogOpen}
+        onClose={() => {
+          setEditDialogOpen(false);
+          setWarehouseToEditId(null);
+        }}
+        onSuccess={() => {
+          setEditDialogOpen(false);
+          setWarehouseToEditId(null);
+          actions.refreshAll();
+        }}
+        warehouseData={
+          warehouses.find(
+            (w: WarehouseWithRelations) => w.id === warehouseToEditId
+          ) || undefined
+        }
+      />
 
       <DeleteConfirmationDialog
         open={deleteDialogOpen}

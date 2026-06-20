@@ -13,10 +13,12 @@ import {
 } from "@/app/hooks/useInventory";
 import { useTableParams } from "@/app/hooks/useTableParams";
 import { InventoryWithRelations } from "@/app/lib/type/inventory";
-import InventoryDetailsDialog from "@/app/components/dialogs/inventory/InventoryDetailsDialog";
-import InventoryEditDialog from "@/app/components/dialogs/inventory/InventoryEditDialog";
-import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import AddInventoryDialog from "@/app/components/dialogs/inventory/addInventoryDialog";
+import dynamic from "next/dynamic";
+
+const InventoryDetailsDialog = dynamic(() => import("@/app/components/dialogs/inventory/InventoryDetailsDialog"), { ssr: false });
+const InventoryEditDialog = dynamic(() => import("@/app/components/dialogs/inventory/InventoryEditDialog"), { ssr: false });
+const DeleteConfirmationDialog = dynamic(() => import("@/app/components/dialogs/deleteConfirmationDialog"), { ssr: false });
+const AddInventoryDialog = dynamic(() => import("@/app/components/dialogs/inventory/addInventoryDialog"), { ssr: false });
 import {
   Inventory as InventoryIcon,
   Warning,

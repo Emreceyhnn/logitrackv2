@@ -6,9 +6,11 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import InventoryIcon from "@mui/icons-material/Inventory";
 
-import ShipmentCharts from "@/app/components/dashboard/reports/ShipmentCharts";
-import FleetCharts from "@/app/components/dashboard/reports/FleetCharts";
-import InventoryCharts from "@/app/components/dashboard/reports/InventoryCharts";
+import dynamic from "next/dynamic";
+
+const ShipmentCharts = dynamic(() => import("@/app/components/dashboard/reports/ShipmentCharts"), { ssr: false });
+const FleetCharts = dynamic(() => import("@/app/components/dashboard/reports/FleetCharts"), { ssr: false });
+const InventoryCharts = dynamic(() => import("@/app/components/dashboard/reports/InventoryCharts"), { ssr: false });
 import ReportSummaryCards from "@/app/components/dashboard/reports/ReportSummaryCards";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useReportsData } from "@/app/hooks/useReports";

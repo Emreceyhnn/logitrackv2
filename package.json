@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "analyze": "cross-env ANALYZE=true npm run build",
+    "analyze": "cross-env ANALYZE=true next build --webpack",
     "dev": "next dev",
     "build": "prisma generate && next build && eslint",
     "start": "dotenv -e .env -- node .next/standalone/server.js",

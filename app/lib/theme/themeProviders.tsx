@@ -5,7 +5,7 @@ import "dayjs/locale/en";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import { useMemo, useState, useEffect, useCallback, useRef, type MutableRefObject } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -86,6 +86,7 @@ export default function Providers({
   }, [initialMode]);
 
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const systemMqCleanupRef: MutableRefObject<(() => void) | null> = useRef(null);
 
   const setMode = useCallback((newMode: ThemeMode | "system") => {
     // Skip if the value in localStorage is already the same (prevents duplicate calls)
@@ -115,12 +116,19 @@ export default function Providers({
     const resolved = resolveMode(newMode as StoredMode);
     setModeState(resolved);
 
+    // Clean up previous system-mode listener before adding a new one
+    if (systemMqCleanupRef.current) {
+      systemMqCleanupRef.current();
+      systemMqCleanupRef.current = null;
+    }
+
     // If switching to system, start listening
     if (newMode === "system" && typeof window !== "undefined") {
       const mq = window.matchMedia("(prefers-color-scheme: dark)");
       const handler = (e: MediaQueryListEvent) =>
         setModeState(e.matches ? "dark" : "light");
       mq.addEventListener("change", handler);
+      systemMqCleanupRef.current = () => mq.removeEventListener("change", handler);
     }
   }, []);
 

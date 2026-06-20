@@ -15,7 +15,9 @@ import {
 } from "@/app/hooks/useCompany";
 import CompanyInfoCard from "@/app/components/dashboard/company/companyInfoCard";
 import CompanyMembersTable from "@/app/components/dashboard/company/companyMembersTable";
-import AddCompanyMemberDialog from "@/app/components/dialogs/company/AddCompanyMemberDialog";
+import dynamic from "next/dynamic";
+
+const AddCompanyMemberDialog = dynamic(() => import("@/app/components/dialogs/company/AddCompanyMemberDialog"), { ssr: false });
 import {
   People,
   DirectionsCar,

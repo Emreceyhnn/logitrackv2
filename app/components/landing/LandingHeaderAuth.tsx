@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button, Stack, CircularProgress, useTheme } from "@mui/material";
 import Link from "next/link";
 import { getUserSession } from "@/app/lib/actions/auth";
-import CreateCompanyDialog from "../dialogs/company/CreateCompanyDialog";
+import dynamic from "next/dynamic";
+
+const CreateCompanyDialog = dynamic(() => import("../dialogs/company/CreateCompanyDialog"), { ssr: false });
 import UserAccountNav from "../nav/UserAccountNav";
 import { useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -26,7 +28,8 @@ export default function LandingHeaderAuth() {
   const [openCompanyModal, setOpenCompanyModal] = useState(false);
 
   /* --------------------------------- ACTIONS -------------------------------- */
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
+    await Promise.resolve();
     setLoading(true);
     try {
       const session = await getUserSession();
@@ -36,12 +39,12 @@ export default function LandingHeaderAuth() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
   /* -------------------------------- LIFECYCLE ------------------------------- */
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     checkAuth();
-  }, []);
+  }, [checkAuth]);
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleSuccess = () => {

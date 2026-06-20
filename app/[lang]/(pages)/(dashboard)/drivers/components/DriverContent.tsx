@@ -25,10 +25,12 @@ import {
 import DriverTable from "@/app/components/dashboard/driver/driverTable";
 import DriverPerformanceCharts from "@/app/components/dashboard/driver/driverPerformanceCharts";
 
-import DriverDialog from "@/app/components/dialogs/driver";
-import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";
-import EditDriverDialog from "@/app/components/dialogs/driver/editDriverDialog";
-import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
+import dynamic from "next/dynamic";
+
+const DriverDialog = dynamic(() => import("@/app/components/dialogs/driver"), { ssr: false });
+const AddDriverDialog = dynamic(() => import("@/app/components/dialogs/driver/addDriverDialog"), { ssr: false });
+const EditDriverDialog = dynamic(() => import("@/app/components/dialogs/driver/editDriverDialog"), { ssr: false });
+const DeleteConfirmationDialog = dynamic(() => import("@/app/components/dialogs/deleteConfirmationDialog"), { ssr: false });
 import KpiCards from "@/app/components/cards/KpiCards";
 
 export default function DriverContentPage() {
