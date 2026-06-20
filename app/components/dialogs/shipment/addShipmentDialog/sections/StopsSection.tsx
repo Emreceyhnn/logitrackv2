@@ -10,7 +10,10 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { FieldArray, useFormikContext } from "formik";
-import { ShipmentFormValues, ShipmentStopWithRelations } from "@/app/lib/type/shipment";
+import {
+  ShipmentFormValues,
+  ShipmentStopWithRelations,
+} from "@/app/lib/type/shipment";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
@@ -77,7 +80,10 @@ const StopItem = ({
         }}
       >
         <Grid container spacing={2} alignItems="flex-start">
-          <Grid size={{ xs: 0.5 }} sx={{ display: "flex", alignItems: "center", pt: 1 }}>
+          <Grid
+            size={{ xs: 0.5 }}
+            sx={{ display: "flex", alignItems: "center", pt: 1 }}
+          >
             <Box
               onPointerDown={(e) => controls.start(e)}
               sx={{
@@ -94,7 +100,11 @@ const StopItem = ({
 
           <Grid size={{ xs: 11.5 }}>
             <Stack spacing={2}>
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Box
                     sx={{
@@ -122,7 +132,9 @@ const StopItem = ({
                   onClick={() => remove(index)}
                   sx={{
                     bgcolor: (theme) => theme.palette.error._alpha.main_10,
-                    "&:hover": { bgcolor: (theme) => theme.palette.error._alpha.main_20 },
+                    "&:hover": {
+                      bgcolor: (theme) => theme.palette.error._alpha.main_20,
+                    },
                   }}
                 >
                   <DeleteOutlineIcon fontSize="small" />
@@ -132,7 +144,11 @@ const StopItem = ({
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, md: 3 }}>
                   <Stack spacing={0.5}>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      fontWeight={600}
+                    >
                       {dict.shipments.dialogs.fields.customerClient}
                     </Typography>
                     <CustomTextArea
@@ -141,15 +157,34 @@ const StopItem = ({
                       value={stop.customerId || ""}
                       onChange={(e) => {
                         const customerId = e.target.value;
-                        const customer = customers.find((c) => c.id === customerId);
-                        const defaultLoc = customer?.locations?.find((l) => l.isDefault) || customer?.locations?.[0];
+                        const customer = customers.find(
+                          (c) => c.id === customerId
+                        );
+                        const defaultLoc =
+                          customer?.locations?.find((l) => l.isDefault) ||
+                          customer?.locations?.[0];
 
                         setFieldValue(`stops[${index}].customerId`, customerId);
-                        setFieldValue(`stops[${index}].customerLocationId`, defaultLoc?.id || "");
-                        setFieldValue(`stops[${index}].address`, defaultLoc?.address || "");
-                        setFieldValue(`stops[${index}].contactEmail`, customer?.email || "");
-                        setFieldValue(`stops[${index}].lat`, defaultLoc?.lat || null);
-                        setFieldValue(`stops[${index}].lng`, defaultLoc?.lng || null);
+                        setFieldValue(
+                          `stops[${index}].customerLocationId`,
+                          defaultLoc?.id || ""
+                        );
+                        setFieldValue(
+                          `stops[${index}].address`,
+                          defaultLoc?.address || ""
+                        );
+                        setFieldValue(
+                          `stops[${index}].contactEmail`,
+                          customer?.email || ""
+                        );
+                        setFieldValue(
+                          `stops[${index}].lat`,
+                          defaultLoc?.lat || null
+                        );
+                        setFieldValue(
+                          `stops[${index}].lng`,
+                          defaultLoc?.lng || null
+                        );
 
                         if (isLast) {
                           const updatedStops = [...values.stops];
@@ -166,12 +201,20 @@ const StopItem = ({
                       }}
                     >
                       <MenuItem value="">
-                        <Typography variant="body2" color="text.secondary">Manual Entry</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Manual Entry
+                        </Typography>
                       </MenuItem>
                       {customers.map((c) => (
                         <MenuItem key={c.id} value={c.id}>
-                          <Stack direction="row" spacing={1} alignItems="center">
-                            <PersonIcon sx={{ fontSize: 16, color: "text.secondary" }} />
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                          >
+                            <PersonIcon
+                              sx={{ fontSize: 16, color: "text.secondary" }}
+                            />
                             <Typography variant="body2">{c.name}</Typography>
                           </Stack>
                         </MenuItem>
@@ -182,8 +225,13 @@ const StopItem = ({
 
                 <Grid size={{ xs: 12, md: 3 }}>
                   <Stack spacing={0.5}>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                      {dict.shipments.dialogs.fields.deliveryLocation || "LOCATION"}
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      fontWeight={600}
+                    >
+                      {dict.shipments.dialogs.fields.deliveryLocation ||
+                        "LOCATION"}
                     </Typography>
                     <CustomTextArea
                       name={`stops[${index}].customerLocationId`}
@@ -192,9 +240,14 @@ const StopItem = ({
                       value={stop.customerLocationId || ""}
                       onChange={(e) => {
                         const locId = e.target.value;
-                        const loc = selectedCustomer?.locations?.find((l) => l.id === locId);
+                        const loc = selectedCustomer?.locations?.find(
+                          (l) => l.id === locId
+                        );
                         if (loc) {
-                          setFieldValue(`stops[${index}].customerLocationId`, locId);
+                          setFieldValue(
+                            `stops[${index}].customerLocationId`,
+                            locId
+                          );
                           setFieldValue(`stops[${index}].address`, loc.address);
                           setFieldValue(`stops[${index}].lat`, loc.lat || null);
                           setFieldValue(`stops[${index}].lng`, loc.lng || null);
@@ -232,16 +285,27 @@ const StopItem = ({
 
                 <Grid size={{ xs: 12, md: 3 }}>
                   <Stack spacing={0.5}>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      fontWeight={600}
+                    >
                       {dict.shipments.dialogs.fields.destination}
                     </Typography>
                     <AddressAutocomplete
-                      placeholder={dict.shipments.dialogs.fields.destinationPlaceholder}
+                      placeholder={
+                        dict.shipments.dialogs.fields.destinationPlaceholder
+                      }
                       name={`stops[${index}].address`}
                       value={stop.address}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFieldValue(`stops[${index}].address`, e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setFieldValue(`stops[${index}].address`, e.target.value)
+                      }
                       onAddressSelect={(data: AddressData) => {
-                        setFieldValue(`stops[${index}].address`, data.formattedAddress);
+                        setFieldValue(
+                          `stops[${index}].address`,
+                          data.formattedAddress
+                        );
                         setFieldValue(`stops[${index}].lat`, data.lat);
                         setFieldValue(`stops[${index}].lng`, data.lng);
 
@@ -262,14 +326,24 @@ const StopItem = ({
 
                 <Grid size={{ xs: 12, md: 3 }}>
                   <Stack spacing={0.5}>
-                    <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                      {dict.shipments.dialogs.fields.contactEmail || "CONTACT EMAIL"}
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      fontWeight={600}
+                    >
+                      {dict.shipments.dialogs.fields.contactEmail ||
+                        "CONTACT EMAIL"}
                     </Typography>
                     <CustomTextArea
                       name={`stops[${index}].contactEmail`}
                       placeholder="john@example.com"
                       value={stop.contactEmail || ""}
-                      onChange={(e) => setFieldValue(`stops[${index}].contactEmail`, e.target.value)}
+                      onChange={(e) =>
+                        setFieldValue(
+                          `stops[${index}].contactEmail`,
+                          e.target.value
+                        )
+                      }
                     />
                   </Stack>
                 </Grid>
@@ -300,7 +374,7 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
   const syncTopLevelFields = (currentStops: ShipmentStopWithRelations[]) => {
     if (currentStops.length > 0) {
       const lastStop = currentStops[currentStops.length - 1];
-      
+
       // Atomic updates via setValues or sequential setFieldValue
       // We use setFieldValue here for consistency with the rest of the form
       setFieldValue("destination", lastStop.address);
@@ -318,14 +392,17 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
   };
 
   const handleReorder = (newStops: ShipmentStopWithRelations[]) => {
-    const updatedStops = newStops.map((stop, idx) => ({ ...stop, sequence: idx }));
+    const updatedStops = newStops.map((stop, idx) => ({
+      ...stop,
+      sequence: idx,
+    }));
     setFieldValue("stops", updatedStops);
     syncTopLevelFields(updatedStops);
   };
 
   const addStop = (data: typeof entryData) => {
     if (!data.address) return;
-    
+
     const newStop: ShipmentStopWithRelations = {
       id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       customerId: data.customerId || null,
@@ -353,11 +430,13 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
   };
 
   return (
-    <Box>
+    <Box
+      sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}
+    >
       <FieldArray name="stops">
         {(fieldArrayProps) => {
           const { remove: formikRemove } = fieldArrayProps;
-          
+
           const handleRemove = (index: number) => {
             const newList = values.stops.filter((_, i) => i !== index);
             formikRemove(index);
@@ -365,146 +444,214 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
           };
 
           return (
-            <Stack spacing={3} sx={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
-            <Box
+            <Stack
+              spacing={3}
               sx={{
-                p: 2.5,
-                borderRadius: 4,
-                bgcolor: (theme) =>
-                  theme.palette.mode === "dark"
-                    ? "rgba(255, 255, 255, 0.03)"
-                    : "rgba(0, 0, 0, 0.02)",
-                border: (theme) => `1px solid ${theme.palette.divider}`,
-                flexShrink: 0,
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                minHeight: 0,
               }}
             >
-              <Stack spacing={2}>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <AddIcon color="primary" fontSize="small" />
-                  <Typography variant="subtitle2" fontWeight={700}>
-                    {dict.shipments.dialogs.sections.addStop || "Quick Add Stop"}
-                  </Typography>
-                </Stack>
+              <Box
+                sx={{
+                  p: 2.5,
+                  borderRadius: 4,
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(255, 255, 255, 0.03)"
+                      : "rgba(0, 0, 0, 0.02)",
+                  border: (theme) => `1px solid ${theme.palette.divider}`,
+                  flexShrink: 0,
+                }}
+              >
+                <Stack spacing={2}>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <AddIcon color="primary" fontSize="small" />
+                    <Typography variant="subtitle2" fontWeight={700}>
+                      {dict.shipments.dialogs.sections.addStop ||
+                        "Quick Add Stop"}
+                    </Typography>
+                  </Stack>
 
-                <Grid container spacing={2}>
-                  <Grid size={{ xs: 12, md: 3 }}>
-                    <Stack spacing={0.5}>
-                      <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                        {dict.shipments.dialogs.fields.customerClient}
-                      </Typography>
-                      <CustomTextArea
-                        name="tempCustomerId"
-                        select
-                        value={entryData.customerId}
-                        onChange={(e) => {
-                          const customerId = e.target.value;
-                          const customer = customers.find((c) => c.id === customerId);
-                          const defaultLoc = customer?.locations?.find((l) => l.isDefault) || customer?.locations?.[0];
-                          
-                          setEntryData({
-                            ...entryData,
-                            customerId,
-                            customerLocationId: defaultLoc?.id || "",
-                            address: defaultLoc?.address || "",
-                            contactEmail: customer?.email || "",
-                            lat: defaultLoc?.lat || null,
-                            lng: defaultLoc?.lng || null,
-                          });
-                        }}
-                      >
-                        <MenuItem value="">
-                          <Typography variant="body2" color="text.secondary">Manual Entry</Typography>
-                        </MenuItem>
-                        {customers.map((c) => (
-                          <MenuItem key={c.id} value={c.id}>
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <PersonIcon sx={{ fontSize: 16, color: "text.secondary" }} />
-                              <Typography variant="body2">{c.name}</Typography>
-                            </Stack>
-                          </MenuItem>
-                        ))}
-                      </CustomTextArea>
-                    </Stack>
-                  </Grid>
+                  <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, md: 3 }}>
+                      <Stack spacing={0.5}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          fontWeight={600}
+                        >
+                          {dict.shipments.dialogs.fields.customerClient}
+                        </Typography>
+                        <CustomTextArea
+                          name="tempCustomerId"
+                          select
+                          value={entryData.customerId}
+                          onChange={(e) => {
+                            const customerId = e.target.value;
+                            const customer = customers.find(
+                              (c) => c.id === customerId
+                            );
+                            const defaultLoc =
+                              customer?.locations?.find((l) => l.isDefault) ||
+                              customer?.locations?.[0];
 
-                  <Grid size={{ xs: 12, md: 3 }}>
-                    <Stack spacing={0.5}>
-                      <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                        {dict.shipments.dialogs.fields.deliveryLocation || "LOCATION"}
-                      </Typography>
-                      <CustomTextArea
-                        name="tempLocationId"
-                        select
-                        disabled={!entryData.customerId}
-                        value={entryData.customerLocationId}
-                        onChange={(e) => {
-                          const locId = e.target.value;
-                          const customer = customers.find((c) => c.id === entryData.customerId);
-                          const loc = customer?.locations?.find((l) => l.id === locId);
-                          if (loc) {
                             setEntryData({
                               ...entryData,
-                              customerLocationId: locId,
-                              address: loc.address,
-                              lat: loc.lat || null,
-                              lng: loc.lng || null,
+                              customerId,
+                              customerLocationId: defaultLoc?.id || "",
+                              address: defaultLoc?.address || "",
+                              contactEmail: customer?.email || "",
+                              lat: defaultLoc?.lat || null,
+                              lng: defaultLoc?.lng || null,
                             });
-                          }
-                        }}
-                      >
-                        {customers.find(c => c.id === entryData.customerId)?.locations?.length ? (
-                          customers.find(c => c.id === entryData.customerId)!.locations!.map((l) => (
-                            <MenuItem key={l.id} value={l.id}>
-                              <Typography variant="body2">{l.name}</Typography>
-                            </MenuItem>
-                          ))
-                        ) : (
-                          <MenuItem value="" disabled>
+                          }}
+                        >
+                          <MenuItem value="">
                             <Typography variant="body2" color="text.secondary">
-                              {dict.shipments.dialogs.fields.selectCustomerFirst}
+                              Manual Entry
                             </Typography>
                           </MenuItem>
-                        )}
-                      </CustomTextArea>
-                    </Stack>
-                  </Grid>
+                          {customers.map((c) => (
+                            <MenuItem key={c.id} value={c.id}>
+                              <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                              >
+                                <PersonIcon
+                                  sx={{ fontSize: 16, color: "text.secondary" }}
+                                />
+                                <Typography variant="body2">
+                                  {c.name}
+                                </Typography>
+                              </Stack>
+                            </MenuItem>
+                          ))}
+                        </CustomTextArea>
+                      </Stack>
+                    </Grid>
 
-                  <Grid size={{ xs: 12, md: 3 }}>
-                    <Stack spacing={0.5}>
-                      <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                        {dict.shipments.dialogs.fields.destination}
-                      </Typography>
-                      <AddressAutocomplete
-                        placeholder={dict.shipments.dialogs.fields.destinationPlaceholder}
-                        name="tempAddress"
-                        value={entryData.address}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEntryData({ ...entryData, address: e.target.value })}
-                        onAddressSelect={(data: AddressData) => {
-                          const updated = {
-                            ...entryData,
-                            address: data.formattedAddress,
-                            lat: data.lat,
-                            lng: data.lng,
-                          };
-                          addStop(updated);
-                        }}
-                      />
-                    </Stack>
+                    <Grid size={{ xs: 12, md: 3 }}>
+                      <Stack spacing={0.5}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          fontWeight={600}
+                        >
+                          {dict.shipments.dialogs.fields.deliveryLocation ||
+                            "LOCATION"}
+                        </Typography>
+                        <CustomTextArea
+                          name="tempLocationId"
+                          select
+                          disabled={!entryData.customerId}
+                          value={entryData.customerLocationId}
+                          onChange={(e) => {
+                            const locId = e.target.value;
+                            const customer = customers.find(
+                              (c) => c.id === entryData.customerId
+                            );
+                            const loc = customer?.locations?.find(
+                              (l) => l.id === locId
+                            );
+                            if (loc) {
+                              setEntryData({
+                                ...entryData,
+                                customerLocationId: locId,
+                                address: loc.address,
+                                lat: loc.lat || null,
+                                lng: loc.lng || null,
+                              });
+                            }
+                          }}
+                        >
+                          {customers.find((c) => c.id === entryData.customerId)
+                            ?.locations?.length ? (
+                            customers
+                              .find((c) => c.id === entryData.customerId)!
+                              .locations!.map((l) => (
+                                <MenuItem key={l.id} value={l.id}>
+                                  <Typography variant="body2">
+                                    {l.name}
+                                  </Typography>
+                                </MenuItem>
+                              ))
+                          ) : (
+                            <MenuItem value="" disabled>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                {
+                                  dict.shipments.dialogs.fields
+                                    .selectCustomerFirst
+                                }
+                              </Typography>
+                            </MenuItem>
+                          )}
+                        </CustomTextArea>
+                      </Stack>
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 3 }}>
+                      <Stack spacing={0.5}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          fontWeight={600}
+                        >
+                          {dict.shipments.dialogs.fields.destination}
+                        </Typography>
+                        <AddressAutocomplete
+                          placeholder={
+                            dict.shipments.dialogs.fields.destinationPlaceholder
+                          }
+                          name="tempAddress"
+                          value={entryData.address}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setEntryData({
+                              ...entryData,
+                              address: e.target.value,
+                            })
+                          }
+                          onAddressSelect={(data: AddressData) => {
+                            const updated = {
+                              ...entryData,
+                              address: data.formattedAddress,
+                              lat: data.lat,
+                              lng: data.lng,
+                            };
+                            addStop(updated);
+                          }}
+                        />
+                      </Stack>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 3 }}>
+                      <Stack spacing={0.5}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          fontWeight={600}
+                        >
+                          {dict.shipments.dialogs.fields.contactEmail ||
+                            "CONTACT EMAIL"}
+                        </Typography>
+                        <CustomTextArea
+                          name="tempContactEmail"
+                          placeholder="john@example.com"
+                          value={entryData.contactEmail}
+                          onChange={(e) =>
+                            setEntryData({
+                              ...entryData,
+                              contactEmail: e.target.value,
+                            })
+                          }
+                        />
+                      </Stack>
+                    </Grid>
                   </Grid>
-                  <Grid size={{ xs: 12, md: 3 }}>
-                    <Stack spacing={0.5}>
-                      <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                        {dict.shipments.dialogs.fields.contactEmail || "CONTACT EMAIL"}
-                      </Typography>
-                      <CustomTextArea
-                        name="tempContactEmail"
-                        placeholder="john@example.com"
-                        value={entryData.contactEmail}
-                        onChange={(e) => setEntryData({ ...entryData, contactEmail: e.target.value })}
-                      />
-                    </Stack>
-                  </Grid>
-                </Grid>
 
                   <Button
                     variant="contained"
@@ -518,72 +665,90 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
                       textTransform: "none",
                       fontWeight: 800,
                       boxShadow: "none",
-                      background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-                      "&:hover": { 
-                        boxShadow: (theme) => `0 8px 20px ${theme.palette.primary._alpha.main_30}`,
-                        transform: "translateY(-1px)"
+                      background: (theme) =>
+                        `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                      "&:hover": {
+                        boxShadow: (theme) =>
+                          `0 8px 20px ${theme.palette.primary._alpha.main_30}`,
+                        transform: "translateY(-1px)",
                       },
                       transition: "all 0.2s ease",
                     }}
                   >
                     {dict.common.add || "Add to Route"}
                   </Button>
-              </Stack>
-            </Box>
+                </Stack>
+              </Box>
 
-            <Stack spacing={2} sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
-                <LocationOnIcon color="primary" fontSize="small" />
-                <Typography variant="subtitle2" fontWeight={700}>
-                  {dict.shipments.dialogs.sections.shipmentStops || "Planned Route"} ({values.stops.length})
-                </Typography>
-              </Stack>
-
-              <Box sx={{ flex: 1, overflowY: "auto", pr: 1, minHeight: 0 }}>
-            {values.stops.length === 0 ? (
-              <Box
+              <Stack
+                spacing={2}
                 sx={{
-                  p: 4,
-                  textAlign: "center",
-                  borderRadius: 3,
-                  border: `2px dashed ${theme.palette.divider}`,
-                  bgcolor: (theme) =>
-                    theme.palette.mode === "dark"
-                      ? "rgba(255, 255, 255, 0.01)"
-                      : "rgba(0, 0, 0, 0.005)",
+                  flex: 1,
+                  minHeight: 0,
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
-                <Typography variant="body2" color="text.secondary">
-                  {dict.shipments.dialogs.sections.noStopsDefined || "No stops defined. Click + to add stops."}
-                </Typography>
-              </Box>
-            ) : (
-              <Reorder.Group
-                axis="y"
-                values={values.stops}
-                onReorder={handleReorder}
-                style={{ padding: 0 }}
-              >
-                <AnimatePresence>
-                  {values.stops.map((stop, index) => (
-                    <StopItem
-                      key={stop.id || `stop-${index}`}
-                      stop={stop}
-                      index={index}
-                      remove={handleRemove}
-                      customers={customers}
-                      isLast={index === values.stops.length - 1}
-                      syncTopLevelFields={syncTopLevelFields}
-                    />
-                  ))}
-                </AnimatePresence>
-              </Reorder.Group>
-            )}
-              </Box>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  sx={{ flexShrink: 0 }}
+                >
+                  <LocationOnIcon color="primary" fontSize="small" />
+                  <Typography variant="subtitle2" fontWeight={700}>
+                    {dict.shipments.dialogs.sections.shipmentStops ||
+                      "Planned Route"}{" "}
+                    ({values.stops.length})
+                  </Typography>
+                </Stack>
+
+                <Box sx={{ flex: 1, pr: 1, minHeight: 0 }}>
+                  {values.stops.length === 0 ? (
+                    <Box
+                      sx={{
+                        p: 4,
+                        textAlign: "center",
+                        borderRadius: 3,
+                        border: `2px dashed ${theme.palette.divider}`,
+                        bgcolor: (theme) =>
+                          theme.palette.mode === "dark"
+                            ? "rgba(255, 255, 255, 0.01)"
+                            : "rgba(0, 0, 0, 0.005)",
+                      }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        {dict.shipments.dialogs.sections.noStopsDefined ||
+                          "No stops defined. Click + to add stops."}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Reorder.Group
+                      axis="y"
+                      values={values.stops}
+                      onReorder={handleReorder}
+                      style={{ padding: 0 }}
+                    >
+                      <AnimatePresence>
+                        {values.stops.map((stop, index) => (
+                          <StopItem
+                            key={stop.id || `stop-${index}`}
+                            stop={stop}
+                            index={index}
+                            remove={handleRemove}
+                            customers={customers}
+                            isLast={index === values.stops.length - 1}
+                            syncTopLevelFields={syncTopLevelFields}
+                          />
+                        ))}
+                      </AnimatePresence>
+                    </Reorder.Group>
+                  )}
+                </Box>
+              </Stack>
             </Stack>
-          </Stack>
-        );
-      }}
+          );
+        }}
       </FieldArray>
     </Box>
   );

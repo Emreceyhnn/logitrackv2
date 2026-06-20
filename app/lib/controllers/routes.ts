@@ -39,22 +39,8 @@ export const createRoute = authenticatedAction(
     durationMin: number,
     driverId: string,
     vehicleId: string,
-    origin?: {
-      type: "WAREHOUSE" | "CUSTOMER" | "ADDRESS";
-      id?: string;
-      address?: string;
-      lat?: number;
-      lng?: number;
-    },
-    destination?: {
-      type: "WAREHOUSE" | "CUSTOMER" | "ADDRESS";
-      id?: string;
-      address?: string;
-      lat?: number;
-      lng?: number;
-    },
     shipmentId?: string,
-    waypoints?: { address: string; lat?: number; lng?: number }[]
+    stops?: { address: string; lat?: number; lng?: number }[]
   ) => {
     try {
       await checkPermission(user, user.companyId, [
@@ -76,62 +62,6 @@ export const createRoute = authenticatedAction(
         throw new Error("Route name already exists");
       }
 
-      let startAddress = origin?.address;
-      let startLat = origin?.lat;
-      let startLng = origin?.lng;
-
-      if (origin?.type === "WAREHOUSE" && origin.id) {
-        const warehouse = await db.warehouse.findUnique({
-          where: { id: origin.id },
-        });
-        if (warehouse) {
-          startAddress = warehouse.address;
-          startLat = warehouse.lat || undefined;
-          startLng = warehouse.lng || undefined;
-        }
-      } else if (origin?.type === "CUSTOMER" && origin.id) {
-        const customer = await db.customer.findUnique({
-          where: { id: origin.id },
-          include: { locations: true },
-        });
-        if (customer && customer.locations.length > 0) {
-          const defaultLoc =
-            customer.locations.find((l) => l.isDefault) ||
-            customer.locations[0];
-          startAddress = defaultLoc.address || undefined;
-          startLat = defaultLoc.lat || undefined;
-          startLng = defaultLoc.lng || undefined;
-        }
-      }
-
-      let endAddress = destination?.address;
-      let endLat = destination?.lat;
-      let endLng = destination?.lng;
-
-      if (destination?.type === "WAREHOUSE" && destination.id) {
-        const warehouse = await db.warehouse.findUnique({
-          where: { id: destination.id },
-        });
-        if (warehouse) {
-          endAddress = warehouse.address;
-          endLat = warehouse.lat || undefined;
-          endLng = warehouse.lng || undefined;
-        }
-      } else if (destination?.type === "CUSTOMER" && destination.id) {
-        const customer = await db.customer.findUnique({
-          where: { id: destination.id },
-          include: { locations: true },
-        });
-        if (customer && customer.locations.length > 0) {
-          const defaultLoc =
-            customer.locations.find((l) => l.isDefault) ||
-            customer.locations[0];
-          endAddress = defaultLoc.address || undefined;
-          endLat = defaultLoc.lat || undefined;
-          endLng = defaultLoc.lng || undefined;
-        }
-      }
-
       const newRoute = await db.$transaction(async (tx: Prisma.TransactionClient) => {
         // Create the route
         const route = await tx.route.create({
@@ -145,13 +75,7 @@ export const createRoute = authenticatedAction(
             driverId: driverId || null,
             vehicleId: vehicleId || null,
             companyId: user.companyId,
-            startAddress,
-            startLat,
-            startLng,
-            endAddress,
-            endLat,
-            endLng,
-            waypoints: waypoints ? (waypoints as unknown as Prisma.InputJsonValue) : undefined,
+            stops: stops ? (stops as unknown as Prisma.InputJsonValue) : undefined,
           },
         });
 
@@ -753,11 +677,8 @@ export const getActiveRoutesLocations = authenticatedAction(async (user) => {
             type: true,
           },
         },
-        startLat: true,
-        startLng: true,
-        endLat: true,
-        endLng: true,
         name: true,
+        stops: true,
       },
     });
 
@@ -891,7 +812,7 @@ export const updateRouteStatus = authenticatedAction(
                   data: {
                     shipmentId: shipment.id,
                     status: "DELIVERED",
-                    location: route.endAddress || "Destination",
+                    location: (Array.isArray(route.stops) && (route.stops as { address?: string }[])[route.stops.length - 1]?.address) || "Destination",
                     description: "Route completed - Shipment completed",
                     createdById: userId || "",
                   },
@@ -1104,11 +1025,8 @@ export const getRoutesWithDashboardData = authenticatedAction(
                 type: true,
               },
             },
-            startLat: true,
-            startLng: true,
-            endLat: true,
-            endLng: true,
             name: true,
+            stops: true,
           },
         }),
         // Previous period counts (30–60 days ago) for trend calculation

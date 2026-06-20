@@ -797,11 +797,11 @@ export const getAddRouteValidationSchema = (dict: Dictionary) =>
     vehicleId: Yup.string().required(
       formatMessage(dict.validation.required, { field: "Vehicle" })
     ),
-    waypoints: Yup.array().of(
+    stops: Yup.array().of(
       Yup.object().shape({
-        address: Yup.string().required(
-          formatMessage(dict.validation.required, { field: "Waypoint Address" })
-        ),
+        address: Yup.string().required("Address is required"),
+        lat: Yup.number().required(),
+        lng: Yup.number().required(),
       })
     ).optional(),
   });

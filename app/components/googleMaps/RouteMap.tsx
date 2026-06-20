@@ -196,7 +196,6 @@ export const RouteMap = ({
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const [routePath, setRoutePath] = useState<LocationPoint[]>([]);
   const cachedResponseKey = useRef<string | null>(null);
-  const [apiCallCount, setApiCallCount] = useState(0);
 
   const routeKey = useMemo(() => {
     if (!origin || !destination) return null;
@@ -208,10 +207,24 @@ export const RouteMap = ({
   useEffect(() => {
     if (!routeKey || !process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) return;
 
+    // Guard: don't call API with invalid (0,0) coordinates
+    const isValidCoord = (loc: LocationPoint) =>
+      loc &&
+      loc.lat !== 0 &&
+      loc.lng !== 0 &&
+      !isNaN(loc.lat) &&
+      !isNaN(loc.lng);
+
+    if (!isValidCoord(origin) || !isValidCoord(destination)) {
+      setTimeout(() => setRoutePath([]), 0);
+      return;
+    }
+
     if (cachedResponseKey.current === routeKey) return;
 
     const timer = setTimeout(async () => {
-      console.log("RouteMap: fetching Routes API v2 for key", routeKey);
+      // Filter out invalid stops
+      const validStops = stops.filter(isValidCoord);
 
       const payload = {
         origin: {
@@ -222,7 +235,7 @@ export const RouteMap = ({
             latLng: { latitude: destination.lat, longitude: destination.lng },
           },
         },
-        intermediates: stops.map((s) => ({
+        intermediates: validStops.map((s) => ({
           location: { latLng: { latitude: s.lat, longitude: s.lng } },
         })),
         travelMode: "DRIVE",
@@ -253,7 +266,6 @@ export const RouteMap = ({
             .map(([lat, lng]) => ({ lat, lng }));
           setRoutePath(decoded);
           cachedResponseKey.current = routeKey;
-          setApiCallCount((prev) => prev + 1);
         } else {
           console.error("Routes API v2 failed:", data);
           setRoutePath([]);
@@ -289,13 +301,6 @@ export const RouteMap = ({
       className="relative w-full overflow-hidden border border-gray-200 shadow-xl rounded-xl"
       style={{ height }}
     >
-      <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur px-3 py-2 rounded-lg shadow-sm border border-gray-100 text-xs font-mono">
-        <div className="font-bold text-gray-800">Routes API v2 (REST)</div>
-        <div className={apiCallCount > 0 ? "text-green-600" : "text-gray-500"}>
-          API Calls Made: <span className="font-bold">{apiCallCount}</span>
-        </div>
-      </div>
-
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={mapCenter}
@@ -304,10 +309,7 @@ export const RouteMap = ({
         onLoad={setMapInstance}
       >
         {routePath.length > 0 && (
-          <PolylineF
-            path={routePath}
-            options={polylineOptions}
-          />
+          <PolylineF path={routePath} options={polylineOptions} />
         )}
 
         {routePath.length > 0 &&

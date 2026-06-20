@@ -327,12 +327,7 @@ export interface Route {
   endTime?: Date | null;
   distanceKm?: number | null;
   durationMin?: number | null;
-  startAddress?: string | null;
-  startLat?: number | null;
-  startLng?: number | null;
-  endAddress?: string | null;
-  endLat?: number | null;
-  endLng?: number | null;
+  stops?: { address: string; lat?: number; lng?: number }[] | null;
   driverId?: string | null;
   vehicleId?: string | null;
   companyId?: string | null;

@@ -20,6 +20,7 @@ import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { updateRoute } from "@/app/lib/controllers/routes";
 import { useUser } from "@/app/hooks/useUser";
+import type { Prisma } from "@prisma/client";
 import FirstRouteDialogStep from "./addRouteDialog/firstStep";
 import SecondRouteDialogStep from "./addRouteDialog/secondStep";
 import ThirdRouteDialogStep from "./addRouteDialog/thirdStep";
@@ -70,6 +71,7 @@ const EditRouteDialog = ({
         durationMin: 0,
         driverId: "",
         vehicleId: "",
+        stops: [],
       };
     }
 
@@ -77,24 +79,30 @@ const EditRouteDialog = ({
     const startInUserTz = utcToUserTz(route.startTime, userTz);
     const endInUserTz = utcToUserTz(route.endTime, userTz);
 
+    // Derive start/end from stops array
+    const routeStops = Array.isArray(route.stops) ? route.stops : [];
+    const firstStop = routeStops.length > 0 ? routeStops[0] : null;
+    const lastStop = routeStops.length > 1 ? routeStops[routeStops.length - 1] : null;
+
     return {
       name: route.name || "",
       startTime: startInUserTz ? startInUserTz.toDate() : null,
       endTime: endInUserTz ? endInUserTz.toDate() : null,
-      startType: route.startType || "WAREHOUSE",
-      startId: route.startId || "",
-      startAddress: route.startAddress || "",
-      startLat: route.startLat || 0,
-      startLng: route.startLng || 0,
-      endType: route.endType || "CUSTOMER",
-      endId: route.endId || "",
-      endAddress: route.endAddress || "",
-      endLat: route.endLat || 0,
-      endLng: route.endLng || 0,
+      startType: "WAREHOUSE",
+      startId: "",
+      startAddress: firstStop?.address || "",
+      startLat: firstStop?.lat || 0,
+      startLng: firstStop?.lng || 0,
+      endType: "CUSTOMER",
+      endId: "",
+      endAddress: lastStop?.address || "",
+      endLat: lastStop?.lat || 0,
+      endLng: lastStop?.lng || 0,
       distanceKm: route.distanceKm || 0,
       durationMin: route.durationMin || 0,
       driverId: route.driverId || "",
       vehicleId: route.vehicleId || "",
+      stops: routeStops as { address: string; lat?: number; lng?: number }[],
     };
   };
 
@@ -113,14 +121,9 @@ const EditRouteDialog = ({
           name: values.name,
           startTime: startUTC,
           endTime: endUTC,
-          startAddress: values.startAddress,
-          startLat: values.startLat,
-          startLng: values.startLng,
-          endAddress: values.endAddress,
-          endLat: values.endLat,
-          endLng: values.endLng,
           distanceKm: values.distanceKm,
           durationMin: values.durationMin,
+          stops: values.stops as unknown as Prisma.InputJsonValue,
           driver: values.driverId
             ? { connect: { id: values.driverId } }
             : { disconnect: true },

@@ -149,8 +149,7 @@ export async function GET(req: NextRequest) {
             },
             routes: {
               select: {
-                id: true, status: true, startAddress: true, startLat: true,
-                startLng: true, endAddress: true, endLat: true, endLng: true,
+                id: true, status: true, stops: true,
                 createdAt: true, updatedAt: true,
               },
             },

@@ -1,14 +1,19 @@
 import type { NextConfig } from "next";
+import createBundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = createBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // output: "standalone",
 
   // ── Security & Transport ────────────────────────────────────────────────
   poweredByHeader: false, // Remove X-Powered-By header (security)
-  compress: true,         // Enable gzip/brotli compression for all responses
+  compress: true, // Enable gzip/brotli compression for all responses
 
   // ── React ───────────────────────────────────────────────────────────────
-  reactStrictMode: true,  // Catches hydration bugs in development early
+  reactStrictMode: true, // Catches hydration bugs in development early
 
   // ── Bundle Optimisations ────────────────────────────────────────────────
   // Next.js will only import the specific modules used from these packages
@@ -29,17 +34,17 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: '/:lang/login',
-        destination: '/:lang/auth/sign-in',
+        source: "/:lang/login",
+        destination: "/:lang/auth/sign-in",
         permanent: true,
       },
       {
-        source: '/login',
-        destination: '/en/auth/sign-in',
+        source: "/login",
+        destination: "/en/auth/sign-in",
         permanent: true,
       },
     ];
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

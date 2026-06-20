@@ -2,6 +2,7 @@
 
 import { InputAdornment, SxProps, TextField, Theme, useTheme } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { useState, useRef } from "react";
 
 interface Props {
   label?: string;
@@ -63,19 +64,59 @@ const CustomTextArea = ({
     },
   };
 
+  const [localValue, setLocalValue] = useState(value);
+  const [prevPropValue, setPrevPropValue] = useState(value);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  if (value !== prevPropValue) {
+    setLocalValue(value);
+    setPrevPropValue(value);
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (select) {
+      onChange(e);
+      return;
+    }
+
+    const newVal = e.target.value;
+    const name = e.target.name;
+    setLocalValue(newVal);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      onChange({
+        target: { name, value: newVal },
+      } as React.ChangeEvent<HTMLInputElement>);
+    }, 400);
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (!select && timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      onChange({
+        target: { name, value: localValue },
+      } as React.ChangeEvent<HTMLInputElement>);
+    }
+    if (onBlur) onBlur(e);
+  };
+
   return (
     <TextField
       fullWidth
       label={label}
       name={name}
-      value={value}
-      onChange={onChange}
+      value={select ? value : localValue}
+      onChange={handleChange}
       placeholder={placeholder}
       type={!select ? type : undefined}
       select={select}
       error={error}
       helperText={helperText}
-      onBlur={onBlur}
+      onBlur={handleBlur}
       sx={[baseStyles, ...(Array.isArray(sx) ? sx : [sx])]}
       SelectProps={
         select

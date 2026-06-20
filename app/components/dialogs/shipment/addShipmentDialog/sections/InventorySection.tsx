@@ -58,12 +58,12 @@ const InventorySection = ({
 
         if (item.unit === "Pallet") {
           itemTotalPallets = qty;
-          itemTotalWeight = unitWeight * perPallet * qty;
-          itemTotalVolume = unitVolume * perPallet * qty;
+          itemTotalWeight = Math.abs(unitWeight) * perPallet * qty;
+          itemTotalVolume = Math.abs(unitVolume) * perPallet * qty;
         } else {
           itemTotalPallets = perPallet > 0 ? qty / perPallet : 0;
-          itemTotalWeight = unitWeight * qty;
-          itemTotalVolume = unitVolume * qty;
+          itemTotalWeight = Math.abs(unitWeight) * qty;
+          itemTotalVolume = Math.abs(unitVolume) * qty;
         }
 
         return {
@@ -99,8 +99,8 @@ const InventorySection = ({
       quantity: 1,
       maxQuantity: product.quantity,
       unit: product.unit === "Pallet" ? "Pallet" : "Each",
-      weightKg: product.weightKg || 0,
-      volumeM3: product.volumeM3 || 0,
+      weightKg: Math.abs(product.weightKg || 0),
+      volumeM3: Math.abs(product.volumeM3 || 0),
       palletCount: product.palletCount || 1,
       cargoType: product.cargoType || "General Cargo",
     };

@@ -1191,12 +1191,7 @@ export const getVehiclesWithDashboard = authenticatedAction(
                 select: {
                   id: true,
                   status: true,
-                  startAddress: true,
-                  startLat: true,
-                  startLng: true,
-                  endAddress: true,
-                  endLat: true,
-                  endLng: true,
+                  stops: true,
                   createdAt: true,
                   updatedAt: true,
                 },

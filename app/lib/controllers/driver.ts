@@ -548,11 +548,14 @@ export const getDriverHistory = authenticatedAction(
 
       // Add completed routes
       driver.routes.forEach((route) => {
+        const stopsArr = Array.isArray(route.stops) ? route.stops as { address?: string }[] : [];
+        const startAddr = stopsArr.length > 0 ? stopsArr[0]?.address : null;
+        const endAddr = stopsArr.length > 0 ? stopsArr[stopsArr.length - 1]?.address : null;
         activities.push({
           id: route.id,
           type: "ROUTE_COMPLETED",
           title: "Route Completed",
-          description: `Finished route ${route.name || route.id} from ${route.startAddress || "Start"} to ${route.endAddress || "End"}`,
+          description: `Finished route ${route.name || route.id} from ${startAddr || "Start"} to ${endAddr || "End"}`,
           timestamp: route.endTime || route.updatedAt,
           metadata: { routeId: route.id },
         });

@@ -5,7 +5,7 @@ import { RouteMap } from "../../googleMaps/RouteMap";
 interface MapRoutesDialogCardProps {
   origin?: string | { lat: number; lng: number };
   destination?: string | { lat: number; lng: number };
-  waypoints?: Array<{
+  stops?: Array<{
     location: string | { lat: number; lng: number };
     stopover?: boolean;
   }>;
@@ -29,7 +29,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 const MapRoutesDialogCard = ({
   origin,
   destination,
-  waypoints,
+  stops,
   addrA,
   addrB,
   vehicleLocation,
@@ -53,7 +53,7 @@ const MapRoutesDialogCard = ({
               ? destination
               : { lat: 0, lng: 0 }
           }
-          stops={waypoints
+          stops={stops
             ?.map((w) => w.location)
             .filter(
               (loc): loc is { lat: number; lng: number } =>

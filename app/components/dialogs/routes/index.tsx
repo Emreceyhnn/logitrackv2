@@ -123,63 +123,30 @@ export default function RouteDialog({
       >
     )[paletteKey]?._alpha ?? theme.palette.primary._alpha;
 
-  const mapOrigin =
-    route.startLat && route.startLng
-      ? {
-          lat: route.startLat,
-          lng: route.startLng,
-        }
-      : route.startAddress || "";
+  // Extract start, end, and intermediate stops from the new stops structure
+  const allStops = Array.isArray(route.stops) ? route.stops : [];
+  const typedStops = allStops as { lat?: number; lng?: number; address?: string }[];
+  
+  const mapOrigin = typedStops.length > 0 ? {
+    lat: typedStops[0].lat || 0,
+    lng: typedStops[0].lng || 0,
+    address: typedStops[0].address || "",
+  } : undefined;
 
-  const mapDestination =
-    route.endLat && route.endLng
-      ? {
-          lat: route.endLat,
-          lng: route.endLng,
-        }
-      : route.endAddress || "";
+  const mapDestination = typedStops.length > 1 ? {
+    lat: typedStops[typedStops.length - 1].lat || 0,
+    lng: typedStops[typedStops.length - 1].lng || 0,
+    address: typedStops[typedStops.length - 1].address || "",
+  } : undefined;
 
-  const waypoints = (route.shipments || []).flatMap(shipment => {
-    const stops = [];
-    
-    // Add origin if not the same as route start
-    if (shipment.originLat && shipment.originLng) {
-      stops.push({
-        location: { lat: shipment.originLat, lng: shipment.originLng },
+  const intermediateStops = typedStops.length > 2 
+    ? typedStops.slice(1, -1).map(w => ({ 
+        location: { lat: w.lat || 0, lng: w.lng || 0 },
         stopover: true
-      });
-    } else if (shipment.origin) {
-      stops.push({
-        location: shipment.origin,
-        stopover: true
-      });
-    }
+      }))
+    : [];
 
-    // Add intermediate stops
-    if (shipment.stops) {
-      shipment.stops.forEach((stop) => {
-        stops.push({
-          location: stop.lat && stop.lng ? { lat: stop.lat, lng: stop.lng } : stop.address,
-          stopover: true
-        });
-      });
-    }
-
-    // Add destination if not the same as route end
-    if (shipment.destinationLat && shipment.destinationLng) {
-      stops.push({
-        location: { lat: shipment.destinationLat, lng: shipment.destinationLng },
-        stopover: true
-      });
-    } else if (shipment.destination) {
-      stops.push({
-        location: shipment.destination,
-        stopover: true
-      });
-    }
-
-    return stops;
-  });
+  console.log(route);
 
   return (
     <>
@@ -453,7 +420,12 @@ export default function RouteDialog({
                     >
                       {dict.routes.details.distance}
                     </Typography>
-                    <Typography component="div" variant="h6" fontWeight={700} color="white">
+                    <Typography
+                      component="div"
+                      variant="h6"
+                      fontWeight={700}
+                      color="white"
+                    >
                       {liveMetrics?.distanceKm ||
                         route.metrics?.totalDistanceKm ||
                         route.distanceKm ||
@@ -478,7 +450,12 @@ export default function RouteDialog({
                     >
                       {dict.routes.details.stops}
                     </Typography>
-                    <Typography component="div" variant="h6" fontWeight={700} color="white">
+                    <Typography
+                      component="div"
+                      variant="h6"
+                      fontWeight={700}
+                      color="white"
+                    >
                       {route.stops?.length || route.shipments?.length
                         ? (route.shipments?.length || 0) + 2
                         : 0}
@@ -506,7 +483,7 @@ export default function RouteDialog({
                 <MapRoutesDialogCard
                   origin={mapOrigin}
                   destination={mapDestination}
-                  waypoints={waypoints}
+                  stops={intermediateStops}
                   onRouteInfoUpdate={setLiveMetrics}
                   vehicleLocation={
                     route.vehicle &&

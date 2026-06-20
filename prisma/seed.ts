@@ -485,8 +485,10 @@ async function main() {
           status: pick(["PLANNED", "ACTIVE", "COMPLETED"]) as RouteStatus,
           distanceKm: randFloat(50, 1200),
           durationMin: rand(60, 1440),
-          startAddress: "Company DC",
-          endAddress: "Customer Cluster A",
+          stops: [
+            { address: "Company DC", lat: pick(CITIES).lat, lng: pick(CITIES).lng },
+            { address: "Customer Cluster A", lat: pick(CITIES).lat, lng: pick(CITIES).lng }
+          ],
           driverId: dId,
           vehicleId: vId,
           companyId: company.id,

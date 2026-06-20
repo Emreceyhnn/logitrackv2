@@ -186,7 +186,7 @@ const AddShipmentDialog = ({
             err instanceof Error ? err.message : dict.toasts.errorGeneric,
         }
       );
-      
+
       onSuccess?.();
       onClose();
       setCurrentStep(1);
@@ -299,7 +299,8 @@ const AddShipmentDialog = ({
                     sx={{ mb: 3 }}
                   >
                     <Stack spacing={0.5}>
-                      <Typography component="div"
+                      <Typography
+                        component="div"
                         variant="h6"
                         fontWeight={800}
                         color="text.primary"
@@ -361,10 +362,29 @@ const AddShipmentDialog = ({
                   </Stepper>
                 </Box>
 
-                <DialogContent sx={{ mt: 2, pb: 4, height: "75vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-                  <Form style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+                <DialogContent
+                  sx={{
+                    mt: 2,
+                    pb: 4,
+                    height: "75vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Form
+                    style={{
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      minHeight: 0,
+                    }}
+                  >
                     {currentStep === 1 ? (
-                      <Stack spacing={3} sx={{ flex: 1, minHeight: 0 }}>
+                      <Stack
+                        spacing={3}
+                        sx={{ flex: 1, minHeight: 0, overflowY: "auto", pr: 1 }}
+                      >
                         <Box sx={{ flexShrink: 0 }}>
                           <BasicInfoSection />
                         </Box>
@@ -374,7 +394,13 @@ const AddShipmentDialog = ({
                             flexShrink: 0,
                           }}
                         />
-                        <Box sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+                        <Box
+                          sx={{
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                          }}
+                        >
                           <StopsSection customers={customers} />
                         </Box>
                         <Divider
@@ -391,7 +417,10 @@ const AddShipmentDialog = ({
                         </Box>
                       </Stack>
                     ) : (
-                      <Stack spacing={6} sx={{ flex: 1, overflowY: "auto", pr: 1, minHeight: 0 }}>
+                      <Stack
+                        spacing={6}
+                        sx={{ flex: 1, overflowY: "auto", pr: 1, minHeight: 0 }}
+                      >
                         <Grid container spacing={6}>
                           <Grid size={{ xs: 12, lg: 12 }}>
                             <CargoSection trailers={trailers} />

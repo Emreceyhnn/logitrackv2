@@ -209,12 +209,18 @@ const RouteTable = ({
       {
         key: "origin",
         label: dict.routes.table.columns.origin,
-        render: (row) => row.startAddress || dict.common.na,
+        render: (row) => {
+          const firstStop = Array.isArray(row.stops) ? row.stops[0] as { address?: string } : null;
+          return firstStop?.address || dict.common.na;
+        },
       },
       {
         key: "destination",
         label: dict.routes.table.columns.destination,
-        render: (row) => row.endAddress || dict.common.na,
+        render: (row) => {
+          const lastStop = Array.isArray(row.stops) && row.stops.length > 0 ? row.stops[row.stops.length - 1] as { address?: string } : null;
+          return lastStop?.address || dict.common.na;
+        },
       },
       {
         key: "eta",

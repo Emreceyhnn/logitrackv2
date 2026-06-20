@@ -51,7 +51,7 @@ const initialValues: RouteFormValues = {
   durationMin: 0,
   driverId: "",
   vehicleId: "",
-  waypoints: [],
+  stops: [],
 };
 
 const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
@@ -107,22 +107,8 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
           values.durationMin,
           values.driverId,
           values.vehicleId,
-          {
-            type: values.startType,
-            id: values.startId,
-            address: values.startAddress,
-            lat: values.startLat,
-            lng: values.startLng,
-          },
-          {
-            type: values.endType,
-            id: values.endId,
-            address: values.endAddress,
-            lat: values.endLat,
-            lng: values.endLng,
-          },
           selectedShipmentId || undefined,
-          values.waypoints
+          values.stops
         ),
         {
           loading: dict.toasts.loading,
@@ -239,9 +225,25 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                 );
               }
               
+              const startWaypoint = {
+                address: warehouse ? warehouse.address : (shipment.origin || ""),
+                lat: warehouse ? (warehouse.lat ?? undefined) : (typeof shipment.originLat === "number" ? shipment.originLat : undefined),
+                lng: warehouse ? (warehouse.lng ?? undefined) : (typeof shipment.originLng === "number" ? shipment.originLng : undefined),
+              };
+
+              const endWaypoint = {
+                address: shipment.destination || defaultLoc?.address || fallbackLoc?.address || "",
+                lat: shipment.destinationLat ?? defaultLoc?.lat ?? fallbackLoc?.lat ?? undefined,
+                lng: shipment.destinationLng ?? defaultLoc?.lng ?? fallbackLoc?.lng ?? undefined,
+              };
+
+              const stopsToSet = [];
+              
+              if (startWaypoint.address) {
+                stopsToSet.push(startWaypoint);
+              }
+
               if (shipment.stops && shipment.stops.length > 0) {
-                // If the last stop is the same as the destination, don't add it as a waypoint
-                // as it will be used for the endAddress.
                 const destinationLocId = shipment.customerLocationId;
                 const isLastStopDestination = 
                   (shipment.destination && shipment.stops[shipment.stops.length - 1].address === shipment.destination) ||
@@ -251,19 +253,20 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   ? shipment.stops.slice(0, -1) 
                   : shipment.stops;
 
-                if (intermediateStops.length > 0) {
-                  const waypoints = intermediateStops.map(stop => ({
+                intermediateStops.forEach(stop => {
+                  stopsToSet.push({
                     address: stop.address || "",
                     lat: stop.lat ?? undefined,
                     lng: stop.lng ?? undefined
-                  }));
-                  setFieldValue("waypoints", waypoints);
-                } else {
-                  setFieldValue("waypoints", []);
-                }
-              } else {
-                setFieldValue("waypoints", []);
+                  });
+                });
               }
+
+              if (endWaypoint.address) {
+                stopsToSet.push(endWaypoint);
+              }
+
+              setFieldValue("stops", stopsToSet);
 
               toast.info(
                 `${dict.routes.dialogs.prefilledFrom} ${shipment.trackingId}`

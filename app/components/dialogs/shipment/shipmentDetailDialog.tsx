@@ -147,7 +147,7 @@ export default function ShipmentDetailDialog({
         }
       : shipment.destination || "";
 
-  const waypoints =
+  const routeStops =
     hasStops && stopsSorted.length > 1
       ? stopsSorted.slice(0, -1).map((stop) => ({
           location:
@@ -943,7 +943,7 @@ export default function ShipmentDetailDialog({
             <MapRoutesDialogCard
               origin={mapOrigin}
               destination={mapDestination}
-              waypoints={waypoints}
+              stops={routeStops}
               vehicleLocation={null}
             />
 

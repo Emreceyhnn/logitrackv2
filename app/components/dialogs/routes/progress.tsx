@@ -21,9 +21,13 @@ export default function RouteProgress({
   const dict = useDictionary();
   const dateSettings = useDateSettings();
 
+  const routeStops = Array.isArray(route.stops) ? route.stops : [];
+  const firstStop = routeStops.length > 0 ? routeStops[0] : null;
+  const lastStop = routeStops.length > 1 ? routeStops[routeStops.length - 1] : null;
+
   const stops = [
     {
-      locationName: route.startAddress || dict.routes.details.origin,
+      locationName: (firstStop as { address?: string })?.address || dict.routes.details.origin,
       status: "COMPLETED",
       time: formatDisplayTime(route.startTime, dateSettings),
     },
@@ -33,7 +37,7 @@ export default function RouteProgress({
       time: "-",
     })) || []),
     {
-      locationName: route.endAddress || dict.routes.details.destination,
+      locationName: (lastStop as { address?: string })?.address || dict.routes.details.destination,
       status: route.status === "COMPLETED" ? "COMPLETED" : "PENDING",
       time: formatDisplayTime(route.endTime, dateSettings),
     },
