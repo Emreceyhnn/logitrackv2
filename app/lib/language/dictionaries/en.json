@@ -134,7 +134,8 @@
     "yourTime": "Your Time",
     "currentTimeAtLocation": "Current time at location",
     "confirmLogoutDescription": "Are you sure you want to end your session?",
-    "logoutWarning": "All your active session data will be cleared and you will be redirected to the login page."
+    "logoutWarning": "All your active session data will be cleared and you will be redirected to the login page.",
+    "outline": "Page Outline"
   },
   "primaryColors": {
     "title": "Color Configuration",
@@ -538,6 +539,283 @@
         "help": "Help Center"
       }
     },
+    "globalTrackingPage": {
+      "overline": "Global Visibility",
+      "title": "Global Operations Command",
+      "subtitle": "Live asset tracking across continents with real-time multi-modal synchronization.",
+      "widget": {
+        "status": "LIVE SATELLITE FEED ACTIVE // SHIPMENT COORDINATES MAPPED"
+      },
+      "features": {
+        "title": "Real-Time Tracking Features",
+        "description": "Keep complete control over your supply chain with hardware-agnostic connectivity and live metrics.",
+        "items": [
+          { "title": "Continuous GPS Tracking", "description": "High-frequency coordinate updates with sub-meter accuracy." },
+          { "title": "Dynamic Geofencing", "description": "Instant notifications when assets enter or exit designated loading zones." },
+          { "title": "Multi-Modal Interoperability", "description": "Seamless handoffs between ocean carriers, rail transport, and final mile fleets." },
+          { "title": "Environmental Sensors", "description": "Monitor container temperature, humidity, shock, and pressure in real-time." }
+        ]
+      },
+      "cta": {
+        "title": "Unify your global operations today.",
+        "subtitle": "Join hundreds of enterprises that trust LogiTrack for absolute visibility.",
+        "button": "Get Started Now"
+      }
+    },
+    "routeIntelligencePage": {
+      "overline": "Predictive Logistics",
+      "title": "AI Route Intelligence",
+      "subtitle": "Reduce fuel consumption, carbon emissions, and transit times with predictive route modeling.",
+      "widget": {
+        "standardRoute": "STANDARD ROUTE (DELAYED)",
+        "aiOptimized": "AI OPTIMIZED ROUTE (18% FASTER)"
+      },
+      "features": {
+        "title": "Route Optimization Engine",
+        "description": "Our neural engine evaluates millions of dynamic variables to keep your operations running on time.",
+        "items": [
+          { "title": "Traffic Anomaly Detection", "description": "Automatically reroute vehicles around sudden congestion or construction zones." },
+          { "title": "Carbon Output Optimization", "description": "Select routes optimized specifically for reduced CO2 emissions and fuel burn." },
+          { "title": "Multi-Stop Sequencing", "description": "Solve complex traveling salesman routing problems in milliseconds." },
+          { "title": "Dynamic ETA Calculations", "description": "Continually update delivery ETAs based on historic patterns and current speed." }
+        ]
+      },
+      "cta": {
+        "title": "Optimize routes with AI.",
+        "subtitle": "Start cutting down transit delays and fuel costs immediately.",
+        "button": "Optimize Today"
+      }
+    },
+    "telemetryHubPage": {
+      "overline": "IoT Edge Connect",
+      "title": "Unified Telemetry Hub",
+      "subtitle": "Transform raw vehicle, sensor, and environment data into actionable operations intelligence.",
+      "widget": {
+        "avgSpeed": "Avg Speed",
+        "avgSpeedUnit": "km/h",
+        "fuelLevel": "Fuel Level",
+        "cargoTemp": "Cargo Temp"
+      },
+      "features": {
+        "title": "High-Frequency Telemetry",
+        "description": "Stream diagnostic data directly from vehicle OBD ports and environmental monitors.",
+        "items": [
+          { "title": "Diagnostics & Maintenance", "description": "Preemptively detect engine faults, battery drain, and tire pressure drops." },
+          { "title": "Driver Safety Indexing", "description": "Analyze speed levels, rapid acceleration, hard braking, and idle times." },
+          { "title": "Cold Chain Integrity", "description": "Enforce strict temperature controls for perishable or medical cargo." },
+          { "title": "Agnostic Device Support", "description": "Out-of-the-box integration with major telematics hardware brands." }
+        ]
+      },
+      "cta": {
+        "title": "Connect your fleet in minutes.",
+        "subtitle": "Gain direct control over your assets and prevent costly maintenance disruptions.",
+        "button": "Explore Telemetry"
+      }
+    },
+    "securityCenterPage": {
+      "overline": "Cyber & Physical Shield",
+      "title": "Logistics Security Center",
+      "subtitle": "Military-grade data protection, cryptographic verification, and physical access controls.",
+      "features": {
+        "title": "Enterprise Trust Infrastructure",
+        "description": "We ensure your operational data remains secure, compliant, and visible only to authorized users.",
+        "items": [
+          { "title": "End-to-End Encryption", "description": "All data in transit and at rest is secured using AES-256 and TLS 1.3." },
+          { "title": "Granular Access Roles", "description": "Assign restricted roles for dispatchers, warehouse staff, and customers." },
+          { "title": "Tamper-Proof Audit Logs", "description": "Immutable ledger tracking every modification, login, and setting change." },
+          { "title": "Intelligent Threat Detection", "description": "Automated system scans detecting unauthorized requests or access anomalies." }
+        ]
+      },
+      "cta": {
+        "title": "Protect your logistics chain.",
+        "subtitle": "Learn how we implement industry-leading compliance and security frameworks.",
+        "button": "Verify Security"
+      }
+    },
+    "enterprisePage": {
+      "overline": "Scale & Resilience",
+      "title": "Enterprise Logistics Orchestration",
+      "subtitle": "Built to withstand the scale, reliability, and security demands of global enterprises.",
+      "metrics": [
+        { "value": "99.99%", "label": "Uptime SLA" },
+        { "value": "<100ms", "label": "API Latency" },
+        { "value": "Multi-Region", "label": "Infrastructure" }
+      ],
+      "features": {
+        "title": "Enterprise Capabilities",
+        "description": "Get dedicated database clusters, single sign-on integration, and custom service level agreements.",
+        "items": [
+          { "title": "Dedicated Cloud Instances", "description": "Run your operations on fully isolated database and API nodes." },
+          { "title": "Custom ERP Integrations", "description": "Seamless bidirectional syncing with SAP, Oracle WMS, and Salesforce." },
+          { "title": "Compliance Certified", "description": "Fully compliant with SOC2 Type II, ISO 27001, and GDPR guidelines." },
+          { "title": "Dedicated Support Architect", "description": "Direct access to engineering specialists for custom solution design." }
+        ]
+      },
+      "cta": {
+        "title": "Scale your global operations.",
+        "subtitle": "Get in touch with our enterprise sales and solution architecture team.",
+        "button": "Contact Sales"
+      }
+    },
+    "smbLogisticsPage": {
+      "overline": "Agile Delivery",
+      "title": "LogiTrack for SMB Logistics",
+      "subtitle": "Streamlined dispatching, route optimization, and driver apps designed for growing fleets.",
+      "metrics": [
+        { "value": "< 1 Hour", "label": "Setup Time" },
+        { "value": "Flexible", "label": "Pay-as-You-Grow" },
+        { "value": "Zero-Code", "label": "No Integration Required" }
+      ],
+      "features": {
+        "title": "Grow Without Friction",
+        "description": "Access enterprise-grade dispatching and tracking tools without complex deployment phases.",
+        "items": [
+          { "title": "Instant Fleet Setup", "description": "Add vehicles, invite drivers, and start optimizing routes within an hour." },
+          { "title": "Intuitive Dispatch Board", "description": "Drag-and-drop stop sequencing and route assignments." },
+          { "title": "Customer Share Links", "description": "Send automated SMS alerts with live tracking links to your buyers." },
+          { "title": "Mobile App for Drivers", "description": "Turn-by-turn navigation, digital proof of delivery, and chat integrations." }
+        ]
+      },
+      "cta": {
+        "title": "Start growing today.",
+        "subtitle": "Try LogiTrack Pro free for 14 days. No credit card required.",
+        "button": "Start Free Trial"
+      }
+    },
+    "supplyChainPage": {
+      "overline": "End-to-End Orchestration",
+      "title": "Supply Chain Visibility",
+      "subtitle": "Bridge the gap between raw suppliers, warehousing hubs, and final distribution networks.",
+      "metrics": [
+        { "value": "100%", "label": "Traceability Scope" },
+        { "value": "-24%", "label": "Lead Time Reduction" },
+        { "value": "50+", "label": "Carrier Connectors" }
+      ],
+      "features": {
+        "title": "Complete Flow Control",
+        "description": "Align warehouse pick-speeds directly with inbound trucks and outbound dispatch schedules.",
+        "items": [
+          { "title": "Supplier Portal Access", "description": "Enable suppliers to schedule inbound deliveries and print compliance labels." },
+          { "title": "Inventory Velocity Tracking", "description": "Predict high-turnover stock demands and coordinate warehouse space." },
+          { "title": "Automated Reorder Alerts", "description": "Trigger vendor shipments automatically when stock drops below threshold levels." },
+          { "title": "Cross-Docking Readiness", "description": "Unload inbound containers directly into outbound regional trucks." }
+        ]
+      },
+      "cta": {
+        "title": "Synchronize your supply chain.",
+        "subtitle": "Get end-to-end transparency and start saving warehouse floor space.",
+        "button": "Explore Solutions"
+      }
+    },
+    "missionPage": {
+      "hero": {
+        "title": "Moving Trade Forward",
+        "subtitle": "Empowering global commerce through unified logistics intelligence and radical visibility."
+      },
+      "sections": [
+        { "title": "Who We Are", "content": "LogiTrack was founded to build a bridge between complex physical assets and digital intelligence. We bring order to the chaos of supply chain management, offering shipping teams absolute clarity." },
+        { "title": "Our Global View", "content": "We envision a self-optimizing logistics network where trucks, warehouses, and customer shipments are seamlessly connected. Every vehicle should travel the greenest, fastest route." },
+        { "title": "Our Core Values", "content": "Our operations are built on three primary principles: absolute transparency for every stakeholder, data-driven optimization, and engineering resilience against any disruption." }
+      ]
+    },
+    "engineeringPage": {
+      "hero": {
+        "title": "Engineering Excellence",
+        "subtitle": "How we construct real-time, high-concurrency systems capable of processing millions of telemetry events."
+      },
+      "techStackTitle": "Our Technology Stack",
+      "sections": [
+        { "title": "Real-Time Telemetry Processing", "content": "We run on a highly concurrent, distributed backend. Incoming coordinates and IoT telemetry streams are processed via low-latency event queues and stored in time-series databases for real-time analytics." },
+        { "title": "System Architecture", "content": "Our design emphasizes strict separation of concerns. From Next.js server components to Prisma ORM schemas, every module is designed for performance, modularity, and rapid scalability." },
+        { "title": "Performance Budgets", "content": "We enforce strict performance limits: under 200ms response times for all API endpoints, light client-side assets, and 256-bit AES encryption standard on every connection." }
+      ]
+    },
+    "pressKitPage": {
+      "hero": {
+        "title": "Press & Media Assets",
+        "subtitle": "Official brand assets, logos, typography files, and press contact resources."
+      },
+      "assetsTitle": "Media Assets",
+      "fileSizeLabel": "File Size: ",
+      "downloadButton": "Download",
+      "sections": [
+        { "title": "Brand Guidelines", "content": "LogiTrack's logo represents precision, speed, and connectivity. We maintain strict brand guidelines to ensure visual consistency across all physical and digital displays." },
+        { "title": "Media Resource Pack", "content": "Download our comprehensive media kit, including high-resolution vector logos, executive portraits, and system screenshot collections." },
+        { "title": "Press Contacts", "content": "For media inquiries, interview requests, or official press announcements, please contact our public relations team at press@logitrack.com." }
+      ]
+    },
+    "careersPage": {
+      "hero": {
+        "title": "Build the Future",
+        "subtitle": "Join our remote-first engineering and operations team and help rewrite global logistics logic."
+      },
+      "openPositionsTitle": "Open Positions",
+      "applyButton": "Apply",
+      "sections": [
+        { "title": "Remote-First Culture", "content": "Our engineers, designers, and support professionals work across continents. We trust our teams, encourage deep work cycles, and collaborate asynchronously." },
+        { "title": "Employee Benefits", "content": "We provide competitive international salaries, equity shares, complete hardware setups, health insurance coverage, and learning budgets." },
+        { "title": "Open Positions", "content": "We are actively recruiting for senior roles: Frontend Engineers (React/TS), Systems Engineers (Go/Rust), Product Designers, and Operations Managers." }
+      ]
+    },
+    "devDocsPage": {
+      "hero": {
+        "title": "Developer Documentation",
+        "subtitle": "Everything you need to integrate, query, and scale with LogiTrack APIs."
+      },
+      "sections": [
+        { "title": "Getting Started", "content": "To integrate with the LogiTrack API, you'll need an active API Key, which you can generate from your Developer Settings dashboard." },
+        { "title": "Authentication", "content": "Secure all requests by passing your API Key in the authorization header: `Authorization: Bearer YOUR_API_KEY`." },
+        { "title": "Fleet Tracking API", "content": "Retrieve active vehicle positions, speeds, and diagnostic telemetry. `GET /api/v2/vehicles/live` returns JSON coordinates." }
+      ]
+    },
+    "helpCenterPage": {
+      "hero": {
+        "title": "Help & Support Center",
+        "subtitle": "Find step-by-step guides, frequently asked questions, and support channels."
+      },
+      "faqTitle": "Frequently Asked Questions",
+      "faqs": [
+        {
+          "q": "How long does LogiTrack WMS integration take?",
+          "a": "Basic WMS integrations can be completed within 2-4 hours thanks to our pre-built API connectors and webhook system."
+        },
+        {
+          "q": "Is additional hardware required for drivers?",
+          "a": "No. Your drivers can download and use the LogiTrack driver app on any iOS or Android-based smartphone."
+        },
+        {
+          "q": "Where is our data stored?",
+          "a": "All your data is stored in our fully encrypted cloud servers that comply with SOC2 standards."
+        }
+      ],
+      "sections": [
+        { "title": "Fleet Management Setup", "content": "Learn how to register new vehicles, configure license alerts, upload insurance documents, and assign drivers." },
+        { "title": "Route Dispatching", "content": "Step-by-step tutorials on scheduling routes, dynamic stop sequencing, and sending share links to buyers." },
+        { "title": "Account & Billing Options", "content": "Manage user seats, change organization settings, configure billing methods, and download past receipts." }
+      ]
+    },
+    "privacyPage": {
+      "hero": {
+        "title": "Privacy & Data Protection",
+        "subtitle": "How we collect, encrypt, and secure your organizational and telemetry data."
+      },
+      "sections": [
+        { "title": "Data Collection Scope", "content": "We collect vehicle location data, speed, sensor diagnostics, and user credentials solely to provide optimized routing services." },
+        { "title": "Telemetry Privacy Guard", "content": "Operational route histories and cargo temperature logs are encrypted. We never share or sell logistics data." },
+        { "title": "GDPR & CCPA Rights", "content": "You retain full control over your telemetry logs. Request complete data export or purge at any time." }
+      ]
+    },
+    "slaPage": {
+      "hero": {
+        "title": "Service Level Agreement",
+        "subtitle": "Our commitment to high availability, platform stability, and support response times."
+      },
+      "sections": [
+        { "title": "Uptime Guarantee", "content": "LogiTrack guarantees a minimum 99.9% uptime on all core database, telemetry ingest, and API endpoints." },
+        { "title": "Support Incident Levels", "content": "Critical issues (Severity 1) receive engineering attention within 30 minutes. Normal support questions are answered within 4 hours." },
+        { "title": "Maintenance Downtime", "content": "All scheduled infrastructure upgrades are carried out during weekend off-peak hours and announced 7 days in advance." }
+      ]
+    },
     "footer": {
       "description": "The intelligence layer for global logistics. We provide the mission-critical data required to move the world with precision.",
       "sections": {
@@ -552,7 +830,6 @@
         "enterprise": "Enterprise",
         "smbLogistics": "SMB Logistics",
         "supplyChain": "Supply Chain",
-        "customApi": "Custom API",
         "ourMission": "Our Mission",
         "engineering": "Engineering",
         "pressKit": "Press Kit",

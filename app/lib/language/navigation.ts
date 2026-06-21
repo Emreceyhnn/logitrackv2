@@ -20,7 +20,22 @@ export const routeTranslations: Record<string, Record<string, string>> = {
     "features": "ozellikler",
     "pricing": "fiyatlandirma",
     "about": "hakkimizda",
-    "how-it-works": "nasil-calisir"
+    "how-it-works": "nasil-calisir",
+    "global-tracking": "kuresel-takip",
+    "route-intelligence": "rota-zekasi",
+    "telemetry-hub": "telemetri-merkezi",
+    "security-center": "guvenlik-merkezi",
+    "enterprise": "kurumsal",
+    "smb-logistics": "kobi-lojistik",
+    "supply-chain": "tedarik-zinciri",
+    "mission": "misyonumuz",
+    "engineering": "muhendislik",
+    "press-kit": "basin-kiti",
+    "careers": "kariyer",
+    "dev-docs": "gelistirici-dokumanlari",
+    "help-center": "yardim-merkezi",
+    "privacy": "gizlilik",
+    "sla": "sla"
   },
   en: {
     "overview": "overview",
@@ -42,7 +57,22 @@ export const routeTranslations: Record<string, Record<string, string>> = {
     "features": "features",
     "pricing": "pricing",
     "about": "about",
-    "how-it-works": "how-it-works"
+    "how-it-works": "how-it-works",
+    "global-tracking": "global-tracking",
+    "route-intelligence": "route-intelligence",
+    "telemetry-hub": "telemetry-hub",
+    "security-center": "security-center",
+    "enterprise": "enterprise",
+    "smb-logistics": "smb-logistics",
+    "supply-chain": "supply-chain",
+    "mission": "mission",
+    "engineering": "engineering",
+    "press-kit": "press-kit",
+    "careers": "careers",
+    "dev-docs": "dev-docs",
+    "help-center": "help-center",
+    "privacy": "privacy",
+    "sla": "sla"
   }
 };
 

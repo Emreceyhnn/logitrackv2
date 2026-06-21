@@ -538,6 +538,283 @@
         "help": "Yardım Merkezi"
       }
     },
+    "globalTrackingPage": {
+      "overline": "Küresel Görünürlük",
+      "title": "Küresel Operasyon Komutası",
+      "subtitle": "Gerçek zamanlı çok modlu senkronizasyon ile kıtalar arası canlı varlık takibi.",
+      "widget": {
+        "status": "CANLI UYDU AKIŞI AKTİF // GÖNDERİ KOORDİNATLARI EŞLENDİ"
+      },
+      "features": {
+        "title": "Gerçek Zamanlı Takip Özellikleri",
+        "description": "Donanımdan bağımsız bağlantı ve canlı metriklerle tedarik zinciriniz üzerinde tam kontrol sağlayın.",
+        "items": [
+          { "title": "Sürekli GPS Takibi", "description": "Metre altı doğrulukla yüksek frekanslı koordinat güncellemeleri." },
+          { "title": "Dinamik Coğrafi Sınırlar", "description": "Varlıklar belirlenen yükleme bölgelerine girdiğinde veya çıktığında anlık bildirimler." },
+          { "title": "Çok Modlu Birlikte Çalışabilirlik", "description": "Deniz taşımacıları, demiryolu taşımacılığı ve son teslimat filoları arasında sorunsuz geçişler." },
+          { "title": "Çevresel Sensörler", "description": "Konteyner sıcaklığını, nemini, darbesini ve basıncını gerçek zamanlı olarak izleyin." }
+        ]
+      },
+      "cta": {
+        "title": "Küresel operasyonlarınızı bugün birleştirin.",
+        "subtitle": "Mutlak görünürlük için LogiTrack'e güvenen yüzlerce kuruluşa katılın.",
+        "button": "Hemen Başlayın"
+      }
+    },
+    "routeIntelligencePage": {
+      "overline": "Öngörülü Lojistik",
+      "title": "Yapay Zeka Rota Zekası",
+      "subtitle": "Öngörülü rota modellemesi ile yakıt tüketimini, karbon emisyonlarını ve transit sürelerini azaltın.",
+      "widget": {
+        "standardRoute": "STANDART ROTA (GECİKMELİ)",
+        "aiOptimized": "YAPAY ZEKA EN KISA YOL (%18 HIZLI)"
+      },
+      "features": {
+        "title": "Rota Optimizasyon Motoru",
+        "description": "Yapay zeka motorumuz, operasyonlarınızın zamanında çalışmasını sağlamak için milyonlarca dinamik değişkeni değerlendirir.",
+        "items": [
+          { "title": "Trafik Anomali Algılama", "description": "Araçları ani sıkışıklık veya yol çalışması bölgelerinin etrafından otomatik olarak yeniden yönlendirin." },
+          { "title": "Karbon Çıkışı Optimizasyonu", "description": "Özellikle azaltılmış CO2 emisyonları ve yakıt tüketimi için optimize edilmiş rotaları seçin." },
+          { "title": "Çok Duraklı Sıralama", "description": "Karmaşık gezgin satıcı rotalama problemlerini milisaniyeler içinde çözün." },
+          { "title": "Dinamik Tahmini Varış Süresi (ETA)", "description": "Geçmiş kalıplara ve mevcut hıza bağlı olarak teslimat ETA'larını sürekli güncelleyin." }
+        ]
+      },
+      "cta": {
+        "title": "Rotaları yapay zeka ile optimize edin.",
+        "subtitle": "Transit gecikmelerini ve yakıt maliyetlerini hemen azaltmaya başlayın.",
+        "button": "Bugün Optimize Edin"
+      }
+    },
+    "telemetryHubPage": {
+      "overline": "IoT Sınır Bağlantısı",
+      "title": "Birleşik Telemetri Merkezi",
+      "subtitle": "Ham araç, sensör ve çevre verilerini eyleme geçirilebilir operasyon zekasına dönüştürün.",
+      "widget": {
+        "avgSpeed": "Ort. Hız",
+        "avgSpeedUnit": "km/sa",
+        "fuelLevel": "Yakıt Seviyesi",
+        "cargoTemp": "Kargo Sıcaklığı"
+      },
+      "features": {
+        "title": "Yüksek Frekanslı Telemetri",
+        "description": "Teşhis verilerini doğrudan araç OBD portlarından ve çevresel izleyicilerden aktarın.",
+        "items": [
+          { "title": "Teşhis ve Bakım", "description": "Motor arızalarını, pil tüketimini ve lastik basıncı düşüşlerini önceden tespit edin." },
+          { "title": "Sürücü Güvenliği Endeksi", "description": "Hız seviyelerini, hızlı hızlanmayı, sert frenlemeyi ve rölanti sürelerini analiz edin." },
+          { "title": "Soğuk Zincir Bütünlüğü", "description": "Çabuk bozulan veya tıbbi kargolar için katı sıcaklık kontrolleri uygulayın." },
+          { "title": "Cihazdan Bağımsız Destek", "description": "Başlıca telemetri donanım markalarıyla kullanıma hazır entegrasyon." }
+        ]
+      },
+      "cta": {
+        "title": "Filonuzu dakikalar içinde bağlayın.",
+        "subtitle": "Varlıklarınız üzerinde doğrudan kontrol sağlayın ve maliyetli bakım kesintilerini önleyin.",
+        "button": "Telemetriyi Keşfedin"
+      }
+    },
+    "securityCenterPage": {
+      "overline": "Siber ve Fiziksel Kalkan",
+      "title": "Lojistik Güvenlik Merkezi",
+      "subtitle": "Askeri düzeyde veri koruması, kriptografik doğrulama ve fiziksel erişim kontrolleri.",
+      "features": {
+        "title": "Kurumsal Güven Altyapısı",
+        "description": "Operasyonel verilerinizin güvenli, uyumlu ve yalnızca yetkili kullanıcılar tarafından görülebilir kalmasını sağlıyoruz.",
+        "items": [
+          { "title": "Uçtan Uca Şifreleme", "description": "Taşınan ve saklanan tüm veriler AES-256 ve TLS 1.3 kullanılarak güvence altına alınır." },
+          { "title": "Ayrıntılı Erişim Rolleri", "description": "Dispetçerler, depo personeli ve müşteriler için kısıtlı roller atayın." },
+          { "title": "Değiştirilemez Denetim Günlükleri", "description": "Yapılan her değişikliği, girişi ve ayar değişimini izleyen güvenli kayıt defteri." },
+          { "title": "Akıllı Tehdit Algılama", "description": "Yetkisiz istekleri veya erişim anomalilerini tespit eden otomatik sistem taramaları." }
+        ]
+      },
+      "cta": {
+        "title": "Lojistik zincirinizi koruyun.",
+        "subtitle": "Sektör lideri uyumluluk ve güvenlik çerçevelerini nasıl uyguladığımızı öğrenin.",
+        "button": "Güvenliği Doğrula"
+      }
+    },
+    "enterprisePage": {
+      "overline": "Ölçek ve Esneklik",
+      "title": "Kurumsal Lojistik Orkestrasyonu",
+      "subtitle": "Küresel kuruluşların ölçek, güvenilirlik ve güvenlik taleplerini karşılamak üzere tasarlandı.",
+      "metrics": [
+        { "value": "%99.99", "label": "Çalışma Süresi SLA" },
+        { "value": "<100ms", "label": "API Gecikmesi" },
+        { "value": "Çoklu Bölge", "label": "Küresel Altyapı" }
+      ],
+      "features": {
+        "title": "Kurumsal Yetenekler",
+        "description": "Özel veritabanı kümeleri, tek oturum açma entegrasyonu ve özel hizmet seviyesi anlaşmaları alın.",
+        "items": [
+          { "title": "Özel Bulut Örnekleri", "description": "Operasyonlerinizi tamamen izole edilmiş veritabanı ve API düğümlerinde çalıştırın." },
+          { "title": "Özel ERP Entegrasyonları", "description": "SAP, Oracle WMS ve Salesforce ile sorunsuz çift yönlü senkronizasyon." },
+          { "title": "Sertifikalı Uyumluluk", "description": "SOC2 Type II, ISO 27001 ve GDPR yönergeleriyle tam uyumlu." },
+          { "title": "Özel Destek Mimarı", "description": "Özel çözüm tasarımı için doğrudan mühendislik uzmanlarına erişim." }
+        ]
+      },
+      "cta": {
+        "title": "Küresel operasyonlarınızı ölçeklendirin.",
+        "subtitle": "Kurumsal satış ve çözüm mimarisi ekibimizle iletişime geçin.",
+        "button": "Satışla İletişime Geçin"
+      }
+    },
+    "smbLogisticsPage": {
+      "overline": "Çevik Teslimat",
+      "title": "KOBİ Lojistiği İçin LogiTrack",
+      "subtitle": "Büyüyen filolar için tasarlanmış modern sevkiyat, rota optimizasyonu ve sürücü uygulamaları.",
+      "metrics": [
+        { "value": "< 1 Saat", "label": "Filo Kurulum Süresi" },
+        { "value": "Esnek", "label": "Kullandıkça Öde Modeli" },
+        { "value": "Sıfır Kod", "label": "Entegrasyon Gerektirmez" }
+      ],
+      "features": {
+        "title": "Sürtünmesiz Büyüyün",
+        "description": "Karmaşık dağıtım aşamaları olmadan kurumsal düzeyde sevkiyat ve takip araçlarına erişin.",
+        "items": [
+          { "title": "Anında Filo Kurulumu", "description": "Bir saat içinde araç ekleyin, sürücüleri davet edin ve rotaları optimize etmeye başlayın." },
+          { "title": "Sezgisel Sevkiyat Panosu", "description": "Sürükle-bırak yöntemiyle durak sıralama ve rota atamaları." },
+          { "title": "Müşteri Paylaşım Linkleri", "description": "Alıcılarınıza canlı takip linkleri içeren otomatik SMS uyarıları gönderin." },
+          { "title": "Sürücüler İçin Mobil Uygulama", "description": "Adım adım navigasyon, dijital teslimat kanıtı ve sohbet entegrasyonları." }
+        ]
+      },
+      "cta": {
+        "title": "Bugün büyümeye başlayın.",
+        "subtitle": "LogiTrack Pro'yu 14 gün boyunca ücretsiz deneyin. Kredi kartı gerekmez.",
+        "button": "Ücretsiz Denemeyi Başlat"
+      }
+    },
+    "supplyChainPage": {
+      "overline": "Uçtan Uca Orkestrasyon",
+      "title": "Tedarik Zinciri Görünürlüğü",
+      "subtitle": "Hammadde tedarikçileri, depolama merkezleri ve nihai dağıtım ağları arasındaki boşluğu kapatın.",
+      "metrics": [
+        { "value": "%100", "label": "Uçtan Uca İzlenebilirlik" },
+        { "value": "-%24", "label": "Ortalama Envanter Temin Süresi" },
+        { "value": "50+", "label": "Hazır Taşıyıcı Entegrasyonu" }
+      ],
+      "features": {
+        "title": "Tam Akış Kontrolü",
+        "description": "Depo toplama hızlarını doğrudan gelen kamyonlar ve giden sevkiyat programlarıyla uyumlu hale getirin.",
+        "items": [
+          { "title": "Tedarikçi Portalı Erişimi", "description": "Tedarikçilerin gelen teslimatları planlamasına ve uyumluluk etiketleri yazdırmasına olanak tanıyın." },
+          { "title": "Envanter Hızı Takibi", "description": "Yüksek devirli stok taleplerini tahmin edin ve depo alanını koordine edin." },
+          { "title": "Otomatik Yeniden Sipariş Uyarıları", "description": "Stok seviyeleri eşik değerlerin altına düştüğğinde satıcı gönderilerini otomatik olarak tetikleyin." },
+          { "title": "Çapraz Sevkiyata Hazırlık", "description": "Gelen konteynerleri doğrudan giden bölgesel kamyonlara boşaltın." }
+        ]
+      },
+      "cta": {
+        "title": "Tedarik zincirinizi senkronize edin.",
+        "subtitle": "Uçtan uca şeffaflık elde edin ve depo alanından tasarruf etmeye başlayın.",
+        "button": "Çözümleri Keşfedin"
+      }
+    },
+    "missionPage": {
+      "hero": {
+        "title": "Ticareti İleriye Taşıyoruz",
+        "subtitle": "Birleşik lojistik zekası ve radikal görünürlük aracılığıyla küresel ticareti güçlendiriyoruz."
+      },
+      "sections": [
+        { "title": "Biz Kimiz", "content": "LogiTrack, karmaşık fiziksel varlıklar ile dijital zeka arasında bir köprü kurmak amacıyla kuruldu. Tedarik zinciri yönetiminin karmaşasına düzen getirerek nakliye ekiplerine mutlak netlik sunuyoruz." },
+        { "title": "Küresel Vizyonumuz", "content": "Kamyonların, depoların ve müşteri sevkiyatlarının sorunsuz bir şekilde birbirine bağlandığı kendi kendini optimize eden bir lojistik ağı hayal ediyoruz. Her araç en çevreci ve en hızlı rotayı izlemelidir." },
+        { "title": "Temel Değerlerimiz", "content": "Operasyonlarımız üç temel ilke üzerine kuruludur: her paydaş için mutlak şeffaflık, veri odaklı optimizasyon ve her türlü kesintiye karşı mühendislik esnekliği." }
+      ]
+    },
+    "engineeringPage": {
+      "hero": {
+        "title": "Mühendislik Mükemmelliği",
+        "subtitle": "Milyonlarca telemetri olayını işleme kapasitesine sahip gerçek zamanlı, yüksek eşzamanlı sistemleri nasıl oluşturuyoruz."
+      },
+      "techStackTitle": "Teknoloji Yığınımız",
+      "sections": [
+        { "title": "Gerçek Zamanlı Telemetri İşleme", "content": "Yüksek düzeyde eşzamanlı, dağıtılmış bir arka uçta çalışıyoruz. Gelen koordinatlar ve IoT telemetri akışları, düşük gecikmeli olay kuyrukları aracılığıyla işlenir ve gerçek zamanlı analizler için zaman serisi veritabanlarında saklanır." },
+        { "title": "Sistem Mimarisi", "content": "Tasarımımız kesin bir sorumluluk ayrımını (separation of concerns) vurgular. Next.js sunucu bileşenlerinden Prisma ORM şemalarına kadar her modül performans, modülerlik ve hızlı ölçeklenebilirlik için tasarlanmıştır." },
+        { "title": "Performans Bütçeleri", "content": "Katı performans limitleri uyguluyoruz: tüm API uç noktaları için 200ms yanıt süreleri, hafif istemci tarafı varlıkları ve her bağlantıda standart olarak 256 bit AES şifreleme." }
+      ]
+    },
+    "pressKitPage": {
+      "hero": {
+        "title": "Basın ve Medya Varlıkları",
+        "subtitle": "Resmi marka varlıkları, logolar, tipografi dosyaları ve basın iletişim kaynakları."
+      },
+      "assetsTitle": "Medya Varlıkları",
+      "fileSizeLabel": "Dosya Boyutu: ",
+      "downloadButton": "İndir",
+      "sections": [
+        { "title": "Marka Kılavuzları", "content": "LogiTrack logosu hassasiyeti, hızı ve bağlantıyı temsil eder. Tüm fiziksel ve dijital ekranlarda görsel tutarlılık sağlamak için katı marka kılavuzları uyguluyoruz." },
+        { "title": "Medya Kaynak Paketi", "content": "Yüksek çözünürlüklü vektör logoları, yönetici portreleri ve sistem ekran görüntüsü koleksiyonlarını içeren kapsamlı medya kitimizi indirin." },
+        { "title": "Basın İletişimi", "content": "Medya soruları, röportaj talepleri veya resmi basın açıklamaları için lütfen halkla ilişkiler ekibimizle press@logitrack.com adresinden iletişime geçin." }
+      ]
+    },
+    "careersPage": {
+      "hero": {
+        "title": "Geleceği İnşa Edin",
+        "subtitle": "Uzaktan öncelikli mühendislik ve operasyon ekibimize katılın ve küresel lojistik mantığını yeniden yazın."
+      },
+      "openPositionsTitle": "Açık Pozisyonlar",
+      "applyButton": "Başvur",
+      "sections": [
+        { "title": "Uzaktan Öncelikli Kültür", "content": "Mühendislerimiz, tasarımcılarımız ve destek profesyonellerimiz kıtalar arasında çalışmaktadır. Ekiplerimize güveniyoruz, derin çalışma döngülerini teşvik ediyoruz ve asenkron olarak işbirliği yapıyoruz." },
+        { "title": "Çalışan Avantajları", "content": "Rekabetçi uluslararası maaşlar, hisse senetleri, eksiksiz donanım kurulumları, sağlık sigortası kapsamı ve öğrenme bütçeleri sunuyoruz." },
+        { "title": "Açık Pozisyonlar", "content": "Aktif olarak kıdemli roller için işe alım yapıyoruz: Frontend Mühendisleri (React/TS), Sistem Mühendisleri (Go/Rust), Ürün Tasarımcıları ve Operasyon Yöneticileri." }
+      ]
+    },
+    "devDocsPage": {
+      "hero": {
+        "title": "Geliştirici Dokümantasyonu",
+        "subtitle": "LogiTrack API'leri ile entegrasyon yapmak, sorgulamak ve ölçeklendirmek için ihtiyacınız olan her şey."
+      },
+      "sections": [
+        { "title": "Başlangıç", "content": "LogiTrack API ile entegrasyon sağlamak için Geliştirici Ayarları panelinizden oluşturabileceğiniz aktif bir API Anahtarına ihtiyacınız olacaktır." },
+        { "title": "Kimlik Doğrulama", "content": "Yetkilendirme başlığında API Anahtarınızı göndererek tüm istekleri güvence altına alın: `Authorization: Bearer SIZIN_API_ANAHTARINIZ`." },
+        { "title": "Filo Takip API'si", "content": "Aktif araç konumlarını, hızlarını ve teşhis telemetrisini alın. `GET /api/v2/vehicles/live` isteği JSON koordinatlarını döndürür." }
+      ]
+    },
+    "helpCenterPage": {
+      "hero": {
+        "title": "Yardım ve Destek Merkezi",
+        "subtitle": "Adım adım kılavuzları, sıkça sorulan soruları ve destek kanallarını bulun."
+      },
+      "faqTitle": "Sıkça Sorulan Sorular",
+      "faqs": [
+        {
+          "q": "LogiTrack WMS entegrasyonu ne kadar sürer?",
+          "a": "Temel WMS entegrasyonları, hazır API konektörlerimiz ve webhook sistemimiz sayesinde 2-4 saat içinde tamamlanabilmektedir."
+        },
+        {
+          "q": "Sürücüler için ek bir cihaz gerekir mi?",
+          "a": "Hayır. Sürücüleriniz, iOS veya Android tabanlı herhangi bir akıllı telefon üzerinden LogiTrack sürücü uygulamasını indirip kullanabilirler."
+        },
+        {
+          "q": "Verilerimiz nerede depolanıyor?",
+          "a": "Tüm verileriniz, SOC2 standartlarına uyumlu, tamamen şifrelenmiş güvenli bulut sunucularımızda saklanır."
+        }
+      ],
+      "sections": [
+        { "title": "Filo Yönetimi Kurulumu", "content": "Yeni araçları nasıl kaydedeceğinizi, lisans uyarılarını nasıl yapılandıracağınızı, sigorta belgelerini nasıl yükleyeceğinizi ve sürücüleri nasıl atayacağınızı öğrenin." },
+        { "title": "Rota Planlama ve Sevkiyat", "content": "Rotaları planlama, dinamik durak sıralama ve alıcılara paylaşım linkleri gönderme hakkında adım adım eğitimler." },
+        { "title": "Hesap ve Faturalandırma Seçenekleri", "content": "Kullanıcı rollerini yönetin, kuruluş ayarlarını değiştirin, faturalandırma yöntemlerini yapılandırın ve geçmiş makbuzları indirin." }
+      ]
+    },
+    "privacyPage": {
+      "hero": {
+        "title": "Gizlilik ve Veri Koruma",
+        "subtitle": "Kurumsal ve telemetri verilerinizi nasıl topluyor, şifreliyor ve güvence altına alıyoruz."
+      },
+      "sections": [
+        { "title": "Veri Toplama Kapsamı", "content": "Yalnızca optimize edilmiş rotalama hizmetleri sunmak amacıyla araç konum verilerini, hızını, sensör teşhislerini ve kullanıcı kimlik bilgilerini topluyoruz." },
+        { "title": "Telemetri Gizlilik Koruması", "content": "Operasyonel rota geçmişleri ve kargo sıcaklık günlükleri şifrelenir. Lojistik verilerinizi asla paylaşmayız veya satmayız." },
+        { "title": "GDPR ve CCPA Hakları", "content": "Telemetri günlükleriniz üzerinde tam kontrole sahipsiniz. İstediğiniz zaman verilerinizi dışa aktarmayı veya tamamen silmeyi talep edebilirsiniz." }
+      ]
+    },
+    "slaPage": {
+      "hero": {
+        "title": "Hizmet Seviyesi Anlaşması (SLA)",
+        "subtitle": "Yüksek kullanılabilirlik, platform kararlılığı ve destek yanıt sürelerine olan bağlılığımız."
+      },
+      "sections": [
+        { "title": "Çalışma Süresi Garantisi", "content": "LogiTrack, tüm temel veritabanı, telemetri alımı ve API uç noktalarında minimum %99.9 çalışma süresi garanti eder." },
+        { "title": "Destek Olay Seviyeleri", "content": "Kritik sorunlar (Öncelik Seviyesi 1) 30 dakika içinde mühendislik müdahalesi alır. Normal destek soruları 4 saat içinde yanıtlanır." },
+        { "title": "Planlı Bakım Kesintileri", "content": "Tüm planlı altyapı güncellemeleri hafta sonu yoğun olmayan saatlerde gerçekleştirilir ve 7 gün önceden duyurulur." }
+      ]
+    },
     "footer": {
       "description": "Küresel lojistik için zeka katmanı. Dünyayı hassasiyetle hareket ettirmek için gereken kritik verileri sağlıyoruz.",
       "sections": {
@@ -552,7 +829,6 @@
         "enterprise": "Kurumsal",
         "smbLogistics": "KOBİ Lojistik",
         "supplyChain": "Tedarik Zinciri",
-        "customApi": "Özel API",
         "ourMission": "Misyonumuz",
         "engineering": "Mühendislik",
         "pressKit": "Basın Kiti",
