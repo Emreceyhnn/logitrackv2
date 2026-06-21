@@ -32,18 +32,21 @@ const OverviewMapCard = ({ stats }: OverviewMapCardProps) => {
 
   if (!stats) return null;
 
-  const center = markers.reduce(
-    (acc, marker) => {
-      return {
-        lat: acc.lat + marker.position.lat,
-        lng: acc.lng + marker.position.lng,
-      };
-    },
-    { lat: 0, lng: 0 }
-  );
+  const center = { lat: 39.9334, lng: 32.8597 }; // Default center (Ankara, Turkey)
 
-  center.lat = center.lat / markers.length;
-  center.lng = center.lng / markers.length;
+  if (markers.length > 0) {
+    const sum = markers.reduce(
+      (acc, marker) => {
+        return {
+          lat: acc.lat + marker.position.lat,
+          lng: acc.lng + marker.position.lng,
+        };
+      },
+      { lat: 0, lng: 0 }
+    );
+    center.lat = sum.lat / markers.length;
+    center.lng = sum.lng / markers.length;
+  }
 
   return (
     <CustomCard sx={{ flexGrow: 10, p: 2 }}>
