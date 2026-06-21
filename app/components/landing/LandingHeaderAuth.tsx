@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Button, Stack, CircularProgress, useTheme } from "@mui/material";
+import { Button, Stack, useTheme, Box } from "@mui/material";
 import Link from "next/link";
 import { getUserSession } from "@/app/lib/actions/auth";
 import dynamic from "next/dynamic";
@@ -55,7 +55,7 @@ export default function LandingHeaderAuth() {
   /* -------------------------------- RENDER -------------------------------- */
   if (loading) {
     return (
-      <CircularProgress size={24} sx={{ color: theme.palette.primary.main }} />
+      <Box sx={{ width: 180, height: 40 }} />
     );
   }
 

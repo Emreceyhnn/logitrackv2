@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Container, Grid, Stack, Typography } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -14,6 +14,25 @@ import { m } from "framer-motion";
 export default function OperationsDashboard() {
   const dict = useDictionary();
   const [activeTab, setActiveTab] = useState("overview");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Box 
+        sx={{ 
+          minHeight: { xs: 400, md: 600 }, 
+          bgcolor: "#0a0e14",
+          borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+        }} 
+      />
+    );
+  }
 
   const sidebarItems = [
     {
