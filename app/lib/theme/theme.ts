@@ -251,7 +251,7 @@ export const getTheme = (mode: ThemeMode) => {
       },
     },
     typography: {
-      fontFamily: "Poppins, Arial, sans-serif",
+      fontFamily: "var(--font-poppins), Poppins, Arial, sans-serif",
 
       h1: { fontWeight: 700 },
       h2: { fontWeight: 600 },

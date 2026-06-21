@@ -37,12 +37,11 @@ export default function HeroSection() {
         }}
       >
         <Image
-          src="/bg-high-reso.webp"
+          src="/bg-high-reso-opt.webp"
           alt="LogiTrack Background"
           fill
           priority
           fetchPriority="high"
-          unoptimized
           quality={75}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
           style={{ objectFit: "cover", objectPosition: "center" }}

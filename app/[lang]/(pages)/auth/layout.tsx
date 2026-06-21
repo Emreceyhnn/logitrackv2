@@ -145,7 +145,7 @@ export default function AuthLayout({
               }}
             >
               <Image
-                src="/auth-visual.png"
+                src="/auth-visual-opt.webp"
                 alt="Logistics Network"
                 width={1200}
                 height={800}

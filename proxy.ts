@@ -103,7 +103,7 @@ export default async function proxy(request: NextRequest) {
 
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
-    return NextResponse.redirect(url);
+    return NextResponse.rewrite(url);
   }
 
   const { locale, restPath } = getLocaleFromPathname(pathname);
