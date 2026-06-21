@@ -113,6 +113,7 @@ export default function LandingFooter() {
               <Stack direction="row" spacing={3}>
                 <MuiLink
                   href="#"
+                  aria-label="LinkedIn"
                   sx={{
                     color: "rgba(255, 255, 255, 0.4)",
                     "&:hover": { color: "#00f2ff" },
@@ -122,6 +123,7 @@ export default function LandingFooter() {
                 </MuiLink>
                 <MuiLink
                   href="#"
+                  aria-label="Twitter"
                   sx={{
                     color: "rgba(255, 255, 255, 0.4)",
                     "&:hover": { color: "#00f2ff" },
