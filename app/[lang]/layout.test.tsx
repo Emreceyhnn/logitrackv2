@@ -17,8 +17,17 @@ mock.module("../lib/actions/theme.ts", {
 mock.module("../lib/auth-middleware.ts", {
   namedExports: { getAuthenticatedUser: mock.fn(async () => null) }
 });
+mock.module("next/font/google", {
+  namedExports: {
+    Poppins: mock.fn(() => ({
+      variable: "--font-poppins",
+      style: { fontFamily: "Poppins" }
+    }))
+  }
+});
 
 // Mock providers and components
+mock.module("file:///C:/Users/emre/Desktop/logitrackv2/app/style/globals.css", { defaultExport: {} });
 mock.module("../lib/theme/themeProviders.tsx", { defaultExport: ({ children }: any) => <div data-testid="theme-provider">{children}</div> });
 mock.module("../lib/language/DictionaryContext.tsx", { namedExports: { DictionaryProvider: ({ children }: any) => <div data-testid="dict-provider">{children}</div> } });
 mock.module("../lib/context/UserContext.tsx", { namedExports: { UserProvider: ({ children }: any) => <div data-testid="user-provider">{children}</div> } });

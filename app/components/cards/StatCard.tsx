@@ -10,7 +10,7 @@ import {
   Theme,
 } from "@mui/material";
 import { ReactNode } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface StatCardProps {
@@ -46,7 +46,7 @@ const StatCard = ({
     : null;
 
   return (
-    <motion.div
+    <m.div
       whileHover={{ y: -6, transition: { duration: 0.3, ease: "easeOut" } }}
       whileTap={{ scale: 0.97 }}
       initial={{ opacity: 0, y: 20 }}
@@ -145,7 +145,7 @@ const StatCard = ({
                 {title}
               </Typography>
               <AnimatePresence mode="wait">
-                <motion.div
+                <m.div
                   key={value}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -164,7 +164,7 @@ const StatCard = ({
                   >
                     {value}
                   </Typography>
-                </motion.div>
+                </m.div>
               </AnimatePresence>
             </Stack>
 
@@ -289,7 +289,7 @@ const StatCard = ({
           }}
         />
       </Card>
-    </motion.div>
+    </m.div>
   );
 };
 

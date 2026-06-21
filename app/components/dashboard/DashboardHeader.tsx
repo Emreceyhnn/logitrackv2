@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { Box, Stack, IconButton, Drawer, useTheme, Tooltip } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import UserAccountNav from "../nav/UserAccountNav";
-import NotificationBell from "../notifications/NotificationBell";
+import dynamic from "next/dynamic";
+const NotificationBell = dynamic(() => import("../notifications/NotificationBell"), {
+  ssr: false,
+});
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 import DashboardBreadcrumbs from "./DashboardBreadcrumbs";
 import SideBar from "../sidebar";

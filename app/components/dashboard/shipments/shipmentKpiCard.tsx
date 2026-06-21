@@ -7,7 +7,7 @@ import DirectionsBoatIcon from "@mui/icons-material/DirectionsBoat";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import { ShipmentKpiCardProps } from "@/app/lib/type/shipment";
 import KpiSkeleton from "@/app/components/skeletons/KpiSkeleton";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useMemo } from "react";
 
@@ -63,7 +63,7 @@ const ShipmentKpiCard = ({ state }: ShipmentKpiCardProps) => {
 
   return (
     <Box
-      component={motion.div}
+      component={m.div}
       variants={container}
       initial="hidden"
       animate="show"

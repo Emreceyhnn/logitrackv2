@@ -16,6 +16,7 @@ import { Toaster } from "@/app/components/toast";
 import { useParams } from "next/navigation";
 import { saveUserTheme } from "@/app/lib/actions/theme";
 import { useUserContext } from "../context/UserContext";
+import { LazyMotion, domAnimation } from "framer-motion";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -89,12 +90,10 @@ export default function Providers({
   const systemMqCleanupRef: MutableRefObject<(() => void) | null> = useRef(null);
 
   const setMode = useCallback((newMode: ThemeMode | "system") => {
-    // Skip if the value in localStorage is already the same (prevents duplicate calls)
     const currentStored = typeof window !== "undefined"
       ? localStorage.getItem(THEME_STORAGE_KEY)
       : null;
     if (currentStored === newMode) {
-      // Still update visual state in case SSR/client mismatch
       setModeState(resolveMode(newMode as StoredMode));
       return;
     }
@@ -102,10 +101,9 @@ export default function Providers({
     try {
       localStorage.setItem(THEME_STORAGE_KEY, newMode);
     } catch {
-      // localStorage not available (private browsing, etc.)
+      // localStorage not available
     }
 
-    // Debounce server-action call — only fires if user stops clicking for 600ms
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
       saveUserTheme(newMode).catch((err) =>
@@ -116,13 +114,11 @@ export default function Providers({
     const resolved = resolveMode(newMode as StoredMode);
     setModeState(resolved);
 
-    // Clean up previous system-mode listener before adding a new one
     if (systemMqCleanupRef.current) {
       systemMqCleanupRef.current();
       systemMqCleanupRef.current = null;
     }
 
-    // If switching to system, start listening
     if (newMode === "system" && typeof window !== "undefined") {
       const mq = window.matchMedia("(prefers-color-scheme: dark)");
       const handler = (e: MediaQueryListEvent) =>
@@ -137,9 +133,11 @@ export default function Providers({
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={safeLang}>
         <QueryProvider>
           <ThemeProvider theme={theme}>
-            <Toaster />
-            <CssBaseline />
-            {children}
+            <LazyMotion features={domAnimation}>
+              <Toaster />
+              <CssBaseline />
+              {children}
+            </LazyMotion>
           </ThemeProvider>
         </QueryProvider>
       </LocalizationProvider>

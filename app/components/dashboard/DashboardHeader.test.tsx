@@ -30,6 +30,9 @@ mock.module("../nav/UserAccountNav.tsx", {
 mock.module("../notifications/NotificationBell.tsx", {
   defaultExport: () => <div data-testid="notification-bell">Notification Bell</div>,
 });
+mock.module("next/dynamic", {
+  defaultExport: () => () => <div data-testid="notification-bell">Notification Bell</div>,
+});
 mock.module("../sidebar/index.tsx", {
   defaultExport: ({ onMobileClose }: any) => (
     <div data-testid="sidebar">

@@ -9,7 +9,7 @@ import RouteIcon from "@mui/icons-material/Route";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import SpeedIcon from "@mui/icons-material/Speed";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 export default function OperationsDashboard() {
   const dict = useDictionary();
@@ -872,7 +872,7 @@ export default function OperationsDashboard() {
   return (
     <Box sx={{ py: 12, bgcolor: "#10141a", overflow: "hidden" }}>
       <Container maxWidth="xl">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
@@ -1115,7 +1115,7 @@ export default function OperationsDashboard() {
               </Box>
             </Box>
           </Box>
-        </motion.div>
+        </m.div>
       </Container>
     </Box>
   );

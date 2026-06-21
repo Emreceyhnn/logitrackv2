@@ -26,7 +26,7 @@ import DriverCard from "../../cards/driverCard";
 import MapRoutesDialogCard from "../routes/map";
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 interface ShipmentDetailDialogProps {
   open: boolean;
@@ -277,7 +277,7 @@ export default function ShipmentDetailDialog({
             <AnimatePresence mode="wait">
               {/* ══ TAB: Overview ════════════════════════════════ */}
               {tab === "overview" && (
-                <motion.div
+                <m.div
                   key="overview"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -672,12 +672,12 @@ export default function ShipmentDetailDialog({
                       )}
                     </Stack>
                   </Stack>
-                </motion.div>
+                </m.div>
               )}
 
               {/* ══ TAB: Items ═══════════════════════════════════ */}
               {tab === "items" && (
-                <motion.div
+                <m.div
                   key="items"
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -933,7 +933,7 @@ export default function ShipmentDetailDialog({
                       </Box>
                     ))}
                   </Stack>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </Box>

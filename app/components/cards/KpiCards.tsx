@@ -2,7 +2,7 @@
 
 import { Box, Card, Skeleton, Stack, useTheme } from "@mui/material";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import StatCard from "../cards/StatCard";
 
 interface KpiItem {
@@ -32,7 +32,7 @@ export default function KpiCards({ kpis, loading }: KpiCardsProps) {
 
   return (
     <Box
-      component={motion.div}
+      component={m.div}
       variants={container}
       initial="hidden"
       animate="show"

@@ -5,7 +5,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import InsightsIcon from "@mui/icons-material/Insights";
 import RouteIcon from "@mui/icons-material/Route";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 export default function FeaturesSection() {
   const dict = useDictionary();
@@ -40,7 +40,7 @@ export default function FeaturesSection() {
     <Box component="section" sx={{ py: 20, bgcolor: "#10141a" }} id="solutions">
       <Container maxWidth="lg">
         <Box sx={{ textAlign: "center", mb: 12 }}>
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -82,13 +82,13 @@ export default function FeaturesSection() {
             >
               {dict.landing.features.description}
             </Typography>
-          </motion.div>
+          </m.div>
         </Box>
 
         <Grid container spacing={5}>
           {features.map((feature, idx) => (
             <Grid size={{ xs: 12, md: 4 }} key={idx}>
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: feature.delay }}
@@ -158,7 +158,7 @@ export default function FeaturesSection() {
                     </Typography>
                   </Box>
                 </Box>
-              </motion.div>
+              </m.div>
             </Grid>
           ))}
         </Grid>

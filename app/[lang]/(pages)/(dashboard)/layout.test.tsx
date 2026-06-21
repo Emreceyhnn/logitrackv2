@@ -9,6 +9,18 @@ import React from "react";
 mock.module("../../../components/dashboard/DashboardLayoutClient.tsx", {
   defaultExport: ({ children }: any) => <div data-testid="dashboard-layout-client">{children}</div>,
 });
+mock.module("../../../lib/actions/theme.ts", {
+  namedExports: { getUserTheme: mock.fn(async () => "dark") }
+});
+mock.module("../../../lib/auth-middleware.ts", {
+  namedExports: { getAuthenticatedUser: mock.fn(async () => null) }
+});
+mock.module("../../../lib/theme/themeProviders.tsx", {
+  defaultExport: ({ children }: any) => <div data-testid="theme-provider">{children}</div>,
+});
+mock.module("../../../lib/context/UserContext.tsx", {
+  namedExports: { UserProvider: ({ children }: any) => <div data-testid="user-provider">{children}</div>, }
+});
 
 describe("DashboardLayout Component", () => {
   let DashboardLayout: any;

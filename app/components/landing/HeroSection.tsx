@@ -4,7 +4,7 @@ import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 export default function HeroSection() {
   const dict = useDictionary();
@@ -103,7 +103,7 @@ export default function HeroSection() {
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 10 }}>
         <Stack spacing={4} alignItems="center" textAlign="center">
           {/* Badge */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -143,7 +143,7 @@ export default function HeroSection() {
                 {dict.landing.hero.badge}
               </Typography>
             </Box>
-          </motion.div>
+          </m.div>
 
           {/* Title */}
           <Box
@@ -184,7 +184,7 @@ export default function HeroSection() {
           </Box>
 
           {/* Description */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -200,10 +200,10 @@ export default function HeroSection() {
             >
               {dict.landing.hero.description}
             </Typography>
-          </motion.div>
+          </m.div>
 
           {/* Actions */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
@@ -250,7 +250,7 @@ export default function HeroSection() {
                 {dict.landing.hero.demo}
               </Button>
             </Stack>
-          </motion.div>
+          </m.div>
         </Stack>
       </Container>
     </Box>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, ButtonProps, CircularProgress, Box, useTheme } from "@mui/material";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 interface AuthButtonProps extends ButtonProps {
   loading?: boolean;
@@ -46,7 +46,7 @@ const AuthButton = ({
     >
       <AnimatePresence mode="wait">
         {loading ? (
-          <motion.div
+          <m.div
             key="loading"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -72,9 +72,9 @@ const AuthButton = ({
                 {loadingText}
               </Box>
             )}
-          </motion.div>
+          </m.div>
         ) : (
-          <motion.div
+          <m.div
             key="content"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -82,7 +82,7 @@ const AuthButton = ({
             transition={{ duration: 0.2 }}
           >
             {children}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </Button>

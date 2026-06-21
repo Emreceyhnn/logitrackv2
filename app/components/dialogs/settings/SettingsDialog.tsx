@@ -16,7 +16,7 @@ import {
   NotificationsActive as NotifIcon,
   Contrast as AppearanceIcon,
 } from "@mui/icons-material";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { useUserContext } from "@/app/lib/context/UserContext";
 import { updateUserRegionalSettings, updateUserNotificationSettings } from "@/app/lib/controllers/users";
@@ -236,7 +236,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
 
         <DialogContent sx={{ px: 3, pt: 3.5, pb: 4, minHeight: 400 }}>
           <AnimatePresence mode="wait">
-            <motion.div
+            <m.div
               key={state.activeTab}
               initial={{ opacity: 0, y: 10, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -255,7 +255,7 @@ export default function SettingsDialog({ open, onClose }: Props) {
               {state.activeTab === 2 && (
                 <AppearanceTab state={state} actions={actions} />
               )}
-            </motion.div>
+            </m.div>
           </AnimatePresence>
         </DialogContent>
       </Dialog>
