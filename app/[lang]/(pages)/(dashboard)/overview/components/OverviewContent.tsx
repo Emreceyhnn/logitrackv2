@@ -19,7 +19,11 @@ const FuelByVehicleCard = dynamic(
   () => import("@/app/components/dashboard/overview/fuelByVehicleCard"),
   {
     ssr: false,
-    loading: () => <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 2 }} />
+    loading: () => (
+      <CustomCard sx={{ height: 320, p: 2 }}>
+        <Skeleton variant="rectangular" height="100%" sx={{ borderRadius: 2 }} />
+      </CustomCard>
+    )
   }
 );
 const WarehouseCapacityCard = dynamic(
@@ -34,7 +38,11 @@ const ShipmentOnStatusCard = dynamic(
   () => import("@/app/components/dashboard/overview/shipmentsByStatusCard"),
   {
     ssr: false,
-    loading: () => <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 2 }} />
+    loading: () => (
+      <CustomCard sx={{ height: 320, p: 2 }}>
+        <Skeleton variant="rectangular" height="100%" sx={{ borderRadius: 2 }} />
+      </CustomCard>
+    )
   }
 );
 const PicksPacksDailyCard = dynamic(
@@ -45,14 +53,22 @@ const ShipmentVolumeCard = dynamic(
   () => import("@/app/components/dashboard/overview/onTimeTrends"),
   {
     ssr: false,
-    loading: () => <Skeleton variant="rectangular" height={380} sx={{ borderRadius: 2 }} />
+    loading: () => (
+      <CustomCard sx={{ height: 380, p: 2 }}>
+        <Skeleton variant="rectangular" height="100%" sx={{ borderRadius: 2 }} />
+      </CustomCard>
+    )
   }
 );
 const OverviewMapCard = dynamic(
   () => import("@/app/components/dashboard/overview/overViewMapCard"),
   {
     ssr: false,
-    loading: () => <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 2 }} />
+    loading: () => (
+      <CustomCard sx={{ height: 400, p: 2 }}>
+        <Skeleton variant="rectangular" height="100%" sx={{ borderRadius: 2 }} />
+      </CustomCard>
+    )
   }
 );
 import { useState, useMemo, useEffect } from "react";
