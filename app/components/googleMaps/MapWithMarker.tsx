@@ -1,4 +1,10 @@
-import React, { useCallback, useRef, useMemo, useState, useEffect } from "react";
+import React, {
+  useCallback,
+  useRef,
+  useMemo,
+  useState,
+  useEffect,
+} from "react";
 import { GoogleMap, OverlayView } from "@react-google-maps/api";
 import Image from "next/image";
 
@@ -9,13 +15,19 @@ const containerStyle = {
   borderRadius: "12px",
 };
 
-export type MarkerType = "customer" | "warehouse" | "vehicle" | "route" | "default";
+export type MarkerType =
+  | "customer"
+  | "warehouse"
+  | "vehicle"
+  | "route"
+  | "default";
 
 export interface MarkerData {
   id?: string;
-  position: { lat: number; lng: number };
-  label?: string;
-  type?: MarkerType;
+  lat: number;
+  len: number;
+  name: string;
+  type: string;
 }
 
 interface MapWithMarkerProps {
@@ -47,7 +59,9 @@ const AdvancedMarker = ({
   offset?: { x: number; y: number };
   onClick?: () => void;
 }) => {
-  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(
+    null
+  );
 
   useEffect(() => {
     if (!map || typeof window === "undefined" || !window.google) return;
@@ -60,7 +74,7 @@ const AdvancedMarker = ({
       img.style.width = "38px";
       img.style.height = "38px";
       img.style.transition = "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)";
-      
+
       if (offset) {
         img.style.transform = `translate(${offset.x}px, ${offset.y}px) ${isExpanded ? "scale(1.15)" : "scale(1)"}`;
       }
@@ -74,9 +88,10 @@ const AdvancedMarker = ({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
       content = pin as unknown as HTMLElement;
-      
+
       if (offset) {
-        content.style.transition = "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)";
+        content.style.transition =
+          "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)";
         content.style.transform = `translate(${offset.x}px, ${offset.y}px) ${isExpanded ? "scale(1.15)" : "scale(1)"}`;
       }
     }
@@ -100,7 +115,17 @@ const AdvancedMarker = ({
       marker.map = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, position.lat, position.lng, title, label, iconUrl, isExpanded, offset?.x, offset?.y]);
+  }, [
+    map,
+    position.lat,
+    position.lng,
+    title,
+    label,
+    iconUrl,
+    isExpanded,
+    offset?.x,
+    offset?.y,
+  ]);
 
   return null;
 };
@@ -124,24 +149,80 @@ const OptimizedMarker = React.memo(
 
     if (isVehicle) {
       return (
-        <OverlayView position={marker.position} mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}>
+        <OverlayView
+          position={{ lat: marker.lat, lng: marker.len }}
+          mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+        >
           <div
-            onClick={(e) => { e.stopPropagation(); onClick?.(marker); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.(marker);
+            }}
             style={{
-              display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer",
-              zIndex: isExpanded ? 2000 : 1000, position: "absolute",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              cursor: "pointer",
+              zIndex: isExpanded ? 2000 : 1000,
+              position: "absolute",
               transform: `translate(calc(-50% + ${offset.x}px), calc(-100% + ${offset.y}px)) ${isExpanded ? "scale(1.15)" : "scale(1)"}`,
               transition: "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
               pointerEvents: "auto",
             }}
           >
-            <div style={{ background: "rgba(15, 23, 42, 0.95)", backdropFilter: "blur(4px)", border: "1.5px solid rgba(59, 130, 246, 0.5)", color: "#FFFFFF", fontSize: "12px", fontWeight: 700, padding: "4px 10px", borderRadius: "8px", whiteSpace: "nowrap", marginBottom: "6px", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.4)" }}>
-              {marker.label}
+            <div
+              style={{
+                background: "rgba(15, 23, 42, 0.95)",
+                backdropFilter: "blur(4px)",
+                border: "1.5px solid rgba(59, 130, 246, 0.5)",
+                color: "#FFFFFF",
+                fontSize: "12px",
+                fontWeight: 700,
+                padding: "4px 10px",
+                borderRadius: "8px",
+                whiteSpace: "nowrap",
+                marginBottom: "6px",
+                boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.4)",
+              }}
+            >
+              {marker.name}
             </div>
-            <div style={{ width: 40, height: 40, background: "linear-gradient(135deg, #2563EB, #3B82F6)", borderRadius: "50% 50% 50% 0", transform: "rotate(-45deg)", display: "flex", alignItems: "center", justifyContent: "center", border: "2.5px solid #FFFFFF", boxShadow: "0 10px 15px -3px rgba(37, 99, 235, 0.3)" }}>
-              <Image src="/icons/truck.svg" alt="truck" width={20} height={20} style={{ transform: "rotate(45deg)", filter: "brightness(0) invert(1)" }} unoptimized />
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                background: "linear-gradient(135deg, #2563EB, #3B82F6)",
+                borderRadius: "50% 50% 50% 0",
+                transform: "rotate(-45deg)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "2.5px solid #FFFFFF",
+                boxShadow: "0 10px 15px -3px rgba(37, 99, 235, 0.3)",
+              }}
+            >
+              <Image
+                src="/icons/truck.svg"
+                alt="truck"
+                width={20}
+                height={20}
+                style={{
+                  transform: "rotate(45deg)",
+                  filter: "brightness(0) invert(1)",
+                }}
+                unoptimized
+              />
             </div>
-            <div style={{ width: 10, height: 5, background: "rgba(0,0,0,0.2)", borderRadius: "50%", marginTop: 2, filter: "blur(2px)" }} />
+            <div
+              style={{
+                width: 10,
+                height: 5,
+                background: "rgba(0,0,0,0.2)",
+                borderRadius: "50%",
+                marginTop: 2,
+                filter: "blur(2px)",
+              }}
+            />
           </div>
         </OverlayView>
       );
@@ -149,14 +230,16 @@ const OptimizedMarker = React.memo(
 
     let url = "/icons/pin.svg";
     if (marker.type === "warehouse") url = "/icons/warehouse.svg";
-    
-    const initial = marker.label ? marker.label.charAt(0).toUpperCase() : undefined;
+
+    const initial = marker.name
+      ? marker.name.charAt(0).toUpperCase()
+      : undefined;
 
     return (
       <AdvancedMarker
         map={map}
-        position={marker.position}
-        title={marker.label}
+        position={{ lat: marker.lat, lng: marker.len }}
+        title={marker.name}
         label={initial}
         iconUrl={marker.type ? url : undefined}
         offset={offset}
@@ -178,48 +261,93 @@ const OptimizedMarker = React.memo(
 OptimizedMarker.displayName = "OptimizedMarker";
 
 /* ------------------------------- MAIN COMPONENT ------------------------------- */
-export const MapWithMarker = ({ center, zoom = 14, markers = [], height = "400px", onMarkerClick, options }: MapWithMarkerProps) => {
+export const MapWithMarker = ({
+  center,
+  zoom = 14,
+  markers = [],
+  height = "400px",
+  onMarkerClick,
+  options,
+}: MapWithMarkerProps) => {
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const [expandedGroupId, setExpandedGroupId] = useState<string | null>(null);
   const fitBoundsFired = useRef(false);
 
-  const mapCenter = useMemo(() => center || { lat: 41.0082, lng: 28.9784 }, [center]);
+  const mapCenter = useMemo(
+    () => center || { lat: 41.0082, lng: 28.9784 },
+    [center]
+  );
 
-  const mapOptions = useMemo<google.maps.MapOptions>(() => ({
-    disableDefaultUI: false, zoomControl: true, mapTypeControl: false, streetViewControl: false, fullscreenControl: true, mapId: "DEMO_MAP_ID", ...options,
-  }), [options]);
+  const mapOptions = useMemo<google.maps.MapOptions>(
+    () => ({
+      disableDefaultUI: false,
+      zoomControl: true,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true,
+      mapId: "DEMO_MAP_ID",
+      ...options,
+    }),
+    [options]
+  );
 
   const groupedMarkers = useMemo(() => {
     const groups: { [key: string]: MarkerData[] } = {};
     const threshold = 0.0001;
     markers.forEach((m) => {
-      const key = `${Math.round(m.position.lat / threshold)},${Math.round(m.position.lng / threshold)}`;
+      const key = `${Math.round(m.lat / threshold)},${Math.round(m.len / threshold)}`;
       if (!groups[key]) groups[key] = [];
       groups[key].push(m);
     });
     return groups;
   }, [markers]);
 
-  const onLoad = useCallback((map: google.maps.Map) => {
-    mapRef.current = map;
-    setMapInstance(map);
-    if (markers && markers.length > 0 && !fitBoundsFired.current) {
-      const bounds = new window.google.maps.LatLngBounds();
-      markers.forEach((marker) => bounds.extend(new window.google.maps.LatLng(marker.position.lat, marker.position.lng)));
-      map.fitBounds(bounds);
-      fitBoundsFired.current = true;
-      const listener = window.google.maps.event.addListener(map, "idle", () => {
-        if (map.getZoom()! > 16) map.setZoom(16);
-        window.google.maps.event.removeListener(listener);
-      });
-    }
-  }, [markers]);
+  const onLoad = useCallback(
+    (map: google.maps.Map) => {
+      mapRef.current = map;
+      setMapInstance(map);
+      if (markers && markers.length > 0 && !fitBoundsFired.current) {
+        const bounds = new window.google.maps.LatLngBounds();
+        markers.forEach((marker) =>
+          bounds.extend(
+            new window.google.maps.LatLng(
+              marker.lat,
+              marker.len
+            )
+          )
+        );
+        map.fitBounds(bounds);
+        fitBoundsFired.current = true;
+        const listener = window.google.maps.event.addListener(
+          map,
+          "idle",
+          () => {
+            if (map.getZoom()! > 16) map.setZoom(16);
+            window.google.maps.event.removeListener(listener);
+          }
+        );
+      }
+    },
+    [markers]
+  );
 
   useEffect(() => {
-    if (!center && mapRef.current && markers.length > 0 && !fitBoundsFired.current) {
+    if (
+      !center &&
+      mapRef.current &&
+      markers.length > 0 &&
+      !fitBoundsFired.current
+    ) {
       const bounds = new window.google.maps.LatLngBounds();
-      markers.forEach((marker) => bounds.extend(new window.google.maps.LatLng(marker.position.lat, marker.position.lng)));
+      markers.forEach((marker) =>
+        bounds.extend(
+          new window.google.maps.LatLng(
+            marker.lat,
+            marker.len
+          )
+        )
+      );
       mapRef.current.fitBounds(bounds);
       fitBoundsFired.current = true;
     }
@@ -232,8 +360,18 @@ export const MapWithMarker = ({ center, zoom = 14, markers = [], height = "400px
   const handleMapClick = useCallback(() => setExpandedGroupId(null), []);
 
   return (
-    <div className="overflow-hidden border border-gray-200/10 rounded-xl shadow-2xl" style={{ height }}>
-      <GoogleMap mapContainerStyle={containerStyle} center={mapCenter} zoom={zoom} onLoad={onLoad} options={mapOptions} onClick={handleMapClick}>
+    <div
+      className="overflow-hidden border border-gray-200/10 rounded-xl shadow-2xl"
+      style={{ height }}
+    >
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={mapCenter}
+        zoom={zoom}
+        onLoad={onLoad}
+        options={mapOptions}
+        onClick={handleMapClick}
+      >
         {Object.entries(groupedMarkers).map(([groupId, groupMarkers]) => {
           const isExpanded = expandedGroupId === groupId;
           const count = groupMarkers.length;
@@ -243,12 +381,15 @@ export const MapWithMarker = ({ center, zoom = 14, markers = [], height = "400px
               if (isExpanded) {
                 const angle = (index / count) * 2 * Math.PI;
                 const radius = 80;
-                offset = { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+                offset = {
+                  x: Math.cos(angle) * radius,
+                  y: Math.sin(angle) * radius,
+                };
               } else if (index > 0) return null;
             }
             return (
               <OptimizedMarker
-                key={`${marker.id || marker.label}-${index}`}
+                key={`${marker.id || marker.name}-${index}`}
                 map={mapInstance}
                 marker={marker}
                 offset={offset}

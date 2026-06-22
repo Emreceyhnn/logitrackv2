@@ -1,55 +1,39 @@
 import { useMemo } from "react";
+import dynamic from "next/dynamic";
 import CustomCard from "../../cards/card";
-import {
-  MapWithMarker,
-  MarkerData,
-} from "@/app/components/googleMaps/MapWithMarker";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { MapData } from "@/app/lib/type/overview";
+import { Box } from "@mui/material";
+
+const MapWithMarkers = dynamic(() => import("../../valhalla/mapWithMarker"), {
+  ssr: false,
+});
 
 interface OverviewMapCardProps {
   stats: MapData[] | null;
 }
 
 const OverviewMapCard = ({ stats }: OverviewMapCardProps) => {
-  const markers = useMemo<MarkerData[]>(() => {
+  const markers = useMemo(() => {
     if (!stats) return [];
 
     return stats.map((v) => {
-      let markerType: MarkerData["type"] = "default";
-      if (v.type === "W") markerType = "warehouse";
-      else if (v.type === "V") markerType = "vehicle";
-      else if (v.type === "C") markerType = "customer";
-
       return {
         id: v.id,
-        position: v.position,
-        label: v.name,
-        type: markerType,
+        lat: v.position.lat,
+        len: v.position.lng,
+        name: v.name,
+        type: v.type,
       };
     });
   }, [stats]);
 
   if (!stats) return null;
 
-  const center = markers.reduce(
-    (acc, marker) => {
-      return {
-        lat: acc.lat + marker.position.lat,
-        lng: acc.lng + marker.position.lng,
-      };
-    },
-    { lat: 0, lng: 0 }
-  );
-
-  center.lat = center.lat / markers.length;
-  center.lng = center.lng / markers.length;
-
   return (
     <CustomCard sx={{ flexGrow: 10, p: 2 }}>
-      <GoogleMapsProvider>
-        <MapWithMarker center={center} markers={markers} height="500px" />
-      </GoogleMapsProvider>
+      <Box sx={{ width: "100%", height: "500px" }}>
+        <MapWithMarkers markers={markers || []} />
+      </Box>
     </CustomCard>
   );
 };

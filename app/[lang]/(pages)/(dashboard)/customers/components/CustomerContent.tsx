@@ -13,11 +13,6 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import {
-  MapWithMarker,
-  MarkerData,
-} from "@/app/components/googleMaps/MapWithMarker";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import CustomerDetailDialog from "@/app/components/dialogs/customer/customerDetailDialog";
 import EditCustomerDialog from "@/app/components/dialogs/customer/editCustomerDialog";
 import AddCustomerDialog from "@/app/components/dialogs/customer/addCustomerDialog";
@@ -35,6 +30,13 @@ import {
 import { useUser } from "@/app/hooks/useUser";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
+import dynamic from "next/dynamic";
+const MapWithMarkers = dynamic(
+  () => import("@/app/components/valhalla/mapWithMarker"),
+  {
+    ssr: false,
+  }
+);
 
 export default function CustomerContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -100,18 +102,21 @@ export default function CustomerContent() {
   };
 
   /* --------------------------------- ACTIONS -------------------------------- */
-  const actions: CustomerPageActions = useMemo(() => ({
-    fetchCustomers: async () => {},
-    selectCustomer: (id: string) => {
-      if (!id) return;
-      setSelectedCustomerId(id);
-      setDetailOpen(true);
-    },
-    updateFilters: (newFilters: Partial<{ search: string }>) => {
-      setFilters((prev) => ({ ...prev, ...newFilters }));
-      setPagination((prev) => ({ ...prev, page: 1 }));
-    },
-  }), []);
+  const actions: CustomerPageActions = useMemo(
+    () => ({
+      fetchCustomers: async () => {},
+      selectCustomer: (id: string) => {
+        if (!id) return;
+        setSelectedCustomerId(id);
+        setDetailOpen(true);
+      },
+      updateFilters: (newFilters: Partial<{ search: string }>) => {
+        setFilters((prev) => ({ ...prev, ...newFilters }));
+        setPagination((prev) => ({ ...prev, page: 1 }));
+      },
+    }),
+    []
+  );
 
   /* --------------------------------- HELPERS -------------------------------- */
   const customers = useMemo(
@@ -119,7 +124,7 @@ export default function CustomerContent() {
     [dashboardData?.customers]
   );
 
-  const mapLocations = useMemo<MarkerData[]>(() => {
+  const mapLocations = useMemo(() => {
     return customers.flatMap((c: CustomerWithRelations) => {
       if (!c.locations) return [];
 
@@ -127,14 +132,10 @@ export default function CustomerContent() {
         .filter((loc) => loc.lat != null && loc.lng != null)
         .map((loc, idx) => ({
           id: `${c.id}-${idx}`,
-          position: {
-            lat: Number(loc.lat),
-            lng: Number(loc.lng),
-          },
-          label: c.name.charAt(0).toUpperCase(),
-          title: `${c.name} - ${loc.name}`,
-          description: loc.address,
-          type: "customer" as const,
+          lat: Number(loc.lat),
+          len: Number(loc.lng),
+          name: c.name,
+          type: "C" as const,
         }));
     });
   }, [customers]);
@@ -221,14 +222,9 @@ export default function CustomerContent() {
           height: "100%",
         }}
       >
-        <GoogleMapsProvider>
-          <MapWithMarker
-            center={{ lat: 39.9334, lng: 32.8597 }}
-            markers={mapLocations}
-            zoom={6}
-            height="100%"
-          />
-        </GoogleMapsProvider>
+        <Box sx={{ width: "100%", height: "100%" }}>
+          <MapWithMarkers markers={mapLocations} zoom={7} />
+        </Box>
         {mapLocations.length === 0 && (
           <Box
             position="absolute"

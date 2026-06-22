@@ -68,9 +68,10 @@ export const VehicleLiveMap = () => {
       
       return {
         id: v.id,
-        position,
-        label: v.plate,
-        type: "vehicle",
+        lat: position.lat,
+        len: position.lng,
+        name: v.plate,
+        type: "V", // Use V for Vehicle
       };
     });
   }, [vehicles, vehicleLocations]);
