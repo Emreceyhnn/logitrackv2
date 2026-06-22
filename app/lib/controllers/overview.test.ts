@@ -9,6 +9,7 @@ const dbMock = {
   shipment: {
     count: mock.fn(),
     findMany: mock.fn(),
+    groupBy: mock.fn(),
   },
   vehicle: {
     count: mock.fn(),
@@ -137,6 +138,7 @@ describe("Overview Controller", () => {
     // Her testten önce mockları sıfırla
     dbMock.shipment.count.mock.resetCalls();
     dbMock.shipment.findMany.mock.resetCalls();
+    dbMock.shipment.groupBy.mock.resetCalls();
     dbMock.vehicle.count.mock.resetCalls();
     dbMock.vehicle.findMany.mock.resetCalls();
     dbMock.driver.count.mock.resetCalls();
@@ -214,6 +216,10 @@ describe("Overview Controller", () => {
         { id: "inv-1", name: "Item 1", sku: "SKU-1", quantity: 5, minStock: 10, warehouse: { name: "Main Hub" } }
       ]);
       
+      dbMock.shipment.groupBy.mock.mockImplementation(async () => [
+        { status: "IN_TRANSIT", _count: { status: 1 } }
+      ]);
+
       dbMock.shipment.findMany.mock.mockImplementation(async () => [
         { status: "IN_TRANSIT", createdAt: new Date() }
       ]);

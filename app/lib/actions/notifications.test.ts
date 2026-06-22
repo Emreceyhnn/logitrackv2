@@ -43,8 +43,7 @@ describe("Notifications Actions", () => {
       const notification = { title: "Update", message: "New update", type: "INFO", category: "SHIPMENT_UPDATE" };
       
       dbMock.user.findMany.mock.mockImplementation(async () => [
-        { id: "u-1", notifEmailShipment: true }, // Should receive
-        { id: "u-2", notifEmailShipment: false } // Should skip
+        { id: "u-1" } // The database query filters out u-2, so only u-1 is returned
       ]);
 
       // Act

@@ -1,9 +1,12 @@
 import { useMemo } from "react";
 import CustomCard from "../../cards/card";
-import {
-  MapWithMarker,
-  MarkerData,
-} from "@/app/components/googleMaps/MapWithMarker";
+import dynamic from "next/dynamic";
+import type { MarkerData } from "@/app/components/googleMaps/MapWithMarker";
+
+const MapWithMarker = dynamic(
+  () => import("@/app/components/googleMaps/MapWithMarker").then((m) => m.MapWithMarker),
+  { ssr: false }
+);
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { MapData } from "@/app/lib/type/overview";
 

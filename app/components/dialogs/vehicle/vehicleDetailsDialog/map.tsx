@@ -1,7 +1,12 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
+import dynamic from "next/dynamic";
+
+const MapWithMarker = dynamic(
+  () => import("@/app/components/googleMaps/MapWithMarker").then((m) => m.MapWithMarker),
+  { ssr: false }
+);
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import CustomCard from "../../../cards/card";
 import { useVehicleTracking } from "@/app/hooks/useVehicleTracking";

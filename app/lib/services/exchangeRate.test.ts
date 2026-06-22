@@ -161,26 +161,26 @@ describe("exchangeRate service", () => {
       expect(redisMock.set.mock.calls.length).toBe(1);
     });
 
-    it("should throw when API response is not ok", async () => {
+    it("should resolve to default rates when API response is not ok", async () => {
       dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => null);
       redisMock.get.mock.mockImplementation(async () => null);
       fetchMock.mock.mockImplementation(async () =>
         makeFetchResponse({}, false, 500)
       );
 
-      await expect(getExchangeRates()).rejects.toThrow("ExchangeRate-API error");
+      const result = await getExchangeRates();
+      expect(result.rates.EUR).toBe(0.92);
     });
 
-    it("should throw when API returns result !== 'success'", async () => {
+    it("should resolve to default rates when API returns result !== 'success'", async () => {
       dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => null);
       redisMock.get.mock.mockImplementation(async () => null);
       fetchMock.mock.mockImplementation(async () =>
         makeFetchResponse({ result: "error", "error-type": "invalid-key" })
       );
 
-      await expect(getExchangeRates()).rejects.toThrow(
-        "ExchangeRate-API returned: invalid-key"
-      );
+      const result = await getExchangeRates();
+      expect(result.rates.EUR).toBe(0.92);
     });
 
     it("should continue to Redis if DB throws an error", async () => {
@@ -265,7 +265,7 @@ describe("exchangeRate service", () => {
       expect(result).toBe(0.79);
     });
 
-    it("should return 1 as fallback if getExchangeRates throws", async () => {
+    it("should return default rate (0.92 for EUR) as fallback if DB, Redis and API all fail", async () => {
       dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => {
         throw new Error("DB down");
       });
@@ -277,7 +277,7 @@ describe("exchangeRate service", () => {
       const consoleMock = mock.method(console, "error", () => {});
       const result = await getExchangeRate("EUR");
 
-      expect(result).toBe(1);
+      expect(result).toBe(0.92);
       consoleMock.mock.restore();
     });
   });

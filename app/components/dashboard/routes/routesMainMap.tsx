@@ -2,7 +2,12 @@
 
 import { useMemo } from "react";
 import { Box, Skeleton } from "@mui/material";
-import { MapWithMarker } from "@/app/components/googleMaps/MapWithMarker";
+import dynamic from "next/dynamic";
+
+const MapWithMarker = dynamic(
+  () => import("@/app/components/googleMaps/MapWithMarker").then((m) => m.MapWithMarker),
+  { ssr: false }
+);
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { MapRouteData } from "@/app/lib/type/routes";
 

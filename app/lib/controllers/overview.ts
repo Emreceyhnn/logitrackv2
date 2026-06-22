@@ -229,10 +229,11 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
         orderBy: { quantity: "asc" },
       }),
 
-      // 8. Shipment Status
-      db.shipment.findMany({
+      // 8. Shipment Status (Optimized using groupBy)
+      db.shipment.groupBy({
+        by: ["status"],
         where: { companyId },
-        select: { status: true },
+        _count: { status: true },
       }),
 
       // 9. Picks & Packs (Inventory Movements)
@@ -428,8 +429,14 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       minStock: i.minStock,
     }));
 
-    // 8. Shipment Status
-    const shipmentStatus = shipmentStatusRaw.map((s) => s.status);
+    // 8. Shipment Status (Optimized)
+    const shipmentStatus: string[] = [];
+    shipmentStatusRaw.forEach((group) => {
+      const count = group._count.status;
+      for (let i = 0; i < count; i++) {
+        shipmentStatus.push(group.status);
+      }
+    });
 
     // 9. Picks & Packs
     let picks = 0;

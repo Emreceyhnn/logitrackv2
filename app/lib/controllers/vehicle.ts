@@ -66,6 +66,14 @@ export const createVehicle = authenticatedAction(
 
       const parsedData = vehicleSchema.parse(vehicleData);
 
+      const existingVehicle = await db.vehicle.findFirst({
+        where: { plate: parsedData.plate },
+      });
+
+      if (existingVehicle) {
+        throw new Error("Plate already exists in the system.");
+      }
+
       const vehicleFleetNo =
         parsedData.fleetNo ||
         `FLEET-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;

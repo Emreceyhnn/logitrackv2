@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { jwtVerify, JWTPayload } from "jose";
 import {
   AUTH_ROUTES,
   COMPANY_REQUIRED_ROUTES,
@@ -41,6 +41,8 @@ function getLocaleFromPathname(pathname: string): {
 /* -------------------------------------------------------------------------- */
 /*  Proxy (Next.js 16+ proxy/middleware convention)                             */
 /* -------------------------------------------------------------------------- */
+
+const jwtCache = new Map<string, { payload: JWTPayload; expiresAt: number }>();
 
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -145,17 +147,29 @@ export default async function proxy(request: NextRequest) {
   let isTokenValid = false;
 
   if (token) {
-    try {
-      if (!process.env.JWT_SECRET) {
-        throw new Error("JWT_SECRET is not defined");
-      }
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-      const { payload } = await jwtVerify(token, secret);
-      companyId = (payload.companyId as string) || null;
+    const cached = jwtCache.get(token);
+    if (cached && cached.expiresAt > Date.now()) {
+      companyId = (cached.payload.companyId as string) || null;
       isTokenValid = true;
-    } catch {
-      // jwtVerify throws errors.JWTExpired if expired, or other errors if invalid
-      isTokenValid = false;
+    } else {
+      try {
+        if (!process.env.JWT_SECRET) {
+          throw new Error("JWT_SECRET is not defined");
+        }
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+        const { payload } = await jwtVerify(token, secret);
+        companyId = (payload.companyId as string) || null;
+        isTokenValid = true;
+        
+        // Cache it for 1 minute (60,000 ms)
+        jwtCache.set(token, {
+          payload,
+          expiresAt: Date.now() + 60000,
+        });
+      } catch {
+        // jwtVerify throws errors.JWTExpired if expired, or other errors if invalid
+        isTokenValid = false;
+      }
     }
   }
 
@@ -203,6 +217,6 @@ export default async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|ico|css|js|woff|woff2|ttf|otf|json)$).*)",
   ],
 };

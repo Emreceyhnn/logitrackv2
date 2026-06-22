@@ -1,6 +1,11 @@
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { Box, Typography } from "@mui/material";
-import { RouteMap } from "../../googleMaps/RouteMap";
+import dynamic from "next/dynamic";
+
+const RouteMap = dynamic(
+  () => import("../../googleMaps/RouteMap").then((m) => m.RouteMap),
+  { ssr: false }
+);
 
 interface MapRoutesDialogCardProps {
   origin?: string | { lat: number; lng: number };

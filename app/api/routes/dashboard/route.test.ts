@@ -43,7 +43,7 @@ describe("GET /api/routes/dashboard", () => {
   it("should_PassStatusFilter", async () => {
     getRoutesWithDashboardDataMock.mock.mockImplementationOnce(async () => ({}));
     await GET(makeRequest({ status: "PLANNED" }));
-    expect(getRoutesWithDashboardDataMock.mock.calls[0].arguments[2]).toBe("PLANNED");
+    expect(getRoutesWithDashboardDataMock.mock.calls[0].arguments[2]).toEqual(["PLANNED"]);
   });
 
   it("should_Return401_WhenNEXT_REDIRECT", async () => {

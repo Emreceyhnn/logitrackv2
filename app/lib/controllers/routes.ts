@@ -963,7 +963,10 @@ export const getRoutesWithDashboardData = authenticatedAction(
               },
             },
             driver: {
-              include: {
+              select: {
+                id: true,
+                employeeId: true,
+                status: true,
                 user: {
                   select: {
                     id: true,

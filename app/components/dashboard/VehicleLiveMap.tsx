@@ -18,7 +18,13 @@ import {
   Person as DriverIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-import { MapWithMarker, MarkerData } from "../googleMaps/MapWithMarker";
+import dynamic from "next/dynamic";
+import type { MarkerData } from "../googleMaps/MapWithMarker";
+
+const MapWithMarker = dynamic(
+  () => import("../googleMaps/MapWithMarker").then((m) => m.MapWithMarker),
+  { ssr: false }
+);
 import { useAllVehiclesTracking } from "@/app/hooks/useVehicleTracking";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";

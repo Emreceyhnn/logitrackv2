@@ -134,7 +134,10 @@ describe("Trailer Controller", () => {
 
       const trailerData = {
         plate: "34 TR 123",
+        fleetNo: "FL-123",
         type: "DRY_VAN",
+        capacityVolumeM3: 100,
+        maxLoadKg: 25000,
       };
 
       // Act & Assert

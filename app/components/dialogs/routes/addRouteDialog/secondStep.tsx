@@ -18,7 +18,12 @@ import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomp
 import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useMemo } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { RouteMap } from "@/app/components/googleMaps/RouteMap";
+import dynamic from "next/dynamic";
+
+const RouteMap = dynamic(
+  () => import("@/app/components/googleMaps/RouteMap").then((m) => m.RouteMap),
+  { ssr: false }
+);
 
 const SecondRouteDialogStep = () => {
   /* -------------------------------- variables ------------------------------- */

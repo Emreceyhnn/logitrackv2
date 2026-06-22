@@ -36,6 +36,7 @@ const cookieStoreMock = {
 // Next.js Headers Mock
 const nextHeadersMock = {
   cookies: mock.fn(async () => cookieStoreMock),
+  headers: mock.fn(async () => new Map()),
 };
 
 // Jose JWT Mock
