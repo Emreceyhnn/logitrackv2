@@ -19,7 +19,10 @@ import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomp
 import { useEffect, useMemo, useState } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
-import { polylineHelper } from "../../../valhalla/polylineHelper";
+import {
+  polylineHelper,
+  PolylineHelperResult,
+} from "../../../valhalla/polylineHelper";
 import dynamic from "next/dynamic";
 const MapWithPolyline = dynamic(
   () => import("../../../valhalla/mapWithPolyline"),
@@ -36,7 +39,7 @@ const SecondRouteDialogStep = () => {
     useFormikContext<RouteFormValues>();
 
   /* -------------------------------------------------------------------------- */
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<PolylineHelperResult | null>(null);
 
   const waypointsStr = useMemo(() => {
     const stops = values?.stops || [];
@@ -48,7 +51,7 @@ const SecondRouteDialogStep = () => {
         lon: Number(i.lng),
       }));
     return JSON.stringify(points);
-  }, [values?.stops]);
+  }, [values.stops]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,7 +66,7 @@ const SecondRouteDialogStep = () => {
           locations: waypoints,
           costing: "truck",
         });
-        setData(response);
+        setData(response ?? null);
         if (response?.summary) {
           setFieldValue("distanceKm", response.summary.length || 0);
           setFieldValue(
@@ -77,7 +80,7 @@ const SecondRouteDialogStep = () => {
     };
 
     fetchData();
-  }, [waypointsStr]);
+  }, [waypointsStr, setFieldValue]);
 
   return (
     <>

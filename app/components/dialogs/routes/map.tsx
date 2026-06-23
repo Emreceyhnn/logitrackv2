@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import dynamic from "next/dynamic";
-import { polylineHelper } from "../../valhalla/polylineHelper";
+import {
+  polylineHelper,
+  PolylineHelperResult,
+} from "../../valhalla/polylineHelper";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const MapWithPolyline = dynamic(
@@ -24,7 +27,7 @@ interface MapRoutesDialogCardProps {
     name: string;
     id: string;
   } | null;
-  onMapClick?: (e: any) => void;
+  onMapClick?: (e: unknown) => void;
   onRouteInfoUpdate?: (data: {
     distanceKm: number;
     durationMin: number;
@@ -43,14 +46,18 @@ const MapRoutesDialogCard = ({
   const dict = useDictionary();
   const isRoute = !!((origin || addrA) && (destination || addrB));
 
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<PolylineHelperResult | null>(null);
 
   const waypoints = useMemo(() => {
     const points = [];
     if (origin && typeof origin === "object" && "lat" in origin) {
-      points.push({ name: (origin as any).address || "Origin", lat: origin.lat, lon: origin.lng });
+      points.push({
+        name: (origin as { address?: string }).address || "Origin",
+        lat: origin.lat,
+        lon: origin.lng,
+      });
     }
-    
+
     if (stops) {
       stops.forEach((s) => {
         const loc = s.location;
@@ -60,8 +67,16 @@ const MapRoutesDialogCard = ({
       });
     }
 
-    if (destination && typeof destination === "object" && "lat" in destination) {
-      points.push({ name: (destination as any).address || "Destination", lat: destination.lat, lon: destination.lng });
+    if (
+      destination &&
+      typeof destination === "object" &&
+      "lat" in destination
+    ) {
+      points.push({
+        name: (destination as { address?: string }).address || "Destination",
+        lat: destination.lat,
+        lon: destination.lng,
+      });
     }
 
     return points;
@@ -78,13 +93,13 @@ const MapRoutesDialogCard = ({
           locations: waypoints,
           costing: "truck",
         });
-        setData(response);
-        
+        setData(response ?? null);
+
         if (response?.summary && onRouteInfoUpdate) {
-           onRouteInfoUpdate({
-             distanceKm: response.summary.length || 0,
-             durationMin: Math.round((response.summary.time || 0) / 60)
-           });
+          onRouteInfoUpdate({
+            distanceKm: response.summary.length || 0,
+            durationMin: Math.round((response.summary.time || 0) / 60),
+          });
         }
       } catch (error) {
         console.error("Valhalla API Error:", error);

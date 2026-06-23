@@ -26,7 +26,7 @@ import DriverCard from "../../cards/driverCard";
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { polylineHelper } from "../../valhalla/polylineHelper";
+import { polylineHelper, PolylineHelperResult } from "../../valhalla/polylineHelper";
 import dynamic from "next/dynamic";
 const MapWithPolyline = dynamic(
   () => import("../../valhalla/mapWithPolyline"),
@@ -130,7 +130,7 @@ export default function ShipmentDetailDialog({
       }));
   }, [shipment?.stops]);
 
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<PolylineHelperResult | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -143,7 +143,7 @@ export default function ShipmentDetailDialog({
         costing: "truck",
       });
 
-      setData(response);
+      setData(response ?? null);
     };
 
     fetchData();
@@ -964,7 +964,7 @@ export default function ShipmentDetailDialog({
           <Box sx={{ flex: 1, position: "relative", minHeight: 400 }}>
             <Box sx={{ position: "absolute", inset: 0 }}>
               <MapWithPolyline
-                Polylines={data?.mapPoints}
+                Polylines={data?.mapPoints || []}
                 routePolyline={data?.polyline}
               />
             </Box>

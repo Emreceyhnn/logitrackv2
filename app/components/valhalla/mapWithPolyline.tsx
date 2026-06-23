@@ -30,6 +30,17 @@ interface MapWithPolylineProps {
   } | null;
 }
 
+// A helper component to adjust the map bounds
+function MapBounds({ bounds }: { bounds: L.LatLngBounds | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (bounds) {
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }, [map, bounds]);
+  return null;
+}
+
 function MapWithPolyline({
   Polylines = [],
   routePolyline = null,
@@ -51,17 +62,6 @@ function MapWithPolyline({
     return null;
   }, [polylinePositions, Polylines]);
 
-  // A helper component to adjust the map bounds
-  function MapBounds() {
-    const map = useMap();
-    useEffect(() => {
-      if (bounds) {
-        map.fitBounds(bounds, { padding: [50, 50] });
-      }
-    }, [map, bounds]);
-    return null;
-  }
-
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
       <MapContainer
@@ -74,7 +74,7 @@ function MapWithPolyline({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
-        <MapBounds />
+        <MapBounds bounds={bounds} />
 
         {Polylines.map((marker, index) => {
           let iconColor = "#3b82f6"; // default fallback

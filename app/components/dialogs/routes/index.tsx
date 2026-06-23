@@ -110,7 +110,7 @@ export default function RouteDialog({
       : [];
       
     return { mapOrigin: mOrigin, mapDestination: mDest, intermediateStops: interStops };
-  }, [route?.stops]);
+  }, [route]);
 
   if (!route) return null;
 

@@ -62,7 +62,7 @@ export const VehicleLiveMap = () => {
   }, []);
 
   // Merge static data with live coordinates
-  const markers = useMemo<any[]>(() => {
+  const markers = useMemo<{id: string, lat: number, len: number, name: string, type: string}[]>(() => {
     return vehicles.map((v) => {
       const live = vehicleLocations[v.id];
       const position = live ? { lat: live.lat, lng: live.lng } : (v.currentLat && v.currentLng ? { lat: v.currentLat, lng: v.currentLng } : { lat: 41.0082, lng: 28.9784 });
@@ -96,7 +96,7 @@ export const VehicleLiveMap = () => {
       <Box sx={{ height: 600 }}>
         <MapWithMarkers
           markers={markers} 
-          onMarkerClick={(m: any) => {
+          onMarkerClick={(m: { id?: string }) => {
             setSelectedVehicleId(m.id || null);
             setIsDialogOpen(true);
           }}

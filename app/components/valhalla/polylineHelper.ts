@@ -5,10 +5,16 @@ import {
   RoutingParams,
 } from "@/app/lib/valhalla";
 
-interface LocationPoint {
+export interface LocationPoint {
   lat: number;
   lon: number;
   name: string;
+}
+
+export interface PolylineHelperResult {
+  polyline: [number, number][];
+  mapPoints: LocationPoint[];
+  summary: { length: number; time: number };
 }
 
 interface PolylineHelperParams {
@@ -17,7 +23,7 @@ interface PolylineHelperParams {
   costing_options?: costing_options;
 }
 
-export const polylineHelper = async (params: PolylineHelperParams) => {
+export const polylineHelper = async (params: PolylineHelperParams): Promise<PolylineHelperResult | undefined> => {
   const input: RoutingParams = {
     locations: params.locations.map((i) => ({ lat: i.lat, lon: i.lon })),
     costing: params.costing || "auto",

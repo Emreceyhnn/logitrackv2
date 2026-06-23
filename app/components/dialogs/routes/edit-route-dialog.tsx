@@ -80,11 +80,12 @@ const EditRouteDialog = ({
     const endInUserTz = utcToUserTz(route.endTime, userTz);
 
     // Derive start/end from stops array
-    const routeStops = Array.isArray(route.stops) ? route.stops : [];
-    const firstStop = routeStops.length > 0 ? (routeStops[0] as any) : null;
-    const lastStop = routeStops.length > 1 ? (routeStops[routeStops.length - 1] as any) : null;
+    type RouteStop = { address: string; lat?: number; lng?: number };
+    const routeStops = Array.isArray(route.stops) ? route.stops as RouteStop[] : [];
+    const firstStop = routeStops.length > 0 ? routeStops[0] : null;
+    const lastStop = routeStops.length > 1 ? routeStops[routeStops.length - 1] : null;
 
-    const filteredStops = routeStops.filter((stop: any, index) => {
+    const filteredStops = routeStops.filter((stop: RouteStop, index) => {
       // Keep true first and true last
       if (index === 0) return true;
       if (index === routeStops.length - 1 && routeStops.length > 1) return true;
