@@ -103,7 +103,7 @@ describe("All redis tests", () => {
         `trailers:detail:${mockTrailerId}`
       );
       expect(trailerCacheKeys.list(mockCompanyId, "hash123")).toBe(
-        `trailers:${mockCompanyId}:list_v2:hash123`
+        `trailers:${mockCompanyId}:list:hash123`
       );
       expect(trailerCacheKeys.dashboard(mockCompanyId, "hash123")).toBe(
         `trailers:${mockCompanyId}:dashboard:hash123`

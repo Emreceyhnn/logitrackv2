@@ -1,13 +1,6 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import dynamic from "next/dynamic";
-
-const MapWithMarker = dynamic(
-  () => import("@/app/components/googleMaps/MapWithMarker").then((m) => m.MapWithMarker),
-  { ssr: false }
-);
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import CustomCard from "../../../cards/card";
 import { useVehicleTracking } from "@/app/hooks/useVehicleTracking";
 import {
@@ -23,6 +16,13 @@ import SignalWifiOffIcon from "@mui/icons-material/SignalWifiOff";
 import SatelliteAltIcon from "@mui/icons-material/SatelliteAlt";
 import SpeedIcon from "@mui/icons-material/Speed";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import dynamic from "next/dynamic";
+const MapWithMarkers = dynamic(
+  () => import("../../../valhalla/mapWithMarker"),
+  {
+    ssr: false,
+  }
+);
 
 interface MapVehicleOverviewCardProps {
   /** The vehicle ID — used to subscribe to Firebase RTDB */
@@ -73,10 +73,7 @@ const MapVehicleOverviewCard = ({
   const { location: liveLocation, loading } = useVehicleTracking(id);
 
   const activeLocation = useMemo(
-    () =>
-      liveLocation
-        ? { lat: liveLocation.lat, lng: liveLocation.lng }
-        : (dbLocation ?? null),
+    () => (liveLocation ? liveLocation : (dbLocation ?? null)),
     [liveLocation, dbLocation]
   );
 
@@ -91,9 +88,10 @@ const MapVehicleOverviewCard = ({
         ? [
             {
               id,
-              position: activeLocation,
-              label: name,
-              type: "vehicle" as const,
+              lat: activeLocation.lat,
+              len: activeLocation.lng,
+              name,
+              type: "V" as const,
             },
           ]
         : [],
@@ -205,9 +203,9 @@ const MapVehicleOverviewCard = ({
           }}
         />
       ) : activeLocation ? (
-        <GoogleMapsProvider>
-          <MapWithMarker markers={markers} />
-        </GoogleMapsProvider>
+        <Box sx={{ width: "100%", height: "500px" }}>
+          <MapWithMarkers markers={markers} />
+        </Box>
       ) : (
         // ── No Location State ──
         <Stack

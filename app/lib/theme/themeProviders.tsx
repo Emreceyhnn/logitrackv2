@@ -5,7 +5,7 @@ import "dayjs/locale/en";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { useMemo, useState, useEffect, useCallback, useRef, type MutableRefObject } from "react";
+import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -16,7 +16,6 @@ import { Toaster } from "@/app/components/toast";
 import { useParams } from "next/navigation";
 import { saveUserTheme } from "@/app/lib/actions/theme";
 import { useUserContext } from "../context/UserContext";
-import { LazyMotion, domAnimation } from "framer-motion";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -87,13 +86,14 @@ export default function Providers({
   }, [initialMode]);
 
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const systemMqCleanupRef: MutableRefObject<(() => void) | null> = useRef(null);
 
   const setMode = useCallback((newMode: ThemeMode | "system") => {
+    // Skip if the value in localStorage is already the same (prevents duplicate calls)
     const currentStored = typeof window !== "undefined"
       ? localStorage.getItem(THEME_STORAGE_KEY)
       : null;
     if (currentStored === newMode) {
+      // Still update visual state in case SSR/client mismatch
       setModeState(resolveMode(newMode as StoredMode));
       return;
     }
@@ -101,9 +101,10 @@ export default function Providers({
     try {
       localStorage.setItem(THEME_STORAGE_KEY, newMode);
     } catch {
-      // localStorage not available
+      // localStorage not available (private browsing, etc.)
     }
 
+    // Debounce server-action call — only fires if user stops clicking for 600ms
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
       saveUserTheme(newMode).catch((err) =>
@@ -114,17 +115,12 @@ export default function Providers({
     const resolved = resolveMode(newMode as StoredMode);
     setModeState(resolved);
 
-    if (systemMqCleanupRef.current) {
-      systemMqCleanupRef.current();
-      systemMqCleanupRef.current = null;
-    }
-
+    // If switching to system, start listening
     if (newMode === "system" && typeof window !== "undefined") {
       const mq = window.matchMedia("(prefers-color-scheme: dark)");
       const handler = (e: MediaQueryListEvent) =>
         setModeState(e.matches ? "dark" : "light");
       mq.addEventListener("change", handler);
-      systemMqCleanupRef.current = () => mq.removeEventListener("change", handler);
     }
   }, []);
 
@@ -133,11 +129,9 @@ export default function Providers({
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={safeLang}>
         <QueryProvider>
           <ThemeProvider theme={theme}>
-            <LazyMotion features={domAnimation}>
-              <Toaster />
-              <CssBaseline />
-              {children}
-            </LazyMotion>
+            <Toaster />
+            <CssBaseline />
+            {children}
           </ThemeProvider>
         </QueryProvider>
       </LocalizationProvider>

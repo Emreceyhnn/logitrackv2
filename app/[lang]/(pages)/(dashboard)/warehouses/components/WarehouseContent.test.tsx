@@ -28,53 +28,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: useDictionaryMock },
-});
 
-const mockMutateAsync = mock.fn(async () => {});
-mock.module("../../../../../hooks/useWarehouses.ts", {
-  namedExports: { 
-    useWarehousesWithDashboard: mock.fn(() => ({
-      data: {
-        warehouses: [{ id: "wh-1", name: "Main HQ" }],
-        stats: { totalWarehouses: 1 },
-        totalCount: 1,
-      },
-      isLoading: false,
-      refetch: mock.fn(),
-    })),
-    useWarehouseMutations: mock.fn(() => ({
-      deleteWarehouse: { mutateAsync: mockMutateAsync, isPending: false }
-    }))
-  },
-});
-
-mock.module("sonner", {
-  namedExports: { toast: { success: mock.fn(), error: mock.fn() } },
-});
-
-// Mock child components
-mock.module("../../../../../components/cards/KpiCards.tsx", {
-  defaultExport: ({ kpis }: any) => <div data-testid="kpi-cards">KPI Cards {kpis.length}</div>,
-});
-mock.module("../../../../../components/dashboard/warehouse/warehouseList.tsx", {
-  defaultExport: ({ onDelete }: any) => (
-    <div data-testid="warehouse-list">
-      <button onClick={() => onDelete("wh-1")}>Delete WH-1</button>
-    </div>
-  ),
-});
-mock.module("../../../../../components/dashboard/warehouse/capacityUtilization.tsx", {
-  defaultExport: () => <div data-testid="capacity-chart">Capacity Chart</div>,
-});
-mock.module("../../../../../components/dashboard/warehouse/recentStockMovements.tsx", {
-  defaultExport: () => <div data-testid="movements-table">Movements Table</div>,
-});
-
-mock.module("../../../../../components/googleMaps/GoogleMapsProvider.tsx", {
-  namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div> },
-});
 mock.module("../../../../../components/dialogs/warehouse/addWarehouseDialog/index.tsx", {
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });

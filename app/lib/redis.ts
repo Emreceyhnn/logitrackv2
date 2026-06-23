@@ -19,54 +19,6 @@ export const redis = new Redis({
     "dummy",
 });
 
-export const localCache = new Map<string, { data: unknown; expiresAt: number }>();
-
-const originalGet = redis.get.bind(redis);
-redis.get = (async <TData>(key: string): Promise<TData | null> => {
-  const localCached = localCache.get(key);
-  if (localCached && localCached.expiresAt > Date.now()) {
-    return localCached.data as TData;
-  }
-  const val = await originalGet(key);
-  if (val !== null && val !== undefined) {
-    localCache.set(key, {
-      data: val,
-      expiresAt: Date.now() + 5000,
-    });
-  }
-  return val as TData | null;
-}) as typeof redis.get;
-
-const originalSet = redis.set.bind(redis);
-redis.set = (async (
-  key: string,
-  value: unknown,
-  options?: { ex?: number } & Record<string, unknown>
-) => {
-  if (options && typeof options.ex === "number") {
-    localCache.set(key, {
-      data: value,
-      expiresAt: Date.now() + options.ex * 1000,
-    });
-  } else {
-    localCache.set(key, {
-      data: value,
-      expiresAt: Date.now() + 60000,
-    });
-  }
-  return originalSet(key, value, options as Parameters<typeof originalSet>[2]);
-}) as typeof redis.set;
-
-const originalDel = redis.del.bind(redis);
-redis.del = (async (key: string | string[], ...args: string[]) => {
-  if (Array.isArray(key)) {
-    key.forEach((k) => localCache.delete(k));
-  } else {
-    localCache.delete(key);
-  }
-  return originalDel(key as Parameters<typeof originalDel>[0], ...args);
-}) as typeof redis.del;
-
 export const VEHICLE_CACHE_TTL = 3600;
 
 export const vehicleCacheKeys = {
@@ -245,20 +197,9 @@ export async function withCache<T>(
 
   if (!fetcher) throw new Error("fetcher must be a function");
 
-  const localCached = localCache.get(key);
-  if (localCached && localCached.expiresAt > Date.now()) {
-    return localCached.data as T;
-  }
-
   try {
     const cached = await redis.get<T>(key);
-    if (cached !== null && cached !== undefined) {
-      localCache.set(key, {
-        data: cached,
-        expiresAt: Date.now() + ttl * 1000,
-      });
-      return cached;
-    }
+    if (cached !== null && cached !== undefined) return cached;
   } catch (err) {
     console.error("Redis get error:", err);
   }
@@ -299,10 +240,6 @@ export async function withCache<T>(
 
   try {
     const data = await fetcher();
-    localCache.set(key, {
-      data,
-      expiresAt: Date.now() + ttl * 1000,
-    });
     try {
       const p = redis.pipeline();
       p.set(key, data, { ex: ttl });
@@ -334,13 +271,6 @@ export async function withCache<T>(
 }
 
 export async function invalidatePattern(pattern: string) {
-  const prefix = pattern.replace("*", "");
-  for (const k of localCache.keys()) {
-    if (k.startsWith(prefix)) {
-      localCache.delete(k);
-    }
-  }
-
   const setKey = getTrackingSetKeyFromPattern(pattern);
   if (!setKey) {
     // Fallback to standard SCAN if we cannot determine tracking set key from the pattern

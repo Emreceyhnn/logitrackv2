@@ -1,21 +1,29 @@
-"use client";
-
-import { useState, useEffect, useMemo, useRef } from "react";
-import {
-  Autocomplete,
-  TextField,
-  useTheme,
-  Typography,
-  Box,
-} from "@mui/material";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import React, { useEffect, useState } from "react";
+import AutocompleteModuleImport from "react-google-autocomplete";
+import { Search } from "lucide-react";
+import { Typography } from "@mui/material";
 
 export interface AddressData {
   formattedAddress: string;
   lat: number;
   lng: number;
   address_components?: google.maps.GeocoderAddressComponent[];
+}
+
+export interface GooglePlaceLocation {
+  lat: () => number;
+  lng: () => number;
+}
+
+export interface GooglePlaceGeometry {
+  location?: GooglePlaceLocation;
+}
+
+export interface GooglePlaceResult {
+  geometry?: GooglePlaceGeometry;
+  formatted_address?: string;
+  name?: string;
+  address_components?: any[];
 }
 
 interface AddressAutocompleteProps {
@@ -30,262 +38,134 @@ interface AddressAutocompleteProps {
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
 
-export const AddressAutocomplete = ({
+// Since react-google-autocomplete is compiled as a CommonJS module,
+// Vite/React 19 pre-bundler sometimes imports the exports object instead of the default property.
+// We safely resolve the Autocomplete component using runtime checking without using 'any'.
+interface AutocompleteComponentProps {
+  apiKey?: string;
+  onPlaceSelected: (
+    place: GooglePlaceResult,
+    ref: React.RefObject<HTMLInputElement | null>,
+    autocompleteRef: React.RefObject<unknown>
+  ) => void;
+  options?: {
+    types?: string[];
+    bounds?: unknown;
+    fields?: string[];
+    strictBounds?: boolean;
+  };
+  style?: React.CSSProperties;
+  placeholder?: string;
+  onFocus?: React.FocusEventHandler<HTMLInputElement>;
+  onBlur?: React.FocusEventHandler<HTMLInputElement>;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  name?: string;
+  value?: string;
+  disabled?: boolean;
+}
+
+const Autocomplete = (
+  (AutocompleteModuleImport as unknown as { default?: React.ComponentType<AutocompleteComponentProps> }).default ||
+  AutocompleteModuleImport
+) as React.ComponentType<AutocompleteComponentProps>;
+
+export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
+  onAddressSelect,
   value = "",
   onChange,
-  onAddressSelect,
-  ...props
-}: AddressAutocompleteProps) => {
-  const theme = useTheme();
-  const dict = useDictionary();
-  const [input, setInput] = useState(value);
-  const [opts, setOpts] = useState<google.maps.places.AutocompletePrediction[]>(
-    []
-  );
-
-  const api = typeof window !== "undefined" ? window.google : null;
-  const geocoder = useMemo(() => (api ? new api.maps.Geocoder() : null), [api]);
-
-  const sessionTokenRef =
-    useRef<google.maps.places.AutocompleteSessionToken | null>(null);
+  onBlur,
+  placeholder = "Search destination...",
+  name,
+  disabled,
+  error,
+  helperText,
+}) => {
+  const [internalValue, setInternalValue] = useState(value);
 
   useEffect(() => {
-    if (
-      api &&
-      !sessionTokenRef.current &&
-      api.maps?.places?.AutocompleteSessionToken
-    ) {
-      sessionTokenRef.current = new api.maps.places.AutocompleteSessionToken();
-    }
-  }, [api]);
-
-  useEffect(() => {
-    // eslint-disable-next-line
-    setInput(value);
+    setInternalValue(value);
   }, [value]);
 
-  useEffect(() => {
-    if (!input || !api) {
-      // eslint-disable-next-line
-      setOpts(
-        value
-          ? [
-              {
-                description: value,
-              } as google.maps.places.AutocompletePrediction,
-            ]
-          : []
-      );
-      return;
-    }
+  const handlePlaceSelected = (place: GooglePlaceResult) => {
+    if (onAddressSelect && place.geometry?.location) {
+      const lat = typeof place.geometry.location.lat === "function" 
+        ? place.geometry.location.lat() 
+        : (place.geometry.location.lat as unknown as number);
+      const lng = typeof place.geometry.location.lng === "function" 
+        ? place.geometry.location.lng() 
+        : (place.geometry.location.lng as unknown as number);
+      
+      const formattedAddress = place.formatted_address || place.name || "";
+      
+      onAddressSelect({
+        formattedAddress,
+        lat,
+        lng,
+        address_components: place.address_components as google.maps.GeocoderAddressComponent[],
+      });
 
-    let active = true;
-    const timer = setTimeout(async () => {
-      if (api.maps?.places?.AutocompleteSuggestion) {
-        try {
-          const { suggestions } =
-            await api.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions(
-              {
-                input,
-                sessionToken: sessionTokenRef.current || undefined,
-              }
-            );
-          if (active) {
-            interface SuggestionPayload {
-              placePrediction?: {
-                placeId?: string;
-                text?: { text?: string };
-                mainText?: { text?: string };
-                secondaryText?: { text?: string };
-              };
-            }
-            const mappedOpts: google.maps.places.AutocompletePrediction[] = (
-              suggestions || []
-            ).map((s: unknown) => {
-              const suggestion = s as SuggestionPayload;
-              return {
-                place_id: suggestion.placePrediction?.placeId || "",
-                description: suggestion.placePrediction?.text?.text || "",
-                matched_substrings: [],
-                terms: [],
-                types: [],
-                structured_formatting: {
-                  main_text: suggestion.placePrediction?.mainText?.text || "",
-                  secondary_text:
-                    suggestion.placePrediction?.secondaryText?.text || "",
-                  main_text_matched_substrings: [],
-                },
-              } as google.maps.places.AutocompletePrediction;
-            });
-            setOpts(mappedOpts);
-          }
-        } catch (err) {
-          console.error("Error fetching autocomplete suggestions:", err);
-          if (active) setOpts([]);
-        }
-      } else if (api.maps?.places?.AutocompleteService) {
-        // Fallback for older Google Maps JS versions
-        const service = new api.maps.places.AutocompleteService();
-        service.getPlacePredictions(
-          { input },
-          (r: google.maps.places.AutocompletePrediction[] | null) =>
-            active && setOpts(r || [])
-        );
+      // Update internal state and fire onChange to keep Formik in sync
+      setInternalValue(formattedAddress);
+      if (onChange) {
+        onChange({
+          target: { name: name || "address", value: formattedAddress },
+        } as React.ChangeEvent<HTMLInputElement>);
       }
-    }, 200);
+    }
+  };
 
-    return () => {
-      active = false;
-      clearTimeout(timer);
-    };
-  }, [input, api, value]);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInternalValue(e.target.value);
+    if (onChange) {
+      onChange(e);
+    }
+  };
 
   return (
-    <Autocomplete
-      fullWidth
-      autoComplete
-      includeInputInList
-      filterSelectedOptions
-      disabled={props.disabled}
-      filterOptions={(x) => x}
-      options={
-        opts.length
-          ? opts
-          : value
-            ? [
-                {
-                  description: value,
-                } as google.maps.places.AutocompletePrediction,
-              ]
-            : []
-      }
-      getOptionLabel={(o) => (typeof o === "string" ? o : o.description) || ""}
-      value={
-        value
-          ? ({
-              description: value,
-            } as google.maps.places.AutocompletePrediction)
-          : null
-      }
-      noOptionsText={dict.maps?.searchAddress || "No locations"}
-      onChange={(
-        _,
-        val: google.maps.places.AutocompletePrediction | string | null
-      ) => {
-        const selectedDesc = typeof val === "string" ? val : val?.description;
-        onChange?.({
-          target: {
-            name: props.name || "address",
-            value: selectedDesc || "",
-          },
-        } as React.ChangeEvent<HTMLInputElement>);
-
-        // Reset session token after a selection is made
-        if (api && api.maps?.places?.AutocompleteSessionToken) {
-          sessionTokenRef.current =
-            new api.maps.places.AutocompleteSessionToken();
-        }
-
-        if (val && typeof val !== "string" && val.place_id && geocoder) {
-          geocoder.geocode({ placeId: val.place_id }, (res, status) => {
-            if (status === "OK" && res?.[0])
-              onAddressSelect?.({
-                formattedAddress: res[0].formatted_address,
-                lat: res[0].geometry.location.lat(),
-                lng: res[0].geometry.location.lng(),
-                address_components: res[0].address_components,
-              });
-          });
-        }
-      }}
-      onInputChange={(_, val) => setInput(val)}
-      renderInput={(p) => (
-        <TextField
-          {...p}
-          {...props}
-          placeholder={
-            props.placeholder ||
-            dict.maps?.searchAddress ||
-            "Search destination..."
-          }
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              bgcolor: theme.palette.text.darkBlue._alpha.main_50,
-              borderRadius: 2,
-              "& fieldset": {
-                borderColor: theme.palette.divider_alpha.main_10,
-              },
-              "&:hover fieldset": {
-                borderColor: theme.palette.primary._alpha.main_30,
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: theme.palette.primary.main,
-              },
-            },
-            "& .MuiInputLabel-root": {
-              color: "text.secondary",
-              fontSize: "0.85rem",
-              "&.Mui-focused": { color: theme.palette.primary.main },
-            },
-            "& .MuiOutlinedInput-input": { color: "white" },
+    <div style={{ position: "relative", width: "100%", marginBottom: "0px" }}>
+      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+        <Search 
+          size={16} 
+          style={{ position: "absolute", left: "12px", color: "var(--text-muted, #9ca3af)", pointerEvents: "none" }} 
+        />
+        <Autocomplete
+          apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}
+          onPlaceSelected={handlePlaceSelected}
+          options={{
+            types: ["geocode", "establishment"],
+          }}
+          name={name}
+          value={internalValue}
+          onChange={handleChange}
+          disabled={disabled}
+          style={{ 
+            width: "100%", 
+            padding: "0.6rem 0.6rem 0.6rem 2.2rem", 
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            border: `1px solid ${error ? "#f44336" : "rgba(255, 255, 255, 0.1)"}`,
+            borderRadius: "0.5rem",
+            color: "#ffffff",
+            fontSize: "0.875rem",
+            outline: "none",
+            transition: "border-color 0.2s",
+            opacity: disabled ? 0.5 : 1
+          }}
+          placeholder={placeholder}
+          onFocus={(e) => {
+             if (!error) e.target.style.borderColor = "var(--primary, #3b82f6)";
+          }}
+          onBlur={(e) => {
+             if (!error) e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+             if (onBlur) onBlur(e);
           }}
         />
+      </div>
+      {error && helperText && (
+        <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block', ml: 1 }}>
+          {helperText}
+        </Typography>
       )}
-      renderOption={(
-        { key, ...p },
-        opt: google.maps.places.AutocompletePrediction | string
-      ) => {
-        const option =
-          typeof opt === "string"
-            ? ({
-                description: opt,
-              } as google.maps.places.AutocompletePrediction)
-            : opt;
-        return (
-          <li {...p} key={option.place_id || option.description || key}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                width: "100%",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  width: 44,
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <LocationOnIcon sx={{ color: "text.secondary" }} />
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  minWidth: 0,
-                  flex: 1,
-                }}
-              >
-                <Typography variant="body2" sx={{ wordBreak: "break-word" }}>
-                  {option.structured_formatting?.main_text ||
-                    option.description}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ wordBreak: "break-word" }}
-                >
-                  {option.structured_formatting?.secondary_text || ""}
-                </Typography>
-              </Box>
-            </Box>
-          </li>
-        );
-      }}
-    />
+    </div>
   );
 };
 

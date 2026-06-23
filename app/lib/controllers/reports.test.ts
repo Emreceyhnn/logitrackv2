@@ -101,7 +101,6 @@ describe("Reports Controller", () => {
           currentLat: 41.0,
           currentLng: 28.9,
           status: "ACTIVE",
-          maintenanceRecords: [],
         },
       ]);
       dbMock.vehicle.count.mock.mockImplementation(async () => 5);
@@ -114,7 +113,7 @@ describe("Reports Controller", () => {
 
       // Mock Shipment Count
       dbMock.shipment.count.mock.mockImplementation(async (args: any) => {
-        if (args.where?.status === "DELAYED") return 5;
+        if (args.where?.status === "DELIVERED") return 10;
         return 15; // Total shipments
       });
 

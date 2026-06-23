@@ -13,7 +13,7 @@ import {
   deleteWarehouse,
   assignManagerToWarehouse,
 } from "@/app/lib/controllers/warehouse";
-import type { Warehouse, WarehouseType } from "@/app/lib/type/enums";
+import type { Warehouse } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 
 import { warehouseKeys } from "@/app/lib/query-keys/warehouse.keys";
@@ -130,7 +130,7 @@ export function useWarehouseMutations() {
     mutationFn: (data: {
       name: string;
       code: string;
-      type: WarehouseType;
+      type: import("@prisma/client").WarehouseType;
       address: string;
       city: string;
       country: string;

@@ -17,12 +17,10 @@ import {
   useRoutesWithDashboard,
   useRouteMutations,
 } from "@/app/hooks/useRoutes";
-import dynamic from "next/dynamic";
-
-const EditRouteDialog = dynamic(() => import("@/app/components/dialogs/routes/edit-route-dialog"), { ssr: false });
-const DeleteConfirmationDialog = dynamic(() => import("@/app/components/dialogs/deleteConfirmationDialog"), { ssr: false });
+import EditRouteDialog from "@/app/components/dialogs/routes/edit-route-dialog";
+import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { useUser } from "@/app/hooks/useUser";
-const AddRouteDialog = dynamic(() => import("@/app/components/dialogs/routes/addRouteDialog"), { ssr: false });
+import AddRouteDialog from "@/app/components/dialogs/routes/addRouteDialog";
 import { AltRoute, Loop, CheckCircle, Warning } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";

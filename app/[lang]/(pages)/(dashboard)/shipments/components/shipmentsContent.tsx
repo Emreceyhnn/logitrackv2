@@ -14,12 +14,10 @@ import {
   useShipmentsWithDashboard,
   useShipmentMutations,
 } from "@/app/hooks/useShipments";
-import dynamic from "next/dynamic";
-
-const EditShipmentDialog = dynamic(() => import("@/app/components/dialogs/shipment/edit-shipment-dialog"), { ssr: false });
-const ShipmentDetailDialog = dynamic(() => import("@/app/components/dialogs/shipment/shipmentDetailDialog"), { ssr: false });
-const AddShipmentDialog = dynamic(() => import("@/app/components/dialogs/shipment/addShipmentDialog"), { ssr: false });
-const DeleteConfirmationDialog = dynamic(() => import("@/app/components/dialogs/deleteConfirmationDialog"), { ssr: false });
+import EditShipmentDialog from "@/app/components/dialogs/shipment/edit-shipment-dialog";
+import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDetailDialog";
+import AddShipmentDialog from "@/app/components/dialogs/shipment/addShipmentDialog";
+import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import AddIcon from "@mui/icons-material/Add";
 
 import {

@@ -10,7 +10,7 @@ import {
   IssuePriority,
   IssueType,
 } from "@prisma/client";
-import { vehicleSchema } from "../serverSchemas";
+import { vehicleSchema } from "../validationSchema";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";
@@ -65,14 +65,6 @@ export const createVehicle = authenticatedAction(
       if (!companyId) throw new Error("User has no company");
 
       const parsedData = vehicleSchema.parse(vehicleData);
-
-      const existingVehicle = await db.vehicle.findFirst({
-        where: { plate: parsedData.plate },
-      });
-
-      if (existingVehicle) {
-        throw new Error("Plate already exists in the system.");
-      }
 
       const vehicleFleetNo =
         parsedData.fleetNo ||

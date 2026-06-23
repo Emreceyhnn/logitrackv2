@@ -19,7 +19,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import { m, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Formik } from "formik";
 import { createCompanyValidationSchema } from "@/app/lib/validationSchema";
 import {
@@ -223,7 +223,7 @@ export default function CreateCompanyDialog({
               sx={{ mt: 2, pb: 4, minHeight: 400, overflow: "hidden" }}
             >
               <AnimatePresence mode="wait" custom={direction}>
-                <m.div
+                <motion.div
                   key={activeStep}
                   custom={direction}
                   variants={variants}
@@ -277,7 +277,7 @@ export default function CreateCompanyDialog({
                       }}
                     />
                   )}
-                </m.div>
+                </motion.div>
               </AnimatePresence>
             </DialogContent>
 

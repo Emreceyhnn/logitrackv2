@@ -34,58 +34,7 @@ const useUserMock = mock.fn(() => ({
 
 const createWarehouseMock = mock.fn();
 
-mock.module("@mui/material", {
-  namedExports: { 
-    useTheme: useThemeMock,
-    Dialog: (props: any) => ({ type: "Dialog", props }),
-    DialogContent: (props: any) => ({ type: "DialogContent", props }),
-    DialogActions: (props: any) => ({ type: "DialogActions", props }),
-    Button: (props: any) => ({ type: "Button", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Box: (props: any) => ({ type: "Box", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    IconButton: (props: any) => ({ type: "IconButton", props }),
-    Stepper: (props: any) => ({ type: "Stepper", props }),
-    Step: (props: any) => ({ type: "Step", props }),
-    StepLabel: (props: any) => ({ type: "StepLabel", props }),
-  }
-});
 
-mock.module("@mui/icons-material/Close", { defaultExport: () => ({ type: "CloseIcon" }) });
-
-mock.module("sonner", {
-  namedExports: {
-    toast: { promise: mock.fn() }
-  }
-});
-
-import * as originalReact from "react";
-
-mock.module("react", {
-  namedExports: {
-    ...originalReact,
-    useState: (init: any) => [init, mock.fn()]
-  }
-});
-
-mock.module("../../../../lib/controllers/warehouse.ts", {
-  namedExports: { createWarehouse: createWarehouseMock }
-});
-
-mock.module("../../../../hooks/useUser.ts", {
-  namedExports: { useUser: useUserMock }
-});
-
-mock.module("../../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: useDictionaryMock }
-});
-
-mock.module("./sections/BasicInfoSection.tsx", { defaultExport: () => ({ type: "BasicInfoSection" }) });
-mock.module("./sections/LocationSection.tsx", { defaultExport: () => ({ type: "LocationSection" }) });
-mock.module("./sections/CapacitySection.tsx", { defaultExport: () => ({ type: "CapacitySection" }) });
-mock.module("../../../googleMaps/GoogleMapsProvider.tsx", {
-  namedExports: { GoogleMapsProvider: (props: any) => ({ type: "GoogleMapsProvider", props }) }
-});
 
 describe("AddWarehouseDialog Component", () => {
   let AddWarehouseDialog: any;

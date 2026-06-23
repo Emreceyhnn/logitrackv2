@@ -186,7 +186,7 @@ export const getWarehouseById = authenticatedAction(
   }
 );
 
-import { updateWarehouseSchema } from "../serverSchemas";
+import { updateWarehouseSchema } from "../validationSchema";
 
 export const updateWarehouse = authenticatedAction(
   async (user, warehouseId: string, data: Record<string, unknown>) => {

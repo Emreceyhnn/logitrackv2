@@ -13,64 +13,13 @@ import {
 } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
 import DailyOperationsCard from "@/app/components/dashboard/overview/dailyOperations";
-import dynamic from "next/dynamic";
-
-const FuelByVehicleCard = dynamic(
-  () => import("@/app/components/dashboard/overview/fuelByVehicleCard"),
-  {
-    ssr: false,
-    loading: () => (
-      <CustomCard sx={{ height: 320, p: 2 }}>
-        <Skeleton variant="rectangular" height="100%" sx={{ borderRadius: 2 }} />
-      </CustomCard>
-    )
-  }
-);
-const WarehouseCapacityCard = dynamic(
-  () => import("@/app/components/dashboard/overview/warehouseCapacityCard"),
-  { ssr: false }
-);
-const AlertInventoryCard = dynamic(
-  () => import("@/app/components/dashboard/overview/inventoryCard"),
-  { ssr: false }
-);
-const ShipmentOnStatusCard = dynamic(
-  () => import("@/app/components/dashboard/overview/shipmentsByStatusCard"),
-  {
-    ssr: false,
-    loading: () => (
-      <CustomCard sx={{ height: 320, p: 2 }}>
-        <Skeleton variant="rectangular" height="100%" sx={{ borderRadius: 2 }} />
-      </CustomCard>
-    )
-  }
-);
-const PicksPacksDailyCard = dynamic(
-  () => import("@/app/components/dashboard/overview/picsPacksDailyCard"),
-  { ssr: false }
-);
-const ShipmentVolumeCard = dynamic(
-  () => import("@/app/components/dashboard/overview/onTimeTrends"),
-  {
-    ssr: false,
-    loading: () => (
-      <CustomCard sx={{ height: 380, p: 2 }}>
-        <Skeleton variant="rectangular" height="100%" sx={{ borderRadius: 2 }} />
-      </CustomCard>
-    )
-  }
-);
-const OverviewMapCard = dynamic(
-  () => import("@/app/components/dashboard/overview/overViewMapCard"),
-  {
-    ssr: false,
-    loading: () => (
-      <CustomCard sx={{ height: 400, p: 2 }}>
-        <Skeleton variant="rectangular" height="100%" sx={{ borderRadius: 2 }} />
-      </CustomCard>
-    )
-  }
-);
+import FuelByVehicleCard from "@/app/components/dashboard/overview/fuelByVehicleCard";
+import WarehouseCapacityCard from "@/app/components/dashboard/overview/warehouseCapacityCard";
+import AlertInventoryCard from "@/app/components/dashboard/overview/inventoryCard";
+import ShipmentOnStatusCard from "@/app/components/dashboard/overview/shipmentsByStatusCard";
+import PicksPacksDailyCard from "@/app/components/dashboard/overview/picsPacksDailyCard";
+import ShipmentVolumeCard from "@/app/components/dashboard/overview/onTimeTrends";
+import OverviewMapCard from "@/app/components/dashboard/overview/overViewMapCard";
 import { useState, useMemo, useEffect } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import RefreshIcon from "@mui/icons-material/Refresh";

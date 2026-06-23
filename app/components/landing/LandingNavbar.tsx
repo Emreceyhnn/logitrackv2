@@ -11,13 +11,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-
-const LandingHeaderAuth = dynamic(() => import("./LandingHeaderAuth"), {
-  ssr: false,
-  loading: () => <Box sx={{ width: 180, height: 40 }} />,
-});
-
+import LandingHeaderAuth from "./LandingHeaderAuth";
 import LanguageSwitcher from "../nav/LanguageSwitcher";
 import { useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";

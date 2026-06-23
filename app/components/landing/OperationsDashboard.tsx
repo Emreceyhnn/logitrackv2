@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Box, Container, Grid, Stack, Typography } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -9,30 +9,11 @@ import RouteIcon from "@mui/icons-material/Route";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import SpeedIcon from "@mui/icons-material/Speed";
-import { m } from "framer-motion";
+import { motion } from "framer-motion";
 
 export default function OperationsDashboard() {
   const dict = useDictionary();
   const [activeTab, setActiveTab] = useState("overview");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <Box 
-        sx={{ 
-          minHeight: { xs: 400, md: 600 }, 
-          bgcolor: "#0a0e14",
-          borderTop: "1px solid rgba(255, 255, 255, 0.05)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-        }} 
-      />
-    );
-  }
 
   const sidebarItems = [
     {
@@ -891,7 +872,7 @@ export default function OperationsDashboard() {
   return (
     <Box sx={{ py: 12, bgcolor: "#10141a", overflow: "hidden" }}>
       <Container maxWidth="xl">
-        <m.div
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
@@ -1134,7 +1115,7 @@ export default function OperationsDashboard() {
               </Box>
             </Box>
           </Box>
-        </m.div>
+        </motion.div>
       </Container>
     </Box>
   );

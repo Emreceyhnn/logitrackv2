@@ -476,32 +476,13 @@ export const getInventoryWithDashboardData = authenticatedAction(
           items,
           totalCount,
           allStatsItems,
-          lowStockItemsDirect,
-          lowStockCount,
           ratesData,
           prevTotalItems,
         ] = await Promise.all([
           checkPermission(user, companyId, ["role_admin", "role_manager", "role_warehouse"]),
           db.inventory.findMany({
             where,
-            select: {
-              id: true,
-              sku: true,
-              name: true,
-              quantity: true,
-              allocatedQuantity: true,
-              minStock: true,
-              imageUrl: true,
-              unitValue: true,
-              currency: true,
-              unit: true,
-              weightKg: true,
-              volumeM3: true,
-              palletCount: true,
-              cargoType: true,
-              updatedAt: true,
-              companyId: true,
-              warehouseId: true,
+            include: {
               warehouse: { select: { name: true, code: true } },
             },
             orderBy,
@@ -512,35 +493,16 @@ export const getInventoryWithDashboardData = authenticatedAction(
           db.inventory.findMany({
             where,
             select: { 
-              quantity: true, 
-              unitValue: true, 
-              currency: true,
-            },
-          }),
-          db.inventory.findMany({
-            where: {
-              ...where,
-              quantity: { lte: db.inventory.fields.minStock },
-            },
-            take: 10,
-            select: {
-              id: true,
-              name: true,
+              id: true, 
+              name: true, 
               sku: true,
               warehouseId: true,
-              quantity: true,
+              quantity: true, 
               allocatedQuantity: true,
-              minStock: true,
-              unitValue: true,
+              minStock: true, 
+              unitValue: true, 
               currency: true,
-              warehouse: { select: { name: true } },
-            },
-            orderBy: { quantity: "asc" },
-          }),
-          db.inventory.count({
-            where: {
-              ...where,
-              quantity: { lte: db.inventory.fields.minStock },
+              warehouse: { select: { name: true } } 
             },
           }),
           getExchangeRates(),
@@ -549,13 +511,21 @@ export const getInventoryWithDashboardData = authenticatedAction(
         ]);
 
         // KPI Calculations & Low Stock Extract
-        const totalItems = totalCount;
+        let totalItems = 0;
+        let lowStockCount = 0;
         let outOfStockCount = 0;
         let totalValue = 0;
+        const lowStockItems: LowStockItem[] = [];
 
         allStatsItems.forEach((item) => {
+          totalItems++;
           if (item.quantity === 0) {
             outOfStockCount++;
+          } else if (item.quantity <= item.minStock) {
+            lowStockCount++;
+            if (lowStockItems.length < 10) {
+              lowStockItems.push(item);
+            }
           }
           
           // Convert to USD for a consistent totalValue
@@ -578,7 +548,7 @@ export const getInventoryWithDashboardData = authenticatedAction(
             totalValue,
           },
           statsTrends,
-          lowStockItems: lowStockItemsDirect as unknown as LowStockItem[],
+          lowStockItems: lowStockItems as unknown as LowStockItem[],
         };
       });
     } catch (error) {

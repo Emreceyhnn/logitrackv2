@@ -29,7 +29,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import BasicInfoSection from "./sections/BasicInfoSection";
 import LocationSection from "./sections/LocationSection";
 import CapacitySection from "./sections/CapacitySection";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+
 
 const initialBasicInfo = {
   name: "",
@@ -159,7 +159,7 @@ const AddWarehouseDialog = ({
   ];
 
   return (
-    <GoogleMapsProvider>
+    <>
       <Dialog
         open={open}
         onClose={actions.closeDialog}
@@ -302,7 +302,7 @@ const AddWarehouseDialog = ({
           </Button>
         </DialogActions>
       </Dialog>
-    </GoogleMapsProvider>
+    </>
   );
 };
 

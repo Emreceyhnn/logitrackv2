@@ -145,11 +145,10 @@ export default function AuthLayout({
               }}
             >
               <Image
-                src="/auth-visual-opt.webp"
+                src="/auth-visual.png"
                 alt="Logistics Network"
                 width={1200}
                 height={800}
-                priority
                 style={{
                   width: "100%",
                   height: "auto",

@@ -13,7 +13,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Person as PersonIcon, Lock as LockIcon } from "@mui/icons-material";
-import { m, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 import {
   getMyProfile,
@@ -242,7 +242,7 @@ export default function ProfileDialog({ open, onClose }: Props) {
             </Box>
           ) : (
             <AnimatePresence mode="wait">
-              <m.div
+              <motion.div
                 key={state.activeTab}
                 initial={{ opacity: 0, y: 10, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -258,7 +258,7 @@ export default function ProfileDialog({ open, onClose }: Props) {
                 {state.activeTab === 1 && (
                   <SecurityTab state={state} actions={actions} />
                 )}
-              </m.div>
+              </motion.div>
             </AnimatePresence>
           )}
         </DialogContent>

@@ -4,7 +4,7 @@ import { Box, Button, Container, Stack, Typography } from "@mui/material";
 import Image from "next/image";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
-import { m } from "framer-motion";
+import { motion } from "framer-motion";
 
 export default function HeroSection() {
   const dict = useDictionary();
@@ -37,11 +37,12 @@ export default function HeroSection() {
         }}
       >
         <Image
-          src="/bg-high-reso-opt.webp"
+          src="/bg-high-reso.webp"
           alt="LogiTrack Background"
           fill
           priority
           fetchPriority="high"
+          unoptimized
           quality={75}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
           style={{ objectFit: "cover", objectPosition: "center" }}
@@ -102,7 +103,7 @@ export default function HeroSection() {
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 10 }}>
         <Stack spacing={4} alignItems="center" textAlign="center">
           {/* Badge */}
-          <m.div
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -142,7 +143,7 @@ export default function HeroSection() {
                 {dict.landing.hero.badge}
               </Typography>
             </Box>
-          </m.div>
+          </motion.div>
 
           {/* Title */}
           <Box
@@ -183,7 +184,7 @@ export default function HeroSection() {
           </Box>
 
           {/* Description */}
-          <m.div
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -199,10 +200,10 @@ export default function HeroSection() {
             >
               {dict.landing.hero.description}
             </Typography>
-          </m.div>
+          </motion.div>
 
           {/* Actions */}
-          <m.div
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
@@ -249,7 +250,7 @@ export default function HeroSection() {
                 {dict.landing.hero.demo}
               </Button>
             </Stack>
-          </m.div>
+          </motion.div>
         </Stack>
       </Container>
     </Box>

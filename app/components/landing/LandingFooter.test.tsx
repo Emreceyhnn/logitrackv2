@@ -16,6 +16,7 @@ const useDictionaryMock = mock.fn(() => ({
         enterprise: "Enterprise",
         smbLogistics: "SMB Logistics",
         supplyChain: "Supply Chain",
+        customApi: "Custom API",
         company: "Company",
         ourMission: "Our Mission",
         engineering: "Engineering",

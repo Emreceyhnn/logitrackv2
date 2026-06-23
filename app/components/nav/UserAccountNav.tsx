@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Stack,
   CircularProgress,
@@ -21,11 +21,9 @@ import {
 import { useParams } from "next/navigation";
 import { getUserSession, logoutAction } from "@/app/lib/actions/auth";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import dynamic from "next/dynamic";
-
-const ProfileDialog = dynamic(() => import("../dialogs/profile/ProfileDialog"), { ssr: false });
-const SettingsDialog = dynamic(() => import("../dialogs/settings/SettingsDialog"), { ssr: false });
-const LogoutConfirmationDialog = dynamic(() => import("../dialogs/logoutConfirmationDialog"), { ssr: false });
+import ProfileDialog from "../dialogs/profile/ProfileDialog";
+import SettingsDialog from "../dialogs/settings/SettingsDialog";
+import LogoutConfirmationDialog from "../dialogs/logoutConfirmationDialog";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 
 export default function UserAccountNav({
@@ -85,7 +83,6 @@ export default function UserAccountNav({
   /* --------------------------------- STATES --------------------------------- */
   const [loading, setLoading] = useState(!initialUser);
   const [user, setUser] = useState<AuthenticatedUser | null>(initialUser);
-  const [prevInitialUser, setPrevInitialUser] = useState(initialUser);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -93,13 +90,8 @@ export default function UserAccountNav({
 
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
-  if (initialUser !== prevInitialUser) {
-    setPrevInitialUser(initialUser);
-    setUser(initialUser);
-  }
-
   /* --------------------------------- ACTIONS -------------------------------- */
-  const fetchSession = useCallback(async () => {
+  const fetchSession = async () => {
     try {
       const session = await getUserSession();
       setUser(session as AuthenticatedUser | null);
@@ -108,16 +100,18 @@ export default function UserAccountNav({
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   /* -------------------------------- LIFECYCLE ------------------------------- */
 
   useEffect(() => {
-    if (!initialUser) {
+    if (initialUser) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUser(initialUser);
+    } else {
       fetchSession();
     }
-  }, [initialUser, fetchSession]);
+  }, [initialUser]);
 
   useEffect(() => {
     const handleProfileUpdate = () => {
@@ -126,7 +120,7 @@ export default function UserAccountNav({
     window.addEventListener("profile-updated", handleProfileUpdate);
     return () =>
       window.removeEventListener("profile-updated", handleProfileUpdate);
-  }, [fetchSession]);
+  }, []);
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {

@@ -12,50 +12,46 @@ import {
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import Image from "next/image";
-import Link from "next/link";
-import { useParams } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { getLocalizedPath } from "@/app/lib/language/navigation";
 
 export default function LandingFooter() {
   const dict = useDictionary();
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
 
   const footerSections = [
     {
       title: dict.landing.footer.sections.platform,
       links: [
-        { label: dict.landing.footer.sections.globalTracking, href: `/${lang}${getLocalizedPath("/global-tracking", lang)}` },
-        { label: dict.landing.footer.sections.routeIntelligence, href: `/${lang}${getLocalizedPath("/route-intelligence", lang)}` },
-        { label: dict.landing.footer.sections.telemetryHub, href: `/${lang}${getLocalizedPath("/telemetry-hub", lang)}` },
-        { label: dict.landing.footer.sections.securityCenter, href: `/${lang}${getLocalizedPath("/security-center", lang)}` },
+        { label: dict.landing.footer.sections.globalTracking, href: "#" },
+        { label: dict.landing.footer.sections.routeIntelligence, href: "#" },
+        { label: dict.landing.footer.sections.telemetryHub, href: "#" },
+        { label: dict.landing.footer.sections.securityCenter, href: "#" },
       ],
     },
     {
       title: dict.landing.footer.sections.solutions,
       links: [
-        { label: dict.landing.footer.sections.enterprise, href: `/${lang}${getLocalizedPath("/enterprise", lang)}` },
-        { label: dict.landing.footer.sections.smbLogistics, href: `/${lang}${getLocalizedPath("/smb-logistics", lang)}` },
-        { label: dict.landing.footer.sections.supplyChain, href: `/${lang}${getLocalizedPath("/supply-chain", lang)}` },
+        { label: dict.landing.footer.sections.enterprise, href: "#" },
+        { label: dict.landing.footer.sections.smbLogistics, href: "#" },
+        { label: dict.landing.footer.sections.supplyChain, href: "#" },
+        { label: dict.landing.footer.sections.customApi, href: "#" },
       ],
     },
     {
       title: dict.landing.footer.sections.company,
       links: [
-        { label: dict.landing.footer.sections.ourMission, href: `/${lang}${getLocalizedPath("/mission", lang)}` },
-        { label: dict.landing.footer.sections.engineering, href: `/${lang}${getLocalizedPath("/engineering", lang)}` },
-        { label: dict.landing.footer.sections.pressKit, href: `/${lang}${getLocalizedPath("/press-kit", lang)}` },
-        { label: dict.landing.footer.sections.careers, href: `/${lang}${getLocalizedPath("/careers", lang)}` },
+        { label: dict.landing.footer.sections.ourMission, href: "#" },
+        { label: dict.landing.footer.sections.engineering, href: "#" },
+        { label: dict.landing.footer.sections.pressKit, href: "#" },
+        { label: dict.landing.footer.sections.careers, href: "#" },
       ],
     },
     {
       title: dict.landing.footer.sections.support,
       links: [
-        { label: dict.landing.footer.sections.devDocs, href: `/${lang}${getLocalizedPath("/dev-docs", lang)}` },
-        { label: dict.landing.footer.sections.helpCenter, href: `/${lang}${getLocalizedPath("/help-center", lang)}` },
-        { label: dict.landing.footer.sections.privacy, href: `/${lang}${getLocalizedPath("/privacy", lang)}` },
-        { label: dict.landing.footer.sections.sla, href: `/${lang}${getLocalizedPath("/sla", lang)}` },
+        { label: dict.landing.footer.sections.devDocs, href: "#" },
+        { label: dict.landing.footer.sections.helpCenter, href: "#" },
+        { label: dict.landing.footer.sections.privacy, href: "#" },
+        { label: dict.landing.footer.sections.sla, href: "#" },
       ],
     },
   ];
@@ -117,7 +113,6 @@ export default function LandingFooter() {
               <Stack direction="row" spacing={3}>
                 <MuiLink
                   href="#"
-                  aria-label="LinkedIn"
                   sx={{
                     color: "rgba(255, 255, 255, 0.4)",
                     "&:hover": { color: "#00f2ff" },
@@ -127,7 +122,6 @@ export default function LandingFooter() {
                 </MuiLink>
                 <MuiLink
                   href="#"
-                  aria-label="Twitter"
                   sx={{
                     color: "rgba(255, 255, 255, 0.4)",
                     "&:hover": { color: "#00f2ff" },
@@ -158,7 +152,6 @@ export default function LandingFooter() {
                 {section.links.map((link) => (
                   <MuiLink
                     key={link.label}
-                    component={Link}
                     href={link.href}
                     underline="none"
                     sx={{

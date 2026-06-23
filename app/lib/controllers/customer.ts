@@ -155,44 +155,51 @@ export const getCustomersWithDashboardData = authenticatedAction(
           ,
           customers,
           totalCount,
-          totalShipments,
-          activeCustomers,
+          statsRaw,
           prevTotalCustomers,
         ] = await Promise.all([
-          checkPermission(user, companyId, ["role_admin", "role_manager", "role_dispatcher"]),
-          db.customer.findMany({
-            where,
-            include: {
-              locations: true,
-              _count: {
-                select: { shipments: true },
-              },
+        checkPermission(user, companyId, ["role_admin", "role_manager", "role_dispatcher"]),
+        db.customer.findMany({
+          where,
+          include: {
+            locations: true,
+            _count: {
+              select: { shipments: true },
             },
-            orderBy: { createdAt: "desc" },
-            skip,
-            take: pageSize,
-          }),
-          db.customer.count({ where }),
-          db.shipment.count({ where: { companyId, customerId: { not: null } } }),
-          db.customer.count({ where: { companyId, shipments: { some: {} } } }),
-          db.customer.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } }),
-        ]);
-
-        // Stats Calculation
-        const totalCustomers = totalCount;
-
-        return {
-          customers: customers as unknown as CustomerWithRelations[],
-          totalCount,
-          stats: {
-            totalCustomers,
-            activeCustomers,
-            totalShipments,
           },
-          statsTrends: {
-            totalCustomers: calcTrend(totalCustomers, prevTotalCustomers as number),
+          orderBy: { createdAt: "desc" },
+          skip,
+          take: pageSize,
+        }),
+        db.customer.count({ where }),
+        db.customer.findMany({
+          where: { companyId },
+          select: {
+            _count: {
+              select: { shipments: true },
+            },
           },
-        };
+        }),
+        db.customer.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } }),
+      ]);
+
+      // Stats Calculation
+      const totalCustomers = totalCount;
+      const totalShipments = statsRaw.reduce((acc, c) => acc + c._count.shipments, 0);
+      const activeCustomers = statsRaw.filter((c) => c._count.shipments > 0).length;
+
+      return {
+        customers: customers as unknown as CustomerWithRelations[],
+        totalCount,
+        stats: {
+          totalCustomers,
+          activeCustomers,
+          totalShipments,
+        },
+        statsTrends: {
+          totalCustomers: calcTrend(totalCustomers, prevTotalCustomers as number),
+        },
+      };
     });
     } catch (error) {
       console.error("Failed to get customers combined data:", error);

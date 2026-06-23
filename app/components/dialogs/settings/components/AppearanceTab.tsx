@@ -14,7 +14,7 @@ import {
   DesktopMac,
   CheckCircle as CheckIcon,
 } from "@mui/icons-material";
-import { m, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useThemeMode } from "@/app/lib/theme/themeContext";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import type { SettingsPageState, SettingsPageActions, AppearanceMode } from "@/app/lib/type/settings";
@@ -54,13 +54,13 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
       </Box>
 
       <Stack direction="row" spacing={2}>
-        {modes.map((modeItem) => {
-          const active = state.appearance.mode === modeItem.value;
-          const Icon = modeItem.icon;
+        {modes.map((m) => {
+          const active = state.appearance.mode === m.value;
+          const Icon = m.icon;
           return (
             <Box
-              key={modeItem.value}
-              onClick={() => handleChange(modeItem.value)}
+              key={m.value}
+              onClick={() => handleChange(m.value)}
               sx={{
                 flex: 1,
                 p: 2.5,
@@ -103,15 +103,15 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
                 <Icon sx={{ fontSize: 22 }} />
               </Box>
               <Typography variant="body1" fontWeight={800} color="text.primary" sx={{ mb: 0.5 }}>
-                  {modeItem.label}
+                  {m.label}
               </Typography>
               <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, display: "block", mb: 2 }}>
-                  {modeItem.desc}
+                  {m.desc}
               </Typography>
               
               <AnimatePresence>
                 {active && (
-                    <m.div
+                    <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                     >
@@ -128,7 +128,7 @@ export default function AppearanceTab({ state, actions }: AppearanceTabProps) {
                                 "& .MuiChip-icon": { ml: 0.5 }
                             }}
                         />
-                    </m.div>
+                    </motion.div>
                 )}
               </AnimatePresence>
             </Box>

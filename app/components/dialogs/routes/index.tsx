@@ -81,6 +81,37 @@ export default function RouteDialog({
 
   const [statusLoading, setStatusLoading] = useState(false);
 
+  const { mapOrigin, mapDestination, intermediateStops } = React.useMemo(() => {
+    if (!route) return { mapOrigin: undefined, mapDestination: undefined, intermediateStops: [] };
+    const allStops = Array.isArray(route.stops) ? route.stops : [];
+    const typedStops = allStops as { lat?: number; lng?: number; address?: string }[];
+    
+    const mOrigin = typedStops.length > 0 ? {
+      lat: typedStops[0].lat || 0,
+      lng: typedStops[0].lng || 0,
+      address: typedStops[0].address || "",
+    } : undefined;
+
+    const mDest = typedStops.length > 1 ? {
+      lat: typedStops[typedStops.length - 1].lat || 0,
+      lng: typedStops[typedStops.length - 1].lng || 0,
+      address: typedStops[typedStops.length - 1].address || "",
+    } : undefined;
+
+    const interStops = typedStops.length > 2 
+      ? typedStops.slice(1, -1).filter(stop => {
+          const isDuplicateOrigin = mOrigin && stop.address === mOrigin.address;
+          const isDuplicateDestination = mDest && stop.address === mDest.address;
+          return !isDuplicateOrigin && !isDuplicateDestination;
+        }).map(w => ({ 
+          location: { lat: w.lat || 0, lng: w.lng || 0 },
+          stopover: true
+        }))
+      : [];
+      
+    return { mapOrigin: mOrigin, mapDestination: mDest, intermediateStops: interStops };
+  }, [route?.stops]);
+
   if (!route) return null;
 
   /* -------------------------------- functions ------------------------------- */
@@ -123,30 +154,6 @@ export default function RouteDialog({
       >
     )[paletteKey]?._alpha ?? theme.palette.primary._alpha;
 
-  // Extract start, end, and intermediate stops from the new stops structure
-  const allStops = Array.isArray(route.stops) ? route.stops : [];
-  const typedStops = allStops as { lat?: number; lng?: number; address?: string }[];
-  
-  const mapOrigin = typedStops.length > 0 ? {
-    lat: typedStops[0].lat || 0,
-    lng: typedStops[0].lng || 0,
-    address: typedStops[0].address || "",
-  } : undefined;
-
-  const mapDestination = typedStops.length > 1 ? {
-    lat: typedStops[typedStops.length - 1].lat || 0,
-    lng: typedStops[typedStops.length - 1].lng || 0,
-    address: typedStops[typedStops.length - 1].address || "",
-  } : undefined;
-
-  const intermediateStops = typedStops.length > 2 
-    ? typedStops.slice(1, -1).map(w => ({ 
-        location: { lat: w.lat || 0, lng: w.lng || 0 },
-        stopover: true
-      }))
-    : [];
-
-  console.log(route);
 
   return (
     <>

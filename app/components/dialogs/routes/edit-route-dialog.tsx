@@ -25,7 +25,7 @@ import FirstRouteDialogStep from "./addRouteDialog/firstStep";
 import SecondRouteDialogStep from "./addRouteDialog/secondStep";
 import ThirdRouteDialogStep from "./addRouteDialog/thirdStep";
 import { RouteWithRelations, RouteFormValues } from "@/app/lib/type/routes";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+
 import { Formik, Form } from "formik";
 import { editRouteValidationSchema } from "@/app/lib/validationSchema";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -81,8 +81,20 @@ const EditRouteDialog = ({
 
     // Derive start/end from stops array
     const routeStops = Array.isArray(route.stops) ? route.stops : [];
-    const firstStop = routeStops.length > 0 ? routeStops[0] : null;
-    const lastStop = routeStops.length > 1 ? routeStops[routeStops.length - 1] : null;
+    const firstStop = routeStops.length > 0 ? (routeStops[0] as any) : null;
+    const lastStop = routeStops.length > 1 ? (routeStops[routeStops.length - 1] as any) : null;
+
+    const filteredStops = routeStops.filter((stop: any, index) => {
+      // Keep true first and true last
+      if (index === 0) return true;
+      if (index === routeStops.length - 1 && routeStops.length > 1) return true;
+
+      // Filter middle duplicates
+      if (firstStop && stop.address === firstStop.address) return false;
+      if (lastStop && stop.address === lastStop.address) return false;
+
+      return true;
+    });
 
     return {
       name: route.name || "",
@@ -102,7 +114,7 @@ const EditRouteDialog = ({
       durationMin: route.durationMin || 0,
       driverId: route.driverId || "",
       vehicleId: route.vehicleId || "",
-      stops: routeStops as { address: string; lat?: number; lng?: number }[],
+      stops: filteredStops as { address: string; lat?: number; lng?: number }[],
     };
   };
 
@@ -165,7 +177,7 @@ const EditRouteDialog = ({
   if (!route) return null;
 
   return (
-    <GoogleMapsProvider>
+    <>
       <Formik
         initialValues={getInitialValues()}
         validationSchema={validationSchema}
@@ -326,7 +338,7 @@ const EditRouteDialog = ({
           );
         }}
       </Formik>
-    </GoogleMapsProvider>
+    </>
   );
 };
 

@@ -3,8 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/app/style/globals.css": ["./app/style/globals-mock.ts"],
-      "@/*": ["./*"]
+      "@/*": ["./app/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

@@ -30,7 +30,7 @@ import BasicInfoSection from "./sections/BasicInfoSection";
 import LocationSection from "./sections/LocationSection";
 import CapacitySection from "./sections/CapacitySection";
 import { WarehouseType } from "@/app/lib/type/enums";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+
 
 const defaultBasicInfo = {
   name: "",
@@ -204,7 +204,7 @@ const EditWarehouseDialog = ({
   if (!warehouseData) return null;
 
   return (
-    <GoogleMapsProvider>
+    <>
       <Dialog
         open={open}
         onClose={actions.closeDialog}
@@ -353,7 +353,7 @@ const EditWarehouseDialog = ({
           </Button>
         </DialogActions>
       </Dialog>
-    </GoogleMapsProvider>
+    </>
   );
 };
 

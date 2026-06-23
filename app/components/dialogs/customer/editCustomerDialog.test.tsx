@@ -34,17 +34,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: useDictionaryMock },
-});
 
-mock.module("../../../hooks/useUser.ts", {
-  namedExports: { useUser: mock.fn(() => ({ user: { id: "user-1" } })) },
-});
-
-mock.module("../../googleMaps/GoogleMapsProvider.tsx", {
-  namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div> },
-});
 
 const toastMock = {
   success: mock.fn(),

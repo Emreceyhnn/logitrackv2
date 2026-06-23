@@ -38,7 +38,7 @@ import CargoSection from "./sections/CargoSection";
 import InventorySection from "./sections/InventorySection";
 
 import StopsSection from "./sections/StopsSection";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import { getTrailers } from "@/app/lib/controllers/trailer";
@@ -206,7 +206,7 @@ const AddShipmentDialog = ({
   ];
 
   return (
-    <GoogleMapsProvider>
+    <>
       <Formik
         initialValues={initialValues}
         validationSchema={useMemo(
@@ -499,7 +499,7 @@ const AddShipmentDialog = ({
           );
         }}
       </Formik>
-    </GoogleMapsProvider>
+    </>
   );
 };
 

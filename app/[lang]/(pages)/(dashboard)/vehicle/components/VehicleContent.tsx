@@ -27,16 +27,14 @@ import DocumentCalenderCard from "@/app/components/dashboard/vehicle/documentCal
 import VehicleCapacityChart from "@/app/components/dashboard/vehicle/maxLoad";
 import TrailerTable from "@/app/components/dashboard/vehicle/trailerTable";
 
-import dynamic from "next/dynamic";
-
 // Dialogs
-const AddVehicleDialog = dynamic(() => import("@/app/components/dialogs/vehicle/addVehicleDialog"), { ssr: false });
-const EditVehicleDialog = dynamic(() => import("@/app/components/dialogs/vehicle/editVehicleDialog"), { ssr: false });
-const VehicleDialog = dynamic(() => import("@/app/components/dialogs/vehicle/vehicleDetailsDialog"), { ssr: false });
-const DeleteConfirmationDialog = dynamic(() => import("@/app/components/dialogs/deleteConfirmationDialog"), { ssr: false });
-const AddTrailerDialog = dynamic(() => import("@/app/components/dialogs/vehicle/addTrailerDialog"), { ssr: false });
-const EditTrailerDialog = dynamic(() => import("@/app/components/dialogs/vehicle/editTrailerDialog"), { ssr: false });
-const TrailerAssignmentDialog = dynamic(() => import("@/app/components/dialogs/vehicle/trailerAssignmentDialog"), { ssr: false });
+import AddVehicleDialog from "@/app/components/dialogs/vehicle/addVehicleDialog";
+import EditVehicleDialog from "@/app/components/dialogs/vehicle/editVehicleDialog";
+import VehicleDialog from "@/app/components/dialogs/vehicle/vehicleDetailsDialog";
+import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
+import AddTrailerDialog from "@/app/components/dialogs/vehicle/addTrailerDialog";
+import EditTrailerDialog from "@/app/components/dialogs/vehicle/editTrailerDialog";
+import TrailerAssignmentDialog from "@/app/components/dialogs/vehicle/trailerAssignmentDialog";
 
 // Hooks & Types
 import { useVehicleWithDashboard, useVehicleMutations } from "@/app/hooks/useVehicles";

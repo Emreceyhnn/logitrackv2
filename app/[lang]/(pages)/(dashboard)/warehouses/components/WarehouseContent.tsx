@@ -15,22 +15,11 @@ import {
   useWarehousesWithDashboard,
   useWarehouseMutations,
 } from "@/app/hooks/useWarehouses";
+import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseDialog";
+import WarehouseDetailsDialog from "@/app/components/dialogs/warehouse/warehouseDetailsDialog";
+import EditWarehouseDialog from "@/app/components/dialogs/warehouse/editWarehouseDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import { useTheme } from "@mui/material";
-import dynamic from "next/dynamic";
-
-const AddWarehouseDialog = dynamic(
-  () => import("@/app/components/dialogs/warehouse/addWarehouseDialog"),
-  { ssr: false }
-);
-const WarehouseDetailsDialog = dynamic(
-  () => import("@/app/components/dialogs/warehouse/warehouseDetailsDialog"),
-  { ssr: false }
-);
-const EditWarehouseDialog = dynamic(
-  () => import("@/app/components/dialogs/warehouse/editWarehouseDialog"),
-  { ssr: false }
-);
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 import {
@@ -78,39 +67,43 @@ export default function WarehouseContent() {
 
   const loading = isLoading;
 
-
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
     await refetch();
   }, [refetch]);
 
-  const actions: WarehousePageActions = useMemo(() => ({
-    fetchWarehouses: async () => {},
-    fetchStats: async () => {},
-    fetchRecentMovements: async () => {},
-    refreshAll,
-    selectWarehouse: (id: string | null) => {
-      setSelectedWarehouseId(id);
-      if (id) {
-        setDetailsDialogOpen(true);
-      }
-    },
-    editWarehouse: (id: string) => {
-      setWarehouseToEditId(id);
-      setEditDialogOpen(true);
-    },
-    deleteWarehouse: async (id: string) => {
-      setWarehouseToDeleteId(id);
-      setDeleteDialogOpen(true);
-    },
-  }), [refreshAll]);
+  const actions: WarehousePageActions = useMemo(
+    () => ({
+      fetchWarehouses: async () => {},
+      fetchStats: async () => {},
+      fetchRecentMovements: async () => {},
+      refreshAll,
+      selectWarehouse: (id: string | null) => {
+        setSelectedWarehouseId(id);
+        if (id) {
+          setDetailsDialogOpen(true);
+        }
+      },
+      editWarehouse: (id: string) => {
+        setWarehouseToEditId(id);
+        setEditDialogOpen(true);
+      },
+      deleteWarehouse: async (id: string) => {
+        setWarehouseToDeleteId(id);
+        setDeleteDialogOpen(true);
+      },
+    }),
+    [refreshAll]
+  );
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleDeleteConfirm = async () => {
     if (!warehouseToDeleteId) return;
     try {
       await deleteMutation.mutateAsync(warehouseToDeleteId);
-      toast.success(dict.toasts.successDelete || "Warehouse deleted successfully");
+      toast.success(
+        dict.toasts.successDelete || "Warehouse deleted successfully"
+      );
       setDeleteDialogOpen(false);
     } catch (error) {
       toast.error(dict.toasts.errorGeneric || "Failed to delete warehouse");
@@ -128,41 +121,43 @@ export default function WarehouseContent() {
     (w: WarehouseWithRelations) => w.id === warehouseToDeleteId
   );
 
-
   /* --------------------------------- KPI --------------------------------- */
-  const kpiItems = useMemo(() => [
-    {
-      label: dict.warehouses.kpi.totalWarehouses,
-      value: stats?.totalWarehouses || 0,
-      icon: <WarehouseIcon />,
-      color: theme.palette.primary.main,
-      trend: dashboardData?.statsTrends?.totalWarehouses,
-    },
-    {
-      label: dict.warehouses.kpi.inventorySkus,
-      value: stats?.totalSkus?.toLocaleString("en-US") || 0,
-      icon: <Inventory2 />,
-      color: theme.palette.info.main,
-    },
-    {
-      label: dict.warehouses.kpi.totalItems,
-      value: stats?.totalItems?.toLocaleString("en-US") || 0,
-      icon: <ListAlt />,
-      color: theme.palette.secondary.main,
-    },
-    {
-      label: dict.warehouses.kpi.palletCapacity,
-      value: stats?.totalCapacityPallets?.toLocaleString("en-US") || 0,
-      icon: <Category />,
-      color: theme.palette.warning.main,
-    },
-    {
-      label: dict.warehouses.kpi.stockedVolume,
-      value: `${stats?.totalCapacityVolume?.toLocaleString("en-US") || 0} M³`,
-      icon: <Storage />,
-      color: theme.palette.success.main,
-    },
-  ], [stats, dashboardData?.statsTrends, theme, dict]);
+  const kpiItems = useMemo(
+    () => [
+      {
+        label: dict.warehouses.kpi.totalWarehouses,
+        value: stats?.totalWarehouses || 0,
+        icon: <WarehouseIcon />,
+        color: theme.palette.primary.main,
+        trend: dashboardData?.statsTrends?.totalWarehouses,
+      },
+      {
+        label: dict.warehouses.kpi.inventorySkus,
+        value: stats?.totalSkus?.toLocaleString("en-US") || 0,
+        icon: <Inventory2 />,
+        color: theme.palette.info.main,
+      },
+      {
+        label: dict.warehouses.kpi.totalItems,
+        value: stats?.totalItems?.toLocaleString("en-US") || 0,
+        icon: <ListAlt />,
+        color: theme.palette.secondary.main,
+      },
+      {
+        label: dict.warehouses.kpi.palletCapacity,
+        value: stats?.totalCapacityPallets?.toLocaleString("en-US") || 0,
+        icon: <Category />,
+        color: theme.palette.warning.main,
+      },
+      {
+        label: dict.warehouses.kpi.stockedVolume,
+        value: `${stats?.totalCapacityVolume?.toLocaleString("en-US") || 0} M³`,
+        icon: <Storage />,
+        color: theme.palette.success.main,
+      },
+    ],
+    [stats, dashboardData?.statsTrends, theme, dict]
+  );
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>
@@ -265,7 +260,10 @@ export default function WarehouseContent() {
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
         title={dict.warehouses.deleteTitle}
-        description={dict.warehouses.deleteDesc.replace("{name}", warehouseToDelete?.name || "")}
+        description={dict.warehouses.deleteDesc.replace(
+          "{name}",
+          warehouseToDelete?.name || ""
+        )}
         loading={deleteMutation.isPending}
       />
     </Box>

@@ -63,88 +63,57 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     console.warn("[exchangeRate] Redis get failed:", err);
   }
 
+  // 3. Fetch from external API
+  const baseUrl = getBaseUrl();
+  if (!baseUrl) {
+    throw new Error(
+      "[exchangeRate] EXCHANGE_RATE_API_KEY is not set in environment variables."
+    );
+  }
+
+  const response = await fetch(`${baseUrl}/latest/USD`);
+
+  if (!response.ok) {
+    throw new Error(
+      `ExchangeRate-API error: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const data = (await response.json()) as ExchangeRateApiResponse;
+
+  if (data.result !== "success") {
+    throw new Error(`ExchangeRate-API returned: ${data["error-type"]}`);
+  }
+
+  const rates: ExchangeRates = {
+    base: "USD",
+    rates: data.conversion_rates,
+    lastUpdated: new Date().toISOString(),
+  };
+
+  // 4. Persist to DB (fire-and-forget, non-blocking)
   try {
-    // 3. Fetch from external API
-    const baseUrl = getBaseUrl();
-    if (!baseUrl) {
-      throw new Error(
-        "EXCHANGE_RATE_API_KEY is not set in environment variables."
-      );
-    }
-
-    const response = await fetch(`${baseUrl}/latest/USD`);
-
-    if (!response.ok) {
-      throw new Error(
-        `ExchangeRate-API error: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = (await response.json()) as ExchangeRateApiResponse;
-
-    if (data.result !== "success") {
-      throw new Error(`ExchangeRate-API returned: ${data["error-type"]}`);
-    }
-
-    const rates: ExchangeRates = {
-      base: "USD",
-      rates: data.conversion_rates,
-      lastUpdated: new Date().toISOString(),
-    };
-
-    // 4. Persist to DB (fire-and-forget, non-blocking)
-    db.exchangeRate.create({
+    await db.exchangeRate.create({
       data: {
         base: "USD",
         rates: data.conversion_rates as unknown as Prisma.InputJsonValue,
         date: new Date(),
       },
-    }).catch((err) => {
-      console.warn("[exchangeRate] DB save failed:", err);
     });
-
-    // 5. Persist to Redis (fire-and-forget, non-blocking)
-    redis.set(exchangeRateCacheKeys.exchangeRate(), rates, {
-      ex: EXCHANGE_RATE_CACHE_TTL,
-    }).catch((err) => {
-      console.warn("[exchangeRate] Redis set failed:", err);
-    });
-
-    return rates;
-  } catch (apiErr) {
-    console.error("[exchangeRate] External API fetch failed, trying fallbacks:", apiErr);
-
-    // Fallback A: Try to find ANY historical exchange rate in the database
-    try {
-      const historicalDb = await db.exchangeRate.findFirst({
-        orderBy: { date: "desc" },
-      });
-
-      if (historicalDb) {
-        console.warn("[exchangeRate] Using historical database exchange rates as fallback.");
-        return {
-          base: "USD",
-          rates: historicalDb.rates as Record<string, number>,
-          lastUpdated: historicalDb.date.toISOString(),
-        };
-      }
-    } catch (dbErr) {
-      console.error("[exchangeRate] Fetching historical rates from DB failed:", dbErr);
-    }
-
-    // Fallback B: Fall back to hardcoded default values to prevent dashboard crash (fail-open)
-    console.warn("[exchangeRate] Using hardcoded default exchange rates as final fallback.");
-    return {
-      base: "USD",
-      rates: {
-        USD: 1,
-        EUR: 0.92,
-        TRY: 32.5,
-        GBP: 0.79,
-      },
-      lastUpdated: new Date().toISOString(),
-    };
+  } catch (err) {
+    console.warn("[exchangeRate] DB save failed:", err);
   }
+
+  // 5. Persist to Redis (fire-and-forget, non-blocking)
+  try {
+    await redis.set(exchangeRateCacheKeys.exchangeRate(), rates, {
+      ex: EXCHANGE_RATE_CACHE_TTL,
+    });
+  } catch (err) {
+    console.warn("[exchangeRate] Redis set failed:", err);
+  }
+
+  return rates;
 }
 
 export async function getExchangeRate(

@@ -26,7 +26,7 @@ import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { Warehouse } from "@/app/lib/type/enums";
 import { useUser } from "@/app/hooks/useUser";
 import { toUTC } from "@/app/lib/utils/date";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+
 import { Formik, Form } from "formik";
 import { addRouteValidationSchema } from "@/app/lib/validationSchema";
 import { RouteFormValues } from "@/app/lib/type/routes";
@@ -73,7 +73,10 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
       const fetchData = async () => {
         try {
           const [shipmentsData, warehousesData] = await Promise.all([
-            getShipments({ unassigned: true, status: "PENDING" }) as unknown as ShipmentWithRelations[],
+            getShipments({
+              unassigned: true,
+              status: "PENDING",
+            }) as unknown as ShipmentWithRelations[],
             getWarehouses(),
           ]);
           setShipments(shipmentsData);
@@ -140,7 +143,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
   ];
 
   return (
-    <GoogleMapsProvider>
+    <>
       <Formik
         initialValues={initialValues}
         validationSchema={useMemo(() => addRouteValidationSchema(dict), [dict])}
@@ -224,40 +227,82 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   new Date(deadlineDate!.getTime() + 2 * 60 * 60 * 1000)
                 );
               }
-              
+
               const startWaypoint = {
-                address: warehouse ? warehouse.address : (shipment.origin || ""),
-                lat: warehouse ? (warehouse.lat ?? undefined) : (typeof shipment.originLat === "number" ? shipment.originLat : undefined),
-                lng: warehouse ? (warehouse.lng ?? undefined) : (typeof shipment.originLng === "number" ? shipment.originLng : undefined),
+                address: warehouse ? warehouse.address : shipment.origin || "",
+                lat: warehouse
+                  ? (warehouse.lat ?? undefined)
+                  : typeof shipment.originLat === "number"
+                    ? shipment.originLat
+                    : undefined,
+                lng: warehouse
+                  ? (warehouse.lng ?? undefined)
+                  : typeof shipment.originLng === "number"
+                    ? shipment.originLng
+                    : undefined,
               };
 
               const endWaypoint = {
-                address: shipment.destination || defaultLoc?.address || fallbackLoc?.address || "",
-                lat: shipment.destinationLat ?? defaultLoc?.lat ?? fallbackLoc?.lat ?? undefined,
-                lng: shipment.destinationLng ?? defaultLoc?.lng ?? fallbackLoc?.lng ?? undefined,
+                address:
+                  shipment.destination ||
+                  defaultLoc?.address ||
+                  fallbackLoc?.address ||
+                  "",
+                lat:
+                  shipment.destinationLat ??
+                  defaultLoc?.lat ??
+                  fallbackLoc?.lat ??
+                  undefined,
+                lng:
+                  shipment.destinationLng ??
+                  defaultLoc?.lng ??
+                  fallbackLoc?.lng ??
+                  undefined,
               };
 
               const stopsToSet = [];
-              
+
               if (startWaypoint.address) {
                 stopsToSet.push(startWaypoint);
               }
 
               if (shipment.stops && shipment.stops.length > 0) {
                 const destinationLocId = shipment.customerLocationId;
-                const isLastStopDestination = 
-                  (shipment.destination && shipment.stops[shipment.stops.length - 1].address === shipment.destination) ||
-                  (destinationLocId && shipment.stops[shipment.stops.length - 1].customerLocationId === destinationLocId);
 
-                const intermediateStops = isLastStopDestination 
-                  ? shipment.stops.slice(0, -1) 
-                  : shipment.stops;
+                const intermediateStops = (shipment.stops || []).filter(
+                  (stop, index) => {
+                    const isFirst = index === 0;
+                    const isLast = index === (shipment.stops?.length || 0) - 1;
 
-                intermediateStops.forEach(stop => {
+                    if (isFirst) {
+                      const isOrigin =
+                        (startWaypoint.address &&
+                          stop.address === startWaypoint.address) ||
+                        (shipment.origin && stop.address === shipment.origin) ||
+                        (warehouse && stop.address === warehouse.address);
+                      if (isOrigin) return false;
+                    }
+
+                    if (isLast) {
+                      const isDestination =
+                        (shipment.destination &&
+                          stop.address === shipment.destination) ||
+                        (destinationLocId &&
+                          stop.customerLocationId === destinationLocId) ||
+                        (endWaypoint.address &&
+                          stop.address === endWaypoint.address);
+                      if (isDestination) return false;
+                    }
+
+                    return true;
+                  }
+                );
+
+                intermediateStops.forEach((stop) => {
                   stopsToSet.push({
                     address: stop.address || "",
                     lat: stop.lat ?? undefined,
-                    lng: stop.lng ?? undefined
+                    lng: stop.lng ?? undefined,
                   });
                 });
               }
@@ -317,7 +362,12 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                   alignItems="center"
                 >
                   <Stack spacing={0.5}>
-                    <Typography component="div" variant="h6" fontWeight={600} color="white">
+                    <Typography
+                      component="div"
+                      variant="h6"
+                      fontWeight={600}
+                      color="white"
+                    >
                       {dict.routes.dialogs.addTitle}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
@@ -432,7 +482,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
           );
         }}
       </Formik>
-    </GoogleMapsProvider>
+    </>
   );
 };
 

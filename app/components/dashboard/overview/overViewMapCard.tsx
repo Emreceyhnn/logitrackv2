@@ -1,61 +1,39 @@
 import { useMemo } from "react";
-import CustomCard from "../../cards/card";
 import dynamic from "next/dynamic";
-import type { MarkerData } from "@/app/components/googleMaps/MapWithMarker";
-
-const MapWithMarker = dynamic(
-  () => import("@/app/components/googleMaps/MapWithMarker").then((m) => m.MapWithMarker),
-  { ssr: false }
-);
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+import CustomCard from "../../cards/card";
 import { MapData } from "@/app/lib/type/overview";
+import { Box } from "@mui/material";
+
+const MapWithMarkers = dynamic(() => import("../../valhalla/mapWithMarker"), {
+  ssr: false,
+});
 
 interface OverviewMapCardProps {
   stats: MapData[] | null;
 }
 
 const OverviewMapCard = ({ stats }: OverviewMapCardProps) => {
-  const markers = useMemo<MarkerData[]>(() => {
+  const markers = useMemo(() => {
     if (!stats) return [];
 
     return stats.map((v) => {
-      let markerType: MarkerData["type"] = "default";
-      if (v.type === "W") markerType = "warehouse";
-      else if (v.type === "V") markerType = "vehicle";
-      else if (v.type === "C") markerType = "customer";
-
       return {
         id: v.id,
-        position: v.position,
-        label: v.name,
-        type: markerType,
+        lat: v.position.lat,
+        len: v.position.lng,
+        name: v.name,
+        type: v.type,
       };
     });
   }, [stats]);
 
   if (!stats) return null;
 
-  const center = { lat: 39.9334, lng: 32.8597 }; // Default center (Ankara, Turkey)
-
-  if (markers.length > 0) {
-    const sum = markers.reduce(
-      (acc, marker) => {
-        return {
-          lat: acc.lat + marker.position.lat,
-          lng: acc.lng + marker.position.lng,
-        };
-      },
-      { lat: 0, lng: 0 }
-    );
-    center.lat = sum.lat / markers.length;
-    center.lng = sum.lng / markers.length;
-  }
-
   return (
     <CustomCard sx={{ flexGrow: 10, p: 2 }}>
-      <GoogleMapsProvider>
-        <MapWithMarker center={center} markers={markers} height="500px" />
-      </GoogleMapsProvider>
+      <Box sx={{ width: "100%", height: "500px" }}>
+        <MapWithMarkers markers={markers || []} />
+      </Box>
     </CustomCard>
   );
 };
