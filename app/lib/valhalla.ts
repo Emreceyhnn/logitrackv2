@@ -44,10 +44,10 @@ export interface RouteResponse {
   };
 }
 
-const VALHALLA_URL = "/valhalla_api/route";
+const VALHALLA_URL = "/api/valhalla";
 
 export async function fetchRoute(
-  params: RoutingParams,
+  params: RoutingParams
 ): Promise<RouteResponse> {
   const response = await fetch(VALHALLA_URL, {
     method: "POST",

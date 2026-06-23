@@ -24,10 +24,15 @@ import {
 import { invalidateInventoryCache } from "./inventory";
 import { calcTrend, daysAgo } from "./utils/trendUtils";
 
-export async function invalidateShipmentCache(companyId: string, shipmentId?: string) {
+export async function invalidateShipmentCache(
+  companyId: string,
+  shipmentId?: string
+) {
   await Promise.all([
     invalidatePattern(shipmentCacheKeys.companyPattern(companyId)),
-    shipmentId ? redis.del(shipmentCacheKeys.detail(shipmentId)) : Promise.resolve(),
+    shipmentId
+      ? redis.del(shipmentCacheKeys.detail(shipmentId))
+      : Promise.resolve(),
   ]);
 }
 
@@ -162,131 +167,163 @@ export const createShipment = authenticatedAction(
 
       // ── Trailer Capacity Validation ──────────────────────────────────────────
       if (trailerId) {
-        const trailer = await db.trailer.findUnique({ where: { id: trailerId } });
+        const trailer = await db.trailer.findUnique({
+          where: { id: trailerId },
+        });
         if (trailer) {
           const currentLoad = await db.shipment.aggregate({
-            where: { 
-              trailerId, 
-              status: { in: [ShipmentStatus.PENDING, ShipmentStatus.PROCESSING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.ASSIGNED, ShipmentStatus.DELAYED] } 
+            where: {
+              trailerId,
+              status: {
+                in: [
+                  ShipmentStatus.PENDING,
+                  ShipmentStatus.PROCESSING,
+                  ShipmentStatus.IN_TRANSIT,
+                  ShipmentStatus.ASSIGNED,
+                  ShipmentStatus.DELAYED,
+                ],
+              },
             },
-            _sum: { weightKg: true, volumeM3: true }
+            _sum: { weightKg: true, volumeM3: true },
           });
-          
+
           const totalWeight = (currentLoad._sum.weightKg || 0) + weightKg;
           const totalVolume = (currentLoad._sum.volumeM3 || 0) + volumeM3;
 
           const tolerance = 0.01;
-          if (Math.round(totalWeight * 100) / 100 > trailer.maxLoadKg + tolerance) {
-            throw new Error(`Trailer capacity exceeded: Current load ${totalWeight.toFixed(2)}kg > Max ${trailer.maxLoadKg}kg`);
+          if (
+            Math.round(totalWeight * 100) / 100 >
+            trailer.maxLoadKg + tolerance
+          ) {
+            throw new Error(
+              `Trailer capacity exceeded: Current load ${totalWeight.toFixed(2)}kg > Max ${trailer.maxLoadKg}kg`
+            );
           }
-          if (Math.round(totalVolume * 100) / 100 > trailer.capacityVolumeM3 + tolerance) {
-            throw new Error(`Trailer capacity exceeded: Current volume ${totalVolume.toFixed(2)}m³ > Max ${trailer.capacityVolumeM3}m³`);
+          if (
+            Math.round(totalVolume * 100) / 100 >
+            trailer.capacityVolumeM3 + tolerance
+          ) {
+            throw new Error(
+              `Trailer capacity exceeded: Current volume ${totalVolume.toFixed(2)}m³ > Max ${trailer.capacityVolumeM3}m³`
+            );
           }
         }
       }
 
-      const newShipment = await db.$transaction(async (tx: Prisma.TransactionClient) => {
-        const shipment = await tx.shipment.create({
-          data: {
-            trackingId: finalTrackingId,
-            customerId: customerId || undefined,
-            customerLocationId: customerLocationId || undefined,
-            origin,
-            originWarehouseId: originWarehouseId || (origin.length === 36 ? origin : undefined),
-            originLat,
-            originLng,
-            destination: finalDestination,
-            destinationLat: finalDestinationLat,
-            destinationLng: finalDestinationLng,
-            status,
-            itemsCount,
-            weightKg,
-            volumeM3,
-            palletCount,
-            cargoType,
-            companyId,
-            priority,
-            type,
-            slaDeadline,
-            contactEmail,
-            billingAccount,
-            trailerId: trailerId || undefined,
-            history: {
-              create: {
-                status: status,
-                description: "Shipment created",
-                createdById: userId,
+      const newShipment = await db.$transaction(
+        async (tx: Prisma.TransactionClient) => {
+          const shipment = await tx.shipment.create({
+            data: {
+              trackingId: finalTrackingId,
+              customerId: customerId || undefined,
+              customerLocationId: customerLocationId || undefined,
+              origin,
+              originWarehouseId:
+                originWarehouseId ||
+                (origin.length === 36 ? origin : undefined),
+              originLat,
+              originLng,
+              destination: finalDestination,
+              destinationLat: finalDestinationLat,
+              destinationLng: finalDestinationLng,
+              status,
+              itemsCount,
+              weightKg,
+              volumeM3,
+              palletCount,
+              cargoType,
+              companyId,
+              priority,
+              type,
+              slaDeadline,
+              contactEmail,
+              billingAccount,
+              trailerId: trailerId || undefined,
+              history: {
+                create: {
+                  status: status,
+                  description: "Shipment created",
+                  createdById: userId,
+                },
+              },
+              items: {
+                create: inventoryItems.map((item: InventoryShipmentItem) => ({
+                  sku: item.sku,
+                  name: item.name,
+                  quantity: item.quantity,
+                  unit: item.unit,
+                  weightKg: item.weightKg,
+                  volumeM3: item.volumeM3,
+                  palletCount: item.palletCount,
+                  cargoType: item.cargoType,
+                })),
+              },
+              stops: {
+                create: [
+                  {
+                    address: origin || originWarehouseId || "Bilinmeyen Kalkış",
+                    lat: originLat || null,
+                    lng: originLng || null,
+                    sequence: 1,
+                  },
+                  ...stops.map((stop: ShipmentStopInput, index: number) => ({
+                    customerId: stop.customerId || undefined,
+                    customerLocationId: stop.customerLocationId || undefined,
+                    address: stop.address,
+                    lat: stop.lat,
+                    lng: stop.lng,
+                    sequence: index + 2,
+                    contactEmail: stop.contactEmail || undefined,
+                  })),
+                ],
               },
             },
-            items: {
-              create: inventoryItems.map((item: InventoryShipmentItem) => ({
-                sku: item.sku,
-                name: item.name,
-                quantity: item.quantity,
-                unit: item.unit,
-                weightKg: item.weightKg,
-                volumeM3: item.volumeM3,
-                palletCount: item.palletCount,
-                cargoType: item.cargoType,
-              })),
-            },
-            stops: {
-              create: stops.map((stop: ShipmentStopInput) => ({
-                customerId: stop.customerId || undefined,
-                customerLocationId: stop.customerLocationId || undefined,
-                address: stop.address,
-                lat: stop.lat,
-                lng: stop.lng,
-                sequence: stop.sequence,
-                contactEmail: stop.contactEmail || undefined,
-              })),
-            },
-          },
-        });
+          });
 
-        // Decrement inventory stock if it's from a warehouse
-        const finalWarehouseId = shipment.originWarehouseId;
-        if (finalWarehouseId && inventoryItems.length > 0) {
-          await Promise.all(
-            inventoryItems.map(async (item: InventoryShipmentItem) => {
-              const invItem = await tx.inventory.findUnique({
-                where: {
-                  warehouseId_sku: {
-                    warehouseId: finalWarehouseId,
-                    sku: item.sku,
-                  },
-                },
-              });
-
-              if (invItem) {
-                await tx.inventory.update({
-                  where: { id: invItem.id },
-                  data: {
-                    allocatedQuantity: { increment: item.quantity },
+          // Decrement inventory stock if it's from a warehouse
+          const finalWarehouseId = shipment.originWarehouseId;
+          if (finalWarehouseId && inventoryItems.length > 0) {
+            await Promise.all(
+              inventoryItems.map(async (item: InventoryShipmentItem) => {
+                const invItem = await tx.inventory.findUnique({
+                  where: {
+                    warehouseId_sku: {
+                      warehouseId: finalWarehouseId,
+                      sku: item.sku,
+                    },
                   },
                 });
 
-                await tx.inventoryMovement.create({
-                  data: {
-                    warehouseId: finalWarehouseId,
-                    sku: item.sku,
-                    quantity: -item.quantity,
-                    type: "ALLOCATION",
-                    userId,
-                    companyId,
-                  },
-                });
-              }
-            })
-          );
+                if (invItem) {
+                  await tx.inventory.update({
+                    where: { id: invItem.id },
+                    data: {
+                      allocatedQuantity: { increment: item.quantity },
+                    },
+                  });
+
+                  await tx.inventoryMovement.create({
+                    data: {
+                      warehouseId: finalWarehouseId,
+                      sku: item.sku,
+                      quantity: -item.quantity,
+                      type: "ALLOCATION",
+                      userId,
+                      companyId,
+                    },
+                  });
+                }
+              })
+            );
+          }
+
+          return shipment;
         }
-
-        return shipment;
-      });
+      );
 
       await Promise.all([
         invalidateShipmentCache(companyId!),
-        invalidateInventoryCache(companyId!)
+        invalidateInventoryCache(companyId!),
       ]);
 
       // Dispatch Notification
@@ -463,14 +500,23 @@ export const updateShipmentStatus = authenticatedAction(
       await invalidateShipmentCache(companyId!, shipmentId);
 
       // Dispatch Notification for critical status changes
-      if (status === ShipmentStatus.DELAYED || status === ShipmentStatus.CANCELLED) {
+      if (
+        status === ShipmentStatus.DELAYED ||
+        status === ShipmentStatus.CANCELLED
+      ) {
         await createNotification(
           { companyId: companyId! },
           {
-            title: status === ShipmentStatus.DELAYED ? "Sevkiyat Gecikmesi ⏳" : "Sevkiyat İptal Edildi ❌",
-            message: `${updatedShipment.trackingId} numaralı sevkiyatın durumu ${status === ShipmentStatus.DELAYED ? 'GECİKMİŞ' : 'İPTAL EDİLDİ'} olarak güncellendi.`,
+            title:
+              status === ShipmentStatus.DELAYED
+                ? "Sevkiyat Gecikmesi ⏳"
+                : "Sevkiyat İptal Edildi ❌",
+            message: `${updatedShipment.trackingId} numaralı sevkiyatın durumu ${status === ShipmentStatus.DELAYED ? "GECİKMİŞ" : "İPTAL EDİLDİ"} olarak güncellendi.`,
             type: status === ShipmentStatus.DELAYED ? "WARNING" : "ERROR",
-            category: status === ShipmentStatus.DELAYED ? "DELAY_ALERT" : "SHIPMENT_UPDATE",
+            category:
+              status === ShipmentStatus.DELAYED
+                ? "DELAY_ALERT"
+                : "SHIPMENT_UPDATE",
             link: `/dashboard/shipments/${updatedShipment.id}`,
           }
         );
@@ -485,12 +531,18 @@ export const updateShipmentStatus = authenticatedAction(
             link: `/dashboard/shipments/${updatedShipment.id}`,
           }
         );
-      } else if (status === ShipmentStatus.PROCESSING || status === ShipmentStatus.IN_TRANSIT) {
+      } else if (
+        status === ShipmentStatus.PROCESSING ||
+        status === ShipmentStatus.IN_TRANSIT
+      ) {
         await createNotification(
           { companyId: companyId! },
           {
-            title: status === ShipmentStatus.PROCESSING ? "Sevkiyat Hazırlanıyor ⚙️" : "Sevkiyat Yolda 🚛",
-            message: `${updatedShipment.trackingId} numaralı sevkiyat ${status === ShipmentStatus.PROCESSING ? 'işleme alındı' : 'yola çıktı'}.`,
+            title:
+              status === ShipmentStatus.PROCESSING
+                ? "Sevkiyat Hazırlanıyor ⚙️"
+                : "Sevkiyat Yolda 🚛",
+            message: `${updatedShipment.trackingId} numaralı sevkiyat ${status === ShipmentStatus.PROCESSING ? "işleme alındı" : "yola çıktı"}.`,
             type: "INFO",
             category: "SHIPMENT_UPDATE",
             link: `/dashboard/shipments/${updatedShipment.id}`,
@@ -691,7 +743,7 @@ export const updateShipment = authenticatedAction(
         throw new Error("Shipment not found or unauthorized");
       }
 
-      const updateData = { ...data } as Prisma.ShipmentUpdateInput & { 
+      const updateData = { ...data } as Prisma.ShipmentUpdateInput & {
         inventoryItems?: InventoryShipmentItem[];
         stops?: ShipmentStopInput[];
       };
@@ -700,7 +752,14 @@ export const updateShipment = authenticatedAction(
       }
 
       // FK alanlarında boş string geldiyse undefined'a çevir (Prisma P2003 önlemi)
-      const fkFields = ["customerId", "customerLocationId", "routeId", "originWarehouseId", "driverId", "trailerId"];
+      const fkFields = [
+        "customerId",
+        "customerLocationId",
+        "routeId",
+        "originWarehouseId",
+        "driverId",
+        "trailerId",
+      ];
       for (const field of fkFields) {
         const val = (updateData as Record<string, unknown>)[field];
         if (val === "" || val === null) {
@@ -712,37 +771,122 @@ export const updateShipment = authenticatedAction(
       const items = updateData.inventoryItems;
       if (items) {
         delete updateData.inventoryItems;
-        
+
         // Use a transaction for safety
-        const updatedShipment = await db.$transaction(async (tx: Prisma.TransactionClient) => {
-          // 1. Get old items to restore inventory
-          const oldShipment = await tx.shipment.findUnique({
-            where: { id: shipmentId },
-            include: { items: true },
-          });
-
-          if (!oldShipment) throw new Error("Shipment not found");
-
-          // Check trackingId uniqueness if it's being updated
-          if (updateData.trackingId && updateData.trackingId !== oldShipment.trackingId) {
-            const duplicate = await tx.shipment.findUnique({
-              where: { trackingId: updateData.trackingId as string },
+        const updatedShipment = await db.$transaction(
+          async (tx: Prisma.TransactionClient) => {
+            // 1. Get old items to restore inventory
+            const oldShipment = await tx.shipment.findUnique({
+              where: { id: shipmentId },
+              include: { items: true },
             });
-            if (duplicate) {
-              throw new Error("Tracking ID already exists in another shipment");
+
+            if (!oldShipment) throw new Error("Shipment not found");
+
+            // Check trackingId uniqueness if it's being updated
+            if (
+              updateData.trackingId &&
+              updateData.trackingId !== oldShipment.trackingId
+            ) {
+              const duplicate = await tx.shipment.findUnique({
+                where: { trackingId: updateData.trackingId as string },
+              });
+              if (duplicate) {
+                throw new Error(
+                  "Tracking ID already exists in another shipment"
+                );
+              }
             }
-          }
 
-          const oldWarehouseId = oldShipment.originWarehouseId;
+            const oldWarehouseId = oldShipment.originWarehouseId;
 
-          if (oldWarehouseId) {
-            await Promise.all(
-              oldShipment!.items.map(async (oldItem) => {
+            if (oldWarehouseId) {
+              await Promise.all(
+                oldShipment!.items.map(async (oldItem) => {
+                  const invItem = await tx.inventory.findUnique({
+                    where: {
+                      warehouseId_sku: {
+                        warehouseId: oldWarehouseId,
+                        sku: oldItem.sku,
+                      },
+                    },
+                  });
+
+                  if (invItem) {
+                    await tx.inventory.update({
+                      where: { id: invItem.id },
+                      data: {
+                        allocatedQuantity: { decrement: oldItem.quantity },
+                      },
+                    });
+
+                    await tx.inventoryMovement.create({
+                      data: {
+                        warehouseId: oldWarehouseId,
+                        sku: oldItem.sku,
+                        quantity: oldItem.quantity,
+                        type: "ALLOCATION_REVERT",
+                        userId,
+                        companyId,
+                      },
+                    });
+                  }
+                })
+              );
+            }
+
+            // 3. Delete existing shipment items and stops
+            await tx.shipmentItem.deleteMany({
+              where: { shipmentId },
+            });
+            await tx.shipmentStop.deleteMany({
+              where: { shipmentId },
+            });
+
+            // 4. Update shipment and create new items/stops
+            const stops = updateData.stops || [];
+            delete updateData.stops;
+
+            const updated = await tx.shipment.update({
+              where: { id: shipmentId },
+              data: {
+                ...updateData,
+                items: {
+                  create: items.map((item: InventoryShipmentItem) => ({
+                    sku: item.sku,
+                    name: item.name,
+                    quantity: item.quantity,
+                    unit: item.unit,
+                    weightKg: item.weightKg,
+                    volumeM3: item.volumeM3,
+                    palletCount: item.palletCount,
+                    cargoType: item.cargoType,
+                  })),
+                },
+                stops: {
+                  create: stops.map((stop: ShipmentStopInput) => ({
+                    customerId: stop.customerId || undefined,
+                    customerLocationId: stop.customerLocationId || undefined,
+                    address: stop.address,
+                    lat: stop.lat,
+                    lng: stop.lng,
+                    sequence: stop.sequence,
+                    contactEmail: stop.contactEmail || undefined,
+                  })),
+                },
+              },
+              include: { items: true, stops: true },
+            });
+
+            // 5. Decrement new inventory if applicable
+            const newWarehouseId = updated.originWarehouseId;
+            if (newWarehouseId) {
+              for (const item of items) {
                 const invItem = await tx.inventory.findUnique({
                   where: {
                     warehouseId_sku: {
-                      warehouseId: oldWarehouseId,
-                      sku: oldItem.sku,
+                      warehouseId: newWarehouseId,
+                      sku: item.sku,
                     },
                   },
                 });
@@ -751,114 +895,36 @@ export const updateShipment = authenticatedAction(
                   await tx.inventory.update({
                     where: { id: invItem.id },
                     data: {
-                      allocatedQuantity: { decrement: oldItem.quantity },
+                      allocatedQuantity: {
+                        increment: item.quantity,
+                      },
                     },
                   });
 
                   await tx.inventoryMovement.create({
                     data: {
-                      warehouseId: oldWarehouseId,
-                      sku: oldItem.sku,
-                      quantity: oldItem.quantity,
-                      type: "ALLOCATION_REVERT",
+                      warehouseId: newWarehouseId,
+                      sku: item.sku,
+                      quantity: -item.quantity,
+                      type: "ALLOCATION",
                       userId,
                       companyId,
                     },
                   });
                 }
-              })
-            );
-          }
-
-          // 3. Delete existing shipment items and stops
-          await tx.shipmentItem.deleteMany({
-            where: { shipmentId },
-          });
-          await tx.shipmentStop.deleteMany({
-            where: { shipmentId },
-          });
-
-          // 4. Update shipment and create new items/stops
-          const stops = updateData.stops || [];
-          delete updateData.stops;
-
-          const updated = await tx.shipment.update({
-            where: { id: shipmentId },
-            data: {
-              ...updateData,
-              items: {
-                create: items.map((item: InventoryShipmentItem) => ({
-                  sku: item.sku,
-                  name: item.name,
-                  quantity: item.quantity,
-                  unit: item.unit,
-                  weightKg: item.weightKg,
-                  volumeM3: item.volumeM3,
-                  palletCount: item.palletCount,
-                  cargoType: item.cargoType,
-                })),
-              },
-              stops: {
-                create: stops.map((stop: ShipmentStopInput) => ({
-                  customerId: stop.customerId || undefined,
-                  customerLocationId: stop.customerLocationId || undefined,
-                  address: stop.address,
-                  lat: stop.lat,
-                  lng: stop.lng,
-                  sequence: stop.sequence,
-                  contactEmail: stop.contactEmail || undefined,
-                })),
-              },
-            },
-            include: { items: true, stops: true },
-          });
-
-          // 5. Decrement new inventory if applicable
-          const newWarehouseId = updated.originWarehouseId;
-          if (newWarehouseId) {
-            for (const item of items) {
-              const invItem = await tx.inventory.findUnique({
-                where: {
-                  warehouseId_sku: {
-                    warehouseId: newWarehouseId,
-                    sku: item.sku,
-                  },
-                },
-              });
-
-              if (invItem) {
-                await tx.inventory.update({
-                  where: { id: invItem.id },
-                  data: {
-                    allocatedQuantity: {
-                      increment: item.quantity,
-                    },
-                  },
-                });
-
-                await tx.inventoryMovement.create({
-                  data: {
-                    warehouseId: newWarehouseId,
-                    sku: item.sku,
-                    quantity: -item.quantity,
-                    type: "ALLOCATION",
-                    userId,
-                    companyId,
-                  },
-                });
               }
             }
-          }
 
-          return updated;
-        });
-        
+            return updated;
+          }
+        );
+
         // Non-blocking invalidation to prevent hanging on slow Redis
         Promise.all([
           invalidateShipmentCache(companyId!, shipmentId),
-          invalidateInventoryCache(companyId!)
-        ]).catch(err => console.error("Cache invalidation failed:", err));
-        
+          invalidateInventoryCache(companyId!),
+        ]).catch((err) => console.error("Cache invalidation failed:", err));
+
         return updatedShipment;
       }
 
@@ -868,28 +934,40 @@ export const updateShipment = authenticatedAction(
       });
 
       // ── Trailer Status Management ──────────────────────────────────────────
-      if (updatedShipment.trailerId && (updatedShipment.status === ShipmentStatus.DELIVERED || updatedShipment.status === ShipmentStatus.CANCELLED)) {
+      if (
+        updatedShipment.trailerId &&
+        (updatedShipment.status === ShipmentStatus.DELIVERED ||
+          updatedShipment.status === ShipmentStatus.CANCELLED)
+      ) {
         // Check if there are any other active shipments on this trailer
         const otherActiveShipments = await db.shipment.count({
           where: {
             trailerId: updatedShipment.trailerId,
-            status: { in: [ShipmentStatus.PENDING, ShipmentStatus.PROCESSING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.ASSIGNED, ShipmentStatus.DELAYED] },
-            id: { not: shipmentId }
-          }
+            status: {
+              in: [
+                ShipmentStatus.PENDING,
+                ShipmentStatus.PROCESSING,
+                ShipmentStatus.IN_TRANSIT,
+                ShipmentStatus.ASSIGNED,
+                ShipmentStatus.DELAYED,
+              ],
+            },
+            id: { not: shipmentId },
+          },
         });
 
         if (otherActiveShipments === 0) {
-          // If no other active shipments, we could potentially set trailer to AVAILABLE 
+          // If no other active shipments, we could potentially set trailer to AVAILABLE
           // but only if it's not currently attached to a vehicle in a way that implies it's still "IN_USE"
           // However, user specifically asked for "automatic AVAILABLE"
           await db.trailer.update({
             where: { id: updatedShipment.trailerId },
-            data: { status: "AVAILABLE" }
+            data: { status: "AVAILABLE" },
           });
         }
       }
 
-      invalidateShipmentCache(companyId!, shipmentId).catch(err => 
+      invalidateShipmentCache(companyId!, shipmentId).catch((err) =>
         console.error("Cache invalidation failed:", err)
       );
       return updatedShipment;
@@ -961,8 +1039,8 @@ export const deleteShipment = authenticatedAction(
 
       Promise.all([
         invalidateShipmentCache(companyId!, shipmentId),
-        invalidateInventoryCache(companyId!)
-      ]).catch(err => console.error("Cache invalidation failed:", err));
+        invalidateInventoryCache(companyId!),
+      ]).catch((err) => console.error("Cache invalidation failed:", err));
       return { success: true };
     } catch (error) {
       console.error("Failed to delete shipment:", error);
@@ -1015,7 +1093,13 @@ export const getShipmentStats = authenticatedAction(async (user) => {
       db.shipment.count({
         where: {
           companyId,
-          status: { in: [ShipmentStatus.PENDING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.PROCESSING] },
+          status: {
+            in: [
+              ShipmentStatus.PENDING,
+              ShipmentStatus.IN_TRANSIT,
+              ShipmentStatus.PROCESSING,
+            ],
+          },
         },
       }),
       db.shipment.count({
@@ -1151,116 +1235,147 @@ export const getShipmentsWithDashboardData = authenticatedAction(
         const [
           ,
           shipments,
-        totalCount,
-        total,
-        active,
-        delayed,
-        inTransit,
-        rawVolumeHistory,
-        statusCounts,
-        prevTotal,
-        prevActive,
-        prevDelayed,
-        prevInTransit,
-      ] = await Promise.all([
-        checkPermission(user, companyId, [
-          "role_admin",
-          "role_manager",
-          "role_dispatcher",
-        ]),
-        db.shipment.findMany({
-          where,
-          include: {
-            customer: {
-              include: { locations: true },
-            },
-            driver: {
-              include: {
-                user: {
-                  select: { name: true, surname: true, avatarUrl: true },
+          totalCount,
+          total,
+          active,
+          delayed,
+          inTransit,
+          rawVolumeHistory,
+          statusCounts,
+          prevTotal,
+          prevActive,
+          prevDelayed,
+          prevInTransit,
+        ] = await Promise.all([
+          checkPermission(user, companyId, [
+            "role_admin",
+            "role_manager",
+            "role_dispatcher",
+          ]),
+          db.shipment.findMany({
+            where,
+            include: {
+              customer: {
+                include: { locations: true },
+              },
+              driver: {
+                include: {
+                  user: {
+                    select: { name: true, surname: true, avatarUrl: true },
+                  },
+                },
+              },
+              route: true,
+              items: true,
+              stops: {
+                orderBy: {
+                  sequence: "asc",
                 },
               },
             },
-            route: true,
-            items: true,
-            stops: {
-              orderBy: {
-                sequence: "asc",
+            orderBy: { createdAt: "desc" },
+            skip,
+            take: pageSize,
+          }),
+          db.shipment.count({ where }),
+          db.shipment.count({ where: { companyId } }),
+          db.shipment.count({
+            where: {
+              companyId,
+              status: {
+                in: [
+                  ShipmentStatus.PENDING,
+                  ShipmentStatus.IN_TRANSIT,
+                  ShipmentStatus.PROCESSING,
+                ],
               },
             },
-          },
-          orderBy: { createdAt: "desc" },
-          skip,
-          take: pageSize,
-        }),
-        db.shipment.count({ where }),
-        db.shipment.count({ where: { companyId } }),
-        db.shipment.count({
-          where: {
-            companyId,
-            status: { in: [ShipmentStatus.PENDING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.PROCESSING] },
-          },
-        }),
-        db.shipment.count({
-          where: { companyId, status: ShipmentStatus.DELAYED },
-        }),
-        db.shipment.count({
-          where: { companyId, status: ShipmentStatus.IN_TRANSIT },
-        }),
-        db.shipment.findMany({
-          where: {
-            companyId,
-            createdAt: { gte: sevenDaysAgo },
-          },
-          select: { createdAt: true },
-        }),
-        db.shipment.groupBy({
-          by: ["status"],
-          where: { companyId },
-          _count: { status: true },
-        }),
-        // Previous period stats (30–60 days ago)
-        db.shipment.count({ where: { companyId, createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd } } }),
-        db.shipment.count({
-          where: {
-            companyId,
-            status: { in: [ShipmentStatus.PENDING, ShipmentStatus.IN_TRANSIT, ShipmentStatus.PROCESSING] },
-            createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd },
-          },
-        }),
-        db.shipment.count({ where: { companyId, status: ShipmentStatus.DELAYED, createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd } } }),
-        db.shipment.count({ where: { companyId, status: ShipmentStatus.IN_TRANSIT, createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd } } }),
-      ]);
+          }),
+          db.shipment.count({
+            where: { companyId, status: ShipmentStatus.DELAYED },
+          }),
+          db.shipment.count({
+            where: { companyId, status: ShipmentStatus.IN_TRANSIT },
+          }),
+          db.shipment.findMany({
+            where: {
+              companyId,
+              createdAt: { gte: sevenDaysAgo },
+            },
+            select: { createdAt: true },
+          }),
+          db.shipment.groupBy({
+            by: ["status"],
+            where: { companyId },
+            _count: { status: true },
+          }),
+          // Previous period stats (30–60 days ago)
+          db.shipment.count({
+            where: {
+              companyId,
+              createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd },
+            },
+          }),
+          db.shipment.count({
+            where: {
+              companyId,
+              status: {
+                in: [
+                  ShipmentStatus.PENDING,
+                  ShipmentStatus.IN_TRANSIT,
+                  ShipmentStatus.PROCESSING,
+                ],
+              },
+              createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd },
+            },
+          }),
+          db.shipment.count({
+            where: {
+              companyId,
+              status: ShipmentStatus.DELAYED,
+              createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd },
+            },
+          }),
+          db.shipment.count({
+            where: {
+              companyId,
+              status: ShipmentStatus.IN_TRANSIT,
+              createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd },
+            },
+          }),
+        ]);
 
-      // Volume History Transformation
-      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const volumeByDay: Record<string, number> = {};
-      rawVolumeHistory.forEach((s: { createdAt: Date }) => {
-        const dayName = days[s.createdAt.getDay()];
-        volumeByDay[dayName] = (volumeByDay[dayName] || 0) + 1;
-      });
-      const volumeHistory = days.map((day) => ({
-        day,
-        volume: volumeByDay[day] || 0,
-      }));
+        // Volume History Transformation
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const volumeByDay: Record<string, number> = {};
+        rawVolumeHistory.forEach((s: { createdAt: Date }) => {
+          const dayName = days[s.createdAt.getDay()];
+          volumeByDay[dayName] = (volumeByDay[dayName] || 0) + 1;
+        });
+        const volumeHistory = days.map((day) => ({
+          day,
+          volume: volumeByDay[day] || 0,
+        }));
 
-      const statsTrends = {
-        total: calcTrend(total, prevTotal),
-        active: calcTrend(active, prevActive),
-        delayed: calcTrend(delayed, prevDelayed),
-        inTransit: calcTrend(inTransit, prevInTransit),
-      };
+        const statsTrends = {
+          total: calcTrend(total, prevTotal),
+          active: calcTrend(active, prevActive),
+          delayed: calcTrend(delayed, prevDelayed),
+          inTransit: calcTrend(inTransit, prevInTransit),
+        };
 
-      return {
-        shipments: shipments as unknown as ShipmentWithRelations[],
-        totalCount,
-        stats: { total, active, delayed, inTransit },
-        statsTrends,
-        volumeHistory,
-        statusDistribution: statusCounts.map((s: { status: ShipmentStatus; _count: { status: number } }) => ({
-          status: s.status as import("../type/enums").ShipmentStatus,
-          count: s._count.status,
-        })),
+        return {
+          shipments: shipments as unknown as ShipmentWithRelations[],
+          totalCount,
+          stats: { total, active, delayed, inTransit },
+          statsTrends,
+          volumeHistory,
+          statusDistribution: statusCounts.map(
+            (s: { status: ShipmentStatus; _count: { status: number } }) => ({
+              status: s.status as import("../type/enums").ShipmentStatus,
+              count: s._count.status,
+            })
+          ),
         };
       });
     } catch (error) {

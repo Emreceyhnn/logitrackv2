@@ -25,7 +25,7 @@ import { createCustomer } from "@/app/lib/controllers/customer";
 import { useUser } from "@/app/hooks/useUser";
 import IdentitySection from "./sections/IdentitySection";
 import ContactSection from "./sections/ContactSection";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+
 import { Formik, FormikHelpers } from "formik";
 import { addCustomerValidationSchema } from "@/app/lib/validationSchema";
 
@@ -112,7 +112,7 @@ const AddCustomerDialog = ({
   ];
 
   return (
-    <GoogleMapsProvider>
+    <>
       <Dialog
         open={open}
         onClose={closeDialog}
@@ -350,7 +350,7 @@ const AddCustomerDialog = ({
           )}
         </Formik>
       </Dialog>
-    </GoogleMapsProvider>
+    </>
   );
 };
 

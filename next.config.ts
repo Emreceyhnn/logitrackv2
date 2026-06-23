@@ -45,6 +45,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
 };
 
 export default withBundleAnalyzer(nextConfig);

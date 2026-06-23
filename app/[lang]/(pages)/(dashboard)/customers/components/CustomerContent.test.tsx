@@ -25,53 +25,8 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: useDictionaryMock },
-});
 
-const useUserMock = mock.fn(() => ({ user: { id: "u1" } }));
-mock.module("../../../../../hooks/useUser.ts", {
-  namedExports: { useUser: useUserMock },
-});
 
-const mockRefetch = mock.fn(async () => {});
-const mockDeleteMutateAsync = mock.fn(async () => {});
-
-mock.module("../../../../../hooks/useCustomers.ts", {
-  namedExports: { 
-    useCustomersWithDashboard: mock.fn(() => ({
-      data: {
-        customers: [{ id: "c1", name: "C1", locations: [] }],
-        totalCount: 1,
-      },
-      isLoading: false,
-      refetch: mockRefetch,
-    })),
-    useCustomerMutations: mock.fn(() => ({
-      deleteCustomer: { mutateAsync: mockDeleteMutateAsync, isPending: false }
-    }))
-  },
-});
-
-mock.module("sonner", {
-  namedExports: { toast: { success: mock.fn(), error: mock.fn() } },
-});
-
-// Mock child components
-mock.module("../../../../../components/dashboard/customer/CustomerList.tsx", {
-  defaultExport: ({ onEdit, onDelete }: any) => (
-    <div data-testid="customer-list">
-      <button onClick={() => onEdit({ id: "c1", name: "C1" })}>Edit C1</button>
-      <button onClick={() => onDelete({ id: "c1", name: "C1" })}>Delete C1</button>
-    </div>
-  ),
-});
-mock.module("../../../../../components/googleMaps/GoogleMapsProvider.tsx", {
-  namedExports: { GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div> },
-});
-mock.module("../../../../../components/googleMaps/MapWithMarker.tsx", {
-  namedExports: { MapWithMarker: () => <div data-testid="map-with-marker">Map</div> },
-});
 
 mock.module("../../../../../components/dialogs/customer/customerDetailDialog.tsx", {
   defaultExport: () => <div data-testid="detail-dialog">Detail Dialog</div>,

@@ -1,10 +1,17 @@
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+import { useEffect, useMemo, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import { RouteMap } from "../../googleMaps/RouteMap";
+import dynamic from "next/dynamic";
+import { polylineHelper } from "../../valhalla/polylineHelper";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
+const MapWithPolyline = dynamic(
+  () => import("../../valhalla/mapWithPolyline"),
+  { ssr: false }
+);
 
 interface MapRoutesDialogCardProps {
-  origin?: string | { lat: number; lng: number };
-  destination?: string | { lat: number; lng: number };
+  origin?: string | { lat: number; lng: number; address?: string };
+  destination?: string | { lat: number; lng: number; address?: string };
   stops?: Array<{
     location: string | { lat: number; lng: number };
     stopover?: boolean;
@@ -17,14 +24,12 @@ interface MapRoutesDialogCardProps {
     name: string;
     id: string;
   } | null;
-  onMapClick?: (e: google.maps.MapMouseEvent) => void;
+  onMapClick?: (e: any) => void;
   onRouteInfoUpdate?: (data: {
     distanceKm: number;
     durationMin: number;
   }) => void;
 }
-
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 const MapRoutesDialogCard = ({
   origin,
@@ -33,49 +38,77 @@ const MapRoutesDialogCard = ({
   addrA,
   addrB,
   vehicleLocation,
+  onRouteInfoUpdate,
 }: MapRoutesDialogCardProps) => {
   const dict = useDictionary();
   const isRoute = !!((origin || addrA) && (destination || addrB));
 
+  const [data, setData] = useState<any>(null);
+
+  const waypoints = useMemo(() => {
+    const points = [];
+    if (origin && typeof origin === "object" && "lat" in origin) {
+      points.push({ name: (origin as any).address || "Origin", lat: origin.lat, lon: origin.lng });
+    }
+    
+    if (stops) {
+      stops.forEach((s) => {
+        const loc = s.location;
+        if (typeof loc === "object" && "lat" in loc) {
+          points.push({ name: "Stop", lat: loc.lat, lon: loc.lng });
+        }
+      });
+    }
+
+    if (destination && typeof destination === "object" && "lat" in destination) {
+      points.push({ name: (destination as any).address || "Destination", lat: destination.lat, lon: destination.lng });
+    }
+
+    return points;
+  }, [origin, destination, stops]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (waypoints.length < 2) {
+        setData(null);
+        return;
+      }
+      try {
+        const response = await polylineHelper({
+          locations: waypoints,
+          costing: "truck",
+        });
+        setData(response);
+        
+        if (response?.summary && onRouteInfoUpdate) {
+           onRouteInfoUpdate({
+             distanceKm: response.summary.length || 0,
+             durationMin: Math.round((response.summary.time || 0) / 60)
+           });
+        }
+      } catch (error) {
+        console.error("Valhalla API Error:", error);
+      }
+    };
+
+    fetchData();
+  }, [waypoints, onRouteInfoUpdate]);
+
   return (
     <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
-      <GoogleMapsProvider>
-        <RouteMap
-          origin={
-            typeof origin === "object" && origin !== null && "lat" in origin
-              ? origin
-              : { lat: 0, lng: 0 }
-          }
-          destination={
-            typeof destination === "object" &&
-            destination !== null &&
-            "lat" in destination
-              ? destination
-              : { lat: 0, lng: 0 }
-          }
-          stops={stops
-            ?.map((w) => w.location)
-            .filter(
-              (loc): loc is { lat: number; lng: number } =>
-                typeof loc === "object" && loc !== null && "lat" in loc
-            )}
-          markers={
-            vehicleLocation
-              ? [
-                  {
-                    id: vehicleLocation.id,
-                    position: {
-                      lat: vehicleLocation.lat,
-                      lng: vehicleLocation.lng,
-                    },
-                    type: "vehicle",
-                    label: vehicleLocation.name,
-                  },
-                ]
-              : []
-          }
-        />
-      </GoogleMapsProvider>
+      <MapWithPolyline
+        Polylines={data?.mapPoints || []}
+        routePolyline={data?.polyline}
+        vehicleLocation={
+          vehicleLocation
+            ? {
+                lat: vehicleLocation.lat,
+                lng: vehicleLocation.lng,
+                name: vehicleLocation.name,
+              }
+            : null
+        }
+      />
 
       <Box
         sx={{

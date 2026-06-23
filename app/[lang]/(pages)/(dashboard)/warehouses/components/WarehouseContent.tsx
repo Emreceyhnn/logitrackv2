@@ -19,7 +19,6 @@ import AddWarehouseDialog from "@/app/components/dialogs/warehouse/addWarehouseD
 import WarehouseDetailsDialog from "@/app/components/dialogs/warehouse/warehouseDetailsDialog";
 import EditWarehouseDialog from "@/app/components/dialogs/warehouse/editWarehouseDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
 import { useTheme } from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
@@ -68,39 +67,43 @@ export default function WarehouseContent() {
 
   const loading = isLoading;
 
-
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
     await refetch();
   }, [refetch]);
 
-  const actions: WarehousePageActions = useMemo(() => ({
-    fetchWarehouses: async () => {},
-    fetchStats: async () => {},
-    fetchRecentMovements: async () => {},
-    refreshAll,
-    selectWarehouse: (id: string | null) => {
-      setSelectedWarehouseId(id);
-      if (id) {
-        setDetailsDialogOpen(true);
-      }
-    },
-    editWarehouse: (id: string) => {
-      setWarehouseToEditId(id);
-      setEditDialogOpen(true);
-    },
-    deleteWarehouse: async (id: string) => {
-      setWarehouseToDeleteId(id);
-      setDeleteDialogOpen(true);
-    },
-  }), [refreshAll]);
+  const actions: WarehousePageActions = useMemo(
+    () => ({
+      fetchWarehouses: async () => {},
+      fetchStats: async () => {},
+      fetchRecentMovements: async () => {},
+      refreshAll,
+      selectWarehouse: (id: string | null) => {
+        setSelectedWarehouseId(id);
+        if (id) {
+          setDetailsDialogOpen(true);
+        }
+      },
+      editWarehouse: (id: string) => {
+        setWarehouseToEditId(id);
+        setEditDialogOpen(true);
+      },
+      deleteWarehouse: async (id: string) => {
+        setWarehouseToDeleteId(id);
+        setDeleteDialogOpen(true);
+      },
+    }),
+    [refreshAll]
+  );
 
   /* -------------------------------- HANDLERS -------------------------------- */
   const handleDeleteConfirm = async () => {
     if (!warehouseToDeleteId) return;
     try {
       await deleteMutation.mutateAsync(warehouseToDeleteId);
-      toast.success(dict.toasts.successDelete || "Warehouse deleted successfully");
+      toast.success(
+        dict.toasts.successDelete || "Warehouse deleted successfully"
+      );
       setDeleteDialogOpen(false);
     } catch (error) {
       toast.error(dict.toasts.errorGeneric || "Failed to delete warehouse");
@@ -118,41 +121,43 @@ export default function WarehouseContent() {
     (w: WarehouseWithRelations) => w.id === warehouseToDeleteId
   );
 
-
   /* --------------------------------- KPI --------------------------------- */
-  const kpiItems = useMemo(() => [
-    {
-      label: dict.warehouses.kpi.totalWarehouses,
-      value: stats?.totalWarehouses || 0,
-      icon: <WarehouseIcon />,
-      color: theme.palette.primary.main,
-      trend: dashboardData?.statsTrends?.totalWarehouses,
-    },
-    {
-      label: dict.warehouses.kpi.inventorySkus,
-      value: stats?.totalSkus?.toLocaleString("en-US") || 0,
-      icon: <Inventory2 />,
-      color: theme.palette.info.main,
-    },
-    {
-      label: dict.warehouses.kpi.totalItems,
-      value: stats?.totalItems?.toLocaleString("en-US") || 0,
-      icon: <ListAlt />,
-      color: theme.palette.secondary.main,
-    },
-    {
-      label: dict.warehouses.kpi.palletCapacity,
-      value: stats?.totalCapacityPallets?.toLocaleString("en-US") || 0,
-      icon: <Category />,
-      color: theme.palette.warning.main,
-    },
-    {
-      label: dict.warehouses.kpi.stockedVolume,
-      value: `${stats?.totalCapacityVolume?.toLocaleString("en-US") || 0} M³`,
-      icon: <Storage />,
-      color: theme.palette.success.main,
-    },
-  ], [stats, dashboardData?.statsTrends, theme, dict]);
+  const kpiItems = useMemo(
+    () => [
+      {
+        label: dict.warehouses.kpi.totalWarehouses,
+        value: stats?.totalWarehouses || 0,
+        icon: <WarehouseIcon />,
+        color: theme.palette.primary.main,
+        trend: dashboardData?.statsTrends?.totalWarehouses,
+      },
+      {
+        label: dict.warehouses.kpi.inventorySkus,
+        value: stats?.totalSkus?.toLocaleString("en-US") || 0,
+        icon: <Inventory2 />,
+        color: theme.palette.info.main,
+      },
+      {
+        label: dict.warehouses.kpi.totalItems,
+        value: stats?.totalItems?.toLocaleString("en-US") || 0,
+        icon: <ListAlt />,
+        color: theme.palette.secondary.main,
+      },
+      {
+        label: dict.warehouses.kpi.palletCapacity,
+        value: stats?.totalCapacityPallets?.toLocaleString("en-US") || 0,
+        icon: <Category />,
+        color: theme.palette.warning.main,
+      },
+      {
+        label: dict.warehouses.kpi.stockedVolume,
+        value: `${stats?.totalCapacityVolume?.toLocaleString("en-US") || 0} M³`,
+        icon: <Storage />,
+        color: theme.palette.success.main,
+      },
+    ],
+    [stats, dashboardData?.statsTrends, theme, dict]
+  );
 
   return (
     <Box position={"relative"} p={4} width={"100%"}>
@@ -212,52 +217,53 @@ export default function WarehouseContent() {
         <RecentStockMovements movements={recentMovements} loading={loading} />
       </Stack>
 
-      <GoogleMapsProvider>
-        <AddWarehouseDialog
-          open={addDialogOpen}
-          onClose={() => setAddDialogOpen(false)}
-          onSuccess={refreshAll}
-        />
+      <AddWarehouseDialog
+        open={addDialogOpen}
+        onClose={() => setAddDialogOpen(false)}
+        onSuccess={refreshAll}
+      />
 
-        <WarehouseDetailsDialog
-          open={detailsDialogOpen}
-          onClose={() => {
-            setDetailsDialogOpen(false);
-            actions.selectWarehouse(null);
-          }}
-          onEditSuccess={refreshAll}
-          warehouseData={
-            warehouses.find(
-              (w: WarehouseWithRelations) => w.id === selectedWarehouseId
-            ) || undefined
-          }
-        />
+      <WarehouseDetailsDialog
+        open={detailsDialogOpen}
+        onClose={() => {
+          setDetailsDialogOpen(false);
+          actions.selectWarehouse(null);
+        }}
+        onEditSuccess={refreshAll}
+        warehouseData={
+          warehouses.find(
+            (w: WarehouseWithRelations) => w.id === selectedWarehouseId
+          ) || undefined
+        }
+      />
 
-        <EditWarehouseDialog
-          open={editDialogOpen}
-          onClose={() => {
-            setEditDialogOpen(false);
-            setWarehouseToEditId(null);
-          }}
-          onSuccess={() => {
-            setEditDialogOpen(false);
-            setWarehouseToEditId(null);
-            actions.refreshAll();
-          }}
-          warehouseData={
-            warehouses.find(
-              (w: WarehouseWithRelations) => w.id === warehouseToEditId
-            ) || undefined
-          }
-        />
-      </GoogleMapsProvider>
+      <EditWarehouseDialog
+        open={editDialogOpen}
+        onClose={() => {
+          setEditDialogOpen(false);
+          setWarehouseToEditId(null);
+        }}
+        onSuccess={() => {
+          setEditDialogOpen(false);
+          setWarehouseToEditId(null);
+          actions.refreshAll();
+        }}
+        warehouseData={
+          warehouses.find(
+            (w: WarehouseWithRelations) => w.id === warehouseToEditId
+          ) || undefined
+        }
+      />
 
       <DeleteConfirmationDialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
         title={dict.warehouses.deleteTitle}
-        description={dict.warehouses.deleteDesc.replace("{name}", warehouseToDelete?.name || "")}
+        description={dict.warehouses.deleteDesc.replace(
+          "{name}",
+          warehouseToDelete?.name || ""
+        )}
         loading={deleteMutation.isPending}
       />
     </Box>

@@ -15,10 +15,18 @@ import ExploreIcon from "@mui/icons-material/Explore";
 import ElectricBoltIcon from "@mui/icons-material/ElectricBolt";
 import CloseIcon from "@mui/icons-material/Close";
 import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
-import { useMemo } from "react";
+
+import { useEffect, useMemo, useState } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { RouteMap } from "@/app/components/googleMaps/RouteMap";
+
+import { polylineHelper } from "../../../valhalla/polylineHelper";
+import dynamic from "next/dynamic";
+const MapWithPolyline = dynamic(
+  () => import("../../../valhalla/mapWithPolyline"),
+  {
+    ssr: false,
+  }
+);
 
 const SecondRouteDialogStep = () => {
   /* -------------------------------- variables ------------------------------- */
@@ -27,21 +35,52 @@ const SecondRouteDialogStep = () => {
   const { values, setFieldValue, touched, errors } =
     useFormikContext<RouteFormValues>();
 
-  /* ------------------------------- constant ------------------------------- */
+  /* -------------------------------------------------------------------------- */
+  const [data, setData] = useState<any>(null);
 
-  const stops = useMemo(() => {
-    return values?.stops?.map((stop, index) => {
-      return {
-        address: stop.address,
-        lat: stop.lat,
-        lng: stop.lng,
-        stopOrder: index + 1,
-      };
-    });
-  }, [values.stops]);
+  const waypointsStr = useMemo(() => {
+    const stops = values?.stops || [];
+    const points = stops
+      .filter((i) => i.lat && i.lng)
+      .map((i) => ({
+        name: i.address || "Durak",
+        lat: Number(i.lat),
+        lon: Number(i.lng),
+      }));
+    return JSON.stringify(points);
+  }, [values?.stops]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const waypoints = JSON.parse(waypointsStr);
+      if (waypoints.length < 2) {
+        setData(null);
+        return;
+      }
+
+      try {
+        const response = await polylineHelper({
+          locations: waypoints,
+          costing: "truck",
+        });
+        setData(response);
+        if (response?.summary) {
+          setFieldValue("distanceKm", response.summary.length || 0);
+          setFieldValue(
+            "durationMin",
+            Math.round((response.summary.time || 0) / 60)
+          );
+        }
+      } catch (error) {
+        console.error("Valhalla API Error:", error);
+      }
+    };
+
+    fetchData();
+  }, [waypointsStr]);
 
   return (
-    <GoogleMapsProvider>
+    <>
       <Box>
         <Stack spacing={4}>
           <Stack direction="row" spacing={2} alignItems="center">
@@ -107,7 +146,7 @@ const SecondRouteDialogStep = () => {
                       {dict.routes.dialogs.startAddress}
                     </Typography>
                     <AddressAutocomplete
-                      value={values.startAddress}
+                      value={values.stops?.[0]?.address}
                       onAddressSelect={({
                         lat,
                         lng,
@@ -411,26 +450,25 @@ const SecondRouteDialogStep = () => {
                   border: `1px solid ${theme.palette.divider_alpha.main_10}`,
                 }}
               >
-                <RouteMap
-                  origin={{
-                    lat: stops?.[0]?.lat ?? 0,
-                    lng: stops?.[0]?.lng ?? 0,
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                    minHeight: 350,
                   }}
-                  destination={{
-                    lat: stops?.[stops.length - 1]?.lat ?? 0,
-                    lng: stops?.[stops.length - 1]?.lng ?? 0,
-                  }}
-                  stops={stops?.map((s) => ({
-                    lat: s.lat ?? 0,
-                    lng: s.lng ?? 0,
-                  }))}
-                />
+                >
+                  <MapWithPolyline
+                    Polylines={data?.mapPoints || []}
+                    routePolyline={data?.polyline}
+                  />
+                </Box>
               </Box>
             </Grid>
           </Grid>
         </Stack>
       </Box>
-    </GoogleMapsProvider>
+    </>
   );
 };
 

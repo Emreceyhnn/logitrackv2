@@ -35,49 +35,7 @@ const useDictionaryMock = mock.fn(() => ({
   }
 }));
 
-mock.module("../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: useDictionaryMock },
-});
 
-const toastMock = {
-  success: mock.fn(),
-  error: mock.fn(),
-  promise: mock.fn(async (promise) => await promise),
-};
-
-mock.module("sonner", {
-  namedExports: { toast: toastMock },
-});
-
-const updateRouteMock = mock.fn(async () => ({}));
-mock.module("../../../lib/controllers/routes.ts", {
-  namedExports: { updateRoute: updateRouteMock },
-});
-
-const useUserMock = mock.fn(() => ({
-  user: { timezone: "UTC" }
-}));
-mock.module("../../../hooks/useUser.ts", {
-  namedExports: { useUser: useUserMock },
-});
-
-// Mock Validation
-mock.module("../../../lib/validationSchema.ts", {
-  namedExports: { editRouteValidationSchema: () => ({}) },
-});
-
-// Mock Date Utils
-mock.module("../../../lib/utils/date.ts", {
-  namedExports: {
-    toUTC: (d: any) => d,
-    utcToUserTz: (d: any) => ({ toDate: () => new Date(d) }),
-  },
-});
-
-// Mock Subcomponents
-mock.module("../../googleMaps/GoogleMapsProvider.tsx", {
-  namedExports: { GoogleMapsProvider: ({ children }: any) => <>{children}</> },
-});
 mock.module("./addRouteDialog/firstStep.tsx", {
   defaultExport: () => <div data-testid="first-step">First Step</div>,
 });

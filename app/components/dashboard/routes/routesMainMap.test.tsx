@@ -6,23 +6,9 @@ import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
 // 1. Mocks
-mock.module("../../googleMaps/GoogleMapsProvider.tsx", {
-  namedExports: {
-    GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div>
-  }
-});
 
-mock.module("../../googleMaps/MapWithMarker.tsx", {
-  namedExports: {
-    MapWithMarker: ({ markers }: any) => (
-      <div data-testid="map-with-marker">
-        {markers.map((m: any, i: number) => (
-          <div key={i} data-testid={`marker-${m.label}`}>{m.type}</div>
-        ))}
-      </div>
-    )
-  }
-});
+
+
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -63,9 +49,6 @@ describe("RoutesMainMap RTL Component", () => {
       expect(screen.getByTestId("marker-Warehouse HQ").textContent).toBe("default");
     });
 
-    it("should_RenderGoogleMapsProvider_Always", async () => {
-      render(<RoutesMainMap mapData={[]} loading={false} />);
-      expect(screen.getByTestId("gmaps-provider")).toBeTruthy();
-    });
+    
   });
 });

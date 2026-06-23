@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { useUser } from "@/app/hooks/useUser";
 import IdentitySection from "./addCustomerDialog/sections/IdentitySection";
 import ContactSection from "./addCustomerDialog/sections/ContactSection";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface EditCustomerDialogProps {
@@ -118,7 +118,7 @@ export default function EditCustomerDialog({
   };
 
   return (
-    <GoogleMapsProvider>
+    <>
       <Formik
         initialValues={customerInitialValues}
         validationSchema={validationSchema}
@@ -162,12 +162,21 @@ export default function EditCustomerDialog({
                         color: theme.palette.primary.main,
                       }}
                     >
-                      <Typography component="div" variant="h6" sx={{ lineHeight: 1 }}>
+                      <Typography
+                        component="div"
+                        variant="h6"
+                        sx={{ lineHeight: 1 }}
+                      >
                         🏢
                       </Typography>
                     </Box>
                     <Stack spacing={0.2}>
-                      <Typography component="div" variant="h6" fontWeight={700} color="white">
+                      <Typography
+                        component="div"
+                        variant="h6"
+                        fontWeight={700}
+                        color="white"
+                      >
                         {dict.customers.dialogs.editTitle}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -229,7 +238,6 @@ export default function EditCustomerDialog({
               </Box>
 
               <DialogContent sx={{ pb: 4, minHeight: 450 }}>
-
                 {currentStep === 1 && <IdentitySection />}
                 {currentStep === 2 && <ContactSection />}
               </DialogContent>
@@ -259,11 +267,11 @@ export default function EditCustomerDialog({
                   variant="contained"
                   type={currentStep === 2 ? "submit" : "button"}
                   disabled={
-                    (currentStep === 1 &&
-                      (!values.name ||
-                        !!errors.name ||
-                        !!errors.industry ||
-                        !!errors.code))
+                    currentStep === 1 &&
+                    (!values.name ||
+                      !!errors.name ||
+                      !!errors.industry ||
+                      !!errors.code)
                   }
                   onClick={
                     currentStep === 1 ? () => setCurrentStep(2) : undefined
@@ -278,14 +286,14 @@ export default function EditCustomerDialog({
                   }}
                 >
                   {currentStep < 2
-                      ? dict.common.nextStep
-                      : dict.common.saveChanges}
+                    ? dict.common.nextStep
+                    : dict.common.saveChanges}
                 </Button>
               </DialogActions>
             </Form>
           </Dialog>
         )}
       </Formik>
-    </GoogleMapsProvider>
+    </>
   );
 }

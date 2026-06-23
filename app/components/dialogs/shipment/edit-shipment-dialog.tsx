@@ -42,7 +42,7 @@ import LogisticsSection from "./addShipmentDialog/sections/LogisticsSection";
 import CargoSection from "./addShipmentDialog/sections/CargoSection";
 import InventorySection from "./addShipmentDialog/sections/InventorySection";
 import StopsSection from "./addShipmentDialog/sections/StopsSection";
-import { GoogleMapsProvider } from "@/app/components/googleMaps/GoogleMapsProvider";
+
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
 
@@ -286,7 +286,7 @@ const EditShipmentDialog = ({
   if (!shipment) return null;
 
   return (
-    <GoogleMapsProvider>
+    <>
       <Formik
         initialValues={getInitialValues()}
         validationSchema={validationSchema}
@@ -540,7 +540,7 @@ const EditShipmentDialog = ({
           );
         }}
       </Formik>
-    </GoogleMapsProvider>
+    </>
   );
 };
 

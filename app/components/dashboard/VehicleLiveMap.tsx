@@ -18,7 +18,8 @@ import {
   Person as DriverIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-import { MapWithMarker, MarkerData } from "../googleMaps/MapWithMarker";
+import dynamic from "next/dynamic";
+const MapWithMarkers = dynamic(() => import("@/app/components/valhalla/mapWithMarker"), { ssr: false });
 import { useAllVehiclesTracking } from "@/app/hooks/useVehicleTracking";
 import { getVehicles } from "@/app/lib/controllers/vehicle";
 import { VehicleWithRelations } from "@/app/lib/type/vehicle";
@@ -61,7 +62,7 @@ export const VehicleLiveMap = () => {
   }, []);
 
   // Merge static data with live coordinates
-  const markers = useMemo<MarkerData[]>(() => {
+  const markers = useMemo<any[]>(() => {
     return vehicles.map((v) => {
       const live = vehicleLocations[v.id];
       const position = live ? { lat: live.lat, lng: live.lng } : (v.currentLat && v.currentLng ? { lat: v.currentLat, lng: v.currentLng } : { lat: 41.0082, lng: 28.9784 });
@@ -92,16 +93,17 @@ export const VehicleLiveMap = () => {
 
   return (
     <Box sx={{ position: "relative", width: "100%", height: 600, borderRadius: 4, overflow: "hidden" }}>
-      <MapWithMarker 
-        height={600} 
-        markers={markers} 
-        onMarkerClick={(m) => {
-          setSelectedVehicleId(m.id || null);
-          setIsDialogOpen(true);
-        }}
-        center={selectedLive ? { lat: selectedLive.lat, lng: selectedLive.lng } : undefined}
-        zoom={selectedLive ? 15 : undefined}
-      />
+      <Box sx={{ height: 600 }}>
+        <MapWithMarkers
+          markers={markers} 
+          onMarkerClick={(m: any) => {
+            setSelectedVehicleId(m.id || null);
+            setIsDialogOpen(true);
+          }}
+          center={selectedLive ? [selectedLive.lat, selectedLive.lng] : undefined}
+          zoom={selectedLive ? 15 : undefined}
+        />
+      </Box>
 
       {/* Stats Overlay */}
       <Box sx={{ 

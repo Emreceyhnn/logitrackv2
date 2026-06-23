@@ -31,7 +31,11 @@ export default function RouteProgress({
       status: "COMPLETED",
       time: formatDisplayTime(route.startTime, dateSettings),
     },
-    ...(route.shipments?.map((s) => ({
+    ...(route.shipments?.filter(s => {
+      const isDuplicateOrigin = firstStop && s.destination === (firstStop as { address?: string }).address;
+      const isDuplicateDestination = lastStop && s.destination === (lastStop as { address?: string }).address;
+      return !isDuplicateOrigin && !isDuplicateDestination;
+    }).map((s) => ({
       locationName: `${dict.routes.details.delivery}: ${s.destination}`,
       status: s.status === "DELIVERED" ? "COMPLETED" : "PENDING",
       time: "-",

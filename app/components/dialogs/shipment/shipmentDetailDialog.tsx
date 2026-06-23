@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Avatar,
   Box,
@@ -23,10 +23,17 @@ import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { ShipmentItem } from "@/app/lib/type/enums";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import DriverCard from "../../cards/driverCard";
-import MapRoutesDialogCard from "../routes/map";
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { polylineHelper } from "../../valhalla/polylineHelper";
+import dynamic from "next/dynamic";
+const MapWithPolyline = dynamic(
+  () => import("../../valhalla/mapWithPolyline"),
+  {
+    ssr: false,
+  }
+);
 
 interface ShipmentDetailDialogProps {
   open: boolean;
@@ -111,6 +118,39 @@ export default function ShipmentDetailDialog({
   onClose,
   shipment,
 }: ShipmentDetailDialogProps) {
+  /* -------------------------------------------------------------------------- */
+  const waypoints = useMemo(() => {
+    const stops = shipment?.stops || [];
+    return stops
+      .filter((i) => i.lat && i.lng)
+      .map((i) => ({
+        name: i.address,
+        lat: Number(i.lat),
+        lon: Number(i.lng),
+      }));
+  }, [shipment?.stops]);
+
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!open || !shipment || waypoints.length < 2) {
+        return; // Veri gelmeden veya en az 2 nokta olmadan istek atmasını engelliyoruz.
+      }
+
+      const response = await polylineHelper({
+        locations: waypoints,
+        costing: "truck",
+      });
+
+      setData(response);
+    };
+
+    fetchData();
+  }, [waypoints, open, shipment]);
+
+  /* -------------------------------------------------------------------------- */
+
   const dict = useDictionary();
   const theme = useTheme();
   const [tab, setTab] = useState<"overview" | "items">("overview");
@@ -125,38 +165,6 @@ export default function ShipmentDetailDialog({
   const hasStops = stopsSorted.length > 0;
 
   if (!shipment) return null;
-
-  // --- Map Calculation Logic ---
-  const mapOrigin =
-    shipment.originLat && shipment.originLng
-      ? { lat: Number(shipment.originLat), lng: Number(shipment.originLng) }
-      : shipment.origin || "";
-
-  const mapDestination = hasStops
-    ? stopsSorted[stopsSorted.length - 1].lat &&
-      stopsSorted[stopsSorted.length - 1].lng
-      ? {
-          lat: Number(stopsSorted[stopsSorted.length - 1].lat),
-          lng: Number(stopsSorted[stopsSorted.length - 1].lng),
-        }
-      : stopsSorted[stopsSorted.length - 1].address
-    : shipment.destinationLat && shipment.destinationLng
-      ? {
-          lat: Number(shipment.destinationLat),
-          lng: Number(shipment.destinationLng),
-        }
-      : shipment.destination || "";
-
-  const routeStops =
-    hasStops && stopsSorted.length > 1
-      ? stopsSorted.slice(0, -1).map((stop) => ({
-          location:
-            stop.lat && stop.lng
-              ? { lat: Number(stop.lat), lng: Number(stop.lng) }
-              : stop.address,
-          stopover: true,
-        }))
-      : [];
 
   return (
     <Dialog
@@ -340,8 +348,18 @@ export default function ShipmentDetailDialog({
                         </Typography>
                       </Stack>
 
-                      <Box sx={{ position: "relative", maxHeight: 150, overflow: "auto", pr: 1 }}>
-                        <Stack spacing={4} sx={{ position: "relative", pl: 5.5, py: 1 }}>
+                      <Box
+                        sx={{
+                          position: "relative",
+                          maxHeight: 150,
+                          overflow: "auto",
+                          pr: 1,
+                        }}
+                      >
+                        <Stack
+                          spacing={4}
+                          sx={{ position: "relative", pl: 5.5, py: 1 }}
+                        >
                           {/* Continuous Vertical Line */}
                           <Box
                             sx={{
@@ -364,7 +382,7 @@ export default function ShipmentDetailDialog({
                               },
                             }}
                           />
-                          
+
                           {/* 1. Origin (Warehouse) */}
                           <Box sx={{ position: "relative" }}>
                             <Box
@@ -412,7 +430,7 @@ export default function ShipmentDetailDialog({
                           {/* 2. Intermediate Stops */}
                           {hasStops &&
                             stopsSorted.length > 1 &&
-                            stopsSorted.slice(0, -1).map((stop, index) => (
+                            stopsSorted.slice(1, -1).map((stop, index) => (
                               <Box key={stop.id} sx={{ position: "relative" }}>
                                 <Box
                                   sx={{
@@ -544,7 +562,8 @@ export default function ShipmentDetailDialog({
                           >
                             {dict.shipments.details.quantity}
                           </Typography>
-                          <Typography component="div"
+                          <Typography
+                            component="div"
                             variant="h6"
                             fontWeight={700}
                             color="text.primary"
@@ -577,7 +596,8 @@ export default function ShipmentDetailDialog({
                             >
                               {dict.shipments.details.grossWeight}
                             </Typography>
-                            <Typography component="div"
+                            <Typography
+                              component="div"
                               variant="h6"
                               fontWeight={700}
                               color="text.primary"
@@ -709,7 +729,8 @@ export default function ShipmentDetailDialog({
                             >
                               {dict.shipments.details.itemsTab.totalItems}
                             </Typography>
-                            <Typography component="div"
+                            <Typography
+                              component="div"
                               variant="h6"
                               fontWeight={700}
                               color="text.primary"
@@ -739,7 +760,8 @@ export default function ShipmentDetailDialog({
                                 >
                                   {dict.shipments.details.itemsTab.totalWeight}
                                 </Typography>
-                                <Typography component="div"
+                                <Typography
+                                  component="div"
                                   variant="h6"
                                   fontWeight={700}
                                   color="text.primary"
@@ -940,12 +962,12 @@ export default function ShipmentDetailDialog({
 
           {/* ── RIGHT: Map + telemetry overlay (unchanged) ── */}
           <Box sx={{ flex: 1, position: "relative", minHeight: 400 }}>
-            <MapRoutesDialogCard
-              origin={mapOrigin}
-              destination={mapDestination}
-              stops={routeStops}
-              vehicleLocation={null}
-            />
+            <Box sx={{ position: "absolute", inset: 0 }}>
+              <MapWithPolyline
+                Polylines={data?.mapPoints}
+                routePolyline={data?.polyline}
+              />
+            </Box>
 
             <Box
               sx={{

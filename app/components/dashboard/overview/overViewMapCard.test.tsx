@@ -5,27 +5,9 @@ import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
-mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
-});
 
-mock.module("../../googleMaps/GoogleMapsProvider.tsx", {
-  namedExports: {
-    GoogleMapsProvider: ({ children }: any) => <div data-testid="gmaps-provider">{children}</div>,
-  },
-});
 
-mock.module("../../googleMaps/MapWithMarker.tsx", {
-  namedExports: {
-    MapWithMarker: ({ markers }: any) => (
-      <div data-testid="map-with-marker">
-        {markers.map((m: any, i: number) => (
-          <div key={i} data-testid={`marker-${m.label}`}>{m.type}</div>
-        ))}
-      </div>
-    ),
-  },
-});
+
 
 describe("OverviewMapCard RTL Component", () => {
   let OverviewMapCard: any;

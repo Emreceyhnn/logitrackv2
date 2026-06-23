@@ -20,6 +20,7 @@ interface MapWithMarkerProps {
   markers: Markers[];
   center?: [number, number];
   zoom?: number;
+  onMarkerClick?: (marker: Markers) => void;
 }
 
 function MapBoundsFit({
@@ -87,7 +88,7 @@ function MapBoundsFit({
   return null;
 }
 
-function MapWithMarkers({ markers, center, zoom }: MapWithMarkerProps) {
+function MapWithMarkers({ markers, center, zoom, onMarkerClick }: MapWithMarkerProps) {
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
       <MapContainer
@@ -158,6 +159,7 @@ function MapWithMarkers({ markers, center, zoom }: MapWithMarkerProps) {
                 iconSize: [40, 40],
                 iconAnchor: [20, 20],
               })}
+              eventHandlers={{ click: () => onMarkerClick?.(marker) }}
             >
               <Popup>
                 <div>
