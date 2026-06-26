@@ -12,7 +12,6 @@ import {
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
 import StarIcon from "@mui/icons-material/Star";
-import EmailIcon from "@mui/icons-material/Email";
 import HistoryIcon from "@mui/icons-material/History";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import HomeWorkIcon from "@mui/icons-material/HomeWork";
@@ -221,7 +220,12 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                 {dict.drivers.fields.licenseExpiry}
               </Typography>
             </Stack>
-            <Typography component="div" variant="h6" fontWeight={700} color="text.primary">
+            <Typography
+              component="div"
+              variant="h6"
+              fontWeight={700}
+              color="text.primary"
+            >
               {driver.licenseExpiry
                 ? formatDisplayDate(driver.licenseExpiry, dateSettings)
                 : dict.common.na}
@@ -329,7 +333,8 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
                 {dict.drivers.labels.base}
               </Typography>
             </Stack>
-            <Typography component="div"
+            <Typography
+              component="div"
               variant="h6"
               fontWeight={700}
               color="text.primary"
@@ -345,20 +350,6 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
       </Grid>
 
       <Stack direction="row" spacing={2} pt={2}>
-        <Button
-          variant="contained"
-          startIcon={<EmailIcon />}
-          sx={{
-            flex: 1,
-            borderRadius: 2,
-            py: 1.5,
-            fontWeight: 600,
-            textTransform: "none",
-            boxShadow: `0 8px 16px ${theme.palette.primary._alpha.main_20}`,
-          }}
-        >
-          {dict.drivers.labels.contactDriver}
-        </Button>
         <Button
           variant="outlined"
           startIcon={<HistoryIcon />}

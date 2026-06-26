@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Typography } from "@mui/material";
 import DataTable from "@/app/components/ui/DataTable";
 import type {
@@ -101,6 +101,23 @@ const ShipmentTable = ({
     },
     [selectShipment]
   );
+
+  const handleCloseDetails = useCallback(() => {
+    setDetailOpen(false);
+    selectShipment(null);
+  }, [selectShipment]);
+
+  // Deep-link support: open the dialog when a shipment id arrives via state
+  // (e.g. from the ?id= URL param handled by the parent container).
+  useEffect(() => {
+    if (!state.selectedShipmentId) return;
+    const match = shipments.find((s) => s.id === state.selectedShipmentId);
+    if (match) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedShipment(match);
+      setDetailOpen(true);
+    }
+  }, [state.selectedShipmentId, shipments]);
 
   const handleSearchChange = useCallback(
     (value: string) => {
@@ -235,7 +252,7 @@ const ShipmentTable = ({
 
       <ShipmentDetailDialog
         open={detailOpen}
-        onClose={() => setDetailOpen(false)}
+        onClose={handleCloseDetails}
         shipment={selectedShipment}
       />
     </>

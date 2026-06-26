@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   Avatar,
   Box,
@@ -36,7 +37,6 @@ export default function CompanyInfoCard({ props }: CompanyInfoCardProps) {
             <Skeleton variant="circular" width={72} height={72} />
           ) : (
             <Avatar
-              src={profile.avatarUrl ?? undefined}
               sx={{
                 width: 72,
                 height: 72,
@@ -44,7 +44,19 @@ export default function CompanyInfoCard({ props }: CompanyInfoCardProps) {
                 fontSize: 28,
               }}
             >
-              {!profile.avatarUrl && <BusinessIcon sx={{ fontSize: 36 }} />}
+              {profile.avatarUrl ? (
+                <Image
+                  src={profile.avatarUrl}
+                  alt={profile.name || "Company Logo"}
+                  width={72}
+                  height={72}
+                  style={{ objectFit: "cover" }}
+                  priority
+                  unoptimized
+                />
+              ) : (
+                <BusinessIcon sx={{ fontSize: 36 }} />
+              )}
             </Avatar>
           )}
 

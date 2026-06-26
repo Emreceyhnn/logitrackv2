@@ -276,9 +276,6 @@ const VehicleDialog = (params: VehicleDialogParams) => {
           <CustomTabPanel value={value} index={2}>
             <MaintenanceTab vehicle={vehicleData} onUpdate={onUpdateSuccess} />
           </CustomTabPanel>
-          {/* <CustomTabPanel value={value} index={3}>
-            <FuelTab vehicle={vehicleData} onUpdate={onUpdateSuccess} />
-          </CustomTabPanel> */}
         </Stack>
 
         <Box

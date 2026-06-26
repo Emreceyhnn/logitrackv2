@@ -42,6 +42,8 @@ function resolveMode(stored: StoredMode): ThemeMode {
   return stored;
 }
 
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
+
 export default function Providers({ 
   children,
   initialMode 
@@ -125,16 +127,18 @@ export default function Providers({
   }, []);
 
   return (
-    <ThemeContext.Provider value={{ mode, setMode }}>
-      <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={safeLang}>
-        <QueryProvider>
-          <ThemeProvider theme={theme}>
-            <Toaster />
-            <CssBaseline />
-            {children}
-          </ThemeProvider>
-        </QueryProvider>
-      </LocalizationProvider>
-    </ThemeContext.Provider>
+    <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+      <ThemeContext.Provider value={{ mode, setMode }}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={safeLang}>
+          <QueryProvider>
+            <ThemeProvider theme={theme}>
+              <Toaster />
+              <CssBaseline />
+              {children}
+            </ThemeProvider>
+          </QueryProvider>
+        </LocalizationProvider>
+      </ThemeContext.Provider>
+    </AppRouterCacheProvider>
   );
 }
