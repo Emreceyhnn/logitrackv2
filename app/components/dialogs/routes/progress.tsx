@@ -21,42 +21,73 @@ export default function RouteProgress({
   const dict = useDictionary();
   const dateSettings = useDateSettings();
 
-  const routeStops = Array.isArray(route.stops) ? route.stops : [];
-  const firstStop = routeStops.length > 0 ? routeStops[0] : null;
-  const lastStop = routeStops.length > 1 ? routeStops[routeStops.length - 1] : null;
+  const routeStops = (Array.isArray(route.stops) ? route.stops : []) as {
+    address?: string;
+  }[];
+  const lastIndex = routeStops.length - 1;
 
-  const stops = [
-    {
-      locationName: (firstStop as { address?: string })?.address || dict.routes.details.origin,
-      status: "COMPLETED",
-      time: formatDisplayTime(route.startTime, dateSettings),
-    },
-    ...(route.shipments?.filter(s => {
-      const isDuplicateOrigin = firstStop && s.destination === (firstStop as { address?: string }).address;
-      const isDuplicateDestination = lastStop && s.destination === (lastStop as { address?: string }).address;
-      return !isDuplicateOrigin && !isDuplicateDestination;
-    }).map((s) => ({
-      locationName: `${dict.routes.details.delivery}: ${s.destination}`,
-      status: s.status === "DELIVERED" ? "COMPLETED" : "PENDING",
-      time: "-",
-    })) || []),
-    {
-      locationName: (lastStop as { address?: string })?.address || dict.routes.details.destination,
-      status: route.status === "COMPLETED" ? "COMPLETED" : "PENDING",
-      time: formatDisplayTime(route.endTime, dateSettings),
-    },
-  ];
+  const stops = routeStops.map((stop, index) => {
+    const isFirst = index === 0;
+    const isLast = index === lastIndex;
+
+    let locationName: string;
+    if (isFirst) {
+      locationName = stop.address || dict.routes.details.origin;
+    } else if (isLast) {
+      locationName = stop.address || dict.routes.details.destination;
+    } else {
+      locationName = `${dict.routes.details.delivery}: ${
+        stop.address || "-"
+      }`;
+    }
+
+    let status: string;
+    let time: string;
+    if (isFirst) {
+      status = "COMPLETED";
+      time = formatDisplayTime(route.startTime, dateSettings);
+    } else if (isLast) {
+      status = route.status === "COMPLETED" ? "COMPLETED" : "PENDING";
+      time = formatDisplayTime(route.endTime, dateSettings);
+    } else {
+      status = route.status === "COMPLETED" ? "COMPLETED" : "PENDING";
+      time = "-";
+    }
+
+    return { locationName, status, time };
+  });
 
   const activeStep = stops.findIndex((s) => s.status === "PENDING");
   const currentStep = activeStep === -1 ? stops.length : activeStep;
 
   return (
-    <Box>
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Typography variant="subtitle2" fontWeight={700} mb={2} color="white">
         {dict.routes.details.liveProgress}
       </Typography>
-      <Stepper activeStep={currentStep} orientation="vertical">
-        {stops.map((step, index) => (
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          maxHeight: { xs: 320, md: "none" },
+          overflowY: "auto",
+          pr: 1,
+          "&::-webkit-scrollbar": { width: 6 },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(255,255,255,0.15)",
+            borderRadius: 3,
+          },
+        }}
+      >
+        <Stepper activeStep={currentStep} orientation="vertical">
+          {stops.map((step, index) => (
           <Step key={index} expanded={true}>
             <StepLabel
               StepIconComponent={() => (
@@ -90,8 +121,9 @@ export default function RouteProgress({
               <Box sx={{ height: 10 }} />
             </StepContent>
           </Step>
-        ))}
-      </Stepper>
+          ))}
+        </Stepper>
+      </Box>
     </Box>
   );
 }

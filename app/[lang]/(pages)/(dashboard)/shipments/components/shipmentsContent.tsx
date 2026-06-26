@@ -15,7 +15,6 @@ import {
   useShipmentMutations,
 } from "@/app/hooks/useShipments";
 import EditShipmentDialog from "@/app/components/dialogs/shipment/edit-shipment-dialog";
-import ShipmentDetailDialog from "@/app/components/dialogs/shipment/shipmentDetailDialog";
 import AddShipmentDialog from "@/app/components/dialogs/shipment/addShipmentDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import AddIcon from "@mui/icons-material/Add";
@@ -137,10 +136,6 @@ export default function ShipmentContent() {
 
   /* --------------------------------- RENDER --------------------------------- */
 
-  const selectedShipment = state.shipments.find(
-    (s) => s.id === state.selectedShipmentId
-  );
-
   const kpiItems = useMemo(() => [
     {
       label: dict.shipments.dashboard.totalShipments,
@@ -228,12 +223,6 @@ export default function ShipmentContent() {
       </Stack>
 
       <ShipmentAnalytics state={state} actions={actions} />
-
-      <ShipmentDetailDialog
-        open={!!selectedShipment}
-        onClose={() => actions.selectShipment(null)}
-        shipment={selectedShipment || null}
-      />
 
       <EditShipmentDialog
         open={editOpen}

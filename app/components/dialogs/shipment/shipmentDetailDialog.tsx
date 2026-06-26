@@ -26,7 +26,10 @@ import DriverCard from "../../cards/driverCard";
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { polylineHelper, PolylineHelperResult } from "../../valhalla/polylineHelper";
+import {
+  polylineHelper,
+  PolylineHelperResult,
+} from "../../valhalla/polylineHelper";
 import dynamic from "next/dynamic";
 const MapWithPolyline = dynamic(
   () => import("../../valhalla/mapWithPolyline"),
@@ -276,10 +279,11 @@ export default function ShipmentDetailDialog({
               width: { xs: "100%", md: "400px" },
               borderRight: `1px solid ${theme.palette.divider}`,
               bgcolor: "background.default",
-              overflowY: "auto",
-              overflowX: "hidden",
-              height: { md: "calc(90vh - 88px)" }, // Fixed height to prevent jumps
+              overflow: "hidden", // Parent never scrolls; inner sections handle it
+              height: { xs: "auto", md: "calc(90vh - 88px)" },
               position: "relative",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             <AnimatePresence mode="wait">
@@ -291,11 +295,17 @@ export default function ShipmentDetailDialog({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
                   transition={{ duration: 0.2, ease: "easeOut" }}
-                  style={{ padding: "24px" }}
+                  style={{
+                    padding: "24px",
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1,
+                    minHeight: 0,
+                  }}
                 >
-                  <Stack spacing={3}>
+                  <Stack spacing={3} sx={{ flex: 1, minHeight: 0 }}>
                     {/* Driver */}
-                    <Stack spacing={1.5}>
+                    <Stack spacing={1.5} sx={{ flexShrink: 0 }}>
                       <Typography
                         variant="overline"
                         color="text.secondary"
@@ -325,10 +335,12 @@ export default function ShipmentDetailDialog({
                       )}
                     </Stack>
 
-                    <Divider sx={{ borderColor: theme.palette.divider }} />
+                    <Divider
+                      sx={{ borderColor: theme.palette.divider, flexShrink: 0 }}
+                    />
 
                     {/* Mission Path */}
-                    <Stack spacing={2}>
+                    <Stack spacing={2} sx={{ flex: 1, minHeight: 0 }}>
                       <Stack direction="row" spacing={1} alignItems="center">
                         <Box
                           sx={{
@@ -351,8 +363,10 @@ export default function ShipmentDetailDialog({
                       <Box
                         sx={{
                           position: "relative",
-                          maxHeight: 150,
-                          overflow: "auto",
+                          flex: 1,
+                          minHeight: 120,
+                          overflowY: "auto",
+                          overflowX: "hidden",
                           pr: 1,
                         }}
                       >
@@ -527,10 +541,12 @@ export default function ShipmentDetailDialog({
                       </Box>
                     </Stack>
 
-                    <Divider sx={{ borderColor: theme.palette.divider }} />
+                    <Divider
+                      sx={{ borderColor: theme.palette.divider, flexShrink: 0 }}
+                    />
 
                     {/* Specs grid */}
-                    <Stack spacing={1.5}>
+                    <Stack spacing={1.5} sx={{ flexShrink: 0 }}>
                       <Typography
                         variant="overline"
                         color="text.secondary"
@@ -616,10 +632,12 @@ export default function ShipmentDetailDialog({
                       </Box>
                     </Stack>
 
-                    <Divider sx={{ borderColor: theme.palette.divider }} />
+                    <Divider
+                      sx={{ borderColor: theme.palette.divider, flexShrink: 0 }}
+                    />
 
                     {/* Customer */}
-                    <Stack spacing={1.5}>
+                    <Stack spacing={1.5} sx={{ flexShrink: 0 }}>
                       <Typography
                         variant="overline"
                         color="text.secondary"
@@ -703,8 +721,17 @@ export default function ShipmentDetailDialog({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ duration: 0.2, ease: "easeOut" }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1,
+                    minHeight: 0,
+                  }}
                 >
-                  <Stack spacing={0}>
+                  <Stack
+                    spacing={0}
+                    sx={{ flex: 1, minHeight: 0, overflowY: "auto" }}
+                  >
                     {/* Summary header */}
                     {items.length > 0 && (
                       <Box
@@ -960,9 +987,22 @@ export default function ShipmentDetailDialog({
             </AnimatePresence>
           </Box>
 
-          {/* ── RIGHT: Map + telemetry overlay (unchanged) ── */}
-          <Box sx={{ flex: 1, position: "relative", minHeight: 400 }}>
-            <Box sx={{ position: "absolute", inset: 0 }}>
+          {/* ── RIGHT: Map + telemetry overlay ── */}
+          <Box
+            sx={{
+              flex: 1,
+              position: "relative",
+              minHeight: { xs: 360, md: 400 },
+              height: { md: "calc(90vh - 88px)" },
+            }}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                zIndex: 0, // Isolate Leaflet's internal panes so the overlay sits on top
+              }}
+            >
               <MapWithPolyline
                 Polylines={data?.mapPoints || []}
                 routePolyline={data?.polyline}
@@ -985,7 +1025,7 @@ export default function ShipmentDetailDialog({
                 border: `1px solid ${theme.palette.divider}`,
                 display: "flex",
                 justifyContent: "space-around",
-                zIndex: 1,
+                zIndex: 2,
               }}
             >
               <Stack alignItems="center">

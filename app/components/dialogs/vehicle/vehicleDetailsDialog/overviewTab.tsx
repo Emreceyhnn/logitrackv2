@@ -9,25 +9,15 @@ import {
   useTheme,
   Grid,
   Theme,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Divider,
 } from "@mui/material";
 import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ConstructionIcon from "@mui/icons-material/Construction";
 import OilBarrelIcon from "@mui/icons-material/OilBarrel";
-import AddIcon from "@mui/icons-material/Add";
 import MapVehicleOverviewCard from "./map";
 import { useState } from "react";
 import AssignDriverDialog from "../assignDriverDialog";
-import AddFuelLogDialog from "../fuelLogDialog";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useCurrency } from "@/app/hooks/useCurrency";
-import dayjs from "dayjs";
 
 interface OverviewTabProps {
   vehicle?: VehicleWithRelations;
@@ -39,8 +29,6 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
   const dict = useDictionary();
   /* --------------------------------- states --------------------------------- */
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
-  const [addFuelDialogOpen, setAddFuelDialogOpen] = useState(false);
-  const { formatFrom } = useCurrency();
 
   if (!vehicle) {
     return (
@@ -49,8 +37,6 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
       </Typography>
     );
   }
-
-  const fuelHistory = (vehicle.fuelLogs || []).slice(0, 5);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleAssignSuccess = () => {
@@ -344,142 +330,6 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
             />
           </Stack>
         </Stack>
-
-        {/* ───────────────────────────────────────────────────────────
-          FUEL LOGS SECTION
-      ───────────────────────────────────────────────────────────── */}
-        <Card
-          sx={{
-            borderRadius: "12px",
-            border: `1px solid ${theme.palette.divider}`,
-            bgcolor: "background.paper",
-            backgroundImage: "none",
-            boxShadow: "none",
-            overflow: "hidden",
-          }}
-        >
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            sx={{
-              p: 2,
-              bgcolor: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.02)"
-                  : "rgba(0,0,0,0.01)",
-            }}
-          >
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Box
-                sx={{
-                  p: 1,
-                  borderRadius: "10px",
-                  bgcolor: (theme) =>
-                    theme.palette.mode === "dark"
-                      ? "primary._alpha.main_10"
-                      : "primary._alpha.main_05",
-                  color: "primary.main",
-                  display: "flex",
-                }}
-              >
-                <LocalGasStationIcon fontSize="small" />
-              </Box>
-              <Box>
-                <Typography variant="subtitle2" fontWeight={800}>
-                  {dict.fuel.history}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {dict.fuel.addLogDesc}
-                </Typography>
-              </Box>
-            </Stack>
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<AddIcon />}
-              onClick={() => setAddFuelDialogOpen(true)}
-              sx={{
-                borderRadius: "8px",
-                textTransform: "none",
-                fontWeight: 700,
-                boxShadow: "none",
-                "&:hover": { boxShadow: "none" },
-              }}
-            >
-              {dict.fuel.addLog}
-            </Button>
-          </Stack>
-
-          <Divider />
-
-          <Box sx={{ overflowX: "auto" }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                    {dict.fuel.fields.date}
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                    {dict.fuel.fields.fuelType}
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                    {dict.fuel.fields.volume}
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                    {dict.fuel.fields.cost}
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                    {dict.fuel.fields.odometer}
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, py: 2 }}>
-                    {dict.fuel.fields.location}
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {fuelHistory.length > 0 ? (
-                  fuelHistory.map((log) => (
-                    <TableRow key={log.id} hover>
-                      <TableCell sx={{ py: 1.5 }}>
-                        {dayjs(log.date).format("DD MMM YYYY")}
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {dict.vehicles.fuelTypes[
-                            log.fuelType as keyof typeof dict.vehicles.fuelTypes
-                          ] || log.fuelType}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{log.volumeLiter} L</TableCell>
-                      <TableCell
-                        sx={{ fontWeight: 700, color: "primary.main" }}
-                      >
-                        {formatFrom(log.cost, log.currency || "USD")}
-                      </TableCell>
-                      <TableCell>
-                        {log.odometerKm.toLocaleString("en-US")} km
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="caption" color="text.secondary">
-                          {log.location || "-"}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
-                      <Typography variant="body2" color="text.secondary">
-                        {dict.fuel.noLogs}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </Box>
-        </Card>
       </Stack>
 
       <AssignDriverDialog
@@ -488,15 +338,6 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
         vehicleId={vehicle.id}
         vehiclePlate={vehicle.plate}
         currentDriver={vehicle.driver}
-        onSuccess={handleAssignSuccess}
-      />
-
-      <AddFuelLogDialog
-        open={addFuelDialogOpen}
-        onClose={() => setAddFuelDialogOpen(false)}
-        vehicleId={vehicle.id}
-        vehiclePlate={vehicle.plate}
-        currentDriverId={vehicle.driver?.id}
         onSuccess={handleAssignSuccess}
       />
     </>
