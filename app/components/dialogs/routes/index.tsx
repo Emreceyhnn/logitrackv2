@@ -169,6 +169,10 @@ export default function RouteDialog({
             border: `1px solid ${theme.palette.divider_alpha.main_10}`,
             overflow: "hidden",
             boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            flexDirection: "column",
+            height: { md: "85vh" },
+            maxHeight: "90vh",
           },
         }}
       >
@@ -336,8 +340,18 @@ export default function RouteDialog({
           </Stack>
         </Box>
 
-        <DialogContent sx={{ p: 0 }}>
-          <Stack direction={{ xs: "column", md: "row" }}>
+        <DialogContent
+          sx={{
+            p: 0,
+            overflow: { xs: "auto", md: "hidden" },
+            flex: 1,
+            minHeight: 0,
+          }}
+        >
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            sx={{ height: { md: "100%" }, minHeight: 0 }}
+          >
             {/* Left Column: Information & Progress */}
             <Box
               sx={{
@@ -345,9 +359,13 @@ export default function RouteDialog({
                 borderRight: `1px solid ${theme.palette.divider_alpha.main_05}`,
                 p: 3,
                 bgcolor: theme.palette.common.white_alpha.main_01,
+                display: "flex",
+                flexDirection: "column",
+                minHeight: 0,
+                overflow: "hidden",
               }}
             >
-              <Stack spacing={2}>
+              <Stack spacing={2} sx={{ flex: 1, minHeight: 0 }}>
                 {/* Driver Section */}
                 <Stack spacing={2}>
                   <Typography
@@ -479,11 +497,14 @@ export default function RouteDialog({
                 position: "relative",
                 display: "flex",
                 flexDirection: "column",
+                minHeight: 0,
               }}
             >
               <Box
                 sx={{
-                  height: { xs: 300, md: 440 },
+                  height: { xs: 300, md: "auto" },
+                  flex: { md: 1 },
+                  minHeight: { md: 0 },
                   width: "100%",
                 }}
               >

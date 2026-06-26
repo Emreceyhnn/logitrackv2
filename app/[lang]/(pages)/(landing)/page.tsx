@@ -1,3 +1,5 @@
+"use client";
+
 import { Box } from "@mui/material";
 import dynamic from "next/dynamic";
 import HeroSection from "@/app/components/landing/HeroSection";
@@ -5,25 +7,25 @@ import HeroSection from "@/app/components/landing/HeroSection";
 const SocialProof = dynamic(
   () => import("@/app/components/landing/SocialProof"),
   {
-    ssr: true,
+    ssr: false,
   }
 );
 const OperationsDashboard = dynamic(
   () => import("@/app/components/landing/OperationsDashboard"),
   {
-    ssr: true,
+    ssr: false,
   }
 );
 const FeaturesSection = dynamic(
   () => import("@/app/components/landing/FeaturesSection"),
   {
-    ssr: true,
+    ssr: false,
   }
 );
 const LandingFooter = dynamic(
   () => import("@/app/components/landing/LandingFooter"),
   {
-    ssr: true,
+    ssr: false,
   }
 );
 

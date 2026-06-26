@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Box, Stack, IconButton, Drawer, useTheme, Tooltip } from "@mui/material";
+import { Box, Stack, IconButton, Drawer, useTheme } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import UserAccountNav from "../nav/UserAccountNav";
 import NotificationBell from "../notifications/NotificationBell";
 import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 import DashboardBreadcrumbs from "./DashboardBreadcrumbs";
 import SideBar from "../sidebar";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+
 
 export default function DashboardHeader({
   user,
@@ -14,7 +14,6 @@ export default function DashboardHeader({
   user: AuthenticatedUser | null;
 }) {
   const theme = useTheme();
-  const dict = useDictionary();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -56,16 +55,12 @@ export default function DashboardHeader({
       </Stack>
 
       <Stack direction="row" spacing={{ xs: 1.5, md: 3 }} alignItems="center">
-        <Tooltip title={dict.common.tooltips.notifications || "Notifications"}>
-          <Box>
-            <NotificationBell user={user} />
-          </Box>
-        </Tooltip>
-        <Tooltip title={dict.common.tooltips.account || "Account"}>
-          <Box>
-            <UserAccountNav user={user} />
-          </Box>
-        </Tooltip>
+        <Box>
+          <NotificationBell user={user} />
+        </Box>
+        <Box>
+          <UserAccountNav user={user} />
+        </Box>
       </Stack>
 
       <Drawer
