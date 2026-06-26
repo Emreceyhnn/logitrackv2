@@ -29,7 +29,7 @@ const LandingFooter = dynamic(
 
 export default function LandingPage() {
   return (
-    <Box component="main">
+    <Box>
       <HeroSection />
       <SocialProof />
       <OperationsDashboard />

@@ -1,0 +1,9 @@
+# LogiTrack
+
+> LogiTrack - AI-powered logistics and fleet management platform.
+
+LogiTrack allows you to manage deliveries, your fleet, and operations from a single smart dashboard.
+
+## Notes
+- Platform is built with Next.js App Router.
+- Supports English and Turkish.

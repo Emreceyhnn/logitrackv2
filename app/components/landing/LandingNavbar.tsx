@@ -92,6 +92,7 @@ export default function LandingNavbar() {
           </Link>
 
           <Stack
+            component="nav"
             direction="row"
             spacing={6}
             alignItems="center"
