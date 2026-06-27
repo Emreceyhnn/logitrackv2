@@ -33,7 +33,7 @@ export default function LandingFooter() {
         { label: dict.landing.footer.sections.enterprise, href: "/enterprise" },
         { label: dict.landing.footer.sections.smbLogistics, href: "/smb-logistics" },
         { label: dict.landing.footer.sections.supplyChain, href: "/supply-chain" },
-        { label: dict.landing.footer.sections.customApi, href: "#" },
+        { label: dict.landing.footer.sections.customApi, href: "/custom-api" },
       ],
     },
     {

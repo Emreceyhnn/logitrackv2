@@ -708,6 +708,39 @@
         "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
       }
     },
+    "customApiPage": {
+      "hero": {
+        "badge": "Custom API",
+        "title": "Integrate LogiTrack into Your Systems.",
+        "subtitle": "Robust, high-performance APIs for custom logistics integrations and advanced automation."
+      },
+      "sections": {
+        "dedicated": {
+          "title": "RESTful & GraphQL Support",
+          "description": "Flexible API architectures to suit your engineering team's preferences and requirements."
+        },
+        "integration": {
+          "title": "High Throughput",
+          "description": "Engineered to handle thousands of requests per second with sub-millisecond latency."
+        },
+        "support": {
+          "title": "Developer First",
+          "description": "Comprehensive documentation, SDKs in multiple languages, and dedicated developer support."
+        }
+      },
+      "detail": {
+        "overline": "Developer Experience",
+        "title": "Built by developers, for developers.",
+        "description": "Our APIs are designed with predictability, consistency, and clear error handling in mind."
+      },
+      "cta": {
+        "title": "View API Documentation",
+        "subtitle": "Start building your integration today."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
     "smbLogisticsPage": {
       "hero": {
         "badge": "SMB Logistics",
