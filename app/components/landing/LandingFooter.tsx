@@ -21,37 +21,37 @@ export default function LandingFooter() {
     {
       title: dict.landing.footer.sections.platform,
       links: [
-        { label: dict.landing.footer.sections.globalTracking, href: "#" },
-        { label: dict.landing.footer.sections.routeIntelligence, href: "#" },
-        { label: dict.landing.footer.sections.telemetryHub, href: "#" },
-        { label: dict.landing.footer.sections.securityCenter, href: "#" },
+        { label: dict.landing.footer.sections.globalTracking, href: "/global-tracking" },
+        { label: dict.landing.footer.sections.routeIntelligence, href: "/route-intelligence" },
+        { label: dict.landing.footer.sections.telemetryHub, href: "/telemetry-hub" },
+        { label: dict.landing.footer.sections.securityCenter, href: "/security-center" },
       ],
     },
     {
       title: dict.landing.footer.sections.solutions,
       links: [
-        { label: dict.landing.footer.sections.enterprise, href: "#" },
-        { label: dict.landing.footer.sections.smbLogistics, href: "#" },
-        { label: dict.landing.footer.sections.supplyChain, href: "#" },
+        { label: dict.landing.footer.sections.enterprise, href: "/enterprise" },
+        { label: dict.landing.footer.sections.smbLogistics, href: "/smb-logistics" },
+        { label: dict.landing.footer.sections.supplyChain, href: "/supply-chain" },
         { label: dict.landing.footer.sections.customApi, href: "#" },
       ],
     },
     {
       title: dict.landing.footer.sections.company,
       links: [
-        { label: dict.landing.footer.sections.ourMission, href: "#" },
-        { label: dict.landing.footer.sections.engineering, href: "#" },
-        { label: dict.landing.footer.sections.pressKit, href: "#" },
-        { label: dict.landing.footer.sections.careers, href: "#" },
+        { label: dict.landing.footer.sections.ourMission, href: "/our-mission" },
+        { label: dict.landing.footer.sections.engineering, href: "/engineering" },
+        { label: dict.landing.footer.sections.pressKit, href: "/press-kit" },
+        { label: dict.landing.footer.sections.careers, href: "/careers" },
       ],
     },
     {
       title: dict.landing.footer.sections.support,
       links: [
-        { label: dict.landing.footer.sections.devDocs, href: "#" },
-        { label: dict.landing.footer.sections.helpCenter, href: "#" },
-        { label: dict.landing.footer.sections.privacy, href: "#" },
-        { label: dict.landing.footer.sections.sla, href: "#" },
+        { label: dict.landing.footer.sections.devDocs, href: "/developer-docs" },
+        { label: dict.landing.footer.sections.helpCenter, href: "/help-center" },
+        { label: dict.landing.footer.sections.privacy, href: "/privacy" },
+        { label: dict.landing.footer.sections.sla, href: "/sla" },
       ],
     },
   ];
