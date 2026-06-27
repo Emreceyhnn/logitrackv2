@@ -24,6 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "enterprise",
     "smb-logistics",
     "supply-chain",
+    "custom-api",
     "our-mission",
     "engineering",
     "press-kit",

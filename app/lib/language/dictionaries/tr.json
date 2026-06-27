@@ -708,6 +708,39 @@
         "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
       }
     },
+    "customApiPage": {
+      "hero": {
+        "badge": "Özel API",
+        "title": "LogiTrack'i Sistemlerinize Entegre Edin.",
+        "subtitle": "Özel lojistik entegrasyonları ve gelişmiş otomasyon için sağlam, yüksek performanslı API'ler."
+      },
+      "sections": {
+        "dedicated": {
+          "title": "RESTful ve GraphQL Desteği",
+          "description": "Mühendislik ekibinizin tercihlerine ve gereksinimlerine uygun esnek API mimarileri."
+        },
+        "integration": {
+          "title": "Yüksek Verim",
+          "description": "Saniyede binlerce isteği milisaniyenin altında gecikmeyle yönetecek şekilde tasarlanmıştır."
+        },
+        "support": {
+          "title": "Önce Geliştirici",
+          "description": "Kapsamlı belgeler, birden çok dilde SDK'lar ve özel geliştirici desteği."
+        }
+      },
+      "detail": {
+        "overline": "Geliştirici Deneyimi",
+        "title": "Geliştiriciler tarafından, geliştiriciler için oluşturuldu.",
+        "description": "API'lerimiz öngörülebilirlik, tutarlılık ve net hata ayıklama göz önünde bulundurularak tasarlanmıştır."
+      },
+      "cta": {
+        "title": "API Belgelerini Görüntüle",
+        "subtitle": "Entegrasyonunuzu oluşturmaya bugün başlayın."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+      }
+    },
     "smbLogisticsPage": {
       "hero": {
         "badge": "KOBİ Lojistik",
