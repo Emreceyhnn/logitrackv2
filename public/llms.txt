@@ -1,9 +1,38 @@
 # LogiTrack
 
-> LogiTrack - AI-powered logistics and fleet management platform.
+> LogiTrack is an enterprise-grade, AI-powered logistics and fleet management platform. Manage shipments, routes, vehicles, drivers, warehouses, and fuel operations from a single intelligent dashboard with real-time tracking and advanced analytics.
 
-LogiTrack allows you to manage deliveries, your fleet, and operations from a single smart dashboard.
+## Documentation
 
-## Notes
-- Platform is built with Next.js App Router.
-- Supports English and Turkish.
+- [Home](https://logitrack.emreceyhan.xyz/en): Landing page with platform overview, social proof, and key features.
+- [Features](https://logitrack.emreceyhan.xyz/en/features): Detailed breakdown of enterprise logistics capabilities including real-time tracking, route intelligence, and telemetry.
+- [Pricing](https://logitrack.emreceyhan.xyz/en/pricing): Flexible pricing plans for SMB and enterprise logistics operations.
+- [How It Works](https://logitrack.emreceyhan.xyz/en/how-it-works): Step-by-step guide explaining the platform workflow from onboarding to live operations.
+- [About Us](https://logitrack.emreceyhan.xyz/en/about): Company mission, vision, and the engineering team behind LogiTrack.
+
+## Authentication
+
+- [Sign In](https://logitrack.emreceyhan.xyz/en/auth/sign-in): Existing user login portal.
+- [Sign Up](https://logitrack.emreceyhan.xyz/en/auth/sign-up): New account registration with company onboarding flow.
+
+## Dashboard Modules
+
+- [Overview](https://logitrack.emreceyhan.xyz/en/overview): Central dashboard with KPI widgets, active shipment map, and operational summary.
+- [Shipments](https://logitrack.emreceyhan.xyz/en/shipments): Create, track, and manage shipments with real-time status updates and ETA predictions.
+- [Routes](https://logitrack.emreceyhan.xyz/en/routes): Route planning, optimization, and historical route intelligence.
+- [Drivers](https://logitrack.emreceyhan.xyz/en/drivers): Driver profiles, assignment management, and performance tracking.
+- [Vehicles](https://logitrack.emreceyhan.xyz/en/vehicle): Fleet inventory, vehicle status monitoring, and maintenance scheduling.
+- [Warehouses](https://logitrack.emreceyhan.xyz/en/warehouses): Warehouse operations, capacity management, and inventory distribution.
+- [Inventory](https://logitrack.emreceyhan.xyz/en/inventory): Stock level tracking, item management, and supply chain visibility.
+- [Fuel](https://logitrack.emreceyhan.xyz/en/fuel): Fuel consumption monitoring, cost analysis, and efficiency optimization.
+- [Customers](https://logitrack.emreceyhan.xyz/en/customers): Customer relationship management and delivery history.
+- [Analytics](https://logitrack.emreceyhan.xyz/en/analytics): Advanced analytics dashboards with trend analysis and predictive insights.
+- [Reports](https://logitrack.emreceyhan.xyz/en/reports): Customizable report generation and export for compliance and auditing.
+- [Users](https://logitrack.emreceyhan.xyz/en/users): User management, role-based access control, and permission settings.
+- [Company](https://logitrack.emreceyhan.xyz/en/company): Company profile, branding settings, and organizational configuration.
+
+## Optional
+
+- [Turkish Version](https://logitrack.emreceyhan.xyz/tr): Full Turkish language support for all platform pages.
+- [Onboarding](https://logitrack.emreceyhan.xyz/en/onboarding): Guided setup wizard for new companies joining the platform.
+- [Password Recovery](https://logitrack.emreceyhan.xyz/en/auth/forgot-password): Account password reset flow.
