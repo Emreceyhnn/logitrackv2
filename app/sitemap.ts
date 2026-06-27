@@ -11,7 +11,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = envUrl.replace(/\/$/, "").replace(/\/sitemap\.xml$/, "");
 
   const locales = ["en", "tr"] as const;
-  const publicRoutes = ["", "features", "pricing", "about", "how-it-works"];
+  const publicRoutes = [
+    "",
+    "features",
+    "pricing",
+    "about",
+    "how-it-works",
+    "global-tracking",
+    "route-intelligence",
+    "telemetry-hub",
+    "security-center",
+    "enterprise",
+    "smb-logistics",
+    "supply-chain",
+    "our-mission",
+    "engineering",
+    "press-kit",
+    "careers",
+    "developer-docs",
+    "help-center",
+    "privacy",
+    "sla",
+  ];
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
 

@@ -538,6 +538,506 @@
         "help": "Help Center"
       }
     },
+    "globalTrackingPage": {
+      "hero": {
+        "badge": "Global Tracking",
+        "title": "Real-Time Visibility Across Every Continent.",
+        "subtitle": "Monitor your entire fleet and shipments in real-time with sub-second precision across 190+ countries and territories."
+      },
+      "sections": {
+        "liveMap": {
+          "title": "Live Map Intelligence",
+          "description": "Interactive globe with real-time asset positions, geofenced zones, and predictive route overlays powered by satellite and cellular networks."
+        },
+        "multiModal": {
+          "title": "Multi-Modal Tracking",
+          "description": "Seamlessly track assets across road, rail, air, and sea with automatic carrier handoff detection and unified timeline views."
+        },
+        "alerts": {
+          "title": "Instant Deviation Alerts",
+          "description": "AI-powered anomaly detection flags route deviations, unauthorized stops, and ETA changes before they impact your operations."
+        }
+      },
+      "stats": {
+        "countries": "190+",
+        "countriesLabel": "Countries Covered",
+        "updates": "< 1s",
+        "updatesLabel": "Update Latency",
+        "uptime": "99.99%",
+        "uptimeLabel": "Platform Uptime",
+        "events": "10M+",
+        "eventsLabel": "Daily Events"
+      },
+      "cta": {
+        "title": "Start Tracking Globally",
+        "subtitle": "Deploy real-time tracking across your entire logistics network in under 48 hours."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "routeIntelligencePage": {
+      "hero": {
+        "badge": "Route Intelligence",
+        "title": "AI-Powered Route Optimization at Scale.",
+        "subtitle": "Reduce fuel costs by up to 23% and delivery times by 18% with our proprietary machine learning route engine."
+      },
+      "sections": {
+        "predictive": {
+          "title": "Predictive Traffic Analysis",
+          "description": "Our models process historical and live traffic patterns to anticipate congestion hours before it impacts your fleet."
+        },
+        "dynamic": {
+          "title": "Dynamic Re-Routing",
+          "description": "Automatically reroute vehicles in real-time based on weather, road closures, and delivery priority changes."
+        },
+        "carbon": {
+          "title": "Carbon-Aware Routing",
+          "description": "Optimize not just for time and cost, but also for environmental impact with integrated carbon footprint calculations."
+        }
+      },
+      "detail": {
+        "overline": "The Algorithm",
+        "title": "Built on millions of data points.",
+        "description": "Our route intelligence engine processes over 50 million route calculations daily, continuously learning from real-world delivery outcomes to improve accuracy."
+      },
+      "cta": {
+        "title": "Optimize Your Routes",
+        "subtitle": "See how AI-driven routing can transform your delivery operations."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "telemetryHubPage": {
+      "hero": {
+        "badge": "Telemetry Hub",
+        "title": "Every Sensor. Every Signal. One Dashboard.",
+        "subtitle": "Aggregate and analyze telemetry data from thousands of IoT devices, vehicles, and warehouse sensors in real-time."
+      },
+      "sections": {
+        "vehicleHealth": {
+          "title": "Vehicle Health Monitoring",
+          "description": "Track engine diagnostics, tire pressure, brake wear, and fuel consumption across your entire fleet with predictive maintenance alerts."
+        },
+        "coldChain": {
+          "title": "Cold Chain Compliance",
+          "description": "Monitor temperature, humidity, and shock sensors for perishable goods with automatic compliance reporting and breach notifications."
+        },
+        "driverSafety": {
+          "title": "Driver Safety Scores",
+          "description": "Real-time driver behavior analysis including harsh braking, speeding, and fatigue detection with actionable coaching insights."
+        }
+      },
+      "detail": {
+        "overline": "Data Pipeline",
+        "title": "From sensor to insight in milliseconds.",
+        "description": "Our edge-to-cloud telemetry pipeline processes raw sensor data through noise filtering, anomaly detection, and contextual enrichment before surfacing actionable intelligence."
+      },
+      "cta": {
+        "title": "Connect Your Fleet",
+        "subtitle": "Hardware-agnostic integration with 200+ telematics devices and IoT platforms."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "securityCenterPage": {
+      "hero": {
+        "badge": "Security Center",
+        "title": "Zero-Trust Security for Mission-Critical Logistics.",
+        "subtitle": "Enterprise-grade protection with 256-bit AES encryption, SOC 2 Type II compliance, and continuous threat monitoring."
+      },
+      "sections": {
+        "encryption": {
+          "title": "End-to-End Encryption",
+          "description": "All data in transit and at rest is protected with AES-256 encryption. TLS 1.3 enforced across all API endpoints and client connections."
+        },
+        "accessControl": {
+          "title": "Granular Access Control",
+          "description": "Role-based access with multi-factor authentication, IP whitelisting, and session management. Full audit trail for every action."
+        },
+        "compliance": {
+          "title": "Global Compliance",
+          "description": "SOC 2 Type II, ISO 27001, GDPR, and PCI-DSS certified. Automated compliance reporting and continuous security assessments."
+        }
+      },
+      "detail": {
+        "overline": "Threat Detection",
+        "title": "24/7 security operations center.",
+        "description": "Our dedicated security team monitors for threats around the clock, with automated incident response and real-time vulnerability scanning across all infrastructure layers."
+      },
+      "cta": {
+        "title": "Review Our Security",
+        "subtitle": "Download our SOC 2 report and security whitepaper."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "enterprisePage": {
+      "hero": {
+        "badge": "Enterprise Solutions",
+        "title": "Built for the Scale of Global Operations.",
+        "subtitle": "Custom deployment options, dedicated infrastructure, and white-glove onboarding for organizations managing 10,000+ shipments monthly."
+      },
+      "sections": {
+        "dedicated": {
+          "title": "Dedicated Infrastructure",
+          "description": "Private cloud instances with guaranteed resource allocation, custom SLAs, and data residency options across 12 global regions."
+        },
+        "integration": {
+          "title": "Deep ERP Integration",
+          "description": "Native connectors for SAP, Oracle, Microsoft Dynamics, and custom legacy systems. Full bidirectional data sync in real-time."
+        },
+        "support": {
+          "title": "24/7 Priority Support",
+          "description": "Named account managers, dedicated Slack channels, and guaranteed 15-minute response times for critical incidents."
+        }
+      },
+      "detail": {
+        "overline": "Enterprise Scale",
+        "title": "Trusted by Fortune 500 logistics leaders.",
+        "description": "Our enterprise platform handles over 2 million daily transactions with 99.99% uptime, serving some of the world's largest supply chain operations."
+      },
+      "cta": {
+        "title": "Talk to Enterprise Sales",
+        "subtitle": "Get a custom proposal tailored to your organization's specific requirements."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "smbLogisticsPage": {
+      "hero": {
+        "badge": "SMB Logistics",
+        "title": "Enterprise Power. Startup Simplicity.",
+        "subtitle": "Get the same AI-powered logistics tools used by industry leaders, packaged for small and medium businesses with transparent pricing."
+      },
+      "sections": {
+        "quickStart": {
+          "title": "5-Minute Setup",
+          "description": "Go from sign-up to live tracking in under five minutes. No complex integrations, no IT department required. Just plug and play."
+        },
+        "costEffective": {
+          "title": "Pay As You Grow",
+          "description": "Start with our free tier and scale seamlessly. No minimum commitments, no hidden fees. Only pay for the shipments you track."
+        },
+        "automation": {
+          "title": "Smart Automation",
+          "description": "Automated dispatch, route optimization, and customer notifications out of the box. Reduce manual work by up to 70%."
+        }
+      },
+      "detail": {
+        "overline": "Built for Growth",
+        "title": "Scale without complexity.",
+        "description": "Whether you are managing 50 or 5,000 shipments per month, our platform grows with you. No migration headaches, no feature gates."
+      },
+      "cta": {
+        "title": "Start Free Today",
+        "subtitle": "No credit card required. Full access for 14 days."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "supplyChainPage": {
+      "hero": {
+        "badge": "Supply Chain",
+        "title": "End-to-End Supply Chain Orchestration.",
+        "subtitle": "Unified visibility from raw material sourcing to last-mile delivery. Coordinate suppliers, carriers, and warehouses on a single platform."
+      },
+      "sections": {
+        "visibility": {
+          "title": "Full Chain Visibility",
+          "description": "Track every node in your supply chain from origin to destination. Real-time inventory levels, in-transit goods, and delivery confirmations."
+        },
+        "vendor": {
+          "title": "Vendor Management",
+          "description": "Score and monitor supplier performance with automated KPI tracking, compliance verification, and risk assessment dashboards."
+        },
+        "multiModal": {
+          "title": "Multi-Modal Coordination",
+          "description": "Seamlessly manage ocean freight, air cargo, rail, and ground transport with intelligent mode-shifting recommendations."
+        }
+      },
+      "detail": {
+        "overline": "Supply Chain Intelligence",
+        "title": "Predict disruptions before they happen.",
+        "description": "Our AI analyzes weather patterns, geopolitical events, port congestion, and supplier reliability data to forecast potential supply chain disruptions weeks in advance."
+      },
+      "cta": {
+        "title": "Unify Your Supply Chain",
+        "subtitle": "See how end-to-end visibility transforms supply chain performance."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "ourMissionPage": {
+      "hero": {
+        "badge": "Our Mission",
+        "title": "Moving the World with Intelligence.",
+        "subtitle": "We believe logistics is the backbone of global commerce. Our mission is to make it smarter, faster, and more sustainable."
+      },
+      "sections": {
+        "innovation": {
+          "title": "Relentless Innovation",
+          "description": "We invest 40% of our revenue in R&D, pushing the boundaries of AI, IoT, and real-time data processing to solve logistics hardest problems."
+        },
+        "sustainability": {
+          "title": "Sustainable Logistics",
+          "description": "Every route we optimize reduces carbon emissions. We are committed to making global supply chains environmentally responsible by 2030."
+        },
+        "community": {
+          "title": "Global Community",
+          "description": "We serve logistics professionals across 60+ countries, building a community that shares knowledge, best practices, and innovation."
+        }
+      },
+      "detail": {
+        "overline": "Our Story",
+        "title": "Founded by operators, built for operators.",
+        "description": "LogiTrack was born from the frustration of managing complex supply chains with fragmented tools. Our founders spent decades in logistics operations before building the platform they always wished existed."
+      },
+      "cta": {
+        "title": "Join Our Mission",
+        "subtitle": "Partner with us in building the future of intelligent logistics."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "engineeringPage": {
+      "hero": {
+        "badge": "Engineering",
+        "title": "The Technology Behind the Intelligence.",
+        "subtitle": "Built on cutting-edge cloud-native architecture, our engineering team pushes the limits of real-time data processing at global scale."
+      },
+      "sections": {
+        "architecture": {
+          "title": "Cloud-Native Architecture",
+          "description": "Kubernetes-orchestrated microservices deployed across 12 global regions with automatic failover and horizontal scaling."
+        },
+        "data": {
+          "title": "Real-Time Data Pipeline",
+          "description": "Apache Kafka and custom stream processors handle 10 million events per second with sub-millisecond latency."
+        },
+        "ml": {
+          "title": "Machine Learning at Scale",
+          "description": "Our ML platform trains and deploys models continuously, processing petabytes of logistics data to power predictive intelligence."
+        }
+      },
+      "detail": {
+        "overline": "Open Source",
+        "title": "We give back to the community.",
+        "description": "Our team actively contributes to open-source projects and has published several libraries for logistics data processing, geospatial indexing, and real-time event streaming."
+      },
+      "cta": {
+        "title": "Explore Our Tech Stack",
+        "subtitle": "Read our engineering blog and see how we build at scale."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "pressKitPage": {
+      "hero": {
+        "badge": "Press Kit",
+        "title": "LogiTrack in the Media.",
+        "subtitle": "Brand assets, press releases, and media resources for journalists and partners covering logistics technology."
+      },
+      "sections": {
+        "brand": {
+          "title": "Brand Assets",
+          "description": "Download our official logos, brand guidelines, color palettes, and typography specifications for consistent brand representation."
+        },
+        "releases": {
+          "title": "Press Releases",
+          "description": "Stay up to date with our latest announcements, product launches, partnerships, and company milestones."
+        },
+        "media": {
+          "title": "Media Contact",
+          "description": "For press inquiries, interviews, and speaking opportunities, reach out to our communications team at press@logitrack.io."
+        }
+      },
+      "detail": {
+        "overline": "In The News",
+        "title": "Recognized by industry leaders.",
+        "description": "LogiTrack has been featured in TechCrunch, Forbes, Supply Chain Dive, and recognized as a leader in the Gartner Magic Quadrant for Transportation Management Systems."
+      },
+      "cta": {
+        "title": "Get in Touch",
+        "subtitle": "Our PR team is available for interviews and media inquiries."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "careersPage": {
+      "hero": {
+        "badge": "Careers",
+        "title": "Build the Future of Logistics.",
+        "subtitle": "Join a team of engineers, designers, and logistics experts solving some of the world's most complex supply chain challenges."
+      },
+      "sections": {
+        "culture": {
+          "title": "Engineering-First Culture",
+          "description": "We believe the best products are built by empowered teams. Autonomy, ownership, and continuous learning are at our core."
+        },
+        "benefits": {
+          "title": "World-Class Benefits",
+          "description": "Competitive equity packages, unlimited PTO, remote-first flexibility, annual learning budgets, and comprehensive health coverage."
+        },
+        "growth": {
+          "title": "Accelerated Growth",
+          "description": "Work on problems that impact millions of shipments daily. Ship code to production on day one and see your impact immediately."
+        }
+      },
+      "detail": {
+        "overline": "Open Positions",
+        "title": "We are hiring across all teams.",
+        "description": "From senior backend engineers to product designers, we are looking for passionate people who want to transform the logistics industry. Remote positions available globally."
+      },
+      "cta": {
+        "title": "View Open Positions",
+        "subtitle": "Find your next role and apply today."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "developerDocsPage": {
+      "hero": {
+        "badge": "Developer Docs",
+        "title": "Build on the LogiTrack Platform.",
+        "subtitle": "Comprehensive API documentation, SDKs, and integration guides to extend and customize your logistics operations."
+      },
+      "sections": {
+        "restApi": {
+          "title": "REST & GraphQL APIs",
+          "description": "Full-featured RESTful and GraphQL APIs with comprehensive endpoint documentation, request/response examples, and interactive playground."
+        },
+        "sdks": {
+          "title": "Official SDKs",
+          "description": "Production-ready SDKs for Node.js, Python, Java, Go, and .NET with type-safe clients and automatic retry logic."
+        },
+        "webhooks": {
+          "title": "Webhooks & Events",
+          "description": "Real-time event notifications for shipment updates, delivery confirmations, and system alerts with configurable retry policies."
+        }
+      },
+      "detail": {
+        "overline": "Developer Experience",
+        "title": "From zero to integration in hours.",
+        "description": "Our API-first architecture and comprehensive SDKs make it possible to integrate LogiTrack with your existing systems in hours, not weeks. Sandbox environments included."
+      },
+      "cta": {
+        "title": "Start Building",
+        "subtitle": "Get your API keys and explore the documentation."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "helpCenterPage": {
+      "hero": {
+        "badge": "Help Center",
+        "title": "We Are Here to Help.",
+        "subtitle": "Find answers, get support, and access resources to make the most of your LogiTrack platform."
+      },
+      "sections": {
+        "knowledgeBase": {
+          "title": "Knowledge Base",
+          "description": "Comprehensive guides, tutorials, and how-to articles covering every feature of the LogiTrack platform, updated weekly."
+        },
+        "support": {
+          "title": "Technical Support",
+          "description": "Reach our support team via live chat, email, or phone. Enterprise customers get dedicated support engineers and priority queues."
+        },
+        "community": {
+          "title": "Community Forum",
+          "description": "Connect with other LogiTrack users, share best practices, and get answers from our community of logistics professionals."
+        }
+      },
+      "detail": {
+        "overline": "Support Tiers",
+        "title": "The right level of support for every team.",
+        "description": "From self-service knowledge base access to dedicated 24/7 enterprise support with guaranteed SLAs, we offer support tiers that scale with your needs."
+      },
+      "cta": {
+        "title": "Contact Support",
+        "subtitle": "Our team typically responds within 2 hours during business hours."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "privacyPage": {
+      "hero": {
+        "badge": "Privacy Policy",
+        "title": "Your Data, Your Rights.",
+        "subtitle": "We are committed to protecting your privacy and handling your data with full transparency and in compliance with global regulations."
+      },
+      "sections": {
+        "collection": {
+          "title": "Data We Collect",
+          "description": "We collect only the data necessary to provide our services: account information, shipment data, device telemetry, and usage analytics. No data is sold to third parties."
+        },
+        "rights": {
+          "title": "Your Rights",
+          "description": "You have the right to access, correct, delete, and export your data at any time. We support GDPR, CCPA, and other regional privacy frameworks."
+        },
+        "security": {
+          "title": "How We Protect Your Data",
+          "description": "All data is encrypted at rest and in transit using AES-256 and TLS 1.3. We maintain SOC 2 Type II certification and conduct regular third-party security audits."
+        }
+      },
+      "detail": {
+        "overline": "Compliance",
+        "title": "Built for global privacy standards.",
+        "description": "Our platform is designed from the ground up to comply with GDPR, CCPA, PIPEDA, and other international privacy regulations. Data residency options available for all enterprise accounts."
+      },
+      "cta": {
+        "title": "Questions About Privacy?",
+        "subtitle": "Contact our Data Protection Officer at privacy@logitrack.io."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
+    "slaPage": {
+      "hero": {
+        "badge": "Service Level Agreement",
+        "title": "Our Commitment to Reliability.",
+        "subtitle": "Industry-leading uptime guarantees, transparent incident reporting, and clear escalation paths for every service tier."
+      },
+      "sections": {
+        "uptime": {
+          "title": "99.99% Uptime Guarantee",
+          "description": "Our platform maintains 99.99% availability across all regions, backed by multi-region redundancy, automatic failover, and real-time health monitoring."
+        },
+        "response": {
+          "title": "Incident Response Times",
+          "description": "Critical incidents: 15 min response, 1 hour resolution target. High priority: 1 hour response, 4 hour resolution target. Standard: 4 hour response."
+        },
+        "transparency": {
+          "title": "Full Transparency",
+          "description": "Real-time status page, post-incident reports within 48 hours, and monthly uptime reports. We believe in radical transparency about our reliability."
+        }
+      },
+      "detail": {
+        "overline": "Service Credits",
+        "title": "If we miss our targets, you do not pay.",
+        "description": "Should our uptime fall below the guaranteed threshold, affected customers automatically receive service credits. No tickets required — credits are applied proactively."
+      },
+      "cta": {
+        "title": "Review Full SLA Terms",
+        "subtitle": "Download our complete SLA documentation for your records."
+      },
+      "footer": {
+        "copyright": "© {year} LogiTrack Intelligence Systems. All rights reserved."
+      }
+    },
     "footer": {
       "description": "The intelligence layer for global logistics. We provide the mission-critical data required to move the world with precision.",
       "sections": {
