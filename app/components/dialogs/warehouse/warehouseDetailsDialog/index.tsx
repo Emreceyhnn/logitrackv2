@@ -47,9 +47,18 @@ function CustomTabPanel(props: TabPanelProps) {
       hidden={value !== index}
       id={`warehouse-tabpanel-${index}`}
       aria-labelledby={`warehouse-tab-${index}`}
+      style={{ 
+        flex: 1, 
+        display: value === index ? "flex" : "none", 
+        flexDirection: "column" 
+      }}
       {...other}
     >
-      {value === index && <Box sx={{ p: 2, minHeight: 400 }}>{children}</Box>}
+      {value === index && (
+        <Box sx={{ p: 2, flex: 1, display: "flex", flexDirection: "column" }}>
+          {children}
+        </Box>
+      )}
     </div>
   );
 }
@@ -88,8 +97,9 @@ const WarehouseDetailsDialog = ({
       fullWidth
       PaperProps={{
         sx: {
-          overflow: "hidden",
           minHeight: "80vh",
+          display: "flex",
+          flexDirection: "column",
         },
       }}
     >
@@ -169,8 +179,8 @@ const WarehouseDetailsDialog = ({
         </Stack>
       </Box>
 
-      <DialogContent sx={{ p: 0 }}>
-        <Stack>
+      <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column" }}>
+        <Stack sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <Box
             sx={{
               borderBottom: 1,

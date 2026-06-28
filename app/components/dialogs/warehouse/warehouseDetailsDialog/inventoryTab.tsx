@@ -189,7 +189,7 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
   );
 
   return (
-    <Box>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", flex: 1 }}>
       <InventoryHeader
         value={displaySearch}
         onSearch={(val) => setDisplaySearch(val)}
@@ -202,67 +202,77 @@ const InventoryTab = ({ warehouse }: InventoryTabProps) => {
         hideWarehouseFilter
       />
 
-      <Box mb={4}>
+      <Box mb={2}>
         <KpiCards kpis={kpiItems} loading={loading} />
       </Box>
 
-      <InventoryTable
-        items={items}
-        loading={loading}
-        onSelect={handleOpenDetails}
-        onEdit={(item) => handleOpenEdit(item.id)}
-        onDelete={handleDeleteRequest}
-        meta={{
-          page: pagination.page,
-          limit: pagination.pageSize,
-          total: dashboardData?.totalCount || 0,
-        }}
-        onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
-        onLimitChange={(pageSize) =>
-          setPagination({ page: 1, pageSize: pageSize })
-        }
-        sortField={sort.field}
-        sortOrder={sort.order}
-        onRequestSort={handleSortRequest}
-      />
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+        <InventoryTable
+          items={items}
+          loading={loading}
+          onSelect={handleOpenDetails}
+          onEdit={(item) => handleOpenEdit(item.id)}
+          onDelete={handleDeleteRequest}
+          meta={{
+            page: pagination.page,
+            limit: pagination.pageSize,
+            total: dashboardData?.totalCount || 0,
+          }}
+          onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
+          onLimitChange={(pageSize) =>
+            setPagination({ page: 1, pageSize: pageSize })
+          }
+          sortField={sort.field}
+          sortOrder={sort.order}
+          onRequestSort={handleSortRequest}
+        />
+      </Box>
 
       {/* Dialogs */}
-      <InventoryDetailsDialog
-        isOpen={isDetailsOpen}
-        onClose={() => setIsDetailsOpen(false)}
-        item={selectedItem}
-        onEdit={handleOpenEdit}
-      />
+      {isDetailsOpen && (
+        <InventoryDetailsDialog
+          isOpen={isDetailsOpen}
+          onClose={() => setIsDetailsOpen(false)}
+          item={selectedItem}
+          onEdit={handleOpenEdit}
+        />
+      )}
 
-      <InventoryEditDialog
-        key={selectedItem?.id}
-        isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        item={selectedItem}
-        onUpdate={async (id, data) => {
-          await updateMutation.mutateAsync({ id, data });
-          setIsEditOpen(false);
-        }}
-      />
+      {isEditOpen && (
+        <InventoryEditDialog
+          key={selectedItem?.id}
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          item={selectedItem}
+          onUpdate={async (id, data) => {
+            await updateMutation.mutateAsync({ id, data });
+            setIsEditOpen(false);
+          }}
+        />
+      )}
 
-      <AddInventoryDialog
-        open={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
-        onSuccess={refreshAll}
-        initialWarehouseId={warehouse.id}
-      />
+      {isAddOpen && (
+        <AddInventoryDialog
+          open={isAddOpen}
+          onClose={() => setIsAddOpen(false)}
+          onSuccess={refreshAll}
+          initialWarehouseId={warehouse.id}
+        />
+      )}
 
-      <DeleteConfirmationDialog
-        open={isDeleteOpen}
-        onClose={() => setIsDeleteOpen(false)}
-        onConfirm={handleDeleteConfirm}
-        title={dict.inventory.deleteTitle}
-        description={dict.inventory.deleteDesc.replace(
-          "{name}",
-          selectedItem?.name || ""
-        )}
-        loading={deleteMutation.isPending}
-      />
+      {isDeleteOpen && (
+        <DeleteConfirmationDialog
+          open={isDeleteOpen}
+          onClose={() => setIsDeleteOpen(false)}
+          onConfirm={handleDeleteConfirm}
+          title={dict.inventory.deleteTitle}
+          description={dict.inventory.deleteDesc.replace(
+            "{name}",
+            selectedItem?.name || ""
+          )}
+          loading={deleteMutation.isPending}
+        />
+      )}
     </Box>
   );
 };

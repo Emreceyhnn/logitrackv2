@@ -44,6 +44,7 @@ import {
   TrendingDown as OutIcon,
   TrendingUp as InIcon,
   Build as AdjustIcon,
+  AutoAwesome as IntelIcon,
 } from "@mui/icons-material";
 import {
   InventoryDetailsProps,
@@ -93,6 +94,40 @@ export default function InventoryDetailsDialog({
   const [tabValue, setTabValue] = useState(0);
   const { formatFrom } = useCurrency();
   const dateSettings = useDateSettings();
+
+  const fieldSx = {
+    "& .MuiOutlinedInput-root": {
+      height: 42,
+      borderRadius: "10px",
+      bgcolor:
+        theme.palette.mode === "dark"
+          ? "rgba(255, 255, 255, 0.03)"
+          : "rgba(0, 0, 0, 0.02)",
+      transition: "all 0.2s ease-in-out",
+      "& fieldset": { borderColor: theme.palette.divider },
+      "&:hover fieldset": { borderColor: theme.palette.text.secondary },
+      "&.Mui-focused": {
+        bgcolor: "transparent",
+        "& fieldset": {
+          borderColor: theme.palette.primary.main,
+          borderWidth: "2px",
+        },
+      },
+    },
+    "& .MuiInputLabel-root": {
+      color: theme.palette.text.secondary,
+      fontSize: "14px",
+      fontWeight: 500,
+      transform: "translate(14px, 11px) scale(1)",
+    },
+    "& .MuiInputLabel-root.MuiInputLabel-shrink": {
+      transform: "translate(14px, -9px) scale(0.75)",
+    },
+    "& .MuiInputLabel-root.Mui-focused": { color: theme.palette.primary.main },
+    "& legend": {
+      fontSize: "0.75em", 
+    },
+  };
 
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [loadingMovements, setLoadingMovements] = useState(false);
@@ -239,7 +274,12 @@ export default function InventoryDetailsDialog({
             </Avatar>
             <Stack spacing={0.5}>
               <Stack direction="row" spacing={1.5} alignItems="center">
-                <Typography component="div" variant="h6" fontWeight={800} color="text.primary">
+                <Typography
+                  component="div"
+                  variant="h6"
+                  fontWeight={800}
+                  color="text.primary"
+                >
                   {item.name}
                 </Typography>
                 <Chip
@@ -378,7 +418,7 @@ export default function InventoryDetailsDialog({
                           {dict.inventory.dialogs.available || "AVAILABLE"}
                         </Typography>
                         <Typography
-                          variant="h5"
+                          variant="h4"
                           fontWeight={800}
                           color="text.primary"
                         >
@@ -456,7 +496,7 @@ export default function InventoryDetailsDialog({
                           PHYSICAL
                         </Typography>
                         <Typography
-                          variant="h5"
+                          variant="h4"
                           fontWeight={800}
                           color="text.primary"
                         >
@@ -481,10 +521,10 @@ export default function InventoryDetailsDialog({
                       sx={{
                         mb: 2,
                         color: "text.primary",
-                        fontWeight: 700,
+                        fontWeight: 800,
                         display: "flex",
                         alignItems: "center",
-                        gap: 1,
+                        gap: 1.5,
                       }}
                     >
                       <AdjustIcon
@@ -492,8 +532,8 @@ export default function InventoryDetailsDialog({
                       />
                       {dict.inventory.dialogs.quickAdjustment}
                     </Typography>
-                    <Stack spacing={2}>
-                      <Grid container spacing={2}>
+                    <Stack spacing={1}>
+                      <Grid container spacing={1}>
                         <Grid size={{ xs: 12, sm: 6 }}>
                           <TextField
                             fullWidth
@@ -505,16 +545,11 @@ export default function InventoryDetailsDialog({
                               setAdjustAmount(Number(e.target.value))
                             }
                             variant="outlined"
-                            sx={{
-                              "& .MuiInputBase-root": { color: "text.primary" },
-                              "& .MuiInputLabel-root": {
-                                color: "text.secondary",
-                              },
-                            }}
+                            sx={fieldSx}
                           />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                          <FormControl fullWidth size="small">
+                          <FormControl fullWidth size="small" sx={fieldSx}>
                             <InputLabel sx={{ color: "text.secondary" }}>
                               {dict.inventory.dialogs.adjustmentType}
                             </InputLabel>
@@ -522,13 +557,7 @@ export default function InventoryDetailsDialog({
                               value={adjustType}
                               label={dict.inventory.dialogs.adjustmentType}
                               onChange={(e) => setAdjustType(e.target.value)}
-                              sx={{
-                                color: "text.primary",
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                  borderColor:
-                                    theme.palette.divider_alpha.main_20,
-                                },
-                              }}
+                              sx={{ color: "text.primary" }}
                             >
                               <MenuItem value="ADJUSTMENT">Adjustment</MenuItem>
                               <MenuItem value="PURCHASE">Purchase</MenuItem>
@@ -548,12 +577,7 @@ export default function InventoryDetailsDialog({
                         variant="outlined"
                         multiline
                         rows={2}
-                        sx={{
-                          "& .MuiInputBase-root": { color: "text.primary" },
-                          "& .MuiInputLabel-root": {
-                            color: "text.secondary",
-                          },
-                        }}
+                        sx={fieldSx}
                       />
                       <Button
                         fullWidth
@@ -568,10 +592,22 @@ export default function InventoryDetailsDialog({
                           )
                         }
                         sx={{
-                          height: 40,
-                          bgcolor: "primary.main",
-                          fontWeight: 700,
-                          "&:hover": { bgcolor: "primary.dark" },
+                          height: 48,
+                          borderRadius: 2.5,
+                          background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+                          fontWeight: 800,
+                          fontSize: "0.95rem",
+                          boxShadow: `0 8px 24px ${theme.palette.primary._alpha.main_30}`,
+                          textTransform: "none",
+                          "&:hover": {
+                            boxShadow: `0 12px 32px ${theme.palette.primary._alpha.main_40}`,
+                            transform: "translateY(-1px)",
+                          },
+                          "&.Mui-disabled": {
+                            background: theme.palette.action.disabledBackground,
+                            boxShadow: "none",
+                            transform: "none",
+                          },
                         }}
                       >
                         {dict.common.apply}
@@ -605,7 +641,11 @@ export default function InventoryDetailsDialog({
                         >
                           {dict.inventory.dialogs.safetyStock}
                         </Typography>
-                        <Typography variant="h5" fontWeight={800} color="white">
+                        <Typography
+                          variant="h4"
+                          fontWeight={800}
+                          color="text.primary"
+                        >
                           {item.minStock.toLocaleString("en-US")}
                         </Typography>
                       </Box>
@@ -639,7 +679,7 @@ export default function InventoryDetailsDialog({
                           {dict.inventory.fields.unitValue.toUpperCase()}
                         </Typography>
                         <Typography
-                          variant="h5"
+                          variant="h4"
                           fontWeight={800}
                           color="text.primary"
                         >
@@ -662,8 +702,12 @@ export default function InventoryDetailsDialog({
                   >
                     {dict.inventory.dialogs.locationData}
                   </Typography>
-                  <Stack spacing={1} mt={1.5}>
-                    <Box display="flex" justifyContent="space-between">
+                  <Stack spacing={2} mt={1.5}>
+                    <Box
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
                       <Typography variant="body2" color="text.secondary">
                         {dict.inventory.dialogs.warehouseCode}
                       </Typography>
@@ -675,7 +719,11 @@ export default function InventoryDetailsDialog({
                         {item.warehouse.code}
                       </Typography>
                     </Box>
-                    <Box display="flex" justifyContent="space-between">
+                    <Box
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
                       <Typography variant="body2" color="text.secondary">
                         {dict.inventory.dialogs.cargoType}
                       </Typography>
@@ -707,18 +755,25 @@ export default function InventoryDetailsDialog({
                 </Typography>
 
                 <Grid container spacing={3} mt={1}>
-                  <Grid size={4}>
+                  <Grid size={{ xs: 12, sm: 4 }}>
                     <Paper
                       variant="outlined"
                       sx={{
-                        p: 2,
+                        p: 2.5,
                         textAlign: "center",
-                        borderRadius: 3,
-                        bgcolor: theme.palette.background.paper_alpha.main_02,
+                        borderRadius: 4,
+                        bgcolor: theme.palette.background.paper_alpha.main_05,
                         borderColor: theme.palette.divider_alpha.main_10,
+                        transition: "all 0.2s",
+                        "&:hover": {
+                          borderColor: theme.palette.primary._alpha.main_30,
+                          bgcolor: theme.palette.primary._alpha.main_05,
+                        },
                       }}
                     >
-                      <ScaleIcon sx={{ color: "primary.main", mb: 1 }} />
+                      <ScaleIcon
+                        sx={{ color: "primary.main", mb: 1.5, fontSize: 32 }}
+                      />
                       <Typography
                         variant="caption"
                         display="block"
@@ -726,7 +781,8 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.weight.toUpperCase()}
                       </Typography>
-                      <Typography component="div"
+                      <Typography
+                        component="div"
                         variant="h6"
                         fontWeight={800}
                         color="text.primary"
@@ -735,18 +791,25 @@ export default function InventoryDetailsDialog({
                       </Typography>
                     </Paper>
                   </Grid>
-                  <Grid size={4}>
+                  <Grid size={{ xs: 12, sm: 4 }}>
                     <Paper
                       variant="outlined"
                       sx={{
-                        p: 2,
+                        p: 2.5,
                         textAlign: "center",
-                        borderRadius: 3,
-                        bgcolor: theme.palette.background.paper_alpha.main_02,
+                        borderRadius: 4,
+                        bgcolor: theme.palette.background.paper_alpha.main_05,
                         borderColor: theme.palette.divider_alpha.main_10,
+                        transition: "all 0.2s",
+                        "&:hover": {
+                          borderColor: theme.palette.secondary._alpha.main_30,
+                          bgcolor: theme.palette.secondary._alpha.main_05,
+                        },
                       }}
                     >
-                      <VolumeIcon sx={{ color: "secondary.main", mb: 1 }} />
+                      <VolumeIcon
+                        sx={{ color: "secondary.main", mb: 1.5, fontSize: 32 }}
+                      />
                       <Typography
                         variant="caption"
                         display="block"
@@ -754,7 +817,8 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.volume.toUpperCase()}
                       </Typography>
-                      <Typography component="div"
+                      <Typography
+                        component="div"
                         variant="h6"
                         fontWeight={800}
                         color="text.primary"
@@ -763,18 +827,25 @@ export default function InventoryDetailsDialog({
                       </Typography>
                     </Paper>
                   </Grid>
-                  <Grid size={4}>
+                  <Grid size={{ xs: 12, sm: 4 }}>
                     <Paper
                       variant="outlined"
                       sx={{
-                        p: 2,
+                        p: 2.5,
                         textAlign: "center",
-                        borderRadius: 3,
-                        bgcolor: theme.palette.background.paper_alpha.main_02,
+                        borderRadius: 4,
+                        bgcolor: theme.palette.background.paper_alpha.main_05,
                         borderColor: theme.palette.divider_alpha.main_10,
+                        transition: "all 0.2s",
+                        "&:hover": {
+                          borderColor: theme.palette.success._alpha.main_30,
+                          bgcolor: theme.palette.success._alpha.main_05,
+                        },
                       }}
                     >
-                      <PalletIcon sx={{ color: "success.main", mb: 1 }} />
+                      <PalletIcon
+                        sx={{ color: "success.main", mb: 1.5, fontSize: 32 }}
+                      />
                       <Typography
                         variant="caption"
                         display="block"
@@ -782,7 +853,8 @@ export default function InventoryDetailsDialog({
                       >
                         {dict.inventory.fields.pallets.toUpperCase()}
                       </Typography>
-                      <Typography component="div"
+                      <Typography
+                        component="div"
                         variant="h6"
                         fontWeight={800}
                         color="text.primary"
@@ -796,116 +868,137 @@ export default function InventoryDetailsDialog({
                 <Box
                   sx={{
                     mt: 4,
-                    p: 2,
-                    borderRadius: 3,
+                    p: 2.5,
+                    borderRadius: 4,
                     bgcolor: theme.palette.info._alpha.main_05,
                     border: `1px solid ${theme.palette.info._alpha.main_10}`,
+                    display: "flex",
+                    gap: 2,
+                    alignItems: "flex-start",
                   }}
                 >
-                  <Typography
-                    variant="caption"
-                    fontWeight={700}
-                    color="info.light"
-                    sx={{ display: "block", mb: 0.5 }}
+                  <Avatar
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      bgcolor: theme.palette.info._alpha.main_10,
+                      color: theme.palette.info.main,
+                      flexShrink: 0,
+                    }}
                   >
-                    {dict.inventory.dialogs.intelTitle}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ fontSize: "0.75rem", lineHeight: 1.5 }}
-                  >
-                    {dict.inventory.dialogs.intelDesc.replace(
-                      "{minStock}",
-                      item.minStock.toString()
-                    )}
-                  </Typography>
-                </Box>
-
-                {/* Other Locations Section */}
-                {otherLocations.length > 0 && (
-                  <Box sx={{ mt: 4 }}>
+                    <IntelIcon fontSize="small" />
+                  </Avatar>
+                  <Box>
                     <Typography
                       variant="caption"
                       fontWeight={800}
-                      color="text.secondary"
-                      sx={{ letterSpacing: "1px", textTransform: "uppercase" }}
+                      color="info.main"
+                      sx={{ display: "block", mb: 0.5, letterSpacing: 0.5 }}
                     >
-                      {dict.inventory.dialogs.otherLocations}
+                      {dict.inventory.dialogs.intelTitle}
                     </Typography>
-                    <Stack spacing={1.5} mt={2}>
-                      {otherLocations.map((loc) => (
-                        <Paper
-                          key={loc.id}
-                          variant="outlined"
-                          sx={{
-                            p: 2,
-                            bgcolor:
-                              theme.palette.background.paper_alpha.main_05,
-                            borderColor: theme.palette.divider_alpha.main_10,
-                            borderRadius: 2,
-                            transition: "all 0.2s",
-                            "&:hover": {
-                              borderColor: theme.palette.primary._alpha.main_30,
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: "0.8rem", lineHeight: 1.6 }}
+                    >
+                      {dict.inventory.dialogs.intelDesc.replace(
+                        "{minStock}",
+                        item.minStock.toString()
+                      )}
+                    </Typography>
+                  </Box>
+
+                  {/* Other Locations Section */}
+                  {otherLocations.length > 0 && (
+                    <Box sx={{ mt: 4 }}>
+                      <Typography
+                        variant="caption"
+                        fontWeight={800}
+                        color="text.secondary"
+                        sx={{
+                          letterSpacing: "1px",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {dict.inventory.dialogs.otherLocations}
+                      </Typography>
+                      <Stack spacing={1.5} mt={2}>
+                        {otherLocations.map((loc) => (
+                          <Paper
+                            key={loc.id}
+                            variant="outlined"
+                            sx={{
+                              p: 2,
                               bgcolor:
-                                theme.palette.background.paper_alpha.main_10,
-                            },
-                          }}
-                        >
-                          <Stack
-                            direction="row"
-                            justifyContent="space-between"
-                            alignItems="center"
+                                theme.palette.background.paper_alpha.main_05,
+                              borderColor: theme.palette.divider_alpha.main_10,
+                              borderRadius: 2,
+                              transition: "all 0.2s",
+                              "&:hover": {
+                                borderColor:
+                                  theme.palette.primary._alpha.main_30,
+                                bgcolor:
+                                  theme.palette.background.paper_alpha.main_10,
+                              },
+                            }}
                           >
                             <Stack
                               direction="row"
-                              spacing={2}
+                              justifyContent="space-between"
                               alignItems="center"
                             >
-                              <WarehouseIcon
-                                sx={{ color: "text.secondary", fontSize: 20 }}
-                              />
-                              <Box>
+                              <Stack
+                                direction="row"
+                                spacing={2}
+                                alignItems="center"
+                              >
+                                <WarehouseIcon
+                                  sx={{ color: "text.secondary", fontSize: 20 }}
+                                />
+                                <Box>
+                                  <Typography
+                                    variant="subtitle2"
+                                    color="text.primary"
+                                    fontWeight={700}
+                                  >
+                                    {loc.warehouse.name}
+                                  </Typography>
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
+                                    {loc.warehouse.code}
+                                  </Typography>
+                                </Box>
+                              </Stack>
+                              <Box sx={{ textAlign: "right" }}>
                                 <Typography
-                                  variant="subtitle2"
-                                  color="text.primary"
-                                  fontWeight={700}
+                                  component="div"
+                                  variant="h6"
+                                  color="primary.light"
+                                  fontWeight={800}
                                 >
-                                  {loc.warehouse.name}
+                                  {loc.quantity}
                                 </Typography>
                                 <Typography
                                   variant="caption"
                                   color="text.secondary"
+                                  sx={{
+                                    textTransform: "uppercase",
+                                    fontSize: "0.6rem",
+                                  }}
                                 >
-                                  {loc.warehouse.code}
+                                  UNITS
                                 </Typography>
                               </Box>
                             </Stack>
-                            <Box sx={{ textAlign: "right" }}>
-                              <Typography component="div"
-                                variant="h6"
-                                color="primary.light"
-                                fontWeight={800}
-                              >
-                                {loc.quantity}
-                              </Typography>
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                                sx={{
-                                  textTransform: "uppercase",
-                                  fontSize: "0.6rem",
-                                }}
-                              >
-                                UNITS
-                              </Typography>
-                            </Box>
-                          </Stack>
-                        </Paper>
-                      ))}
-                    </Stack>
-                  </Box>
-                )}
+                          </Paper>
+                        ))}
+                      </Stack>
+                    </Box>
+                  )}
+                </Box>
               </Box>
             </Grid>
           </Grid>

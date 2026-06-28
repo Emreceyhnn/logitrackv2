@@ -71,23 +71,32 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
 
   const fieldSx = {
     "& .MuiOutlinedInput-root": {
-      borderRadius: 2.5,
-      bgcolor: theme.palette.common.white_alpha.main_03,
-      transition: "all 0.2s",
-      "& fieldset": { borderColor: theme.palette.divider_alpha.main_08 },
+      height: "42px",
+      borderRadius: "10px",
+      bgcolor:
+        theme.palette.mode === "dark"
+          ? "rgba(255, 255, 255, 0.03)"
+          : "rgba(0, 0, 0, 0.02)",
+      transition: "all 0.2s ease-in-out",
+      "& fieldset": { borderColor: theme.palette.divider },
       "&:hover": {
-        bgcolor: theme.palette.common.white_alpha.main_05,
-        "& fieldset": { borderColor: theme.palette.primary._alpha.main_30 },
+        bgcolor:
+          theme.palette.mode === "dark"
+            ? "rgba(255, 255, 255, 0.05)"
+            : "rgba(0, 0, 0, 0.04)",
+        "& fieldset": { borderColor: theme.palette.text.secondary },
       },
       "&.Mui-focused": {
-        bgcolor: theme.palette.common.white_alpha.main_06,
-        "& fieldset": { borderColor: theme.palette.primary.main },
+        bgcolor: "transparent",
+        "& fieldset": {
+          borderColor: theme.palette.primary.main,
+          borderWidth: "2px",
+        },
       },
-      color: "white",
     },
     "& .MuiInputLabel-root": {
-      color: theme.palette.common.white_alpha.main_40,
-      fontSize: "0.9rem",
+      color: theme.palette.text.secondary,
+      fontSize: "14px",
       fontWeight: 500,
     },
     "& .MuiInputLabel-root.Mui-focused": { color: theme.palette.primary.main },
@@ -153,7 +162,6 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
       <Stack spacing={2.5}>
         <TextField
           label={dict.profile.security.currentPassword}
-          size="small"
           fullWidth
           type={show.current ? "text" : "password"}
           value={state.passwordForm.currentPassword}
@@ -194,7 +202,6 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
         <Box>
           <TextField
             label={dict.profile.security.newPassword}
-            size="small"
             fullWidth
             type={show.newP ? "text" : "password"}
             value={state.passwordForm.newPassword}
@@ -288,7 +295,6 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
 
         <TextField
           label={dict.profile.security.confirmPassword}
-          size="small"
           fullWidth
           type={show.confirm ? "text" : "password"}
           value={state.passwordForm.confirmPassword}

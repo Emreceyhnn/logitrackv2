@@ -11,7 +11,6 @@ import {
   Chip,
   InputAdornment,
   useTheme,
-  
 } from "@mui/material";
 import {
   CameraAlt as CameraIcon,
@@ -46,23 +45,32 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
 
   const fieldSx = {
     "& .MuiOutlinedInput-root": {
-      borderRadius: 2.5,
-      bgcolor: theme.palette.common.white_alpha.main_03,
-      transition: "all 0.2s",
-      "& fieldset": { borderColor: theme.palette.divider_alpha.main_08 },
+      height: "42px",
+      borderRadius: "10px",
+      bgcolor:
+        theme.palette.mode === "dark"
+          ? "rgba(255, 255, 255, 0.03)"
+          : "rgba(0, 0, 0, 0.02)",
+      transition: "all 0.2s ease-in-out",
+      "& fieldset": { borderColor: theme.palette.divider },
       "&:hover": {
-        bgcolor: theme.palette.common.white_alpha.main_05,
-        "& fieldset": { borderColor: theme.palette.primary._alpha.main_30 },
+        bgcolor:
+          theme.palette.mode === "dark"
+            ? "rgba(255, 255, 255, 0.05)"
+            : "rgba(0, 0, 0, 0.04)",
+        "& fieldset": { borderColor: theme.palette.text.secondary },
       },
       "&.Mui-focused": {
-        bgcolor: theme.palette.common.white_alpha.main_06,
-        "& fieldset": { borderColor: theme.palette.primary.main },
+        bgcolor: "transparent",
+        "& fieldset": {
+          borderColor: theme.palette.primary.main,
+          borderWidth: "2px",
+        },
       },
-      color: "white",
     },
     "& .MuiInputLabel-root": {
-      color: theme.palette.common.white_alpha.main_40,
-      fontSize: "0.9rem",
+      color: theme.palette.text.secondary,
+      fontSize: "14px",
       fontWeight: 500,
     },
     "& .MuiInputLabel-root.Mui-focused": { color: theme.palette.primary.main },
@@ -78,8 +86,8 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
           gap: 3,
           p: 3,
           borderRadius: 4,
-          border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
-          bgcolor: theme.palette.common.white_alpha.main_02,
+          border: `1px solid ${theme.palette.divider}`,
+          bgcolor: theme.palette.background.paper,
           position: "relative",
           overflow: "hidden",
           "&::before": {
@@ -143,9 +151,10 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
         </Box>
 
         <Box sx={{ flex: 1, zIndex: 1 }}>
-          <Typography component="div"
+          <Typography
+            component="div"
             fontWeight={800}
-            color="white"
+            color="text.primary"
             variant="h6"
             sx={{ letterSpacing: -0.5 }}
           >
@@ -185,7 +194,6 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
               actions.updateProfileForm({ name: e.target.value })
             }
             fullWidth
-            size="small"
             sx={fieldSx}
           />
           <TextField
@@ -195,7 +203,6 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
               actions.updateProfileForm({ surname: e.target.value })
             }
             fullWidth
-            size="small"
             sx={fieldSx}
           />
         </Stack>
@@ -205,12 +212,15 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
           value={state.profileForm.email}
           disabled
           fullWidth
-          size="small"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
                 <EmailIcon
-                  sx={{ fontSize: 18, color: theme.palette.common.white_alpha.main_25, ml: 0.5 }}
+                  sx={{
+                    fontSize: 18,
+                    color: theme.palette.common.white_alpha.main_25,
+                    ml: 0.5,
+                  }}
                 />
               </InputAdornment>
             ),
@@ -220,17 +230,16 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             ...fieldSx,
             "& .MuiOutlinedInput-root": {
               ...fieldSx["& .MuiOutlinedInput-root"],
-              bgcolor: theme.palette.common.white_alpha.main_02,
-              "& fieldset": { borderColor: theme.palette.common.white_alpha.main_05 },
+              bgcolor: theme.palette.action.disabledBackground,
             },
             "& .MuiFormHelperText-root": {
-              color: theme.palette.common.white_alpha.main_25,
+              color: theme.palette.text.secondary,
               fontSize: "0.72rem",
               fontWeight: 500,
               mt: 1,
             },
             "& .Mui-disabled": {
-              WebkitTextFillColor: theme.palette.common.white_alpha.main_30,
+              WebkitTextFillColor: theme.palette.text.disabled,
             },
           }}
         />
@@ -264,7 +273,9 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             transition: "all 0.2s",
           }}
         >
-          {state.isSaving ? dict.profile.status.finalizing : dict.profile.account.syncButton}
+          {state.isSaving
+            ? dict.profile.status.finalizing
+            : dict.profile.account.syncButton}
         </Button>
       </Box>
     </Stack>

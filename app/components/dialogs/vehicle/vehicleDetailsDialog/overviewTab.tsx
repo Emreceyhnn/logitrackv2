@@ -83,6 +83,7 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                   boxShadow: "none",
                   border: `1px solid ${theme.palette.divider}`,
                   position: "relative",
+                  mb: 3,
                 }}
               >
                 <Box

@@ -340,7 +340,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       title: issue.title,
       message: `${issue.priority} · ${issue.status.replace("_", " ")}`,
       link: issue.type === IssueType.VEHICLE && issue.vehicleId 
-        ? `/vehicle?id=${issue.vehicleId}` 
+        ? `/vehicle?id=${issue.vehicleId}&tab=2` 
         : issue.type === IssueType.DRIVER && issue.driverId 
         ? `/drivers?id=${issue.driverId}` 
         : issue.type === IssueType.SHIPMENT && issue.shipmentId 
@@ -357,7 +357,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
       link: doc.driverId 
         ? `/drivers?id=${doc.driverId}` 
         : doc.vehicleId 
-        ? `/vehicle?id=${doc.vehicleId}` 
+        ? `/vehicle?id=${doc.vehicleId}&tab=1` 
         : undefined,
     }));
 

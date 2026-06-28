@@ -124,8 +124,8 @@ async function fetchShipmentDashboard(
     delayed?: { value: number; isUp: boolean };
     inTransit?: { value: number; isUp: boolean };
   };
-  volumeData: ShipmentVolumeData[];
-  statusData: ShipmentStatusData[];
+  volumeHistory: ShipmentVolumeData[];
+  statusDistribution: ShipmentStatusData[];
 }> {
   const params = new URLSearchParams();
   params.set("page", String(page));

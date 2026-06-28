@@ -143,8 +143,8 @@ function MapWithPolyline({
             position={[vehicleLocation.lat, vehicleLocation.lng]}
             icon={L.divIcon({
               html: `
-                <div style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; color: #a855f7; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
-                  ${renderToString(<LocalShippingIcon style={{ width: "32px", height: "32px", color: "#a855f7" }} />)}
+                <div style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; color: #3b82f6; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                  ${renderToString(<LocalShippingIcon style={{ width: "32px", height: "32px", color: "#3b82f6", fill: "currentColor" }} />)}
                 </div>
               `,
               className: "custom-marker",

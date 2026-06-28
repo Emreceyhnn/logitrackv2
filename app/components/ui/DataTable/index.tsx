@@ -199,6 +199,38 @@ function DataTableToolbar({
     setLocalSearch(searchValue);
   }, [searchValue]);
 
+  const commonInputStyles = {
+    borderRadius: "10px",
+    fontSize: 14,
+    height: 40,
+    bgcolor:
+      theme.palette.mode === "dark"
+        ? "rgba(255, 255, 255, 0.03)"
+        : "rgba(0, 0, 0, 0.02)",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    "& fieldset": {
+      borderColor: theme.palette.divider,
+      opacity: 0.8,
+      transition: "all 0.3s ease",
+    },
+    "&:hover fieldset": {
+      borderColor: "primary.main",
+      opacity: 1,
+    },
+    "&.Mui-focused": {
+      bgcolor:
+        theme.palette.mode === "dark"
+          ? "rgba(255, 255, 255, 0.05)"
+          : "#fff",
+      boxShadow: `0 0 0 4px ${theme.palette.primary._alpha.main_15}`,
+      "& fieldset": {
+        borderColor: "primary.main",
+        borderWidth: "1.5px",
+        opacity: 1,
+      },
+    },
+  };
+
   const handleSearchChange = useCallback(
     (value: string) => {
       setLocalSearch(value);
@@ -264,38 +296,11 @@ function DataTableToolbar({
             flex: 1,
             minWidth: 220,
             "& .MuiOutlinedInput-root": {
-              borderRadius: 3,
-              fontSize: 14,
-              bgcolor:
-                theme.palette.mode === "dark"
-                  ? "rgba(255, 255, 255, 0.03)"
-                  : "rgba(0, 0, 0, 0.02)",
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              "& fieldset": {
-                borderColor: theme.palette.divider,
-                opacity: 0.8,
-                transition: "all 0.3s ease",
-              },
-              "&:hover fieldset": {
-                borderColor: "primary.main",
-                opacity: 1,
-              },
-              "&.Mui-focused": {
-                bgcolor:
-                  theme.palette.mode === "dark"
-                    ? "rgba(255, 255, 255, 0.05)"
-                    : "#fff",
-                boxShadow: `0 0 0 4px ${theme.palette.primary._alpha.main_15}`,
-                "& fieldset": {
-                  borderColor: "primary.main",
-                  borderWidth: "1.5px",
-                  opacity: 1,
-                },
-              },
+              ...commonInputStyles,
               "& input::placeholder": {
                 color: theme.palette.text.secondary,
-                opacity: 1, // Increased contrast
-                fontWeight: 600, // Slightly bolder for readability
+                opacity: 1,
+                fontWeight: 500,
               },
             },
           }}
@@ -309,7 +314,7 @@ function DataTableToolbar({
 
           return (
             <FormControl key={filter.key} size="small" sx={{ minWidth: 160 }}>
-              <InputLabel sx={{ fontSize: 13 }}>{filter.label}</InputLabel>
+              <InputLabel sx={{ fontSize: 14, top: 1 }}>{filter.label}</InputLabel>
               <Select
                 multiple={isMultiple}
                 value={selectValue}
@@ -348,7 +353,7 @@ function DataTableToolbar({
                     </Stack>
                   );
                 }}
-                sx={{ borderRadius: 2, fontSize: 13 }}
+                sx={commonInputStyles}
               >
                 {!isMultiple && (
                   <MenuItem value="">
