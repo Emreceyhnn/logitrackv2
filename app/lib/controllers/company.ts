@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "../db";
+import { revalidatePath } from "next/cache";
 import { checkPermission } from "./utils/checkPermission";
 import { authenticatedAction } from "../auth-middleware";
 import { createSession, revokeSession } from "./session";
@@ -21,6 +22,7 @@ async function invalidateCompanyCache(companyId: string) {
     invalidatePattern(companyCacheKeys.companyPattern(companyId)),
     redis.del(companyCacheKeys.detail(companyId))
   ]);
+  revalidatePath("/", "layout");
 }
 
 export const createCompany = authenticatedAction(

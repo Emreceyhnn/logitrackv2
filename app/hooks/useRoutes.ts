@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import {
   useQuery,
   useMutation,
@@ -119,12 +122,33 @@ export function useRoutesWithDashboard(
   pageSize: number,
   status?: string | string[]
 ) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: routeKeys.dashboardWithFilters(page, pageSize, status),
     queryFn: () => fetchRouteDashboard(page, pageSize, status),
     staleTime: 1000 * 60 * 5,
     placeholderData: keepPreviousData,
   });
+
+  useEffect(() => {
+    const totalCount = query.data?.totalCount;
+    if (!totalCount) return;
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const pagesToPrefetch = Math.max(1, Math.ceil(30 / pageSize));
+    for (let i = 1; i <= pagesToPrefetch; i++) {
+      const nextPage = page + i;
+      if (nextPage > totalPages) break;
+      queryClient.prefetchQuery({
+        queryKey: routeKeys.dashboardWithFilters(nextPage, pageSize, status),
+        queryFn: () => fetchRouteDashboard(nextPage, pageSize, status),
+        staleTime: 1000 * 60 * 5,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryClient, query.data, page, pageSize]);
+
+  return query;
 }
 
 export function useRouteMutations() {

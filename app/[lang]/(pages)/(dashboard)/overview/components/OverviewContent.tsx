@@ -13,7 +13,6 @@ import {
 } from "@mui/material";
 import CustomCard from "@/app/components/cards/card";
 import DailyOperationsCard from "@/app/components/dashboard/overview/dailyOperations";
-import FuelByVehicleCard from "@/app/components/dashboard/overview/fuelByVehicleCard";
 import WarehouseCapacityCard from "@/app/components/dashboard/overview/warehouseCapacityCard";
 import AlertInventoryCard from "@/app/components/dashboard/overview/inventoryCard";
 import ShipmentOnStatusCard from "@/app/components/dashboard/overview/shipmentsByStatusCard";
@@ -146,6 +145,7 @@ export default function OverviewContent() {
         mb={1}
       >
         <Typography
+          data-tour="overview-title"
           sx={{
             fontSize: 24,
             fontWeight: 600,
@@ -182,7 +182,9 @@ export default function OverviewContent() {
       </Stack>
       <Divider sx={{ mb: 3 }} />
 
-      <KpiCards kpis={kpiItems} loading={isLoading} />
+      <Box data-tour="kpi-cards">
+        <KpiCards kpis={kpiItems} loading={isLoading} />
+      </Box>
 
       <Box
         sx={{
@@ -198,11 +200,11 @@ export default function OverviewContent() {
       >
         {isLoading ? (
           <>
-            {Array.from(new Array(3)).map((_, i) => (
+            {Array.from(new Array(2)).map((_, i) => (
               <Box
                 key={`skel-1-${i}`}
                 sx={{
-                  gridColumn: { xs: "span 1", md: "span 1", lg: "span 4" },
+                  gridColumn: { xs: "span 1", md: "span 1", lg: "span 6" },
                   display: "flex",
                   flexDirection: "column",
                 }}
@@ -310,8 +312,9 @@ export default function OverviewContent() {
         ) : (
           <>
             <Box
+              data-tour="daily-operations"
               sx={{
-                gridColumn: { xs: "span 1", md: "span 1", lg: "span 4" },
+                gridColumn: { xs: "span 1", md: "span 1", lg: "span 6" },
                 display: "flex",
                 flexDirection: "column",
               }}
@@ -319,22 +322,14 @@ export default function OverviewContent() {
               <DailyOperationsCard values={data.dailyOps} />
             </Box>
             <Box
+              data-tour="action-required"
               sx={{
-                gridColumn: { xs: "span 1", md: "span 1", lg: "span 4" },
+                gridColumn: { xs: "span 1", md: "span 1", lg: "span 6" },
                 display: "flex",
                 flexDirection: "column",
               }}
             >
-              <FuelByVehicleCard logs={data.fuelLogs} />
-            </Box>
-            <Box
-              sx={{
-                gridColumn: { xs: "span 1", md: "span 1", lg: "span 4" },
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <ShipmentOnStatusCard values={data.shipmentStatus} />
+              <ActionRequiredCard alerts={data.alerts} />
             </Box>
 
             <Box
@@ -344,7 +339,7 @@ export default function OverviewContent() {
                 flexDirection: "column",
               }}
             >
-              <ActionRequiredCard alerts={data.alerts} />
+              <ShipmentOnStatusCard values={data.shipmentStatus} />
             </Box>
             <Box
               sx={{
@@ -385,6 +380,7 @@ export default function OverviewContent() {
             </Box>
 
             <Box
+              data-tour="overview-map"
               sx={{
                 gridColumn: { xs: "span 1", md: "span 3", lg: "span 12" },
                 display: "flex",

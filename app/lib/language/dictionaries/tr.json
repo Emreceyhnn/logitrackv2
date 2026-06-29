@@ -134,7 +134,131 @@
     "yourTime": "Sizin Saatiniz",
     "currentTimeAtLocation": "Konumdaki Güncel Saat",
     "confirmLogoutDescription": "Oturumunuzu sonlandırmak istediğinize emin misiniz?",
-    "logoutWarning": "Tüm aktif oturum verileriniz temizlenecek ve giriş sayfasına yönlendirileceksiniz."
+    "logoutWarning": "Tüm aktif oturum verileriniz temizlenecek ve giriş sayfasına yönlendirileceksiniz.",
+    "guidedTour": {
+      "next": "İleri",
+      "prev": "Geri",
+      "finish": "Bitir",
+      "startTour": "Tur Başlat"
+    }
+  },
+  "guidedTour": {
+    "overview": {
+      "titleStep": {
+        "title": "Genel Bakış Paneli",
+        "description": "Burası merkez kontrol noktanız. Tüm lojistik operasyonlarınızın, KPI'larınızın ve uyarılarınızın anlık görüntüsünü buradan takip edin."
+      },
+      "kpiStep": {
+        "title": "Temel Performans Göstergeleri",
+        "description": "Bu kartlar en önemli metriklerinizi gösterir: aktif sevkiyatlar, geciken siparişler, filo durumu, sürücü aktivitesi ve depo kullanımı."
+      },
+      "dailyOpsStep": {
+        "title": "Günlük Operasyonlar",
+        "description": "Günün operasyonel metriklerini takip edin: planlanan rotalar, tamamlanan teslimatlar, başarısız teslimatlar, ortalama teslimat süresi ve yakıt tüketimi."
+      },
+      "actionRequiredStep": {
+        "title": "Aksiyon Gerekli",
+        "description": "Acil ilgi gerektiren öğeler — geciken sevkiyatlar, süresi dolan belgeler veya bakım uyarıları. Aksiyona geçmek için herhangi bir öğeye tıklayın."
+      },
+      "mapStep": {
+        "title": "Canlı Operasyon Haritası",
+        "description": "Tüm depolarınızı, araçlarınızı ve müşterilerinizi interaktif haritada görün. Filo pozisyonlarını ve teslimat ilerlemesini gerçek zamanlı takip edin."
+      }
+    },
+    "vehicles": {
+      "tableStep": {
+        "title": "Araç Filosu",
+        "description": "Filonuzdaki tüm araçları görüntüleyin ve yönetin. Durum, tür veya konuma göre filtreleyin. Detaylar için satıra tıklayın."
+      },
+      "addStep": {
+        "title": "Araç Ekle",
+        "description": "Filonuza yeni bir araç kaydedin. Özellikleri doldurun, depoya atayın ve belgeleri yükleyin."
+      }
+    },
+    "shipments": {
+      "tableStep": {
+        "title": "Sevkiyat Yönetimi",
+        "description": "Tüm sevkiyatları ve durumlarını takip edin. Durum, tarih veya müşteriye göre filtreleyerek belirli sevkiyatları bulun."
+      },
+      "addStep": {
+        "title": "Sevkiyat Oluştur",
+        "description": "Yeni bir sevkiyat emri oluşturun. Çıkış, varış, kargo detaylarını belirleyin ve araç ile sürücü atayın."
+      }
+    },
+    "analytics": {
+      "headerStep": {
+        "title": "Analitik Paneli",
+        "description": "Operasyonel performansınıza derinlemesine dalın. Zaman aralığı seçin ve paydaş incelemesi için raporları dışa aktarın."
+      },
+      "gaugesStep": {
+        "title": "Performans Göstergeleri",
+        "description": "Zamanında teslimat oranı, filo kullanımı ve müşteri memnuniyet puanları için hedeflere karşı görsel göstergeler."
+      },
+      "forecastStep": {
+        "title": "Yapay Zeka Tahmini",
+        "description": "Makine öğrenimi destekli sevkiyat hacim tahminleri. Kapasite planlaması için gerçek ve tahmin edilen trendleri karşılaştırın."
+      },
+      "costStep": {
+        "title": "Maliyet Analizi",
+        "description": "Operasyonel maliyetleri kategoriye göre ayrıştırın — yakıt, bakım ve genel giderler — zaman içindeki trend analiziyle."
+      }
+    },
+    "warehouses": {
+      "tableStep": {
+        "title": "Depo Yönetimi",
+        "description": "Tüm depoları, kapasite kullanımlarını, konumlarını ve operasyonel durumlarını görüntüleyin."
+      },
+      "addStep": {
+        "title": "Depo Ekle",
+        "description": "Adres, kapasite, çalışma saatleri ve iletişim detaylarıyla yeni bir depo konumu kaydedin."
+      }
+    },
+    "drivers": {
+      "tableStep": {
+        "title": "Sürücü Yönetimi",
+        "description": "Sürücü kadronuzu yönetin. Ehliyet durumu, müsaitlik, performans puanları ve atanmış araçları görüntüleyin."
+      },
+      "addStep": {
+        "title": "Sürücü Ekle",
+        "description": "Ehliyet bilgileri, iletişim bilgileri ve araç atamasıyla yeni bir sürücü kaydedin."
+      }
+    },
+    "routes": {
+      "tableStep": {
+        "title": "Rota Planlaması",
+        "description": "Teslimat rotalarını görüntüleyin ve yönetin. Rota detaylarını, durakları, tahmini süreleri ve atanmış araçları görün."
+      },
+      "addStep": {
+        "title": "Rota Oluştur",
+        "description": "Duraklar ekleyerek, araç atayarak ve tahmini varış süreleri belirleyerek yeni bir teslimat rotası planlayın."
+      }
+    },
+    "inventory": {
+      "tableStep": {
+        "title": "Envanter Genel Bakış",
+        "description": "Tüm depolardaki stok seviyelerini takip edin. SKU'ları, miktarları ve yeniden sipariş noktalarını izleyin."
+      },
+      "addStep": {
+        "title": "Envanter Öğesi Ekle",
+        "description": "SKU, kategori, depo ataması ve stok eşikleriyle yeni envanter öğeleri ekleyin."
+      }
+    },
+    "customers": {
+      "tableStep": {
+        "title": "Müşteri Rehberi",
+        "description": "Müşteri veritabanınızı yönetin. İletişim detayları, teslimat adresleri ve sipariş geçmişini görüntüleyin."
+      },
+      "addStep": {
+        "title": "Müşteri Ekle",
+        "description": "Şirket detayları, iletişim bilgileri ve teslimat tercihleriyle yeni bir müşteri kaydedin."
+      }
+    },
+    "reports": {
+      "contentStep": {
+        "title": "Raporlar Merkezi",
+        "description": "Operasyonel raporları oluşturun ve görüntüleyin. Uyumluluk ve analiz için verileri çeşitli formatlarda dışa aktarın."
+      }
+    }
   },
   "primaryColors": {
     "title": "Renk Yapılandırması",
@@ -1434,7 +1558,8 @@
         "documents": "Belgeler",
         "maintenance": "Bakım",
         "fuel": "Yakıt Günlükleri",
-        "map": "Canlı Harita"
+        "map": "Canlı Harita",
+        "specs": "Teknik Özellikler"
       }
     },
     "table": {
@@ -2227,7 +2352,11 @@
       "liveTelemetry": "CANLI TELEMETRİ",
       "distTravelled": "KAT EDİLEN MESAFE",
       "remaining": "Kalan",
-      "fuelLevel": "Yakıt seviyesi"
+      "fuelLevel": "Yakıt seviyesi",
+      "vehicleToDestination": "YOLCULUK DURUMU",
+      "traveledLabel": "KAT EDİLEN",
+      "toDestination": "KALAN",
+      "etaLabel": "TAHMİNİ SÜRE"
     },
     "dialogs": {
       "localizationDesc": "Küresel bölgesel ayarlar; tüm telemetri ve yönetim katmanlarında zaman matrislerini, para birimi sembollerini ve tarih biçimlendirmesini senkronize eder.",

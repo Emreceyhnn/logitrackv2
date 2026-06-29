@@ -99,6 +99,7 @@ export default function ForecastingWidget({ state }: ForecastingWidgetProps) {
             <Typography
               variant="h6"
               fontWeight={800}
+              color="text.primary"
               sx={{ letterSpacing: "-0.01em" }}
             >
               {dict.analytics.forecasting.title}

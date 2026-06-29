@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "../db";
+import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
@@ -27,6 +28,7 @@ export async function invalidateInventoryCache(companyId: string, inventoryId?: 
     invalidatePattern(inventoryCacheKeys.companyPattern(companyId)),
     inventoryId ? redis.del(inventoryCacheKeys.detail(inventoryId)) : Promise.resolve(),
   ]);
+  revalidatePath("/", "layout");
 }
 
 export const createInventoryItem = authenticatedAction(

@@ -139,6 +139,7 @@ export default function ReportsContent() {
       </Box>
 
       <Box
+        data-tour="report-content"
         sx={{
           bgcolor: "background.paper",
           borderRadius: "12px",

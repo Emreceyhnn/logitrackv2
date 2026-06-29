@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "../db";
+import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { type Prisma, ShipmentStatus, ShipmentPriority } from "@prisma/client";
@@ -34,6 +35,7 @@ export async function invalidateShipmentCache(
       ? redis.del(shipmentCacheKeys.detail(shipmentId))
       : Promise.resolve(),
   ]);
+  revalidatePath("/", "layout");
 }
 
 interface CustomerWithLocations extends Customer {

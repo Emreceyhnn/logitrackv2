@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "../db";
+import { revalidatePath } from "next/cache";
 import {
   Issue,
   MaintenanceStatus,
@@ -50,6 +51,7 @@ async function invalidateVehicleCache(
       ? redis.del(vehicleCacheKeys.detail(vehicleId))
       : Promise.resolve(),
   ]);
+  revalidatePath("/", "layout");
 }
 
 export const createVehicle = authenticatedAction(
@@ -1127,6 +1129,9 @@ export const getVehiclesWithDashboard = authenticatedAction(
               photo: true,
               createdAt: true,
               updatedAt: true,
+              engineSize: true,
+              transmission: true,
+              techNotes: true,
 
               // ── Driver ──────────────────────────────────────────────────────
               driver: {

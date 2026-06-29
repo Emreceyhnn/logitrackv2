@@ -17,22 +17,40 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { SidebarList } from "./listItem";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CloseIcon from "@mui/icons-material/Close";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, usePathname } from "next/navigation";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { clearAuthCookies } from "@/app/lib/controllers/session";
-import { buildLocalizedHref } from "@/app/lib/language/navigation";
+import { buildLocalizedHref, getCanonicalPath } from "@/app/lib/language/navigation";
 import LogoutConfirmationDialog from "../dialogs/logoutConfirmationDialog";
+import { useGuidedTour } from "@/app/lib/context/GuidedTourContext";
+import { getTourStepsForPage } from "@/app/components/guidedTour/tourSteps";
 
 const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
   /* -------------------------------- variables ------------------------------- */
   const theme = useTheme();
   const router = useRouter();
   const params = useParams();
+  const pathname = usePathname();
   const lang = (params?.lang as string) || "en";
   const dict = useDictionary();
+  const { startTour } = useGuidedTour();
 
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
+  const handleHelpClick = useCallback(() => {
+    // Convert localized pathname back to canonical English paths
+    // e.g. /tr/genel-bakis -> /tr/overview -> "overview"
+    const canonicalPath = getCanonicalPath(pathname, lang);
+    const segments = canonicalPath.split("/").filter(Boolean);
+    const pageSegment = segments[segments.length - 1] || "overview";
+    
+    const steps = getTourStepsForPage(pageSegment, dict as Record<string, unknown>);
+    if (steps.length > 0) {
+      // Small delay to let the UI render any recently loaded content
+      setTimeout(() => startTour(pageSegment, steps), 200);
+    }
+  }, [pathname, lang, dict, startTour]);
 
   const handleLogout = async () => {
     try {
@@ -198,6 +216,7 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
           >
             <Tooltip title={dict.common.needHelp} arrow placement="right">
               <IconButton
+                onClick={handleHelpClick}
                 sx={{
                   width: "100%",
                   justifyContent: "flex-start",

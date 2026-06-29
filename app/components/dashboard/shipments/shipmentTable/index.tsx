@@ -23,6 +23,16 @@ import { formatDisplayDate } from "@/app/lib/utils/date";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
+// PROCESSING and ASSIGNED are brief system-managed transitions that don't
+// appear in seed data and can't be set from the UI — omit them from the filter.
+const VISIBLE_SHIPMENT_STATUSES: ShipmentStatus[] = [
+  ShipmentStatus.PENDING,
+  ShipmentStatus.IN_TRANSIT,
+  ShipmentStatus.DELIVERED,
+  ShipmentStatus.DELAYED,
+  ShipmentStatus.CANCELLED,
+];
+
 const ShipmentTable = ({
   state,
   actions,
@@ -38,23 +48,17 @@ const ShipmentTable = ({
 
   // Localized statuses for the filter
   const SHIPMENT_FILTERS: DataTableFilter[] = useMemo(() => {
-    const SHIPMENT_STATUS_VALUES = Object.values(
-      ShipmentStatus
-    ) as ShipmentStatus[];
     return [
       {
         key: "status",
         label: dict.shipments.table.columns.status,
-        options: SHIPMENT_STATUS_VALUES.map((s: ShipmentStatus) => {
-          const statusKey = s.toUpperCase();
-          return {
-            label:
-              dict.shipments.statuses[
-                statusKey as keyof typeof dict.shipments.statuses
-              ] || s.replace(/_/g, " "),
-            value: s as string,
-          };
-        }),
+        options: VISIBLE_SHIPMENT_STATUSES.map((s) => ({
+          label:
+            dict.shipments.statuses[
+              s.toUpperCase() as keyof typeof dict.shipments.statuses
+            ] || s.replace(/_/g, " "),
+          value: s as string,
+        })),
         multiple: false,
       },
     ];

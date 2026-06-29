@@ -1033,14 +1033,14 @@ export const updateWarehouseSchema = z.object({
   address: z.string().optional(),
   city: z.string().optional(),
   country: z.string().optional(),
-  lat: z.number().optional(),
-  lng: z.number().optional(),
+  lat: z.number().nullable().optional(),
+  lng: z.number().nullable().optional(),
   capacityPallets: z.number().optional(),
   capacityVolumeM3: z.number().optional(),
   operatingHours: z.string().optional(),
   timezone: z.string().optional(),
   specifications: z.array(z.string()).optional(),
-  managerId: z.string().optional(),
+  managerId: z.string().nullable().optional(),
 });
 
 export const vehicleSchema = z.object({

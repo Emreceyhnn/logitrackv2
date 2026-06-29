@@ -86,6 +86,7 @@ export default function VehicleContent() {
   const {
     data: dashboardData,
     isLoading: isVehiclesLoading,
+    isFetching: isVehiclesFetching,
     refetch: refetchVehicleWithDashboard,
   } = useVehicleWithDashboard(state.filters);
 
@@ -99,7 +100,8 @@ export default function VehicleContent() {
   const trailerMeta = trailerData?.meta;
 
   const vehicles = dashboardData?.vehicles;
-  const loading = isVehiclesLoading || (activeTab === 1 && isTrailersLoading);
+  // kpiLoading: only skeleton on initial load (not on pagination/filter refetch)
+  const kpiLoading = activeTab === 0 ? isVehiclesLoading : isTrailersLoading;
 
   const { deleteVehicle: deleteMutation } = useVehicleMutations();
   const { deleteTrailer: deleteTrailerMut, assignTrailer: detachTrailerMut } = useTrailerMutations();
@@ -182,6 +184,7 @@ export default function VehicleContent() {
 
   const handleEditFormSuccess = () => {
     setEditDialogOpen(false);
+    actions.refreshAll();
   };
 
   const handleDeleteConfirm = async () => {
@@ -406,6 +409,7 @@ export default function VehicleContent() {
           </Box>
           
           <Button
+            data-tour="vehicle-add"
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => activeTab === 0 ? setAddDialogOpen(true) : setAddTrailerOpen(true)}
@@ -417,10 +421,10 @@ export default function VehicleContent() {
       </Stack>
 
       {/* KPI Cards — rendered with SSR data on first paint */}
-      <KpiCards kpis={kpiItems} loading={loading} />
+      <KpiCards kpis={kpiItems} loading={kpiLoading} />
 
       {/* Content based on Tab */}
-      <Stack mt={2}>
+      <Stack mt={2} data-tour="vehicle-table">
         {activeTab === 0 ? (
           <VehicleTable
             state={
@@ -428,7 +432,7 @@ export default function VehicleContent() {
                 ...state,
                 vehicles,
                 dashboardData: dashboardData ?? null,
-                loading: loading,
+                loading: isVehiclesFetching,
                 error: null,
               } as VehiclePageState
             }
@@ -441,7 +445,7 @@ export default function VehicleContent() {
         ) : (
           <TrailerTable
             trailers={trailers || []}
-            loading={isTrailersFetching && isTrailersLoading}
+            loading={isTrailersFetching}
             onEdit={handleTrailerEdit}
             onDelete={handleTrailerDelete}
             onAssign={handleTrailerAssign}
@@ -466,7 +470,7 @@ export default function VehicleContent() {
           />
           <VehicleCapacityChart
             data={dashboardData?.vehiclesCapacity || []}
-            loading={loading}
+            loading={isVehiclesLoading}
           />
         </Stack>
       )}

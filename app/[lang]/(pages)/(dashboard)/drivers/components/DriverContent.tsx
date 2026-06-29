@@ -85,7 +85,8 @@ function DriverContent() {
   /* ---------------------------------- HOOKS --------------------------------- */
   const {
     data: combinedData,
-    isLoading: loading,
+    isLoading,
+    isFetching,
     refetch: refreshAllData,
   } = useDriverWithDashboard(
     state.pagination.page,
@@ -254,6 +255,7 @@ function DriverContent() {
           </Typography>
         </Box>
         <Button
+          data-tour="driver-add"
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setIsAddDialogOpen(true)}
@@ -263,14 +265,14 @@ function DriverContent() {
         </Button>
       </Stack>
 
-      <KpiCards kpis={kpis} loading={loading} />
+      <KpiCards kpis={kpis} loading={isLoading} />
 
-      <Stack gap={2} mt={2}>
+      <Stack gap={2} mt={2} data-tour="driver-table">
         <DriverTable
           filters={state.filters}
           onFilterChange={handleFilterChange}
           drivers={drivers}
-          loading={loading}
+          loading={isFetching}
           meta={{
             total: totalCount,
             page: state.pagination.page,
@@ -291,7 +293,7 @@ function DriverContent() {
 
       <DriverPerformanceCharts
         data={dashboardData?.performanceCharts}
-        loading={loading}
+        loading={isLoading}
       />
 
       <AddDriverDialog

@@ -25,17 +25,19 @@ export default function AnalyticsContent() {
 
   return (
     <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
-      <AnalyticsHeader />
+      <Box data-tour="analytics-header">
+        <AnalyticsHeader />
+      </Box>
 
-      <Box sx={{ mb: 4 }}>
+      <Box data-tour="performance-gauges" sx={{ mb: 4 }}>
         <PerformanceGauges state={state.data?.performance} />
       </Box>
 
-      <Box sx={{ mb: 4 }}>
+      <Box data-tour="forecasting-widget" sx={{ mb: 4 }}>
         <ForecastingWidget state={state.data?.forecast} />
       </Box>
 
-      <Box>
+      <Box data-tour="cost-analysis">
         <CostAnalysisCharts state={state.data?.costs} />
       </Box>
     </Box>

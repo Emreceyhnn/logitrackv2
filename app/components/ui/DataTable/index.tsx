@@ -47,7 +47,6 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   getPaginationRowModel,
-  getFilteredRowModel,
   flexRender,
   createColumnHelper,
   SortingState,
@@ -219,9 +218,7 @@ function DataTableToolbar({
     },
     "&.Mui-focused": {
       bgcolor:
-        theme.palette.mode === "dark"
-          ? "rgba(255, 255, 255, 0.05)"
-          : "#fff",
+        theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.05)" : "#fff",
       boxShadow: `0 0 0 4px ${theme.palette.primary._alpha.main_15}`,
       "& fieldset": {
         borderColor: "primary.main",
@@ -283,7 +280,10 @@ function DataTableToolbar({
             input: {
               startAdornment: (
                 <InputAdornment position="start">
-                  <Tooltip title={dict.common.tooltips?.search || "Search"} arrow>
+                  <Tooltip
+                    title={dict.common.tooltips?.search || "Search"}
+                    arrow
+                  >
                     <SearchIcon
                       sx={{ color: "text.secondary", fontSize: 20 }}
                     />
@@ -314,7 +314,9 @@ function DataTableToolbar({
 
           return (
             <FormControl key={filter.key} size="small" sx={{ minWidth: 160 }}>
-              <InputLabel sx={{ fontSize: 14, top: 1 }}>{filter.label}</InputLabel>
+              <InputLabel sx={{ fontSize: 14, top: 1 }}>
+                {filter.label}
+              </InputLabel>
               <Select
                 multiple={isMultiple}
                 value={selectValue}
@@ -416,7 +418,8 @@ function DataTableToolbar({
             {dict.common.filtersActive?.replace(
               "{count}",
               totalActive.toString()
-            ) || `${totalActive} active filters`}:
+            ) || `${totalActive} active filters`}
+            :
           </Typography>
 
           {Object.entries(activeFilters).map(([key, values]) => {
@@ -424,7 +427,7 @@ function DataTableToolbar({
             if (!filter || !values || values.length === 0) return null;
 
             return values.map((val) => {
-               const option = filter.options.find((o) => o.value === val);
+              const option = filter.options.find((o) => o.value === val);
               const label = option ? option.label : val.replace(/_/g, " ");
 
               return (
@@ -487,26 +490,6 @@ function DataTableToolbar({
           </Button>
 
           <Box sx={{ flex: 1 }} />
-
-          <Tooltip title={dict.common.tooltips?.clearAllFilters || "Clear all filters"} arrow>
-            <Button
-              size="small"
-              variant="text"
-              onClick={() => {
-                Object.keys(activeFilters).forEach((key) =>
-                  onFilterChange(key, [])
-                );
-              }}
-              sx={{
-                fontSize: "0.7rem",
-                textTransform: "none",
-                color: theme.palette.text.secondary,
-                "&:hover": { color: theme.palette.primary.main },
-              }}
-            >
-              {dict.common.clearAll}
-            </Button>
-          </Tooltip>
         </Stack>
       )}
     </>
@@ -546,11 +529,12 @@ function DataTable<TRow extends { id: string }>({
   const showToolbar =
     !!onSearchChange || (filters.length > 0 && !!onFilterChange);
 
-  // Define TanStack Table Columns
-  const columnHelper = createColumnHelper<TRow>();
-  
+  // Stable column helper — must not be recreated on every render or TanStack
+  // rebuilds its entire internal state, causing flicker and pagination resets.
+  const columnHelper = useMemo(() => createColumnHelper<TRow>(), []);
+
   const tanstackColumns = useMemo(() => {
-    const mapped = columns.map(col => {
+    const mapped = columns.map((col) => {
       return columnHelper.display({
         id: col.sortKey || col.key,
         header: () => col.label,
@@ -558,8 +542,8 @@ function DataTable<TRow extends { id: string }>({
         enableSorting: !!col.sortable,
         meta: {
           align: col.align,
-          width: col.width
-        }
+          width: col.width,
+        },
       });
     });
 
@@ -568,9 +552,11 @@ function DataTable<TRow extends { id: string }>({
         columnHelper.display({
           id: "_actions",
           header: () => null,
-          cell: (info) => <RowMenu row={info.row.original} actions={rowActions} />,
+          cell: (info) => (
+            <RowMenu row={info.row.original} actions={rowActions} />
+          ),
           enableSorting: false,
-          meta: { align: "right" }
+          meta: { align: "right" },
         })
       );
     }
@@ -578,51 +564,55 @@ function DataTable<TRow extends { id: string }>({
   }, [columns, rowActions, columnHelper]);
 
   const isServerSide = !!meta;
-  
-  // Local state for client-side functionality (if meta is not provided)
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState(searchValue || "");
 
-  useEffect(() => {
-    if (!isServerSide) {
-      setGlobalFilter(searchValue || "");
-    }
-  }, [searchValue, isServerSide]);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: rows,
     columns: tanstackColumns,
     state: {
-      sorting: isServerSide && sortField ? [{ id: sortField, desc: sortOrder === 'desc' }] : sorting,
-      globalFilter: isServerSide ? undefined : globalFilter,
-      pagination: isServerSide && meta ? {
-        pageIndex: Math.max(0, meta.page - 1),
-        pageSize: meta.limit,
-      } : undefined
+      // For server-side, always reflect the external sort prop (even when empty).
+      // Using `isServerSide && sortField` is wrong because "" is falsy and would
+      // fall back to the stale local sorting state.
+      sorting: isServerSide
+        ? sortField
+          ? [{ id: sortField, desc: sortOrder === "desc" }]
+          : []
+        : sorting,
+      pagination:
+        isServerSide && meta
+          ? { pageIndex: Math.max(0, meta.page - 1), pageSize: meta.limit }
+          : undefined,
     },
     onSortingChange: (updater) => {
       if (isServerSide && onRequestSort) {
-        // If updater is a function, call it with current sorting
-        const newSorting = typeof updater === 'function' ? updater([{ id: sortField || '', desc: sortOrder === 'desc' }]) : updater;
+        const current = sortField
+          ? [{ id: sortField, desc: sortOrder === "desc" }]
+          : [];
+        const newSorting =
+          typeof updater === "function" ? updater(current) : updater;
+        // Only propagate when the user actively chose a sort column.
+        // When TanStack clears sort (empty array), leave the server-side sort as-is.
         if (newSorting.length > 0) {
-           onRequestSort(newSorting[0].id);
-        } else if (sortField) {
-           onRequestSort(sortField);
+          onRequestSort(newSorting[0].id);
         }
       } else {
         setSorting(updater);
       }
     },
-    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    // getFilteredRowModel is intentionally omitted: DataTable uses display columns
+    // (columnHelper.display) whose getValue() returns undefined, so TanStack's
+    // globalFilter would hide every row when any search text is present.
+    // Filtering is always handled externally — server-side via API params, or
+    // client-side by the parent filtering the rows array before passing it in.
     getPaginationRowModel: getPaginationRowModel(),
     manualPagination: isServerSide,
     manualSorting: isServerSide,
-    manualFiltering: isServerSide,
-    pageCount: isServerSide && meta ? Math.ceil(meta.total / meta.limit) : undefined,
+    pageCount:
+      isServerSide && meta ? Math.ceil(meta.total / meta.limit) : undefined,
   });
 
   const colCount = table.getAllColumns().length;
@@ -664,7 +654,7 @@ function DataTable<TRow extends { id: string }>({
       )}
 
       {loading ? (
-        <TableSkeleton rows={5} columns={colCount} />
+        <TableSkeleton rows={10} columns={colCount} />
       ) : (
         <TableContainer sx={{ p: 0, flex: 1, overflowY: "auto" }}>
           <Table size="small">
@@ -676,25 +666,40 @@ function DataTable<TRow extends { id: string }>({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
-                    const metaData = header.column.columnDef.meta as { align?: 'left' | 'right' | 'center', width?: string | number } | undefined;
+                    const metaData = header.column.columnDef.meta as
+                      | {
+                          align?: "left" | "right" | "center";
+                          width?: string | number;
+                        }
+                      | undefined;
                     return (
                       <TableCell
                         key={header.id}
                         align={metaData?.align ?? "left"}
                         width={metaData?.width}
                         sortDirection={header.column.getIsSorted() || false}
-                        sx={{ borderColor: theme.palette.divider_alpha.main_10 }}
+                        sx={{
+                          borderColor: theme.palette.divider_alpha.main_10,
+                        }}
                       >
                         {header.column.getCanSort() ? (
-                           <TableSortLabel
-                             active={!!header.column.getIsSorted()}
-                             direction={header.column.getIsSorted() || "asc"}
-                             onClick={header.column.getToggleSortingHandler()}
-                           >
-                             {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                           </TableSortLabel>
-                        ) : (
-                          header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())
+                          <TableSortLabel
+                            active={!!header.column.getIsSorted()}
+                            direction={header.column.getIsSorted() || "asc"}
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                          </TableSortLabel>
+                        ) : header.isPlaceholder ? null : (
+                          flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )
                         )}
                       </TableCell>
                     );
@@ -744,23 +749,32 @@ function DataTable<TRow extends { id: string }>({
                         fontSize: 13,
                       },
                       "&.MuiTableRow-hover:hover": {
-                        bgcolor: theme.palette.primary._alpha.main_08 + " !important",
+                        bgcolor:
+                          theme.palette.primary._alpha.main_08 + " !important",
                         transition: "background-color 0.2s",
                       },
                       transition: "background-color 0.15s",
                     }}
                   >
                     {row.getVisibleCells().map((cell) => {
-                       const metaData = cell.column.columnDef.meta as { align?: 'left' | 'right' | 'center', width?: string | number } | undefined;
-                       return (
-                         <TableCell
-                           key={cell.id}
-                           align={metaData?.align ?? "left"}
-                           width={metaData?.width}
-                         >
-                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                         </TableCell>
-                       );
+                      const metaData = cell.column.columnDef.meta as
+                        | {
+                            align?: "left" | "right" | "center";
+                            width?: string | number;
+                          }
+                        | undefined;
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          align={metaData?.align ?? "left"}
+                          width={metaData?.width}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      );
                     })}
                   </TableRow>
                 ))
@@ -771,71 +785,85 @@ function DataTable<TRow extends { id: string }>({
       )}
 
       {/* Pagination Container */}
-      {((isServerSide && meta) || (!isServerSide && rows.length > 0)) && !loading && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            px: 2,
-            py: 0.5,
-            borderTop: `1px solid ${theme.palette.divider_alpha.main_10}`,
-            flexDirection: { xs: "column", sm: "row" },
-            gap: { xs: 1, sm: 0 },
-          }}
-        >
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ fontWeight: 500, fontSize: 13 }}
-          >
-            {(dict.common.pagination.totalRecords || "{count} records").replace(
-              "{count}",
-              isServerSide ? (meta?.total || 0).toString() : rows.length.toString()
-            )}
-          </Typography>
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 50]}
-            component="div"
-            count={isServerSide ? (meta?.total || 0) : rows.length}
-            rowsPerPage={isServerSide ? (meta?.limit || 10) : table.getState().pagination.pageSize}
-            page={isServerSide ? Math.max(0, (meta?.page || 1) - 1) : table.getState().pagination.pageIndex}
-            onPageChange={(_, newPage) => {
-              if (isServerSide && onPageChange) {
-                onPageChange(newPage + 1);
-              } else if (!isServerSide) {
-                table.setPageIndex(newPage);
-              }
-            }}
-            onRowsPerPageChange={(e) => {
-              const newLimit = parseInt(e.target.value, 10);
-              if (isServerSide && onLimitChange) {
-                onLimitChange(newLimit);
-              } else if (!isServerSide) {
-                table.setPageSize(newLimit);
-              }
-            }}
-            labelRowsPerPage={dict.common.pagination.rowsPerPage}
-            labelDisplayedRows={({ from, to, count }) =>
-              `${from}-${to} ${dict.common.pagination.of} ${
-                count !== -1
-                  ? count
-                  : dict.common.moreThan?.replace("{count}", to.toString()) || to.toString()
-              }`
-            }
+      {((isServerSide && meta) || (!isServerSide && rows.length > 0)) &&
+        !loading && (
+          <Box
             sx={{
-              borderTop: "none",
-              ".MuiTablePagination-toolbar": {
-                pl: 0,
-              },
-              ".MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows":
-                {
-                  fontSize: 13,
-                },
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: 2,
+              py: 0.5,
+              borderTop: `1px solid ${theme.palette.divider_alpha.main_10}`,
+              flexDirection: { xs: "column", sm: "row" },
+              gap: { xs: 1, sm: 0 },
             }}
-          />
-        </Box>
-      )}
+          >
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ fontWeight: 500, fontSize: 13 }}
+            >
+              {(
+                dict.common.pagination.totalRecords || "{count} records"
+              ).replace(
+                "{count}",
+                isServerSide
+                  ? (meta?.total || 0).toString()
+                  : rows.length.toString()
+              )}
+            </Typography>
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 50]}
+              component="div"
+              count={isServerSide ? meta?.total || 0 : rows.length}
+              rowsPerPage={
+                isServerSide
+                  ? meta?.limit || 10
+                  : table.getState().pagination.pageSize
+              }
+              page={
+                isServerSide
+                  ? Math.max(0, (meta?.page || 1) - 1)
+                  : table.getState().pagination.pageIndex
+              }
+              onPageChange={(_, newPage) => {
+                if (isServerSide && onPageChange) {
+                  onPageChange(newPage + 1);
+                } else if (!isServerSide) {
+                  table.setPageIndex(newPage);
+                }
+              }}
+              onRowsPerPageChange={(e) => {
+                const newLimit = parseInt(e.target.value, 10);
+                if (isServerSide && onLimitChange) {
+                  onLimitChange(newLimit);
+                } else if (!isServerSide) {
+                  table.setPageSize(newLimit);
+                }
+              }}
+              labelRowsPerPage={dict.common.pagination.rowsPerPage}
+              labelDisplayedRows={({ from, to, count }) =>
+                `${from}-${to} ${dict.common.pagination.of} ${
+                  count !== -1
+                    ? count
+                    : dict.common.moreThan?.replace("{count}", to.toString()) ||
+                      to.toString()
+                }`
+              }
+              sx={{
+                borderTop: "none",
+                ".MuiTablePagination-toolbar": {
+                  pl: 0,
+                },
+                ".MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows":
+                  {
+                    fontSize: 13,
+                  },
+              }}
+            />
+          </Box>
+        )}
     </>
   );
 

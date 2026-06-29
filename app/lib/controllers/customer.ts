@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "../db";
+import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
@@ -20,6 +21,7 @@ async function invalidateCustomerCache(companyId: string, customerId?: string) {
     invalidatePattern(customerCacheKeys.companyPattern(companyId)),
     customerId ? redis.del(customerCacheKeys.detail(customerId)) : Promise.resolve(),
   ]);
+  revalidatePath("/", "layout");
 }
 
 export const createCustomer = authenticatedAction(

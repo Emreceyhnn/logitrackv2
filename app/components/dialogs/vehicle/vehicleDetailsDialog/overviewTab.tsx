@@ -14,6 +14,7 @@ import LocalGasStationIcon from "@mui/icons-material/LocalGasStation";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ConstructionIcon from "@mui/icons-material/Construction";
 import OilBarrelIcon from "@mui/icons-material/OilBarrel";
+
 import MapVehicleOverviewCard from "./map";
 import { useState } from "react";
 import AssignDriverDialog from "../assignDriverDialog";
@@ -296,6 +297,8 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
                   />
                 </Card>
               </Grid>
+
+
             </Grid>
 
             <Button

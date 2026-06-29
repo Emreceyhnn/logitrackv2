@@ -25,6 +25,14 @@ import { toast } from "sonner";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
+// CANCELED is defined in the schema but has no UI action that sets it and
+// doesn't appear in seed data — omit it so the filter stays concise.
+const VISIBLE_ROUTE_STATUSES: RouteStatus[] = [
+  RouteStatus.PLANNED,
+  RouteStatus.ACTIVE,
+  RouteStatus.COMPLETED,
+];
+
 interface ExtendedRouteTableProps extends RouteTableProps {
   onRefresh?: () => void;
   onEdit?: (id: string) => void;
@@ -123,7 +131,7 @@ const RouteTable = ({
   /* ---------------------------------- filters ---------------------------------- */
   const STATUS_OPTIONS = useMemo(
     () =>
-      Object.values(RouteStatus).map((s) => ({
+      VISIBLE_ROUTE_STATUSES.map((s) => ({
         label: getStatusMeta(s, dict).label || s.replace(/_/g, " "),
         value: s,
       })),

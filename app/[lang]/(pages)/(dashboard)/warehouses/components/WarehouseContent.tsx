@@ -60,12 +60,11 @@ export default function WarehouseContent() {
   const {
     data: dashboardData,
     isLoading,
+    isFetching,
     refetch,
   } = useWarehousesWithDashboard(pagination.page, pagination.pageSize);
 
   const { deleteWarehouse: deleteMutation } = useWarehouseMutations();
-
-  const loading = isLoading;
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
@@ -179,6 +178,7 @@ export default function WarehouseContent() {
           </Typography>
         </Box>
         <Button
+          data-tour="warehouse-add"
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setAddDialogOpen(true)}
@@ -189,13 +189,13 @@ export default function WarehouseContent() {
       </Stack>
 
       <Box mb={2}>
-        <KpiCards kpis={kpiItems} loading={loading} />
+        <KpiCards kpis={kpiItems} loading={isLoading} />
       </Box>
 
-      <Stack mt={2}>
+      <Stack mt={2} data-tour="warehouse-table">
         <WarehouseListTable
           warehouses={warehouses}
-          loading={loading}
+          loading={isFetching}
           onSelect={actions.selectWarehouse}
           onEdit={actions.editWarehouse}
           onDelete={actions.deleteWarehouse}
@@ -213,8 +213,8 @@ export default function WarehouseContent() {
       </Stack>
 
       <Stack direction={{ xs: "column", xl: "row" }} spacing={4} sx={{ mt: 2 }}>
-        <CapacityUtilization warehouses={warehouses} loading={loading} />
-        <RecentStockMovements movements={recentMovements} loading={loading} />
+        <CapacityUtilization warehouses={warehouses} loading={isLoading} />
+        <RecentStockMovements movements={recentMovements} loading={isLoading} />
       </Stack>
 
       <AddWarehouseDialog

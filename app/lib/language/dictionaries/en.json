@@ -134,7 +134,131 @@
     "yourTime": "Your Time",
     "currentTimeAtLocation": "Current time at location",
     "confirmLogoutDescription": "Are you sure you want to end your session?",
-    "logoutWarning": "All your active session data will be cleared and you will be redirected to the login page."
+    "logoutWarning": "All your active session data will be cleared and you will be redirected to the login page.",
+    "guidedTour": {
+      "next": "Next",
+      "prev": "Previous",
+      "finish": "Finish",
+      "startTour": "Start Tour"
+    }
+  },
+  "guidedTour": {
+    "overview": {
+      "titleStep": {
+        "title": "Dashboard Overview",
+        "description": "This is your central command center. Get a real-time snapshot of all logistics operations, KPIs, and alerts at a glance."
+      },
+      "kpiStep": {
+        "title": "Key Performance Indicators",
+        "description": "These cards show your most important metrics: active shipments, delayed orders, fleet status, driver activity, and warehouse utilization."
+      },
+      "dailyOpsStep": {
+        "title": "Daily Operations",
+        "description": "Track today's operational metrics including planned routes, completed deliveries, failed deliveries, average delivery time, and fuel consumption."
+      },
+      "actionRequiredStep": {
+        "title": "Action Required",
+        "description": "Items that need your immediate attention — delayed shipments, expiring documents, or maintenance alerts. Click any item to take action."
+      },
+      "mapStep": {
+        "title": "Live Operations Map",
+        "description": "See all your warehouses, vehicles, and customers on an interactive map. Track fleet positions and delivery progress in real time."
+      }
+    },
+    "vehicles": {
+      "tableStep": {
+        "title": "Vehicle Fleet",
+        "description": "View and manage all vehicles in your fleet. Filter by status, type, or location. Click a row to see vehicle details."
+      },
+      "addStep": {
+        "title": "Add Vehicle",
+        "description": "Register a new vehicle to your fleet. Fill in specifications, assign to a warehouse, and upload documents."
+      }
+    },
+    "shipments": {
+      "tableStep": {
+        "title": "Shipment Management",
+        "description": "Track all shipments and their statuses. Use filters to find specific shipments by status, date, or customer."
+      },
+      "addStep": {
+        "title": "Create Shipment",
+        "description": "Create a new shipment order. Specify origin, destination, cargo details, and assign a vehicle and driver."
+      }
+    },
+    "analytics": {
+      "headerStep": {
+        "title": "Analytics Dashboard",
+        "description": "Deep-dive into your operational performance. Select time ranges and export reports for stakeholder review."
+      },
+      "gaugesStep": {
+        "title": "Performance Gauges",
+        "description": "Visual indicators for on-time delivery rate, fleet utilization, and customer satisfaction scores against targets."
+      },
+      "forecastStep": {
+        "title": "AI Forecasting",
+        "description": "Machine learning-powered shipment volume predictions. Compare actual vs predicted trends to plan capacity ahead."
+      },
+      "costStep": {
+        "title": "Cost Analysis",
+        "description": "Break down operational costs by category — fuel, maintenance, and overhead — with trend analysis over time."
+      }
+    },
+    "warehouses": {
+      "tableStep": {
+        "title": "Warehouse Management",
+        "description": "View all warehouses, their capacity utilization, locations, and operational status."
+      },
+      "addStep": {
+        "title": "Add Warehouse",
+        "description": "Register a new warehouse location with address, capacity, operating hours, and contact details."
+      }
+    },
+    "drivers": {
+      "tableStep": {
+        "title": "Driver Management",
+        "description": "Manage your driver roster. View license status, availability, performance ratings, and assigned vehicles."
+      },
+      "addStep": {
+        "title": "Add Driver",
+        "description": "Register a new driver with license details, contact info, and vehicle assignment."
+      }
+    },
+    "routes": {
+      "tableStep": {
+        "title": "Route Planning",
+        "description": "View and manage delivery routes. See route details, stops, estimated times, and assigned vehicles."
+      },
+      "addStep": {
+        "title": "Create Route",
+        "description": "Plan a new delivery route by adding stops, assigning vehicles, and setting estimated arrival times."
+      }
+    },
+    "inventory": {
+      "tableStep": {
+        "title": "Inventory Overview",
+        "description": "Track stock levels across all warehouses. Monitor SKUs, quantities, and reorder points."
+      },
+      "addStep": {
+        "title": "Add Inventory Item",
+        "description": "Add new inventory items with SKU, category, warehouse assignment, and stock thresholds."
+      }
+    },
+    "customers": {
+      "tableStep": {
+        "title": "Customer Directory",
+        "description": "Manage your customer database. View contact details, shipping addresses, and order history."
+      },
+      "addStep": {
+        "title": "Add Customer",
+        "description": "Register a new customer with company details, contact information, and delivery preferences."
+      }
+    },
+    "reports": {
+      "contentStep": {
+        "title": "Reports Center",
+        "description": "Generate and view operational reports. Export data in various formats for compliance and analysis."
+      }
+    }
   },
   "primaryColors": {
     "title": "Color Configuration",
@@ -1378,7 +1502,8 @@
         "documents": "Documents",
         "maintenance": "Maintenance",
         "fuel": "Fuel Logs",
-        "map": "Live Map"
+        "map": "Live Map",
+        "specs": "Tech Specs"
       }
     },
     "kpis": {
@@ -2170,7 +2295,11 @@
       "liveTelemetry": "LIVE TELEMETRY",
       "distTravelled": "DIST. TRAVELLED",
       "remaining": "Remaining",
-      "fuelLevel": "Fuel level"
+      "fuelLevel": "Fuel level",
+      "vehicleToDestination": "JOURNEY STATUS",
+      "traveledLabel": "TRAVELED",
+      "toDestination": "REMAINING",
+      "etaLabel": "ETA"
     },
     "dialogs": {
       "localizationDesc": "Global regional settings synchronize time matrices, currency symbols, and date formatting across all telemetry and management layers.",

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import {
   useQuery,
   useMutation,
@@ -150,7 +151,9 @@ export function useDriverWithDashboard(
   sortField?: string,
   sortOrder?: "asc" | "desc"
 ) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: driverKeys.dashboardWithFilters({
       page,
       limit,
@@ -173,6 +176,44 @@ export function useDriverWithDashboard(
     staleTime: 1000 * 60 * 5,
     placeholderData: keepPreviousData,
   });
+
+  // Prefetch the next ~30 items (multiple pages) so pagination feels instant.
+  // prefetchQuery is a no-op for pages already in cache — only genuinely new
+  // pages trigger a fetch (incremental behaviour).
+  useEffect(() => {
+    const totalPages = query.data?.meta?.totalPages;
+    if (!totalPages) return;
+    const pagesToPrefetch = Math.max(1, Math.ceil(30 / limit));
+    for (let i = 1; i <= pagesToPrefetch; i++) {
+      const nextPage = page + i;
+      if (nextPage > totalPages) break;
+      queryClient.prefetchQuery({
+        queryKey: driverKeys.dashboardWithFilters({
+          page: nextPage,
+          limit,
+          search,
+          status,
+          hasVehicle,
+          sortField,
+          sortOrder,
+        }),
+        queryFn: () =>
+          fetchDriverDashboard({
+            page: nextPage,
+            limit,
+            search,
+            status,
+            hasVehicle,
+            sortField,
+            sortOrder,
+          }),
+        staleTime: 1000 * 60 * 5,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryClient, query.data, page, limit]);
+
+  return query;
 }
 
 export function useDriverMutations() {

@@ -27,8 +27,7 @@ export function useTableParams(options?: TableParamsOptions) {
 
   const getArrayFilter = useCallback(
     (key: string): string[] => {
-      const val = searchParams.get(key);
-      return val ? val.split(",") : [];
+      return searchParams.getAll(key);
     },
     [searchParams]
   );
@@ -51,10 +50,9 @@ export function useTableParams(options?: TableParamsOptions) {
         if (value === undefined || value === null || value === "") {
           params.delete(key);
         } else if (Array.isArray(value)) {
+          params.delete(key);
           if (value.length > 0) {
-            params.set(key, value.join(","));
-          } else {
-            params.delete(key);
+            value.forEach((v) => params.append(key, String(v)));
           }
         } else {
           params.set(key, String(value));
