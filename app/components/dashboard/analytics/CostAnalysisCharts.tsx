@@ -140,7 +140,7 @@ export default function CostAnalysisCharts({ state }: CostAnalysisChartsProps) {
                 >
                   <BarChartIcon fontSize="small" />
                 </Box>
-                <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.01em" }}>
+                <Typography variant="h6" fontWeight={800} color="text.primary" sx={{ letterSpacing: "-0.01em" }}>
                   {dict.analytics.costs.title}
                 </Typography>
               </Stack>
@@ -209,7 +209,7 @@ export default function CostAnalysisCharts({ state }: CostAnalysisChartsProps) {
             >
               <DonutSmallIcon fontSize="small" />
             </Box>
-            <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.01em" }}>
+            <Typography variant="h6" fontWeight={800} color="text.primary" sx={{ letterSpacing: "-0.01em" }}>
               {dict.analytics.costs.breakdown}
             </Typography>
           </Stack>

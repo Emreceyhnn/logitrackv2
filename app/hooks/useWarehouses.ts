@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import {
   useQuery,
   useMutation,
@@ -105,12 +108,33 @@ export function useWarehousesWithDashboard(
   page: number = 1,
   pageSize: number = 10
 ) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: warehouseKeys.dashboardWithFilters(page, pageSize),
     queryFn: () => fetchWarehouseDashboard(page, pageSize),
     staleTime: 1000 * 60 * 5,
     placeholderData: keepPreviousData,
   });
+
+  useEffect(() => {
+    const totalCount = query.data?.totalCount;
+    if (!totalCount) return;
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const pagesToPrefetch = Math.max(1, Math.ceil(30 / pageSize));
+    for (let i = 1; i <= pagesToPrefetch; i++) {
+      const nextPage = page + i;
+      if (nextPage > totalPages) break;
+      queryClient.prefetchQuery({
+        queryKey: warehouseKeys.dashboardWithFilters(nextPage, pageSize),
+        queryFn: () => fetchWarehouseDashboard(nextPage, pageSize),
+        staleTime: 1000 * 60 * 5,
+      });
+    }
+
+  }, [queryClient, query.data, page, pageSize]);
+
+  return query;
 }
 
 export function useWarehouseMutations() {

@@ -55,6 +55,7 @@ export default function ShipmentContent() {
   const {
     data: dashboardData,
     isLoading,
+    isFetching,
     refetch,
   } = useShipmentsWithDashboard(
     pagination.page,
@@ -63,11 +64,7 @@ export default function ShipmentContent() {
     filters.search
   );
 
-
   const { deleteShipment: deleteMutation } = useShipmentMutations();
-
-  const loading = isLoading;
-
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
@@ -98,7 +95,7 @@ export default function ShipmentContent() {
     statusDistribution: dashboardData?.statusDistribution || [],
     selectedShipmentId,
     filters,
-    loading,
+    loading: isFetching,
     error: null,
   };
 
@@ -191,6 +188,7 @@ export default function ShipmentContent() {
           </Typography>
         </Box>
         <Button
+          data-tour="shipment-add"
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setAddDialogOpen(true)}
@@ -200,9 +198,9 @@ export default function ShipmentContent() {
         </Button>
       </Stack>
 
-      <KpiCards kpis={kpiItems} loading={state.loading} />
+      <KpiCards kpis={kpiItems} loading={isLoading} />
 
-      <Stack mt={2}>
+      <Stack mt={2} data-tour="shipment-table">
         <ShipmentTable
           state={state}
           actions={{

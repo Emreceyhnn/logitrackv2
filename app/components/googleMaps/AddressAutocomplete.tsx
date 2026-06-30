@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import AutocompleteModuleImport from "react-google-autocomplete";
 import { Search } from "lucide-react";
-import { Typography } from "@mui/material";
+import { Typography, Box, SxProps, Theme } from "@mui/material";
 
 export interface AddressData {
   formattedAddress: string;
@@ -36,6 +36,7 @@ interface AddressAutocompleteProps {
   error?: boolean;
   helperText?: string;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  sx?: SxProps<Theme>;
 }
 
 // Since react-google-autocomplete is compiled as a CommonJS module,
@@ -81,6 +82,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   disabled,
   error,
   helperText,
+  sx,
 }) => {
   const [internalValue, setInternalValue] = useState(value);
   const [prevValue, setPrevValue] = useState(value);
@@ -129,9 +131,9 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   };
 
   return (
-    <div style={{ position: "relative", width: "100%", marginBottom: "0px" }}>
-      <div
-        style={{ position: "relative", display: "flex", alignItems: "center" }}
+    <Box sx={{ position: "relative", width: "100%", marginBottom: "0px", ...sx }}>
+      <Box
+        sx={{ position: "relative", display: "flex", alignItems: "center", height: "100%" }}
       >
         <Search
           size={16}
@@ -163,6 +165,9 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             outline: "none",
             transition: "border-color 0.2s",
             opacity: disabled ? 0.5 : 1,
+            height: "100%",
+            minHeight: "52px",
+            boxSizing: "border-box",
           }}
           placeholder={placeholder}
           onFocus={(e) => {
@@ -173,7 +178,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             if (onBlur) onBlur(e);
           }}
         />
-      </div>
+      </Box>
       {error && helperText && (
         <Typography
           variant="caption"
@@ -183,7 +188,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           {helperText}
         </Typography>
       )}
-    </div>
+    </Box>
   );
 };
 

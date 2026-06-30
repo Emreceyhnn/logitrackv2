@@ -164,6 +164,7 @@ export default function CustomerContent() {
               }}
             />
             <Button
+              data-tour="customer-add"
               variant="contained"
               size="small"
               startIcon={<AddIcon />}
@@ -192,7 +193,7 @@ export default function CustomerContent() {
             </Stack>
           )}
         </Paper>
-        <Box sx={{ flex: 1, overflow: "hidden" }}>
+        <Box sx={{ flex: 1, overflow: "hidden" }} data-tour="customer-table">
           <CustomerList
             customers={customers}
             selectedId={selectedCustomerId}

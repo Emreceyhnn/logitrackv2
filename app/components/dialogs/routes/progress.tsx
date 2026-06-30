@@ -36,9 +36,7 @@ export default function RouteProgress({
     } else if (isLast) {
       locationName = stop.address || dict.routes.details.destination;
     } else {
-      locationName = `${dict.routes.details.delivery}: ${
-        stop.address || "-"
-      }`;
+      locationName = `${dict.routes.details.delivery}: ${stop.address || "-"}`;
     }
 
     let status: string;
@@ -65,6 +63,7 @@ export default function RouteProgress({
       sx={{
         flex: 1,
         minHeight: 0,
+        maxHeight: 500,
         display: "flex",
         flexDirection: "column",
       }}
@@ -76,7 +75,7 @@ export default function RouteProgress({
         sx={{
           flex: 1,
           minHeight: 0,
-          maxHeight: { xs: 320, md: "none" },
+          maxHeight: 220, // Shows at least 3-4 items, scrolls if more
           overflowY: "auto",
           pr: 1,
           "&::-webkit-scrollbar": { width: 6 },
@@ -88,39 +87,39 @@ export default function RouteProgress({
       >
         <Stepper activeStep={currentStep} orientation="vertical">
           {stops.map((step, index) => (
-          <Step key={index} expanded={true}>
-            <StepLabel
-              StepIconComponent={() => (
-                <CircleIcon
-                  sx={{
-                    fontSize: 12,
-                    color:
-                      index <= currentStep ? "primary.main" : "text.disabled",
-                  }}
-                />
-              )}
-            >
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                width="100%"
+            <Step key={index} expanded={true}>
+              <StepLabel
+                StepIconComponent={() => (
+                  <CircleIcon
+                    sx={{
+                      fontSize: 12,
+                      color:
+                        index <= currentStep ? "primary.main" : "text.disabled",
+                    }}
+                  />
+                )}
               >
-                <Typography
-                  variant="body2"
-                  fontWeight={500}
-                  color={index <= currentStep ? "white" : "text.secondary"}
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  width="100%"
                 >
-                  {step.locationName}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {step.time}
-                </Typography>
-              </Stack>
-            </StepLabel>
-            <StepContent>
-              <Box sx={{ height: 10 }} />
-            </StepContent>
-          </Step>
+                  <Typography
+                    variant="body2"
+                    fontWeight={500}
+                    color={index <= currentStep ? "white" : "text.secondary"}
+                  >
+                    {step.locationName}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {step.time}
+                  </Typography>
+                </Stack>
+              </StepLabel>
+              <StepContent>
+                <Box sx={{ height: 10 }} />
+              </StepContent>
+            </Step>
           ))}
         </Stepper>
       </Box>

@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "../db";
+import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma, WarehouseType } from "@prisma/client";
@@ -30,6 +31,7 @@ async function invalidateWarehouseCache(
       ? redis.del(warehouseCacheKeys.detail(warehouseId))
       : Promise.resolve(),
   ]);
+  revalidatePath("/", "layout");
 }
 
 export const createWarehouse = authenticatedAction(

@@ -64,6 +64,7 @@ export default function InventoryContent() {
   const {
     data: dashboardData,
     isLoading,
+    isFetching,
     refetch,
   } = useInventoryWithDashboard(
     page,
@@ -88,8 +89,6 @@ export default function InventoryContent() {
 
   const { deleteItem: deleteMutation, updateItem: updateMutation } =
     useInventoryMutations();
-
-  const loading = isLoading;
 
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
@@ -207,7 +206,7 @@ export default function InventoryContent() {
         }
         onStatusChange={(newStatus) => actions.updateFilters({ status: newStatus })}
       />
-      <KpiCards kpis={kpiItems} loading={loading} />
+      <KpiCards kpis={kpiItems} loading={isLoading} />
 
       <Stack mt={2}>
         <CustomCard sx={{ padding: "0 0 6px 0" }}>
@@ -215,9 +214,10 @@ export default function InventoryContent() {
             {dict.inventory.header}
           </Typography>
           <Divider />
-          <InventoryTable
+          <Box data-tour="inventory-table">
+            <InventoryTable
             items={items}
-            loading={loading}
+            loading={isFetching}
             onSelect={actions.openDetails}
             onEdit={(item) => actions.openEdit(item.id)}
             onDelete={handleDeleteRequest}
@@ -232,6 +232,7 @@ export default function InventoryContent() {
             sortOrder={sortOrder}
             onRequestSort={handleSortRequest}
           />
+          </Box>
         </CustomCard>
       </Stack>
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "../db";
+import { revalidatePath } from "next/cache";
 import {
   TrailerStatus,
   TrailerType,
@@ -28,6 +29,7 @@ async function invalidateTrailerCache(
     invalidatePattern(trailerCacheKeys.companyPattern(companyId)),
     trailerId ? redis.del(trailerCacheKeys.detail(trailerId)) : Promise.resolve(),
   ]);
+  revalidatePath("/", "layout");
 }
 
 

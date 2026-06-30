@@ -65,7 +65,7 @@ export default function PerformanceGauges({ state }: PerformanceGaugesProps) {
               <CheckCircleIcon fontSize="small" />
             </Box>
             <Box>
-              <Typography variant="subtitle2" fontWeight={800}>
+              <Typography variant="subtitle2" fontWeight={800} color="text.primary">
                 {dict.analytics.performance.onTimeDelivery}
               </Typography>
             </Box>
@@ -134,7 +134,7 @@ export default function PerformanceGauges({ state }: PerformanceGaugesProps) {
               <SpeedIcon fontSize="small" />
             </Box>
             <Box>
-              <Typography variant="subtitle2" fontWeight={800}>
+              <Typography variant="subtitle2" fontWeight={800} color="text.primary">
                 {dict.analytics.performance.fleetUtilization}
               </Typography>
             </Box>
@@ -198,7 +198,7 @@ export default function PerformanceGauges({ state }: PerformanceGaugesProps) {
               <SentimentSatisfiedAltIcon fontSize="small" />
             </Box>
             <Box>
-              <Typography variant="subtitle2" fontWeight={800}>
+              <Typography variant="subtitle2" fontWeight={800} color="text.primary">
                 {dict.analytics.performance.customerSatisfaction}
               </Typography>
             </Box>

@@ -121,6 +121,7 @@ export async function GET(req: NextRequest) {
             nextServiceKm: true, avgFuelConsumption: true, status: true,
             odometerKm: true, fuelLevel: true, fuelCapacity: true, currentLat: true,
             currentLng: true, photo: true, createdAt: true, updatedAt: true,
+            engineSize: true, transmission: true, techNotes: true,
             driver: {
               select: {
                 id: true, rating: true,

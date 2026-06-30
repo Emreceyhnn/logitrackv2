@@ -102,7 +102,7 @@ const MapVehicleOverviewCard = ({
 
   return (
     <CustomCard
-      sx={{ flexGrow: 1, padding: 0, overflow: "hidden", position: "relative" }}
+      sx={{ flexGrow: 1, padding: 0, overflow: "hidden", position: "relative", display: "flex", flexDirection: "column" }}
     >
       {/* ── Live/Offline Status Badge ─────────────────────────────────── */}
       <Box
@@ -195,6 +195,7 @@ const MapVehicleOverviewCard = ({
           width="100%"
           height="100%"
           sx={{
+            flexGrow: 1,
             minHeight: 320,
             bgcolor: (theme) =>
               theme.palette.mode === "dark"
@@ -203,7 +204,7 @@ const MapVehicleOverviewCard = ({
           }}
         />
       ) : activeLocation ? (
-        <Box sx={{ width: "100%", height: "500px" }}>
+        <Box sx={{ width: "100%", flexGrow: 1, minHeight: 320, position: "relative", zIndex: 1 }}>
           <MapWithMarkers markers={markers} />
         </Box>
       ) : (
@@ -213,6 +214,7 @@ const MapVehicleOverviewCard = ({
           justifyContent="center"
           spacing={1.5}
           sx={{
+            flexGrow: 1,
             minHeight: 320,
             bgcolor: (theme) =>
               theme.palette.mode === "dark"

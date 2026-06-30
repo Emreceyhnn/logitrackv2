@@ -34,7 +34,7 @@ export default function RoutesContent() {
   /* --------------------------------- STATE --------------------------------- */
   const [filters, setFilters] = useState<RoutesPageState["filters"]>({});
   const [pagination, setPagination] = useState({
-    page: 0,
+    page: 1,
     pageSize: 10,
   });
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -48,6 +48,7 @@ export default function RoutesContent() {
   const {
     data: dashboardData,
     isLoading,
+    isFetching,
     refetch,
   } = useRoutesWithDashboard(
     pagination.page,
@@ -62,8 +63,6 @@ export default function RoutesContent() {
   const efficiency = dashboardData?.efficiency;
   const mapData = dashboardData?.mapData || [];
 
-  const loading = isLoading;
-
   /* --------------------------------- ACTIONS -------------------------------- */
   const refreshAll = useCallback(async () => {
     await refetch();
@@ -77,7 +76,7 @@ export default function RoutesContent() {
     refreshAll,
     updateFilters: (newFilters: Partial<RoutesPageState["filters"]>) => {
       setFilters((prev) => ({ ...prev, ...newFilters }));
-      setPagination((prev) => ({ ...prev, page: 0 }));
+      setPagination((prev) => ({ ...prev, page: 1 }));
     },
     changePage: (newPage: number) =>
       setPagination((prev) => ({ ...prev, page: newPage })),
@@ -169,6 +168,7 @@ export default function RoutesContent() {
           </Typography>
         </Box>
         <Button
+          data-tour="route-add"
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setAddDialogOpen(true)}
@@ -177,19 +177,19 @@ export default function RoutesContent() {
           {dict.routes.addRoute}
         </Button>
       </Stack>
-      <KpiCards kpis={kpiItems} loading={loading} />
+      <KpiCards kpis={kpiItems} loading={isLoading} />
 
       <Stack mt={2} direction={"row"} spacing={3}>
-        <RoutesMainMap mapData={mapData as MapRouteData[]} loading={loading} />
+        <RoutesMainMap mapData={mapData as MapRouteData[]} loading={isLoading} />
         <RouteEfficiency
           data={efficiency as RouteEfficiencyStats}
-          loading={loading}
+          loading={isLoading}
         />
       </Stack>
-      <Stack mt={2}>
+      <Stack mt={2} data-tour="route-table">
         <RouteTable
           routes={routes}
-          loading={loading}
+          loading={isFetching}
           pagination={{
             page: pagination.page,
             pageSize: pagination.pageSize,

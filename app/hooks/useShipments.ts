@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { exclude } from "@/app/lib/utils/exclude";
 import {
@@ -152,12 +155,33 @@ export function useShipmentsWithDashboard(
   status?: ShipmentStatus,
   search?: string
 ) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: shipmentKeys.dashboardWithFilters(page, pageSize, status, search),
     queryFn: () => fetchShipmentDashboard(page, pageSize, status, search),
     staleTime: 1000 * 60 * 5,
     placeholderData: keepPreviousData,
   });
+
+  useEffect(() => {
+    const totalCount = query.data?.totalCount;
+    if (!totalCount) return;
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const pagesToPrefetch = Math.max(1, Math.ceil(30 / pageSize));
+    for (let i = 1; i <= pagesToPrefetch; i++) {
+      const nextPage = page + i;
+      if (nextPage > totalPages) break;
+      queryClient.prefetchQuery({
+        queryKey: shipmentKeys.dashboardWithFilters(nextPage, pageSize, status, search),
+        queryFn: () => fetchShipmentDashboard(nextPage, pageSize, status, search),
+        staleTime: 1000 * 60 * 5,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryClient, query.data, page, pageSize]);
+
+  return query;
 }
 
 

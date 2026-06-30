@@ -123,15 +123,26 @@ export default function ShipmentDetailDialog({
 }: ShipmentDetailDialogProps) {
   /* -------------------------------------------------------------------------- */
   const waypoints = useMemo(() => {
-    const stops = shipment?.stops || [];
-    return stops
-      .filter((i) => i.lat && i.lng)
-      .map((i) => ({
-        name: i.address,
-        lat: Number(i.lat),
-        lon: Number(i.lng),
-      }));
-  }, [shipment?.stops]);
+    if (!shipment) return [];
+    const pts: { name: string; lat: number; lon: number }[] = [];
+
+    if (shipment.originLat && shipment.originLng)
+      pts.push({ name: shipment.origin || "Origin", lat: shipment.originLat, lon: shipment.originLng });
+
+    const intermediateSorted = [...(shipment.stops || [])]
+      .filter((s) => s.lat && s.lng)
+      .filter((s) => !(s.lat === shipment.originLat && s.lng === shipment.originLng))
+      .filter((s) => !(s.lat === shipment.destinationLat && s.lng === shipment.destinationLng))
+      .sort((a, b) => a.sequence - b.sequence);
+      
+    for (const s of intermediateSorted)
+      pts.push({ name: s.address, lat: Number(s.lat), lon: Number(s.lng) });
+
+    if (shipment.destinationLat && shipment.destinationLng)
+      pts.push({ name: shipment.destination || "Destination", lat: shipment.destinationLat, lon: shipment.destinationLng });
+
+    return pts;
+  }, [shipment]);
 
   const [data, setData] = useState<PolylineHelperResult | null>(null);
 
@@ -162,8 +173,11 @@ export default function ShipmentDetailDialog({
 
   const stops = shipment?.stops;
   const stopsSorted = useMemo(() => {
-    return stops ? [...stops].sort((a, b) => a.sequence - b.sequence) : [];
-  }, [stops]);
+    return stops ? [...stops]
+      .filter((s) => !(s.lat === shipment.originLat && s.lng === shipment.originLng))
+      .filter((s) => !(s.lat === shipment.destinationLat && s.lng === shipment.destinationLng))
+      .sort((a, b) => a.sequence - b.sequence) : [];
+  }, [stops, shipment]);
 
   const hasStops = stopsSorted.length > 0;
 
@@ -301,11 +315,12 @@ export default function ShipmentDetailDialog({
                     flexDirection: "column",
                     flex: 1,
                     minHeight: 0,
+                    overflowY: "auto",
                   }}
                 >
-                  <Stack spacing={3} sx={{ flex: 1, minHeight: 0 }}>
+                  <Stack spacing={3}>
                     {/* Driver */}
-                    <Stack spacing={1.5} sx={{ flexShrink: 0 }}>
+                    <Stack spacing={1.5}>
                       <Typography
                         variant="overline"
                         color="text.secondary"
@@ -340,7 +355,7 @@ export default function ShipmentDetailDialog({
                     />
 
                     {/* Mission Path */}
-                    <Stack spacing={2} sx={{ flex: 1, minHeight: 0 }}>
+                    <Stack spacing={2}>
                       <Stack direction="row" spacing={1} alignItems="center">
                         <Box
                           sx={{
@@ -360,16 +375,7 @@ export default function ShipmentDetailDialog({
                         </Typography>
                       </Stack>
 
-                      <Box
-                        sx={{
-                          position: "relative",
-                          flex: 1,
-                          minHeight: 120,
-                          overflowY: "auto",
-                          overflowX: "hidden",
-                          pr: 1,
-                        }}
-                      >
+                      <Box sx={{ position: "relative" }}>
                         <Stack
                           spacing={4}
                           sx={{ position: "relative", pl: 5.5, py: 1 }}
@@ -441,10 +447,9 @@ export default function ShipmentDetailDialog({
                             </Stack>
                           </Box>
 
-                          {/* 2. Intermediate Stops */}
+                          {/* 2. Intermediate Stops — all ShipmentStop records */}
                           {hasStops &&
-                            stopsSorted.length > 1 &&
-                            stopsSorted.slice(1, -1).map((stop, index) => (
+                            stopsSorted.map((stop, index) => (
                               <Box key={stop.id} sx={{ position: "relative" }}>
                                 <Box
                                   sx={{
@@ -531,9 +536,7 @@ export default function ShipmentDetailDialog({
                                 fontWeight={700}
                                 color="text.primary"
                               >
-                                {hasStops
-                                  ? stopsSorted[stopsSorted.length - 1].address
-                                  : shipment.destination || dict.common.noData}
+                                {shipment.destination || dict.common.noData}
                               </Typography>
                             </Stack>
                           </Box>

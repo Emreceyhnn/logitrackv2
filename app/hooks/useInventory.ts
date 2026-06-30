@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import {
   useQuery,
   useMutation,
@@ -62,7 +65,6 @@ async function fetchInventoryDashboard(
   if (sortOrder) params.set("sortOrder", sortOrder);
   if (status && status.length > 0) params.set("status", status.join(","));
 
-  console.log("fetchInventoryDashboard params:", params.toString());
   const response = await fetch(`/api/inventory/dashboard?${params.toString()}`, {
     method: "GET",
     credentials: "include",
@@ -70,9 +72,7 @@ async function fetchInventoryDashboard(
   if (!response.ok) {
     throw new Error("Failed to fetch inventory dashboard data");
   }
-  const data = await response.json();
-  console.log("fetchInventoryDashboard response:", data);
-  return data;
+  return response.json();
 }
 
 export function useInventoryWithDashboard(
@@ -84,7 +84,9 @@ export function useInventoryWithDashboard(
   sortOrder?: "asc" | "desc",
   status?: string[]
 ) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: inventoryKeys.dashboardWithFilters(
       page,
       pageSize,
@@ -107,6 +109,42 @@ export function useInventoryWithDashboard(
     staleTime: 1000 * 60 * 5,
     placeholderData: keepPreviousData,
   });
+
+  useEffect(() => {
+    const totalCount = query.data?.totalCount;
+    if (!totalCount) return;
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const pagesToPrefetch = Math.max(1, Math.ceil(30 / pageSize));
+    for (let i = 1; i <= pagesToPrefetch; i++) {
+      const nextPage = page + i;
+      if (nextPage > totalPages) break;
+      queryClient.prefetchQuery({
+        queryKey: inventoryKeys.dashboardWithFilters(
+          nextPage,
+          pageSize,
+          warehouseId,
+          search,
+          sortBy,
+          sortOrder,
+          status
+        ),
+        queryFn: () =>
+          fetchInventoryDashboard(
+            nextPage,
+            pageSize,
+            warehouseId,
+            search,
+            sortBy,
+            sortOrder,
+            status
+          ),
+        staleTime: 1000 * 60 * 5,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryClient, query.data, page, pageSize]);
+
+  return query;
 }
 
 export function useInventoryItem(id: string | null) {

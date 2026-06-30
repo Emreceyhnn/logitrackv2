@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "../db";
+import { revalidatePath } from "next/cache";
 import { checkPermission } from "./utils/checkPermission";
 import { DriverStatus, Prisma } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
@@ -30,6 +31,7 @@ async function invalidateDriverCache(companyId: string, driverId?: string) {
     invalidatePattern(driverCacheKeys.companyPattern(companyId)),
     driverId ? redis.del(driverCacheKeys.detail(driverId)) : Promise.resolve(),
   ]);
+  revalidatePath("/", "layout");
 }
 
 export const getDriverById = authenticatedAction(

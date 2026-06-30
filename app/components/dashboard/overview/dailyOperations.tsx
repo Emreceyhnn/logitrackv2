@@ -72,7 +72,7 @@ const DailyOperationsCard = ({ values }: DailyOperationsCardProps) => {
     <CustomCard
       sx={{
         padding: "0 0 6px 0",
-        height: "100%",
+        height: 420,
         display: "flex",
         flexDirection: "column",
       }}

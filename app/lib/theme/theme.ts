@@ -392,30 +392,87 @@ export const getTheme = (mode: ThemeMode) => {
       MuiTextField: {
         defaultProps: {
           variant: "outlined",
-          size: "small",
+          fullWidth: true,
         },
         styleOverrides: {
           root: {
             marginBottom: "20px",
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 8,
-              backgroundColor:
-                mode === "dark"
-                  ? "rgba(255, 255, 255, 0.03)"
-                  : "rgba(0, 0, 0, 0.01)",
-              "& fieldset": {
-                borderColor: palettes[mode].divider,
-              },
-              "&:hover fieldset": {
-                borderColor:
-                  mode === "dark"
-                    ? "rgba(255, 255, 255, 0.2)"
-                    : "rgba(0, 0, 0, 0.2)",
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: palettes[mode].primary.main,
-              },
+          },
+        },
+      },
+      MuiInputLabel: {
+        styleOverrides: {
+          root: {
+            fontSize: "0.95rem",
+            color: palettes[mode].text.secondary,
+            "&.Mui-focused": {
+              color: palettes[mode].primary.main,
+              fontWeight: 600,
             },
+          },
+          outlined: {
+            transform: "translate(14px, 16px) scale(1)",
+            "&.MuiInputLabel-shrink": {
+              transform: "translate(14px, -9px) scale(0.75)",
+            },
+          },
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            minHeight: "52px",
+            borderRadius: 12,
+            backgroundColor:
+              mode === "dark"
+                ? "rgba(255, 255, 255, 0.03)"
+                : "rgba(0, 0, 0, 0.01)",
+            transition: "all 0.2s ease-in-out",
+            "& fieldset": {
+              borderColor: palettes[mode].divider,
+              borderWidth: "1px",
+              transition: "border-color 0.2s ease-in-out, border-width 0.2s ease-in-out",
+            },
+            "&:hover fieldset": {
+              borderColor:
+                mode === "dark"
+                  ? "rgba(255, 255, 255, 0.25)"
+                  : "rgba(0, 0, 0, 0.2)",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: palettes[mode].primary.main,
+              borderWidth: "2px",
+            },
+            "&.Mui-focused": {
+              boxShadow:
+                mode === "dark"
+                  ? `0 0 0 3px ${alpha(palettes[mode].primary.main, 0.2)}`
+                  : `0 0 0 3px ${alpha(palettes[mode].primary.main, 0.1)}`,
+            },
+            "&.Mui-error fieldset": {
+              borderColor: palettes[mode].error.main,
+            },
+          },
+          input: {
+            fontSize: "0.95rem",
+            fontWeight: 500,
+            color: palettes[mode].text.primary,
+          },
+        },
+      },
+      MuiSelect: {
+        styleOverrides: {
+          select: {
+            display: "flex",
+            alignItems: "center",
+          },
+        },
+      },
+      MuiAutocomplete: {
+        styleOverrides: {
+          inputRoot: {
+            paddingTop: "6px !important",
+            paddingBottom: "6px !important",
           },
         },
       },

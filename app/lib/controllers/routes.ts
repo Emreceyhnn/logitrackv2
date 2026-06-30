@@ -1,6 +1,7 @@
 "use server";
 
 import { type Prisma, RouteStatus } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
@@ -27,6 +28,7 @@ async function invalidateRouteCache(companyId: string, routeId?: string) {
     invalidatePattern(routeCacheKeys.companyPattern(companyId)),
     routeId ? redis.del(routeCacheKeys.detail(routeId)) : Promise.resolve(),
   ]);
+  revalidatePath("/", "layout");
 }
 export const createRoute = authenticatedAction(
   async (

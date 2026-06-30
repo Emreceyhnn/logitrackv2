@@ -123,8 +123,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
     <CustomCard
       sx={{
         padding: "0 0 6px 0",
-        height: "100%",
-        maxHeight: 360,
+        height: 420,
         display: "flex",
         flexDirection: "column",
       }}

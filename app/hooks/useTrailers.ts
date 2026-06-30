@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import {
   getTrailerById,
@@ -50,12 +51,36 @@ async function fetchTrailers(filters: TrailerFilters): Promise<{
 }
 
 export function useTrailers(filters: TrailerFilters = {}) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: trailerKeys.list(filters),
     queryFn: () => fetchTrailers(filters),
     staleTime: 1000 * 60 * 5,
     placeholderData: keepPreviousData,
   });
+
+  useEffect(() => {
+    const total = query.data?.meta?.total;
+    const page = filters.page || 1;
+    const limit = filters.limit || 10;
+    if (!total) return;
+    const totalPages = Math.ceil(total / limit);
+    const pagesToPrefetch = Math.max(1, Math.ceil(30 / limit));
+    for (let i = 1; i <= pagesToPrefetch; i++) {
+      const nextPage = page + i;
+      if (nextPage > totalPages) break;
+      const nextFilters = { ...filters, page: nextPage };
+      queryClient.prefetchQuery({
+        queryKey: trailerKeys.list(nextFilters),
+        queryFn: () => fetchTrailers(nextFilters),
+        staleTime: 1000 * 60 * 5,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryClient, query.data, filters.page, filters.limit]);
+
+  return query;
 }
 
 export function useTrailer(id: string) {

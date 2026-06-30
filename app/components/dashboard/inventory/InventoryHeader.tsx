@@ -82,6 +82,7 @@ const InventoryHeader = ({
         </Stack>
 
         <Button
+          data-tour="inventory-add"
           variant="contained"
           startIcon={<AddIcon />}
           onClick={onAddClick}
