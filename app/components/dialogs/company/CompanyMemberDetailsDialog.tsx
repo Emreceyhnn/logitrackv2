@@ -207,7 +207,7 @@ export default function CompanyMemberDetailsDialog({
                 sx={{ fontSize: "0.85rem", lineHeight: 1.6 }}
               >
                 {dict.company.memberDetails.adminDataDesc.split("{role}")[0]}
-                <strong>{member.roleName || "read-only"}</strong>
+                <strong>{dict.company?.roles?.[member.roleName as keyof typeof dict.company.roles] || member.roleName || dict.company?.roles?.["read-only"] || "read-only"}</strong>
                 {dict.company.memberDetails.adminDataDesc.split("{role}")[1]}
               </Typography>
             </Box>

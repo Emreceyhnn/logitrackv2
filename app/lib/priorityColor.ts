@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChipProps } from "@mui/material";
 import { Dictionary } from "./language/language";
 import { NotificationType } from "./type/notification";
 
 export const getPriorityColor = (priority: string): ChipProps["color"] => {
-  const normalizedPriority = priority?.toUpperCase();
+  const normalizedPriority = priority?.toLocaleUpperCase('en-US');
 
   switch (normalizedPriority) {
     case "CRITICAL":
@@ -19,7 +20,7 @@ export const getPriorityColor = (priority: string): ChipProps["color"] => {
 };
 
 export const getStatusMeta = (status?: string, dict?: Dictionary) => {
-  const s = status?.toUpperCase() || "";
+  const s = status?.toLocaleUpperCase('en-US') || "";
 
   const getDictColor = (paletteKey: string, fallback: string) => {
     return (
@@ -34,16 +35,19 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     if (key === "ON_LEAVE") return dict?.drivers?.onLeave;
 
     return (
-      (dict?.vehicles?.statuses as unknown as Record<string, string>)?.[key] ||
-      (dict?.routes?.statuses as unknown as Record<string, string>)?.[key] ||
-      (dict?.vehicles?.priorities as unknown as Record<string, string>)?.[
-        key
-      ] ||
+      ((dict?.vehicles as any)?.statuses as Record<string, string>)?.[key] ||
+      ((dict?.trailers as any)?.statuses as Record<string, string>)?.[key] ||
+      ((dict?.shipments as any)?.statuses as Record<string, string>)?.[key] ||
+      ((dict?.inventory as any)?.statuses as Record<string, string>)?.[key] ||
+      ((dict?.inventory as any)?.status as Record<string, string>)?.[key] ||
+      ((dict?.warehouseWorker as any)?.status as Record<string, string>)?.[key] ||
+      ((dict?.routes as any)?.statuses as Record<string, string>)?.[key] ||
+      ((dict?.vehicles as any)?.priorities as Record<string, string>)?.[key] ||
       (dict?.common as unknown as Record<string, string>)?.[key] ||
       key
         .replace(/_/g, " ")
-        .toLowerCase()
-        .replace(/^\w/, (c) => c.toUpperCase())
+        .toLocaleLowerCase('en-US')
+        .replace(/^\w/, (c) => c.toLocaleUpperCase('en-US'))
     );
   };
 

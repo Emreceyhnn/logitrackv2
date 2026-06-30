@@ -139,6 +139,7 @@ const EditShipmentDialog = ({
   const getInitialValues = (): ShipmentFormValues => {
     if (!shipment) {
       return {
+        trackingId: "",
         referenceNumber: "",
         priority: ShipmentPriority.MEDIUM,
         type: "Standard Freight",
@@ -165,7 +166,8 @@ const EditShipmentDialog = ({
     }
 
     return {
-      referenceNumber: shipment.trackingId || "",
+      trackingId: shipment.trackingId || "",
+      referenceNumber: shipment.referenceNumber || "",
       priority:
         (shipment.priority as ShipmentPriority) || ShipmentPriority.MEDIUM,
       type: shipment.type || "Standard Freight",

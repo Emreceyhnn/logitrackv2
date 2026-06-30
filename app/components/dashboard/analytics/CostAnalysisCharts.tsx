@@ -84,7 +84,7 @@ export default function CostAnalysisCharts({ state }: CostAnalysisChartsProps) {
   ];
 
   const translateLabel = (label: string) => {
-    const key = label.toLowerCase();
+    const key = label.toLocaleLowerCase('en-US');
     if (key === "fuel") return dict.analytics.costs.categories.fuel;
     if (key === "maintenance")
       return dict.analytics.costs.categories.maintenance;

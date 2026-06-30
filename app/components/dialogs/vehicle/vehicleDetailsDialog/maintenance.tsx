@@ -93,7 +93,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
   };
 
   const getStatusIcon = (status: string) => {
-    const s = status?.toUpperCase();
+    const s = status?.toLocaleUpperCase('en-US');
     switch (s) {
       case "COMPLETED":
         return <CheckCircleIcon sx={{ fontSize: 14 }} />;
@@ -508,10 +508,10 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                     sx={{
                       color: "text.secondary",
                       borderBottomColor: "divider",
-                      bgcolor: "background.paper", // Match card bg for sticky header
+                      bgcolor: "background.paper",
                     }}
                   >
-                    DATE
+                    {dict.common.date}
                   </TableCell>
                   <TableCell
                     align="left"
@@ -521,7 +521,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                       bgcolor: "background.paper",
                     }}
                   >
-                    SERVICE TYPE
+                    {dict.vehicles.dialogs.serviceType}
                   </TableCell>
                   <TableCell
                     align="left"
@@ -531,7 +531,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                       bgcolor: "background.paper",
                     }}
                   >
-                    TECHNICIAN
+                    {dict.common.technician}
                   </TableCell>
                   <TableCell
                     align="left"
@@ -541,7 +541,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                       bgcolor: "background.paper",
                     }}
                   >
-                    COST
+                    {dict.vehicles.dialogs.cost}
                   </TableCell>
                   <TableCell
                     align="left"
@@ -551,7 +551,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                       bgcolor: "background.paper",
                     }}
                   >
-                    STATUS
+                    {dict.vehicles.dialogs.status}
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -611,7 +611,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                           borderBottomColor: "divider",
                         }}
                       >
-                        <Typography sx={{ fontSize: 12 }}>{v.type}</Typography>
+                        <Typography sx={{ fontSize: 12 }}>{dict.vehicles.serviceTypes?.[v.type as keyof typeof dict.vehicles.serviceTypes] || v.type}</Typography>
                       </TableCell>
                       <TableCell
                         align="left"

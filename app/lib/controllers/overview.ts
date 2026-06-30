@@ -1,6 +1,11 @@
 "use server";
 
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
@@ -338,7 +343,8 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
         ? "SHIPMENT_DELAY"
         : "vehicle") as ActionRequiredItems["type"],
       title: issue.title,
-      message: `${issue.priority} · ${issue.status.replace("_", " ")}`,
+      messageKey: "ISSUE_ALERT",
+      messageParams: { priority: issue.priority, status: issue.status },
       link: issue.type === IssueType.VEHICLE && issue.vehicleId 
         ? `/vehicle?id=${issue.vehicleId}&tab=2` 
         : issue.type === IssueType.DRIVER && issue.driverId 
@@ -351,9 +357,8 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
     const docAlerts: ActionRequiredItems[] = expiringDocs.map((doc) => ({
       type: "DOCUMENT_DUE" as const,
       title: doc.name,
-      message: doc.expiryDate
-        ? `Expires ${formatDisplayDate(doc.expiryDate, user)}`
-        : "Expiry approaching",
+      messageKey: doc.expiryDate ? "DOC_EXPIRES" : "DOC_EXPIRY_APPROACHING",
+      messageParams: doc.expiryDate ? { date: doc.expiryDate.toISOString() } : undefined,
       link: doc.driverId 
         ? `/drivers?id=${doc.driverId}` 
         : doc.vehicleId 

@@ -28,7 +28,7 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
         <Typography
           sx={{ fontSize: 16, fontWeight: 600, color: "text.secondary" }}
         >
-          {dict.routes.dashboard.routeEfficiency.toUpperCase()}
+          {dict.routes.dashboard.routeEfficiency.toLocaleUpperCase('en-US')}
         </Typography>
         <Stack spacing={3}>
           {[1, 2, 3].map((i) => (
@@ -65,7 +65,7 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
       <Typography
         sx={{ fontSize: 16, fontWeight: 600, color: "text.secondary" }}
       >
-        {dict.routes.dashboard.routeEfficiency.toUpperCase()}
+        {dict.routes.dashboard.routeEfficiency.toLocaleUpperCase('en-US')}
       </Typography>
       <Stack spacing={1}>
         <Stack direction={"row"} justifyContent={"space-between"}>
@@ -147,7 +147,7 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
         <Typography
           sx={{ fontSize: 16, fontWeight: 600, color: "text.secondary" }}
         >
-          {dict.routes.dashboard.recentNotifications.toUpperCase()}
+          {dict.routes.dashboard.recentNotifications.toLocaleUpperCase('en-US')}
         </Typography>
         <Stack spacing={1} maxHeight={104} overflow={"auto"}>
           {data.recentNotifications.length > 0 ? (

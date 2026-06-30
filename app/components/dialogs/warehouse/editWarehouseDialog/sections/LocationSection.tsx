@@ -44,8 +44,8 @@ const LocationSection = ({ state, actions }: LocationSectionProps) => {
       try {
         const users = await getMyCompanyUsersAction();
         const relevantUsers = users.filter((u) => {
-          const name = u.role?.name?.toLowerCase() || "";
-          const id = u.roleId?.toLowerCase() || "";
+          const name = u.role?.name?.toLocaleLowerCase('en-US') || "";
+          const id = u.roleId?.toLocaleLowerCase('en-US') || "";
           
           const isAdmin = 
             id === "role_admin" || 

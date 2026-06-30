@@ -21,7 +21,7 @@ import { formatDisplayDate } from "@/app/lib/utils/date";
 import { Dictionary } from "@/app/lib/language/language";
 
 function StatusChip({ status, dict }: { status: string; dict: Dictionary }) {
-  const normalized = status.toUpperCase();
+  const normalized = status.toLocaleUpperCase('en-US');
   const colorMap: Record<string, "success" | "error" | "warning" | "default"> =
     {
       ACTIVE: "success",
@@ -133,7 +133,7 @@ export default function CompanyMembersTable({
         render: (row) =>
           row.roleName ? (
             <Chip
-              label={row.roleName}
+              label={dict.company?.roles?.[row.roleName as keyof typeof dict.company.roles] || row.roleName}
               size="small"
               variant="outlined"
               sx={{ fontSize: 11, fontWeight: 600 }}

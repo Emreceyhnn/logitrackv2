@@ -17,7 +17,7 @@ export default function ShipmentAnalytics({
   const pieData = useMemo(() => {
     return statusDistribution.map((item, index) => {
       // Localize status if possible, otherwise fallback to formatting
-      const statusKey = item.status.toUpperCase();
+      const statusKey = item.status.toLocaleUpperCase('en-US');
       const localizedStatus = dict.routes.statuses[statusKey as keyof typeof dict.routes.statuses] || item.status.replace("_", " ");
 
       return {

@@ -86,7 +86,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
     const worker = {
       name: `${user.name} ${user.surname}`.trim(),
       initials:
-        `${user.name?.[0] ?? ""}${user.surname?.[0] ?? ""}`.toUpperCase() ||
+        `${user.name?.[0] ?? ""}${user.surname?.[0] ?? ""}`.toLocaleUpperCase('en-US') ||
         "WW",
       role: user.roleName || "Warehouse Worker",
     };

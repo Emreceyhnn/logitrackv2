@@ -354,6 +354,7 @@ model InventoryMovement {
 model Shipment {
   id                 String            @id @default(cuid())
   trackingId         String            @unique
+  referenceNumber    String?
   customerId         String?
   customerLocationId String?
   driverId           String?

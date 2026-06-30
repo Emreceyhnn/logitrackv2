@@ -145,7 +145,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                     : "transparent",
                 }}
               >
-                {driverData.user.name?.charAt(0).toUpperCase()}
+                {driverData.user.name?.charAt(0).toLocaleUpperCase('en-US')}
               </Avatar>
             </Box>
             <Stack spacing={1}>

@@ -37,7 +37,7 @@ export default function VehicleIssuesCard({ issues }: VehicleIssuesCardProps) {
 
   /* ------------------------------- components ------------------------------- */
   const getStatusIcon = (status: string) => {
-    switch (status.toUpperCase()) {
+    switch (status.toLocaleUpperCase('en-US')) {
       case "OPEN":
         return <ErrorIcon color="error" />;
       case "IN_PROGRESS":

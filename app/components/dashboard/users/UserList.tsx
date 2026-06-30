@@ -47,25 +47,18 @@ const UserList = ({ users, loading, onSelect }: UserListProps) => {
       render: (row) => {
         const roleName = row.role?.name || "User";
         let color: "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" = "default";
-        let roleNameDisplay = roleName;
+        const roleNameDisplay = dict.company?.roles?.[roleName as keyof typeof dict.company.roles] || roleName;
 
-        if (roleName.toLowerCase().includes("admin")) {
+        if (roleName.toLocaleLowerCase('en-US').includes("admin")) {
           color = "error";
-          roleNameDisplay = dict.company.roles.admin;
-        } else if (roleName.toLowerCase().includes("manager")) {
+        } else if (roleName.toLocaleLowerCase('en-US').includes("manager")) {
           color = "warning";
-          roleNameDisplay = dict.company.roles.manager;
-        } else if (roleName.toLowerCase().includes("driver")) {
+        } else if (roleName.toLocaleLowerCase('en-US').includes("driver")) {
           color = "info";
-          roleNameDisplay = dict.company.roles.driver;
-        } else if (roleName.toLowerCase().includes("warehouse")) {
+        } else if (roleName.toLocaleLowerCase('en-US').includes("warehouse")) {
           color = "info";
-          roleNameDisplay = dict.company.roles.warehouse;
-        } else if (roleName.toLowerCase().includes("dispatcher")) {
+        } else if (roleName.toLocaleLowerCase('en-US').includes("dispatcher")) {
           color = "primary";
-          roleNameDisplay = dict.company.roles.dispatcher;
-        } else {
-          roleNameDisplay = dict.company.roles.default;
         }
 
         return (

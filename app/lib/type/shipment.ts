@@ -52,6 +52,7 @@ export interface ShipmentWithRelations
   slaDeadline: Date | null;
   contactEmail: string | null;
   billingAccount: string | null;
+  referenceNumber: string | null;
 
   // For detail view
   company?: Company | null;
@@ -142,6 +143,7 @@ export interface ShipmentAnalyticsProps {
   actions: ShipmentPageActions;
 }
 export interface ShipmentFormValues {
+  trackingId: string;
   referenceNumber: string;
   priority: ShipmentPriority;
   type: string;

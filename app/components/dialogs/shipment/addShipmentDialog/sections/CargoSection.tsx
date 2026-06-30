@@ -199,8 +199,8 @@ const CargoSection = ({ trailers }: CargoSectionProps) => {
                 <Typography variant="caption" fontWeight={700}>
                   {dict.shipments.dialogs.fields.exceedsTrailerWeight}
                 </Typography>
-                <Typography variant="caption" sx={{ opacity: 0.8, ml: "auto" }}>
-                  Available: <b>{availableWeight.toFixed(2)} kg</b> (Max: {selectedTrailer?.maxLoadKg})
+                <Typography variant="caption" color="text.secondary">
+                  {dict.shipments.dialogs.fields.availableKg || "Available:"} <b>{availableWeight.toFixed(2)} kg</b> (Max: {selectedTrailer?.maxLoadKg})
                 </Typography>
               </Stack>
             )}
@@ -223,8 +223,8 @@ const CargoSection = ({ trailers }: CargoSectionProps) => {
                 <Typography variant="caption" fontWeight={700}>
                   {dict.shipments.dialogs.fields.exceedsTrailerVolume}
                 </Typography>
-                <Typography variant="caption" sx={{ opacity: 0.8, ml: "auto" }}>
-                  Available: <b>{availableVolume.toFixed(2)} m³</b> (Max: {selectedTrailer?.capacityVolumeM3})
+                <Typography variant="caption" color="text.secondary">
+                  {dict.shipments.dialogs.fields.availableVol || "Available:"} <b>{availableVolume.toFixed(2)} m³</b> (Max: {selectedTrailer?.capacityVolumeM3})
                 </Typography>
               </Stack>
             )}

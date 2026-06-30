@@ -43,13 +43,13 @@ export default function DocumentViewerDialog({
 
   // Determine if it's likely a PDF or Image based on URL
   const { isPdf, isImage } = useMemo(() => {
-    const lowerUrl = url.toLowerCase();
-    const type = fileType?.toLowerCase() || "";
+    const lowerUrl = url.toLocaleLowerCase('en-US');
+    const type = fileType?.toLocaleLowerCase('en-US') || "";
     
     // Check if URL ends with common extensions (ignoring query params)
     let urlPath = "";
     try {
-      urlPath = new URL(url).pathname.toLowerCase();
+      urlPath = new URL(url).pathname.toLocaleLowerCase('en-US');
     } catch {
       urlPath = lowerUrl;
     }

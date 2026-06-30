@@ -121,7 +121,7 @@ export const createDriver = authenticatedAction(
         const finalEmployeeId =
           data.employeeId && data.employeeId.trim() !== ""
             ? data.employeeId
-            : `EMP-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+            : `EMP-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
 
         await tx.driver.create({
           data: {
@@ -228,7 +228,7 @@ export const updateDriver = authenticatedAction(
             data.employeeId && data.employeeId.trim() !== ""
               ? data.employeeId
               : data.employeeId === ""
-                ? `EMP-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
+                ? `EMP-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`
                 : foundDriver.employeeId,
           licenseNumber: data.licenseNumber,
           licenseType: data.licenseType,

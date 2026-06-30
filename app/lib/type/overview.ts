@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Domain Models
 export interface ActionRequiredItems {
   type: "vehicle" | "driver" | "SHIPMENT_DELAY" | "DOCUMENT_DUE" | "warehouse";
   title: string;
-  message: string;
+  message?: string;
+  messageKey?: string;
+  messageParams?: Record<string, any>;
   link?: string;
 }
 

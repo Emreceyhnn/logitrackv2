@@ -39,6 +39,7 @@
     "actions": "Actions",
     "status": "Status",
     "date": "Date",
+    "technician": "Technician",
     "next": "Next",
     "back": "Back",
     "step": "Step",
@@ -139,7 +140,8 @@
       "prev": "Previous",
       "finish": "Finish",
       "startTour": "Start Tour"
-    }
+    },
+    "searchPlaceholder": "Search..."
   },
   "guidedTour": {
     "overview": {
@@ -256,6 +258,44 @@
       "contentStep": {
         "title": "Reports Center",
         "description": "Generate and view operational reports. Export data in various formats for compliance and analysis."
+      }
+    },
+    "warehouseWorker": {
+      "sidebarStep": {
+        "title": "Navigation Menu",
+        "description": "Use this menu to quickly switch between Dashboard, Scan, Tasks, Capacity, and Activity views."
+      },
+      "dashboardPicksStep": {
+        "title": "Key Performance Indicators",
+        "description": "Track your daily picking and packing progress against your targets."
+      },
+      "dashboardControlStep": {
+        "title": "Zone Control",
+        "description": "Change your active working zone to receive relevant tasks and alerts."
+      },
+      "dashboardQuickStep": {
+        "title": "Quick Actions",
+        "description": "Instantly report issues or request restocks for your active zone."
+      },
+      "scanSectionStep": {
+        "title": "Barcode Scanner",
+        "description": "Scan product barcodes or SKUs here to log movements into the system."
+      },
+      "taskListStep": {
+        "title": "Your Task Queue",
+        "description": "Manage your assigned tasks, prioritizing items marked as 'HIGH'."
+      },
+      "capacityChartStep": {
+        "title": "Overall Capacity",
+        "description": "A high-level view of how many pallet positions are currently occupied in the entire facility."
+      },
+      "capacityZoneStep": {
+        "title": "Zone Breakdown",
+        "description": "Detailed breakdown of capacity utilization per zone. Helps identify bottlenecks."
+      },
+      "activityFeedStep": {
+        "title": "Live Activity",
+        "description": "Real-time feed of all inventory movements happening across the site."
       }
     }
   },
@@ -1494,7 +1534,8 @@
         "fuel": "Fuel Logs",
         "map": "Live Map",
         "specs": "Tech Specs"
-      }
+      },
+      "status": "Status"
     },
     "kpis": {
       "totalVehicles": "Total Vehicles",
@@ -1524,7 +1565,15 @@
       "emptyMessage": "No vehicles found"
     },
     "deleteTitle": "Delete Vehicle?",
-    "deleteDesc": "Are you sure you want to delete this vehicle? This will permanently remove the vehicle and all associated data."
+    "deleteDesc": "Are you sure you want to delete this vehicle? This will permanently remove the vehicle and all associated data.",
+    "maintenanceTypes": {
+      "OIL_CHANGE": "Oil Change",
+      "TIRE_REPLACEMENT": "Tire Replacement",
+      "GENERAL_INSPECTION": "General Inspection",
+      "BRAKE_SERVICE": "Brake Service",
+      "ENGINE_REPAIR": "Engine Repair",
+      "OTHER": "Other"
+    }
   },
   "trailers": {
     "title": "Trailers",
@@ -1890,6 +1939,15 @@
         "details": "Item Details",
         "storage": "Storage Levels",
         "review": "Review & Confirm"
+      },
+      "cargoTypes": {
+        "General Cargo": "General Cargo",
+        "General": "General Cargo",
+        "Perishable Goods": "Perishable Goods",
+        "Hazardous Materials": "Hazardous Materials",
+        "Fragile Goods": "Fragile Goods",
+        "Liquid Cargo": "Liquid Cargo",
+        "Oversized Cargo": "Oversized Cargo"
       }
     },
     "deleteTitle": "Delete Item",
@@ -1934,12 +1992,16 @@
       "active": "Active"
     },
     "roles": {
-      "admin": "Company Admin",
-      "manager": "Manager",
-      "driver": "Driver",
-      "warehouse": "Warehouse Operator",
-      "dispatcher": "Dispatcher",
-      "default": "Default"
+      "Admin": "Admin",
+      "Manager": "Manager",
+      "Warehouse Worker": "Warehouse Worker",
+      "Driver": "Driver",
+      "Customer": "Customer",
+      "read-only": "read-only",
+      "Administrator": "Administrator",
+      "Warehouse Manager": "Warehouse Manager",
+      "Dispatcher": "Dispatcher",
+      "Warehouse Operator": "Warehouse Operator"
     },
     "branding": {
       "title": "Company Identity",
@@ -2027,7 +2089,7 @@
       "permissions": "Permissions",
       "accountStatus": "Account Status",
       "adminData": "Administrative Data",
-      "adminDataDesc": "This member holds elevated privileges. Contact <strong>{email}</strong> for role changes.",
+      "adminDataDesc": "This member holds the {role} role in your company.",
       "closeView": "Close"
     },
     "editMember": {
@@ -2204,7 +2266,9 @@
         "stops": "Shipment Stops",
         "addStop": "Add Stop",
         "stop": "Stop",
-        "stopSequence": "Stop Sequence"
+        "stopSequence": "Stop Sequence",
+        "availableKg": "Available:",
+        "availableVol": "Available:"
       },
       "buttons": {
         "assignToExistingRoute": "Assign to Existing Route"
@@ -2363,11 +2427,11 @@
     "deleteTitle": "Delete Warehouse?",
     "deleteDesc": "Are you sure you want to delete {name}? This action cannot be undone.",
     "kpi": {
-      "totalWarehouses": "TOTAL WAREHOUSES",
-      "inventorySkus": "INVENTORY SKUS",
-      "totalItems": "TOTAL ITEMS",
-      "palletCapacity": "PALLET CAPACITY",
-      "stockedVolume": "STOCKED VOLUME"
+      "totalWarehouses": "Total Warehouses",
+      "inventorySkus": "Inventory SKUs",
+      "totalItems": "Total Items",
+      "palletCapacity": "Pallet Capacity",
+      "stockedVolume": "Stocked Volume"
     },
     "categories": {
       "types": {
@@ -2691,8 +2755,11 @@
     "overview": {
       "actionRequired": {
         "title": "Action Required",
-        "pendingCount": "{count} pending",
-        "allClear": "All clear! No urgent actions required."
+        "pendingCount": "{count} Pending",
+        "allClear": "All clear! No urgent actions required.",
+        "ISSUE_ALERT": "{priority} · {status}",
+        "DOC_EXPIRES": "Expires {date}",
+        "DOC_EXPIRY_APPROACHING": "Expiry approaching"
       },
       "dailyOperations": {
         "title": "Today's Operations",
@@ -2892,6 +2959,56 @@
     "high": "high",
     "med": "med",
     "low": "low",
+    "ui": {
+      "onShift": "On shift",
+      "aisles": "Aisles 1–48",
+      "liveMovements": "Live stock movements",
+      "type": "Type",
+      "item": "Item",
+      "qty": "Qty",
+      "zone": "Zone",
+      "by": "By",
+      "time": "Time",
+      "scanPlaceholder": "Scan barcode or type a SKU…",
+      "scanBtn": "Scan",
+      "scanHint": "Press Enter to confirm, or use scanner.",
+      "simScan": "Simulate scan",
+      "logPick": "Log Pick",
+      "logPack": "Log Pack",
+      "onBreakMsg": "You're on break — resume your shift to log movements.",
+      "doneBtn": "Done",
+      "advanceBtn": "Advance",
+      "PICK": "PICK",
+      "PACK": "PACK",
+      "PUT": "PUT",
+      "scanLog": "Scan & log",
+      "pickZone": "Pick zone",
+      "myTaskQueue": "My task queue",
+      "openTasksCount": "open",
+      "highPriority": "high priority",
+      "allAssignedTasks": "All assigned tasks",
+      "siteCapacity": "Site capacity",
+      "zoneNearFull": "Zone near full",
+      "palletPositions": "Pallet positions",
+      "palletPositionsUsed": "pallet positions used",
+      "positionsFree": "positions free",
+      "activeLabel": "ACTIVE",
+      "controlPanel": "Control panel",
+      "activePickZone": "Active pick zone",
+      "quickActions": "Quick actions",
+      "requestRestockZone": "Request restock — Zone",
+      "reportIssue": "Report an issue",
+      "scanLogMovements": "Scan & log movements",
+      "scanSubtitle": "Scan an item, confirm the quantity, and log it as a pick or pack.",
+      "scanAnItem": "Scan an item",
+      "liveActivity": "Live activity",
+      "liveActivitySubtitle": "Every stock movement across the site, newest first.",
+      "RESTOCK": "RESTOCK",
+      "RESTOCK_REQUEST": "RESTOCK REQ",
+      "PUTAWAY": "PUTAWAY",
+      "STOCK_IN": "STOCK IN",
+      "ADJUSTMENT": "ADJUSTMENT"
+    },
     "nav": {
       "overview": "Overview",
       "scan": "Scan",

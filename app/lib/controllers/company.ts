@@ -98,7 +98,7 @@ export const createCompany = authenticatedAction(
           ? {
               timezone: regional.timezone,
               currency: regional.currency,
-              language: regional.language.toLowerCase(),
+              language: regional.language.toLocaleLowerCase('en-US'),
             }
           : {}),
       },

@@ -232,7 +232,7 @@ export default function ShipmentDetailDialog({
               letterSpacing="0.04em"
             >
               {dict.shipments.details.systemConsignmentId}:{" "}
-              {shipment.id.substring(0, 8).toUpperCase()}
+              {shipment.id.substring(0, 8).toLocaleUpperCase('en-US')}
             </Typography>
           </Stack>
 
@@ -1079,7 +1079,7 @@ export default function ShipmentDetailDialog({
                   color="text.primary"
                 >
                   {shipment.route?.id
-                    ? `RT-${shipment.route.id.substring(0, 4).toUpperCase()}`
+                    ? `RT-${shipment.route.id.substring(0, 4).toLocaleUpperCase('en-US')}`
                     : dict.shipments.details.noUnit}
                 </Typography>
               </Stack>

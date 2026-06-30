@@ -194,7 +194,7 @@ export const LoginUser = maybeAuthenticatedAction(
       }
 
       // 2. Email Rate Limiting: Max 5 login attempts per minute per email (prevent distributed brute force on single account)
-      const emailLimit = await rateLimit(email.toLowerCase().trim(), 5, 60, "rate-limit:login-email:");
+      const emailLimit = await rateLimit(email.toLocaleLowerCase('en-US').trim(), 5, 60, "rate-limit:login-email:");
       if (!emailLimit.success) {
         return { error: "Too many login attempts for this account. Please try again later." };
       }
@@ -397,7 +397,7 @@ export const createUserForCompany = authenticatedAction(
         throw new Error("Email already exists");
       }
 
-      const roleName = userData.role.toUpperCase();
+      const roleName = userData.role.toLocaleUpperCase('en-US');
       const foundRole = await db.role.findFirst({
         where: { name: { equals: roleName, mode: "insensitive" } },
       });

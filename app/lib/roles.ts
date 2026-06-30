@@ -13,12 +13,12 @@ import rolesConfig from "@/roles.json";
 const WAREHOUSE_ONLY_ROLE_NAMES: ReadonlySet<string> = new Set(
   rolesConfig.flatMap((r) => {
     if (r.id === "role_warehouse") {
-      return (r.names ?? [r.name]).map((n) => n.toLowerCase());
+      return (r.names ?? [r.name]).map((n) => n.toLocaleLowerCase('en-US'));
     }
     if (r.id === "role_manager") {
       return (r.names ?? [r.name])
-        .filter((n) => n.toLowerCase().includes("warehouse"))
-        .map((n) => n.toLowerCase());
+        .filter((n) => n.toLocaleLowerCase('en-US').includes("warehouse"))
+        .map((n) => n.toLocaleLowerCase('en-US'));
     }
     return [];
   })
@@ -30,5 +30,5 @@ const WAREHOUSE_ONLY_ROLE_NAMES: ReadonlySet<string> = new Set(
  */
 export function isWarehouseOnlyRole(roleName: string | null | undefined): boolean {
   if (!roleName) return false;
-  return WAREHOUSE_ONLY_ROLE_NAMES.has(roleName.trim().toLowerCase());
+  return WAREHOUSE_ONLY_ROLE_NAMES.has(roleName.trim().toLocaleLowerCase('en-US'));
 }

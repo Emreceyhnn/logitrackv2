@@ -180,7 +180,7 @@ export const getTheme = (mode: ThemeMode) => {
     palette: {
       ...basePalette,
       getColorAlpha: (targetColor: string) => {
-        const color = targetColor.toLowerCase();
+        const color = targetColor.toLocaleLowerCase('en-US');
         if (!basePalette || !basePalette.kpi)
           return basePalette?.primary?._alpha || {};
         const kpi = basePalette.kpi;
@@ -188,7 +188,7 @@ export const getTheme = (mode: ThemeMode) => {
         // Dynamic KPI mapping: Check if targetColor matches any hex in kpi object
         const kpiEntries = Object.entries(kpi);
         for (const [key, value] of kpiEntries) {
-          if (typeof value === "string" && value.toLowerCase() === color) {
+          if (typeof value === "string" && value.toLocaleLowerCase('en-US') === color) {
             const alphaKey = `${key}_alpha`;
             // @ts-expect-error -- kpi is a strict typed object; dynamic alphaKey access is intentional
             if (kpi[alphaKey]) return kpi[alphaKey];
@@ -212,27 +212,27 @@ export const getTheme = (mode: ThemeMode) => {
         // Core Palette Matches
         if (
           basePalette.primary &&
-          color === basePalette.primary.main.toLowerCase()
+          color === basePalette.primary.main.toLocaleLowerCase('en-US')
         )
           return basePalette.primary._alpha;
         if (
           basePalette.secondary &&
-          color === basePalette.secondary.main.toLowerCase()
+          color === basePalette.secondary.main.toLocaleLowerCase('en-US')
         )
           return basePalette.secondary._alpha;
         if (
           basePalette.success &&
-          color === basePalette.success.main.toLowerCase()
+          color === basePalette.success.main.toLocaleLowerCase('en-US')
         )
           return basePalette.success._alpha;
-        if (basePalette.error && color === basePalette.error.main.toLowerCase())
+        if (basePalette.error && color === basePalette.error.main.toLocaleLowerCase('en-US'))
           return basePalette.error._alpha;
         if (
           basePalette.warning &&
-          color === basePalette.warning.main.toLowerCase()
+          color === basePalette.warning.main.toLocaleLowerCase('en-US')
         )
           return basePalette.warning._alpha;
-        if (basePalette.info && color === basePalette.info.main.toLowerCase())
+        if (basePalette.info && color === basePalette.info.main.toLocaleLowerCase('en-US'))
           return basePalette.info._alpha;
 
         return basePalette.primary?._alpha || {};

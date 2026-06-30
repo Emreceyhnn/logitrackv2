@@ -10,6 +10,7 @@ import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { isWarehouseOnlyRole } from "@/app/lib/roles";
 import { getWarehouseWorkerDashboard } from "@/app/lib/controllers/warehouseWorker";
 import { warehouseWorkerKeys } from "@/app/lib/query-keys/warehouseWorker.keys";
+import { GuidedTourProvider } from "@/app/lib/context/GuidedTourContext";
 import WarehouseWorkerClient from "./WarehouseWorkerClient";
 
 export const metadata: Metadata = {
@@ -54,7 +55,9 @@ export default async function WarehouseWorkerPage({
   return (
     <HydrationBoundary state={dehydratedState}>
       <Suspense fallback={null}>
-        <WarehouseWorkerClient locked={locked} lang={lang} />
+        <GuidedTourProvider>
+          <WarehouseWorkerClient locked={locked} lang={lang} />
+        </GuidedTourProvider>
       </Suspense>
     </HydrationBoundary>
   );

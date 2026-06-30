@@ -63,17 +63,17 @@ export async function checkPermission(
     // Map internal role identifiers dynamically from roles.json (case-insensitive)
     const roleMapping: Record<string, string[]> = {};
     for (const r of rolesConfig) {
-      roleMapping[r.id] = (r.names || [r.name]).map((name) => name.toLowerCase());
+      roleMapping[r.id] = (r.names || [r.name]).map((name) => name.toLocaleLowerCase('en-US'));
     }
 
     const normalizedRequired = requiredRoles.flatMap((r) => {
-      const roleKey = r.toLowerCase();
+      const roleKey = r.toLocaleLowerCase('en-US');
       const mapped = roleMapping[roleKey] || [];
       return [roleKey, ...mapped];
     });
 
     // Case-insensitive comparison against the user's actual role name
-    const userRoleNameLower = userRoleName.toLowerCase();
+    const userRoleNameLower = userRoleName.toLocaleLowerCase('en-US');
 
     if (!normalizedRequired.includes(userRoleNameLower)) {
       throw new Error(

@@ -58,7 +58,7 @@ const InventoryTable = ({
 
   const getCategoryStyles = useCallback(
     (cargoType: string | null | undefined) => {
-      const type = cargoType?.toUpperCase() || "";
+      const type = cargoType?.toLocaleUpperCase('en-US') || "";
       // Using theme.palette.kpi colors
       if (type.includes("FROZEN") || type.includes("COLD"))
         return {

@@ -62,12 +62,12 @@ export default function AddCompanyMemberDialog({
 
   const roles = useMemo(
     () => [
-      { id: "role_admin", label: dict.company.roles.admin },
-      { id: "role_manager", label: dict.company.roles.manager },
-      { id: "role_dispatcher", label: dict.company.roles.dispatcher },
-      { id: "role_warehouse", label: dict.company.roles.warehouse },
-      { id: "role_default", label: dict.company.roles.default },
-      { id: "role_driver", label: dict.company.roles.driver },
+      { id: "role_admin", label: dict.company.roles.Administrator || "Admin" },
+      { id: "role_manager", label: dict.company.roles["Warehouse Manager"] || "Manager" },
+      { id: "role_dispatcher", label: dict.company.roles.Dispatcher || "Dispatcher" },
+      { id: "role_warehouse", label: dict.company.roles["Warehouse Operator"] || "Warehouse Worker" },
+      { id: "role_default", label: dict.company.roles.Customer || "User" },
+      { id: "role_driver", label: dict.company.roles.Driver || "Driver" },
     ],
     [dict]
   );

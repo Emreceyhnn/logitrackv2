@@ -42,7 +42,7 @@ interface RouteDialogProps {
 }
 
 const getStatusMeta = (status?: string, dict?: Dictionary) => {
-  const s = status?.toUpperCase();
+  const s = status?.toLocaleUpperCase('en-US');
   const label =
     (dict?.routes?.statuses as unknown as Record<string, string>)?.[
       s as string
@@ -313,7 +313,7 @@ export default function RouteDialog({
                     fontWeight={800}
                     sx={{ color: "white", letterSpacing: "-0.02em" }}
                   >
-                    {dict.routes.title} #{route.id.slice(-6).toUpperCase()}
+                    {dict.routes.title} #{route.id.slice(-6).toLocaleUpperCase('en-US')}
                   </Typography>
                   <Chip
                     label={statusMeta.label}

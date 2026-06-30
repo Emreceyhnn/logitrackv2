@@ -30,8 +30,8 @@ import { editCompanyMemberValidationSchema } from "@/app/lib/validationSchema";
 const mapToStandardRoleId = (roleId: string | null, roleName: string | null): string => {
   if (!roleId) return "role_default";
   
-  const idLower = roleId.toLowerCase();
-  const nameLower = (roleName || "").toLowerCase();
+  const idLower = roleId.toLocaleLowerCase('en-US');
+  const nameLower = (roleName || "").toLocaleLowerCase('en-US');
   
   if (idLower === "role_admin" || nameLower.includes("admin")) return "role_admin";
   if (idLower === "role_manager" || nameLower.includes("manager")) return "role_manager";
@@ -220,13 +220,13 @@ export default function EditCompanyMemberDialog({
                   }
                   sx={textFieldSx}
                 >
-                  <MenuItem value="role_default">{dict.company.roles.default}</MenuItem>
-                  <MenuItem value="role_admin">{dict.company.roles.admin}</MenuItem>
-                  <MenuItem value="role_manager">{dict.company.roles.manager}</MenuItem>
-                  <MenuItem value="role_dispatcher">{dict.company.roles.dispatcher}</MenuItem>
-                  <MenuItem value="role_warehouse">{dict.company.roles.warehouse}</MenuItem>
+                  <MenuItem value="role_default">{dict.company.roles.Customer || "User"}</MenuItem>
+                  <MenuItem value="role_admin">{dict.company.roles.Administrator || "Admin"}</MenuItem>
+                  <MenuItem value="role_manager">{dict.company.roles["Warehouse Manager"] || "Manager"}</MenuItem>
+                  <MenuItem value="role_dispatcher">{dict.company.roles.Dispatcher || "Dispatcher"}</MenuItem>
+                  <MenuItem value="role_warehouse">{dict.company.roles["Warehouse Operator"] || "Warehouse Worker"}</MenuItem>
                   <MenuItem value="role_driver" disabled={mapToStandardRoleId(member.roleId, member.roleName) !== "role_driver"}>
-                    {dict.company.roles.driver}
+                    {dict.company.roles.Driver || "Driver"}
                   </MenuItem>
                 </TextField>
  

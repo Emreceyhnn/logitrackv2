@@ -45,7 +45,7 @@ const DashboardBreadcrumbs = () => {
       company: dict.sidebar.company,
     };
 
-    return sidebarLabels[canonicalKey] || canonicalKey.charAt(0).toUpperCase() + canonicalKey.slice(1).replace(/-/g, " ");
+    return sidebarLabels[canonicalKey] || canonicalKey.charAt(0).toLocaleUpperCase('en-US') + canonicalKey.slice(1).replace(/-/g, " ");
   };
 
   return (

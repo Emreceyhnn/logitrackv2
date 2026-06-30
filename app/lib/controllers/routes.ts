@@ -54,7 +54,7 @@ export const createRoute = authenticatedAction(
       const finalName =
         name && name.trim() !== ""
           ? name
-          : `ROUTE-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+          : `ROUTE-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
 
       const existingRoute = await db.route.findFirst({
         where: { name: finalName, companyId: user.companyId },
@@ -291,7 +291,7 @@ export const updateRoute = authenticatedAction(
 
       const updateData = { ...data };
       if (updateData.name === "") {
-        updateData.name = `ROUTE-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        updateData.name = `ROUTE-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
       }
 
       const updatedRoute = await db.route.update({

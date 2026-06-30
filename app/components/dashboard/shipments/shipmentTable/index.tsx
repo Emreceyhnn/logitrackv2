@@ -55,7 +55,7 @@ const ShipmentTable = ({
         options: VISIBLE_SHIPMENT_STATUSES.map((s) => ({
           label:
             dict.shipments.statuses[
-              s.toUpperCase() as keyof typeof dict.shipments.statuses
+              s.toLocaleUpperCase('en-US') as keyof typeof dict.shipments.statuses
             ] || s.replace(/_/g, " "),
           value: s as string,
         })),

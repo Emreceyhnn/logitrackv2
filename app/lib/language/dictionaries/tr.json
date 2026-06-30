@@ -39,6 +39,7 @@
     "actions": "İşlemler",
     "status": "Durum",
     "date": "Tarih",
+    "technician": "Teknisyen",
     "next": "İleri",
     "back": "Geri",
     "step": "Adım",
@@ -139,7 +140,8 @@
       "prev": "Geri",
       "finish": "Bitir",
       "startTour": "Tur Başlat"
-    }
+    },
+    "searchPlaceholder": "Ara..."
   },
   "guidedTour": {
     "overview": {
@@ -256,6 +258,44 @@
       "contentStep": {
         "title": "Raporlar Merkezi",
         "description": "Operasyonel raporları oluşturun ve görüntüleyin. Uyumluluk ve analiz için verileri çeşitli formatlarda dışa aktarın."
+      }
+    },
+    "warehouseWorker": {
+      "sidebarStep": {
+        "title": "Gezinme Menüsü",
+        "description": "Kontrol Paneli, Tarama, Görevler, Kapasite ve Aktivite görünümleri arasında geçiş yapmak için bu menüyü kullanın."
+      },
+      "dashboardPicksStep": {
+        "title": "Performans Göstergeleri",
+        "description": "Günlük toplama ve paketleme hedeflerinize karşı ilerlemenizi buradan takip edin."
+      },
+      "dashboardControlStep": {
+        "title": "Bölge Kontrolü",
+        "description": "Size uygun görevleri ve bildirimleri almak için aktif çalışma bölgenizi buradan değiştirin."
+      },
+      "dashboardQuickStep": {
+        "title": "Hızlı İşlemler",
+        "description": "Aktif bölgeniz için anında sorun bildirin veya besleme talebinde bulunun."
+      },
+      "scanSectionStep": {
+        "title": "Barkod Okuyucu",
+        "description": "Sisteme stok hareketlerini kaydetmek için ürün barkodlarını veya SKU'larını buraya okutun."
+      },
+      "taskListStep": {
+        "title": "Görev Sıranız",
+        "description": "Size atanan görevleri yönetin. 'YÜKSEK' öncelikli olanları ilk sıraya alın."
+      },
+      "capacityChartStep": {
+        "title": "Genel Kapasite",
+        "description": "Tesis genelinde kaç palet pozisyonunun dolu olduğunu gösteren özet grafik."
+      },
+      "capacityZoneStep": {
+        "title": "Bölge Bazlı Doluluk",
+        "description": "Kapasite kullanımının bölge bazında detaylı analizi. Darboğazları tespit etmenize yardımcı olur."
+      },
+      "activityFeedStep": {
+        "title": "Canlı Aktivite",
+        "description": "Tesis genelinde gerçekleşen tüm envanter hareketlerinin gerçek zamanlı akışı."
       }
     }
   },
@@ -513,7 +553,7 @@
         "cta": "Altyapımız Hakkında Bilgi Edinin →"
       },
       "footer": {
-        "tos": "© {year} LogiTrack Intelligence Systems. Tüm planlar Kullanım Koşullarımıza tabidir.",
+        "tos": "© {year} LogiTrack Takip Sistemleri. Tüm planlar Kullanım Koşullarımıza tabidir.",
         "support": "Kurumsal müşteriler özel destek kanalları alır."
       }
     },
@@ -596,7 +636,7 @@
         ]
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır.",
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır.",
         "builtFor": "Kurumlar için inşa edildi, yollar için optimize edildi.",
         "links": {
           "privacy": "Gizlilik",
@@ -610,7 +650,7 @@
       "mission": {
         "badge": "Misyonumuz",
         "title": "Küresel Ticaretin Geleceğini Yönetiyoruz.",
-        "subtitle": "LogiTrack'te sadece sevkiyatları izlemiyoruz; tüm tedarik zincirlerini senkronize ediyoruz. Misyonumuz, parçalanmış lojistik verilerini canlı istihbarata dönüştürmektir."
+        "subtitle": "LogiTrack'te sadece sevkiyatları izlemiyoruz; tüm tedarik zincirlerini senkronize ediyoruz. Misyonumuz, parçalanmış lojistik verilerini canlı takibe dönüştürmektir."
       },
       "vision": {
         "overline": "LogiTrack Vizyonu",
@@ -639,7 +679,7 @@
         "subtitle": "Anlık beklentilerin olduğu bir çağda lojistik artık bir arka ofis işlevi değil; rekabet avantajıdır. LogiTrack, bu avantajı pazar lideri bir gerçekliğe dönüştürecek araçları sağlar."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "howItWorksPage": {
@@ -696,7 +736,7 @@
         "subtitle": "48 saat içinde tüm lojistik ağınızda gerçek zamanlı takibi devreye alın."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "routeIntelligencePage": {
@@ -729,7 +769,7 @@
         "subtitle": "Yapay zeka destekli yönlendirmenin teslimat operasyonlarınızı nasıl dönüştürebileceğini görün."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "telemetryHubPage": {
@@ -755,14 +795,14 @@
       "detail": {
         "overline": "Veri Hattı",
         "title": "Sensörden içgörüye milisaniyeler içinde.",
-        "description": "Kenardan buluta telemetri hattımız, ham sensör verilerini gürültü filtreleme, anomali algılama ve bağlamsal zenginleştirme yoluyla işleyerek uygulanabilir istihbarat sunar."
+        "description": "Kenardan buluta telemetri hattımız, ham sensör verilerini gürültü filtreleme, anomali algılama ve bağlamsal zenginleştirme yoluyla işleyerek uygulanabilir takip sunar."
       },
       "cta": {
         "title": "Filonuzu Bağlayın",
         "subtitle": "200'den fazla telematik cihaz ve IoT platformuyla donanım bağımsız entegrasyon."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "securityCenterPage": {
@@ -795,7 +835,7 @@
         "subtitle": "SOC 2 raporumuzu ve güvenlik teknik dokümanımızı indirin."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "enterprisePage": {
@@ -828,7 +868,7 @@
         "subtitle": "Kuruluşunuzun özel gereksinimlerine göre özelleştirilmiş bir teklif alın."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "customApiPage": {
@@ -861,7 +901,7 @@
         "subtitle": "Entegrasyonunuzu oluşturmaya bugün başlayın."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "smbLogisticsPage": {
@@ -894,7 +934,7 @@
         "subtitle": "Kredi kartı gerekmez. 14 gün tam erişim."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "supplyChainPage": {
@@ -927,7 +967,7 @@
         "subtitle": "Uçtan uca görünürlüğün tedarik zinciri performansını nasıl dönüştürdüğünü görün."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "ourMissionPage": {
@@ -960,7 +1000,7 @@
         "subtitle": "Akıllı lojistiğin geleceğini inşa etmede bizimle ortak olun."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "engineeringPage": {
@@ -980,7 +1020,7 @@
         },
         "ml": {
           "title": "Ölçekli Makine Öğrenimi",
-          "description": "ML platformumuz, tahmine dayalı istihbaratı güçlendirmek için petabaytlarca lojistik veriyi işleyerek modelleri sürekli eğitir ve dağıtır."
+          "description": "ML platformumuz, tahmine dayalı takibi güçlendirmek için petabaytlarca lojistik veriyi işleyerek modelleri sürekli eğitir ve dağıtır."
         }
       },
       "detail": {
@@ -993,7 +1033,7 @@
         "subtitle": "Mühendislik blogumuzu okuyun ve ölçekli nasıl inşa ettiğimizi görün."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "pressKitPage": {
@@ -1026,7 +1066,7 @@
         "subtitle": "Halkla ilişkiler ekibimiz röportajlar ve medya soruları için hazırdır."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "careersPage": {
@@ -1059,7 +1099,7 @@
         "subtitle": "Bir sonraki rolünüzü bulun ve bugün başvurun."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "developerDocsPage": {
@@ -1092,7 +1132,7 @@
         "subtitle": "API anahtarlarınızı alın ve belgeleri keşfedin."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "helpCenterPage": {
@@ -1125,7 +1165,7 @@
         "subtitle": "Ekibimiz genellikle mesai saatleri içinde 2 saat içinde yanıt verir."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "privacyPage": {
@@ -1158,7 +1198,7 @@
         "subtitle": "Veri Koruma Görevlimize privacy@logitrack.io adresinden ulaşın."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "slaPage": {
@@ -1191,7 +1231,7 @@
         "subtitle": "Kayıtlarınız için eksiksiz SLA belgelerimizi indirin."
       },
       "footer": {
-        "copyright": "© {year} LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır."
+        "copyright": "© {year} LogiTrack Takip Sistemleri. Tüm hakları saklıdır."
       }
     },
     "footer": {
@@ -1218,7 +1258,7 @@
         "privacy": "Gizlilik",
         "sla": "SLA"
       },
-      "rights": "© 2026 LogiTrack İstihbarat Sistemleri. Tüm hakları saklıdır. Hassas üretim.",
+      "rights": "© 2026 LogiTrack Takip Sistemleri. Tüm hakları saklıdır. Hassas üretim.",
       "status": "SİSTEM DURUMU: OPERASYONEL"
     }
   },
@@ -1389,7 +1429,7 @@
       "selectDriver": "Uygun bir sürücü seçin",
       "assignmentDate": "Atama Tarihi",
       "maintenanceRecord": "Yeni Bakım Kaydı",
-      "serviceType": "Servis Tipi",
+      "serviceType": "Servis Türü",
       "cost": "Toplam Maliyet",
       "description": "Açıklama",
       "returnToService": "Servise Döndür",
@@ -1475,7 +1515,8 @@
         "fuel": "Yakıt Günlükleri",
         "map": "Canlı Harita",
         "specs": "Teknik Özellikler"
-      }
+      },
+      "status": "Durum"
     },
     "table": {
       "title": "Araç Listesi",
@@ -1506,7 +1547,15 @@
     },
     "vehicleList": "Araç Listesi",
     "deleteTitle": "Aracı Sil?",
-    "deleteDesc": "Bu aracı silmek istediğinize emin misiniz? Bu işlem aracı ve tüm ilişkili verileri kalıcı olarak silecektir."
+    "deleteDesc": "Bu aracı silmek istediğinize emin misiniz? Bu işlem aracı ve tüm ilişkili verileri kalıcı olarak silecektir.",
+    "maintenanceTypes": {
+      "OIL_CHANGE": "Yağ Değişimi",
+      "TIRE_REPLACEMENT": "Lastik Değişimi",
+      "GENERAL_INSPECTION": "Genel Bakım",
+      "BRAKE_SERVICE": "Fren Servisi",
+      "ENGINE_REPAIR": "Motor Tamiri",
+      "OTHER": "Diğer"
+    }
   },
   "trailers": {
     "title": "Dorseler",
@@ -1891,6 +1940,15 @@
         "details": "Ürün Detayları",
         "storage": "Stok Seviyeleri",
         "review": "Gözden Geçir ve Onayla"
+      },
+      "cargoTypes": {
+        "General Cargo": "Genel Yük",
+        "General": "Genel Yük",
+        "Perishable Goods": "Bozulabilir Yük",
+        "Hazardous Materials": "Tehlikeli Madde",
+        "Fragile Goods": "Kırılgan Yük",
+        "Liquid Cargo": "Sıvı Yük",
+        "Oversized Cargo": "Ağır/Geniş Yük"
       }
     },
     "deleteTitle": "Öğeyi Sil",
@@ -1935,12 +1993,16 @@
       "active": "Aktif"
     },
     "roles": {
-      "admin": "Şirket Yöneticisi",
-      "manager": "Müdür",
-      "driver": "Sürücü",
-      "warehouse": "Depo Operatörü",
-      "dispatcher": "Dispatçer",
-      "default": "Varsayılan"
+      "Admin": "Yönetici",
+      "Manager": "Müdür",
+      "Warehouse Worker": "Depo Çalışanı",
+      "Driver": "Sürücü",
+      "Customer": "Müşteri",
+      "read-only": "salt-okunur",
+      "Administrator": "Yönetici",
+      "Warehouse Manager": "Depo Müdürü",
+      "Dispatcher": "Sevkiyat Sorumlusu",
+      "Warehouse Operator": "Depo Çalışanı"
     },
     "branding": {
       "title": "Şirket Kimliği",
@@ -2028,7 +2090,7 @@
       "permissions": "İzinler",
       "accountStatus": "Hesap Durumu",
       "adminData": "Yönetimsel Veriler",
-      "adminDataDesc": "Bu üye yükseltilmiş ayrıcalıklara sahip. Rol değişiklikleri için <strong>{email}</strong> ile iletişine geçin.",
+      "adminDataDesc": "Bu üye şirketinizde {role} rolüne sahip.",
       "closeView": "Kapat"
     },
     "editMember": {
@@ -2205,7 +2267,9 @@
         "stops": "Sevkiyat Durakları",
         "addStop": "Durak Ekle",
         "stop": "Durak",
-        "stopSequence": "Durak Sırası"
+        "stopSequence": "Durak Sırası",
+        "availableKg": "Kalan:",
+        "availableVol": "Kalan:"
       },
       "buttons": {
         "assignToExistingRoute": "Mevcut Rotaya Ata"
@@ -2364,11 +2428,11 @@
     "deleteTitle": "Depoyu Sil?",
     "deleteDesc": "{name} deposunu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
     "kpi": {
-      "totalWarehouses": "TOPLAM DEPO",
-      "inventorySkus": "ENVANTER SKU SAYISI",
-      "totalItems": "TOPLAM ÜRÜN",
-      "palletCapacity": "PALET KAPASİTESİ",
-      "stockedVolume": "STOKLANMIŞ HACİM"
+      "totalWarehouses": "Toplam Depo",
+      "inventorySkus": "Envanter SKU Sayısı",
+      "totalItems": "Toplam Ürün",
+      "palletCapacity": "Palet Kapasitesi",
+      "stockedVolume": "Stoklanmış Hacim"
     },
     "categories": {
       "types": {
@@ -2692,8 +2756,11 @@
     "overview": {
       "actionRequired": {
         "title": "Aksiyon Gerekli",
-        "pendingCount": "{count} bekleyen",
-        "allClear": "Her şey yolunda! Acil aksiyon gerekmiyor."
+        "pendingCount": "{count} Bekleyen",
+        "allClear": "Her şey yolunda! Acil aksiyon gerekmiyor.",
+        "ISSUE_ALERT": "{priority} · {status}",
+        "DOC_EXPIRES": "Son Tüketim {date}",
+        "DOC_EXPIRY_APPROACHING": "Süresi yaklaşıyor"
       },
       "dailyOperations": {
         "title": "Bugünkü Operasyonlar",
@@ -2893,6 +2960,56 @@
     "high": "yüksek",
     "med": "orta",
     "low": "düşük",
+    "ui": {
+      "onShift": "Mesaide",
+      "aisles": "Koridor 1–48",
+      "liveMovements": "Canlı stok hareketleri",
+      "type": "Tip",
+      "item": "Ürün",
+      "qty": "Adet",
+      "zone": "Bölge",
+      "by": "Kişi",
+      "time": "Zaman",
+      "scanPlaceholder": "Barkod okutun veya SKU yazın…",
+      "scanBtn": "Okut",
+      "scanHint": "Onaylamak için Enter'a basın veya okuyucu kullanın.",
+      "simScan": "Okutma Simülasyonu",
+      "logPick": "Toplama (Pick)",
+      "logPack": "Paketleme (Pack)",
+      "onBreakMsg": "Moladasınız — işlem yapmak için mesainizi başlatın.",
+      "doneBtn": "Bitti",
+      "advanceBtn": "İlerle",
+      "PICK": "TOPLA",
+      "PACK": "PAKETLE",
+      "PUT": "KOY",
+      "scanLog": "Tara & kaydet",
+      "pickZone": "Toplama bölgesi",
+      "myTaskQueue": "Görev sıram",
+      "openTasksCount": "açık",
+      "highPriority": "yüksek öncelikli",
+      "allAssignedTasks": "Tüm atanan görevler",
+      "siteCapacity": "Tesis kapasitesi",
+      "zoneNearFull": "Bölge dolmak üzere",
+      "palletPositions": "Palet pozisyonları",
+      "palletPositionsUsed": "dolu palet pozisyonu",
+      "positionsFree": "boş pozisyon",
+      "activeLabel": "AKTİF",
+      "controlPanel": "Kontrol paneli",
+      "activePickZone": "Aktif toplama bölgesi",
+      "quickActions": "Hızlı işlemler",
+      "requestRestockZone": "Besleme talebi — Bölge",
+      "reportIssue": "Sorun bildir",
+      "scanLogMovements": "Tara ve hareketleri kaydet",
+      "scanSubtitle": "Ürünü okutun, adedi onaylayın ve toplama/paketleme olarak kaydedin.",
+      "scanAnItem": "Ürün okut",
+      "liveActivity": "Canlı aktivite",
+      "liveActivitySubtitle": "Tesis genelindeki tüm stok hareketleri, yeniden eskiye.",
+      "RESTOCK": "BESLE",
+      "RESTOCK_REQUEST": "BESLEME",
+      "PUTAWAY": "YERLEŞTİR",
+      "STOCK_IN": "GİRİŞ",
+      "ADJUSTMENT": "DÜZELTME"
+    },
     "nav": {
       "overview": "Genel Bakış",
       "scan": "Tara",

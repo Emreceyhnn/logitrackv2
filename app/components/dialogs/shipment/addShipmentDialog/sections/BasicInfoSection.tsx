@@ -80,21 +80,21 @@ const BasicInfoSection = () => {
                 {dict.shipments.dialogs.fields.shipmentIdRef}
               </Typography>
               <CustomTextArea
-                name="referenceNumber"
+                name="trackingId"
                 placeholder={
                   dict.shipments.dialogs.fields.shipmentIdPlaceholder
                 }
-                value={values.referenceNumber}
+                value={values.trackingId}
                 onChange={(e) =>
-                  setFieldValue("referenceNumber", e.target.value)
+                  setFieldValue("trackingId", e.target.value)
                 }
                 onBlur={handleBlur}
                 error={
-                  touched.referenceNumber && Boolean(errors.referenceNumber)
+                  touched.trackingId && Boolean(errors.trackingId)
                 }
                 helperText={
-                  touched.referenceNumber
-                    ? (errors.referenceNumber as string)
+                  touched.trackingId
+                    ? (errors.trackingId as string)
                     : undefined
                 }
               />
@@ -111,11 +111,20 @@ const BasicInfoSection = () => {
                 {dict.shipments.dialogs.fields.referenceNumber}
               </Typography>
               <CustomTextArea
-                name="ref2"
+                name="referenceNumber"
                 placeholder="PO-9821"
                 value={values.referenceNumber}
                 onChange={(e) =>
                   setFieldValue("referenceNumber", e.target.value)
+                }
+                onBlur={handleBlur}
+                error={
+                  touched.referenceNumber && Boolean(errors.referenceNumber)
+                }
+                helperText={
+                  touched.referenceNumber
+                    ? (errors.referenceNumber as string)
+                    : undefined
                 }
               />
             </Stack>

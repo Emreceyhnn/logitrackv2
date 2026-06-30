@@ -70,7 +70,7 @@ export const createVehicle = authenticatedAction(
 
       const vehicleFleetNo =
         parsedData.fleetNo ||
-        `FLEET-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        `FLEET-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
 
       const newVehicle = await db.vehicle.create({
         data: {
@@ -165,7 +165,7 @@ export const updateVehicle = authenticatedAction(
 
       const updateData = { ...parsedData };
       if (updateData.fleetNo === "") {
-        updateData.fleetNo = `FLEET-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        updateData.fleetNo = `FLEET-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
       }
 
       const updatedVehicle = await db.vehicle.update({

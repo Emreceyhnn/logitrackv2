@@ -247,6 +247,87 @@ export function getReportTourSteps(dict: Dict): TourStep[] {
   ];
 }
 
+/* -------------------------------------------------------------------------- */
+/*                           WAREHOUSE WORKER                                 */
+/* -------------------------------------------------------------------------- */
+export function getWarehouseWorkerTourSteps(dict: Dict, view: string): TourStep[] {
+  const steps: TourStep[] = [];
+  
+  steps.push({
+    targetSelector: '[data-tour="ww-sidebar"]',
+    title: d(dict, "guidedTour.warehouseWorker.sidebarStep.title"),
+    description: d(dict, "guidedTour.warehouseWorker.sidebarStep.description"),
+    placement: "right",
+  });
+
+  if (view === "dashboard") {
+    steps.push(
+      {
+        targetSelector: '[data-tour="ww-kpi-picks"]',
+        title: d(dict, "guidedTour.warehouseWorker.dashboardPicksStep.title"),
+        description: d(dict, "guidedTour.warehouseWorker.dashboardPicksStep.description"),
+        placement: "bottom",
+      },
+      {
+        targetSelector: '[data-tour="ww-control-panel"]',
+        title: d(dict, "guidedTour.warehouseWorker.dashboardControlStep.title"),
+        description: d(dict, "guidedTour.warehouseWorker.dashboardControlStep.description"),
+        placement: "bottom",
+      },
+      {
+        targetSelector: '[data-tour="ww-quick-actions"]',
+        title: d(dict, "guidedTour.warehouseWorker.dashboardQuickStep.title"),
+        description: d(dict, "guidedTour.warehouseWorker.dashboardQuickStep.description"),
+        placement: "top",
+      }
+    );
+  } else if (view === "scan") {
+    steps.push(
+      {
+        targetSelector: '[data-tour="ww-scan-section"]',
+        title: d(dict, "guidedTour.warehouseWorker.scanSectionStep.title"),
+        description: d(dict, "guidedTour.warehouseWorker.scanSectionStep.description"),
+        placement: "center",
+      }
+    );
+  } else if (view === "tasks") {
+    steps.push(
+      {
+        targetSelector: '[data-tour="ww-task-list"]',
+        title: d(dict, "guidedTour.warehouseWorker.taskListStep.title"),
+        description: d(dict, "guidedTour.warehouseWorker.taskListStep.description"),
+        placement: "center",
+      }
+    );
+  } else if (view === "capacity") {
+    steps.push(
+      {
+        targetSelector: '[data-tour="ww-capacity-chart"]',
+        title: d(dict, "guidedTour.warehouseWorker.capacityChartStep.title"),
+        description: d(dict, "guidedTour.warehouseWorker.capacityChartStep.description"),
+        placement: "bottom",
+      },
+      {
+        targetSelector: '[data-tour="ww-zone-list"]',
+        title: d(dict, "guidedTour.warehouseWorker.capacityZoneStep.title"),
+        description: d(dict, "guidedTour.warehouseWorker.capacityZoneStep.description"),
+        placement: "top",
+      }
+    );
+  } else if (view === "activity") {
+    steps.push(
+      {
+        targetSelector: '[data-tour="ww-activity-feed"]',
+        title: d(dict, "guidedTour.warehouseWorker.activityFeedStep.title"),
+        description: d(dict, "guidedTour.warehouseWorker.activityFeedStep.description"),
+        placement: "center",
+      }
+    );
+  }
+
+  return steps;
+}
+
 /**
  * Master resolver — returns the tour steps for a given route segment.
  */
@@ -275,6 +356,16 @@ export function getTourStepsForPage(
       return getCustomerTourSteps(dict);
     case "reports":
       return getReportTourSteps(dict);
+    case "warehouse-worker-dashboard":
+      return getWarehouseWorkerTourSteps(dict, "dashboard");
+    case "warehouse-worker-scan":
+      return getWarehouseWorkerTourSteps(dict, "scan");
+    case "warehouse-worker-tasks":
+      return getWarehouseWorkerTourSteps(dict, "tasks");
+    case "warehouse-worker-capacity":
+      return getWarehouseWorkerTourSteps(dict, "capacity");
+    case "warehouse-worker-activity":
+      return getWarehouseWorkerTourSteps(dict, "activity");
     default:
       return [];
   }

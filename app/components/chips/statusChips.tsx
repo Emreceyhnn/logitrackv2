@@ -7,11 +7,11 @@ import {
   type Palette,
   type PaletteColor,
 } from "@mui/material";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
 export const StatusChip = ({ status }: { status: string }) => {
-  const dict = useDictionary();
+  const { lang, dict } = useLanguage();
   const theme = useTheme();
   const meta = getStatusMeta(status, dict);
   const paletteKey = meta.paletteKey as
@@ -37,12 +37,16 @@ export const StatusChip = ({ status }: { status: string }) => {
     ? colorObj?._alpha?.main_20 || `${meta.color}33`
     : colorObj?._alpha?.main_40 || `${meta.color}66`;
 
+  const displayLabel = meta.label
+    ? meta.label.toLocaleUpperCase(lang === "tr" ? "tr-TR" : "en-US")
+    : "";
+
   return (
     <Tooltip title={meta.label} arrow>
       <Chip
         variant="filled"
         size="small"
-        label={meta.label}
+        label={displayLabel}
         sx={{
           borderRadius: "8px",
           height: "28px",
@@ -51,7 +55,6 @@ export const StatusChip = ({ status }: { status: string }) => {
           backgroundColor: backgroundColor,
           color: textColor,
           border: `1px solid ${borderColor}`,
-          textTransform: "uppercase",
           letterSpacing: "0.05em",
           "& .MuiChip-label": {
             px: 2.5,

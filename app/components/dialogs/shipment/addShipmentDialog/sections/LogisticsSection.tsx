@@ -79,7 +79,7 @@ const LogisticsSection = ({ warehouses, trailers }: LogisticsSectionProps) => {
                   fontWeight={700}
                   sx={{ letterSpacing: 0.5, textTransform: "uppercase" }}
                 >
-                  {dict.shipments.dialogs.fields.originWarehouse.toUpperCase()}
+                  {dict.shipments.dialogs.fields.originWarehouse.toLocaleUpperCase('en-US')}
                 </Typography>
                 <Typography variant="body1" fontWeight={700} color="white">
                   {

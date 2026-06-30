@@ -45,6 +45,7 @@ import { getTrailers } from "@/app/lib/controllers/trailer";
 import { TrailerWithRelations } from "@/app/lib/type/trailer";
 
 const initialValues: ShipmentFormValues = {
+  trackingId: "",
   referenceNumber: "",
   priority: ShipmentPriority.MEDIUM,
   type: "Standard Freight",
@@ -168,7 +169,8 @@ const AddShipmentDialog = ({
           destinationLng: values.destinationLng,
           originLat: values.originLat,
           originLng: values.originLng,
-          trackingId: values.referenceNumber,
+          trackingId: values.trackingId,
+          referenceNumber: values.referenceNumber,
           customerLocationId: values.customerLocationId,
           priority: values.priority,
           type: values.type,

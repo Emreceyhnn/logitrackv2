@@ -84,7 +84,7 @@ const RecentStockMovements = ({
         const isPick = row.type === "PICK";
         return (
           <Chip
-            label={row.type}
+            label={dict.inventory?.dialogs?.historyTypes?.[row.type as keyof typeof dict.inventory.dialogs.historyTypes] || row.type}
             size="small"
             sx={{
               bgcolor: isPick ? theme.palette.warning._alpha.main_10 : theme.palette.success._alpha.main_10,

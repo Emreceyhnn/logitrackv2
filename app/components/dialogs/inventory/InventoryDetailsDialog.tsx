@@ -676,7 +676,7 @@ export default function InventoryDetailsDialog({
                           color="text.secondary"
                           fontWeight={600}
                         >
-                          {dict.inventory.fields.unitValue.toUpperCase()}
+                          {dict.inventory.fields.unitValue.toLocaleUpperCase('en-US')}
                         </Typography>
                         <Typography
                           variant="h4"
@@ -732,9 +732,7 @@ export default function InventoryDetailsDialog({
                         fontWeight={600}
                         color="text.primary"
                       >
-                        {item.cargoType === "General" || !item.cargoType
-                          ? dict.inventory.category.general
-                          : item.cargoType}
+                        {dict.inventory?.dialogs?.cargoTypes?.[(item.cargoType || "General") as keyof typeof dict.inventory.dialogs.cargoTypes] || item.cargoType || "General"}
                       </Typography>
                     </Box>
                   </Stack>
@@ -779,7 +777,7 @@ export default function InventoryDetailsDialog({
                         display="block"
                         color="text.secondary"
                       >
-                        {dict.inventory.fields.weight.toUpperCase()}
+                        {dict.inventory.fields.weight.toLocaleUpperCase('en-US')}
                       </Typography>
                       <Typography
                         component="div"
@@ -815,7 +813,7 @@ export default function InventoryDetailsDialog({
                         display="block"
                         color="text.secondary"
                       >
-                        {dict.inventory.fields.volume.toUpperCase()}
+                        {dict.inventory.fields.volume.toLocaleUpperCase('en-US')}
                       </Typography>
                       <Typography
                         component="div"
@@ -851,7 +849,7 @@ export default function InventoryDetailsDialog({
                         display="block"
                         color="text.secondary"
                       >
-                        {dict.inventory.fields.pallets.toUpperCase()}
+                        {dict.inventory.fields.pallets.toLocaleUpperCase('en-US')}
                       </Typography>
                       <Typography
                         component="div"

@@ -20,16 +20,35 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { ReactNode } from "react";
 import { ActionRequiredItems } from "@/app/lib/type/overview";
 import { useRouter } from "next/navigation";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
+import { getStatusMeta } from "@/app/lib/priorityColor";
 
 interface ActionRequiredCardProps {
   alerts?: ActionRequiredItems[];
 }
 
 const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
-  const dict = useDictionary();
+  const { lang, dict } = useLanguage();
   const theme = useTheme();
   const router = useRouter();
+
+  const getMessage = (i: ActionRequiredItems) => {
+    if (i.messageKey === "ISSUE_ALERT" && i.messageParams) {
+      const p = getStatusMeta(i.messageParams.priority, dict).label || i.messageParams.priority;
+      const s = getStatusMeta(i.messageParams.status, dict).label || i.messageParams.status;
+      return (dict.dashboard.overview.actionRequired.ISSUE_ALERT as string)
+        .replace("{priority}", p)
+        .replace("{status}", s);
+    }
+    if (i.messageKey === "DOC_EXPIRES" && i.messageParams) {
+      const d = new Intl.DateTimeFormat(lang, { day: "numeric", month: "short", year: "numeric" }).format(new Date(i.messageParams.date));
+      return (dict.dashboard.overview.actionRequired.DOC_EXPIRES as string).replace("{date}", d);
+    }
+    if (i.messageKey === "DOC_EXPIRY_APPROACHING") {
+      return dict.dashboard.overview.actionRequired.DOC_EXPIRY_APPROACHING as string;
+    }
+    return i.message;
+  };
 
   const handleActionClick = (link?: string) => {
     if (link) {
@@ -205,7 +224,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
                         {i.title}
                       </Typography>
                       <Typography fontSize={13} color="text.secondary">
-                        {i.message}
+                        {getMessage(i)}
                       </Typography>
                     </Stack>
                   </ListItemButton>

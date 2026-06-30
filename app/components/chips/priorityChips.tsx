@@ -1,17 +1,21 @@
 import { Chip, type Palette, type PaletteColor } from "@mui/material";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
 export const PriorityChip = ({ status }: { status: string }) => {
-  const dict = useDictionary();
+  const { lang, dict } = useLanguage();
   const meta = getStatusMeta(status, dict);
   const paletteKey = meta.paletteKey || "secondary";
+
+  const displayLabel = meta.label
+    ? meta.label.toLocaleUpperCase(lang === "tr" ? "tr-TR" : "en-US")
+    : "";
 
   return (
     <Chip
       variant="filled"
       size="small"
-      label={meta.label}
+      label={displayLabel}
       sx={{
         borderRadius: "6px",
         height: "24px",
@@ -20,7 +24,6 @@ export const PriorityChip = ({ status }: { status: string }) => {
         backgroundColor: `${paletteKey}.main`,
         color: "white",
         border: "none",
-        textTransform: "uppercase",
         letterSpacing: "0.02em",
         boxShadow: (theme) => {
           const colorObj = theme.palette[paletteKey as keyof Palette] as PaletteColor;

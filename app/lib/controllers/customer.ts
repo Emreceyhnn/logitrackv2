@@ -51,7 +51,7 @@ export const createCustomer = authenticatedAction(
       }
 
       // Auto-generate code if not provided
-      const customerCode = code || `CUST-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      const customerCode = code || `CUST-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
 
       const newCustomer = await db.customer.create({
         data: {
@@ -282,7 +282,7 @@ export const updateCustomer = authenticatedAction(
       
       let finalCode = data.code;
       if (finalCode === "") {
-        finalCode = `CUST-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        finalCode = `CUST-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
       }
 
       const updateData: Prisma.CustomerUpdateInput = {

@@ -337,14 +337,18 @@ function DataTableToolbar({
                   }
                   return (
                     <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                      {arr.slice(0, 2).map((v) => (
-                        <Chip
-                          key={v}
-                          label={v.replace(/_/g, " ")}
-                          size="small"
-                          sx={{ fontSize: 11, height: 20 }}
-                        />
-                      ))}
+                      {arr.slice(0, 2).map((v) => {
+                        const opt = filter.options.find(o => o.value === v);
+                        const label = opt ? opt.label : v.replace(/_/g, " ");
+                        return (
+                          <Chip
+                            key={v}
+                            label={label}
+                            size="small"
+                            sx={{ fontSize: 11, height: 20 }}
+                          />
+                        );
+                      })}
                       {arr.length > 2 && (
                         <Chip
                           label={`+${arr.length - 2}`}

@@ -352,7 +352,7 @@ export const addInventoryItem = authenticatedAction(
       // Auto-generate SKU if not provided
       const itemSku =
         sku ||
-        `SKU-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        `SKU-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
 
       const existingItem = await db.inventory.findUnique({
         where: {
@@ -447,7 +447,7 @@ export const updateInventoryItem = authenticatedAction(
 
       const updateData = { ...data };
       if (updateData.sku === "") {
-        updateData.sku = `SKU-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        updateData.sku = `SKU-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
       }
 
       const updatedItem = await db.$transaction(async (tx) => {

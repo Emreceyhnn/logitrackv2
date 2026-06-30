@@ -119,7 +119,7 @@ export default function TimelineSection() {
                     fontSize: "14px",
                   }}
                 >
-                  {dict.common.step.toUpperCase()} {item.step}
+                  {dict.common.step.toLocaleUpperCase('en-US')} {item.step}
                 </Typography>
                 <Typography
                   variant="h5"

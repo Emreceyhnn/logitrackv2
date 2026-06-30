@@ -702,9 +702,8 @@ export const getAddInventoryValidationSchema = (dict: Dictionary) =>
 /* --------------------------- Shipment Validation --------------------------- */
 export const getAddShipmentValidationSchema = (dict: Dictionary) =>
   Yup.object().shape({
-    referenceNumber: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Reference Number" })
-    ),
+    trackingId: Yup.string().optional(),
+    referenceNumber: Yup.string().optional(),
     priority: Yup.string()
       .required(formatMessage(dict.validation.required, { field: "Priority" }))
       .oneOf(

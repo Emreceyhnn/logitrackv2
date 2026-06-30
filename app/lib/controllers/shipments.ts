@@ -70,6 +70,7 @@ export const createShipment = authenticatedAction(
       originLat?: number;
       originLng?: number;
       trackingId?: string;
+      referenceNumber?: string | null;
       customerLocationId?: string;
       priority?: ShipmentPriority;
       type?: string;
@@ -100,6 +101,7 @@ export const createShipment = authenticatedAction(
       originLat,
       originLng,
       trackingId,
+      referenceNumber,
       customerLocationId,
       priority = ShipmentPriority.MEDIUM,
       type = "Standard Freight",
@@ -122,7 +124,7 @@ export const createShipment = authenticatedAction(
 
       const finalTrackingId =
         trackingId ||
-        `TRK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+        `TRK-${Math.random().toString(36).substring(2, 9).toLocaleUpperCase('en-US')}`;
 
       const existingShipment = await db.shipment.findUnique({
         where: { trackingId: finalTrackingId },
@@ -217,6 +219,7 @@ export const createShipment = authenticatedAction(
           const shipment = await tx.shipment.create({
             data: {
               trackingId: finalTrackingId,
+              referenceNumber: referenceNumber || undefined,
               customerId: customerId || undefined,
               customerLocationId: customerLocationId || undefined,
               origin,
@@ -750,7 +753,7 @@ export const updateShipment = authenticatedAction(
         stops?: ShipmentStopInput[];
       };
       if (updateData.trackingId === "") {
-        updateData.trackingId = `TRK-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+        updateData.trackingId = `TRK-${Math.random().toString(36).substring(2, 9).toLocaleUpperCase('en-US')}`;
       }
 
       // FK alanlarında boş string geldiyse undefined'a çevir (Prisma P2003 önlemi)

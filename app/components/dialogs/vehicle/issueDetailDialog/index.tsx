@@ -134,7 +134,7 @@ export default function IssueDetailDialog({
                 {dict.vehicles.dialogs.issueDetails}
               </Typography>
               <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block", fontWeight: 500 }}>
-                {dict.vehicles.dialogs.referenceId}: <span style={{ color: theme.palette.primary.main, fontWeight: 700 }}>#{issue.id.slice(-6).toUpperCase()}</span>
+                {dict.vehicles.dialogs.referenceId}: <span style={{ color: theme.palette.primary.main, fontWeight: 700 }}>#{issue.id.slice(-6).toLocaleUpperCase('en-US')}</span>
               </Typography>
             </Box>
           </Stack>

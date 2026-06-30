@@ -331,7 +331,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
                             : theme.palette.error.main,
                         }}
                       />
-                      {statusText.toUpperCase()}
+                      {statusText.toLocaleUpperCase('en-US')}
                     </Box>
                   </Stack>
                 </Stack>
