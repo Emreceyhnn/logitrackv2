@@ -13,6 +13,7 @@ import SpaceDashboardOutlinedIcon from "@mui/icons-material/SpaceDashboardOutlin
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
 import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
+import QrCodeScannerOutlinedIcon from "@mui/icons-material/QrCodeScannerOutlined";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { SidebarList } from "./listItem";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -116,6 +117,15 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
           { title: dict.sidebar.reports, href: "/reports" },
           { title: dict.sidebar.analytics, href: "/analytics" },
         ],
+      },
+      {
+        title: dict.sidebar.warehousePanel,
+        href: "/warehouse-worker",
+        icon: (
+          <QrCodeScannerOutlinedIcon
+            sx={{ fontSize: 20, color: theme?.palette?.icon?.secondary }}
+          />
+        ),
       },
     ],
     [dict, theme]

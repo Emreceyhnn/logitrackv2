@@ -180,7 +180,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
                 fontSize: "1.1rem",
                 fontWeight: 800,
                 "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                "& .MuiSelect-select": { paddingLeft: 0 },
+                "& .MuiSelect-select": { paddingLeft: "8px" },
               }}
               MenuProps={{
                 PaperProps: {

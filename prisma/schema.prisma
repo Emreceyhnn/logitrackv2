@@ -26,6 +26,9 @@ model Company {
   users              User[]
   vehicles           Vehicle[]
   warehouses         Warehouse[]
+  warehouseZones     WarehouseZone[]
+  warehouseTasks     WarehouseTask[]
+  workerShifts       WorkerShift[]
 
   @@map("companies")
 }
@@ -73,6 +76,8 @@ model User {
   company                Company?            @relation(fields: [companyId], references: [id])
   role                   Role?               @relation(fields: [roleId], references: [id])
   managedWarehouses      Warehouse[]
+  assignedWarehouseTasks WarehouseTask[]
+  workerShifts           WorkerShift[]
 
   @@map("users")
 }
@@ -195,8 +200,73 @@ model Warehouse {
   shipmentsOrigin  Shipment[]          @relation("ShipmentOrigin")
   company          Company?            @relation(fields: [companyId], references: [id])
   manager          User?               @relation(fields: [managerId], references: [id])
+  zones            WarehouseZone[]
+  tasks            WarehouseTask[]
+  workerShifts     WorkerShift[]
 
   @@map("warehouses")
+}
+
+model WarehouseZone {
+  id              String    @id @default(cuid())
+  warehouseId     String
+  companyId       String?
+  code            String
+  name            String?
+  capacityPallets Int       @default(0)
+  usedPallets     Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  company         Company?  @relation(fields: [companyId], references: [id])
+  warehouse       Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@unique([warehouseId, code])
+  @@index([warehouseId])
+  @@map("warehouse_zones")
+}
+
+model WarehouseTask {
+  id           String                @id @default(cuid())
+  warehouseId  String
+  companyId    String?
+  kind         WarehouseTaskKind
+  name         String
+  orderRef     String
+  zone         String
+  doneUnits    Int                   @default(0)
+  totalUnits   Int
+  priority     WarehouseTaskPriority @default(MEDIUM)
+  status       WarehouseTaskStatus   @default(OPEN)
+  assignedToId String?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  assignedTo   User?                 @relation(fields: [assignedToId], references: [id])
+  company      Company?              @relation(fields: [companyId], references: [id])
+  warehouse    Warehouse             @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@index([warehouseId, status])
+  @@map("warehouse_tasks")
+}
+
+model WorkerShift {
+  id             String            @id @default(cuid())
+  userId         String
+  warehouseId    String?
+  companyId      String?
+  status         WorkerShiftStatus @default(ACTIVE)
+  shiftStartTime DateTime          @default(now())
+  shiftEndTime   DateTime?
+  breakSeconds   Int               @default(0)
+  picksLogged    Int               @default(0)
+  packsLogged    Int               @default(0)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  company        Company?          @relation(fields: [companyId], references: [id])
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  warehouse      Warehouse?        @relation(fields: [warehouseId], references: [id])
+
+  @@index([userId, status])
+  @@map("worker_shifts")
 }
 
 model Customer {
@@ -240,6 +310,7 @@ model Inventory {
   warehouseId       String
   sku               String
   name              String
+  zone              String?
   quantity          Int
   allocatedQuantity Int       @default(0)
   minStock          Int       @default(0)
@@ -663,6 +734,30 @@ enum MaintenanceStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+enum WarehouseTaskKind {
+  PICK
+  PACK
+  PUT
+}
+
+enum WarehouseTaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum WarehouseTaskStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum WorkerShiftStatus {
+  ACTIVE
+  BREAK
+  ENDED
 }
 
 model DeliveryAttempt {

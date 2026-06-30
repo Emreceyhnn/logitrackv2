@@ -97,7 +97,6 @@
     "deleting": "Siliniyor...",
     "updating": "Güncelleniyor...",
     "optional": "Opsiyonel",
-    "na": "Yok",
     "start": "Başlat",
     "complete": "Tamamla",
     "fillAllFields": "Lütfen tüm zorunlu alanları doldurun.",
@@ -288,7 +287,8 @@
     "customers": "Müşteriler",
     "company": "Şirket",
     "analytics": "Analitik",
-    "reports": "Raporlar"
+    "reports": "Raporlar",
+    "warehousePanel": "Depo Paneli"
   },
   "roles-header": {
     "Company Admin": "Şirket Admini",
@@ -302,7 +302,7 @@
   },
   "auth": {
     "signIn": "Giriş Yap",
-    "signInDescription": "Hesabınıza erişmek için lütfen bilgilerinizi girin.",
+    "signInDescription": "Hesabınıza erişmek için lütfen kimlik bilgilerinizi girin.",
     "email": "E-posta Adresi",
     "password": "Şifre",
     "forgotPassword": "Şifremi Unuttum",
@@ -321,7 +321,6 @@
     "security": "Güvenlik",
     "review": "İnceleme",
     "finalTouches": "Son Rötuşlar",
-    "signInDescription": "Hesabınıza erişmek için lütfen kimlik bilgilerinizi girin.",
     "signUpDescription": "Başlamak için lütfen temel bilgilerinizi sağlayın.",
     "securityDescription": "Güçlü bir şifre seçin.",
     "profileDescription": "Neredeyse bitti! LogiTrack ekibine katılmak için profilinizi tamamlayın.",
@@ -1252,81 +1251,6 @@
     "genericFormError": "Lütfen gerekli alanları doğru şekilde doldurun"
   },
   "vehicles": {
-    "title": "Araçlar",
-    "subtitle": "Filo varlıklarınızı yönetin ve takip edin",
-    "addVehicle": "Araç Ekle",
-    "kpis": {
-      "totalVehicles": "Toplam Araç",
-      "available": "Müsait",
-      "inService": "Bakımda",
-      "onTrip": "Seferde",
-      "openIssues": "Açık Sorunlar",
-      "docsExpiring": "Süresi Dolan Belgeler"
-    },
-    "tabs": {
-      "vehicles": "Araçlar",
-      "trailers": "Treylerler"
-    }
-  },
-  "trailers": {
-    "title": "Treylerler",
-    "subtitle": "Treyler filonuzu yönetin ve takip edin",
-    "kpis": {
-      "totalTrailers": "Toplam Treyler",
-      "available": "Müsait",
-      "inUse": "Kullanımda",
-      "maintenance": "Bakımda",
-      "openIssues": "Açık Sorunlar"
-    },
-    "addTrailer": "Treyler Ekle",
-    "editTrailer": "Treyleri Düzenle",
-    "plate": "Plaka",
-    "fleetNo": "Filo No",
-    "type": "Tip",
-    "capacity": "Kapasite (m³)",
-    "maxLoad": "Azami Yük (kg)",
-    "coldChain": "Soğuk Zincir",
-    "status": "Durum",
-    "currentVehicle": "Mevcut Araç",
-    "assigned": "Atandı",
-    "notAssigned": "Atanmadı",
-    "assignToVehicle": "Araca Ata",
-    "detach": "Ayır",
-    "types": {
-      "DRY_VAN": "Kapalı Kasa",
-      "REEFER": "Frigorifik (Soğuk)",
-      "FLATBED": "Sal Kasa",
-      "TANKER": "Tanker",
-      "CURTAINSIDE": "Tenteli",
-      "CONTAINER_CHASSIS": "Konteyner Taşıyıcı"
-    },
-    "statuses": {
-      "AVAILABLE": "Müsait",
-      "IN_USE": "Kullanımda",
-      "MAINTENANCE": "Bakımda",
-      "RETIRED": "Emekli"
-    }
-  },
-  "overview": {
-    "title": "Genel Bakış",
-    "activeShipments": "Aktif Sevkiyatlar",
-    "delayedShipments": "Geciken Sevkiyatlar",
-    "vehiclesOnTrip": "Seferdeki Araçlar",
-    "vehiclesInService": "Servisteki Araçlar",
-    "availableVehicles": "Müsait Araçlar",
-    "activeDrivers": "Aktif Sürücüler",
-    "warehouses": "Depolar",
-    "inventorySkus": "Envanter Kalemleri",
-    "actionRequired": "Aksiyon Gerekenler",
-    "fuelByVehicle": "Araç Bazlı Yakıt",
-    "shipmentStatus": "Sevkiyat Durumu",
-    "dailyOperations": "Günlük Operasyonlar",
-    "warehouseCapacity": "Depo Kapasitesi",
-    "picksAndPacks": "Günlük Toplama/Paketleme",
-    "shipmentVolume": "Sevkiyat Hacmi",
-    "lowStock": "Düşük Stoklu Ürünler"
-  },
-  "vehicles": {
     "title": "Araç Filosu Yönetimi",
     "subtitle": "Lojistik filonuzu gerçek zamanlı olarak izleyin, yönetin ve optimize edin.",
     "addVehicle": "Araç Ekle",
@@ -1444,12 +1368,12 @@
       "extendedDescription": "Genişletilmiş Açıklama",
       "details": "Detaylar",
       "detailsPlaceholder": "Ek bağlam sağlayın...",
-      "submitIssue": "Sorun Bildir",
+      "submitIssue": "Sorunu Bildir",
       "photo": "Araç Fotoğrafı",
       "clickToUpload": "Yüklemek için tıklayın",
       "uploadNotes": "SVG, PNG, JPG veya GIF",
       "dragAndDrop": "veya sürükleyip bırakın",
-      "fileFormats": "DOCX, JPG veya PNG (MAKS. 10MB)",
+      "fileFormats": "JPG veya PNG (Maks. 10MB)",
       "complianceDates": "Uyumluluk Tarihleri",
       "registrationExpiry": "Ruhsat Geçerlilik Tarihi",
       "inspectionExpiry": "Muayene Geçerlilik Tarihi",
@@ -1462,7 +1386,7 @@
       "requiredDocs": "Gerekli Belgeler",
       "uploadFiles": "Dosya Yükle",
       "assignDriver": "Sürücü Ata",
-      "selectDriver": "Sürücü Seç",
+      "selectDriver": "Uygun bir sürücü seçin",
       "assignmentDate": "Atama Tarihi",
       "maintenanceRecord": "Yeni Bakım Kaydı",
       "serviceType": "Servis Tipi",
@@ -1470,14 +1394,14 @@
       "description": "Açıklama",
       "returnToService": "Servise Döndür",
       "setMaintenance": "Bakıma Al",
-      "preview": "Araç Önizleme",
+      "preview": "Önizleme",
       "kmLeft": "km kaldı",
       "vehicleStatus": "Araç Durumu",
       "manageAvailability": "Genel uygunluğu yönetin",
       "openIssues": "Açık Sorunlar",
       "reportIssue": "Sorun Bildir",
       "noOpenIssues": "Açık sorun bulunamadı.",
-      "reportedOn": "Bildirildi:",
+      "reportedOn": "Bildirildiği Tarih",
       "recentMaintenance": "Son Bakımlar",
       "addRecord": "Kayıt Ekle",
       "noMaintenanceFound": "Bakım kaydı bulunamadı.",
@@ -1495,10 +1419,8 @@
       "unassign": "Atamayı Kaldır",
       "noDriverAssigned": "Atanmış sürücü bulunmamaktadır.",
       "assignNewDriver": "Yeni Sürücü Ata",
-      "selectDriver": "Uygun bir sürücü seçin",
       "noDriversFound": "Uygun sürücü bulunamadı",
       "assigning": "Atanıyor...",
-      "assignDriver": "Sürücü Ata",
       "rating": "Puan",
       "failedToLoadDrivers": "Sürücüler yüklenemedi",
       "failedToAssign": "Sürücü atanamadı",
@@ -1507,8 +1429,8 @@
       "referenceId": "Referans No",
       "incidentTitle": "Olay Başlığı",
       "problemDesc": "Problem Açıklaması",
-      "noSupplementalDetails": "Bu sorun için ek detay belirtilmemiş.",
-      "configurationStatus": "Yapılandırma ve Durum",
+      "noSupplementalDetails": "Açıklama belirtilmedi.",
+      "configurationStatus": "Yapılandırma Durumu",
       "savingChanges": "Değişiklikler Kaydediliyor...",
       "updateIssue": "Sorunu Güncelle",
       "maintenanceDetails": "Bakım Detayları",
@@ -1520,10 +1442,6 @@
       "issueSubject": "Sorun Konusu",
       "tellUsMore": "Durum hakkında daha fazla bilgi verin...",
       "submitting": "Gönderiliyor...",
-      "submitIssue": "Sorunu Bildir",
-      "reportedOn": "Bildirildiği Tarih",
-      "configurationStatus": "Yapılandırma Durumu",
-      "noSupplementalDetails": "Açıklama belirtilmedi.",
       "maintenanceDetailsDesc": "Bu bakım kaydının durumunu görüntüleyin ve yönetin.",
       "maintenanceStatus": "Bakım Durumu",
       "configuration": "Yapılandırma",
@@ -1543,9 +1461,6 @@
       "failedToUploadDocument": "Belge yüklenemedi",
       "docName": "Belge Adı",
       "docNamePlaceholder": "Örn. Q1 Bakım Makbuzu",
-      "fileFormats": "JPG veya PNG (Maks. 10MB)",
-      "preview": "Önizleme",
-      "configuration": "Yapılandırma",
       "fileAttachment": "Dosya Eki",
       "expiryDate": "Geçerlilik Tarihi",
       "steps": {
@@ -1634,6 +1549,25 @@
       "RETIRED": "Hizmet Dışı"
     },
     "emptyMessage": "Dorse bulunamadı"
+  },
+  "overview": {
+    "title": "Genel Bakış",
+    "activeShipments": "Aktif Sevkiyatlar",
+    "delayedShipments": "Geciken Sevkiyatlar",
+    "vehiclesOnTrip": "Seferdeki Araçlar",
+    "vehiclesInService": "Servisteki Araçlar",
+    "availableVehicles": "Müsait Araçlar",
+    "activeDrivers": "Aktif Sürücüler",
+    "warehouses": "Depolar",
+    "inventorySkus": "Envanter Kalemleri",
+    "actionRequired": "Aksiyon Gerekenler",
+    "fuelByVehicle": "Araç Bazlı Yakıt",
+    "shipmentStatus": "Sevkiyat Durumu",
+    "dailyOperations": "Günlük Operasyonlar",
+    "warehouseCapacity": "Depo Kapasitesi",
+    "picksAndPacks": "Günlük Toplama/Paketleme",
+    "shipmentVolume": "Sevkiyat Hacmi",
+    "lowStock": "Düşük Stoklu Ürünler"
   },
   "drivers": {
     "title": "Sürücü Yönetimi",
@@ -1984,8 +1918,10 @@
     }
   },
   "company": {
-    "title": "Şirket",
-    "overview": "Organizasyonunuz, kaynaklarınız ve ekip üyelerinizin özeti.",
+    "title": "Şirket Yapılandırması",
+    "subtitle": "Organizasyonunuzu, üyelerinizi ve bölgesel ayarlarınızı yönetin.",
+    "overview": "Organizasyonunuzu, üyelerinizi ve ayarlarınızı yönetin.",
+    "addMember": "Üye Ekle",
     "kpi": {
       "totalUsers": "Toplam Kullanıcı",
       "vehicles": "Araçlar",
@@ -1998,104 +1934,106 @@
       "created": "{date} tarihinde oluşturuldu",
       "active": "Aktif"
     },
+    "roles": {
+      "admin": "Şirket Yöneticisi",
+      "manager": "Müdür",
+      "driver": "Sürücü",
+      "warehouse": "Depo Operatörü",
+      "dispatcher": "Dispatçer",
+      "default": "Varsayılan"
+    },
+    "branding": {
+      "title": "Şirket Kimliği",
+      "subtitle": "Organizasyonunuzun yasal adını ve dijital markalamasını tanımlayın.",
+      "legalName": "Yasal Şirket Adı",
+      "legalNamePlaceholder": "Örn. Acme Lojistik A.Ş.",
+      "legalNameDesc": "Bu ad, tüm resmi belgeler ve raporlarda görünecektir.",
+      "digitalIdentity": "Dijital Kimlik",
+      "changeLogo": "Logo Değiştir",
+      "uploadAssets": "SVG, PNG veya JPG (maks. 2 MB)",
+      "uploadFormat": "Önerilen: 400×400 piksel",
+      "industry": "Sektör",
+      "industryPlaceholder": "Sektör seçin"
+    },
+    "sidebar": {
+      "currentStep": "Mevcut Adım",
+      "stepProgress": "Adım {current} / {total}",
+      "loggedInAs": "Giriş yapıldı",
+      "primaryAdmin": "Birincil Yönetici"
+    },
+    "dialogs": {
+      "identityTitle": "Şirket Kimliği",
+      "regionalTitle": "Bölgesel Yapılandırma",
+      "identitySubtitle": "Organizasyonunuzun temel kimliğini ve markalamasını ayarlayın.",
+      "localizationDesc": "Organizasyonunuz için bölgesel tercihleri yapılandırın.",
+      "interfaceLanguage": "Arayüz Dili",
+      "defaultCurrency": "Varsayılan Para Birimi",
+      "activeTimezone": "Aktif Saat Dilimi",
+      "dateTimeFormat": "Tarih ve Saat Formatı",
+      "addMemberTitle": "Ekip Üyesi Ekle",
+      "addMemberSubtitle": "Bir kullanıcı arayın ve organizasyonunuzda rol atayın.",
+      "searchPlaceholder": "Ad veya e-posta ile ara...",
+      "searchResults": "Arama Sonuçları",
+      "assignRole": "Rol Ata",
+      "invitationNote": "Seçilen kullanıcı organizasyonunuza katılmak için davet alacak.",
+      "driverDetailsRequired": "Bu rol için sürücü bilgileri gereklidir.",
+      "addToCompany": "Şirkete Ekle",
+      "steps": {
+        "branding": "Markalama",
+        "regional": "Bölgesel",
+        "globalConfig": "Küresel Yapılandırma",
+        "regionalEcosystem": "Bölgesel Ekosistem",
+        "regionalDesc": "Organizasyonunuzun saat dilimi, para birimi ve dil tercihlerini ayarlayın.",
+        "timezone": "Saat Dilimi",
+        "currency": "Para Birimi",
+        "language": "Arayüz Dili",
+        "integrity": "Veri Bütünlüğü",
+        "standardize": "Tüm kullanıcılarda tarih/saat formatlarını standartlaştır",
+        "overrides": "Kullanıcı başına bölgesel geçersiz kılmalara izin ver"
+      }
+    },
     "members": {
       "title": "Ekip Üyeleri",
+      "empty": "Üye bulunamadı.",
+      "statuses": {
+        "active": "Aktif",
+        "inactive": "Pasif",
+        "suspended": "Askıya Alındı"
+      },
       "columns": {
         "member": "Üye",
         "email": "E-posta",
         "role": "Rol",
         "status": "Durum",
-        "joined": "Katılım"
+        "joined": "Katılım Tarihi"
       },
       "actions": {
         "details": "Detaylar",
         "edit": "Düzenle",
         "delete": "Sil"
       },
-      "empty": "Üye bulunamadı",
       "deleteDialog": {
-        "title": "Üyeyi Kaldır?",
-        "description": "{name} kullanıcısını şirketten çıkarmak istediğinizden emin misiniz? Bu işlem erişimini anında sonlandıracaktır."
-      },
-      "statuses": {
-        "active": "Aktif",
-        "inactive": "Pasif",
-        "suspended": "Askıya Alındı"
+        "title": "Üye Kaldırılsın mı?",
+        "description": "{name} adlı kişiyi organizasyondan kaldırmak istediğinizden emin misiniz? Bu işlem geri alınamaz."
       }
     },
-    "addMember": "Üye Ekle",
-    "createCompany": "Şirket Oluştur",
-    "roles": {
-      "admin": "Yönetici",
-      "manager": "Müdür",
-      "dispatcher": "Sevkiyat Sorumlusu",
-      "warehouse": "Depo Personeli",
-      "default": "Varsayılan Üye",
-      "driver": "Filo Sürücüsü"
-    },
-    "dialogs": {
-      "addMemberTitle": "Yeni Üye Ekle",
-      "addMemberSubtitle": "Organizasyonunuza yeni bir üye davet edin ve rol atayın",
-      "identityTitle": "Şirket Kimliği",
-      "regionalTitle": "Bölgesel Ekosistem",
-      "identitySubtitle": "Organizasyonunuzun temel profilini ve varlığını yapılandırın",
-      "searchPlaceholder": "İsim veya e-posta ile ara...",
-      "searchResults": "Arama Sonuçları",
-      "assignRole": "Organizasyonel Rol Ata",
-      "invitationNote": "Üyeler, şirket altyapınıza katılmak için bir davet alacaktır.",
-      "driverDetailsRequired": "Sürücü Profili Gereksinimleri",
-      "addToCompany": "Şirkete Ekle",
-      "steps": {
-        "branding": "Markalaşma ve Yasal",
-        "regional": "Yerelleştirme ve Kapsam",
-        "globalConfig": "KÜRESEL YAPILANDIRMA",
-        "regionalEcosystem": "Bölgesel Ekosistem",
-        "regionalDesc": "Ekibinizin zaman, yerel ticaret ve veri görünürlüğü ile nasıl etkileşim kuracağını yapılandırın.",
-        "timezone": "Ana Zaman Dilimi *",
-        "currency": "İşlevsel Para Birimi",
-        "language": "Sistem Dili",
-        "integrity": "Referans Bütünlüğü ve Kapsam",
-        "standardize": "Bu ön ayarlar tüm operasyonel birimleri otomatik olarak standartlaştırır. Alt birimler (depolar, filolar) gerektiğinde bunları ayrı ayrı geçersiz kılabilir.",
-        "overrides": "Dinamik bölgesel geçersiz kılmaları etkinleştir"
-      },
-      "localizationDesc": "Platform yerelleştirmesi, para birimlerinin, zaman damgalarının ve sayıların panelinizde ve raporlarınızda küresel olarak nasıl görüntülendiğini etkiler.",
-      "interfaceLanguage": "Arayüz Dili",
-      "defaultCurrency": "Varsayılan Para Birimi",
-      "activeTimezone": "Aktif Zaman Dilimi",
-      "dateTimeFormat": "Tarih-Saat Formatı"
-    },
-    "sidebar": {
-      "currentStep": "Mevcut Adım",
-      "stepProgress": "{current} / {total} Adım",
-      "loggedInAs": "Oturum açan",
-      "primaryAdmin": "Birincil Yönetici"
-    },
-    "branding": {
-      "title": "Marka Kimliği",
-      "subtitle": "Organizasyonunuzun LogiTrack ekosisteminde nasıl görüneceğini tanımlayın.",
-      "legalName": "Yasal Şirket Adı *",
-      "legalNamePlaceholder": "Örn. Global Lojistik A.Ş.",
-      "legalNameDesc": "Bu, faturalandırma ve idari görevler için birincil kimliğiniz olacaktır.",
-      "digitalIdentity": "Dijital Kimlik (Logo)",
-      "changeLogo": "Logoyu Değiştir",
-      "uploadAssets": "Marka Varlıklarını Yükle",
-      "uploadFormat": "PNG, JPG veya SVG. Maksimum boyut 5MB.",
-      "industry": "Ana Sektör",
-      "industryPlaceholder": "Sektör alanını seçin..."
-    },
     "memberDetails": {
-      "title": "Üye Detayları",
+      "noRole": "Rol Yok",
       "contactInfo": "İletişim Bilgileri",
       "emailAddress": "E-posta Adresi",
-      "joinedSince": "Katılım Tarihi",
-      "adminData": "İdari Veriler",
-      "adminDataDesc": "Kullanıcı erişimi organizasyon yöneticisi tarafından yönetilir. Bu üye şu anda LogiTrack platformunda {role} izinlerine sahiptir.",
-      "closeView": "Görünümü Kapat",
-      "noRole": "Rol Yok"
+      "phone": "Telefon Numarası",
+      "joinedOn": "Katılım Tarihi",
+      "joinedSince": "Üyelik Tarihi",
+      "lastActive": "Son Aktivite",
+      "permissions": "İzinler",
+      "accountStatus": "Hesap Durumu",
+      "adminData": "Yönetimsel Veriler",
+      "adminDataDesc": "Bu üye yükseltilmiş ayrıcalıklara sahip. Rol değişiklikleri için <strong>{email}</strong> ile iletişine geçin.",
+      "closeView": "Kapat"
     },
     "editMember": {
       "title": "Üyeyi Düzenle",
-      "subtitle": "{name} için izinleri ve profili değiştirin",
+      "subtitle": "{name} için detayları güncelle",
       "firstName": "Ad",
       "lastName": "Soyad",
       "systemRole": "Sistem Rolü",
@@ -2525,7 +2463,6 @@
       }
     }
   },
-
   "toasts": {
     "successAdd": "Başarıyla eklendi!",
     "successUpdate": "Başarıyla güncellendi!",
@@ -2933,133 +2870,92 @@
       "error": "Yakıt kaydı eklenemedi"
     }
   },
-  "company": {
-    "title": "Şirket Yapılandırması",
-    "subtitle": "Organizasyonunuzu, üyelerinizi ve bölgesel ayarlarınızı yönetin.",
-    "overview": "Organizasyonunuzu, üyelerinizi ve ayarlarınızı yönetin.",
-    "addMember": "Üye Ekle",
-    "kpi": {
-      "totalUsers": "Toplam Kullanıcı",
-      "vehicles": "Araçlar",
-      "drivers": "Sürücüler",
-      "warehouses": "Depolar",
-      "customers": "Müşteriler",
-      "shipments": "Sevkiyatlar"
+  "warehouseWorker": {
+    "backToPanel": "Panele dön",
+    "noWarehouseAssigned": "Depo atanmadı",
+    "warehouseWorker": "Depo Çalışanı",
+    "justNow": "az önce",
+    "ago": "önce",
+    "resumeShiftToLog": "İşlem kaydetmek için mesainizi başlatın",
+    "unrecognizedItem": "Tanınmayan ürün",
+    "noInventoryToScan": "Bu depoda taranacak ürün yok",
+    "logged": "Kaydedildi",
+    "couldNotLog": "Hareket kaydedilemedi",
+    "taskComplete": "Görev tamamlandı",
+    "couldNotUpdateTask": "Görev güncellenemedi",
+    "couldNotUpdateShift": "Mesai güncellenemedi",
+    "restockRequested": "Besleme talebi oluşturuldu",
+    "couldNotRequestRestock": "Besleme talebi oluşturulamadı",
+    "issueReported": "Sorun amire bildirildi",
+    "couldNotReportIssue": "Sorun bildirilemedi",
+    "shiftSummarySaved": "Mesai özeti kaydedildi",
+    "couldNotEndShift": "Mesai sonlandırılamadı",
+    "high": "yüksek",
+    "med": "orta",
+    "low": "düşük",
+    "nav": {
+      "overview": "Genel Bakış",
+      "scan": "Tara",
+      "tasks": "Görevler",
+      "capacity": "Kapasite",
+      "activity": "Aktivite"
     },
-    "info": {
-      "created": "{date} tarihinde oluşturuldu",
-      "active": "Aktif"
+    "status": {
+      "onBreak": "Molada",
+      "activeOnShift": "Mesaide",
+      "resumeShift": "Mesaiye dön",
+      "takeABreak": "Mola ver"
     },
-    "roles": {
-      "admin": "Şirket Yöneticisi",
-      "manager": "Müdür",
-      "driver": "Sürücü",
-      "warehouse": "Depo Operatörü",
-      "dispatcher": "Dispatçer",
-      "default": "Varsayılan"
+    "dashboard": {
+      "picksToday": "Bugünkü Toplama (Pick)",
+      "packsToday": "Bugünkü Paketleme (Pack)",
+      "throughput": "Performans",
+      "unitsHr": "ürün/sa",
+      "shiftAvg": "Mesai ort",
+      "shiftStatus": "Mesai Durumu",
+      "endShiftSave": "Mesaiyi bitir & kaydet",
+      "latestTasks": "Son görevler",
+      "viewAll": "Tümünü gör",
+      "zones": "Bölgeler",
+      "liveFeed": "Canlı akış",
+      "system": "Sistem",
+      "you": "Sen"
     },
-    "branding": {
-      "title": "Şirket Kimliği",
-      "subtitle": "Organizasyonunuzun yasal adını ve dijital markalamasını tanımlayın.",
-      "legalName": "Yasal Şirket Adı",
-      "legalNamePlaceholder": "Örn. Acme Lojistik A.Ş.",
-      "legalNameDesc": "Bu ad, tüm resmi belgeler ve raporlarda görünecektir.",
-      "digitalIdentity": "Dijital Kimlik",
-      "changeLogo": "Logo Değiştir",
-      "uploadAssets": "SVG, PNG veya JPG (maks. 2 MB)",
-      "uploadFormat": "Önerilen: 400×400 piksel",
-      "industry": "Sektör",
-      "industryPlaceholder": "Sektör seçin"
+    "tasksView": {
+      "title": "Görevler",
+      "sub": "Atanan iş akışı",
+      "done": "tamamlanan",
+      "units": "ürün",
+      "scanToComplete": "Tamamlamak için tara",
+      "completed": "Tamamlandı"
     },
-    "sidebar": {
-      "currentStep": "Mevcut Adım",
-      "stepProgress": "Adım {current} / {total}",
-      "loggedInAs": "Giriş yapıldı",
-      "primaryAdmin": "Birincil Yönetici"
+    "capacityView": {
+      "title": "Kapasite",
+      "sub": "Gerçek zamanlı palet kullanımı",
+      "free": "Boş",
+      "used": "Dolu",
+      "zoneUtilization": "Bölge Kullanımı"
     },
-    "dialogs": {
-      "identityTitle": "Şirket Kimliği",
-      "regionalTitle": "Bölgesel Yapılandırma",
-      "identitySubtitle": "Organizasyonunuzun temel kimliğini ve markalamasını ayarlayın.",
-      "localizationDesc": "Organizasyonunuz için bölgesel tercihleri yapılandırın.",
-      "interfaceLanguage": "Arayüz Dili",
-      "defaultCurrency": "Varsayılan Para Birimi",
-      "activeTimezone": "Aktif Saat Dilimi",
-      "dateTimeFormat": "Tarih ve Saat Formatı",
-      "addMemberTitle": "Ekip Üyesi Ekle",
-      "addMemberSubtitle": "Bir kullanıcı arayın ve organizasyonunuzda rol atayın.",
-      "searchPlaceholder": "Ad veya e-posta ile ara...",
-      "searchResults": "Arama Sonuçları",
-      "assignRole": "Rol Ata",
-      "invitationNote": "Seçilen kullanıcı organizasyonunuza katılmak için davet alacak.",
-      "driverDetailsRequired": "Bu rol için sürücü bilgileri gereklidir.",
-      "addToCompany": "Şirkete Ekle",
-      "steps": {
-        "branding": "Markalama",
-        "regional": "Bölgesel",
-        "globalConfig": "Küresel Yapılandırma",
-        "regionalEcosystem": "Bölgesel Ekosistem",
-        "regionalDesc": "Organizasyonunuzun saat dilimi, para birimi ve dil tercihlerini ayarlayın.",
-        "timezone": "Saat Dilimi",
-        "currency": "Para Birimi",
-        "language": "Arayüz Dili",
-        "integrity": "Veri Bütünlüğü",
-        "standardize": "Tüm kullanıcılarda tarih/saat formatlarını standartlaştır",
-        "overrides": "Kullanıcı başına bölgesel geçersiz kılmalara izin ver"
-      }
+    "activityView": {
+      "title": "Aktivite",
+      "sub": "Depo akışı",
+      "type": "Tür",
+      "item": "Ürün",
+      "zone": "Bölge",
+      "qty": "Adet",
+      "user": "Kullanıcı",
+      "time": "Zaman"
     },
-    "members": {
-      "title": "Ekip Üyeleri",
-      "empty": "Üye bulunamadı.",
-      "statuses": {
-        "active": "Aktif",
-        "inactive": "Pasif",
-        "suspended": "Askıya Alındı"
-      },
-      "columns": {
-        "member": "Üye",
-        "email": "E-posta",
-        "role": "Rol",
-        "status": "Durum",
-        "joined": "Katılım Tarihi"
-      },
-      "actions": {
-        "details": "Detaylar",
-        "edit": "Düzenle",
-        "delete": "Sil"
-      },
-      "deleteDialog": {
-        "title": "Üye Kaldırılsın mı?",
-        "description": "{name} adlı kişiyi organizasyondan kaldırmak istediğinizden emin misiniz? Bu işlem geri alınamaz."
-      }
-    },
-    "memberDetails": {
-      "noRole": "Rol Yok",
-      "contactInfo": "İletişim Bilgileri",
-      "emailAddress": "E-posta Adresi",
-      "phone": "Telefon Numarası",
-      "joinedOn": "Katılım Tarihi",
-      "joinedSince": "Üyelik Tarihi",
-      "lastActive": "Son Aktivite",
-      "permissions": "İzinler",
-      "accountStatus": "Hesap Durumu",
-      "adminData": "Yönetimsel Veriler",
-      "adminDataDesc": "Bu üye yükseltilmiş ayrıcalıklara sahip. Rol değişiklikleri için <strong>{email}</strong> ile iletişine geçin.",
-      "closeView": "Kapat"
-    },
-    "editMember": {
-      "title": "Üyeyi Düzenle",
-      "subtitle": "{name} için detayları güncelle",
-      "firstName": "Ad",
-      "lastName": "Soyad",
-      "systemRole": "Sistem Rolü",
-      "accountStatus": "Hesap Durumu",
-      "saving": "Kaydediliyor...",
-      "statuses": {
-        "ACTIVE": "Aktif",
-        "INACTIVE": "Pasif",
-        "SUSPENDED": "Askıya Alındı"
-      }
+    "scanView": {
+      "title": "Tara",
+      "sub": "Barkod okuyucu",
+      "manualEntry": "Manuel giriş...",
+      "simulateScan": "Tarama simülasyonu",
+      "scanned": "Taranan",
+      "zone": "Bölge",
+      "quantity": "Miktar",
+      "pick": "Pick (Topla)",
+      "pack": "Pack (Paketle)"
     }
   }
 }

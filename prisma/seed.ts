@@ -767,6 +767,9 @@ async function main() {
   await prisma.driver.deleteMany();
   await prisma.inventoryMovement.deleteMany();
   await prisma.inventory.deleteMany();
+  await prisma.workerShift.deleteMany();
+  await prisma.warehouseTask.deleteMany();
+  await prisma.warehouseZone.deleteMany();
   await prisma.warehouse.deleteMany();
   await prisma.customerLocation.deleteMany();
   await prisma.customer.deleteMany();
@@ -859,6 +862,19 @@ async function main() {
       },
     });
 
+    // Warehouse floor operator (locked to the warehouse worker panel).
+    const warehouseOperator = await prisma.user.create({
+      data: {
+        email: `warehouse@${cd.slug.toLowerCase()}.com`,
+        name: pick(FIRST_NAMES),
+        surname: pick(LAST_NAMES),
+        password: hashedPassword,
+        roleId: roles["role_warehouse"],
+        companyId: company.id,
+        timezone: "Europe/Istanbul",
+      },
+    });
+
     // ── Warehouses ─────────────────────────────────────────────────────────────
     console.log(`    📦 Warehouses & Inventory...`);
     const warehouseIds: string[] = [];
@@ -897,6 +913,7 @@ async function main() {
             warehouseId: wh.id,
             sku: `${item.sku}-${rand(100, 999)}`,
             name: item.name,
+            zone: pick(["A", "B", "C", "D"]),
             quantity: rand(100, 5000),
             minStock: 50,
             unit: item.unit,
@@ -919,7 +936,236 @@ async function main() {
           },
         });
       }
+
+      // ── Warehouse zones (per-zone pallet capacity for the worker panel) ──────
+      const zoneCapacity = Math.max(200, Math.round(wh.capacityPallets / 4));
+      for (const zoneCode of ["A", "B", "C", "D"]) {
+        await prisma.warehouseZone.create({
+          data: {
+            warehouseId: wh.id,
+            companyId: company.id,
+            code: zoneCode,
+            capacityPallets: zoneCapacity,
+            usedPallets: Math.round(zoneCapacity * randFloat(0.4, 0.92)),
+          },
+        });
+      }
+
+      // ── Task queue — rich variety ────────────────────────────────────────────
+      const TASK_TEMPLATES = [
+        { kind: "PICK", name: "Order batch — express lane", priority: "HIGH", total: 20, done: 14 },
+        { kind: "PACK", name: "Fragile — glassware consolidation", priority: "HIGH", total: 8, done: 3 },
+        { kind: "PICK", name: "Replenish forward pick face", priority: "MEDIUM", total: 12, done: 0 },
+        { kind: "PUT", name: "Inbound putaway — pallet", priority: "LOW", total: 6, done: 6 },
+        { kind: "PICK", name: "Standard ground — mixed cart", priority: "MEDIUM", total: 16, done: 2 },
+        { kind: "PACK", name: "E-commerce multi-item bundle", priority: "HIGH", total: 24, done: 18 },
+        { kind: "PICK", name: "Cold chain — dairy consolidation", priority: "HIGH", total: 10, done: 10 },
+        { kind: "PUT", name: "Cross-dock inbound — textile rolls", priority: "MEDIUM", total: 15, done: 7 },
+        { kind: "PICK", name: "B2B bulk — automotive fasteners", priority: "LOW", total: 30, done: 0 },
+        { kind: "PACK", name: "Return processing — damaged goods", priority: "LOW", total: 5, done: 5 },
+        { kind: "PICK", name: "Hazmat pick — solvent drums", priority: "HIGH", total: 4, done: 1 },
+        { kind: "PUT", name: "Overflow putaway — Zone D overflow", priority: "MEDIUM", total: 8, done: 4 },
+      ] as const;
+      for (const t of TASK_TEMPLATES) {
+        await prisma.warehouseTask.create({
+          data: {
+            warehouseId: wh.id,
+            companyId: company.id,
+            kind: t.kind,
+            name: t.name,
+            orderRef: `#ORD-${rand(88000, 99999)}`,
+            zone: pick(["A", "B", "C", "D"]),
+            doneUnits: t.done,
+            totalUnits: t.total,
+            priority: t.priority,
+            status: t.done >= t.total ? "COMPLETED" : t.done > 0 ? "IN_PROGRESS" : "OPEN",
+            assignedToId: warehouseOperator.id,
+          },
+        });
+      }
+
+      // ── Today's PICK / PACK movements (feed the KPI cards with real data) ────
+      const inventoryForMoves = await prisma.inventory.findMany({
+        where: { warehouseId: wh.id },
+        select: { sku: true, name: true },
+        take: 20,
+      });
+      const moveTypes = ["PICK", "PACK"] as const;
+      for (let mi = 0; mi < rand(15, 30); mi++) {
+        const inv = pick(inventoryForMoves);
+        const mType = pick(moveTypes);
+        const qty = rand(1, 12);
+        const hoursAgo = rand(0, 7);
+        const minutesAgo = rand(0, 59);
+        await prisma.inventoryMovement.create({
+          data: {
+            warehouseId: wh.id,
+            sku: inv.sku,
+            quantity: mType === "PICK" ? -qty : qty,
+            type: mType,
+            notes: inv.name,
+            userId: warehouseOperator.id,
+            companyId: company.id,
+            date: new Date(Date.now() - hoursAgo * 3_600_000 - minutesAgo * 60_000),
+          },
+        });
+      }
+
+      // ── Historical movements (PUTAWAY, RESTOCK, ADJUSTMENT) for feed variety ─
+      const histMoveTypes = ["PUTAWAY", "RESTOCK", "RESTOCK_REQUEST", "ADJUSTMENT"] as const;
+      for (let hm = 0; hm < rand(8, 16); hm++) {
+        const inv = pick(inventoryForMoves);
+        const hType = pick(histMoveTypes);
+        await prisma.inventoryMovement.create({
+          data: {
+            warehouseId: wh.id,
+            sku: hType === "RESTOCK_REQUEST" ? `ZONE-${pick(["A", "B", "C", "D"])}` : inv.sku,
+            quantity: hType === "RESTOCK_REQUEST" ? 0 : rand(-20, 50),
+            type: hType,
+            notes: hType === "RESTOCK_REQUEST"
+              ? `Restock requested — Zone ${pick(["A", "B", "C", "D"])}`
+              : hType === "ADJUSTMENT"
+                ? `Cycle count correction — ${inv.name}`
+                : inv.name,
+            userId: warehouseOperator.id,
+            companyId: company.id,
+            date: daysAgo(rand(0, 5)),
+          },
+        });
+      }
     }
+
+    // ── Active worker shift for the floor operator ─────────────────────────────
+    if (warehouseIds.length) {
+      await prisma.workerShift.create({
+        data: {
+          userId: warehouseOperator.id,
+          warehouseId: warehouseIds[0],
+          companyId: company.id,
+          status: "ACTIVE",
+          shiftStartTime: new Date(Date.now() - rand(1, 5) * 3600 * 1000),
+          picksLogged: rand(80, 200),
+          packsLogged: rand(60, 160),
+        },
+      });
+
+      // ── Completed shifts from the last 30 days (feeds shiftAvgRate) ───────────
+      // Creates 6-10 historical shifts per warehouse for realistic average throughput
+      for (const whId of warehouseIds) {
+        const shiftCount = rand(6, 10);
+        for (let si = 0; si < shiftCount; si++) {
+          const shiftDay = rand(1, 28);
+          const shiftHour = rand(6, 9);
+          const shiftDurationHours = randFloat(6, 10);
+          const startTime = new Date(Date.now() - shiftDay * 86_400_000);
+          startTime.setHours(shiftHour, 0, 0, 0);
+          const endTime = new Date(
+            startTime.getTime() + shiftDurationHours * 3_600_000
+          );
+          const shiftPicks = rand(60, 280);
+          const shiftPacks = rand(40, 200);
+
+          await prisma.workerShift.create({
+            data: {
+              userId: warehouseOperator.id,
+              warehouseId: whId,
+              companyId: company.id,
+              status: "ENDED",
+              shiftStartTime: startTime,
+              shiftEndTime: endTime,
+              breakSeconds: rand(900, 3600),
+              picksLogged: shiftPicks,
+              packsLogged: shiftPacks,
+            },
+          });
+        }
+      }
+    }
+
+    // ── Additional warehouse workers (realistic multi-worker floor) ────────────
+    const extraWorkerNames = [
+      { first: pick(FIRST_NAMES), last: pick(LAST_NAMES) },
+      { first: pick(FIRST_NAMES), last: pick(LAST_NAMES) },
+    ];
+    for (let ewi = 0; ewi < extraWorkerNames.length; ewi++) {
+      const ew = extraWorkerNames[ewi];
+      const extraWorker = await prisma.user.create({
+        data: {
+          email: `warehouse${ewi + 2}@${cd.slug.toLowerCase()}.com`,
+          name: ew.first,
+          surname: ew.last,
+          password: hashedPassword,
+          roleId: roles["role_warehouse"],
+          companyId: company.id,
+          timezone: "Europe/Istanbul",
+        },
+      });
+
+      if (warehouseIds.length > 1) {
+        // Active shift on a different warehouse
+        await prisma.workerShift.create({
+          data: {
+            userId: extraWorker.id,
+            warehouseId: warehouseIds[ewi + 1] ?? warehouseIds[0],
+            companyId: company.id,
+            status: pick(["ACTIVE", "BREAK"]),
+            shiftStartTime: new Date(Date.now() - rand(2, 6) * 3600 * 1000),
+            picksLogged: rand(40, 150),
+            packsLogged: rand(30, 120),
+          },
+        });
+
+        // A few completed historical shifts
+        for (let hs = 0; hs < rand(3, 6); hs++) {
+          const shiftDay = rand(1, 25);
+          const shiftHour = rand(6, 9);
+          const shiftDur = randFloat(6, 9);
+          const start = new Date(Date.now() - shiftDay * 86_400_000);
+          start.setHours(shiftHour, rand(0, 30), 0, 0);
+          const end = new Date(start.getTime() + shiftDur * 3_600_000);
+
+          await prisma.workerShift.create({
+            data: {
+              userId: extraWorker.id,
+              warehouseId: warehouseIds[ewi + 1] ?? warehouseIds[0],
+              companyId: company.id,
+              status: "ENDED",
+              shiftStartTime: start,
+              shiftEndTime: end,
+              breakSeconds: rand(600, 2400),
+              picksLogged: rand(50, 220),
+              packsLogged: rand(30, 180),
+            },
+          });
+        }
+
+        // Some of their movements appear in the feed
+        const extraInv = await prisma.inventory.findMany({
+          where: { warehouseId: warehouseIds[ewi + 1] ?? warehouseIds[0] },
+          select: { sku: true, name: true },
+          take: 10,
+        });
+        if (extraInv.length) {
+          for (let em = 0; em < rand(5, 12); em++) {
+            const inv = pick(extraInv);
+            const mType = pick(["PICK", "PACK"] as const);
+            await prisma.inventoryMovement.create({
+              data: {
+                warehouseId: warehouseIds[ewi + 1] ?? warehouseIds[0],
+                sku: inv.sku,
+                quantity: mType === "PICK" ? -rand(1, 8) : rand(1, 8),
+                type: mType,
+                notes: inv.name,
+                userId: extraWorker.id,
+                companyId: company.id,
+                date: new Date(Date.now() - rand(0, 6) * 3_600_000 - rand(0, 59) * 60_000),
+              },
+            });
+          }
+        }
+      }
+    }
+
 
     // ── Vehicles ───────────────────────────────────────────────────────────────
     console.log(`    🚛 Vehicles...`);

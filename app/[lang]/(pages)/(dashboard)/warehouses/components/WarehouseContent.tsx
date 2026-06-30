@@ -3,7 +3,6 @@
 import { useCallback, useState, useMemo } from "react";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import WarehouseListTable from "@/app/components/dashboard/warehouse/warehouseList";
-import CapacityUtilization from "@/app/components/dashboard/warehouse/capacityUtilization";
 import RecentStockMovements from "@/app/components/dashboard/warehouse/recentStockMovements";
 import AddIcon from "@mui/icons-material/Add";
 import { toast } from "sonner";
@@ -213,7 +212,6 @@ export default function WarehouseContent() {
       </Stack>
 
       <Stack direction={{ xs: "column", xl: "row" }} spacing={4} sx={{ mt: 2 }}>
-        <CapacityUtilization warehouses={warehouses} loading={isLoading} />
         <RecentStockMovements movements={recentMovements} loading={isLoading} />
       </Stack>
 

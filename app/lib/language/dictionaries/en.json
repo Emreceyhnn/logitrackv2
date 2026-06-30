@@ -97,7 +97,6 @@
     "deleting": "Deleting...",
     "updating": "Updating...",
     "optional": "Optional",
-    "na": "N/A",
     "start": "Start",
     "complete": "Complete",
     "fillAllFields": "Please fill in all mandatory fields.",
@@ -288,7 +287,8 @@
     "customers": "Customers",
     "company": "Company",
     "analytics": "Analytics",
-    "reports": "Reports"
+    "reports": "Reports",
+    "warehousePanel": "Warehouse Panel"
   },
   "roles-header": {
     "Company Admin": "Company Admin",
@@ -321,7 +321,6 @@
     "security": "Security",
     "review": "Review",
     "finalTouches": "Final Touches",
-    "signInDescription": "Please enter your credentials to access your account.",
     "signUpDescription": "Please provide your basic details to get started.",
     "securityDescription": "Choose a strong password.",
     "profileDescription": "Almost there! Complete your profile to join the LogiTrack team.",
@@ -1393,7 +1392,7 @@
       "clickToUpload": "Click to upload",
       "uploadNotes": "SVG, PNG, JPG or GIF",
       "dragAndDrop": "or drag and drop",
-      "fileFormats": "DOCX, JPG or PNG (MAX. 10MB)",
+      "fileFormats": "JPG or PNG (Max. 10MB)",
       "complianceDates": "Compliance Dates",
       "registrationExpiry": "Registration Expiry Date",
       "inspectionExpiry": "Inspection Expiry Date",
@@ -1406,7 +1405,7 @@
       "requiredDocs": "Required Documents",
       "uploadFiles": "Upload Files",
       "assignDriver": "Assign Driver",
-      "selectDriver": "Select Driver",
+      "selectDriver": "Select an available driver",
       "assignmentDate": "Assignment Date",
       "maintenanceRecord": "New Maintenance Record",
       "serviceType": "Service Type",
@@ -1414,7 +1413,7 @@
       "description": "Description",
       "returnToService": "Return to Service",
       "setMaintenance": "Set Maintenance",
-      "preview": "Vehicle Preview",
+      "preview": "Preview",
       "kmLeft": "km left",
       "vehicleStatus": "Vehicle Status",
       "manageAvailability": "Manage overall availability",
@@ -1439,10 +1438,8 @@
       "unassign": "Unassign",
       "noDriverAssigned": "No driver currently assigned.",
       "assignNewDriver": "Assign New Driver",
-      "selectDriver": "Select an available driver",
       "noDriversFound": "No available drivers found",
       "assigning": "Assigning...",
-      "assignDriver": "Assign Driver",
       "rating": "Rating",
       "failedToLoadDrivers": "Failed to load available drivers",
       "failedToAssign": "Failed to assign driver",
@@ -1451,8 +1448,8 @@
       "referenceId": "Reference ID",
       "incidentTitle": "Incident Title",
       "problemDesc": "Problem Description",
-      "noSupplementalDetails": "No supplemental details provided for this issue.",
-      "configurationStatus": "Configuration & Status",
+      "noSupplementalDetails": "No details provided.",
+      "configurationStatus": "Configuration Status",
       "savingChanges": "Saving Changes...",
       "updateIssue": "Update Issue",
       "maintenanceDetails": "Maintenance Details",
@@ -1464,10 +1461,6 @@
       "issueSubject": "Issue Subject",
       "tellUsMore": "Tell us more about the situation...",
       "submitting": "Submitting...",
-      "submitIssue": "Submit Issue",
-      "reportedOn": "Reported on",
-      "configurationStatus": "Configuration Status",
-      "noSupplementalDetails": "No details provided.",
       "maintenanceDetailsDesc": "View and manage the status of this maintenance entry.",
       "maintenanceStatus": "Maintenance Status",
       "configuration": "Configuration",
@@ -1487,9 +1480,6 @@
       "failedToUploadDocument": "Failed to upload document",
       "docName": "Document Name",
       "docNamePlaceholder": "e.g. Q1 Maintenance Receipt",
-      "fileFormats": "JPG or PNG (Max. 10MB)",
-      "preview": "Preview",
-      "configuration": "Configuration",
       "fileAttachment": "File Attachment",
       "expiryDate": "Expiry Date",
       "steps": {
@@ -1927,8 +1917,10 @@
     }
   },
   "company": {
-    "title": "Company",
-    "overview": "Overview of your organisation, resources, and team members.",
+    "title": "Company Configuration",
+    "subtitle": "Manage your organization, team members, and regional settings.",
+    "overview": "Manage your organization, members and settings.",
+    "addMember": "Add Member",
     "kpi": {
       "totalUsers": "Total Users",
       "vehicles": "Vehicles",
@@ -1938,11 +1930,75 @@
       "shipments": "Shipments"
     },
     "info": {
-      "created": "Created {date}",
+      "created": "Created on {date}",
       "active": "Active"
+    },
+    "roles": {
+      "admin": "Company Admin",
+      "manager": "Manager",
+      "driver": "Driver",
+      "warehouse": "Warehouse Operator",
+      "dispatcher": "Dispatcher",
+      "default": "Default"
+    },
+    "branding": {
+      "title": "Company Identity",
+      "subtitle": "Define your organization's legal name and digital branding.",
+      "legalName": "Legal Company Name",
+      "legalNamePlaceholder": "e.g. Acme Logistics Ltd.",
+      "legalNameDesc": "This name will appear on all official documents and reports.",
+      "digitalIdentity": "Digital Identity",
+      "changeLogo": "Change Logo",
+      "uploadAssets": "SVG, PNG or JPG (max 2MB)",
+      "uploadFormat": "Recommended: 400×400 px",
+      "industry": "Industry Sector",
+      "industryPlaceholder": "Select an industry"
+    },
+    "sidebar": {
+      "currentStep": "Current Step",
+      "stepProgress": "Step {current} of {total}",
+      "loggedInAs": "Logged in as",
+      "primaryAdmin": "Primary Admin"
+    },
+    "dialogs": {
+      "identityTitle": "Company Identity",
+      "regionalTitle": "Regional Configuration",
+      "identitySubtitle": "Set up your organization's core identity and branding.",
+      "localizationDesc": "Configure regional preferences for your organization.",
+      "interfaceLanguage": "Interface Language",
+      "defaultCurrency": "Default Currency",
+      "activeTimezone": "Active Timezone",
+      "dateTimeFormat": "Date & Time Format",
+      "addMemberTitle": "Add Team Member",
+      "addMemberSubtitle": "Search for a user and assign them a role in your organization.",
+      "searchPlaceholder": "Search by name or email...",
+      "searchResults": "Search Results",
+      "assignRole": "Assign Role",
+      "invitationNote": "The selected user will receive an invitation to join your organization.",
+      "driverDetailsRequired": "Driver details are required for this role.",
+      "addToCompany": "Add to Company",
+      "steps": {
+        "branding": "Branding",
+        "regional": "Regional",
+        "globalConfig": "Global Configuration",
+        "regionalEcosystem": "Regional Ecosystem",
+        "regionalDesc": "Set your organization's timezone, currency and language preferences.",
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "language": "Interface Language",
+        "integrity": "Data Integrity",
+        "standardize": "Standardize date/time formats across all users",
+        "overrides": "Allow per-user regional overrides"
+      }
     },
     "members": {
       "title": "Team Members",
+      "empty": "No members found.",
+      "statuses": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "suspended": "Suspended"
+      },
       "columns": {
         "member": "Member",
         "email": "Email",
@@ -1955,90 +2011,28 @@
         "edit": "Edit",
         "delete": "Delete"
       },
-      "empty": "No members found",
       "deleteDialog": {
         "title": "Remove Member?",
-        "description": "Are you sure you want to remove {name} from the company? This will revoke their access immediately."
-      },
-      "statuses": {
-        "active": "Active",
-        "inactive": "Inactive",
-        "suspended": "Suspended"
+        "description": "Are you sure you want to remove {name} from the organization? This action cannot be undone."
       }
     },
-    "addMember": "Add Member",
-    "createCompany": "Create Company",
-    "roles": {
-      "admin": "Administrator",
-      "manager": "Manager",
-      "dispatcher": "Dispatcher",
-      "warehouse": "Warehouse Staff",
-      "default": "Default Member",
-      "driver": "Fleet Driver"
-    },
-    "dialogs": {
-      "addMemberTitle": "Add New Member",
-      "addMemberSubtitle": "Invite a new member to your organization and assign a role",
-      "identityTitle": "Company Identity",
-      "regionalTitle": "Regional Ecosystem",
-      "identitySubtitle": "Configure your organization's core profile and presence",
-      "searchPlaceholder": "Search by name or email...",
-      "searchResults": "Search Results",
-      "assignRole": "Assign Organizational Role",
-      "invitationNote": "Members will receive an invitation to join your company infrastructure.",
-      "driverDetailsRequired": "Driver Profile Requirements",
-      "addToCompany": "Add to Company",
-      "steps": {
-        "branding": "Branding & Legal",
-        "regional": "Localization & Scope",
-        "globalConfig": "GLOBAL CONFIGURATION",
-        "regionalEcosystem": "Regional Ecosystem",
-        "regionalDesc": "Configure how your team interacts with time, local commerce, and data visibility.",
-        "timezone": "Principal Timezone *",
-        "currency": "Functional Currency",
-        "language": "System Language",
-        "integrity": "Referential Integrity & Scope",
-        "standardize": "These presets automatically standardize all operational units. Sub-entities (warehouses, fleets) can still override these individually when needed.",
-        "overrides": "Enable dynamic regional overrides"
-      },
-      "localizationDesc": "Platform localization affects how currencies, timestamps, and numbers are rendered globally across your dashboard and reports.",
-      "interfaceLanguage": "Interface Language",
-      "defaultCurrency": "Default Currency",
-      "activeTimezone": "Active Timezone",
-      "dateTimeFormat": "Date-Time Format"
-    },
-    "sidebar": {
-      "currentStep": "Current Step",
-      "stepProgress": "{current} of {total} Steps",
-      "loggedInAs": "Logged in as",
-      "primaryAdmin": "Primary Admin"
-    },
-    "branding": {
-      "title": "Brand Persona",
-      "subtitle": "Define how your organization appears across the LogiTrack ecosystem.",
-      "legalName": "Legal Entity Name *",
-      "legalNamePlaceholder": "e.g. Global Logistics Inc.",
-      "legalNameDesc": "This will be your primary identifier for billing and administrative tasks.",
-      "digitalIdentity": "Digital Identity (Logo)",
-      "changeLogo": "Change Logo",
-      "uploadAssets": "Upload Brand Assets",
-      "uploadFormat": "PNG, JPG or SVG. Max size 5MB.",
-      "industry": "Core Industry",
-      "industryPlaceholder": "Select industry domain..."
-    },
     "memberDetails": {
-      "title": "Member Details",
+      "noRole": "No Role",
       "contactInfo": "Contact Information",
       "emailAddress": "Email Address",
-      "joinedSince": "Joined Since",
+      "phone": "Phone Number",
+      "joinedOn": "Joined On",
+      "joinedSince": "Member Since",
+      "lastActive": "Last Active",
+      "permissions": "Permissions",
+      "accountStatus": "Account Status",
       "adminData": "Administrative Data",
-      "adminDataDesc": "User access is managed by the organization administrator. This member currently has {role} permissions within the LogiTrack platform.",
-      "closeView": "Close View",
-      "noRole": "No Role"
+      "adminDataDesc": "This member holds elevated privileges. Contact <strong>{email}</strong> for role changes.",
+      "closeView": "Close"
     },
     "editMember": {
       "title": "Edit Member",
-      "subtitle": "Modify permissions and profile for {name}",
+      "subtitle": "Update details for {name}",
       "firstName": "First Name",
       "lastName": "Last Name",
       "systemRole": "System Role",
@@ -2875,133 +2869,92 @@
       "error": "Failed to add fuel log"
     }
   },
-  "company": {
-    "title": "Company Configuration",
-    "subtitle": "Manage your organization, team members, and regional settings.",
-    "overview": "Manage your organization, members and settings.",
-    "addMember": "Add Member",
-    "kpi": {
-      "totalUsers": "Total Users",
-      "vehicles": "Vehicles",
-      "drivers": "Drivers",
-      "warehouses": "Warehouses",
-      "customers": "Customers",
-      "shipments": "Shipments"
+  "warehouseWorker": {
+    "backToPanel": "Back to panel",
+    "noWarehouseAssigned": "No warehouse assigned",
+    "warehouseWorker": "Warehouse Worker",
+    "justNow": "just now",
+    "ago": "ago",
+    "resumeShiftToLog": "Resume your shift to log movements",
+    "unrecognizedItem": "Unrecognized item",
+    "noInventoryToScan": "No inventory to scan in this warehouse",
+    "logged": "Logged",
+    "couldNotLog": "Could not log movement",
+    "taskComplete": "Task complete",
+    "couldNotUpdateTask": "Could not update task",
+    "couldNotUpdateShift": "Could not update shift",
+    "restockRequested": "Restock requested",
+    "couldNotRequestRestock": "Could not request restock",
+    "issueReported": "Issue reported to supervisor",
+    "couldNotReportIssue": "Could not report issue",
+    "shiftSummarySaved": "Shift summary saved",
+    "couldNotEndShift": "Could not end shift",
+    "high": "high",
+    "med": "med",
+    "low": "low",
+    "nav": {
+      "overview": "Overview",
+      "scan": "Scan",
+      "tasks": "Tasks",
+      "capacity": "Capacity",
+      "activity": "Activity"
     },
-    "info": {
-      "created": "Created on {date}",
-      "active": "Active"
+    "status": {
+      "onBreak": "On break",
+      "activeOnShift": "Active on shift",
+      "resumeShift": "Resume shift",
+      "takeABreak": "Take a break"
     },
-    "roles": {
-      "admin": "Company Admin",
-      "manager": "Manager",
-      "driver": "Driver",
-      "warehouse": "Warehouse Operator",
-      "dispatcher": "Dispatcher",
-      "default": "Default"
+    "dashboard": {
+      "picksToday": "Picks today",
+      "packsToday": "Packs today",
+      "throughput": "Throughput",
+      "unitsHr": "units/hr",
+      "shiftAvg": "Shift avg",
+      "shiftStatus": "Shift status",
+      "endShiftSave": "End shift & save summary",
+      "latestTasks": "Latest tasks",
+      "viewAll": "View all",
+      "zones": "Zones",
+      "liveFeed": "Live feed",
+      "system": "System",
+      "you": "You"
     },
-    "branding": {
-      "title": "Company Identity",
-      "subtitle": "Define your organization's legal name and digital branding.",
-      "legalName": "Legal Company Name",
-      "legalNamePlaceholder": "e.g. Acme Logistics Ltd.",
-      "legalNameDesc": "This name will appear on all official documents and reports.",
-      "digitalIdentity": "Digital Identity",
-      "changeLogo": "Change Logo",
-      "uploadAssets": "SVG, PNG or JPG (max 2MB)",
-      "uploadFormat": "Recommended: 400×400 px",
-      "industry": "Industry Sector",
-      "industryPlaceholder": "Select an industry"
+    "tasksView": {
+      "title": "Tasks",
+      "sub": "Assigned workflow",
+      "done": "done",
+      "units": "units",
+      "scanToComplete": "Scan to complete",
+      "completed": "Completed"
     },
-    "sidebar": {
-      "currentStep": "Current Step",
-      "stepProgress": "Step {current} of {total}",
-      "loggedInAs": "Logged in as",
-      "primaryAdmin": "Primary Admin"
+    "capacityView": {
+      "title": "Capacity",
+      "sub": "Real-time pallet usage",
+      "free": "Free",
+      "used": "Used",
+      "zoneUtilization": "Zone Utilization"
     },
-    "dialogs": {
-      "identityTitle": "Company Identity",
-      "regionalTitle": "Regional Configuration",
-      "identitySubtitle": "Set up your organization's core identity and branding.",
-      "localizationDesc": "Configure regional preferences for your organization.",
-      "interfaceLanguage": "Interface Language",
-      "defaultCurrency": "Default Currency",
-      "activeTimezone": "Active Timezone",
-      "dateTimeFormat": "Date & Time Format",
-      "addMemberTitle": "Add Team Member",
-      "addMemberSubtitle": "Search for a user and assign them a role in your organization.",
-      "searchPlaceholder": "Search by name or email...",
-      "searchResults": "Search Results",
-      "assignRole": "Assign Role",
-      "invitationNote": "The selected user will receive an invitation to join your organization.",
-      "driverDetailsRequired": "Driver details are required for this role.",
-      "addToCompany": "Add to Company",
-      "steps": {
-        "branding": "Branding",
-        "regional": "Regional",
-        "globalConfig": "Global Configuration",
-        "regionalEcosystem": "Regional Ecosystem",
-        "regionalDesc": "Set your organization's timezone, currency and language preferences.",
-        "timezone": "Timezone",
-        "currency": "Currency",
-        "language": "Interface Language",
-        "integrity": "Data Integrity",
-        "standardize": "Standardize date/time formats across all users",
-        "overrides": "Allow per-user regional overrides"
-      }
+    "activityView": {
+      "title": "Activity",
+      "sub": "Warehouse feed",
+      "type": "Type",
+      "item": "Item",
+      "zone": "Zone",
+      "qty": "Qty",
+      "user": "User",
+      "time": "Time"
     },
-    "members": {
-      "title": "Team Members",
-      "empty": "No members found.",
-      "statuses": {
-        "active": "Active",
-        "inactive": "Inactive",
-        "suspended": "Suspended"
-      },
-      "columns": {
-        "member": "Member",
-        "email": "Email",
-        "role": "Role",
-        "status": "Status",
-        "joined": "Joined"
-      },
-      "actions": {
-        "details": "Details",
-        "edit": "Edit",
-        "delete": "Delete"
-      },
-      "deleteDialog": {
-        "title": "Remove Member?",
-        "description": "Are you sure you want to remove {name} from the organization? This action cannot be undone."
-      }
-    },
-    "memberDetails": {
-      "noRole": "No Role",
-      "contactInfo": "Contact Information",
-      "emailAddress": "Email Address",
-      "phone": "Phone Number",
-      "joinedOn": "Joined On",
-      "joinedSince": "Member Since",
-      "lastActive": "Last Active",
-      "permissions": "Permissions",
-      "accountStatus": "Account Status",
-      "adminData": "Administrative Data",
-      "adminDataDesc": "This member holds elevated privileges. Contact <strong>{email}</strong> for role changes.",
-      "closeView": "Close"
-    },
-    "editMember": {
-      "title": "Edit Member",
-      "subtitle": "Update details for {name}",
-      "firstName": "First Name",
-      "lastName": "Last Name",
-      "systemRole": "System Role",
-      "accountStatus": "Account Status",
-      "saving": "Saving...",
-      "statuses": {
-        "ACTIVE": "Active",
-        "INACTIVE": "Inactive",
-        "SUSPENDED": "Suspended"
-      }
+    "scanView": {
+      "title": "Scan",
+      "sub": "Barcode scanner",
+      "manualEntry": "Manual entry...",
+      "simulateScan": "Simulate scan",
+      "scanned": "Scanned",
+      "zone": "Zone",
+      "quantity": "Quantity",
+      "pick": "Pick",
+      "pack": "Pack"
     }
   }
 }

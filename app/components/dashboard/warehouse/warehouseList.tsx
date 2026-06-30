@@ -99,7 +99,7 @@ const WarehouseListTable = ({
         label: dict.dashboard.warehouse.typeCity,
         sortable: true,
         render: (row) => (
-          <Stack spacing={0.5} direction={"row"} alignItems={"center"} gap={2}>
+          <Stack direction="column" alignItems="flex-start" gap={0.8}>
             <Typography variant="body2" fontWeight={600} color="text.secondary">
               {row.city}
             </Typography>
@@ -114,7 +114,6 @@ const WarehouseListTable = ({
                 fontWeight: 800,
                 fontSize: "0.6rem",
                 textTransform: "uppercase",
-                width: 110,
                 display: "flex",
                 justifyContent: "center",
                 textAlign: "center",
