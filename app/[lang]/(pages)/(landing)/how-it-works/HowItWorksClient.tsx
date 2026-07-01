@@ -8,7 +8,7 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 export default function HowItWorksClient() {
   const dict = useDictionary();
   const hDict = dict?.landing?.howItWorksPage;
-  const year = new Date().getFullYear().toString();
+
 
   if (!hDict) {
     return <Box sx={{ p: 10, color: 'white', bgcolor: 'black' }}>Error: howItWorksPage dictionary is missing.</Box>;
@@ -150,39 +150,7 @@ export default function HowItWorksClient() {
           </Container>
         </Box>
 
-        <Box sx={{ py: 6, borderTop: "1px solid rgba(255, 255, 255, 0.05)" }}>
-          <Container maxWidth="lg">
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography
-                variant="body2"
-                sx={{ color: "rgba(255, 255, 255, 0.4)" }}
-              >
-                {hDict.footer.rights.replace("{year}", year)}
-              </Typography>
-              <Stack direction="row" spacing={4}>
-                {[hDict.footer.privacy, hDict.footer.terms, hDict.footer.help].map(
-                  (item) => (
-                    <Typography
-                      key={item}
-                      variant="body2"
-                      sx={{
-                        color: "rgba(255, 255, 255, 0.4)",
-                        cursor: "pointer",
-                        "&:hover": { color: "#38bdf8" },
-                      }}
-                    >
-                      {item}
-                    </Typography>
-                  )
-                )}
-              </Stack>
-            </Stack>
-          </Container>
-        </Box>
+
       </Box>
     </Box>
   );

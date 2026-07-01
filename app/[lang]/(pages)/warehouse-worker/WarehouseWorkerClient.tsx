@@ -486,7 +486,7 @@ export default function WarehouseWorkerClient({
                         setScanQty={setScanQty}
                         log={log}
                         setScanResult={setScanResult}
-                        currentZone={currentZone}
+
                         ww={ww}
                         onBreak={onBreak}
                       />
@@ -721,7 +721,7 @@ export default function WarehouseWorkerClient({
                         setScanQty={setScanQty}
                         log={log}
                         setScanResult={setScanResult}
-                        currentZone={currentZone}
+
                         ww={ww}
                         onBreak={onBreak}
                     />

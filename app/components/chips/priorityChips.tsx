@@ -1,5 +1,5 @@
 import { Chip, type Palette, type PaletteColor } from "@mui/material";
-import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
 export const PriorityChip = ({ status }: { status: string }) => {

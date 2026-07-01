@@ -581,12 +581,15 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
 
             {warehouse.specifications?.map((spec, index) => {
               const specKeyMap: Record<string, string> = {
+                "Temperature Controlled": "temperatureControlled",
                 "Cold Storage": "coldStorage",
                 "Hazardous Materials": "hazardous",
+                "Hazmat Storage": "hazardous",
                 "Bonded Warehouse": "bonded",
                 "Cross-Docking": "crossDocking",
                 "High Security": "highSecurity",
                 "Lashing/Loading": "lashing",
+                "Standard Storage": "standardStorage",
               };
               const key = specKeyMap[spec] || spec;
               return (
@@ -634,7 +637,7 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
               >
                 <BusinessCenterIcon sx={{ fontSize: 16 }} />
                 <Typography variant="caption" fontWeight={600}>
-                  {t.standardStorage}
+                  {dict.warehouses.categories.specs.standardStorage}
                 </Typography>
               </Stack>
             )}

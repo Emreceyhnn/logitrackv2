@@ -625,13 +625,21 @@ export default function InventoryEditDialog({
                     <Grid size={{ xs: 6 }}>
                       <TextField
                         name="cargoType"
+                        select
                         label={dict.inventory.table?.cargoType || "Cargo Type"}
                         fullWidth
-                        value={values.cargoType || ""}
+                        value={values.cargoType || "General Cargo"}
                         onChange={handleChange}
                         onBlur={handleBlur}
                         sx={textFieldSx}
-                      />
+                      >
+                        <MenuItem value="General Cargo">{dict.inventory?.dialogs?.cargoTypes?.["General Cargo"] || "General Cargo"}</MenuItem>
+                        <MenuItem value="Perishable Goods">{dict.inventory?.dialogs?.cargoTypes?.["Perishable Goods"] || "Perishable Goods"}</MenuItem>
+                        <MenuItem value="Hazardous Materials">{dict.inventory?.dialogs?.cargoTypes?.["Hazardous Materials"] || "Hazardous Materials"}</MenuItem>
+                        <MenuItem value="Fragile Goods">{dict.inventory?.dialogs?.cargoTypes?.["Fragile Goods"] || "Fragile Goods"}</MenuItem>
+                        <MenuItem value="Liquid Cargo">{dict.inventory?.dialogs?.cargoTypes?.["Liquid Cargo"] || "Liquid Cargo"}</MenuItem>
+                        <MenuItem value="Oversized Cargo">{dict.inventory?.dialogs?.cargoTypes?.["Oversized Cargo"] || "Oversized Cargo"}</MenuItem>
+                      </TextField>
                     </Grid>
 
                     <Grid size={{ xs: 6 }}>

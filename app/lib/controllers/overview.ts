@@ -36,7 +36,6 @@ import {
   OVERVIEW_CACHE_TTL,
 } from "../redis";
 import { getExchangeRates } from "../services/exchangeRate";
-import { formatDisplayDate } from "../utils/date";
 import { calcTrend, daysAgo } from "./utils/trendUtils";
 
 /**

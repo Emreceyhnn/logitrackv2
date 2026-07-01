@@ -41,7 +41,7 @@ export default function GlobalTrackingClient() {
       ctaTitle={d.cta.title}
       ctaSubtitle={d.cta.subtitle}
       ctaIcon={<PublicRoundedIcon sx={{ fontSize: 40, color: "#38bdf8" }} />}
-      copyright={d.footer.copyright.replace("{year}", new Date().getFullYear().toString())}
+
     />
   );
 }

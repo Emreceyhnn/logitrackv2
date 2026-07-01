@@ -13,7 +13,6 @@ interface WWScanSectionProps {
   setScanQty: React.Dispatch<React.SetStateAction<number>>;
   log: (kind: "PICK" | "PACK") => void;
   setScanResult: (v: SkuInfo | null) => void;
-  currentZone: string;
   ww: any;
   onBreak: boolean;
 }
@@ -28,7 +27,6 @@ export default function WWScanSection({
   setScanQty,
   log,
   setScanResult,
-  currentZone,
   ww,
   onBreak,
 }: WWScanSectionProps) {

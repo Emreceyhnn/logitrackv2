@@ -1875,6 +1875,8 @@
       "history": "Envanter Geçmişi",
       "stockLevels": "Stok Seviyeleri",
       "available": "MEVCUT",
+      "physical": "FİZİKSEL STOK",
+      "units": "BİRİM",
       "safetyStock": "GÜVENLİK STOĞU",
       "locationData": "Konum Verileri",
       "warehouseCode": "Depo Kodu",
@@ -1898,6 +1900,9 @@
       "notes": "Notlar / Açıklama",
       "otherLocations": "Diğer Konumlardaki Stoklar",
       "historyTypes": {
+        "STOCK_IN": "STOK GİRİŞİ",
+        "STOCK_OUT": "STOK ÇIKIŞI",
+        "RESTOCK_REQUEST": "YENİDEN STOK TALEBİ",
         "PICK": "TOPLAMA (ÇIKIŞ)",
         "PACK": "PAKETLEME",
         "PUTAWAY": "YERLEŞTİRME (GİRİŞ)",
@@ -1905,6 +1910,10 @@
         "ALLOCATION_REVERT": "REZERVASYON İPTALİ",
         "ALLOCATION_CANCEL": "REZERVASYON İPTALİ",
         "ADJUSTMENT": "STOK GÜNCELLEMESİ",
+        "PURCHASE": "SATIN ALIM",
+        "RETURN": "İADE",
+        "DAMAGE": "HASAR",
+        "LOSS": "KAYIP",
         "SHIPMENT": "SEVKİYAT ÇIKIŞI",
         "SHIPMENT_REVERT": "SEVKİYAT İADESİ",
         "SHIPMENT_CANCEL": "SEVKİYAT İPTALİ"
@@ -1948,7 +1957,13 @@
         "Hazardous Materials": "Tehlikeli Madde",
         "Fragile Goods": "Kırılgan Yük",
         "Liquid Cargo": "Sıvı Yük",
-        "Oversized Cargo": "Ağır/Geniş Yük"
+        "Oversized Cargo": "Ağır/Geniş Yük",
+        "Perishable": "Bozulabilir Yük",
+        "Hazardous Material": "Tehlikeli Madde",
+        "Automotive Parts": "Otomotiv Parçaları",
+        "Electronics": "Elektronik",
+        "Textile": "Tekstil",
+        "Construction Materials": "İnşaat Malzemeleri"
       }
     },
     "deleteTitle": "Öğeyi Sil",
@@ -2438,15 +2453,17 @@
       "types": {
         "WAREHOUSE": "Standart Depo",
         "DISTRIBUTION_CENTER": "Dağıtım Merkezi",
-        "CROSSDOCK": "Cross-Dock Tesisi"
+        "CROSSDOCK": "Çapraz Sevkiyat Merkezi"
       },
       "specs": {
+        "temperatureControlled": "Sıcaklık Kontrollü",
         "coldStorage": "Soğuk Hava Deposu",
         "hazardous": "Tehlikeli Maddeler",
         "bonded": "Gümrüklü Depo",
-        "crossDocking": "Cross-Docking",
+        "crossDocking": "Çapraz Sevkiyat",
         "highSecurity": "Yüksek Güvenlik",
-        "lashing": "Lashing/Yükleme"
+        "lashing": "Lashing/Yükleme",
+        "standardStorage": "Standart Depolama"
       }
     },
     "dialogs": {

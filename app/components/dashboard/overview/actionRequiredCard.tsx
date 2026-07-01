@@ -20,7 +20,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { ReactNode } from "react";
 import { ActionRequiredItems } from "@/app/lib/type/overview";
 import { useRouter } from "next/navigation";
-import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
 interface ActionRequiredCardProps {

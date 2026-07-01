@@ -193,6 +193,7 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             onChange={(e) =>
               actions.updateProfileForm({ name: e.target.value })
             }
+            error={!state.profileForm.name.trim()}
             fullWidth
             sx={fieldSx}
           />
@@ -202,6 +203,7 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
             onChange={(e) =>
               actions.updateProfileForm({ surname: e.target.value })
             }
+            error={!state.profileForm.surname.trim()}
             fullWidth
             sx={fieldSx}
           />
@@ -249,7 +251,11 @@ export default function ProfileTab({ state, actions }: ProfileTabProps) {
         <Button
           variant="contained"
           onClick={actions.saveProfile}
-          disabled={state.isSaving}
+          disabled={
+            state.isSaving ||
+            !state.profileForm.name.trim() ||
+            !state.profileForm.surname.trim()
+          }
           startIcon={
             state.isSaving ? (
               <CircularProgress size={16} color="inherit" />

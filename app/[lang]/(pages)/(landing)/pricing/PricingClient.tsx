@@ -280,19 +280,7 @@ export default function PricingClient() {
         </Box>
       </Container>
 
-      <Box
-        sx={{
-          py: 8,
-          borderTop: `1px solid ${theme.palette.kpi.slateLight_alpha.main_05}`,
-          textAlign: "center",
-          bgcolor: theme.palette.kpi.slateDeepest_alpha.main_50,
-        }}
-      >
-        <Typography variant="body2" sx={{ color: theme.palette.kpi.slateLight_alpha.main_40 }}>
-          {dict.landing.pricing.footer.tos.replace("{year}", new Date().getFullYear().toString())} <br />
-          {dict.landing.pricing.footer.support}
-        </Typography>
-      </Box>
+
     </Box>
   );
 }

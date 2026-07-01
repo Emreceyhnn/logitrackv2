@@ -493,7 +493,7 @@ export default function InventoryDetailsDialog({
                           color="text.secondary"
                           fontWeight={600}
                         >
-                          PHYSICAL
+                          {dict.inventory.dialogs.physical || "PHYSICAL"}
                         </Typography>
                         <Typography
                           variant="h4"
@@ -559,11 +559,11 @@ export default function InventoryDetailsDialog({
                               onChange={(e) => setAdjustType(e.target.value)}
                               sx={{ color: "text.primary" }}
                             >
-                              <MenuItem value="ADJUSTMENT">Adjustment</MenuItem>
-                              <MenuItem value="PURCHASE">Purchase</MenuItem>
-                              <MenuItem value="RETURN">Return</MenuItem>
-                              <MenuItem value="DAMAGE">Damage</MenuItem>
-                              <MenuItem value="LOSS">Loss</MenuItem>
+                              <MenuItem value="ADJUSTMENT">{dict.inventory.dialogs.historyTypes?.ADJUSTMENT || "Adjustment"}</MenuItem>
+                              <MenuItem value="PURCHASE">{dict.inventory.dialogs.historyTypes?.PURCHASE || "Purchase"}</MenuItem>
+                              <MenuItem value="RETURN">{dict.inventory.dialogs.historyTypes?.RETURN || "Return"}</MenuItem>
+                              <MenuItem value="DAMAGE">{dict.inventory.dialogs.historyTypes?.DAMAGE || "Damage"}</MenuItem>
+                              <MenuItem value="LOSS">{dict.inventory.dialogs.historyTypes?.LOSS || "Loss"}</MenuItem>
                             </Select>
                           </FormControl>
                         </Grid>
@@ -987,7 +987,7 @@ export default function InventoryDetailsDialog({
                                     fontSize: "0.6rem",
                                   }}
                                 >
-                                  UNITS
+                                  {dict.inventory.dialogs.units || "UNITS"}
                                 </Typography>
                               </Box>
                             </Stack>

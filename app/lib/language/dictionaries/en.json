@@ -1874,6 +1874,8 @@
       "history": "Inventory History",
       "stockLevels": "Stock Levels",
       "available": "AVAILABLE",
+      "physical": "PHYSICAL",
+      "units": "UNITS",
       "safetyStock": "SAFETY STOCK",
       "locationData": "Location Data",
       "warehouseCode": "Warehouse Code",
@@ -1897,6 +1899,9 @@
       "notes": "Notes / Description",
       "otherLocations": "Stock in Other Locations",
       "historyTypes": {
+        "STOCK_IN": "STOCK IN",
+        "STOCK_OUT": "STOCK OUT",
+        "RESTOCK_REQUEST": "RESTOCK REQUEST",
         "PICK": "PICK (OUT)",
         "PACK": "PACK",
         "PUTAWAY": "PUTAWAY (IN)",
@@ -1904,6 +1909,10 @@
         "ALLOCATION_REVERT": "ALLOCATION REVERTED",
         "ALLOCATION_CANCEL": "ALLOCATION CANCELLED",
         "ADJUSTMENT": "STOCK ADJUSTMENT",
+        "PURCHASE": "PURCHASE",
+        "RETURN": "RETURN",
+        "DAMAGE": "DAMAGE",
+        "LOSS": "LOSS",
         "SHIPMENT": "SHIPMENT DISPATCH",
         "SHIPMENT_REVERT": "SHIPMENT REVERTED",
         "SHIPMENT_CANCEL": "SHIPMENT CANCELLED"
@@ -1947,7 +1956,13 @@
         "Hazardous Materials": "Hazardous Materials",
         "Fragile Goods": "Fragile Goods",
         "Liquid Cargo": "Liquid Cargo",
-        "Oversized Cargo": "Oversized Cargo"
+        "Oversized Cargo": "Oversized Cargo",
+        "Perishable": "Perishable",
+        "Hazardous Material": "Hazardous Material",
+        "Automotive Parts": "Automotive Parts",
+        "Electronics": "Electronics",
+        "Textile": "Textile",
+        "Construction Materials": "Construction Materials"
       }
     },
     "deleteTitle": "Delete Item",
@@ -2440,12 +2455,14 @@
         "CROSSDOCK": "Cross-Docking Facility"
       },
       "specs": {
+        "temperatureControlled": "Temperature Controlled",
         "coldStorage": "Cold Storage",
         "hazardous": "Hazardous Materials",
         "bonded": "Bonded Warehouse",
         "crossDocking": "Cross-Docking",
         "highSecurity": "High Security",
-        "lashing": "Lashing/Loading"
+        "lashing": "Lashing/Loading",
+        "standardStorage": "Standard Storage"
       }
     },
     "dialogs": {

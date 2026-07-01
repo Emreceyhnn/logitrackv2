@@ -44,7 +44,6 @@ interface FooterPageLayoutProps {
   ctaTitle: string;
   ctaSubtitle: string;
   ctaIcon: ReactNode;
-  copyright: string;
 }
 
 export default function FooterPageLayout({
@@ -57,7 +56,6 @@ export default function FooterPageLayout({
   ctaTitle,
   ctaSubtitle,
   ctaIcon,
-  copyright,
 }: FooterPageLayoutProps) {
   const theme = useTheme();
 
@@ -377,22 +375,7 @@ export default function FooterPageLayout({
         </Box>
       </Container>
 
-      {/* Page Footer */}
-      <Box
-        sx={{
-          py: 8,
-          borderTop: `1px solid ${theme.palette.kpi.slateLight_alpha.main_05}`,
-          textAlign: "center",
-          bgcolor: theme.palette.kpi.slateDeepest_alpha.main_50,
-        }}
-      >
-        <Typography
-          variant="body2"
-          sx={{ color: theme.palette.kpi.slateLight_alpha.main_40 }}
-        >
-          {copyright}
-        </Typography>
-      </Box>
+
     </Box>
   );
 }

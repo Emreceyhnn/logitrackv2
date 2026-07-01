@@ -22,12 +22,7 @@ const FeaturesSection = dynamic(
     ssr: false,
   }
 );
-const LandingFooter = dynamic(
-  () => import("@/app/components/landing/LandingFooter"),
-  {
-    ssr: false,
-  }
-);
+
 
 export default function LandingPage() {
   return (
@@ -36,7 +31,6 @@ export default function LandingPage() {
       <SocialProof />
       <OperationsDashboard />
       <FeaturesSection />
-      <LandingFooter />
     </Box>
   );
 }

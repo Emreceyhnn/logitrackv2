@@ -1,6 +1,6 @@
-
 import { Box } from "@mui/material";
 import LandingNavbar from "@/app/components/landing/LandingNavbar";
+import LandingFooter from "@/app/components/landing/LandingFooter";
 import LandingThemeProvider from "@/app/lib/theme/LandingThemeProvider";
 
 export default function LandingLayout({
@@ -23,6 +23,7 @@ export default function LandingLayout({
         <Box component="main" sx={{ flexGrow: 1 }}>
           {children}
         </Box>
+        <LandingFooter />
       </Box>
     </LandingThemeProvider>
   );

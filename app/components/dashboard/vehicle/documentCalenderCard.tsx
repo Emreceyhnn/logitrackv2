@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import dayjs from "dayjs";
 import "dayjs/locale/tr";
 import "dayjs/locale/en";
@@ -9,8 +10,7 @@ import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import type { PickersDayProps } from "@mui/x-date-pickers/PickersDay";
 import { Badge, Divider, Tooltip, Typography } from "@mui/material";
 import CustomCard from "../../cards/card";
-import { useParams } from "next/navigation";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 
 interface VehicleDocument {
   id: string;
@@ -36,9 +36,12 @@ const DocumentCalenderCard = ({
   maintenanceData = [],
 }: VehicleDocumentCalenderCardProps) => {
   const dict = useDictionary();
-  const params = useParams();
-  const lang = (params?.lang as string) || "en";
+  const { lang } = useLanguage();
   const safeLang = ["en", "tr"].includes(lang) ? lang : "en";
+
+  useEffect(() => {
+    dayjs.locale(safeLang);
+  }, [safeLang]);
 
   const DocumentDay = (props: PickersDayProps) => {
     const { day, ...other } = props;
@@ -59,11 +62,19 @@ const DocumentCalenderCard = ({
       return (dict.vehicles.docTypes as Record<string, string>)?.[type] || type;
     };
 
+    const getLocalizedServiceType = (type: string) => {
+      return (
+        (dict.vehicles.serviceTypes as Record<string, string>)?.[type] || type
+      );
+    };
+
     const tooltipContent = [
       ...docsForDay.map(
         (d) => `${getLocalizedDocType(d.documentType)} - ${d.plate}`
       ),
-      ...maintenanceForDay.map((m) => `${m.serviceType} - ${m.plate}`),
+      ...maintenanceForDay.map(
+        (m) => `${getLocalizedServiceType(m.serviceType)} - ${m.plate}`
+      ),
     ].join(", ");
 
     const badgeColor = docsForDay.length > 0 ? "error" : "info";

@@ -282,19 +282,7 @@ export default function FeaturesClient() {
       </Container>
 
 
-      <Box
-        sx={{
-          py: 10,
-          borderTop: `1px solid ${theme.palette.kpi.slateLight_alpha.main_05}`,
-          textAlign: "center",
-          bgcolor: theme.palette.kpi.slateDeepest_alpha.main_50,
-        }}
-      >
-        <Typography variant="body2" sx={{ color: theme.palette.kpi.slateLight_alpha.main_40 }}>
-          {fDict.footer.copyright.replace("{year}", new Date().getFullYear().toString())} <br />
-          {fDict.footer.builtFor}
-        </Typography>
-      </Box>
+
     </Box>
   );
 }

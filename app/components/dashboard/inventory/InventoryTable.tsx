@@ -171,7 +171,7 @@ const InventoryTable = ({
           const styles = getCategoryStyles(row.cargoType);
           return (
             <Chip
-              label={row.cargoType || dict.inventory.category.general}
+              label={dict.inventory?.dialogs?.cargoTypes?.[(row.cargoType || "General Cargo") as keyof typeof dict.inventory.dialogs.cargoTypes] || row.cargoType || dict.inventory.category.general}
               size="small"
               sx={{
                 fontWeight: 800,

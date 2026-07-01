@@ -3,9 +3,15 @@ import { BarChart } from "@mui/x-charts";
 import CustomCard from "../../cards/card";
 import { ShipmentDayStat } from "@/app/lib/type/overview";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 import TimeRangeSelector, { TimeRange } from "../../charts/TimeRangeSelector";
 import { useState, useMemo } from "react";
+import dayjs from "dayjs";
+import "dayjs/locale/tr";
+import "dayjs/locale/en";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 interface ShipmentVolumeCardProps {
   values: ShipmentDayStat[];
@@ -13,7 +19,33 @@ interface ShipmentVolumeCardProps {
 
 const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
   const dict = useDictionary();
+  const { lang } = useLanguage();
+  const safeLang = ["en", "tr"].includes(lang) ? lang : "en";
   const [range, setRange] = useState<TimeRange>("1m");
+
+  // Server emits the axis label as an English "MMM DD" string, or possibly ISO dates;
+  // reformat it to the active locale for display without changing the underlying data.
+  const formatAxisDate = (value: string) => {
+    // Check if the string contains any digits. 
+    // If it doesn't (like "Jun" or "June"), we should only output the localized month.
+    const hasDigits = /\d/.test(value);
+
+    let parsed = dayjs(value, ["MMM DD", "MMM D", "DD MMM", "D MMM", "MMM", "MMMM", "YYYY-MM-DD"], "en");
+    
+    if (!parsed.isValid()) {
+      parsed = dayjs(value);
+    }
+    
+    if (!parsed.isValid()) return value;
+
+    if (!hasDigits) {
+      return parsed.locale(safeLang).format("MMM");
+    }
+
+    return safeLang === "tr" 
+      ? parsed.locale("tr").format("DD MMM") 
+      : parsed.locale("en").format("MMM DD");
+  };
 
   const filteredValues = useMemo(() => {
     if (!values) return [];
@@ -68,7 +100,7 @@ const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
             xAxis={[
               {
                 scaleType: "band",
-                data: filteredValues.map((v) => v.date),
+                data: filteredValues.map((v) => formatAxisDate(v.date)),
                 tickLabelStyle: {
                   fill: "text.secondary",
                   fontSize: 10,

@@ -36,6 +36,9 @@ export const updateMyProfile = authenticatedAction(
       avatarUrl?: string | null;
     }
   ) => {
+    if (!data.name || !data.name.trim()) return { error: "Name is required" };
+    if (!data.surname || !data.surname.trim()) return { error: "Surname is required" };
+
     const updated = await db.user.update({
       where: { id: user.id },
       data: {
@@ -68,6 +71,9 @@ export const changeMyPassword = authenticatedAction(
       newPassword: string;
     }
   ) => {
+    if (!data.currentPassword || !data.currentPassword.trim()) return { error: "Current password is required" };
+    if (!data.newPassword || !data.newPassword.trim()) return { error: "New password is required" };
+
     const found = await db.user.findUnique({
       where: { id: user.id },
       select: { password: true },

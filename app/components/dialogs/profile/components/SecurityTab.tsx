@@ -347,6 +347,7 @@ export default function SecurityTab({ state, actions }: SecurityTabProps) {
           onClick={actions.changePassword}
           disabled={
             state.isSaving ||
+            !state.passwordForm.currentPassword ||
             !passwordMatch ||
             !state.passwordForm.newPassword ||
             strength === "weak"

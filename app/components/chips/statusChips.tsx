@@ -7,7 +7,7 @@ import {
   type Palette,
   type PaletteColor,
 } from "@mui/material";
-import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 import { getStatusMeta } from "@/app/lib/priorityColor";
 
 export const StatusChip = ({ status }: { status: string }) => {

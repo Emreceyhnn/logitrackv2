@@ -168,10 +168,12 @@ const CargoSection = ({ trailers }: CargoSectionProps) => {
                 }
                 onChange={(e) => setFieldValue("cargoType", e.target.value)}
               >
-                <MenuItem value="General Cargo">General Cargo</MenuItem>
-                <MenuItem value="Perishable">Perishable</MenuItem>
-                <MenuItem value="Fragile">Fragile</MenuItem>
-                <MenuItem value="Liquid">Liquid</MenuItem>
+                <MenuItem value="General Cargo">{dict.inventory?.dialogs?.cargoTypes?.["General Cargo"] || "General Cargo"}</MenuItem>
+                <MenuItem value="Perishable Goods">{dict.inventory?.dialogs?.cargoTypes?.["Perishable Goods"] || "Perishable Goods"}</MenuItem>
+                <MenuItem value="Hazardous Materials">{dict.inventory?.dialogs?.cargoTypes?.["Hazardous Materials"] || "Hazardous Materials"}</MenuItem>
+                <MenuItem value="Fragile Goods">{dict.inventory?.dialogs?.cargoTypes?.["Fragile Goods"] || "Fragile Goods"}</MenuItem>
+                <MenuItem value="Liquid Cargo">{dict.inventory?.dialogs?.cargoTypes?.["Liquid Cargo"] || "Liquid Cargo"}</MenuItem>
+                <MenuItem value="Oversized Cargo">{dict.inventory?.dialogs?.cargoTypes?.["Oversized Cargo"] || "Oversized Cargo"}</MenuItem>
               </CustomTextArea>
             </Stack>
           </Grid>
