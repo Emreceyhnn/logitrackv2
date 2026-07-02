@@ -194,6 +194,17 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
+  // ── 5. Root Path Redirect ───────────────────────────────────────────────────
+  if (currentPath === "/") {
+    const url = request.nextUrl.clone();
+    if (isTokenValid) {
+      url.pathname = buildLocalizedHref(DEFAULT_REDIRECT_AFTER_LOGIN, locale);
+    } else {
+      url.pathname = buildLocalizedHref(SIGN_IN_ROUTE, locale);
+    }
+    return NextResponse.redirect(url);
+  }
+
   return NextResponse.next();
 }
 

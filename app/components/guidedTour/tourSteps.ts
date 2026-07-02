@@ -67,6 +67,12 @@ export function getOverviewTourSteps(dict: Dict): TourStep[] {
 export function getVehicleTourSteps(dict: Dict): TourStep[] {
   return [
     {
+      targetSelector: '[data-tour="vehicle-tabs"]',
+      title: d(dict, "guidedTour.vehicles.tabsStep.title"),
+      description: d(dict, "guidedTour.vehicles.tabsStep.description"),
+      placement: "bottom",
+    },
+    {
       targetSelector: '[data-tour="vehicle-table"]',
       title: d(dict, "guidedTour.vehicles.tableStep.title"),
       description: d(dict, "guidedTour.vehicles.tableStep.description"),
@@ -239,10 +245,48 @@ export function getCustomerTourSteps(dict: Dict): TourStep[] {
 export function getReportTourSteps(dict: Dict): TourStep[] {
   return [
     {
+      targetSelector: '[data-tour="report-tabs"]',
+      title: d(dict, "guidedTour.reports.tabsStep.title"),
+      description: d(dict, "guidedTour.reports.tabsStep.description"),
+      placement: "bottom",
+    },
+    {
       targetSelector: '[data-tour="report-content"]',
       title: d(dict, "guidedTour.reports.contentStep.title"),
       description: d(dict, "guidedTour.reports.contentStep.description"),
       placement: "center",
+    },
+  ];
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               COMPANY                                      */
+/* -------------------------------------------------------------------------- */
+export function getCompanyTourSteps(dict: Dict): TourStep[] {
+  return [
+    {
+      targetSelector: '[data-tour="company-kpi"]',
+      title: d(dict, "guidedTour.company.kpiStep.title"),
+      description: d(dict, "guidedTour.company.kpiStep.description"),
+      placement: "bottom",
+    },
+    {
+      targetSelector: '[data-tour="company-info"]',
+      title: d(dict, "guidedTour.company.infoStep.title"),
+      description: d(dict, "guidedTour.company.infoStep.description"),
+      placement: "center",
+    },
+    {
+      targetSelector: '[data-tour="company-members"]',
+      title: d(dict, "guidedTour.company.membersStep.title"),
+      description: d(dict, "guidedTour.company.membersStep.description"),
+      placement: "left",
+    },
+    {
+      targetSelector: '[data-tour="company-add-member"]',
+      title: d(dict, "guidedTour.company.addMemberStep.title"),
+      description: d(dict, "guidedTour.company.addMemberStep.description"),
+      placement: "bottom",
     },
   ];
 }
@@ -272,7 +316,7 @@ export function getWarehouseWorkerTourSteps(dict: Dict, view: string): TourStep[
         targetSelector: '[data-tour="ww-control-panel"]',
         title: d(dict, "guidedTour.warehouseWorker.dashboardControlStep.title"),
         description: d(dict, "guidedTour.warehouseWorker.dashboardControlStep.description"),
-        placement: "bottom",
+        placement: "left",
       },
       {
         targetSelector: '[data-tour="ww-quick-actions"]',
@@ -356,6 +400,8 @@ export function getTourStepsForPage(
       return getCustomerTourSteps(dict);
     case "reports":
       return getReportTourSteps(dict);
+    case "company":
+      return getCompanyTourSteps(dict);
     case "warehouse-worker-dashboard":
       return getWarehouseWorkerTourSteps(dict, "dashboard");
     case "warehouse-worker-scan":

@@ -23,6 +23,7 @@ import {
 } from "@/app/lib/type/routes";
 
 import { routeKeys } from "@/app/lib/query-keys/route.keys";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 async function fetchRoutes(
   page: number,
@@ -152,6 +153,7 @@ export function useRoutesWithDashboard(
 }
 
 export function useRouteMutations() {
+  const dict = useDictionary();
   const queryClient = useQueryClient();
 
   const handleSuccess = (message: string) => {
@@ -166,8 +168,8 @@ export function useRouteMutations() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteRoute(id),
-    onSuccess: () => handleSuccess("Route deleted successfully"),
-    onError: (error) => handleError("Failed to delete route", error),
+    onSuccess: () => handleSuccess(dict.toasts.successDelete),
+    onError: (error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   return {

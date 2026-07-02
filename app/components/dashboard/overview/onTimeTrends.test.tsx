@@ -18,7 +18,10 @@ const mockDict = {
 };
 
 mock.module("../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: () => mockDict },
+  namedExports: { 
+    useDictionary: () => mockDict,
+    useLanguage: () => ({ lang: "en" })
+  },
 });
 
 mock.module("../../cards/card.tsx", {
@@ -30,6 +33,7 @@ mock.module("../../charts/TimeRangeSelector.tsx", {
     <div data-testid="time-range-selector">
       <span>{value}</span>
       <button onClick={() => onChange("1m")}>Set 1m</button>
+      <button onClick={() => onChange("1w")}>Set 1w</button>
     </div>
   ),
 });
@@ -62,7 +66,7 @@ describe("ShipmentVolumeCard RTL Component", () => {
 
   // Data represents 10 days
   const mockValues = Array.from({ length: 10 }).map((_, i) => ({
-    date: `2026-05-0${i + 1}`,
+    date: `2026-05-${String(i + 1).padStart(2, "0")}`,
     count: i * 10,
   }));
 
@@ -77,29 +81,28 @@ describe("ShipmentVolumeCard RTL Component", () => {
       expect(screen.getByText("No shipment history")).toBeTruthy();
     });
 
-    it("should_RenderBarChart_WithDefault1wRange", async () => {
+    it("should_RenderBarChart_WithDefault1mRange", async () => {
       render(<ShipmentVolumeCard values={mockValues} />);
       
       expect(screen.getByText("Shipment Volume")).toBeTruthy();
       expect(screen.getByTestId("bar-chart")).toBeTruthy();
       
-      // Default is 1w (7 days). So from array of length 10, it slices the last 7
-      // 10 - 7 = 3. Elements index 3 to 9 (length 7). First should be date '2026-05-04'
-      expect(screen.getByTestId("bar-2026-05-04")).toBeTruthy();
-      expect(screen.queryByTestId("bar-2026-05-03")).toBeNull();
+      // Default is 1m (30 days). So from array of length 10, it shows all 10.
+      expect(screen.getByTestId("bar-May 04")).toBeTruthy();
+      expect(screen.getByTestId("bar-May 03")).toBeTruthy();
     });
 
     it("should_UpdateTimeRange_AndRefilterData_WhenSelectorChanges", async () => {
       render(<ShipmentVolumeCard values={mockValues} />);
       
-      // 2026-05-01 is out of 1w range
-      expect(screen.queryByTestId("bar-2026-05-01")).toBeNull();
+      // Initially 1m, so '2026-05-01' is visible
+      expect(screen.getByTestId("bar-May 01")).toBeTruthy();
 
-      // Change time range to 1m
-      fireEvent.click(screen.getByText("Set 1m"));
+      const selectButton = screen.getByText("Set 1w");
+      fireEvent.click(selectButton);
 
-      // 1m > 10 days, so it should render all elements
-      expect(screen.getByTestId("bar-2026-05-01")).toBeTruthy();
+      // Now 1w (7 days), '2026-05-01' should be hidden because 10-7=3 elements. So it starts at May 04.
+      expect(screen.queryByTestId("bar-May 01")).toBeNull();
     });
   });
 });

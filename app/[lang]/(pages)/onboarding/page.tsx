@@ -26,7 +26,7 @@ export default function OnboardingPage() {
     if (action === "create") {
       setIsCreateCompanyOpen(true);
     } else {
-      toast.info("This feature is currently under development.");
+      toast.info(dict.common?.underDevelopment || "This feature is currently under development.");
     }
   };
 

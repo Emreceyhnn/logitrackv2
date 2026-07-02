@@ -130,26 +130,64 @@ export default function GuidedTourOverlay() {
     switch (placement) {
       case "bottom":
         tooltipStyle.top = targetRect.top + targetRect.height + padding + 12;
-        // Clamp for large elements like tables
-        if (targetRect.height > window.innerHeight * 0.5 && tooltipStyle.top > window.scrollY + window.innerHeight - 150) {
-          tooltipStyle.top = Math.max(window.scrollY + 100, window.scrollY + window.innerHeight / 2);
-        }
         tooltipStyle.left = clampedLeft;
+        // If bottom placement pushes tooltip below the viewport, flip to top
+        if (typeof tooltipStyle.top === 'number' && tooltipStyle.top + 220 > window.scrollY + window.innerHeight) {
+          tooltipStyle.top = targetRect.top - padding - 12;
+          tooltipStyle.transform = "translateY(-100%)";
+        }
         break;
       case "top":
         tooltipStyle.top = targetRect.top - padding - 12;
         tooltipStyle.left = clampedLeft;
         tooltipStyle.transform = "translateY(-100%)";
+        // If top placement pushes tooltip above the viewport, flip to bottom
+        if (typeof tooltipStyle.top === 'number' && tooltipStyle.top - 220 < window.scrollY) {
+          tooltipStyle.top = targetRect.top + targetRect.height + padding + 12;
+          tooltipStyle.transform = "";
+        }
         break;
       case "right":
         tooltipStyle.top = targetRect.top + targetRect.height / 2;
         tooltipStyle.left = targetRect.left + targetRect.width + padding + 12;
         tooltipStyle.transform = "translateY(-50%)";
+        // Prevent right overflow by falling back to bottom (or top if bottom overflows)
+        if (Number(tooltipStyle.left) + tooltipWidth > window.innerWidth) {
+          tooltipStyle.left = clampedLeft;
+          tooltipStyle.top = targetRect.top + targetRect.height + padding + 12;
+          tooltipStyle.transform = "";
+          if (typeof tooltipStyle.top === 'number' && tooltipStyle.top + 220 > window.scrollY + window.innerHeight) {
+            tooltipStyle.top = targetRect.top - padding - 12;
+            tooltipStyle.transform = "translateY(-100%)";
+            if (tooltipStyle.top - 220 < window.scrollY) {
+              // center fallback
+              tooltipStyle.top = Math.max(window.scrollY + 100, window.scrollY + window.innerHeight / 2);
+              tooltipStyle.left = "50%";
+              tooltipStyle.transform = "translate(-50%, -50%)";
+            }
+          }
+        }
         break;
       case "left":
         tooltipStyle.top = targetRect.top + targetRect.height / 2;
         tooltipStyle.left = targetRect.left - padding - 12;
         tooltipStyle.transform = "translate(-100%, -50%)";
+        // Prevent left overflow by falling back to bottom (or top if bottom overflows)
+        if (Number(tooltipStyle.left) - tooltipWidth < 0) {
+          tooltipStyle.left = clampedLeft;
+          tooltipStyle.top = targetRect.top + targetRect.height + padding + 12;
+          tooltipStyle.transform = "";
+          if (typeof tooltipStyle.top === 'number' && tooltipStyle.top + 220 > window.scrollY + window.innerHeight) {
+            tooltipStyle.top = targetRect.top - padding - 12;
+            tooltipStyle.transform = "translateY(-100%)";
+            if (tooltipStyle.top - 220 < window.scrollY) {
+              // center fallback
+              tooltipStyle.top = Math.max(window.scrollY + 100, window.scrollY + window.innerHeight / 2);
+              tooltipStyle.left = "50%";
+              tooltipStyle.transform = "translate(-50%, -50%)";
+            }
+          }
+        }
         break;
       case "center":
         tooltipStyle.top = Math.max(
@@ -159,6 +197,19 @@ export default function GuidedTourOverlay() {
         tooltipStyle.left = "50%";
         tooltipStyle.transform = "translate(-50%, -50%)";
         break;
+    }
+    
+    // Ensure tooltip doesn't completely disappear vertically
+    if (typeof tooltipStyle.top === 'number') {
+       if (tooltipStyle.top < window.scrollY + 16) {
+           tooltipStyle.top = window.scrollY + 16;
+       } else {
+           // Also clamp bottom just in case
+           const maxTop = window.scrollY + window.innerHeight - 250;
+           if (tooltipStyle.top > maxTop && !tooltipStyle.transform?.toString().includes("-100%")) {
+               tooltipStyle.top = maxTop;
+           }
+       }
     }
   } else {
     // Centered fallback if element not found

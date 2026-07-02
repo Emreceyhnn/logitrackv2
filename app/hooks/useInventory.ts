@@ -23,6 +23,7 @@ import { toast } from "sonner";
 
 import { inventoryKeys } from "@/app/lib/query-keys/inventory.keys";
 import { InventoryWithRelations, LowStockItem } from "@/app/lib/type/inventory";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export function useInventory(warehouseId?: string) {
   return useQuery({
@@ -177,6 +178,7 @@ export function useInventoryMovements(
 }
 
 export function useInventoryMutations() {
+  const dict = useDictionary();
   const queryClient = useQueryClient();
 
   const handleSuccess = (message: string) => {
@@ -204,22 +206,22 @@ export function useInventoryMutations() {
     }) => createInventoryItem(data),
     onSuccess: () => handleSuccess("Item added to inventory successfully"),
     onError: (error: Error) =>
-      handleError("Failed to add inventory item", error),
+      handleError(dict.toasts.errorGeneric, error),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Inventory> }) =>
       updateInventoryItem(id, data),
-    onSuccess: () => handleSuccess("Inventory item updated successfully"),
+    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
     onError: (error: Error) =>
-      handleError("Failed to update inventory item", error),
+      handleError(dict.toasts.errorGeneric, error),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteInventoryItem(id),
-    onSuccess: () => handleSuccess("Inventory item deleted successfully"),
+    onSuccess: () => handleSuccess(dict.toasts.successDelete),
     onError: (error: Error) =>
-      handleError("Failed to delete inventory item", error),
+      handleError(dict.toasts.errorGeneric, error),
   });
 
   const logFulfillmentMutation = useMutation({

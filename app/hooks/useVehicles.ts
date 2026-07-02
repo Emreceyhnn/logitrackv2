@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 
 import { vehicleKeys } from "@/app/lib/query-keys/vehicle.keys";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 async function fetchVehicles(
   filters: VehicleFilters
@@ -100,6 +101,7 @@ export function useVehicleWithDashboard(filters: VehicleFilters = {}) {
 }
 
 export function useVehicleMutations() {
+  const dict = useDictionary();
   const queryClient = useQueryClient();
 
   const handleSuccess = (message: string) => {
@@ -115,8 +117,8 @@ export function useVehicleMutations() {
   const createMutation = useMutation({
     mutationFn: (data: Parameters<typeof createVehicle>[0]) =>
       createVehicle(data),
-    onSuccess: () => handleSuccess("Vehicle created successfully"),
-    onError: (error: Error) => handleError("Failed to create vehicle", error),
+    onSuccess: () => handleSuccess(dict.toasts.successAdd),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const updateMutation = useMutation({
@@ -127,14 +129,14 @@ export function useVehicleMutations() {
       id: string;
       data: Parameters<typeof updateVehicle>[1];
     }) => updateVehicle(id, data),
-    onSuccess: () => handleSuccess("Vehicle updated successfully"),
-    onError: (error: Error) => handleError("Failed to update vehicle", error),
+    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteVehicle(id),
-    onSuccess: () => handleSuccess("Vehicle deleted successfully"),
-    onError: (error: Error) => handleError("Failed to delete vehicle", error),
+    onSuccess: () => handleSuccess(dict.toasts.successDelete),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const statusMutation = useMutation({
@@ -145,9 +147,9 @@ export function useVehicleMutations() {
       id: string;
       status: Parameters<typeof updateVehicleStatus>[1];
     }) => updateVehicleStatus(id, status),
-    onSuccess: () => handleSuccess("Vehicle status updated successfully"),
+    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
     onError: (error: Error) =>
-      handleError("Failed to update vehicle status", error),
+      handleError(dict.toasts.errorGeneric, error),
   });
 
   return {

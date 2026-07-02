@@ -354,8 +354,9 @@ export default function VehicleContent() {
         <Stack direction="row" spacing={2}>
           {/* Tab Switcher */}
           <Box
+            data-tour="vehicle-tabs"
             sx={{
-              display: "flex",
+              display: "inline-flex",
               p: 0.5,
               bgcolor: "background.paper",
               borderRadius: 2,

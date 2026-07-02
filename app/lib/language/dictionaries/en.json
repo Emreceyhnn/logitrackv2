@@ -141,161 +141,188 @@
       "finish": "Finish",
       "startTour": "Start Tour"
     },
-    "searchPlaceholder": "Search..."
+    "searchPlaceholder": "Search...",
+    "underDevelopment": "This feature is currently under development."
   },
   "guidedTour": {
     "overview": {
       "titleStep": {
         "title": "Dashboard Overview",
-        "description": "This is your central command center. Get a real-time snapshot of all logistics operations, KPIs, and alerts at a glance."
+        "description": "Welcome to your central LogiTrack command center. This dashboard is designed to give you a comprehensive, real-time snapshot of your entire logistics network. From here, you can seamlessly monitor critical operations, identify bottlenecks early, and maintain full control over your supply chain performance."
       },
       "kpiStep": {
         "title": "Key Performance Indicators",
-        "description": "These cards show your most important metrics: active shipments, delayed orders, fleet status, driver activity, and warehouse utilization."
+        "description": "These KPI cards represent the heartbeat of your business. They provide instant visibility into your most critical metrics: total active shipments, delayed orders needing attention, current fleet status, driver availability, and overall warehouse utilization. A quick glance here tells you exactly where to focus your efforts."
       },
       "dailyOpsStep": {
         "title": "Daily Operations",
-        "description": "Track today's operational metrics including planned routes, completed deliveries, failed deliveries, average delivery time, and fuel consumption."
+        "description": "Track the day's operational momentum in real-time. This section breaks down your planned routes, tracks successfully completed deliveries, highlights any failed attempts, calculates your average delivery times, and monitors total fuel consumption to ensure maximum efficiency."
       },
       "actionRequiredStep": {
         "title": "Action Required",
-        "description": "Items that need your immediate attention — delayed shipments, expiring documents, or maintenance alerts. Click any item to take action."
+        "description": "Your proactive alert center. Items listed here require your immediate intervention. Whether it's critically delayed shipments, expiring driver licenses, vehicle maintenance alerts, or low inventory thresholds, clicking on any item will take you directly to the resolution page."
       },
       "mapStep": {
         "title": "Live Operations Map",
-        "description": "See all your warehouses, vehicles, and customers on an interactive map. Track fleet positions and delivery progress in real time."
+        "description": "Visualize your entire supply chain on an interactive map. You can track live fleet positions, monitor active delivery routes in real-time, and see exactly where your warehouses and customers are located. Zoom in to see precise vehicle movements."
       }
     },
     "vehicles": {
+      "tabsStep": {
+        "title": "Category Navigation",
+        "description": "Switch seamlessly between your 'Vehicles' and 'Trailers' databases. This tabbed interface allows you to manage motorized units and non-motorized cargo units separately, keeping your fleet operations perfectly organized."
+      },
       "tableStep": {
-        "title": "Vehicle Fleet",
-        "description": "View and manage all vehicles in your fleet. Filter by status, type, or location. Click a row to see vehicle details."
+        "title": "Vehicle Fleet Management",
+        "description": "This is your comprehensive vehicle roster. Manage your entire fleet from this interactive grid. You can quickly filter vehicles by their operational status, type, or current location. Clicking on any row will open detailed diagnostics, service history, and live tracking data for that specific vehicle."
       },
       "addStep": {
-        "title": "Add Vehicle",
-        "description": "Register a new vehicle to your fleet. Fill in specifications, assign to a warehouse, and upload documents."
+        "title": "Register a New Vehicle",
+        "description": "Click here to expand your fleet. When adding a new vehicle, you will need to provide essential specifications such as license plate, make, model, fuel type, and load capacity. You can also assign the vehicle to a specific home-base warehouse and upload mandatory registration documents."
       }
     },
     "shipments": {
       "tableStep": {
-        "title": "Shipment Management",
-        "description": "Track all shipments and their statuses. Use filters to find specific shipments by status, date, or customer."
+        "title": "Shipment Management Hub",
+        "description": "Your ultimate control room for tracking freight. Every single shipment is logged here with its current status. Use the powerful filtering tools to narrow down shipments by date ranges, specific customers, or current transit status. You can also track delays and ETA updates instantly."
       },
       "addStep": {
-        "title": "Create Shipment",
-        "description": "Create a new shipment order. Specify origin, destination, cargo details, and assign a vehicle and driver."
+        "title": "Create a New Shipment",
+        "description": "Ready to dispatch? Click here to generate a new shipment order. You will be guided through a streamlined process to define pickup and drop-off coordinates, specify cargo weight and dimensions, and automatically or manually assign the most optimal vehicle and driver for the job."
       }
     },
     "analytics": {
       "headerStep": {
-        "title": "Analytics Dashboard",
-        "description": "Deep-dive into your operational performance. Select time ranges and export reports for stakeholder review."
+        "title": "Advanced Analytics Dashboard",
+        "description": "Welcome to your data intelligence hub. Dive deep into the operational health of your business. You can dynamically adjust time ranges, filter data by specific branches or regions, and export comprehensive reports for stakeholder reviews and strategic planning."
       },
       "gaugesStep": {
         "title": "Performance Gauges",
-        "description": "Visual indicators for on-time delivery rate, fleet utilization, and customer satisfaction scores against targets."
+        "description": "These dynamic gauges measure your performance against predefined targets. Watch your 'On-Time Delivery Rate', 'Fleet Utilization Percentage', and 'Customer Satisfaction Scores' fluctuate in real-time, giving you an immediate sense of how well your operations are running."
       },
       "forecastStep": {
-        "title": "AI Forecasting",
-        "description": "Machine learning-powered shipment volume predictions. Compare actual vs predicted trends to plan capacity ahead."
+        "title": "AI-Powered Forecasting",
+        "description": "Leverage our machine learning models to anticipate future demand. This chart compares your historical shipment volumes against predicted future trends, empowering you to proactively plan capacity, scale your workforce, and avoid supply chain bottlenecks before they happen."
       },
       "costStep": {
-        "title": "Cost Analysis",
-        "description": "Break down operational costs by category — fuel, maintenance, and overhead — with trend analysis over time."
+        "title": "Operational Cost Analysis",
+        "description": "Keep your expenses strictly under control. This detailed breakdown categorizes your spending across fuel consumption, fleet maintenance, and general overhead. Identify cost trends over time and find new opportunities to optimize your profit margins."
       }
     },
     "warehouses": {
       "tableStep": {
-        "title": "Warehouse Management",
-        "description": "View all warehouses, their capacity utilization, locations, and operational status."
+        "title": "Warehouse Directory",
+        "description": "A top-down view of your entire storage infrastructure. Monitor every warehouse facility, review their current pallet and volume capacity utilization, and check their operational status. This is crucial for load balancing and inventory distribution."
       },
       "addStep": {
-        "title": "Add Warehouse",
-        "description": "Register a new warehouse location with address, capacity, operating hours, and contact details."
+        "title": "Add a New Warehouse",
+        "description": "Expanding your footprint? Click here to register a new storage facility into the LogiTrack network. You'll set up its physical address, define precise capacity limits (pallets/volume), establish operating hours, and designate the responsible warehouse manager."
       }
     },
     "drivers": {
       "tableStep": {
-        "title": "Driver Management",
-        "description": "Manage your driver roster. View license status, availability, performance ratings, and assigned vehicles."
+        "title": "Driver Roster",
+        "description": "Manage the human engine of your logistics network. This comprehensive list shows all your registered drivers, their real-time duty status, performance ratings, and current vehicle assignments. Keep an eye on compliance with automated license expiration warnings."
       },
       "addStep": {
-        "title": "Add Driver",
-        "description": "Register a new driver with license details, contact info, and vehicle assignment."
+        "title": "Onboard a New Driver",
+        "description": "Add new talent to your team. Registering a driver requires filling in their personal contact info, license class, expiration dates, and any special certifications (like Hazmat). Once added, they can immediately log into the Driver App and start receiving route assignments."
       }
     },
     "routes": {
       "tableStep": {
-        "title": "Route Planning",
-        "description": "View and manage delivery routes. See route details, stops, estimated times, and assigned vehicles."
+        "title": "Route Planning & Execution",
+        "description": "Command your delivery operations from this view. Monitor all planned, active, and completed delivery routes. You can inspect multi-stop itineraries, review estimated vs actual arrival times, and see exactly which driver and vehicle are executing each route."
       },
       "addStep": {
-        "title": "Create Route",
-        "description": "Plan a new delivery route by adding stops, assigning vehicles, and setting estimated arrival times."
+        "title": "Generate a New Route",
+        "description": "Click here to craft a new multi-stop delivery journey. Our intelligent routing tool will help you sequence customer stops efficiently, automatically calculate total distance and duration, and allow you to seamlessly dispatch the route to an available driver."
       }
     },
     "inventory": {
       "tableStep": {
-        "title": "Inventory Overview",
-        "description": "Track stock levels across all warehouses. Monitor SKUs, quantities, and reorder points."
+        "title": "Global Inventory Overview",
+        "description": "Achieve total visibility over your stored assets. Track live stock levels across all your connected warehouses simultaneously. Monitor specific SKUs, identify low stock items reaching their reorder thresholds, and track product allocation to active shipments."
       },
       "addStep": {
-        "title": "Add Inventory Item",
-        "description": "Add new inventory items with SKU, category, warehouse assignment, and stock thresholds."
+        "title": "Register New Inventory Item",
+        "description": "Introduce new products into your catalog. Define the SKU, product name, physical dimensions (weight/volume), and assign it to a specific zone within a warehouse. Setting minimum stock alerts here ensures you never run out of critical inventory."
       }
     },
     "customers": {
       "tableStep": {
         "title": "Customer Directory",
-        "description": "Manage your customer database. View contact details, shipping addresses, and order history."
+        "description": "Your centralized CRM for logistics. Manage your entire customer database, track their historical orders, and manage multiple delivery locations per client. This ensures your dispatchers always have the correct contact and billing information at their fingertips."
       },
       "addStep": {
-        "title": "Add Customer",
-        "description": "Register a new customer with company details, contact information, and delivery preferences."
+        "title": "Add a New Customer",
+        "description": "Onboarding a new client? Register their primary business details, tax identification, and key contact personnel here. You can then add multiple default delivery locations, streamlining the shipment creation process for future orders."
       }
     },
     "reports": {
+      "tabsStep": {
+        "title": "Report Categories",
+        "description": "Navigate between different operational domains using these tabs. You can switch focus instantly from 'Shipment' performance metrics, to 'Fleet' efficiency analytics, and finally to detailed 'Inventory' movement reports without losing your context."
+      },
       "contentStep": {
-        "title": "Reports Center",
-        "description": "Generate and view operational reports. Export data in various formats for compliance and analysis."
+        "title": "Reporting Center",
+        "description": "Your central hub for data extraction. Generate deep, customizable reports covering everything from fuel efficiency and driver performance to delayed shipments and financial summaries. Export your findings in PDF or Excel formats for auditing and compliance."
+      }
+    },
+    "company": {
+      "kpiStep": {
+        "title": "Company Overview",
+        "description": "These dynamic cards display the overall size and scope of your company. Keep track of your total users, vehicles, drivers, warehouses, customers, and active shipments at a single glance. Trends are calculated automatically to show your growth."
+      },
+      "infoStep": {
+        "title": "Company Profile",
+        "description": "This section contains your core business information, including your official company name, tax identification, and registered address. Keeping this updated ensures seamless billing and compliance across the platform."
+      },
+      "membersStep": {
+        "title": "Team Management",
+        "description": "Manage your entire workforce from this directory. You can review all registered team members, check their assigned roles (such as Dispatcher, Driver, or Warehouse Manager), and monitor their active status within the organization."
+      },
+      "addMemberStep": {
+        "title": "Invite New Member",
+        "description": "Growing your team? Click here to invite a new user to your company workspace. You will securely assign them a role and permissions, ensuring they only have access to the modules they need for their specific job."
       }
     },
     "warehouseWorker": {
       "sidebarStep": {
-        "title": "Navigation Menu",
-        "description": "Use this menu to quickly switch between Dashboard, Scan, Tasks, Capacity, and Activity views."
+        "title": "Main Navigation Menu",
+        "description": "Welcome to your mobile-friendly Warehouse Workspace! Use this sidebar to swiftly navigate between your primary duties: checking your Dashboard, Scanning items, managing Tasks, monitoring Zone Capacity, and reviewing the live Activity Feed."
       },
       "dashboardPicksStep": {
-        "title": "Key Performance Indicators",
-        "description": "Track your daily picking and packing progress against your targets."
+        "title": "Your Performance Metrics",
+        "description": "Stay motivated and on track. These indicators show your personal picking and packing progress for your current shift against your daily targets. It's a great way to measure your efficiency and ensure smooth operations."
       },
       "dashboardControlStep": {
-        "title": "Zone Control",
-        "description": "Change your active working zone to receive relevant tasks and alerts."
+        "title": "Active Zone Control",
+        "description": "Working in a different area today? Use this control panel to set your current active working zone. Doing so ensures that you only receive tasks, pick-lists, and alerts relevant to your immediate physical location in the warehouse."
       },
       "dashboardQuickStep": {
-        "title": "Quick Actions",
-        "description": "Instantly report issues or request restocks for your active zone."
+        "title": "Emergency Quick Actions",
+        "description": "Your fast lane for resolving on-the-floor problems. If you encounter a damaged product, a misplaced pallet, or need an urgent restock for your picking lane, use these quick action buttons to instantly alert management without leaving your station."
       },
       "scanSectionStep": {
-        "title": "Barcode Scanner",
-        "description": "Scan product barcodes or SKUs here to log movements into the system."
+        "title": "Smart Barcode Scanner",
+        "description": "The core of your daily workflow. Use this section to scan product barcodes, QR codes, or SKUs. Whether you are receiving goods, picking items for an order, or transferring stock between zones, scanning ensures perfect inventory accuracy."
       },
       "taskListStep": {
-        "title": "Your Task Queue",
-        "description": "Manage your assigned tasks, prioritizing items marked as 'HIGH'."
+        "title": "Your Active Task Queue",
+        "description": "Your personalized to-do list. This queue is intelligently sorted, ensuring that 'CRITICAL' and 'HIGH' priority tasks always float to the top. Simply click on a task to view the precise aisle and bin locations for your next pick or put-away."
       },
       "capacityChartStep": {
-        "title": "Overall Capacity",
-        "description": "A high-level view of how many pallet positions are currently occupied in the entire facility."
+        "title": "Global Facility Capacity",
+        "description": "A macro-level visualization of the entire warehouse's physical storage limits. This chart gives you an instant reading of how many total pallet positions are currently occupied versus how much free space remains across the entire building."
       },
       "capacityZoneStep": {
-        "title": "Zone Breakdown",
-        "description": "Detailed breakdown of capacity utilization per zone. Helps identify bottlenecks."
+        "title": "Detailed Zone Breakdown",
+        "description": "Drill down into the details. This list breaks down the capacity utilization strictly by individual zones or aisles. It's an essential tool for identifying overcrowded bottlenecks and discovering empty zones perfect for incoming bulk shipments."
       },
       "activityFeedStep": {
-        "title": "Live Activity",
-        "description": "Real-time feed of all inventory movements happening across the site."
+        "title": "Live Operations Feed",
+        "description": "Keep your finger on the pulse of the warehouse. This real-time feed streams every single inventory movement, task completion, and status update happening across the facility. It provides incredible transparency and helps teams coordinate seamlessly."
       }
     }
   },
@@ -376,7 +403,8 @@
     "completeRegistration": "Complete Registration",
     "continue": "Continue",
     "unexpectedError": "An unexpected network error occurred.",
-    "loginFailed": "Login failed"
+    "loginFailed": "Login failed",
+    "resetLinkSent": "Password reset link sent to your email!"
   },
   "landing": {
     "metaTitle": "LogiTrack – AI Logistics Management Platform",
@@ -1288,7 +1316,9 @@
     "integer": "{field} must be a whole number",
     "positive": "{field} must be a positive number",
     "url": "Invalid URL",
-    "genericFormError": "Please fill in required fields correctly"
+    "genericFormError": "Please fill in required fields correctly",
+    "passwordsMatch": "Passwords must match",
+    "endTimeAfterStart": "End time must be after start time"
   },
   "overview": {
     "title": "Overview",
@@ -1400,7 +1430,8 @@
       "transmission": "Transmission",
       "techNotes": "Technical Notes",
       "priority": "Priority",
-      "serviceType": "Service Type"
+      "serviceType": "Service Type",
+      "fuelConsumption": "Fuel Consumption"
     },
     "transmissionTypes": {
       "AUTOMATIC": "Automatic",
@@ -1738,7 +1769,8 @@
         "phone": "e.g. +1 555 123 4567",
         "license": "e.g. DL-485920394",
         "licenseFormat": "PNG, JPG OR HEIC (MAX 10MB)"
-      }
+      },
+      "employee": "Employee"
     },
     "tabs": {
       "overview": "Overview",
@@ -1807,7 +1839,13 @@
       "mainOffice": "Main Office",
       "phone": "Phone",
       "email": "Email",
-      "selectIndustry": "Select an industry"
+      "selectIndustry": "Select an industry",
+      "currency": "Currency",
+      "role": "Role",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "status": "Status",
+      "locationName": "Location Name"
     }
   },
   "industries": {
@@ -1976,7 +2014,8 @@
       "unitValue": "Unit Value",
       "weight": "Weight",
       "volume": "Volume",
-      "pallets": "Pallets"
+      "pallets": "Pallets",
+      "unit": "Unit"
     },
     "categories": {
       "electronics": "Electronics",
@@ -2298,6 +2337,16 @@
         "pallet": "Palet",
         "standardBilling": "Standard Billing (Net 30)"
       }
+    },
+    "fields": {
+      "priority": "Priority",
+      "shipmentType": "Shipment Type",
+      "slaDeadline": "SLA Deadline",
+      "originWarehouse": "Origin Warehouse",
+      "destination": "Destination",
+      "palletCount": "Pallet Count",
+      "weight": "Weight",
+      "volume": "Volume"
     }
   },
   "routes": {
@@ -2433,6 +2482,16 @@
         "locations": "Locations",
         "assignments": "Assignments"
       }
+    },
+    "fields": {
+      "name": "Name",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "startAddress": "Start Address",
+      "endAddress": "End Address",
+      "driver": "Driver",
+      "vehicle": "Vehicle",
+      "address": "Address"
     }
   },
   "warehouses": {
@@ -2541,6 +2600,15 @@
         "guidance": "Operational Guidance Notes",
         "guidanceText": "Ensure that hazardous material certifications are up-to-date and facility complies with local safety standards before finalizing."
       }
+    },
+    "fields": {
+      "code": "Code",
+      "type": "Type",
+      "timezone": "Timezone",
+      "address": "Address",
+      "city": "City",
+      "country": "Country",
+      "capacity": "Capacity"
     }
   },
   "toasts": {
@@ -2874,13 +2942,20 @@
       "shipment": {
         "analyticsTitle": "Shipment Analytics",
         "volumeByRoute": "Volume by Route",
-        "volumeByRouteSubtitle": "Total shipments per route code"
+        "volumeByRouteSubtitle": "Total shipments per route code",
+        "statusDistribution": "Status Distribution"
       },
       "inventoryCategories": {
         "Electronics": "Electronics",
         "Furniture": "Furniture",
         "Apparel": "Apparel",
-        "Industrial": "Industrial"
+        "Industrial": "Industrial",
+        "Automotive Parts": "Automotive Parts",
+        "Perishable": "Perishable",
+        "General Cargo": "General Cargo",
+        "Hazardous Material": "Hazardous Material",
+        "Textile": "Textile",
+        "Construction Materials": "Construction Materials"
       }
     }
   },

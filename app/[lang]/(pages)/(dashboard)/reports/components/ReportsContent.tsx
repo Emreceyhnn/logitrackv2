@@ -78,6 +78,7 @@ export default function ReportsContent() {
 
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <Tabs
+          data-tour="report-tabs"
           value={tabIndex}
           onChange={handleChange}
           aria-label="report tabs"

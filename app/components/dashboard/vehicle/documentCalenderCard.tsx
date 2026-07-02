@@ -1,8 +1,12 @@
 "use client";
 import { useEffect } from "react";
 import dayjs from "dayjs";
-import "dayjs/locale/tr";
-import "dayjs/locale/en";
+import trLocale from "dayjs/locale/tr";
+import enLocale from "dayjs/locale/en";
+
+dayjs.locale("tr", trLocale);
+dayjs.locale("en", enLocale);
+
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";

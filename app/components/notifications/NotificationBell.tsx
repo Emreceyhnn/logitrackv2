@@ -29,12 +29,15 @@ import { AuthenticatedUser } from "@/app/lib/auth-middleware";
 import { getStatusColor, resolveStatusAlpha } from "@/app/lib/priorityColor";
 import { formatSmartTimestamp } from "@/app/lib/utils/date";
 import { useNotifications } from "@/app/hooks/useNotifications";
+import { getLocalizedNotification } from "@/app/lib/language/notificationTranslator";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 
 export default function NotificationBell({}: {
   user: AuthenticatedUser | null;
 }) {
   const theme = useTheme();
   const dict = useDictionary();
+  const { lang } = useLanguage();
   const dateSettings = useDateSettings();
   const { user: contextUser } = useUser();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -217,28 +220,35 @@ export default function NotificationBell({}: {
             </Box>
           ) : (
             <List disablePadding>
-              {notifications.map((notif) => (
-                <ListItem
-                  key={notif.id}
-                  disablePadding
-                  sx={{
-                    mb: 1,
-                    borderRadius: 3,
-                    transition: "all 0.2s",
-                    position: "relative",
-                    bgcolor: notif.isRead
-                      ? "transparent"
-                      : theme.palette.action.hover,
-                    border: "1px solid",
-                    borderColor: notif.isRead
-                      ? "transparent"
-                      : theme.palette.divider,
-                    "&:hover": {
-                      bgcolor: theme.palette.action.hover,
-                      borderColor: resolveStatusAlpha(notif.type),
-                    },
-                  }}
-                >
+              {notifications.map((notif) => {
+                const { title, message } = getLocalizedNotification(
+                  notif.title,
+                  notif.message,
+                  lang
+                );
+
+                return (
+                  <ListItem
+                    key={notif.id}
+                    disablePadding
+                    sx={{
+                      mb: 1,
+                      borderRadius: 3,
+                      transition: "all 0.2s",
+                      position: "relative",
+                      bgcolor: notif.isRead
+                        ? "transparent"
+                        : theme.palette.action.hover,
+                      border: "1px solid",
+                      borderColor: notif.isRead
+                        ? "transparent"
+                        : theme.palette.divider,
+                      "&:hover": {
+                        bgcolor: theme.palette.action.hover,
+                        borderColor: resolveStatusAlpha(notif.type),
+                      },
+                    }}
+                  >
                   <Box
                     sx={{
                       width: 4,
@@ -268,7 +278,7 @@ export default function NotificationBell({}: {
                           lineHeight: 1.2,
                         }}
                       >
-                        {notif.title}
+                        {title}
                       </Typography>
                       <Stack direction="row">
                         {!notif.isRead && (
@@ -299,14 +309,20 @@ export default function NotificationBell({}: {
                     </Box>
                     <Typography
                       variant="body2"
+                      color="text.secondary"
                       sx={{
-                        color: "text.secondary",
-                        fontSize: "0.75rem",
-                        lineHeight: 1.4,
+                        mt: 0.5,
                         mb: 1,
+                        fontSize: "0.8rem",
+                        lineHeight: 1.4,
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        opacity: notif.isRead ? 0.7 : 1,
                       }}
                     >
-                      {notif.message}
+                      {message}
                     </Typography>
                     <Typography
                       variant="caption"
@@ -321,7 +337,8 @@ export default function NotificationBell({}: {
                     </Typography>
                   </Stack>
                 </ListItem>
-              ))}
+              );
+            })}
             </List>
           )}
         </Box>

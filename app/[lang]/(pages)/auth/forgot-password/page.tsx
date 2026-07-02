@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { ArrowBack } from "@mui/icons-material";
 import { toast } from "sonner";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function ForgotPasswordPage() {
+  const dict = useDictionary();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -18,7 +20,7 @@ export default function ForgotPasswordPage() {
     // Mock API call
     setTimeout(() => {
       setIsSubmitting(false);
-      toast.success("Password reset link sent to your email!");
+      toast.success(dict.auth?.resetLinkSent || "Password reset link sent to your email!");
       setEmail("");
     }, 1500);
   };

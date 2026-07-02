@@ -3,12 +3,18 @@ import { BarChart } from "@mui/x-charts";
 import CustomCard from "../../cards/card";
 import { ShipmentDayStat } from "@/app/lib/type/overview";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
-import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
+import {
+  useDictionary,
+  useLanguage,
+} from "@/app/lib/language/DictionaryContext";
 import TimeRangeSelector, { TimeRange } from "../../charts/TimeRangeSelector";
 import { useState, useMemo } from "react";
 import dayjs from "dayjs";
-import "dayjs/locale/tr";
-import "dayjs/locale/en";
+import trLocale from "dayjs/locale/tr";
+import enLocale from "dayjs/locale/en";
+
+dayjs.locale("tr", trLocale);
+dayjs.locale("en", enLocale);
 import customParseFormat from "dayjs/plugin/customParseFormat";
 
 dayjs.extend(customParseFormat);
@@ -23,28 +29,52 @@ const ShipmentVolumeCard = ({ values }: ShipmentVolumeCardProps) => {
   const safeLang = ["en", "tr"].includes(lang) ? lang : "en";
   const [range, setRange] = useState<TimeRange>("1m");
 
-  // Server emits the axis label as an English "MMM DD" string, or possibly ISO dates;
-  // reformat it to the active locale for display without changing the underlying data.
+  const translateMonthToTr = (str: string) => {
+    return str
+      .replace(/January|Jan/i, "Oca")
+      .replace(/February|Feb/i, "Şub")
+      .replace(/March|Mar/i, "Mar")
+      .replace(/April|Apr/i, "Nis")
+      .replace(/May/i, "May")
+      .replace(/June|Jun/i, "Haz")
+      .replace(/July|Jul/i, "Tem")
+      .replace(/August|Aug/i, "Ağu")
+      .replace(/September|Sep/i, "Eyl")
+      .replace(/October|Oct/i, "Eki")
+      .replace(/November|Nov/i, "Kas")
+      .replace(/December|Dec/i, "Ara");
+  };
+
   const formatAxisDate = (value: string) => {
-    // Check if the string contains any digits. 
-    // If it doesn't (like "Jun" or "June"), we should only output the localized month.
     const hasDigits = /\d/.test(value);
 
-    let parsed = dayjs(value, ["MMM DD", "MMM D", "DD MMM", "D MMM", "MMM", "MMMM", "YYYY-MM-DD"], "en");
-    
+    let parsed = dayjs(
+      value,
+      ["MMM DD", "MMM D", "DD MMM", "D MMM", "MMM", "MMMM", "YYYY-MM-DD"],
+      "en"
+    );
+
     if (!parsed.isValid()) {
       parsed = dayjs(value);
     }
-    
-    if (!parsed.isValid()) return value;
 
-    if (!hasDigits) {
-      return parsed.locale(safeLang).format("MMM");
+    let result = value;
+
+    if (parsed.isValid()) {
+      if (!hasDigits) {
+        result = parsed.locale(safeLang).format("MMM");
+      } else {
+        result = safeLang === "tr"
+          ? parsed.locale("tr").format("DD MMM")
+          : parsed.locale("en").format("MMM DD");
+      }
     }
 
-    return safeLang === "tr" 
-      ? parsed.locale("tr").format("DD MMM") 
-      : parsed.locale("en").format("MMM DD");
+    if (safeLang === "tr") {
+      return translateMonthToTr(parsed.isValid() ? result : value);
+    }
+
+    return result;
   };
 
   const filteredValues = useMemo(() => {

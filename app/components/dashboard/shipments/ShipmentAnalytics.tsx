@@ -5,7 +5,7 @@ import { PieChart } from "@mui/x-charts/PieChart";
 import { useMemo } from "react";
 import { ShipmentAnalyticsProps } from "@/app/lib/type/shipment";
 import AnalyticsSkeleton from "@/app/components/skeletons/AnalyticsSkeleton";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
 
 export default function ShipmentAnalytics({
   state,
@@ -36,12 +36,28 @@ export default function ShipmentAnalytics({
     });
   }, [statusDistribution, theme, dict]);
 
+  const { lang } = useLanguage();
+  const safeLang = ["en", "tr"].includes(lang) ? lang : "en";
+
+  const translateDayToTr = (day: string) => {
+    switch (day) {
+      case "Sun": return "Paz";
+      case "Mon": return "Pzt";
+      case "Tue": return "Sal";
+      case "Wed": return "Çar";
+      case "Thu": return "Per";
+      case "Fri": return "Cum";
+      case "Sat": return "Cmt";
+      default: return day;
+    }
+  };
+
   const barData = useMemo(() => {
     return volumeHistory.map((item) => ({
-      day: item.day,
+      day: safeLang === "tr" ? translateDayToTr(item.day) : item.day,
       volume: item.volume,
     }));
-  }, [volumeHistory]);
+  }, [volumeHistory, safeLang]);
 
   if (loading) {
     return (

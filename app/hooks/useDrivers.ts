@@ -25,6 +25,7 @@ import { DriverStatus } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 
 import { driverKeys } from "@/app/lib/query-keys/driver.keys";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 async function fetchDrivers(
   page: number,
@@ -217,6 +218,7 @@ export function useDriverWithDashboard(
 }
 
 export function useDriverMutations() {
+  const dict = useDictionary();
   const queryClient = useQueryClient();
 
   const handleSuccess = (message: string) => {
@@ -232,8 +234,8 @@ export function useDriverMutations() {
   const createMutation = useMutation({
     mutationFn: (data: Parameters<typeof createDriver>[0]) =>
       createDriver(data),
-    onSuccess: () => handleSuccess("Driver created successfully"),
-    onError: (error: Error) => handleError("Failed to create driver", error),
+    onSuccess: () => handleSuccess(dict.toasts.successAdd),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const updateMutation = useMutation({
@@ -244,22 +246,22 @@ export function useDriverMutations() {
       id: string;
       data: Parameters<typeof updateDriver>[1];
     }) => updateDriver(id, data),
-    onSuccess: () => handleSuccess("Driver updated successfully"),
-    onError: (error: Error) => handleError("Failed to update driver", error),
+    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteDriver(id),
-    onSuccess: () => handleSuccess("Driver deleted successfully"),
-    onError: (error: Error) => handleError("Failed to delete driver", error),
+    onSuccess: () => handleSuccess(dict.toasts.successDelete),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const statusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: DriverStatus }) =>
       updateDriverStatus(id, status),
-    onSuccess: () => handleSuccess("Driver status updated successfully"),
+    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
     onError: (error: Error) =>
-      handleError("Failed to update driver status", error),
+      handleError(dict.toasts.errorGeneric, error),
   });
 
   const assignMutation = useMutation({

@@ -9,7 +9,8 @@ import CustomCard from "../../cards/card";
 import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { RouteNotification, RouteEfficiencyStats } from "@/app/lib/type/routes";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { useDictionary, useLanguage } from "@/app/lib/language/DictionaryContext";
+import { getLocalizedNotification } from "@/app/lib/language/notificationTranslator";
 
 
 interface RouteEfficiencyProps {
@@ -19,6 +20,7 @@ interface RouteEfficiencyProps {
 
 const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
   const dict = useDictionary();
+  const { lang } = useLanguage();
 
   if (loading || !data) {
     return (
@@ -152,30 +154,38 @@ const RouteEfficiency = ({ data, loading }: RouteEfficiencyProps) => {
         <Stack spacing={1} maxHeight={104} overflow={"auto"}>
           {data.recentNotifications.length > 0 ? (
             data.recentNotifications.map(
-              (notif: RouteNotification, index: number) => (
-                <Stack
-                  key={index}
-                  direction={"row"}
-                  alignItems={"center"}
-                  spacing={2}
-                >
-                  <WarningIcon sx={{ color: "error.main" }} />
-                  <Stack>
-                    <Typography sx={{ fontSize: 18, fontWeight: 400 }}>
-                      {notif.title || dict.routes.dashboard.notification}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontSize: 14,
-                        fontWeight: 200,
-                        color: "text.secondary",
-                      }}
-                    >
-                      {notif.message || ""}
-                    </Typography>
+              (notif: RouteNotification, index: number) => {
+                const { title, message } = getLocalizedNotification(
+                  notif.title || "",
+                  notif.message || "",
+                  lang
+                );
+                
+                return (
+                  <Stack
+                    key={index}
+                    direction={"row"}
+                    alignItems={"center"}
+                    spacing={2}
+                  >
+                    <WarningIcon sx={{ color: "error.main" }} />
+                    <Stack>
+                      <Typography sx={{ fontSize: 18, fontWeight: 400 }}>
+                        {title || dict.routes.dashboard.notification}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: 14,
+                          fontWeight: 200,
+                          color: "text.secondary",
+                        }}
+                      >
+                        {message}
+                      </Typography>
+                    </Stack>
                   </Stack>
-                </Stack>
-              )
+                );
+              }
             )
           ) : (
             <Stack

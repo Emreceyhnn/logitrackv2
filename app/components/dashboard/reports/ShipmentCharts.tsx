@@ -37,12 +37,17 @@ export default function ShipmentCharts({
     CANCELLED: theme.palette.error.main,
   };
 
-  const statusPieData = (data?.statusCounts || []).map((s, index) => ({
-    id: index,
-    value: s.count,
-    label: s.status.replace("_", " "),
-    color: statusColors[s.status] || theme.palette.secondary.main,
-  }));
+  const statusPieData = (data?.statusCounts || []).map((s, index) => {
+    const statusKey = s.status.toLocaleUpperCase('en-US');
+    const localizedStatus = dict.routes.statuses[statusKey as keyof typeof dict.routes.statuses] || s.status.replace("_", " ");
+    
+    return {
+      id: index,
+      value: s.count,
+      label: localizedStatus,
+      color: statusColors[s.status] || theme.palette.secondary.main,
+    };
+  });
 
   const cardStyle = {
     p: 3,
@@ -84,7 +89,7 @@ export default function ShipmentCharts({
             </Box>
             <Box>
               <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.01em" }}>
-                Status Distribution
+                {dict.reports.charts.shipment.statusDistribution}
               </Typography>
             </Box>
           </Stack>

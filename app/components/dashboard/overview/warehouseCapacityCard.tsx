@@ -37,7 +37,7 @@ const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
       </Typography>
       <Divider />
 
-      <Box sx={{ flexGrow: 1, p: 2, overflowY: "auto" }}>
+      <Box sx={{ flexGrow: 1, p: 2, overflowY: "auto", maxHeight: 270 }}>
         {values.length === 0 ? (
           <Stack
             alignItems="center"
@@ -104,12 +104,18 @@ const WarehouseCapacityCard = ({ values }: WarehouseCapacityCardProps) => {
                     <Typography variant="caption" color="text.secondary">
                       {dict.dashboard.overview.warehouseUtilization.palletsUnit
                         .replace("{used}", w.palletUsed.toLocaleString("en-US"))
-                        .replace("{total}", w.palletCapacity.toLocaleString("en-US"))}
+                        .replace(
+                          "{total}",
+                          w.palletCapacity.toLocaleString("en-US")
+                        )}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {dict.dashboard.overview.warehouseUtilization.volumeUnit
                         .replace("{used}", w.volumeUsed.toLocaleString("en-US"))
-                        .replace("{total}", w.volumeCapacity.toLocaleString("en-US"))}
+                        .replace(
+                          "{total}",
+                          w.volumeCapacity.toLocaleString("en-US")
+                        )}
                     </Typography>
                   </Stack>
                 </Stack>

@@ -20,6 +20,7 @@ import type { Warehouse } from "@/app/lib/type/enums";
 import { toast } from "sonner";
 
 import { warehouseKeys } from "@/app/lib/query-keys/warehouse.keys";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import {
   WarehouseWithRelations,
   WarehouseStats,
@@ -139,6 +140,7 @@ export function useWarehousesWithDashboard(
 
 export function useWarehouseMutations() {
   const queryClient = useQueryClient();
+  const dict = useDictionary();
 
   const handleSuccess = (message: string) => {
     queryClient.invalidateQueries({ queryKey: warehouseKeys.all });
@@ -183,28 +185,28 @@ export function useWarehouseMutations() {
         data.timezone,
         data.specifications
       ),
-    onSuccess: () => handleSuccess("Warehouse created successfully"),
-    onError: (error: Error) => handleError("Failed to create warehouse", error),
+    onSuccess: () => handleSuccess(dict.toasts.successAdd),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Warehouse> }) =>
       updateWarehouse(id, data),
-    onSuccess: () => handleSuccess("Warehouse updated successfully"),
-    onError: (error: Error) => handleError("Failed to update warehouse", error),
+    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteWarehouse(id),
-    onSuccess: () => handleSuccess("Warehouse deleted successfully"),
-    onError: (error: Error) => handleError("Failed to delete warehouse", error),
+    onSuccess: () => handleSuccess(dict.toasts.successDelete),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const assignManagerMutation = useMutation({
-    mutationFn: ({ id, managerId }: { id: string; managerId: string }) =>
-      assignManagerToWarehouse(id, managerId),
-    onSuccess: () => handleSuccess("Manager assigned successfully"),
-    onError: (error: Error) => handleError("Failed to assign manager", error),
+    mutationFn: ({ warehouseId, userId }: { warehouseId: string; userId: string }) => assignManagerToWarehouse(warehouseId, userId),
+    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
+    onError: (error: Error) =>
+      handleError(dict.toasts.errorGeneric, error),
   });
 
   return {

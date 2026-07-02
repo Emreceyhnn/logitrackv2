@@ -40,6 +40,19 @@ const trailerControllerMock = {
   assignTrailerToVehicle: mock.fn(),
 };
 
+
+const dictContextMock = {
+  useDictionary: mock.fn(() => ({
+    toasts: {
+      successAdd: "Added",
+      successUpdate: "Updated",
+      successDelete: "Deleted",
+      errorGeneric: "Error",
+    },
+  })),
+};
+mock.module("../lib/language/DictionaryContext.tsx", { namedExports: dictContextMock });
+
 mock.module("@tanstack/react-query", { namedExports: reactQueryMock });
 mock.module("sonner", { namedExports: sonnerMock });
 mock.module("../lib/controllers/trailer.ts", { namedExports: trailerControllerMock });

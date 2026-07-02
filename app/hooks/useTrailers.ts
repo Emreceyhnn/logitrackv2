@@ -14,6 +14,7 @@ import type { Trailer } from "@/app/lib/type/enums";
 import { trailerKeys } from "@/app/lib/query-keys/trailer.keys";
 import { vehicleKeys } from "@/app/lib/query-keys/vehicle.keys";
 import { toast } from "sonner";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 async function fetchTrailers(filters: TrailerFilters): Promise<{
   trailers: import("@/app/lib/type/trailer").TrailerWithRelations[];
@@ -93,6 +94,7 @@ export function useTrailer(id: string) {
 }
 
 export function useTrailerMutations() {
+  const dict = useDictionary();
   const queryClient = useQueryClient();
 
   const handleSuccess = (message: string) => {
@@ -108,27 +110,27 @@ export function useTrailerMutations() {
 
   const createMut = useMutation({
     mutationFn: (data: Partial<Trailer>) => createTrailer(data),
-    onSuccess: () => handleSuccess("Trailer created successfully"),
-    onError: (error: Error) => handleError("Failed to create trailer", error),
+    onSuccess: () => handleSuccess(dict.toasts.successAdd),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const updateMut = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Trailer> }) => updateTrailer(id, data),
-    onSuccess: () => handleSuccess("Trailer updated successfully"),
-    onError: (error: Error) => handleError("Failed to update trailer", error),
+    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const deleteMut = useMutation({
     mutationFn: (id: string) => deleteTrailer(id),
-    onSuccess: () => handleSuccess("Trailer deleted successfully"),
-    onError: (error: Error) => handleError("Failed to delete trailer", error),
+    onSuccess: () => handleSuccess(dict.toasts.successDelete),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   const assignMut = useMutation({
     mutationFn: ({ trailerId, vehicleId }: { trailerId: string; vehicleId: string | null }) =>
       assignTrailerToVehicle(trailerId, vehicleId),
-    onSuccess: () => handleSuccess("Trailer assignment updated successfully"),
-    onError: (error: Error) => handleError("Failed to update trailer assignment", error),
+    onSuccess: () => handleSuccess(dict.toasts.successUpdate),
+    onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),
   });
 
   return {

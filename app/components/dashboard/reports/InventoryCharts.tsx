@@ -17,14 +17,19 @@ export default function InventoryCharts({ data, dict }: InventoryChartsProps) {
 
   // Convert Record to Array for charts
   const categories = Object.keys(data);
-  const chartData = categories.map((cat) => ({
-    category:
-      (dict.reports.charts.inventoryCategories as Record<string, string>)[
-        cat
-      ] || cat,
-    value: data[cat].value,
-    count: data[cat].count,
-  }));
+  const inventoryDict = dict.reports.charts.inventoryCategories as Record<string, string>;
+
+  const chartData = categories.map((cat) => {
+    const dictKey = Object.keys(inventoryDict).find(
+      (k) => k.toLowerCase() === cat.toLowerCase()
+    );
+    
+    return {
+      category: dictKey ? inventoryDict[dictKey] : cat.replace(/_/g, " "),
+      value: data[cat].value,
+      count: data[cat].count,
+    };
+  });
 
   const valuePieData = chartData.map((item, index) => ({
     id: index,

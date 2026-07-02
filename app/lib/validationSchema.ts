@@ -75,9 +75,9 @@ export const getSignUpValidationSchema = (dict: Dictionary) => [
         formatMessage(dict.validation.required, { field: dict.auth.password })
       ),
     repeatPassword: Yup.string()
-      .oneOf([Yup.ref("password")], "Passwords must match")
+      .oneOf([Yup.ref("password")], dict.validation.passwordsMatch || "Passwords must match")
       .required(
-        formatMessage(dict.validation.required, { field: "Repeat password" })
+        formatMessage(dict.validation.required, { field: dict.auth?.repeatPassword || "Repeat password" })
       ),
   }),
   Yup.object({}),
@@ -90,7 +90,7 @@ export const getAddVehicleValidationSchema = (dict: Dictionary) =>
       .optional()
       .min(
         3,
-        formatMessage(dict.validation.min, { field: "Fleet No", min: 3 })
+        formatMessage(dict.validation.min, { field: dict.vehicles?.fields?.fleetNo || "Fleet No", min: 3 })
       ),
     plate: Yup.string()
       .required(
@@ -253,11 +253,11 @@ export const getAddVehicleValidationSchema = (dict: Dictionary) =>
       ),
     avgFuelConsumption: Yup.number()
       .required(
-        formatMessage(dict.validation.required, { field: "Fuel Consumption" })
+        formatMessage(dict.validation.required, { field: dict.vehicles?.fields?.fuelConsumption || "Fuel Consumption" })
       )
       .min(
         0,
-        formatMessage(dict.validation.positive, { field: "Fuel Consumption" })
+        formatMessage(dict.validation.positive, { field: dict.vehicles?.fields?.fuelConsumption || "Fuel Consumption" })
       ),
     techNotes: Yup.string().optional(),
     transmission: Yup.string()
@@ -273,7 +273,7 @@ export const getAddVehicleValidationSchema = (dict: Dictionary) =>
         })
       ),
     engineSize: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Engine Size" })
+      formatMessage(dict.validation.required, { field: dict.vehicles?.fields?.engineSize || "Engine Size" })
     ),
     fuelLevel: Yup.number()
       .required(
@@ -303,17 +303,17 @@ export const getAddVehicleValidationSchema = (dict: Dictionary) =>
       .nullable()
       .min(
         0,
-        formatMessage(dict.validation.positive, { field: "Fuel Capacity" })
+        formatMessage(dict.validation.positive, { field: dict.vehicles?.fields?.fuelCapacity || "Fuel Capacity" })
       )
       .max(
         10_000,
         formatMessage(dict.validation.max, {
-          field: "Fuel Capacity",
+          field: dict.vehicles?.fields?.fuelCapacity || "Fuel Capacity",
           max: "10,000",
         })
       )
       .integer(
-        formatMessage(dict.validation.integer, { field: "Fuel Capacity" })
+        formatMessage(dict.validation.integer, { field: dict.vehicles?.fields?.fuelCapacity || "Fuel Capacity" })
       ),
   });
 
@@ -336,7 +336,7 @@ export const getEditVehicleValidationSchema = (dict: Dictionary) =>
       .optional()
       .min(
         3,
-        formatMessage(dict.validation.min, { field: "Fleet No", min: 3 })
+        formatMessage(dict.validation.min, { field: dict.vehicles?.fields?.fleetNo || "Fleet No", min: 3 })
       ),
     type: Yup.string()
       .required(
@@ -485,10 +485,10 @@ export const getEditVehicleValidationSchema = (dict: Dictionary) =>
       .nullable()
       .min(
         0,
-        formatMessage(dict.validation.positive, { field: "Fuel Consumption" })
+        formatMessage(dict.validation.positive, { field: dict.vehicles?.fields?.fuelConsumption || "Fuel Consumption" })
       ),
     engineSize: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Engine Size" })
+      formatMessage(dict.validation.required, { field: dict.vehicles?.fields?.engineSize || "Engine Size" })
     ),
     transmission: Yup.string()
       .required(
@@ -524,7 +524,7 @@ export const getEditVehicleValidationSchema = (dict: Dictionary) =>
 export const getAddDriverValidationSchema = (dict: Dictionary) =>
   Yup.object({
     userId: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Employee" })
+      formatMessage(dict.validation.required, { field: dict.drivers?.fields?.employee || "Employee" })
     ),
     phone: Yup.string().required(
       formatMessage(dict.validation.required, {
@@ -537,15 +537,15 @@ export const getAddDriverValidationSchema = (dict: Dictionary) =>
       })
     ),
     licenseType: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "License Type" })
+      formatMessage(dict.validation.required, { field: dict.drivers?.fields?.licenseType || "License Type" })
     ),
     licenseExpiry: Yup.date()
       .nullable()
       .required(
-        formatMessage(dict.validation.required, { field: "License Expiry" })
+        formatMessage(dict.validation.required, { field: dict.drivers?.fields?.licenseExpiry || "License Expiry" })
       ),
     employeeId: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Employee ID" })
+      formatMessage(dict.validation.required, { field: dict.drivers?.fields?.employeeId || "Employee ID" })
     ),
     status: Yup.string().required(
       formatMessage(dict.validation.required, {
@@ -571,15 +571,15 @@ export const getEditDriverValidationSchema = (dict: Dictionary) =>
       })
     ),
     licenseType: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "License Type" })
+      formatMessage(dict.validation.required, { field: dict.drivers?.fields?.licenseType || "License Type" })
     ),
     licenseExpiry: Yup.date()
       .nullable()
       .required(
-        formatMessage(dict.validation.required, { field: "License Expiry" })
+        formatMessage(dict.validation.required, { field: dict.drivers?.fields?.licenseExpiry || "License Expiry" })
       ),
     employeeId: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Employee ID" })
+      formatMessage(dict.validation.required, { field: dict.drivers?.fields?.employeeId || "Employee ID" })
     ),
     status: Yup.string().required(
       formatMessage(dict.validation.required, {
@@ -661,7 +661,7 @@ export const getAddInventoryValidationSchema = (dict: Dictionary) =>
         })
       ),
     unit: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Unit" })
+      formatMessage(dict.validation.required, { field: dict.inventory?.fields?.unit || "Unit" })
     ),
     unitValue: Yup.number()
       .nullable()
@@ -705,24 +705,24 @@ export const getAddShipmentValidationSchema = (dict: Dictionary) =>
     trackingId: Yup.string().optional(),
     referenceNumber: Yup.string().optional(),
     priority: Yup.string()
-      .required(formatMessage(dict.validation.required, { field: "Priority" }))
+      .required(formatMessage(dict.validation.required, { field: dict.shipments?.fields?.priority || "Priority" }))
       .oneOf(
         ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
-        formatMessage(dict.validation.oneOf, { field: "Priority" })
+        formatMessage(dict.validation.oneOf, { field: dict.shipments?.fields?.priority || "Priority" })
       ),
     type: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Shipment Type" })
+      formatMessage(dict.validation.required, { field: dict.shipments?.fields?.shipmentType || "Shipment Type" })
     ),
     slaDeadline: Yup.date()
       .nullable()
       .required(
-        formatMessage(dict.validation.required, { field: "SLA Deadline" })
+        formatMessage(dict.validation.required, { field: dict.shipments?.fields?.slaDeadline || "SLA Deadline" })
       ),
     originWarehouseId: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Origin Warehouse" })
+      formatMessage(dict.validation.required, { field: dict.shipments?.fields?.originWarehouse || "Origin Warehouse" })
     ),
     destination: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Destination" })
+      formatMessage(dict.validation.required, { field: dict.shipments?.fields?.destination || "Destination" })
     ),
     customerId: Yup.string().optional(),
     customerLocationId: Yup.string().optional(),
@@ -732,16 +732,16 @@ export const getAddShipmentValidationSchema = (dict: Dictionary) =>
       .optional(),
     palletCount: Yup.number()
       .required(
-        formatMessage(dict.validation.required, { field: "Pallet Count" })
+        formatMessage(dict.validation.required, { field: dict.shipments?.fields?.palletCount || "Pallet Count" })
       )
       .min(0)
       .integer(),
     weightKg: Yup.number()
       .nullable()
-      .min(0, formatMessage(dict.validation.positive, { field: "Weight" })),
+      .min(0, formatMessage(dict.validation.positive, { field: dict.shipments?.fields?.weight || "Weight" })),
     volumeM3: Yup.number()
       .nullable()
-      .min(0, formatMessage(dict.validation.positive, { field: "Volume" })),
+      .min(0, formatMessage(dict.validation.positive, { field: dict.shipments?.fields?.volume || "Volume" })),
   });
 
 export const getEditShipmentValidationSchema = (dict: Dictionary) =>
@@ -763,42 +763,42 @@ export const getEditShipmentValidationSchema = (dict: Dictionary) =>
     palletCount: Yup.number().optional().min(0).integer(),
     weightKg: Yup.number()
       .nullable()
-      .min(0, formatMessage(dict.validation.positive, { field: "Weight" })),
+      .min(0, formatMessage(dict.validation.positive, { field: dict.shipments?.fields?.weight || "Weight" })),
     volumeM3: Yup.number()
       .nullable()
-      .min(0, formatMessage(dict.validation.positive, { field: "Volume" })),
+      .min(0, formatMessage(dict.validation.positive, { field: dict.shipments?.fields?.volume || "Volume" })),
   });
 
 /* --------------------------- Route Validation --------------------------- */
 export const getAddRouteValidationSchema = (dict: Dictionary) =>
   Yup.object().shape({
     name: Yup.string()
-      .required(formatMessage(dict.validation.required, { field: "Name" }))
-      .min(3, formatMessage(dict.validation.min, { field: "Name", min: 3 })),
+      .required(formatMessage(dict.validation.required, { field: dict.routes?.fields?.name || "Name" }))
+      .min(3, formatMessage(dict.validation.min, { field: dict.routes?.fields?.name || "Name", min: 3 })),
     startTime: Yup.date()
       .nullable()
       .required(
-        formatMessage(dict.validation.required, { field: "Start Time" })
+        formatMessage(dict.validation.required, { field: dict.routes?.fields?.startTime || "Start Time" })
       ),
     endTime: Yup.date()
       .nullable()
-      .required(formatMessage(dict.validation.required, { field: "End Time" }))
-      .min(Yup.ref("startTime"), "End time must be after start time"),
+      .required(formatMessage(dict.validation.required, { field: dict.routes?.fields?.endTime || "End Time" }))
+      .min(Yup.ref("startTime"), dict.validation?.endTimeAfterStart || "End time must be after start time"),
     startAddress: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Start Address" })
+      formatMessage(dict.validation.required, { field: dict.routes?.fields?.startAddress || "Start Address" })
     ),
     endAddress: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "End Address" })
+      formatMessage(dict.validation.required, { field: dict.routes?.fields?.endAddress || "End Address" })
     ),
     driverId: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Driver" })
+      formatMessage(dict.validation.required, { field: dict.routes?.fields?.driver || "Driver" })
     ),
     vehicleId: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Vehicle" })
+      formatMessage(dict.validation.required, { field: dict.routes?.fields?.vehicle || "Vehicle" })
     ),
     stops: Yup.array().of(
       Yup.object().shape({
-        address: Yup.string().required("Address is required"),
+        address: Yup.string().required(formatMessage(dict.validation.required, { field: dict.routes?.fields?.address || "Address" })),
         lat: Yup.number().required(),
         lng: Yup.number().required(),
       })
@@ -812,37 +812,37 @@ export const getEditRouteValidationSchema = (dict: Dictionary) =>
 export const getAddWarehouseValidationSchema = (dict: Dictionary) =>
   Yup.object().shape({
     name: Yup.string()
-      .required(formatMessage(dict.validation.required, { field: "Name" }))
-      .min(3, formatMessage(dict.validation.min, { field: "Name", min: 3 })),
+      .required(formatMessage(dict.validation.required, { field: dict.routes?.fields?.name || "Name" }))
+      .min(3, formatMessage(dict.validation.min, { field: dict.routes?.fields?.name || "Name", min: 3 })),
     code: Yup.string()
-      .required(formatMessage(dict.validation.required, { field: "Code" }))
-      .min(3, formatMessage(dict.validation.min, { field: "Code", min: 3 })),
+      .required(formatMessage(dict.validation.required, { field: dict.warehouses?.fields?.code || "Code" }))
+      .min(3, formatMessage(dict.validation.min, { field: dict.warehouses?.fields?.code || "Code", min: 3 })),
     type: Yup.string()
-      .required(formatMessage(dict.validation.required, { field: "Type" }))
+      .required(formatMessage(dict.validation.required, { field: dict.warehouses?.fields?.type || "Type" }))
       .oneOf(
         ["DISTRIBUTION_CENTER", "CROSSDOCK", "WAREHOUSE"],
-        formatMessage(dict.validation.oneOf, { field: "Type" })
+        formatMessage(dict.validation.oneOf, { field: dict.warehouses?.fields?.type || "Type" })
       ),
     timezone: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Timezone" })
+      formatMessage(dict.validation.required, { field: dict.warehouses?.fields?.timezone || "Timezone" })
     ),
     address: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Address" })
+      formatMessage(dict.validation.required, { field: dict.warehouses?.fields?.address || "Address" })
     ),
     city: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "City" })
+      formatMessage(dict.validation.required, { field: dict.warehouses?.fields?.city || "City" })
     ),
     country: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Country" })
+      formatMessage(dict.validation.required, { field: dict.warehouses?.fields?.country || "Country" })
     ),
     capacityPallets: Yup.number()
-      .required(formatMessage(dict.validation.required, { field: "Capacity" }))
-      .min(0, formatMessage(dict.validation.positive, { field: "Capacity" }))
-      .integer(formatMessage(dict.validation.integer, { field: "Capacity" })),
+      .required(formatMessage(dict.validation.required, { field: dict.warehouses?.fields?.capacity || "Capacity" }))
+      .min(0, formatMessage(dict.validation.positive, { field: dict.warehouses?.fields?.capacity || "Capacity" }))
+      .integer(formatMessage(dict.validation.integer, { field: dict.warehouses?.fields?.capacity || "Capacity" })),
     capacityVolumeM3: Yup.number()
-      .required(formatMessage(dict.validation.required, { field: "Volume" }))
-      .min(0, formatMessage(dict.validation.positive, { field: "Volume" }))
-      .integer(formatMessage(dict.validation.integer, { field: "Volume" })),
+      .required(formatMessage(dict.validation.required, { field: dict.shipments?.fields?.volume || "Volume" }))
+      .min(0, formatMessage(dict.validation.positive, { field: dict.shipments?.fields?.volume || "Volume" }))
+      .integer(formatMessage(dict.validation.integer, { field: dict.shipments?.fields?.volume || "Volume" })),
   });
 
 /* --------------------------- Issue Validation --------------------------- */
@@ -879,19 +879,19 @@ export const getCreateCompanyValidationSchema = (dict: Dictionary) =>
     name: Yup.string()
       .min(
         2,
-        formatMessage(dict.validation.min, { field: "Company Name", min: 2 })
+        formatMessage(dict.validation.min, { field: dict.customers?.fields?.companyName || "Company Name", min: 2 })
       )
       .required(
-        formatMessage(dict.validation.required, { field: "Company Name" })
+        formatMessage(dict.validation.required, { field: dict.customers?.fields?.companyName || "Company Name" })
       ),
     industry: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Industry" })
+      formatMessage(dict.validation.required, { field: dict.customers?.fields?.industry || "Industry" })
     ),
     timezone: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Timezone" })
+      formatMessage(dict.validation.required, { field: dict.warehouses?.fields?.timezone || "Timezone" })
     ),
     currency: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Currency" })
+      formatMessage(dict.validation.required, { field: dict.customers?.fields?.currency || "Currency" })
     ),
   });
 
@@ -903,20 +903,20 @@ export const getAddCompanyMemberValidationSchema = (dict: Dictionary) =>
         formatMessage(dict.validation.required, { field: dict.auth.email })
       ),
     role: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Role" })
+      formatMessage(dict.validation.required, { field: dict.customers?.fields?.role || "Role" })
     ),
     firstName: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "First Name" })
+      formatMessage(dict.validation.required, { field: dict.customers?.fields?.firstName || "First Name" })
     ),
     lastName: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Last Name" })
+      formatMessage(dict.validation.required, { field: dict.customers?.fields?.lastName || "Last Name" })
     ),
   });
 
 export const getAddCompanyMemberDriverValidationSchema = (dict: Dictionary) =>
   Yup.object({
     employeeId: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Employee ID" })
+      formatMessage(dict.validation.required, { field: dict.drivers?.fields?.employeeId || "Employee ID" })
     ),
     phone: Yup.string().required(
       formatMessage(dict.validation.required, {
@@ -931,16 +931,16 @@ export const getAddCompanyMemberDriverValidationSchema = (dict: Dictionary) =>
 export const getEditCompanyMemberValidationSchema = (dict: Dictionary) =>
   Yup.object({
     name: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "First Name" })
+      formatMessage(dict.validation.required, { field: dict.customers?.fields?.firstName || "First Name" })
     ),
     surname: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Last Name" })
+      formatMessage(dict.validation.required, { field: dict.customers?.fields?.lastName || "Last Name" })
     ),
     roleId: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Role" })
+      formatMessage(dict.validation.required, { field: dict.customers?.fields?.role || "Role" })
     ),
     status: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Status" })
+      formatMessage(dict.validation.required, { field: dict.customers?.fields?.status || "Status" })
     ),
   });
 
@@ -949,17 +949,17 @@ export const getAddCustomerValidationSchema = (dict: Dictionary) =>
   Yup.object().shape({
     name: Yup.string()
       .required(
-        formatMessage(dict.validation.required, { field: "Company Name" })
+        formatMessage(dict.validation.required, { field: dict.customers?.fields?.companyName || "Company Name" })
       )
       .min(
         2,
-        formatMessage(dict.validation.min, { field: "Company Name", min: 2 })
+        formatMessage(dict.validation.min, { field: dict.customers?.fields?.companyName || "Company Name", min: 2 })
       ),
     code: Yup.string()
       .optional()
-      .min(2, formatMessage(dict.validation.min, { field: "Code", min: 2 })),
+      .min(2, formatMessage(dict.validation.min, { field: dict.warehouses?.fields?.code || "Code", min: 2 })),
     industry: Yup.string().required(
-      formatMessage(dict.validation.required, { field: "Industry" })
+      formatMessage(dict.validation.required, { field: dict.customers?.fields?.industry || "Industry" })
     ),
     taxId: Yup.string().optional(),
     email: Yup.string().email(dict.validation.email).optional(),
@@ -967,10 +967,10 @@ export const getAddCustomerValidationSchema = (dict: Dictionary) =>
     locations: Yup.array().of(
       Yup.object().shape({
         name: Yup.string().required(
-          formatMessage(dict.validation.required, { field: "Location Name" })
+          formatMessage(dict.validation.required, { field: dict.customers?.fields?.locationName || "Location Name" })
         ),
         address: Yup.string().required(
-          formatMessage(dict.validation.required, { field: "Address" })
+          formatMessage(dict.validation.required, { field: dict.warehouses?.fields?.address || "Address" })
         ),
         lat: Yup.number().optional(),
         lng: Yup.number().optional(),

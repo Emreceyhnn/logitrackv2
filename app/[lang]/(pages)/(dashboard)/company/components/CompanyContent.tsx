@@ -162,6 +162,7 @@ export default function CompanyContent() {
           </Typography>
         </Box>
         <Button
+          data-tour="company-add-member"
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => setAddMemberOpen(true)}
@@ -178,9 +179,15 @@ export default function CompanyContent() {
       )}
 
       <Stack spacing={3}>
-        <KpiCards kpis={kpis} loading={state.loading} />
-        <CompanyInfoCard props={{ state, actions }} />
-        <CompanyMembersTable props={{ state, actions }} />
+        <Box data-tour="company-kpi">
+          <KpiCards kpis={kpis} loading={state.loading} />
+        </Box>
+        <Box data-tour="company-info">
+          <CompanyInfoCard props={{ state, actions }} />
+        </Box>
+        <Box data-tour="company-members">
+          <CompanyMembersTable props={{ state, actions }} />
+        </Box>
       </Stack>
 
       <AddCompanyMemberDialog

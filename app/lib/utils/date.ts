@@ -2,8 +2,11 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import "dayjs/locale/tr";
-import "dayjs/locale/en";
+import trLocale from "dayjs/locale/tr";
+import enLocale from "dayjs/locale/en";
+
+dayjs.locale("tr", trLocale);
+dayjs.locale("en", enLocale);
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

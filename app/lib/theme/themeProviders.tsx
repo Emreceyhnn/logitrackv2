@@ -1,10 +1,14 @@
 "use client";
 
-import "dayjs/locale/tr";
-import "dayjs/locale/en";
 import dayjs from "dayjs";
+import trLocale from "dayjs/locale/tr";
+import enLocale from "dayjs/locale/en";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+
+// Prevent Next.js tree-shaking
+dayjs.locale("tr", trLocale);
+dayjs.locale("en", enLocale);
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";

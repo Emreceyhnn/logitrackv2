@@ -141,161 +141,188 @@
       "finish": "Bitir",
       "startTour": "Tur Başlat"
     },
-    "searchPlaceholder": "Ara..."
+    "searchPlaceholder": "Ara...",
+    "underDevelopment": "Bu özellik şu anda geliştirme aşamasındadır."
   },
   "guidedTour": {
     "overview": {
       "titleStep": {
         "title": "Genel Bakış Paneli",
-        "description": "Burası merkez kontrol noktanız. Tüm lojistik operasyonlarınızın, KPI'larınızın ve uyarılarınızın anlık görüntüsünü buradan takip edin."
+        "description": "LogiTrack merkezi kontrol noktanıza hoş geldiniz. Bu panel, tüm lojistik ağınızın anlık ve kapsamlı bir fotoğrafını sunmak için tasarlandı. Buradan kritik operasyonları izleyebilir, darboğazları erkenden fark edebilir ve tedarik zincirinizin performansı üzerinde tam kontrol sağlayabilirsiniz."
       },
       "kpiStep": {
-        "title": "Temel Performans Göstergeleri",
-        "description": "Bu kartlar en önemli metriklerinizi gösterir: aktif sevkiyatlar, geciken siparişler, filo durumu, sürücü aktivitesi ve depo kullanımı."
+        "title": "Temel Performans Göstergeleri (KPI)",
+        "description": "Bu kartlar işletmenizin kalbini temsil eder. Aktif sevkiyatlar, müdahale bekleyen gecikmiş siparişler, güncel filo durumu, sürücü uygunluğu ve genel depo doluluk oranı gibi en kritik metriklerinizi anında görmenizi sağlar. Buraya atacağınız hızlı bir bakış, odaklanmanız gereken yerleri size hemen söyler."
       },
       "dailyOpsStep": {
         "title": "Günlük Operasyonlar",
-        "description": "Günün operasyonel metriklerini takip edin: planlanan rotalar, tamamlanan teslimatlar, başarısız teslimatlar, ortalama teslimat süresi ve yakıt tüketimi."
+        "description": "Günün operasyonel ivmesini gerçek zamanlı olarak takip edin. Bu bölüm; planlanan rotalarınızı, başarıyla tamamlanan teslimatları, başarısız girişimleri detaylandırır, ortalama teslimat sürelerinizi hesaplar ve maksimum verimlilik için toplam yakıt tüketiminizi izler."
       },
       "actionRequiredStep": {
-        "title": "Aksiyon Gerekli",
-        "description": "Acil ilgi gerektiren öğeler — geciken sevkiyatlar, süresi dolan belgeler veya bakım uyarıları. Aksiyona geçmek için herhangi bir öğeye tıklayın."
+        "title": "Aksiyon Gerektiren Durumlar",
+        "description": "Burası proaktif uyarı merkezinizdir. Burada listelenen öğeler acil müdahalenizi gerektirir. Kritik seviyede gecikmiş sevkiyatlar, süresi dolan ehliyetler, araç bakım uyarıları veya azalan stok eşikleri olsun, herhangi bir öğeye tıklayarak doğrudan çözüm sayfasına gidebilirsiniz."
       },
       "mapStep": {
         "title": "Canlı Operasyon Haritası",
-        "description": "Tüm depolarınızı, araçlarınızı ve müşterilerinizi interaktif haritada görün. Filo pozisyonlarını ve teslimat ilerlemesini gerçek zamanlı takip edin."
+        "description": "Tüm tedarik zincirinizi interaktif bir harita üzerinde görselleştirin. Filonuzun anlık konumlarını izleyebilir, aktif teslimat rotalarını gerçek zamanlı takip edebilir ve depolarınız ile müşterilerinizin tam olarak nerede bulunduğunu görebilirsiniz. Araçların net hareketlerini görmek için haritayı yakınlaştırabilirsiniz."
       }
     },
     "vehicles": {
+      "tabsStep": {
+        "title": "Kategori Gezinimi",
+        "description": "'Araçlar' ve 'Dorseler' veritabanlarınız arasında kusursuz bir geçiş yapın. Bu sekmeli arayüz; motorlu üniteleri ve motorsuz kargo ünitelerini birbirinden ayrı yönetmenize olanak tanıyarak, filo operasyonlarınızı mükemmel bir şekilde organize tutar."
+      },
       "tableStep": {
-        "title": "Araç Filosu",
-        "description": "Filonuzdaki tüm araçları görüntüleyin ve yönetin. Durum, tür veya konuma göre filtreleyin. Detaylar için satıra tıklayın."
+        "title": "Araç Filosu Yönetimi",
+        "description": "Burası kapsamlı araç kadronuzdur. Tüm filonuzu bu interaktif tablodan yönetin. Araçları operasyonel durumlarına, türlerine veya mevcut konumlarına göre hızlıca filtreleyebilirsiniz. Herhangi bir satıra tıkladığınızda, o araca ait detaylı teşhis verilerini, servis geçmişini ve canlı takip bilgilerini açarsınız."
       },
       "addStep": {
-        "title": "Araç Ekle",
-        "description": "Filonuza yeni bir araç kaydedin. Özellikleri doldurun, depoya atayın ve belgeleri yükleyin."
+        "title": "Yeni Araç Kaydet",
+        "description": "Filonuzu genişletmek için buraya tıklayın. Yeni bir araç eklerken; plaka, marka, model, yakıt türü ve yük kapasitesi gibi temel özellikleri sağlamanız gerekecektir. Ayrıca aracı belirli bir ana depoya atayabilir ve zorunlu ruhsat belgelerini sisteme yükleyebilirsiniz."
       }
     },
     "shipments": {
       "tableStep": {
-        "title": "Sevkiyat Yönetimi",
-        "description": "Tüm sevkiyatları ve durumlarını takip edin. Durum, tarih veya müşteriye göre filtreleyerek belirli sevkiyatları bulun."
+        "title": "Sevkiyat Yönetim Merkezi",
+        "description": "Yüklerinizi takip etmek için nihai kontrol odanız. Her bir sevkiyat güncel durumuyla birlikte buraya kaydedilir. Belirli tarih aralıklarına, özel müşterilere veya güncel transit durumlarına göre sevkiyatları daraltmak için güçlü filtreleme araçlarını kullanın. Ayrıca gecikmeleri ve tahmini varış (ETA) güncellemelerini anında izleyebilirsiniz."
       },
       "addStep": {
-        "title": "Sevkiyat Oluştur",
-        "description": "Yeni bir sevkiyat emri oluşturun. Çıkış, varış, kargo detaylarını belirleyin ve araç ile sürücü atayın."
+        "title": "Yeni Sevkiyat Oluştur",
+        "description": "Sevkiyata hazır mısınız? Yeni bir sevkiyat emri oluşturmak için buraya tıklayın. Alım ve teslimat koordinatlarını belirlemek, kargo ağırlığını ve boyutlarını girmek ve iş için en uygun aracı ile sürücüyü otomatik veya manuel olarak atamak üzere akıcı bir süreçten geçirileceksiniz."
       }
     },
     "analytics": {
       "headerStep": {
-        "title": "Analitik Paneli",
-        "description": "Operasyonel performansınıza derinlemesine dalın. Zaman aralığı seçin ve paydaş incelemesi için raporları dışa aktarın."
+        "title": "Gelişmiş Analitik Paneli",
+        "description": "Veri zekası merkezinize hoş geldiniz. İşletmenizin operasyonel sağlığının derinliklerine inin. Zaman aralıklarını dinamik olarak ayarlayabilir, verileri belirli şubelere veya bölgelere göre filtreleyebilir ve paydaş incelemeleri ya da stratejik planlama için kapsamlı raporlar dışa aktarabilirsiniz."
       },
       "gaugesStep": {
         "title": "Performans Göstergeleri",
-        "description": "Zamanında teslimat oranı, filo kullanımı ve müşteri memnuniyet puanları için hedeflere karşı görsel göstergeler."
+        "description": "Bu dinamik göstergeler, performansınızı önceden belirlenmiş hedeflere karşı ölçer. 'Zamanında Teslimat Oranı', 'Filo Kullanım Yüzdesi' ve 'Müşteri Memnuniyeti Puanları'nın gerçek zamanlı olarak değiştiğini izleyin; bu size operasyonlarınızın ne kadar iyi yürüdüğüne dair anında bir fikir verir."
       },
       "forecastStep": {
-        "title": "Yapay Zeka Tahmini",
-        "description": "Makine öğrenimi destekli sevkiyat hacim tahminleri. Kapasite planlaması için gerçek ve tahmin edilen trendleri karşılaştırın."
+        "title": "Yapay Zeka Destekli Tahmin",
+        "description": "Gelecekteki talebi öngörmek için makine öğrenimi modellerimizden yararlanın. Bu grafik, geçmiş sevkiyat hacimlerinizi öngörülen gelecek trendleriyle karşılaştırarak; kapasitenizi proaktif olarak planlamanıza, iş gücünüzü ölçeklendirmenize ve tedarik zinciri darboğazlarını oluşmadan önce önlemenize güç katar."
       },
       "costStep": {
-        "title": "Maliyet Analizi",
-        "description": "Operasyonel maliyetleri kategoriye göre ayrıştırın — yakıt, bakım ve genel giderler — zaman içindeki trend analiziyle."
+        "title": "Operasyonel Maliyet Analizi",
+        "description": "Harcamalarınızı sıkı bir kontrol altında tutun. Bu detaylı döküm; harcamalarınızı yakıt tüketimi, filo bakımı ve genel giderler bazında kategorize eder. Zaman içindeki maliyet trendlerini belirleyin ve kar marjlarınızı optimize etmek için yeni fırsatlar keşfedin."
       }
     },
     "warehouses": {
       "tableStep": {
-        "title": "Depo Yönetimi",
-        "description": "Tüm depoları, kapasite kullanımlarını, konumlarını ve operasyonel durumlarını görüntüleyin."
+        "title": "Depo Rehberi",
+        "description": "Tüm depolama altyapınızın kuşbakışı görünümü. Her bir depo tesisini izleyin, mevcut palet ve hacim kapasite kullanımlarını gözden geçirin ve operasyonel durumlarını kontrol edin. Bu tablo, yük dengeleme ve envanter dağıtımı için kritik öneme sahiptir."
       },
       "addStep": {
-        "title": "Depo Ekle",
-        "description": "Adres, kapasite, çalışma saatleri ve iletişim detaylarıyla yeni bir depo konumu kaydedin."
+        "title": "Yeni Depo Ekle",
+        "description": "Ağınızı genişletiyor musunuz? LogiTrack sistemine yeni bir depolama tesisi kaydetmek için buraya tıklayın. Fiziksel adresini kuracak, kesin kapasite sınırlarını (palet/hacim) belirleyecek, çalışma saatlerini oluşturacak ve sorumlu depo yöneticisini atayacaksınız."
       }
     },
     "drivers": {
       "tableStep": {
-        "title": "Sürücü Yönetimi",
-        "description": "Sürücü kadronuzu yönetin. Ehliyet durumu, müsaitlik, performans puanları ve atanmış araçları görüntüleyin."
+        "title": "Sürücü Kadrosu",
+        "description": "Lojistik ağınızın insan gücünü yönetin. Bu kapsamlı liste; tüm kayıtlı sürücülerinizi, onların gerçek zamanlı görev durumlarını, performans derecelendirmelerini ve güncel araç atamalarını gösterir. Otomatik ehliyet bitiş uyarılarıyla yasal uyumluluğu da gözlem altında tutun."
       },
       "addStep": {
-        "title": "Sürücü Ekle",
-        "description": "Ehliyet bilgileri, iletişim bilgileri ve araç atamasıyla yeni bir sürücü kaydedin."
+        "title": "Yeni Sürücü Kaydet",
+        "description": "Ekibinize yeni yetenekler katın. Bir sürücü kaydetmek; kişisel iletişim bilgilerini, ehliyet sınıfını, bitiş tarihlerini ve varsa özel sertifikalarını (Tehlikeli Madde vb.) doldurmayı gerektirir. Eklendiklerinde hemen Sürücü Uygulamasına giriş yapabilir ve rota atamaları almaya başlayabilirler."
       }
     },
     "routes": {
       "tableStep": {
-        "title": "Rota Planlaması",
-        "description": "Teslimat rotalarını görüntüleyin ve yönetin. Rota detaylarını, durakları, tahmini süreleri ve atanmış araçları görün."
+        "title": "Rota Planlama ve Yürütme",
+        "description": "Teslimat operasyonlarınızı bu ekrandan yönetin. Planlanmış, aktif ve tamamlanmış tüm teslimat rotalarını izleyin. Çok duraklı rotaları inceleyebilir, tahmini ve gerçekleşen varış sürelerini kıyaslayabilir ve hangi sürücü ile aracın o rotayı yürüttüğünü tam olarak görebilirsiniz."
       },
       "addStep": {
-        "title": "Rota Oluştur",
-        "description": "Duraklar ekleyerek, araç atayarak ve tahmini varış süreleri belirleyerek yeni bir teslimat rotası planlayın."
+        "title": "Yeni Rota Oluştur",
+        "description": "Yeni bir çok duraklı teslimat yolculuğu tasarlamak için buraya tıklayın. Akıllı rota aracımız, müşteri duraklarını verimli bir şekilde sıralamanıza, toplam mesafe ve süreyi otomatik hesaplamanıza ve rotayı uygun bir sürücüye sorunsuz bir şekilde sevk etmenize yardımcı olacaktır."
       }
     },
     "inventory": {
       "tableStep": {
-        "title": "Envanter Genel Bakış",
-        "description": "Tüm depolardaki stok seviyelerini takip edin. SKU'ları, miktarları ve yeniden sipariş noktalarını izleyin."
+        "title": "Küresel Envanter Özeti",
+        "description": "Depolanan varlıklarınız üzerinde tam görünürlük elde edin. Bağlı tüm depolarınızdaki canlı stok seviyelerini aynı anda takip edin. Belirli SKU'ları izleyin, yeniden sipariş eşiklerine ulaşan azalan stoklu ürünleri tespit edin ve ürünlerin aktif sevkiyatlara tahsisini takip edin."
       },
       "addStep": {
-        "title": "Envanter Öğesi Ekle",
-        "description": "SKU, kategori, depo ataması ve stok eşikleriyle yeni envanter öğeleri ekleyin."
+        "title": "Yeni Envanter Kalemi Kaydet",
+        "description": "Kataloğunuza yeni ürünler tanıtın. SKU'yu, ürün adını, fiziksel boyutları (ağırlık/hacim) tanımlayın ve depo içinde belirli bir bölgeye atayın. Burada minimum stok uyarıları ayarlamak, kritik envanterin asla tükenmemesini sağlar."
       }
     },
     "customers": {
       "tableStep": {
         "title": "Müşteri Rehberi",
-        "description": "Müşteri veritabanınızı yönetin. İletişim detayları, teslimat adresleri ve sipariş geçmişini görüntüleyin."
+        "description": "Lojistik için merkezi CRM'iniz. Tüm müşteri veritabanınızı yönetin, geçmiş siparişlerini takip edin ve müşteri başına birden fazla teslimat lokasyonunu organize edin. Bu, sevk memurlarınızın her zaman doğru iletişim ve fatura bilgilerine anında erişmesini sağlar."
       },
       "addStep": {
-        "title": "Müşteri Ekle",
-        "description": "Şirket detayları, iletişim bilgileri ve teslimat tercihleriyle yeni bir müşteri kaydedin."
+        "title": "Yeni Müşteri Ekle",
+        "description": "Yeni bir müşteri mi katıyorsunuz? Ana işletme detaylarını, vergi kimlik bilgilerini ve kilit iletişim personellerini buraya kaydedin. Ardından birden fazla varsayılan teslimat lokasyonu ekleyerek, gelecekteki siparişler için sevkiyat oluşturma sürecini hızlandırabilirsiniz."
       }
     },
     "reports": {
+      "tabsStep": {
+        "title": "Rapor Kategorileri",
+        "description": "Bu sekmeleri kullanarak farklı operasyonel alanlar arasında gezinin. Odağınızı anında 'Sevkiyat' performans metriklerinden, 'Filo' verimlilik analizlerine ve detaylı 'Envanter' hareket raporlarına bağlamınızı kaybetmeden taşıyabilirsiniz."
+      },
       "contentStep": {
-        "title": "Raporlar Merkezi",
-        "description": "Operasyonel raporları oluşturun ve görüntüleyin. Uyumluluk ve analiz için verileri çeşitli formatlarda dışa aktarın."
+        "title": "Raporlama Merkezi",
+        "description": "Veri aktarımı için merkezi noktanız. Yakıt verimliliği ve sürücü performansından, geciken sevkiyatlara ve finansal özetlere kadar her şeyi kapsayan derinlemesine, özelleştirilebilir raporlar oluşturun. Denetim ve uyumluluk için bulgularınızı PDF veya Excel formatlarında dışa aktarın."
+      }
+    },
+    "company": {
+      "kpiStep": {
+        "title": "Şirket Özeti",
+        "description": "Bu dinamik kartlar şirketinizin genel büyüklüğünü ve kapsamını gösterir. Toplam kullanıcı, araç, sürücü, depo, müşteri ve aktif sevkiyat sayılarınızı tek bir bakışta takip edin. Büyümenizi göstermek için trendler otomatik olarak hesaplanır."
+      },
+      "infoStep": {
+        "title": "Şirket Profili",
+        "description": "Bu bölüm resmi şirket adınız, vergi numaranız ve kayıtlı adresiniz dahil olmak üzere temel işletme bilgilerinizi içerir. Bunları güncel tutmak, platform genelinde sorunsuz faturalandırma ve yasal uyumluluk sağlar."
+      },
+      "membersStep": {
+        "title": "Ekip Yönetimi",
+        "description": "Tüm iş gücünüzü bu dizinden yönetin. Kayıtlı tüm ekip üyelerini inceleyebilir, atanan rollerini (örneğin Sevk Memuru, Sürücü veya Depo Yöneticisi) kontrol edebilir ve organizasyon içindeki aktif durumlarını izleyebilirsiniz."
+      },
+      "addMemberStep": {
+        "title": "Yeni Üye Davet Et",
+        "description": "Ekibinizi mi büyütüyorsunuz? Şirket çalışma alanınıza yeni bir kullanıcı davet etmek için buraya tıklayın. Onlara güvenli bir şekilde rol ve yetki atayarak, yalnızca belirli görevleri için ihtiyaç duydukları modüllere erişmelerini sağlayacaksınız."
       }
     },
     "warehouseWorker": {
       "sidebarStep": {
-        "title": "Gezinme Menüsü",
-        "description": "Kontrol Paneli, Tarama, Görevler, Kapasite ve Aktivite görünümleri arasında geçiş yapmak için bu menüyü kullanın."
+        "title": "Ana Gezinme Menüsü",
+        "description": "Mobil uyumlu Depo Çalışma Alanınıza hoş geldiniz! Temel görevleriniz arasında hızla gezinmek için bu yan menüyü kullanın: Kontrol Panelinize bakma, Ürün Tarama, Görevleri yönetme, Bölge Kapasitesini izleme ve Canlı Aktivite Akışını inceleme."
       },
       "dashboardPicksStep": {
-        "title": "Performans Göstergeleri",
-        "description": "Günlük toplama ve paketleme hedeflerinize karşı ilerlemenizi buradan takip edin."
+        "title": "Performans Metrikleriniz",
+        "description": "Motivasyonunuzu yüksek tutun ve hedeften sapmayın. Bu göstergeler, mevcut vardiyanızdaki günlük hedeflerinize karşı kişisel toplama ve paketleme ilerlemenizi gösterir. Verimliliğinizi ölçmenin ve operasyonların sorunsuz ilerlemesini sağlamanın harika bir yoludur."
       },
       "dashboardControlStep": {
-        "title": "Bölge Kontrolü",
-        "description": "Size uygun görevleri ve bildirimleri almak için aktif çalışma bölgenizi buradan değiştirin."
+        "title": "Aktif Bölge Kontrolü",
+        "description": "Bugün farklı bir alanda mı çalışıyorsunuz? Mevcut aktif çalışma bölgenizi belirlemek için bu kontrol panelini kullanın. Bunu yapmak, yalnızca depodaki mevcut fiziksel konumunuzla ilgili görevleri, toplama listelerini ve uyarıları almanızı sağlar."
       },
       "dashboardQuickStep": {
-        "title": "Hızlı İşlemler",
-        "description": "Aktif bölgeniz için anında sorun bildirin veya besleme talebinde bulunun."
+        "title": "Acil Hızlı İşlemler",
+        "description": "Sahadaki sorunları çözmek için hızlı şeridiniz. Hasarlı bir ürünle karşılaşırsanız, yanlış yerleştirilmiş bir palet görürseniz veya toplama koridorunuz için acil besleme ihtiyacı olursa, istasyonunuzdan ayrılmadan anında yönetimi uyarmak için bu hızlı eylem butonlarını kullanın."
       },
       "scanSectionStep": {
-        "title": "Barkod Okuyucu",
-        "description": "Sisteme stok hareketlerini kaydetmek için ürün barkodlarını veya SKU'larını buraya okutun."
+        "title": "Akıllı Barkod Okuyucu",
+        "description": "Günlük iş akışınızın merkezi. Ürün barkodlarını, QR kodlarını veya SKU'ları taramak için bu bölümü kullanın. İster mal kabulü yapıyor olun, ister bir sipariş için ürün topluyor veya bölgeler arası stok aktarıyor olun, tarama işlemi kusursuz envanter doğruluğu sağlar."
       },
       "taskListStep": {
-        "title": "Görev Sıranız",
-        "description": "Size atanan görevleri yönetin. 'YÜKSEK' öncelikli olanları ilk sıraya alın."
+        "title": "Aktif Görev Sıranız",
+        "description": "Kişiselleştirilmiş yapılacaklar listeniz. Bu sıra akıllıca sıralanmıştır ve 'KRİTİK' ve 'YÜKSEK' öncelikli görevlerin her zaman en üste çıkmasını sağlar. Bir sonraki alımınız veya yerleştirmeniz için kesin koridor ve raf konumlarını görüntülemek üzere bir göreve tıklamanız yeterlidir."
       },
       "capacityChartStep": {
-        "title": "Genel Kapasite",
-        "description": "Tesis genelinde kaç palet pozisyonunun dolu olduğunu gösteren özet grafik."
+        "title": "Genel Tesis Kapasitesi",
+        "description": "Tüm deponun fiziksel depolama limitlerinin makro düzeyde görselleştirmesi. Bu grafik, şu anda kaç toplam palet pozisyonunun dolu olduğuna karşın, tüm bina genelinde ne kadar boş alan kaldığına dair anında bir okuma sunar."
       },
       "capacityZoneStep": {
-        "title": "Bölge Bazlı Doluluk",
-        "description": "Kapasite kullanımının bölge bazında detaylı analizi. Darboğazları tespit etmenize yardımcı olur."
+        "title": "Detaylı Bölge Kırılımı",
+        "description": "Detaylara inin. Bu liste, kapasite kullanımını kesinlikle bireysel bölgelere veya koridorlara göre ayırır. Aşırı dolu darboğazları tespit etmek ve gelen toptan sevkiyatlar için mükemmel boş bölgeleri keşfetmek adına vazgeçilmez bir araçtır."
       },
       "activityFeedStep": {
-        "title": "Canlı Aktivite",
-        "description": "Tesis genelinde gerçekleşen tüm envanter hareketlerinin gerçek zamanlı akışı."
+        "title": "Canlı Operasyon Akışı",
+        "description": "Deponun nabzını elinizde tutun. Bu gerçek zamanlı akış, tesis genelinde gerçekleşen her bir envanter hareketini, görev tamamlamasını ve durum güncellemesini yayınlar. İnanılmaz bir şeffaflık sağlar ve ekiplerin sorunsuz bir şekilde koordine olmasına yardımcı olur."
       }
     }
   },
@@ -376,7 +403,8 @@
     "completeRegistration": "Kaydı Tamamla",
     "continue": "Devam Et",
     "unexpectedError": "Beklenmedik bir ağ hatası oluştu.",
-    "loginFailed": "Giriş başarısız"
+    "loginFailed": "Giriş başarısız",
+    "resetLinkSent": "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi!"
   },
   "landing": {
     "metaTitle": "LogiTrack – AI Lojistik Yönetim Platformu",
@@ -1288,7 +1316,9 @@
     "integer": "{field} tam sayı olmalıdır",
     "positive": "{field} pozitif bir sayı olmalıdır",
     "url": "Geçersiz URL",
-    "genericFormError": "Lütfen gerekli alanları doğru şekilde doldurun"
+    "genericFormError": "Lütfen gerekli alanları doğru şekilde doldurun",
+    "passwordsMatch": "Şifreler eşleşmelidir",
+    "endTimeAfterStart": "Bitiş zamanı başlangıç zamanından sonra olmalıdır"
   },
   "vehicles": {
     "title": "Araç Filosu Yönetimi",
@@ -1381,7 +1411,8 @@
       "transmission": "Şanzıman",
       "techNotes": "Teknik Notlar",
       "priority": "Öncelik",
-      "serviceType": "Servis Tipi"
+      "serviceType": "Servis Tipi",
+      "fuelConsumption": "Yakıt Tüketimi"
     },
     "transmissionTypes": {
       "AUTOMATIC": "Otomatik",
@@ -1739,7 +1770,8 @@
         "phone": "ör. +90 555 123 4567",
         "license": "ör. EH-485920394",
         "licenseFormat": "PNG, JPG VEYA HEIC (MAKS. 10MB)"
-      }
+      },
+      "employee": "Çalışan"
     },
     "tabs": {
       "overview": "Genel Bakış",
@@ -1808,7 +1840,13 @@
       "mainOffice": "Merkez Ofis",
       "phone": "Telefon",
       "email": "E-posta",
-      "selectIndustry": "Bir sektör seçin"
+      "selectIndustry": "Bir sektör seçin",
+      "currency": "Para Birimi",
+      "role": "Rol",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "status": "Durum",
+      "locationName": "Lokasyon Adı"
     }
   },
   "industries": {
@@ -1977,7 +2015,8 @@
       "unitValue": "Birim Değer",
       "weight": "Ağırlık",
       "volume": "Hacim",
-      "pallets": "Palet Sayısı"
+      "pallets": "Palet Sayısı",
+      "unit": "Birim"
     },
     "categories": {
       "electronics": "Elektronik",
@@ -2299,6 +2338,16 @@
         "pallet": "Palet",
         "standardBilling": "Standart Fatura (Net 30)"
       }
+    },
+    "fields": {
+      "priority": "Öncelik",
+      "shipmentType": "Sevkiyat Tipi",
+      "slaDeadline": "SLA Bitiş Tarihi",
+      "originWarehouse": "Çıkış Deposu",
+      "destination": "Varış Noktası",
+      "palletCount": "Palet Sayısı",
+      "weight": "Ağırlık",
+      "volume": "Hacim"
     }
   },
   "routes": {
@@ -2434,6 +2483,16 @@
         "locations": "Konumlar",
         "assignments": "Atamalar"
       }
+    },
+    "fields": {
+      "name": "Ad",
+      "startTime": "Başlangıç Zamanı",
+      "endTime": "Bitiş Zamanı",
+      "startAddress": "Başlangıç Adresi",
+      "endAddress": "Bitiş Adresi",
+      "driver": "Sürücü",
+      "vehicle": "Araç",
+      "address": "Adres"
     }
   },
   "warehouses": {
@@ -2542,6 +2601,15 @@
         "guidance": "Operasyonel Rehber Notlar",
         "guidanceText": "Hazardous materyal sertifikalarının güncel olduğundan ve tesisin yerel güvenlik standartlarına uygun olduğundan emin olun."
       }
+    },
+    "fields": {
+      "code": "Kod",
+      "type": "Tip",
+      "timezone": "Zaman Dilimi",
+      "address": "Adres",
+      "city": "Şehir",
+      "country": "Ülke",
+      "capacity": "Kapasite"
     }
   },
   "toasts": {
@@ -2875,13 +2943,20 @@
       "shipment": {
         "analyticsTitle": "Sevkiyat Analitiği",
         "volumeByRoute": "Rotaya Göre Hacim",
-        "volumeByRouteSubtitle": "Rota koduna göre toplam sevkiyatlar"
+        "volumeByRouteSubtitle": "Rota koduna göre toplam sevkiyatlar",
+        "statusDistribution": "Durum Dağılımı"
       },
       "inventoryCategories": {
         "Electronics": "Elektronik",
         "Furniture": "Mobilya",
         "Apparel": "Giyim",
-        "Industrial": "Endüstriyel"
+        "Industrial": "Endüstriyel",
+        "Automotive Parts": "Otomotiv Parçaları",
+        "Perishable": "Bozulabilir Gıda",
+        "General Cargo": "Genel Kargo",
+        "Hazardous Material": "Tehlikeli Madde",
+        "Textile": "Tekstil",
+        "Construction Materials": "İnşaat Malzemeleri"
       }
     }
   },

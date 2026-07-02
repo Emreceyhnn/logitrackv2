@@ -98,7 +98,7 @@ export function authenticatedAction<T, Args extends unknown[]>(
 
     if (!user) {
       const locale = await getLocaleFromReferer();
-      redirect(`/${locale}`);
+      redirect(`/${locale}/auth/sign-in`);
     }
 
     return action(user, ...args);
