@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Box,
   Typography,
@@ -13,14 +14,20 @@ import {
 import { Business, AddBusiness } from "@mui/icons-material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
+import CreateCompanyDialog from "@/app/components/dialogs/company/CreateCompanyDialog";
 
 export default function OnboardingPage() {
   const theme = useTheme();
   const dict = useDictionary();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isCreateCompanyOpen, setIsCreateCompanyOpen] = useState(false);
+
   const handleAction = (action: "create" | "join") => {
-    toast.info("This feature is currently under development.");
+    if (action === "create") {
+      setIsCreateCompanyOpen(true);
+    } else {
+      toast.info("This feature is currently under development.");
+    }
   };
 
   return (
@@ -188,6 +195,15 @@ export default function OnboardingPage() {
           </Card>
         </Stack>
       </Container>
+      
+      <CreateCompanyDialog
+        open={isCreateCompanyOpen}
+        onClose={() => setIsCreateCompanyOpen(false)}
+        onSuccess={() => {
+          setIsCreateCompanyOpen(false);
+          window.location.href = "/";
+        }}
+      />
     </Box>
   );
 }

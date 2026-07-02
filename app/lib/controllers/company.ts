@@ -25,6 +25,59 @@ async function invalidateCompanyCache(companyId: string) {
   revalidatePath("/", "layout");
 }
 
+async function ensureStandardRoles() {
+  const standardRoles = [
+    { id: "role_admin", name: "Administrator", description: "Full system access" },
+    { id: "role_manager", name: "Manager", description: "Company management access" },
+    { id: "role_dispatcher", name: "Dispatcher", description: "Shipment and route management" },
+    { id: "role_driver", name: "Driver", description: "Limited access for drivers" },
+    { id: "role_warehouse", name: "Warehouse", description: "Warehouse and inventory management" },
+    { id: "role_default", name: "Default", description: "Standard system access" },
+  ];
+
+  for (const r of standardRoles) {
+    try {
+      await db.role.upsert({
+        where: { id: r.id },
+        update: {},
+        create: {
+          id: r.id,
+          name: r.name,
+          description: r.description,
+          permissions: [],
+        },
+      });
+    } catch (error: unknown) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002" &&
+        Array.isArray(error.meta?.target) &&
+        error.meta.target.includes("name")
+      ) {
+        const conflict = await db.role.findUnique({ where: { name: r.name } });
+        if (conflict && conflict.id !== r.id) {
+          await db.role.update({
+            where: { id: conflict.id },
+            data: { name: `${r.name}_legacy_${Date.now()}` },
+          });
+          await db.role.upsert({
+            where: { id: r.id },
+            update: {},
+            create: {
+              id: r.id,
+              name: r.name,
+              description: r.description,
+              permissions: [],
+            },
+          });
+        }
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+
 export const createCompany = authenticatedAction(
   async (
     user,
@@ -43,47 +96,7 @@ export const createCompany = authenticatedAction(
       },
     });
 
-    // Ensure core roles exist
-    const defaultRoles = [
-      {
-        id: "role_admin",
-        name: "Administrator",
-        description: "Full system access",
-      },
-      {
-        id: "role_manager",
-        name: "Manager",
-        description: "Company management access",
-      },
-      {
-        id: "role_dispatcher",
-        name: "Dispatcher",
-        description: "Shipment and route management",
-      },
-      {
-        id: "role_driver",
-        name: "Driver",
-        description: "Limited access for drivers",
-      },
-      {
-        id: "role_warehouse",
-        name: "Warehouse",
-        description: "Warehouse and inventory management",
-      },
-    ];
-
-    for (const r of defaultRoles) {
-      await db.role.upsert({
-        where: { id: r.id },
-        update: {},
-        create: {
-          id: r.id,
-          name: r.name,
-          description: r.description,
-          permissions: [], // Permissions can be managed separately
-        },
-      });
-    }
+    await ensureStandardRoles();
 
     const role = await db.role.findFirst({
       where: { id: "role_admin" },
@@ -481,33 +494,7 @@ export const addCompanyUser = authenticatedAction(
         throw new Error("Unauthorized: User is already associated with another company");
       }
 
-      const standardRoles: Record<string, { name: string; desc: string }> = {
-        role_admin: { name: "Administrator", desc: "Full system access" },
-        role_manager: { name: "Manager", desc: "Company management access" },
-        role_dispatcher: {
-          name: "Dispatcher",
-          desc: "Shipment and route management",
-        },
-        role_driver: { name: "Driver", desc: "Limited access for drivers" },
-        role_warehouse: {
-          name: "Warehouse",
-          desc: "Warehouse and inventory management",
-        },
-        role_default: { name: "Default", desc: "Standard system access" },
-      };
-
-      if (standardRoles[roleName]) {
-        await db.role.upsert({
-          where: { id: roleName },
-          update: {},
-          create: {
-            id: roleName,
-            name: standardRoles[roleName].name,
-            description: standardRoles[roleName].desc,
-            permissions: [],
-          },
-        });
-      }
+      await ensureStandardRoles();
 
       let updatedUser;
 
@@ -598,34 +585,7 @@ export const updateCompanyMember = authenticatedAction(
         throw new Error("Unauthorized: User not found or not in your company");
       }
 
-      // Ensure standard roles exist in the global roles table before assigning them
-      const standardRoles: Record<string, { name: string; desc: string }> = {
-        role_admin: { name: "Administrator", desc: "Full system access" },
-        role_manager: { name: "Manager", desc: "Company management access" },
-        role_dispatcher: {
-          name: "Dispatcher",
-          desc: "Shipment and route management",
-        },
-        role_driver: { name: "Driver", desc: "Limited access for drivers" },
-        role_warehouse: {
-          name: "Warehouse",
-          desc: "Warehouse and inventory management",
-        },
-        role_default: { name: "Default", desc: "Standard system access" },
-      };
-
-      if (standardRoles[data.roleId]) {
-        await db.role.upsert({
-          where: { id: data.roleId },
-          update: {},
-          create: {
-            id: data.roleId,
-            name: standardRoles[data.roleId].name,
-            description: standardRoles[data.roleId].desc,
-            permissions: [],
-          },
-        });
-      }
+      await ensureStandardRoles();
 
       const updatedUser = await db.user.update({
         where: { id: targetUserId },
