@@ -316,8 +316,6 @@ export interface EligibleUser {
 }
 
 export type DriverActivityType =
-  | "SHIFT_START"
-  | "SHIFT_END"
   | "JOB_COMPLETED"
   | "ROUTE_STARTED"
   | "ROUTE_COMPLETED"

@@ -537,17 +537,6 @@ export const getDriverHistory = authenticatedAction(
 
       const activities: DriverActivity[] = [];
 
-      // Add shift logs
-      driver.user.auditLogs.forEach((log) => {
-        activities.push({
-          id: log.id,
-          type: log.action === "LOGIN" ? "SHIFT_START" : "SHIFT_END",
-          title: log.action === "LOGIN" ? "Shift Started" : "Shift Ended",
-          description: `Daily shift ${log.action === "LOGIN" ? "started" : "finished"} at ${log.createdAt.toLocaleTimeString()}`,
-          timestamp: log.createdAt,
-        });
-      });
-
       // Add completed routes
       driver.routes.forEach((route) => {
         const stopsArr = Array.isArray(route.stops) ? route.stops as { address?: string }[] : [];

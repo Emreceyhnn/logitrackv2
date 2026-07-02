@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { Stack, Box, Typography, TextField, Button, IconButton, useTheme, Alert } from "@mui/material";
+import {
+  Stack,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  useTheme,
+} from "@mui/material";
 import { SkuInfo } from "@/app/lib/type/warehouseWorkerClient";
 
 interface WWScanSectionProps {
@@ -14,7 +22,6 @@ interface WWScanSectionProps {
   log: (kind: "PICK" | "PACK") => void;
   setScanResult: (v: SkuInfo | null) => void;
   ww: any;
-  onBreak: boolean;
 }
 
 export default function WWScanSection({
@@ -28,7 +35,6 @@ export default function WWScanSection({
   log,
   setScanResult,
   ww,
-  onBreak,
 }: WWScanSectionProps) {
   const theme = useTheme();
 
@@ -55,7 +61,11 @@ export default function WWScanSection({
             <Button
               variant="contained"
               onClick={() => doScan(scanInput)}
-              sx={{ borderRadius: 3, bgcolor: theme.palette.primary.main, px: 4 }}
+              sx={{
+                borderRadius: 3,
+                bgcolor: theme.palette.primary.main,
+                px: 4,
+              }}
             >
               {ww.ui.scanBtn}
             </Button>
@@ -97,7 +107,11 @@ export default function WWScanSection({
             <Box>
               <Stack direction="row" spacing={1} alignItems="center">
                 <Typography
-                  sx={{ color: theme.palette.primary.main, fontFamily: "monospace", fontSize: 12 }}
+                  sx={{
+                    color: theme.palette.primary.main,
+                    fontFamily: "monospace",
+                    fontSize: 12,
+                  }}
                 >
                   {scanResult.sku}
                 </Typography>
@@ -115,7 +129,14 @@ export default function WWScanSection({
                   {ww.ui.zone} {scanResult.zone}
                 </Box>
               </Stack>
-              <Typography sx={{ mt: 1, fontSize: 18, fontWeight: 600, color: theme.palette.text.primary }}>
+              <Typography
+                sx={{
+                  mt: 1,
+                  fontSize: 18,
+                  fontWeight: 600,
+                  color: theme.palette.text.primary,
+                }}
+              >
                 {scanResult.name}
               </Typography>
             </Box>
@@ -138,7 +159,7 @@ export default function WWScanSection({
                   fontWeight: 800,
                   minWidth: 32,
                   textAlign: "center",
-                  color: "#fff"
+                  color: "#fff",
                 }}
               >
                 {scanQty}
@@ -195,19 +216,6 @@ export default function WWScanSection({
             </IconButton>
           </Stack>
         </>
-      )}
-      {onBreak && (
-        <Alert
-          severity="warning"
-          sx={{
-            mt: 2,
-            borderRadius: 3,
-            bgcolor: "rgba(245,158,11,0.1)",
-            color: theme.palette.kpi.amber,
-          }}
-        >
-          {ww.ui.onBreakMsg}
-        </Alert>
       )}
     </Box>
   );

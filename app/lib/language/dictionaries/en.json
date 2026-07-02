@@ -2463,8 +2463,7 @@
       "vehicleAssignment": "Vehicle Assignment",
       "loadingVehicles": "Loading vehicles...",
       "assignmentSummary": "ASSIGNMENT SUMMARY",
-      "driverShift": "Driver Shift",
-      "shiftStart": "Shift Start",
+
       "noDriverSelected": "No driver selected",
       "statusOnDuty": "Status: On Duty",
       "vehicleMaintenance": "Vehicle Maintenance",
@@ -3034,25 +3033,24 @@
     "warehouseWorker": "Warehouse Worker",
     "justNow": "just now",
     "ago": "ago",
-    "resumeShiftToLog": "Resume your shift to log movements",
+
     "unrecognizedItem": "Unrecognized item",
     "noInventoryToScan": "No inventory to scan in this warehouse",
     "logged": "Logged",
     "couldNotLog": "Could not log movement",
     "taskComplete": "Task complete",
     "couldNotUpdateTask": "Could not update task",
-    "couldNotUpdateShift": "Could not update shift",
+
     "restockRequested": "Restock requested",
     "couldNotRequestRestock": "Could not request restock",
     "issueReported": "Issue reported to supervisor",
     "couldNotReportIssue": "Could not report issue",
-    "shiftSummarySaved": "Shift summary saved",
-    "couldNotEndShift": "Could not end shift",
+
     "high": "high",
     "med": "med",
     "low": "low",
     "ui": {
-      "onShift": "On shift",
+
       "aisles": "Aisles 1–48",
       "liveMovements": "Live stock movements",
       "type": "Type",
@@ -3067,7 +3065,7 @@
       "simScan": "Simulate scan",
       "logPick": "Log Pick",
       "logPack": "Log Pack",
-      "onBreakMsg": "You're on break — resume your shift to log movements.",
+
       "doneBtn": "Done",
       "advanceBtn": "Advance",
       "PICK": "PICK",
@@ -3109,19 +3107,13 @@
       "activity": "Activity"
     },
     "status": {
-      "onBreak": "On break",
-      "activeOnShift": "Active on shift",
-      "resumeShift": "Resume shift",
-      "takeABreak": "Take a break"
     },
     "dashboard": {
       "picksToday": "Picks today",
       "packsToday": "Packs today",
       "throughput": "Throughput",
       "unitsHr": "units/hr",
-      "shiftAvg": "Shift avg",
-      "shiftStatus": "Shift status",
-      "endShiftSave": "End shift & save summary",
+
       "latestTasks": "Latest tasks",
       "viewAll": "View all",
       "zones": "Zones",

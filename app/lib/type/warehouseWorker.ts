@@ -2,7 +2,6 @@
 
 export type WarehouseTaskKind = "PICK" | "PACK" | "PUT";
 export type WarehouseTaskPriority = "LOW" | "MEDIUM" | "HIGH";
-export type WorkerShiftStatus = "ACTIVE" | "BREAK" | "ENDED";
 
 export interface WWWorker {
   name: string;
@@ -17,20 +16,12 @@ export interface WWWarehouse {
   city: string;
 }
 
-export interface WWShift {
-  id: string | null;
-  status: WorkerShiftStatus;
-  startedAt: string | null;
-  elapsedSeconds: number;
-}
-
 export interface WWKpis {
   picks: number;
   picksTarget: number;
   packs: number;
   packsTarget: number;
   rate: number;
-  shiftAvgRate: number;
 }
 
 export interface WWTask {
@@ -81,7 +72,6 @@ export interface WarehouseWorkerDashboard {
   warehouse: WWWarehouse | null;
   warehouses: WWWarehouseOption[];
   worker: WWWorker;
-  shift: WWShift;
   kpis: WWKpis;
   tasks: WWTask[];
   zones: WWZone[];

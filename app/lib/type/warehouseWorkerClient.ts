@@ -64,6 +64,4 @@ export const I = {
 export function zoneColor(pct: number, theme: any) {
   return pct >= 85 ? theme.palette.error.main : pct >= 70 ? theme.palette.kpi.amber : theme.palette.kpi.emerald;
 }
-export function fmtShift(seconds: number) {
-  return `${String(Math.floor(seconds / 3600)).padStart(2, "0")}:${String(Math.floor((seconds % 3600) / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-}
+

@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useWarehouseWorker } from "@/app/hooks/useWarehouseWorker";
 import { warehouseWorkerKeys } from "@/app/lib/query-keys/warehouseWorker.keys";
 import {
   logWarehouseMovement,
   advanceWarehouseTask,
-  setWorkerShiftStatus,
   requestRestock,
   reportWarehouseIssue,
 } from "@/app/lib/controllers/warehouseWorker";
@@ -65,7 +64,9 @@ export default function WarehouseWorkerClient({
   const { startTour } = useGuidedTour();
 
   const queryClient = useQueryClient();
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | undefined>();
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<
+    string | undefined
+  >();
   const { data } = useWarehouseWorker(selectedWarehouseId);
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: warehouseWorkerKeys.all });
@@ -81,17 +82,23 @@ export default function WarehouseWorkerClient({
   const worker = {
     name: data?.worker?.name ?? "—",
     initials: data?.worker?.initials ?? "WW",
-    role: data?.worker?.role ? (dict.company?.roles?.[data.worker.role as keyof typeof dict.company.roles] || data.worker.role) : ww.warehouseWorker,
+    role: data?.worker?.role
+      ? dict.company?.roles?.[
+          data.worker.role as keyof typeof dict.company.roles
+        ] || data.worker.role
+      : ww.warehouseWorker,
   };
   const warehouseOptions = data?.warehouses ?? [];
-  const catalog: WWCatalogItem[] = useMemo(() => data?.catalog ?? [], [data?.catalog]);
+  const catalog: WWCatalogItem[] = useMemo(
+    () => data?.catalog ?? [],
+    [data?.catalog]
+  );
 
   const picks = data?.kpis.picks ?? 0;
   const packs = data?.kpis.packs ?? 0;
   const rate = data?.kpis.rate ?? 0;
   const picksTarget = data?.kpis.picksTarget ?? PICKS_TARGET;
   const packsTarget = data?.kpis.packsTarget ?? PACKS_TARGET;
-  const shiftAvgRate = data?.kpis.shiftAvgRate ?? 0;
 
   const tasks: Task[] = (data?.tasks ?? []).map((t) => ({
     id: t.id,
@@ -114,11 +121,14 @@ export default function WarehouseWorkerClient({
     sku: m.sku,
     qty: m.qty,
     zone: m.zone,
-    who: m.self ? ww.dashboard.you : m.who === "System" ? ww.dashboard.system : m.who,
+    who: m.self
+      ? ww.dashboard.you
+      : m.who === "System"
+        ? ww.dashboard.system
+        : m.who,
     self: m.self,
     t: relativeTime(m.at, ww),
   }));
-  const onBreak = data?.shift.status === "BREAK";
 
   const [view, setView] = useState<View>("dashboard");
   const [currentZone, setCurrentZone] = useState("A");
@@ -130,8 +140,6 @@ export default function WarehouseWorkerClient({
     tone: "success" | "warning" | "error" | "info";
   } | null>(null);
 
-  const [tick, setTick] = useState(0);
-
   const zonesKey = zones.map((z) => z.name).join(",");
   const [prevZonesKey, setPrevZonesKey] = useState<string | null>(null);
   if (prevZonesKey !== zonesKey) {
@@ -140,58 +148,43 @@ export default function WarehouseWorkerClient({
       setCurrentZone(zones[0].name);
   }
 
-  const shiftElapsed = data?.shift.elapsedSeconds ?? 0;
-  const shiftKey = `${data?.shift.startedAt ?? ""}|${data?.shift.status ?? ""}|${shiftElapsed}`;
-  const [prevShiftKey, setPrevShiftKey] = useState<string | null>(null);
-  if (prevShiftKey !== shiftKey) {
-    setPrevShiftKey(shiftKey);
-    setTick(0);
-  }
-  const shiftSec = shiftElapsed + tick;
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      if (!onBreak) setTick((x) => x + 1);
-    }, 1000);
-    return () => clearInterval(t);
-  }, [onBreak]);
-
-  const showToast = (msg: string, tone: "success" | "warning" | "error" | "info" = "success") => setToast({ msg, tone });
+  const showToast = (
+    msg: string,
+    tone: "success" | "warning" | "error" | "info" = "success"
+  ) => setToast({ msg, tone });
 
   const handleHelpClick = () => {
-    const steps = getTourStepsForPage(`warehouse-worker-${view}`, dict as Record<string, unknown>);
+    const steps = getTourStepsForPage(
+      `warehouse-worker-${view}`,
+      dict as Record<string, unknown>
+    );
     if (steps.length > 0) {
       setTimeout(() => startTour(`warehouse-worker-${view}`, steps), 200);
     }
   };
 
   const openTasks = tasks.filter((t) => t.done < t.total).length;
-  const highCount = tasks.filter((t) => t.priority === "high" && t.done < t.total).length;
-  const picksPct = picksTarget ? Math.min(100, Math.round((picks / picksTarget) * 100)) : 0;
-  const packsPct = packsTarget ? Math.min(100, Math.round((packs / packsTarget) * 100)) : 0;
+  const highCount = tasks.filter(
+    (t) => t.priority === "high" && t.done < t.total
+  ).length;
+  const picksPct = picksTarget
+    ? Math.min(100, Math.round((picks / picksTarget) * 100))
+    : 0;
+  const packsPct = packsTarget
+    ? Math.min(100, Math.round((packs / packsTarget) * 100))
+    : 0;
   const capUsed = data?.capacity.used ?? 0;
   const capTotal = data?.capacity.total ?? 0;
   const capacityPct = data?.capacity.pct ?? 0;
   const anyCritical = zones.some((z) => z.pct >= 85);
 
-  const status = onBreak
-    ? {
-        label: ww.status.onBreak,
-        color: theme.palette.kpi.amber,
-        action: ww.status.resumeShift,
-      }
-    : {
-        label: ww.status.activeOnShift,
-        color: theme.palette.kpi.emerald,
-        action: ww.status.takeABreak,
-      };
-
   const doScan = (raw: string) => {
-    if (onBreak) return showToast(ww.resumeShiftToLog, "warning");
     if (!raw.trim()) return;
-    const q = raw.trim().toLocaleUpperCase('en-US');
+    const q = raw.trim().toLocaleUpperCase("en-US");
     const hit = catalog.find(
-      (s) => s.sku.toLocaleUpperCase('en-US') === q || s.name.toLocaleUpperCase('en-US').includes(q)
+      (s) =>
+        s.sku.toLocaleUpperCase("en-US") === q ||
+        s.name.toLocaleUpperCase("en-US").includes(q)
     );
     const info = hit ?? {
       sku: q.startsWith("SKU") ? q : `SKU-${q || "00000"}`,
@@ -218,7 +211,7 @@ export default function WarehouseWorkerClient({
     try {
       await logWarehouseMovement(warehouseId, result.sku, qty, kind);
       showToast(
-        `${ww.logged} ${kind.toLocaleLowerCase('en-US')} · ${qty} × ${result.sku}`,
+        `${ww.logged} ${kind.toLocaleLowerCase("en-US")} · ${qty} × ${result.sku}`,
         kind === "PICK" ? "warning" : "success"
       );
       await refresh();
@@ -237,15 +230,6 @@ export default function WarehouseWorkerClient({
     }
   };
 
-  const toggleShift = async () => {
-    try {
-      await setWorkerShiftStatus(onBreak ? "ACTIVE" : "BREAK");
-      await refresh();
-    } catch {
-      showToast(ww.couldNotUpdateShift, "error");
-    }
-  };
-
   const onRestock = async () => {
     if (!warehouseId) return;
     try {
@@ -260,21 +244,14 @@ export default function WarehouseWorkerClient({
   const onReport = async () => {
     if (!warehouseId) return;
     try {
-      await reportWarehouseIssue(warehouseId, `Floor issue — Zone ${currentZone}`);
+      await reportWarehouseIssue(
+        warehouseId,
+        `Floor issue — Zone ${currentZone}`
+      );
       showToast(ww.issueReported, "error");
       await refresh();
     } catch {
       showToast(ww.couldNotReportIssue, "error");
-    }
-  };
-
-  const onEndShift = async () => {
-    try {
-      await setWorkerShiftStatus("ENDED");
-      showToast(ww.shiftSummarySaved, "success");
-      await refresh();
-    } catch {
-      showToast(ww.couldNotEndShift, "error");
     }
   };
 
@@ -314,8 +291,15 @@ export default function WarehouseWorkerClient({
           background: `linear-gradient(90deg,${color},transparent)`,
         }}
       />
-      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-        <Typography variant="overline" sx={{ color: theme.palette.text.secondary, fontWeight: 800 }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="flex-start"
+      >
+        <Typography
+          variant="overline"
+          sx={{ color: theme.palette.text.secondary, fontWeight: 800 }}
+        >
           {label}
         </Typography>
         <Avatar
@@ -345,7 +329,14 @@ export default function WarehouseWorkerClient({
         />
       )}
       {sub && (
-        <Typography sx={{ mt: 2, fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.4)" }}>
+        <Typography
+          sx={{
+            mt: 2,
+            fontSize: 12,
+            fontWeight: 600,
+            color: "rgba(255,255,255,0.4)",
+          }}
+        >
           {sub}
         </Typography>
       )}
@@ -369,7 +360,6 @@ export default function WarehouseWorkerClient({
         view={view}
         setView={setView}
         worker={worker}
-        status={status}
         NAV={NAV}
         onHelpClick={handleHelpClick}
         dict={dict}
@@ -384,10 +374,7 @@ export default function WarehouseWorkerClient({
           setSelectedWarehouseId={setSelectedWarehouseId}
           warehouse={warehouse}
           warehouseOptions={warehouseOptions}
-          status={status}
-          shiftSec={shiftSec}
           worker={worker}
-          toggleShift={toggleShift}
         />
 
         <Box
@@ -405,14 +392,23 @@ export default function WarehouseWorkerClient({
         >
           {view === "dashboard" && (
             <Stack spacing={2.5}>
-              <Stack data-tour="ww-kpi-picks" direction="row" spacing={2.25} sx={{ "& > *": { flex: 1 } }}>
+              <Stack
+                data-tour="ww-kpi-picks"
+                direction="row"
+                spacing={2.25}
+                sx={{ "& > *": { flex: 1 } }}
+              >
                 {renderKpi(
                   dict.warehouseWorker.dashboard.picksToday,
                   theme.palette.kpi.amber,
                   "M5 8h14l-1 12H6L5 8zM9 8V6a3 3 0 0 1 6 0v2",
                   <Stack direction="row" alignItems="baseline" spacing={1}>
-                    <Typography sx={{ fontSize: 34, fontWeight: 900 }}>{picks}</Typography>
-                    <Typography sx={{ color: theme.palette.text.secondary }}>/ {picksTarget}</Typography>
+                    <Typography sx={{ fontSize: 34, fontWeight: 900 }}>
+                      {picks}
+                    </Typography>
+                    <Typography sx={{ color: theme.palette.text.secondary }}>
+                      / {picksTarget}
+                    </Typography>
                   </Stack>,
                   null,
                   picksPct
@@ -422,8 +418,12 @@ export default function WarehouseWorkerClient({
                   theme.palette.kpi.emerald,
                   "M3 8l9-5 9 5v8l-9 5-9-5zM3 8l9 5 9-5M12 13v8",
                   <Stack direction="row" alignItems="baseline" spacing={1}>
-                    <Typography sx={{ fontSize: 34, fontWeight: 900 }}>{packs}</Typography>
-                    <Typography sx={{ color: theme.palette.text.secondary }}>/ {packsTarget}</Typography>
+                    <Typography sx={{ fontSize: 34, fontWeight: 900 }}>
+                      {packs}
+                    </Typography>
+                    <Typography sx={{ color: theme.palette.text.secondary }}>
+                      / {packsTarget}
+                    </Typography>
                   </Stack>,
                   null,
                   packsPct
@@ -432,9 +432,14 @@ export default function WarehouseWorkerClient({
                   dict.warehouseWorker.ui.myTaskQueue,
                   theme.palette.primary.main,
                   I.tasks,
-                  <Typography sx={{ fontSize: 34, fontWeight: 900 }}>{openTasks}</Typography>,
+                  <Typography sx={{ fontSize: 34, fontWeight: 900 }}>
+                    {openTasks}
+                  </Typography>,
                   <Box component="span">
-                    <Box component="span" sx={{ color: theme.palette.error.main }}>
+                    <Box
+                      component="span"
+                      sx={{ color: theme.palette.error.main }}
+                    >
                       ●
                     </Box>{" "}
                     {highCount} {dict.warehouseWorker.ui.highPriority}
@@ -445,21 +450,46 @@ export default function WarehouseWorkerClient({
                   theme.palette.kpi.purple,
                   "M3 17l6-6 4 4 8-8M15 7h6v6",
                   <Stack direction="row" alignItems="baseline" spacing={1}>
-                    <Typography sx={{ fontSize: 34, fontWeight: 900 }}>{rate}</Typography>
-                    <Typography sx={{ color: theme.palette.text.secondary, fontSize: 12 }}>{dict.warehouseWorker.dashboard.unitsHr}</Typography>
+                    <Typography sx={{ fontSize: 34, fontWeight: 900 }}>
+                      {rate}
+                    </Typography>
+                    <Typography
+                      sx={{ color: theme.palette.text.secondary, fontSize: 12 }}
+                    >
+                      {dict.warehouseWorker.dashboard.unitsHr}
+                    </Typography>
                   </Stack>,
-                  `${dict.warehouseWorker.dashboard.shiftAvg} ${shiftAvgRate}/${dict.warehouseWorker.dashboard.unitsHr.split('/')[1] || 'sa'}`
+                  null
                 )}
               </Stack>
               <Stack direction="row" spacing={2.5} alignItems="flex-start">
                 <Stack spacing={2.5} sx={{ flex: 1.55, minWidth: 0 }}>
-                  <Card sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3 }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
+                  <Card
+                    sx={{
+                      bgcolor: theme.palette.background.paper,
+                      color: theme.palette.text.primary,
+                      borderRadius: 3,
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{ p: 2.5 }}
+                    >
                       <Stack direction="row" alignItems="center" spacing={1.5}>
-                        <Avatar sx={{ bgcolor: `${theme.palette.primary.main}1f`, color: theme.palette.primary.main, borderRadius: 2 }}>
+                        <Avatar
+                          sx={{
+                            bgcolor: `${theme.palette.primary.main}1f`,
+                            color: theme.palette.primary.main,
+                            borderRadius: 2,
+                          }}
+                        >
                           <Ico d={I.scan} size={19} />
                         </Avatar>
-                        <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{ww.ui.scanLog}</Typography>
+                        <Typography sx={{ fontWeight: 700, fontSize: 16 }}>
+                          {ww.ui.scanLog}
+                        </Typography>
                       </Stack>
                       <Box
                         sx={{
@@ -475,7 +505,9 @@ export default function WarehouseWorkerClient({
                         {ww.ui.pickZone} {currentZone}
                       </Box>
                     </Stack>
-                    <Box sx={{ borderTop: `1px solid ${theme.palette.divider}` }}>
+                    <Box
+                      sx={{ borderTop: `1px solid ${theme.palette.divider}` }}
+                    >
                       <WWScanSection
                         scanResult={scanResult}
                         scanInput={scanInput}
@@ -486,19 +518,36 @@ export default function WarehouseWorkerClient({
                         setScanQty={setScanQty}
                         log={log}
                         setScanResult={setScanResult}
-
                         ww={ww}
-                        onBreak={onBreak}
                       />
                     </Box>
                   </Card>
-                  <Card sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3 }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
+                  <Card
+                    sx={{
+                      bgcolor: theme.palette.background.paper,
+                      color: theme.palette.text.primary,
+                      borderRadius: 3,
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{ p: 2.5 }}
+                    >
                       <Stack direction="row" alignItems="center" spacing={1.5}>
-                        <Avatar sx={{ bgcolor: `${theme.palette.primary.main}1f`, color: theme.palette.primary.main, borderRadius: 2 }}>
+                        <Avatar
+                          sx={{
+                            bgcolor: `${theme.palette.primary.main}1f`,
+                            color: theme.palette.primary.main,
+                            borderRadius: 2,
+                          }}
+                        >
                           <Ico d={I.tasks} size={19} />
                         </Avatar>
-                        <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{ww.ui.myTaskQueue}</Typography>
+                        <Typography sx={{ fontWeight: 700, fontSize: 16 }}>
+                          {ww.ui.myTaskQueue}
+                        </Typography>
                       </Stack>
                       <Box
                         sx={{
@@ -514,19 +563,52 @@ export default function WarehouseWorkerClient({
                         {openTasks} {ww.ui.openTasksCount}
                       </Box>
                     </Stack>
-                    <Box sx={{ borderTop: `1px solid ${theme.palette.divider}` }}>
-                      {tasks.map(t => <WWTaskRow key={t.id} t={t} advanceTask={advanceTask} ww={ww} />)}
+                    <Box
+                      sx={{
+                        borderTop: `1px solid ${theme.palette.divider}`,
+                        maxHeight: 405,
+                        overflowY: "auto",
+                      }}
+                    >
+                      {tasks.map((t) => (
+                        <WWTaskRow
+                          key={t.id}
+                          t={t}
+                          advanceTask={advanceTask}
+                          ww={ww}
+                        />
+                      ))}
                     </Box>
                   </Card>
                 </Stack>
                 <Stack spacing={2.5} sx={{ flex: 1, minWidth: 0 }}>
-                  <Card sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3, p: 2.5 }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+                  <Card
+                    sx={{
+                      bgcolor: theme.palette.background.paper,
+                      color: theme.palette.text.primary,
+                      borderRadius: 3,
+                      p: 2.5,
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{ mb: 2 }}
+                    >
                       <Stack direction="row" alignItems="center" spacing={1.5}>
-                        <Avatar sx={{ bgcolor: `${theme.palette.primary.main}1f`, color: theme.palette.primary.main, borderRadius: 2 }}>
+                        <Avatar
+                          sx={{
+                            bgcolor: `${theme.palette.primary.main}1f`,
+                            color: theme.palette.primary.main,
+                            borderRadius: 2,
+                          }}
+                        >
                           <Ico d={I.capacity} size={19} />
                         </Avatar>
-                        <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{ww.ui.siteCapacity}</Typography>
+                        <Typography sx={{ fontWeight: 700, fontSize: 16 }}>
+                          {ww.ui.siteCapacity}
+                        </Typography>
                       </Stack>
                       {anyCritical && (
                         <Box
@@ -546,44 +628,133 @@ export default function WarehouseWorkerClient({
                       )}
                     </Stack>
                     <Stack direction="row" spacing={2.5} alignItems="center">
-                      <Box sx={{ position: "relative", display: "inline-flex" }}>
-                        <CircularProgress variant="determinate" value={100} size={100} sx={{ color: "rgba(255,255,255,0.08)" }} />
+                      <Box
+                        sx={{ position: "relative", display: "inline-flex" }}
+                      >
+                        <CircularProgress
+                          variant="determinate"
+                          value={100}
+                          size={100}
+                          sx={{ color: "rgba(255,255,255,0.08)" }}
+                        />
                         <CircularProgress
                           variant="determinate"
                           value={capacityPct}
                           size={100}
-                          sx={{ color: zoneColor(capacityPct, theme), position: "absolute", left: 0 }}
+                          sx={{
+                            color: zoneColor(capacityPct, theme),
+                            position: "absolute",
+                            left: 0,
+                          }}
                         />
-                        <Box sx={{ top: 0, left: 0, bottom: 0, right: 0, position: "absolute", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
-                          <Typography sx={{ fontSize: 22, fontWeight: 900 }}>{capacityPct}%</Typography>
+                        <Box
+                          sx={{
+                            top: 0,
+                            left: 0,
+                            bottom: 0,
+                            right: 0,
+                            position: "absolute",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexDirection: "column",
+                          }}
+                        >
+                          <Typography sx={{ fontSize: 22, fontWeight: 900 }}>
+                            {capacityPct}%
+                          </Typography>
                         </Box>
                       </Box>
                       <Box>
-                        <Typography sx={{ fontSize: 12, fontWeight: 600, color: theme.palette.text.secondary }}>
+                        <Typography
+                          sx={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: theme.palette.text.secondary,
+                          }}
+                        >
                           {ww.ui.palletPositions}
                         </Typography>
-                        <Typography sx={{ fontSize: 22, fontWeight: 800, mt: 1 }}>
+                        <Typography
+                          sx={{ fontSize: 22, fontWeight: 800, mt: 1 }}
+                        >
                           {capUsed.toLocaleString()}{" "}
-                          <Box component="span" sx={{ fontSize: 14, color: "rgba(255,255,255,0.35)" }}>
+                          <Box
+                            component="span"
+                            sx={{
+                              fontSize: 14,
+                              color: "rgba(255,255,255,0.35)",
+                            }}
+                          >
                             / {capTotal.toLocaleString()}
                           </Box>
                         </Typography>
                       </Box>
                     </Stack>
-                    <Stack spacing={1.5} sx={{ mt: 2.5, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+                    <Stack
+                      spacing={1.5}
+                      sx={{
+                        mt: 2.5,
+                        pt: 2,
+                        borderTop: `1px solid ${theme.palette.divider}`,
+                      }}
+                    >
                       {zones.map((z) => (
                         <Box key={z.name}>
-                          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
-                            <Stack direction="row" alignItems="center" spacing={1} sx={{ fontSize: 12, fontWeight: 600, color: z.name === currentZone ? "#fff" : theme.palette.text.secondary }}>
-                              <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: zoneColor(z.pct, theme) }} />
-                              <Box>{ww.ui.zone} {z.name}</Box>
+                          <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            sx={{ mb: 0.5 }}
+                          >
+                            <Stack
+                              direction="row"
+                              alignItems="center"
+                              spacing={1}
+                              sx={{
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color:
+                                  z.name === currentZone
+                                    ? "#fff"
+                                    : theme.palette.text.secondary,
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  width: 7,
+                                  height: 7,
+                                  borderRadius: "50%",
+                                  bgcolor: zoneColor(z.pct, theme),
+                                }}
+                              />
+                              <Box>
+                                {ww.ui.zone} {z.name}
+                              </Box>
                               {z.name === currentZone && (
-                                <Box sx={{ fontSize: 9, fontWeight: 700, color: theme.palette.primary.main, bgcolor: "rgba(56,189,248,0.12)", px: 0.5, py: 0.25, borderRadius: 1 }}>
+                                <Box
+                                  sx={{
+                                    fontSize: 9,
+                                    fontWeight: 700,
+                                    color: theme.palette.primary.main,
+                                    bgcolor: "rgba(56,189,248,0.12)",
+                                    px: 0.5,
+                                    py: 0.25,
+                                    borderRadius: 1,
+                                  }}
+                                >
                                   {ww.ui.activeLabel}
                                 </Box>
                               )}
                             </Stack>
-                            <Typography sx={{ fontSize: 12, fontWeight: 700, color: zoneColor(z.pct, theme), fontFamily: "monospace" }}>
+                            <Typography
+                              sx={{
+                                fontSize: 12,
+                                fontWeight: 700,
+                                color: zoneColor(z.pct, theme),
+                                fontFamily: "monospace",
+                              }}
+                            >
                               {z.pct}%
                             </Typography>
                           </Stack>
@@ -594,21 +765,54 @@ export default function WarehouseWorkerClient({
                               height: 6,
                               borderRadius: 6,
                               bgcolor: "rgba(255,255,255,0.07)",
-                              "& .MuiLinearProgress-bar": { bgcolor: zoneColor(z.pct, theme) },
+                              "& .MuiLinearProgress-bar": {
+                                bgcolor: zoneColor(z.pct, theme),
+                              },
                             }}
                           />
                         </Box>
                       ))}
                     </Stack>
                   </Card>
-                  <Card data-tour="ww-control-panel" sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3, p: 2.5 }}>
-                    <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
-                      <Avatar sx={{ bgcolor: `${theme.palette.kpi.purple}1f`, color: theme.palette.kpi.purple, borderRadius: 2 }}>
-                        <Ico d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h12M20 18h0" size={19} />
+                  <Card
+                    data-tour="ww-control-panel"
+                    sx={{
+                      bgcolor: theme.palette.background.paper,
+                      color: theme.palette.text.primary,
+                      borderRadius: 3,
+                      p: 2.5,
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      spacing={1.5}
+                      sx={{ mb: 2 }}
+                    >
+                      <Avatar
+                        sx={{
+                          bgcolor: `${theme.palette.kpi.purple}1f`,
+                          color: theme.palette.kpi.purple,
+                          borderRadius: 2,
+                        }}
+                      >
+                        <Ico
+                          d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h12M20 18h0"
+                          size={19}
+                        />
                       </Avatar>
-                      <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{ww.ui.controlPanel}</Typography>
+                      <Typography sx={{ fontWeight: 700, fontSize: 16 }}>
+                        {ww.ui.controlPanel}
+                      </Typography>
                     </Stack>
-                    <Typography variant="overline" sx={{ color: theme.palette.text.secondary, fontWeight: 700, mb: 1 }}>
+                    <Typography
+                      variant="overline"
+                      sx={{
+                        color: theme.palette.text.secondary,
+                        fontWeight: 700,
+                        mb: 1,
+                      }}
+                    >
                       {ww.ui.activePickZone}
                     </Typography>
                     <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
@@ -625,8 +829,12 @@ export default function WarehouseWorkerClient({
                                 borderRadius: 3,
                                 fontWeight: 700,
                                 border: `1px solid ${on ? "rgba(56,189,248,0.4)" : "rgba(255,255,255,0.1)"}`,
-                                bgcolor: on ? "rgba(56,189,248,0.16)" : "rgba(255,255,255,0.03)",
-                                color: on ? theme.palette.primary.main : theme.palette.text.secondary,
+                                bgcolor: on
+                                  ? "rgba(56,189,248,0.16)"
+                                  : "rgba(255,255,255,0.03)",
+                                color: on
+                                  ? theme.palette.primary.main
+                                  : theme.palette.text.secondary,
                               }}
                             >
                               {z}
@@ -634,13 +842,22 @@ export default function WarehouseWorkerClient({
                           );
                         })}
                     </Stack>
-                    <Typography variant="overline" sx={{ color: theme.palette.text.secondary, fontWeight: 700, mb: 1 }}>
+                    <Typography
+                      variant="overline"
+                      sx={{
+                        color: theme.palette.text.secondary,
+                        fontWeight: 700,
+                        mb: 1,
+                      }}
+                    >
                       {ww.ui.quickActions}
                     </Typography>
                     <Stack data-tour="ww-quick-actions" spacing={1}>
                       <Button
                         onClick={onRestock}
-                        startIcon={<Ico d="M12 3v11M8 10l4 4 4-4M4 21h16" size={17} />}
+                        startIcon={
+                          <Ico d="M12 3v11M8 10l4 4 4-4M4 21h16" size={17} />
+                        }
                         sx={{
                           justifyContent: "flex-start",
                           py: 1.5,
@@ -656,7 +873,12 @@ export default function WarehouseWorkerClient({
                       </Button>
                       <Button
                         onClick={onReport}
-                        startIcon={<Ico d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01" size={17} />}
+                        startIcon={
+                          <Ico
+                            d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01"
+                            size={17}
+                          />
+                        }
                         sx={{
                           justifyContent: "flex-start",
                           py: 1.5,
@@ -670,22 +892,6 @@ export default function WarehouseWorkerClient({
                       >
                         {ww.ui.reportIssue}
                       </Button>
-                      <Button
-                        onClick={onEndShift}
-                        startIcon={<Ico d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" size={17} />}
-                        sx={{
-                          justifyContent: "flex-start",
-                          py: 1.5,
-                          borderRadius: 3,
-                          bgcolor: "rgba(255,255,255,0.04)",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          color: "rgba(255,255,255,0.65)",
-                          fontWeight: 700,
-                          textTransform: "none",
-                        }}
-                      >
-                        {ww.dashboard.endShiftSave}
-                      </Button>
                     </Stack>
                   </Card>
                 </Stack>
@@ -697,33 +903,60 @@ export default function WarehouseWorkerClient({
           {view === "scan" && (
             <Stack spacing={2.5}>
               <Box>
-                <Typography sx={{ fontSize: 22, fontWeight: 800 }}>{ww.ui.scanLogMovements}</Typography>
-                <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mt: 1 }}>
+                <Typography sx={{ fontSize: 22, fontWeight: 800 }}>
+                  {ww.ui.scanLogMovements}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    color: theme.palette.text.secondary,
+                    mt: 1,
+                  }}
+                >
                   {ww.ui.scanSubtitle}
                 </Typography>
               </Box>
               <Stack direction="row" spacing={2.5} alignItems="flex-start">
-                <Card data-tour="ww-scan-section" sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3, flex: 1.4 }}>
-                  <Stack direction="row" alignItems="center" spacing={1.5} sx={{ p: 2.5 }}>
-                    <Avatar sx={{ bgcolor: `${theme.palette.primary.main}1f`, color: theme.palette.primary.main, borderRadius: 2 }}>
+                <Card
+                  data-tour="ww-scan-section"
+                  sx={{
+                    bgcolor: theme.palette.background.paper,
+                    color: theme.palette.text.primary,
+                    borderRadius: 3,
+                    flex: 1.4,
+                  }}
+                >
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1.5}
+                    sx={{ p: 2.5 }}
+                  >
+                    <Avatar
+                      sx={{
+                        bgcolor: `${theme.palette.primary.main}1f`,
+                        color: theme.palette.primary.main,
+                        borderRadius: 2,
+                      }}
+                    >
                       <Ico d={I.scan} size={19} />
                     </Avatar>
-                    <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{ww.ui.scanAnItem}</Typography>
+                    <Typography sx={{ fontWeight: 700, fontSize: 16 }}>
+                      {ww.ui.scanAnItem}
+                    </Typography>
                   </Stack>
                   <Box sx={{ borderTop: `1px solid ${theme.palette.divider}` }}>
                     <WWScanSection
-                        scanResult={scanResult}
-                        scanInput={scanInput}
-                        setScanInput={setScanInput}
-                        doScan={doScan}
-                        simScan={simScan}
-                        scanQty={scanQty}
-                        setScanQty={setScanQty}
-                        log={log}
-                        setScanResult={setScanResult}
-
-                        ww={ww}
-                        onBreak={onBreak}
+                      scanResult={scanResult}
+                      scanInput={scanInput}
+                      setScanInput={setScanInput}
+                      doScan={doScan}
+                      simScan={simScan}
+                      scanQty={scanQty}
+                      setScanQty={setScanQty}
+                      log={log}
+                      setScanResult={setScanResult}
+                      ww={ww}
                     />
                   </Box>
                 </Card>
@@ -737,20 +970,62 @@ export default function WarehouseWorkerClient({
           {view === "tasks" && (
             <Stack spacing={2.5}>
               <Box>
-                <Typography sx={{ fontSize: 22, fontWeight: 800 }}>{ww.ui.myTaskQueue}</Typography>
-                <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mt: 1 }}>
-                  {openTasks} {ww.ui.openTasksCount} · {highCount} {ww.ui.highPriority}
+                <Typography sx={{ fontSize: 22, fontWeight: 800 }}>
+                  {ww.ui.myTaskQueue}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    color: theme.palette.text.secondary,
+                    mt: 1,
+                  }}
+                >
+                  {openTasks} {ww.ui.openTasksCount} · {highCount}{" "}
+                  {ww.ui.highPriority}
                 </Typography>
               </Box>
-              <Card data-tour="ww-task-list" sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3 }}>
-                <Stack direction="row" alignItems="center" spacing={1.5} sx={{ p: 2.5 }}>
-                  <Avatar sx={{ bgcolor: `${theme.palette.primary.main}1f`, color: theme.palette.primary.main, borderRadius: 2 }}>
+              <Card
+                data-tour="ww-task-list"
+                sx={{
+                  bgcolor: theme.palette.background.paper,
+                  color: theme.palette.text.primary,
+                  borderRadius: 3,
+                }}
+              >
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={1.5}
+                  sx={{ p: 2.5 }}
+                >
+                  <Avatar
+                    sx={{
+                      bgcolor: `${theme.palette.primary.main}1f`,
+                      color: theme.palette.primary.main,
+                      borderRadius: 2,
+                    }}
+                  >
                     <Ico d={I.tasks} size={19} />
                   </Avatar>
-                  <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{ww.ui.allAssignedTasks}</Typography>
+                  <Typography sx={{ fontWeight: 700, fontSize: 16 }}>
+                    {ww.ui.allAssignedTasks}
+                  </Typography>
                 </Stack>
-                <Box sx={{ borderTop: `1px solid ${theme.palette.divider}` }}>
-                  {tasks.map((t) => <WWTaskRow key={t.id} t={t} advanceTask={advanceTask} ww={ww} />)}
+                <Box
+                  sx={{
+                    borderTop: `1px solid ${theme.palette.divider}`,
+                    maxHeight: 400,
+                    overflowY: "auto",
+                  }}
+                >
+                  {tasks.map((t) => (
+                    <WWTaskRow
+                      key={t.id}
+                      t={t}
+                      advanceTask={advanceTask}
+                      ww={ww}
+                    />
+                  ))}
                 </Box>
               </Card>
             </Stack>
@@ -759,9 +1034,18 @@ export default function WarehouseWorkerClient({
           {view === "capacity" && (
             <Stack spacing={2.5}>
               <Box>
-                <Typography sx={{ fontSize: 22, fontWeight: 800 }}>{ww.ui.siteCapacity}</Typography>
-                <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mt: 1 }}>
-                  {capUsed.toLocaleString()} / {capTotal.toLocaleString()} {ww.ui.palletPositionsUsed}
+                <Typography sx={{ fontSize: 22, fontWeight: 800 }}>
+                  {ww.ui.siteCapacity}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    color: theme.palette.text.secondary,
+                    mt: 1,
+                  }}
+                >
+                  {capUsed.toLocaleString()} / {capTotal.toLocaleString()}{" "}
+                  {ww.ui.palletPositionsUsed}
                 </Typography>
               </Box>
               <Stack direction="row" spacing={2.5} alignItems="flex-start">
@@ -779,31 +1063,101 @@ export default function WarehouseWorkerClient({
                     alignItems: "center",
                   }}
                 >
-                  <Box sx={{ position: "relative", display: "inline-flex", mb: 3 }}>
-                    <CircularProgress variant="determinate" value={100} size={168} sx={{ color: "rgba(255,255,255,0.08)" }} />
+                  <Box
+                    sx={{ position: "relative", display: "inline-flex", mb: 3 }}
+                  >
+                    <CircularProgress
+                      variant="determinate"
+                      value={100}
+                      size={168}
+                      sx={{ color: "rgba(255,255,255,0.08)" }}
+                    />
                     <CircularProgress
                       variant="determinate"
                       value={capacityPct}
                       size={168}
-                      sx={{ color: zoneColor(capacityPct, theme), position: "absolute", left: 0 }}
+                      sx={{
+                        color: zoneColor(capacityPct, theme),
+                        position: "absolute",
+                        left: 0,
+                      }}
                     />
-                    <Box sx={{ top: 0, left: 0, bottom: 0, right: 0, position: "absolute", display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column" }}>
-                      <Typography sx={{ fontSize: 38, fontWeight: 900 }}>{capacityPct}%</Typography>
+                    <Box
+                      sx={{
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        right: 0,
+                        position: "absolute",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Typography sx={{ fontSize: 38, fontWeight: 900 }}>
+                        {capacityPct}%
+                      </Typography>
                     </Box>
                   </Box>
-                  <Typography sx={{ fontSize: 20, fontWeight: 800 }}>{(capTotal - capUsed).toLocaleString()}</Typography>
-                  <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary }}>{ww.ui.positionsFree}</Typography>
+                  <Typography sx={{ fontSize: 20, fontWeight: 800 }}>
+                    {(capTotal - capUsed).toLocaleString()}
+                  </Typography>
+                  <Typography
+                    sx={{ fontSize: 12, color: theme.palette.text.secondary }}
+                  >
+                    {ww.ui.positionsFree}
+                  </Typography>
                 </Card>
-                <Card data-tour="ww-zone-list" sx={{ bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, borderRadius: 3, p: 3, flex: 1 }}>
+                <Card
+                  data-tour="ww-zone-list"
+                  sx={{
+                    bgcolor: theme.palette.background.paper,
+                    color: theme.palette.text.primary,
+                    borderRadius: 3,
+                    p: 3,
+                    flex: 1,
+                  }}
+                >
                   <Stack spacing={2.5}>
                     {zones.map((z) => (
                       <Box key={z.name}>
-                        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
-                          <Stack direction="row" alignItems="center" spacing={1} sx={{ fontSize: 12, fontWeight: 600, color: theme.palette.text.secondary }}>
-                            <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: zoneColor(z.pct, theme) }} />
-                            <Box>{ww.ui.zone} {z.name}</Box>
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          sx={{ mb: 1 }}
+                        >
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={1}
+                            sx={{
+                              fontSize: 12,
+                              fontWeight: 600,
+                              color: theme.palette.text.secondary,
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                width: 7,
+                                height: 7,
+                                borderRadius: "50%",
+                                bgcolor: zoneColor(z.pct, theme),
+                              }}
+                            />
+                            <Box>
+                              {ww.ui.zone} {z.name}
+                            </Box>
                           </Stack>
-                          <Typography sx={{ fontSize: 12, fontWeight: 700, color: zoneColor(z.pct, theme), fontFamily: "monospace" }}>
+                          <Typography
+                            sx={{
+                              fontSize: 12,
+                              fontWeight: 700,
+                              color: zoneColor(z.pct, theme),
+                              fontFamily: "monospace",
+                            }}
+                          >
                             {z.pct}%
                           </Typography>
                         </Stack>
@@ -814,7 +1168,9 @@ export default function WarehouseWorkerClient({
                             height: 6,
                             borderRadius: 6,
                             bgcolor: "rgba(255,255,255,0.07)",
-                            "& .MuiLinearProgress-bar": { bgcolor: zoneColor(z.pct, theme) },
+                            "& .MuiLinearProgress-bar": {
+                              bgcolor: zoneColor(z.pct, theme),
+                            },
                           }}
                         />
                       </Box>
@@ -828,8 +1184,16 @@ export default function WarehouseWorkerClient({
           {view === "activity" && (
             <Stack spacing={2.5}>
               <Box>
-                <Typography sx={{ fontSize: 22, fontWeight: 800 }}>{ww.ui.liveActivity}</Typography>
-                <Typography sx={{ fontSize: 13, color: theme.palette.text.secondary, mt: 1 }}>
+                <Typography sx={{ fontSize: 22, fontWeight: 800 }}>
+                  {ww.ui.liveActivity}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    color: theme.palette.text.secondary,
+                    mt: 1,
+                  }}
+                >
                   {ww.ui.liveActivitySubtitle}
                 </Typography>
               </Box>

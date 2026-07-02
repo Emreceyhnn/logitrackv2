@@ -2464,8 +2464,7 @@
       "vehicleAssignment": "Araç Ataması",
       "loadingVehicles": "Araçlar yükleniyor...",
       "assignmentSummary": "ATAMA ÖZETİ",
-      "driverShift": "Sürücü Vardiyası",
-      "shiftStart": "Vardiya Başlangıcı",
+
       "noDriverSelected": "Sürücü seçilmedi",
       "statusOnDuty": "Durum: Görevde",
       "vehicleMaintenance": "Araç Bakımı",
@@ -3035,25 +3034,24 @@
     "warehouseWorker": "Depo Çalışanı",
     "justNow": "az önce",
     "ago": "önce",
-    "resumeShiftToLog": "İşlem kaydetmek için mesainizi başlatın",
+
     "unrecognizedItem": "Tanınmayan ürün",
     "noInventoryToScan": "Bu depoda taranacak ürün yok",
     "logged": "Kaydedildi",
     "couldNotLog": "Hareket kaydedilemedi",
     "taskComplete": "Görev tamamlandı",
     "couldNotUpdateTask": "Görev güncellenemedi",
-    "couldNotUpdateShift": "Mesai güncellenemedi",
+
     "restockRequested": "Besleme talebi oluşturuldu",
     "couldNotRequestRestock": "Besleme talebi oluşturulamadı",
     "issueReported": "Sorun amire bildirildi",
     "couldNotReportIssue": "Sorun bildirilemedi",
-    "shiftSummarySaved": "Mesai özeti kaydedildi",
-    "couldNotEndShift": "Mesai sonlandırılamadı",
+
     "high": "yüksek",
     "med": "orta",
     "low": "düşük",
     "ui": {
-      "onShift": "Mesaide",
+
       "aisles": "Koridor 1–48",
       "liveMovements": "Canlı stok hareketleri",
       "type": "Tip",
@@ -3068,7 +3066,7 @@
       "simScan": "Okutma Simülasyonu",
       "logPick": "Toplama (Pick)",
       "logPack": "Paketleme (Pack)",
-      "onBreakMsg": "Moladasınız — işlem yapmak için mesainizi başlatın.",
+
       "doneBtn": "Bitti",
       "advanceBtn": "İlerle",
       "PICK": "TOPLA",
@@ -3110,19 +3108,13 @@
       "activity": "Aktivite"
     },
     "status": {
-      "onBreak": "Molada",
-      "activeOnShift": "Mesaide",
-      "resumeShift": "Mesaiye dön",
-      "takeABreak": "Mola ver"
     },
     "dashboard": {
       "picksToday": "Bugünkü Toplama (Pick)",
       "packsToday": "Bugünkü Paketleme (Pack)",
       "throughput": "Performans",
       "unitsHr": "ürün/sa",
-      "shiftAvg": "Mesai ort",
-      "shiftStatus": "Mesai Durumu",
-      "endShiftSave": "Mesaiyi bitir & kaydet",
+
       "latestTasks": "Son görevler",
       "viewAll": "Tümünü gör",
       "zones": "Bölgeler",

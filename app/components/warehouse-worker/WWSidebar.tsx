@@ -12,7 +12,6 @@ interface WWSidebarProps {
   view: View;
   setView: (v: View) => void;
   worker: { initials: string };
-  status: { color: string };
   NAV: { key: View; title: string; d: string }[];
   onHelpClick?: () => void;
   dict?: any;
@@ -24,7 +23,6 @@ export default function WWSidebar({
   view,
   setView,
   worker,
-  status,
   NAV,
   onHelpClick,
   dict,
@@ -133,18 +131,7 @@ export default function WWSidebar({
         }}
       >
         {worker.initials}
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: -1,
-            right: -1,
-            width: 13,
-            height: 13,
-            borderRadius: "50%",
-            bgcolor: status.color,
-            border: `2.5px solid ${theme.palette.background.sidebar}`,
-          }}
-        />
+
       </Box>
     </Stack>
   );

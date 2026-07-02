@@ -234,12 +234,12 @@ const ThirdRouteDialogStep = () => {
                 <Stack direction="row" spacing={1} alignItems="center">
                   <EventAvailableIcon fontSize="small" color="primary" />
                   <Typography variant="caption" fontWeight={600} color="white">
-                    {dict.routes.dialogs.driverShift}
+                    {dict.routes.dialogs.driverAssignment}
                   </Typography>
                 </Stack>
                 <Typography variant="caption" color="text.secondary">
                   {selectedDriver
-                    ? `${dict.routes.dialogs.shiftStart}: 08:30 AM`
+                    ? selectedDriver.user.name + " " + selectedDriver.user.surname
                     : dict.routes.dialogs.noDriverSelected}
                 </Typography>
                 {selectedDriver && (

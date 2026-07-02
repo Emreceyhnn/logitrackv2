@@ -16,8 +16,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import HistoryIcon from "@mui/icons-material/History";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import LoginIcon from "@mui/icons-material/Login";
-import LogoutIcon from "@mui/icons-material/Logout";
+
 import BadgeIcon from "@mui/icons-material/Badge";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useEffect, useState, useCallback } from "react";
@@ -37,10 +36,7 @@ interface DriverHistoryDialogProps {
 const ActivityIcon = ({ type }: { type: string }) => {
   const theme = useTheme();
   switch (type) {
-    case "SHIFT_START":
-      return <LoginIcon sx={{ color: theme.palette.success.main }} />;
-    case "SHIFT_END":
-      return <LogoutIcon sx={{ color: theme.palette.warning.main }} />;
+
     case "ROUTE_COMPLETED":
       return <LocalShippingIcon sx={{ color: theme.palette.primary.main }} />;
     case "JOB_COMPLETED":

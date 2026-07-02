@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { Stack, Box, Typography, Button, LinearProgress, useTheme } from "@mui/material";
+import {
+  Stack,
+  Box,
+  Typography,
+  Button,
+  LinearProgress,
+  useTheme,
+} from "@mui/material";
 import { Task } from "@/app/lib/type/warehouseWorkerClient";
 
 interface WWTaskRowProps {
@@ -39,7 +46,7 @@ export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
       spacing={2}
       alignItems="center"
       sx={{
-        p: 2,
+        p: 2.2,
         borderBottom: `1px solid ${theme.palette.divider}`,
         opacity: complete ? 0.55 : 1,
       }}
@@ -64,7 +71,14 @@ export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {
           {ww.ui[t.kind] || t.kind}
         </Box>
         <Box sx={{ minWidth: 0 }}>
-          <Typography noWrap sx={{ fontSize: 14, fontWeight: 600, color: theme.palette.text.primary }}>
+          <Typography
+            noWrap
+            sx={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: theme.palette.text.primary,
+            }}
+          >
             {t.name}
           </Typography>
           <Typography

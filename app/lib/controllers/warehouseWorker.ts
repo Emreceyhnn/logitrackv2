@@ -15,8 +15,6 @@ import type {
 
 const PICKS_TARGET = 240;
 const PACKS_TARGET = 180;
-const SHIFT_AVG_RATE_FALLBACK = 119;
-const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 const WW_ROLES = [
   "role_admin",
   "role_manager",
@@ -58,22 +56,6 @@ async function resolveWarehouse(
   });
 }
 
-/** Find the user's open shift, or lazily create one for today. */
-async function ensureShift(
-  userId: string,
-  companyId: string,
-  warehouseId: string | null
-) {
-  const existing = await db.workerShift.findFirst({
-    where: { userId, status: { not: "ENDED" } },
-    orderBy: { shiftStartTime: "desc" },
-  });
-  if (existing) return existing;
-  return db.workerShift.create({
-    data: { userId, companyId, warehouseId, status: "ACTIVE" },
-  });
-}
-
 export const getWarehouseWorkerDashboard = authenticatedAction(
   async (user, warehouseId?: string): Promise<WarehouseWorkerDashboard> => {
     const companyId = user?.companyId || "";
@@ -86,8 +68,9 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
     const worker = {
       name: `${user.name} ${user.surname}`.trim(),
       initials:
-        `${user.name?.[0] ?? ""}${user.surname?.[0] ?? ""}`.toLocaleUpperCase('en-US') ||
-        "WW",
+        `${user.name?.[0] ?? ""}${user.surname?.[0] ?? ""}`.toLocaleUpperCase(
+          "en-US"
+        ) || "WW",
       role: user.roleName || "Warehouse Worker",
     };
 
@@ -102,27 +85,16 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
 
     // No warehouse yet → return an empty-but-valid payload.
     if (!warehouse) {
-      const shift = await ensureShift(userId, companyId, null);
       return {
         warehouse: null,
         warehouses,
         worker,
-        shift: {
-          id: shift.id,
-          status: shift.status,
-          startedAt: shift.shiftStartTime.toISOString(),
-          elapsedSeconds: Math.max(
-            0,
-            Math.floor((Date.now() - shift.shiftStartTime.getTime()) / 1000)
-          ),
-        },
         kpis: {
           picks: 0,
           picksTarget: PICKS_TARGET,
           packs: 0,
           packsTarget: PACKS_TARGET,
           rate: 0,
-          shiftAvgRate: SHIFT_AVG_RATE_FALLBACK,
         },
         tasks: [],
         zones: [],
@@ -132,74 +104,49 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       };
     }
 
-    const shift = await ensureShift(userId, companyId, warehouse.id);
-
-    const thirtyDaysAgo = new Date(Date.now() - THIRTY_DAYS_MS);
-
-    const [
-      movementsToday,
-      tasksRaw,
-      zonesRaw,
-      feedRaw,
-      inventoryRaw,
-      completedShifts,
-    ] = await Promise.all([
-      db.inventoryMovement.findMany({
-        where: {
-          warehouseId: warehouse.id,
-          companyId,
-          date: { gte: startOfToday() },
-          type: { in: ["PICK", "PACK"] },
-        },
-        select: { type: true, quantity: true },
-      }),
-      db.warehouseTask.findMany({
-        where: { warehouseId: warehouse.id },
-        orderBy: [
-          { status: "asc" },
-          { priority: "desc" },
-          { createdAt: "asc" },
-        ],
-        take: 12,
-      }),
-      db.warehouseZone.findMany({
-        where: { warehouseId: warehouse.id },
-        orderBy: { code: "asc" },
-      }),
-      db.inventoryMovement.findMany({
-        where: { warehouseId: warehouse.id, companyId },
-        include: { user: { select: { name: true, surname: true } } },
-        orderBy: { date: "desc" },
-        take: 12,
-      }),
-      db.inventory.findMany({
-        where: { warehouseId: warehouse.id },
-        select: {
-          sku: true,
-          name: true,
-          zone: true,
-          quantity: true,
-          palletCount: true,
-        },
-        orderBy: { updatedAt: "desc" },
-        take: 500,
-      }),
-      /* Real shift average: completed shifts in the last 30 days for this warehouse */
-      db.workerShift.findMany({
-        where: {
-          warehouseId: warehouse.id,
-          status: "ENDED",
-          shiftEndTime: { not: null },
-          shiftStartTime: { gte: thirtyDaysAgo },
-        },
-        select: {
-          picksLogged: true,
-          packsLogged: true,
-          shiftStartTime: true,
-          shiftEndTime: true,
-        },
-      }),
-    ]);
+    const [movementsToday, tasksRaw, zonesRaw, feedRaw, inventoryRaw] =
+      await Promise.all([
+        db.inventoryMovement.findMany({
+          where: {
+            warehouseId: warehouse.id,
+            companyId,
+            date: { gte: startOfToday() },
+            type: { in: ["PICK", "PACK"] },
+          },
+          select: { type: true, quantity: true },
+        }),
+        db.warehouseTask.findMany({
+          where: { warehouseId: warehouse.id },
+          orderBy: [
+            { status: "asc" },
+            { priority: "desc" },
+            { createdAt: "asc" },
+          ],
+          take: 12,
+        }),
+        db.warehouseZone.findMany({
+          where: { warehouseId: warehouse.id },
+          orderBy: { code: "asc" },
+        }),
+        db.inventoryMovement.findMany({
+          where: { warehouseId: warehouse.id, companyId },
+          include: { user: { select: { name: true, surname: true } } },
+          orderBy: { date: "desc" },
+          take: 12,
+        }),
+        db.inventory.findMany({
+          where: { warehouseId: warehouse.id },
+          select: {
+            sku: true,
+            name: true,
+            zone: true,
+            quantity: true,
+            palletCount: true,
+          },
+          orderBy: { updatedAt: "desc" },
+          take: 500,
+        }),
+      ]);
 
     const picks = movementsToday
       .filter((m) => m.type === "PICK")
@@ -210,25 +157,9 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
 
     const hoursElapsed = Math.max(
       0.5,
-      (Date.now() - shift.shiftStartTime.getTime()) / 3_600_000
+      1 // Dummy value to avoid refactoring rate calculation too much
     );
     const rate = Math.round((picks + packs) / hoursElapsed) || 0;
-
-    /* Compute real shift average rate from completed shifts in last 30 days */
-    let shiftAvgRate = SHIFT_AVG_RATE_FALLBACK;
-    if (completedShifts.length > 0) {
-      let totalUnits = 0;
-      let totalHours = 0;
-      for (const s of completedShifts) {
-        totalUnits += s.picksLogged + s.packsLogged;
-        const hrs =
-          (s.shiftEndTime!.getTime() - s.shiftStartTime.getTime()) / 3_600_000;
-        totalHours += Math.max(0.5, hrs);
-      }
-      if (totalHours > 0) {
-        shiftAvgRate = Math.round(totalUnits / totalHours);
-      }
-    }
 
     // Zones come from the WarehouseZone config; actual usage is derived live from
     // each inventory item's `zone` (pallet occupancy), so stats stay in sync.
@@ -307,22 +238,12 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
       },
       warehouses,
       worker,
-      shift: {
-        id: shift.id,
-        status: shift.status,
-        startedAt: shift.shiftStartTime.toISOString(),
-        elapsedSeconds: Math.max(
-          0,
-          Math.floor((Date.now() - shift.shiftStartTime.getTime()) / 1000)
-        ),
-      },
       kpis: {
         picks,
         picksTarget: PICKS_TARGET,
         packs,
         packsTarget: PACKS_TARGET,
         rate,
-        shiftAvgRate,
       },
       tasks,
       zones,
@@ -401,14 +322,6 @@ export const logWarehouseMovement = authenticatedAction(
           });
         }
 
-        await tx.workerShift.updateMany({
-          where: { userId, status: { not: "ENDED" } },
-          data:
-            kind === "PICK"
-              ? { picksLogged: { increment: quantity } }
-              : { packsLogged: { increment: quantity } },
-        });
-
         return mv;
       }
     );
@@ -446,38 +359,6 @@ export const advanceWarehouseTask = authenticatedAction(
 
     revalidatePath("/", "layout");
     return { success: true, done: nextDone, complete };
-  }
-);
-
-/** Set the current worker's shift status (ACTIVE / BREAK / ENDED). */
-export const setWorkerShiftStatus = authenticatedAction(
-  async (user, status: "ACTIVE" | "BREAK" | "ENDED") => {
-    const companyId = user?.companyId || "";
-    const userId = user?.id || "";
-    await checkPermission(user, companyId, WW_ROLES);
-
-    const shift = await db.workerShift.findFirst({
-      where: { userId, status: { not: "ENDED" } },
-      orderBy: { shiftStartTime: "desc" },
-    });
-    if (!shift) {
-      const created = await db.workerShift.create({
-        data: {
-          userId,
-          companyId,
-          status: status === "ENDED" ? "ENDED" : status,
-        },
-      });
-      return { success: true, status: created.status };
-    }
-
-    await db.workerShift.update({
-      where: { id: shift.id },
-      data: { status, shiftEndTime: status === "ENDED" ? new Date() : null },
-    });
-
-    revalidatePath("/", "layout");
-    return { success: true, status };
   }
 );
 
