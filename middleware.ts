@@ -107,21 +107,24 @@ export default async function proxy(request: NextRequest) {
   }
 
   const { locale, restPath } = getLocaleFromPathname(pathname);
+  const currentLocalePath = restPath || "/";
+  
+  // ── 2. Determine Canonical Path for Auth Checks and Rewrites ──────────────
+  const canonicalPath =
+    locale !== "en" ? getCanonicalPath(currentLocalePath, locale) : currentLocalePath;
 
-  // ── 2. URL translation rewrite (e.g. /tr/araclar → /tr/vehicle) ────────────
-  if (locale !== "en") {
-    const canonicalPath = getCanonicalPath(restPath || "/", locale);
-    if (canonicalPath !== (restPath || "/")) {
-      const url = request.nextUrl.clone();
-      url.pathname = `/${locale}${canonicalPath}`;
-      return NextResponse.rewrite(url);
-    }
+  let rewriteUrl: URL | null = null;
+  if (locale !== "en" && canonicalPath !== currentLocalePath) {
+    rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.pathname = `/${locale}${canonicalPath}`;
   }
 
   // ── 3. Auth gate ────────────────────────────────────────────────────────────
   const token = request.cookies.get("token")?.value;
   const refreshToken = request.cookies.get("refreshToken")?.value;
-  const currentPath = restPath || "/";
+  
+  // Use canonicalPath for route matching!
+  const currentPath = canonicalPath;
 
   const isProtectedRoute = PROTECTED_ROUTES.some(
     (p) => currentPath === p || currentPath.startsWith(p + "/")
@@ -203,6 +206,11 @@ export default async function proxy(request: NextRequest) {
       url.pathname = buildLocalizedHref(SIGN_IN_ROUTE, locale);
     }
     return NextResponse.redirect(url);
+  }
+
+  // ── 6. Final Response ───────────────────────────────────────────────────────
+  if (rewriteUrl) {
+    return NextResponse.rewrite(rewriteUrl);
   }
 
   return NextResponse.next();

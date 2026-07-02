@@ -15,7 +15,7 @@ const DashboardBreadcrumbs = () => {
 
   // The pathname looks like /tr/genel-bakis or /en/overview
   const segments = pathname.split("/").filter(Boolean);
-  
+
   // First segment is usually the language (en/tr)
   const lang = segments[0];
   const breadcrumbSegments = segments.slice(1);
@@ -23,17 +23,21 @@ const DashboardBreadcrumbs = () => {
   // Helper to map segments to dictionary labels
   const getLabel = (segment: string) => {
     // Reverse map for the current language
-    const reverseMap = Object.entries(routeTranslations[lang] || {}).reduce((acc, [key, val]) => {
-      acc[val] = key;
-      return acc;
-    }, {} as Record<string, string>);
+    const reverseMap = Object.entries(routeTranslations[lang] || {}).reduce(
+      (acc, [key, val]) => {
+        acc[val] = key;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
 
     const canonicalKey = reverseMap[segment] || segment;
-    
+
     // Map canonical keys to dictionary labels
     const sidebarLabels: Record<string, string> = {
       overview: dict.sidebar.overview,
       vehicle: dict.sidebar.vehicles,
+      vehicles: dict.sidebar.vehicles,
       drivers: dict.sidebar.drivers,
       routes: dict.sidebar.routes,
       shipments: dict.sidebar.shipments,
@@ -43,22 +47,40 @@ const DashboardBreadcrumbs = () => {
       analytics: dict.sidebar.analytics,
       reports: dict.sidebar.reports,
       company: dict.sidebar.company,
+      // Common path segments
+      add: dict.common.add,
+      edit: dict.common.edit,
+      details: dict.common.details,
+      settings: dict.common.settings,
     };
 
-    return sidebarLabels[canonicalKey] || canonicalKey.charAt(0).toLocaleUpperCase('en-US') + canonicalKey.slice(1).replace(/-/g, " ");
+    if (sidebarLabels[canonicalKey]) {
+      return sidebarLabels[canonicalKey];
+    }
+
+    // Attempt mapping via common words dynamically if they exist
+    const commonDict = dict.common as Record<string, unknown>;
+    if (commonDict && typeof commonDict[canonicalKey] === "string") {
+      return commonDict[canonicalKey] as string;
+    }
+
+    return (
+      canonicalKey.charAt(0).toLocaleUpperCase("en-US") +
+      canonicalKey.slice(1).replace(/-/g, " ")
+    );
   };
 
   return (
     <Box sx={{ display: "flex", alignItems: "center" }}>
       <Breadcrumbs
         separator={
-          <NavigateNextIcon 
-            fontSize="small" 
-            sx={{ 
-              color: "text.secondary", 
+          <NavigateNextIcon
+            fontSize="small"
+            sx={{
+              color: "text.secondary",
               opacity: 0.4,
-              mx: 0.5 
-            }} 
+              mx: 0.5,
+            }}
           />
         }
         aria-label="breadcrumb"
