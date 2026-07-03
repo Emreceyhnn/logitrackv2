@@ -17,7 +17,12 @@ const getJwtSecret = (): string => {
 };
 
 // ─── Constants ──────────────────────────────────────────────────────────────
-const ACCESS_TOKEN_EXPIRY = "24h"; // 24 hours
+// Keep the access token short-lived: a stolen/leaked JWT is only usable until
+// it expires (server-side revocation via the session row + Redis cache still
+// applies within ~5 min, but a short TTL shrinks the offline-replay window).
+// The 7-day refresh token, rotated on every use, preserves the login lifetime.
+const ACCESS_TOKEN_EXPIRY = "1h";
+const ACCESS_TOKEN_MAX_AGE = 60 * 60; // seconds — must match ACCESS_TOKEN_EXPIRY
 const REFRESH_TOKEN_EXPIRY_DAYS = 7;
 const ACTIVITY_THROTTLE_MS = 5 * 60 * 1000; // 5 minutes — don't update lastActivityAt on every single request
 
@@ -111,7 +116,7 @@ function hashToken(token: string): string {
 /**
  * Creates a new server-side session for a user.
  *
- * 1. Generates an access token (JWT, 15 min) and refresh token (opaque, 7 days)
+ * 1. Generates an access token (JWT, 1 hour) and refresh token (opaque, 7 days)
  * 2. Persists the session in the database with hashed token for lookup
  * 3. Sets httpOnly cookies for both tokens
  *
@@ -158,7 +163,7 @@ export async function createSession(
 
     cookieStore.set("token", accessToken, {
       ...COOKIE_OPTIONS,
-      maxAge: 24 * 60 * 60, // 24 hours (seconds)
+      maxAge: ACCESS_TOKEN_MAX_AGE,
     });
 
     cookieStore.set("refreshToken", refreshToken, {
@@ -448,7 +453,7 @@ export async function refreshSession(): Promise<boolean> {
     try {
       cookieStore.set("token", newAccessToken, {
         ...COOKIE_OPTIONS,
-        maxAge: 24 * 60 * 60, // 24 hours (seconds)
+        maxAge: ACCESS_TOKEN_MAX_AGE,
       });
 
       cookieStore.set("refreshToken", newRefreshToken, {

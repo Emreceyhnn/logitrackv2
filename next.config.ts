@@ -50,6 +50,40 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  // ── Security headers ──────────────────────────────────────────────────────
+  // Applied to every response. The CSP here is intentionally minimal — it locks
+  // the framing / base-uri / plugin surface (kills clickjacking and <base>
+  // injection) without constraining script/style origins, so it cannot break
+  // MUI/emotion inline styles or the Google Maps / Firebase / Leaflet / Valhalla
+  // integrations. Tighten to a nonce-based script-src/connect-src allowlist once
+  // those external origins are enumerated per environment.
+  async headers() {
+    const securityHeaders = [
+      {
+        key: "Content-Security-Policy",
+        value: [
+          "frame-ancestors 'none'",
+          "object-src 'none'",
+          "base-uri 'self'",
+          "form-action 'self'",
+        ].join("; "),
+      },
+      {
+        key: "Strict-Transport-Security",
+        value: "max-age=63072000; includeSubDomains; preload",
+      },
+      { key: "X-Frame-Options", value: "DENY" },
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      {
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(), geolocation=(self), payment=()",
+      },
+    ];
+
+    return [{ source: "/:path*", headers: securityHeaders }];
+  },
+
 };
 
 export default withBundleAnalyzer(nextConfig);

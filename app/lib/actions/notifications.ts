@@ -59,15 +59,17 @@ export async function sendNotificationAction(
       return { success: true };
     }
 
+    // Tenant-scoped path segments so RTDB security rules can enforce isolation
+    // via `auth.token.companyId` / `auth.token.roleId`. See database.rules.json.
     if (target.isGlobal) {
-      path = "notifications/groups/everyone";
+      path = "notifications/broadcast";
     } else if (target.userId) {
       path = `notifications/inbox/${target.userId}`;
     } else if (target.companyId) {
       if (target.roleId) {
-        path = `notifications/groups/company_${target.companyId}_role_${target.roleId}`;
+        path = `notifications/company/${target.companyId}/role/${target.roleId}`;
       } else {
-        path = `notifications/groups/company_${target.companyId}`;
+        path = `notifications/company/${target.companyId}/all`;
       }
     }
 

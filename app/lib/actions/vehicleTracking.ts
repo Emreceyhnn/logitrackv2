@@ -3,13 +3,21 @@
 import { adminDb } from "@/app/lib/firebase-admin";
 import { VehicleLocation } from "@/app/lib/type/vehicle";
 
+/**
+ * All Realtime Database paths are tenant-scoped as
+ * `vehicles/<node>/{companyId}/{vehicleId}` so that a client (whose RTDB access
+ * is constrained by security rules to its own `companyId`) can never read or
+ * write another tenant's vehicles. See `database.rules.json`.
+ */
+
 export async function updateVehicleLocationAction(
+  companyId: string,
   vehicleId: string,
   location: Omit<VehicleLocation, "lastUpdated">
 ) {
   try {
     if (!adminDb) throw new Error("Firebase not initialized");
-    const path = `vehicles/locations/${vehicleId}`;
+    const path = `vehicles/locations/${companyId}/${vehicleId}`;
     const data: VehicleLocation = {
       ...location,
       lastUpdated: Date.now(),
@@ -24,12 +32,13 @@ export async function updateVehicleLocationAction(
 }
 
 export async function updateVehicleDataAction(
+  companyId: string,
   vehicleId: string,
   data: Partial<VehicleLocation>
 ) {
   try {
     if (!adminDb) throw new Error("Firebase not initialized");
-    const path = `vehicles/locations/${vehicleId}`;
+    const path = `vehicles/locations/${companyId}/${vehicleId}`;
     const updateData = {
       ...data,
       lastUpdated: Date.now(),
@@ -42,10 +51,16 @@ export async function updateVehicleDataAction(
   }
 }
 
-export async function syncVehicleToFirebaseAction(vehicle: { id: string } & Record<string, unknown>) {
+export async function syncVehicleToFirebaseAction(
+  vehicle: { id: string; companyId: string | null } & Record<string, unknown>
+) {
   try {
     if (!adminDb) throw new Error("Firebase not initialized");
-    const path = `vehicles/registry/${vehicle.id}`;
+    if (!vehicle.companyId) {
+      // A vehicle with no company must never land in a shared/guessable node.
+      return { success: false, error: "Vehicle has no companyId" };
+    }
+    const path = `vehicles/registry/${vehicle.companyId}/${vehicle.id}`;
     await adminDb.ref(path).set({
       ...vehicle,
       lastSynced: Date.now(),

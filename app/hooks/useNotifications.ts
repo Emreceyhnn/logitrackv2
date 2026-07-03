@@ -9,6 +9,7 @@ import {
   type DataSnapshot,
   type DatabaseReference,
 } from "@/app/lib/firebase";
+import { ensureFirebaseAuth } from "@/app/lib/firebase-auth";
 import { NotificationType } from "@/app/lib/type/notification";
 import {
   markAsReadAction,
@@ -54,13 +55,13 @@ export const useNotifications = (user: UserContext | undefined) => {
     if (!user?.id) return;
 
     const paths = [
-      { key: "everybody", path: "notifications/groups/everyone" },
+      { key: "everybody", path: "notifications/broadcast" },
       { key: "personal", path: `notifications/inbox/${user.id}` },
       ...(user.companyId
         ? [
             {
               key: "company",
-              path: `notifications/groups/company_${user.companyId}`,
+              path: `notifications/company/${user.companyId}/all`,
             },
           ]
         : []),
@@ -68,7 +69,7 @@ export const useNotifications = (user: UserContext | undefined) => {
         ? [
             {
               key: "role",
-              path: `notifications/groups/company_${user.companyId}_role_${user.roleId}`,
+              path: `notifications/company/${user.companyId}/role/${user.roleId}`,
             },
           ]
         : []),
@@ -83,7 +84,22 @@ export const useNotifications = (user: UserContext | undefined) => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     let pathsLoaded = 0;
+    let cancelled = false;
 
+    // RTDB security rules require an authenticated Firebase session scoped to
+    // the caller's companyId. Sign in before subscribing; if the effect is torn
+    // down first, `cancelled` prevents a late subscription.
+    void ensureFirebaseAuth()
+      .then(() => {
+        if (cancelled) return;
+        subscribeAll();
+      })
+      .catch((err) => {
+        console.error("[useNotifications] Firebase auth failed:", err);
+        if (!cancelled) setLoading(false);
+      });
+
+    function subscribeAll() {
     paths.forEach(({ path }) => {
       const nodeRef = ref(db, path);
       const listener = (snapshot: DataSnapshot) => {
@@ -123,8 +139,10 @@ export const useNotifications = (user: UserContext | undefined) => {
 
       listeners.push({ nodeRef, listener, path });
     });
+    }
 
     return () => {
+      cancelled = true;
       listeners.forEach(({ nodeRef, listener }) =>
         off(nodeRef, "value", listener)
       );
