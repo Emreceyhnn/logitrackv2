@@ -94,6 +94,26 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
     }
   };
 
+  const handleDownloadDoc = async (url: string) => {
+    if (!url) {
+      toast.error(dict.toasts.errorNoConnection);
+      return;
+    }
+    try {
+      // The documents bucket is private; a raw stored URL would 403. Sign it
+      // on demand before opening so downloads keep working.
+      const result = await getSignedUrlAction(url);
+      if (result.success && result.url) {
+        window.open(result.url, "_blank", "noopener,noreferrer");
+      } else {
+        toast.error(dict.toasts.errorNoPermission);
+      }
+    } catch (error) {
+      console.error("Download doc error:", error);
+      toast.error(dict.toasts.errorUpload);
+    }
+  };
+
   const handleDeleteClick = (id: string, name: string) => {
     setDocToDelete({ id, name });
     setDeleteConfirmOpen(true);
@@ -508,10 +528,10 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
                           <IconButton
                             size="small"
                             color="secondary"
-                            href={v.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownloadDoc(v.url);
+                            }}
                             disabled={!v.url}
                           >
                             <DownloadIcon sx={{ width: 20, height: 20 }} />

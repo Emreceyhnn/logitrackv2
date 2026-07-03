@@ -6,12 +6,18 @@ import {
   maybeAuthenticatedAction,
 } from "../auth-middleware";
 
-type UploadBucket =
-  | "vehicles"
-  | "documents"
-  | "avatars"
-  | "inventory"
-  | "general";
+type UploadBucket = "vehicles" | "documents" | "avatars" | "general";
+
+/**
+ * Buckets an UNAUTHENTICATED caller may write to. Uploads happen during the
+ * pre-account registration flow (profile avatar, company logo), so these two
+ * must stay open; every other bucket — notably `documents`, which holds
+ * sensitive files in a private bucket — requires an authenticated session.
+ */
+const ANON_WRITABLE_BUCKETS: ReadonlySet<UploadBucket> = new Set([
+  "avatars",
+  "general",
+]);
 
 interface UploadImageResult {
   success: true;
@@ -79,6 +85,10 @@ export const uploadImageAction = maybeAuthenticatedAction(
     bucket: UploadBucket = "general",
     folder?: string
   ): Promise<UploadImageResult> => {
+    if (!_user && !ANON_WRITABLE_BUCKETS.has(bucket)) {
+      throw new Error("Authentication required to upload to this bucket.");
+    }
+
     validateBase64Image(fileData);
 
     const base64Part = fileData.split(",")[1];

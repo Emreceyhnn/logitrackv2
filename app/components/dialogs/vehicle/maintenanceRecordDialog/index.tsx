@@ -26,7 +26,7 @@ import OpacityIcon from "@mui/icons-material/Opacity";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ImageIcon from "@mui/icons-material/Image";
+import SignedDocThumbnail from "@/app/components/shared/SignedDocThumbnail";
 import { useState, useRef } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { addMaintenanceRecord } from "@/app/lib/controllers/vehicle";
@@ -522,39 +522,7 @@ export default function MaintenanceRecordDialog({
                       gap: 2,
                     }}
                   >
-                    <Box
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 1,
-                        bgcolor: "primary._alpha.main_10",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "primary.main",
-                        overflow: "hidden",
-                        cursor: "pointer",
-                      }}
-                      onClick={() =>
-                        window.open(formData.documentUrl, "_blank")
-                      }
-                    >
-                      {formData.documentUrl.match(
-                        /\.(jpg|jpeg|png|webp|gif)$/i
-                      ) ? (
-                        <Box
-                          component="img"
-                          src={formData.documentUrl}
-                          sx={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      ) : (
-                        <ImageIcon />
-                      )}
-                    </Box>
+                    <SignedDocThumbnail url={formData.documentUrl} />
                     <Box
                       sx={{ flexGrow: 1, minWidth: 0, cursor: "pointer" }}
                       onClick={() =>

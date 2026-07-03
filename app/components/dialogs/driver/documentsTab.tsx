@@ -78,6 +78,25 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
     }
   };
 
+  const handleDownloadDoc = async (url: string) => {
+    if (!url) {
+      toast.error(dict.toasts.errorGeneric);
+      return;
+    }
+    try {
+      // The documents bucket is private; sign the URL on demand before opening.
+      const result = await getSignedUrlAction(url);
+      if (result.success && result.url) {
+        window.open(result.url, "_blank", "noopener,noreferrer");
+      } else {
+        toast.error(dict.toasts.errorGeneric);
+      }
+    } catch (error) {
+      console.error("Download doc error:", error);
+      toast.error(dict.common.errorOccurred);
+    }
+  };
+
   return (
     <Stack
       spacing={3}
@@ -253,9 +272,10 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
                       </IconButton>
                       <IconButton
                         size="small"
-                        component="a"
-                        href={doc.url}
-                        target="_blank"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownloadDoc(doc.url);
+                        }}
                         sx={{
                           color: theme.palette.primary.main,
                           bgcolor: theme.palette.primary._alpha.main_10,
