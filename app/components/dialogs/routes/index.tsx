@@ -17,10 +17,10 @@ import {
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
+import { lookupTranslation } from "@/app/lib/priorityColor";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import { RouteStatus } from "@/app/lib/type/enums";
 
-import { DriverWithRelations } from "@/app/lib/type/driver";
 import DriverCard from "../../cards/driverCard";
 import MapRoutesDialogCard from "./map";
 import RouteProgress from "./progress";
@@ -31,6 +31,10 @@ import PlaceIcon from "@mui/icons-material/Place";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import { polylineHelper } from "../../valhalla/polylineHelper";
+import {
+  resolvePaletteColor,
+  resolvePaletteAlpha,
+} from "@/app/lib/utils/paletteUtils";
 
 import { Dictionary } from "@/app/lib/language/language";
 
@@ -44,11 +48,7 @@ interface RouteDialogProps {
 const getStatusMeta = (status?: string, dict?: Dictionary) => {
   const s = status?.toLocaleUpperCase('en-US');
   const label =
-    (dict?.routes?.statuses as unknown as Record<string, string>)?.[
-      s as string
-    ] ||
-    status ||
-    "-";
+    (s && lookupTranslation(dict?.routes?.statuses, s)) || status || "-";
 
   switch (s) {
     case "ACTIVE":
@@ -240,12 +240,10 @@ export default function RouteDialog({
 
   const getStatusColor = () => {
     if (statusMeta.color.includes(".")) {
-      const [colorKey, colorVariant] = statusMeta.color.split(".");
-      const palette = theme.palette as unknown as Record<
-        string,
-        Record<string, string>
-      >;
-      return palette[colorKey]?.[colorVariant] || theme.palette.text.primary;
+      return (
+        resolvePaletteColor(theme.palette, statusMeta.color) ||
+        theme.palette.text.primary
+      );
     }
     return statusMeta.color;
   };
@@ -253,12 +251,8 @@ export default function RouteDialog({
   const statusColor = getStatusColor();
   const paletteKey = statusMeta.color.split(".")[0];
   const statusAlpha =
-    (
-      theme.palette as unknown as Record<
-        string,
-        { _alpha?: Record<string, string> }
-      >
-    )[paletteKey]?._alpha ?? theme.palette.primary._alpha;
+    resolvePaletteAlpha(theme.palette, paletteKey) ??
+    theme.palette.primary._alpha;
 
   return (
     <>
@@ -482,36 +476,17 @@ export default function RouteDialog({
                   </Typography>
                   {route.driver ? (
                     <DriverCard
-                      {...({
-                        id: route.driver.id,
-                        status: route.driver.status || "ON_JOB",
-                        phone: route.driver.phone || "",
-                        employeeId: route.driver.employeeId || dict.common.na,
-                        licenseNumber: route.driver.licenseNumber || "",
-                        licenseType: route.driver.licenseType || "",
-                        licenseExpiry: route.driver.licenseExpiry || null,
-                        rating: route.driver.rating || 0,
-                        efficiencyScore: route.driver.efficiencyScore || 0,
-                        safetyScore: route.driver.safetyScore || 0,
-                        user: {
-                          id: route.driver.user.id,
-                          name: route.driver.user.name,
-                          surname: route.driver.user.surname,
-                          email: "",
-                          avatarUrl: route.driver.user.avatarUrl,
-                          roleId: "",
-                        },
-                        currentVehicle: route.vehicle
-                          ? {
-                              id: route.vehicle.id,
-                              plate: route.vehicle.plate,
-                              brand: route.vehicle.brand,
-                              model: route.vehicle.model,
-                            }
-                          : null,
-                        createdAt: route.driver.createdAt,
-                        updatedAt: route.driver.updatedAt,
-                      } as unknown as DriverWithRelations)}
+                      employeeId={route.driver.employeeId || dict.common.na}
+                      licenseType={route.driver.licenseType || ""}
+                      rating={route.driver.rating || 0}
+                      user={{
+                        name: route.driver.user.name,
+                        surname: route.driver.user.surname,
+                        avatarUrl: route.driver.user.avatarUrl,
+                      }}
+                      currentVehicle={
+                        route.vehicle ? { plate: route.vehicle.plate } : null
+                      }
                     />
                   ) : (
                     <Typography variant="body2" color="text.secondary">

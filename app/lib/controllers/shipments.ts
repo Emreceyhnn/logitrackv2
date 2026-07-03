@@ -4,6 +4,7 @@ import { db } from "../db";
 import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
+import { parseStops } from "./utils/jsonColumns";
 import { type Prisma, ShipmentStatus, ShipmentPriority } from "@prisma/client";
 import type { Customer, CustomerLocation } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
@@ -640,8 +641,16 @@ export const getShipments = authenticatedAction(
             }),
             db.shipment.count({ where }),
           ]);
+          const typedShipments: ShipmentWithRelations[] = shipments.map(
+            (shipment) => ({
+              ...shipment,
+              route: shipment.route
+                ? { ...shipment.route, stops: parseStops(shipment.route.stops) }
+                : null,
+            })
+          );
           return {
-            shipments: shipments as unknown as ShipmentWithRelations[],
+            shipments: typedShipments,
             totalCount,
           };
         } else {
@@ -662,7 +671,15 @@ export const getShipments = authenticatedAction(
             },
             orderBy: { createdAt: "desc" },
           });
-          return shipments as unknown as ShipmentWithRelations[];
+          const typedShipments: ShipmentWithRelations[] = shipments.map(
+            (shipment) => ({
+              ...shipment,
+              route: shipment.route
+                ? { ...shipment.route, stops: parseStops(shipment.route.stops) }
+                : null,
+            })
+          );
+          return typedShipments;
         }
       });
     } catch (error) {
@@ -1369,8 +1386,17 @@ export const getShipmentsWithDashboardData = authenticatedAction(
           inTransit: calcTrend(inTransit, prevInTransit),
         };
 
+        const typedShipments: ShipmentWithRelations[] = shipments.map(
+          (shipment) => ({
+            ...shipment,
+            route: shipment.route
+              ? { ...shipment.route, stops: parseStops(shipment.route.stops) }
+              : null,
+          })
+        );
+
         return {
-          shipments: shipments as unknown as ShipmentWithRelations[],
+          shipments: typedShipments,
           totalCount,
           stats: { total, active, delayed, inTransit },
           statsTrends,

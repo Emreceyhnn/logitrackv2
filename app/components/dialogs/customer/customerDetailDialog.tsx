@@ -53,8 +53,9 @@ const CustomerDetailDialog = ({
         setLoading(true);
         setError(null);
         try {
-          const data = await getCustomerById(customerId);
-          setCustomer(data as unknown as CustomerWithRelations);
+          const data: CustomerWithRelations | null =
+            await getCustomerById(customerId);
+          setCustomer(data);
         } catch (err: unknown) {
           const message =
             err instanceof Error

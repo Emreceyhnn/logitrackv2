@@ -2371,6 +2371,7 @@
     "table": {
       "title": "Route List",
       "noRoutes": "No routes found.",
+      "searchPlaceholder": "Search route...",
       "columns": {
         "routeId": "Route ID",
         "vehiclePlate": "Vehicle Plate",

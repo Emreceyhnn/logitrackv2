@@ -1,7 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChipProps } from "@mui/material";
 import { Dictionary } from "./language/language";
 import { NotificationType } from "./type/notification";
+
+/**
+ * Looks up a runtime status key in a translation table, returning only
+ * string hits (translation tables may nest objects, e.g. `common.tooltips`).
+ */
+export const lookupTranslation = (
+  table: Record<string, unknown> | undefined,
+  key: string
+): string | undefined => {
+  const value = table?.[key];
+  return typeof value === "string" ? value : undefined;
+};
 
 export const getPriorityColor = (priority: string): ChipProps["color"] => {
   const normalizedPriority = priority?.toLocaleUpperCase('en-US');
@@ -22,11 +33,11 @@ export const getPriorityColor = (priority: string): ChipProps["color"] => {
 export const getStatusMeta = (status?: string, dict?: Dictionary) => {
   const s = status?.toLocaleUpperCase('en-US') || "";
 
-  const getDictColor = (paletteKey: string, fallback: string) => {
-    return (
-      (dict as unknown as Record<string, Record<string, string>>)
-        ?.primaryColors?.[paletteKey] || fallback
-    );
+  const getDictColor = (
+    paletteKey: "success" | "info" | "warning" | "error" | "secondary",
+    fallback: string
+  ) => {
+    return dict?.primaryColors?.[paletteKey] || fallback;
   };
 
   const getDictLabel = (key: string) => {
@@ -35,15 +46,14 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     if (key === "ON_LEAVE") return dict?.drivers?.onLeave;
 
     return (
-      ((dict?.vehicles as any)?.statuses as Record<string, string>)?.[key] ||
-      ((dict?.trailers as any)?.statuses as Record<string, string>)?.[key] ||
-      ((dict?.shipments as any)?.statuses as Record<string, string>)?.[key] ||
-      ((dict?.inventory as any)?.statuses as Record<string, string>)?.[key] ||
-      ((dict?.inventory as any)?.status as Record<string, string>)?.[key] ||
-      ((dict?.warehouseWorker as any)?.status as Record<string, string>)?.[key] ||
-      ((dict?.routes as any)?.statuses as Record<string, string>)?.[key] ||
-      ((dict?.vehicles as any)?.priorities as Record<string, string>)?.[key] ||
-      (dict?.common as unknown as Record<string, string>)?.[key] ||
+      lookupTranslation(dict?.vehicles?.statuses, key) ||
+      lookupTranslation(dict?.trailers?.statuses, key) ||
+      lookupTranslation(dict?.shipments?.statuses, key) ||
+      lookupTranslation(dict?.inventory?.status, key) ||
+      lookupTranslation(dict?.warehouseWorker?.status, key) ||
+      lookupTranslation(dict?.routes?.statuses, key) ||
+      lookupTranslation(dict?.vehicles?.priorities, key) ||
+      lookupTranslation(dict?.common, key) ||
       key
         .replace(/_/g, " ")
         .toLocaleLowerCase('en-US')

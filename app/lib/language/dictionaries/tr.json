@@ -2372,6 +2372,7 @@
     "table": {
       "title": "Rota Listesi",
       "noRoutes": "Rota bulunamadı.",
+      "searchPlaceholder": "Rota ara...",
       "columns": {
         "routeId": "Rota No",
         "vehiclePlate": "Araç Plakası",

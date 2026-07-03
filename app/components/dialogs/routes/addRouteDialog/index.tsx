@@ -76,10 +76,16 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
             getShipments({
               unassigned: true,
               status: "PENDING",
-            }) as unknown as ShipmentWithRelations[],
+            }),
             getWarehouses(),
           ]);
-          setShipments(shipmentsData);
+          // Without pagination args getShipments returns a plain array; the
+          // paginated variant returns { shipments, totalCount }.
+          setShipments(
+            Array.isArray(shipmentsData)
+              ? shipmentsData
+              : shipmentsData.shipments
+          );
           setWarehouses(warehousesData);
         } catch (error) {
           console.error("Failed to fetch available data for route", error);

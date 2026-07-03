@@ -35,13 +35,15 @@ import {
   Zone,
   Movement,
   SkuInfo,
+} from "@/app/lib/type/warehouseWorkerClient";
+import {
   zoneColor,
   PICKS_TARGET,
   PACKS_TARGET,
   relativeTime,
   prioFromServer,
   I,
-} from "@/app/lib/type/warehouseWorkerClient";
+} from "@/app/lib/utils/warehouseWorkerUi";
 
 import WWSidebar from "@/app/components/warehouse-worker/WWSidebar";
 import WWHeader from "@/app/components/warehouse-worker/WWHeader";

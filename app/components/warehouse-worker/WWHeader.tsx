@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import Link from "next/link";
 import {
@@ -11,16 +10,20 @@ import {
   MenuItem,
   useTheme,
 } from "@mui/material";
+import type {
+  WarehouseWorkerDict,
+  WarehouseOption,
+} from "@/app/lib/type/warehouseWorkerClient";
 import { Ico } from "./Ico";
 
 interface WWHeaderProps {
-  ww: any;
+  ww: WarehouseWorkerDict;
   lang: string;
   locked: boolean;
   warehouseId: string;
   setSelectedWarehouseId: (id: string) => void;
   warehouse: { name: string; code: string; city: string };
-  warehouseOptions: any[];
+  warehouseOptions: WarehouseOption[];
   worker: { name: string; initials: string; role: string };
 }
 

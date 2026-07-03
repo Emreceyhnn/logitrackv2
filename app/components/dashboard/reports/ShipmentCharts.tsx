@@ -159,7 +159,7 @@ export default function ShipmentCharts({
 
           <Box sx={{ flex: 1, minHeight: 300, width: "100%" }}>
             <BarChart
-              dataset={routeShipmentCounts as unknown as Record<string, string | number>[]}
+              dataset={routeShipmentCounts}
               layout="horizontal"
               yAxis={[{ 
                 scaleType: "band", 

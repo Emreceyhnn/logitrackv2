@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import {
   Stack,
@@ -9,7 +8,10 @@ import {
   IconButton,
   useTheme,
 } from "@mui/material";
-import { SkuInfo } from "@/app/lib/type/warehouseWorkerClient";
+import type {
+  SkuInfo,
+  WarehouseWorkerDict,
+} from "@/app/lib/type/warehouseWorkerClient";
 
 interface WWScanSectionProps {
   scanResult: SkuInfo | null;
@@ -21,7 +23,7 @@ interface WWScanSectionProps {
   setScanQty: React.Dispatch<React.SetStateAction<number>>;
   log: (kind: "PICK" | "PACK") => void;
   setScanResult: (v: SkuInfo | null) => void;
-  ww: any;
+  ww: WarehouseWorkerDict;
 }
 
 export default function WWScanSection({

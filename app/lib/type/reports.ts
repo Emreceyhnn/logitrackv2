@@ -3,10 +3,12 @@ export interface ReportsShipmentStatusCount {
   count: number;
 }
 
-export interface ReportsShipmentRouteCount {
+// Type alias (not interface) so it gets an implicit index signature and can
+// be passed straight to MUI X Charts' `dataset` prop without casting.
+export type ReportsShipmentRouteCount = {
   route: string;
   count: number;
-}
+};
 
 export interface ReportsShipments {
   statusCounts: ReportsShipmentStatusCount[];

@@ -14,36 +14,42 @@ export default function TimelineSection() {
       title: dict.landing.workflow.title1,
       description: dict.landing.workflow.desc1,
       color: theme.palette.kpi.cyan,
+      alpha: theme.palette.kpi.cyan_alpha,
     },
     {
       step: "02",
       title: dict.landing.workflow.title2,
       description: dict.landing.workflow.desc2,
       color: theme.palette.kpi.indigo,
+      alpha: theme.palette.kpi.indigo_alpha,
     },
     {
       step: "03",
       title: dict.landing.workflow.title3,
       description: dict.landing.workflow.desc3,
       color: theme.palette.kpi.purple,
+      alpha: theme.palette.kpi.purple_alpha,
     },
     {
       step: "04",
       title: dict.landing.workflow.title4,
       description: dict.landing.workflow.desc4,
       color: theme.palette.kpi.cyan,
+      alpha: theme.palette.kpi.cyan_alpha,
     },
     {
       step: "05",
       title: dict.landing.workflow.title5,
       description: dict.landing.workflow.desc5,
       color: theme.palette.kpi.indigo,
+      alpha: theme.palette.kpi.indigo_alpha,
     },
     {
       step: "06",
       title: dict.landing.workflow.title6,
       description: dict.landing.workflow.desc6,
       color: theme.palette.kpi.purple,
+      alpha: theme.palette.kpi.purple_alpha,
     },
   ];
 
@@ -99,13 +105,13 @@ export default function TimelineSection() {
                   borderRadius: "24px",
                   bgcolor: "rgba(8, 12, 24, 0.75)",
                   backdropFilter: "blur(20px)",
-                  border: `1px solid ${(theme.palette.kpi as unknown as Record<string, Record<string, string>>)[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_20}`,
-                  boxShadow: `0 8px 32px 0 ${(theme.palette.kpi as unknown as Record<string, Record<string, string>>)[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_05}`,
+                  border: `1px solid ${item.alpha.main_20}`,
+                  boxShadow: `0 8px 32px 0 ${item.alpha.main_05}`,
                   transition: "all 0.3s ease",
                   "&:hover": {
                     transform: "translateY(-5px)",
-                    border: `1px solid ${(theme.palette.kpi as unknown as Record<string, Record<string, string>>)[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_40}`,
-                    boxShadow: `0 12px 40px 0 ${(theme.palette.kpi as unknown as Record<string, Record<string, string>>)[(index % 3 === 0 ? "cyan" : index % 3 === 1 ? "indigo" : "purple") + "_alpha"].main_10}`,
+                    border: `1px solid ${item.alpha.main_40}`,
+                    boxShadow: `0 12px 40px 0 ${item.alpha.main_10}`,
                   },
                 }}
               >

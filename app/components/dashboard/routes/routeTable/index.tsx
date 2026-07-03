@@ -297,8 +297,7 @@ const RouteTable = ({
         loading={loading || !!actionLoading}
         emptyMessage={dict.routes.table.noRoutes}
         searchValue={filters?.search ?? ""}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        searchPlaceholder={(dict.routes.table as any).searchPlaceholder || dict.common.search || "Search route..."}
+        searchPlaceholder={dict.routes.table.searchPlaceholder || dict.common.search}
         onSearchChange={handleSearchChange}
         filters={ROUTE_FILTERS}
         activeFilters={activeFilters}

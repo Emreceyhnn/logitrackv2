@@ -58,6 +58,25 @@ export interface SessionJWTPayload extends JWTPayload {
   companyId?: string | null;
 }
 
+/**
+ * Narrows a verified jose payload to our session payload with a real runtime
+ * check — a token signed with our secret but missing `id` is rejected instead
+ * of being blindly cast through.
+ */
+export function toSessionPayload(
+  payload: JWTPayload
+): SessionJWTPayload | null {
+  const { id, role, companyId } = payload;
+  if (typeof id !== "string" || id.length === 0) return null;
+
+  return {
+    ...payload,
+    id,
+    role: typeof role === "string" ? role : null,
+    companyId: typeof companyId === "string" ? companyId : null,
+  };
+}
+
 // ─── Token Generation ───────────────────────────────────────────────────────
 
 async function generateAccessToken(user: {
@@ -174,17 +193,14 @@ export async function validateSession(): Promise<SessionUser | null> {
       return null;
     }
 
-    // Verify JWT signature & expiry
-    let decoded: SessionJWTPayload;
+    // Verify JWT signature & expiry. The payload itself is not used below —
+    // the session row is looked up by token hash — but it must still parse
+    // to a valid session payload (non-empty `id`).
     try {
       const secret = new TextEncoder().encode(getJwtSecret());
       const { payload } = await jwtVerify(accessToken, secret);
-      decoded = payload as unknown as SessionJWTPayload;
+      if (!toSessionPayload(payload)) return null;
     } catch {
-      return null;
-    }
-
-    if (!decoded?.id) {
       return null;
     }
 

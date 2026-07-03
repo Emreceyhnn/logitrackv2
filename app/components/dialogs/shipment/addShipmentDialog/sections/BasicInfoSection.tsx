@@ -151,18 +151,13 @@ const BasicInfoSection = () => {
                       height: "100%",
                       bgcolor:
                         values.priority === p.value
-                          ? (
-                              theme.palette as unknown as Record<
-                                string,
-                                { _alpha: Record<string, string> }
-                              >
-                            )[
+                          ? theme.palette[
                               p.value === "LOW"
                                 ? "success"
                                 : p.value === "MEDIUM"
                                   ? "warning"
                                   : "error"
-                            ]?._alpha.main_10
+                            ]._alpha.main_10
                           : theme.palette.text.darkBlue._alpha.main_50,
                       color:
                         values.priority === p.value
@@ -174,18 +169,13 @@ const BasicInfoSection = () => {
                       "&:hover": {
                         bgcolor:
                           values.priority === p.value
-                            ? (
-                                theme.palette as unknown as Record<
-                                  string,
-                                  { _alpha: Record<string, string> }
-                                >
-                              )[
+                            ? theme.palette[
                                 p.value === "LOW"
                                   ? "success"
                                   : p.value === "MEDIUM"
                                     ? "warning"
                                     : "error"
-                              ]?._alpha.main_20
+                              ]._alpha.main_20
                             : theme.palette.text.darkBlue._alpha.main_60,
                       },
                     }}

@@ -37,6 +37,7 @@ import {
 } from "../redis";
 import { syncVehicleToFirebaseAction as syncVehicleToFirebase } from "../actions/vehicleTracking";
 import { calcTrend, daysAgo } from "./utils/trendUtils";
+import { parseStops } from "./utils/jsonColumns";
 
 // ── Cache invalidation helper ─────────────────────────────────────────────────
 async function invalidateVehicleCache(
@@ -55,7 +56,9 @@ async function invalidateVehicleCache(
 }
 
 export const createVehicle = authenticatedAction(
-  async (user, vehicleData: Record<string, unknown>) => {
+  // `unknown` on purpose: the payload is validated by vehicleSchema.parse()
+  // below, so callers can pass their own typed shapes without casting.
+  async (user, vehicleData: unknown) => {
     const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
@@ -948,7 +951,14 @@ export const getVehicles = authenticatedAction(
         },
         orderBy: { createdAt: "desc" },
       });
-      return vehicles as unknown as VehicleWithRelations[];
+      const result: VehicleWithRelations[] = vehicles.map((vehicle) => ({
+        ...vehicle,
+        routes: vehicle.routes.map((route) => ({
+          ...route,
+          stops: parseStops(route.stops),
+        })),
+      }));
+      return result;
     } catch (error) {
       console.error("Failed to get vehicles:", error);
       throw error;
@@ -1012,18 +1022,11 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
         where: { companyId, createdAt: { lt: prevPeriodEnd } },
       });
 
-      const vehiclesKpis = VehicleKpiConverter(
-        vehicles as unknown as VehicleDashboardProps[]
-      );
-      const vehiclesCapacity = VehicleCapacityConverter(
-        vehicles as unknown as VehicleDashboardProps[]
-      );
-      const expiringDocs = VehicleDocumentConverter(
-        vehicles as unknown as VehicleDashboardProps[]
-      );
-      const plannedServices = VehicleServiceConverter(
-        vehicles as unknown as VehicleDashboardProps[]
-      );
+      const dashboardInput: VehicleDashboardProps[] = vehicles;
+      const vehiclesKpis = VehicleKpiConverter(dashboardInput);
+      const vehiclesCapacity = VehicleCapacityConverter(dashboardInput);
+      const expiringDocs = VehicleDocumentConverter(dashboardInput);
+      const plannedServices = VehicleServiceConverter(dashboardInput);
 
       const kpiTrends = {
         totalVehicles: calcTrend(vehiclesKpis.totalVehicles, prevVehicleCount),
@@ -1172,6 +1175,7 @@ export const getVehiclesWithDashboard = authenticatedAction(
                   vehicleId: true,
                   companyId: true,
                   createdAt: true,
+                  updatedAt: true,
                 },
               },
 
@@ -1196,6 +1200,7 @@ export const getVehiclesWithDashboard = authenticatedAction(
                 select: {
                   id: true,
                   status: true,
+                  date: true,
                   stops: true,
                   createdAt: true,
                   updatedAt: true,
@@ -1206,10 +1211,19 @@ export const getVehiclesWithDashboard = authenticatedAction(
           }),
         ]);
 
-        const dashboardInput = vehicles as unknown as VehicleDashboardProps[];
+        const vehiclesWithRelations: VehicleWithRelations[] = vehicles.map(
+          (vehicle) => ({
+            ...vehicle,
+            routes: vehicle.routes.map((route) => ({
+              ...route,
+              stops: parseStops(route.stops),
+            })),
+          })
+        );
+        const dashboardInput: VehicleDashboardProps[] = vehicles;
 
         return {
-          vehicles: vehicles as unknown as VehicleWithRelations[],
+          vehicles: vehiclesWithRelations,
           vehiclesKpis: VehicleKpiConverter(dashboardInput),
           vehiclesCapacity: VehicleCapacityConverter(dashboardInput),
           expiringDocs: VehicleDocumentConverter(dashboardInput),

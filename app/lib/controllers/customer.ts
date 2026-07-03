@@ -190,8 +190,10 @@ export const getCustomersWithDashboardData = authenticatedAction(
       const totalShipments = statsRaw.reduce((acc, c) => acc + c._count.shipments, 0);
       const activeCustomers = statsRaw.filter((c) => c._count.shipments > 0).length;
 
+      const typedCustomers: CustomerWithRelations[] = customers;
+
       return {
-        customers: customers as unknown as CustomerWithRelations[],
+        customers: typedCustomers,
         totalCount,
         stats: {
           totalCustomers,

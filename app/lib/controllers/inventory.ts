@@ -384,7 +384,8 @@ export const getLowStockItems = authenticatedAction(async (user) => {
 
       const lowStockItems = allItems.filter(item => item.quantity <= item.minStock);
 
-      return lowStockItems as unknown as LowStockItem[];
+      const typedLowStock: LowStockItem[] = lowStockItems;
+      return typedLowStock;
     });
   } catch (error) {
     console.error("Failed to get low stock items:", error);
@@ -540,8 +541,11 @@ export const getInventoryWithDashboardData = authenticatedAction(
           totalItems: calcTrend(totalItems, prevTotalItems),
         };
 
+        const typedItems: InventoryWithRelations[] = items;
+        const typedLowStockItems: LowStockItem[] = lowStockItems;
+
         return {
-          items: items as unknown as InventoryWithRelations[],
+          items: typedItems,
           totalCount,
           stats: {
             totalItems,
@@ -550,7 +554,7 @@ export const getInventoryWithDashboardData = authenticatedAction(
             totalValue,
           },
           statsTrends,
-          lowStockItems: lowStockItems as unknown as LowStockItem[],
+          lowStockItems: typedLowStockItems,
         };
       });
     } catch (error) {

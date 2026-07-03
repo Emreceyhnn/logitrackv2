@@ -20,6 +20,30 @@ import { rateLimit } from "@/app/lib/rate-limiter";
 /*  Helpers                                                                     */
 /* -------------------------------------------------------------------------- */
 
+function getClientIp(request: NextRequest): string {
+  // Trust order:
+  // 1. x-real-ip — overwritten by our own reverse proxy (or Vercel), so it
+  //    cannot be forged from outside.
+  // 2. LAST hop of x-forwarded-for — appended by the nearest trusted proxy.
+  //    Earlier entries are client-supplied and trivially spoofable, so they
+  //    must never be used for rate limiting.
+  // 3. "unknown" — a distinct bucket instead of a shared constant, so header
+  //    stripping can't merge every anonymous client into one legit-looking IP.
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
+
+  const xff = request.headers.get("x-forwarded-for");
+  if (xff) {
+    const hops = xff
+      .split(",")
+      .map((h) => h.trim())
+      .filter(Boolean);
+    if (hops.length > 0) return hops[hops.length - 1];
+  }
+
+  return "unknown";
+}
+
 function getLocaleFromPathname(pathname: string): {
   locale: Locale;
   restPath: string;
@@ -47,10 +71,7 @@ export default async function proxy(request: NextRequest) {
 
   // ── Rate Limiting for API Routes ───────────────────────────────────────────
   if (pathname.startsWith("/api")) {
-    const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-      request.headers.get("x-real-ip") ||
-      "127.0.0.1";
+    const ip = getClientIp(request);
 
     const limitResult = await rateLimit(ip, 120, 60, "rate-limit:api:");
 

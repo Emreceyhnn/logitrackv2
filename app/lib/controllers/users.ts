@@ -18,7 +18,7 @@ import {
   clearAuthCookies,
   logAuditEvent,
   validateSession,
-  SessionJWTPayload,
+  toSessionPayload,
 } from "./session";
 import { headers } from "next/headers";
 import { rateLimit } from "../rate-limiter";
@@ -45,8 +45,8 @@ export const getUserFromToken = authenticatedAction(
 
       const secret = new TextEncoder().encode(getJwtSecret());
       const { payload } = await jwtVerify(token, secret);
-      const decoded = payload as unknown as SessionJWTPayload;
-      if (!decoded || typeof decoded !== "object" || !decoded.id) {
+      const decoded = toSessionPayload(payload);
+      if (!decoded) {
         throw new Error("Invalid token");
       }
 

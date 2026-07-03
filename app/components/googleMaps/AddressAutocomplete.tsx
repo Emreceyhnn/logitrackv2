@@ -11,8 +11,10 @@ export interface AddressData {
 }
 
 export interface GooglePlaceLocation {
-  lat: () => number;
-  lng: () => number;
+  // The live Maps API exposes getter functions; serialized results (e.g.
+  // restored from cache) carry plain numbers. Both occur at runtime.
+  lat: number | (() => number);
+  lng: number | (() => number);
 }
 
 export interface GooglePlaceGeometry {
@@ -97,11 +99,11 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       const lat =
         typeof place.geometry.location.lat === "function"
           ? place.geometry.location.lat()
-          : (place.geometry.location.lat as unknown as number);
+          : place.geometry.location.lat;
       const lng =
         typeof place.geometry.location.lng === "function"
           ? place.geometry.location.lng()
-          : (place.geometry.location.lng as unknown as number);
+          : place.geometry.location.lng;
 
       const formattedAddress = place.formatted_address || place.name || "";
 

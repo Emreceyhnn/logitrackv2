@@ -703,8 +703,10 @@ export const getDrivers = authenticatedAction(
         db.driver.count({ where }),
       ]);
 
+      const typedDrivers: DriverWithRelations[] = drivers;
+
       return {
-        data: drivers as unknown as DriverWithRelations[],
+        data: typedDrivers,
         meta: {
           total,
           page,
@@ -992,8 +994,10 @@ export const getDriverWithDashboardData = authenticatedAction(
         totalDrivers: calcTrend(totalDrivers, prevTotalDrivers),
       };
 
+      const typedDrivers: DriverWithRelations[] = drivers;
+
       return {
-        drivers: drivers as unknown as DriverWithRelations[],
+        drivers: typedDrivers,
         meta: {
           total: totalDriversList,
           page,

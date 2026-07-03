@@ -173,8 +173,7 @@ import { getScrollbarStyles } from "@/app/components/scrollbar";
 export type ThemeMode = "light" | "dark";
 
 export const getTheme = (mode: ThemeMode) => {
-  const basePalette = (palettes[mode] ??
-    palettes.dark) as unknown as typeof palettes.dark;
+  const basePalette = palettes[mode];
 
   return createTheme({
     palette: {
@@ -190,8 +189,10 @@ export const getTheme = (mode: ThemeMode) => {
         for (const [key, value] of kpiEntries) {
           if (typeof value === "string" && value.toLocaleLowerCase('en-US') === color) {
             const alphaKey = `${key}_alpha`;
-            // @ts-expect-error -- kpi is a strict typed object; dynamic alphaKey access is intentional
-            if (kpi[alphaKey]) return kpi[alphaKey];
+            if (alphaKey in kpi) {
+              const alphaValue = kpi[alphaKey as keyof typeof kpi];
+              if (typeof alphaValue !== "string") return alphaValue;
+            }
           }
         }
 

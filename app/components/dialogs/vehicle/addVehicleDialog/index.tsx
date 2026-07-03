@@ -155,9 +155,7 @@ const AddVehicleDialog = ({
           enableAlerts: values.enableExpiryAlerts,
         };
 
-        const createdVehicle = await createVehicle(
-          payload as unknown as Record<string, unknown>
-        );
+        const createdVehicle = await createVehicle(payload);
 
         const docPromises = values.documents
           .filter((doc) => doc.file)

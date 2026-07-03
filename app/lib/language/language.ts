@@ -28,7 +28,7 @@ export type Locale = (typeof supportedLngs)[number];
  * dynamic-importing JSON files on every call.
  */
 export const getDictionary = cache(async (lang: string): Promise<Dictionary> => {
-  return getServerDictionary(lang) as Dictionary;
+  return getServerDictionary(lang);
 });
 
 /* -------------------------------------------------------------------------- */

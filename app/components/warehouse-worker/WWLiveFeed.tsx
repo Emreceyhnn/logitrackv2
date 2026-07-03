@@ -1,10 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { Stack, Box, Typography, Card, Avatar, useTheme } from "@mui/material";
-import { Movement, I } from "@/app/lib/type/warehouseWorkerClient";
+import type { Theme } from "@mui/material/styles";
+import type {
+  Movement,
+  WarehouseWorkerDict,
+} from "@/app/lib/type/warehouseWorkerClient";
+import { I } from "@/app/lib/utils/warehouseWorkerUi";
 import { Ico } from "./Ico";
 
-export function getMoveMetaFor(type: string, theme: any, ww?: any) {
+export function getMoveMetaFor(
+  type: string,
+  theme: Theme,
+  ww?: WarehouseWorkerDict
+) {
   const moveMeta: Record<string, { color: string; bg: string; label?: string }> = {
     PICK: { color: theme.palette.kpi.amber, bg: "rgba(245,158,11,0.14)", label: ww?.ui?.PICK || "PICK" },
     PACK: { color: theme.palette.kpi.emerald, bg: "rgba(52,211,153,0.14)", label: ww?.ui?.PACK || "PACK" },
@@ -35,7 +43,7 @@ export function getMoveMetaFor(type: string, theme: any, ww?: any) {
 
 interface WWLiveFeedProps {
   fd: Movement[];
-  ww: any;
+  ww: WarehouseWorkerDict;
 }
 
 export default function WWLiveFeed({ fd, ww }: WWLiveFeedProps) {

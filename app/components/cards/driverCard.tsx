@@ -1,10 +1,26 @@
 import { Avatar, Stack, Typography } from "@mui/material";
 import CustomCard from "./card";
-import { DriverWithRelations } from "@/app/lib/type/driver";
 import CustomRating from "../rating";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
-const DriverCard = (params: DriverWithRelations | null) => {
+/**
+ * Only the fields the card actually renders — callers can pass any richer
+ * driver shape (DriverWithRelations, shipment.driver, route.driver) without
+ * casting.
+ */
+export interface DriverCardProps {
+  rating?: number | null;
+  employeeId?: string | null;
+  licenseType?: string | null;
+  user: {
+    name: string;
+    surname: string;
+    avatarUrl?: string | null;
+  };
+  currentVehicle?: { plate: string } | null;
+}
+
+const DriverCard = (params: DriverCardProps | null) => {
   const dict = useDictionary();
 
   return (

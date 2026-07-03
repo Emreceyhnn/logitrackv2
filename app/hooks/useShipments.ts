@@ -94,8 +94,8 @@ export function useShipmentVolumeHistory() {
   return useQuery({
     queryKey: shipmentKeys.history(),
     queryFn: async () => {
-      const result = await getShipmentVolumeHistory();
-      return result as unknown as ShipmentVolumeData[];
+      const result: ShipmentVolumeData[] = await getShipmentVolumeHistory();
+      return result;
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -105,8 +105,8 @@ export function useShipmentStatusDistribution() {
   return useQuery({
     queryKey: shipmentKeys.distribution(),
     queryFn: async () => {
-      const result = await getShipmentStatusDistribution();
-      return result as unknown as ShipmentStatusData[];
+      const result: ShipmentStatusData[] = await getShipmentStatusDistribution();
+      return result;
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -217,7 +217,7 @@ export function useShipmentMutations() {
         originLng: data.originLng || undefined,
         trackingId: data.trackingId || "",
         customerLocationId: data.customerLocationId || "",
-        priority: (data.priority as unknown as ShipmentPriority) || ShipmentPriority.MEDIUM,
+        priority: data.priority || ShipmentPriority.MEDIUM,
         type: data.type || "STANDARD",
         slaDeadline: data.slaDeadline ? new Date(data.slaDeadline) : null,
         contactEmail: data.contactEmail || "",
@@ -230,8 +230,16 @@ export function useShipmentMutations() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<ShipmentWithRelations> }) => {
-      const updateData = exclude(data, ["company", "history", "customer", "driver", "route", "items", "stops"]);
-      return updateShipment(id, updateData as unknown as Parameters<typeof updateShipment>[1]);
+      const updateData: Parameters<typeof updateShipment>[1] = exclude(data, [
+        "company",
+        "history",
+        "customer",
+        "driver",
+        "route",
+        "items",
+        "stops",
+      ]);
+      return updateShipment(id, updateData);
     },
     onSuccess: () => handleSuccess(dict.toasts.successUpdate),
     onError: (error: Error) => handleError(dict.toasts.errorGeneric, error),

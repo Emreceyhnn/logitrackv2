@@ -20,7 +20,6 @@ import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { updateRoute } from "@/app/lib/controllers/routes";
 import { useUser } from "@/app/hooks/useUser";
-import type { Prisma } from "@prisma/client";
 import FirstRouteDialogStep from "./addRouteDialog/firstStep";
 import SecondRouteDialogStep from "./addRouteDialog/secondStep";
 import ThirdRouteDialogStep from "./addRouteDialog/thirdStep";
@@ -136,7 +135,7 @@ const EditRouteDialog = ({
           endTime: endUTC,
           distanceKm: values.distanceKm,
           durationMin: values.durationMin,
-          stops: values.stops as unknown as Prisma.InputJsonValue,
+          stops: values.stops,
           driver: values.driverId
             ? { connect: { id: values.driverId } }
             : { disconnect: true },

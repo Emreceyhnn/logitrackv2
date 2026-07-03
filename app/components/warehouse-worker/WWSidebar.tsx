@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import Link from "next/link";
 import { Stack, Box, IconButton, useTheme, Tooltip } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { View } from "@/app/lib/type/warehouseWorkerClient";
+import type { Dictionary } from "@/app/lib/language/language";
 import { Ico } from "./Ico";
 
 interface WWSidebarProps {
@@ -14,7 +14,7 @@ interface WWSidebarProps {
   worker: { initials: string };
   NAV: { key: View; title: string; d: string }[];
   onHelpClick?: () => void;
-  dict?: any;
+  dict?: Dictionary;
 }
 
 export default function WWSidebar({

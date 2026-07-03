@@ -37,12 +37,12 @@ export async function getServerTranslation(
  * This returns the same shape as the old `getDictionary()` output,
  * so existing Server Components that pass `dict` as a prop still work.
  */
-export function getServerDictionary(lang: string): Record<string, unknown> {
+export function getServerDictionary(
+  lang: string
+): (typeof resources)[typeof fallbackLng][typeof defaultNS] {
   const resolvedLang = (supportedLngs as readonly string[]).includes(lang)
-    ? lang
+    ? (lang as (typeof supportedLngs)[number])
     : fallbackLng;
 
-  return (resources as Record<string, Record<string, unknown>>)[resolvedLang]?.[
-    defaultNS
-  ] as Record<string, unknown>;
+  return resources[resolvedLang][defaultNS];
 }

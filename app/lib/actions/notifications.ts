@@ -24,10 +24,6 @@ export async function sendNotificationAction(
       !target.isGlobal &&
       notification.category
     ) {
-      console.log(
-        `[sendNotificationAction] 🎯 Targeted broadcast for category: ${notification.category}`
-      );
-
       const whereClause: Prisma.UserWhereInput = {
         companyId: target.companyId,
         ...(target.roleId ? { roleId: target.roleId } : {}),

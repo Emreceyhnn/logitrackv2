@@ -66,7 +66,6 @@ export default function Providers({
   useEffect(() => {
     if (user?.timezone) {
       dayjs.tz.setDefault(user.timezone);
-      console.log(`[themeProviders] 🌍 Timezone set to: ${user.timezone}`);
     }
   }, [user?.timezone]);
 

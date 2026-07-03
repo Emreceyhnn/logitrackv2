@@ -22,6 +22,7 @@ import {
   ROUTE_CACHE_TTL,
 } from "../redis";
 import { calcTrend, daysAgo } from "./utils/trendUtils";
+import { parseStops } from "./utils/jsonColumns";
 
 async function invalidateRouteCache(companyId: string, routeId?: string) {
   await Promise.all([
@@ -77,7 +78,7 @@ export const createRoute = authenticatedAction(
             driverId: driverId || null,
             vehicleId: vehicleId || null,
             companyId: user.companyId,
-            stops: stops ? (stops as unknown as Prisma.InputJsonValue) : undefined,
+            stops: stops ?? undefined,
           },
         });
 
@@ -1046,8 +1047,13 @@ export const getRoutesWithDashboardData = authenticatedAction(
       const utilization =
         totalVehicles > 0 ? (vehiclesOnTrip / totalVehicles) * 100 : 0;
 
+      const typedRoutes: RouteWithRelations[] = routes.map((route) => ({
+        ...route,
+        stops: parseStops(route.stops),
+      }));
+
       return {
-        routes: routes as unknown as RouteWithRelations[],
+        routes: typedRoutes,
         totalCount,
         stats: {
           active: activeCount,

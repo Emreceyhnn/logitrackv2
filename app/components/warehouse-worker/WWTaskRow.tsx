@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import {
   Stack,
@@ -8,12 +7,15 @@ import {
   LinearProgress,
   useTheme,
 } from "@mui/material";
-import { Task } from "@/app/lib/type/warehouseWorkerClient";
+import type {
+  Task,
+  WarehouseWorkerDict,
+} from "@/app/lib/type/warehouseWorkerClient";
 
 interface WWTaskRowProps {
   t: Task;
   advanceTask: (id: string) => void;
-  ww: any;
+  ww: WarehouseWorkerDict;
 }
 
 export default function WWTaskRow({ t, advanceTask, ww }: WWTaskRowProps) {

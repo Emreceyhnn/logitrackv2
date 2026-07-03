@@ -53,7 +53,8 @@ export const getFuelLogs = authenticatedAction(
         },
       });
 
-      return logs as unknown as FuelLogWithRelations[];
+      const typedLogs: FuelLogWithRelations[] = logs;
+      return typedLogs;
     } catch (error) {
       console.error("Failed to get fuel logs:", error);
       throw error;

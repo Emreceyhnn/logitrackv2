@@ -766,8 +766,10 @@ export const getWarehousesWithDashboardData = authenticatedAction(
           })
         );
 
+        const typedWarehouses: WarehouseWithRelations[] = warehouses;
+
         return {
-          warehouses: warehouses as unknown as WarehouseWithRelations[],
+          warehouses: typedWarehouses,
           totalCount,
           stats: {
             totalWarehouses,

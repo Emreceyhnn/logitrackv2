@@ -28,6 +28,10 @@ const nextConfig: NextConfig = {
       "framer-motion",
     ],
     serverActions: {
+      // Must stay in sync with MAX_FILE_SIZE_BYTES in app/lib/actions/upload.ts:
+      // file uploads travel through server actions as base64 payloads. If
+      // uploads ever move to a dedicated route handler, drop this back to the
+      // 1mb default — it currently applies to EVERY server action.
       bodySizeLimit: "10mb",
     },
   },

@@ -190,8 +190,7 @@ const EditShipmentDialog = ({
       palletCount: shipment.palletCount || 0,
       cargoType: shipment.cargoType || "General Cargo",
       assignedRouteId: shipment.routeId || null,
-      trailerId:
-        (shipment as unknown as { trailerId: string }).trailerId || null,
+      trailerId: shipment.trailerId || null,
       inventoryItems:
         shipment.items?.map((item) => ({
           id: item.id,

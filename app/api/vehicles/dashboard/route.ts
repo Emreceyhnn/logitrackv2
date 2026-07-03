@@ -27,6 +27,7 @@ import {
   VehicleServiceConverter,
 } from "@/app/lib/controllers/utils/vehicleUtils";
 import { calcTrend, daysAgo } from "@/app/lib/controllers/utils/trendUtils";
+import { parseStops } from "@/app/lib/controllers/utils/jsonColumns";
 import {
   withCache,
   hashFilters,
@@ -139,18 +140,19 @@ export async function GET(req: NextRequest) {
               select: {
                 id: true, type: true, name: true, url: true,
                 expiryDate: true, status: true, vehicleId: true,
-                companyId: true, createdAt: true,
+                companyId: true, createdAt: true, updatedAt: true,
               },
             },
             maintenanceRecords: {
               select: {
-                id: true, type: true, date: true, cost: true, status: true,
-                description: true, vehicleId: true, createdAt: true, updatedAt: true,
+                id: true, type: true, date: true, cost: true, currency: true,
+                status: true, description: true, vehicleId: true,
+                createdAt: true, updatedAt: true,
               },
             },
             routes: {
               select: {
-                id: true, status: true, stops: true,
+                id: true, status: true, date: true, stops: true,
                 createdAt: true, updatedAt: true,
               },
             },
@@ -160,10 +162,19 @@ export async function GET(req: NextRequest) {
         db.vehicle.count({ where: { companyId, createdAt: { lt: daysAgo(30) } } })
       ]);
 
-      const dashboardInput = vehicles as unknown as VehicleDashboardProps[];
+      const vehiclesWithRelations: VehicleWithRelations[] = vehicles.map(
+        (vehicle) => ({
+          ...vehicle,
+          routes: vehicle.routes.map((route) => ({
+            ...route,
+            stops: parseStops(route.stops),
+          })),
+        })
+      );
+      const dashboardInput: VehicleDashboardProps[] = vehicles;
 
       return {
-        vehicles: vehicles as unknown as VehicleWithRelations[],
+        vehicles: vehiclesWithRelations,
         vehiclesKpis: VehicleKpiConverter(dashboardInput),
         vehiclesCapacity: VehicleCapacityConverter(dashboardInput),
         expiringDocs: VehicleDocumentConverter(dashboardInput),

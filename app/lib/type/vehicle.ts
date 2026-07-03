@@ -92,7 +92,8 @@ export interface VehicleWithRelations {
   issues: Issue[];
   documents: Document[];
   maintenanceRecords: MaintenanceRecord[];
-  fuelLogs: FuelLog[];
+  /** Only included by detail queries (getVehicleById); list queries omit it. */
+  fuelLogs?: FuelLog[];
   routes: Route[];
   photo: string | null;
   engineSize?: string | null;

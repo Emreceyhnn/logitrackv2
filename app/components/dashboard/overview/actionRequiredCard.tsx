@@ -34,8 +34,10 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
 
   const getMessage = (i: ActionRequiredItems) => {
     if (i.messageKey === "ISSUE_ALERT" && i.messageParams) {
-      const p = getStatusMeta(i.messageParams.priority, dict).label || i.messageParams.priority;
-      const s = getStatusMeta(i.messageParams.status, dict).label || i.messageParams.status;
+      const priority = String(i.messageParams.priority);
+      const status = String(i.messageParams.status);
+      const p = getStatusMeta(priority, dict).label || priority;
+      const s = getStatusMeta(status, dict).label || status;
       return (dict.dashboard.overview.actionRequired.ISSUE_ALERT as string)
         .replace("{priority}", p)
         .replace("{status}", s);

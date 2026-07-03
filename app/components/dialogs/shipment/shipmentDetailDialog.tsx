@@ -23,7 +23,6 @@ import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { ShipmentItem } from "@/app/lib/type/enums";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import DriverCard from "../../cards/driverCard";
-import { DriverWithRelations } from "@/app/lib/type/driver";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -330,9 +329,7 @@ export default function ShipmentDetailDialog({
                         {dict.shipments.details.assignmentDetails}
                       </Typography>
                       {shipment.driver ? (
-                        <DriverCard
-                          {...(shipment.driver as unknown as DriverWithRelations)}
-                        />
+                        <DriverCard {...shipment.driver} />
                       ) : (
                         <Paper
                           sx={{
