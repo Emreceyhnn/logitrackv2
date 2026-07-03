@@ -63,9 +63,9 @@ export interface SessionJWTPayload extends JWTPayload {
  * check — a token signed with our secret but missing `id` is rejected instead
  * of being blindly cast through.
  */
-export function toSessionPayload(
+export async function toSessionPayload(
   payload: JWTPayload
-): SessionJWTPayload | null {
+): Promise<SessionJWTPayload | null> {
   const { id, role, companyId } = payload;
   if (typeof id !== "string" || id.length === 0) return null;
 
@@ -199,7 +199,7 @@ export async function validateSession(): Promise<SessionUser | null> {
     try {
       const secret = new TextEncoder().encode(getJwtSecret());
       const { payload } = await jwtVerify(accessToken, secret);
-      if (!toSessionPayload(payload)) return null;
+      if (!(await toSessionPayload(payload))) return null;
     } catch {
       return null;
     }

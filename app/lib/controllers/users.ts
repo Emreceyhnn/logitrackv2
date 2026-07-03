@@ -45,7 +45,7 @@ export const getUserFromToken = authenticatedAction(
 
       const secret = new TextEncoder().encode(getJwtSecret());
       const { payload } = await jwtVerify(token, secret);
-      const decoded = toSessionPayload(payload);
+      const decoded = await toSessionPayload(payload);
       if (!decoded) {
         throw new Error("Invalid token");
       }
