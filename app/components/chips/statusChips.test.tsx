@@ -6,11 +6,13 @@ import React from "react";
 global.React = React;
 
 // MOCKLAR
-mock.module("../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: mock.fn(() => ({ dict: "mocked" })) }
+mock.module("@/app/lib/language/DictionaryContext", {
+  namedExports: {
+    useLanguage: mock.fn(() => ({ lang: "en", dict: {} })),
+  }
 });
 
-mock.module("../../lib/priorityColor.ts", {
+mock.module("@/app/lib/priorityColor", {
   namedExports: { 
     getStatusMeta: mock.fn((status) => ({ 
       label: `MockLabel-${status}`, 
@@ -57,9 +59,10 @@ describe("StatusChip Component", () => {
           error = e;
         }
         
+        const upperLabel = label.toLocaleUpperCase();
         expect(error).toBeNull();
         expect(html).toContain(label);
-        expect(html).toContain(`data-testid="Chip-${label}"`);
+        expect(html).toContain(`data-testid="Chip-${upperLabel}"`);
         expect(html).toContain(`data-title="${label}"`);
       });
     });

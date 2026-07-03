@@ -43,7 +43,7 @@ describe("GET /api/routes", () => {
   it("should_PassStatusFilter_WhenProvided", async () => {
     getRoutesMock.mock.mockImplementationOnce(async () => []);
     await GET(makeRequest({ page: "1", pageSize: "5", status: "ACTIVE" }));
-    expect(getRoutesMock.mock.calls[0].arguments).toEqual([2, 5, "ACTIVE"]);
+    expect(getRoutesMock.mock.calls[0].arguments).toEqual([1, 5, "ACTIVE"]);
   });
 
   it("should_Return401_WhenNEXT_REDIRECT", async () => {

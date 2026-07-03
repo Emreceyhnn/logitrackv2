@@ -4,7 +4,7 @@ import { db } from "../db";
 import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
-import { Prisma } from "@prisma/client";
+
 import type {
   WarehouseWorkerDashboard,
   WWTask,

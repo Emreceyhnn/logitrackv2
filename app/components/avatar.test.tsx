@@ -8,6 +8,14 @@ mock.module("./rating.tsx", {
   defaultExport: (props: any) => ({ type: "CustomRatingMock", props }),
 });
 
+mock.module("@mui/material", {
+  namedExports: {
+    Avatar: () => null,
+    Box: () => null,
+    Typography: () => null,
+  },
+});
+
 describe("DriverAvatar Component", () => {
   let DriverAvatar: any;
 

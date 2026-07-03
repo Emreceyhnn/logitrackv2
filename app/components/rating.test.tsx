@@ -1,6 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, before } from "node:test";
+import { describe, it, before, mock } from "node:test";
 import { expect } from "expect";
+
+mock.module("@mui/material", {
+  namedExports: {
+    Stack: () => null,
+  },
+});
+mock.module("@mui/icons-material/Star", {
+  defaultExport: () => null,
+});
+mock.module("@mui/icons-material/StarHalf", {
+  defaultExport: () => null,
+});
+mock.module("@mui/icons-material/StarBorder", {
+  defaultExport: () => null,
+});
 
 describe("CustomRating Component", () => {
   let CustomRating: any;

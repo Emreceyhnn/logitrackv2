@@ -3,7 +3,7 @@
 import { db } from "../db";
 import { FuelType } from "@prisma/client";
 import { checkPermission } from "./utils/checkPermission";
-import { FuelLog, FuelLogWithRelations, FuelPageState } from "../type/fuel";
+import { FuelLogWithRelations, FuelPageState } from "../type/fuel";
 import { authenticatedAction } from "../auth-middleware";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
 

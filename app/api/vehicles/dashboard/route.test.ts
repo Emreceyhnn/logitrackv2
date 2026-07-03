@@ -108,7 +108,7 @@ describe("GET /api/vehicles/dashboard", () => {
 
   it("should_ReturnDashboardData_WhenAuthorized", async () => {
     getAuthenticatedUserMock.mock.mockImplementationOnce(async () => ({ id: "u1", companyId: "cmp1" }));
-    vehicleFindManyMock.mock.mockImplementationOnce(async () => [{ id: "v1", plate: "34ABC" }]);
+    vehicleFindManyMock.mock.mockImplementationOnce(async () => [{ id: "v1", plate: "34ABC", maintenanceRecords: [], routes: [] }]);
     vehicleCountMock.mock.mockImplementationOnce(async () => 5);
 
     const res: any = await GET(makeRequest());
