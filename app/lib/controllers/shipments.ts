@@ -4,8 +4,7 @@ import { db } from "../db";
 import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
-import { parseStops } from "./utils/jsonColumns";
-import { type Prisma, ShipmentStatus, ShipmentPriority } from "@prisma/client";
+import { type Prisma, ShipmentStatus, ShipmentPriority, ShipmentServiceType } from "@prisma/client";
 import type { Customer, CustomerLocation } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import {
@@ -74,7 +73,7 @@ export const createShipment = authenticatedAction(
       referenceNumber?: string | null;
       customerLocationId?: string;
       priority?: ShipmentPriority;
-      type?: string;
+      type?: ShipmentServiceType;
       slaDeadline?: Date | null;
       contactEmail?: string;
       billingAccount?: string;
@@ -105,7 +104,7 @@ export const createShipment = authenticatedAction(
       referenceNumber,
       customerLocationId,
       priority = ShipmentPriority.MEDIUM,
-      type = "Standard Freight",
+      type = ShipmentServiceType.STANDARD_FREIGHT,
       slaDeadline,
       contactEmail,
       billingAccount,
@@ -216,7 +215,7 @@ export const createShipment = authenticatedAction(
       }
 
       const newShipment = await db.$transaction(
-        async (tx: Prisma.TransactionClient) => {
+        async (tx) => {
           const shipment = await tx.shipment.create({
             data: {
               trackingId: finalTrackingId,
@@ -248,12 +247,14 @@ export const createShipment = authenticatedAction(
               history: {
                 create: {
                   status: status,
+                  companyId: companyId!,
                   description: "Shipment created",
                   createdById: userId,
                 },
               },
               items: {
                 create: inventoryItems.map((item: InventoryShipmentItem) => ({
+                  companyId: companyId!,
                   sku: item.sku,
                   name: item.name,
                   quantity: item.quantity,
@@ -267,12 +268,14 @@ export const createShipment = authenticatedAction(
               stops: {
                 create: [
                   {
+                    companyId: companyId!,
                     address: origin || originWarehouseId || "Bilinmeyen Kalkış",
                     lat: originLat || null,
                     lng: originLng || null,
                     sequence: 1,
                   },
                   ...stops.map((stop: ShipmentStopInput, index: number) => ({
+                    companyId: companyId!,
                     customerId: stop.customerId || undefined,
                     customerLocationId: stop.customerLocationId || undefined,
                     address: stop.address,
@@ -380,6 +383,7 @@ export const assignDriverToShipment = authenticatedAction(
           history: {
             create: {
               status: ShipmentStatus.ASSIGNED,
+              companyId: companyId!,
               description: `Driver assigned`,
               createdById: userId,
             },
@@ -437,6 +441,7 @@ export const assignRouteToShipment = authenticatedAction(
           history: {
             create: {
               status: ShipmentStatus.ASSIGNED,
+              companyId: companyId!,
               description: `Route assigned`,
               createdById: userId,
             },
@@ -495,6 +500,7 @@ export const updateShipmentStatus = authenticatedAction(
           history: {
             create: {
               status,
+              companyId: companyId!,
               location,
               description: description || `Status updated to ${status}`,
               createdById: userId,
@@ -631,7 +637,7 @@ export const getShipments = authenticatedAction(
                     },
                   },
                 },
-                route: true,
+                route: { include: { stops: { orderBy: { sequence: "asc" } } } },
                 items: true,
                 stops: true,
               },
@@ -645,7 +651,14 @@ export const getShipments = authenticatedAction(
             (shipment) => ({
               ...shipment,
               route: shipment.route
-                ? { ...shipment.route, stops: parseStops(shipment.route.stops) }
+                ? {
+                    ...shipment.route,
+                    stops: shipment.route.stops.map((stop) => ({
+                      address: stop.address,
+                      lat: stop.lat ?? undefined,
+                      lng: stop.lng ?? undefined,
+                    })),
+                  }
                 : null,
             })
           );
@@ -665,7 +678,7 @@ export const getShipments = authenticatedAction(
                   },
                 },
               },
-              route: true,
+              route: { include: { stops: { orderBy: { sequence: "asc" } } } },
               items: true,
               stops: true,
             },
@@ -675,7 +688,14 @@ export const getShipments = authenticatedAction(
             (shipment) => ({
               ...shipment,
               route: shipment.route
-                ? { ...shipment.route, stops: parseStops(shipment.route.stops) }
+                ? {
+                    ...shipment.route,
+                    stops: shipment.route.stops.map((stop) => ({
+                      address: stop.address,
+                      lat: stop.lat ?? undefined,
+                      lng: stop.lng ?? undefined,
+                    })),
+                  }
                 : null,
             })
           );
@@ -796,7 +816,7 @@ export const updateShipment = authenticatedAction(
 
         // Use a transaction for safety
         const updatedShipment = await db.$transaction(
-          async (tx: Prisma.TransactionClient) => {
+          async (tx) => {
             // 1. Get old items to restore inventory
             const oldShipment = await tx.shipment.findUnique({
               where: { id: shipmentId },
@@ -875,6 +895,7 @@ export const updateShipment = authenticatedAction(
                 ...updateData,
                 items: {
                   create: items.map((item: InventoryShipmentItem) => ({
+                    companyId: companyId!,
                     sku: item.sku,
                     name: item.name,
                     quantity: item.quantity,
@@ -887,6 +908,7 @@ export const updateShipment = authenticatedAction(
                 },
                 stops: {
                   create: stops.map((stop: ShipmentStopInput) => ({
+                    companyId: companyId!,
                     customerId: stop.customerId || undefined,
                     customerLocationId: stop.customerLocationId || undefined,
                     address: stop.address,
@@ -1016,7 +1038,7 @@ export const deleteShipment = authenticatedAction(
         throw new Error("Shipment not found or unauthorized");
       }
 
-      await db.$transaction(async (tx: Prisma.TransactionClient) => {
+      await db.$transaction(async (tx) => {
         // Restore inventory stock
         const warehouseId = existingShipment.originWarehouseId;
         if (warehouseId) {
@@ -1287,7 +1309,7 @@ export const getShipmentsWithDashboardData = authenticatedAction(
                   },
                 },
               },
-              route: true,
+              route: { include: { stops: { orderBy: { sequence: "asc" } } } },
               items: true,
               stops: {
                 orderBy: {
@@ -1390,7 +1412,14 @@ export const getShipmentsWithDashboardData = authenticatedAction(
           (shipment) => ({
             ...shipment,
             route: shipment.route
-              ? { ...shipment.route, stops: parseStops(shipment.route.stops) }
+              ? {
+                  ...shipment.route,
+                  stops: shipment.route.stops.map((stop) => ({
+                    address: stop.address,
+                    lat: stop.lat ?? undefined,
+                    lng: stop.lng ?? undefined,
+                  })),
+                }
               : null,
           })
         );

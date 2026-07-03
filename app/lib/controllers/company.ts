@@ -54,7 +54,9 @@ async function ensureStandardRoles() {
         Array.isArray(error.meta?.target) &&
         error.meta.target.includes("name")
       ) {
-        const conflict = await db.role.findUnique({ where: { name: r.name } });
+        const conflict = await db.role.findFirst({
+          where: { name: r.name, companyId: null },
+        });
         if (conflict && conflict.id !== r.id) {
           await db.role.update({
             where: { id: conflict.id },
@@ -189,8 +191,38 @@ export const deleteCompany = authenticatedAction(async (user) => {
   try {
     await checkPermission(user, companyId, ["role_admin"]);
 
-    const deletedCompany = await db.company.delete({
-      where: { id: companyId },
+    // All tenant FKs are ON DELETE RESTRICT, so tenant offboarding is an
+    // explicit, ordered wipe inside one transaction — never an implicit
+    // cascade. Children are deleted before their parents (FK order).
+    const deletedCompany = await db.$transaction(async (tx) => {
+      const where = { companyId };
+      await tx.shipmentHistory.deleteMany({ where });
+      await tx.shipmentItem.deleteMany({ where });
+      await tx.shipmentStop.deleteMany({ where });
+      await tx.issue.deleteMany({ where });
+      await tx.fuelLog.deleteMany({ where });
+      await tx.maintenanceRecord.deleteMany({ where });
+      await tx.trailerAssignment.deleteMany({ where });
+      await tx.document.deleteMany({ where });
+      await tx.shipment.deleteMany({ where });
+      await tx.routeStop.deleteMany({ where });
+      await tx.route.deleteMany({ where });
+      await tx.inventoryMovement.deleteMany({ where });
+      await tx.inventory.deleteMany({ where });
+      await tx.warehouseTask.deleteMany({ where });
+      await tx.warehouseZone.deleteMany({ where });
+      await tx.customerLocation.deleteMany({ where });
+      await tx.customer.deleteMany({ where });
+      await tx.driver.deleteMany({ where });
+      await tx.trailer.deleteMany({ where });
+      await tx.vehicle.deleteMany({ where });
+      await tx.warehouse.deleteMany({ where });
+      await tx.user.updateMany({
+        where,
+        data: { companyId: null },
+      });
+      await tx.role.deleteMany({ where });
+      return tx.company.delete({ where: { id: companyId } });
     });
     return deletedCompany;
   } catch (error) {
@@ -504,7 +536,12 @@ export const addCompanyUser = authenticatedAction(
           // Check if employeeId is already taken
           if (driverData.employeeId) {
             const existingEmployee = await tx.driver.findUnique({
-              where: { employeeId: driverData.employeeId },
+              where: {
+                companyId_employeeId: {
+                  companyId,
+                  employeeId: driverData.employeeId,
+                },
+              },
             });
             if (existingEmployee) {
               throw new Error("A driver with this Employee ID already exists");

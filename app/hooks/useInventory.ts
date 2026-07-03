@@ -245,7 +245,7 @@ export function useInventoryMutations() {
     mutationFn: (data: {
       id: string;
       delta: number;
-      type?: string;
+      type?: import("@/app/lib/type/enums").MovementType;
       notes?: string;
     }) => adjustInventoryStock(data.id, data.delta, data.type, data.notes),
     onSuccess: () => handleSuccess("Stock adjusted successfully"),

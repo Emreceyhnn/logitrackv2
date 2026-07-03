@@ -22,7 +22,6 @@ import {
   ROUTE_CACHE_TTL,
 } from "../redis";
 import { calcTrend, daysAgo } from "./utils/trendUtils";
-import { parseStops } from "./utils/jsonColumns";
 
 async function invalidateRouteCache(companyId: string, routeId?: string) {
   await Promise.all([
@@ -57,15 +56,16 @@ export const createRoute = authenticatedAction(
           ? name
           : `ROUTE-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
 
+      const companyId = user.companyId!;
       const existingRoute = await db.route.findFirst({
-        where: { name: finalName, companyId: user.companyId },
+        where: { name: finalName, companyId },
       });
 
       if (existingRoute && name && name.trim() !== "") {
         throw new Error("Route name already exists");
       }
 
-      const newRoute = await db.$transaction(async (tx: Prisma.TransactionClient) => {
+      const newRoute = await db.$transaction(async (tx) => {
         // Create the route
         const route = await tx.route.create({
           data: {
@@ -77,8 +77,16 @@ export const createRoute = authenticatedAction(
             durationMin,
             driverId: driverId || null,
             vehicleId: vehicleId || null,
-            companyId: user.companyId,
-            stops: stops ?? undefined,
+            companyId,
+            stops: {
+              create: (stops ?? []).map((stop, index) => ({
+                companyId,
+                sequence: index,
+                address: stop.address,
+                lat: stop.lat ?? null,
+                lng: stop.lng ?? null,
+              })),
+            },
           },
         });
 
@@ -100,6 +108,7 @@ export const createRoute = authenticatedAction(
               history: {
                 create: {
                   status: "ASSIGNED",
+                  companyId,
                   description: `Assigned to route: ${finalName}`,
                   createdById: user.id,
                 },
@@ -138,7 +147,7 @@ export const createRoute = authenticatedAction(
 
 export const getRoutes = authenticatedAction(
   async (user, page: number = 1, pageSize: number = 10, status?: string) => {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -216,7 +225,7 @@ export const getRoutes = authenticatedAction(
 
 export const getRouteById = authenticatedAction(
   async (user, routeId: string) => {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -272,9 +281,22 @@ export const getRouteById = authenticatedAction(
   }
 );
 
+export interface RouteUpdateData {
+  name?: string;
+  status?: RouteStatus;
+  date?: Date;
+  startTime?: Date | null;
+  endTime?: Date | null;
+  distanceKm?: number | null;
+  durationMin?: number | null;
+  driverId?: string | null;
+  vehicleId?: string | null;
+  stops?: { address: string; lat?: number; lng?: number }[];
+}
+
 export const updateRoute = authenticatedAction(
-  async (user, routeId: string, data: Prisma.RouteUpdateInput) => {
-    const companyId = user?.companyId;
+  async (user, routeId: string, data: RouteUpdateData) => {
+    const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -290,9 +312,22 @@ export const updateRoute = authenticatedAction(
         throw new Error("Route not found or unauthorized");
       }
 
-      const updateData = { ...data };
+      const { stops, ...scalarData } = data;
+      const updateData: Prisma.RouteUncheckedUpdateInput = { ...scalarData };
       if (updateData.name === "") {
         updateData.name = `ROUTE-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
+      }
+      if (stops) {
+        updateData.stops = {
+          deleteMany: {},
+          create: stops.map((stop, index) => ({
+            companyId,
+            sequence: index,
+            address: stop.address,
+            lat: stop.lat ?? null,
+            lng: stop.lng ?? null,
+          })),
+        };
       }
 
       const updatedRoute = await db.route.update({
@@ -311,7 +346,7 @@ export const updateRoute = authenticatedAction(
 
 export const deleteRoute = authenticatedAction(
   async (user, routeId: string) => {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -342,7 +377,7 @@ export const deleteRoute = authenticatedAction(
 
 export const assignDriverToRoute = authenticatedAction(
   async (user, routeId: string, driverId: string) => {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -376,7 +411,7 @@ export const assignDriverToRoute = authenticatedAction(
 
 export const assignVehicleToRoute = authenticatedAction(
   async (user, routeId: string, vehicleId: string) => {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -410,7 +445,7 @@ export const assignVehicleToRoute = authenticatedAction(
 
 export const unassignDriverFromRoute = authenticatedAction(
   async (user, routeId: string) => {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -444,7 +479,7 @@ export const unassignDriverFromRoute = authenticatedAction(
 
 export const unassignVehicleFromRoute = authenticatedAction(
   async (user, routeId: string) => {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -478,7 +513,7 @@ export const unassignVehicleFromRoute = authenticatedAction(
 
 export const getDriverRoutes = authenticatedAction(
   async (user, driverId: string) => {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -500,7 +535,7 @@ export const getDriverRoutes = authenticatedAction(
 
 export const getVehicleRoutes = authenticatedAction(
   async (user, vehicleId: string) => {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -544,7 +579,7 @@ export const getCompanyRoutes = authenticatedAction(async (user) => {
 
 export const getRouteStats = authenticatedAction(async (user) => {
   try {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -600,7 +635,7 @@ export const getRouteStats = authenticatedAction(async (user) => {
 
 export const getRouteEfficiencyStats = authenticatedAction(async (user) => {
   try {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -653,7 +688,7 @@ export const getRouteEfficiencyStats = authenticatedAction(async (user) => {
 
 export const getActiveRoutesLocations = authenticatedAction(async (user) => {
   try {
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -714,7 +749,7 @@ export const getActiveRoutesLocations = authenticatedAction(async (user) => {
 export const updateRouteStatus = authenticatedAction(
   async (user, routeId: string, status: RouteStatus) => {
     const userId = user?.id;
-    const companyId = user?.companyId;
+    const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, [
         "role_admin",
@@ -724,7 +759,7 @@ export const updateRouteStatus = authenticatedAction(
 
       const route = await db.route.findUnique({
         where: { id: routeId, companyId },
-        include: { shipments: true },
+        include: { shipments: true, stops: { orderBy: { sequence: "asc" } } },
       });
 
       if (!route) {
@@ -735,7 +770,7 @@ export const updateRouteStatus = authenticatedAction(
         return route;
       }
 
-      const updatedRoute = await db.$transaction(async (tx: Prisma.TransactionClient) => {
+      const updatedRoute = await db.$transaction(async (tx) => {
         const updateData: Prisma.RouteUpdateInput = { status };
 
         if (status === "ACTIVE" && !route.startTime) {
@@ -773,9 +808,10 @@ export const updateRouteStatus = authenticatedAction(
                 await tx.shipmentHistory.create({
                   data: {
                     shipmentId: shipment.id,
+                    companyId,
                     status: "IN_TRANSIT",
                     description: "Route started - Shipment in transit",
-                    createdById: userId || "",
+                    createdById: userId || null,
                   },
                 });
               }
@@ -814,10 +850,11 @@ export const updateRouteStatus = authenticatedAction(
                 await tx.shipmentHistory.create({
                   data: {
                     shipmentId: shipment.id,
+                    companyId,
                     status: "DELIVERED",
-                    location: (Array.isArray(route.stops) && (route.stops as { address?: string }[])[route.stops.length - 1]?.address) || "Destination",
+                    location: route.stops[route.stops.length - 1]?.address || "Destination",
                     description: "Route completed - Shipment completed",
-                    createdById: userId || "",
+                    createdById: userId || null,
                   },
                 });
               }
@@ -856,9 +893,10 @@ export const updateRouteStatus = authenticatedAction(
                 await tx.shipmentHistory.create({
                   data: {
                     shipmentId: shipment.id,
+                    companyId,
                     status: "PENDING",
                     description: "Route canceled - Shipment reverted to pending",
-                    createdById: userId || "",
+                    createdById: userId || null,
                   },
                 });
               }
@@ -985,6 +1023,7 @@ export const getRoutesWithDashboardData = authenticatedAction(
                 destination: true,
               },
             },
+            stops: { orderBy: { sequence: "asc" } },
           },
           orderBy: { date: "desc" },
           skip,
@@ -1049,7 +1088,11 @@ export const getRoutesWithDashboardData = authenticatedAction(
 
       const typedRoutes: RouteWithRelations[] = routes.map((route) => ({
         ...route,
-        stops: parseStops(route.stops),
+        stops: route.stops.map((stop) => ({
+          address: stop.address,
+          lat: stop.lat ?? undefined,
+          lng: stop.lng ?? undefined,
+        })),
       }));
 
       return {

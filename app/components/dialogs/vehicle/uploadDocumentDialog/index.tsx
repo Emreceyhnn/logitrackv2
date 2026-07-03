@@ -101,7 +101,7 @@ export default function UploadDocumentDialog({
 
       // 3. Save to DB
       await uploadVehicleDocument(vehicleId, {
-        type,
+        type: type as import("@/app/lib/type/enums").DocumentType,
         name,
         url: uploadResult.url,
         expiryDate: expiryDate?.toDate(),

@@ -7,6 +7,7 @@ import {
   ShipmentPriority,
   ShipmentItem,
 } from "./enums";
+import type { ShipmentServiceType } from "@prisma/client";
 import { CustomerWithRelations } from "./customer";
 import { InventoryShipmentItem } from "./add-shipment";
 
@@ -48,7 +49,7 @@ export interface ShipmentWithRelations
   route: Route | null;
 
   // New fields
-  type: string | null;
+  type: ShipmentServiceType | null;
   slaDeadline: Date | null;
   contactEmail: string | null;
   billingAccount: string | null;

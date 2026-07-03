@@ -27,7 +27,6 @@ import {
   VehicleServiceConverter,
 } from "@/app/lib/controllers/utils/vehicleUtils";
 import { calcTrend, daysAgo } from "@/app/lib/controllers/utils/trendUtils";
-import { parseStops } from "@/app/lib/controllers/utils/jsonColumns";
 import {
   withCache,
   hashFilters,
@@ -165,9 +164,17 @@ export async function GET(req: NextRequest) {
       const vehiclesWithRelations: VehicleWithRelations[] = vehicles.map(
         (vehicle) => ({
           ...vehicle,
+          maintenanceRecords: vehicle.maintenanceRecords.map((record) => ({
+            ...record,
+            cost: Number(record.cost),
+          })),
           routes: vehicle.routes.map((route) => ({
             ...route,
-            stops: parseStops(route.stops),
+            stops: route.stops.map((stop) => ({
+              address: stop.address,
+              lat: stop.lat ?? undefined,
+              lng: stop.lng ?? undefined,
+            })),
           })),
         })
       );

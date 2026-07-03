@@ -112,7 +112,7 @@ export default function MaintenanceRecordDialog({
 
     try {
       await addMaintenanceRecord(vehicleId, {
-        type: formData.type,
+        type: formData.type as import("@/app/lib/type/enums").MaintenanceType,
         date: formData.date.toDate(),
         cost: parseFloat(formData.cost),
         currency: userCurrency,

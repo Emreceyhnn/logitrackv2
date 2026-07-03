@@ -20,7 +20,7 @@ import {
   ShipmentVolumeData,
   ShipmentStatusData,
 } from "@/app/lib/type/shipment";
-import { ShipmentStatus, ShipmentPriority } from "@/app/lib/type/enums";
+import { ShipmentStatus, ShipmentPriority, ShipmentServiceType } from "@/app/lib/type/enums";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
 import type { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
@@ -218,7 +218,7 @@ export function useShipmentMutations() {
         trackingId: data.trackingId || "",
         customerLocationId: data.customerLocationId || "",
         priority: data.priority || ShipmentPriority.MEDIUM,
-        type: data.type || "STANDARD",
+        type: data.type || ShipmentServiceType.STANDARD_FREIGHT,
         slaDeadline: data.slaDeadline ? new Date(data.slaDeadline) : null,
         contactEmail: data.contactEmail || "",
         billingAccount: data.billingAccount || "",
@@ -238,6 +238,7 @@ export function useShipmentMutations() {
         "route",
         "items",
         "stops",
+        "companyId",
       ]);
       return updateShipment(id, updateData);
     },

@@ -136,12 +136,8 @@ const EditRouteDialog = ({
           distanceKm: values.distanceKm,
           durationMin: values.durationMin,
           stops: values.stops,
-          driver: values.driverId
-            ? { connect: { id: values.driverId } }
-            : { disconnect: true },
-          vehicle: values.vehicleId
-            ? { connect: { id: values.vehicleId } }
-            : { disconnect: true },
+          driverId: values.driverId || null,
+          vehicleId: values.vehicleId || null,
         }),
         {
           loading: dict.toasts.loading,

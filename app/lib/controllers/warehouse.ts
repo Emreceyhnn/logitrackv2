@@ -53,7 +53,7 @@ export const createWarehouse = authenticatedAction(
     specifications?: string[]
   ) => {
     try {
-      const companyId = user.companyId;
+      const companyId = user.companyId || "";
 
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
@@ -63,7 +63,7 @@ export const createWarehouse = authenticatedAction(
       const warehouseCode = code;
 
       const existingWarehouse = await db.warehouse.findUnique({
-        where: { code: warehouseCode },
+        where: { companyId_code: { companyId, code: warehouseCode } },
       });
 
       if (existingWarehouse) {
@@ -116,11 +116,12 @@ export const getWarehouses = authenticatedAction(async (user) => {
     await checkPermission(user, user.companyId);
 
     if (!user.companyId) throw new Error("User has no company");
+    const companyId = user.companyId;
 
-    const cacheKey = warehouseCacheKeys.list(user.companyId, hashFilters({}));
+    const cacheKey = warehouseCacheKeys.list(companyId, hashFilters({}));
     return await withCache(cacheKey, WAREHOUSE_CACHE_TTL, async () => {
       const warehouses = await db.warehouse.findMany({
-        where: { companyId: user.companyId },
+        where: { companyId },
         include: {
           manager: {
             select: {
@@ -394,7 +395,7 @@ export const addInventoryItem = authenticatedAction(
             type: "PUTAWAY",
             notes: "Initial inventory entry",
             userId: user.id,
-            companyId: user.companyId,
+            companyId: user.companyId!,
           },
         });
 
@@ -470,7 +471,7 @@ export const updateInventoryItem = authenticatedAction(
               quantity: data.quantity - currentItem.quantity,
               type: "ADJUSTMENT",
               userId: user.id,
-              companyId: user.companyId,
+              companyId: user.companyId!,
             },
           });
         }

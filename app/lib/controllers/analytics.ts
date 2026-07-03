@@ -245,7 +245,7 @@ export const getFuelStats = authenticatedAction(async (user) => {
     fuelByVehicleRaw.forEach((log) => {
       const current = statsMap.get(log.vehicleId) || { volume: 0, costUsd: 0 };
       const rate = rates[log.currency || "USD"] || 1;
-      const costUsd = log.cost / rate;
+      const costUsd = Number(log.cost) / rate;
 
       statsMap.set(log.vehicleId, {
         volume: current.volume + log.volumeLiter,
@@ -642,12 +642,12 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
 
     fuelLogs.forEach((log) => {
       const idx = getMonthIndex(log.date);
-      if (idx >= 0 && idx < 6) fuelCosts[idx] += log.cost;
+      if (idx >= 0 && idx < 6) fuelCosts[idx] += Number(log.cost);
     });
 
     maintenanceRecords.forEach((record) => {
       const idx = getMonthIndex(record.date);
-      if (idx >= 0 && idx < 6) maintenanceCosts[idx] += record.cost;
+      if (idx >= 0 && idx < 6) maintenanceCosts[idx] += Number(record.cost);
     });
 
     const totalFuel = fuelCosts.reduce((a, b) => a + b, 0);

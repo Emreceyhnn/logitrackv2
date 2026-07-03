@@ -3,16 +3,27 @@
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
-import { Prisma } from "@prisma/client";
+import type { MaintenanceStatus, MaintenanceType, Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
+
+/** Decimal columns are not serializable across the server-action boundary. */
+function serializeRecord<T extends { cost: Prisma.Decimal; originalCost: Prisma.Decimal | null }>(
+  record: T
+) {
+  return {
+    ...record,
+    cost: Number(record.cost),
+    originalCost: record.originalCost === null ? null : Number(record.originalCost),
+  };
+}
 
 export const createMaintenanceRecord = authenticatedAction(
   async (
     user,
     vehicleId: string,
-    type: string,
+    type: MaintenanceType,
     date: Date,
     cost: number,
     description?: string,
@@ -38,7 +49,7 @@ export const createMaintenanceRecord = authenticatedAction(
         );
       }
 
-      // Normalize cost to USD
+      // Normalize cost to USD, keeping the original amount for auditability
       let normalizedCost = cost;
       if (currency && currency !== "USD") {
         try {
@@ -53,9 +64,12 @@ export const createMaintenanceRecord = authenticatedAction(
       const newRecord = await db.maintenanceRecord.create({
         data: {
           vehicleId,
+          companyId,
           type,
           date,
           cost: normalizedCost,
+          originalCost: cost,
+          originalCurrency: currency || "USD",
           description,
           currency: "USD",
           documentUrl,
@@ -75,7 +89,7 @@ export const createMaintenanceRecord = authenticatedAction(
         }
       );
 
-      return { maintenanceRecord: newRecord };
+      return { maintenanceRecord: serializeRecord(newRecord) };
     } catch (error) {
       console.error("Failed to create maintenance record:", error);
       throw new Error(
@@ -93,11 +107,7 @@ export const getMaintenanceRecords = authenticatedAction(
     try {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-      const whereClause: Prisma.MaintenanceRecordWhereInput = {
-        vehicle: {
-          companyId: companyId!,
-        },
-      };
+      const whereClause: Prisma.MaintenanceRecordWhereInput = { companyId };
 
       if (vehicleId) {
         whereClause.vehicleId = vehicleId;
@@ -116,7 +126,7 @@ export const getMaintenanceRecords = authenticatedAction(
         },
         orderBy: { date: "desc" },
       });
-      return records;
+      return records.map(serializeRecord);
     } catch (error) {
       console.error("Failed to get maintenance records:", error);
       throw new Error(
@@ -142,14 +152,11 @@ export const getMaintenanceRecordById = authenticatedAction(
 
       if (!record) throw new Error("Maintenance record not found");
 
-      if (record.vehicle?.companyId) {
-        await checkPermission(user, record.vehicle.companyId, [
-          "role_admin",
-          "role_manager",
-        ]);
+      if (record.companyId !== companyId) {
+        throw new Error("Unauthorized");
       }
 
-      return record;
+      return serializeRecord(record);
     } catch (error) {
       console.error("Failed to get maintenance record:", error);
       throw new Error(
@@ -161,8 +168,18 @@ export const getMaintenanceRecordById = authenticatedAction(
   }
 );
 
+export interface MaintenanceRecordUpdateData {
+  type?: MaintenanceType;
+  date?: Date;
+  cost?: number;
+  currency?: string;
+  status?: MaintenanceStatus;
+  description?: string;
+  documentUrl?: string;
+}
+
 export const updateMaintenanceRecord = authenticatedAction(
-  async (user, recordId: string, data: Prisma.MaintenanceRecordUpdateInput) => {
+  async (user, recordId: string, data: MaintenanceRecordUpdateData) => {
     const companyId = user?.companyId || "";
     try {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
@@ -171,39 +188,37 @@ export const updateMaintenanceRecord = authenticatedAction(
         select: {
           status: true,
           type: true,
+          companyId: true,
           vehicle: {
             select: {
-              companyId: true,
               plate: true,
             },
           },
         },
       });
 
-      if (!existingRecord?.vehicle?.companyId)
+      if (!existingRecord || existingRecord.companyId !== companyId)
         throw new Error("Maintenance record not found");
 
-      await checkPermission(user, existingRecord.vehicle.companyId, [
-        "role_admin",
-        "role_manager",
-      ]);
+      // Normalize cost to USD if provided, keeping the original amount
+      const finalData: Prisma.MaintenanceRecordUpdateInput = { ...data };
 
-      // Normalize cost to USD if provided
-      const finalData = { ...data };
-      const rawCost = typeof data.cost === 'number' ? data.cost : (data.cost as Prisma.FloatFieldUpdateOperationsInput)?.set;
-      const rawCurrency = typeof data.currency === 'string' ? data.currency : (data.currency as Prisma.StringFieldUpdateOperationsInput)?.set;
-
-      if (rawCost !== undefined && rawCurrency && rawCurrency !== "USD") {
+      if (data.cost !== undefined && data.currency && data.currency !== "USD") {
         try {
           const rates = await getExchangeRates();
-          const rate = rates.rates[rawCurrency] || 1;
-          const normalizedCost = rawCost / rate;
-          finalData.cost = normalizedCost;
+          const rate = rates.rates[data.currency] || 1;
+          finalData.cost = data.cost / rate;
+          finalData.originalCost = data.cost;
+          finalData.originalCurrency = data.currency;
           finalData.currency = "USD";
         } catch (err) {
           console.warn("[maintenance] Currency conversion failed in update:", err);
         }
-      } else if (rawCurrency) {
+      } else if (data.cost !== undefined) {
+        finalData.originalCost = data.cost;
+        finalData.originalCurrency = data.currency || "USD";
+        finalData.currency = "USD";
+      } else if (data.currency) {
         finalData.currency = "USD";
       }
 
@@ -215,7 +230,7 @@ export const updateMaintenanceRecord = authenticatedAction(
 
       // Dispatch Notification if status changed
       const oldStatus = existingRecord.status;
-      const newStatus = (typeof data.status === 'string' ? data.status : (data.status as Prisma.StringFieldUpdateOperationsInput)?.set) || updatedRecord.status;
+      const newStatus = data.status || updatedRecord.status;
 
       if (newStatus !== oldStatus) {
         let title = "Bakım Güncellendi 👨‍🔧";
@@ -246,7 +261,7 @@ export const updateMaintenanceRecord = authenticatedAction(
         }
 
         await createNotification(
-          { companyId: existingRecord.vehicle.companyId! },
+          { companyId },
           {
             title,
             message,
@@ -257,7 +272,7 @@ export const updateMaintenanceRecord = authenticatedAction(
         );
       }
 
-      return updatedRecord;
+      return serializeRecord(updatedRecord);
     } catch (error) {
       console.error("Failed to update maintenance record:", error);
       throw new Error(
@@ -279,22 +294,17 @@ export const deleteMaintenanceRecord = authenticatedAction(
         select: {
           type: true,
           vehicleId: true,
+          companyId: true,
           vehicle: {
             select: {
-              companyId: true,
               plate: true,
             },
           },
         },
       });
 
-      if (!existingRecord?.vehicle?.companyId)
+      if (!existingRecord || existingRecord.companyId !== companyId)
         throw new Error("Maintenance record not found");
-
-      await checkPermission(user, existingRecord.vehicle.companyId, [
-        "role_admin",
-        "role_manager",
-      ]);
 
       await db.maintenanceRecord.delete({
         where: { id: recordId },
@@ -302,7 +312,7 @@ export const deleteMaintenanceRecord = authenticatedAction(
 
       // Dispatch Notification
       await createNotification(
-        { companyId: existingRecord.vehicle.companyId! },
+        { companyId },
         {
           title: "Bakım Kaydı Silindi 🗑️",
           message: `${existingRecord.vehicle.plate} plakalı araca ait ${existingRecord.type} bakımı kaydı sistemden silindi.`,
@@ -340,7 +350,7 @@ export const getMaintenanceStats = authenticatedAction(async (user) => {
 
     const records = await db.maintenanceRecord.findMany({
       where: {
-        vehicle: { companyId },
+        companyId,
         date: {
           gte: startOfYear,
           lte: endOfYear,
@@ -353,11 +363,11 @@ export const getMaintenanceStats = authenticatedAction(async (user) => {
       },
     });
 
-    const totalCost = records.reduce((sum, record) => sum + record.cost, 0);
+    const totalCost = records.reduce((sum, record) => sum + Number(record.cost), 0);
 
     const costByType: Record<string, number> = {};
     records.forEach((record) => {
-      costByType[record.type] = (costByType[record.type] || 0) + record.cost;
+      costByType[record.type] = (costByType[record.type] || 0) + Number(record.cost);
     });
 
     return {
@@ -387,7 +397,7 @@ export const checkUpcomingMaintenance = authenticatedAction(async (user) => {
 
     const upcomingRecords = await db.maintenanceRecord.findMany({
       where: {
-        vehicle: { companyId },
+        companyId,
         status: "SCHEDULED",
         date: {
           gte: new Date(),

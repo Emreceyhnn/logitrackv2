@@ -384,7 +384,7 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
     fuelLogsRaw.forEach((log) => {
       const current = fuelStatsMap.get(log.vehicleId) || { volume: 0, costUsd: 0 };
       const rate = rates[log.currency || "USD"] || 1;
-      const costUsd = log.cost / rate;
+      const costUsd = Number(log.cost) / rate;
 
       fuelStatsMap.set(log.vehicleId, {
         volume: current.volume + log.volumeLiter,

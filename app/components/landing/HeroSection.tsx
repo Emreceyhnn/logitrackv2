@@ -148,9 +148,8 @@ export default function HeroSection() {
           <Box
             sx={{
               animation: "fadeInUp 0.8s ease-out forwards",
-              opacity: 0,
               "@keyframes fadeInUp": {
-                from: { opacity: 0, transform: "translateY(20px)" },
+                from: { opacity: 0.01, transform: "translateY(20px)" },
                 to: { opacity: 1, transform: "translateY(0)" },
               },
             }}

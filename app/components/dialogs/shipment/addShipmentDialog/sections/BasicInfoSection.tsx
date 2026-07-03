@@ -205,13 +205,13 @@ const BasicInfoSection = () => {
                 error={touched.type && Boolean(errors.type)}
                 helperText={touched.type ? (errors.type as string) : undefined}
               >
-                <MenuItem value="Standard Freight">
+                <MenuItem value="STANDARD_FREIGHT">
                   {dict.shipments.dialogs.types.standardFreight}
                 </MenuItem>
-                <MenuItem value="Express">
+                <MenuItem value="EXPRESS">
                   {dict.shipments.dialogs.types.express}
                 </MenuItem>
-                <MenuItem value="Hazardous">
+                <MenuItem value="HAZARDOUS">
                   {dict.shipments.dialogs.types.hazardous}
                 </MenuItem>
               </CustomTextArea>

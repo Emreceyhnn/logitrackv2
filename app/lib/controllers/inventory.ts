@@ -4,7 +4,7 @@ import { db } from "../db";
 import { revalidatePath } from "next/cache";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
-import { Prisma } from "@prisma/client";
+import { MovementType, Prisma } from "@prisma/client";
 import {
   InventoryWithRelations,
   LowStockItem,
@@ -70,7 +70,7 @@ export const createInventoryItem = authenticatedAction(
         throw new Error("Item with this SKU already exists in this warehouse");
       }
 
-      const { newItem } = await db.$transaction(async (tx: Prisma.TransactionClient) => {
+      const { newItem } = await db.$transaction(async (tx) => {
         const item = await tx.inventory.create({
           data: {
             warehouseId,
@@ -138,7 +138,10 @@ export const getInventory = authenticatedAction(
           },
           orderBy: { name: "asc" },
         });
-        return inventory;
+        return inventory.map((item) => ({
+          ...item,
+          unitValue: item.unitValue === null ? null : Number(item.unitValue),
+        }));
       });
     } catch (error) {
       console.error("Failed to get inventory:", error);
@@ -265,7 +268,10 @@ export const getInventoryBySku = authenticatedAction(
           },
         },
       });
-      return items;
+      return items.map((item) => ({
+        ...item,
+        unitValue: item.unitValue === null ? null : Number(item.unitValue),
+      }));
     } catch (error) {
       console.error("Failed to get inventory by SKU:", error);
       throw error;
@@ -274,7 +280,7 @@ export const getInventoryBySku = authenticatedAction(
 );
 
 export const adjustInventoryStock = authenticatedAction(
-  async (user, inventoryId: string, delta: number, type: string = "ADJUSTMENT", notes?: string) => {
+  async (user, inventoryId: string, delta: number, type: MovementType = "ADJUSTMENT", notes?: string) => {
     const companyId = user?.companyId || "";
     const userId = user?.id || "";
     try {
@@ -384,7 +390,10 @@ export const getLowStockItems = authenticatedAction(async (user) => {
 
       const lowStockItems = allItems.filter(item => item.quantity <= item.minStock);
 
-      const typedLowStock: LowStockItem[] = lowStockItems;
+      const typedLowStock: LowStockItem[] = lowStockItems.map((item) => ({
+        ...item,
+        unitValue: item.unitValue === null ? null : Number(item.unitValue),
+      }));
       return typedLowStock;
     });
   } catch (error) {
@@ -527,13 +536,17 @@ export const getInventoryWithDashboardData = authenticatedAction(
           } else if (item.quantity <= item.minStock) {
             lowStockCount++;
             if (lowStockItems.length < 10) {
-              lowStockItems.push(item);
+              lowStockItems.push({
+                ...item,
+                unitValue:
+                  item.unitValue === null ? null : Number(item.unitValue),
+              });
             }
           }
           
           // Convert to USD for a consistent totalValue
           const rateFrom = (ratesData.rates as Record<string, number>)[item.currency] || 1;
-          const itemValueInUsd = (item.unitValue || 0) / rateFrom;
+          const itemValueInUsd = Number(item.unitValue ?? 0) / rateFrom;
           totalValue += item.quantity * itemValueInUsd;
         });
 
@@ -541,7 +554,10 @@ export const getInventoryWithDashboardData = authenticatedAction(
           totalItems: calcTrend(totalItems, prevTotalItems),
         };
 
-        const typedItems: InventoryWithRelations[] = items;
+        const typedItems: InventoryWithRelations[] = items.map((item) => ({
+          ...item,
+          unitValue: item.unitValue === null ? null : Number(item.unitValue),
+        }));
         const typedLowStockItems: LowStockItem[] = lowStockItems;
 
         return {

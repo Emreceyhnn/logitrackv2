@@ -294,7 +294,7 @@ export const logWarehouseMovement = authenticatedAction(
     });
 
     const movement = await db.$transaction(
-      async (tx: Prisma.TransactionClient) => {
+      async (tx) => {
         const mv = await tx.inventoryMovement.create({
           data: {
             warehouseId,

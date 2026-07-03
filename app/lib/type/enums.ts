@@ -95,6 +95,64 @@ export const ShipmentPriority = {
 } as const;
 export type ShipmentPriority = typeof ShipmentPriority[keyof typeof ShipmentPriority];
 
+export const ShipmentServiceType = {
+  STANDARD_FREIGHT: "STANDARD_FREIGHT",
+  EXPRESS: "EXPRESS",
+  HAZARDOUS: "HAZARDOUS",
+} as const;
+export type ShipmentServiceType = typeof ShipmentServiceType[keyof typeof ShipmentServiceType];
+
+export const MaintenanceType = {
+  ROUTINE_MAINTENANCE: "ROUTINE_MAINTENANCE",
+  REPAIR: "REPAIR",
+  INSPECTION: "INSPECTION",
+  TIRE_CHANGE: "TIRE_CHANGE",
+  OIL_CHANGE: "OIL_CHANGE",
+  OTHER: "OTHER",
+} as const;
+export type MaintenanceType = typeof MaintenanceType[keyof typeof MaintenanceType];
+
+export const DocumentType = {
+  REGISTRATION: "REGISTRATION",
+  TRAILER_REGISTRATION: "TRAILER_REGISTRATION",
+  INSURANCE: "INSURANCE",
+  LICENSE: "LICENSE",
+  INSPECTION: "INSPECTION",
+  MAINTENANCE: "MAINTENANCE",
+  OTHER: "OTHER",
+} as const;
+export type DocumentType = typeof DocumentType[keyof typeof DocumentType];
+
+export const DocumentStatus = {
+  ACTIVE: "ACTIVE",
+  MISSING: "MISSING",
+  EXPIRING_SOON: "EXPIRING_SOON",
+  EXPIRED: "EXPIRED",
+} as const;
+export type DocumentStatus = typeof DocumentStatus[keyof typeof DocumentStatus];
+
+export const FuelType = {
+  DIESEL: "DIESEL",
+  GASOLINE: "GASOLINE",
+  ELECTRIC: "ELECTRIC",
+  HYBRID: "HYBRID",
+} as const;
+export type FuelType = typeof FuelType[keyof typeof FuelType];
+
+export const MovementType = {
+  STOCK_IN: "STOCK_IN",
+  PUTAWAY: "PUTAWAY",
+  PICK: "PICK",
+  PACK: "PACK",
+  RESTOCK: "RESTOCK",
+  RESTOCK_REQUEST: "RESTOCK_REQUEST",
+  ADJUSTMENT: "ADJUSTMENT",
+  ALLOCATION: "ALLOCATION",
+  ALLOCATION_REVERT: "ALLOCATION_REVERT",
+  ALLOCATION_CANCEL: "ALLOCATION_CANCEL",
+} as const;
+export type MovementType = typeof MovementType[keyof typeof MovementType];
+
 export const IssueStatus = {
   OPEN: "OPEN",
   IN_PROGRESS: "IN_PROGRESS",

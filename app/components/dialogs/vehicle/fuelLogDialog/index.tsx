@@ -85,7 +85,7 @@ export default function AddFuelLogDialog({
         cost: parseFloat(formData.cost),
         odometerKm: parseInt(formData.odometerKm),
         location: formData.location || undefined,
-        fuelType: formData.fuelType,
+        fuelType: formData.fuelType as import("@/app/lib/type/enums").FuelType,
         currency: userCurrency,
       });
 

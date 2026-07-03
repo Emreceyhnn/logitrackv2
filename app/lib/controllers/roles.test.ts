@@ -9,6 +9,7 @@ import { rejects } from "node:assert";
 const dbMock = {
   role: {
     findUnique: mock.fn(),
+    findFirst: mock.fn(),
     create: mock.fn(),
     findMany: mock.fn(),
     update: mock.fn(),
@@ -53,6 +54,7 @@ describe("Roles Controller", () => {
   beforeEach(() => {
     // Her testten önce mockları sıfırla
     dbMock.role.findUnique.mock.resetCalls();
+    dbMock.role.findFirst.mock.resetCalls();
     dbMock.role.create.mock.resetCalls();
     dbMock.role.findMany.mock.resetCalls();
     dbMock.role.update.mock.resetCalls();
@@ -70,7 +72,7 @@ describe("Roles Controller", () => {
 
     it("should_CreateRole_WhenNameDoesNotExist", async () => {
       // Arrange
-      dbMock.role.findUnique.mock.mockImplementation(async () => null); // Name is available
+      dbMock.role.findFirst.mock.mockImplementation(async () => null); // Name is available
       dbMock.role.create.mock.mockImplementation(async (args: any) => ({
         id: "role-1",
         ...args.data,
@@ -93,9 +95,10 @@ describe("Roles Controller", () => {
 
     it("should_ThrowError_WhenRoleNameAlreadyExists", async () => {
       // Arrange
-      dbMock.role.findUnique.mock.mockImplementation(async () => ({
+      dbMock.role.findFirst.mock.mockImplementation(async () => ({
         id: "existing-role",
         name: "Admin",
+        companyId: "company-1",
       }));
 
       // Act & Assert
@@ -115,6 +118,12 @@ describe("Roles Controller", () => {
 
     it("should_DeleteRole_WhenNotInUse", async () => {
       // Arrange
+      // deleteRole first verifies the role is a tenant-owned custom role
+      dbMock.role.findUnique.mock.mockImplementation(async () => ({
+        id: "role-1",
+        name: "Custom",
+        companyId: "company-1",
+      }));
       dbMock.user.findFirst.mock.mockImplementation(async () => null); // Role is not assigned to any user
       dbMock.role.delete.mock.mockImplementation(async () => ({ id: "role-1" }));
 
@@ -129,6 +138,11 @@ describe("Roles Controller", () => {
 
     it("should_ThrowError_WhenRoleIsInUse", async () => {
       // Arrange
+      dbMock.role.findUnique.mock.mockImplementation(async () => ({
+        id: "role-1",
+        name: "Custom",
+        companyId: "company-1",
+      }));
       dbMock.user.findFirst.mock.mockImplementation(async () => ({
         id: "some-user",
         roleId: "role-1",

@@ -142,7 +142,7 @@ const EditShipmentDialog = ({
         trackingId: "",
         referenceNumber: "",
         priority: ShipmentPriority.MEDIUM,
-        type: "Standard Freight",
+        type: "STANDARD_FREIGHT",
         slaDeadline: null,
         originWarehouseId: "",
         originLat: undefined,
@@ -170,7 +170,7 @@ const EditShipmentDialog = ({
       referenceNumber: shipment.referenceNumber || "",
       priority:
         (shipment.priority as ShipmentPriority) || ShipmentPriority.MEDIUM,
-      type: shipment.type || "Standard Freight",
+      type: shipment.type || "STANDARD_FREIGHT",
       slaDeadline: shipment.slaDeadline ? new Date(shipment.slaDeadline) : null,
       originWarehouseId:
         shipment.originWarehouseId ||
@@ -248,7 +248,7 @@ const EditShipmentDialog = ({
           originLng: values.originLng,
           trackingId: values.referenceNumber,
           priority: values.priority,
-          type: values.type,
+          type: values.type as import("@/app/lib/type/enums").ShipmentServiceType,
           slaDeadline: values.slaDeadline,
           contactEmail: sanitize(values.contactEmail) ?? undefined,
           billingAccount: values.billingAccount,

@@ -161,7 +161,7 @@ export default function InventoryDetailsDialog({
       await adjustStock.mutateAsync({
         id: item.id,
         delta: adjustAmount,
-        type: adjustType,
+        type: adjustType as import("@/app/lib/type/enums").MovementType,
         notes: adjustNote,
       });
       toast.success(dict.toasts.successUpdate);

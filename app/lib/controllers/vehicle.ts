@@ -5,6 +5,10 @@ import { revalidatePath } from "next/cache";
 import {
   Issue,
   MaintenanceStatus,
+  MaintenanceType,
+  DocumentType,
+  DocumentStatus,
+  FuelType,
   Prisma,
   VehicleStatus,
   IssueStatus,
@@ -37,7 +41,6 @@ import {
 } from "../redis";
 import { syncVehicleToFirebaseAction as syncVehicleToFirebase } from "../actions/vehicleTracking";
 import { calcTrend, daysAgo } from "./utils/trendUtils";
-import { parseStops } from "./utils/jsonColumns";
 
 // ── Cache invalidation helper ─────────────────────────────────────────────────
 async function invalidateVehicleCache(
@@ -78,6 +81,7 @@ export const createVehicle = authenticatedAction(
       const newVehicle = await db.vehicle.create({
         data: {
           ...parsedData,
+          fuelType: parsedData.fuelType as FuelType,
           fleetNo: vehicleFleetNo,
           company: { connect: { id: companyId } },
         },
@@ -205,8 +209,15 @@ export const deleteVehicle = authenticatedAction(
         throw new Error("Vehicle not found or unauthorized");
       }
 
-      await db.vehicle.delete({
+      // Soft delete: financial/compliance history (fuel, maintenance,
+      // documents) must survive, so the row is only marked as deleted.
+      await db.driver.updateMany({
+        where: { currentVehicleId: vehicleId },
+        data: { currentVehicleId: null },
+      });
+      await db.vehicle.update({
         where: { id: vehicleId },
+        data: { deletedAt: new Date(), status: "OUT_OF_ORDER" },
       });
 
       await invalidateVehicleCache(companyId, vehicleId);
@@ -436,7 +447,7 @@ export const addMaintenanceRecord = authenticatedAction(
     user,
     vehicleId: string,
     recordData: {
-      type: string;
+      type: MaintenanceType;
       date: Date;
       cost: number;
       currency?: string;
@@ -478,8 +489,11 @@ export const addMaintenanceRecord = authenticatedAction(
       const record = await db.maintenanceRecord.create({
         data: {
           vehicleId,
+          companyId,
           ...recordData,
           cost: normalizedCost,
+          originalCost: recordData.cost,
+          originalCurrency: recordData.currency || "USD",
           currency: "USD",
         },
       });
@@ -634,11 +648,11 @@ export const uploadVehicleDocument = authenticatedAction(
     user,
     vehicleId: string,
     documentData: {
-      type: string;
+      type: DocumentType;
       name: string;
       url: string;
       expiryDate?: Date;
-      status: string;
+      status: DocumentStatus;
     }
   ) => {
     const companyId = user?.companyId || "";
@@ -776,7 +790,7 @@ export const updateMaintenanceRecord = authenticatedAction(
     user,
     recordId: string,
     data: {
-      type?: string;
+      type?: MaintenanceType;
       date?: Date;
       cost?: number;
       currency?: string;
@@ -947,15 +961,25 @@ export const getVehicles = authenticatedAction(
           issues: true,
           documents: true,
           maintenanceRecords: true,
-          routes: true,
+          routes: { include: { stops: { orderBy: { sequence: "asc" } } } },
         },
         orderBy: { createdAt: "desc" },
       });
       const result: VehicleWithRelations[] = vehicles.map((vehicle) => ({
         ...vehicle,
+        maintenanceRecords: vehicle.maintenanceRecords.map((record) => ({
+          ...record,
+          cost: Number(record.cost),
+          originalCost:
+            record.originalCost === null ? null : Number(record.originalCost),
+        })),
         routes: vehicle.routes.map((route) => ({
           ...route,
-          stops: parseStops(route.stops),
+          stops: route.stops.map((stop) => ({
+            address: stop.address,
+            lat: stop.lat ?? undefined,
+            lng: stop.lng ?? undefined,
+          })),
         })),
       }));
       return result;
@@ -1214,9 +1238,17 @@ export const getVehiclesWithDashboard = authenticatedAction(
         const vehiclesWithRelations: VehicleWithRelations[] = vehicles.map(
           (vehicle) => ({
             ...vehicle,
+            maintenanceRecords: vehicle.maintenanceRecords.map((record) => ({
+              ...record,
+              cost: Number(record.cost),
+            })),
             routes: vehicle.routes.map((route) => ({
               ...route,
-              stops: parseStops(route.stops),
+              stops: route.stops.map((stop) => ({
+                address: stop.address,
+                lat: stop.lat ?? undefined,
+                lng: stop.lng ?? undefined,
+              })),
             })),
           })
         );

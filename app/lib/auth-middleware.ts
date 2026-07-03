@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { validateSession } from "./controllers/session";
 import { headers } from "next/headers";
 import { DEFAULT_LOCALE, LOCALES } from "./constants";
+import { runWithTenant } from "./tenant-context";
 
 export type AuthenticatedUser = {
   id: string;
@@ -101,7 +102,9 @@ export function authenticatedAction<T, Args extends unknown[]>(
       redirect(`/${locale}/auth/sign-in`);
     }
 
-    return action(user, ...args);
+    // Every DB query inside the action is automatically scoped to the
+    // caller's company by the tenant-guard Prisma extension (see db.ts).
+    return runWithTenant(user.companyId, () => action(user, ...args));
   };
 }
 
@@ -110,6 +113,6 @@ export function maybeAuthenticatedAction<T, Args extends unknown[]>(
 ) {
   return async (...args: Args): Promise<T> => {
     const user = await getAuthenticatedUser();
-    return action(user, ...args);
+    return runWithTenant(user?.companyId ?? null, () => action(user, ...args));
   };
 }

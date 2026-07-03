@@ -17,8 +17,8 @@ export const createRole = authenticatedAction(
     try {
       await checkPermission(user, companyId, ["role_admin"]);
 
-      const existingRole = await db.role.findUnique({
-        where: { name },
+      const existingRole = await db.role.findFirst({
+        where: { name, OR: [{ companyId }, { companyId: null }] },
       });
 
       if (existingRole) {
@@ -30,6 +30,7 @@ export const createRole = authenticatedAction(
           name,
           description,
           permissions,
+          companyId,
         },
       });
 
@@ -49,11 +50,13 @@ export const getRoles = authenticatedAction(async (user) => {
   try {
     await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
+    // System roles (companyId = null) are shared; custom roles are tenant-scoped
     const roles = await db.role.findMany({
+      where: { OR: [{ companyId: null }, { companyId }] },
       orderBy: { name: "asc" },
       include: {
         _count: {
-          select: { users: true },
+          select: { users: { where: { companyId } } },
         },
       },
     });
@@ -75,7 +78,9 @@ export const getRoleById = authenticatedAction(async (user, roleId: string) => {
     const role = await db.role.findUnique({
       where: { id: roleId },
       include: {
+        // Never expose other tenants' users through a shared system role
         users: {
+          where: { companyId },
           select: {
             id: true,
             name: true,
@@ -87,7 +92,8 @@ export const getRoleById = authenticatedAction(async (user, roleId: string) => {
       },
     });
 
-    if (!role) throw new Error("Role not found");
+    if (!role || (role.companyId !== null && role.companyId !== companyId))
+      throw new Error("Role not found");
 
     return role;
   } catch (error) {
@@ -104,6 +110,12 @@ export const updateRole = authenticatedAction(
 
     try {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
+
+      const existing = await db.role.findUnique({ where: { id: roleId } });
+      if (!existing) throw new Error("Role not found");
+      if (existing.companyId === null)
+        throw new Error("System roles are immutable");
+      if (existing.companyId !== companyId) throw new Error("Unauthorized");
 
       const updatedRole = await db.role.update({
         where: { id: roleId },
@@ -127,6 +139,12 @@ export const deleteRole = authenticatedAction(async (user, roleId: string) => {
 
   try {
     await checkPermission(user, companyId, ["role_admin", "role_manager"]);
+
+    const existing = await db.role.findUnique({ where: { id: roleId } });
+    if (!existing) throw new Error("Role not found");
+    if (existing.companyId === null)
+      throw new Error("System roles cannot be deleted");
+    if (existing.companyId !== companyId) throw new Error("Unauthorized");
 
     const roleInUse = await db.user.findFirst({
       where: { roleId },
@@ -160,6 +178,9 @@ export const addPermissionToRole = authenticatedAction(
 
       const role = await db.role.findUnique({ where: { id: roleId } });
       if (!role) throw new Error("Role not found");
+      if (role.companyId === null)
+        throw new Error("System roles are immutable");
+      if (role.companyId !== companyId) throw new Error("Unauthorized");
 
       const permissions = role.permissions || [];
       if (permissions.includes(permission)) {
@@ -194,6 +215,9 @@ export const removePermissionFromRole = authenticatedAction(
 
       const role = await db.role.findUnique({ where: { id: roleId } });
       if (!role) throw new Error("Role not found");
+      if (role.companyId === null)
+        throw new Error("System roles are immutable");
+      if (role.companyId !== companyId) throw new Error("Unauthorized");
 
       const permissions = role.permissions || [];
       const newPermissions = permissions.filter((p) => p !== permission);

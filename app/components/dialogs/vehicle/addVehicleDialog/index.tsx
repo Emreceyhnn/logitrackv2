@@ -167,7 +167,7 @@ const AddVehicleDialog = ({
               `vehicles/${createdVehicle.id}`
             );
             return uploadVehicleDocument(createdVehicle.id, {
-              type: doc.type || "OTHER",
+              type: (doc.type || "OTHER") as import("@/app/lib/type/enums").DocumentType,
               name: doc.name,
               url: uploadResult.url,
               status: "ACTIVE",

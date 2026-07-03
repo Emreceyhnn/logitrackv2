@@ -41,9 +41,10 @@ export const createCustomer = authenticatedAction(
         "role_manager",
         "role_dispatcher",
       ]);
+      const companyId = user.companyId!;
 
       const existingCode = await db.customer.findFirst({
-        where: { code: code, companyId: user.companyId },
+        where: { code: code, companyId },
       });
 
       if (code && existingCode) {
@@ -61,9 +62,10 @@ export const createCustomer = authenticatedAction(
           taxId,
           email,
           phone,
-          companyId: user.companyId,
+          companyId,
           locations: {
             create: locations?.map((loc) => ({
+              companyId,
               name: loc.name,
               address: loc.address,
               lat: loc.lat,
@@ -312,6 +314,7 @@ export const updateCustomer = authenticatedAction(
             id: { in: locationsToDelete.map((l) => l.id) }
           },
           create: locationsToCreate.map(loc => ({
+            companyId: companyId!,
             name: loc.name,
             address: loc.address,
             lat: loc.lat,

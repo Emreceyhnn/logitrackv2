@@ -248,8 +248,14 @@ export const deleteTrailer = authenticatedAction(
         throw new Error("Trailer not found or unauthorized");
       }
 
-      await db.trailer.delete({
+      // Soft delete: assignment history and compliance documents must survive
+      await db.trailer.update({
         where: { id: trailerId },
+        data: {
+          deletedAt: new Date(),
+          status: "RETIRED",
+          currentVehicleId: null,
+        },
       });
 
       await invalidateTrailerCache(companyId, trailerId);
@@ -300,6 +306,7 @@ export const assignTrailerToVehicle = authenticatedAction(
             data: {
               trailerId,
               vehicleId,
+              companyId: companyId!,
               assignedAt: new Date()
             }
           });

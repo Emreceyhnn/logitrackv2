@@ -151,12 +151,15 @@ describe("Maintenance Controller", () => {
       dbMock.maintenanceRecord.findUnique.mock.mockImplementation(async () => ({
         status: "SCHEDULED",
         type: "ENGINE_REPAIR",
-        vehicle: { companyId: "company-1", plate: "34 XYZ 99" }
+        companyId: "company-1",
+        vehicle: { plate: "34 XYZ 99" }
       }));
 
       dbMock.maintenanceRecord.update.mock.mockImplementation(async () => ({
         status: "COMPLETED", // changed status
         type: "ENGINE_REPAIR",
+        cost: 100,
+        originalCost: null,
         vehicle: { plate: "34 XYZ 99", id: "v-1" }
       }));
 

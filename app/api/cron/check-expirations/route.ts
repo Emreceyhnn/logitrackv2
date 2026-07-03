@@ -24,7 +24,6 @@ export async function GET(req: NextRequest) {
     const expiringDocs = await db.document.findMany({
       where: {
         expiryDate: { lte: fifteenDaysFromNow },
-        status: { not: "DELETED" }, // Assuming there might be a deleted status
       },
       include: {
         driver: {
@@ -157,7 +156,6 @@ export async function GET(req: NextRequest) {
     const routesToCheck = await db.route.findMany({
       where: {
         status: { in: ["PLANNED", "ACTIVE"] },
-        companyId: { not: null },
       },
     });
 
@@ -206,7 +204,6 @@ export async function GET(req: NextRequest) {
       where: {
         slaDeadline: { lt: now },
         status: { notIn: ["DELIVERED", "CANCELLED"] },
-        companyId: { not: null },
       },
     });
 
@@ -226,7 +223,6 @@ export async function GET(req: NextRequest) {
 
     // 6. Check Warehouse Capacity
     const warehouses = await db.warehouse.findMany({
-      where: { companyId: { not: null } },
       include: {
         inventory: {
           select: {

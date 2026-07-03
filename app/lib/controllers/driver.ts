@@ -3,7 +3,7 @@
 import { db } from "../db";
 import { revalidatePath } from "next/cache";
 import { checkPermission } from "./utils/checkPermission";
-import { DriverStatus, Prisma } from "@prisma/client";
+import { DriverStatus, DocumentType, DocumentStatus, Prisma } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 
 import { authenticatedAction } from "../auth-middleware";
@@ -97,7 +97,9 @@ export const createDriver = authenticatedAction(
 
       if (data.employeeId) {
         const existingEmployee = await db.driver.findUnique({
-          where: { employeeId: data.employeeId },
+          where: {
+            companyId_employeeId: { companyId, employeeId: data.employeeId },
+          },
         });
         if (existingEmployee) {
           throw new Error("A driver with this Employee ID already exists");
@@ -145,21 +147,21 @@ export const createDriver = authenticatedAction(
                 ...(data.licensePhotoUrl
                   ? [
                       {
-                        type: "LICENSE",
+                        type: DocumentType.LICENSE,
                         name: "License Scan",
                         url: data.licensePhotoUrl,
                         companyId,
-                        status: "ACTIVE",
+                        status: DocumentStatus.ACTIVE,
                       },
                     ]
                   : []),
                 ...(data.documents?.map((doc) => ({
-                  type: doc.type,
+                  type: doc.type as DocumentType,
                   name: doc.name,
                   url: doc.url,
                   expiryDate: doc.expiryDate,
                   companyId: user.companyId!,
-                  status: "ACTIVE",
+                  status: DocumentStatus.ACTIVE,
                 })) ?? []),
               ],
             },
@@ -251,11 +253,11 @@ export const updateDriver = authenticatedAction(
                 documents: {
                   create: [
                     {
-                      type: "LICENSE",
+                      type: DocumentType.LICENSE,
                       name: "License Scan",
                       url: data.licensePhotoUrl,
                       companyId: user.companyId!,
-                      status: "ACTIVE",
+                      status: DocumentStatus.ACTIVE,
                     },
                   ],
                 },
@@ -265,12 +267,12 @@ export const updateDriver = authenticatedAction(
             ? {
                 documents: {
                   create: data.documents.map((doc) => ({
-                    type: doc.type,
+                    type: doc.type as DocumentType,
                     name: doc.name,
                     url: doc.url,
                     expiryDate: doc.expiryDate,
                     companyId: user.companyId!,
-                    status: "ACTIVE",
+                    status: DocumentStatus.ACTIVE,
                   })),
                 },
               }
@@ -521,6 +523,7 @@ export const getDriverHistory = authenticatedAction(
             where: { status: "COMPLETED" },
             orderBy: { endTime: "desc" },
             take: 20,
+            include: { stops: { orderBy: { sequence: "asc" } } },
           },
           shipments: {
             where: { status: "DELIVERED" },
@@ -539,7 +542,7 @@ export const getDriverHistory = authenticatedAction(
 
       // Add completed routes
       driver.routes.forEach((route) => {
-        const stopsArr = Array.isArray(route.stops) ? route.stops as { address?: string }[] : [];
+        const stopsArr = route.stops;
         const startAddr = stopsArr.length > 0 ? stopsArr[0]?.address : null;
         const endAddr = stopsArr.length > 0 ? stopsArr[stopsArr.length - 1]?.address : null;
         activities.push({

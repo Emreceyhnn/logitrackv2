@@ -14,15 +14,23 @@ model Company {
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   customers          Customer[]
+  customerLocations  CustomerLocation[]
   documents          Document[]
   drivers            Driver[]
   fuelLogs           FuelLog[]
   inventory          Inventory[]
   inventoryMovements InventoryMovement[]
   issues             Issue[]
+  maintenanceRecords MaintenanceRecord[]
+  roles              Role[]
   routes             Route[]
+  routeStops         RouteStop[]
   shipments          Shipment[]
+  shipmentHistory    ShipmentHistory[]
+  shipmentItems      ShipmentItem[]
+  shipmentStops      ShipmentStop[]
   trailers           Trailer[]
+  trailerAssignments TrailerAssignment[]
   users              User[]
   vehicles           Vehicle[]
   warehouses         Warehouse[]
@@ -32,15 +40,21 @@ model Company {
   @@map("companies")
 }
 
+// companyId == null  -> immutable system role (seeded, shared read-only catalog)
+// companyId != null  -> tenant-owned custom role, editable only by that tenant
 model Role {
   id          String   @id @default(cuid())
-  name        String   @unique
+  name        String
   description String?
   permissions String[]
+  companyId   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  company     Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
   users       User[]
 
+  @@unique([companyId, name])
+  @@index([companyId])
   @@map("roles")
 }
 
@@ -77,13 +91,15 @@ model User {
   managedWarehouses      Warehouse[]
   assignedWarehouseTasks WarehouseTask[]
 
+  @@index([companyId])
+  @@index([roleId])
   @@map("users")
 }
 
 model Driver {
   id                  String            @id @default(cuid())
   userId              String            @unique
-  employeeId          String            @unique
+  employeeId          String
   licenseNumber       String?
   licenseType         String?
   licenseExpiry       DateTime?
@@ -95,12 +111,12 @@ model Driver {
   hazmatCertified     Boolean           @default(false)
   languages           String[]
   currentVehicleId    String?           @unique
-  companyId           String?
+  companyId           String
   homeBaseWarehouseId String?
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
   documents           Document[]
-  company             Company?          @relation(fields: [companyId], references: [id])
+  company             Company           @relation(fields: [companyId], references: [id], onDelete: Restrict)
   currentVehicle      Vehicle?          @relation(fields: [currentVehicleId], references: [id])
   homeBaseWarehouse   Warehouse?        @relation(fields: [homeBaseWarehouseId], references: [id])
   user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -109,26 +125,28 @@ model Driver {
   routes              Route[]
   shipments           Shipment[]
 
+  @@unique([companyId, employeeId])
   @@index([companyId, status])
+  @@index([homeBaseWarehouseId])
   @@map("drivers")
 }
 
 model Vehicle {
   id                 String              @id @default(cuid())
-  fleetNo            String              @unique
-  plate              String              @unique
+  fleetNo            String
+  plate              String
   type               VehicleType
   brand              String
   model              String
   year               Int
   status             VehicleStatus       @default(AVAILABLE)
   maxLoadKg          Int
-  fuelType           String
+  fuelType           FuelType
   currentLat         Float?
   currentLng         Float?
   fuelLevel          Int?
   odometerKm         Int?
-  companyId          String?
+  companyId          String
   nextServiceKm      Int?
   avgFuelConsumption Float?
   registrationExpiry DateTime?
@@ -138,6 +156,7 @@ model Vehicle {
   techNotes          String?
   photo              String?
   enableAlerts       Boolean?            @default(true)
+  deletedAt          DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   fuelCapacity       Int?
@@ -149,31 +168,40 @@ model Vehicle {
   routes             Route[]
   trailerAssignments TrailerAssignment[]
   currentTrailer     Trailer?
-  company            Company?            @relation(fields: [companyId], references: [id])
+  company            Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
+  @@unique([companyId, fleetNo])
+  @@unique([companyId, plate])
+  @@index([companyId, status])
   @@map("vehicles")
 }
 
 model MaintenanceRecord {
-  id          String            @id @default(cuid())
-  vehicleId   String
-  type        String
-  date        DateTime
-  cost        Float
-  status      MaintenanceStatus @default(COMPLETED)
-  description String?
-  currency    String            @default("USD")
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  documentUrl String?
-  vehicle     Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  id               String            @id @default(cuid())
+  vehicleId        String
+  companyId        String
+  type             MaintenanceType
+  date             DateTime
+  cost             Decimal           @db.Decimal(12, 2)
+  originalCost     Decimal?          @db.Decimal(12, 2)
+  originalCurrency String?
+  status           MaintenanceStatus @default(COMPLETED)
+  description      String?
+  currency         String            @default("USD")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  documentUrl      String?
+  company          Company           @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  vehicle          Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
 
+  @@index([vehicleId, date])
+  @@index([companyId, date])
   @@map("maintenance_records")
 }
 
 model Warehouse {
   id               String              @id @default(cuid())
-  code             String              @unique
+  code             String
   name             String
   type             WarehouseType
   address          String
@@ -187,43 +215,46 @@ model Warehouse {
   timezone         String              @default("UTC")
   specifications   String[]            @default([])
   managerId        String?
-  companyId        String?
+  companyId        String
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
   drivers          Driver[]
   inventory        Inventory[]
   movements        InventoryMovement[]
   shipmentsOrigin  Shipment[]          @relation("ShipmentOrigin")
-  company          Company?            @relation(fields: [companyId], references: [id])
+  company          Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
   manager          User?               @relation(fields: [managerId], references: [id])
   zones            WarehouseZone[]
   tasks            WarehouseTask[]
 
+  @@unique([companyId, code])
+  @@index([companyId])
+  @@index([managerId])
   @@map("warehouses")
 }
 
 model WarehouseZone {
   id              String    @id @default(cuid())
   warehouseId     String
-  companyId       String?
+  companyId       String
   code            String
   name            String?
   capacityPallets Int       @default(0)
   usedPallets     Int       @default(0)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  company         Company?  @relation(fields: [companyId], references: [id])
+  company         Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
   warehouse       Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
 
   @@unique([warehouseId, code])
-  @@index([warehouseId])
+  @@index([companyId])
   @@map("warehouse_zones")
 }
 
 model WarehouseTask {
   id           String                @id @default(cuid())
   warehouseId  String
-  companyId    String?
+  companyId    String
   kind         WarehouseTaskKind
   name         String
   orderRef     String
@@ -236,36 +267,40 @@ model WarehouseTask {
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
   assignedTo   User?                 @relation(fields: [assignedToId], references: [id])
-  company      Company?              @relation(fields: [companyId], references: [id])
+  company      Company               @relation(fields: [companyId], references: [id], onDelete: Restrict)
   warehouse    Warehouse             @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
 
   @@index([warehouseId, status])
+  @@index([companyId, status])
+  @@index([assignedToId, status])
   @@map("warehouse_tasks")
 }
 
-
 model Customer {
   id        String             @id @default(cuid())
-  code      String             @unique
+  code      String
   name      String
   industry  String?
   taxId     String?
   email     String?
   phone     String?
-  companyId String?
+  companyId String
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
   locations CustomerLocation[]
-  company   Company?           @relation(fields: [companyId], references: [id])
+  company   Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
   stops     ShipmentStop[]
   shipments Shipment[]
 
+  @@unique([companyId, code])
+  @@index([companyId])
   @@map("customers")
 }
 
 model CustomerLocation {
   id         String         @id @default(cuid())
   customerId String
+  companyId  String
   name       String
   address    String
   lat        Float?
@@ -273,10 +308,13 @@ model CustomerLocation {
   isDefault  Boolean        @default(false)
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
+  company    Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
   customer   Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
   stops      ShipmentStop[]
   shipments  Shipment[]
 
+  @@index([customerId])
+  @@index([companyId])
   @@map("customer_locations")
 }
 
@@ -290,108 +328,124 @@ model Inventory {
   allocatedQuantity Int       @default(0)
   minStock          Int       @default(0)
   imageUrl          String?
-  unitValue         Float?    @default(0)
+  unitValue         Decimal?  @default(0) @db.Decimal(12, 2)
   currency          String    @default("USD")
   unit              String    @default("Each")
   weightKg          Float?    @default(0)
   volumeM3          Float?    @default(0)
-  palletCount       Float?    @default(0)
+  palletCount       Int?      @default(0)
   cargoType         String?   @default("General Cargo")
   updatedAt         DateTime  @updatedAt
-  companyId         String?
+  companyId         String
   createdAt         DateTime  @default(now())
-  company           Company?  @relation(fields: [companyId], references: [id])
+  company           Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
   warehouse         Warehouse @relation(fields: [warehouseId], references: [id])
 
   @@unique([warehouseId, sku])
+  @@index([companyId])
   @@map("inventory")
 }
 
 model InventoryMovement {
-  id          String    @id @default(cuid())
+  id          String       @id @default(cuid())
   warehouseId String
   sku         String
   quantity    Int
-  type        String
+  type        MovementType
   notes       String?
-  date        DateTime  @default(now())
+  date        DateTime     @default(now())
   userId      String?
-  companyId   String?
-  updatedAt   DateTime  @updatedAt
-  company     Company?  @relation(fields: [companyId], references: [id])
-  user        User?     @relation(fields: [userId], references: [id])
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  companyId   String
+  updatedAt   DateTime     @updatedAt
+  company     Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  user        User?        @relation(fields: [userId], references: [id])
+  warehouse   Warehouse    @relation(fields: [warehouseId], references: [id])
 
   @@index([warehouseId, sku, date])
+  @@index([companyId, date])
+  @@index([userId])
   @@map("inventory_movements")
 }
 
 model Shipment {
-  id                 String            @id @default(cuid())
-  trackingId         String            @unique
+  id                 String               @id @default(cuid())
+  // trackingId is intentionally globally unique: it is an opaque public
+  // tracking token that must be resolvable without a tenant context.
+  trackingId         String               @unique
   referenceNumber    String?
   customerId         String?
   customerLocationId String?
   driverId           String?
-  status             ShipmentStatus    @default(PENDING)
+  status             ShipmentStatus       @default(PENDING)
   origin             String?
   originLat          Float?
   originLng          Float?
   destination        String
   destinationLat     Float?
   destinationLng     Float?
-  itemsCount         Int               @default(1)
-  priority           ShipmentPriority? @default(MEDIUM)
-  type               String?           @default("Standard Freight")
+  itemsCount         Int                  @default(1)
+  priority           ShipmentPriority?    @default(MEDIUM)
+  type               ShipmentServiceType? @default(STANDARD_FREIGHT)
   slaDeadline        DateTime?
-  weightKg           Float?            @default(0)
-  volumeM3           Float?            @default(0)
-  palletCount        Float?            @default(0)
-  cargoType          String?           @default("General Cargo")
+  weightKg           Float?               @default(0)
+  volumeM3           Float?               @default(0)
+  palletCount        Int?                 @default(0)
+  cargoType          String?              @default("General Cargo")
   contactEmail       String?
-  billingAccount     String?           @default("Standard Billing (Net 30)")
+  billingAccount     String?              @default("Standard Billing (Net 30)")
   routeId            String?
-  companyId          String?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  companyId          String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
   originWarehouseId  String?
   trailerId          String?
   issues             Issue[]
   history            ShipmentHistory[]
   items              ShipmentItem[]
   stops              ShipmentStop[]
-  company            Company?          @relation(fields: [companyId], references: [id])
-  customer           Customer?         @relation(fields: [customerId], references: [id])
-  customerLocation   CustomerLocation? @relation(fields: [customerLocationId], references: [id])
-  driver             Driver?           @relation(fields: [driverId], references: [id])
-  originWarehouse    Warehouse?        @relation("ShipmentOrigin", fields: [originWarehouseId], references: [id])
-  route              Route?            @relation(fields: [routeId], references: [id])
-  trailer            Trailer?          @relation(fields: [trailerId], references: [id])
+  company            Company              @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  customer           Customer?            @relation(fields: [customerId], references: [id])
+  customerLocation   CustomerLocation?    @relation(fields: [customerLocationId], references: [id])
+  driver             Driver?              @relation(fields: [driverId], references: [id])
+  originWarehouse    Warehouse?           @relation("ShipmentOrigin", fields: [originWarehouseId], references: [id])
+  route              Route?               @relation(fields: [routeId], references: [id])
+  trailer            Trailer?             @relation(fields: [trailerId], references: [id])
 
   @@index([companyId, status])
+  @@index([companyId, createdAt])
   @@index([companyId, trackingId])
+  @@index([driverId, status])
+  @@index([customerId])
+  @@index([customerLocationId])
+  @@index([routeId])
+  @@index([originWarehouseId])
+  @@index([trailerId])
   @@map("shipments")
 }
 
 model ShipmentHistory {
-  id            String   @id @default(cuid())
+  id            String         @id @default(cuid())
   shipmentId    String
-  status        String
+  companyId     String
+  status        ShipmentStatus
   location      String?
   description   String?
-  createdAt     DateTime @default(now())
+  createdAt     DateTime       @default(now())
   createdById   String?
-  createdByUser User?    @relation("ShipmentHistoryCreatedBy", fields: [createdById], references: [id])
-  shipment      Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  createdByUser User?          @relation("ShipmentHistoryCreatedBy", fields: [createdById], references: [id])
+  shipment      Shipment       @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
 
   @@index([shipmentId])
   @@index([createdById])
+  @@index([companyId])
   @@map("shipment_history")
 }
 
 model ShipmentStop {
   id                 String            @id @default(cuid())
   shipmentId         String
+  companyId          String
   customerId         String?
   customerLocationId String?
   address            String
@@ -404,54 +458,106 @@ model ShipmentStop {
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   contactEmail       String?
+  company            Company           @relation(fields: [companyId], references: [id], onDelete: Restrict)
   customer           Customer?         @relation(fields: [customerId], references: [id])
   customerLocation   CustomerLocation? @relation(fields: [customerLocationId], references: [id])
   shipment           Shipment          @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
 
+  @@index([shipmentId, sequence])
+  @@index([customerId])
+  @@index([customerLocationId])
+  @@index([companyId])
   @@map("shipment_stops")
 }
 
-model Route {
-  id           String      @id @default(cuid())
-  name         String?
-  status       RouteStatus @default(PLANNED)
-  date         DateTime
-  startTime    DateTime?
-  endTime      DateTime?
-  distanceKm   Float?
-  durationMin  Int?
-  driverId     String?
-  vehicleId    String?
-  companyId    String?
-  stops        Json?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  company      Company?    @relation(fields: [companyId], references: [id])
-  driver       Driver?     @relation(fields: [driverId], references: [id])
-  vehicle      Vehicle?    @relation(fields: [vehicleId], references: [id])
-  shipments    Shipment[]
+model ShipmentItem {
+  id          String   @id @default(cuid())
+  shipmentId  String
+  companyId   String
+  sku         String
+  name        String
+  quantity    Int
+  unit        String   @default("Each")
+  weightKg    Float?   @default(0)
+  volumeM3    Float?   @default(0)
+  palletCount Int?     @default(0)
+  cargoType   String?  @default("General Cargo")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
 
+  @@index([shipmentId])
+  @@index([companyId])
+  @@map("shipment_items")
+}
+
+model Route {
+  id          String      @id @default(cuid())
+  name        String?
+  status      RouteStatus @default(PLANNED)
+  date        DateTime
+  startTime   DateTime?
+  endTime     DateTime?
+  distanceKm  Float?
+  durationMin Int?
+  driverId    String?
+  vehicleId   String?
+  companyId   String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  company     Company     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  driver      Driver?     @relation(fields: [driverId], references: [id])
+  vehicle     Vehicle?    @relation(fields: [vehicleId], references: [id])
+  shipments   Shipment[]
+  stops       RouteStop[]
+
+  @@index([companyId, date])
+  @@index([driverId, date])
+  @@index([vehicleId])
   @@map("routes")
 }
 
+model RouteStop {
+  id        String   @id @default(cuid())
+  routeId   String
+  companyId String
+  sequence  Int
+  address   String
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  route     Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@index([routeId, sequence])
+  @@index([companyId])
+  @@map("route_stops")
+}
+
 model Document {
-  id         String    @id @default(cuid())
-  type       String
+  id         String         @id @default(cuid())
+  type       DocumentType
   name       String
   url        String
   expiryDate DateTime?
-  status     String
+  status     DocumentStatus
   driverId   String?
   vehicleId  String?
-  companyId  String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  companyId  String
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
   trailerId  String?
-  company    Company?  @relation(fields: [companyId], references: [id])
-  driver     Driver?   @relation(fields: [driverId], references: [id])
-  trailer    Trailer?  @relation(fields: [trailerId], references: [id], onDelete: Cascade)
-  vehicle    Vehicle?  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  company    Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  driver     Driver?        @relation(fields: [driverId], references: [id])
+  trailer    Trailer?       @relation(fields: [trailerId], references: [id], onDelete: Restrict)
+  vehicle    Vehicle?       @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
 
+  @@index([companyId, expiryDate])
+  @@index([driverId])
+  @@index([vehicleId])
+  @@index([trailerId])
   @@map("documents")
 }
 
@@ -459,22 +565,24 @@ model FuelLog {
   id          String   @id @default(cuid())
   vehicleId   String
   driverId    String
-  companyId   String?
+  companyId   String
   date        DateTime @default(now())
   volumeLiter Float
-  cost        Float
+  cost        Decimal  @db.Decimal(12, 2)
   odometerKm  Int
   location    String?
-  fuelType    String
+  fuelType    FuelType
   currency    String   @default("USD")
   receiptUrl  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  company     Company? @relation(fields: [companyId], references: [id])
-  driver      Driver   @relation(fields: [driverId], references: [id])
-  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  driver      Driver   @relation(fields: [driverId], references: [id], onDelete: Restrict)
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
 
   @@index([companyId, date])
+  @@index([vehicleId, date])
+  @@index([driverId, date])
   @@map("fuel_logs")
 }
 
@@ -488,16 +596,21 @@ model Issue {
   vehicleId   String?
   driverId    String?
   shipmentId  String?
-  companyId   String?
+  companyId   String
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   trailerId   String?
-  company     Company?      @relation(fields: [companyId], references: [id])
+  company     Company       @relation(fields: [companyId], references: [id], onDelete: Restrict)
   driver      Driver?       @relation(fields: [driverId], references: [id])
   shipment    Shipment?     @relation(fields: [shipmentId], references: [id])
   trailer     Trailer?      @relation(fields: [trailerId], references: [id])
   vehicle     Vehicle?      @relation(fields: [vehicleId], references: [id])
 
+  @@index([companyId, status])
+  @@index([vehicleId])
+  @@index([driverId])
+  @@index([shipmentId])
+  @@index([trailerId])
   @@map("issues")
 }
 
@@ -516,8 +629,7 @@ model Session {
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([token])
-  @@index([refreshToken])
+  @@index([expiresAt])
   @@map("sessions")
 }
 
@@ -531,60 +643,47 @@ model AuditLog {
   metadata   Json?
   user       User?       @relation(fields: [userId], references: [id])
 
-  @@index([userId])
+  @@index([userId, createdAt])
   @@index([action])
   @@map("audit_logs")
-}
-
-model ShipmentItem {
-  id          String   @id @default(cuid())
-  shipmentId  String
-  sku         String
-  name        String
-  quantity    Int
-  unit        String   @default("Each")
-  weightKg    Float?   @default(0)
-  volumeM3    Float?   @default(0)
-  palletCount Float?   @default(0)
-  cargoType   String?  @default("General Cargo")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  shipment    Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
-
-  @@map("shipment_items")
 }
 
 model ExchangeRate {
   id        String   @id @default(cuid())
   base      String   @default("USD")
   rates     Json
-  date      DateTime @default(now())
+  date      DateTime @default(now()) @db.Date
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([base, date])
   @@map("exchange_rates")
 }
 
 model Trailer {
   id               String              @id @default(cuid())
-  fleetNo          String              @unique
-  plate            String              @unique
+  fleetNo          String
+  plate            String
   type             TrailerType
   capacityVolumeM3 Float
   maxLoadKg        Int
   isColdChain      Boolean             @default(false)
   status           TrailerStatus       @default(AVAILABLE)
   currentVehicleId String?             @unique
-  companyId        String?
+  companyId        String
+  deletedAt        DateTime?
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
   documents        Document[]
   issues           Issue[]
   shipments        Shipment[]
   assignments      TrailerAssignment[]
-  company          Company?            @relation(fields: [companyId], references: [id])
+  company          Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
   currentVehicle   Vehicle?            @relation(fields: [currentVehicleId], references: [id])
 
+  @@unique([companyId, fleetNo])
+  @@unique([companyId, plate])
+  @@index([companyId, status])
   @@map("trailers")
 }
 
@@ -592,12 +691,17 @@ model TrailerAssignment {
   id         String    @id @default(cuid())
   trailerId  String
   vehicleId  String
+  companyId  String
   assignedAt DateTime  @default(now())
   detachedAt DateTime?
   notes      String?
-  trailer    Trailer   @relation(fields: [trailerId], references: [id], onDelete: Cascade)
-  vehicle    Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  company    Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  trailer    Trailer   @relation(fields: [trailerId], references: [id], onDelete: Restrict)
+  vehicle    Vehicle   @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
 
+  @@index([trailerId, assignedAt])
+  @@index([vehicleId, assignedAt])
+  @@index([companyId])
   @@map("trailer_assignments")
 }
 
@@ -610,6 +714,13 @@ enum UserStatus {
 enum VehicleType {
   TRUCK
   VAN
+}
+
+enum FuelType {
+  DIESEL
+  GASOLINE
+  ELECTRIC
+  HYBRID
 }
 
 enum TrailerType {
@@ -682,6 +793,12 @@ enum ShipmentPriority {
   CRITICAL
 }
 
+enum ShipmentServiceType {
+  STANDARD_FREIGHT
+  EXPRESS
+  HAZARDOUS
+}
+
 enum IssueStatus {
   OPEN
   IN_PROGRESS
@@ -711,6 +828,45 @@ enum MaintenanceStatus {
   CANCELLED
 }
 
+enum MaintenanceType {
+  ROUTINE_MAINTENANCE
+  REPAIR
+  INSPECTION
+  TIRE_CHANGE
+  OIL_CHANGE
+  OTHER
+}
+
+enum DocumentType {
+  REGISTRATION
+  TRAILER_REGISTRATION
+  INSURANCE
+  LICENSE
+  INSPECTION
+  MAINTENANCE
+  OTHER
+}
+
+enum DocumentStatus {
+  ACTIVE
+  MISSING
+  EXPIRING_SOON
+  EXPIRED
+}
+
+enum MovementType {
+  STOCK_IN
+  PUTAWAY
+  PICK
+  PACK
+  RESTOCK
+  RESTOCK_REQUEST
+  ADJUSTMENT
+  ALLOCATION
+  ALLOCATION_REVERT
+  ALLOCATION_CANCEL
+}
+
 enum WarehouseTaskKind {
   PICK
   PACK
@@ -728,5 +884,3 @@ enum WarehouseTaskStatus {
   IN_PROGRESS
   COMPLETED
 }
-
-

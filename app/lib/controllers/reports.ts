@@ -66,7 +66,7 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
     });
 
     const fleetData = vehicles.map((v) => {
-      const maintenanceCost = v.maintenanceRecords.reduce((sum, record) => sum + record.cost, 0);
+      const maintenanceCost = v.maintenanceRecords.reduce((sum, record) => sum + Number(record.cost), 0);
       return {
         plate: v.plate,
         consumption: (v.avgFuelConsumption ?? 0).toFixed(1),
@@ -84,7 +84,7 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
       return {
         ...i,
         category: i.cargoType || "Uncategorized",
-        unitPrice: i.unitValue || 0,
+        unitPrice: Number(i.unitValue ?? 0),
       };
     });
 

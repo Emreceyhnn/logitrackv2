@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "../db";
+import { FuelType } from "@prisma/client";
 import { checkPermission } from "./utils/checkPermission";
 import { FuelLog, FuelLogWithRelations, FuelPageState } from "../type/fuel";
 import { authenticatedAction } from "../auth-middleware";
@@ -53,7 +54,10 @@ export const getFuelLogs = authenticatedAction(
         },
       });
 
-      const typedLogs: FuelLogWithRelations[] = logs;
+      const typedLogs: FuelLogWithRelations[] = logs.map((log) => ({
+        ...log,
+        cost: Number(log.cost),
+      }));
       return typedLogs;
     } catch (error) {
       console.error("Failed to get fuel logs:", error);
@@ -72,7 +76,7 @@ export const createFuelLog = authenticatedAction(
       cost: number;
       odometerKm: number;
       location?: string;
-      fuelType: string;
+      fuelType: FuelType;
       date?: Date;
       receiptUrl?: string;
       currency?: string;
@@ -96,7 +100,7 @@ export const createFuelLog = authenticatedAction(
         }
       }
 
-      return db.fuelLog.create({
+      const log = await db.fuelLog.create({
         data: {
           ...data,
           cost: normalizedCost,
@@ -104,6 +108,7 @@ export const createFuelLog = authenticatedAction(
           companyId,
         },
       });
+      return { ...log, cost: Number(log.cost) };
     } catch (error) {
       console.error("Failed to create fuel log:", error);
       throw error;
@@ -133,12 +138,9 @@ export const getFuelStats = authenticatedAction(async (user) => {
       };
     }
 
-    const totalCost = logs.reduce(
-      (sum: number, log: FuelLog) => sum + log.cost,
-      0
-    );
+    const totalCost = logs.reduce((sum: number, log) => sum + Number(log.cost), 0);
     const totalVolume = logs.reduce(
-      (sum: number, log: FuelLog) => sum + log.volumeLiter,
+      (sum: number, log) => sum + log.volumeLiter,
       0
     );
 

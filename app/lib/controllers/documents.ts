@@ -3,14 +3,14 @@
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
-import { Prisma } from "@prisma/client";
+import { DocumentStatus, DocumentType, Prisma } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { driverCacheKeys, invalidatePattern, vehicleCacheKeys } from "../redis";
 
 export const createDocument = authenticatedAction(
   async (
     user,
-    type: string,
+    type: DocumentType,
     name: string,
     url: string,
     expiryDate?: Date,
@@ -50,17 +50,17 @@ export const createDocument = authenticatedAction(
       }
 
       const now = new Date();
-      let docStatus = "ACTIVE";
+      let docStatus: DocumentStatus = DocumentStatus.ACTIVE;
 
       if (!expiryDate) {
-        docStatus = "MISSING";
+        docStatus = DocumentStatus.MISSING;
       } else if (expiryDate < now) {
-        docStatus = "EXPIRED";
+        docStatus = DocumentStatus.EXPIRED;
       } else {
         const oneMonthLater = new Date();
         oneMonthLater.setMonth(now.getMonth() + 1);
         if (expiryDate <= oneMonthLater) {
-          docStatus = "EXPIRING_SOON";
+          docStatus = DocumentStatus.EXPIRING_SOON;
         }
       }
 
@@ -166,8 +166,8 @@ export const getDocumentById = authenticatedAction(
 
       if (!document) throw new Error("Document not found");
 
-      if (document.companyId) {
-        await checkPermission(user, document.companyId);
+      if (document.companyId !== companyId) {
+        throw new Error("Unauthorized");
       }
 
       return document;

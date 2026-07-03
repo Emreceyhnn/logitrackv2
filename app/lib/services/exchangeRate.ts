@@ -90,13 +90,19 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     lastUpdated: new Date().toISOString(),
   };
 
-  // 4. Persist to DB (fire-and-forget, non-blocking)
+  // 4. Persist to DB (fire-and-forget, non-blocking).
+  // `date` is a DATE column with a unique (base, date) constraint, so a
+  // same-day refresh updates the existing row instead of duplicating it.
   try {
-    await db.exchangeRate.create({
-      data: {
+    const day = new Date();
+    day.setUTCHours(0, 0, 0, 0);
+    await db.exchangeRate.upsert({
+      where: { base_date: { base: "USD", date: day } },
+      update: { rates: data.conversion_rates },
+      create: {
         base: "USD",
         rates: data.conversion_rates,
-        date: new Date(),
+        date: day,
       },
     });
   } catch (err) {
