@@ -30,6 +30,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SignedDocThumbnail from "@/app/components/shared/SignedDocThumbnail";
+import { openSignedDoc } from "@/app/lib/openSignedDoc";
 import { useState, useEffect, useRef } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateMaintenanceRecord } from "@/app/lib/controllers/vehicle";
@@ -557,9 +558,7 @@ export default function MaintenanceDetailDialog({
                     <SignedDocThumbnail url={formData.documentUrl} />
                     <Box
                       sx={{ flexGrow: 1, minWidth: 0, cursor: "pointer" }}
-                      onClick={() =>
-                        window.open(formData.documentUrl, "_blank")
-                      }
+                      onClick={() => openSignedDoc(formData.documentUrl)}
                     >
                       <Typography variant="body2" noWrap fontWeight={600}>
                         {dict.vehicles.dialogs.viewDocument}
