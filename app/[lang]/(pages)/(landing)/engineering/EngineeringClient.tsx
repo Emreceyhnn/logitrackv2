@@ -1,13 +1,10 @@
-"use client";
-
 import CloudRoundedIcon from "@mui/icons-material/CloudRounded";
 import StorageRoundedIcon from "@mui/icons-material/StorageRounded";
 import AutoGraphRoundedIcon from "@mui/icons-material/AutoGraphRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function EngineeringClient() {
-  const dict = useDictionary();
+export default function EngineeringClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.engineeringPage;
 
   return (

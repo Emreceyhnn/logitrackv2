@@ -82,7 +82,10 @@ mock.module("../../../lib/validationSchema.ts", {
   namedExports: {
     addCompanyMemberValidationSchema: mock.fn(() => ({
       validate: async () => true,
-    }))
+    })),
+    addCompanyMemberDriverValidationSchema: mock.fn(() => ({
+      validate: async () => true,
+    })),
   }
 });
 

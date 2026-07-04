@@ -309,6 +309,14 @@ export const adjustInventoryStock = authenticatedAction(
           },
         });
 
+        // Checked after the increment (inside the transaction) so concurrent
+        // adjustments can't race past a pre-read check; throwing rolls back.
+        if (item.quantity < 0) {
+          throw new Error(
+            "Insufficient stock: adjustment would result in negative quantity"
+          );
+        }
+
         await tx.inventoryMovement.create({
           data: {
             warehouseId: item.warehouseId,

@@ -1,13 +1,10 @@
-"use client";
-
 import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 import GpsFixedRoundedIcon from "@mui/icons-material/GpsFixedRounded";
 import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function GlobalTrackingClient() {
-  const dict = useDictionary();
+export default function GlobalTrackingClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.globalTrackingPage;
 
   return (

@@ -15,9 +15,20 @@ import CustomCard from "@/app/components/cards/card";
 import DailyOperationsCard from "@/app/components/dashboard/overview/dailyOperations";
 import WarehouseCapacityCard from "@/app/components/dashboard/overview/warehouseCapacityCard";
 import AlertInventoryCard from "@/app/components/dashboard/overview/inventoryCard";
-import ShipmentOnStatusCard from "@/app/components/dashboard/overview/shipmentsByStatusCard";
+import dynamic from "next/dynamic";
+import ChartSkeleton from "@/app/components/skeletons/ChartSkeleton";
 import PicksPacksDailyCard from "@/app/components/dashboard/overview/picsPacksDailyCard";
-import ShipmentVolumeCard from "@/app/components/dashboard/overview/onTimeTrends";
+
+// @mui/x-charts is ~283 kB per route when imported statically. Loading the
+// chart cards lazily keeps it out of this route's First Load JS.
+const ShipmentOnStatusCard = dynamic(
+  () => import("@/app/components/dashboard/overview/shipmentsByStatusCard"),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+const ShipmentVolumeCard = dynamic(
+  () => import("@/app/components/dashboard/overview/onTimeTrends"),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
 import OverviewMapCard from "@/app/components/dashboard/overview/overViewMapCard";
 import { useState, useMemo, useEffect } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";

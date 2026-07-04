@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { isWarehouseOnlyRole } from "@/app/lib/roles";
+import { UserProvider } from "@/app/lib/context/UserContext";
 
 export const metadata: Metadata = {
   robots: {
@@ -27,5 +28,11 @@ export default async function DashboardLayout({
     redirect(`/${lang}/warehouse-worker`);
   }
 
-  return <DashboardLayoutClient>{children}</DashboardLayoutClient>;
+  // UserProvider lives here (not in the root [lang] layout) so the session
+  // read only makes the dashboard tree dynamic — marketing pages stay static.
+  return (
+    <UserProvider initialUser={user}>
+      <DashboardLayoutClient>{children}</DashboardLayoutClient>
+    </UserProvider>
+  );
 }

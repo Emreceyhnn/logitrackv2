@@ -1,13 +1,10 @@
-"use client";
-
 import SensorsRoundedIcon from "@mui/icons-material/SensorsRounded";
 import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
 import SpeedRoundedIcon from "@mui/icons-material/SpeedRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function TelemetryHubClient() {
-  const dict = useDictionary();
+export default function TelemetryHubClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.telemetryHubPage;
 
   return (

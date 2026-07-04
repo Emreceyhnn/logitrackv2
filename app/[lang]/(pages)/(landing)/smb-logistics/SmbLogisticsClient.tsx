@@ -1,13 +1,10 @@
-"use client";
-
 import RocketLaunchRoundedIcon from "@mui/icons-material/RocketLaunchRounded";
 import SavingsRoundedIcon from "@mui/icons-material/SavingsRounded";
 import AutoFixHighRoundedIcon from "@mui/icons-material/AutoFixHighRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function SmbLogisticsClient() {
-  const dict = useDictionary();
+export default function SmbLogisticsClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.smbLogisticsPage;
 
   return (

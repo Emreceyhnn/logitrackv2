@@ -6,9 +6,23 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import InventoryIcon from "@mui/icons-material/Inventory";
 
-import ShipmentCharts from "@/app/components/dashboard/reports/ShipmentCharts";
-import FleetCharts from "@/app/components/dashboard/reports/FleetCharts";
-import InventoryCharts from "@/app/components/dashboard/reports/InventoryCharts";
+import dynamic from "next/dynamic";
+import ChartSkeleton from "@/app/components/skeletons/ChartSkeleton";
+
+// @mui/x-charts is ~283 kB per route when imported statically. Loading the
+// chart components lazily keeps it out of this route's First Load JS.
+const ShipmentCharts = dynamic(
+  () => import("@/app/components/dashboard/reports/ShipmentCharts"),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+const FleetCharts = dynamic(
+  () => import("@/app/components/dashboard/reports/FleetCharts"),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+const InventoryCharts = dynamic(
+  () => import("@/app/components/dashboard/reports/InventoryCharts"),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
 import ReportSummaryCards from "@/app/components/dashboard/reports/ReportSummaryCards";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useReportsData } from "@/app/hooks/useReports";

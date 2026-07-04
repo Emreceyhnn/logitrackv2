@@ -90,6 +90,10 @@ mock.module("../services/exchangeRate.ts", {
   namedExports: { getExchangeRates: mock.fn() },
 });
 
+mock.module("next/cache", {
+  namedExports: { revalidatePath: () => {} },
+});
+
 // 2. TEST GRUPLARI
 describe("Vehicle Controller", () => {
   let vehicleController: any;
@@ -149,12 +153,16 @@ describe("Vehicle Controller", () => {
       expect(vehicleTrackingMock.syncVehicleToFirebaseAction.mock.calls.length).toBe(1);
     });
 
-    it("should_ThrowError_WhenPlateAlreadyExists", async () => {
-      // Arrange
-      dbMock.vehicle.findFirst.mock.mockImplementation(async () => ({
-        id: "existing-veh",
-        plate: "34 ABC 123",
-      }));
+    it("should_RethrowUniqueConstraintError_WhenPlateAlreadyExists", async () => {
+      // Arrange — uniqueness is enforced by the DB constraint (P2002), not a
+      // pre-read; the controller must propagate the failure.
+      dbMock.vehicle.create.mock.mockImplementationOnce(async () => {
+        const err = new Error(
+          "Unique constraint failed on the fields: (`plate`)"
+        ) as Error & { code?: string };
+        err.code = "P2002";
+        throw err;
+      });
 
       const vehicleData = {
         year: 2023,
@@ -166,9 +174,11 @@ describe("Vehicle Controller", () => {
       // Act & Assert
       await expect(
         vehicleController.createVehicle(mockUser, vehicleData)
-      ).rejects.toThrow("Plate already exists in the system.");
+      ).rejects.toThrow("Unique constraint failed");
 
-      expect(dbMock.vehicle.create.mock.calls.length).toBe(0);
+      // No cache invalidation or Firebase sync for a failed create
+      expect(cacheUtilsMock.invalidatePattern.mock.calls.length).toBe(0);
+      expect(vehicleTrackingMock.syncVehicleToFirebaseAction.mock.calls.length).toBe(0);
     });
   });
 

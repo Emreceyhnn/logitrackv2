@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import HowItWorksClient from "./HowItWorksClient";
-import { getServerDictionary } from "@/app/lib/language/i18n-server";
+import { getDictionary } from "@/app/lib/language/language";
 
 export async function generateMetadata(props: {
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const params = await props.params;
-  const dict = getServerDictionary(params.lang);
+  const dict = await getDictionary(params.lang);
   const title = dict?.landing?.howItWorksPage?.hero?.title || "How It Works";
   const description =
     dict?.landing?.howItWorksPage?.hero?.subtitle ||
@@ -18,6 +18,10 @@ export async function generateMetadata(props: {
   };
 }
 
-export default function HowItWorksPage() {
-  return <HowItWorksClient />;
+export default async function HowItWorksPage(props: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await props.params;
+  const dict = await getDictionary(lang);
+  return <HowItWorksClient dict={dict} />;
 }

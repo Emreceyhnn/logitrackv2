@@ -74,6 +74,31 @@ describe("GET /api/auth/refresh", () => {
     const res: any = await GET(makeRequest("/dashboard"));
     expect(mockNextResponse.redirect.mock.calls.length).toBe(1);
     expect(res._status).toBe(302);
+    expect(res._redirect).toBe("http://localhost/dashboard");
+  });
+
+  it("should_StayOnOrigin_WhenRedirectToIsAbsoluteExternalUrl", async () => {
+    refreshSessionMock.mock.mockImplementationOnce(async () => true);
+    const res: any = await GET(makeRequest("https://evil.com/phish"));
+    expect(mockNextResponse.redirect.mock.calls.length).toBe(1);
+    const target = new URL(res._redirect);
+    expect(target.origin).toBe("http://localhost");
+    expect(target.pathname).toBe("/");
+  });
+
+  it("should_StayOnOrigin_WhenRedirectToIsProtocolRelative", async () => {
+    refreshSessionMock.mock.mockImplementationOnce(async () => true);
+    const res: any = await GET(makeRequest("//evil.com/phish"));
+    const target = new URL(res._redirect);
+    expect(target.origin).toBe("http://localhost");
+    expect(target.pathname).toBe("/");
+  });
+
+  it("should_StayOnOrigin_WhenRedirectToUsesBackslashTrick", async () => {
+    refreshSessionMock.mock.mockImplementationOnce(async () => true);
+    const res: any = await GET(makeRequest("/\\evil.com"));
+    const target = new URL(res._redirect);
+    expect(target.origin).toBe("http://localhost");
   });
 
   it("should_RedirectToSignIn_WhenSessionRefreshFails", async () => {

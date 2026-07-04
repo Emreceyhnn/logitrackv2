@@ -90,6 +90,8 @@ const dayjsUtcMock = mock.fn(() => ({
   }))
 }));
 (dayjsMock as any).utc = dayjsUtcMock;
+// overview.ts calls dayjs.extend(utc/timezone) at module load
+(dayjsMock as any).extend = mock.fn();
 
 // Modülleri Sisteme Enjekte Etme
 mock.module("../db.ts", {

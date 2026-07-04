@@ -140,7 +140,7 @@ describe("UserList RTL Component", () => {
       name: "Zeynep",
       surname: "Oz",
       email: "zeynep@example.com",
-      role: { name: "SomeOtherRole" },
+      role: null, // no role -> falls back to the "User" label
     },
   ];
 
@@ -185,7 +185,7 @@ describe("UserList RTL Component", () => {
       expect(screen.getByText("Manager")).toBeTruthy();
       expect(screen.getByText("Dispatcher")).toBeTruthy();
       expect(screen.getByText("Warehouse")).toBeTruthy();
-      // Unknown role -> default
+      // Missing role -> "User" fallback (localized via dict.company.roles)
       expect(screen.getByText("User")).toBeTruthy();
     });
 

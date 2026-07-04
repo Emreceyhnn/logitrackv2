@@ -67,10 +67,16 @@ const mockDict = {
     charts: {
       shipment: {
         analyticsTitle: "Shipment Analytics Loading",
+        statusDistribution: "Status Distribution",
         volumeByRoute: "Volume By Route",
         volumeByRouteSubtitle: "Shipments per route",
       },
     },
+  },
+  routes: {
+    // Empty on purpose: unlocalized statuses must fall back to
+    // s.status.replace("_", " ") (asserted below).
+    statuses: {},
   },
   shipments: {
     dashboard: {

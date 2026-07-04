@@ -1,7 +1,15 @@
 "use client";
 
 import ShipmentTable from "@/app/components/dashboard/shipments/shipmentTable";
-import ShipmentAnalytics from "@/app/components/dashboard/shipments/ShipmentAnalytics";
+import dynamic from "next/dynamic";
+import ChartSkeleton from "@/app/components/skeletons/ChartSkeleton";
+
+// @mui/x-charts is ~283 kB per route when imported statically. Loading the
+// analytics block lazily keeps it out of this route's First Load JS.
+const ShipmentAnalytics = dynamic(
+  () => import("@/app/components/dashboard/shipments/ShipmentAnalytics"),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
 import { Box, Button, Stack, Typography, useTheme } from "@mui/material";
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";

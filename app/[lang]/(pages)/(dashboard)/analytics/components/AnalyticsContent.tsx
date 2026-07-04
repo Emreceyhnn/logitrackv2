@@ -2,9 +2,23 @@
 
 import { Box, Skeleton, Stack } from "@mui/material";
 import AnalyticsHeader from "@/app/components/dashboard/analytics/AnalyticsHeader";
-import PerformanceGauges from "@/app/components/dashboard/analytics/PerformanceGauges";
-import CostAnalysisCharts from "@/app/components/dashboard/analytics/CostAnalysisCharts";
-import ForecastingWidget from "@/app/components/dashboard/analytics/ForecastingWidget";
+import dynamic from "next/dynamic";
+import ChartSkeleton from "@/app/components/skeletons/ChartSkeleton";
+
+// @mui/x-charts is ~283 kB per route when imported statically. Loading the
+// chart components lazily keeps it out of this route's First Load JS.
+const PerformanceGauges = dynamic(
+  () => import("@/app/components/dashboard/analytics/PerformanceGauges"),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+const CostAnalysisCharts = dynamic(
+  () => import("@/app/components/dashboard/analytics/CostAnalysisCharts"),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+const ForecastingWidget = dynamic(
+  () => import("@/app/components/dashboard/analytics/ForecastingWidget"),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
 import { useAnalyticsData } from "@/app/hooks/useAnalytics";
 
 export default function AnalyticsContent() {

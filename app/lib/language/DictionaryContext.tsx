@@ -1,40 +1,11 @@
 "use client";
 
 import { createContext, useContext, useState, useMemo, useCallback } from "react";
-import i18next, { type i18n as I18nInstance } from "i18next";
-import { I18nextProvider, initReactI18next, useTranslation } from "react-i18next";
-import { getSharedInitOptions, resources, defaultNS } from "./i18n";
 import {
   getCanonicalPath,
   buildLocalizedHref,
 } from "./navigation";
 import type { Dictionary } from "./language";
-
-/* -------------------------------------------------------------------------- */
-/*  Client-side i18next singleton                                               */
-/* -------------------------------------------------------------------------- */
-
-let clientInstance: I18nInstance | null = null;
-
-function getOrCreateClientI18n(lang: string): I18nInstance {
-  if (clientInstance) {
-    if (clientInstance.language !== lang) {
-      clientInstance.changeLanguage(lang);
-    }
-    return clientInstance;
-  }
-
-  const instance = i18next.createInstance();
-  instance.use(initReactI18next).init({
-    ...getSharedInitOptions(lang),
-    react: {
-      useSuspense: false,
-    },
-  });
-
-  clientInstance = instance;
-  return instance;
-}
 
 /* -------------------------------------------------------------------------- */
 /*  Language context — reactive lang + dict                                      */
@@ -47,7 +18,7 @@ interface LanguageContextValue {
   dict: Dictionary;
   /**
    * Switch language instantly — no full page reload.
-   * Updates i18next, dict, URL, cookie and localStorage in one call.
+   * Updates dict, URL, cookie and localStorage in one call.
    */
   changeLanguage: (newLang: string) => void;
 }
@@ -55,12 +26,27 @@ interface LanguageContextValue {
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 /* -------------------------------------------------------------------------- */
-/*  Helper: get dictionary from bundled resources                                */
+/*  Helper: lazy dictionary loading                                              */
 /* -------------------------------------------------------------------------- */
 
-function getDictFromResources(lang: string): Dictionary {
-  const res = (resources as Record<string, Record<string, unknown>>);
-  return (res[lang]?.[defaultNS] ?? res["en"][defaultNS]) as Dictionary;
+// Explicit map (instead of a template-string import) so the bundler emits one
+// async chunk per locale. Neither dictionary lands in the initial client
+// bundle — the active language's dict arrives from the server as a prop, and
+// the other locale is only downloaded if the user actually switches language.
+const dictionaryLoaders: Record<string, () => Promise<Dictionary>> = {
+  en: () => import("./dictionaries/en.json").then((m) => m.default as unknown as Dictionary),
+  tr: () => import("./dictionaries/tr.json").then((m) => m.default as unknown as Dictionary),
+};
+
+const dictionaryCache = new Map<string, Dictionary>();
+
+async function loadDictionary(lang: string): Promise<Dictionary> {
+  const cached = dictionaryCache.get(lang);
+  if (cached) return cached;
+  const loader = dictionaryLoaders[lang] ?? dictionaryLoaders.en;
+  const dict = await loader();
+  dictionaryCache.set(lang, dict);
+  return dict;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -104,11 +90,11 @@ function updateUrlForLanguage(currentPathname: string, oldLang: string, newLang:
 /* -------------------------------------------------------------------------- */
 
 /**
- * `DictionaryProvider` wraps:
- *  1. `I18nextProvider` — making `useTranslation()` available for new code
- *  2. `LanguageContext` — provides reactive `lang`, `dict`, and `changeLanguage()`
+ * `DictionaryProvider` provides reactive `lang`, `dict`, and `changeLanguage()`.
  *
- * Language switching is **instant** — no full page navigation required.
+ * The active dictionary always comes from the server as a prop; switching
+ * language lazy-loads the other locale's chunk on demand, so no dictionary
+ * JSON is part of the initial bundle.
  */
 export function DictionaryProvider({
   dict: serverDict,
@@ -119,33 +105,33 @@ export function DictionaryProvider({
   lang: string;
   children: React.ReactNode;
 }) {
-  const i18nInstance = useMemo(() => getOrCreateClientI18n(serverLang), [serverLang]);
-
   const [lang, setLang] = useState(serverLang);
   const [dict, setDict] = useState(serverDict);
+
+  // Seed the cache with the server-provided dictionary so switching back to
+  // the original language never refetches.
+  dictionaryCache.set(serverLang, serverDict);
 
   const changeLanguage = useCallback(
     (newLang: string) => {
       if (newLang === lang) return;
 
-      // 1. Switch i18next language — instant, resources are already bundled
-      i18nInstance.changeLanguage(newLang);
+      void loadDictionary(newLang).then((newDict) => {
+        // 1. Update dictionary context for useDictionary() consumers
+        setDict(newDict);
 
-      // 2. Update dictionary context for useDictionary() consumers
-      const newDict = getDictFromResources(newLang);
-      setDict(newDict);
+        // 2. Update lang state
+        setLang(newLang);
 
-      // 3. Update lang state
-      setLang(newLang);
+        // 3. Update URL without triggering full navigation
+        const currentPathname = window.location.pathname;
+        updateUrlForLanguage(currentPathname, lang, newLang);
 
-      // 4. Update URL without triggering full navigation
-      const currentPathname = window.location.pathname;
-      updateUrlForLanguage(currentPathname, lang, newLang);
-
-      // 5. Persist preference (cookie + localStorage)
-      persistLanguage(newLang);
+        // 4. Persist preference (cookie + localStorage)
+        persistLanguage(newLang);
+      });
     },
-    [lang, i18nInstance]
+    [lang]
   );
 
   const contextValue = useMemo<LanguageContextValue>(
@@ -154,11 +140,9 @@ export function DictionaryProvider({
   );
 
   return (
-    <I18nextProvider i18n={i18nInstance}>
-      <LanguageContext.Provider value={contextValue}>
-        {children}
-      </LanguageContext.Provider>
-    </I18nextProvider>
+    <LanguageContext.Provider value={contextValue}>
+      {children}
+    </LanguageContext.Provider>
   );
 }
 
@@ -185,11 +169,4 @@ export function useDictionary(): Dictionary {
   if (!ctx)
     throw new Error("useDictionary must be used within a DictionaryProvider");
   return ctx.dict;
-}
-
-/**
- * Modern hook — wraps react-i18next's `useTranslation()`.
- */
-export function useAppTranslation() {
-  return useTranslation();
 }

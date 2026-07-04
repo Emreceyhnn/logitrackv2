@@ -101,6 +101,9 @@ describe("Reports Controller", () => {
           currentLat: 41.0,
           currentLng: 28.9,
           status: "ACTIVE",
+          avgFuelConsumption: 7.5,
+          odometerKm: 120000,
+          maintenanceRecords: [{ cost: 100 }, { cost: 50 }],
         },
       ]);
       dbMock.vehicle.count.mock.mockImplementation(async () => 5);
@@ -111,9 +114,9 @@ describe("Reports Controller", () => {
         { name: "Chair", quantity: 50, warehouseId: "w-2" },
       ]);
 
-      // Mock Shipment Count
+      // Mock Shipment Count — on-time rate is (total - delayed) / total
       dbMock.shipment.count.mock.mockImplementation(async (args: any) => {
-        if (args.where?.status === "DELIVERED") return 10;
+        if (args.where?.status === "DELAYED") return 5;
         return 15; // Total shipments
       });
 
@@ -127,7 +130,7 @@ describe("Reports Controller", () => {
       expect(result.metrics.totalShipments).toBe(15);
       expect(result.metrics.activeVehicles).toBe(5);
       expect(result.metrics.onTimeRate).toBe(
-        parseFloat(((10 / 15) * 100).toFixed(1))
+        parseFloat((((15 - 5) / 15) * 100).toFixed(1))
       );
 
       // Shipments
@@ -139,6 +142,9 @@ describe("Reports Controller", () => {
       // Fleet
       expect(result.fleet.length).toBe(1);
       expect(result.fleet[0].plate).toBe("34 ABC 123");
+      expect(result.fleet[0].maintenanceCost).toBe(150);
+      expect(result.fleet[0].consumption).toBe("7.5");
+      expect(result.fleet[0].odometer).toBe(120000);
 
       // Inventory
       expect(result.inventory.categoryStats).toBeDefined();

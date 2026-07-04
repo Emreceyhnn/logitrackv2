@@ -1,13 +1,10 @@
-"use client";
-
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import HeadsetMicRoundedIcon from "@mui/icons-material/HeadsetMicRounded";
 import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function HelpCenterClient() {
-  const dict = useDictionary();
+export default function HelpCenterClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.helpCenterPage;
 
   return (

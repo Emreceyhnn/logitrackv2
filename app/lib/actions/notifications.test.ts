@@ -42,9 +42,11 @@ describe("Notifications Actions", () => {
       const target = { companyId: "comp-1" };
       const notification = { title: "Update", message: "New update", type: "INFO", category: "SHIPMENT_UPDATE" };
       
+      // Preference filtering happens in the DB query itself; findMany only
+      // returns users who opted in to shipment emails.
       dbMock.user.findMany.mock.mockImplementation(async () => [
-        { id: "u-1", notifEmailShipment: true }, // Should receive
-        { id: "u-2", notifEmailShipment: false } // Should skip
+        { id: "u-1" },
+        { id: "u-2" },
       ]);
 
       // Act
@@ -53,10 +55,15 @@ describe("Notifications Actions", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(dbMock.user.findMany.mock.calls.length).toBe(1);
-      
-      // ref("notifications/inbox/u-1") should be called
-      expect(adminDbMock.ref.mock.calls.length).toBe(1);
+      // Opt-in filter must be part of the where clause for SHIPMENT_UPDATE
+      const whereClause = dbMock.user.findMany.mock.calls[0].arguments[0].where;
+      expect(whereClause.companyId).toBe("comp-1");
+      expect(whereClause.notifEmailShipment).toBe(true);
+
+      // One personal inbox write per opted-in user
+      expect(adminDbMock.ref.mock.calls.length).toBe(2);
       expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("notifications/inbox/u-1");
+      expect(adminDbMock.ref.mock.calls[1].arguments[0]).toBe("notifications/inbox/u-2");
     });
 
     it("should_SendGlobalNotification_WhenIsGlobalIsTrue", async () => {
@@ -70,7 +77,7 @@ describe("Notifications Actions", () => {
       // Assert
       expect(result.success).toBe(true);
       expect(adminDbMock.ref.mock.calls.length).toBe(1);
-      expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("notifications/groups/everyone");
+      expect(adminDbMock.ref.mock.calls[0].arguments[0]).toBe("notifications/broadcast");
     });
   });
 

@@ -31,8 +31,15 @@ console.log(`Running ${files.length} test file(s)...`);
 const BATCH_SIZE = 40;
 let failed = false;
 
+// node --test treats its arguments as glob patterns: an unescaped path like
+// app/[lang]/page.test.tsx is a character class ([l,a,n,g]) that matches
+// nothing, so every test under app/[lang]/ was silently skipped. Backslash
+// escapes don't survive Windows path handling, so substitute each bracket
+// with the single-character wildcard `?`, which matches the literal bracket.
+const escapeGlob = (p) => p.replace(/[[\]]/g, "?");
+
 for (let i = 0; i < files.length; i += BATCH_SIZE) {
-  const batch = files.slice(i, i + BATCH_SIZE);
+  const batch = files.slice(i, i + BATCH_SIZE).map(escapeGlob);
   const result = spawnSync(
     "npx",
     [

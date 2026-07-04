@@ -40,6 +40,7 @@ const sessionMock = {
   clearAuthCookies: mock.fn(),
   logAuditEvent: mock.fn(),
   validateSession: mock.fn(),
+  toSessionPayload: mock.fn(),
 };
 
 const checkPermissionMock = {
@@ -212,6 +213,182 @@ describe("Users Controller", () => {
       
       expect(dbMock.user.findFirst.mock.calls.length).toBe(0);
       expect(dbMock.user.create.mock.calls.length).toBe(0);
+    });
+  });
+
+  describe("LoginUser() metodu", () => {
+    const storedUser = {
+      id: "user-1",
+      name: "John",
+      surname: "Doe",
+      email: "john.doe@example.com",
+      password: "hashed-password",
+      companyId: "company-1",
+      timezone: "UTC",
+      dateFormat: "MM/DD/YYYY",
+      timeFormat: "24h",
+      currency: "EUR",
+      language: "tr",
+    };
+
+    beforeEach(() => {
+      dbMock.user.update.mock.resetCalls();
+      bcryptMock.compare.mock.resetCalls();
+      rateLimiterMock.rateLimit.mock.mockImplementation(async () => ({ success: true }));
+      bcryptMock.compare.mock.mockImplementation(async () => true);
+    });
+
+    it("should_ReturnUserAndCreateSession_WhenCredentialsAreValid", async () => {
+      // Arrange
+      dbMock.user.findUnique.mock.mockImplementation(async () => storedUser);
+      dbMock.user.update.mock.mockImplementation(async () => storedUser);
+
+      // Act
+      const result = await usersController.LoginUser(
+        null,
+        "john.doe@example.com",
+        "correct-password"
+      );
+
+      // Assert
+      expect(result.error).toBeUndefined();
+      expect(result.user).toEqual({
+        id: "user-1",
+        name: "John",
+        surname: "Doe",
+        email: "john.doe@example.com",
+        companyId: "company-1",
+        timezone: "UTC",
+        dateFormat: "MM/DD/YYYY",
+        timeFormat: "24h",
+        currency: "EUR",
+        language: "tr",
+      });
+      expect(bcryptMock.compare.mock.calls.length).toBe(1);
+      expect(bcryptMock.compare.mock.calls[0].arguments).toEqual([
+        "correct-password",
+        "hashed-password",
+      ]);
+      expect(sessionMock.createSession.mock.calls.length).toBe(1);
+      // lastLoginAt updated
+      expect(dbMock.user.update.mock.calls.length).toBe(1);
+      // Successful login is audit-logged as LOGIN
+      const auditActions = sessionMock.logAuditEvent.mock.calls.map(
+        (c: any) => c.arguments[0].action
+      );
+      expect(auditActions).toContain("LOGIN");
+    });
+
+    it("should_RejectWithoutSession_WhenPasswordIsWrong", async () => {
+      // Arrange
+      dbMock.user.findUnique.mock.mockImplementation(async () => storedUser);
+      bcryptMock.compare.mock.mockImplementation(async () => false);
+
+      // Act
+      const result = await usersController.LoginUser(
+        null,
+        "john.doe@example.com",
+        "wrong-password"
+      );
+
+      // Assert
+      expect(result.error).toBe("Invalid credentials");
+      expect(result.user).toBeUndefined();
+      expect(sessionMock.createSession.mock.calls.length).toBe(0);
+      expect(dbMock.user.update.mock.calls.length).toBe(0);
+      const failedAudit = sessionMock.logAuditEvent.mock.calls.find(
+        (c: any) => c.arguments[0].action === "LOGIN_FAILED"
+      );
+      expect(failedAudit?.arguments[0].metadata.reason).toBe("Invalid password");
+    });
+
+    it("should_RejectWithSameError_WhenEmailDoesNotExist", async () => {
+      // Arrange
+      dbMock.user.findUnique.mock.mockImplementation(async () => null);
+
+      // Act
+      const result = await usersController.LoginUser(
+        null,
+        "ghost@example.com",
+        "any-password"
+      );
+
+      // Assert — same generic message as wrong password (no user enumeration)
+      expect(result.error).toBe("Invalid credentials");
+      expect(bcryptMock.compare.mock.calls.length).toBe(0);
+      expect(sessionMock.createSession.mock.calls.length).toBe(0);
+      const failedAudit = sessionMock.logAuditEvent.mock.calls.find(
+        (c: any) => c.arguments[0].action === "LOGIN_FAILED"
+      );
+      expect(failedAudit?.arguments[0].metadata.reason).toBe("User not found");
+    });
+
+    it("should_BlockBeforeUserLookup_WhenIpRateLimitExceeded", async () => {
+      // Arrange — first rateLimit call is the IP check
+      rateLimiterMock.rateLimit.mock.mockImplementationOnce(async () => ({
+        success: false,
+      }));
+
+      // Act
+      const result = await usersController.LoginUser(
+        null,
+        "john.doe@example.com",
+        "correct-password"
+      );
+
+      // Assert
+      expect(result.error).toBe(
+        "Too many login attempts. Please try again later."
+      );
+      expect(dbMock.user.findUnique.mock.calls.length).toBe(0);
+      expect(sessionMock.createSession.mock.calls.length).toBe(0);
+    });
+
+    it("should_BlockPerAccount_WhenEmailRateLimitExceeded", async () => {
+      // Arrange — IP check passes, per-email check fails
+      rateLimiterMock.rateLimit.mock.mockImplementationOnce(async () => ({
+        success: true,
+      }), 0);
+      rateLimiterMock.rateLimit.mock.mockImplementationOnce(async () => ({
+        success: false,
+      }), 1);
+
+      // Act
+      const result = await usersController.LoginUser(
+        null,
+        "john.doe@example.com",
+        "correct-password"
+      );
+
+      // Assert
+      expect(result.error).toBe(
+        "Too many login attempts for this account. Please try again later."
+      );
+      expect(dbMock.user.findUnique.mock.calls.length).toBe(0);
+      // Per-email limiter keyed on normalized email
+      expect(rateLimiterMock.rateLimit.mock.calls[1].arguments[0]).toBe(
+        "john.doe@example.com"
+      );
+    });
+
+    it("should_ReturnErrorInsteadOfThrowing_WhenDbFails", async () => {
+      // Arrange
+      dbMock.user.findUnique.mock.mockImplementation(async () => {
+        throw new Error("Database connection lost");
+      });
+      const consoleMock = mock.method(console, "error", () => {});
+
+      // Act
+      const result = await usersController.LoginUser(
+        null,
+        "john.doe@example.com",
+        "correct-password"
+      );
+
+      // Assert
+      expect(result.error).toBe("Database connection lost");
+      expect(sessionMock.createSession.mock.calls.length).toBe(0);
+      consoleMock.mock.restore();
     });
   });
 

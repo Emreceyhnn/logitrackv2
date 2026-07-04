@@ -27,7 +27,10 @@ const mockDict = {
 };
 
 mock.module("../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: () => mockDict },
+  namedExports: {
+    useDictionary: () => mockDict,
+    useLanguage: () => ({ lang: "en", dict: mockDict }),
+  },
 });
 
 mock.module("../../cards/card.tsx", {

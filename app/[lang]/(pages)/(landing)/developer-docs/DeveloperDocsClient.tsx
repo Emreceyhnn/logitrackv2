@@ -1,13 +1,10 @@
-"use client";
-
 import TerminalRoundedIcon from "@mui/icons-material/TerminalRounded";
 import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
 import WebhookRoundedIcon from "@mui/icons-material/WebhookRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function DeveloperDocsClient() {
-  const dict = useDictionary();
+export default function DeveloperDocsClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.developerDocsPage;
 
   return (

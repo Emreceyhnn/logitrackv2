@@ -29,7 +29,10 @@ const useDictionaryMock = mock.fn(() => ({
 }));
 
 mock.module("../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: useDictionaryMock },
+  namedExports: {
+    useDictionary: useDictionaryMock,
+    useLanguage: () => ({ lang: "en", dict: useDictionaryMock() }),
+  },
 });
 
 mock.module("../../skeletons/AnalyticsSkeleton.tsx", {

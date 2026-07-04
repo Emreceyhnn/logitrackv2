@@ -21,8 +21,22 @@ const vehicleTrackingMock = {
   }),
 };
 
-mock.module("react", { namedExports: reactMock });
+// Keep the rest of React intact (e.g. `createContext` used deeper in the
+// import graph) and override only the hooks this test drives manually. Real
+// React is loaded via CJS require so the ESM cache stays untouched and
+// mock.module can still intercept "react".
+import { createRequire } from "node:module";
+const realReact = createRequire(import.meta.url)("react");
+mock.module("react", {
+  namedExports: { ...realReact, ...reactMock },
+  defaultExport: { ...realReact, ...reactMock },
+});
 mock.module("../lib/vehicleTracking.ts", { namedExports: vehicleTrackingMock });
+
+// Subscriptions are tenant-scoped; the hooks read companyId from useUser().
+mock.module("./useUser.ts", {
+  namedExports: { useUser: mock.fn(() => ({ user: { id: "user-1", companyId: "comp-1" } })) },
+});
 
 // 2. TEST GRUPLARI
 describe("useVehicleTracking Hooks", () => {
@@ -58,7 +72,9 @@ describe("useVehicleTracking Hooks", () => {
       // Assert
       expect(reactMock.useEffect.mock.calls.length).toBe(1);
       expect(vehicleTrackingMock.subscribeToVehicleLocation.mock.calls.length).toBe(1);
-      expect(vehicleTrackingMock.subscribeToVehicleLocation.mock.calls[0].arguments[0]).toBe("v-1");
+      // Tenant-scoped subscribe: (companyId, vehicleId, callback)
+      expect(vehicleTrackingMock.subscribeToVehicleLocation.mock.calls[0].arguments[0]).toBe("comp-1");
+      expect(vehicleTrackingMock.subscribeToVehicleLocation.mock.calls[0].arguments[1]).toBe("v-1");
     });
 
     it("should_NotSetupSubscription_WhenVehicleIdIsNull", () => {

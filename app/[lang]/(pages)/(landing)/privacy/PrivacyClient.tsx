@@ -1,13 +1,10 @@
-"use client";
-
 import PrivacyTipRoundedIcon from "@mui/icons-material/PrivacyTipRounded";
 import GavelRoundedIcon from "@mui/icons-material/GavelRounded";
 import SecurityRoundedIcon from "@mui/icons-material/SecurityRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function PrivacyClient() {
-  const dict = useDictionary();
+export default function PrivacyClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.privacyPage;
 
   return (

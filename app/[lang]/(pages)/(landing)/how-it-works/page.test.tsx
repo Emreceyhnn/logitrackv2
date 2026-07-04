@@ -5,8 +5,10 @@ import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
-// 1. Mock Contexts
-const useDictionaryMock = mock.fn(() => ({
+// HowItWorksClient is a Server Component now — the dictionary arrives as a
+// prop from page.tsx instead of the useDictionary() context hook, so the test
+// passes the mock dict directly.
+const mockDict = {
   landing: {
     howItWorksPage: {
       hero: { overline: "Overline", title: "How It Works", subtitle: "Subtitle" },
@@ -14,11 +16,7 @@ const useDictionaryMock = mock.fn(() => ({
       footer: { rights: "© {year}", privacy: "Privacy", terms: "Terms", help: "Help" }
     }
   }
-}));
-
-mock.module("../../../../lib/language/DictionaryContext.tsx", {
-  namedExports: { useDictionary: useDictionaryMock },
-});
+};
 
 // Mock Child Component
 mock.module("../../../../components/how-it-works/TimelineSection.tsx", {
@@ -26,21 +24,21 @@ mock.module("../../../../components/how-it-works/TimelineSection.tsx", {
 });
 
 describe("HowItWorksPage Component", () => {
-  let HowItWorksPage: any;
+  let HowItWorksClient: any;
 
   before(async () => {
-    const mod = await import("./page");
-    HowItWorksPage = mod.default;
+    const mod = await import("./HowItWorksClient");
+    HowItWorksClient = mod.default;
   });
 
   afterEach(() => {
     cleanup();
   });
 
-  describe("HowItWorksPage() Render Testleri", () => {
+  describe("HowItWorksClient() Render Testleri", () => {
     it("should_RenderHowItWorksContent_Correctly", async () => {
       // Act
-      render(<HowItWorksPage />);
+      render(<HowItWorksClient dict={mockDict as any} />);
 
       // Assert
       expect(screen.getByText("How It Works")).toBeTruthy();

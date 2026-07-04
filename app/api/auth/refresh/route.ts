@@ -20,7 +20,13 @@ export async function GET(request: NextRequest) {
     // If redirectTo contained query params itself, we need to parse them.
     // It's cleaner to just construct a new URL using the origin and redirectTo string
     try {
-      const targetUrl = new URL(redirectTo, request.nextUrl.origin);
+      let targetUrl = new URL(redirectTo, request.nextUrl.origin);
+      // Only same-origin targets are allowed: an absolute or protocol-relative
+      // redirect_to (e.g. "https://evil.com", "//evil.com") must not send the
+      // user off-site after a successful refresh.
+      if (targetUrl.origin !== request.nextUrl.origin) {
+        targetUrl = new URL("/", request.nextUrl.origin);
+      }
       return NextResponse.redirect(targetUrl);
     } catch {
       // Fallback

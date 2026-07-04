@@ -40,6 +40,29 @@ const toastMock = {
   promise: mock.fn(async (promise) => await promise),
 };
 
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
+  namedExports: {
+    useDictionary: () => ({
+      common: { back: "Back", cancel: "Cancel", fillRequired: "Fill required", nextStep: "Next Step" },
+      customers: {
+        addCustomer: "Add Customer",
+        registerNewPartner: "Register new partner",
+        dialogs: {
+          addTitle: "Add Customer",
+          errorAdd: "Error",
+          successAdd: "Added",
+          steps: { contact: "Contact", identity: "Identity" },
+        },
+      },
+      toasts: { errorGeneric: "Error" },
+    }),
+  },
+});
+
+mock.module("../../../../hooks/useUser.ts", {
+  namedExports: { useUser: () => ({ user: { id: "user-1", companyId: "comp-1", currency: "USD" } }) },
+});
+
 mock.module("sonner", {
   namedExports: { toast: toastMock },
 });

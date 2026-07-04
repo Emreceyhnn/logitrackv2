@@ -1,13 +1,10 @@
-"use client";
-
 import LocalShippingRoundedIcon from "@mui/icons-material/LocalShippingRounded";
 import InventoryRoundedIcon from "@mui/icons-material/InventoryRounded";
 import HubRoundedIcon from "@mui/icons-material/HubRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function SupplyChainClient() {
-  const dict = useDictionary();
+export default function SupplyChainClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.supplyChainPage;
 
   return (

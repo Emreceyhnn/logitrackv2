@@ -1,13 +1,10 @@
-"use client";
-
 import RouteRoundedIcon from "@mui/icons-material/RouteRounded";
 import PsychologyRoundedIcon from "@mui/icons-material/PsychologyRounded";
 import NatureRoundedIcon from "@mui/icons-material/NatureRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function RouteIntelligenceClient() {
-  const dict = useDictionary();
+export default function RouteIntelligenceClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.routeIntelligencePage;
 
   return (

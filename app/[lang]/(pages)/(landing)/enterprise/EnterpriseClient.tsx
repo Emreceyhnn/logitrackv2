@@ -1,13 +1,10 @@
-"use client";
-
 import BusinessRoundedIcon from "@mui/icons-material/BusinessRounded";
 import IntegrationInstructionsRoundedIcon from "@mui/icons-material/IntegrationInstructionsRounded";
 import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function EnterpriseClient() {
-  const dict = useDictionary();
+export default function EnterpriseClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.enterprisePage;
 
   return (

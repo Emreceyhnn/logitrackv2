@@ -129,7 +129,7 @@ describe("auth-middleware.ts", () => {
       
       await expect(action()).rejects.toThrow("NEXT_REDIRECT");
       expect(redirectMock.mock.calls.length).toBe(1);
-      expect(redirectMock.mock.calls[0].arguments[0]).toBe("/en");
+      expect(redirectMock.mock.calls[0].arguments[0]).toBe("/en/auth/sign-in");
     });
 
     it("should redirect to correct locale if referer contains locale", async () => {
@@ -143,7 +143,7 @@ describe("auth-middleware.ts", () => {
       
       await expect(action()).rejects.toThrow("NEXT_REDIRECT");
       expect(redirectMock.mock.calls.length).toBe(1);
-      expect(redirectMock.mock.calls[0].arguments[0]).toBe("/tr");
+      expect(redirectMock.mock.calls[0].arguments[0]).toBe("/tr/auth/sign-in");
     });
 
     it("should execute action with user if authenticated", async () => {

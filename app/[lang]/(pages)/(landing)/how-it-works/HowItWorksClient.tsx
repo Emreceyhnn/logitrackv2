@@ -1,12 +1,8 @@
-"use client";
-
 import { Box, Container, Typography, Stack, Button } from "@mui/material";
 import TimelineSection from "@/app/components/how-it-works/TimelineSection";
-import Link from "next/link";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 
-export default function HowItWorksClient() {
-  const dict = useDictionary();
+export default function HowItWorksClient({ dict }: { dict: Dictionary }) {
   const hDict = dict?.landing?.howItWorksPage;
 
 
@@ -117,8 +113,10 @@ export default function HowItWorksClient() {
               {hDict.cta.subtitle}
             </Typography>
             <Stack direction="row" spacing={2} justifyContent="center">
+              {/* Server component: `component={Link}` would pass a function
+                  across the client boundary (not serializable). MUI Button
+                  renders an <a> natively when only `href` is given. */}
               <Button
-                component={Link}
                 href="/auth/sign-up"
                 variant="contained"
                 sx={{

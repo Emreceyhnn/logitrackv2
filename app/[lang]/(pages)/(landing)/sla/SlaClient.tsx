@@ -1,13 +1,10 @@
-"use client";
-
 import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
 import TimerRoundedIcon from "@mui/icons-material/TimerRounded";
 import AssessmentRoundedIcon from "@mui/icons-material/AssessmentRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function SlaClient() {
-  const dict = useDictionary();
+export default function SlaClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.slaPage;
 
   return (

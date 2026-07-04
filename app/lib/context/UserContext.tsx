@@ -33,3 +33,13 @@ export function useUserContext() {
   }
   return context;
 }
+
+/**
+ * Tolerant variant for components that render both inside and outside the
+ * dashboard (e.g. the root theme provider): returns a null user instead of
+ * throwing when no UserProvider is mounted (landing / auth / static pages).
+ */
+export function useOptionalUserContext(): UserContextType {
+  const context = useContext(UserContext);
+  return context ?? { user: null, loading: false };
+}

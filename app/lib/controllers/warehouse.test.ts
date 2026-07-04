@@ -78,6 +78,10 @@ mock.module("./utils/trendUtils.ts", {
   namedExports: trendUtilsMock,
 });
 
+mock.module("next/cache", {
+  namedExports: { revalidatePath: () => {} },
+});
+
 // 2. TEST GRUPLARI
 describe("Warehouse Controller", () => {
   let warehouseController: any;

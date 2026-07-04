@@ -27,6 +27,14 @@ mock.module("../sidebar/index.tsx", {
 mock.module("./DashboardHeader.tsx", {
   defaultExport: ({ user }: any) => <div data-testid="header">Header for {user?.name}</div>,
 });
+mock.module("../../lib/context/GuidedTourContext.tsx", {
+  namedExports: {
+    GuidedTourProvider: ({ children }: any) => <>{children}</>,
+  },
+});
+mock.module("../guidedTour/GuidedTourOverlay.tsx", {
+  defaultExport: () => <div data-testid="guided-tour-overlay" />,
+});
 
 // 2. Mock Theme
 const customTheme = createTheme({

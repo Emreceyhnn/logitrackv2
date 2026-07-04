@@ -68,9 +68,6 @@ mock.module("../../../../../components/cards/KpiCards.tsx", {
 mock.module("../../../../../components/dashboard/overview/dailyOperations.tsx", {
   defaultExport: () => <div data-testid="daily-ops">Daily Ops</div>,
 });
-mock.module("../../../../../components/dashboard/overview/fuelByVehicleCard.tsx", {
-  defaultExport: () => <div data-testid="fuel-logs">Fuel Logs</div>,
-});
 mock.module("../../../../../components/dashboard/overview/shipmentsByStatusCard.tsx", {
   defaultExport: () => <div data-testid="shipment-status">Shipment Status</div>,
 });
@@ -142,12 +139,13 @@ describe("OverviewContent Component", () => {
       expect(screen.getByText("Overview")).toBeTruthy();
       expect(screen.getByTestId("kpi-cards")).toBeTruthy();
       expect(screen.getByTestId("daily-ops")).toBeTruthy();
-      expect(screen.getByTestId("fuel-logs")).toBeTruthy();
-      expect(screen.getByTestId("shipment-status")).toBeTruthy();
+      // shipment-status & shipment-volume load via next/dynamic (ssr:false),
+      // so they mount asynchronously after the dynamic chunk resolves.
+      expect(await screen.findByTestId("shipment-status")).toBeTruthy();
       expect(screen.getByTestId("alerts")).toBeTruthy();
       expect(screen.getByTestId("warehouse-cap")).toBeTruthy();
       expect(screen.getByTestId("picks-packs")).toBeTruthy();
-      expect(screen.getByTestId("shipment-volume")).toBeTruthy();
+      expect(await screen.findByTestId("shipment-volume")).toBeTruthy();
       expect(screen.getByTestId("low-stock")).toBeTruthy();
       expect(screen.getByTestId("overview-map")).toBeTruthy();
     });

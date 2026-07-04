@@ -70,6 +70,10 @@ mock.module("./utils/checkPermission.ts", {
   namedExports: checkPermissionMock,
 });
 
+mock.module("next/cache", {
+  namedExports: { revalidatePath: () => {} },
+});
+
 // 2. TEST GRUPLARI
 describe("Trailer Controller", () => {
   let trailerController: any;
@@ -134,7 +138,10 @@ describe("Trailer Controller", () => {
 
       const trailerData = {
         plate: "34 TR 123",
+        fleetNo: "TRL-001",
         type: "DRY_VAN",
+        capacityVolumeM3: 85,
+        maxLoadKg: 24000,
       };
 
       // Act & Assert

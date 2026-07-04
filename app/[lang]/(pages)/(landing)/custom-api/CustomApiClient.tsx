@@ -1,13 +1,10 @@
-"use client";
-
 import ApiRoundedIcon from "@mui/icons-material/ApiRounded";
 import DataObjectRoundedIcon from "@mui/icons-material/DataObjectRounded";
 import TerminalRoundedIcon from "@mui/icons-material/TerminalRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function CustomApiClient() {
-  const dict = useDictionary();
+export default function CustomApiClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.customApiPage;
 
   return (

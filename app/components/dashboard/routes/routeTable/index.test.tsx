@@ -143,8 +143,7 @@ describe("RouteTable RTL Component", () => {
       name: "Route Alpha",
       status: "PLANNED",
       vehicle: { plate: "34 ABC 123" },
-      startAddress: "Istanbul",
-      endAddress: "Ankara",
+      stops: [{ address: "Istanbul" }, { address: "Ankara" }],
       endTime: new Date().toISOString(),
     },
     {
@@ -152,8 +151,7 @@ describe("RouteTable RTL Component", () => {
       name: "Route Beta",
       status: "ACTIVE",
       vehicle: null,
-      startAddress: null,
-      endAddress: null,
+      stops: [],
       endTime: null,
     }
   ];

@@ -43,7 +43,15 @@ mock.module("../../../../lib/utils/date.ts", {
 
 mock.module("../../../../lib/type/enums.ts", {
   namedExports: {
-    ShipmentStatus: { DELIVERED: "DELIVERED", IN_TRANSIT: "IN_TRANSIT" },
+    ShipmentStatus: {
+      PENDING: "PENDING",
+      PROCESSING: "PROCESSING",
+      ASSIGNED: "ASSIGNED",
+      IN_TRANSIT: "IN_TRANSIT",
+      DELIVERED: "DELIVERED",
+      DELAYED: "DELAYED",
+      CANCELLED: "CANCELLED",
+    },
   }
 });
 

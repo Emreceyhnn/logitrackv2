@@ -15,7 +15,18 @@ import SpeedIcon from "@mui/icons-material/Speed";
 import ConstructionIcon from "@mui/icons-material/Construction";
 import OilBarrelIcon from "@mui/icons-material/OilBarrel";
 
-import MapVehicleOverviewCard from "./map";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@mui/material";
+
+// ./map statically imports useVehicleTracking → lib/firebase (~237 kB).
+// Lazy-loading the card keeps the firebase SDK out of the vehicle route's
+// First Load JS — it only downloads when this dialog tab actually renders.
+const MapVehicleOverviewCard = dynamic(() => import("./map"), {
+  ssr: false,
+  loading: () => (
+    <Skeleton variant="rectangular" width="100%" height={300} sx={{ borderRadius: 2 }} />
+  ),
+});
 import { useState } from "react";
 import AssignDriverDialog from "../assignDriverDialog";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";

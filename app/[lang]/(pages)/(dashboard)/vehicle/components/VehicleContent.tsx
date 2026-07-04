@@ -24,7 +24,15 @@ import {
 import KpiCards from "@/app/components/cards/KpiCards";
 import VehicleTable from "@/app/components/dashboard/vehicle/vehicleTable";
 import DocumentCalenderCard from "@/app/components/dashboard/vehicle/documentCalenderCard";
-import VehicleCapacityChart from "@/app/components/dashboard/vehicle/maxLoad";
+import dynamic from "next/dynamic";
+import ChartSkeleton from "@/app/components/skeletons/ChartSkeleton";
+
+// @mui/x-charts is ~283 kB per route when imported statically. Loading the
+// chart component lazily keeps it out of this route's First Load JS.
+const VehicleCapacityChart = dynamic(
+  () => import("@/app/components/dashboard/vehicle/maxLoad"),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
 import TrailerTable from "@/app/components/dashboard/vehicle/trailerTable";
 
 // Dialogs

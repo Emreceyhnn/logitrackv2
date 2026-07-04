@@ -9,6 +9,7 @@ const dbMock = {
   exchangeRate: {
     findFirst: mock.fn<(...args: any[]) => any>(),
     create: mock.fn<(...args: any[]) => any>(),
+    upsert: mock.fn<(...args: any[]) => any>(),
   },
 };
 
@@ -97,6 +98,7 @@ describe("exchangeRate service", () => {
     // Reset all mocks before each test
     dbMock.exchangeRate.findFirst.mock.resetCalls();
     dbMock.exchangeRate.create.mock.resetCalls();
+    dbMock.exchangeRate.upsert.mock.resetCalls();
     redisMock.get.mock.resetCalls();
     redisMock.set.mock.resetCalls();
     redisMock.del.mock.resetCalls();
@@ -134,7 +136,7 @@ describe("exchangeRate service", () => {
       dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => null);
       redisMock.get.mock.mockImplementation(async () => null);
       redisMock.set.mock.mockImplementation(async () => {});
-      dbMock.exchangeRate.create.mock.mockImplementation(async () => ({}));
+      dbMock.exchangeRate.upsert.mock.mockImplementation(async () => ({}));
       fetchMock.mock.mockImplementation(async () =>
         makeFetchResponse(MOCK_API_RESPONSE)
       );
@@ -150,14 +152,14 @@ describe("exchangeRate service", () => {
       dbMock.exchangeRate.findFirst.mock.mockImplementation(async () => null);
       redisMock.get.mock.mockImplementation(async () => null);
       redisMock.set.mock.mockImplementation(async () => {});
-      dbMock.exchangeRate.create.mock.mockImplementation(async () => ({}));
+      dbMock.exchangeRate.upsert.mock.mockImplementation(async () => ({}));
       fetchMock.mock.mockImplementation(async () =>
         makeFetchResponse(MOCK_API_RESPONSE)
       );
 
       await getExchangeRates();
 
-      expect(dbMock.exchangeRate.create.mock.calls.length).toBe(1);
+      expect(dbMock.exchangeRate.upsert.mock.calls.length).toBe(1);
       expect(redisMock.set.mock.calls.length).toBe(1);
     });
 
@@ -203,7 +205,7 @@ describe("exchangeRate service", () => {
         throw new Error("Redis timeout");
       });
       redisMock.set.mock.mockImplementation(async () => {});
-      dbMock.exchangeRate.create.mock.mockImplementation(async () => ({}));
+      dbMock.exchangeRate.upsert.mock.mockImplementation(async () => ({}));
       fetchMock.mock.mockImplementation(async () =>
         makeFetchResponse(MOCK_API_RESPONSE)
       );
@@ -221,7 +223,7 @@ describe("exchangeRate service", () => {
       fetchMock.mock.mockImplementation(async () =>
         makeFetchResponse(MOCK_API_RESPONSE)
       );
-      dbMock.exchangeRate.create.mock.mockImplementation(async () => {
+      dbMock.exchangeRate.upsert.mock.mockImplementation(async () => {
         throw new Error("DB write failed");
       });
       redisMock.set.mock.mockImplementation(async () => {});

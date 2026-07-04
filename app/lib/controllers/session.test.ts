@@ -34,8 +34,12 @@ const cookieStoreMock = {
 };
 
 // Next.js Headers Mock
+const headerStoreMock = {
+  get: mock.fn(() => null),
+};
 const nextHeadersMock = {
   cookies: mock.fn(async () => cookieStoreMock),
+  headers: mock.fn(async () => headerStoreMock),
 };
 
 // Jose JWT Mock
@@ -155,6 +159,61 @@ describe("Session Controller", () => {
       expect(dbMock.session.findUnique.mock.calls.length).toBe(1);
     });
 
+    it("should_ReturnNullAndClearCookies_WhenSessionIsRevoked", async () => {
+      // Arrange
+      cookieStoreMock.get.mock.mockImplementation(() => ({ value: "valid-token" }));
+
+      const futureDate = new Date();
+      futureDate.setHours(futureDate.getHours() + 1);
+
+      dbMock.session.findUnique.mock.mockImplementation(async () => ({
+        id: "session-1",
+        expiresAt: futureDate,
+        lastActivityAt: new Date(),
+        isRevoked: true, // Revoked!
+        user: {
+          id: "user-1",
+          status: "ACTIVE",
+        },
+      }));
+
+      redisMock.get.mock.mockImplementation(async () => null);
+
+      // Act
+      const result = await sessionController.validateSession();
+
+      // Assert
+      expect(result).toBeNull();
+      expect(cookieStoreMock.delete.mock.calls.length).toBe(2);
+    });
+
+    it("should_ReturnNull_WhenUserIsNotActive", async () => {
+      // Arrange
+      cookieStoreMock.get.mock.mockImplementation(() => ({ value: "valid-token" }));
+
+      const futureDate = new Date();
+      futureDate.setHours(futureDate.getHours() + 1);
+
+      dbMock.session.findUnique.mock.mockImplementation(async () => ({
+        id: "session-1",
+        expiresAt: futureDate,
+        lastActivityAt: new Date(),
+        isRevoked: false,
+        user: {
+          id: "user-1",
+          status: "SUSPENDED",
+        },
+      }));
+
+      redisMock.get.mock.mockImplementation(async () => null);
+
+      // Act
+      const result = await sessionController.validateSession();
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
     it("should_ReturnNullAndClearCookies_WhenTokenIsExpired", async () => {
       // Arrange
       cookieStoreMock.get.mock.mockImplementation(() => ({ value: "valid-token" }));
@@ -200,6 +259,166 @@ describe("Session Controller", () => {
       expect(dbMock.session.update.mock.calls.length).toBe(1);
       expect(redisMock.del.mock.calls.length).toBe(1);
       expect(redisMock.del.mock.calls[0].arguments[0]).toBe("session:hashed-token");
+    });
+  });
+
+  describe("refreshSession() metodu", () => {
+    const validSession = () => {
+      const futureDate = new Date();
+      futureDate.setHours(futureDate.getHours() + 1);
+      return {
+        id: "session-1",
+        refreshToken: "stored-refresh-hash",
+        isRevoked: false,
+        expiresAt: futureDate,
+        ipAddress: "127.0.0.1",
+        deviceInfo: "Chrome",
+        user: {
+          id: "user-1",
+          roleId: "role-1",
+          companyId: "company-1",
+          status: "ACTIVE",
+        },
+      };
+    };
+
+    const withCookies = (values: Record<string, string | undefined>) => {
+      cookieStoreMock.get.mock.mockImplementation((name: string) =>
+        values[name] !== undefined ? { value: values[name] } : undefined
+      );
+    };
+
+    it("should_RotateTokensAndReturnTrue_WhenRefreshTokenIsValid", async () => {
+      // Arrange
+      withCookies({ refreshToken: "raw-refresh", token: "old-access" });
+      dbMock.session.findUnique.mock.mockImplementation(async () => validSession());
+      dbMock.session.update.mock.mockImplementation(async () => ({}));
+      dbMock.auditLog.create.mock.mockImplementation(async () => ({}));
+
+      // Act
+      const result = await sessionController.refreshSession();
+
+      // Assert
+      expect(result).toBe(true);
+      // DB rotation happened
+      expect(dbMock.session.update.mock.calls.length).toBe(1);
+      const updateArgs = dbMock.session.update.mock.calls[0].arguments[0];
+      expect(updateArgs.where).toEqual({ id: "session-1" });
+      expect(typeof updateArgs.data.refreshToken).toBe("string");
+      // Rotation: the new refresh token hash must differ from the hash the
+      // session was looked up with (token reuse must not be possible).
+      const lookupHash =
+        dbMock.session.findUnique.mock.calls[0].arguments[0].where.refreshToken;
+      expect(updateArgs.data.refreshToken).not.toBe(lookupHash);
+      // New cookies set for token + refreshToken
+      const setNames = cookieStoreMock.set.mock.calls.map(
+        (c: any) => c.arguments[0]
+      );
+      expect(setNames).toContain("token");
+      expect(setNames).toContain("refreshToken");
+      // Old access-token cache invalidated
+      expect(redisMock.del.mock.calls.length).toBe(1);
+      // Refresh is audit-logged
+      const auditArgs = dbMock.auditLog.create.mock.calls.map(
+        (c: any) => c.arguments[0]?.data?.action
+      );
+      expect(auditArgs).toContain("TOKEN_REFRESH");
+    });
+
+    it("should_ReturnFalse_WhenNoRefreshTokenCookie", async () => {
+      // Arrange
+      withCookies({});
+
+      // Act
+      const result = await sessionController.refreshSession();
+
+      // Assert
+      expect(result).toBe(false);
+      expect(dbMock.session.findUnique.mock.calls.length).toBe(0);
+      expect(dbMock.session.update.mock.calls.length).toBe(0);
+    });
+
+    it("should_ReturnFalseAndClearCookies_WhenRefreshTokenIsUnknown", async () => {
+      // Arrange
+      withCookies({ refreshToken: "stolen-or-stale" });
+      dbMock.session.findUnique.mock.mockImplementation(async () => null);
+
+      // Act
+      const result = await sessionController.refreshSession();
+
+      // Assert
+      expect(result).toBe(false);
+      expect(cookieStoreMock.delete.mock.calls.length).toBe(2);
+      expect(dbMock.session.update.mock.calls.length).toBe(0);
+    });
+
+    it("should_ReturnFalseWithoutRotation_WhenSessionIsRevoked", async () => {
+      // Arrange
+      withCookies({ refreshToken: "raw-refresh" });
+      dbMock.session.findUnique.mock.mockImplementation(async () => ({
+        ...validSession(),
+        isRevoked: true,
+      }));
+
+      // Act
+      const result = await sessionController.refreshSession();
+
+      // Assert
+      expect(result).toBe(false);
+      expect(dbMock.session.update.mock.calls.length).toBe(0);
+      expect(cookieStoreMock.set.mock.calls.length).toBe(0);
+      expect(cookieStoreMock.delete.mock.calls.length).toBe(2);
+    });
+
+    it("should_ReturnFalseWithoutRotation_WhenSessionIsExpired", async () => {
+      // Arrange
+      withCookies({ refreshToken: "raw-refresh" });
+      const pastDate = new Date();
+      pastDate.setHours(pastDate.getHours() - 1);
+      dbMock.session.findUnique.mock.mockImplementation(async () => ({
+        ...validSession(),
+        expiresAt: pastDate,
+      }));
+
+      // Act
+      const result = await sessionController.refreshSession();
+
+      // Assert
+      expect(result).toBe(false);
+      expect(dbMock.session.update.mock.calls.length).toBe(0);
+      expect(cookieStoreMock.delete.mock.calls.length).toBe(2);
+    });
+
+    it("should_ReturnFalseWithoutRotation_WhenUserIsNotActive", async () => {
+      // Arrange
+      withCookies({ refreshToken: "raw-refresh" });
+      const session = validSession();
+      session.user.status = "SUSPENDED";
+      dbMock.session.findUnique.mock.mockImplementation(async () => session);
+
+      // Act
+      const result = await sessionController.refreshSession();
+
+      // Assert
+      expect(result).toBe(false);
+      expect(dbMock.session.update.mock.calls.length).toBe(0);
+      expect(cookieStoreMock.delete.mock.calls.length).toBe(2);
+    });
+
+    it("should_ReturnFalse_WhenDbFailsDuringRotation", async () => {
+      // Arrange
+      withCookies({ refreshToken: "raw-refresh" });
+      dbMock.session.findUnique.mock.mockImplementation(async () => {
+        throw new Error("DB down");
+      });
+      const consoleMock = mock.method(console, "error", () => {});
+
+      // Act
+      const result = await sessionController.refreshSession();
+
+      // Assert
+      expect(result).toBe(false);
+      consoleMock.mock.restore();
     });
   });
 

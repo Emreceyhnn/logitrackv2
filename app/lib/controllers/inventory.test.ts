@@ -91,6 +91,10 @@ mock.module("./utils/trendUtils.ts", {
   namedExports: trendUtilsMock,
 });
 
+mock.module("next/cache", {
+  namedExports: { revalidatePath: mock.fn() },
+});
+
 // 2. TEST GRUPLARI
 describe("Inventory Controller", () => {
   let inventoryController: any;
@@ -212,6 +216,83 @@ describe("Inventory Controller", () => {
       const moveArgs = dbMock.inventoryMovement.create.mock.calls[0].arguments[0] as any;
       expect(moveArgs.data.quantity).toBe(20);
       expect(moveArgs.data.type).toBe("ADJUSTMENT");
+    });
+
+    it("should_RecordNegativeDelta_WhenStockIsReduced", async () => {
+      // Arrange
+      dbMock.inventory.findUnique.mock.mockImplementation(async () => ({
+        sku: "SKU-1",
+        warehouseId: "w-1",
+        companyId: "company-1",
+        quantity: 100,
+      }));
+      dbMock.inventory.update.mock.mockImplementation(async () => ({
+        id: "inv-1",
+        warehouseId: "w-1",
+        sku: "SKU-1",
+        quantity: 70,
+      }));
+
+      // Act
+      const result = await inventoryController.adjustInventoryStock(
+        mockUser,
+        "inv-1",
+        -30,
+        "OUTBOUND"
+      );
+
+      // Assert
+      expect(result.quantity).toBe(70);
+      const moveArgs = dbMock.inventoryMovement.create.mock.calls[0]
+        .arguments[0] as any;
+      expect(moveArgs.data.quantity).toBe(-30);
+      expect(moveArgs.data.type).toBe("OUTBOUND");
+    });
+
+    it("should_ThrowAndSkipMovement_WhenAdjustmentWouldGoNegative", async () => {
+      // Arrange — 100 in stock, removing 150 would leave -50
+      dbMock.inventory.findUnique.mock.mockImplementation(async () => ({
+        sku: "SKU-1",
+        warehouseId: "w-1",
+        companyId: "company-1",
+        quantity: 100,
+      }));
+      dbMock.inventory.update.mock.mockImplementation(async () => ({
+        id: "inv-1",
+        warehouseId: "w-1",
+        sku: "SKU-1",
+        quantity: -50,
+      }));
+      const consoleMock = mock.method(console, "error", () => {});
+
+      // Act & Assert
+      await expect(
+        inventoryController.adjustInventoryStock(mockUser, "inv-1", -150)
+      ).rejects.toThrow(
+        "Insufficient stock: adjustment would result in negative quantity"
+      );
+      // The movement must not be written when the transaction is rolled back
+      expect(dbMock.inventoryMovement.create.mock.calls.length).toBe(0);
+      consoleMock.mock.restore();
+    });
+
+    it("should_ThrowWithoutUpdate_WhenItemBelongsToAnotherCompany", async () => {
+      // Arrange
+      dbMock.inventory.findUnique.mock.mockImplementation(async () => ({
+        sku: "SKU-1",
+        warehouseId: "w-1",
+        companyId: "company-2", // different tenant
+        quantity: 100,
+      }));
+      const consoleMock = mock.method(console, "error", () => {});
+
+      // Act & Assert
+      await expect(
+        inventoryController.adjustInventoryStock(mockUser, "inv-1", 10)
+      ).rejects.toThrow("Inventory item not found or unauthorized");
+      expect(dbMock.inventory.update.mock.calls.length).toBe(0);
+      expect(dbMock.inventoryMovement.create.mock.calls.length).toBe(0);
+      consoleMock.mock.restore();
     });
   });
 });

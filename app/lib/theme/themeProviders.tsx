@@ -19,7 +19,7 @@ import QueryProvider from "../providers/QueryProvider";
 import { Toaster } from "@/app/components/toast";
 import { useParams } from "next/navigation";
 import { saveUserTheme } from "@/app/lib/actions/theme";
-import { useUserContext } from "../context/UserContext";
+import { useOptionalUserContext } from "../context/UserContext";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -32,7 +32,19 @@ function getSavedStoredMode(): StoredMode {
   if (typeof window === "undefined") return "dark";
   try {
     const saved = localStorage.getItem(THEME_STORAGE_KEY) as StoredMode | null;
-    return saved && (VALID_MODES as readonly string[]).includes(saved) ? saved : "dark";
+    if (saved && (VALID_MODES as readonly string[]).includes(saved)) return saved;
+    // Fallback: the theme cookie is written by saveUserTheme with
+    // httpOnly:false precisely so the client can read it. The server no
+    // longer forwards it via initialMode (that read forced every route
+    // dynamic), so this is the cross-device source when localStorage is cold.
+    const cookieTheme = document.cookie
+      .split("; ")
+      .find((c) => c.startsWith("logitrack-theme="))
+      ?.split("=")[1];
+    if (cookieTheme && (VALID_MODES as readonly string[]).includes(cookieTheme)) {
+      return cookieTheme as StoredMode;
+    }
+    return "dark";
   } catch {
     return "dark";
   }
@@ -55,7 +67,7 @@ export default function Providers({
   children: React.ReactNode;
   initialMode?: StoredMode;
 }) {
-  const { user } = useUserContext();
+  const { user } = useOptionalUserContext();
   const [mode, setModeState] = useState<ThemeMode>(() => resolveMode(initialMode || "dark"));
   const theme = useMemo(() => getTheme(mode), [mode]);
   const params = useParams();

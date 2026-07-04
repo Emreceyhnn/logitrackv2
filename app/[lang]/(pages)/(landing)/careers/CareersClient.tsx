@@ -1,13 +1,10 @@
-"use client";
-
 import WorkRoundedIcon from "@mui/icons-material/WorkRounded";
 import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function CareersClient() {
-  const dict = useDictionary();
+export default function CareersClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.careersPage;
 
   return (

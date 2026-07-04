@@ -68,7 +68,12 @@ mock.module("../../../../lib/context/UserContext.tsx", {
 });
 
 mock.module("../../../../lib/actions/upload.ts", {
-  namedExports: { uploadImageAction: mock.fn() },
+  namedExports: {
+    uploadImageAction: mock.fn(),
+    uploadDocumentAction: mock.fn(),
+    getSignedUrlAction: mock.fn(async () => ({ url: "https://signed.example/doc" })),
+    deleteFileAction: mock.fn(),
+  },
 });
 
 mock.module("@mui/x-date-pickers", {

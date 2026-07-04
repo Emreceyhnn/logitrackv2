@@ -90,7 +90,9 @@ describe("DashboardHeader RTL Component", () => {
       // Assert basic renders
       expect(screen.getByTestId("breadcrumbs")).toBeTruthy();
       expect(screen.getByTestId("user-nav")).toBeTruthy();
-      expect(screen.getByTestId("notification-bell")).toBeTruthy();
+      // NotificationBell is loaded via next/dynamic (ssr:false) so it mounts
+      // asynchronously after the dynamic chunk resolves.
+      expect(await screen.findByTestId("notification-bell")).toBeTruthy();
     });
 
     it("should_OpenMobileDrawer_WhenMenuIconClicked", async () => {

@@ -1,13 +1,10 @@
-"use client";
-
 import BrushRoundedIcon from "@mui/icons-material/BrushRounded";
 import NewspaperRoundedIcon from "@mui/icons-material/NewspaperRounded";
 import ContactMailRoundedIcon from "@mui/icons-material/ContactMailRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function PressKitClient() {
-  const dict = useDictionary();
+export default function PressKitClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.pressKitPage;
 
   return (

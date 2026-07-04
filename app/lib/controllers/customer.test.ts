@@ -57,6 +57,8 @@ mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
 mock.module("./utils/checkPermission.ts", { namedExports: checkPermissionMock });
 mock.module("./utils/trendUtils.ts", { namedExports: trendUtilsMock });
 
+mock.module("next/cache", { namedExports: { revalidatePath: () => {} } });
+
 // 2. TEST GRUPLARI
 describe("Customer Controller", () => {
   let customerController: any;

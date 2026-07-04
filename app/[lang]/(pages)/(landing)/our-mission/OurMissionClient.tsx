@@ -1,13 +1,10 @@
-"use client";
-
 import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
 import EnergySavingsLeafRoundedIcon from "@mui/icons-material/EnergySavingsLeafRounded";
 import Groups3RoundedIcon from "@mui/icons-material/Groups3Rounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function OurMissionClient() {
-  const dict = useDictionary();
+export default function OurMissionClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.ourMissionPage;
 
   return (

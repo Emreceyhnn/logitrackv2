@@ -93,6 +93,13 @@ mock.module("./inventory.ts", {
   namedExports: inventoryMock,
 });
 
+const nextCacheMock = {
+  revalidatePath: mock.fn(),
+};
+mock.module("next/cache", {
+  namedExports: nextCacheMock,
+});
+
 // 2. TEST GRUPLARI
 describe("Shipments Controller", () => {
   let shipmentsController: any;
@@ -174,6 +181,162 @@ describe("Shipments Controller", () => {
       ).rejects.toThrow("Tracking ID already exists");
 
       expect(dbMock.shipment.create.mock.calls.length).toBe(0);
+    });
+  });
+
+  describe("updateShipmentStatus() metodu", () => {
+    const mockUser = {
+      id: "user-1",
+      companyId: "company-1",
+    };
+
+    beforeEach(() => {
+      dbMock.shipment.update.mock.resetCalls();
+      dbMock.shipment.findUnique.mock.resetCalls();
+      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+        companyId: "company-1",
+      }));
+      dbMock.shipment.update.mock.mockImplementation(async (args: any) => ({
+        id: "shipment-1",
+        trackingId: "TRK-123456",
+        status: args.data.status,
+      }));
+    });
+
+    it("should_UpdateStatusAndWriteHistory_WhenShipmentBelongsToCompany", async () => {
+      // Act
+      const result = await shipmentsController.updateShipmentStatus(
+        mockUser,
+        "shipment-1",
+        "IN_TRANSIT",
+        "Istanbul Hub",
+        "Departed origin warehouse"
+      );
+
+      // Assert
+      expect(result.status).toBe("IN_TRANSIT");
+      expect(dbMock.shipment.update.mock.calls.length).toBe(1);
+      const updateArgs = dbMock.shipment.update.mock.calls[0].arguments[0];
+      expect(updateArgs.where).toEqual({ id: "shipment-1" });
+      expect(updateArgs.data.status).toBe("IN_TRANSIT");
+      // Every transition must leave an audit trail in ShipmentHistory
+      expect(updateArgs.data.history.create).toMatchObject({
+        status: "IN_TRANSIT",
+        companyId: "company-1",
+        location: "Istanbul Hub",
+        description: "Departed origin warehouse",
+        createdById: "user-1",
+      });
+      // Cache invalidated
+      expect(cacheUtilsMock.invalidatePattern.mock.calls.length).toBe(1);
+    });
+
+    it("should_ThrowWithoutUpdate_WhenShipmentBelongsToAnotherCompany", async () => {
+      // Arrange
+      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+        companyId: "company-2", // different tenant
+      }));
+      const consoleMock = mock.method(console, "error", () => {});
+
+      // Act & Assert
+      await expect(
+        shipmentsController.updateShipmentStatus(
+          mockUser,
+          "shipment-of-other-company",
+          "DELIVERED"
+        )
+      ).rejects.toThrow("Shipment not found or unauthorized");
+      expect(dbMock.shipment.update.mock.calls.length).toBe(0);
+      expect(notificationsMock.sendNotificationAction.mock.calls.length).toBe(0);
+      consoleMock.mock.restore();
+    });
+
+    it("should_ThrowWithoutUpdate_WhenShipmentDoesNotExist", async () => {
+      // Arrange
+      dbMock.shipment.findUnique.mock.mockImplementation(async () => null);
+      const consoleMock = mock.method(console, "error", () => {});
+
+      // Act & Assert
+      await expect(
+        shipmentsController.updateShipmentStatus(mockUser, "ghost", "DELIVERED")
+      ).rejects.toThrow("Shipment not found or unauthorized");
+      expect(dbMock.shipment.update.mock.calls.length).toBe(0);
+      consoleMock.mock.restore();
+    });
+
+    it("should_SendWarningNotification_WhenStatusIsDelayed", async () => {
+      // Act
+      await shipmentsController.updateShipmentStatus(
+        mockUser,
+        "shipment-1",
+        "DELAYED"
+      );
+
+      // Assert
+      expect(notificationsMock.sendNotificationAction.mock.calls.length).toBe(1);
+      const payload =
+        notificationsMock.sendNotificationAction.mock.calls[0].arguments[1];
+      expect(payload.type).toBe("WARNING");
+      expect(payload.category).toBe("DELAY_ALERT");
+      expect(payload.message).toContain("TRK-123456");
+    });
+
+    it("should_SendErrorNotification_WhenStatusIsCancelled", async () => {
+      // Act
+      await shipmentsController.updateShipmentStatus(
+        mockUser,
+        "shipment-1",
+        "CANCELLED"
+      );
+
+      // Assert
+      const payload =
+        notificationsMock.sendNotificationAction.mock.calls[0].arguments[1];
+      expect(payload.type).toBe("ERROR");
+      expect(payload.category).toBe("SHIPMENT_UPDATE");
+    });
+
+    it("should_SendSuccessNotification_WhenStatusIsDelivered", async () => {
+      // Act
+      await shipmentsController.updateShipmentStatus(
+        mockUser,
+        "shipment-1",
+        "DELIVERED"
+      );
+
+      // Assert
+      const payload =
+        notificationsMock.sendNotificationAction.mock.calls[0].arguments[1];
+      expect(payload.type).toBe("SUCCESS");
+      expect(payload.link).toBe("/dashboard/shipments/shipment-1");
+    });
+
+    it("should_NotSendNotification_WhenStatusIsPending", async () => {
+      // Act
+      await shipmentsController.updateShipmentStatus(
+        mockUser,
+        "shipment-1",
+        "PENDING"
+      );
+
+      // Assert
+      expect(dbMock.shipment.update.mock.calls.length).toBe(1);
+      expect(notificationsMock.sendNotificationAction.mock.calls.length).toBe(0);
+    });
+
+    it("should_RethrowError_WhenDbUpdateFails", async () => {
+      // Arrange
+      dbMock.shipment.update.mock.mockImplementation(async () => {
+        throw new Error("DB write failed");
+      });
+      const consoleMock = mock.method(console, "error", () => {});
+
+      // Act & Assert
+      await expect(
+        shipmentsController.updateShipmentStatus(mockUser, "shipment-1", "DELIVERED")
+      ).rejects.toThrow("DB write failed");
+      expect(notificationsMock.sendNotificationAction.mock.calls.length).toBe(0);
+      consoleMock.mock.restore();
     });
   });
 

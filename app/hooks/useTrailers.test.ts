@@ -53,6 +53,19 @@ const dictContextMock = {
 };
 mock.module("../lib/language/DictionaryContext.tsx", { namedExports: dictContextMock });
 
+// The hook calls useEffect directly (prefetch); stub it since the hook is
+// invoked outside a React render. Load the real module via CJS require so the
+// ESM cache stays untouched and mock.module can still intercept "react".
+import { createRequire } from "node:module";
+const realReact = createRequire(import.meta.url)("react");
+mock.module("react", {
+  namedExports: {
+    ...realReact,
+    useEffect: mock.fn(),
+  },
+  defaultExport: { ...realReact, useEffect: mock.fn() },
+});
+
 mock.module("@tanstack/react-query", { namedExports: reactQueryMock });
 mock.module("sonner", { namedExports: sonnerMock });
 mock.module("../lib/controllers/trailer.ts", { namedExports: trailerControllerMock });

@@ -23,7 +23,15 @@ import {
   RocketLaunch,
 } from "@mui/icons-material";
 import DriverTable from "@/app/components/dashboard/driver/driverTable";
-import DriverPerformanceCharts from "@/app/components/dashboard/driver/driverPerformanceCharts";
+import dynamic from "next/dynamic";
+import ChartSkeleton from "@/app/components/skeletons/ChartSkeleton";
+
+// @mui/x-charts is ~283 kB per route when imported statically. Loading the
+// chart component lazily keeps it out of this route's First Load JS.
+const DriverPerformanceCharts = dynamic(
+  () => import("@/app/components/dashboard/driver/driverPerformanceCharts"),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
 
 import DriverDialog from "@/app/components/dialogs/driver";
 import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";

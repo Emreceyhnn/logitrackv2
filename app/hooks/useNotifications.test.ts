@@ -22,7 +22,21 @@ const notificationsActionMock = {
   deleteNotificationAction: mock.fn(),
 };
 
-mock.module("react", { namedExports: reactMock });
+// Keep the rest of React intact (e.g. `cache` used deeper in the import
+// graph) and override only the hooks this test drives manually. Real React is
+// loaded via CJS require so the ESM cache stays untouched and mock.module can
+// still intercept "react".
+import { createRequire } from "node:module";
+const realReact = createRequire(import.meta.url)("react");
+mock.module("react", {
+  namedExports: { ...realReact, ...reactMock },
+  defaultExport: { ...realReact, ...reactMock },
+});
+
+// Subscriptions gate on Firebase custom-token auth; stub it as signed in.
+mock.module("../lib/firebase-auth.ts", {
+  namedExports: { ensureFirebaseAuth: mock.fn(async () => {}) },
+});
 mock.module("../lib/firebase.ts", { namedExports: firebaseMock });
 mock.module("../lib/actions/notifications.ts", { namedExports: notificationsActionMock });
 

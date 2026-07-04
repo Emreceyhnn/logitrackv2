@@ -74,6 +74,8 @@ mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
 mock.module("./utils/checkPermission.ts", { namedExports: checkPermissionMock });
 mock.module("./utils/trendUtils.ts", { namedExports: trendUtilsMock });
 
+mock.module("next/cache", { namedExports: { revalidatePath: () => {} } });
+
 // 2. TEST GRUPLARI
 describe("Company Controller", () => {
   let companyController: any;
@@ -115,7 +117,7 @@ describe("Company Controller", () => {
       // Assert
       expect(result.company.id).toBe("comp-1");
       expect(dbMock.company.create.mock.calls.length).toBe(1);
-      expect(dbMock.role.upsert.mock.calls.length).toBe(5); // Creates 5 default roles
+      expect(dbMock.role.upsert.mock.calls.length).toBe(6); // Creates 6 default roles (admin, manager, dispatcher, driver, warehouse, default)
       expect(dbMock.user.update.mock.calls.length).toBe(1);
       
       expect(sessionMock.revokeSession.mock.calls.length).toBe(1);

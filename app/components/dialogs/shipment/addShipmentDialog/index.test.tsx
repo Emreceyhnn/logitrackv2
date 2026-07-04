@@ -47,6 +47,66 @@ const useUserMock = mock.fn(() => ({
 
 
 // 4. Mock Sub-Sections
+const stableDict = {
+      common: { back: "Back", cancel: "Cancel", next: "Next", save: "Save" },
+      routes: {
+        details: { delivery: "Delivery" },
+        dialogs: {
+          addTitle: "Add Route", addSubtitle: "Add subtitle",
+          editTitle: "Edit Route", editSubtitle: "Edit subtitle",
+          deliveryLabel: "Delivery {n}", prefilledFrom: "Prefilled from {name}",
+          steps: { locations: "Locations", schedule: "Schedule", assignments: "Assignments" },
+        },
+      },
+      shipments: {
+        dialogs: {
+          addTitle: "Add Shipment", addSubtitle: "Add subtitle",
+          editTitle: "Edit Shipment", editSubtitle: "Edit subtitle",
+          cargoTitle: "Cargo",
+          fields: { exceedsTrailerVolume: "Exceeds volume", exceedsTrailerWeight: "Exceeds weight" },
+          steps: { cargo: "Cargo", logistics: "Logistics" },
+        },
+      },
+      toasts: { errorGeneric: "Error", loading: "Loading", successAdd: "Added", successUpdate: "Updated" },
+      validation: {
+        genericFormError: "Form error",
+        required: "{field} is required",
+        min: "{field} must be at least {min}",
+        max: "{field} must be at most {max}",
+        email: "Invalid email",
+        positive: "{field} must be positive",
+        oneOf: "{field} must be one of the allowed values",
+        endTimeAfterStart: "End time must be after start time",
+      },
+    };
+const stableUserResult = { user: { id: "user-1", companyId: "comp-1", currency: "USD" } };
+
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
+  namedExports: {
+    useDictionary: () => stableDict,
+  },
+});
+
+mock.module("../../../../hooks/useUser.ts", {
+  namedExports: { useUser: () => stableUserResult },
+});
+
+mock.module("../../../../lib/controllers/shipments.ts", {
+  namedExports: { createShipment: mock.fn(async () => ({ shipment: { id: "s-1" } })) },
+});
+mock.module("../../../../lib/controllers/warehouse.ts", {
+  namedExports: { getWarehouses: mock.fn(async () => []) },
+});
+mock.module("../../../../lib/controllers/customer.ts", {
+  namedExports: { getCustomers: mock.fn(async () => ({ customers: [] })) },
+});
+mock.module("../../../../lib/controllers/inventory.ts", {
+  namedExports: { getInventory: mock.fn(async () => ({ items: [] })) },
+});
+mock.module("../../../../lib/controllers/trailer.ts", {
+  namedExports: { getTrailers: mock.fn(async () => ({ trailers: [] })) },
+});
+
 mock.module("./sections/BasicInfoSection.tsx", { defaultExport: () => <div data-testid="basic-info-section" /> });
 mock.module("./sections/LogisticsSection.tsx", { defaultExport: () => <div data-testid="logistics-section" /> });
 mock.module("./sections/CargoSection.tsx", { defaultExport: () => <div data-testid="cargo-section" /> });

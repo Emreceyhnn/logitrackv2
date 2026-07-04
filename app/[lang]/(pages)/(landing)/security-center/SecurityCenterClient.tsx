@@ -1,13 +1,10 @@
-"use client";
-
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import VerifiedUserRoundedIcon from "@mui/icons-material/VerifiedUserRounded";
-import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import type { Dictionary } from "@/app/lib/language/language";
 import FooterPageLayout from "@/app/components/landing/FooterPageLayout";
 
-export default function SecurityCenterClient() {
-  const dict = useDictionary();
+export default function SecurityCenterClient({ dict }: { dict: Dictionary }) {
   const d = dict.landing.securityCenterPage;
 
   return (
