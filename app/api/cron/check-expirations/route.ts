@@ -200,22 +200,42 @@ export async function GET(req: NextRequest) {
     }
 
     // 5. Check Shipments (SLA Deadline)
-    const delayedShipments = await db.shipment.findMany({
+    // Only active, not-yet-delayed shipments qualify; terminal states
+    // (DELIVERED/FAILED/RETURNED/CANCELLED) and already-DELAYED ones are
+    // skipped so we transition + notify exactly once per breach.
+    const overdueShipments = await db.shipment.findMany({
       where: {
         slaDeadline: { lt: now },
-        status: { notIn: ["DELIVERED", "CANCELLED"] },
+        status: {
+          in: ["PENDING", "PROCESSING", "ASSIGNED", "IN_TRANSIT"],
+        },
       },
     });
 
-    for (const shipment of delayedShipments) {
+    for (const shipment of overdueShipments) {
       if (!shipment.companyId) continue;
+
+      await db.shipment.update({
+        where: { id: shipment.id },
+        data: {
+          status: "DELAYED",
+          history: {
+            create: {
+              status: "DELAYED",
+              companyId: shipment.companyId,
+              description: `SLA deadline breached (due ${shipment.slaDeadline?.toISOString()})`,
+            },
+          },
+        },
+      });
 
       await sendNotificationAction(
         { companyId: shipment.companyId },
         {
           title: "SLA Süresi Doldu! ⚠️",
-          message: `${shipment.trackingId} numaralı sevkiyatın SLA teslim süresi doldu!`,
+          message: `${shipment.trackingId} numaralı sevkiyatın SLA teslim süresi doldu! Durum GECİKMİŞ olarak güncellendi.`,
           type: "ERROR",
+          category: "DELAY_ALERT",
           link: `/dashboard/shipments/${shipment.id}`,
         }
       );
@@ -275,7 +295,7 @@ export async function GET(req: NextRequest) {
         expiringLicenses.length +
         expiringVehicles.length +
         routesToCheck.length +
-        delayedShipments.length +
+        overdueShipments.length +
         warehouses.length,
     });
   } catch (error) {

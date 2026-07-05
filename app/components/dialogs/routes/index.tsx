@@ -432,7 +432,7 @@ export default function RouteDialog({
                     bgcolor: theme.palette.common.white_alpha.main_05,
                   },
                 }}
-              >
+               aria-label="close">
                 <CloseIcon />
               </IconButton>
             </Stack>

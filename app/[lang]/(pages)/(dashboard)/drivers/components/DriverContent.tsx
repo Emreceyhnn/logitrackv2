@@ -38,6 +38,8 @@ import AddDriverDialog from "@/app/components/dialogs/driver/addDriverDialog";
 import EditDriverDialog from "@/app/components/dialogs/driver/editDriverDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import KpiCards from "@/app/components/cards/KpiCards";
+import QueryErrorState from "@/app/components/ui/QueryErrorState";
+import { toast } from "sonner";
 
 export default function DriverContentPage() {
   const dict = useDictionary();
@@ -95,6 +97,7 @@ function DriverContent() {
     data: combinedData,
     isLoading,
     isFetching,
+    isError,
     refetch: refreshAllData,
   } = useDriverWithDashboard(
     state.pagination.page,
@@ -163,6 +166,7 @@ function DriverContent() {
       setDriverToDelete(null);
     } catch (error) {
       console.error("Failed to delete driver:", error);
+      toast.error(dict.common.actionFailed);
     }
   };
 
@@ -253,7 +257,7 @@ function DriverContent() {
       >
         <Box>
           <Typography
-            variant="h4"
+            variant="h4" component="h1"
             sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {dict.drivers.title}
@@ -275,6 +279,11 @@ function DriverContent() {
 
       <KpiCards kpis={kpis} loading={isLoading} />
 
+      {isError ? (
+        <Stack mt={2}>
+          <QueryErrorState onRetry={() => refreshAllData()} />
+        </Stack>
+      ) : (
       <Stack gap={2} mt={2} data-tour="driver-table">
         <DriverTable
           filters={state.filters}
@@ -298,6 +307,7 @@ function DriverContent() {
           onRequestSort={handleSort}
         />
       </Stack>
+      )}
 
       <DriverPerformanceCharts
         data={dashboardData?.performanceCharts}

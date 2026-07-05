@@ -251,7 +251,7 @@ export default function MaintenanceRecordDialog({
             onClick={handleClose}
             size="small"
             sx={{ color: "text.secondary" }}
-          >
+           aria-label="close">
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>

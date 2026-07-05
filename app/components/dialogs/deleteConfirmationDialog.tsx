@@ -94,7 +94,7 @@ export default function DeleteConfirmationDialog({
               },
             }}
             disabled={loading}
-          >
+           aria-label="close">
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>

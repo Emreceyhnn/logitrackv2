@@ -40,14 +40,11 @@ export async function generateMetadata({
     description:
       dict.landing.metaDescription ||
       "Teslimatlarınızı, filonuzu ve operasyonlarınızı tek akıllı panelden yönetin.",
+    // NOTE: no `alternates.canonical` here — a layout-level canonical is
+    // inherited by every child page, which would canonicalize subpages
+    // (e.g. /tr/fiyatlandirma) to the homepage. The landing home page sets
+    // its own canonical in its generateMetadata.
     metadataBase: new URL(baseUrl),
-    alternates: {
-      canonical: `/${lang}`,
-      languages: {
-        en: "/en",
-        tr: "/tr",
-      },
-    },
     openGraph: {
       type: "website",
       locale: lang === "tr" ? "tr_TR" : "en_US",

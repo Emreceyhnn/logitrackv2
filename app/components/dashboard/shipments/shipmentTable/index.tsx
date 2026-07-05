@@ -29,6 +29,8 @@ const VISIBLE_SHIPMENT_STATUSES: ShipmentStatus[] = [
   ShipmentStatus.PENDING,
   ShipmentStatus.IN_TRANSIT,
   ShipmentStatus.DELIVERED,
+  ShipmentStatus.FAILED,
+  ShipmentStatus.RETURNED,
   ShipmentStatus.DELAYED,
   ShipmentStatus.CANCELLED,
 ];

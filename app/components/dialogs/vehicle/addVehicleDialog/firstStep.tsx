@@ -124,7 +124,7 @@ const FirstStep = ({
                     bgcolor: "error.dark",
                   },
                 }}
-              >
+               aria-label="close">
                 <CloseIcon fontSize="small" />
               </IconButton>
             </>

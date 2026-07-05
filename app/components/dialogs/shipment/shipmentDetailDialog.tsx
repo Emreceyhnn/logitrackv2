@@ -276,7 +276,7 @@ export default function ShipmentDetailDialog({
                   bgcolor: theme.palette.action.hover,
                 },
               }}
-            >
+             aria-label="close">
               <CloseIcon fontSize="small" />
             </IconButton>
           </Stack>

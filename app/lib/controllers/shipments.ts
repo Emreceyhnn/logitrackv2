@@ -24,6 +24,11 @@ import {
 } from "../redis";
 import { invalidateInventoryCache } from "./inventory";
 import { calcTrend, daysAgo } from "./utils/trendUtils";
+import {
+  assertShipmentTransition,
+  isTerminalShipmentStatus,
+} from "./utils/shipmentTransitions";
+import { assertRouteCapacity } from "./utils/routeCapacity";
 
 export async function invalidateShipmentCache(
   companyId: string,
@@ -368,11 +373,27 @@ export const assignDriverToShipment = authenticatedAction(
 
       const existingShipment = await db.shipment.findUnique({
         where: { id: shipmentId },
-        select: { companyId: true },
+        select: { companyId: true, status: true },
       });
 
       if (!existingShipment || existingShipment.companyId !== companyId) {
         throw new Error("Shipment not found or unauthorized");
+      }
+
+      assertShipmentTransition(
+        existingShipment.status,
+        ShipmentStatus.ASSIGNED
+      );
+
+      const driver = await db.driver.findFirst({
+        where: { id: driverId, companyId },
+        select: { status: true },
+      });
+      if (!driver) {
+        throw new Error("Driver not found or unauthorized");
+      }
+      if (driver.status === "ON_LEAVE") {
+        throw new Error("Driver is on leave and cannot be assigned");
       }
 
       const updatedShipment = await db.shipment.update({
@@ -426,12 +447,32 @@ export const assignRouteToShipment = authenticatedAction(
 
       const existingShipment = await db.shipment.findUnique({
         where: { id: shipmentId },
-        select: { companyId: true },
+        select: {
+          companyId: true,
+          status: true,
+          weightKg: true,
+          volumeM3: true,
+        },
       });
 
       if (!existingShipment || existingShipment.companyId !== companyId) {
         throw new Error("Shipment not found or unauthorized");
       }
+
+      assertShipmentTransition(
+        existingShipment.status,
+        ShipmentStatus.ASSIGNED
+      );
+      await assertRouteCapacity(
+        db,
+        routeId,
+        companyId!,
+        {
+          weightKg: existingShipment.weightKg,
+          volumeM3: existingShipment.volumeM3,
+        },
+        shipmentId
+      );
 
       const updatedShipment = await db.shipment.update({
         where: { id: shipmentId },
@@ -486,11 +527,21 @@ export const updateShipmentStatus = authenticatedAction(
 
       const existingShipment = await db.shipment.findUnique({
         where: { id: shipmentId },
-        select: { companyId: true },
+        select: { companyId: true, status: true },
       });
 
       if (!existingShipment || existingShipment.companyId !== companyId) {
         throw new Error("Shipment not found or unauthorized");
+      }
+
+      assertShipmentTransition(existingShipment.status, status);
+      if (existingShipment.status === status) {
+        return db.shipment.findUniqueOrThrow({ where: { id: shipmentId } });
+      }
+      if (status === ShipmentStatus.FAILED && !description?.trim()) {
+        throw new Error(
+          "A failure reason (description) is required when marking a shipment as FAILED"
+        );
       }
 
       const updatedShipment = await db.shipment.update({
@@ -778,11 +829,18 @@ export const updateShipment = authenticatedAction(
 
       const existingShipment = await db.shipment.findUnique({
         where: { id: shipmentId },
-        select: { companyId: true },
+        select: { companyId: true, status: true },
       });
 
       if (!existingShipment || existingShipment.companyId !== companyId) {
         throw new Error("Shipment not found or unauthorized");
+      }
+
+      // A status change coming through the generic edit path must still obey
+      // the lifecycle state machine — the edit dialog is not a backdoor.
+      const nextStatus = (data as { status?: ShipmentStatus }).status;
+      if (nextStatus && nextStatus !== existingShipment.status) {
+        assertShipmentTransition(existingShipment.status, nextStatus);
       }
 
       const updateData = { ...data } as Prisma.ShipmentUpdateInput & {
@@ -980,8 +1038,7 @@ export const updateShipment = authenticatedAction(
       // ── Trailer Status Management ──────────────────────────────────────────
       if (
         updatedShipment.trailerId &&
-        (updatedShipment.status === ShipmentStatus.DELIVERED ||
-          updatedShipment.status === ShipmentStatus.CANCELLED)
+        isTerminalShipmentStatus(updatedShipment.status)
       ) {
         // Check if there are any other active shipments on this trailer
         const otherActiveShipments = await db.shipment.count({

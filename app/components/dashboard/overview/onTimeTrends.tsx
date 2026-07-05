@@ -9,15 +9,10 @@ import {
 } from "@/app/lib/language/DictionaryContext";
 import TimeRangeSelector, { TimeRange } from "../../charts/TimeRangeSelector";
 import { useState, useMemo } from "react";
-import dayjs from "dayjs";
-import trLocale from "dayjs/locale/tr";
-import enLocale from "dayjs/locale/en";
-
-dayjs.locale("tr", trLocale);
-dayjs.locale("en", enLocale);
-import customParseFormat from "dayjs/plugin/customParseFormat";
-
-dayjs.extend(customParseFormat);
+// Centralised dayjs setup. Importing this (instead of re-registering the
+// English locale here, which would wipe the `formats.LT` patch) keeps every
+// date picker in the app working.
+import dayjs from "@/app/lib/utils/dayjsConfig";
 
 interface ShipmentVolumeCardProps {
   values: ShipmentDayStat[];

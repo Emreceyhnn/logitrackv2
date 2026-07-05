@@ -49,7 +49,9 @@ const StatCard = ({
     <motion.div
       whileHover={{ y: -6, transition: { duration: 0.3, ease: "easeOut" } }}
       whileTap={{ scale: 0.97 }}
-      initial={{ opacity: 0, y: 20 }}
+      // initial={false}: an entry animation from opacity 0 ships invisible
+      // SSR HTML — the KPI band renders as a blank hole until hydration.
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       style={{ height: "100%", flex: 1, display: "flex" }}
@@ -144,7 +146,7 @@ const StatCard = ({
               >
                 {title}
               </Typography>
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={value}
                   initial={{ opacity: 0, x: -10 }}
@@ -229,8 +231,12 @@ const StatCard = ({
                 fontSize: "0.75rem",
                 fontWeight: 800,
                 color: trend.isUp
-                  ? theme.palette.success.main
-                  : theme.palette.error.main,
+                  ? theme.palette.mode === "dark"
+                    ? theme.palette.success.light
+                    : theme.palette.success.main
+                  : theme.palette.mode === "dark"
+                    ? theme.palette.error.light
+                    : theme.palette.error.main,
                 bgcolor: trendColorAlpha?.main_12,
                 width: "fit-content",
                 px: 1.2,

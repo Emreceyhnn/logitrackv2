@@ -210,7 +210,7 @@ export default function AddCompanyMemberDialog({
             color: "text.secondary",
             bgcolor: theme.palette.text.secondary_alpha.main_05,
           }}
-        >
+         aria-label="close">
           <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>

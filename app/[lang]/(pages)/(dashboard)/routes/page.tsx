@@ -22,6 +22,7 @@
  */
 
 import type { Metadata } from "next";
+import { getDictionary } from "@/app/lib/language/language";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -33,11 +34,18 @@ import { getRoutesWithDashboardData } from "@/app/lib/controllers/routes";
 import { routeKeys } from "@/app/lib/query-keys/route.keys";
 import RoutesContent from "./components/routesContent";
 
-export const metadata: Metadata = {
-  title: "Routes | LogiTrack",
-  description:
-    "Plan and manage delivery routes — view route status, duration, driver assignments and optimisation.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.routes.title,
+    description: dict.routes.subtitle,
+  };
+}
 
 function RoutesPageSkeleton() {
   return (

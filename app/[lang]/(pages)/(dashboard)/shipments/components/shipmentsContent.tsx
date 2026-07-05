@@ -34,6 +34,8 @@ import {
   Inventory,
 } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
+import QueryErrorState from "@/app/components/ui/QueryErrorState";
+import { toast } from "sonner";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function ShipmentContent() {
@@ -64,6 +66,8 @@ export default function ShipmentContent() {
     data: dashboardData,
     isLoading,
     isFetching,
+    isError,
+    error: queryError,
     refetch,
   } = useShipmentsWithDashboard(
     pagination.page,
@@ -104,7 +108,7 @@ export default function ShipmentContent() {
     selectedShipmentId,
     filters,
     loading: isFetching,
-    error: null,
+    error: isError ? (queryError as Error)?.message || "error" : null,
   };
 
   /* -------------------------------- LIFECYCLE --------------------------------- */
@@ -136,6 +140,7 @@ export default function ShipmentContent() {
       setDeleteOpen(false);
     } catch (error) {
       console.error("Failed to delete shipment:", error);
+      toast.error(dict.common.actionFailed);
     }
   };
 
@@ -186,7 +191,7 @@ export default function ShipmentContent() {
       >
         <Box>
           <Typography
-            variant="h4"
+            variant="h4" component="h1"
             sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {dict.shipments.title}
@@ -208,27 +213,35 @@ export default function ShipmentContent() {
 
       <KpiCards kpis={kpiItems} loading={isLoading} />
 
-      <Stack mt={2} data-tour="shipment-table">
-        <ShipmentTable
-          state={state}
-          actions={{
-            ...actions,
-            onEdit: handleEdit,
-            onDelete: handleDelete,
-          }}
-          pagination={{
-            page: pagination.page,
-            pageSize: pagination.pageSize,
-            total: state.totalCount,
-          }}
-          onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
-          onLimitChange={(pageSize) =>
-            setPagination({ page: 1, pageSize: pageSize })
-          }
-        />
-      </Stack>
+      {isError ? (
+        <Box mt={2}>
+          <QueryErrorState onRetry={() => refetch()} />
+        </Box>
+      ) : (
+        <>
+          <Stack mt={2} data-tour="shipment-table">
+            <ShipmentTable
+              state={state}
+              actions={{
+                ...actions,
+                onEdit: handleEdit,
+                onDelete: handleDelete,
+              }}
+              pagination={{
+                page: pagination.page,
+                pageSize: pagination.pageSize,
+                total: state.totalCount,
+              }}
+              onPageChange={(page) => setPagination((p) => ({ ...p, page }))}
+              onLimitChange={(pageSize) =>
+                setPagination({ page: 1, pageSize: pageSize })
+              }
+            />
+          </Stack>
 
-      <ShipmentAnalytics state={state} actions={actions} />
+          <ShipmentAnalytics state={state} actions={actions} />
+        </>
+      )}
 
       <EditShipmentDialog
         open={editOpen}

@@ -1,11 +1,8 @@
 "use client";
 import { useEffect } from "react";
-import dayjs from "dayjs";
-import trLocale from "dayjs/locale/tr";
-import enLocale from "dayjs/locale/en";
-
-dayjs.locale("tr", trLocale);
-dayjs.locale("en", enLocale);
+// Centralised dayjs setup — this card mounts its own LocalizationProvider, so
+// it must ensure the same locale/plugin/formats config is applied.
+import dayjs from "@/app/lib/utils/dayjsConfig";
 
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";

@@ -86,6 +86,7 @@ export const getStatusMeta = (status?: string, dict?: Dictionary) => {
     case "PLANNED":
     case "ASSIGNED":
     case "OPEN":
+    case "RETURNED":
       return {
         color: getDictColor("warning", "#F6AD55"),
         paletteKey: "warning",

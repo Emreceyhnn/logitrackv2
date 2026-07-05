@@ -82,6 +82,8 @@ export const ShipmentStatus = {
   ASSIGNED: "ASSIGNED",
   IN_TRANSIT: "IN_TRANSIT",
   DELIVERED: "DELIVERED",
+  FAILED: "FAILED",
+  RETURNED: "RETURNED",
   DELAYED: "DELAYED",
   CANCELLED: "CANCELLED",
 } as const;

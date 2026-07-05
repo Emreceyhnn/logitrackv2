@@ -26,6 +26,7 @@ const InventoryCharts = dynamic(
 import ReportSummaryCards from "@/app/components/dashboard/reports/ReportSummaryCards";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useReportsData } from "@/app/hooks/useReports";
+import QueryErrorState from "@/app/components/ui/QueryErrorState";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -51,13 +52,21 @@ function CustomTabPanel(props: TabPanelProps) {
 
 export default function ReportsContent() {
   const dict = useDictionary();
-  const { state } = useReportsData();
+  const { state, actions } = useReportsData();
   const [tabIndex, setTabIndex] = useState(0);
 
   /* -------------------------------- handlers -------------------------------- */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
+
+  if (state.error && !state.data) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <QueryErrorState onRetry={() => actions.fetchReports()} />
+      </Box>
+    );
+  }
 
   if (state.loading && !state.data) {
     return (
@@ -79,7 +88,7 @@ export default function ReportsContent() {
     <Box sx={{ p: 3 }}>
       <Box sx={{ mb: 5 }}>
         <Typography
-          variant="h3"
+          variant="h3" component="h1"
           fontWeight={800}
           sx={{ mb: 1, letterSpacing: "-0.02em" }}
         >

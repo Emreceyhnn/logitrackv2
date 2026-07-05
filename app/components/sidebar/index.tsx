@@ -56,7 +56,7 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
   const handleLogout = async () => {
     try {
       await clearAuthCookies();
-      // Build the localized sign-in URL (e.g. /tr/giris/oturuk-ac or /en/auth/sign-in)
+      // Build the localized sign-in URL (e.g. /tr/giris/oturum-ac or /en/auth/sign-in)
       const logoutHref = buildLocalizedHref("/auth/sign-in", lang);
       router.push(logoutHref);
     } catch (error) {
@@ -163,7 +163,7 @@ const SideBar = ({ onMobileClose }: { onMobileClose?: () => void }) => {
             display: { md: "none" },
             zIndex: 10,
           }}
-        >
+         aria-label="close">
           <CloseIcon />
         </IconButton>
       )}

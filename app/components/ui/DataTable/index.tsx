@@ -32,6 +32,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import { SelectChangeEvent } from "@mui/material";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -290,6 +291,9 @@ function DataTableToolbar({
                   </Tooltip>
                 </InputAdornment>
               ),
+            },
+            htmlInput: {
+              "aria-label": searchPlaceholder,
             },
           }}
           sx={{
@@ -731,6 +735,9 @@ function DataTable<TRow extends { id: string }>({
                         gap: 1,
                       }}
                     >
+                      <InboxOutlinedIcon
+                        sx={{ fontSize: 36, color: "text.disabled" }}
+                      />
                       <Typography
                         variant="body2"
                         color="text.secondary"
@@ -738,6 +745,26 @@ function DataTable<TRow extends { id: string }>({
                       >
                         {finalEmptyMessage}
                       </Typography>
+                      {(searchValue ||
+                        Object.values(activeFilters).some(
+                          (v) => v && v.length > 0
+                        )) && (
+                        <Button
+                          size="small"
+                          variant="text"
+                          onClick={() => {
+                            onSearchChange?.("");
+                            if (onFilterChange) {
+                              Object.keys(activeFilters).forEach((key) =>
+                                onFilterChange(key, [])
+                              );
+                            }
+                          }}
+                          sx={{ textTransform: "none", fontWeight: 700 }}
+                        >
+                          {dict.common.clearFilters}
+                        </Button>
+                      )}
                     </Box>
                   </TableCell>
                 </TableRow>

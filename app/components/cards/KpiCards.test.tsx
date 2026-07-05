@@ -14,6 +14,12 @@ mock.module("framer-motion", {
 
 mock.module("../cards/StatCard.tsx", { defaultExport: () => <div data-testid="StatCard" /> });
 
+mock.module("@/app/lib/language/DictionaryContext", {
+  namedExports: {
+    useLanguage: () => ({ lang: "en", dict: {}, changeLanguage: () => {} }),
+  },
+});
+
 mock.module("@mui/material", {
   namedExports: {
     Box: ({ children }: any) => <div data-testid="Box">{children}</div>,

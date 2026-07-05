@@ -260,7 +260,7 @@ const DriverDialog = (params: DriverDialogParams) => {
                   bgcolor: theme.palette.text.secondary_alpha.main_20,
                 },
               }}
-            >
+             aria-label="close">
               <CloseIcon fontSize="small" />
             </IconButton>
           </Stack>

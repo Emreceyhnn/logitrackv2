@@ -51,7 +51,7 @@ export default function ProfileHeader({ onClose }: HeaderProps) {
               transform: "rotate(90deg)"
             } 
           }}
-        >
+         aria-label="close">
           <CloseIcon fontSize="small" />
         </IconButton>
       </Stack>

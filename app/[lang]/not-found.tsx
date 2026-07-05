@@ -4,10 +4,12 @@ import { Box, Button, Typography, Container, useTheme } from "@mui/material";
 import { WarningRounded, Home } from "@mui/icons-material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 
 export default function NotFound() {
   const theme = useTheme();
   const router = useRouter();
+  const { dict, lang } = useLanguage();
 
   return (
     <Box
@@ -50,30 +52,31 @@ export default function NotFound() {
           </Typography>
           <Typography
             variant="h5"
+            component="h2"
             sx={{ fontWeight: 600, color: "text.secondary", mb: 2 }}
           >
-            Page Not Found
+            {dict.common.notFound.title}
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-            The page you are looking for doesn&apos;t exist or has been moved.
+            {dict.common.notFound.description}
           </Typography>
-          
+
           <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
             <Button
               variant="outlined"
               onClick={() => router.back()}
               sx={{ px: 4, py: 1.5, borderRadius: 2 }}
             >
-              Go Back
+              {dict.common.notFound.goBack}
             </Button>
             <Button
               component={Link}
-              href="/"
+              href={`/${lang}`}
               variant="contained"
               startIcon={<Home />}
               sx={{ px: 4, py: 1.5, borderRadius: 2 }}
             >
-              Return Home
+              {dict.common.notFound.returnHome}
             </Button>
           </Box>
         </Box>

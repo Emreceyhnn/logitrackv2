@@ -24,12 +24,21 @@ const dbMock = {
   },
   driver: {
     update: mock.fn(),
+    findFirst: mock.fn(async () => ({ status: "OFF_DUTY", employeeId: "E1" })),
   },
   shipment: {
     update: mock.fn(),
+    findFirst: mock.fn(async () => null),
+    aggregate: mock.fn(async () => ({ _sum: { weightKg: 0, volumeM3: 0 } })),
   },
   vehicle: {
     count: mock.fn(),
+    findFirst: mock.fn(async () => ({
+      status: "AVAILABLE",
+      fleetNo: "V1",
+      maxLoadKg: 10000,
+      currentTrailer: null,
+    })),
   },
   $transaction: mock.fn(async (cb) => cb(dbMock)),
 };
@@ -126,7 +135,11 @@ describe("Routes Controller", () => {
     dbMock.warehouse.findUnique.mock.resetCalls();
     dbMock.customer.findUnique.mock.resetCalls();
     dbMock.driver.update.mock.resetCalls();
+    dbMock.driver.findFirst.mock.resetCalls();
     dbMock.shipment.update.mock.resetCalls();
+    dbMock.shipment.findFirst.mock.resetCalls();
+    dbMock.shipment.aggregate.mock.resetCalls();
+    dbMock.vehicle.findFirst.mock.resetCalls();
     dbMock.$transaction.mock.resetCalls();
     
     redisMock.del.mock.resetCalls();

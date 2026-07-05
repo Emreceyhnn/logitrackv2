@@ -14,7 +14,7 @@ export default async function UsersPage() {
     <Box p={4} width="100%">
       <Container maxWidth="lg">
         <Box mb={4}>
-          <Typography variant="h4" fontWeight={800} color="text.primary" gutterBottom>
+          <Typography variant="h4" component="h1" fontWeight={800} color="text.primary" gutterBottom>
             User Management
           </Typography>
           <Typography variant="body1" color="text.secondary">

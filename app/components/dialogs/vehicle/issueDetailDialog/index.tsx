@@ -138,7 +138,7 @@ export default function IssueDetailDialog({
               </Typography>
             </Box>
           </Stack>
-          <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }}>
+          <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }} aria-label="close">
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>

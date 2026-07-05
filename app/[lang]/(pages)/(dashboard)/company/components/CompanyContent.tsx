@@ -152,7 +152,7 @@ export default function CompanyContent() {
       >
         <Box>
           <Typography
-            variant="h4"
+            variant="h4" component="h1"
             sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {dict.company.title}

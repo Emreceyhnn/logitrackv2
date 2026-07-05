@@ -26,6 +26,7 @@ import {
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import KpiCards from "@/app/components/cards/KpiCards";
+import QueryErrorState from "@/app/components/ui/QueryErrorState";
 import { useCurrency } from "@/app/hooks/useCurrency";
 
 export default function InventoryContent() {
@@ -65,6 +66,7 @@ export default function InventoryContent() {
     data: dashboardData,
     isLoading,
     isFetching,
+    isError,
     refetch,
   } = useInventoryWithDashboard(
     page,
@@ -215,6 +217,9 @@ export default function InventoryContent() {
           </Typography>
           <Divider />
           <Box data-tour="inventory-table">
+            {isError ? (
+              <QueryErrorState onRetry={() => refetch()} dense />
+            ) : (
             <InventoryTable
             items={items}
             loading={isFetching}
@@ -232,6 +237,7 @@ export default function InventoryContent() {
             sortOrder={sortOrder}
             onRequestSort={handleSortRequest}
           />
+            )}
           </Box>
         </CustomCard>
       </Stack>

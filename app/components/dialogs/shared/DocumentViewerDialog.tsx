@@ -204,7 +204,7 @@ export default function DocumentViewerDialog({
                   bgcolor: theme.palette.error._alpha.main_10,
                 },
               }}
-            >
+             aria-label="close">
               <CloseIcon fontSize="small" />
             </IconButton>
           </Stack>

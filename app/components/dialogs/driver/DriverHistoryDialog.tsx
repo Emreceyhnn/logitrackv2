@@ -168,7 +168,7 @@ export default function DriverHistoryDialog({
               </Typography>
             </Box>
           </Stack>
-          <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }}>
+          <IconButton onClick={onClose} size="small" sx={{ color: "text.secondary" }} aria-label="close">
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>

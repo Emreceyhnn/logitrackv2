@@ -190,7 +190,7 @@ export default function EditCustomerDialog({
                   <IconButton
                     onClick={onClose}
                     sx={{ color: "text.secondary" }}
-                  >
+                   aria-label="close">
                     <CloseIcon />
                   </IconButton>
                 </Stack>

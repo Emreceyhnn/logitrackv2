@@ -25,6 +25,7 @@ export default function AnalyticsHeader() {
       <Box>
         <Typography
           variant="h4"
+          component="h1"
           fontWeight={700}
           sx={{ color: "text.primary" }}
         >

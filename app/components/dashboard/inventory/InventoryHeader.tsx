@@ -64,6 +64,7 @@ const InventoryHeader = ({
         <Stack spacing={0.5}>
           <Typography
             variant="h4"
+            component="h1"
             fontWeight={800}
             sx={{
               letterSpacing: "-0.02em",

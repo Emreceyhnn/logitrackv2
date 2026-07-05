@@ -104,7 +104,7 @@ export default function CompanyMemberDetailsDialog({
               </Stack>
             </Stack>
           </Stack>
-          <IconButton onClick={onClose} sx={{ color: "text.secondary" }}>
+          <IconButton onClick={onClose} sx={{ color: "text.secondary" }} aria-label="close">
             <CloseIcon />
           </IconButton>
         </Stack>

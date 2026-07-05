@@ -3,6 +3,7 @@
  */
 
 import type { Metadata } from "next";
+import { getDictionary } from "@/app/lib/language/language";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -14,11 +15,18 @@ import { getInventoryWithDashboardData } from "@/app/lib/controllers/inventory";
 import { inventoryKeys } from "@/app/lib/query-keys/inventory.keys";
 import InventoryContent from "./components/InventoryContent";
 
-export const metadata: Metadata = {
-  title: "Inventory | LogiTrack",
-  description:
-    "Track stock levels, warehouse inventory, picks and packs — get alerts on low-stock SKUs.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.inventory.title,
+    description: dict.inventory.subtitle,
+  };
+}
 
 function InventoryPageSkeleton() {
   return (

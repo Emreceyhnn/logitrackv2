@@ -3,6 +3,7 @@
  */
 
 import type { Metadata } from "next";
+import { getDictionary } from "@/app/lib/language/language";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -14,11 +15,18 @@ import { getCompanyWithDashboardData } from "@/app/lib/controllers/company";
 import { companyKeys } from "@/app/lib/query-keys/company.keys";
 import CompanyContent from "./components/CompanyContent";
 
-export const metadata: Metadata = {
-  title: "Company | LogiTrack",
-  description:
-    "Manage your company profile, team members, roles and billing settings.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.company.title,
+    description: dict.company.subtitle,
+  };
+}
 
 function CompanyPageSkeleton() {
   return (

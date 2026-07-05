@@ -22,6 +22,7 @@
  */
 
 import type { Metadata } from "next";
+import { getDictionary } from "@/app/lib/language/language";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -33,11 +34,18 @@ import { getVehiclesWithDashboard } from "@/app/lib/controllers/vehicle";
 import { vehicleKeys } from "@/app/lib/query-keys/vehicle.keys";
 import VehicleContent from "./components/VehicleContent";
 
-export const metadata: Metadata = {
-  title: "Fleet | LogiTrack",
-  description:
-    "Monitor your entire fleet — vehicle status, maintenance schedules, fuel logs and live positions.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.vehicles.title,
+    description: dict.vehicles.subtitle,
+  };
+}
 
 /* ────────────────────────────────────────────────────────────────────────────────
    Page metadata (optional — add per-page title/description here if needed)

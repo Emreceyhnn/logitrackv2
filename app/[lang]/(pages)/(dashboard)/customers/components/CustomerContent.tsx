@@ -18,6 +18,7 @@ import EditCustomerDialog from "@/app/components/dialogs/customer/editCustomerDi
 import AddCustomerDialog from "@/app/components/dialogs/customer/addCustomerDialog";
 import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmationDialog";
 import CustomerList from "@/app/components/dashboard/customer/CustomerList";
+import QueryErrorState from "@/app/components/ui/QueryErrorState";
 import { useState, useMemo } from "react";
 import {
   CustomerPageActions,
@@ -63,6 +64,7 @@ export default function CustomerContent() {
   const {
     data: dashboardData,
     isLoading,
+    isError,
     refetch,
   } = useCustomersWithDashboard(
     pagination.page,
@@ -194,6 +196,9 @@ export default function CustomerContent() {
           )}
         </Paper>
         <Box sx={{ flex: 1, overflow: "hidden" }} data-tour="customer-table">
+          {isError ? (
+            <QueryErrorState onRetry={() => refetch()} dense />
+          ) : (
           <CustomerList
             customers={customers}
             selectedId={selectedCustomerId}
@@ -211,6 +216,7 @@ export default function CustomerContent() {
               setPagination({ page: 1, pageSize: pageSize })
             }
           />
+          )}
         </Box>
       </Stack>
 

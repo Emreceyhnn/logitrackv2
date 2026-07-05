@@ -202,7 +202,7 @@ const AddWarehouseDialog = ({
                 color: "text.secondary",
                 "&:hover": { color: "text.primary", bgcolor: "action.hover" },
               }}
-            >
+             aria-label="close">
               <CloseIcon />
             </IconButton>
           </Stack>

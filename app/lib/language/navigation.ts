@@ -15,7 +15,7 @@ export const routeTranslations: Record<string, Record<string, string>> = {
     "analytics": "analiz",
     "company": "sirket",
     "auth": "giris",
-    "sign-in": "oturuk-ac",
+    "sign-in": "oturum-ac",
     "sign-up": "kayit-ol",
     "features": "ozellikler",
     "pricing": "fiyatlandirma",
@@ -107,6 +107,30 @@ export function getCanonicalPath(path: string, lang: string): string {
 export function buildLocalizedHref(canonicalPath: string, lang: string): string {
   const localized = getLocalizedPath(canonicalPath, lang);
   return `/${lang}${localized}`;
+}
+
+/**
+ * Build a Next.js `alternates` metadata block (self canonical + per-locale
+ * hreflang links, including x-default) for a public page, given its canonical
+ * (English-key-based) path such as '/features' or '/' for the home page.
+ * Each locale points at its own localized slug (e.g. /tr/ozellikler,
+ * /en/features), which is what crawlers need for correct language targeting.
+ */
+export function buildSeoAlternates(
+  canonicalPath: string,
+  lang: string
+): { canonical: string; languages: Record<string, string> } {
+  const languages: Record<string, string> = {};
+  for (const locale of Object.keys(routeTranslations)) {
+    languages[locale] = buildLocalizedHref(canonicalPath, locale);
+  }
+  // x-default: send unmatched languages to the English variant.
+  languages["x-default"] = buildLocalizedHref(canonicalPath, "en");
+
+  return {
+    canonical: buildLocalizedHref(canonicalPath, lang),
+    languages,
+  };
 }
 
 /**

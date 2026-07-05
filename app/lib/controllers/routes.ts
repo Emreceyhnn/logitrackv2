@@ -22,6 +22,22 @@ import {
   ROUTE_CACHE_TTL,
 } from "../redis";
 import { calcTrend, daysAgo } from "./utils/trendUtils";
+import {
+  assertDriverAvailableForRoute,
+  assertVehicleAvailableForRoute,
+} from "./utils/assignmentGuards";
+import {
+  assertShipmentTransition,
+  isTerminalShipmentStatus,
+} from "./utils/shipmentTransitions";
+
+// Route lifecycle: PLANNED → ACTIVE → COMPLETED; cancel allowed until completion.
+const ROUTE_TRANSITIONS: Record<RouteStatus, RouteStatus[]> = {
+  PLANNED: ["ACTIVE", "CANCELED"],
+  ACTIVE: ["COMPLETED", "CANCELED"],
+  COMPLETED: [],
+  CANCELED: ["PLANNED"], // allow re-planning a canceled route
+};
 
 async function invalidateRouteCache(companyId: string, routeId?: string) {
   await Promise.all([
@@ -63,6 +79,52 @@ export const createRoute = authenticatedAction(
 
       if (existingRoute && name && name.trim() !== "") {
         throw new Error("Route name already exists");
+      }
+
+      if (driverId) {
+        await assertDriverAvailableForRoute(db, { driverId, companyId, date });
+      }
+      if (vehicleId) {
+        await assertVehicleAvailableForRoute(db, {
+          vehicleId,
+          companyId,
+          date,
+        });
+      }
+
+      let shipmentToAssign: {
+        status: import("@prisma/client").ShipmentStatus;
+        weightKg: number | null;
+        volumeM3: number | null;
+      } | null = null;
+      if (shipmentId) {
+        shipmentToAssign = await db.shipment.findFirst({
+          where: { id: shipmentId, companyId },
+          select: { status: true, weightKg: true, volumeM3: true },
+        });
+        if (!shipmentToAssign) {
+          throw new Error("Shipment not found or unauthorized");
+        }
+        assertShipmentTransition(shipmentToAssign.status, "ASSIGNED");
+
+        if (vehicleId) {
+          const vehicle = await db.vehicle.findFirst({
+            where: { id: vehicleId, companyId },
+            select: {
+              fleetNo: true,
+              maxLoadKg: true,
+              currentTrailer: { select: { maxLoadKg: true } },
+            },
+          });
+          const maxWeight =
+            (vehicle?.maxLoadKg || 0) +
+            (vehicle?.currentTrailer?.maxLoadKg || 0);
+          if (vehicle && (shipmentToAssign.weightKg || 0) > maxWeight + 0.01) {
+            throw new Error(
+              `Vehicle capacity exceeded: shipment weight ${shipmentToAssign.weightKg}kg > max ${maxWeight}kg (vehicle ${vehicle.fleetNo})`
+            );
+          }
+        }
       }
 
       const newRoute = await db.$transaction(async (tx) => {
@@ -393,6 +455,17 @@ export const assignDriverToRoute = authenticatedAction(
         throw new Error("Route not found or unauthorized");
       }
 
+      if (existingRoute.status === "COMPLETED" || existingRoute.status === "CANCELED") {
+        throw new Error("Cannot assign a driver to a completed or canceled route");
+      }
+
+      await assertDriverAvailableForRoute(db, {
+        driverId,
+        companyId,
+        date: existingRoute.date,
+        excludeRouteId: routeId,
+      });
+
       const updatedRoute = await db.route.update({
         where: { id: routeId },
         data: {
@@ -425,6 +498,58 @@ export const assignVehicleToRoute = authenticatedAction(
 
       if (!existingRoute) {
         throw new Error("Route not found or unauthorized");
+      }
+
+      if (existingRoute.status === "COMPLETED" || existingRoute.status === "CANCELED") {
+        throw new Error("Cannot assign a vehicle to a completed or canceled route");
+      }
+
+      await assertVehicleAvailableForRoute(db, {
+        vehicleId,
+        companyId,
+        date: existingRoute.date,
+        excludeRouteId: routeId,
+      });
+
+      // Capacity pre-check: the route may already carry more load than this
+      // vehicle (+ attached trailer) allows.
+      const [vehicle, currentLoad] = await Promise.all([
+        db.vehicle.findFirst({
+          where: { id: vehicleId, companyId },
+          select: {
+            fleetNo: true,
+            maxLoadKg: true,
+            currentTrailer: {
+              select: { maxLoadKg: true, capacityVolumeM3: true },
+            },
+          },
+        }),
+        db.shipment.aggregate({
+          where: {
+            routeId,
+            status: { notIn: ["DELIVERED", "RETURNED", "CANCELLED"] },
+          },
+          _sum: { weightKg: true, volumeM3: true },
+        }),
+      ]);
+      if (vehicle) {
+        const totalWeight = currentLoad._sum.weightKg || 0;
+        const totalVolume = currentLoad._sum.volumeM3 || 0;
+        const maxWeight =
+          vehicle.maxLoadKg + (vehicle.currentTrailer?.maxLoadKg || 0);
+        if (totalWeight > maxWeight + 0.01) {
+          throw new Error(
+            `Vehicle capacity exceeded: route load ${totalWeight.toFixed(2)}kg > max ${maxWeight}kg (vehicle ${vehicle.fleetNo})`
+          );
+        }
+        if (
+          vehicle.currentTrailer &&
+          totalVolume > vehicle.currentTrailer.capacityVolumeM3 + 0.01
+        ) {
+          throw new Error(
+            `Trailer volume exceeded: route volume ${totalVolume.toFixed(2)}m³ > max ${vehicle.currentTrailer.capacityVolumeM3}m³`
+          );
+        }
       }
 
       const updatedRoute = await db.route.update({
@@ -770,6 +895,21 @@ export const updateRouteStatus = authenticatedAction(
         return route;
       }
 
+      if (!ROUTE_TRANSITIONS[route.status].includes(status)) {
+        throw new Error(
+          `Invalid route status transition: ${route.status} -> ${status}`
+        );
+      }
+
+      // Only shipments still in an active lifecycle state follow the route's
+      // bulk transitions; DELIVERED / FAILED / RETURNED / CANCELLED keep their
+      // individually recorded outcome.
+      const activeShipments = route.shipments.filter(
+        (s) =>
+          !isTerminalShipmentStatus(s.status) && s.status !== "FAILED"
+      );
+      const activeShipmentIds = activeShipments.map((s) => s.id);
+
       const updatedRoute = await db.$transaction(async (tx) => {
         const updateData: Prisma.RouteUpdateInput = { status };
 
@@ -799,12 +939,12 @@ export const updateRouteStatus = authenticatedAction(
               data: { status: "ON_JOB" },
             });
           }
-            if (route.shipments.length > 0) {
+            if (activeShipmentIds.length > 0) {
               await tx.shipment.updateMany({
-                where: { routeId: route.id },
+                where: { id: { in: activeShipmentIds } },
                 data: { status: "IN_TRANSIT" },
               });
-              for (const shipment of route.shipments) {
+              for (const shipment of activeShipments) {
                 await tx.shipmentHistory.create({
                   data: {
                     shipmentId: shipment.id,
@@ -841,12 +981,12 @@ export const updateRouteStatus = authenticatedAction(
               data: { status: "OFF_DUTY" },
             });
           }
-            if (route.shipments.length > 0) {
+            if (activeShipmentIds.length > 0) {
               await tx.shipment.updateMany({
-                where: { routeId: route.id },
+                where: { id: { in: activeShipmentIds } },
                 data: { status: "DELIVERED" },
               });
-              for (const shipment of route.shipments) {
+              for (const shipment of activeShipments) {
                 await tx.shipmentHistory.create({
                   data: {
                     shipmentId: shipment.id,
@@ -860,13 +1000,20 @@ export const updateRouteStatus = authenticatedAction(
               }
             }
 
+            const failedCount = route.shipments.filter(
+              (s) => s.status === "FAILED"
+            ).length;
+
             // Dispatch Notification
             await createNotification(
               { companyId: companyId! },
               {
                 title: "Rota Tamamlandı ✅",
-                message: `${route.name || route.id} numaralı rota başarıyla tamamlandı. Tüm sevkiyatlar teslim edildi.`,
-                type: "SUCCESS",
+                message:
+                  failedCount > 0
+                    ? `${route.name || route.id} numaralı rota tamamlandı. ${activeShipmentIds.length} sevkiyat teslim edildi, ${failedCount} sevkiyat teslim edilemedi.`
+                    : `${route.name || route.id} numaralı rota başarıyla tamamlandı. Tüm sevkiyatlar teslim edildi.`,
+                type: failedCount > 0 ? "WARNING" : "SUCCESS",
                 link: `/dashboard/routes/${route.id}`,
               }
             );
@@ -884,12 +1031,12 @@ export const updateRouteStatus = authenticatedAction(
               data: { status: "OFF_DUTY" },
             });
           }
-            if (route.shipments.length > 0) {
+            if (activeShipmentIds.length > 0) {
               await tx.shipment.updateMany({
-                where: { routeId: route.id },
+                where: { id: { in: activeShipmentIds } },
                 data: { status: "PENDING" }, // revert to pending
               });
-              for (const shipment of route.shipments) {
+              for (const shipment of activeShipments) {
                 await tx.shipmentHistory.create({
                   data: {
                     shipmentId: shipment.id,

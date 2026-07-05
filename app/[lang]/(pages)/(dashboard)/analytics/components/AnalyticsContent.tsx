@@ -20,9 +20,19 @@ const ForecastingWidget = dynamic(
   { ssr: false, loading: () => <ChartSkeleton /> }
 );
 import { useAnalyticsData } from "@/app/hooks/useAnalytics";
+import QueryErrorState from "@/app/components/ui/QueryErrorState";
 
 export default function AnalyticsContent() {
-  const { state } = useAnalyticsData();
+  const { state, actions } = useAnalyticsData();
+
+  if (state.error && !state.data) {
+    return (
+      <Box position={"relative"} p={{ xs: 2, md: 4 }} width={"100%"}>
+        <AnalyticsHeader />
+        <QueryErrorState onRetry={() => actions.fetchAnalytics()} />
+      </Box>
+    );
+  }
 
   if (state.loading && !state.data) {
     return (

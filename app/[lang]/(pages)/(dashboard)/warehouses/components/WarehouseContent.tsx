@@ -29,6 +29,7 @@ import {
   Category,
 } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
+import QueryErrorState from "@/app/components/ui/QueryErrorState";
 
 export default function WarehouseContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -60,6 +61,7 @@ export default function WarehouseContent() {
     data: dashboardData,
     isLoading,
     isFetching,
+    isError,
     refetch,
   } = useWarehousesWithDashboard(pagination.page, pagination.pageSize);
 
@@ -167,7 +169,7 @@ export default function WarehouseContent() {
       >
         <Box>
           <Typography
-            variant="h4"
+            variant="h4" component="h1"
             sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {dict.warehouses.title}
@@ -192,6 +194,9 @@ export default function WarehouseContent() {
       </Box>
 
       <Stack mt={2} data-tour="warehouse-table">
+        {isError ? (
+          <QueryErrorState onRetry={() => refetch()} />
+        ) : (
         <WarehouseListTable
           warehouses={warehouses}
           loading={isFetching}
@@ -209,6 +214,7 @@ export default function WarehouseContent() {
             setPagination({ page: 1, pageSize: pageSize })
           }
         />
+        )}
       </Stack>
 
       <Stack direction={{ xs: "column", xl: "row" }} spacing={4} sx={{ mt: 2 }}>

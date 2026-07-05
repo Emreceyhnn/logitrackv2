@@ -22,6 +22,20 @@
     "apply": "Uygula",
     "reset": "Sıfırla",
     "clearAll": "Tümünü Temizle",
+    "errorState": {
+      "title": "Veriler yüklenemedi",
+      "description": "Sunucuya ulaşılamadı ya da beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.",
+      "retry": "Tekrar Dene"
+    },
+    "actionFailed": "İşlem başarısız oldu. Lütfen tekrar deneyin.",
+    "skipToContent": "İçeriğe atla",
+    "notFound": {
+      "title": "Sayfa Bulunamadı",
+      "description": "Aradığınız sayfa mevcut değil ya da taşınmış olabilir.",
+      "goBack": "Geri Dön",
+      "returnHome": "Ana Sayfaya Dön"
+    },
+    "clearFilters": "Filtreleri Temizle",
     "tooltips": {
       "actions": "İşlemler",
       "edit": "Düzenle",
@@ -409,6 +423,24 @@
   "landing": {
     "metaTitle": "LogiTrack – AI Lojistik Yönetim Platformu",
     "metaDescription": "Her sevkiyatı canlı zeka ile yönetin. Sevkiyatı, filoları ve müşteri sözlerini tek bir etkileyici panelde senkronize edin.",
+    "pageMeta": {
+      "pricing": {
+        "title": "Fiyatlandırma",
+        "description": "Şeffaf ve esnek kurumsal lojistik fiyat planlarını keşfedin."
+      },
+      "features": {
+        "title": "Özellikler",
+        "description": "LogiTrack'in kurumsal lojistik özelliklerini ve yeteneklerini keşfedin."
+      },
+      "about": {
+        "title": "Hakkımızda",
+        "description": "LogiTrack'in arkasındaki misyonu ve vizyonu keşfedin."
+      },
+      "howItWorks": {
+        "title": "Nasıl Çalışır",
+        "description": "LogiTrack'in uçtan uca lojistik operasyonlarını nasıl yönettiğini görün."
+      }
+    },
     "hero": {
       "badge": "Yapay zeka lojistik kontrol kulesi",
       "trusted": "Dünya çapında güveniliyor",
@@ -2179,6 +2211,8 @@
       "ASSIGNED": "Atandı",
       "IN_TRANSIT": "Yolda",
       "DELIVERED": "Teslim Edildi",
+      "FAILED": "Teslimat Başarısız",
+      "RETURNED": "İade Edildi",
       "DELAYED": "Gecikmiş",
       "CANCELLED": "İptal Edildi"
     },

@@ -3,6 +3,7 @@
  */
 
 import type { Metadata } from "next";
+import { getDictionary } from "@/app/lib/language/language";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -14,11 +15,18 @@ import { getWarehousesWithDashboardData } from "@/app/lib/controllers/warehouse"
 import { warehouseKeys } from "@/app/lib/query-keys/warehouse.keys";
 import WarehouseContent from "./components/WarehouseContent";
 
-export const metadata: Metadata = {
-  title: "Warehouses | LogiTrack",
-  description:
-    "Manage warehouse locations, capacity, inventory levels and storage utilisation.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.warehouses.title,
+    description: dict.warehouses.subtitle,
+  };
+}
 
 function WarehousePageSkeleton() {
   return (

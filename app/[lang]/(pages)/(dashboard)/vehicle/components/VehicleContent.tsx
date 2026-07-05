@@ -22,6 +22,8 @@ import {
 
 // Components
 import KpiCards from "@/app/components/cards/KpiCards";
+import QueryErrorState from "@/app/components/ui/QueryErrorState";
+import { toast } from "sonner";
 import VehicleTable from "@/app/components/dashboard/vehicle/vehicleTable";
 import DocumentCalenderCard from "@/app/components/dashboard/vehicle/documentCalenderCard";
 import dynamic from "next/dynamic";
@@ -95,6 +97,7 @@ export default function VehicleContent() {
     data: dashboardData,
     isLoading: isVehiclesLoading,
     isFetching: isVehiclesFetching,
+    isError: isVehiclesError,
     refetch: refetchVehicleWithDashboard,
   } = useVehicleWithDashboard(state.filters);
 
@@ -102,6 +105,8 @@ export default function VehicleContent() {
     data: trailerData,
     isLoading: isTrailersLoading,
     isFetching: isTrailersFetching,
+    isError: isTrailersError,
+    refetch: refetchTrailers,
   } = useTrailers(trailerFilters);
 
   const trailers = trailerData?.trailers || [];
@@ -205,6 +210,7 @@ export default function VehicleContent() {
         }
       } catch (error) {
         console.error("Failed to delete vehicle:", error);
+        toast.error(dict.common.actionFailed);
       }
     } else if (activeTab === 1 && actionTrailer) {
       try {
@@ -212,6 +218,7 @@ export default function VehicleContent() {
         setDeleteDialogOpen(false);
       } catch (error) {
         console.error("Failed to delete trailer:", error);
+        toast.error(dict.common.actionFailed);
       }
     }
   };
@@ -241,6 +248,7 @@ export default function VehicleContent() {
       await detachTrailerMut.mutateAsync({ trailerId: trailer.id, vehicleId: null });
     } catch (error) {
       console.error("Failed to detach trailer:", error);
+      toast.error(dict.common.actionFailed);
     }
   };
 
@@ -350,7 +358,7 @@ export default function VehicleContent() {
       >
         <Box>
           <Typography
-            variant="h4"
+            variant="h4" component="h1"
             sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {activeTab === 0 ? dict.vehicles.title : dict.trailers.title}
@@ -434,7 +442,11 @@ export default function VehicleContent() {
 
       {/* Content based on Tab */}
       <Stack mt={2} data-tour="vehicle-table">
-        {activeTab === 0 ? (
+        {activeTab === 0 && isVehiclesError ? (
+          <QueryErrorState onRetry={() => refetchVehicleWithDashboard()} />
+        ) : activeTab === 1 && isTrailersError ? (
+          <QueryErrorState onRetry={() => refetchTrailers()} />
+        ) : activeTab === 0 ? (
           <VehicleTable
             state={
               {

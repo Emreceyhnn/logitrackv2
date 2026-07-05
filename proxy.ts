@@ -219,13 +219,11 @@ export default async function proxy(request: NextRequest) {
   }
 
   // ── 5. Root Path Redirect ───────────────────────────────────────────────────
-  if (currentPath === "/") {
+  // Authenticated users skip the marketing page; anonymous visitors (and
+  // crawlers) must reach the landing page, so no redirect for them.
+  if (currentPath === "/" && isTokenValid) {
     const url = request.nextUrl.clone();
-    if (isTokenValid) {
-      url.pathname = buildLocalizedHref(DEFAULT_REDIRECT_AFTER_LOGIN, locale);
-    } else {
-      url.pathname = buildLocalizedHref(SIGN_IN_ROUTE, locale);
-    }
+    url.pathname = buildLocalizedHref(DEFAULT_REDIRECT_AFTER_LOGIN, locale);
     return NextResponse.redirect(url);
   }
 

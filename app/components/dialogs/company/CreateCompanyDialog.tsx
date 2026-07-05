@@ -179,7 +179,7 @@ export default function CreateCompanyDialog({
                       color: theme.palette.error.main,
                     },
                   }}
-                >
+                 aria-label="close">
                   <CloseIcon fontSize="small" />
                 </IconButton>
               </Stack>

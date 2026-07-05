@@ -199,7 +199,7 @@ const AddCustomerDialog = ({
                         color: "white",
                       },
                     }}
-                  >
+                   aria-label="close">
                     <CloseIcon fontSize="small" />
                   </IconButton>
                 </Stack>

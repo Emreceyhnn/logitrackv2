@@ -22,6 +22,7 @@
  */
 
 import type { Metadata } from "next";
+import { getDictionary } from "@/app/lib/language/language";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -33,11 +34,18 @@ import { getDriverWithDashboardData } from "@/app/lib/controllers/driver";
 import { driverKeys } from "@/app/lib/query-keys/driver.keys";
 import DriverContent from "./components/DriverContent";
 
-export const metadata: Metadata = {
-  title: "Drivers | LogiTrack",
-  description:
-    "Manage your driver roster — view assignments, performance scores, license status and activity.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.drivers.title,
+    description: dict.drivers.subtitle,
+  };
+}
 
 function DriverPageSkeleton() {
   return (

@@ -238,6 +238,7 @@ const AddDriverDialog = ({
                   </Stack>
                   <IconButton
                     onClick={() => onClose()}
+                    aria-label="close"
                     size="small"
                     sx={{ color: "text.secondary" }}
                   >

@@ -4,6 +4,7 @@ import { Box, Card, Skeleton, Stack, useTheme } from "@mui/material";
 
 import { motion } from "framer-motion";
 import StatCard from "../cards/StatCard";
+import { useLanguage } from "@/app/lib/language/DictionaryContext";
 
 interface KpiItem {
   label: string;
@@ -20,6 +21,7 @@ interface KpiCardsProps {
 
 export default function KpiCards({ kpis, loading }: KpiCardsProps) {
   const theme = useTheme();
+  const { lang } = useLanguage();
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -34,7 +36,10 @@ export default function KpiCards({ kpis, loading }: KpiCardsProps) {
     <Box
       component={motion.div}
       variants={container}
-      initial="hidden"
+      // initial={false}: with initial="hidden" the server-rendered HTML ships
+      // at opacity 0 and the cards stay invisible until framer-motion
+      // hydrates — a blank KPI zone on first paint.
+      initial={false}
       animate="show"
       sx={{
         display: "flex",
@@ -68,7 +73,7 @@ export default function KpiCards({ kpis, loading }: KpiCardsProps) {
           {!loading ? (
             <StatCard
               title={kpi.label}
-              value={kpi.value.toLocaleString("en-US")}
+              value={kpi.value.toLocaleString(lang === "tr" ? "tr-TR" : "en-US")}
               icon={kpi.icon}
               color={kpi.color}
               trend={kpi.trend}

@@ -93,7 +93,7 @@ export default function LogoutConfirmationDialog({
               },
             }}
             disabled={loading}
-          >
+           aria-label="close">
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>

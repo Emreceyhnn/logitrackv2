@@ -399,6 +399,9 @@ export const palettes = {
     },
     success: {
       main: "#065f46",
+      // Light emerald for text on dark surfaces — #065f46 on the dark
+      // background is ~2:1 and fails WCAG AA (4.5:1).
+      light: "#34D399",
       _alpha: {
         main_02: "#065f4605",
         main_05: "#065f460D",
@@ -409,6 +412,7 @@ export const palettes = {
     },
     warning: {
       main: "#f59e0b",
+      light: "#fbbf24",
       _alpha: {
         main_03: "#f59e0b08",
         main_05: "#f59e0b0D",
@@ -418,6 +422,7 @@ export const palettes = {
     },
     info: {
       main: "#0ea5e9",
+      light: "#38bdf8",
       _alpha: {
         main_03: "#0ea5e908",
         main_10: "#0ea5e91A",

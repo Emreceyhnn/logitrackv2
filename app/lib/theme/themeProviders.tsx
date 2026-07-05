@@ -1,14 +1,9 @@
 "use client";
 
-import dayjs from "dayjs";
-import trLocale from "dayjs/locale/tr";
-import enLocale from "dayjs/locale/en";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-
-// Prevent Next.js tree-shaking
-dayjs.locale("tr", trLocale);
-dayjs.locale("en", enLocale);
+// Centralised dayjs setup (locales + plugins + English `formats` patch).
+// The configured singleton is re-exported so `dayjs.tz.setDefault` below uses
+// the same instance every picker in the tree relies on.
+import dayjs from "@/app/lib/utils/dayjsConfig";
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -20,9 +15,6 @@ import { Toaster } from "@/app/components/toast";
 import { useParams } from "next/navigation";
 import { saveUserTheme } from "@/app/lib/actions/theme";
 import { useOptionalUserContext } from "../context/UserContext";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 const THEME_STORAGE_KEY = "logitrack-theme-mode";
 const VALID_MODES = ["light", "dark", "system"] as const;

@@ -148,6 +148,7 @@ export default function LoginForm() {
               <Box mb={2}>
                 <Typography
                   variant="h5"
+                  component="h1"
                   sx={{ color: "#fff", fontWeight: 600, mb: 1 }}
                 >
                   {dict.auth.welcome}
@@ -165,6 +166,7 @@ export default function LoginForm() {
                     {...field}
                     type="email"
                     placeholder={dict.auth.email}
+                    inputProps={{ "aria-label": dict.auth.email }}
                     fullWidth
                     error={meta.touched && Boolean(meta.error)}
                     helperText={meta.touched && meta.error}
@@ -178,6 +180,7 @@ export default function LoginForm() {
                     {...field}
                     type={showPassword ? "text" : "password"}
                     placeholder={dict.auth.password}
+                    inputProps={{ "aria-label": dict.auth.password }}
                     fullWidth
                     error={meta.touched && Boolean(meta.error)}
                     helperText={meta.touched && meta.error}
@@ -186,6 +189,9 @@ export default function LoginForm() {
                         <InputAdornment position="end">
                           <IconButton
                             onClick={handleShowPassword}
+                            aria-label={
+                              showPassword ? "hide password" : "show password"
+                            }
                             sx={{ color: "rgba(255, 255, 255, 0.5)" }}
                           >
                             {showPassword ? (

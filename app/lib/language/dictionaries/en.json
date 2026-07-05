@@ -22,6 +22,20 @@
     "apply": "Apply",
     "reset": "Reset",
     "clearAll": "Clear All",
+    "errorState": {
+      "title": "Failed to load data",
+      "description": "The server could not be reached or an unexpected error occurred. Please try again.",
+      "retry": "Try Again"
+    },
+    "actionFailed": "The action failed. Please try again.",
+    "skipToContent": "Skip to content",
+    "notFound": {
+      "title": "Page Not Found",
+      "description": "The page you are looking for doesn't exist or has been moved.",
+      "goBack": "Go Back",
+      "returnHome": "Return Home"
+    },
+    "clearFilters": "Clear Filters",
     "tooltips": {
       "actions": "Actions",
       "edit": "Edit",
@@ -409,6 +423,24 @@
   "landing": {
     "metaTitle": "LogiTrack – AI Logistics Management Platform",
     "metaDescription": "Orchestrate every shipment with live intelligence. Synchronize dispatch, fleets, and customer promises in one immersive dashboard.",
+    "pageMeta": {
+      "pricing": {
+        "title": "Pricing",
+        "description": "Explore transparent, flexible enterprise logistics pricing plans."
+      },
+      "features": {
+        "title": "Features",
+        "description": "Explore the enterprise logistics features and capabilities of LogiTrack."
+      },
+      "about": {
+        "title": "About Us",
+        "description": "Learn more about the mission and vision behind LogiTrack."
+      },
+      "howItWorks": {
+        "title": "How It Works",
+        "description": "See how LogiTrack orchestrates end-to-end logistics operations."
+      }
+    },
     "hero": {
       "badge": "AI logistics control tower",
       "trusted": "Trusted worldwide",
@@ -2178,6 +2210,8 @@
       "ASSIGNED": "Assigned",
       "IN_TRANSIT": "In Transit",
       "DELIVERED": "Delivered",
+      "FAILED": "Delivery Failed",
+      "RETURNED": "Returned",
       "DELAYED": "Delayed",
       "CANCELLED": "Cancelled"
     },

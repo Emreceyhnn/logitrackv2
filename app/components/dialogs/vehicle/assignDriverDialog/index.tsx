@@ -156,7 +156,7 @@ export default function AssignDriverDialog({
             onClick={onClose}
             size="small"
             sx={{ color: "text.secondary" }}
-          >
+           aria-label="close">
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>

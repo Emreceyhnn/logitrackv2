@@ -20,6 +20,16 @@ interface PolylinePoint {
   name: string;
 }
 
+/** Escape a value before interpolating it into a raw HTML attribute string. */
+function escapeHtmlAttr(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 interface MapWithPolylineProps {
   Polylines: PolylinePoint[];
   routePolyline?: [number, number][] | null;
@@ -105,9 +115,11 @@ function MapWithPolyline({
             <Marker
               key={index}
               position={[marker.lat, marker.lon]}
+              title={marker.name}
+              alt={marker.name}
               icon={L.divIcon({
                 html: `
-                  <div style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; color: ${iconColor}; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                  <div role="img" aria-label="${escapeHtmlAttr(marker.name)}" style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; color: ${iconColor}; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
                     ${iconHtml}
                   </div>
                 `,
@@ -141,9 +153,11 @@ function MapWithPolyline({
         {vehicleLocation && (
           <Marker
             position={[vehicleLocation.lat, vehicleLocation.lng]}
+            title={vehicleLocation.name}
+            alt={vehicleLocation.name}
             icon={L.divIcon({
               html: `
-                <div style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; color: #3b82f6; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                <div role="img" aria-label="${escapeHtmlAttr(vehicleLocation.name)}" style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; color: #3b82f6; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
                   ${renderToString(<LocalShippingIcon style={{ width: "32px", height: "32px", color: "#3b82f6", fill: "currentColor" }} />)}
                 </div>
               `,

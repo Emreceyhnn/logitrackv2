@@ -384,7 +384,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
                     onClick={closeDialog}
                     size="small"
                     sx={{ color: "text.secondary" }}
-                  >
+                   aria-label="close">
                     <CloseIcon fontSize="small" />
                   </IconButton>
                 </Stack>

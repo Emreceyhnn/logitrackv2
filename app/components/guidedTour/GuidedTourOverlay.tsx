@@ -340,7 +340,7 @@ export default function GuidedTourOverlay() {
           >
             {stepNumber} / {totalSteps}
           </Box>
-          <IconButton size="small" onClick={closeTour} sx={{ mt: -0.5, mr: -0.5 }}>
+          <IconButton size="small" onClick={closeTour} sx={{ mt: -0.5, mr: -0.5 }} aria-label="close">
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>

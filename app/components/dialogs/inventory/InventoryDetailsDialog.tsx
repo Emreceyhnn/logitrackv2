@@ -317,7 +317,7 @@ export default function InventoryDetailsDialog({
                 <EditIcon fontSize="small" />
               </IconButton>
             )}
-            <IconButton onClick={onClose} sx={{ color: "text.secondary" }}>
+            <IconButton onClick={onClose} sx={{ color: "text.secondary" }} aria-label="close">
               <CloseIcon fontSize="small" />
             </IconButton>
           </Stack>

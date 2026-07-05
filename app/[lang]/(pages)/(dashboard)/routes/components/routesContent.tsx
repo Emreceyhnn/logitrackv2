@@ -23,6 +23,8 @@ import { useUser } from "@/app/hooks/useUser";
 import AddRouteDialog from "@/app/components/dialogs/routes/addRouteDialog";
 import { AltRoute, Loop, CheckCircle, Warning } from "@mui/icons-material";
 import KpiCards from "@/app/components/cards/KpiCards";
+import QueryErrorState from "@/app/components/ui/QueryErrorState";
+import { toast } from "sonner";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 export default function RoutesContent() {
@@ -49,6 +51,7 @@ export default function RoutesContent() {
     data: dashboardData,
     isLoading,
     isFetching,
+    isError,
     refetch,
   } = useRoutesWithDashboard(
     pagination.page,
@@ -110,6 +113,7 @@ export default function RoutesContent() {
       setDeleteOpen(false);
     } catch (error) {
       console.error("Failed to delete route:", error);
+      toast.error(dict.common.actionFailed);
     }
   };
 
@@ -158,7 +162,7 @@ export default function RoutesContent() {
       >
         <Box>
           <Typography
-            variant="h4"
+            variant="h4" component="h1"
             sx={{ fontWeight: 800, color: "text.primary", letterSpacing: -0.5 }}
           >
             {dict.routes.title}
@@ -187,6 +191,9 @@ export default function RoutesContent() {
         />
       </Stack>
       <Stack mt={2} data-tour="route-table">
+        {isError ? (
+          <QueryErrorState onRetry={() => refetch()} />
+        ) : (
         <RouteTable
           routes={routes}
           loading={isFetching}
@@ -203,6 +210,7 @@ export default function RoutesContent() {
           filters={{ status: filters.status, search: filters.search }}
           onFilterChange={actions.updateFilters}
         />
+        )}
       </Stack>
 
       <EditRouteDialog

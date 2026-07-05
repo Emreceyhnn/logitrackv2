@@ -3,6 +3,7 @@
  */
 
 import type { Metadata } from "next";
+import { getDictionary } from "@/app/lib/language/language";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -14,11 +15,18 @@ import { getReportsDataAction } from "@/app/lib/controllers/reports";
 import { reportsKeys } from "@/app/lib/query-keys/reports.keys";
 import ReportsContent from "./components/ReportsContent";
 
-export const metadata: Metadata = {
-  title: "Reports | LogiTrack",
-  description:
-    "Generate logistics reports — shipment summaries, on-time performance, cost analysis and trend exports.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.reports.title,
+    description: dict.reports.subtitle,
+  };
+}
 
 function ReportsPageSkeleton() {
   return (

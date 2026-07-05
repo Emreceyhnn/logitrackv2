@@ -31,7 +31,11 @@ export const StatusChip = ({ status }: { status: string }) => {
     ? colorObj?._alpha?.main_10 || `${meta.color}1A`
     : colorObj?._alpha?.main_20 || `${meta.color}33`;
 
-  const textColor = colorObj?.main || meta.color;
+  // Dark surfaces need the light variant — palette mains like success
+  // (#065f46) sit below 4.5:1 against the dark background.
+  const textColor = isLight
+    ? colorObj?.main || meta.color
+    : colorObj?.light || colorObj?.main || meta.color;
 
   const borderColor = isLight
     ? colorObj?._alpha?.main_20 || `${meta.color}33`

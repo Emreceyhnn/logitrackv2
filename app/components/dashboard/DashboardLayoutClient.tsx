@@ -6,6 +6,7 @@ import DashboardHeader from "@/app/components/dashboard/DashboardHeader";
 import { useUserContext } from "@/app/lib/context/UserContext";
 import { GuidedTourProvider } from "@/app/lib/context/GuidedTourContext";
 import GuidedTourOverlay from "@/app/components/guidedTour/GuidedTourOverlay";
+import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface DashboardLayoutClientProps {
   children: React.ReactNode;
@@ -16,9 +17,13 @@ export default function DashboardLayoutClient({
 }: DashboardLayoutClientProps) {
   const theme = useTheme();
   const { user } = useUserContext();
+  const dict = useDictionary();
 
   return (
     <GuidedTourProvider>
+      <a href="#main-content" className="skip-link">
+        {dict.common.skipToContent}
+      </a>
       <Box
         display="flex"
         sx={{
@@ -40,6 +45,7 @@ export default function DashboardLayoutClient({
         </Box>
         <Box
           component="main"
+          id="main-content"
           sx={{
             flexGrow: 1,
             width: { xs: "100%", md: "calc(100% - 240px)" },

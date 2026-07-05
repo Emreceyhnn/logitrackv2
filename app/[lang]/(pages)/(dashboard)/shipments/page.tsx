@@ -22,6 +22,7 @@
  */
 
 import type { Metadata } from "next";
+import { getDictionary } from "@/app/lib/language/language";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -33,11 +34,18 @@ import { getShipmentsWithDashboardData } from "@/app/lib/controllers/shipments";
 import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
 import ShipmentContent from "./components/shipmentsContent";
 
-export const metadata: Metadata = {
-  title: "Shipments | LogiTrack",
-  description:
-    "Manage and track all shipments — filter by status, search by tracking code, and monitor delivery performance.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.shipments.title,
+    description: dict.shipments.subtitle,
+  };
+}
 
 function ShipmentPageSkeleton() {
   return (

@@ -217,7 +217,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
                 color: "text.secondary",
                 ml: 1,
               }}
-            >
+             aria-label="close">
               <CloseIcon fontSize="small" />
             </IconButton>
           </Stack>

@@ -419,7 +419,7 @@ const EditShipmentDialog = ({
                     <IconButton
                       onClick={closeDialog}
                       sx={{ color: "text.secondary" }}
-                    >
+                     aria-label="close">
                       <CloseIcon />
                     </IconButton>
                   </Stack>

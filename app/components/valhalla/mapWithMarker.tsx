@@ -16,6 +16,16 @@ interface Markers {
   name: string;
 }
 
+/** Escape a value before interpolating it into a raw HTML attribute string. */
+function escapeHtmlAttr(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 interface MapWithMarkerProps {
   markers: Markers[];
   center?: [number, number];
@@ -149,9 +159,15 @@ function MapWithMarkers({ markers, center, zoom, onMarkerClick }: MapWithMarkerP
             <Marker
               key={index}
               position={[marker.lat, marker.len]}
+              // Leaflet renders each marker as a keyboard-focusable role="button";
+              // `title` + the aria-label on the html root give it an accessible
+              // name so screen-reader / keyboard users aren't tabbing through
+              // dozens of nameless "button"s.
+              title={marker.name}
+              alt={marker.name}
               icon={L.divIcon({
                 html: `
-                  <div style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; color: ${iconColor}; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                  <div role="img" aria-label="${escapeHtmlAttr(marker.name)}" style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px; color: ${iconColor}; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
                     ${iconHtml}
                   </div>
                 `,

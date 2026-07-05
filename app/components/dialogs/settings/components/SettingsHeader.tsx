@@ -62,7 +62,7 @@ export default function SettingsHeader({ onClose }: HeaderProps) {
               transform: "rotate(90deg)",
             },
           }}
-        >
+         aria-label="close">
           <CloseIcon fontSize="small" />
         </IconButton>
       </Stack>

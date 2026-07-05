@@ -1,6 +1,7 @@
 "use client";
 
 import ActionRequiredCard from "@/app/components/dashboard/overview/actionRequiredCard";
+import QueryErrorState from "@/app/components/ui/QueryErrorState";
 import {
   Box,
   Divider,
@@ -53,7 +54,7 @@ export default function OverviewContent() {
   const dict = useDictionary();
 
   /* ---------------------------------- HOOKS --------------------------------- */
-  const { data, isLoading, refetch } = useOverviewData();
+  const { data, isLoading, isError, refetch } = useOverviewData();
   const dateSettings = useDateSettings();
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
@@ -157,6 +158,7 @@ export default function OverviewContent() {
       >
         <Typography
           data-tour="overview-title"
+          component="h1"
           sx={{
             fontSize: 24,
             fontWeight: 600,
@@ -197,9 +199,11 @@ export default function OverviewContent() {
         <KpiCards kpis={kpiItems} loading={isLoading} />
       </Box>
 
+      {isError && <QueryErrorState onRetry={handleRefresh} />}
+
       <Box
         sx={{
-          display: "grid",
+          display: isError ? "none" : "grid",
           gridTemplateColumns: {
             xs: "1fr",
             md: "repeat(3, 1fr)",

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getDictionary } from "@/app/lib/language/language";
 import { Suspense } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import {
@@ -10,11 +11,18 @@ import { getAnalyticsDashboardData } from "@/app/lib/controllers/analytics";
 import { analyticsKeys } from "@/app/lib/query-keys/analytics.keys";
 import AnalyticsContent from "./components/AnalyticsContent";
 
-export const metadata: Metadata = {
-  title: "Analytics | LogiTrack",
-  description:
-    "Deep-dive analytics — on-time rates, cost trends, fleet utilisation and operational KPIs.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.analytics.title,
+    description: dict.analytics.subtitle,
+  };
+}
 
 function AnalyticsPageSkeleton() {
   return (

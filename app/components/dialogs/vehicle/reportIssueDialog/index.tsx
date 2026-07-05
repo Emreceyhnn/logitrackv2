@@ -199,7 +199,7 @@ const ReportIssueDialog = ({
               </Typography>
             </Box>
           </Stack>
-          <IconButton onClick={handleClose} size="small" sx={{ color: "text.secondary" }}>
+          <IconButton onClick={handleClose} size="small" sx={{ color: "text.secondary" }} aria-label="close">
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>

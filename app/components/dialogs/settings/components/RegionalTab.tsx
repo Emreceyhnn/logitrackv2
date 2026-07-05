@@ -240,6 +240,7 @@ export default function RegionalTab({ state, actions }: RegionalTabProps) {
                 <MenuItem value="DD/MM/YYYY">
                   {dict.settings.dialogs.regional.dateFormats.international}
                 </MenuItem>
+                <MenuItem value="DD.MM.YYYY">DD.MM.YYYY</MenuItem>
                 <MenuItem value="YYYY-MM-DD">ISO-8601 (YYYY-MM-DD)</MenuItem>
               </Select>
             </FormControl>

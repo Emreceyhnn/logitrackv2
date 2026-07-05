@@ -190,7 +190,7 @@ const AddInventoryDialog = ({
               </Typography>
             </Stack>
           </Stack>
-          <IconButton onClick={closeDialog} sx={{ color: "text.secondary" }}>
+          <IconButton onClick={closeDialog} sx={{ color: "text.secondary" }} aria-label="close">
             <CloseIcon />
           </IconButton>
         </Stack>

@@ -1,16 +1,6 @@
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import trLocale from "dayjs/locale/tr";
-import enLocale from "dayjs/locale/en";
-
-dayjs.locale("tr", trLocale);
-dayjs.locale("en", enLocale);
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(customParseFormat);
+// Centralised dayjs setup (locales + utc/timezone/customParseFormat/
+// localizedFormat plugins + English `formats` patch).
+import dayjs from "@/app/lib/utils/dayjsConfig";
 
 export interface DateSettings {
   timezone: string;

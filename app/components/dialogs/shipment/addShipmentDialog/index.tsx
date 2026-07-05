@@ -40,6 +40,7 @@ import InventorySection from "./sections/InventorySection";
 import StopsSection from "./sections/StopsSection";
 
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import DialogErrorBoundary from "@/app/components/ui/DialogErrorBoundary";
 
 import { getTrailers } from "@/app/lib/controllers/trailer";
 import { TrailerWithRelations } from "@/app/lib/type/trailer";
@@ -322,7 +323,7 @@ const AddShipmentDialog = ({
                     <IconButton
                       onClick={closeDialog}
                       sx={{ color: "text.secondary" }}
-                    >
+                     aria-label="close">
                       <CloseIcon />
                     </IconButton>
                   </Stack>
@@ -382,6 +383,7 @@ const AddShipmentDialog = ({
                       minHeight: 0,
                     }}
                   >
+                    <DialogErrorBoundary>
                     {currentStep === 1 ? (
                       <Stack
                         spacing={3}
@@ -439,6 +441,7 @@ const AddShipmentDialog = ({
                         />
                       </Stack>
                     )}
+                    </DialogErrorBoundary>
                   </Form>
                 </DialogContent>
 

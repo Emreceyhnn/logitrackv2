@@ -9,6 +9,7 @@ import { rejects } from "node:assert";
 const dbMock = {
   shipment: {
     findUnique: mock.fn(),
+    findUniqueOrThrow: mock.fn(),
     create: mock.fn(),
     findMany: mock.fn(),
     count: mock.fn(),
@@ -195,6 +196,7 @@ describe("Shipments Controller", () => {
       dbMock.shipment.findUnique.mock.resetCalls();
       dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
         companyId: "company-1",
+        status: "ASSIGNED",
       }));
       dbMock.shipment.update.mock.mockImplementation(async (args: any) => ({
         id: "shipment-1",
@@ -297,6 +299,12 @@ describe("Shipments Controller", () => {
     });
 
     it("should_SendSuccessNotification_WhenStatusIsDelivered", async () => {
+      // Arrange: DELIVERED is only reachable from IN_TRANSIT / DELAYED
+      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+        companyId: "company-1",
+        status: "IN_TRANSIT",
+      }));
+
       // Act
       await shipmentsController.updateShipmentStatus(
         mockUser,
@@ -326,6 +334,10 @@ describe("Shipments Controller", () => {
 
     it("should_RethrowError_WhenDbUpdateFails", async () => {
       // Arrange
+      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+        companyId: "company-1",
+        status: "IN_TRANSIT",
+      }));
       dbMock.shipment.update.mock.mockImplementation(async () => {
         throw new Error("DB write failed");
       });
@@ -337,6 +349,59 @@ describe("Shipments Controller", () => {
       ).rejects.toThrow("DB write failed");
       expect(notificationsMock.sendNotificationAction.mock.calls.length).toBe(0);
       consoleMock.mock.restore();
+    });
+
+    it("should_RejectIllegalTransition_WhenShipmentIsDelivered", async () => {
+      // Arrange: a delivered shipment is terminal — no move back to IN_TRANSIT
+      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+        companyId: "company-1",
+        status: "DELIVERED",
+      }));
+      const consoleMock = mock.method(console, "error", () => {});
+
+      // Act & Assert
+      await expect(
+        shipmentsController.updateShipmentStatus(mockUser, "shipment-1", "IN_TRANSIT")
+      ).rejects.toThrow("Invalid shipment status transition");
+      expect(dbMock.shipment.update.mock.calls.length).toBe(0);
+      consoleMock.mock.restore();
+    });
+
+    it("should_RequireReason_WhenStatusIsFailed", async () => {
+      // Arrange: FAILED is reachable from IN_TRANSIT but needs a reason
+      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+        companyId: "company-1",
+        status: "IN_TRANSIT",
+      }));
+      const consoleMock = mock.method(console, "error", () => {});
+
+      // Act & Assert: no description provided → rejected
+      await expect(
+        shipmentsController.updateShipmentStatus(mockUser, "shipment-1", "FAILED")
+      ).rejects.toThrow("failure reason");
+      expect(dbMock.shipment.update.mock.calls.length).toBe(0);
+      consoleMock.mock.restore();
+    });
+
+    it("should_MarkFailed_WhenReasonProvided", async () => {
+      // Arrange
+      dbMock.shipment.findUnique.mock.mockImplementation(async () => ({
+        companyId: "company-1",
+        status: "IN_TRANSIT",
+      }));
+
+      // Act
+      const result = await shipmentsController.updateShipmentStatus(
+        mockUser,
+        "shipment-1",
+        "FAILED",
+        "Customer address closed",
+        "Recipient not available at delivery window"
+      );
+
+      // Assert
+      expect(result.status).toBe("FAILED");
+      expect(dbMock.shipment.update.mock.calls.length).toBe(1);
     });
   });
 

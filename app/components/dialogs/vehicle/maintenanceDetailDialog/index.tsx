@@ -266,7 +266,7 @@ export default function MaintenanceDetailDialog({
             onClick={onClose}
             size="small"
             sx={{ color: "text.secondary" }}
-          >
+           aria-label="close">
             <CloseIcon fontSize="small" />
           </IconButton>
         </Stack>
