@@ -140,16 +140,24 @@ const globalForPrisma = globalThis as typeof globalThis & {
 /**
  * Single shared pg connection pool. Cached on `globalThis` so that Next.js
  * hot-reloads in development do not leak a new pool (and its sockets) on every
- * module re-evaluation. Fails fast with a clear message when the connection
- * string is missing instead of surfacing an opaque error on the first query.
+ * module re-evaluation.
+ *
+ * At runtime a missing DATABASE_URL is a hard error (fail fast with a clear
+ * message rather than an opaque error on the first query). During `next build`
+ * the module graph is evaluated for static analysis without a live database and
+ * pg connects lazily, so we must NOT throw there or we would break SSG/build.
  */
 function getPool(): Pool {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is not set — cannot initialise the database pool");
+  const connectionString = process.env.DATABASE_URL;
+  if (
+    !connectionString &&
+    process.env.NEXT_PHASE !== "phase-production-build"
+  ) {
+    throw new Error(
+      "DATABASE_URL is not set — cannot initialise the database pool"
+    );
   }
-  const pool =
-    globalForPrisma.pgPool ??
-    new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = globalForPrisma.pgPool ?? new Pool({ connectionString });
   if (process.env.NODE_ENV !== "production") globalForPrisma.pgPool = pool;
   return pool;
 }

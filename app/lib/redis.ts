@@ -1,30 +1,44 @@
 import { Redis } from "@upstash/redis";
 import { createCacheKeys } from "./controllers/utils/cacheFactory";
 
-// CI/CD (GitHub Actions vb.) ortamlarında eğer şifreler yüklenemezse sistemi fail-fast (anında çökert) ile durduruyoruz.
-// Böylece 50 saniyelik anlamsız timeout'lar yerine hatanın ne olduğunu saniyesinde görüyoruz.
-if (process.env.CI && !process.env.KV_REST_API_URL) {
+const redisUrl =
+  process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const redisToken =
+  process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+// Redis'in mutlaka yapılandırılmış olması gereken ortamlarda (CI ve production)
+// eksik şifreleri fail-fast ile yakalıyoruz. Aksi halde CI'da 50 saniyelik
+// anlamsız timeout'lar, production'da ise HER istekte sessiz cache-miss yaşanır
+// (try/catch bunları yutar) — ikisi de boot anında net bir hatadan çok daha kötü.
+// "dummy" fallback'i bilinçli olarak yalnızca lokal dev/test için bırakıyoruz;
+// oralarda Redis çoğu zaman ayarlı olmaz.
+const redisRequired =
+  Boolean(process.env.CI) || process.env.NODE_ENV === "production";
+if (redisRequired && (!redisUrl || !redisToken)) {
   throw new Error(
-    "🚨 CRITICAL CI ERROR: 'KV_REST_API_URL' bulunamadı! GitHub 'ENV_FILE' secret'ınız BOŞ geliyor veya hatalı tanımlanmış."
+    "🚨 Redis yapılandırması eksik: 'KV_REST_API_URL' ve 'KV_REST_API_TOKEN' " +
+      "(veya 'UPSTASH_REDIS_REST_URL' / 'UPSTASH_REDIS_REST_TOKEN') tanımlı değil. " +
+      "CI için 'ENV_FILE' secret'ını, production için ortam değişkenlerini kontrol edin."
   );
 }
 
 export const redis = new Redis({
-  url:
-    process.env.KV_REST_API_URL ||
-    process.env.UPSTASH_REDIS_REST_URL ||
-    "https://dummy.upstash.io",
-  token:
-    process.env.KV_REST_API_TOKEN ||
-    process.env.UPSTASH_REDIS_REST_TOKEN ||
-    "dummy",
+  url: redisUrl || "https://dummy.upstash.io",
+  token: redisToken || "dummy",
 });
 
 export const VEHICLE_CACHE_TTL = 3600;
 export const vehicleCacheKeys = createCacheKeys("vehicles");
 
 export const TRAILER_CACHE_TTL = 3600;
-export const trailerCacheKeys = createCacheKeys("trailers");
+export const trailerCacheKeys = {
+  ...createCacheKeys("trailers"),
+  // Override: trailer list keys carry a "_v2" version bump so a change to the
+  // trailer list payload shape does not serve stale entries cached under the
+  // old key. (companyPattern's wildcard still covers these for invalidation.)
+  list: (companyId: string, filtersHash: string) =>
+    `trailers:${companyId}:list_v2:${filtersHash}`,
+};
 
 export const DRIVER_CACHE_TTL = 3600;
 export const driverCacheKeys = createCacheKeys("drivers");

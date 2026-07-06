@@ -1,0 +1,115 @@
+========================================================================
+ LOGITRACK v2 — PRELAUNCH TEMİZLİK / KALİTE YAPILACAKLAR
+ Oluşturulma: 2026-07-06  |  Mevcut kalite notu: 82/100  |  Hedef: 90+
+ Branch: Product-&-Business-Logic-Validation-(Logistics-Domain)
+ Referans commit: 2ee3728
+========================================================================
+
+Not: Bu oturumda ŞUNLAR ZATEN YAPILDI (commit 2ee3728):
+  [x] Driver regresyonu (geçersiz "AVAILABLE" status) düzeltildi
+  [x] fix-anys.mjs throwaway script silindi
+  [x] 247 kullanılmayan eslint-disable direktifi temizlendi (lint 0/0)
+  [x] db.ts pg Pool globalThis singleton + DATABASE_URL fail-fast
+  [x] redis.ts dosya-ortası import en üste taşındı
+  [x] status.ts statusMap gerçek enum'a hizalandı (Record<DriverStatus,...>)
+
+
+------------------------------------------------------------------------
+ 1) [YÜKSEK ETKİ] YARIM KALMIŞ REFACTOR'Ü BİTİR   (~ +8 puan)
+------------------------------------------------------------------------
+Sorun: İki soyutlama yaratıldı ama benimsenmesi eksik. 38+ dosya hâlâ
+       eski deseni elle tekrarlıyor -> aynı işi yapan iki yol = karışıklık.
+
+  a) controllerGuard adopsiyonu
+     - Şu an sadece ~11 dosya kullanıyor.
+     - Kalan 38 dosya hâlâ: try { ... } catch (error) { console.error(...); throw error; }
+     - HEDEF: tüm kontrolör operasyonlarını controllerGuard("<op>", async () => {...})
+       ile sar.
+     - Eski catch desenini bulmak için:
+         grep -rl "catch (error)" app/lib/controllers --include=*.ts | grep -v test
+
+  b) createCacheManager adopsiyonu
+     - Şu an sadece 2 dosya: customer.ts, driver/shared.ts
+     - Kalan her yer manuel withCache + createCacheKeys + invalidatePattern kullanıyor.
+     - HEDEF: her domain için tek bir cache manager instance (driver/shared.ts örneği gibi).
+
+  YÖNTEM (ÖNEMLİ - launch riski): dosya-dosya / domain-domain yap,
+  HER grup sonrası ilgili testi çalıştır. Toptan değiştirip tek seferde
+  commit etme. Örn önce shipments/, test, sonra routes/, test...
+
+
+------------------------------------------------------------------------
+ 2) HATA MESAJI & DİL STANDARDİZASYONU
+------------------------------------------------------------------------
+  - Kod içi mesajlar karışık: bazı throw new Error(...) İngilizce,
+    bildirim (notification) metinleri Türkçe, yorumlar Türkçe-İngilizce karışık.
+  - HEDEF:
+      * Domain/teknik hatalar -> İngilizce sabit (veya ErrorCode enum).
+      * Kullanıcıya giden her metin -> i18n sözlüğü üzerinden (tr.json/en.json).
+      * Kod yorumları için tek dil seç (öneri: İngilizce) ve tutarlı ol.
+
+
+------------------------------------------------------------------------
+ 3) REDIS PROD FAIL-FAST                                      [x] TAMAMLANDI
+------------------------------------------------------------------------
+  Dosya: app/lib/redis.ts
+  YAPILDI:
+    - redisRequired = CI || NODE_ENV==="production"; bu ortamlarda url VEYA token
+      eksikse fail-fast throw (artık token de kontrol ediliyor, sadece url değil).
+    - "dummy" fallback yalnızca lokal dev/test'e bırakıldı.
+    - BONUS: refactor'ün düşürdüğü trailer cache "list_v2" sürüm-bump'ı geri
+      getirildi (createCacheKeys override) — redis.test 24/24 yeşil.
+
+
+------------------------------------------------------------------------
+ 4) TESTLERİ DOMAIN INVARIANT'LARINA BAĞLA
+------------------------------------------------------------------------
+  Sorun: Testler geçersiz veri (örn status: "AVAILABLE") besleyip gerçek bir
+         bug'ı gizlemişti. Elle yazılan string enum değerleri derleme zamanında
+         yakalanmıyor.
+  HEDEF:
+      * Testlerde enum değerlerini DriverStatus / ShipmentStatus gibi TİPLERDEN
+        türet (elle string yazma). Böylece geçersiz değer derlenmez.
+      * Not: DriverStatus SADECE ON_JOB / OFF_DUTY / ON_LEAVE (default OFF_DUTY).
+        AVAILABLE ve SUSPENDED driver için GEÇERSİZ (bkz. memory: driver-status-enum-invariant).
+
+
+------------------------------------------------------------------------
+ 5) PRISMA MIGRATE / DEPLOY DOĞRULAMASI (pg adapter geçişi)   [x] TAMAMLANDI
+------------------------------------------------------------------------
+  Değişiklik: schema.prisma datasource'tan url kaldırıldı; artık pg driver
+              adapter + prisma.config.ts (env DATABASE_URL) kullanılıyor.
+  DOĞRULANDI:
+    * prisma validate        -> config prisma.config.ts'ten yükleniyor, schema geçerli ✓
+    * prisma generate        -> Prisma Client v7.8.0 üretildi ✓
+    * prisma migrate status  -> Neon DB'ye bağlanıyor, 4 migration, schema güncel ✓
+    * npm run build          -> exit 0 (prisma generate && eslint && next build) ✓
+  ÖNEMLİ BULGU + FIX (db.ts):
+    - #4'teki getPool() fail-fast'i DATABASE_URL yoksa IMPORT anında çöküp
+      next build'i kırma riski taşıyordu (build script .env yüklemiyor, shell'de
+      DATABASE_URL yok). Guard eklendi: build fazında (NEXT_PHASE===
+      "phase-production-build") throw etmiyor, pg lazy bağlanıyor; runtime'da
+      hâlâ fail-fast. build DATABASE_URL olmadan da geçiyor (SSG DB sorgulamıyor).
+  NOT (platform): CI/prod'da migrate/deploy için DATABASE_URL ortam değişkeni
+       yüklü olmalı (build DB'siz geçse de runtime ve migrate DB ister).
+
+
+------------------------------------------------------------------------
+ 6) KÜÇÜK / OPSİYONEL CİLA
+------------------------------------------------------------------------
+  - RTL component testleri pathological derecede yavaş (bir suite ~150sn).
+    Prelaunch bloklayıcı değil ama CI süresini uzatıyor -> jsdom setup /
+    paralelleştirme incelenebilir.
+  - CRLF/LF uyarıları: .gitattributes ile satır sonu normalizasyonu netleştir
+    (* text=auto eol=lf gibi) -> "LF will be replaced by CRLF" gürültüsü biter.
+  - .husky/pre-commit + lint-staged 300+ dosyada eslint çalıştırıyor;
+    sadece staged dosyalarda çalıştığını teyit et (performans).
+
+
+========================================================================
+ ÖNCELİK SIRASI (yarın için önerilen):
+   1. #5 (migrate/deploy doğrulama - launch bloklayıcı olabilir)
+   2. #3 (redis prod fail-fast - hızlı, yüksek değer)
+   3. #1 (yarım refactor - en yüksek kalite etkisi, dikkatli/uzun)
+   4. #4, #2, #6 (cila)
+========================================================================
