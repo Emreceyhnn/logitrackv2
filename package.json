@@ -107,7 +107,6 @@
     "postcss": "^8.5.10"
   },
   "lint-staged": {
-    "*.ts": "eslint",
-    "*.tsx": "eslint"
+    "*.{ts,tsx}": "eslint --max-warnings=0"
   }
 }
