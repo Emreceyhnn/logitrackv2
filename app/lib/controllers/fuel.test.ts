@@ -1,6 +1,7 @@
  
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
+import { FuelType } from "@prisma/client";
 
 // 1. MOCK'LAR (Imports'dan ÖNCE tanımlanmalı!)
 
@@ -72,7 +73,7 @@ describe("Fuel Controller", () => {
         volumeLiter: 50,
         cost: 3000,
         odometerKm: 150000,
-        fuelType: "DIESEL",
+        fuelType: FuelType.DIESEL,
         currency: "TRY" // Should convert to USD
       });
 

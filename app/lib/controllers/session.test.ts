@@ -1,6 +1,7 @@
  
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
+import { UserStatus } from "@prisma/client";
 
 // 1. MOCK'LAR (Imports'dan ÖNCE tanımlanmalı!)
 
@@ -142,7 +143,7 @@ describe("Session Controller", () => {
         user: {
           id: "user-1",
           companyId: "company-1",
-          status: "ACTIVE",
+          status: UserStatus.ACTIVE,
           role: { name: "Admin" },
         },
       }));
@@ -173,7 +174,7 @@ describe("Session Controller", () => {
         isRevoked: true, // Revoked!
         user: {
           id: "user-1",
-          status: "ACTIVE",
+          status: UserStatus.ACTIVE,
         },
       }));
 
@@ -201,7 +202,7 @@ describe("Session Controller", () => {
         isRevoked: false,
         user: {
           id: "user-1",
-          status: "SUSPENDED",
+          status: UserStatus.SUSPENDED,
         },
       }));
 
@@ -228,7 +229,7 @@ describe("Session Controller", () => {
         isRevoked: false,
         user: {
           id: "user-1",
-          status: "ACTIVE",
+          status: UserStatus.ACTIVE,
         },
       }));
 
@@ -277,7 +278,7 @@ describe("Session Controller", () => {
           id: "user-1",
           roleId: "role-1",
           companyId: "company-1",
-          status: "ACTIVE",
+          status: UserStatus.ACTIVE,
         },
       };
     };

@@ -1,6 +1,7 @@
  
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
+import { DriverStatus, VehicleStatus } from "@prisma/client";
 import { rejects } from "node:assert";
 
 // 1. MOCK'LAR (Imports'dan ÖNCE tanımlanmalı!)
@@ -24,7 +25,7 @@ const dbMock = {
   },
   driver: {
     update: mock.fn(),
-    findFirst: mock.fn(async () => ({ status: "OFF_DUTY", employeeId: "E1" })),
+    findFirst: mock.fn(async () => ({ status: DriverStatus.OFF_DUTY, employeeId: "E1" })),
   },
   shipment: {
     update: mock.fn(),
@@ -34,7 +35,7 @@ const dbMock = {
   vehicle: {
     count: mock.fn(),
     findFirst: mock.fn(async () => ({
-      status: "AVAILABLE",
+      status: VehicleStatus.AVAILABLE,
       fleetNo: "V1",
       maxLoadKg: 10000,
       currentTrailer: null,

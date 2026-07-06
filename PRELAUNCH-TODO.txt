@@ -62,16 +62,21 @@ Sorun: İki soyutlama yaratıldı ama benimsenmesi eksik. 38+ dosya hâlâ
 
 
 ------------------------------------------------------------------------
- 4) TESTLERİ DOMAIN INVARIANT'LARINA BAĞLA
+ 4) TESTLERİ DOMAIN INVARIANT'LARINA BAĞLA               [x] TAMAMLANDI (kısmi)
 ------------------------------------------------------------------------
-  Sorun: Testler geçersiz veri (örn status: "AVAILABLE") besleyip gerçek bir
-         bug'ı gizlemişti. Elle yazılan string enum değerleri derleme zamanında
-         yakalanmıyor.
-  HEDEF:
-      * Testlerde enum değerlerini DriverStatus / ShipmentStatus gibi TİPLERDEN
-        türet (elle string yazma). Böylece geçersiz değer derlenmez.
-      * Not: DriverStatus SADECE ON_JOB / OFF_DUTY / ON_LEAVE (default OFF_DUTY).
-        AVAILABLE ve SUSPENDED driver için GEÇERSİZ (bkz. memory: driver-status-enum-invariant).
+  YAPILDI: 9 controller testinde (driver, shipments, session, maintenance,
+    fuel, routes, overview, reports, warehouseWorker) ham enum string
+    literal'leri @prisma/client enum sabitlerine çevrildi
+    (örn status: "OFF_DUTY" -> DriverStatus.OFF_DUTY). Artık geçersiz enum
+    üyesi (AVAILABLE gibi) DERLENMEZ. tsc + 54 test yeşil.
+  BONUS: maintenance.test'te başka bir refactor regresyonu yakalandı — eski
+    "Invalid vehicle..." mesajı beklentisi, standart NotFoundError("Vehicle")
+    mesajına ("Vehicle not found or unauthorized") hizalandı.
+  KALAN (opsiyonel): Diğer test dosyalarındaki (api routes, hooks, components)
+    enum literal'leri; ve controller import'larını `any` yerine gerçek tiple
+    tiplemek (argümanların tamamı derleme-zamanı kontrol edilir). Daha invaziv.
+  AYRI KÜÇÜK BULGU: WarehouseTaskStatus client-safe enum aynasında (enums.ts)
+    EKSİK — schema'da var ama app/lib/type/enums'ta yok. Eklenmeli.
 
 
 ------------------------------------------------------------------------

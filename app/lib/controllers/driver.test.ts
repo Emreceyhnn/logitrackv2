@@ -2,6 +2,7 @@
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 import { rejects } from "node:assert";
+import { DriverStatus } from "@prisma/client";
 
 // 1. MOCK'LAR
 
@@ -152,7 +153,7 @@ describe("Driver Controller", () => {
         employeeId: "EMP-100",
         licenseNumber: "LIC-123",
         licenseType: "CLASS A",
-        status: "OFF_DUTY",
+        status: DriverStatus.OFF_DUTY,
       });
 
       // Assert
@@ -173,7 +174,7 @@ describe("Driver Controller", () => {
 
       // Act & Assert
       await expect(
-        driverController.createDriver(mockUser, { userId: "target-user-1", phone: "123", licenseNumber: "123", licenseType: "A", status: "OFF_DUTY" })
+        driverController.createDriver(mockUser, { userId: "target-user-1", phone: "123", licenseNumber: "123", licenseType: "A", status: DriverStatus.OFF_DUTY })
       ).rejects.toThrow("User is already assigned as a driver");
 
       expect(dbMock.driver.create.mock.calls.length).toBe(0);
@@ -192,11 +193,11 @@ describe("Driver Controller", () => {
 
       dbMock.driver.update.mock.mockImplementation(async () => ({
         id: "driver-1",
-        status: "ON_JOB"
+        status: DriverStatus.ON_JOB
       }));
 
       // Act
-      const result = await driverController.updateDriverStatus(mockUser, "driver-1", "ON_JOB");
+      const result = await driverController.updateDriverStatus(mockUser, "driver-1", DriverStatus.ON_JOB);
 
       // Assert
       expect(result.status).toBe("ON_JOB");

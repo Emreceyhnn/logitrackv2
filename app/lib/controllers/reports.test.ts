@@ -1,6 +1,7 @@
  
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
+import { UserStatus, ShipmentStatus } from "@prisma/client";
 
 // 1. MOCK'LAR (Imports'dan ÖNCE tanımlanmalı!)
 
@@ -76,8 +77,8 @@ describe("Reports Controller", () => {
       dbMock.shipment.groupBy.mock.mockImplementation(async (args: any) => {
         if (args.by.includes("status")) {
           return [
-            { status: "DELIVERED", _count: { status: 10 } },
-            { status: "PENDING", _count: { status: 5 } },
+            { status: ShipmentStatus.DELIVERED, _count: { status: 10 } },
+            { status: ShipmentStatus.PENDING, _count: { status: 5 } },
           ];
         }
         if (args.by.includes("routeId")) {
@@ -100,7 +101,7 @@ describe("Reports Controller", () => {
           plate: "34 ABC 123",
           currentLat: 41.0,
           currentLng: 28.9,
-          status: "ACTIVE",
+          status: UserStatus.ACTIVE,
           avgFuelConsumption: 7.5,
           odometerKm: 120000,
           maintenanceRecords: [{ cost: 100 }, { cost: 50 }],
