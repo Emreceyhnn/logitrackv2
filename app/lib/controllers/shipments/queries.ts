@@ -11,6 +11,7 @@ import {
   shipmentCacheKeys,
   SHIPMENT_CACHE_TTL,
 } from "../../redis";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getShipments = authenticatedAction(
   async (
@@ -27,7 +28,7 @@ export const getShipments = authenticatedAction(
     | { shipments: ShipmentWithRelations[]; totalCount: number }
   > => {
     const companyId = user?.companyId;
-    try {
+    return controllerGuard("getShipments", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -144,17 +145,14 @@ export const getShipments = authenticatedAction(
           return typedShipments;
         }
       });
-    } catch (error) {
-      console.error("Failed to get shipments:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getShipmentById = authenticatedAction(
   async (user, shipmentId: string) => {
     const companyId = user?.companyId;
-    try {
+    return controllerGuard("getShipmentById", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -193,17 +191,14 @@ export const getShipmentById = authenticatedAction(
       }
 
       return shipment;
-    } catch (error) {
-      console.error("Failed to get shipment:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getShipmentByTrackingId = authenticatedAction(
   async (user, trackingId: string) => {
     const companyId = user?.companyId;
-    try {
+    return controllerGuard("getShipmentByTrackingId", async () => {
       await checkPermission(user, companyId);
 
       const shipment = await db.shipment.findUnique({
@@ -225,9 +220,6 @@ export const getShipmentByTrackingId = authenticatedAction(
       }
 
       return shipment;
-    } catch (error) {
-      console.error("Failed to get shipment by tracking ID:", error);
-      throw error;
-    }
+    });
   }
 );

@@ -3,6 +3,7 @@
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
+import { controllerGuard } from "./utils/controllerGuard";
 import {
   ShipmentStatus,
   VehicleStatus,
@@ -38,7 +39,7 @@ import {
  * This replaces 10 separate server actions to minimize network overhead and database connections.
  */
 export const getOverviewDashboardData = authenticatedAction(async (user): Promise<DashboardData & { alerts: ActionRequiredItems[] }> => {
-  try {
+  return controllerGuard("getOverviewDashboardData", async () => {
     if (!user.companyId) {
       return {
         stats: null,
@@ -390,8 +391,5 @@ export const getOverviewDashboardData = authenticatedAction(async (user): Promis
         alerts
       };
     });
-  } catch (error) {
-    console.error("Failed to get unified overview dashboard data:", error);
-    throw error;
-  }
+  });
 });

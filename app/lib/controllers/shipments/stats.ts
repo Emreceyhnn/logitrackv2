@@ -17,6 +17,7 @@ import {
   SHIPMENT_CACHE_TTL,
 } from "../../redis";
 import { calcTrend, daysAgo } from "../utils/trendUtils";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getShipmentStats = authenticatedAction(async (user) => {
   const companyId = user?.companyId;
@@ -137,7 +138,7 @@ export const getShipmentsWithDashboardData = authenticatedAction(
   }> => {
     const companyId = user?.companyId;
 
-    try {
+    return controllerGuard("getShipmentsWithDashboardData", async () => {
       if (!companyId) throw new Error("User has no company");
 
       const skip = (page - 1) * pageSize;
@@ -331,9 +332,6 @@ export const getShipmentsWithDashboardData = authenticatedAction(
           ),
         };
       });
-    } catch (error) {
-      console.error("Failed to get shipments combined data:", error);
-      throw error;
-    }
+    });
   }
 );

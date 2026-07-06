@@ -12,6 +12,7 @@ import { sendNotificationAction as createNotification } from "@/app/lib/actions/
 import { InventoryShipmentItem } from "../../type/add-shipment";
 import { invalidateInventoryCache } from "../inventory";
 import { invalidateShipmentCache } from "./cache";
+import { controllerGuard } from "../utils/controllerGuard";
 import type { CustomerWithLocations, ShipmentStopInput } from "./types";
 
 export const createShipment = authenticatedAction(
@@ -75,7 +76,7 @@ export const createShipment = authenticatedAction(
       inventoryItems = [],
       stops = [],
     } = data;
-    try {
+    return controllerGuard("createShipment", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -310,9 +311,6 @@ export const createShipment = authenticatedAction(
       );
 
       return { shipment: newShipment };
-    } catch (error) {
-      console.error("Failed to create shipment:", error);
-      throw error;
-    }
+    });
   }
 );

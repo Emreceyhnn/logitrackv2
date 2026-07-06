@@ -8,12 +8,13 @@ import { sendNotificationAction as createNotification } from "@/app/lib/actions/
 import { assertShipmentTransition } from "../utils/shipmentTransitions";
 import { assertRouteCapacity } from "../utils/routeCapacity";
 import { invalidateShipmentCache } from "./cache";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const assignDriverToShipment = authenticatedAction(
   async (user, shipmentId: string, driverId: string) => {
     const userId = user?.id;
     const companyId = user?.companyId;
-    try {
+    return controllerGuard("assignDriverToShipment", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -76,10 +77,7 @@ export const assignDriverToShipment = authenticatedAction(
       );
 
       return updatedShipment;
-    } catch (error) {
-      console.error("Failed to assign driver to shipment:", error);
-      throw error;
-    }
+    });
   }
 );
 
@@ -87,7 +85,7 @@ export const assignRouteToShipment = authenticatedAction(
   async (user, shipmentId: string, routeId: string) => {
     const userId = user?.id;
     const companyId = user?.companyId;
-    try {
+    return controllerGuard("assignRouteToShipment", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -154,10 +152,7 @@ export const assignRouteToShipment = authenticatedAction(
       );
 
       return updatedShipment;
-    } catch (error) {
-      console.error("Failed to assign route to shipment:", error);
-      throw error;
-    }
+    });
   }
 );
 
@@ -171,7 +166,7 @@ export const updateShipmentStatus = authenticatedAction(
   ) => {
     const userId = user?.id;
     const companyId = user?.companyId;
-    try {
+    return controllerGuard("updateShipmentStatus", async () => {
       await checkPermission(user, companyId);
 
       const existingShipment = await db.shipment.findUnique({
@@ -263,9 +258,6 @@ export const updateShipmentStatus = authenticatedAction(
       }
 
       return updatedShipment;
-    } catch (error) {
-      console.error("Failed to update shipment status:", error);
-      throw error;
-    }
+    });
   }
 );

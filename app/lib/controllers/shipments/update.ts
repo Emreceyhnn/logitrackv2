@@ -11,6 +11,7 @@ import {
   isTerminalShipmentStatus,
 } from "../utils/shipmentTransitions";
 import { invalidateShipmentCache } from "./cache";
+import { controllerGuard } from "../utils/controllerGuard";
 import type { ShipmentStopInput } from "./types";
 
 export const updateShipment = authenticatedAction(
@@ -24,7 +25,7 @@ export const updateShipment = authenticatedAction(
   ) => {
     const userId = user?.id;
     const companyId = user?.companyId;
-    try {
+    return controllerGuard("updateShipment", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -276,10 +277,7 @@ export const updateShipment = authenticatedAction(
         console.error("Cache invalidation failed:", err)
       );
       return updatedShipment;
-    } catch (error) {
-      console.error("Failed to update shipment:", error);
-      throw error;
-    }
+    });
   }
 );
 
@@ -287,7 +285,7 @@ export const deleteShipment = authenticatedAction(
   async (user, shipmentId: string) => {
     const userId = user?.id;
     const companyId = user?.companyId;
-    try {
+    return controllerGuard("deleteShipment", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const existingShipment = await db.shipment.findUnique({
@@ -347,9 +345,6 @@ export const deleteShipment = authenticatedAction(
         invalidateInventoryCache(companyId!),
       ]).catch((err) => console.error("Cache invalidation failed:", err));
       return { success: true };
-    } catch (error) {
-      console.error("Failed to delete shipment:", error);
-      throw error;
-    }
+    });
   }
 );
