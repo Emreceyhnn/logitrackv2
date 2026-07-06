@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import { createCacheKeys } from "./controllers/utils/cacheFactory";
 
 // CI/CD (GitHub Actions vb.) ortamlarında eğer şifreler yüklenemezse sistemi fail-fast (anında çökert) ile durduruyoruz.
 // Böylece 50 saniyelik anlamsız timeout'lar yerine hatanın ne olduğunu saniyesinde görüyoruz.
@@ -20,118 +21,43 @@ export const redis = new Redis({
 });
 
 export const VEHICLE_CACHE_TTL = 3600;
-
-export const vehicleCacheKeys = {
-  companyPattern: (companyId: string) => `vehicles:${companyId}:*`,
-  detail: (vehicleId: string) => `vehicles:detail:${vehicleId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `vehicles:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `vehicles:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `vehicles:${companyId}:kpis`,
-};
+export const vehicleCacheKeys = createCacheKeys("vehicles");
 
 export const TRAILER_CACHE_TTL = 3600;
-
-export const trailerCacheKeys = {
-  companyPattern: (companyId: string) => `trailers:${companyId}:*`,
-  detail: (trailerId: string) => `trailers:detail:${trailerId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `trailers:${companyId}:list_v2:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `trailers:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `trailers:${companyId}:kpis`,
-};
+export const trailerCacheKeys = createCacheKeys("trailers");
 
 export const DRIVER_CACHE_TTL = 3600;
-
-export const driverCacheKeys = {
-  companyPattern: (companyId: string) => `drivers:${companyId}:*`,
-  detail: (driverId: string) => `drivers:detail:${driverId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `drivers:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `drivers:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `drivers:${companyId}:kpis`,
-};
+export const driverCacheKeys = createCacheKeys("drivers");
 
 export const ROUTE_CACHE_TTL = 3600;
-
-export const routeCacheKeys = {
-  companyPattern: (companyId: string) => `routes:${companyId}:*`,
-  detail: (routeId: string) => `routes:detail:${routeId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `routes:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `routes:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `routes:${companyId}:kpis`,
-};
+export const routeCacheKeys = createCacheKeys("routes");
 
 export const SHIPMENT_CACHE_TTL = 3600;
-
-export const shipmentCacheKeys = {
-  companyPattern: (companyId: string) => `shipments:${companyId}:*`,
-  detail: (shipmentId: string) => `shipments:detail:${shipmentId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `shipments:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `shipments:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `shipments:${companyId}:kpis`,
-};
+export const shipmentCacheKeys = createCacheKeys("shipments");
 
 export const OVERVIEW_CACHE_TTL = 300;
-
 export const overviewCacheKeys = {
   dashboard: (companyId: string) => `overview:${companyId}:dashboard`,
 };
 
 export const WAREHOUSE_CACHE_TTL = 3600;
-
-export const warehouseCacheKeys = {
-  companyPattern: (companyId: string) => `warehouses:${companyId}:*`,
-  detail: (warehouseId: string) => `warehouses:detail:${warehouseId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `warehouses:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `warehouses:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `warehouses:${companyId}:kpis`,
-};
+export const warehouseCacheKeys = createCacheKeys("warehouses");
 
 export const INVENTORY_CACHE_TTL = 3600;
-
 export const inventoryCacheKeys = {
-  companyPattern: (companyId: string) => `inventories:${companyId}:*`,
-  detail: (inventoryId: string) => `inventories:detail:${inventoryId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `inventories:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `inventories:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `inventories:${companyId}:kpis`,
+  ...createCacheKeys("inventories"),
   movements: (companyId: string, warehouseId: string, sku: string) =>
     `inventories:${companyId}:movements:${warehouseId}:${sku}`,
 };
 
 export const CUSTOMER_CACHE_TTL = 3600;
-
-export const customerCacheKeys = {
-  companyPattern: (companyId: string) => `customers:${companyId}:*`,
-  detail: (customerId: string) => `customers:detail:${customerId}`,
-  list: (companyId: string, filtersHash: string) =>
-    `customers:${companyId}:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `customers:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `customers:${companyId}:kpis`,
-};
+export const customerCacheKeys = createCacheKeys("customers");
 
 export const COMPANY_CACHE_TTL = 3600;
-
 export const companyCacheKeys = {
-  companyPattern: (companyId: string) => `companies:${companyId}:*`,
-  detail: (companyId: string) => `companies:detail:${companyId}`,
+  ...createCacheKeys("companies"),
+  // Override: company list key does not include companyId
   list: (filtersHash: string) => `companies:list:${filtersHash}`,
-  dashboard: (companyId: string, filtersHash?: string) =>
-    `companies:${companyId}:dashboard${filtersHash ? ":" + filtersHash : ""}`,
-  kpis: (companyId: string) => `companies:${companyId}:kpis`,
 };
 
 export const EXCHANGE_RATE_CACHE_TTL = 3600;

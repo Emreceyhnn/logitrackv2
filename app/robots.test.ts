@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before } from "node:test";
 import { expect } from "expect";
 
 describe("Robots Generate", () => {
-  let robots: any;
+  let robots: unknown;
 
   before(async () => {
     const mod = await import("./robots");

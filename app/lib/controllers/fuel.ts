@@ -6,15 +6,15 @@ import { checkPermission } from "./utils/checkPermission";
 import { FuelLogWithRelations, FuelPageState } from "../type/fuel";
 import { authenticatedAction } from "../auth-middleware";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
+import { controllerGuard } from "./utils/controllerGuard";
+import { createFuelLogSchema } from "../validation/serverSchemas";
 
 export const getFuelLogs = authenticatedAction(
   async (user, filters: FuelPageState["filters"]) => {
-    const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getFuelLogs", async () => {
+      const companyId = user?.companyId || "";
       await checkPermission(user, companyId);
-      if (!companyId) {
-        throw new Error("User has no company assigned");
-      }
+      
       const { vehicleId, driverId, startDate, endDate } = filters;
 
       const logs = await db.fuelLog.findMany({
@@ -59,10 +59,7 @@ export const getFuelLogs = authenticatedAction(
         cost: Number(log.cost),
       }));
       return typedLogs;
-    } catch (error) {
-      console.error("Failed to get fuel logs:", error);
-      throw error;
-    }
+    });
   }
 );
 
@@ -82,19 +79,20 @@ export const createFuelLog = authenticatedAction(
       currency?: string;
     }
   ) => {
-    const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("createFuelLog", async () => {
+      const companyId = user?.companyId || "";
       await checkPermission(user, companyId);
-      if (!companyId) throw new Error("User has no company assigned");
+      
+      const parsed = createFuelLogSchema.parse(data);
 
       // Normalize cost to USD
-      let normalizedCost = data.cost;
-      const currency = data.currency || "USD";
+      let normalizedCost = parsed.cost;
+      const currency = parsed.currency;
       if (currency !== "USD") {
         try {
           const rates = await getExchangeRates();
           const rate = rates.rates[currency] || 1;
-          normalizedCost = data.cost / rate;
+          normalizedCost = parsed.cost / rate;
         } catch (err) {
           console.warn("[fuel] Currency conversion failed:", err);
         }
@@ -102,27 +100,21 @@ export const createFuelLog = authenticatedAction(
 
       const log = await db.fuelLog.create({
         data: {
-          ...data,
+          ...parsed,
           cost: normalizedCost,
           currency: "USD",
           companyId,
         },
       });
       return { ...log, cost: Number(log.cost) };
-    } catch (error) {
-      console.error("Failed to create fuel log:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getFuelStats = authenticatedAction(async (user) => {
-  const companyId = user?.companyId || "";
-  try {
+  return controllerGuard("getFuelStats", async () => {
+    const companyId = user?.companyId || "";
     await checkPermission(user, companyId);
-    if (!companyId) {
-      throw new Error("User has no company assigned");
-    }
 
     const logs = await db.fuelLog.findMany({
       where: { companyId },
@@ -159,8 +151,5 @@ export const getFuelStats = authenticatedAction(async (user) => {
       avgFuelPrice: totalCost / totalVolume,
       efficiencyKml,
     };
-  } catch (error) {
-    console.error("Failed to get fuel stats:", error);
-    throw error;
-  }
+  });
 });

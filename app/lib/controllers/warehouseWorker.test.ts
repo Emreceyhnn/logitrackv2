@@ -57,7 +57,7 @@ const user = { id: "user-1", companyId: "company-1" };
 
 // 2. TEST GRUPLARI
 describe("WarehouseWorker Controller", () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let controller: any;
 
   before(async () => {

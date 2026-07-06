@@ -26,7 +26,7 @@ const fetchMock = mock.fn();
 
 // 2. TEST GRUPLARI
 describe("useWarehouseWorker Hook", () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let hookMod: any;
 
   before(async () => {

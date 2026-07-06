@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { getTenantCompanyId } from "./tenant-context";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
 /**
  * Models that carry a required `companyId` column. Every query against them
@@ -59,7 +61,8 @@ const WHERE_OPS = new Set<string>([
 ]);
 
 function createPrismaClient() {
-  return new PrismaClient().$extends({
+  const adapter = new PrismaPg(getPool());
+  return new PrismaClient({ adapter }).$extends({
     name: "tenant-guard",
     query: {
       $allModels: {
@@ -131,7 +134,25 @@ export type Db = ReturnType<typeof createPrismaClient>;
 
 const globalForPrisma = globalThis as typeof globalThis & {
   prisma?: Db;
+  pgPool?: Pool;
 };
+
+/**
+ * Single shared pg connection pool. Cached on `globalThis` so that Next.js
+ * hot-reloads in development do not leak a new pool (and its sockets) on every
+ * module re-evaluation. Fails fast with a clear message when the connection
+ * string is missing instead of surfacing an opaque error on the first query.
+ */
+function getPool(): Pool {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL is not set — cannot initialise the database pool");
+  }
+  const pool =
+    globalForPrisma.pgPool ??
+    new Pool({ connectionString: process.env.DATABASE_URL });
+  if (process.env.NODE_ENV !== "production") globalForPrisma.pgPool = pool;
+  return pool;
+}
 
 export const db = globalForPrisma.prisma ?? createPrismaClient();
 

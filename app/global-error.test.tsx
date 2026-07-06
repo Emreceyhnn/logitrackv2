@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import "global-jsdom/register";
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
@@ -11,8 +11,8 @@ mock.module("next/error", {
 });
 
 describe("GlobalError Component", () => {
-  let GlobalError: any;
-  let consoleErrorMock: any;
+  let GlobalError: unknown;
+  let consoleErrorMock: unknown;
 
   before(async () => {
     const mod = await import("./global-error");

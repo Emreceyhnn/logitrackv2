@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 // 'node:test' modülü Node.js'in kendi test çalıştırıcısıdır (test runner). 
 // 'describe': Testleri mantıksal gruplara ayırmak için kullanılır (örn: "getPriorityColor fonksiyonu testleri").
 // 'it': Tek bir test senaryosunu tanımlar (örn: "şu girdiyi verince şu çıktıyı vermeli").

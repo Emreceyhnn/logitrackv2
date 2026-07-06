@@ -22,7 +22,8 @@
     "test:users": "tsx scripts/test-users.ts",
     "firebase:seed-location": "tsx scripts/seed-firebase-locations.ts",
     "firebase:simulate-trip": "tsx scripts/simulate-trip.ts",
-    "firebase:sync-all": "tsx scripts/sync-all-vehicles.ts"
+    "firebase:sync-all": "tsx scripts/sync-all-vehicles.ts",
+    "prepare": "husky"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -33,7 +34,8 @@
     "@mui/material-nextjs": "^9.1.1",
     "@mui/x-charts": "^8.26.0",
     "@mui/x-date-pickers": "^8.26.0",
-    "@prisma/client": "^5.10.2",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "@supabase/supabase-js": "^2.99.2",
     "@tanstack/react-query": "^5.96.1",
     "@tanstack/react-query-devtools": "^5.96.1",
@@ -51,6 +53,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^1.21.0",
     "next": "^16.2.6",
+    "pg": "^8.22.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-google-autocomplete": "^2.7.5",
@@ -72,6 +75,7 @@
     "@types/leaflet": "^1.9.21",
     "@types/mapbox__polyline": "^1.0.5",
     "@types/node": "^20",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "browserslist": "^4.28.1",
@@ -84,10 +88,12 @@
     "eslint-config-prettier": "^10.1.8",
     "expect": "^30.4.1",
     "global-jsdom": "^29.0.0",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.8",
     "playwright": "^1.60.0",
     "prettier": "^3.8.1",
-    "prisma": "^5.10.2",
+    "prisma": "^7.8.0",
     "shx": "^0.4.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
@@ -99,5 +105,9 @@
   "overrides": {
     "uuid": "^11.1.1",
     "postcss": "^8.5.10"
+  },
+  "lint-staged": {
+    "*.ts": "eslint",
+    "*.tsx": "eslint"
   }
 }

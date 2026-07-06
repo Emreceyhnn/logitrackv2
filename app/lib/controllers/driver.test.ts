@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, mock, beforeEach, before } from "node:test";
 import { expect } from "expect";
 import { rejects } from "node:assert";
@@ -152,7 +152,7 @@ describe("Driver Controller", () => {
         employeeId: "EMP-100",
         licenseNumber: "LIC-123",
         licenseType: "CLASS A",
-        status: "AVAILABLE",
+        status: "OFF_DUTY",
       });
 
       // Assert
@@ -173,7 +173,7 @@ describe("Driver Controller", () => {
 
       // Act & Assert
       await expect(
-        driverController.createDriver(mockUser, { userId: "target-user-1", phone: "123", licenseNumber: "123", licenseType: "A", status: "AVAILABLE" })
+        driverController.createDriver(mockUser, { userId: "target-user-1", phone: "123", licenseNumber: "123", licenseType: "A", status: "OFF_DUTY" })
       ).rejects.toThrow("User is already assigned as a driver");
 
       expect(dbMock.driver.create.mock.calls.length).toBe(0);

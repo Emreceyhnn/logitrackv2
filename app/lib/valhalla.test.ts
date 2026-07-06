@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, beforeEach, after, mock } from "node:test";
 import { expect } from "expect";
 import polyline from "@mapbox/polyline";

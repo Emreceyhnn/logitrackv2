@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, before, mock } from "node:test";
 import { expect } from "expect";
 
@@ -10,7 +10,7 @@ mock.module("./lib/language/navigation.ts", {
 });
 
 describe("Sitemap Generate", () => {
-  let sitemap: any;
+  let sitemap: unknown;
 
   before(async () => {
     const mod = await import("./sitemap");

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, after } from "node:test";
 import { expect } from "expect";
 import "dotenv/config";
