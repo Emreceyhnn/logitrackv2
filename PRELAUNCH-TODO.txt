@@ -97,13 +97,15 @@ Sorun: İki soyutlama yaratıldı ama benimsenmesi eksik. 38+ dosya hâlâ
 ------------------------------------------------------------------------
  6) KÜÇÜK / OPSİYONEL CİLA
 ------------------------------------------------------------------------
-  - RTL component testleri pathological derecede yavaş (bir suite ~150sn).
+  - [ ] RTL component testleri pathological derecede yavaş (bir suite ~150sn).
     Prelaunch bloklayıcı değil ama CI süresini uzatıyor -> jsdom setup /
-    paralelleştirme incelenebilir.
-  - CRLF/LF uyarıları: .gitattributes ile satır sonu normalizasyonu netleştir
-    (* text=auto eol=lf gibi) -> "LF will be replaced by CRLF" gürültüsü biter.
-  - .husky/pre-commit + lint-staged 300+ dosyada eslint çalıştırıyor;
-    sadece staged dosyalarda çalıştığını teyit et (performans).
+    paralelleştirme incelenebilir. (AÇIK)
+  - [x] CRLF/LF uyarıları: .gitattributes eklendi (* text=auto eol=lf + binary
+    + lockfile). `git add --renormalize .` 0 içerik değişikliği (repo zaten LF).
+    "LF will be replaced by CRLF" gürültüsü bitti. (commit 19aaed6)
+  - [x] lint-staged: "*.{ts,tsx}" -> "eslint --max-warnings=0" olarak
+    sıkılaştırıldı; yalnızca staged dosyalarda çalışıyor (teyit edildi:
+    lint-staged staged eşleşme yoksa geçiyor). 0-uyarı durumu kilitlendi. (19aaed6)
 
 
 ========================================================================
