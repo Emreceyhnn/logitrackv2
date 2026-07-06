@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import { useEffect, useRef, useState } from "react";
+import { Box, Stack, Typography } from "@mui/material";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -7,6 +7,7 @@ import { renderToString } from "react-dom/server";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import WarehouseIcon from "@mui/icons-material/Warehouse";
 import Person3Icon from "@mui/icons-material/Person3";
+import PublicOffIcon from "@mui/icons-material/PublicOff";
 
 interface Markers {
   id: string;
@@ -31,6 +32,8 @@ interface MapWithMarkerProps {
   center?: [number, number];
   zoom?: number;
   onMarkerClick?: (marker: Markers) => void;
+  /** Overlay message shown when map tiles fail to load (CDN blocked/offline). */
+  tileErrorText?: string;
 }
 
 function MapBoundsFit({
@@ -44,63 +47,81 @@ function MapBoundsFit({
 }) {
   const map = useMap();
 
+  // ── Keep the map sized to its container (fixes Leaflet's "white space" bug) ──
+  // Bound to the map instance only, so it isn't torn down/rebuilt on every
+  // marker update.
   useEffect(() => {
-    // 1. Fix Leaflet's "White Space" bug when container size changes
     const resizeObserver = new ResizeObserver(() => {
       map.invalidateSize();
     });
-
     const container = map.getContainer();
-    if (container) {
-      resizeObserver.observe(container);
-    }
+    if (container) resizeObserver.observe(container);
 
     // Fallback invalidateSize for immediate hydration
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 200);
+    const t = setTimeout(() => map.invalidateSize(), 200);
 
-    // 2. Calculate dynamic bounds from markers if available
+    return () => {
+      clearTimeout(t);
+      resizeObserver.disconnect();
+    };
+  }, [map]);
+
+  // ── Frame the markers ────────────────────────────────────────────────────
+  // Only move the camera on first render or when the *set* of markers changes
+  // (added/removed) — NOT on every position update. Otherwise a live-tracked
+  // vehicle would recenter/zoom the map on every GPS tick, making the marker
+  // visibly jump instead of gliding.
+  const didInitRef = useRef(false);
+  const prevIdsRef = useRef<string>("");
+  useEffect(() => {
+    const ids = markers
+      .map((m) => m.id)
+      .sort()
+      .join(",");
+    const idsChanged = ids !== prevIdsRef.current;
+    prevIdsRef.current = ids;
+    if (didInitRef.current && !idsChanged) return;
+    didInitRef.current = true;
+
     let bounds: L.LatLngBounds | null = null;
     if (markers && markers.length > 0) {
       bounds = L.latLngBounds(markers.map((m) => [m.lat, m.len]));
     }
 
-    // 3. Apply Camera Logic (Hybrid Approach)
+    // Apply Camera Logic (Hybrid Approach)
     if (!bounds || !bounds.isValid()) {
-      // No valid markers: just use explicit props if they exist
       if (center) map.setView(center, zoom ?? map.getZoom());
       else if (zoom !== undefined) map.setZoom(zoom);
     } else {
-      // Valid markers exist: mix explicit props with dynamic calculations
       if (center && zoom !== undefined) {
-        // Both explicit: Fully override dynamic calculation
         map.setView(center, zoom);
       } else if (center && zoom === undefined) {
-        // Explicit center, Dynamic zoom
         const dynamicZoom = map.getBoundsZoom(bounds);
         map.setView(center, Math.min(dynamicZoom, 15));
       } else if (!center && zoom !== undefined) {
-        // Dynamic center, Explicit zoom
-        const dynamicCenter = bounds.getCenter();
-        map.setView(dynamicCenter, zoom);
+        map.setView(bounds.getCenter(), zoom);
       } else {
-        // Both dynamic: Let Leaflet perfectly fit the bounds
         map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
       }
     }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
   }, [map, markers, center, zoom]);
 
   return null;
 }
 
-function MapWithMarkers({ markers, center, zoom, onMarkerClick }: MapWithMarkerProps) {
+function MapWithMarkers({
+  markers,
+  center,
+  zoom,
+  onMarkerClick,
+  tileErrorText,
+}: MapWithMarkerProps) {
+  // Track tile-load failures so a blocked CDN / offline client shows an explicit
+  // "map unavailable" overlay instead of a silent blank grey box.
+  const [tileError, setTileError] = useState(false);
+
   return (
-    <Box sx={{ width: "100%", height: "100%" }}>
+    <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
       <MapContainer
         center={center || [39.9208, 32.8541]}
         zoom={zoom || 6}
@@ -111,6 +132,11 @@ function MapWithMarkers({ markers, center, zoom, onMarkerClick }: MapWithMarkerP
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          eventHandlers={{
+            tileerror: () => setTileError(true),
+            // Recover automatically once tiles start loading again.
+            tileload: () => setTileError((prev) => (prev ? false : prev)),
+          }}
         />
 
         {markers.map((marker, index) => {
@@ -157,7 +183,7 @@ function MapWithMarkers({ markers, center, zoom, onMarkerClick }: MapWithMarkerP
 
           return (
             <Marker
-              key={index}
+              key={marker.id || index}
               position={[marker.lat, marker.len]}
               // Leaflet renders each marker as a keyboard-focusable role="button";
               // `title` + the aria-label on the html root give it an accessible
@@ -186,6 +212,31 @@ function MapWithMarkers({ markers, center, zoom, onMarkerClick }: MapWithMarkerP
           );
         })}
       </MapContainer>
+
+      {/* Tile-failure overlay — makes a blocked/offline basemap explicit instead
+          of degrading to a silent blank grey box. */}
+      {tileError && (
+        <Stack
+          alignItems="center"
+          justifyContent="center"
+          spacing={1}
+          sx={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 500,
+            px: 2,
+            textAlign: "center",
+            pointerEvents: "none",
+            bgcolor: "rgba(11, 16, 25, 0.82)",
+            backdropFilter: "blur(2px)",
+          }}
+        >
+          <PublicOffIcon sx={{ fontSize: 40, color: "rgba(255,255,255,0.7)" }} />
+          <Typography sx={{ color: "#fff", fontWeight: 700, fontSize: "0.85rem" }}>
+            {tileErrorText || "Harita yüklenemedi"}
+          </Typography>
+        </Stack>
+      )}
     </Box>
   );
 }

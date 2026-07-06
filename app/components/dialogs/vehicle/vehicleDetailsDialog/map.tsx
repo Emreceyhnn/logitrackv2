@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import CustomCard from "../../../cards/card";
 import { useVehicleTracking } from "@/app/hooks/useVehicleTracking";
+import { useFirebaseConnection } from "@/app/hooks/useFirebaseConnection";
 import {
   Box,
   Stack,
@@ -13,6 +14,7 @@ import {
 } from "@mui/material";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import SignalWifiOffIcon from "@mui/icons-material/SignalWifiOff";
+import CloudOffIcon from "@mui/icons-material/CloudOff";
 import SatelliteAltIcon from "@mui/icons-material/SatelliteAlt";
 import SpeedIcon from "@mui/icons-material/Speed";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
@@ -50,11 +52,18 @@ const MapVehicleOverviewCard = ({
   const [now, setNow] = useState(0);
 
   useEffect(() => {
-    const t = Date.now();
-    const timer = setTimeout(() => {
-      setNow(t);
-    }, 0);
-    return () => clearTimeout(timer);
+    // Keep `now` advancing so liveness and the "updated Xs ago" label track real
+    // elapsed time. Without a ticking clock, a vehicle that stops reporting would
+    // stay frozen as "LIVE / updated Ns ago" forever — dangerously presenting a
+    // stale position as current. Start from 0 to avoid an SSR/CSR mismatch, then
+    // update immediately and every second.
+    const tick = () => setNow(Date.now());
+    const initial = setTimeout(tick, 0); // prime without an SSR/CSR mismatch
+    const timer = setInterval(tick, 1000);
+    return () => {
+      clearTimeout(initial);
+      clearInterval(timer);
+    };
   }, []);
 
   const formatAge = (
@@ -70,7 +79,12 @@ const MapVehicleOverviewCard = ({
     return `${Math.round(diffMin / 60)}${dict.vehicles.dialogs.hoursAgo}`;
   };
 
-  const { location: liveLocation, loading } = useVehicleTracking(id);
+  const { location: liveLocation, loading, error } = useVehicleTracking(id);
+  const isConnected = useFirebaseConnection();
+
+  // Connection dropped or the listener errored — we can no longer trust the
+  // cached location to be current, so never present it as "LIVE".
+  const degraded = !isConnected || !!error;
 
   const activeLocation = useMemo(
     () => (liveLocation ? liveLocation : (dbLocation ?? null)),
@@ -78,8 +92,8 @@ const MapVehicleOverviewCard = ({
   );
 
   const hasLiveSignal = useMemo(
-    () => isLive(liveLocation?.lastUpdated, now),
-    [liveLocation?.lastUpdated, now]
+    () => !degraded && isLive(liveLocation?.lastUpdated, now),
+    [degraded, liveLocation?.lastUpdated, now]
   );
 
   const markers = useMemo(
@@ -124,6 +138,30 @@ const MapVehicleOverviewCard = ({
                 theme.palette.mode === "dark"
                   ? "rgba(255,255,255,0.08)"
                   : "rgba(0,0,0,0.08)",
+            }}
+          />
+        ) : degraded ? (
+          <Chip
+            icon={
+              <CloudOffIcon
+                sx={{ fontSize: "0.85rem !important", color: "#f59e0b" }}
+              />
+            }
+            label={
+              error
+                ? dict.vehicles.dialogs.connectionLost
+                : dict.vehicles.dialogs.reconnecting
+            }
+            size="small"
+            sx={{
+              bgcolor: "rgba(245, 158, 11, 0.12)",
+              border: "1px solid rgba(245, 158, 11, 0.45)",
+              color: "#f59e0b",
+              fontWeight: 700,
+              fontSize: "0.65rem",
+              letterSpacing: "0.06em",
+              backdropFilter: "blur(8px)",
+              height: 26,
             }}
           />
         ) : hasLiveSignal ? (
@@ -205,7 +243,10 @@ const MapVehicleOverviewCard = ({
         />
       ) : activeLocation ? (
         <Box sx={{ width: "100%", flexGrow: 1, minHeight: 320, position: "relative", zIndex: 1 }}>
-          <MapWithMarkers markers={markers} />
+          <MapWithMarkers
+            markers={markers}
+            tileErrorText={dict.vehicles.dialogs.mapLoadError}
+          />
         </Box>
       ) : (
         // ── No Location State ──

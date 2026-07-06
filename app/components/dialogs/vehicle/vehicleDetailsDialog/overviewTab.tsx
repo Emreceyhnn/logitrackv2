@@ -77,11 +77,14 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
       <Stack spacing={4}>
         <Stack
           spacing={2}
-          direction={"row"}
+          direction={{ xs: "column", md: "row" }}
           justifyContent={"space-between"}
           alignItems="stretch"
         >
-          <Stack justifyContent={"space-between"} width={"48%"}>
+          <Stack
+            justifyContent={"space-between"}
+            width={{ xs: "100%", md: "48%" }}
+          >
             {vehicle.photo && (
               <Card
                 sx={{
@@ -333,7 +336,10 @@ const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {
             </Button>
           </Stack>
 
-          <Stack width={"50%"} sx={{ minHeight: 0 }}>
+          <Stack
+            width={{ xs: "100%", md: "50%" }}
+            sx={{ minHeight: { xs: 320, md: 0 } }}
+          >
             <MapVehicleOverviewCard
               id={vehicle.id}
               name={vehicle.plate}

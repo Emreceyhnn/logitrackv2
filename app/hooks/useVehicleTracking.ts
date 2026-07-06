@@ -35,6 +35,7 @@ export const useVehicleTracking = (vehicleId: string | null) => {
 
   const [location, setLocation] = useState<VehicleLocation | null>(null);
   const [loading, setLoading] = useState(!!vehicleId);
+  const [error, setError] = useState<Error | null>(null);
 
   const activeIdRef = useRef<string | null>(vehicleId);
 
@@ -50,7 +51,15 @@ export const useVehicleTracking = (vehicleId: string | null) => {
       vehicleId,
       (loc) => {
         if (activeIdRef.current !== vehicleId) return;
+        setError(null);
         setLocation(loc);
+        setLoading(false);
+      },
+      (err) => {
+        if (activeIdRef.current !== vehicleId) return;
+        // Surface the failure instead of swallowing it — the caller can now
+        // stop presenting the last cached location as a live one.
+        setError(err);
         setLoading(false);
       }
     );
@@ -60,5 +69,5 @@ export const useVehicleTracking = (vehicleId: string | null) => {
     };
   }, [vehicleId, companyId]);
 
-  return { location, loading };
+  return { location, loading, error };
 };

@@ -23,12 +23,23 @@ mock.module("../../../../lib/firebase-admin.ts", {
   },
 });
 
-// Mock Prisma
-const vehicleFindUniqueMock = mock.fn();
+// Mock Prisma — the route authorizes via `prisma.vehicle.findFirst` inside the
+// tenant context (see authorizeVehicleAccess in ./route).
+const vehicleFindFirstMock = mock.fn();
 mock.module("../../../../lib/db.ts", {
   namedExports: {
-    db: { vehicle: { findUnique: vehicleFindUniqueMock } },
+    db: { vehicle: { findFirst: vehicleFindFirstMock } },
   },
+});
+
+// Both handlers gate on getAuthenticatedUser(); provide a signed-in tenant user
+// so the tests exercise the real 404/400/422/200 logic instead of the 401 gate.
+const getAuthenticatedUserMock = mock.fn(async () => ({
+  id: "user-1",
+  companyId: "comp-1",
+}));
+mock.module("../../../../lib/auth-middleware.ts", {
+  namedExports: { getAuthenticatedUser: getAuthenticatedUserMock },
 });
 
 describe("POST /api/vehicles/[id]/location", () => {
@@ -42,7 +53,7 @@ describe("POST /api/vehicles/[id]/location", () => {
   });
 
   beforeEach(() => {
-    vehicleFindUniqueMock.mock.resetCalls();
+    vehicleFindFirstMock.mock.resetCalls();
     mockFirebaseRef.set.mock.resetCalls();
     mockFirebaseRef.once.mock.resetCalls();
     mockNextResponse.json.mock.resetCalls();
@@ -60,25 +71,25 @@ describe("POST /api/vehicles/[id]/location", () => {
 
   // ─── POST tests ────────────────────────────────────────────────────────────
   it("should_Return404_WhenVehicleNotFound_OnPOST", async () => {
-    vehicleFindUniqueMock.mock.mockImplementationOnce(async () => null);
+    vehicleFindFirstMock.mock.mockImplementationOnce(async () => null);
     const res: any = await POST(makePostRequest({ lat: 41, lng: 29 }), makeParams("v-missing"));
     expect(res._status).toBe(404);
   });
 
   it("should_Return400_WhenLatLngNotNumbers", async () => {
-    vehicleFindUniqueMock.mock.mockImplementationOnce(async () => ({ id: "v1", plate: "34ABC" }));
+    vehicleFindFirstMock.mock.mockImplementationOnce(async () => ({ id: "v1", plate: "34ABC" }));
     const res: any = await POST(makePostRequest({ lat: "invalid", lng: 29 }), makeParams("v1"));
     expect(res._status).toBe(400);
   });
 
   it("should_Return422_WhenCoordinatesOutOfRange", async () => {
-    vehicleFindUniqueMock.mock.mockImplementationOnce(async () => ({ id: "v1", plate: "34ABC" }));
+    vehicleFindFirstMock.mock.mockImplementationOnce(async () => ({ id: "v1", plate: "34ABC" }));
     const res: any = await POST(makePostRequest({ lat: 200, lng: 29 }), makeParams("v1"));
     expect(res._status).toBe(422);
   });
 
   it("should_PushToFirebase_AndReturn200_WhenValidPayload", async () => {
-    vehicleFindUniqueMock.mock.mockImplementationOnce(async () => ({ id: "v1", plate: "34ABC" }));
+    vehicleFindFirstMock.mock.mockImplementationOnce(async () => ({ id: "v1", plate: "34ABC" }));
     const res: any = await POST(makePostRequest({ lat: 41.0, lng: 29.0, speed: 60 }), makeParams("v1"));
     expect(mockFirebaseRef.set.mock.calls.length).toBe(1);
     expect(res._status).toBe(200);
@@ -88,13 +99,13 @@ describe("POST /api/vehicles/[id]/location", () => {
 
   // ─── GET tests ─────────────────────────────────────────────────────────────
   it("should_Return404_WhenVehicleNotFound_OnGET", async () => {
-    vehicleFindUniqueMock.mock.mockImplementationOnce(async () => null);
+    vehicleFindFirstMock.mock.mockImplementationOnce(async () => null);
     const res: any = await GET({} as any, makeParams("v-missing"));
     expect(res._status).toBe(404);
   });
 
   it("should_ReturnLiveLocation_WhenFirebaseHasData", async () => {
-    vehicleFindUniqueMock.mock.mockImplementationOnce(async () => ({
+    vehicleFindFirstMock.mock.mockImplementationOnce(async () => ({
       id: "v1", plate: "34ABC", currentLat: 41.0, currentLng: 29.0
     }));
     const res: any = await GET({} as any, makeParams("v1"));

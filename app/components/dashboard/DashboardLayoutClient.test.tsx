@@ -36,6 +36,16 @@ mock.module("../guidedTour/GuidedTourOverlay.tsx", {
   defaultExport: () => <div data-testid="guided-tour-overlay" />,
 });
 
+// The layout reads dict.common.skipToContent for its skip-link; provide it so
+// the component renders instead of throwing on a missing dictionary provider.
+mock.module("../../lib/language/DictionaryContext.tsx", {
+  namedExports: {
+    useDictionary: mock.fn(() => ({
+      common: { skipToContent: "Skip to content" },
+    })),
+  },
+});
+
 // 2. Mock Theme
 const customTheme = createTheme({
   palette: {
