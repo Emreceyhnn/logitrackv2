@@ -75,8 +75,9 @@ Sorun: İki soyutlama yaratıldı ama benimsenmesi eksik. 38+ dosya hâlâ
   KALAN (opsiyonel): Diğer test dosyalarındaki (api routes, hooks, components)
     enum literal'leri; ve controller import'larını `any` yerine gerçek tiple
     tiplemek (argümanların tamamı derleme-zamanı kontrol edilir). Daha invaziv.
-  AYRI KÜÇÜK BULGU: WarehouseTaskStatus client-safe enum aynasında (enums.ts)
-    EKSİK — schema'da var ama app/lib/type/enums'ta yok. Eklenmeli.
+  AYRI KÜÇÜK BULGU: [x] WarehouseTaskStatus client-safe enum aynasına
+    (app/lib/type/enums/enums.ts) eklendi (OPEN/IN_PROGRESS/COMPLETED),
+    schema ile birebir. tsc + lint yeşil.
 
 
 ------------------------------------------------------------------------

@@ -59,6 +59,13 @@ export const WarehouseType = {
 } as const;
 export type WarehouseType = typeof WarehouseType[keyof typeof WarehouseType];
 
+export const WarehouseTaskStatus = {
+  OPEN: "OPEN",
+  IN_PROGRESS: "IN_PROGRESS",
+  COMPLETED: "COMPLETED",
+} as const;
+export type WarehouseTaskStatus = typeof WarehouseTaskStatus[keyof typeof WarehouseTaskStatus];
+
 export const RouteStatus = {
   PLANNED: "PLANNED",
   ACTIVE: "ACTIVE",
