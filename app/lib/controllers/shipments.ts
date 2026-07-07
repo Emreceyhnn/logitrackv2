@@ -1,7 +1,8 @@
 // Barrel re-exporting the shipments controller, split across submodules under
 // ./shipments/ to keep each file focused and under ~400 lines.
 export type { CustomerWithLocations, ShipmentStopInput } from "./shipments/types";
-export { invalidateShipmentCache } from "./shipments/cache";
+// NOTE: invalidateShipmentCache is intentionally NOT re-exported (server-only
+// module — see routes.ts note). Server callers import it from "./shipments/cache".
 export { createShipment } from "./shipments/create";
 export {
   assignDriverToShipment,

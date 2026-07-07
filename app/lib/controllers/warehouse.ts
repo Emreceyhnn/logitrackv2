@@ -1,6 +1,7 @@
 // Barrel re-exporting the warehouse controller, split across submodules under
 // ./warehouse/ to keep each file focused and under ~400 lines.
-export { invalidateWarehouseCache } from "./warehouse/cache";
+// NOTE: invalidateWarehouseCache is intentionally NOT re-exported (server-only
+// module — see routes.ts note). Server callers import it from "./warehouse/cache".
 export {
   createWarehouse,
   getWarehouses,

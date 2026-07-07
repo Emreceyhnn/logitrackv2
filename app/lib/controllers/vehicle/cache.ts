@@ -1,5 +1,5 @@
-"use server";
-
+// Plain module (NOT a "use server" boundary) so it may export the shared cache
+// manager object alongside async invalidation helpers. Matches driver/shared.ts.
 import { VEHICLE_CACHE_TTL } from "../../redis";
 import { createCacheManager } from "../utils/cacheFactory";
 

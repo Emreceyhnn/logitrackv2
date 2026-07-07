@@ -1,6 +1,7 @@
 // Barrel re-exporting the vehicle controller, split across submodules under
 // ./vehicle/ to keep each file focused and under ~400 lines.
-export { invalidateVehicleCache } from "./vehicle/cache";
+// NOTE: invalidateVehicleCache is intentionally NOT re-exported (server-only
+// module — see routes.ts note). Server callers import it from "./vehicle/cache".
 export {
   createVehicle,
   getVehicleById,

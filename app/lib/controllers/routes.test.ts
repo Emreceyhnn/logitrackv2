@@ -96,7 +96,9 @@ mock.module("../redis.ts", {
   namedExports: cacheUtilsMock,
 });
 
-mock.module("./shipments.ts", {
+// invalidateShipmentCache now lives in the shipments/cache submodule (the barrel
+// no longer re-exports it — see shipments.ts note), so mock that path directly.
+mock.module("./shipments/cache.ts", {
   namedExports: shipmentsCacheMock,
 });
 

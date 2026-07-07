@@ -5,7 +5,7 @@ import { sendNotificationAction as createNotification } from "@/app/lib/actions/
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
 import { checkPermission } from "../utils/checkPermission";
-import { invalidateShipmentCache } from "../shipments";
+import { invalidateShipmentCache } from "../shipments/cache";
 import {
   assertDriverAvailableForRoute,
   assertVehicleAvailableForRoute,
