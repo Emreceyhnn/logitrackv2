@@ -12,9 +12,10 @@ import {
   IssueType,
 } from "@prisma/client";
 import { formatDisplayDate } from "../../utils/date";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getOverviewStats = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getOverviewStats", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -66,14 +67,11 @@ export const getOverviewStats = authenticatedAction(async (user) => {
       warehouses,
       inventorySkus,
     };
-  } catch (error) {
-    console.error("Failed to get overview stats:", error);
-    throw error;
-  }
+  });
 });
 
 export const getActionRequired = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getActionRequired", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -142,14 +140,11 @@ export const getActionRequired = authenticatedAction(async (user) => {
     }));
 
     return [...issueAlerts, ...docAlerts];
-  } catch (error) {
-    console.error("Failed to get action required:", error);
-    return [];
-  }
+  }, { fallback: [] });
 });
 
 export const getDailyOperations = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getDailyOperations", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -203,20 +198,19 @@ export const getDailyOperations = authenticatedAction(async (user) => {
       avgDeliveryTimeMin: Math.round(avgDuration._avg.durationMin ?? 0),
       fuelConsumedLiters: Math.round(fuelToday._sum.volumeLiter ?? 0),
     };
-  } catch (error) {
-    console.error("Failed to get daily operations:", error);
-    return {
+  }, {
+    fallback: {
       plannedRoutes: 0,
       completedDeliveries: 0,
       failedDeliveries: 0,
       avgDeliveryTimeMin: 0,
       fuelConsumedLiters: 0,
-    };
-  }
+    },
+  });
 });
 
 export const getPicksAndPacks = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getPicksAndPacks", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -245,8 +239,5 @@ export const getPicksAndPacks = authenticatedAction(async (user) => {
     });
 
     return { picks, packs };
-  } catch (error) {
-    console.error("Failed to get picks and packs:", error);
-    return { picks: 0, packs: 0 };
-  }
+  }, { fallback: { picks: 0, packs: 0 } });
 });

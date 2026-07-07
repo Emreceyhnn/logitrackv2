@@ -13,6 +13,7 @@ import {
   WAREHOUSE_CACHE_TTL,
 } from "../../redis";
 import { invalidateWarehouseCache } from "./cache";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const createWarehouse = authenticatedAction(
   async (
@@ -32,7 +33,7 @@ export const createWarehouse = authenticatedAction(
     timezone?: string,
     specifications?: string[]
   ) => {
-    try {
+    return controllerGuard("createWarehouse", async () => {
       const companyId = user.companyId || "";
 
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
@@ -84,15 +85,12 @@ export const createWarehouse = authenticatedAction(
       );
 
       return { warehouse: newWarehouse };
-    } catch (error) {
-      console.error("Failed to create warehouse:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getWarehouses = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getWarehouses", async () => {
     await checkPermission(user, user.companyId);
 
     if (!user.companyId) throw new Error("User has no company");
@@ -123,15 +121,12 @@ export const getWarehouses = authenticatedAction(async (user) => {
       });
       return warehouses;
     });
-  } catch (error) {
-    console.error("Failed to get warehouses:", error);
-    throw error;
-  }
+  });
 });
 
 export const getWarehouseById = authenticatedAction(
   async (user, warehouseId: string) => {
-    try {
+    return controllerGuard("getWarehouseById", async () => {
       await checkPermission(user, user.companyId);
 
       const warehouse = await db.warehouse.findUnique({
@@ -162,16 +157,13 @@ export const getWarehouseById = authenticatedAction(
       }
 
       return warehouse;
-    } catch (error) {
-      console.error("Failed to get warehouse:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const updateWarehouse = authenticatedAction(
   async (user, warehouseId: string, data: Record<string, unknown>) => {
-    try {
+    return controllerGuard("updateWarehouse", async () => {
       await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
@@ -211,16 +203,13 @@ export const updateWarehouse = authenticatedAction(
 
       await invalidateWarehouseCache(user.companyId!, warehouseId);
       return updatedWarehouse;
-    } catch (error) {
-      console.error("Failed to update warehouse:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const deleteWarehouse = authenticatedAction(
   async (user, warehouseId: string) => {
-    try {
+    return controllerGuard("deleteWarehouse", async () => {
       await checkPermission(user, user.companyId, ["role_admin"]);
 
       const existingWarehouse = await db.warehouse.findUnique({
@@ -241,16 +230,13 @@ export const deleteWarehouse = authenticatedAction(
 
       await invalidateWarehouseCache(user.companyId!, warehouseId);
       return { success: true };
-    } catch (error) {
-      console.error("Failed to delete warehouse:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const assignManagerToWarehouse = authenticatedAction(
   async (user, warehouseId: string, managerId: string) => {
-    try {
+    return controllerGuard("assignManagerToWarehouse", async () => {
       await checkPermission(user, user.companyId, ["role_admin"]);
 
       const existingWarehouse = await db.warehouse.findUnique({
@@ -286,9 +272,6 @@ export const assignManagerToWarehouse = authenticatedAction(
       );
 
       return updatedWarehouse;
-    } catch (error) {
-      console.error("Failed to assign manager to warehouse:", error);
-      throw error;
-    }
+    });
   }
 );

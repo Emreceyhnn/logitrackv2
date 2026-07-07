@@ -1,5 +1,4 @@
  
-import "global-jsdom/register";
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
@@ -132,10 +131,11 @@ describe("ShipmentContent Component", () => {
         </ThemeProvider>
       );
 
-      // Assert basic renders
+      // Assert basic renders. shipment-analytics loads via next/dynamic (lazy),
+      // so findByTestId waits for it to resolve.
       expect(screen.getByTestId("kpi-cards")).toBeTruthy();
       expect(screen.getByTestId("shipment-table")).toBeTruthy();
-      expect(screen.getByTestId("shipment-analytics")).toBeTruthy();
+      expect(await screen.findByTestId("shipment-analytics")).toBeTruthy();
     });
 
     it("should_OpenDeleteDialog_WhenDeleteClicked", async () => {

@@ -7,6 +7,7 @@ import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
 import { invalidateVehicleCache } from "./cache";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const addMaintenanceRecord = authenticatedAction(
   async (
@@ -23,7 +24,7 @@ export const addMaintenanceRecord = authenticatedAction(
     }
   ) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("addMaintenanceRecord", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -79,10 +80,7 @@ export const addMaintenanceRecord = authenticatedAction(
       );
 
       return record;
-    } catch (error) {
-      console.error("Failed to add maintenance record:", error);
-      throw error;
-    }
+    });
   }
 );
 
@@ -101,7 +99,7 @@ export const updateMaintenanceRecord = authenticatedAction(
     }
   ) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("updateMaintenanceRecord", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -194,9 +192,6 @@ export const updateMaintenanceRecord = authenticatedAction(
 
       await invalidateVehicleCache(companyId, foundRecord.vehicle.id);
       return updatedRecord;
-    } catch (error) {
-      console.error("Failed to update maintenance record:", error);
-      throw error;
-    }
+    });
   }
 );

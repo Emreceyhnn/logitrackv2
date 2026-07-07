@@ -32,8 +32,12 @@ const useDictionaryMock = mock.fn(() => ({
 const useStateMock = mock.fn((init) => [init, mock.fn()]);
 const useMemoMock = mock.fn((fn) => fn());
 
+// Spread the real react exports so modules in the graph that need e.g.
+// createContext still work; only override the hooks this test stubs.
+import * as originalReact from "react";
 mock.module("react", {
   namedExports: {
+    ...originalReact,
     useState: useStateMock,
     useMemo: useMemoMock,
   }

@@ -1,5 +1,4 @@
  
-import "global-jsdom/register";
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -46,9 +45,10 @@ describe("LandingPage Component", () => {
       // Assert
       expect(screen.getByTestId("hero-section")).toBeTruthy();
       
-      // 4 dynamic components are rendered
+      // DeferredSections renders 3 lazy sections (SocialProof, OperationsDashboard,
+      // FeaturesSection) via next/dynamic.
       const dynamicComponents = screen.getAllByTestId("dynamic-component");
-      expect(dynamicComponents.length).toBe(4);
+      expect(dynamicComponents.length).toBe(3);
     });
   });
 });

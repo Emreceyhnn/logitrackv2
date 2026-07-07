@@ -5,11 +5,12 @@ import { sendNotificationAction as createNotification } from "@/app/lib/actions/
 import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { invalidateVehicleCache } from "./cache";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const assignDriverToVehicle = authenticatedAction(
   async (user, vehicleId: string, driverId: string | null) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("assignDriverToVehicle", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -94,17 +95,14 @@ export const assignDriverToVehicle = authenticatedAction(
       }
 
       return { success: true };
-    } catch (error) {
-      console.error("Failed to assign driver:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const unassignDriverFromVehicle = authenticatedAction(
   async (user, vehicleId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("unassignDriverFromVehicle", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -133,16 +131,13 @@ export const unassignDriverFromVehicle = authenticatedAction(
 
       await invalidateVehicleCache(companyId, vehicleId);
       return { success: true };
-    } catch (error) {
-      console.error("Failed to unassign driver:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getAvailableDrivers = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
-  try {
+  return controllerGuard("getAvailableDrivers", async () => {
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -172,8 +167,5 @@ export const getAvailableDrivers = authenticatedAction(async (user) => {
     });
 
     return availableDrivers;
-  } catch (error) {
-    console.error("Failed to get available drivers:", error);
-    throw error;
-  }
+  });
 });

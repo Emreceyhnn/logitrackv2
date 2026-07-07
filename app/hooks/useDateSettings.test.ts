@@ -11,8 +11,13 @@ const useUserMock = {
   useUser: mock.fn(() => ({ user: { timezone: "Europe/Istanbul", dateFormat: "DD.MM.YYYY", timeFormat: "24h" } })),
 };
 
+const languageMock = {
+  useLanguage: mock.fn(() => ({ lang: "tr" })),
+};
+
 mock.module("react", { namedExports: reactMock });
 mock.module("./useUser.ts", { namedExports: useUserMock });
+mock.module("../lib/language/DictionaryContext.tsx", { namedExports: languageMock });
 
 // 2. TEST GRUPLARI
 describe("useDateSettings Hook", () => {
@@ -25,6 +30,7 @@ describe("useDateSettings Hook", () => {
   beforeEach(() => {
     reactMock.useMemo.mock.resetCalls();
     useUserMock.useUser.mock.resetCalls();
+    languageMock.useLanguage.mock.resetCalls();
   });
 
   it("should_ReturnDateSettingsDerivedFromUserObject", () => {

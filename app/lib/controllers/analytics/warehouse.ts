@@ -3,9 +3,10 @@
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
 import { checkPermission } from "../utils/checkPermission";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getWarehouseCapacity = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getWarehouseCapacity", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -57,14 +58,11 @@ export const getWarehouseCapacity = authenticatedAction(async (user) => {
         volumeCapacity,
       };
     });
-  } catch (error) {
-    console.error("Failed to get warehouse capacity:", error);
-    return [];
-  }
+  }, { fallback: [] });
 });
 
 export const getLowStockItems = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getLowStockItems", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -88,28 +86,5 @@ export const getLowStockItems = authenticatedAction(async (user) => {
       onHand: i.quantity,
       minStock: i.minStock,
     }));
-  } catch (error) {
-    // Fallback: query items where quantity < 50
-    try {
-      const lowStock = await db.inventory.findMany({
-        where: {
-          companyId: user.companyId!,
-          quantity: { lt: 50 },
-        },
-        take: 8,
-        include: { warehouse: true },
-        orderBy: { quantity: "asc" },
-      });
-      return lowStock.map((i) => ({
-        item: i.name,
-        sku: i.sku,
-        warehouseId: i.warehouse.name,
-        onHand: i.quantity,
-        minStock: i.minStock,
-      }));
-    } catch {
-      console.error("Failed to get low stock items:", error);
-      return [];
-    }
-  }
+  }, { fallback: [] });
 });

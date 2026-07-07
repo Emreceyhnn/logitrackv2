@@ -34,7 +34,30 @@ const useUserMock = mock.fn(() => ({
 
 const createWarehouseMock = mock.fn();
 
-
+// This test invokes the component as a plain function, so the react hooks it
+// calls need stubs (there is no render dispatcher), and its theme/user/
+// dictionary/controller dependencies must be mocked here to be self-sufficient.
+import * as originalReact from "react";
+const useStateMock = mock.fn((init: unknown) => [
+  typeof init === "function" ? (init as () => unknown)() : init,
+  mock.fn(),
+]);
+mock.module("react", {
+  namedExports: { ...originalReact, useState: useStateMock },
+});
+import * as originalMui from "@mui/material";
+mock.module("@mui/material", {
+  namedExports: { ...originalMui, useTheme: useThemeMock },
+});
+mock.module("../../../../lib/language/DictionaryContext.tsx", {
+  namedExports: { useDictionary: useDictionaryMock },
+});
+mock.module("../../../../hooks/useUser.ts", {
+  namedExports: { useUser: useUserMock },
+});
+mock.module("../../../../lib/controllers/warehouse.ts", {
+  namedExports: { createWarehouse: createWarehouseMock },
+});
 
 describe("AddWarehouseDialog Component", () => {
   let AddWarehouseDialog: any;

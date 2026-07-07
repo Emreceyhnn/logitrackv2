@@ -1,17 +1,15 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { redis, invalidatePattern, shipmentCacheKeys } from "../../redis";
+import { SHIPMENT_CACHE_TTL } from "../../redis";
+import { createCacheManager } from "../utils/cacheFactory";
 
+// Shared cache manager instance for all shipment submodules.
+export const shipmentCache = createCacheManager("shipments", SHIPMENT_CACHE_TTL);
+
+// Backward-compatible function for existing callers
 export async function invalidateShipmentCache(
   companyId: string,
   shipmentId?: string
-) {
-  await Promise.all([
-    invalidatePattern(shipmentCacheKeys.companyPattern(companyId)),
-    shipmentId
-      ? redis.del(shipmentCacheKeys.detail(shipmentId))
-      : Promise.resolve(),
-  ]);
-  revalidatePath("/", "layout");
+): Promise<void> {
+  await shipmentCache.invalidate(companyId, shipmentId);
 }

@@ -3,11 +3,12 @@
 import { db } from "../../db";
 import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getCompanyUsers = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
-  try {
+  return controllerGuard("getCompanyUsers", async () => {
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -38,18 +39,13 @@ export const getCompanyUsers = authenticatedAction(async (user) => {
       },
     });
     return users;
-  } catch (error) {
-    console.error("Failed to get company users:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get company users"
-    );
-  }
+  });
 });
 
 export const getCompanyWarehouses = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
-  try {
+  return controllerGuard("getCompanyWarehouses", async () => {
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -61,20 +57,13 @@ export const getCompanyWarehouses = authenticatedAction(async (user) => {
       where: { companyId },
     });
     return warehouses;
-  } catch (error) {
-    console.error("Failed to get company warehouses:", error);
-    throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Failed to get company warehouses"
-    );
-  }
+  });
 });
 
 export const getCompanyVehicles = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
-  try {
+  return controllerGuard("getCompanyVehicles", async () => {
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -86,18 +75,13 @@ export const getCompanyVehicles = authenticatedAction(async (user) => {
       where: { companyId },
     });
     return vehicles;
-  } catch (error) {
-    console.error("Failed to get company vehicles:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get company vehicles"
-    );
-  }
+  });
 });
 
 export const getCompanyDrivers = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
-  try {
+  return controllerGuard("getCompanyDrivers", async () => {
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -109,18 +93,13 @@ export const getCompanyDrivers = authenticatedAction(async (user) => {
       where: { companyId },
     });
     return drivers;
-  } catch (error) {
-    console.error("Failed to get company drivers:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get company drivers"
-    );
-  }
+  });
 });
 
 export const getCompanyCustomers = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
-  try {
+  return controllerGuard("getCompanyCustomers", async () => {
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -132,10 +111,5 @@ export const getCompanyCustomers = authenticatedAction(async (user) => {
       where: { companyId },
     });
     return customers;
-  } catch (error) {
-    console.error("Failed to get company customers:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get company customers"
-    );
-  }
+  });
 });

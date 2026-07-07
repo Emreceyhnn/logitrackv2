@@ -10,11 +10,12 @@ import {
   routeCacheKeys,
   ROUTE_CACHE_TTL,
 } from "../../redis";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getRoutes = authenticatedAction(
   async (user, page: number = 1, pageSize: number = 10, status?: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getRoutes", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -82,17 +83,14 @@ export const getRoutes = authenticatedAction(
 
       return { routes, totalCount };
       });
-    } catch (error) {
-      console.error("Failed to get routes:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getRouteById = authenticatedAction(
   async (user, routeId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getRouteById", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -140,17 +138,14 @@ export const getRouteById = authenticatedAction(
       }
 
       return route;
-    } catch (error) {
-      console.error("Failed to get route:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getDriverRoutes = authenticatedAction(
   async (user, driverId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getDriverRoutes", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -162,17 +157,14 @@ export const getDriverRoutes = authenticatedAction(
         orderBy: { date: "desc" },
       });
       return routes;
-    } catch (error) {
-      console.error("Failed to get driver routes:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getVehicleRoutes = authenticatedAction(
   async (user, vehicleId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getVehicleRoutes", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -184,16 +176,13 @@ export const getVehicleRoutes = authenticatedAction(
         orderBy: { date: "desc" },
       });
       return routes;
-    } catch (error) {
-      console.error("Failed to get vehicle routes:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getCompanyRoutes = authenticatedAction(async (user) => {
   const companyId = user?.companyId;
-  try {
+  return controllerGuard("getCompanyRoutes", async () => {
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -207,8 +196,5 @@ export const getCompanyRoutes = authenticatedAction(async (user) => {
       orderBy: { date: "desc" },
     });
     return routes;
-  } catch (error) {
-    console.error("Failed to get company routes:", error);
-    throw error;
-  }
+  });
 });

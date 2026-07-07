@@ -5,6 +5,7 @@ import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { createSession, revokeSession } from "../session";
 import { invalidateCompanyCache, ensureStandardRoles } from "./shared";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const createCompany = authenticatedAction(
   async (
@@ -60,7 +61,7 @@ export const getCompanyById = authenticatedAction(async (user) => {
   const userId = user?.id || "";
   const companyId = user?.companyId || "";
 
-  try {
+  return controllerGuard("getCompanyById", async () => {
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -78,19 +79,14 @@ export const getCompanyById = authenticatedAction(async (user) => {
     }
 
     return company;
-  } catch (error) {
-    console.error("Failed to get company:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get company"
-    );
-  }
+  });
 });
 
 export const updateCompany = authenticatedAction(
   async (user, data: { name?: string; avatarUrl?: string }) => {
     const companyId = user?.companyId || "";
 
-    try {
+    return controllerGuard("updateCompany", async () => {
       await checkPermission(user, companyId, ["role_admin"]);
 
       const updatedCompany = await db.company.update({
@@ -102,19 +98,14 @@ export const updateCompany = authenticatedAction(
       });
       await invalidateCompanyCache(companyId);
       return updatedCompany;
-    } catch (error) {
-      console.error("Failed to update company:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to update company"
-      );
-    }
+    });
   }
 );
 
 export const deleteCompany = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
-  try {
+  return controllerGuard("deleteCompany", async () => {
     await checkPermission(user, companyId, ["role_admin"]);
 
     // All tenant FKs are ON DELETE RESTRICT, so tenant offboarding is an
@@ -151,10 +142,5 @@ export const deleteCompany = authenticatedAction(async (user) => {
       return tx.company.delete({ where: { id: companyId } });
     });
     return deletedCompany;
-  } catch (error) {
-    console.error("Failed to delete company:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to delete company"
-    );
-  }
+  });
 });

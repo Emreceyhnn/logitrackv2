@@ -15,10 +15,17 @@ import { AppError, fromZodError } from "../../errors";
  *  2. ZodError → ValidationError conversion
  *  3. Next.js DYNAMIC_SERVER_USAGE re-throw
  *  4. Unknown errors preserved (not swallowed)
+ *
+ * Graceful-degradation callers (dashboard widgets that should render empty
+ * rather than crash the page) pass `{ fallback }`. When supplied, any error
+ * other than the Next.js dynamic-usage digest is logged and the fallback value
+ * is returned instead of propagating — mirroring the pre-guard
+ * `catch { return X }` contract those read paths relied on.
  */
 export async function controllerGuard<T>(
   operationName: string,
-  fn: () => Promise<T>
+  fn: () => Promise<T>,
+  options?: { fallback: T }
 ): Promise<T> {
   try {
     return await fn();
@@ -30,6 +37,12 @@ export async function controllerGuard<T>(
       (error as { digest?: string }).digest === "DYNAMIC_SERVER_USAGE"
     ) {
       throw error;
+    }
+
+    // Graceful-degradation caller: log and return the fallback value.
+    if (options) {
+      console.error(`[${operationName}] Failed, returning fallback:`, error);
+      return options.fallback;
     }
 
     // Zod validation failures → structured ValidationError

@@ -8,9 +8,10 @@ import { checkPermission } from "../utils/checkPermission";
 import { MapData } from "../../type/overview";
 import { ShipmentStatus, VehicleStatus } from "@prisma/client";
 import { getExchangeRates } from "../../services/exchangeRate";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getFuelStats = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getFuelStats", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -62,14 +63,11 @@ export const getFuelStats = authenticatedAction(async (user) => {
       value: Math.round(data.volume * 10) / 10,
       totalCost: Math.round(data.costUsd),
     }));
-  } catch (error) {
-    console.error("Failed to get fuel stats:", error);
-    return [];
-  }
+  }, { fallback: [] });
 });
 
 export const getMapData = authenticatedAction(async (user): Promise<MapData[]> => {
-  try {
+  return controllerGuard("getMapData", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -114,14 +112,11 @@ export const getMapData = authenticatedAction(async (user): Promise<MapData[]> =
         };
       }),
     ];
-  } catch (error) {
-    console.error("Failed to get map data:", error);
-    return [];
-  }
+  }, { fallback: [] });
 });
 
 export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getAnalyticsDashboardData", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -219,8 +214,5 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
         predicted: [null,null,null,null,null,null,null,null,10,12,15,18,20],
       },
     };
-  } catch (error) {
-    console.error("Failed to get analytics dashboard data:", error);
-    return null;
-  }
+  }, { fallback: null });
 });

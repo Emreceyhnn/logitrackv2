@@ -6,9 +6,10 @@ import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
 import { checkPermission } from "../utils/checkPermission";
 import { RouteStatus } from "@prisma/client";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getShipmentStatusStats = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getShipmentStatusStats", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -21,14 +22,11 @@ export const getShipmentStatusStats = authenticatedAction(async (user) => {
     });
 
     return allShipments.map((s) => s.status);
-  } catch (error) {
-    console.error("Failed to get shipment status stats:", error);
-    return [];
-  }
+  }, { fallback: [] });
 });
 
 export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getShipmentVolumeHistory", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -67,15 +65,12 @@ export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
     }
 
     return result;
-  } catch (error) {
-    console.error("Failed to get shipment volume history:", error);
-    return [];
-  }
+  }, { fallback: [] });
 });
 
 // Keep for backward compat (on-time trends replaced by shipment volume)
 export const getOnTimeTrends = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getOnTimeTrends", async () => {
     await checkPermission(user, user.companyId, [], {
       allowNoCompany: true,
     });
@@ -105,8 +100,5 @@ export const getOnTimeTrends = authenticatedAction(async (user) => {
     });
 
     return Array.from(byDate.entries()).map(([date, value]) => ({ date, value }));
-  } catch (error) {
-    console.error("Failed to get on time trends:", error);
-    return [];
-  }
+  }, { fallback: [] });
 });

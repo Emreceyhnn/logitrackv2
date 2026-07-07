@@ -1,5 +1,4 @@
  
-import "global-jsdom/register";
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
@@ -44,6 +43,26 @@ const toastMock = {
 
 mock.module("sonner", {
   namedExports: { toast: toastMock },
+});
+
+// EditCustomerDialog consumes useUser() and useDictionary(); without these
+// mocks the real context hooks throw "must be used within a UserProvider".
+mock.module("../../../hooks/useUser.ts", {
+  namedExports: {
+    useUser: mock.fn(() => ({
+      user: {
+        id: "user-1",
+        companyId: "company-1",
+        timezone: "UTC",
+        dateFormat: "DD/MM/YYYY",
+        timeFormat: "24h",
+      },
+    })),
+  },
+});
+
+mock.module("../../../lib/language/DictionaryContext.tsx", {
+  namedExports: { useDictionary: useDictionaryMock },
 });
 
 mock.module("../../../lib/controllers/customer.ts", {

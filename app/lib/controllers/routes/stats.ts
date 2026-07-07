@@ -17,9 +17,10 @@ import {
   ROUTE_CACHE_TTL,
 } from "../../redis";
 import { calcTrend, daysAgo } from "../utils/trendUtils";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getRouteStats = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getRouteStats", async () => {
     const companyId = user?.companyId || "";
     await checkPermission(user, companyId, [
       "role_admin",
@@ -68,14 +69,11 @@ export const getRouteStats = authenticatedAction(async (user) => {
       completedToday,
       delayed: delayedRoutes,
     };
-  } catch (error) {
-    console.error("Failed to get route stats:", error);
-    return { active: 0, inProgress: 0, completedToday: 0, delayed: 0 };
-  }
+  }, { fallback: { active: 0, inProgress: 0, completedToday: 0, delayed: 0 } });
 });
 
 export const getRouteEfficiencyStats = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getRouteEfficiencyStats", async () => {
     const companyId = user?.companyId || "";
     await checkPermission(user, companyId, [
       "role_admin",
@@ -116,19 +114,18 @@ export const getRouteEfficiencyStats = authenticatedAction(async (user) => {
       vehicleUtilization: vehicleUtilization,
       recentNotifications: [],
     };
-  } catch (error) {
-    console.error("Failed to get route efficiency stats:", error);
-    return {
+  }, {
+    fallback: {
       fuelConsumption: 0,
       onTimePerformance: 0,
       vehicleUtilization: 0,
       recentNotifications: [],
-    };
-  }
+    },
+  });
 });
 
 export const getActiveRoutesLocations = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getActiveRoutesLocations", async () => {
     const companyId = user?.companyId || "";
     await checkPermission(user, companyId, [
       "role_admin",
@@ -181,10 +178,7 @@ export const getActiveRoutesLocations = authenticatedAction(async (user) => {
       }));
 
     return mapData;
-  } catch (error) {
-    console.error("Failed to get active routes locations:", error);
-    return [];
-  }
+  }, { fallback: [] });
 });
 
 export const getRoutesWithDashboardData = authenticatedAction(
@@ -202,7 +196,7 @@ export const getRoutesWithDashboardData = authenticatedAction(
   }> => {
     const companyId = user?.companyId;
 
-    try {
+    return controllerGuard("getRoutesWithDashboardData", async () => {
       if (!companyId) throw new Error("User has no company");
 
       const skip = (page - 1) * pageSize;
@@ -391,9 +385,6 @@ export const getRoutesWithDashboardData = authenticatedAction(
           })),
       };
       });
-    } catch (error) {
-      console.error("Failed to get routes combined data:", error);
-      throw error;
-    }
+    });
   }
 );

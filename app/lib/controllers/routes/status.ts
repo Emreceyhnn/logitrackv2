@@ -8,12 +8,13 @@ import { checkPermission } from "../utils/checkPermission";
 import { isTerminalShipmentStatus } from "../utils/shipmentTransitions";
 import { invalidateRouteCache } from "./cache";
 import { ROUTE_TRANSITIONS } from "./types";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const updateRouteStatus = authenticatedAction(
   async (user, routeId: string, status: RouteStatus) => {
     const userId = user?.id;
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("updateRouteStatus", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -204,9 +205,6 @@ export const updateRouteStatus = authenticatedAction(
 
       await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
-    } catch (error) {
-      console.error("Failed to update route status:", error);
-      throw error;
-    }
+    });
   }
 );

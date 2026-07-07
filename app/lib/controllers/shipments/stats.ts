@@ -18,13 +18,15 @@ import {
 } from "../../redis";
 import { calcTrend, daysAgo } from "../utils/trendUtils";
 import { controllerGuard } from "../utils/controllerGuard";
+import { NoCompanyError } from "../../errors";
 
 export const getShipmentStats = authenticatedAction(async (user) => {
   const companyId = user?.companyId;
-  try {
+
+  return controllerGuard("getShipmentStats", async () => {
     await checkPermission(user, companyId);
 
-    if (!companyId) throw new Error("User has no company");
+    if (!companyId) throw new NoCompanyError();
 
     const [total, active, delayed, inTransit] = await Promise.all([
       db.shipment.count({ where: { companyId } }),
@@ -49,18 +51,16 @@ export const getShipmentStats = authenticatedAction(async (user) => {
     ]);
 
     return { total, active, delayed, inTransit };
-  } catch (error) {
-    console.error("Failed to get shipment stats:", error);
-    return { total: 0, active: 0, delayed: 0, inTransit: 0 };
-  }
+  }, { fallback: { total: 0, active: 0, delayed: 0, inTransit: 0 } });
 });
 
 export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
   const companyId = user?.companyId;
-  try {
+
+  return controllerGuard("getShipmentVolumeHistory", async () => {
     await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-    if (!companyId) throw new Error("User has no company");
+    if (!companyId) throw new NoCompanyError();
 
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -85,19 +85,17 @@ export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
       day,
       volume: volumeByDay[day] || 0,
     }));
-  } catch (error) {
-    console.error("Failed to get shipment volume history:", error);
-    return [];
-  }
+  }, { fallback: [] });
 });
 
 export const getShipmentStatusDistribution = authenticatedAction(
   async (user) => {
     const companyId = user?.companyId;
-    try {
+
+    return controllerGuard("getShipmentStatusDistribution", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
-      if (!companyId) throw new Error("User has no company");
+      if (!companyId) throw new NoCompanyError();
 
       const statusCounts = await db.shipment.groupBy({
         by: ["status"],
@@ -109,10 +107,7 @@ export const getShipmentStatusDistribution = authenticatedAction(
         status: s.status,
         count: s._count.status,
       }));
-    } catch (error) {
-      console.error("Failed to get shipment status distribution:", error);
-      return [];
-    }
+    }, { fallback: [] });
   }
 );
 

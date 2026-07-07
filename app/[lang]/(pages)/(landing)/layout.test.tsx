@@ -1,13 +1,26 @@
  
-import "global-jsdom/register";
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
 import React from "react";
 
-// Mock Child Component
+// Mock Child Components. The layout also renders LandingFooter and
+// LandingThemeProvider, which consume useDictionary; stub them so the layout
+// is self-contained.
 mock.module("../../../components/landing/LandingNavbar.tsx", {
   defaultExport: () => <div data-testid="landing-navbar">Landing Navbar</div>,
+});
+mock.module("../../../components/landing/LandingFooter.tsx", {
+  defaultExport: () => <div data-testid="landing-footer">Landing Footer</div>,
+});
+mock.module("../../../lib/theme/LandingThemeProvider.tsx", {
+  defaultExport: ({ children }: any) => <>{children}</>,
+});
+mock.module("../../../lib/language/DictionaryContext.tsx", {
+  namedExports: {
+    useDictionary: mock.fn(() => ({})),
+    useLanguage: mock.fn(() => ({ lang: "en" })),
+  },
 });
 
 describe("LandingLayout Component", () => {

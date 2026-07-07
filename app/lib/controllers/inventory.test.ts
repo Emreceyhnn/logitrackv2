@@ -238,7 +238,7 @@ describe("Inventory Controller", () => {
         mockUser,
         "inv-1",
         -30,
-        "OUTBOUND"
+        "PICK"
       );
 
       // Assert
@@ -246,7 +246,7 @@ describe("Inventory Controller", () => {
       const moveArgs = dbMock.inventoryMovement.create.mock.calls[0]
         .arguments[0] as any;
       expect(moveArgs.data.quantity).toBe(-30);
-      expect(moveArgs.data.type).toBe("OUTBOUND");
+      expect(moveArgs.data.type).toBe("PICK");
     });
 
     it("should_ThrowAndSkipMovement_WhenAdjustmentWouldGoNegative", async () => {

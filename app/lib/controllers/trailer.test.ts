@@ -147,7 +147,7 @@ describe("Trailer Controller", () => {
       // Act & Assert
       await expect(
         trailerController.createTrailer(mockUser, trailerData)
-      ).rejects.toThrow("Plate or Fleet Number already exists.");
+      ).rejects.toThrow("Plate or fleet number already exists");
 
       expect(dbMock.trailer.create.mock.calls.length).toBe(0);
     });

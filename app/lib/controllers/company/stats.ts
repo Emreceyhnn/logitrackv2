@@ -11,11 +11,12 @@ import {
   COMPANY_CACHE_TTL,
 } from "../../redis";
 import { calcTrend, daysAgo } from "../utils/trendUtils";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getCompanyProfile = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
-  try {
+  return controllerGuard("getCompanyProfile", async () => {
     await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
     const company = await db.company.findUnique({
@@ -70,18 +71,13 @@ export const getCompanyProfile = authenticatedAction(async (user) => {
         createdAt: u.createdAt.toISOString(),
       })),
     };
-  } catch (error) {
-    console.error("Failed to get company profile:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get company profile"
-    );
-  }
+  });
 });
 
 export const getCompanyStats = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
 
-  try {
+  return controllerGuard("getCompanyStats", async () => {
     await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
     const [
@@ -108,12 +104,7 @@ export const getCompanyStats = authenticatedAction(async (user) => {
       customers: customerCount,
       shipments: shipmentCount,
     };
-  } catch (error) {
-    console.error("Failed to get company stats:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get company stats"
-    );
-  }
+  });
 });
 
 export const getCompanyWithDashboardData = authenticatedAction(
@@ -124,7 +115,7 @@ export const getCompanyWithDashboardData = authenticatedAction(
       throw new Error("User is not associated with any company");
     }
 
-    try {
+    return controllerGuard("getCompanyWithDashboardData", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const page = Math.max(1, filters.page || 1);
@@ -239,13 +230,6 @@ export const getCompanyWithDashboardData = authenticatedAction(
           },
         };
       });
-    } catch (error) {
-      console.error("Failed to get company dashboard data:", error);
-      throw new Error(
-        error instanceof Error
-          ? error.message
-          : "Failed to get company dashboard data"
-      );
-    }
+    });
   }
 );

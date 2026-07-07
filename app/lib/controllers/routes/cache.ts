@@ -1,12 +1,15 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { redis, invalidatePattern, routeCacheKeys } from "../../redis";
+import { ROUTE_CACHE_TTL } from "../../redis";
+import { createCacheManager } from "../utils/cacheFactory";
 
-export async function invalidateRouteCache(companyId: string, routeId?: string) {
-  await Promise.all([
-    invalidatePattern(routeCacheKeys.companyPattern(companyId)),
-    routeId ? redis.del(routeCacheKeys.detail(routeId)) : Promise.resolve(),
-  ]);
-  revalidatePath("/", "layout");
+// Shared cache manager instance for all route submodules.
+export const routeCache = createCacheManager("routes", ROUTE_CACHE_TTL);
+
+// Backward-compatible function for existing callers
+export async function invalidateRouteCache(
+  companyId: string,
+  routeId?: string
+): Promise<void> {
+  await routeCache.invalidate(companyId, routeId);
 }

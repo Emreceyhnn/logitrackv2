@@ -12,11 +12,12 @@ import {
 import { isTerminalShipmentStatus } from "../utils/shipmentTransitions";
 import { invalidateRouteCache } from "./cache";
 import { ROUTE_TRANSITIONS } from "./types";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const assignDriverToRoute = authenticatedAction(
   async (user, routeId: string, driverId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("assignDriverToRoute", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -51,17 +52,14 @@ export const assignDriverToRoute = authenticatedAction(
 
       await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
-    } catch (error) {
-      console.error("Failed to assign driver to route:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const assignVehicleToRoute = authenticatedAction(
   async (user, routeId: string, vehicleId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("assignVehicleToRoute", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -137,17 +135,14 @@ export const assignVehicleToRoute = authenticatedAction(
 
       await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
-    } catch (error) {
-      console.error("Failed to assign vehicle to route:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const unassignDriverFromRoute = authenticatedAction(
   async (user, routeId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("unassignDriverFromRoute", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -171,17 +166,14 @@ export const unassignDriverFromRoute = authenticatedAction(
 
       await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
-    } catch (error) {
-      console.error("Failed to unassign driver from route:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const unassignVehicleFromRoute = authenticatedAction(
   async (user, routeId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("unassignVehicleFromRoute", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -205,10 +197,7 @@ export const unassignVehicleFromRoute = authenticatedAction(
 
       await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
-    } catch (error) {
-      console.error("Failed to unassign vehicle from route:", error);
-      throw error;
-    }
+    });
   }
 );
 
@@ -216,7 +205,7 @@ export const updateRouteStatus = authenticatedAction(
   async (user, routeId: string, status: RouteStatus) => {
     const userId = user?.id;
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("updateRouteStatus", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -407,9 +396,6 @@ export const updateRouteStatus = authenticatedAction(
 
       await invalidateRouteCache(companyId!, routeId);
       return updatedRoute;
-    } catch (error) {
-      console.error("Failed to update route status:", error);
-      throw error;
-    }
+    });
   }
 );

@@ -4,6 +4,8 @@ import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { Prisma } from "@prisma/client";
+import { controllerGuard } from "./utils/controllerGuard";
+import { ConflictError, NotFoundError, ForbiddenError } from "../errors";
 
 export const createRole = authenticatedAction(
   async (
@@ -14,7 +16,7 @@ export const createRole = authenticatedAction(
   ) => {
     const companyId = user?.companyId;
 
-    try {
+    return controllerGuard("createRole", async () => {
       await checkPermission(user, companyId, ["role_admin"]);
 
       const existingRole = await db.role.findFirst({
@@ -22,7 +24,7 @@ export const createRole = authenticatedAction(
       });
 
       if (existingRole) {
-        throw new Error("Role name already exists");
+        throw new ConflictError("Role name already exists");
       }
 
       const newRole = await db.role.create({
@@ -35,19 +37,14 @@ export const createRole = authenticatedAction(
       });
 
       return { role: newRole };
-    } catch (error) {
-      console.error("Failed to create role:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to create role"
-      );
-    }
+    });
   }
 );
 
 export const getRoles = authenticatedAction(async (user) => {
   const companyId = user?.companyId;
 
-  try {
+  return controllerGuard("getRoles", async () => {
     await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
     // System roles (companyId = null) are shared; custom roles are tenant-scoped
@@ -61,18 +58,13 @@ export const getRoles = authenticatedAction(async (user) => {
       },
     });
     return roles;
-  } catch (error) {
-    console.error("Failed to get roles:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get roles"
-    );
-  }
+  });
 });
 
 export const getRoleById = authenticatedAction(async (user, roleId: string) => {
   const companyId = user?.companyId;
 
-  try {
+  return controllerGuard("getRoleById", async () => {
     await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
     const role = await db.role.findUnique({
@@ -93,29 +85,24 @@ export const getRoleById = authenticatedAction(async (user, roleId: string) => {
     });
 
     if (!role || (role.companyId !== null && role.companyId !== companyId))
-      throw new Error("Role not found");
+      throw new NotFoundError("Role");
 
     return role;
-  } catch (error) {
-    console.error("Failed to get role:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to get role"
-    );
-  }
+  });
 });
 
 export const updateRole = authenticatedAction(
   async (user, roleId: string, data: Prisma.RoleUpdateInput) => {
     const companyId = user?.companyId;
 
-    try {
+    return controllerGuard("updateRole", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const existing = await db.role.findUnique({ where: { id: roleId } });
-      if (!existing) throw new Error("Role not found");
+      if (!existing) throw new NotFoundError("Role");
       if (existing.companyId === null)
-        throw new Error("System roles are immutable");
-      if (existing.companyId !== companyId) throw new Error("Unauthorized");
+        throw new ForbiddenError("System roles are immutable");
+      if (existing.companyId !== companyId) throw new ForbiddenError();
 
       const updatedRole = await db.role.update({
         where: { id: roleId },
@@ -125,33 +112,28 @@ export const updateRole = authenticatedAction(
       });
 
       return updatedRole;
-    } catch (error) {
-      console.error("Failed to update role:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to update role"
-      );
-    }
+    });
   }
 );
 
 export const deleteRole = authenticatedAction(async (user, roleId: string) => {
   const companyId = user?.companyId;
 
-  try {
+  return controllerGuard("deleteRole", async () => {
     await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
     const existing = await db.role.findUnique({ where: { id: roleId } });
-    if (!existing) throw new Error("Role not found");
+    if (!existing) throw new NotFoundError("Role");
     if (existing.companyId === null)
-      throw new Error("System roles cannot be deleted");
-    if (existing.companyId !== companyId) throw new Error("Unauthorized");
+      throw new ForbiddenError("System roles cannot be deleted");
+    if (existing.companyId !== companyId) throw new ForbiddenError();
 
     const roleInUse = await db.user.findFirst({
       where: { roleId },
     });
 
     if (roleInUse) {
-      throw new Error(
+      throw new ConflictError(
         "Cannot delete role because it is assigned to one or more users"
       );
     }
@@ -161,26 +143,21 @@ export const deleteRole = authenticatedAction(async (user, roleId: string) => {
     });
 
     return { success: true };
-  } catch (error) {
-    console.error("Failed to delete role:", error);
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to delete role"
-    );
-  }
+  });
 });
 
 export const addPermissionToRole = authenticatedAction(
   async (user, roleId: string, permission: string) => {
     const companyId = user?.companyId;
 
-    try {
+    return controllerGuard("addPermissionToRole", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const role = await db.role.findUnique({ where: { id: roleId } });
-      if (!role) throw new Error("Role not found");
+      if (!role) throw new NotFoundError("Role");
       if (role.companyId === null)
-        throw new Error("System roles are immutable");
-      if (role.companyId !== companyId) throw new Error("Unauthorized");
+        throw new ForbiddenError("System roles are immutable");
+      if (role.companyId !== companyId) throw new ForbiddenError();
 
       const permissions = role.permissions || [];
       if (permissions.includes(permission)) {
@@ -195,14 +172,7 @@ export const addPermissionToRole = authenticatedAction(
       });
 
       return updatedRole;
-    } catch (error) {
-      console.error("Failed to add permission to role:", error);
-      throw new Error(
-        error instanceof Error
-          ? error.message
-          : "Failed to add permission to role"
-      );
-    }
+    });
   }
 );
 
@@ -210,14 +180,14 @@ export const removePermissionFromRole = authenticatedAction(
   async (user, roleId: string, permission: string) => {
     const companyId = user?.companyId;
 
-    try {
+    return controllerGuard("removePermissionFromRole", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const role = await db.role.findUnique({ where: { id: roleId } });
-      if (!role) throw new Error("Role not found");
+      if (!role) throw new NotFoundError("Role");
       if (role.companyId === null)
-        throw new Error("System roles are immutable");
-      if (role.companyId !== companyId) throw new Error("Unauthorized");
+        throw new ForbiddenError("System roles are immutable");
+      if (role.companyId !== companyId) throw new ForbiddenError();
 
       const permissions = role.permissions || [];
       const newPermissions = permissions.filter((p) => p !== permission);
@@ -230,13 +200,6 @@ export const removePermissionFromRole = authenticatedAction(
       });
 
       return updatedRole;
-    } catch (error) {
-      console.error("Failed to remove permission from role:", error);
-      throw new Error(
-        error instanceof Error
-          ? error.message
-          : "Failed to remove permission from role"
-      );
-    }
+    });
   }
 );

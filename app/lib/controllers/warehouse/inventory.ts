@@ -6,6 +6,7 @@ import { checkPermission } from "../utils/checkPermission";
 import { Prisma } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { invalidateWarehouseCache } from "./cache";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const addInventoryItem = authenticatedAction(
   async (
@@ -23,7 +24,7 @@ export const addInventoryItem = authenticatedAction(
     unitValue?: number,
     currency: string = "USD"
   ) => {
-    try {
+    return controllerGuard("addInventoryItem", async () => {
       await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
@@ -108,16 +109,13 @@ export const addInventoryItem = authenticatedAction(
       }
 
       return result;
-    } catch (error) {
-      console.error("Failed to add inventory item:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const updateInventoryItem = authenticatedAction(
   async (user, inventoryId: string, data: Prisma.InventoryUpdateInput) => {
-    try {
+    return controllerGuard("updateInventoryItem", async () => {
       await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
@@ -187,16 +185,13 @@ export const updateInventoryItem = authenticatedAction(
       }
 
       return updatedItem;
-    } catch (error) {
-      console.error("Failed to update inventory item:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const deleteInventoryItem = authenticatedAction(
   async (user, inventoryId: string) => {
-    try {
+    return controllerGuard("deleteInventoryItem", async () => {
       await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
@@ -217,16 +212,13 @@ export const deleteInventoryItem = authenticatedAction(
       });
 
       return { success: true };
-    } catch (error) {
-      console.error("Failed to delete inventory item:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getLowStockItems = authenticatedAction(
   async (user, warehouseId: string) => {
-    try {
+    return controllerGuard("getLowStockItems", async () => {
       await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
@@ -255,9 +247,6 @@ export const getLowStockItems = authenticatedAction(
       });
 
       return lowStockItems;
-    } catch (error) {
-      console.error("Failed to get low stock items:", error);
-      throw error;
-    }
+    });
   }
 );

@@ -33,8 +33,10 @@ const useCallbackMock = mock.fn((fn) => fn);
 const useMemoMock = mock.fn((fn) => fn());
 const useRefMock = mock.fn(() => ({ current: null }));
 
+import * as originalReact from "react";
 mock.module("react", {
   namedExports: {
+    ...originalReact,
     useState: useStateMock,
     useEffect: useEffectMock,
     useCallback: useCallbackMock,

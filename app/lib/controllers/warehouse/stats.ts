@@ -15,9 +15,10 @@ import {
   WAREHOUSE_CACHE_TTL,
 } from "../../redis";
 import { calcTrend, daysAgo } from "../utils/trendUtils";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getWarehouseStats = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getWarehouseStats", async () => {
     await checkPermission(user, user.companyId);
 
     if (!user.companyId) throw new Error("User has no company");
@@ -51,20 +52,19 @@ export const getWarehouseStats = authenticatedAction(async (user) => {
       totalCapacityPallets,
       totalCapacityVolume,
     };
-  } catch (error) {
-    console.error("Failed to get warehouse stats:", error);
-    return {
+  }, {
+    fallback: {
       totalWarehouses: 0,
       totalSkus: 0,
       totalItems: 0,
       totalCapacityPallets: 0,
       totalCapacityVolume: 0,
-    };
-  }
+    },
+  });
 });
 
 export const getRecentStockMovements = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getRecentStockMovements", async () => {
     await checkPermission(user, user.companyId);
 
     if (!user.companyId) throw new Error("User has no company");
@@ -95,10 +95,7 @@ export const getRecentStockMovements = authenticatedAction(async (user) => {
     );
 
     return enrichedMovements;
-  } catch (error) {
-    console.error("Failed to get stock movements:", error);
-    return [];
-  }
+  }, { fallback: [] });
 });
 
 export const getWarehousesWithDashboardData = authenticatedAction(
@@ -117,7 +114,7 @@ export const getWarehousesWithDashboardData = authenticatedAction(
   }> => {
     const companyId = user?.companyId;
 
-    try {
+    return controllerGuard("getWarehousesWithDashboardData", async () => {
       if (!companyId) throw new Error("User has no company");
 
       const skip = (page - 1) * pageSize;
@@ -234,9 +231,6 @@ export const getWarehousesWithDashboardData = authenticatedAction(
           recentMovements: enrichedMovements,
         };
       });
-    } catch (error) {
-      console.error("Failed to get warehouse combined data:", error);
-      throw error;
-    }
+    });
   }
 );

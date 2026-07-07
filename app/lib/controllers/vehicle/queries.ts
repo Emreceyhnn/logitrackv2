@@ -22,11 +22,12 @@ import {
   VEHICLE_CACHE_TTL,
 } from "../../redis";
 import { calcTrend, daysAgo } from "../utils/trendUtils";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const getVehicles = authenticatedAction(
   async (user, filters?: VehicleFilters): Promise<VehicleWithRelations[]> => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getVehicles", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -106,16 +107,13 @@ export const getVehicles = authenticatedAction(
         })),
       }));
       return result;
-    } catch (error) {
-      console.error("Failed to get vehicles:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getVehiclesDashboardData = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
-  try {
+  return controllerGuard("getVehiclesDashboardData", async () => {
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -187,10 +185,7 @@ export const getVehiclesDashboardData = authenticatedAction(async (user) => {
         kpiTrends,
       };
     });
-  } catch (error) {
-    console.error("Failed to get vehicle kpi cards:", error);
-    throw error;
-  }
+  });
 });
 
 export const getVehiclesWithDashboard = authenticatedAction(
@@ -206,7 +201,7 @@ export const getVehiclesWithDashboard = authenticatedAction(
   }> => {
     const companyId = user?.companyId || "";
 
-    try {
+    return controllerGuard("getVehiclesWithDashboard", async () => {
       if (!companyId) throw new Error("User has no company");
 
       const cacheKey = vehicleCacheKeys.dashboard(
@@ -385,9 +380,6 @@ export const getVehiclesWithDashboard = authenticatedAction(
           plannedServices: VehicleServiceConverter(dashboardInput),
         };
       }); // end withCache
-    } catch (error) {
-      console.error("Failed to get vehicles with dashboard data:", error);
-      throw error;
-    }
+    });
   }
 );

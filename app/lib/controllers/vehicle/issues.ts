@@ -11,6 +11,7 @@ import { sendNotificationAction as createNotification } from "@/app/lib/actions/
 import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { invalidateVehicleCache } from "./cache";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const createVehicleIssue = authenticatedAction(
   async (
@@ -24,7 +25,7 @@ export const createVehicleIssue = authenticatedAction(
     }
   ) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("createVehicleIssue", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -75,16 +76,13 @@ export const createVehicleIssue = authenticatedAction(
       );
 
       return issue;
-    } catch (error) {
-      console.error("Failed to create vehicle issue:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getOpenIssuesForUser = authenticatedAction(async (user) => {
   const companyId = user?.companyId || "";
-  try {
+  return controllerGuard("getOpenIssuesForUser", async () => {
     await checkPermission(user, companyId, [
       "role_admin",
       "role_manager",
@@ -122,10 +120,7 @@ export const getOpenIssuesForUser = authenticatedAction(async (user) => {
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
-  } catch (error) {
-    console.error("Failed to get open issues:", error);
-    return [];
-  }
+  }, { fallback: [] });
 });
 
 export const updateIssue = authenticatedAction(
@@ -139,7 +134,7 @@ export const updateIssue = authenticatedAction(
     }
   ) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("updateIssue", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -190,9 +185,6 @@ export const updateIssue = authenticatedAction(
       }
 
       return updatedIssue;
-    } catch (error) {
-      console.error("Failed to update issue:", error);
-      throw error;
-    }
+    });
   }
 );

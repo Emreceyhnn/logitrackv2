@@ -11,6 +11,20 @@ const useThemeMock = mock.fn(() => ({
   }
 }));
 
+// The test invokes the component as a plain function (no render dispatcher), so
+// its react hooks (useState/useRef) need stubs.
+import * as originalReact from "react";
+mock.module("react", {
+  namedExports: {
+    ...originalReact,
+    useState: mock.fn((init: unknown) => [
+      typeof init === "function" ? (init as () => unknown)() : init,
+      mock.fn(),
+    ]),
+    useRef: mock.fn(() => ({ current: null })),
+  },
+});
+
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,

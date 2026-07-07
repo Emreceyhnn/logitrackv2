@@ -36,7 +36,7 @@ describe("Check Permission Utility", () => {
       
       await expect(
         checkPermissionMod.checkPermission(user, null)
-      ).rejects.toThrow("No company assigned to this user");
+      ).rejects.toThrow("User has no company");
     });
 
     it("should_ThrowError_WhenUserCompanyDoesNotMatchTargetCompany", async () => {

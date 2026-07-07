@@ -2,6 +2,7 @@
 
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
+import { controllerGuard } from "./utils/controllerGuard";
 
 export type DirectionPoint = string | { lat: number; lng: number };
 
@@ -46,16 +47,13 @@ export const getDirections = authenticatedAction(
 
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${originStr}&destination=${destStr}${waypointsStr}&key=${apiKey}`;
 
-    try {
+    return controllerGuard("getDirections", async () => {
       const res = await fetch(url);
       if (!res.ok) {
         throw new Error(`Directions API error: ${res.statusText}`);
       }
       const data = await res.json();
       return data;
-    } catch (error) {
-      console.error("Failed to fetch directions", error);
-      return null;
-    }
+    }, { fallback: null });
   }
 );

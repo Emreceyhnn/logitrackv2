@@ -1,5 +1,4 @@
  
-import "global-jsdom/register";
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
@@ -135,10 +134,11 @@ describe("DriverContent Component", () => {
         </ThemeProvider>
       );
 
-      // Assert basic renders
+      // Assert basic renders. performance-charts loads via next/dynamic (lazy),
+      // so findByTestId waits for it to resolve.
       expect(screen.getByTestId("kpi-cards")).toBeTruthy();
       expect(screen.getByTestId("driver-table")).toBeTruthy();
-      expect(screen.getByTestId("performance-charts")).toBeTruthy();
+      expect(await screen.findByTestId("performance-charts")).toBeTruthy();
     });
 
     it("should_OpenDeleteDialog_WhenDeleteClicked", async () => {

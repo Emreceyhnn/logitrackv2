@@ -1,5 +1,4 @@
  
-import "global-jsdom/register";
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, cleanup } from "@testing-library/react";
@@ -42,8 +41,10 @@ describe("DashboardLoading Component", () => {
         </ThemeProvider>
       );
 
-      // Assert that there are multiple skeletons rendered
-      const skeletons = container.querySelectorAll(".MuiSkeleton-root");
+      // The loading state renders lightweight CSS-animated placeholder divs
+      // (animation: pulse ...) rather than MUI <Skeleton> — keeps this
+      // Server-Component fallback client-JS-free.
+      const skeletons = container.querySelectorAll('div[style*="pulse"]');
       expect(skeletons.length).toBeGreaterThan(10);
     });
   });

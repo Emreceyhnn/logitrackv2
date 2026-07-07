@@ -6,12 +6,13 @@ import { authenticatedAction } from "../../auth-middleware";
 import { UserStatus } from "@prisma/client";
 import { invalidatePattern, driverCacheKeys } from "../../redis";
 import { invalidateCompanyCache, ensureStandardRoles } from "./shared";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const removeCompanyUser = authenticatedAction(
   async (user, targetUserId: string) => {
     const companyId = user?.companyId || "";
 
-    try {
+    return controllerGuard("removeCompanyUser", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
@@ -27,12 +28,7 @@ export const removeCompanyUser = authenticatedAction(
       });
       await invalidateCompanyCache(companyId);
       return updatedUser;
-    } catch (error) {
-      console.error("Failed to remove company user:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to remove company user"
-      );
-    }
+    });
   }
 );
 
@@ -51,7 +47,7 @@ export const addCompanyUser = authenticatedAction(
   ) => {
     const companyId = user?.companyId || "";
 
-    try {
+    return controllerGuard("addCompanyUser", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
@@ -131,12 +127,7 @@ export const addCompanyUser = authenticatedAction(
 
       await invalidateCompanyCache(companyId);
       return updatedUser;
-    } catch (error) {
-      console.error("Failed to add company user:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to add company user"
-      );
-    }
+    });
   }
 );
 
@@ -148,7 +139,7 @@ export const updateCompanyMember = authenticatedAction(
   ) => {
     const companyId = user?.companyId || "";
 
-    try {
+    return controllerGuard("updateCompanyMember", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
@@ -170,11 +161,6 @@ export const updateCompanyMember = authenticatedAction(
 
       await invalidateCompanyCache(companyId);
       return updatedUser;
-    } catch (error) {
-      console.error("Failed to update company user:", error);
-      throw new Error(
-        error instanceof Error ? error.message : "Failed to update company user"
-      );
-    }
+    });
   }
 );

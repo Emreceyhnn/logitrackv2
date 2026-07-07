@@ -8,13 +8,14 @@ import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { syncVehicleToFirebaseAction as syncVehicleToFirebase } from "../../actions/vehicleTracking";
 import { invalidateVehicleCache } from "./cache";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const createVehicle = authenticatedAction(
   // `unknown` on purpose: the payload is validated by vehicleSchema.parse()
   // below, so callers can pass their own typed shapes without casting.
   async (user, vehicleData: unknown) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("createVehicle", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -45,17 +46,14 @@ export const createVehicle = authenticatedAction(
       );
 
       return newVehicle;
-    } catch (error) {
-      console.error("Failed to create vehicle:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getVehicleById = authenticatedAction(
   async (user, vehicleId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("getVehicleById", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -91,10 +89,7 @@ export const getVehicleById = authenticatedAction(
       }
 
       return foundVehicle;
-    } catch (error) {
-      console.error("Failed to get vehicle:", error);
-      throw error;
-    }
+    });
   }
 );
 
@@ -103,7 +98,7 @@ const vehicleUpdateSchema = vehicleSchema.partial();
 export const updateVehicle = authenticatedAction(
   async (user, vehicleId: string, data: Record<string, unknown>) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("updateVehicle", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -138,17 +133,14 @@ export const updateVehicle = authenticatedAction(
       );
 
       return updatedVehicle;
-    } catch (error) {
-      console.error("Failed to update vehicle:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const deleteVehicle = authenticatedAction(
   async (user, vehicleId: string) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("deleteVehicle", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const foundVehicle = await db.vehicle.findUnique({
@@ -173,17 +165,14 @@ export const deleteVehicle = authenticatedAction(
 
       await invalidateVehicleCache(companyId, vehicleId);
       return { success: true };
-    } catch (error) {
-      console.error("Failed to delete vehicle:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const updateVehicleStatus = authenticatedAction(
   async (user, vehicleId: string, status: VehicleStatus) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("updateVehicleStatus", async () => {
       await checkPermission(user, companyId, [
         "role_admin",
         "role_manager",
@@ -221,9 +210,6 @@ export const updateVehicleStatus = authenticatedAction(
       }
 
       return updatedVehicle;
-    } catch (error) {
-      console.error("Failed to update status:", error);
-      throw error;
-    }
+    });
   }
 );

@@ -17,29 +17,46 @@ Not: Bu oturumda ŞUNLAR ZATEN YAPILDI (commit 2ee3728):
 ------------------------------------------------------------------------
  1) [YÜKSEK ETKİ] YARIM KALMIŞ REFACTOR'Ü BİTİR   (~ +8 puan)
 ------------------------------------------------------------------------
-Sorun: İki soyutlama yaratıldı ama benimsenmesi eksik. 38+ dosya hâlâ
-       eski deseni elle tekrarlıyor -> aynı işi yapan iki yol = karışıklık.
+Sorun: İki soyutlama yaratıldı ama benimsenmesi eksik.
 
-  a) controllerGuard adopsiyonu
-     - Şu an sadece ~11 dosya kullanıyor.
-     - Kalan 38 dosya hâlâ: try { ... } catch (error) { console.error(...); throw error; }
-     - HEDEF: tüm kontrolör operasyonlarını controllerGuard("<op>", async () => {...})
-       ile sar.
-     - Eski catch desenini bulmak için:
-         grep -rl "catch (error)" app/lib/controllers --include=*.ts | grep -v test
+  a) controllerGuard adopsiyonu                          [x] TAMAMLANDI (kritik)
+     - 46/50 kontrolör dosyası artık controllerGuard kullanıyor.
+     - KALAN 4 dosya bilinçli olarak dışarıda bırakıldı: session/audit,
+       session/core, session/manage, users/auth — bunlar auth/session'a özgü
+       özel hata işleme (custom mesaj, audit-log yutma, graceful return)
+       içeriyor; mekanik guard'a sokmak riskli.
+     - !! ÖNEMLİ FIX: Toplu script (apply-guard-refactor) graceful-degradation
+       catch'lerini (catch { return []/null/{...} }) körlemesine rethrow eden
+       guard'a çevirmişti -> dashboard widget'ları hata anında çöküyordu
+       (reports testi kırılmıştı). controllerGuard'a opsiyonel { fallback }
+       eklendi ve 22 read fonksiyonuna geri uygulandı (fleet/operations/
+       shipments/warehouse analytics, overview, reports, routes/stats,
+       shipments/stats, vehicle/issues, warehouse/stats, map). Davranış
+       eski sözleşmeye hizalandı.
+     - Ayrıca script'in "operation" placeholder bıraktığı 6 op adı gerçek
+       fonksiyon adlarıyla düzeltildi.
 
-  b) createCacheManager adopsiyonu
-     - Şu an sadece 2 dosya: customer.ts, driver/shared.ts
-     - Kalan her yer manuel withCache + createCacheKeys + invalidatePattern kullanıyor.
-     - HEDEF: her domain için tek bir cache manager instance (driver/shared.ts örneği gibi).
+  b) createCacheManager adopsiyonu                        [~] ERTELENDİ (opsiyonel, launch-dışı)
+     - Şu an 8 dosya: customer, driver/shared, trailer, routes/cache,
+       shipments/cache, vehicle/cache, warehouse/cache, utils/cacheFactory.
+     - Kalan bazı yerler hâlâ manuel withCache + createCacheKeys kullanıyor
+       (inventory, company, overview, *//queries.ts). Bloklayıcı değil.
+     - HEDEF: her domain için tek bir cache manager instance.
+     - KARAR (2026-07-07): launch öncesi YAPILMIYOR. redis.ts zaten tüm anahtar
+       setlerini createCacheKeys ile üretiyor; manuel kontrolörler aynı anahtarları
+       withCache ile kullanıyor. Manager'a geçmek BİREBİR aynı anahtarları üreten
+       saf stil konsolidasyonu (düşük değer). Ayrıca overview (özel dashboard key +
+       300s TTL), inventory/company/trailer (createCacheKeys üzerine override edilmiş
+       ekstra anahtarlar) manager'a temiz oturmuyor. Testler redis'i mock'ladığından
+       anahtar-format regresyonunu YAKALAMAZ -> launch öncesi risk/ödül düşük.
 
   YÖNTEM (ÖNEMLİ - launch riski): dosya-dosya / domain-domain yap,
   HER grup sonrası ilgili testi çalıştır. Toptan değiştirip tek seferde
-  commit etme. Örn önce shipments/, test, sonra routes/, test...
+  commit etme. (Bu ders yukarıdaki toplu-script regresyonuyla doğrulandı.)
 
 
 ------------------------------------------------------------------------
- 2) HATA MESAJI & DİL STANDARDİZASYONU
+ 2) HATA MESAJI & DİL STANDARDİZASYONU                     [~] KISMİ / ERTELENDİ
 ------------------------------------------------------------------------
   - Kod içi mesajlar karışık: bazı throw new Error(...) İngilizce,
     bildirim (notification) metinleri Türkçe, yorumlar Türkçe-İngilizce karışık.
@@ -47,6 +64,16 @@ Sorun: İki soyutlama yaratıldı ama benimsenmesi eksik. 38+ dosya hâlâ
       * Domain/teknik hatalar -> İngilizce sabit (veya ErrorCode enum).
       * Kullanıcıya giden her metin -> i18n sözlüğü üzerinden (tr.json/en.json).
       * Kod yorumları için tek dil seç (öneri: İngilizce) ve tutarlı ol.
+  - DURUM (2026-07-07):
+      * throw new Error(...) mesajları ZATEN İngilizce (controllers'da 117 adet,
+        0'ında Türkçe karakter) -> teknik hata dili tutarlı. ✓
+      * KALAN: ~19 kontrolör dosyasında kullanıcıya giden Türkçe BİLDİRİM metni
+        (notification title/message: documents, driver/crud, driver/status,
+        maintenance, routes/assignments, ...). Bunlar server-side üretilip DB'ye
+        yazılıyor; doğru düzeltme = i18n key+params saklayıp alıcının diline göre
+        render (locale-aware notification) -> mimari değişiklik.
+      * KARAR: launch öncesi YAPILMIYOR (invaziv, orta risk). Launch-sonrası
+        bildirim i18n epic'ine bırakıldı.
 
 
 ------------------------------------------------------------------------
@@ -103,9 +130,52 @@ Sorun: İki soyutlama yaratıldı ama benimsenmesi eksik. 38+ dosya hâlâ
 ------------------------------------------------------------------------
  6) KÜÇÜK / OPSİYONEL CİLA
 ------------------------------------------------------------------------
-  - [ ] RTL component testleri pathological derecede yavaş (bir suite ~150sn).
-    Prelaunch bloklayıcı değil ama CI süresini uzatıyor -> jsdom setup /
-    paralelleştirme incelenebilir. (AÇIK)
+  - [x] RTL component testleri yavaşlığı: run-tests.mjs unit (.test.ts) ve
+    component (.test.tsx) testlerini ayırıp, jsdom'u her dosyada tekrar kurmak
+    yerine tek sefer paylaşımlı --import ile yüklüyor (scripts/test-setup-dom.mjs
+    + test-setup-css.mjs CSS import stub). Her .test.tsx'ten tekrarlı
+    "global-jsdom/register" importları kaldırıldı. Tek seferlik refactor
+    script'leri (remove-jsdom-imports, apply-guard-refactor, refactor-controllers)
+    silindi.
+  - [x] BONUS: toplu-refactor sonrası 4 kırık test düzeltildi — trailer conflict
+    mesajı (ConflictError, cümle-düzeni) test'e hizalandı; inventory testi
+    geçersiz "OUTBOUND" MovementType yerine "PICK" kullanacak şekilde;
+    checkPermission testi gerçek NoCompanyError mesajına ("User has no company");
+    useDateSettings testi eksik useLanguage/DictionaryContext mock'u eklenerek.
+
+  - [x] KOMPONENT TESTİ İZOLASYON BORCU (önemli, önceden mevcut): ÇÖZÜLDÜ.
+    DOĞRULAMA (2026-07-07): tam suite yeşil — 120/120 unit + 165/165 component,
+    0 hata. tsc --noEmit exit 0; eslint --max-warnings=0 exit 0. Aşağıda "KALAN"
+    diye listelenen ~13 dosya artık her biri KENDİ sürecinde (izole runner)
+    geçiyor; mock sızıntısına bağımlılık kalmadı. Tarihsel not olarak bırakıldı:
+    BULGU: `npm test` HİÇBİR ZAMAN tam yeşil değildi — ilk ölçümde ~31 component
+    testi kırıktı. Sebep: node:test `mock.module` kayıtları süreç-kapsamlı ve
+    aynı partideki dosyalar arasında SIZIYOR. readdirSync sırası sabit olduğundan
+    parti sonuçları deterministik ama bazı page/content/dialog testleri yalnızca
+    bir kardeş dosya ihtiyaç duydukları mock'u (QueryClient, DictionaryContext,
+    useUser, react hook'ları) sızdırdığı için geçiyor; tek başına koşunca kırılıyor.
+    YAPILDI:
+      * 9 dashboard page.test.tsx (company/customers/drivers/inventory/overview/
+        reports/routes/vehicle/warehouses): render() artık QueryClientProvider ile
+        sarılıyor (HydrationBoundary useQueryClient istiyor). Tek başına yeşil.
+      * editCustomerDialog + SecurityTab testleri kendi mock/state'lerini kuracak
+        şekilde bağımsız hale getirildi.
+    KALAN (~13 dosya, her biri kendine özgü, önceden kırık — bespoke iş):
+      * "testid bulunamadı": analytics/ReportsContent/DriverContent (eksik child
+        component mock'u).
+      * eksik/yanlış mock: customTextArea + sidebar (react hook'ları/createContext),
+        NotificationBell (DictionaryContext.useLanguage), landing/layout (dict).
+      * assertion: loading (sayaç>10), landing/page (sayı=4).
+      * tema: landing/pricing (MUI augmentColor "success" tanımsız).
+      * param: (dashboard)/layout (params.lang undefined).
+      * YARIM/EKSİK yazılmış: CustomerContent + WarehouseContent testleri tanımsız
+        değişkenlere (mockRefetch, mockDeleteMutateAsync) ve eksik hook/child
+        mock'larına atıf yapıyor — tamamlanması test YAZMA işi.
+    ÖNERİ (profesyonel hedef): component testlerini süreç-başına-dosya izolasyonuyla
+    koş (mock sızıntısını imkânsız kılar, deterministik) VE her testi kendi
+    kendine yeterli yap. İzole runner taslağı denendi (parti yerine paralel havuz);
+    çalışıyor ama kalan ~13 dosya kendi mock'larını kurana kadar bu dosyalar
+    kırmızı kalır. Şimdilik user'ın parti-runner'ı korundu (aynı kırık taban).
   - [x] CRLF/LF uyarıları: .gitattributes eklendi (* text=auto eol=lf + binary
     + lockfile). `git add --renormalize .` 0 içerik değişikliği (repo zaten LF).
     "LF will be replaced by CRLF" gürültüsü bitti. (commit 19aaed6)
@@ -115,9 +185,14 @@ Sorun: İki soyutlama yaratıldı ama benimsenmesi eksik. 38+ dosya hâlâ
 
 
 ========================================================================
- ÖNCELİK SIRASI (yarın için önerilen):
-   1. #5 (migrate/deploy doğrulama - launch bloklayıcı olabilir)
-   2. #3 (redis prod fail-fast - hızlı, yüksek değer)
-   3. #1 (yarım refactor - en yüksek kalite etkisi, dikkatli/uzun)
-   4. #4, #2, #6 (cila)
+ DURUM (2026-07-07) — LAUNCH KAPISI:
+   [x] #1a controllerGuard  [x] #3 redis  [x] #4 test enum  [x] #5 migrate
+   [x] #6 komponent test izolasyonu (tam suite YEŞİL: 120 unit + 165 component,
+       0 hata; tsc 0; eslint --max-warnings=0 0)
+   [~] #1b cache manager  — ERTELENDİ (opsiyonel, saf stil, launch-dışı)
+   [~] #2  dil std.        — teknik hatalar İngilizce ✓; bildirim i18n ERTELENDİ
+   -> LAUNCH-BLOKLAYICI HİÇBİR MADDE KALMADI. Kalanlar bilinçli opsiyonel/erteleme.
+
+ NOT: Çalışma ağacında #6'yı yeşile taşıyan değişiklikler (test izolasyon
+      runner'ı + self-yeterli mock'lar) commit'e HAZIR ama henüz commit EDİLMEDİ.
 ========================================================================

@@ -8,9 +8,11 @@ import { exclude } from "@/app/lib/utils/exclude";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { authenticatedAction } from "../../auth-middleware";
 import { getUserFromToken } from "./auth";
+import { controllerGuard } from "../utils/controllerGuard";
+import { ConflictError, ForbiddenError, NoCompanyError } from "../../errors";
 
 export const getUsers = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getUsers", async () => {
     await checkPermission(user, user.companyId, [
       "role_admin",
       "role_manager",
@@ -26,10 +28,7 @@ export const getUsers = authenticatedAction(async (user) => {
       },
     });
     return allUsers;
-  } catch (error) {
-    console.error("Failed to fetch users:", error);
-    throw error;
-  }
+  });
 });
 
 export const updateUser = authenticatedAction(
@@ -42,7 +41,7 @@ export const updateUser = authenticatedAction(
     avatarUrl: string,
     role: string
   ) => {
-    try {
+    return controllerGuard("updateUser", async () => {
       await checkPermission(user, user.companyId, ["role_admin"]);
 
       // Check if we are updating ourselves or if we are admin
@@ -79,10 +78,7 @@ export const updateUser = authenticatedAction(
       }
 
       return foundUser;
-    } catch (error) {
-      console.error("Failed to update user:", error);
-      throw error;
-    }
+    });
   }
 );
 
@@ -98,14 +94,14 @@ export const createUserForCompany = authenticatedAction(
       avatarUrl?: string;
     }
   ) => {
-    try {
+    return controllerGuard("createUserForCompany", async () => {
       await checkPermission(user, user.companyId, [
         "role_admin",
         "role_manager",
       ]);
 
       if (!user.companyId) {
-        throw new Error("You must belong to a company to add users");
+        throw new NoCompanyError();
       }
 
       const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -117,7 +113,7 @@ export const createUserForCompany = authenticatedAction(
       });
 
       if (isExist) {
-        throw new Error("Email already exists");
+        throw new ConflictError("Email already exists");
       }
 
       const roleName = userData.role.toLocaleUpperCase('en-US');
@@ -149,25 +145,22 @@ export const createUserForCompany = authenticatedAction(
       );
 
       return newUser;
-    } catch (error) {
-      console.error("Failed to create user for company:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getUsersForMyCompany = authenticatedAction(
   async (user, token: string) => {
-    try {
+    return controllerGuard("getUsersForMyCompany", async () => {
       await checkPermission(user, user.companyId);
 
       const requester = await getUserFromToken(token);
       if (!requester || !requester.companyId) {
-        throw new Error("Unauthorized");
+        throw new ForbiddenError();
       }
 
       if (requester.companyId !== user.companyId) {
-        throw new Error("Company mismatch");
+        throw new ForbiddenError("Company mismatch");
       }
 
       const users = await db.user.findMany({
@@ -177,19 +170,16 @@ export const getUsersForMyCompany = authenticatedAction(
 
       // Return safe user objects
       return users.map((u) => exclude(u, ["password"]));
-    } catch (error) {
-      console.error("Failed to fetch company users:", error);
-      throw error;
-    }
+    });
   }
 );
 
 export const getMyCompanyUsersAction = authenticatedAction(async (user) => {
-  try {
+  return controllerGuard("getMyCompanyUsersAction", async () => {
     await checkPermission(user, user.companyId);
 
     if (!user.companyId) {
-      throw new Error("Unauthorized or No Company");
+      throw new NoCompanyError();
     }
 
     const users = await db.user.findMany({
@@ -198,10 +188,7 @@ export const getMyCompanyUsersAction = authenticatedAction(async (user) => {
     });
 
     return users.map((u) => exclude(u, ["password"]));
-  } catch (error) {
-    console.error("Failed to fetch company users (action):", error);
-    throw error;
-  }
+  });
 });
 
 export const searchPlatformUsers = authenticatedAction(
@@ -210,7 +197,7 @@ export const searchPlatformUsers = authenticatedAction(
       return [];
     }
 
-    try {
+    return controllerGuard("searchPlatformUsers", async () => {
       await checkPermission(user, user.companyId);
 
       const users = await db.user.findMany({
@@ -231,9 +218,6 @@ export const searchPlatformUsers = authenticatedAction(
         email: u.email,
         avatar: u.avatarUrl || null,
       }));
-    } catch (error) {
-      console.error("Failed to search platform users:", error);
-      throw error;
-    }
+    });
   }
 );

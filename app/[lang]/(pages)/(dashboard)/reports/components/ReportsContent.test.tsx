@@ -1,5 +1,4 @@
  
-import "global-jsdom/register";
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
@@ -93,15 +92,16 @@ describe("ReportsContent Component", () => {
       expect(screen.getByText("Reports")).toBeTruthy();
       expect(screen.getByTestId("report-summary")).toBeTruthy();
       
-      // Shipment is selected by default
-      expect(screen.getByTestId("shipment-charts")).toBeTruthy();
+      // Shipment is selected by default. Charts load via next/dynamic (lazy),
+      // so findByTestId waits for them to resolve.
+      expect(await screen.findByTestId("shipment-charts")).toBeTruthy();
 
       // Click Fleet tab
       const fleetTab = screen.getByRole("tab", { name: "Fleet" });
       fireEvent.click(fleetTab);
-      
+
       // Now fleet charts should be visible (MUI tabs render content but hide it, we can just check if it's in doc)
-      expect(screen.getByTestId("fleet-charts")).toBeTruthy();
+      expect(await screen.findByTestId("fleet-charts")).toBeTruthy();
     });
   });
 });

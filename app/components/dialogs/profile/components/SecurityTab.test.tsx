@@ -1,5 +1,4 @@
  
-import "global-jsdom/register";
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
@@ -111,15 +110,27 @@ describe("SecurityTab RTL Component", () => {
     });
 
     it("should_CallUpdatePassword_WhenSubmitted", async () => {
+      // The submit button also requires a non-empty current password, so use a
+      // fully-filled state here (mockState leaves currentPassword blank on purpose
+      // for the render test above).
+      const filledState = {
+        isSaving: false,
+        passwordForm: {
+          currentPassword: "OldPassword123!",
+          newPassword: "TestPassword123!",
+          confirmPassword: "TestPassword123!",
+        },
+      };
+
       // Act
       render(
         <ThemeProvider theme={customTheme}>
-          <SecurityTab state={mockState as any} actions={mockActions as any} />
+          <SecurityTab state={filledState as any} actions={mockActions as any} />
         </ThemeProvider>
       );
 
       const updateButton = screen.getByText(/Update Password/i);
-      
+
       // Button should be enabled because strength is strong, and passwords match
       expect((updateButton as HTMLButtonElement).disabled).toBe(false);
 

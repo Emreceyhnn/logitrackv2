@@ -1,5 +1,4 @@
  
-import "global-jsdom/register";
 import { describe, it, before, mock, afterEach } from "node:test";
 import { expect } from "expect";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -52,11 +51,12 @@ describe("AnalyticsContent Component", () => {
       // Act
       render(<AnalyticsContent />);
 
-      // Assert basic renders
+      // Assert basic renders. The charts are loaded via next/dynamic (lazy), so
+      // they resolve on a later tick — findByTestId waits for them.
       expect(screen.getByTestId("analytics-header")).toBeTruthy();
-      expect(screen.getByTestId("performance-gauges")).toBeTruthy();
-      expect(screen.getByTestId("cost-analysis")).toBeTruthy();
-      expect(screen.getByTestId("forecasting-widget")).toBeTruthy();
+      expect(await screen.findByTestId("performance-gauges")).toBeTruthy();
+      expect(await screen.findByTestId("cost-analysis")).toBeTruthy();
+      expect(await screen.findByTestId("forecasting-widget")).toBeTruthy();
     });
   });
 });

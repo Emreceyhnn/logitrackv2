@@ -6,6 +6,7 @@ import { sendNotificationAction as createNotification } from "@/app/lib/actions/
 import { checkPermission } from "../utils/checkPermission";
 import { authenticatedAction } from "../../auth-middleware";
 import { invalidateVehicleCache } from "./cache";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const uploadVehicleDocument = authenticatedAction(
   async (
@@ -20,7 +21,7 @@ export const uploadVehicleDocument = authenticatedAction(
     }
   ) => {
     const companyId = user?.companyId || "";
-    try {
+    return controllerGuard("uploadVehicleDocument", async () => {
       await checkPermission(user, companyId, ["role_admin", "role_manager"]);
 
       const foundVehicle = await db.vehicle.findUnique({
@@ -73,9 +74,6 @@ export const uploadVehicleDocument = authenticatedAction(
 
       await invalidateVehicleCache(companyId, vehicleId);
       return doc;
-    } catch (error) {
-      console.error("Failed to upload document:", error);
-      throw error;
-    }
+    });
   }
 );

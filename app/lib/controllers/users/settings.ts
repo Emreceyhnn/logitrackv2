@@ -4,6 +4,7 @@ import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
 import { logAuditEvent } from "../session";
 import { headers } from "next/headers";
+import { controllerGuard } from "../utils/controllerGuard";
 
 export const updateUserRegionalSettings = authenticatedAction(
   async (
@@ -16,7 +17,7 @@ export const updateUserRegionalSettings = authenticatedAction(
       currency?: string;
     }
   ) => {
-    try {
+    return controllerGuard("updateUserRegionalSettings", async () => {
       const updatedUser = await db.user.update({
         where: { id: user.id },
         data: {
@@ -42,10 +43,7 @@ export const updateUserRegionalSettings = authenticatedAction(
       });
 
       return { success: true, user: updatedUser };
-    } catch (error) {
-      console.error("Failed to update regional settings:", error);
-      throw error;
-    }
+    });
   }
 );
 
@@ -60,7 +58,7 @@ export const updateUserNotificationSettings = authenticatedAction(
       pushDelayAlerts: boolean;
     }
   ) => {
-    try {
+    return controllerGuard("updateUserNotificationSettings", async () => {
       const updatedUser = await db.user.update({
         where: { id: user.id },
         data: {
@@ -86,9 +84,6 @@ export const updateUserNotificationSettings = authenticatedAction(
       });
 
       return { success: true, user: updatedUser };
-    } catch (error) {
-      console.error("Failed to update notification settings:", error);
-      throw error;
-    }
+    });
   }
 );

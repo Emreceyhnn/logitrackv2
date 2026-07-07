@@ -1,20 +1,16 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { redis, invalidatePattern, vehicleCacheKeys } from "../../redis";
+import { VEHICLE_CACHE_TTL } from "../../redis";
+import { createCacheManager } from "../utils/cacheFactory";
 
-// ── Cache invalidation helper ─────────────────────────────────────────────────
+// Shared cache manager instance for all vehicle submodules.
+export const vehicleCache = createCacheManager("vehicles", VEHICLE_CACHE_TTL);
+
+// Re-export the invalidate function for backward compatibility
+// with existing callers that use `invalidateVehicleCache(companyId, vehicleId)`
 export async function invalidateVehicleCache(
   companyId: string,
   vehicleId?: string
 ): Promise<void> {
-  await Promise.all([
-    // Wipe all dashboard + kpi keys for this company
-    invalidatePattern(vehicleCacheKeys.companyPattern(companyId)),
-    // Wipe the specific vehicle detail key (if applicable)
-    vehicleId
-      ? redis.del(vehicleCacheKeys.detail(vehicleId))
-      : Promise.resolve(),
-  ]);
-  revalidatePath("/", "layout");
+  await vehicleCache.invalidate(companyId, vehicleId);
 }

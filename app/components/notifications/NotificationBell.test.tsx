@@ -47,8 +47,9 @@ const useNotificationsMock = mock.fn(() => ({
 
 const useStateMock = mock.fn((init) => [init, mock.fn()]);
 
+import * as originalReact from "react";
 mock.module("react", {
-  namedExports: { useState: useStateMock }
+  namedExports: { ...originalReact, useState: useStateMock }
 });
 
 mock.module("@mui/material", {
@@ -80,7 +81,7 @@ mock.module("@mui/icons-material", {
 });
 
 // Hook ve Utiller
-mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
+mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock, useLanguage: mock.fn(() => ({ lang: "en" })) } });
 mock.module("../../hooks/useDateSettings.ts", { namedExports: { useDateSettings: useDateSettingsMock } });
 mock.module("../../hooks/useUser.ts", { namedExports: { useUser: useUserMock } });
 mock.module("../../hooks/useNotifications.ts", { namedExports: { useNotifications: useNotificationsMock } });

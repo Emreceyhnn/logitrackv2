@@ -3,9 +3,10 @@
 import { db } from "../db";
 import { ReportsData } from "../type/reports";
 import { authenticatedAction } from "../auth-middleware";
+import { controllerGuard } from "./utils/controllerGuard";
 
 export const getReportsDataAction = authenticatedAction(async (user): Promise<ReportsData | null> => {
-  try {
+  return controllerGuard("getReportsDataAction", async () => {
     if (!user.companyId) return null;
     const companyId = user.companyId;
 
@@ -133,11 +134,5 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
         totalInventoryValue: totalInventoryValue,
       },
     };
-  } catch (error) {
-    if ((error as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") {
-      throw error;
-    }
-    console.error("Failed to get reports data:", error);
-    return null;
-  }
+  }, { fallback: null });
 });
