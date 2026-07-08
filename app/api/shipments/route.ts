@@ -1,38 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getShipments } from "@/app/lib/controllers/shipments";
 import { ShipmentStatus } from "@prisma/client";
+import { parseQueryParams, pageParam, pageSizeParam, searchParam, enumParam, boolParam } from "@/app/lib/api/queryParams";
+import { z } from "zod";
+import { logger } from "@/app/lib/logger";
+
+
+const querySchema = z.object({
+  page: pageParam,
+  limit: pageSizeParam(),
+  search: searchParam,
+  status: enumParam(ShipmentStatus),
+  unassigned: boolParam,
+});
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = req.nextUrl;
+    const query = parseQueryParams(req, querySchema);
+    if (!query.success) return query.response;
     
-    const filters: {
-      page?: number;
-      limit?: number;
-      search?: string;
-      status?: ShipmentStatus;
-      unassigned?: boolean;
-    } = {};
-
-    const page = searchParams.get("page");
-    if (page) filters.page = parseInt(page, 10);
-
-    const limit = searchParams.get("limit");
-    if (limit) filters.limit = parseInt(limit, 10);
-
-    const search = searchParams.get("search");
-    if (search) filters.search = search;
-
-    const status = searchParams.get("status");
-    if (status) filters.status = status as ShipmentStatus;
-
-    const unassigned = searchParams.get("unassigned");
-    if (unassigned !== null) filters.unassigned = unassigned === "true";
+    const filters = query.data;
 
     const data = await getShipments(filters);
     return NextResponse.json(data);
   } catch (error: unknown) {
-    console.error("[/api/shipments] error:", error);
+    logger.error("[/api/shipments] error:", error);
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -29,6 +29,8 @@ import {
   unassignDriverFromVehicle,
 } from "@/app/lib/controllers/vehicle";
 import { DriverWithUser } from "@/app/lib/type/vehicle";
+import { logger } from "@/app/lib/logger";
+
 
 interface AssignDriverDialogProps {
   open: boolean;
@@ -64,7 +66,7 @@ export default function AssignDriverDialog({
       const data = await getAvailableDrivers();
       setDrivers(data);
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       setError(dict.vehicles.dialogs.failedToLoadDrivers);
     } finally {
       setLoading(false);
@@ -74,7 +76,6 @@ export default function AssignDriverDialog({
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchDrivers();
       setSelectedDriverId("");
       setError(null);
@@ -90,7 +91,7 @@ export default function AssignDriverDialog({
       onSuccess();
       onClose();
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       setError(dict.vehicles.dialogs.failedToAssign);
     } finally {
       setActionLoading(false);
@@ -104,7 +105,7 @@ export default function AssignDriverDialog({
       onSuccess();
       onClose();
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       setError(dict.vehicles.dialogs.failedToUnassign);
     } finally {
       setActionLoading(false);

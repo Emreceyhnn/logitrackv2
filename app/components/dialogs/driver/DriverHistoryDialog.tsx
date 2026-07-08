@@ -25,6 +25,8 @@ import { DriverHistory } from "@/app/lib/type/driver";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDateTime } from "@/app/lib/utils/date";
+import { logger } from "@/app/lib/logger";
+
 
 interface DriverHistoryDialogProps {
   open: boolean;
@@ -116,7 +118,7 @@ export default function DriverHistoryDialog({
       const data = await getDriverHistory(driverId);
       setHistory(data);
     } catch (err) {
-      console.error("Load history error:", err);
+      logger.error("Load history error:", err);
       setError(dict.common.errorOccurred);
     } finally {
       setLoading(false);
@@ -125,7 +127,6 @@ export default function DriverHistoryDialog({
 
   useEffect(() => {
     if (open && driverId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadHistory();
     }
   }, [open, driverId, loadHistory]);

@@ -20,7 +20,7 @@ mock.module("./components/DriverContent.tsx", {
 });
 
 describe("DriverPage Component", () => {
-  let DriverPage: any;
+  let DriverPage: unknown;
 
   before(async () => {
     const mod = await import("./page");

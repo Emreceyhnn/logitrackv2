@@ -122,7 +122,7 @@ mock.module("next/cache", { namedExports: { revalidatePath: () => {} } });
 
 // 2. TEST GRUPLARI
 describe("Routes Controller", () => {
-  let routesController: any;
+  let routesController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz

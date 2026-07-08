@@ -25,7 +25,7 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 
 mock.module("../../chips/priorityChips.tsx", {
   namedExports: {
-    PriorityChip: ({ status }: any) => <span data-testid="priority-chip">{status}</span>
+    PriorityChip: ({ status  }: Record<string, unknown>) => <span data-testid="priority-chip">{status}</span>
   }
 });
 
@@ -46,7 +46,7 @@ mock.module("@mui/material", {
 });
 
 describe("VehicleIssuesCard RTL Component", () => {
-  let VehicleIssuesCard: any;
+  let VehicleIssuesCard: unknown;
 
   before(async () => {
     const mod = await import("./VehicleIssuesCard");

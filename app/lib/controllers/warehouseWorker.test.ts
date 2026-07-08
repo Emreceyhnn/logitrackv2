@@ -59,7 +59,7 @@ const user = { id: "user-1", companyId: "company-1" };
 // 2. TEST GRUPLARI
 describe("WarehouseWorker Controller", () => {
    
-  let controller: any;
+  let controller: unknown;
 
   before(async () => {
     controller = await import("./warehouseWorker");

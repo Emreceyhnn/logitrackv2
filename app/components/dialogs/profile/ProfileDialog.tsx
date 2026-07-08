@@ -92,7 +92,6 @@ export default function ProfileDialog({ open, onClose }: Props) {
   }, [dict.profile.messages.loadError]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (open) loadProfile();
   }, [open, loadProfile]);
 

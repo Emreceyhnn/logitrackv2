@@ -35,7 +35,7 @@ mock.module("react/jsx-dev-runtime", {
 
 // 2. TEST GRUPLARI
 describe("UserContext", () => {
-  let contextModule: any;
+  let contextModule: unknown;
 
   before(async () => {
     contextModule = await import("./UserContext");
@@ -80,7 +80,7 @@ describe("UserContext", () => {
       // Calling a React Component as a plain function returns its JSX object mapping
       const result = contextModule.UserProvider({
         children: "test-child-component",
-        initialUser: mockUser as any,
+        initialUser: mockUser as unknown,
       });
 
       // Assert

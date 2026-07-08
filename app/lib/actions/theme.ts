@@ -3,6 +3,8 @@
 import { cookies } from "next/headers";
 import { redis } from "../redis";
 import { getAuthenticatedUser } from "../auth-middleware";
+import { logger } from "@/app/lib/logger";
+
 
 const THEME_COOKIE = "logitrack-theme";
 const VALID_THEMES = ["light", "dark", "system"] as const;
@@ -34,7 +36,7 @@ export async function saveUserTheme(mode: string) {
 
     // 2. Background Redis sync (fire-and-forget, non-blocking)
     redis.set(`user:${user.id}:theme`, mode).catch((err) =>
-      console.error("[saveUserTheme] Redis sync error", err)
+      logger.error("[saveUserTheme] Redis sync error", err)
     );
 
     return { success: true };
@@ -47,7 +49,7 @@ export async function saveUserTheme(mode: string) {
     ) {
       throw err;
     }
-    console.error("Failed to save theme to Redis", err);
+    logger.error("Failed to save theme to Redis", err);
     return { success: false, error: "Failed to save theme" };
   }
 }
@@ -87,7 +89,7 @@ export async function getUserTheme(): Promise<ThemeValue | null> {
     ) {
       throw err;
     }
-    console.error("Failed to get theme", err);
+    logger.error("Failed to get theme", err);
     return null;
   }
 }

@@ -39,7 +39,7 @@ mock.module("../auth-middleware.ts", {
 
 // 2. TEST GRUPLARI
 describe("Reports Controller", () => {
-  let reportsController: any;
+  let reportsController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -74,7 +74,7 @@ describe("Reports Controller", () => {
       const mockUser = { id: "user-1", companyId: "company-1" };
 
       // Mock Shipment GroupBy
-      dbMock.shipment.groupBy.mock.mockImplementation(async (args: any) => {
+      dbMock.shipment.groupBy.mock.mockImplementation(async (args: Record<string, unknown>) => {
         if (args.by.includes("status")) {
           return [
             { status: ShipmentStatus.DELIVERED, _count: { status: 10 } },
@@ -116,7 +116,7 @@ describe("Reports Controller", () => {
       ]);
 
       // Mock Shipment Count — on-time rate is (total - delayed) / total
-      dbMock.shipment.count.mock.mockImplementation(async (args: any) => {
+      dbMock.shipment.count.mock.mockImplementation(async (args: Record<string, unknown>) => {
         if (args.where?.status === "DELAYED") return 5;
         return 15; // Total shipments
       });

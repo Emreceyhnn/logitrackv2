@@ -60,7 +60,7 @@ mock.module("../../../../lib/controllers/warehouse.ts", {
 });
 
 describe("AddWarehouseDialog Component", () => {
-  let AddWarehouseDialog: any;
+  let AddWarehouseDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

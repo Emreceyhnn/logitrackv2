@@ -40,6 +40,8 @@ import DeleteConfirmationDialog from "@/app/components/dialogs/deleteConfirmatio
 import KpiCards from "@/app/components/cards/KpiCards";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
 import { toast } from "sonner";
+import { logger } from "@/app/lib/logger";
+
 
 export default function DriverContentPage() {
   const dict = useDictionary();
@@ -165,7 +167,7 @@ function DriverContent() {
       setIsDeleteOpen(false);
       setDriverToDelete(null);
     } catch (error) {
-      console.error("Failed to delete driver:", error);
+      logger.error("Failed to delete driver:", error);
       toast.error(dict.common.actionFailed);
     }
   };

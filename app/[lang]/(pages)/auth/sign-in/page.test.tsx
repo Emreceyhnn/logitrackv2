@@ -10,7 +10,7 @@ mock.module("../../../../components/forms/signInForm.tsx", {
 });
 
 describe("SignInPage Component", () => {
-  let SignInPage: any;
+  let SignInPage: unknown;
 
   before(async () => {
     const mod = await import("./page");

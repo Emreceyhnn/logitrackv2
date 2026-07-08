@@ -73,24 +73,24 @@ mock.module("./telemetry.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    success: { main: "#2e7d32", dark: "#1b5e20" } as any,
-    warning: { main: "#ed6c02" } as any,
-    error: { main: "#d32f2f", dark: "#c62828" } as any,
-    info: { main: "#0288d1" } as any,
-    background: { default: "#121212" } as any,
-    divider_alpha: { main_05: "rgba()", main_10: "rgba()" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    success: { main: "#2e7d32", dark: "#1b5e20" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    error: { main: "#d32f2f", dark: "#c62828" } as unknown,
+    info: { main: "#0288d1" } as unknown,
+    background: { default: "#121212" } as unknown,
+    divider_alpha: { main_05: "rgba()", main_10: "rgba()" } as unknown,
   }
 });
 
 // Add alphas
-(customTheme.palette.primary as any)._alpha = { main_10: "rgba()", main_20: "rgba()" };
-(customTheme.palette.success as any)._alpha = { main_10: "rgba()", main_20: "rgba()" };
-(customTheme.palette.warning as any)._alpha = { main_10: "rgba()", main_20: "rgba()" };
-(customTheme.palette.error as any)._alpha = { main_05: "rgba()", main_10: "rgba()", main_20: "rgba()" };
-(customTheme.palette.info as any)._alpha = { main_10: "rgba()", main_20: "rgba()" };
-(customTheme.palette.background as any).midnight = { _alpha: { main_80: "rgba()" } };
-(customTheme.palette.common as any) = { white_alpha: { main_01: "rgba()", main_03: "rgba()", main_05: "rgba()", main_50: "rgba()" } };
+(customTheme.palette.primary as unknown)._alpha = { main_10: "rgba()", main_20: "rgba()" };
+(customTheme.palette.success as unknown)._alpha = { main_10: "rgba()", main_20: "rgba()" };
+(customTheme.palette.warning as unknown)._alpha = { main_10: "rgba()", main_20: "rgba()" };
+(customTheme.palette.error as unknown)._alpha = { main_05: "rgba()", main_10: "rgba()", main_20: "rgba()" };
+(customTheme.palette.info as unknown)._alpha = { main_10: "rgba()", main_20: "rgba()" };
+(customTheme.palette.background as unknown).midnight = { _alpha: { main_80: "rgba()" } };
+(customTheme.palette.common as unknown) = { white_alpha: { main_01: "rgba()", main_03: "rgba()", main_05: "rgba()", main_50: "rgba()" } };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -113,7 +113,7 @@ const MOCK_ROUTE = {
 };
 
 describe("RouteDialog RTL Component", () => {
-  let RouteDialog: any;
+  let RouteDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

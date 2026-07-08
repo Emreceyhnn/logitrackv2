@@ -61,7 +61,6 @@ export default function GuidedTourOverlay() {
   }, [currentStep]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     measure();
     window.addEventListener("resize", measure);
     window.addEventListener("scroll", measure);

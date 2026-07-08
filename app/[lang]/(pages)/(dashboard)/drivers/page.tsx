@@ -33,6 +33,8 @@ import {
 import { getDriverWithDashboardData } from "@/app/lib/controllers/driver";
 import { driverKeys } from "@/app/lib/query-keys/driver.keys";
 import DriverContent from "./components/DriverContent";
+import { logger } from "@/app/lib/logger";
+
 
 export async function generateMetadata({
   params,
@@ -89,7 +91,7 @@ export default async function DriverPage() {
       staleTime: 1000 * 60 * 5,
     });
   } catch (error) {
-    console.error("[DriverPage SSR] prefetch failed:", error);
+    logger.error("[DriverPage SSR] prefetch failed:", error);
   }
 
   const dehydratedState = dehydrate(queryClient);

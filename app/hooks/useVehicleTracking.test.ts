@@ -40,7 +40,7 @@ mock.module("./useUser.ts", {
 
 // 2. TEST GRUPLARI
 describe("useVehicleTracking Hooks", () => {
-  let trackingMod: any;
+  let trackingMod: unknown;
 
   before(async () => {
     trackingMod = await import("./useVehicleTracking");

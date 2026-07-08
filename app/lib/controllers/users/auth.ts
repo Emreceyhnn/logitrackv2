@@ -20,6 +20,8 @@ import {
 } from "../session";
 import { headers } from "next/headers";
 import { rateLimit } from "../../rate-limiter";
+import { logger } from "@/app/lib/logger";
+
 
 const getJwtSecret = () => {
   const secret = process.env.JWT_SECRET;
@@ -59,7 +61,7 @@ export const getUserFromToken = authenticatedAction(
 
       return exclude(foundUser, ["password"]);
     } catch (error) {
-      console.error("Failed to get user from token:", error);
+      logger.error("Failed to get user from token:", error);
       throw new Error("Authentication failed: Invalid token or user not found");
     }
   }
@@ -139,7 +141,7 @@ export const RegisterUser = maybeAuthenticatedAction(
         },
       };
     } catch (error) {
-      console.error("Failed to create user:", error);
+      logger.error("Failed to create user:", error);
       const message =
         error instanceof Error ? error.message : "Internal server error";
       return { error: message, field: "general" };
@@ -238,7 +240,7 @@ export const LoginUser = maybeAuthenticatedAction(
         },
       };
     } catch (error) {
-      console.error("Critical Login Error:", error);
+      logger.error("Critical Login Error:", error);
       const message =
         error instanceof Error ? error.message : "Internal server error";
       return { error: message };
@@ -275,7 +277,7 @@ export const LogoutUser = authenticatedAction(async () => {
 
     return { success: true };
   } catch (error) {
-    console.error("Failed to logout:", error);
+    logger.error("Failed to logout:", error);
     // Even if something fails, clear cookies
     await clearAuthCookies();
     return { success: true };

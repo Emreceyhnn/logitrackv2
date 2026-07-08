@@ -24,13 +24,13 @@ const useDictionaryMock = mock.fn(() => ({
 mock.module("@mui/material", {
   namedExports: { 
     useTheme: useThemeMock,
-    Dialog: (props: any) => ({ type: "Dialog", props }),
-    DialogContent: (props: any) => ({ type: "DialogContent", props }),
-    Button: (props: any) => ({ type: "Button", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Box: (props: any) => ({ type: "Box", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    IconButton: (props: any) => ({ type: "IconButton", props })
+    Dialog: (props: Record<string, unknown>) => ({ type: "Dialog", props }),
+    DialogContent: (props: Record<string, unknown>) => ({ type: "DialogContent", props }),
+    Button: (props: Record<string, unknown>) => ({ type: "Button", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props }),
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    IconButton: (props: Record<string, unknown>) => ({ type: "IconButton", props })
   }
 });
 
@@ -46,7 +46,7 @@ mock.module("../../lib/language/DictionaryContext.tsx", {
 });
 
 describe("LogoutConfirmationDialog Component", () => {
-  let LogoutConfirmationDialog: any;
+  let LogoutConfirmationDialog: unknown;
 
   before(async () => {
     const mod = await import("./logoutConfirmationDialog");

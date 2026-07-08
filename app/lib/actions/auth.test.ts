@@ -22,7 +22,7 @@ mock.module("../controllers/session.ts", { namedExports: sessionControllerMock }
 
 // 2. TEST GRUPLARI
 describe("Auth Actions", () => {
-  let authActions: any;
+  let authActions: unknown;
 
   before(async () => {
     authActions = await import("./auth");

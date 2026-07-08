@@ -54,7 +54,7 @@ mock.module("@mui/material", {
 });
 
 describe("VehicleToolbar RTL Component", () => {
-  let VehicleToolbar: any;
+  let VehicleToolbar: unknown;
 
   before(async () => {
     const mod = await import("./toolbar");

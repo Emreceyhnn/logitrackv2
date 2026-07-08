@@ -78,7 +78,7 @@ mock.module("next/cache", { namedExports: { revalidatePath: () => {} } });
 
 // 2. TEST GRUPLARI
 describe("Company Controller", () => {
-  let companyController: any;
+  let companyController: unknown;
 
   before(async () => {
     companyController = await import("./company");

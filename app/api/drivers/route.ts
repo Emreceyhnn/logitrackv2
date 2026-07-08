@@ -1,28 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/app/lib/logger";
+import { parseQueryParams, pageParam, pageSizeParam, searchParam, enumArrayParam, boolParam, sortOrderParam, sortFieldParam } from "@/app/lib/api/queryParams";
+import { z } from "zod";
 import { getDrivers } from "@/app/lib/controllers/driver";
 import { DriverStatus } from "@/app/lib/type/enums";
 
+const querySchema = z.object({
+  page: pageParam,
+  limit: pageSizeParam(),
+  search: searchParam,
+  status: enumArrayParam(DriverStatus),
+  hasVehicle: boolParam,
+  sortField: sortFieldParam,
+  sortOrder: sortOrderParam,
+});
+
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = req.nextUrl;
+    const query = parseQueryParams(req, querySchema);
+    if (!query.success) return query.response;
     
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "10", 10);
-    const search = searchParams.get("search") || undefined;
-    
-    const statusParams = searchParams.getAll("status");
-    const status = statusParams.length > 0 ? (statusParams as DriverStatus[]) : undefined;
-    
-    const hasVehicleParam = searchParams.get("hasVehicle");
-    const hasVehicle = hasVehicleParam !== null ? hasVehicleParam === "true" : undefined;
-    
-    const sortField = searchParams.get("sortField") || undefined;
-    const sortOrder = (searchParams.get("sortOrder") as "asc" | "desc") || undefined;
+    const { page, limit, search, status, hasVehicle, sortField, sortOrder } = query.data;
 
-    const data = await getDrivers(page, limit, search, status, hasVehicle, sortField, sortOrder);
+    const data = await getDrivers(page, limit, search, status as DriverStatus[] | undefined, hasVehicle, sortField, sortOrder);
     return NextResponse.json(data);
   } catch (error: unknown) {
-    console.error("[/api/drivers] error:", error);
+    logger.error("[/api/drivers] error:", error);
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

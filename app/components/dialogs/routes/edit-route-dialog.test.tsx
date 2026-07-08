@@ -93,12 +93,12 @@ mock.module("./addRouteDialog/thirdStep.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
 
-(customTheme.palette.primary as any)._alpha = { main_20: "rgba()" };
-(customTheme.palette as any).divider_alpha = { main_05: "rgba()", main_10: "rgba()" };
+(customTheme.palette.primary as unknown)._alpha = { main_20: "rgba()" };
+(customTheme.palette as unknown).divider_alpha = { main_05: "rgba()", main_10: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -119,7 +119,7 @@ const MOCK_ROUTE = {
 };
 
 describe("EditRouteDialog RTL Component", () => {
-  let EditRouteDialog: any;
+  let EditRouteDialog: unknown;
 
   before(async () => {
     const mod = await import("./edit-route-dialog");

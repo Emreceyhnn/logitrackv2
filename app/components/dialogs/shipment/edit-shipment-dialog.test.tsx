@@ -98,13 +98,13 @@ mock.module("./addShipmentDialog/sections/StopsSection.tsx", { defaultExport: ()
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
-    divider_alpha: { main_05: "rgba()" } as any,
+    primary: { main: "#1976d2" } as unknown,
+    divider_alpha: { main_05: "rgba()" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_30: "rgba()", main_40: "rgba()", main_02: "rgba()", main_05: "rgba()", main_10: "rgba()", main_20: "rgba()" };
-(customTheme.palette.error as any)._alpha = { main_10: "rgba()", main_05: "rgba()", main_20: "rgba()" };
-(customTheme.palette.warning as any)._alpha = { main_10: "rgba()", main_05: "rgba()", main_20: "rgba()" };
+(customTheme.palette.primary as unknown)._alpha = { main_30: "rgba()", main_40: "rgba()", main_02: "rgba()", main_05: "rgba()", main_10: "rgba()", main_20: "rgba()" };
+(customTheme.palette.error as unknown)._alpha = { main_10: "rgba()", main_05: "rgba()", main_20: "rgba()" };
+(customTheme.palette.warning as unknown)._alpha = { main_10: "rgba()", main_05: "rgba()", main_20: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -116,7 +116,7 @@ mock.module("@mui/material", {
 });
 
 describe("EditShipmentDialog RTL Component", () => {
-  let EditShipmentDialog: any;
+  let EditShipmentDialog: unknown;
 
   before(async () => {
     const mod = await import("./edit-shipment-dialog");

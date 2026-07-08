@@ -48,14 +48,14 @@ mock.module("../../../../lib/language/DictionaryContext.tsx", {
 // Mock StatusChip
 mock.module("../../../chips/statusChips.tsx", {
   namedExports: {
-    StatusChip: ({ status }: any) => <span data-testid="status-chip">{status}</span>,
+    StatusChip: ({ status  }: Record<string, unknown>) => <span data-testid="status-chip">{status}</span>,
   },
 });
 
 // Mock DataTable
-let dataTableProps: any = null;
+let dataTableProps: unknown = null;
 mock.module("../../../ui/DataTable/index.tsx", {
-  defaultExport: (props: any) => {
+  defaultExport: (props: Record<string, unknown>) => {
     dataTableProps = props;
     return (
       <div data-testid="data-table">
@@ -66,7 +66,7 @@ mock.module("../../../ui/DataTable/index.tsx", {
 });
 
 describe("DriverTable RTL Component", () => {
-  let DriverTable: any;
+  let DriverTable: unknown;
 
   before(async () => {
     const mod = await import("./index");
@@ -134,27 +134,27 @@ describe("DriverTable RTL Component", () => {
       const columns = dataTableProps.columns;
 
       // 1. name
-      const nameCol = columns.find((c: any) => c.key === "name");
+      const nameCol = columns.find((c: Record<string, unknown>) => c.key === "name");
       const { container: nameContainer } = render(nameCol.render(mockDrivers[0]));
       expect(nameContainer.textContent).toContain("John Doe");
 
       // 2. status
-      const statusCol = columns.find((c: any) => c.key === "status");
+      const statusCol = columns.find((c: Record<string, unknown>) => c.key === "status");
       const { container: statusContainer } = render(statusCol.render(mockDrivers[0]));
       expect(statusContainer.textContent).toBe("ON_JOB");
 
       // 3. vehicle
-      const vehicleCol = columns.find((c: any) => c.key === "vehicle");
+      const vehicleCol = columns.find((c: Record<string, unknown>) => c.key === "vehicle");
       expect(vehicleCol.render(mockDrivers[0])).toBe("ABC-123");
       expect(vehicleCol.render(mockDrivers[1])).toBe("No Vehicle");
 
       // 4. homeBaseWarehouse
-      const homeBaseCol = columns.find((c: any) => c.key === "homeBaseWarehouse");
+      const homeBaseCol = columns.find((c: Record<string, unknown>) => c.key === "homeBaseWarehouse");
       expect(homeBaseCol.render(mockDrivers[0])).toBe("Main WH");
       expect(homeBaseCol.render(mockDrivers[1])).toBe("Not Assigned");
 
       // 5. idx
-      const idxCol = columns.find((c: any) => c.key === "id");
+      const idxCol = columns.find((c: Record<string, unknown>) => c.key === "id");
       expect(idxCol.render(mockDrivers[0])).toBe(1);
       expect(idxCol.render(mockDrivers[1])).toBe(2);
     });

@@ -25,7 +25,7 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 
 mock.module("@mui/x-charts/Gauge", {
   namedExports: {
-    Gauge: ({ value, valueMax = 100 }: any) => (
+    Gauge: ({ value, valueMax = 100 }: unknown) => (
       <div data-testid="gauge">
         Value: {value}/{valueMax}
       </div>
@@ -45,7 +45,7 @@ mock.module("@mui/material", {
 });
 
 describe("PerformanceGauges RTL Component", () => {
-  let PerformanceGauges: any;
+  let PerformanceGauges: unknown;
 
   before(async () => {
     const mod = await import("./PerformanceGauges");

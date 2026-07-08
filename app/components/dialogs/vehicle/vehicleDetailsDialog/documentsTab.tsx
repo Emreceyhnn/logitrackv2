@@ -35,6 +35,8 @@ import { formatDisplayDate } from "@/app/lib/utils/date";
 import CircularProgress from "@mui/material/CircularProgress";
 import Backdrop from "@mui/material/Backdrop";
 import DeleteConfirmationDialog from "../../deleteConfirmationDialog";
+import { logger } from "@/app/lib/logger";
+
 
 interface DocumentsTabProps {
   vehicle?: VehicleWithRelations;
@@ -87,7 +89,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
         toast.error(dict.toasts.errorNoPermission);
       }
     } catch (error) {
-      console.error("View doc error:", error);
+      logger.error("View doc error:", error);
       toast.error(dict.toasts.errorUpload);
     } finally {
       setLoadingDoc(false);
@@ -109,7 +111,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
         toast.error(dict.toasts.errorNoPermission);
       }
     } catch (error) {
-      console.error("Download doc error:", error);
+      logger.error("Download doc error:", error);
       toast.error(dict.toasts.errorUpload);
     }
   };
@@ -128,7 +130,7 @@ const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {
       setDeleteConfirmOpen(false);
       onUpdate?.();
     } catch (error) {
-      console.error("Delete doc error:", error);
+      logger.error("Delete doc error:", error);
       toast.error(dict.toasts.errorDocumentDelete);
     } finally {
       setIsDeletingDoc(false);

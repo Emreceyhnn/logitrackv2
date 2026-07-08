@@ -19,6 +19,8 @@ import {
 } from "./internal";
 import { clearAuthCookies } from "./manage";
 import { logAuditEvent } from "./audit";
+import { logger } from "@/app/lib/logger";
+
 
 /**
  * Narrows a verified jose payload to our session payload with a real runtime
@@ -99,7 +101,7 @@ export async function createSession(
 
     return { accessToken, sessionId: session.id };
   } catch (error) {
-    console.error("Failed to create session in DB:", error);
+    logger.error("Failed to create session in DB:", error);
     throw new Error(
       "Authentication session failed to initialize properly. Please try again."
     );
@@ -289,7 +291,7 @@ export async function validateSession(): Promise<SessionUser | null> {
     if ((error as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') {
       throw error;
     }
-    console.error("[validateSession] ❌ Unexpected error:", error);
+    logger.error("[validateSession] ❌ Unexpected error:", error);
     return null;
   }
 }
@@ -413,7 +415,7 @@ export async function refreshSession(): Promise<boolean> {
     if ((error as { digest?: string })?.digest === 'DYNAMIC_SERVER_USAGE') {
       throw error;
     }
-    console.error("Session refresh failed:", error);
+    logger.error("Session refresh failed:", error);
     return false;
   }
 }

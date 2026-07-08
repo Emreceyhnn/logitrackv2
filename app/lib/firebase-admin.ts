@@ -1,6 +1,8 @@
 import admin from "firebase-admin";
 import * as dotenv from "dotenv";
 import path from "path";
+import { logger } from "@/app/lib/logger";
+
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
@@ -34,7 +36,7 @@ if (!admin.apps.length) {
       );
     }
   } catch (error) {
-    console.error("❌ Firebase admin initialization error:", error);
+    logger.error("❌ Firebase admin initialization error:", error);
   }
 } else {
   adminDb = admin.database();

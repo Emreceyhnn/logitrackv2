@@ -20,7 +20,7 @@ mock.module("../../../../lib/language/DictionaryContext.tsx", {
 });
 
 describe("RowActions RTL Component", () => {
-  let RowActions: any;
+  let RowActions: unknown;
 
   before(async () => {
     const mod = await import("./menu");

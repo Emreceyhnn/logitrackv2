@@ -20,7 +20,7 @@ mock.module("./components/WarehouseContent.tsx", {
 });
 
 describe("WarehousePage Component", () => {
-  let WarehousePage: any;
+  let WarehousePage: unknown;
 
   before(async () => {
     const mod = await import("./page");

@@ -25,10 +25,11 @@ import {
 import { createWarehouse } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/hooks/useUser";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
 
-import BasicInfoSection from "./sections/BasicInfoSection";
-import LocationSection from "./sections/LocationSection";
-import CapacitySection from "./sections/CapacitySection";
+import BasicInfoSection from "../shared/sections/BasicInfoSection";
+import LocationSection from "../shared/sections/LocationSection";
+import CapacitySection from "../shared/sections/CapacitySection";
 
 
 const initialBasicInfo = {
@@ -130,7 +131,7 @@ const AddWarehouseDialog = ({
         onSuccess?.();
         actions.closeDialog();
       } catch (error) {
-        console.error(error);
+        logger.error("Failed to add warehouse:", error);
       }
     },
     closeDialog: () => {

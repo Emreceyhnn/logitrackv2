@@ -12,6 +12,8 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useFormikContext } from "formik";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { uploadImageAction } from "@/app/lib/actions/upload";
+import { logger } from "@/app/lib/logger";
+
 
 export default function Step3Profile() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -45,7 +47,7 @@ export default function Step3Profile() {
       };
       reader.readAsDataURL(file);
     } catch (error) {
-      console.error("Upload failed:", error);
+      logger.error("Upload failed:", error);
     } finally {
       setUploading(false);
     }

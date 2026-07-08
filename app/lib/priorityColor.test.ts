@@ -48,8 +48,8 @@ describe("priorityColor Utils", () => {
       expect(getPriorityColor("")).toBe("default"); // Boş string durumu
       
       // Beklenmedik tiplerin (null veya undefined) fonksiyona gelmesi durumunu test ediyoruz.
-      expect(getPriorityColor(null as any as string)).toBe("default");
-      expect(getPriorityColor(undefined as any as string)).toBe("default");
+      expect(getPriorityColor(null as unknown as string)).toBe("default");
+      expect(getPriorityColor(undefined as unknown as string)).toBe("default");
     });
   });
 
@@ -87,7 +87,7 @@ describe("priorityColor Utils", () => {
       common: {
         UNKNOWN_STATUS: "Bilinmeyen",
       },
-    } as any as Dictionary; // TypeScript tip hatası vermesin diye "as any as Dictionary" dedik.
+    } as unknown as Dictionary; // TypeScript tip hatası vermesin diye "as unknown as Dictionary" dedik.
 
     it("should return correct meta for info statuses", () => {
       const meta = getStatusMeta("IN_PROGRESS", mockDict);
@@ -184,7 +184,7 @@ describe("priorityColor Utils", () => {
     it("should fallback to info.main for INFO or any notification types", () => {
       expect(getStatusColor("INFO" as NotificationType)).toBe("info.main");
       expect(getStatusColor("UNKNOWN" as NotificationType)).toBe("info.main");
-      expect(getStatusColor(undefined as any as NotificationType)).toBe("info.main");
+      expect(getStatusColor(undefined as unknown as NotificationType)).toBe("info.main");
     });
   });
 
@@ -198,7 +198,7 @@ describe("priorityColor Utils", () => {
     it("should fallback to info alpha variant for INFO or any notification types", () => {
       expect(resolveStatusAlpha("INFO" as NotificationType)).toBe("info._alpha.main_20");
       expect(resolveStatusAlpha("UNKNOWN" as NotificationType)).toBe("info._alpha.main_20");
-      expect(resolveStatusAlpha(undefined as any as NotificationType)).toBe("info._alpha.main_20");
+      expect(resolveStatusAlpha(undefined as unknown as NotificationType)).toBe("info._alpha.main_20");
     });
   });
 });

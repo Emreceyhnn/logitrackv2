@@ -9,6 +9,8 @@ import { authenticatedAction } from "../../auth-middleware";
 import { syncVehicleToFirebaseAction as syncVehicleToFirebase } from "../../actions/vehicleTracking";
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
+import { logger } from "@/app/lib/logger";
+
 
 export const createVehicle = authenticatedAction(
   // `unknown` on purpose: the payload is validated by vehicleSchema.parse()
@@ -42,7 +44,7 @@ export const createVehicle = authenticatedAction(
       await invalidateVehicleCache(companyId);
       // Sync to Firebase (background)
       syncVehicleToFirebase(newVehicle).catch((err) =>
-        console.error("Firebase sync failed:", err)
+        logger.error("Firebase sync failed:", err)
       );
 
       return newVehicle;
@@ -129,7 +131,7 @@ export const updateVehicle = authenticatedAction(
       await invalidateVehicleCache(companyId, vehicleId);
       // Sync to Firebase (background)
       syncVehicleToFirebase(updatedVehicle).catch((err) =>
-        console.error("Firebase sync failed:", err)
+        logger.error("Firebase sync failed:", err)
       );
 
       return updatedVehicle;

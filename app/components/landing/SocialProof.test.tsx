@@ -11,10 +11,10 @@ mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDic
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: (props: any) => ({ type: "Box", props }),
-    Container: (props: any) => ({ type: "Container", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Typography: (props: any) => ({ type: "Typography", props })
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Container: (props: Record<string, unknown>) => ({ type: "Container", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props })
   }
 });
 
@@ -24,7 +24,7 @@ mock.module("@mui/icons-material/PrecisionManufacturing", { defaultExport: () =>
 mock.module("@mui/icons-material/Public", { defaultExport: () => ({ type: "Icon" }) });
 
 describe("SocialProof Component", () => {
-  let SocialProof: any;
+  let SocialProof: unknown;
 
   before(async () => {
     const mod = await import("./SocialProof");

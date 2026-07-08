@@ -1,6 +1,7 @@
 "use server";
 
 import { supabase } from "../supabase";
+import { logger } from "@/app/lib/logger";
 import {
   authenticatedAction,
   maybeAuthenticatedAction,
@@ -109,7 +110,7 @@ export const uploadImageAction = maybeAuthenticatedAction(
       });
 
     if (error) {
-      console.error("[uploadImageAction] Supabase upload failed:", error);
+      logger.error("[uploadImageAction] Supabase upload failed:", error);
       throw new Error(`Failed to upload to Supabase: ${error.message}`);
     }
 
@@ -145,7 +146,7 @@ export const getSignedUrlAction = authenticatedAction(
       .createSignedUrl(path, 3600);
 
     if (error) {
-      console.error(
+      logger.error(
         "[getSignedUrlAction] Failed to generate signed URL:",
         error
       );

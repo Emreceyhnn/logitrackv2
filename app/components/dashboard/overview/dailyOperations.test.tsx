@@ -25,7 +25,7 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="custom-card">{children}</div>,
 });
 
 // Custom theme with alpha tokens
@@ -35,7 +35,7 @@ const customTheme = createTheme({
   },
 });
 
-(customTheme.palette as any).kpi = {
+(customTheme.palette as unknown).kpi = {
   indigo: "#3f51b5",
   indigo_alpha: { main_10: "rgba(63,81,181,0.1)" },
   emerald: "#4caf50",
@@ -48,10 +48,10 @@ const customTheme = createTheme({
   sky_alpha: { main_10: "rgba(33,150,243,0.1)" },
 };
 
-(customTheme.palette.background as any).paper_alpha = { main_40: "rgba(255,255,255,0.4)", main_60: "rgba(255,255,255,0.6)" };
-(customTheme.palette as any).divider_alpha = { main_08: "rgba(0,0,0,0.08)", main_20: "rgba(0,0,0,0.2)" };
-(customTheme.palette.common as any).black_alpha = { main_08: "rgba(0,0,0,0.08)" };
-(customTheme.palette as any).getColorAlpha = () => ({ main_10: "rgba(0,0,0,0.1)" });
+(customTheme.palette.background as unknown).paper_alpha = { main_40: "rgba(255,255,255,0.4)", main_60: "rgba(255,255,255,0.6)" };
+(customTheme.palette as unknown).divider_alpha = { main_08: "rgba(0,0,0,0.08)", main_20: "rgba(0,0,0,0.2)" };
+(customTheme.palette.common as unknown).black_alpha = { main_08: "rgba(0,0,0,0.08)" };
+(customTheme.palette as unknown).getColorAlpha = () => ({ main_10: "rgba(0,0,0,0.1)" });
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -62,7 +62,7 @@ mock.module("@mui/material", {
 });
 
 describe("DailyOperationsCard RTL Component", () => {
-  let DailyOperationsCard: any;
+  let DailyOperationsCard: unknown;
 
   before(async () => {
     const mod = await import("./dailyOperations");

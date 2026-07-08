@@ -24,6 +24,8 @@ import {
 
 import { routeKeys } from "@/app/lib/query-keys/route.keys";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 async function fetchRoutes(
   page: number,
@@ -162,7 +164,7 @@ export function useRouteMutations() {
   };
 
   const handleError = (message: string, error: unknown) => {
-    console.error(message, error);
+    logger.error(message, error);
     toast.error(error instanceof Error ? error.message : message);
   };
 

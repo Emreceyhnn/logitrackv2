@@ -35,7 +35,7 @@ mock.module("../../../../../components/dashboard/analytics/ForecastingWidget.tsx
 });
 
 describe("AnalyticsContent Component", () => {
-  let AnalyticsContent: any;
+  let AnalyticsContent: unknown;
 
   before(async () => {
     const mod = await import("./AnalyticsContent");

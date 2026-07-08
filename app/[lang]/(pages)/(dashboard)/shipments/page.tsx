@@ -33,6 +33,8 @@ import {
 import { getShipmentsWithDashboardData } from "@/app/lib/controllers/shipments";
 import { shipmentKeys } from "@/app/lib/query-keys/shipment.keys";
 import ShipmentContent from "./components/shipmentsContent";
+import { logger } from "@/app/lib/logger";
+
 
 export async function generateMetadata({
   params,
@@ -84,7 +86,7 @@ export default async function ShipmentPage() {
       staleTime: 1000 * 60 * 5,
     });
   } catch (error) {
-    console.error("[ShipmentPage SSR] prefetch failed:", error);
+    logger.error("[ShipmentPage SSR] prefetch failed:", error);
   }
 
   const dehydratedState = dehydrate(queryClient);

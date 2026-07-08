@@ -33,7 +33,7 @@ mock.module("react", { namedExports: reactMock });
 
 // 2. TEST GRUPLARI
 describe("useTableParams Hook", () => {
-  let useTableParamsMod: any;
+  let useTableParamsMod: unknown;
 
   before(async () => {
     useTableParamsMod = await import("./useTableParams");

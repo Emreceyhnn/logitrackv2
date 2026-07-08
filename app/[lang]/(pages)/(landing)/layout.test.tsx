@@ -14,7 +14,7 @@ mock.module("../../../components/landing/LandingFooter.tsx", {
   defaultExport: () => <div data-testid="landing-footer">Landing Footer</div>,
 });
 mock.module("../../../lib/theme/LandingThemeProvider.tsx", {
-  defaultExport: ({ children }: any) => <>{children}</>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <>{children}</>,
 });
 mock.module("../../../lib/language/DictionaryContext.tsx", {
   namedExports: {
@@ -24,7 +24,7 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 describe("LandingLayout Component", () => {
-  let LandingLayout: any;
+  let LandingLayout: unknown;
 
   before(async () => {
     const mod = await import("./layout");

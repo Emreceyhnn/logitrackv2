@@ -21,6 +21,8 @@ import { toast } from "sonner";
 
 import { warehouseKeys } from "@/app/lib/query-keys/warehouse.keys";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 import {
   WarehouseWithRelations,
   WarehouseStats,
@@ -148,7 +150,7 @@ export function useWarehouseMutations() {
   };
 
   const handleError = (message: string, error: unknown) => {
-    console.error(message, error);
+    logger.error(message, error);
     toast.error(error instanceof Error ? error.message : message);
   };
 

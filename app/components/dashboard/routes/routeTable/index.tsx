@@ -83,7 +83,6 @@ const RouteTable = ({
     if (selectedRoute) {
       const updated = routes.find((r) => r.id === selectedRoute.id);
       if (updated && updated !== selectedRoute) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedRoute(updated);
       }
     }

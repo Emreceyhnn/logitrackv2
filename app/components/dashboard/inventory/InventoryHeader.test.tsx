@@ -47,7 +47,7 @@ const customTheme = createTheme({
   },
 });
 
-Object.assign((customTheme.palette as any), {
+Object.assign((customTheme.palette as unknown), {
   buttonPrimary: {
     buttonBg: "#000",
     primaryText: "#fff",
@@ -67,7 +67,7 @@ mock.module("@mui/material", {
 });
 
 describe("InventoryHeader RTL Component", () => {
-  let InventoryHeader: any;
+  let InventoryHeader: unknown;
 
   before(async () => {
     const mod = await import("./InventoryHeader");

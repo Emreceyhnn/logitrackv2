@@ -3,7 +3,7 @@ import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
 const mockNextResponse = {
-  json: mock.fn((body: any, init?: { status?: number }) => ({
+  json: mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -18,7 +18,7 @@ mock.module("../../lib/controllers/customer.ts", {
 });
 
 describe("GET /api/customers", () => {
-  let GET: any;
+  let GET: unknown;
 
   before(async () => {
     const mod = await import("./route");
@@ -33,7 +33,7 @@ describe("GET /api/customers", () => {
   it("should_ReturnCustomers_WhenControllerSucceeds", async () => {
     const fakeData = [{ id: "c1", name: "Acme" }];
     getCustomersMock.mock.mockImplementationOnce(async () => fakeData);
-    const res: any = await GET();
+    const res: unknown = await GET();
     expect(res._body).toEqual(fakeData);
     expect(res._status).toBe(200);
   });
@@ -42,7 +42,7 @@ describe("GET /api/customers", () => {
     getCustomersMock.mock.mockImplementationOnce(async () => {
       throw new Error("NEXT_REDIRECT");
     });
-    const res: any = await GET();
+    const res: unknown = await GET();
     expect(res._body).toEqual({ error: "Unauthorized" });
     expect(res._status).toBe(401);
   });
@@ -51,7 +51,7 @@ describe("GET /api/customers", () => {
     getCustomersMock.mock.mockImplementationOnce(async () => {
       throw new Error("DB error");
     });
-    const res: any = await GET();
+    const res: unknown = await GET();
     expect(res._status).toBe(500);
   });
 });

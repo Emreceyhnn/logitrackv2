@@ -7,19 +7,19 @@ import { expect } from "expect";
 
 const dbMock = {
   exchangeRate: {
-    findFirst: mock.fn<(...args: any[]) => any>(),
-    create: mock.fn<(...args: any[]) => any>(),
-    upsert: mock.fn<(...args: any[]) => any>(),
+    findFirst: mock.fn<(...args: unknown[]) => unknown>(),
+    create: mock.fn<(...args: unknown[]) => unknown>(),
+    upsert: mock.fn<(...args: unknown[]) => unknown>(),
   },
 };
 
 const redisMock = {
-  get: mock.fn<(...args: any[]) => any>(),
-  set: mock.fn<(...args: any[]) => any>(),
-  del: mock.fn<(...args: any[]) => any>(),
+  get: mock.fn<(...args: unknown[]) => unknown>(),
+  set: mock.fn<(...args: unknown[]) => unknown>(),
+  del: mock.fn<(...args: unknown[]) => unknown>(),
 };
 
-const fetchMock = mock.fn<(...args: any[]) => any>();
+const fetchMock = mock.fn<(...args: unknown[]) => unknown>();
 
 mock.module("../db.ts", {
   namedExports: { db: dbMock },
@@ -71,11 +71,11 @@ function makeFetchResponse(body: object, ok = true, status = 200) {
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 describe("exchangeRate service", () => {
-  let getExchangeRates: any;
-  let getExchangeRate: any;
-  let convertFromUSD: any;
-  let convertCurrency: any;
-  let refreshExchangeRates: any;
+  let getExchangeRates: unknown;
+  let getExchangeRate: unknown;
+  let convertFromUSD: unknown;
+  let convertCurrency: unknown;
+  let refreshExchangeRates: unknown;
 
   before(async () => {
     // Set env vars before importing the module
@@ -84,7 +84,7 @@ describe("exchangeRate service", () => {
       "https://v6.exchangerate-api.com/v6/test-api-key";
 
     // Inject fetch mock into globalThis
-    (globalThis as any).fetch = fetchMock;
+    (globalThis as unknown).fetch = fetchMock;
 
     const mod = await import("./exchangeRate");
     getExchangeRates = mod.getExchangeRates;

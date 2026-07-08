@@ -8,7 +8,7 @@ global.React = React;
 // MOCKLAR
 mock.module("framer-motion", {
   namedExports: {
-    motion: { div: ({ children }: any) => <div data-testid="MotionDiv">{children}</div> }
+    motion: { div: ({ children  }: Record<string, unknown>) => <div data-testid="MotionDiv">{children}</div> }
   }
 });
 
@@ -22,10 +22,10 @@ mock.module("@/app/lib/language/DictionaryContext", {
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
-    Card: ({ children }: any) => <div data-testid="Card">{children}</div>,
+    Box: ({ children  }: Record<string, unknown>) => <div data-testid="Box">{children}</div>,
+    Card: ({ children  }: Record<string, unknown>) => <div data-testid="Card">{children}</div>,
     Skeleton: () => <div data-testid="Skeleton" />,
-    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
+    Stack: ({ children  }: Record<string, unknown>) => <div data-testid="Stack">{children}</div>,
     useTheme: mock.fn(() => ({
       palette: {
         background: { paper_alpha: { main_80: "" } },
@@ -38,7 +38,7 @@ mock.module("@mui/material", {
 });
 
 describe("KpiCards Component", () => {
-  let KpiCards: any;
+  let KpiCards: unknown;
 
   before(async () => {
     const mod = await import("./KpiCards");

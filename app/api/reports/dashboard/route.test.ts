@@ -3,7 +3,7 @@ import { describe, it, before, mock, beforeEach } from "node:test";
 import { expect } from "expect";
 
 const mockNextResponse = {
-  json: mock.fn((body: any, init?: { status?: number }) => ({
+  json: mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -18,7 +18,7 @@ mock.module("../../../lib/controllers/reports.ts", {
 });
 
 describe("GET /api/reports/dashboard", () => {
-  let GET: any;
+  let GET: unknown;
 
   before(async () => {
     const mod = await import("./route");
@@ -33,7 +33,7 @@ describe("GET /api/reports/dashboard", () => {
   it("should_ReturnData_WhenControllerSucceeds", async () => {
     const fakeData = { fleet: {}, inventory: {} };
     getReportsDataActionMock.mock.mockImplementationOnce(async () => fakeData);
-    const res: any = await GET();
+    const res: unknown = await GET();
     expect(res._body).toEqual(fakeData);
     expect(res._status).toBe(200);
   });
@@ -42,7 +42,7 @@ describe("GET /api/reports/dashboard", () => {
     getReportsDataActionMock.mock.mockImplementationOnce(async () => {
       throw new Error("NEXT_REDIRECT");
     });
-    const res: any = await GET();
+    const res: unknown = await GET();
     expect(res._status).toBe(401);
   });
 
@@ -50,7 +50,7 @@ describe("GET /api/reports/dashboard", () => {
     getReportsDataActionMock.mock.mockImplementationOnce(async () => {
       throw new Error("timeout");
     });
-    const res: any = await GET();
+    const res: unknown = await GET();
     expect(res._status).toBe(500);
   });
 });

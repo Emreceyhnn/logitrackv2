@@ -37,6 +37,8 @@ import KpiCards from "@/app/components/cards/KpiCards";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
 import { toast } from "sonner";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 export default function ShipmentContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -139,7 +141,7 @@ export default function ShipmentContent() {
       await deleteMutation.mutateAsync(actionShipment.id);
       setDeleteOpen(false);
     } catch (error) {
-      console.error("Failed to delete shipment:", error);
+      logger.error("Failed to delete shipment:", error);
       toast.error(dict.common.actionFailed);
     }
   };

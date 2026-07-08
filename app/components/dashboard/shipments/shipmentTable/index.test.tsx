@@ -58,12 +58,12 @@ mock.module("../../../../lib/type/enums.ts", {
 
 mock.module("../../../chips/statusChips.tsx", {
   namedExports: {
-    StatusChip: ({ status }: any) => <span data-testid={`status-chip-${status}`}>{status}</span>
+    StatusChip: ({ status  }: Record<string, unknown>) => <span data-testid={`status-chip-${status}`}>{status}</span>
   }
 });
 
 mock.module("../../../dialogs/shipment/shipmentDetailDialog.tsx", {
-  defaultExport: ({ open, onClose }: any) => open ? (
+  defaultExport: ({ open, onClose  }: Record<string, unknown>) => open ? (
     <div data-testid="detail-dialog">
       <button onClick={onClose}>Close</button>
     </div>
@@ -71,7 +71,7 @@ mock.module("../../../dialogs/shipment/shipmentDetailDialog.tsx", {
 });
 
 mock.module("../../../ui/DataTable/index.tsx", {
-  defaultExport: ({ rows, columns, rowActions, emptyMessage }: any) => (
+  defaultExport: ({ rows, columns, rowActions, emptyMessage  }: Record<string, unknown>) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (
         <div>{emptyMessage}</div>
@@ -79,20 +79,20 @@ mock.module("../../../ui/DataTable/index.tsx", {
         <table>
           <thead>
             <tr>
-              {columns.map((c: any) => <th key={c.key}>{c.label}</th>)}
+              {columns.map((c: Record<string, unknown>) => <th key={c.key}>{c.label}</th>)}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row: any, i: number) => (
+            {rows.map((row: unknown, i: number) => (
               <tr key={i} data-testid={`row-${row.id}`}>
-                {columns.map((c: any) => (
+                {columns.map((c: Record<string, unknown>) => (
                   <td key={c.key} data-testid={`cell-${c.key}-${row.id}`}>
                     {c.render(row)}
                   </td>
                 ))}
                 <td>
-                  {rowActions?.map((action: any, aIdx: number) => (
+                  {rowActions?.map((action: unknown, aIdx: number) => (
                     <button key={aIdx} onClick={() => action.onClick(row)}>
                       {action.label}
                     </button>
@@ -119,7 +119,7 @@ mock.module("@mui/material", {
 });
 
 describe("ShipmentTable RTL Component", () => {
-  let ShipmentTable: any;
+  let ShipmentTable: unknown;
 
   before(async () => {
     const mod = await import("./index");

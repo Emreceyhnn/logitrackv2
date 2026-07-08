@@ -14,6 +14,8 @@ import {
 import { getCustomersWithDashboardData } from "@/app/lib/controllers/customer";
 import { customerKeys } from "@/app/lib/query-keys/customer.keys";
 import CustomerContent from "./components/CustomerContent";
+import { logger } from "@/app/lib/logger";
+
 
 export async function generateMetadata({
   params,
@@ -63,7 +65,7 @@ export default async function CustomersPage() {
       staleTime: 1000 * 60 * 5,
     });
   } catch (error) {
-    console.error("[CustomersPage SSR] prefetch failed:", error);
+    logger.error("[CustomersPage SSR] prefetch failed:", error);
   }
 
   const dehydratedState = dehydrate(queryClient);

@@ -33,6 +33,8 @@ import {
 import { getRoutesWithDashboardData } from "@/app/lib/controllers/routes";
 import { routeKeys } from "@/app/lib/query-keys/route.keys";
 import RoutesContent from "./components/routesContent";
+import { logger } from "@/app/lib/logger";
+
 
 export async function generateMetadata({
   params,
@@ -83,7 +85,7 @@ export default async function RoutesPage() {
       staleTime: 1000 * 60 * 5,
     });
   } catch (error) {
-    console.error("[RoutesPage SSR] prefetch failed:", error);
+    logger.error("[RoutesPage SSR] prefetch failed:", error);
   }
 
   const dehydratedState = dehydrate(queryClient);

@@ -14,6 +14,8 @@ import {
 import { getCompanyWithDashboardData } from "@/app/lib/controllers/company";
 import { companyKeys } from "@/app/lib/query-keys/company.keys";
 import CompanyContent from "./components/CompanyContent";
+import { logger } from "@/app/lib/logger";
+
 
 export async function generateMetadata({
   params,
@@ -65,7 +67,7 @@ export default async function CompanyPage() {
       staleTime: 1000 * 60 * 5,
     });
   } catch (error) {
-    console.error("[CompanyPage SSR] prefetch failed:", error);
+    logger.error("[CompanyPage SSR] prefetch failed:", error);
   }
 
   const dehydratedState = dehydrate(queryClient);

@@ -7,7 +7,7 @@ import { fetchRoute, decodeShape, type RoutingParams } from "./valhalla";
 const originalFetch = globalThis.fetch;
 const fetchMock = mock.fn<any>();
 
-globalThis.fetch = fetchMock as any;
+globalThis.fetch = fetchMock as unknown;
 
 const baseParams: RoutingParams = {
   locations: [
@@ -17,7 +17,7 @@ const baseParams: RoutingParams = {
   costing: "truck",
 };
 
-const okResponse = (payload: any) => ({
+const okResponse = (payload: Record<string, unknown>) => ({
   ok: true,
   json: async () => payload,
   text: async () => JSON.stringify(payload),

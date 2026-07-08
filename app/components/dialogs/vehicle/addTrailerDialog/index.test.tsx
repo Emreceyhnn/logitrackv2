@@ -40,7 +40,7 @@ mock.module("../../../../hooks/useTrailers.ts", {
 });
 
 describe("AddTrailerDialog Component", () => {
-  let AddTrailerDialog: any;
+  let AddTrailerDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

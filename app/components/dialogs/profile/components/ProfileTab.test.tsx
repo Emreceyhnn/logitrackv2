@@ -30,12 +30,12 @@ mock.module("../../../../lib/language/DictionaryContext.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_08: "rgba()", main_10: "rgba()", main_12: "rgba()", main_20: "rgba()", main_30: "rgba()", main_40: "rgba()" };
-(customTheme.palette as any).divider_alpha = { main_08: "rgba()" };
-(customTheme.palette.common as any) = { 
+(customTheme.palette.primary as unknown)._alpha = { main_08: "rgba()", main_10: "rgba()", main_12: "rgba()", main_20: "rgba()", main_30: "rgba()", main_40: "rgba()" };
+(customTheme.palette as unknown).divider_alpha = { main_08: "rgba()" };
+(customTheme.palette.common as unknown) = { 
   white_alpha: { main_02: "rgba()", main_03: "rgba()", main_05: "rgba()", main_06: "rgba()", main_25: "rgba()", main_30: "rgba()", main_40: "rgba()" },
   black_alpha: { main_40: "rgba()" }
 };
@@ -50,7 +50,7 @@ mock.module("@mui/material", {
 });
 
 describe("ProfileTab RTL Component", () => {
-  let ProfileTab: any;
+  let ProfileTab: unknown;
 
   before(async () => {
     const mod = await import("./ProfileTab");
@@ -81,7 +81,7 @@ describe("ProfileTab RTL Component", () => {
       // Act
       render(
         <ThemeProvider theme={customTheme}>
-          <ProfileTab state={mockState as any} actions={mockActions as any} />
+          <ProfileTab state={mockState as unknown} actions={mockActions as unknown} />
         </ThemeProvider>
       );
 
@@ -100,7 +100,7 @@ describe("ProfileTab RTL Component", () => {
       // Act
       render(
         <ThemeProvider theme={customTheme}>
-          <ProfileTab state={mockState as any} actions={mockActions as any} />
+          <ProfileTab state={mockState as unknown} actions={mockActions as unknown} />
         </ThemeProvider>
       );
 

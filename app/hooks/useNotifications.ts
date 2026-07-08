@@ -11,6 +11,7 @@ import {
 } from "@/app/lib/firebase";
 import { ensureFirebaseAuth } from "@/app/lib/firebase-auth";
 import { NotificationType } from "@/app/lib/type/notification";
+import { logger } from "@/app/lib/logger";
 import {
   markAsReadAction,
   deleteNotificationAction,
@@ -81,7 +82,6 @@ export const useNotifications = (user: UserContext | undefined) => {
       path: string;
     }> = [];
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     let pathsLoaded = 0;
     let cancelled = false;
@@ -95,7 +95,7 @@ export const useNotifications = (user: UserContext | undefined) => {
         subscribeAll();
       })
       .catch((err) => {
-        console.error("[useNotifications] Firebase auth failed:", err);
+        logger.error("[useNotifications] Firebase auth failed:", err);
         if (!cancelled) setLoading(false);
       });
 
@@ -130,7 +130,7 @@ export const useNotifications = (user: UserContext | undefined) => {
       };
 
       onValue(nodeRef, listener, (err) => {
-        console.error(`Subscription error on [${path}]:`, err);
+        logger.error(`Subscription error on [${path}]:`, err);
         if (pathsLoaded < paths.length) {
           pathsLoaded++;
           if (pathsLoaded === paths.length) setLoading(false);
@@ -166,7 +166,7 @@ export const useNotifications = (user: UserContext | undefined) => {
       try {
         await markAsReadAction(notification._sourcePath, notification.id);
       } catch (err) {
-        console.error("Mark read failed:", err);
+        logger.error("Mark read failed:", err);
       }
     },
     [user?.id]
@@ -180,7 +180,7 @@ export const useNotifications = (user: UserContext | undefined) => {
         .map((n) => markAsReadAction(n._sourcePath!, n.id));
       await Promise.all(promises);
     } catch (err) {
-      console.error("Mark all read failed:", err);
+      logger.error("Mark all read failed:", err);
     }
   }, [user?.id, notifications]);
 
@@ -193,7 +193,7 @@ export const useNotifications = (user: UserContext | undefined) => {
           notification.id
         );
       } catch (err) {
-        console.error("Delete failed:", err);
+        logger.error("Delete failed:", err);
       }
     },
     [user?.id]

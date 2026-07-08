@@ -98,22 +98,22 @@ mock.module("@mui/x-date-pickers", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    background: { default: "#0B0F19", paper: "#111" } as any,
-    warning: { main: "#ed6c02" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    background: { default: "#0B0F19", paper: "#111" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
   }
 });
 
 const mockAlpha = { main_02: "rgba()", main_05: "rgba()", main_08: "rgba()", main_10: "rgba()", main_20: "rgba()", main_40: "rgba()", main_98: "rgba()" };
-(customTheme.palette.primary as any)._alpha = mockAlpha;
-(customTheme.palette.warning as any)._alpha = mockAlpha;
-(customTheme.palette as any).divider_alpha = mockAlpha;
-(customTheme.palette.background as any).default_alpha = mockAlpha;
-(customTheme.palette.background as any).paper_alpha = mockAlpha;
-(customTheme.palette.text as any).secondary_alpha = mockAlpha;
-(customTheme.palette.text as any).primary_alpha = mockAlpha;
-(customTheme.palette.error as any)._alpha = mockAlpha;
-(customTheme.palette.common as any) = { white_alpha: mockAlpha };
+(customTheme.palette.primary as unknown)._alpha = mockAlpha;
+(customTheme.palette.warning as unknown)._alpha = mockAlpha;
+(customTheme.palette as unknown).divider_alpha = mockAlpha;
+(customTheme.palette.background as unknown).default_alpha = mockAlpha;
+(customTheme.palette.background as unknown).paper_alpha = mockAlpha;
+(customTheme.palette.text as unknown).secondary_alpha = mockAlpha;
+(customTheme.palette.text as unknown).primary_alpha = mockAlpha;
+(customTheme.palette.error as unknown)._alpha = mockAlpha;
+(customTheme.palette.common as unknown) = { white_alpha: mockAlpha };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -125,7 +125,7 @@ mock.module("@mui/material", {
 });
 
 describe("AddCompanyMemberDialog RTL Component", () => {
-  let AddCompanyMemberDialog: any;
+  let AddCompanyMemberDialog: unknown;
 
   before(async () => {
     const mod = await import("./AddCompanyMemberDialog");

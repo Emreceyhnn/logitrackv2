@@ -8,6 +8,8 @@
 
 import { ZodError } from "zod";
 import { AppError, fromZodError } from "../../errors";
+import { logger } from "@/app/lib/logger";
+
 
 /**
  * Wraps a controller operation with:
@@ -41,7 +43,7 @@ export async function controllerGuard<T>(
 
     // Graceful-degradation caller: log and return the fallback value.
     if (options) {
-      console.error(`[${operationName}] Failed, returning fallback:`, error);
+      logger.error(`[${operationName}] Failed, returning fallback:`, error);
       return options.fallback;
     }
 
@@ -52,18 +54,18 @@ export async function controllerGuard<T>(
         message: i.message,
       }));
       const validationError = fromZodError({ issues });
-      console.error(`[${operationName}] Validation failed:`, validationError.message);
+      logger.error(`[${operationName}] Validation failed:`, validationError.message);
       throw validationError;
     }
 
     // Known application errors — log and re-throw as-is
     if (error instanceof AppError) {
-      console.error(`[${operationName}] ${error.name}:`, error.message);
+      logger.error(`[${operationName}] ${error.name}:`, error.message);
       throw error;
     }
 
     // Unknown errors — log full stack and re-throw
-    console.error(`[${operationName}] Unexpected error:`, error);
+    logger.error(`[${operationName}] Unexpected error:`, error);
     throw error;
   }
 }

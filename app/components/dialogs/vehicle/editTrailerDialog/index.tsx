@@ -18,6 +18,8 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { TrailerType } from "@/app/lib/type/enums";
 import { useTrailerMutations } from "@/app/hooks/useTrailers";
 import { TrailerWithRelations } from "@/app/lib/type/trailer";
+import { logger } from "@/app/lib/logger";
+
 
 interface EditTrailerDialogProps {
   open: boolean;
@@ -48,7 +50,6 @@ export default function EditTrailerDialog({
 
   useEffect(() => {
     if (trailer) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         plate: trailer.plate || "",
         fleetNo: trailer.fleetNo || "",
@@ -85,7 +86,7 @@ export default function EditTrailerDialog({
       onSuccess?.();
       onClose();
     } catch (error) {
-      console.error("Failed to update trailer:", error);
+      logger.error("Failed to update trailer:", error);
     } finally {
       setIsSubmitting(false);
     }

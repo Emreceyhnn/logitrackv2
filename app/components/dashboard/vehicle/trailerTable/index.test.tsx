@@ -42,7 +42,7 @@ mock.module("../../../../lib/type/enums.ts", {
 });
 
 mock.module("../../../ui/DataTable/index.tsx", {
-  defaultExport: ({ rows, columns, rowActions, emptyMessage }: any) => (
+  defaultExport: ({ rows, columns, rowActions, emptyMessage  }: Record<string, unknown>) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (
         <div>{emptyMessage}</div>
@@ -50,22 +50,22 @@ mock.module("../../../ui/DataTable/index.tsx", {
         <table>
           <thead>
             <tr>
-              {columns.map((c: any) => (
+              {columns.map((c: Record<string, unknown>) => (
                 <th key={c.key}>{c.label}</th>
               ))}
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row: any, i: number) => (
+            {rows.map((row: unknown, i: number) => (
               <tr key={i}>
-                {columns.map((c: any) => (
+                {columns.map((c: Record<string, unknown>) => (
                   <td key={c.key} data-testid={`cell-${c.key}`}>
                     {c.render(row)}
                   </td>
                 ))}
                 <td>
-                  {rowActions?.map((action: any, aIdx: number) => {
+                  {rowActions?.map((action: unknown, aIdx: number) => {
                     const isHidden = action.hidden ? action.hidden(row) : false;
                     if (isHidden) return null;
                     return (
@@ -99,7 +99,7 @@ mock.module("@mui/material", {
 });
 
 describe("TrailerTable RTL Component", () => {
-  let TrailerTable: any;
+  let TrailerTable: unknown;
 
   before(async () => {
     const mod = await import("./index");

@@ -6,6 +6,8 @@ import { toast } from "sonner";
 
 import { customerKeys } from "@/app/lib/query-keys/customer.keys";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
+import { logger } from "@/app/lib/logger";
+
 
 async function fetchCustomers(): Promise<CustomerWithRelations[]> {
   const res = await fetch(`/api/customers`, {
@@ -84,7 +86,7 @@ export function useCustomerMutations() {
   };
 
   const handleError = (message: string, error: Error | unknown) => {
-    console.error(message, error);
+    logger.error(message, error);
     toast.error((error as Error)?.message || message);
   };
 

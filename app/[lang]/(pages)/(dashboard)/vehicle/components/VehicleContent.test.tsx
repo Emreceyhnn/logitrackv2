@@ -93,7 +93,7 @@ mock.module("../../../../../components/cards/KpiCards.tsx", {
   defaultExport: () => <div data-testid="kpi-cards">KPI Cards</div>,
 });
 mock.module("../../../../../components/dashboard/vehicle/vehicleTable/index.tsx", {
-  defaultExport: ({ actions }: any) => (
+  defaultExport: ({ actions  }: Record<string, unknown>) => (
     <div data-testid="vehicle-table">
       <button onClick={() => actions.onDelete("v1")}>Delete v1</button>
     </div>
@@ -127,7 +127,7 @@ mock.module("../../../../../components/dialogs/vehicle/trailerAssignmentDialog/i
   defaultExport: () => <div data-testid="trailer-assignment">Trailer Assignment</div>,
 });
 mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
-  defaultExport: ({ open, onConfirm }: any) => open ? (
+  defaultExport: ({ open, onConfirm  }: Record<string, unknown>) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
@@ -138,11 +138,11 @@ mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", _alpha: { main_15: "#ccc", main_20: "#ccc" } } as any,
-    success: { main: "#2e7d32" } as any,
-    warning: { main: "#ed6c02" } as any,
-    error: { main: "#d32f2f" } as any,
-    info: { main: "#0288d1" } as any,
+    primary: { main: "#1976d2", _alpha: { main_15: "#ccc", main_20: "#ccc" } } as unknown,
+    success: { main: "#2e7d32" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
+    info: { main: "#0288d1" } as unknown,
   }
 });
 import * as originalMui from "@mui/material";
@@ -155,7 +155,7 @@ mock.module("@mui/material", {
 });
 
 describe("VehicleContent Component", () => {
-  let VehicleContent: any;
+  let VehicleContent: unknown;
 
   before(async () => {
     const mod = await import("./VehicleContent");

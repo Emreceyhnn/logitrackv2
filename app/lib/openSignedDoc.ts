@@ -1,6 +1,8 @@
 "use client";
 
 import { getSignedUrlAction } from "@/app/lib/actions/upload";
+import { logger } from "@/app/lib/logger";
+
 
 /**
  * Resolves a short-lived signed URL for a document stored in the private
@@ -16,6 +18,6 @@ export async function openSignedDoc(url: string): Promise<void> {
       window.open(result.url, "_blank", "noopener,noreferrer");
     }
   } catch (error) {
-    console.error("[openSignedDoc] failed:", error);
+    logger.error("[openSignedDoc] failed:", error);
   }
 }

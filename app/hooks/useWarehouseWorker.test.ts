@@ -27,7 +27,7 @@ const fetchMock = mock.fn();
 // 2. TEST GRUPLARI
 describe("useWarehouseWorker Hook", () => {
    
-  let hookMod: any;
+  let hookMod: unknown;
 
   before(async () => {
     hookMod = await import("./useWarehouseWorker");

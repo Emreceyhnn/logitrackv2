@@ -37,11 +37,11 @@ mock.module("../../../lib/utils/date.ts", {
 });
 
 mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="custom-card">{children}</div>,
 });
 
 mock.module("../../ui/DataTable/index.tsx", {
-  defaultExport: ({ rows, columns, emptyMessage }: any) => (
+  defaultExport: ({ rows, columns, emptyMessage  }: Record<string, unknown>) => (
     <div data-testid="data-table">
       {rows.length === 0 ? (
         <div>{emptyMessage}</div>
@@ -49,15 +49,15 @@ mock.module("../../ui/DataTable/index.tsx", {
         <table>
           <thead>
             <tr>
-              {columns.map((c: any) => (
+              {columns.map((c: Record<string, unknown>) => (
                 <th key={c.key}>{c.label}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map((row: any, i: number) => (
+            {rows.map((row: unknown, i: number) => (
               <tr key={i}>
-                {columns.map((c: any) => (
+                {columns.map((c: Record<string, unknown>) => (
                   <td key={c.key} data-testid={`cell-${c.key}`}>
                     {c.render(row)}
                   </td>
@@ -75,17 +75,17 @@ mock.module("../../ui/DataTable/index.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    warning: { main: "#ed6c02" } as any,
-    success: { main: "#2e7d32" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
   }
 });
 
 const mockAlpha = { main_05: "rgba(0,0,0,0.05)", main_10: "rgba(0,0,0,0.1)" };
-(customTheme.palette as any).divider_alpha = mockAlpha;
-(customTheme.palette.warning as any)._alpha = mockAlpha;
-(customTheme.palette.success as any)._alpha = mockAlpha;
-(customTheme.palette.primary as any)._alpha = mockAlpha;
+(customTheme.palette as unknown).divider_alpha = mockAlpha;
+(customTheme.palette.warning as unknown)._alpha = mockAlpha;
+(customTheme.palette.success as unknown)._alpha = mockAlpha;
+(customTheme.palette.primary as unknown)._alpha = mockAlpha;
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -97,7 +97,7 @@ mock.module("@mui/material", {
 });
 
 describe("RecentStockMovements RTL Component", () => {
-  let RecentStockMovements: any;
+  let RecentStockMovements: unknown;
 
   before(async () => {
     const mod = await import("./recentStockMovements");

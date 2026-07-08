@@ -24,6 +24,8 @@ import { toast } from "sonner";
 import { inventoryKeys } from "@/app/lib/query-keys/inventory.keys";
 import { InventoryWithRelations, LowStockItem } from "@/app/lib/type/inventory";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 export function useInventory(warehouseId?: string) {
   return useQuery({
@@ -187,7 +189,7 @@ export function useInventoryMutations() {
   };
 
   const handleError = (message: string, error: unknown) => {
-    console.error(message, error);
+    logger.error(message, error);
     toast.error(error instanceof Error ? error.message : message);
   };
 

@@ -28,6 +28,8 @@ import { uploadVehicleDocument } from "@/app/lib/controllers/vehicle";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Dayjs } from "dayjs";
 import { uploadImageAction } from "@/app/lib/actions/upload";
+import { logger } from "@/app/lib/logger";
+
 
 interface UploadDocumentDialogProps {
   open: boolean;
@@ -111,7 +113,7 @@ export default function UploadDocumentDialog({
       onSuccess();
       handleClose();
     } catch (err: unknown) {
-      console.error(err);
+      logger.error(err);
       const errorMessage =
         err instanceof Error
           ? err.message

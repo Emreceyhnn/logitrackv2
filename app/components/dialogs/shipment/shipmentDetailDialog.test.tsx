@@ -55,9 +55,9 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 mock.module("framer-motion", {
   namedExports: {
     motion: {
-      div: ({ children, "data-testid": testId, id }: any) => <div id={id} data-testid={testId || "motion-div"}>{children}</div>,
+      div: ({ children, "data-testid": testId, id }: unknown) => <div id={id} data-testid={testId || "motion-div"}>{children}</div>,
     },
-    AnimatePresence: ({ children }: any) => <>{children}</>,
+    AnimatePresence: ({ children  }: Record<string, unknown>) => <>{children}</>,
   },
 });
 
@@ -78,13 +78,13 @@ mock.module("../routes/map.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
-    common: { white_alpha: { main_08: "rgba()" } } as any,
-    background: { paper_alpha: { main_90: "rgba()" }, paper: "#fff", default: "#fafafa" } as any,
+    primary: { main: "#1976d2" } as unknown,
+    common: { white_alpha: { main_08: "rgba()" } } as unknown,
+    background: { paper_alpha: { main_90: "rgba()" }, paper: "#fff", default: "#fafafa" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_30: "rgba()", main_40: "rgba()", main_02: "rgba()", main_05: "rgba()", main_08: "rgba()", main_10: "rgba()", main_15: "rgba()", main_20: "rgba()", main_25: "rgba()" };
-(customTheme.palette.secondary as any)._alpha = { main_30: "rgba()" };
+(customTheme.palette.primary as unknown)._alpha = { main_30: "rgba()", main_40: "rgba()", main_02: "rgba()", main_05: "rgba()", main_08: "rgba()", main_10: "rgba()", main_15: "rgba()", main_20: "rgba()", main_25: "rgba()" };
+(customTheme.palette.secondary as unknown)._alpha = { main_30: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -96,7 +96,7 @@ mock.module("@mui/material", {
 });
 
 describe("ShipmentDetailDialog RTL Component", () => {
-  let ShipmentDetailDialog: any;
+  let ShipmentDetailDialog: unknown;
 
   before(async () => {
     const mod = await import("./shipmentDetailDialog");

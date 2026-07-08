@@ -77,8 +77,6 @@ export const SidebarList = memo(function SidebarList({
   /*  – we compare it against prevAutoOpenKey stored in state; when they      */
   /*    differ we update both synchronously during this render pass,          */
   /*    triggering an immediate re-render without an extra effect commit.     */
-  /*  This avoids the "calling setState synchronously within an effect"       */
-  /*  anti-pattern flagged by react-hooks/set-state-in-effect.                */
   /* ---------------------------------------------------------------------- */
 
   const autoOpenKey = useMemo<string | null>(() => {

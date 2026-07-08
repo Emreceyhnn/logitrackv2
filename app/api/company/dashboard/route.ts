@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCompanyWithDashboardData } from "@/app/lib/controllers/company";
+import { parseQueryParams, pageParam, pageSizeParam, searchParam } from "@/app/lib/api/queryParams";
+import { z } from "zod";
+import { logger } from "@/app/lib/logger";
+
+
+const querySchema = z.object({
+  page: pageParam,
+  pageSize: pageSizeParam(),
+  search: searchParam,
+});
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = req.nextUrl;
-    
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
-    const search = searchParams.get("search") || undefined;
+    const query = parseQueryParams(req, querySchema);
+    if (!query.success) return query.response;
+    const { page, pageSize, search } = query.data;
 
     const data = await getCompanyWithDashboardData({
       page,
@@ -17,7 +25,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error: unknown) {
-    console.error("[/api/company/dashboard] error:", error);
+    logger.error("[/api/company/dashboard] error:", error);
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

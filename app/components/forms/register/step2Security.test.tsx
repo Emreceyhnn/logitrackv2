@@ -15,17 +15,17 @@ mock.module("../../../lib/styled/styledFieldBox.ts", { namedExports: { StyledTex
 
 mock.module("formik", {
   namedExports: {
-    Field: ({ children, name }: any) => <div data-testid={`Field-${name}`}>{typeof children === "function" ? children({ field: { name }, meta: {} }) : children}</div>
+    Field: ({ children, name  }: Record<string, unknown>) => <div data-testid={`Field-${name}`}>{typeof children === "function" ? children({ field: { name }, meta: {} }) : children}</div>
   }
 });
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
-    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>,
-    InputAdornment: ({ children }: any) => <div data-testid="InputAdornment">{children}</div>,
-    IconButton: ({ children }: any) => <button data-testid="IconButton">{children}</button>
+    Box: ({ children  }: Record<string, unknown>) => <div data-testid="Box">{children}</div>,
+    Stack: ({ children  }: Record<string, unknown>) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children  }: Record<string, unknown>) => <div data-testid="Typography">{children}</div>,
+    InputAdornment: ({ children  }: Record<string, unknown>) => <div data-testid="InputAdornment">{children}</div>,
+    IconButton: ({ children  }: Record<string, unknown>) => <button data-testid="IconButton">{children}</button>
   }
 });
 
@@ -33,7 +33,7 @@ mock.module("@mui/icons-material/VisibilityOff", { defaultExport: () => <div dat
 mock.module("@mui/icons-material/Visibility", { defaultExport: () => <div data-testid="VisibilityIcon" /> });
 
 describe("Step2Security Component", () => {
-  let Step2Security: any;
+  let Step2Security: unknown;
 
   before(async () => {
     const mod = await import("./step2Security");

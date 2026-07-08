@@ -36,6 +36,8 @@ import { addCompanyUser } from "@/app/lib/controllers/company";
 import { addCompanyMemberDriverValidationSchema } from "@/app/lib/validationSchema";
 import { ValidationError } from "yup";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 interface SearchedUser {
   id: string;
@@ -159,7 +161,7 @@ export default function AddCompanyMemberDialog({
           const searchResults = await searchPlatformUsers(searchQuery);
           setResults(searchResults);
         } catch (err) {
-          console.error("Search error:", err);
+          logger.error("Search error:", err);
           setResults([]);
         }
       } else if (searchQuery.length === 0) {

@@ -24,7 +24,7 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 describe("AnalyticsHeader RTL Component", () => {
-  let AnalyticsHeader: any;
+  let AnalyticsHeader: unknown;
 
   before(async () => {
     const mod = await import("./AnalyticsHeader");

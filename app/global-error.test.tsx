@@ -6,7 +6,7 @@ import React from "react";
 
 // Mock NextError
 mock.module("next/error", {
-  defaultExport: ({ statusCode }: any) => <div data-testid="next-error">Error: {statusCode}</div>,
+  defaultExport: ({ statusCode  }: Record<string, unknown>) => <div data-testid="next-error">Error: {statusCode}</div>,
 });
 
 describe("GlobalError Component", () => {

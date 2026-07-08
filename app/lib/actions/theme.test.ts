@@ -27,7 +27,7 @@ mock.module("../auth-middleware.ts", { namedExports: authMiddlewareMock });
 
 // 2. TEST GRUPLARI
 describe("Theme Actions", () => {
-  let themeActions: any;
+  let themeActions: unknown;
 
   before(async () => {
     themeActions = await import("./theme");

@@ -44,6 +44,8 @@ import DialogErrorBoundary from "@/app/components/ui/DialogErrorBoundary";
 
 import { getTrailers } from "@/app/lib/controllers/trailer";
 import { TrailerWithRelations } from "@/app/lib/type/trailer";
+import { logger } from "@/app/lib/logger";
+
 
 const initialValues: ShipmentFormValues = {
   trackingId: "",
@@ -117,7 +119,7 @@ const AddShipmentDialog = ({
           setCustomers(cRes);
           setTrailers(tRes.trailers);
         } catch (error) {
-          console.error("Failed to fetch dialog data", error);
+          logger.error("Failed to fetch dialog data", error);
         }
       };
       fetchData();
@@ -136,7 +138,7 @@ const AddShipmentDialog = ({
         const inv = await getInventory(warehouseId);
         setAvailableInventory(inv);
       } catch (error) {
-        console.error("Failed to fetch warehouse inventory", error);
+        logger.error("Failed to fetch warehouse inventory", error);
         setAvailableInventory([]);
       } finally {
         setIsLoadingInventory(false);
@@ -194,7 +196,7 @@ const AddShipmentDialog = ({
       onClose();
       setCurrentStep(1);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   };
 

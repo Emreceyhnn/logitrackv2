@@ -7,9 +7,9 @@ import React from "react";
 // 1. Mocks — the map itself is a dynamic() Leaflet import; stub it out and
 // render the markers it receives so the mapping logic can be asserted.
 mock.module("next/dynamic", {
-  defaultExport: () => (props: any) => (
+  defaultExport: () => (props: Record<string, unknown>) => (
     <div data-testid="map-with-marker">
-      {props.markers?.map((m: any) => (
+      {props.markers?.map((m: Record<string, unknown>) => (
         <div key={m.name} data-testid={`marker-${m.name}`}>
           {`${m.type}:${m.lat},${m.len}`}
         </div>
@@ -19,13 +19,13 @@ mock.module("next/dynamic", {
 });
 
 mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => (
+  defaultExport: ({ children  }: Record<string, unknown>) => (
     <div data-testid="custom-card">{children}</div>
   ),
 });
 
 describe("OverviewMapCard RTL Component", () => {
-  let OverviewMapCard: any;
+  let OverviewMapCard: unknown;
 
   before(async () => {
     const mod = await import("./overViewMapCard");
@@ -49,7 +49,7 @@ describe("OverviewMapCard RTL Component", () => {
     });
 
     it("should_RenderMapWithMarkers_MappedFromStats", async () => {
-      render(<OverviewMapCard stats={mockStats as any} />);
+      render(<OverviewMapCard stats={mockStats as unknown} />);
 
       expect(screen.getByTestId("custom-card")).toBeTruthy();
       expect(screen.getByTestId("map-with-marker")).toBeTruthy();
@@ -62,7 +62,7 @@ describe("OverviewMapCard RTL Component", () => {
     });
 
     it("should_RenderEmptyMap_WhenStatsIsEmptyArray", async () => {
-      render(<OverviewMapCard stats={[] as any} />);
+      render(<OverviewMapCard stats={[] as unknown} />);
       expect(screen.getByTestId("map-with-marker")).toBeTruthy();
       expect(screen.queryAllByTestId(/^marker-/).length).toBe(0);
     });

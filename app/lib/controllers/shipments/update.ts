@@ -13,6 +13,8 @@ import {
 import { invalidateShipmentCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 import type { ShipmentStopInput } from "./types";
+import { logger } from "@/app/lib/logger";
+
 
 export const updateShipment = authenticatedAction(
   async (
@@ -230,7 +232,7 @@ export const updateShipment = authenticatedAction(
         Promise.all([
           invalidateShipmentCache(companyId!, shipmentId),
           invalidateInventoryCache(companyId!),
-        ]).catch((err) => console.error("Cache invalidation failed:", err));
+        ]).catch((err) => logger.error("Cache invalidation failed:", err));
 
         return updatedShipment;
       }
@@ -274,7 +276,7 @@ export const updateShipment = authenticatedAction(
       }
 
       invalidateShipmentCache(companyId!, shipmentId).catch((err) =>
-        console.error("Cache invalidation failed:", err)
+        logger.error("Cache invalidation failed:", err)
       );
       return updatedShipment;
     });
@@ -343,7 +345,7 @@ export const deleteShipment = authenticatedAction(
       Promise.all([
         invalidateShipmentCache(companyId!, shipmentId),
         invalidateInventoryCache(companyId!),
-      ]).catch((err) => console.error("Cache invalidation failed:", err));
+      ]).catch((err) => logger.error("Cache invalidation failed:", err));
       return { success: true };
     });
   }

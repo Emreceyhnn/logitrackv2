@@ -14,29 +14,29 @@ mock.module("next/navigation", {
   namedExports: { useRouter: mock.fn(() => ({ push: mock.fn(), refresh: mock.fn() })), useParams: mock.fn(() => ({ lang: "en" })) }
 });
 
-mock.module("next/link", { defaultExport: ({ children }: any) => <a data-testid="Link">{children}</a> });
+mock.module("next/link", { defaultExport: ({ children  }: Record<string, unknown>) => <a data-testid="Link">{children}</a> });
 
 mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDictionary: useDictionaryMock } });
 mock.module("../../lib/controllers/users.ts", { namedExports: { LoginUser: mock.fn() } });
 mock.module("../../lib/validationSchema.ts", { namedExports: { loginValidationSchema: mock.fn() } });
 mock.module("../../lib/styled/styledFieldBox.ts", { namedExports: { StyledTextFieldAuth: () => <input data-testid="StyledTextFieldAuth" /> } });
-mock.module("../ui/AuthButton.tsx", { defaultExport: ({ children }: any) => <button data-testid="AuthButton">{children}</button> });
+mock.module("../ui/AuthButton.tsx", { defaultExport: ({ children  }: Record<string, unknown>) => <button data-testid="AuthButton">{children}</button> });
 
 mock.module("formik", {
   namedExports: {
-    Field: ({ children, name }: any) => <div data-testid={`Field-${name}`}>{typeof children === "function" ? children({ field: { name }, meta: {} }) : children}</div>,
-    Form: ({ children }: any) => <form data-testid="Form">{children}</form>,
-    Formik: ({ children }: any) => <div data-testid="Formik">{typeof children === "function" ? children({ handleSubmit: () => {} }) : children}</div>
+    Field: ({ children, name  }: Record<string, unknown>) => <div data-testid={`Field-${name}`}>{typeof children === "function" ? children({ field: { name }, meta: {} }) : children}</div>,
+    Form: ({ children  }: Record<string, unknown>) => <form data-testid="Form">{children}</form>,
+    Formik: ({ children  }: Record<string, unknown>) => <div data-testid="Formik">{typeof children === "function" ? children({ handleSubmit: () => {} }) : children}</div>
   }
 });
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
-    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>,
-    InputAdornment: ({ children }: any) => <div data-testid="InputAdornment">{children}</div>,
-    IconButton: ({ children }: any) => <button data-testid="IconButton">{children}</button>
+    Box: ({ children  }: Record<string, unknown>) => <div data-testid="Box">{children}</div>,
+    Stack: ({ children  }: Record<string, unknown>) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children  }: Record<string, unknown>) => <div data-testid="Typography">{children}</div>,
+    InputAdornment: ({ children  }: Record<string, unknown>) => <div data-testid="InputAdornment">{children}</div>,
+    IconButton: ({ children  }: Record<string, unknown>) => <button data-testid="IconButton">{children}</button>
   }
 });
 
@@ -44,7 +44,7 @@ mock.module("@mui/icons-material/VisibilityOff", { defaultExport: () => <div dat
 mock.module("@mui/icons-material/Visibility", { defaultExport: () => <div data-testid="VisibilityIcon" /> });
 
 describe("LoginForm Component", () => {
-  let LoginForm: any;
+  let LoginForm: unknown;
 
   before(async () => {
     const mod = await import("./signInForm");

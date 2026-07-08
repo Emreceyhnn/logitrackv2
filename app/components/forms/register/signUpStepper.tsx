@@ -23,6 +23,8 @@ import { RegisterUser } from "@/app/lib/controllers/users";
 import AuthButton from "../../ui/AuthButton";
 import { signUpValidationSchema } from "@/app/lib/validationSchema";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 /* --------------------------------- STYLES --------------------------------- */
 
@@ -162,7 +164,7 @@ export default function SignUpStepper() {
       );
 
       if (res && "error" in res) {
-        console.error("Registration failed:", res.error);
+        logger.error("Registration failed:", res.error);
 
         if (typeof res.error === "string") {
           if (res.field === "email") {
@@ -178,7 +180,7 @@ export default function SignUpStepper() {
         router.push(`/${lang}`);
       }
     } catch (error: unknown) {
-      console.error("Critical Registration crash:", error);
+      logger.error("Critical Registration crash:", error);
       actions.setFieldError("email", dict.auth.unexpectedError);
       setActiveStep(0);
     } finally {

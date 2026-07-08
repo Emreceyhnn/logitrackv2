@@ -63,7 +63,7 @@ mock.module("../../../../../components/cards/KpiCards.tsx", {
   defaultExport: () => <div data-testid="kpi-cards">KPI Cards</div>,
 });
 mock.module("../../../../../components/dashboard/driver/driverTable/index.tsx", {
-  defaultExport: ({ onDelete }: any) => (
+  defaultExport: ({ onDelete  }: Record<string, unknown>) => (
     <div data-testid="driver-table">
       <button onClick={() => onDelete("d1")}>Delete D1</button>
     </div>
@@ -83,7 +83,7 @@ mock.module("../../../../../components/dialogs/driver/index.tsx", {
   defaultExport: () => <div data-testid="driver-dialog">Details Dialog</div>,
 });
 mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
-  defaultExport: ({ open, onConfirm }: any) => open ? (
+  defaultExport: ({ open, onConfirm  }: Record<string, unknown>) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
@@ -94,12 +94,12 @@ mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
-    success: { main: "#2e7d32" } as any,
-    warning: { main: "#ed6c02" } as any,
-    error: { main: "#d32f2f" } as any,
-    info: { main: "#0288d1" } as any,
-    kpi: { violet: "#ccc" } as any,
+    primary: { main: "#1976d2" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
+    info: { main: "#0288d1" } as unknown,
+    kpi: { violet: "#ccc" } as unknown,
   }
 });
 import * as originalMui from "@mui/material";
@@ -112,7 +112,7 @@ mock.module("@mui/material", {
 });
 
 describe("DriverContent Component", () => {
-  let DriverContent: any;
+  let DriverContent: unknown;
 
   before(async () => {
     const mod = await import("./DriverContent");

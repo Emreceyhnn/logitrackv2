@@ -17,6 +17,14 @@ import {
 import { rateLimit } from "@/app/lib/rate-limiter";
 
 /* -------------------------------------------------------------------------- */
+/*  Startup Validations                                                         */
+/* -------------------------------------------------------------------------- */
+
+if (!process.env.JWT_SECRET) {
+  throw new Error("CRITICAL: JWT_SECRET environment variable is missing. Application cannot start safely.");
+}
+
+/* -------------------------------------------------------------------------- */
 /*  Helpers                                                                     */
 /* -------------------------------------------------------------------------- */
 
@@ -66,7 +74,7 @@ function getLocaleFromPathname(pathname: string): {
 /*  Proxy (Next.js 16+ proxy/middleware convention)                             */
 /* -------------------------------------------------------------------------- */
 
-export default async function proxy(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ── Rate Limiting for API Routes ───────────────────────────────────────────
@@ -170,10 +178,7 @@ export default async function proxy(request: NextRequest) {
 
   if (token) {
     try {
-      if (!process.env.JWT_SECRET) {
-        throw new Error("JWT_SECRET is not defined");
-      }
-      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET as string);
       const { payload } = await jwtVerify(token, secret);
       companyId = (payload.companyId as string) || null;
       isTokenValid = true;

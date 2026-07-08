@@ -22,15 +22,15 @@ mock.module("../../lib/language/language.ts", {
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: ({ children }: any) => <div data-testid="Box">{children}</div>,
-    Stack: ({ children }: any) => <div data-testid="Stack">{children}</div>,
-    Typography: ({ children }: any) => <div data-testid="Typography">{children}</div>,
+    Box: ({ children  }: Record<string, unknown>) => <div data-testid="Box">{children}</div>,
+    Stack: ({ children  }: Record<string, unknown>) => <div data-testid="Stack">{children}</div>,
+    Typography: ({ children  }: Record<string, unknown>) => <div data-testid="Typography">{children}</div>,
     Divider: () => <hr data-testid="Divider" />
   }
 });
 
 describe("Footer Component", () => {
-  let Footer: any;
+  let Footer: unknown;
 
   before(async () => {
     const mod = await import("./index");

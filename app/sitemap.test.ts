@@ -23,7 +23,7 @@ describe("Sitemap Generate", () => {
     expect(Array.isArray(result)).toBe(true);
     expect(result.length).toBeGreaterThan(0); // en, tr * routes
     
-    const rootEntry = result.find((r: any) => r.priority === 1);
+    const rootEntry = result.find((r: Record<string, unknown>) => r.priority === 1);
     expect(rootEntry).toBeTruthy();
     expect(rootEntry.alternates.languages.en).toBeDefined();
     expect(rootEntry.alternates.languages.tr).toBeDefined();

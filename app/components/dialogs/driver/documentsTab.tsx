@@ -23,6 +23,8 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { DriverWithRelations } from "@/app/lib/type/driver";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDate } from "@/app/lib/utils/date";
+import { logger } from "@/app/lib/logger";
+
 
 interface DocumentsTabProps {
   driver?: DriverWithRelations;
@@ -71,7 +73,7 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
         toast.error(dict.toasts.errorGeneric);
       }
     } catch (error) {
-      console.error("View doc error:", error);
+      logger.error("View doc error:", error);
       toast.error(dict.common.errorOccurred);
     } finally {
       setLoadingDoc(false);
@@ -92,7 +94,7 @@ const DocumentsTab = ({ driver }: DocumentsTabProps) => {
         toast.error(dict.toasts.errorGeneric);
       }
     } catch (error) {
-      console.error("Download doc error:", error);
+      logger.error("Download doc error:", error);
       toast.error(dict.common.errorOccurred);
     }
   };

@@ -18,22 +18,22 @@ const useThemeMock = mock.fn(() => ({
 mock.module("@mui/material", {
   namedExports: { 
     useTheme: useThemeMock,
-    Button: (props: any) => ({ type: "Button", props }),
-    CircularProgress: (props: any) => ({ type: "CircularProgress", props }),
-    Box: (props: any) => ({ type: "Box", props })
+    Button: (props: Record<string, unknown>) => ({ type: "Button", props }),
+    CircularProgress: (props: Record<string, unknown>) => ({ type: "CircularProgress", props }),
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props })
   }
 });
 
 // Framer Motion modülünü mockluyoruz
 mock.module("framer-motion", {
   namedExports: {
-    motion: { div: (props: any) => ({ type: "MotionDiv", props }) },
-    AnimatePresence: (props: any) => ({ type: "AnimatePresence", props })
+    motion: { div: (props: Record<string, unknown>) => ({ type: "MotionDiv", props }) },
+    AnimatePresence: (props: Record<string, unknown>) => ({ type: "AnimatePresence", props })
   }
 });
 
 describe("AuthButton Component", () => {
-  let AuthButton: any;
+  let AuthButton: unknown;
 
   before(async () => {
     // Modülü mocklamadan sonra yüklüyoruz

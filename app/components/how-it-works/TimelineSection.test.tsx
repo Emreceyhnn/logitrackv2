@@ -35,16 +35,16 @@ mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDic
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Box: (props: any) => ({ type: "Box", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Typography: (props: any) => ({ type: "Typography", props })
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props })
   }
 });
 
-mock.module("framer-motion", { namedExports: { motion: { div: (props: any) => ({ type: "MotionDiv", props }) } } });
+mock.module("framer-motion", { namedExports: { motion: { div: (props: Record<string, unknown>) => ({ type: "MotionDiv", props }) } } });
 
 describe("TimelineSection Component", () => {
-  let TimelineSection: any;
+  let TimelineSection: unknown;
 
   before(async () => {
     const mod = await import("./TimelineSection");

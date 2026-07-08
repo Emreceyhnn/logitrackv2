@@ -74,9 +74,9 @@ mock.module("../../../lib/controllers/users.ts", {
 mock.module("framer-motion", {
   namedExports: {
     motion: {
-      div: ({ children }: any) => <div data-testid="motion-div">{children}</div>,
+      div: ({ children  }: Record<string, unknown>) => <div data-testid="motion-div">{children}</div>,
     },
-    AnimatePresence: ({ children }: any) => <>{children}</>,
+    AnimatePresence: ({ children  }: Record<string, unknown>) => <>{children}</>,
   },
 });
 
@@ -90,11 +90,11 @@ mock.module("./components/AppearanceTab.tsx", { defaultExport: () => <div data-t
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
-    divider_alpha: { main_08: "rgba()" } as any,
+    primary: { main: "#1976d2" } as unknown,
+    divider_alpha: { main_08: "rgba()" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_50: "rgba()" };
+(customTheme.palette.primary as unknown)._alpha = { main_50: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -117,7 +117,7 @@ Object.defineProperty(globalThis, 'localStorage', {
 });
 
 describe("SettingsDialog RTL Component", () => {
-  let SettingsDialog: any;
+  let SettingsDialog: unknown;
 
   before(async () => {
     const mod = await import("./SettingsDialog");

@@ -2,6 +2,8 @@
 
 import { adminAuth } from "@/app/lib/firebase-admin";
 import { authenticatedAction } from "@/app/lib/auth-middleware";
+import { logger } from "@/app/lib/logger";
+
 
 /**
  * Mints a short-lived Firebase custom token for the currently authenticated
@@ -36,7 +38,7 @@ export const getFirebaseCustomTokenAction = authenticatedAction(
       const token = await adminAuth.createCustomToken(user.id, claims);
       return { token };
     } catch (error) {
-      console.error("[getFirebaseCustomTokenAction] mint failed:", error);
+      logger.error("[getFirebaseCustomTokenAction] mint failed:", error);
       return { error: "Failed to mint Firebase token" };
     }
   }

@@ -22,7 +22,7 @@ mock.module("../services/exchangeRate.ts", {
 
 // 2. TEST GRUPLARI
 describe("Exchange Rate Controller", () => {
-  let exchangeRateController: any;
+  let exchangeRateController: unknown;
 
   before(async () => {
     exchangeRateController = await import("./exchangeRate");

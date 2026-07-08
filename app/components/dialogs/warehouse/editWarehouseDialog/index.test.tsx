@@ -65,7 +65,7 @@ mock.module("../../../../lib/controllers/warehouse.ts", {
 });
 
 describe("EditWarehouseDialog Component", () => {
-  let EditWarehouseDialog: any;
+  let EditWarehouseDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

@@ -21,15 +21,15 @@ const useDictionaryMock = mock.fn(() => ({
 mock.module("@mui/material", {
   namedExports: { 
     useTheme: useThemeMock,
-    Dialog: (props: any) => ({ type: "Dialog", props }),
-    DialogContent: (props: any) => ({ type: "DialogContent", props }),
-    Avatar: (props: any) => ({ type: "Avatar", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Box: (props: any) => ({ type: "Box", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    IconButton: (props: any) => ({ type: "IconButton", props }),
-    Tab: (props: any) => ({ type: "Tab", props }),
-    Tabs: (props: any) => ({ type: "Tabs", props }),
+    Dialog: (props: Record<string, unknown>) => ({ type: "Dialog", props }),
+    DialogContent: (props: Record<string, unknown>) => ({ type: "DialogContent", props }),
+    Avatar: (props: Record<string, unknown>) => ({ type: "Avatar", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props }),
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    IconButton: (props: Record<string, unknown>) => ({ type: "IconButton", props }),
+    Tab: (props: Record<string, unknown>) => ({ type: "Tab", props }),
+    Tabs: (props: Record<string, unknown>) => ({ type: "Tabs", props }),
   }
 });
 
@@ -44,7 +44,7 @@ import * as originalReact from "react";
 mock.module("react", {
   namedExports: {
     ...originalReact,
-    useState: (init: any) => [init, mock.fn()]
+    useState: (init: Record<string, unknown>) => [init, mock.fn()]
   }
 });
 
@@ -57,7 +57,7 @@ mock.module("./inventoryTab.tsx", { defaultExport: () => ({ type: "InventoryTab"
 mock.module("../editWarehouseDialog/index.tsx", { defaultExport: () => ({ type: "EditWarehouseDialog" }) });
 
 describe("WarehouseDetailsDialog Component", () => {
-  let WarehouseDetailsDialog: any;
+  let WarehouseDetailsDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

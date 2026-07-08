@@ -3,13 +3,15 @@
 import { getAuthenticatedUser } from "../auth-middleware";
 import { LogoutUser } from "../controllers/users";
 import { refreshSession } from "../controllers/session";
+import { logger } from "@/app/lib/logger";
+
 
 export async function getUserSession() {
   try {
     const user = await getAuthenticatedUser();
     return user;
   } catch (error) {
-    console.error("CRITICAL ERROR in getUserSession:", error);
+    logger.error("CRITICAL ERROR in getUserSession:", error);
     throw error;
   }
 }

@@ -8,12 +8,12 @@ function makeRequest(params: Record<string, string | string[]> = {}) {
     if (Array.isArray(v)) v.forEach(val => sp.append(k, val));
     else sp.set(k, v);
   }
-  return { nextUrl: { searchParams: sp } } as any;
+  return { nextUrl: { searchParams: sp } } as unknown;
 }
 
 // ─── next/server mock ────────────────────────────────────────────────────────
 const mockNextResponse = {
-  json: mock.fn((body: any, init?: { status?: number }) => ({
+  json: mock.fn((body: unknown, init?: { status?: number }) => ({
     _body: body,
     _status: init?.status ?? 200,
   })),
@@ -77,7 +77,7 @@ mock.module("../../../lib/type/vehicle.ts", {
 });
 
 describe("GET /api/vehicles/dashboard", () => {
-  let GET: any;
+  let GET: unknown;
 
   before(async () => {
     const mod = await import("./route");
@@ -94,14 +94,14 @@ describe("GET /api/vehicles/dashboard", () => {
 
   it("should_Return401_WhenUserIsNull", async () => {
     getAuthenticatedUserMock.mock.mockImplementationOnce(async () => null);
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._body).toEqual({ error: "Unauthorized" });
     expect(res._status).toBe(401);
   });
 
   it("should_Return403_WhenCompanyIdIsMissing", async () => {
     getAuthenticatedUserMock.mock.mockImplementationOnce(async () => ({ id: "u1", companyId: null }));
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._body).toEqual({ error: "No company" });
     expect(res._status).toBe(403);
   });
@@ -111,7 +111,7 @@ describe("GET /api/vehicles/dashboard", () => {
     vehicleFindManyMock.mock.mockImplementationOnce(async () => [{ id: "v1", plate: "34ABC", maintenanceRecords: [], routes: [] }]);
     vehicleCountMock.mock.mockImplementationOnce(async () => 5);
 
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
 
     expect(checkPermissionMock.mock.calls.length).toBe(1);
     expect(vehicleFindManyMock.mock.calls.length).toBe(1);
@@ -157,13 +157,13 @@ describe("GET /api/vehicles/dashboard", () => {
 
   it("should_Return401_WhenNEXT_REDIRECT", async () => {
     getAuthenticatedUserMock.mock.mockImplementationOnce(async () => { throw new Error("NEXT_REDIRECT"); });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._status).toBe(401);
   });
 
   it("should_Return500_WhenGenericError", async () => {
     getAuthenticatedUserMock.mock.mockImplementationOnce(async () => { throw new Error("DB crash"); });
-    const res: any = await GET(makeRequest());
+    const res: unknown = await GET(makeRequest());
     expect(res._status).toBe(500);
   });
 });

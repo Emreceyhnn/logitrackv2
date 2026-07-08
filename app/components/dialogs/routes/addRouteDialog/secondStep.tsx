@@ -24,6 +24,8 @@ import {
   PolylineHelperResult,
 } from "../../../valhalla/polylineHelper";
 import dynamic from "next/dynamic";
+import { logger } from "@/app/lib/logger";
+
 const MapWithPolyline = dynamic(
   () => import("../../../valhalla/mapWithPolyline"),
   {
@@ -75,7 +77,7 @@ const SecondRouteDialogStep = () => {
           );
         }
       } catch (error) {
-        console.error("Valhalla API Error:", error);
+        logger.error("Valhalla API Error:", error);
       }
     };
 

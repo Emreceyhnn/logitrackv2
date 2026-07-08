@@ -41,7 +41,7 @@ mock.module("@mui/material", {
 });
 
 describe("DriverTableToolbar RTL Component", () => {
-  let DriverTableToolbar: any;
+  let DriverTableToolbar: unknown;
 
   before(async () => {
     const mod = await import("./toolbar");

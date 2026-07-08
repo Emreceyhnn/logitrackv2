@@ -100,7 +100,7 @@ mock.module("@mui/material", {
 });
 
 describe("MaintenanceRecordDialog RTL Component", () => {
-  let MaintenanceRecordDialog: any;
+  let MaintenanceRecordDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

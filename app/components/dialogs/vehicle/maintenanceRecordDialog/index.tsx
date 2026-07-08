@@ -36,6 +36,8 @@ import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { MaintenanceStatus } from "@/app/lib/type/enums";
 import { uploadImageAction } from "@/app/lib/actions/upload";
+import { logger } from "@/app/lib/logger";
+
 
 interface MaintenanceRecordDialogProps {
   open: boolean;
@@ -89,7 +91,7 @@ export default function MaintenanceRecordDialog({
             setFormData((prev) => ({ ...prev, documentUrl: result.url }));
           }
         } catch (err) {
-          console.error("Upload error:", err);
+          logger.error("Upload error:", err);
           setError("Upload failed");
         } finally {
           setUploading(false);
@@ -97,7 +99,7 @@ export default function MaintenanceRecordDialog({
       };
       reader.readAsDataURL(file);
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       setError("Failed to read file");
       setUploading(false);
     }
@@ -125,7 +127,7 @@ export default function MaintenanceRecordDialog({
       onSuccess();
       handleClose();
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       setError(
         dict.vehicles.dialogs.failedToCreateRecord ||
           "Failed to create maintenance record"

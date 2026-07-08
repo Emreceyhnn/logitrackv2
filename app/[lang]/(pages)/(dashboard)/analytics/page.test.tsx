@@ -22,7 +22,7 @@ mock.module("./components/AnalyticsContent.tsx", {
 });
 
 describe("AnalyticsPage Component", () => {
-  let AnalyticsPage: any;
+  let AnalyticsPage: unknown;
 
   before(async () => {
     const mod = await import("./page");

@@ -21,7 +21,7 @@ mock.module("../lib/language/DictionaryContext.tsx", { namedExports: languageMoc
 
 // 2. TEST GRUPLARI
 describe("useDateSettings Hook", () => {
-  let useDateSettingsMod: any;
+  let useDateSettingsMod: unknown;
 
   before(async () => {
     useDateSettingsMod = await import("./useDateSettings");

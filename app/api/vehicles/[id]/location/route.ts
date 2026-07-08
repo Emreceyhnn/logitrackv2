@@ -22,13 +22,17 @@ import { adminDb } from "@/app/lib/firebase-admin";
 import { db as prisma } from "@/app/lib/db";
 import { getAuthenticatedUser } from "@/app/lib/auth-middleware";
 import { runWithTenant } from "@/app/lib/tenant-context";
+import { parseJsonBody } from "@/app/lib/api/queryParams";
+import { z } from "zod";
+import { logger } from "@/app/lib/logger";
 
-interface LocationBody {
-  lat: number;
-  lng: number;
-  speed?: number;
-  heading?: number;
-}
+
+const locationBodySchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+  speed: z.number().optional().nullable(),
+  heading: z.number().optional().nullable(),
+});
 
 /**
  * Resolves the authenticated user and confirms the target vehicle belongs to
@@ -85,22 +89,10 @@ export async function POST(
     const { companyId, vehicle } = access;
 
     // 2. Parse request body
-    const body: LocationBody = await request.json();
-    const { lat, lng, speed, heading } = body;
-
-    if (typeof lat !== "number" || typeof lng !== "number") {
-      return NextResponse.json(
-        { error: "Invalid payload: 'lat' and 'lng' must be numbers" },
-        { status: 400 }
-      );
-    }
-
-    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      return NextResponse.json(
-        { error: "Invalid coordinates: lat ∈ [-90, 90], lng ∈ [-180, 180]" },
-        { status: 422 }
-      );
-    }
+    const parsedBody = await parseJsonBody(request, locationBodySchema);
+    if (!parsedBody.success) return parsedBody.response;
+    
+    const { lat, lng, speed, heading } = parsedBody.data;
 
     // 3. Build the location payload
     const locationPayload = {
@@ -131,7 +123,7 @@ export async function POST(
       { status: 200 }
     );
   } catch (error) {
-    console.error("[POST /api/vehicles/[id]/location] Error:", error);
+    logger.error("[POST /api/vehicles/[id]/location] Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -177,7 +169,7 @@ export async function GET(
       source: liveLocation ? "firebase_rtdb" : "postgres_fallback",
     });
   } catch (error) {
-    console.error("[GET /api/vehicles/[id]/location] Error:", error);
+    logger.error("[GET /api/vehicles/[id]/location] Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

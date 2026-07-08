@@ -4,6 +4,8 @@ import { validateSession } from "./controllers/session";
 import { headers } from "next/headers";
 import { DEFAULT_LOCALE, LOCALES } from "./constants";
 import { runWithTenant } from "./tenant-context";
+import { logger } from "@/app/lib/logger";
+
 
 export type AuthenticatedUser = {
   id: string;
@@ -62,7 +64,7 @@ export const getAuthenticatedUser = cache(
       if ((error as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") {
         throw error;
       }
-      console.error(
+      logger.error(
         "[getAuthenticatedUser] ❌ Session check failed critical:",
         error
       );

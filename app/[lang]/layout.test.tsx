@@ -18,14 +18,14 @@ mock.module("../lib/auth-middleware.ts", {
 });
 
 // Mock providers and components
-mock.module("../lib/theme/themeProviders.tsx", { defaultExport: ({ children }: any) => <div data-testid="theme-provider">{children}</div> });
-mock.module("../lib/language/DictionaryContext.tsx", { namedExports: { DictionaryProvider: ({ children }: any) => <div data-testid="dict-provider">{children}</div> } });
-mock.module("../lib/context/UserContext.tsx", { namedExports: { UserProvider: ({ children }: any) => <div data-testid="user-provider">{children}</div> } });
+mock.module("../lib/theme/themeProviders.tsx", { defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="theme-provider">{children}</div> });
+mock.module("../lib/language/DictionaryContext.tsx", { namedExports: { DictionaryProvider: ({ children  }: Record<string, unknown>) => <div data-testid="dict-provider">{children}</div> } });
+mock.module("../lib/context/UserContext.tsx", { namedExports: { UserProvider: ({ children  }: Record<string, unknown>) => <div data-testid="user-provider">{children}</div> } });
 mock.module("../components/seo/JsonLd.tsx", { defaultExport: () => <script data-testid="json-ld" /> });
 mock.module("@vercel/speed-insights/next", { namedExports: { SpeedInsights: () => <div data-testid="speed-insights" /> } });
 
 describe("RootLayout Component", () => {
-  let RootLayout: any;
+  let RootLayout: unknown;
 
   before(async () => {
     const mod = await import("./layout");

@@ -4,6 +4,8 @@ import {
   exchangeRateCacheKeys,
 } from "@/app/lib/redis";
 import { db } from "@/app/lib/db";
+import { logger } from "@/app/lib/logger";
+
 
 export type SupportedCurrency = "USD" | "EUR" | "TRY" | "GBP";
 
@@ -131,7 +133,7 @@ export async function getExchangeRate(
     const rates = await getExchangeRates();
     return rates.rates[currency] ?? 1;
   } catch (err) {
-    console.error("[exchangeRate] Failed to get exchange rate:", err);
+    logger.error("[exchangeRate] Failed to get exchange rate:", err);
     return 1; // Fail-open: default to 1 to avoid breaking the UI
   }
 }

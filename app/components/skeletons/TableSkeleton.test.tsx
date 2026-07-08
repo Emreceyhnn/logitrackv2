@@ -14,18 +14,18 @@ const useThemeMock = mock.fn(() => ({
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Skeleton: (props: any) => ({ type: "Skeleton", props }),
-    Table: (props: any) => ({ type: "Table", props }),
-    TableBody: (props: any) => ({ type: "TableBody", props }),
-    TableCell: (props: any) => ({ type: "TableCell", props }),
-    TableContainer: (props: any) => ({ type: "TableContainer", props }),
-    TableHead: (props: any) => ({ type: "TableHead", props }),
-    TableRow: (props: any) => ({ type: "TableRow", props }),
+    Skeleton: (props: Record<string, unknown>) => ({ type: "Skeleton", props }),
+    Table: (props: Record<string, unknown>) => ({ type: "Table", props }),
+    TableBody: (props: Record<string, unknown>) => ({ type: "TableBody", props }),
+    TableCell: (props: Record<string, unknown>) => ({ type: "TableCell", props }),
+    TableContainer: (props: Record<string, unknown>) => ({ type: "TableContainer", props }),
+    TableHead: (props: Record<string, unknown>) => ({ type: "TableHead", props }),
+    TableRow: (props: Record<string, unknown>) => ({ type: "TableRow", props }),
   }
 });
 
 describe("TableSkeleton Component", () => {
-  let TableSkeleton: any;
+  let TableSkeleton: unknown;
 
   before(async () => {
     // Modülü mocklamadan sonra yüklüyoruz

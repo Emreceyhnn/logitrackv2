@@ -40,7 +40,7 @@ mock.module("../../../../hooks/useTrailers.ts", {
 });
 
 describe("EditTrailerDialog RTL Component", () => {
-  let EditTrailerDialog: any;
+  let EditTrailerDialog: unknown;
 
   before(async () => {
     const mod = await import("./index");

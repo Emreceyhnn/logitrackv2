@@ -96,9 +96,9 @@ const dayjsUtcMock = mock.fn(() => ({
     format: mock.fn(() => "Jan 01")
   }))
 }));
-(dayjsMock as any).utc = dayjsUtcMock;
+(dayjsMock as unknown).utc = dayjsUtcMock;
 // overview.ts calls dayjs.extend(utc/timezone) at module load
-(dayjsMock as any).extend = mock.fn();
+(dayjsMock as unknown).extend = mock.fn();
 
 // Modülleri Sisteme Enjekte Etme
 mock.module("../db.ts", {
@@ -135,7 +135,7 @@ mock.module("dayjs", {
 
 // 2. TEST GRUPLARI
 describe("Overview Controller", () => {
-  let overviewController: any;
+  let overviewController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz

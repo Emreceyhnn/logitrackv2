@@ -6,7 +6,7 @@ import React from "react";
 
 // Mock child component
 mock.module("../../../components/dashboard/DashboardLayoutClient.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="dashboard-layout-client">{children}</div>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="dashboard-layout-client">{children}</div>,
 });
 
 // The server layout awaits getAuthenticatedUser(); mock it to a non-warehouse
@@ -22,7 +22,7 @@ mock.module("../../../lib/auth-middleware.ts", {
 });
 
 describe("DashboardLayout Component", () => {
-  let DashboardLayout: any;
+  let DashboardLayout: unknown;
 
   before(async () => {
     const mod = await import("./layout");

@@ -69,7 +69,7 @@ mock.module("dayjs", {
 
 // 2. TEST GRUPLARI
 describe("Maintenance Controller", () => {
-  let maintenanceController: any;
+  let maintenanceController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -122,7 +122,7 @@ describe("Maintenance Controller", () => {
       expect(dbMock.maintenanceRecord.create.mock.calls.length).toBe(1);
       
       // Cost should be normalized (3000 / 30.0 = 100)
-      const createArgs = dbMock.maintenanceRecord.create.mock.calls[0].arguments[0] as any;
+      const createArgs = dbMock.maintenanceRecord.create.mock.calls[0].arguments[0] as unknown;
       expect(createArgs.data.cost).toBe(100);
       expect(createArgs.data.currency).toBe("USD");
       
@@ -178,7 +178,7 @@ describe("Maintenance Controller", () => {
       // Status changed from SCHEDULED to COMPLETED, so a notification should be sent
       expect(notificationsMock.sendNotificationAction.mock.calls.length).toBe(1);
       
-      const notifArgs = notificationsMock.sendNotificationAction.mock.calls[0].arguments[1] as any;
+      const notifArgs = notificationsMock.sendNotificationAction.mock.calls[0].arguments[1] as unknown;
       expect(notifArgs.title).toBe("Bakım Tamamlandı! ✅");
       expect(notifArgs.type).toBe("SUCCESS");
     });

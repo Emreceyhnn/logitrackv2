@@ -11,7 +11,7 @@ mock.module("../lib/context/UserContext.tsx", { namedExports: userContextMock })
 
 // 2. TEST GRUPLARI
 describe("useUser Hook", () => {
-  let useUserMod: any;
+  let useUserMod: unknown;
 
   before(async () => {
     useUserMod = await import("./useUser");

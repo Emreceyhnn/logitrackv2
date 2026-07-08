@@ -22,11 +22,11 @@ mock.module("../../lib/language/DictionaryContext.tsx", { namedExports: { useDic
 
 mock.module("@mui/material", {
   namedExports: {
-    Box: (props: any) => ({ type: "Box", props }),
-    Container: (props: any) => ({ type: "Container", props }),
-    Grid: (props: any) => ({ type: "Grid", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Typography: (props: any) => ({ type: "Typography", props })
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Container: (props: Record<string, unknown>) => ({ type: "Container", props }),
+    Grid: (props: Record<string, unknown>) => ({ type: "Grid", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props })
   }
 });
 
@@ -36,10 +36,10 @@ mock.module("@mui/icons-material/Route", { defaultExport: () => ({ type: "Icon" 
 mock.module("@mui/icons-material/MyLocation", { defaultExport: () => ({ type: "Icon" }) });
 mock.module("@mui/icons-material/NotificationsActive", { defaultExport: () => ({ type: "Icon" }) });
 mock.module("@mui/icons-material/Speed", { defaultExport: () => ({ type: "Icon" }) });
-mock.module("framer-motion", { namedExports: { motion: { div: (props: any) => ({ type: "MotionDiv", props }) } } });
+mock.module("framer-motion", { namedExports: { motion: { div: (props: Record<string, unknown>) => ({ type: "MotionDiv", props }) } } });
 
 describe("OperationsDashboard Component", () => {
-  let OperationsDashboard: any;
+  let OperationsDashboard: unknown;
 
   before(async () => {
     const mod = await import("./OperationsDashboard");

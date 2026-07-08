@@ -34,6 +34,8 @@ import FirstRouteDialogStep from "./firstStep";
 import SecondRouteDialogStep from "./secondStep";
 import ThirdRouteDialogStep from "./thirdStep";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 const initialValues: RouteFormValues = {
   name: "",
@@ -88,7 +90,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
           );
           setWarehouses(warehousesData);
         } catch (error) {
-          console.error("Failed to fetch available data for route", error);
+          logger.error("Failed to fetch available data for route", error);
         }
       };
       fetchData();
@@ -132,7 +134,7 @@ const AddRouteDialog = ({ open, onClose, onSuccess }: AddRouteDialogProps) => {
       setCurrentStep(1);
       setSelectedShipmentId(null);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   };
 

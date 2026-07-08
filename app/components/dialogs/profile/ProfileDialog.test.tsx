@@ -58,9 +58,9 @@ mock.module("../../../lib/actions/profile.ts", {
 mock.module("framer-motion", {
   namedExports: {
     motion: {
-      div: ({ children, onClick }: any) => <div data-testid="motion-div" onClick={onClick}>{children}</div>,
+      div: ({ children, onClick  }: Record<string, unknown>) => <div data-testid="motion-div" onClick={onClick}>{children}</div>,
     },
-    AnimatePresence: ({ children }: any) => <>{children}</>,
+    AnimatePresence: ({ children  }: Record<string, unknown>) => <>{children}</>,
   },
 });
 
@@ -79,11 +79,11 @@ mock.module("./components/SecurityTab.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
   }
 });
-(customTheme.palette.primary as any)._alpha = { main_50: "rgba()" };
-(customTheme.palette as any).divider_alpha = { main_08: "rgba()" };
+(customTheme.palette.primary as unknown)._alpha = { main_50: "rgba()" };
+(customTheme.palette as unknown).divider_alpha = { main_08: "rgba()" };
 
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -95,7 +95,7 @@ mock.module("@mui/material", {
 });
 
 describe("ProfileDialog RTL Component", () => {
-  let ProfileDialog: any;
+  let ProfileDialog: unknown;
 
   before(async () => {
     const mod = await import("./ProfileDialog");

@@ -4,41 +4,28 @@ import {
   Dialog,
   DialogContent,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
   Stack,
   Alert,
-  InputAdornment,
   CircularProgress,
   IconButton,
   Typography,
   Box,
   useTheme,
   Divider,
-  Tooltip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import BuildIcon from "@mui/icons-material/Build";
-import SettingsIcon from "@mui/icons-material/Settings";
-import SearchIcon from "@mui/icons-material/Search";
-import TireRepairIcon from "@mui/icons-material/TireRepair";
-import OpacityIcon from "@mui/icons-material/Opacity";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import DeleteIcon from "@mui/icons-material/Delete";
-import SignedDocThumbnail from "@/app/components/shared/SignedDocThumbnail";
-import { openSignedDoc } from "@/app/lib/openSignedDoc";
 import { useState, useEffect, useRef } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { updateMaintenanceRecord } from "@/app/lib/controllers/vehicle";
-import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { MaintenanceStatus, MaintenanceRecord } from "@/app/lib/type/enums";
 import { useCurrency } from "@/app/hooks/useCurrency";
 import { uploadImageAction } from "@/app/lib/actions/upload";
+import { logger } from "@/app/lib/logger";
+
+import { MaintenanceStatusSection } from "./components/MaintenanceStatusSection";
+import { MaintenanceConfigurationSection } from "./components/MaintenanceConfigurationSection";
+import { MaintenanceAdditionalInfoSection } from "./components/MaintenanceAdditionalInfoSection";
 
 interface MaintenanceDetailDialogProps {
   open: boolean;
@@ -98,7 +85,7 @@ export default function MaintenanceDetailDialog({
             setFormData((prev) => ({ ...prev, documentUrl: result.url }));
           }
         } catch (err) {
-          console.error("Upload error:", err);
+          logger.error("Upload error:", err);
           setError("Upload failed");
         } finally {
           setUploading(false);
@@ -106,7 +93,7 @@ export default function MaintenanceDetailDialog({
       };
       reader.readAsDataURL(file);
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       setError("Failed to read file");
       setUploading(false);
     }
@@ -114,7 +101,6 @@ export default function MaintenanceDetailDialog({
 
   useEffect(() => {
     if (record) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         type: record.type,
         date: dayjs(record.date),
@@ -151,7 +137,7 @@ export default function MaintenanceDetailDialog({
       onSuccess();
       onClose();
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       setError(
         dict.vehicles.dialogs.failedToUpdateRecord ||
           "Failed to update maintenance record"
@@ -182,62 +168,6 @@ export default function MaintenanceDetailDialog({
       fontSize: "0.9rem",
     },
   };
-
-  const SERVICE_TYPES = [
-    {
-      value: "ROUTINE_MAINTENANCE",
-      label: dict.vehicles.serviceTypes.ROUTINE_MAINTENANCE,
-      icon: <SettingsIcon sx={{ fontSize: 18 }} />,
-    },
-    {
-      value: "REPAIR",
-      label: dict.vehicles.serviceTypes.REPAIR,
-      icon: <BuildIcon sx={{ fontSize: 18 }} />,
-    },
-    {
-      value: "INSPECTION",
-      label: dict.vehicles.serviceTypes.INSPECTION,
-      icon: <SearchIcon sx={{ fontSize: 18 }} />,
-    },
-    {
-      value: "TIRE_CHANGE",
-      label: dict.vehicles.serviceTypes.TIRE_CHANGE,
-      icon: <TireRepairIcon sx={{ fontSize: 18 }} />,
-    },
-    {
-      value: "OIL_CHANGE",
-      label: dict.vehicles.serviceTypes.OIL_CHANGE,
-      icon: <OpacityIcon sx={{ fontSize: 18 }} />,
-    },
-    {
-      value: "OTHER",
-      label: dict.vehicles.serviceTypes.OTHER,
-      icon: <AssignmentIcon sx={{ fontSize: 18 }} />,
-    },
-  ];
-
-  const MAINTENANCE_STATUSES = [
-    {
-      value: "SCHEDULED",
-      label: dict.vehicles.statuses.SCHEDULED,
-      color: "#F6AD55",
-    },
-    {
-      value: "IN_PROGRESS",
-      label: dict.vehicles.statuses.IN_PROGRESS,
-      color: "#4299E1",
-    },
-    {
-      value: "COMPLETED",
-      label: dict.vehicles.statuses.COMPLETED,
-      color: "#48BB78",
-    },
-    {
-      value: "CANCELLED",
-      label: dict.vehicles.statuses.CANCELLED,
-      color: "#F56565",
-    },
-  ];
 
   if (!record) return null;
 
@@ -301,288 +231,35 @@ export default function MaintenanceDetailDialog({
             </Alert>
           )}
 
-          <Box>
-            <Typography
-              variant="caption"
-              sx={{
-                color: "text.secondary",
-                fontWeight: 700,
-                mb: 1.5,
-                display: "block",
-                textTransform: "uppercase",
-                letterSpacing: 1,
-              }}
-            >
-              {dict.vehicles.dialogs.maintenanceStatus}
-            </Typography>
-            <FormControl fullWidth sx={textFieldSx}>
-              <InputLabel sx={{ color: "text.secondary" }}>
-                {dict.vehicles.fields.status}
-              </InputLabel>
-              <Select
-                value={formData.status}
-                label={dict.vehicles.fields.status}
-                onChange={(e) =>
-                  setFormData({ ...formData, status: e.target.value })
-                }
-                MenuProps={{
-                  PaperProps: {
-                    sx: {
-                      backgroundImage: "none",
-                      mt: 1,
-                    },
-                  },
-                }}
-              >
-                {MAINTENANCE_STATUSES.map((status) => (
-                  <MenuItem
-                    key={status.value}
-                    value={status.value}
-                    sx={{ py: 1.5 }}
-                  >
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Box
-                        sx={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: "50%",
-                          bgcolor: status.color,
-                        }}
-                      />
-                      <Typography variant="body2">{status.label}</Typography>
-                    </Stack>
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
+          <MaintenanceStatusSection
+            status={formData.status}
+            onChange={(status) => setFormData({ ...formData, status })}
+            textFieldSx={textFieldSx}
+          />
 
           <Divider sx={{ borderColor: "divider" }} />
 
-          <Box>
-            <Typography
-              variant="caption"
-              sx={{
-                color: "text.secondary",
-                fontWeight: 700,
-                mb: 1.5,
-                display: "block",
-                textTransform: "uppercase",
-                letterSpacing: 1,
-              }}
-            >
-              {dict.vehicles.dialogs.configuration}
-            </Typography>
-            <Stack spacing={2.5}>
-              <FormControl fullWidth sx={textFieldSx}>
-                <InputLabel sx={{ color: "text.secondary" }}>
-                  {dict.vehicles.fields.serviceType}
-                </InputLabel>
-                <Select
-                  value={formData.type}
-                  label={dict.vehicles.fields.serviceType}
-                  onChange={(e) =>
-                    setFormData({ ...formData, type: e.target.value })
-                  }
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        backgroundImage: "none",
-                        mt: 1,
-                      },
-                    },
-                  }}
-                >
-                  {SERVICE_TYPES.map((st) => (
-                    <MenuItem key={st.value} value={st.value} sx={{ py: 1.5 }}>
-                      <Stack direction="row" spacing={1.5} alignItems="center">
-                        <Box
-                          sx={{
-                            color: theme.palette.primary.main,
-                            display: "flex",
-                          }}
-                        >
-                          {st.icon}
-                        </Box>
-                        <Typography variant="body2">{st.label}</Typography>
-                      </Stack>
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+          <MaintenanceConfigurationSection
+            type={formData.type}
+            date={formData.date}
+            cost={formData.cost}
+            symbol={symbol}
+            onChangeType={(type) => setFormData({ ...formData, type })}
+            onChangeDate={(date) => setFormData({ ...formData, date })}
+            onChangeCost={(cost) => setFormData({ ...formData, cost })}
+            textFieldSx={textFieldSx}
+          />
 
-              <DatePicker
-                label={dict.vehicles.dialogs.servicedOn}
-                value={formData.date}
-                onChange={(newValue) =>
-                  setFormData({ ...formData, date: newValue || dayjs() })
-                }
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    sx: textFieldSx,
-                    InputLabelProps: { shrink: true },
-                  },
-                }}
-              />
-
-              <TextField
-                label={dict.vehicles.fields.cost}
-                type="number"
-                placeholder="0.00"
-                value={formData.cost}
-                onChange={(e) =>
-                  setFormData({ ...formData, cost: e.target.value })
-                }
-                fullWidth
-                sx={textFieldSx}
-                InputLabelProps={{ shrink: true }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Typography
-                        sx={{ color: "text.secondary", fontSize: "0.9rem" }}
-                      >
-                        {symbol}
-                      </Typography>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Stack>
-          </Box>
-
-          <Box>
-            <Typography
-              variant="caption"
-              sx={{
-                color: "text.secondary",
-                fontWeight: 700,
-                mb: 1.5,
-                display: "block",
-                textTransform: "uppercase",
-                letterSpacing: 1,
-              }}
-            >
-              {dict.vehicles.dialogs.additionalInfo}
-            </Typography>
-            <Stack spacing={2.5}>
-              <TextField
-                label={dict.vehicles.dialogs.technicianNotes}
-                placeholder={
-                  dict.vehicles.dialogs.technicianNotesDesc ||
-                  "Briefly describe the work performed..."
-                }
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                fullWidth
-                multiline
-                rows={3}
-                sx={{
-                  ...textFieldSx,
-                  "& .MuiOutlinedInput-root": {
-                    ...textFieldSx["& .MuiOutlinedInput-root"],
-                    height: "auto",
-                    padding: "12px 14px",
-                  },
-                }}
-                InputLabelProps={{ shrink: true }}
-              />
-
-              {/* Document Upload Section */}
-              <Box>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: "text.secondary",
-                    fontWeight: 600,
-                    mb: 1,
-                    display: "block",
-                  }}
-                >
-                  {dict.vehicles.dialogs.attachDocument}
-                </Typography>
-
-                {!formData.documentUrl ? (
-                  <Button
-                    component="label"
-                    variant="outlined"
-                    fullWidth
-                    disabled={uploading}
-                    startIcon={
-                      uploading ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <CloudUploadIcon />
-                      )
-                    }
-                    sx={{
-                      height: 80,
-                      borderStyle: "dashed",
-                      borderRadius: 2,
-                      textTransform: "none",
-                      color: "text.secondary",
-                      borderColor: "divider",
-                      "&:hover": {
-                        borderColor: "primary.main",
-                        bgcolor: "primary._alpha.main_05",
-                      },
-                    }}
-                  >
-                    {uploading
-                      ? dict.toasts.loading
-                      : dict.vehicles.dialogs.newFileUpload}
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*,application/pdf"
-                      onChange={handleFileChange}
-                      ref={fileInputRef}
-                    />
-                  </Button>
-                ) : (
-                  <Box
-                    sx={{
-                      p: 2,
-                      borderRadius: 2,
-                      border: "1px solid",
-                      borderColor: "divider",
-                      bgcolor: "background.paper",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                    }}
-                  >
-                    <SignedDocThumbnail url={formData.documentUrl} />
-                    <Box
-                      sx={{ flexGrow: 1, minWidth: 0, cursor: "pointer" }}
-                      onClick={() => openSignedDoc(formData.documentUrl)}
-                    >
-                      <Typography variant="body2" noWrap fontWeight={600}>
-                        {dict.vehicles.dialogs.viewDocument}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {dict.vehicles.dialogs.deleteAttachmentNote}
-                      </Typography>
-                    </Box>
-                    <Tooltip title="Sil">
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() =>
-                          setFormData({ ...formData, documentUrl: "" })
-                        }
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                )}
-              </Box>
-            </Stack>
-          </Box>
+          <MaintenanceAdditionalInfoSection
+            description={formData.description}
+            documentUrl={formData.documentUrl}
+            uploading={uploading}
+            textFieldSx={textFieldSx}
+            fileInputRef={fileInputRef}
+            onChangeDescription={(description) => setFormData({ ...formData, description })}
+            onFileChange={handleFileChange}
+            onRemoveDocument={() => setFormData({ ...formData, documentUrl: "" })}
+          />
         </Stack>
       </DialogContent>
 

@@ -6,6 +6,8 @@ import {
   PolylineHelperResult,
 } from "../../valhalla/polylineHelper";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 const MapWithPolyline = dynamic(
   () => import("../../valhalla/mapWithPolyline"),
@@ -102,7 +104,7 @@ const MapRoutesDialogCard = ({
           });
         }
       } catch (error) {
-        console.error("Valhalla API Error:", error);
+        logger.error("Valhalla API Error:", error);
       }
     };
 

@@ -50,12 +50,12 @@ mock.module("next/navigation", {
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Box: (props: any) => ({ type: "Box", props }),
-    Divider: (props: any) => ({ type: "Divider", props }),
-    IconButton: (props: any) => ({ type: "IconButton", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Tooltip: (props: any) => ({ type: "Tooltip", props }),
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Divider: (props: Record<string, unknown>) => ({ type: "Divider", props }),
+    IconButton: (props: Record<string, unknown>) => ({ type: "IconButton", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props }),
+    Tooltip: (props: Record<string, unknown>) => ({ type: "Tooltip", props }),
   }
 });
 
@@ -88,7 +88,7 @@ mock.module("../../lib/language/navigation.ts", {
 });
 
 describe("SideBar Component", () => {
-  let SideBar: any;
+  let SideBar: unknown;
 
   before(async () => {
     const mod = await import("./index");

@@ -25,6 +25,8 @@ import { useEffect, useState } from "react";
 import { getCustomerById } from "@/app/lib/controllers/customer";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 interface CustomerDetailDialogParams {
   open: boolean;
@@ -62,14 +64,13 @@ const CustomerDetailDialog = ({
               ? err.message
               : dict.customers.dialogs.errorAdd; // Use errorAdd as generic error
           setError(message);
-          console.error(err);
+          logger.error(err);
         } finally {
           setLoading(false);
         }
       };
       fetchData();
     } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCustomer(null);
       setError(null);
     }

@@ -52,33 +52,33 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 mock.module("@mui/material", {
   namedExports: { 
     useTheme: useThemeMock,
-    Table: (props: any) => ({ type: "Table", props }),
-    TableBody: (props: any) => ({ type: "TableBody", props }),
-    TableCell: (props: any) => ({ type: "TableCell", props }),
-    TableContainer: (props: any) => ({ type: "TableContainer", props }),
-    TableHead: (props: any) => ({ type: "TableHead", props }),
-    TableRow: (props: any) => ({ type: "TableRow", props }),
-    TablePagination: (props: any) => ({ type: "TablePagination", props }),
-    TableSortLabel: (props: any) => ({ type: "TableSortLabel", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    TextField: (props: any) => ({ type: "TextField", props }),
-    InputAdornment: (props: any) => ({ type: "InputAdornment", props }),
-    IconButton: (props: any) => ({ type: "IconButton", props }),
-    Menu: (props: any) => ({ type: "Menu", props }),
-    MenuItem: (props: any) => ({ type: "MenuItem", props }),
-    ListItemIcon: (props: any) => ({ type: "ListItemIcon", props }),
-    ListItemText: (props: any) => ({ type: "ListItemText", props }),
-    FormControl: (props: any) => ({ type: "FormControl", props }),
-    InputLabel: (props: any) => ({ type: "InputLabel", props }),
-    Select: (props: any) => ({ type: "Select", props }),
-    OutlinedInput: (props: any) => ({ type: "OutlinedInput", props }),
-    Checkbox: (props: any) => ({ type: "Checkbox", props }),
-    Divider: (props: any) => ({ type: "Divider", props }),
-    Box: (props: any) => ({ type: "Box", props }),
-    Chip: (props: any) => ({ type: "Chip", props }),
-    Button: (props: any) => ({ type: "Button", props }),
-    Tooltip: (props: any) => ({ type: "Tooltip", props }),
+    Table: (props: Record<string, unknown>) => ({ type: "Table", props }),
+    TableBody: (props: Record<string, unknown>) => ({ type: "TableBody", props }),
+    TableCell: (props: Record<string, unknown>) => ({ type: "TableCell", props }),
+    TableContainer: (props: Record<string, unknown>) => ({ type: "TableContainer", props }),
+    TableHead: (props: Record<string, unknown>) => ({ type: "TableHead", props }),
+    TableRow: (props: Record<string, unknown>) => ({ type: "TableRow", props }),
+    TablePagination: (props: Record<string, unknown>) => ({ type: "TablePagination", props }),
+    TableSortLabel: (props: Record<string, unknown>) => ({ type: "TableSortLabel", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    TextField: (props: Record<string, unknown>) => ({ type: "TextField", props }),
+    InputAdornment: (props: Record<string, unknown>) => ({ type: "InputAdornment", props }),
+    IconButton: (props: Record<string, unknown>) => ({ type: "IconButton", props }),
+    Menu: (props: Record<string, unknown>) => ({ type: "Menu", props }),
+    MenuItem: (props: Record<string, unknown>) => ({ type: "MenuItem", props }),
+    ListItemIcon: (props: Record<string, unknown>) => ({ type: "ListItemIcon", props }),
+    ListItemText: (props: Record<string, unknown>) => ({ type: "ListItemText", props }),
+    FormControl: (props: Record<string, unknown>) => ({ type: "FormControl", props }),
+    InputLabel: (props: Record<string, unknown>) => ({ type: "InputLabel", props }),
+    Select: (props: Record<string, unknown>) => ({ type: "Select", props }),
+    OutlinedInput: (props: Record<string, unknown>) => ({ type: "OutlinedInput", props }),
+    Checkbox: (props: Record<string, unknown>) => ({ type: "Checkbox", props }),
+    Divider: (props: Record<string, unknown>) => ({ type: "Divider", props }),
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    Chip: (props: Record<string, unknown>) => ({ type: "Chip", props }),
+    Button: (props: Record<string, unknown>) => ({ type: "Button", props }),
+    Tooltip: (props: Record<string, unknown>) => ({ type: "Tooltip", props }),
   }
 });
 
@@ -107,7 +107,7 @@ mock.module("@tanstack/react-table", {
 });
 
 describe("DataTable Component", () => {
-  let DataTable: any;
+  let DataTable: unknown;
 
   before(async () => {
     const mod = await import("./index");
@@ -124,7 +124,7 @@ describe("DataTable Component", () => {
   describe("DataTable() bileşeni", () => {
     it("should_InitializeTable_WhenValidPropsProvided", async () => {
       // Arrange
-      const columns = [{ key: "id", label: "ID", render: (r: any) => r.id }];
+      const columns = [{ key: "id", label: "ID", render: (r: Record<string, unknown>) => r.id }];
       const rows = [{ id: "1" }];
       
       // Act

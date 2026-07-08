@@ -78,7 +78,7 @@ process.env.JWT_SECRET = "super-secret-key-for-testing-only";
 
 // 2. TEST GRUPLARI
 describe("Session Controller", () => {
-  let sessionController: any;
+  let sessionController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -313,7 +313,7 @@ describe("Session Controller", () => {
       expect(updateArgs.data.refreshToken).not.toBe(lookupHash);
       // New cookies set for token + refreshToken
       const setNames = cookieStoreMock.set.mock.calls.map(
-        (c: any) => c.arguments[0]
+        (c: Record<string, unknown>) => c.arguments[0]
       );
       expect(setNames).toContain("token");
       expect(setNames).toContain("refreshToken");
@@ -321,7 +321,7 @@ describe("Session Controller", () => {
       expect(redisMock.del.mock.calls.length).toBe(1);
       // Refresh is audit-logged
       const auditArgs = dbMock.auditLog.create.mock.calls.map(
-        (c: any) => c.arguments[0]?.data?.action
+        (c: Record<string, unknown>) => c.arguments[0]?.data?.action
       );
       expect(auditArgs).toContain("TOKEN_REFRESH");
     });

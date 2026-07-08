@@ -38,7 +38,7 @@ mock.module("../../../../../components/dialogs/warehouse/editWarehouseDialog/ind
   defaultExport: () => <div data-testid="edit-dialog">Edit Dialog</div>,
 });
 mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
-  defaultExport: ({ open, onConfirm }: any) => open ? (
+  defaultExport: ({ open, onConfirm  }: Record<string, unknown>) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
@@ -49,11 +49,11 @@ mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2", dark: "#115293" } as any,
-    info: { main: "#0288d1" } as any,
-    secondary: { main: "#9c27b0" } as any,
-    warning: { main: "#ed6c02" } as any,
-    success: { main: "#2e7d32" } as any,
+    primary: { main: "#1976d2", dark: "#115293" } as unknown,
+    info: { main: "#0288d1" } as unknown,
+    secondary: { main: "#9c27b0" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
   }
 });
 
@@ -67,7 +67,7 @@ mock.module("@mui/material", {
 });
 
 describe("WarehouseContent RTL Component", () => {
-  let WarehouseContent: any;
+  let WarehouseContent: unknown;
 
   before(async () => {
     const mod = await import("./WarehouseContent");

@@ -35,14 +35,14 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 mock.module("../../skeletons/AnalyticsSkeleton.tsx", {
-  defaultExport: ({ title }: any) => <div data-testid={`skeleton-${title}`}>{title}</div>,
+  defaultExport: ({ title  }: Record<string, unknown>) => <div data-testid={`skeleton-${title}`}>{title}</div>,
 });
 
 mock.module("@mui/x-charts/BarChart", {
   namedExports: {
-    BarChart: ({ dataset, series }: any) => (
+    BarChart: ({ dataset, series  }: Record<string, unknown>) => (
       <div data-testid="bar-chart">
-        {dataset?.map((d: any, i: number) => (
+        {dataset?.map((d: unknown, i: number) => (
           <div key={i} data-testid={`bar-day-${d.day}`}>{d.volume}</div>
         ))}
         <div data-testid="bar-series-label">{series?.[0]?.label}</div>
@@ -53,9 +53,9 @@ mock.module("@mui/x-charts/BarChart", {
 
 mock.module("@mui/x-charts/PieChart", {
   namedExports: {
-    PieChart: ({ series }: any) => (
+    PieChart: ({ series  }: Record<string, unknown>) => (
       <div data-testid="pie-chart">
-        {series?.[0]?.data?.map((d: any) => (
+        {series?.[0]?.data?.map((d: Record<string, unknown>) => (
           <div key={d.id} data-testid={`pie-slice-${d.label}`}>{d.value}</div>
         ))}
       </div>
@@ -67,11 +67,11 @@ mock.module("@mui/x-charts/PieChart", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
-    success: { main: "#2e7d32" } as any,
-    info: { main: "#0288d1" } as any,
-    error: { main: "#d32f2f" } as any,
-    warning: { main: "#ed6c02" } as any,
+    primary: { main: "#1976d2" } as unknown,
+    success: { main: "#2e7d32" } as unknown,
+    info: { main: "#0288d1" } as unknown,
+    error: { main: "#d32f2f" } as unknown,
+    warning: { main: "#ed6c02" } as unknown,
   }
 });
 
@@ -84,7 +84,7 @@ mock.module("@mui/material", {
 });
 
 describe("ShipmentAnalytics RTL Component", () => {
-  let ShipmentAnalytics: any;
+  let ShipmentAnalytics: unknown;
 
   before(async () => {
     const mod = await import("./ShipmentAnalytics");

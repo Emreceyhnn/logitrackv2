@@ -16,7 +16,6 @@ export default function SignedDocThumbnail({ url }: { url: string }) {
 
   useEffect(() => {
     if (!url) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSignedUrl(null);
       return;
     }

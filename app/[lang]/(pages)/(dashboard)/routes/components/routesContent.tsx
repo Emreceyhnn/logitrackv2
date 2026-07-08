@@ -26,6 +26,8 @@ import KpiCards from "@/app/components/cards/KpiCards";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
 import { toast } from "sonner";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { logger } from "@/app/lib/logger";
+
 
 export default function RoutesContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -112,7 +114,7 @@ export default function RoutesContent() {
       await deleteMutation.mutateAsync(actionRoute.id);
       setDeleteOpen(false);
     } catch (error) {
-      console.error("Failed to delete route:", error);
+      logger.error("Failed to delete route:", error);
       toast.error(dict.common.actionFailed);
     }
   };

@@ -24,11 +24,11 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="custom-card">{children}</div>,
 });
 
 mock.module("../../charts/TimeRangeSelector.tsx", {
-  defaultExport: ({ value, onChange }: any) => (
+  defaultExport: ({ value, onChange  }: Record<string, unknown>) => (
     <div data-testid="time-range-selector">
       <span>{value}</span>
       <button onClick={() => onChange("1m")}>Set 1m</button>
@@ -39,7 +39,7 @@ mock.module("../../charts/TimeRangeSelector.tsx", {
 
 mock.module("@mui/x-charts", {
   namedExports: {
-    BarChart: ({ series, xAxis }: any) => (
+    BarChart: ({ series, xAxis  }: Record<string, unknown>) => (
       <div data-testid="bar-chart">
         {xAxis?.[0]?.data?.map((date: string, i: number) => (
           <div key={date} data-testid={`bar-${date}`}>
@@ -52,7 +52,7 @@ mock.module("@mui/x-charts", {
 });
 
 describe("ShipmentVolumeCard RTL Component", () => {
-  let ShipmentVolumeCard: any;
+  let ShipmentVolumeCard: unknown;
 
   before(async () => {
     const mod = await import("./onTimeTrends");
@@ -71,7 +71,7 @@ describe("ShipmentVolumeCard RTL Component", () => {
 
   describe("ShipmentVolumeCard() bileşeni", () => {
     it("should_ReturnNull_WhenValuesIsNull", async () => {
-      const { container } = render(<ShipmentVolumeCard values={null as any} />);
+      const { container } = render(<ShipmentVolumeCard values={null as unknown} />);
       expect(container.firstChild).toBeNull();
     });
 

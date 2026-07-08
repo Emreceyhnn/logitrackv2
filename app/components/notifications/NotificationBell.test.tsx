@@ -55,17 +55,17 @@ mock.module("react", {
 mock.module("@mui/material", {
   namedExports: {
     useTheme: useThemeMock,
-    Box: (props: any) => ({ type: "Box", props }),
-    IconButton: (props: any) => ({ type: "IconButton", props }),
-    Badge: (props: any) => ({ type: "Badge", props }),
-    Popover: (props: any) => ({ type: "Popover", props }),
-    Typography: (props: any) => ({ type: "Typography", props }),
-    Divider: (props: any) => ({ type: "Divider", props }),
-    List: (props: any) => ({ type: "List", props }),
-    ListItem: (props: any) => ({ type: "ListItem", props }),
-    Stack: (props: any) => ({ type: "Stack", props }),
-    Button: (props: any) => ({ type: "Button", props }),
-    Tooltip: (props: any) => ({ type: "Tooltip", props }),
+    Box: (props: Record<string, unknown>) => ({ type: "Box", props }),
+    IconButton: (props: Record<string, unknown>) => ({ type: "IconButton", props }),
+    Badge: (props: Record<string, unknown>) => ({ type: "Badge", props }),
+    Popover: (props: Record<string, unknown>) => ({ type: "Popover", props }),
+    Typography: (props: Record<string, unknown>) => ({ type: "Typography", props }),
+    Divider: (props: Record<string, unknown>) => ({ type: "Divider", props }),
+    List: (props: Record<string, unknown>) => ({ type: "List", props }),
+    ListItem: (props: Record<string, unknown>) => ({ type: "ListItem", props }),
+    Stack: (props: Record<string, unknown>) => ({ type: "Stack", props }),
+    Button: (props: Record<string, unknown>) => ({ type: "Button", props }),
+    Tooltip: (props: Record<string, unknown>) => ({ type: "Tooltip", props }),
   }
 });
 
@@ -95,7 +95,7 @@ mock.module("../../lib/utils/date.ts", {
 
 
 describe("NotificationBell Component", () => {
-  let NotificationBell: any;
+  let NotificationBell: unknown;
 
   before(async () => {
     // Modülü dinamik olarak yüklüyoruz

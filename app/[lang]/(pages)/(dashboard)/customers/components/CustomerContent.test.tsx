@@ -37,7 +37,7 @@ mock.module("../../../../../components/dialogs/customer/addCustomerDialog/index.
   defaultExport: () => <div data-testid="add-dialog">Add Dialog</div>,
 });
 mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
-  defaultExport: ({ open, onConfirm }: any) => open ? (
+  defaultExport: ({ open, onConfirm  }: Record<string, unknown>) => open ? (
     <div data-testid="delete-dialog">
       <button onClick={onConfirm}>Confirm Delete</button>
     </div>
@@ -48,7 +48,7 @@ mock.module("../../../../../components/dialogs/deleteConfirmationDialog.tsx", {
 const customTheme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#1976d2" } as any,
+    primary: { main: "#1976d2" } as unknown,
   }
 });
 import * as originalMui from "@mui/material";
@@ -61,7 +61,7 @@ mock.module("@mui/material", {
 });
 
 describe("CustomerContent Component", () => {
-  let CustomerContent: any;
+  let CustomerContent: unknown;
 
   before(async () => {
     const mod = await import("./CustomerContent");

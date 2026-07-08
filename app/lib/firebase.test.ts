@@ -23,7 +23,7 @@ describe("firebase.ts Client Connection & Initialization", async () => {
       const snapshot = await get(testRef);
       expect(snapshot).toBeDefined();
     } catch (error) {
-      if ((error as any).message?.includes("Permission denied")) {
+      if ((error as unknown).message?.includes("Permission denied")) {
         // Permission denied = reached Firebase, rules evaluated = connection OK
         expect(true).toBe(true);
       } else {

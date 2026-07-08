@@ -25,6 +25,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDate } from "@/app/lib/utils/date";
+import { logger } from "@/app/lib/logger";
+
 
 interface OverviewTabProps {
   driver?: DriverWithRelations;
@@ -121,7 +123,7 @@ const OverviewTab = ({ driver }: OverviewTabProps) => {
       toast.success(dict.common.success || "Status updated");
       router.refresh();
     } catch (error) {
-      console.error("Failed to update status:", error);
+      logger.error("Failed to update status:", error);
       toast.error(dict.common.error || "Failed to update status");
     } finally {
       setIsUpdating(false);

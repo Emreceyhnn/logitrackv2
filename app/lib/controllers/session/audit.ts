@@ -3,6 +3,8 @@
 import { db } from "../../db";
 import { Prisma } from "@prisma/client";
 import type { AuditAction } from "@prisma/client";
+import { logger } from "@/app/lib/logger";
+
 
 /**
  * Writes a security event to the audit log.
@@ -26,6 +28,6 @@ export async function logAuditEvent(params: {
     });
   } catch (error) {
     // Audit logging should never break the main flow
-    console.error("Failed to write audit log:", error);
+    logger.error("Failed to write audit log:", error);
   }
 }

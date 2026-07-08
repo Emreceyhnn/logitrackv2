@@ -28,6 +28,8 @@ import { useTheme } from "@mui/material/styles";
 import KpiCards from "@/app/components/cards/KpiCards";
 import QueryErrorState from "@/app/components/ui/QueryErrorState";
 import { useCurrency } from "@/app/hooks/useCurrency";
+import { logger } from "@/app/lib/logger";
+
 
 export default function InventoryContent() {
   /* -------------------------------- VARIABLES ------------------------------- */
@@ -153,7 +155,7 @@ export default function InventoryContent() {
       await deleteMutation.mutateAsync(selectedItemId);
       setIsDeleteOpen(false);
     } catch (error) {
-      console.error("Delete failed", error);
+      logger.error("Delete failed", error);
     }
   };
 

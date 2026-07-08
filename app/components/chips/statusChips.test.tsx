@@ -24,8 +24,8 @@ mock.module("@/app/lib/priorityColor", {
 
 mock.module("@mui/material", {
   namedExports: {
-    Chip: ({ label }: any) => <div data-testid={`Chip-${label}`}>{label}</div>,
-    Tooltip: ({ children, title }: any) => <div data-testid="Tooltip" data-title={title}>{children}</div>,
+    Chip: ({ label  }: Record<string, unknown>) => <div data-testid={`Chip-${label}`}>{label}</div>,
+    Tooltip: ({ children, title  }: Record<string, unknown>) => <div data-testid="Tooltip" data-title={title}>{children}</div>,
     useTheme: mock.fn(() => ({
       palette: {
         mode: "light",
@@ -36,7 +36,7 @@ mock.module("@mui/material", {
 });
 
 describe("StatusChip Component", () => {
-  let StatusChip: any;
+  let StatusChip: unknown;
 
   before(async () => {
     const mod = await import("./statusChips");

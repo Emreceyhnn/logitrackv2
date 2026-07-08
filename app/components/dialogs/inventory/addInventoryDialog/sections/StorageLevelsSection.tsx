@@ -16,6 +16,8 @@ import { Warehouse } from "@/app/lib/type/enums";
 import { getWarehouses } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/hooks/useUser";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { logger } from "@/app/lib/logger";
+
 
 interface StorageLevelsSectionProps {
   state: AddInventoryStorageLevels;
@@ -60,7 +62,7 @@ const StorageLevelsSection = ({
         const data = await getWarehouses();
         setWarehouses(data);
       } catch (error) {
-        console.error("Failed to fetch warehouses:", error);
+        logger.error("Failed to fetch warehouses:", error);
       }
     };
     fetchWarehouses();

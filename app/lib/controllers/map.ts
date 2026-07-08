@@ -3,6 +3,8 @@
 import { authenticatedAction } from "../auth-middleware";
 import { checkPermission } from "./utils/checkPermission";
 import { controllerGuard } from "./utils/controllerGuard";
+import { logger } from "@/app/lib/logger";
+
 
 export type DirectionPoint = string | { lat: number; lng: number };
 
@@ -23,7 +25,7 @@ export const getDirections = authenticatedAction(
 
     const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
-      console.error("Missing Google Maps API Key");
+      logger.error("Missing Google Maps API Key");
       return null;
     }
 

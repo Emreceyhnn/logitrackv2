@@ -32,13 +32,13 @@ mock.module("next/navigation", {
 });
 
 mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="custom-card">{children}</div>,
 });
 
 // Mock MUI Date Pickers to just render the custom day slot with today's date for testing the tooltip/badge
 mock.module("@mui/x-date-pickers/DateCalendar", {
   namedExports: {
-    DateCalendar: ({ slots }: any) => {
+    DateCalendar: ({ slots  }: Record<string, unknown>) => {
       const DayComponent = slots?.day;
       if (DayComponent) {
         return (
@@ -55,13 +55,13 @@ mock.module("@mui/x-date-pickers/DateCalendar", {
 
 mock.module("@mui/x-date-pickers/PickersDay", {
   namedExports: {
-    PickersDay: ({ day }: any) => <div data-testid={`picker-day-${day.format("YYYY-MM-DD")}`}>{day.format("DD")}</div>
+    PickersDay: ({ day  }: Record<string, unknown>) => <div data-testid={`picker-day-${day.format("YYYY-MM-DD")}`}>{day.format("DD")}</div>
   }
 });
 
 mock.module("@mui/x-date-pickers/LocalizationProvider", {
   namedExports: {
-    LocalizationProvider: ({ children }: any) => <>{children}</>
+    LocalizationProvider: ({ children  }: Record<string, unknown>) => <>{children}</>
   }
 });
 
@@ -74,23 +74,23 @@ mock.module("@mui/x-date-pickers/AdapterDayjs", {
 // Mock only Tooltip and Badge — no need to spread full @mui/material
 mock.module("@mui/material", {
   namedExports: {
-    Badge: ({ color, children }: any) => (
+    Badge: ({ color, children  }: Record<string, unknown>) => (
       <div data-testid={`badge-${color}`}>
         {children}
       </div>
     ),
     Divider: () => <hr />,
-    Tooltip: ({ title, children }: any) => (
+    Tooltip: ({ title, children  }: Record<string, unknown>) => (
       <div data-testid={`tooltip-${title}`}>
         {children}
       </div>
     ),
-    Typography: ({ children, sx, ...rest }: any) => <span {...rest}>{children}</span>,
+    Typography: ({ children, sx, ...rest }: unknown) => <span {...rest}>{children}</span>,
   }
 });
 
 describe("DocumentCalenderCard RTL Component", () => {
-  let DocumentCalenderCard: any;
+  let DocumentCalenderCard: unknown;
 
   before(async () => {
     const mod = await import("./documentCalenderCard");

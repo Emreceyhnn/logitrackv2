@@ -26,6 +26,8 @@ import { IssueStatus, IssuePriority } from "@/app/lib/type/enums";
 import type { Issue } from "@/app/lib/type/enums";
 import { useDateSettings } from "@/app/hooks/useDateSettings";
 import { formatDisplayDate } from "@/app/lib/utils/date";
+import { logger } from "@/app/lib/logger";
+
 
 interface IssueDetailDialogProps {
   open: boolean;
@@ -54,7 +56,6 @@ export default function IssueDetailDialog({
   /* -------------------------------- lifecycle ------------------------------- */
   useEffect(() => {
     if (issue) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus(issue.status as IssueStatus);
       setPriority(issue.priority as IssuePriority);
     }
@@ -74,7 +75,7 @@ export default function IssueDetailDialog({
       onUpdate();
       onClose();
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       setError(dict.vehicles.dialogs.failedToUpdateIssue || "Failed to update issue");
     } finally {
       setLoading(false);

@@ -29,6 +29,8 @@ import { Formik, Form } from "formik";
 import { editRouteValidationSchema } from "@/app/lib/validationSchema";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toUTC, utcToUserTz } from "@/app/lib/utils/date";
+import { logger } from "@/app/lib/logger";
+
 
 interface EditRouteDialogProps {
   open: boolean;
@@ -151,7 +153,7 @@ const EditRouteDialog = ({
       onClose();
       setCurrentStep(1);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   };
 

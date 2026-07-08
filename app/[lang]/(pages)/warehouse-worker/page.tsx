@@ -12,6 +12,8 @@ import { getWarehouseWorkerDashboard } from "@/app/lib/controllers/warehouseWork
 import { warehouseWorkerKeys } from "@/app/lib/query-keys/warehouseWorker.keys";
 import { GuidedTourProvider } from "@/app/lib/context/GuidedTourContext";
 import WarehouseWorkerClient from "./WarehouseWorkerClient";
+import { logger } from "@/app/lib/logger";
+
 
 export const metadata: Metadata = {
   title: "Warehouse Worker Dashboard | LogiTrack",
@@ -47,7 +49,7 @@ export default async function WarehouseWorkerPage({
       queryFn: () => getWarehouseWorkerDashboard(),
     });
   } catch (error) {
-    console.error("[WarehouseWorkerPage SSR] prefetch failed:", error);
+    logger.error("[WarehouseWorkerPage SSR] prefetch failed:", error);
   }
 
   const dehydratedState = dehydrate(queryClient);

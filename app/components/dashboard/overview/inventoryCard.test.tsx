@@ -28,7 +28,7 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="custom-card">{children}</div>,
 });
 
 // Custom theme with alpha tokens
@@ -40,7 +40,7 @@ const customTheme = createTheme({
 
 Object.assign(customTheme.palette.error, { _alpha: { main_10: "rgba(244,67,54,0.1)" } });
 Object.assign(customTheme.palette.primary, { _alpha: { main_03: "rgba(25,118,210,0.03)" } });
-(customTheme.palette as any).divider_alpha = { main_10: "rgba(0,0,0,0.1)" };
+(customTheme.palette as unknown).divider_alpha = { main_10: "rgba(0,0,0,0.1)" };
 
 import * as originalMui from "@mui/material";
 mock.module("@mui/material", {
@@ -51,7 +51,7 @@ mock.module("@mui/material", {
 });
 
 describe("AlertInventoryCard RTL Component", () => {
-  let AlertInventoryCard: any;
+  let AlertInventoryCard: unknown;
 
   before(async () => {
     const mod = await import("./inventoryCard");

@@ -26,9 +26,9 @@ import {
 import { updateWarehouse } from "@/app/lib/controllers/warehouse";
 import { useUser } from "@/app/hooks/useUser";
 
-import BasicInfoSection from "./sections/BasicInfoSection";
-import LocationSection from "./sections/LocationSection";
-import CapacitySection from "./sections/CapacitySection";
+import BasicInfoSection from "../shared/sections/BasicInfoSection";
+import LocationSection from "../shared/sections/LocationSection";
+import CapacitySection from "../shared/sections/CapacitySection";
 import { WarehouseType } from "@/app/lib/type/enums";
 
 

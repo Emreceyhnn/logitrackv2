@@ -50,7 +50,7 @@ mock.module("../../../lib/utils/date.ts", {
 
 // Mock Dialogs
 mock.module("../../dialogs/company/CompanyMemberDetailsDialog.tsx", {
-  defaultExport: ({ open, onClose, member }: any) =>
+  defaultExport: ({ open, onClose, member  }: Record<string, unknown>) =>
     open ? (
       <div data-testid="details-dialog">
         {member?.name}
@@ -60,7 +60,7 @@ mock.module("../../dialogs/company/CompanyMemberDetailsDialog.tsx", {
 });
 
 mock.module("../../dialogs/company/EditCompanyMemberDialog.tsx", {
-  defaultExport: ({ open, onClose, member }: any) =>
+  defaultExport: ({ open, onClose, member  }: Record<string, unknown>) =>
     open ? (
       <div data-testid="edit-dialog">
         Edit {member?.name}
@@ -70,7 +70,7 @@ mock.module("../../dialogs/company/EditCompanyMemberDialog.tsx", {
 });
 
 mock.module("../../dialogs/deleteConfirmationDialog.tsx", {
-  defaultExport: ({ open, onClose, onConfirm, description }: any) =>
+  defaultExport: ({ open, onClose, onConfirm, description  }: Record<string, unknown>) =>
     open ? (
       <div data-testid="delete-dialog">
         {description}
@@ -81,16 +81,16 @@ mock.module("../../dialogs/deleteConfirmationDialog.tsx", {
 });
 
 // Mock DataTable
-let dataTableProps: any = null;
+let dataTableProps: unknown = null;
 mock.module("../../ui/DataTable/index.tsx", {
-  defaultExport: (props: any) => {
+  defaultExport: (props: Record<string, unknown>) => {
     dataTableProps = props;
     return <div data-testid="data-table">{props.emptyMessage}</div>;
   },
 });
 
 const customTheme = createTheme({ palette: { mode: "light" } });
-Object.assign((customTheme.palette.primary as any), {
+Object.assign((customTheme.palette.primary as unknown), {
   _alpha: { main_10: "rgba(25,118,210,0.1)" }
 });
 
@@ -103,7 +103,7 @@ mock.module("@mui/material", {
 });
 
 describe("CompanyMembersTable RTL Component", () => {
-  let CompanyMembersTable: any;
+  let CompanyMembersTable: unknown;
 
   before(async () => {
     const mod = await import("./companyMembersTable");
@@ -147,7 +147,7 @@ describe("CompanyMembersTable RTL Component", () => {
     it("should_PassPropsToDataTable", async () => {
       render(
         <ThemeProvider theme={customTheme}>
-          <CompanyMembersTable props={mockProps as any} />
+          <CompanyMembersTable props={mockProps as unknown} />
         </ThemeProvider>
       );
 
@@ -159,7 +159,7 @@ describe("CompanyMembersTable RTL Component", () => {
     it("should_FormatColumnsCorrectly", async () => {
       render(
         <ThemeProvider theme={customTheme}>
-          <CompanyMembersTable props={mockProps as any} />
+          <CompanyMembersTable props={mockProps as unknown} />
         </ThemeProvider>
       );
 
@@ -167,18 +167,18 @@ describe("CompanyMembersTable RTL Component", () => {
       const member = mockProps.state.data.members[0];
 
       // Member Name
-      const nameCol = columns.find((c: any) => c.key === "member");
+      const nameCol = columns.find((c: Record<string, unknown>) => c.key === "member");
       const { container: nameContainer } = render(nameCol.render(member));
       expect(nameContainer.textContent).toContain("John Doe");
       expect(nameContainer.textContent).toContain("JD"); // Avatar initials fallback
 
       // Role
-      const roleCol = columns.find((c: any) => c.key === "role");
+      const roleCol = columns.find((c: Record<string, unknown>) => c.key === "role");
       const { container: roleContainer } = render(roleCol.render(member));
       expect(roleContainer.textContent).toContain("Admin");
 
       // Status
-      const statusCol = columns.find((c: any) => c.key === "status");
+      const statusCol = columns.find((c: Record<string, unknown>) => c.key === "status");
       const { container: statusContainer } = render(statusCol.render(member));
       expect(statusContainer.textContent).toBe("Active"); // localized
     });
@@ -186,7 +186,7 @@ describe("CompanyMembersTable RTL Component", () => {
     it("should_OpenDialogs_WhenRowActionsClicked", async () => {
       render(
         <ThemeProvider theme={customTheme}>
-          <CompanyMembersTable props={mockProps as any} />
+          <CompanyMembersTable props={mockProps as unknown} />
         </ThemeProvider>
       );
 

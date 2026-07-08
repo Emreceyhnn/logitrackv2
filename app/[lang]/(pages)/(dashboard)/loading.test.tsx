@@ -21,7 +21,7 @@ mock.module("@mui/material", {
 });
 
 describe("DashboardLoading Component", () => {
-  let DashboardLoading: any;
+  let DashboardLoading: unknown;
 
   before(async () => {
     const mod = await import("./loading");

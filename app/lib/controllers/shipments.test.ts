@@ -104,7 +104,7 @@ mock.module("next/cache", {
 
 // 2. TEST GRUPLARI
 describe("Shipments Controller", () => {
-  let shipmentsController: any;
+  let shipmentsController: unknown;
 
   before(async () => {
     // Test edilecek modülü mocklardan SONRA dinamik import ile alıyoruz
@@ -137,7 +137,7 @@ describe("Shipments Controller", () => {
       // Arrange
       dbMock.shipment.findUnique.mock.mockImplementation(async () => null); // No existing tracking ID
       dbMock.customer.findUnique.mock.mockImplementation(async () => null); // No customer details
-      dbMock.shipment.create.mock.mockImplementation(async (args: any) => ({
+      dbMock.shipment.create.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "shipment-1",
         trackingId: "TRK-123456",
         ...args.data,
@@ -199,7 +199,7 @@ describe("Shipments Controller", () => {
         companyId: "company-1",
         status: ShipmentStatus.ASSIGNED,
       }));
-      dbMock.shipment.update.mock.mockImplementation(async (args: any) => ({
+      dbMock.shipment.update.mock.mockImplementation(async (args: Record<string, unknown>) => ({
         id: "shipment-1",
         trackingId: "TRK-123456",
         status: args.data.status,

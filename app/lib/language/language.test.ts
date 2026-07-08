@@ -7,14 +7,14 @@ import { expect } from "expect";
 // simple identity wrapper so the underlying async function can be called directly.
 mock.module("react", {
   namedExports: {
-    cache: (fn: any) => fn,
+    cache: (fn: Record<string, unknown>) => fn,
   },
 });
 
 // ─── Module under test ────────────────────────────────────────────────────────
-let getDictionary: any;
-let formatMessage: any;
-let type_Locale: any; // used only for type annotation checks at runtime
+let getDictionary: unknown;
+let formatMessage: unknown;
+let type_Locale: unknown; // used only for type annotation checks at runtime
 
 before(async () => {
   const mod = await import("./language");

@@ -51,6 +51,8 @@ function resolveMode(stored: StoredMode): ThemeMode {
 }
 
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
+import { logger } from "@/app/lib/logger";
+
 
 export default function Providers({ 
   children,
@@ -117,7 +119,7 @@ export default function Providers({
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
       saveUserTheme(newMode).catch((err) =>
-        console.error("Redis theme sync error", err)
+        logger.error("Redis theme sync error", err)
       );
     }, 600);
 

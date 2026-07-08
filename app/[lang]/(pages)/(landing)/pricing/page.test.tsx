@@ -47,7 +47,7 @@ const customTheme = createTheme({
       slateDeepest_alpha: { main_50: "#000" }
     },
     success: { main: "#2e7d32", _alpha: { main_10: "#000", main_30: "#000" } }
-  } as any
+  } as unknown
 });
 import * as originalMui from "@mui/material";
 const useThemeMock = mock.fn(() => customTheme);
@@ -59,7 +59,7 @@ mock.module("@mui/material", {
 });
 
 describe("PricingPage Component", () => {
-  let PricingPage: any;
+  let PricingPage: unknown;
 
   before(async () => {
     const mod = await import("./page");

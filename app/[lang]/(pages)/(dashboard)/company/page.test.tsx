@@ -20,7 +20,7 @@ mock.module("./components/CompanyContent.tsx", {
 });
 
 describe("CompanyPage Component", () => {
-  let CompanyPage: any;
+  let CompanyPage: unknown;
 
   before(async () => {
     const mod = await import("./page");

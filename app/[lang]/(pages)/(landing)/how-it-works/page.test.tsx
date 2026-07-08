@@ -23,7 +23,7 @@ mock.module("../../../../components/how-it-works/TimelineSection.tsx", {
 });
 
 describe("HowItWorksPage Component", () => {
-  let HowItWorksClient: any;
+  let HowItWorksClient: unknown;
 
   before(async () => {
     const mod = await import("./HowItWorksClient");
@@ -37,7 +37,7 @@ describe("HowItWorksPage Component", () => {
   describe("HowItWorksClient() Render Testleri", () => {
     it("should_RenderHowItWorksContent_Correctly", async () => {
       // Act
-      render(<HowItWorksClient dict={mockDict as any} />);
+      render(<HowItWorksClient dict={mockDict as unknown} />);
 
       // Assert
       expect(screen.getByText("How It Works")).toBeTruthy();

@@ -21,7 +21,7 @@ mock.module("../../../lib/language/DictionaryContext.tsx", {
 });
 
 mock.module("../../cards/card.tsx", {
-  defaultExport: ({ children }: any) => <div data-testid="custom-card">{children}</div>,
+  defaultExport: ({ children  }: Record<string, unknown>) => <div data-testid="custom-card">{children}</div>,
 });
 
 mock.module("../../skeletons/AnalyticsSkeleton.tsx", {
@@ -30,7 +30,7 @@ mock.module("../../skeletons/AnalyticsSkeleton.tsx", {
 
 mock.module("@mui/x-charts/BarChart", {
   namedExports: {
-    BarChart: ({ xAxis, series }: any) => {
+    BarChart: ({ xAxis, series  }: Record<string, unknown>) => {
       const plates = xAxis[0]?.data || [];
       const weights = series[0]?.data || [];
       return (
@@ -47,7 +47,7 @@ mock.module("@mui/x-charts/BarChart", {
 });
 
 describe("VehicleCapacityChart RTL Component", () => {
-  let VehicleCapacityChart: any;
+  let VehicleCapacityChart: unknown;
 
   before(async () => {
     const mod = await import("./maxLoad");

@@ -34,6 +34,8 @@ import { addDriverValidationSchema } from "@/app/lib/validationSchema";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import FirstDriverDialogStep from "./firstStep";
 import SecondDriverDialogStep from "./secondStep";
+import { logger } from "@/app/lib/logger";
+
 
 const initialValues: DriverFormValues = {
   userId: "",
@@ -69,7 +71,7 @@ const AddDriverDialog = ({
         const users = await getEligibleUsersForDriver();
         setEligibleUsers(users);
       } catch (error) {
-        console.error("Failed to fetch eligible users:", error);
+        logger.error("Failed to fetch eligible users:", error);
       }
     };
     if (open) {

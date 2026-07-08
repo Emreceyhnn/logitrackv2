@@ -17,6 +17,8 @@ import {
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { TrailerType } from "@/app/lib/type/enums";
 import { useTrailerMutations } from "@/app/hooks/useTrailers";
+import { logger } from "@/app/lib/logger";
+
 
 interface AddTrailerDialogProps {
   open: boolean;
@@ -71,7 +73,7 @@ export default function AddTrailerDialog({
         isColdChain: false,
       });
     } catch (error) {
-      console.error("Failed to create trailer:", error);
+      logger.error("Failed to create trailer:", error);
     } finally {
       setIsSubmitting(false);
     }

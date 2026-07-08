@@ -55,6 +55,8 @@ import {
   VehicleWithRelations,
 } from "@/app/lib/type/vehicle";
 import { TrailerWithRelations, TrailerFilters } from "@/app/lib/type/trailer";
+import { logger } from "@/app/lib/logger";
+
 
 export default function VehicleContent() {
   /* ─── Context ─────────────────────────────────────────────────────────── */
@@ -209,7 +211,7 @@ export default function VehicleContent() {
           actions.selectVehicle(null);
         }
       } catch (error) {
-        console.error("Failed to delete vehicle:", error);
+        logger.error("Failed to delete vehicle:", error);
         toast.error(dict.common.actionFailed);
       }
     } else if (activeTab === 1 && actionTrailer) {
@@ -217,7 +219,7 @@ export default function VehicleContent() {
         await deleteTrailerMut.mutateAsync(actionTrailer.id);
         setDeleteDialogOpen(false);
       } catch (error) {
-        console.error("Failed to delete trailer:", error);
+        logger.error("Failed to delete trailer:", error);
         toast.error(dict.common.actionFailed);
       }
     }
@@ -247,7 +249,7 @@ export default function VehicleContent() {
     try {
       await detachTrailerMut.mutateAsync({ trailerId: trailer.id, vehicleId: null });
     } catch (error) {
-      console.error("Failed to detach trailer:", error);
+      logger.error("Failed to detach trailer:", error);
       toast.error(dict.common.actionFailed);
     }
   };

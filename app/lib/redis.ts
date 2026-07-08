@@ -1,5 +1,7 @@
 import { Redis } from "@upstash/redis";
 import { createCacheKeys } from "./controllers/utils/cacheFactory";
+import { logger } from "@/app/lib/logger";
+
 
 const redisUrl =
   process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
@@ -141,7 +143,7 @@ export async function withCache<T>(
     const cached = await redis.get<T>(key);
     if (cached !== null && cached !== undefined) return cached;
   } catch (err) {
-    console.error("Redis get error:", err);
+    logger.error("Redis get error:", err);
   }
 
   const lockKey = `lock:${key}`;
@@ -156,7 +158,7 @@ export async function withCache<T>(
     });
     lockAcquired = acquired === "OK";
   } catch (err) {
-    console.error("Redis lock acquire error:", err);
+    logger.error("Redis lock acquire error:", err);
   }
 
   if (!lockAcquired) {
@@ -171,7 +173,7 @@ export async function withCache<T>(
         const cached = await redis.get<T>(key);
         if (cached !== null && cached !== undefined) return cached;
       } catch (err) {
-        console.error("Redis get retry error:", err);
+        logger.error("Redis get retry error:", err);
       }
     }
     // Fallback: If lock owner timed out, call the fetcher directly
@@ -191,7 +193,7 @@ export async function withCache<T>(
       }
       await p.exec();
     } catch (err) {
-      console.error("Redis cache set error:", err);
+      logger.error("Redis cache set error:", err);
     }
     return data;
   } finally {
@@ -204,7 +206,7 @@ export async function withCache<T>(
           [lockValue]
         );
       } catch (err) {
-        console.error("Redis lock release error:", err);
+        logger.error("Redis lock release error:", err);
       }
     }
   }
@@ -228,7 +230,7 @@ export async function invalidatePattern(pattern: string) {
         }
       } while (cursor !== 0);
     } catch (err) {
-      console.error("Redis invalidate scan fallback error:", err);
+      logger.error("Redis invalidate scan fallback error:", err);
     }
     return;
   }
@@ -242,6 +244,6 @@ export async function invalidatePattern(pattern: string) {
       await p.exec();
     }
   } catch (err) {
-    console.error("Redis invalidate pattern error:", err);
+    logger.error("Redis invalidate pattern error:", err);
   }
 }
