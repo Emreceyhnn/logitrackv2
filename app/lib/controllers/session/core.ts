@@ -53,18 +53,34 @@ export async function toSessionPayload(
 export async function createSession(
   user: {
     id: string;
-
     roleId?: string | null;
+    roleName?: string | null;
     companyId?: string | null;
     name?: string | null;
     surname?: string | null;
     avatarUrl?: string | null;
+    timezone?: string;
+    dateFormat?: string;
+    timeFormat?: string;
+    currency?: string;
+    language?: string;
+    notifEmailShipment?: boolean;
+    notifEmailMaint?: boolean;
+    notifEmailWeekly?: boolean;
+    notifPushAssignment?: boolean;
+    notifPushDelay?: boolean;
   },
-
   deviceInfo?: string,
   ipAddress?: string
 ): Promise<{ accessToken: string; sessionId: string }> {
-  const accessToken = await generateAccessToken(user);
+  let finalRoleName = user.roleName ?? null;
+  if (user.roleId && !finalRoleName) {
+    const role = await db.role.findUnique({ where: { id: user.roleId }, select: { name: true } });
+    finalRoleName = role?.name ?? null;
+  }
+  
+  const tokenUser = { ...user, roleName: finalRoleName };
+  const accessToken = await generateAccessToken(tokenUser);
   const refreshToken = generateRefreshToken();
 
   const tokenHash = hashToken(accessToken);
@@ -323,7 +339,6 @@ export async function refreshSession(): Promise<boolean> {
         user: {
           select: {
             id: true,
-
             roleId: true,
             companyId: true,
             status: true,
@@ -340,6 +355,9 @@ export async function refreshSession(): Promise<boolean> {
             notifEmailWeekly: true,
             notifPushAssignment: true,
             notifPushDelay: true,
+            role: {
+              select: { name: true }
+            }
           },
         },
       },
@@ -356,7 +374,10 @@ export async function refreshSession(): Promise<boolean> {
     }
 
     // Generate new tokens
-    const newAccessToken = await generateAccessToken(session.user);
+    const newAccessToken = await generateAccessToken({
+      ...session.user,
+      roleName: session.user.role?.name ?? null,
+    });
     const newRefreshToken = generateRefreshToken();
     const newTokenHash = hashToken(newAccessToken);
     const newRefreshTokenHash = hashToken(newRefreshToken);

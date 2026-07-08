@@ -62,6 +62,7 @@ export const updateUser = authenticatedAction(
           email,
           avatarUrl,
           roleId: role,
+          currency: "USD",
           companyId: user.companyId, // Set current user's company
         },
       });
@@ -128,6 +129,7 @@ export const createUserForCompany = authenticatedAction(
           email: userData.email,
           password: hashedPassword,
           avatarUrl: userData.avatarUrl ?? null,
+          currency: "USD",
           companyId: user.companyId,
           roleId: foundRole ? foundRole.id : null,
         },

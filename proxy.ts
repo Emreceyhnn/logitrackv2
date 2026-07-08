@@ -29,14 +29,19 @@ if (!process.env.JWT_SECRET) {
 /* -------------------------------------------------------------------------- */
 
 function getClientIp(request: NextRequest): string {
-  // Trust order:
-  // 1. x-real-ip — overwritten by our own reverse proxy (or Vercel), so it
-  //    cannot be forged from outside.
-  // 2. LAST hop of x-forwarded-for — appended by the nearest trusted proxy.
-  //    Earlier entries are client-supplied and trivially spoofable, so they
-  //    must never be used for rate limiting.
-  // 3. "unknown" — a distinct bucket instead of a shared constant, so header
-  //    stripping can't merge every anonymous client into one legit-looking IP.
+  // Trust order for Next.js / Vercel environments:
+  // 1. request.ip - Provided by Next.js safely on Vercel
+  // 2. x-vercel-forwarded-for - Vercel specific secure header
+  // 3. x-real-ip - Reliable if overwritten by a trusted proxy
+  // 4. LAST hop of x-forwarded-for (fallback, but can be spoofed)
+  if (request.ip) return request.ip;
+
+  const vercelIp = request.headers.get("x-vercel-forwarded-for");
+  if (vercelIp) {
+    const firstVercelIp = vercelIp.split(",")[0];
+    if (firstVercelIp) return firstVercelIp.trim();
+  }
+
   const realIp = request.headers.get("x-real-ip");
   if (realIp) return realIp.trim();
 
@@ -79,23 +84,29 @@ export default async function middleware(request: NextRequest) {
 
   // ── Rate Limiting for API Routes ───────────────────────────────────────────
   if (pathname.startsWith("/api")) {
-    const ip = getClientIp(request);
+    const isMutation = ["POST", "PUT", "PATCH", "DELETE"].includes(request.method);
+    const isAuth = pathname.startsWith("/api/auth");
+    
+    // Optimizasyon: Kritik olmayan GET isteklerinde Redis ağ gecikmesini (+50-100ms) 
+    // önlemek için Rate Limiter sadece mutasyon ve yetkilendirme rotalarında çalıştırılır.
+    if (isMutation || isAuth) {
+      const ip = getClientIp(request);
+      const limitResult = await rateLimit(ip, 120, 60, "rate-limit:api:");
 
-    const limitResult = await rateLimit(ip, 120, 60, "rate-limit:api:");
-
-    if (!limitResult.success) {
-      return new NextResponse(
-        JSON.stringify({ error: "Too many requests. Please try again later." }),
-        {
-          status: 429,
-          headers: {
-            "Content-Type": "application/json",
-            "X-RateLimit-Limit": limitResult.limit.toString(),
-            "X-RateLimit-Remaining": limitResult.remaining.toString(),
-            "X-RateLimit-Reset": limitResult.reset.toString(),
-          },
-        }
-      );
+      if (!limitResult.success) {
+        return new NextResponse(
+          JSON.stringify({ error: "Too many requests. Please try again later." }),
+          {
+            status: 429,
+            headers: {
+              "Content-Type": "application/json",
+              "X-RateLimit-Limit": limitResult.limit.toString(),
+              "X-RateLimit-Remaining": limitResult.remaining.toString(),
+              "X-RateLimit-Reset": limitResult.reset.toString(),
+            },
+          }
+        );
+      }
     }
   }
 

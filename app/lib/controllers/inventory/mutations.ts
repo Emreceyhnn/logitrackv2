@@ -68,6 +68,7 @@ export const createInventoryItem = authenticatedAction(
             cargoType: parsed.cargoType,
             unitValue: parsed.unitValue,
             currency: parsed.currency,
+            unit: "Each",
             companyId,
           },
         });

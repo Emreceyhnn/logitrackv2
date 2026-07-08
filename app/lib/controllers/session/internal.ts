@@ -55,25 +55,65 @@ export type SessionUser = {
 
 export interface SessionJWTPayload extends JWTPayload {
   id: string;
-
   role?: string | null;
+  roleName?: string | null;
   companyId?: string | null;
+  sessionId?: string;
+  name?: string | null;
+  surname?: string | null;
+  avatarUrl?: string | null;
+  timezone?: string;
+  dateFormat?: string;
+  timeFormat?: string;
+  currency?: string;
+  language?: string;
+  notifEmailShipment?: boolean;
+  notifEmailMaint?: boolean;
+  notifEmailWeekly?: boolean;
+  notifPushAssignment?: boolean;
+  notifPushDelay?: boolean;
 }
 
 // ─── Token Generation ───────────────────────────────────────────────────────
 
 export async function generateAccessToken(user: {
   id: string;
-
   roleId?: string | null;
+  roleName?: string | null;
   companyId?: string | null;
+  name?: string | null;
+  surname?: string | null;
+  avatarUrl?: string | null;
+  timezone?: string;
+  dateFormat?: string;
+  timeFormat?: string;
+  currency?: string;
+  language?: string;
+  notifEmailShipment?: boolean;
+  notifEmailMaint?: boolean;
+  notifEmailWeekly?: boolean;
+  notifPushAssignment?: boolean;
+  notifPushDelay?: boolean;
 }): Promise<string> {
   const secret = new TextEncoder().encode(getJwtSecret());
   return new SignJWT({
     id: user.id,
-
-    role: user.roleId,
+    role: user.roleId ?? null,
+    roleName: user.roleName ?? null,
     companyId: user.companyId ?? null,
+    name: user.name ?? null,
+    surname: user.surname ?? null,
+    avatarUrl: user.avatarUrl ?? null,
+    timezone: user.timezone ?? "UTC",
+    dateFormat: user.dateFormat ?? "DD/MM/YYYY",
+    timeFormat: user.timeFormat ?? "24h",
+    currency: user.currency ?? "USD",
+    language: user.language ?? "en",
+    notifEmailShipment: user.notifEmailShipment ?? true,
+    notifEmailMaint: user.notifEmailMaint ?? true,
+    notifEmailWeekly: user.notifEmailWeekly ?? false,
+    notifPushAssignment: user.notifPushAssignment ?? true,
+    notifPushDelay: user.notifPushDelay ?? true,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setJti(crypto.randomUUID())

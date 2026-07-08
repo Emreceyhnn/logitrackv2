@@ -71,7 +71,7 @@ model User {
   timezone               String              @default("UTC")
   dateFormat             String              @default("DD/MM/YYYY")
   timeFormat             String              @default("24h")
-  currency               String              @default("USD")
+  currency               String
   notifEmailShipment     Boolean             @default(true)
   notifEmailMaint        Boolean             @default(true)
   notifEmailWeekly       Boolean             @default(false)
@@ -96,29 +96,29 @@ model User {
 }
 
 model Driver {
-  id                  String            @id @default(cuid())
-  userId              String            @unique
+  id                  String       @id @default(cuid())
+  userId              String       @unique
   employeeId          String
   licenseNumber       String?
   licenseType         String?
   licenseExpiry       DateTime?
   phone               String
-  status              DriverStatus      @default(OFF_DUTY)
+  status              DriverStatus @default(OFF_DUTY)
   safetyScore         Int?
   efficiencyScore     Int?
   rating              Float?
-  hazmatCertified     Boolean           @default(false)
+  hazmatCertified     Boolean      @default(false)
   languages           String[]
-  currentVehicleId    String?           @unique
+  currentVehicleId    String?      @unique
   companyId           String
   homeBaseWarehouseId String?
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
   documents           Document[]
-  company             Company           @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  currentVehicle      Vehicle?          @relation(fields: [currentVehicleId], references: [id])
-  homeBaseWarehouse   Warehouse?        @relation(fields: [homeBaseWarehouseId], references: [id])
-  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company             Company      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  currentVehicle      Vehicle?     @relation(fields: [currentVehicleId], references: [id])
+  homeBaseWarehouse   Warehouse?   @relation(fields: [homeBaseWarehouseId], references: [id])
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   fuelLogs            FuelLog[]
   issues              Issue[]
   routes              Route[]
@@ -186,7 +186,7 @@ model MaintenanceRecord {
   originalCurrency String?
   status           MaintenanceStatus @default(COMPLETED)
   description      String?
-  currency         String            @default("USD")
+  currency         String
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   documentUrl      String?
@@ -328,12 +328,12 @@ model Inventory {
   minStock          Int       @default(0)
   imageUrl          String?
   unitValue         Decimal?  @default(0) @db.Decimal(12, 2)
-  currency          String    @default("USD")
-  unit              String    @default("Each")
+  currency          String
+  unit              String
   weightKg          Float?    @default(0)
   volumeM3          Float?    @default(0)
   palletCount       Int?      @default(0)
-  cargoType         String?   @default("General Cargo")
+  cargoType         String?
   updatedAt         DateTime  @updatedAt
   companyId         String
   createdAt         DateTime  @default(now())
@@ -389,9 +389,9 @@ model Shipment {
   weightKg           Float?               @default(0)
   volumeM3           Float?               @default(0)
   palletCount        Int?                 @default(0)
-  cargoType          String?              @default("General Cargo")
+  cargoType          String?
   contactEmail       String?
-  billingAccount     String?              @default("Standard Billing (Net 30)")
+  billingAccount     String?
   routeId            String?
   companyId          String
   createdAt          DateTime             @default(now())
@@ -411,7 +411,7 @@ model Shipment {
   trailer            Trailer?             @relation(fields: [trailerId], references: [id])
 
   @@index([companyId, status])
-  @@index([companyId, createdAt])
+  @@index([companyId, createdAt(sort: Desc)])
   @@index([companyId, trackingId])
   @@index([driverId, status])
   @@index([customerId])
@@ -476,11 +476,11 @@ model ShipmentItem {
   sku         String
   name        String
   quantity    Int
-  unit        String   @default("Each")
+  unit        String
   weightKg    Float?   @default(0)
   volumeM3    Float?   @default(0)
   palletCount Int?     @default(0)
-  cargoType   String?  @default("General Cargo")
+  cargoType   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   company     Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
@@ -571,7 +571,7 @@ model FuelLog {
   odometerKm  Int
   location    String?
   fuelType    FuelType
-  currency    String   @default("USD")
+  currency    String
   receiptUrl  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -649,7 +649,7 @@ model AuditLog {
 
 model ExchangeRate {
   id        String   @id @default(cuid())
-  base      String   @default("USD")
+  base      String
   rates     Json
   date      DateTime @default(now()) @db.Date
   createdAt DateTime @default(now())

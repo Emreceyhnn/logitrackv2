@@ -76,6 +76,7 @@ export const addInventoryItem = authenticatedAction(
             imageUrl: imageUrl ?? null,
             unitValue: unitValue || 0,
             currency,
+            unit: "Each",
             companyId: user.companyId!,
           },
         });

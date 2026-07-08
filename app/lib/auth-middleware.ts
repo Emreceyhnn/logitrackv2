@@ -1,11 +1,11 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import { validateSession } from "./controllers/session";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
+import { jwtVerify } from "jose";
+import { getJwtSecret, type SessionJWTPayload } from "./controllers/session/internal";
 import { DEFAULT_LOCALE, LOCALES } from "./constants";
 import { runWithTenant } from "./tenant-context";
 import { logger } from "@/app/lib/logger";
-
 
 export type AuthenticatedUser = {
   id: string;
@@ -31,43 +31,44 @@ export type AuthenticatedUser = {
 export const getAuthenticatedUser = cache(
   async (): Promise<AuthenticatedUser | null> => {
     try {
-      const sessionUser = await validateSession();
+      const cookieStore = await cookies();
+      const token = cookieStore.get("token")?.value;
 
-      if (sessionUser) {
-        return {
-          id: sessionUser.id,
-          name: sessionUser.name,
-          surname: sessionUser.surname,
-          avatarUrl: sessionUser.avatarUrl,
-          companyId: sessionUser.companyId,
-          roleId: sessionUser.roleId,
-          roleName: sessionUser.roleName,
-          sessionId: sessionUser.sessionId,
-          timezone: sessionUser.timezone,
-          dateFormat: sessionUser.dateFormat,
-          timeFormat: sessionUser.timeFormat,
-          currency: sessionUser.currency || "USD",
-          language: sessionUser.language || "en",
-          notifEmailShipment: sessionUser.notifEmailShipment,
-          notifEmailMaint: sessionUser.notifEmailMaint,
-          notifEmailWeekly: sessionUser.notifEmailWeekly,
-          notifPushAssignment: sessionUser.notifPushAssignment,
-          notifPushDelay: sessionUser.notifPushDelay,
-        };
-      }
-      
-      // If validateSession returns null, it means the token is invalid/revoked.
-      // We no longer attempt refreshSession() here because Server Components cannot
-      // set cookies. Middleware now handles token expiration via /api/auth/refresh.
+      if (!token) return null;
 
+      const secret = new TextEncoder().encode(getJwtSecret());
+      const { payload } = await jwtVerify(token, secret);
+      const sessionUser = payload as SessionJWTPayload;
+
+      if (!sessionUser || !sessionUser.id) return null;
+
+      return {
+        id: sessionUser.id,
+        name: sessionUser.name ?? "",
+        surname: sessionUser.surname ?? "",
+        avatarUrl: sessionUser.avatarUrl ?? null,
+        companyId: sessionUser.companyId ?? null,
+        roleId: sessionUser.role ?? null,
+        roleName: sessionUser.roleName ?? null,
+        sessionId: sessionUser.sessionId ?? "",
+        timezone: sessionUser.timezone ?? "UTC",
+        dateFormat: sessionUser.dateFormat ?? "DD/MM/YYYY",
+        timeFormat: sessionUser.timeFormat ?? "24h",
+        currency: sessionUser.currency ?? "USD",
+        language: sessionUser.language ?? "en",
+        notifEmailShipment: sessionUser.notifEmailShipment ?? true,
+        notifEmailMaint: sessionUser.notifEmailMaint ?? true,
+        notifEmailWeekly: sessionUser.notifEmailWeekly ?? false,
+        notifPushAssignment: sessionUser.notifPushAssignment ?? true,
+        notifPushDelay: sessionUser.notifPushDelay ?? true,
+      };
     } catch (error) {
       if ((error as { digest?: string })?.digest === "DYNAMIC_SERVER_USAGE") {
         throw error;
       }
-      logger.error(
-        "[getAuthenticatedUser] ❌ Session check failed critical:",
-        error
-      );
+      if (error instanceof Error && !error.name.includes("JOSE") && !error.name.includes("JWT")) {
+        logger.error("[getAuthenticatedUser] ❌ Session check failed critical:", error);
+      }
     }
 
     return null;
