@@ -74,7 +74,17 @@ davranış testi mevcut).
 - [x] A4  shipmentDetailDialog (1089→445) böl — sections/Shipment{Overview,Items}Tab; test yeşil
 - [x] A5  DataTable/index (924→389) böl — RowMenu, DataTableToolbar, DataTablePagination'a
          ayrıldı; public API aynı; test yeşil
-- [ ] A6  Kalan 16 dosyayı < 400 satıra indir (parti parti)
+- [~] A6  Kalan büyük dosyaları < 400 satıra indir (parti parti). İlerleme:
+         [x] StopsSection (765→428) → StopItem çıkarıldı
+         [x] customerDetailDialog (531→229) → sections/Customer{Contact,Activity}Panel
+         Kalan (temiz-seam, düşük risk — detay sekmeleri/kartları): documentsTab (602),
+         warehouseDetailsDialog/overviewTab (651), maintenanceDetailDialog (630),
+         maintenanceRecordDialog (598), VehicleContent (564), AddCompanyMemberDialog (513),
+         addShipmentDialog/index (511), InventorySection (516).
+         Kalan (form/iç içe kart yoğun — daha dikkatli/riskli, useFormikContext gerekebilir):
+         InventoryEditDialog (731), vehicleDetailsDialog/maintenance (730),
+         addDriverDialog/secondStep (714), editDriverDialog/secondStep (688),
+         routes/index (637), edit-shipment-dialog (549).
 
 ---
 
