@@ -33,8 +33,10 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 // async chunk per locale. Neither dictionary lands in the initial client
 // bundle — the active language's dict arrives from the server as a prop, and
 // the other locale is only downloaded if the user actually switches language.
+const enLoader = () =>
+  import("./dictionaries/en.json").then((m) => m.default as unknown as Dictionary);
 const dictionaryLoaders: Record<string, () => Promise<Dictionary>> = {
-  en: () => import("./dictionaries/en.json").then((m) => m.default as unknown as Dictionary),
+  en: enLoader,
   tr: () => import("./dictionaries/tr.json").then((m) => m.default as unknown as Dictionary),
 };
 
@@ -43,7 +45,7 @@ const dictionaryCache = new Map<string, Dictionary>();
 async function loadDictionary(lang: string): Promise<Dictionary> {
   const cached = dictionaryCache.get(lang);
   if (cached) return cached;
-  const loader = dictionaryLoaders[lang] ?? dictionaryLoaders.en;
+  const loader = dictionaryLoaders[lang] ?? enLoader;
   const dict = await loader();
   dictionaryCache.set(lang, dict);
   return dict;

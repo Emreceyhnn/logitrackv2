@@ -67,6 +67,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
       }, 100);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [vehicle?.maintenanceRecords]);
 
   if (!vehicle) {

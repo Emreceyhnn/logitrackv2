@@ -146,8 +146,10 @@ export default function WarehouseWorkerClient({
   const [prevZonesKey, setPrevZonesKey] = useState<string | null>(null);
   if (prevZonesKey !== zonesKey) {
     setPrevZonesKey(zonesKey);
-    if (zones.length && !zones.some((z) => z.name === currentZone))
-      setCurrentZone(zones[0].name);
+    if (zones.length && !zones.some((z) => z.name === currentZone)) {
+      const firstZone = zones[0];
+      if (firstZone) setCurrentZone(firstZone.name);
+    }
   }
 
   const showToast = (
@@ -201,7 +203,8 @@ export default function WarehouseWorkerClient({
 
   const simScan = () => {
     if (!catalog.length) return showToast(ww.noInventoryToScan, "warning");
-    doScan(catalog[Math.floor(Math.random() * catalog.length)].sku);
+    const item = catalog[Math.floor(Math.random() * catalog.length)];
+    if (item) doScan(item.sku);
   };
 
   const log = async (kind: "PICK" | "PACK") => {

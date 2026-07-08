@@ -91,9 +91,10 @@ export const getReportsDataAction = authenticatedAction(async (user): Promise<Re
 
     const categoryStats = enrichedInventory.reduce(
       (acc, item) => {
-        if (!acc[item.category]) acc[item.category] = { value: 0, count: 0 };
-        acc[item.category].value += item.quantity * item.unitPrice;
-        acc[item.category].count += 1;
+        const entry = acc[item.category] ?? { value: 0, count: 0 };
+        entry.value += item.quantity * item.unitPrice;
+        entry.count += 1;
+        acc[item.category] = entry;
         return acc;
       },
       {} as Record<string, { value: number; count: number }>

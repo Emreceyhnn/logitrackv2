@@ -142,7 +142,12 @@ const CustomerList = ({
     ];
 
     const index = Math.abs(hash) % palette.length;
-    return palette[index];
+    return (
+      palette[index] ?? {
+        main: theme.palette.primary.main,
+        alpha: theme.palette.primary._alpha.main_10,
+      }
+    );
   };
 
   if (loading) {
@@ -330,7 +335,7 @@ const CustomerList = ({
                   <Typography variant="body2" color="text.secondary" noWrap>
                     {customer.locations && customer.locations.length > 0
                       ? customer.locations.find((l) => l.isDefault)?.address ||
-                        customer.locations[0].address
+                        customer.locations[0]?.address
                       : dict.customers.list.noAddress}
                   </Typography>
                 </Stack>

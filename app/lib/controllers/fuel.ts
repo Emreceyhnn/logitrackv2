@@ -140,9 +140,12 @@ export const getFuelStats = authenticatedAction(async (user) => {
     let efficiencyKml = 0;
     if (logs.length >= 2) {
       const sortedLogs = [...logs].sort((a, b) => b.odometerKm - a.odometerKm);
-      const totalDist =
-        sortedLogs[0].odometerKm - sortedLogs[sortedLogs.length - 1].odometerKm;
-      efficiencyKml = totalDist / totalVolume;
+      const highest = sortedLogs[0];
+      const lowest = sortedLogs[sortedLogs.length - 1];
+      if (highest && lowest) {
+        const totalDist = highest.odometerKm - lowest.odometerKm;
+        efficiencyKml = totalDist / totalVolume;
+      }
     }
 
     return {

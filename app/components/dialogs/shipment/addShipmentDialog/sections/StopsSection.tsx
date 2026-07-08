@@ -188,15 +188,18 @@ const StopItem = ({
 
                         if (isLast) {
                           const updatedStops = [...values.stops];
-                          updatedStops[index] = {
-                            ...updatedStops[index],
-                            customerId,
-                            customerLocationId: defaultLoc?.id || "",
-                            address: defaultLoc?.address || "",
-                            lat: defaultLoc?.lat || null,
-                            lng: defaultLoc?.lng || null,
-                          };
-                          syncTopLevelFields(updatedStops);
+                          const existingStop = updatedStops[index];
+                          if (existingStop) {
+                            updatedStops[index] = {
+                              ...existingStop,
+                              customerId,
+                              customerLocationId: defaultLoc?.id || "",
+                              address: defaultLoc?.address || "",
+                              lat: defaultLoc?.lat || null,
+                              lng: defaultLoc?.lng || null,
+                            };
+                            syncTopLevelFields(updatedStops);
+                          }
                         }
                       }}
                     >
@@ -254,14 +257,17 @@ const StopItem = ({
 
                           if (isLast) {
                             const updatedStops = [...values.stops];
-                            updatedStops[index] = {
-                              ...updatedStops[index],
-                              customerLocationId: locId,
-                              address: loc.address,
-                              lat: loc.lat || null,
-                              lng: loc.lng || null,
-                            };
-                            syncTopLevelFields(updatedStops);
+                            const existingStop = updatedStops[index];
+                            if (existingStop) {
+                              updatedStops[index] = {
+                                ...existingStop,
+                                customerLocationId: locId,
+                                address: loc.address,
+                                lat: loc.lat || null,
+                                lng: loc.lng || null,
+                              };
+                              syncTopLevelFields(updatedStops);
+                            }
                           }
                         }
                       }}
@@ -311,13 +317,16 @@ const StopItem = ({
 
                         if (isLast) {
                           const updatedStops = [...values.stops];
-                          updatedStops[index] = {
-                            ...updatedStops[index],
-                            address: data.formattedAddress,
-                            lat: data.lat,
-                            lng: data.lng,
-                          };
-                          syncTopLevelFields(updatedStops);
+                          const existingStop = updatedStops[index];
+                          if (existingStop) {
+                            updatedStops[index] = {
+                              ...existingStop,
+                              address: data.formattedAddress,
+                              lat: data.lat,
+                              lng: data.lng,
+                            };
+                            syncTopLevelFields(updatedStops);
+                          }
                         }
                       }}
                     />
@@ -372,9 +381,8 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
 
   // Imperative sync function to ensure top-level fields match the last stop immediately
   const syncTopLevelFields = (currentStops: ShipmentStopWithRelations[]) => {
-    if (currentStops.length > 0) {
-      const lastStop = currentStops[currentStops.length - 1];
-
+    const lastStop = currentStops[currentStops.length - 1];
+    if (lastStop) {
       // Atomic updates via setValues or sequential setFieldValue
       // We use setFieldValue here for consistency with the rest of the form
       setFieldValue("destination", lastStop.address);

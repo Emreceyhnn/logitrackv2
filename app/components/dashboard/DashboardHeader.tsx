@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Stack, IconButton, Drawer, useTheme } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import dynamic from "next/dynamic";

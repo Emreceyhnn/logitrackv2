@@ -60,5 +60,6 @@ export const polylineHelper = async (params: PolylineHelperParams): Promise<Poly
     };
   } catch (err: unknown) {
     console.error("Valhalla Routing Error:", err);
+    return undefined;
   }
 };

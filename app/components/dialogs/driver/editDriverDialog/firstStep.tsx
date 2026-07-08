@@ -193,11 +193,11 @@ const FirstEditDriverDialogStep = () => {
             }}
             onDragLeave={(e) => {
               e.preventDefault();
-              e.currentTarget.style.borderColor = theme.palette.divider_alpha.main_20;
+              e.currentTarget.style.borderColor = theme.palette.divider_alpha.main_20 ?? "";
             }}
             onDrop={(e) => {
               e.preventDefault();
-              e.currentTarget.style.borderColor = theme.palette.divider_alpha.main_20;
+              e.currentTarget.style.borderColor = theme.palette.divider_alpha.main_20 ?? "";
               if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                 setFieldValue("licencePhoto", e.dataTransfer.files[0]);
               }

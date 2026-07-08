@@ -1,4 +1,3 @@
-import React from "react";
 import Link from "next/link";
 import { Stack, Box, IconButton, useTheme, Tooltip } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";

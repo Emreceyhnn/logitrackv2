@@ -77,7 +77,7 @@ export const getShipmentVolumeHistory = authenticatedAction(async (user) => {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     rawShipments.forEach((s: { createdAt: Date }) => {
-      const dayName = days[s.createdAt.getDay()];
+      const dayName = days[s.createdAt.getDay()] ?? "Sun";
       volumeByDay[dayName] = (volumeByDay[dayName] || 0) + 1;
     });
 
@@ -282,7 +282,7 @@ export const getShipmentsWithDashboardData = authenticatedAction(
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         const volumeByDay: Record<string, number> = {};
         rawVolumeHistory.forEach((s: { createdAt: Date }) => {
-          const dayName = days[s.createdAt.getDay()];
+          const dayName = days[s.createdAt.getDay()] ?? "Sun";
           volumeByDay[dayName] = (volumeByDay[dayName] || 0) + 1;
         });
         const volumeHistory = days.map((day) => ({

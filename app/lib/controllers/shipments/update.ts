@@ -56,7 +56,7 @@ export const updateShipment = authenticatedAction(
         updateData.trackingId = `TRK-${Math.random().toString(36).substring(2, 9).toLocaleUpperCase('en-US')}`;
       }
 
-      // FK alanlarında boş string geldiyse undefined'a çevir (Prisma P2003 önlemi)
+      // Convert empty strings on FK fields to undefined (guards against Prisma P2003)
       const fkFields = [
         "customerId",
         "customerLocationId",

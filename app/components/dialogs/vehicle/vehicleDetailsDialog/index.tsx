@@ -92,7 +92,7 @@ const VehicleDialog = (params: VehicleDialogParams) => {
   const [value, setValue] = useState(initialTab ?? 0);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 

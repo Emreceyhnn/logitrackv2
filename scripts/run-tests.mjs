@@ -55,7 +55,7 @@ const escapeGlob = (p) => p.replace(/[[\]]/g, "?");
 let failed = false;
 
 // ── Unit tests (no jsdom needed) — batched for speed ────────────────────────
-// Windows'ta komut satırı uzunluk limiti (~8k) nedeniyle partiler halinde koş.
+// Run in batches to stay under the Windows command-line length limit (~8k).
 const BATCH_SIZE = 40;
 if (unitTests.length > 0) {
   console.log(`\n── Running ${unitTests.length} unit test(s)...`);

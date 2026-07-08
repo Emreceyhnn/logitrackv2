@@ -458,7 +458,7 @@ export default function AddCompanyMemberDialog({
                   onChange={(val) =>
                     handleDriverDataChange(
                       "licenseExpiry",
-                      val ? val.toISOString().split("T")[0] : ""
+                      val ? val.toISOString().split("T")[0] ?? "" : ""
                     )
                   }
                   format="DD/MM/YYYY"

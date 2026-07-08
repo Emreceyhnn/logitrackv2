@@ -64,13 +64,13 @@ const OverviewTab = ({ warehouse }: OverviewTabProps) => {
 
   const parseTime = (timeStr: string, tz: string) => {
     const [h, m] = timeStr.split(":").map(Number);
-    return dayjs().tz(tz).set("hour", h).set("minute", m).set("second", 0);
+    return dayjs().tz(tz).set("hour", h ?? 0).set("minute", m ?? 0).set("second", 0);
   };
 
   if (!is247 && operatingHoursStr.includes(" - ")) {
     const [opening, closing] = operatingHoursStr.split(" - ");
-    const whOpening = parseTime(opening, warehouse.timezone || "UTC");
-    let whClosing = parseTime(closing, warehouse.timezone || "UTC");
+    const whOpening = parseTime(opening ?? "", warehouse.timezone || "UTC");
+    let whClosing = parseTime(closing ?? "", warehouse.timezone || "UTC");
 
     // Handle night shift (e.g. 22:00 - 06:00)
     if (whClosing.isBefore(whOpening)) {

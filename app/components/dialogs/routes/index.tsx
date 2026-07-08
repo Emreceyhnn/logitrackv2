@@ -109,18 +109,18 @@ export default function RouteDialog({
     const mOrigin =
       typedStops.length > 0
         ? {
-            lat: typedStops[0].lat || 0,
-            lng: typedStops[0].lng || 0,
-            address: typedStops[0].address || "",
+            lat: typedStops[0]?.lat || 0,
+            lng: typedStops[0]?.lng || 0,
+            address: typedStops[0]?.address || "",
           }
         : undefined;
 
     const mDest =
       typedStops.length > 1
         ? {
-            lat: typedStops[typedStops.length - 1].lat || 0,
-            lng: typedStops[typedStops.length - 1].lng || 0,
-            address: typedStops[typedStops.length - 1].address || "",
+            lat: typedStops[typedStops.length - 1]?.lat || 0,
+            lng: typedStops[typedStops.length - 1]?.lng || 0,
+            address: typedStops[typedStops.length - 1]?.address || "",
           }
         : undefined;
 
@@ -249,7 +249,7 @@ export default function RouteDialog({
   };
 
   const statusColor = getStatusColor();
-  const paletteKey = statusMeta.color.split(".")[0];
+  const paletteKey = statusMeta.color.split(".")[0] ?? "";
   const statusAlpha =
     resolvePaletteAlpha(theme.palette, paletteKey) ??
     theme.palette.primary._alpha;

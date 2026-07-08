@@ -93,8 +93,8 @@ const EditWarehouseDialog = ({
       } else if (opHours && opHours.includes(" - ")) {
         const parts = opHours.split(" - ");
         if (parts.length === 2) {
-          openingTime = parts[0];
-          closingTime = parts[1];
+          openingTime = parts[0] ?? openingTime;
+          closingTime = parts[1] ?? closingTime;
         }
       }
 

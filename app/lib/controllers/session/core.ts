@@ -397,7 +397,7 @@ export async function refreshSession(): Promise<boolean> {
 
     // Extract current IP and User Agent from headers
     const headerStore = await headers();
-    const currentIp = headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || session.ipAddress || "127.0.0.1";
+    const currentIp = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || headerStore.get("x-real-ip") || session.ipAddress || "127.0.0.1";
     const currentDevice = headerStore.get("user-agent") || session.deviceInfo || "Unknown Device";
 
     // Log the refresh event

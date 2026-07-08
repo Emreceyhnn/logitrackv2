@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
   // If refresh failed (e.g. refresh token expired or revoked), send them to login.
   // We should try to guess the locale from the redirect_to path, or default.
   const localeMatch = redirectTo.match(/^\/([a-z]{2})(?:\/|$)/);
-  const locale = localeMatch ? localeMatch[1] : DEFAULT_LOCALE;
+  const locale = localeMatch?.[1] ?? DEFAULT_LOCALE;
 
   const url = request.nextUrl.clone();
   url.pathname = buildLocalizedHref(SIGN_IN_ROUTE, locale);

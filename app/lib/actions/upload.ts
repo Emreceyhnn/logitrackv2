@@ -91,8 +91,8 @@ export const uploadImageAction = maybeAuthenticatedAction(
 
     validateBase64Image(fileData);
 
-    const base64Part = fileData.split(",")[1];
-    const mimeType = fileData.split(";")[0].split(":")[1];
+    const base64Part = fileData.split(",")[1] ?? "";
+    const mimeType = fileData.split(";")[0]?.split(":")[1] ?? "";
     const buffer = Buffer.from(base64Part, "base64");
 
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}`;

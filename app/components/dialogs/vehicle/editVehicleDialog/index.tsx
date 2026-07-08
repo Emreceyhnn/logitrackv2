@@ -225,7 +225,7 @@ const EditVehicleDialog = ({
           return 2;
         };
 
-        const firstErrorField = Object.keys(errors)[0];
+        const firstErrorField = Object.keys(errors)[0] ?? "";
         const targetStep = getStepForField(firstErrorField);
         if (targetStep !== currentStep) {
           setCurrentStep(targetStep);

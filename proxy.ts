@@ -38,7 +38,7 @@ function getClientIp(request: NextRequest): string {
       .split(",")
       .map((h) => h.trim())
       .filter(Boolean);
-    if (hops.length > 0) return hops[hops.length - 1];
+    if (hops.length > 0) return hops[hops.length - 1] ?? "unknown";
   }
 
   return "unknown";
@@ -115,7 +115,7 @@ export default async function proxy(request: NextRequest) {
       const acceptLanguage = request.headers.get("accept-language");
       if (acceptLanguage) {
         // 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7' -> pick the first matching language
-        const preferredLang = acceptLanguage.split(',')[0].split('-')[0].toLowerCase();
+        const preferredLang = acceptLanguage.split(',')[0]?.split('-')[0]?.toLowerCase() ?? "";
         if ((LOCALES as readonly string[]).includes(preferredLang)) {
           locale = preferredLang as Locale;
         }

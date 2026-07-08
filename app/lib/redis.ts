@@ -6,12 +6,12 @@ const redisUrl =
 const redisToken =
   process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 
-// Redis'in mutlaka yapılandırılmış olması gereken ortamlarda (CI ve production)
-// eksik şifreleri fail-fast ile yakalıyoruz. Aksi halde CI'da 50 saniyelik
-// anlamsız timeout'lar, production'da ise HER istekte sessiz cache-miss yaşanır
-// (try/catch bunları yutar) — ikisi de boot anında net bir hatadan çok daha kötü.
-// "dummy" fallback'i bilinçli olarak yalnızca lokal dev/test için bırakıyoruz;
-// oralarda Redis çoğu zaman ayarlı olmaz.
+// In environments where Redis must be configured (CI and production) we
+// fail-fast on missing credentials. Otherwise CI suffers pointless 50s
+// timeouts, and production hits a silent cache-miss on EVERY request
+// (try/catch swallows them) — both far worse than a clear error at boot.
+// The "dummy" fallback is intentionally kept only for local dev/test,
+// where Redis is often not set up.
 const redisRequired =
   Boolean(process.env.CI) || process.env.NODE_ENV === "production";
 if (redisRequired && (!redisUrl || !redisToken)) {
@@ -99,7 +99,7 @@ function getTrackingSetKey(key: string): string | null {
     "customers",
     "companies",
   ];
-  if (parts.length >= 3 && categories.includes(parts[0])) {
+  if (parts.length >= 3 && parts[0] !== undefined && categories.includes(parts[0])) {
     if (parts[1] !== "detail") {
       return `keysSet:${parts[0]}:${parts[1]}`;
     }

@@ -131,7 +131,7 @@ export const getWarehouseWorkerDashboard = authenticatedAction(
     const zoneCodes = zonesRaw.map((z) => z.code);
     const fallbackZone = (sku: string) =>
       zoneCodes.length
-        ? zoneCodes[Math.abs(hashCode(sku)) % zoneCodes.length]
+        ? zoneCodes[Math.abs(hashCode(sku)) % zoneCodes.length] ?? "A"
         : "A";
     const skuZone = new Map<string, string>();
     const usedByZone = new Map<string, number>();

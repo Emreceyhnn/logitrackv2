@@ -148,7 +148,7 @@ export default function ShipmentDetailDialog({
   useEffect(() => {
     const fetchData = async () => {
       if (!open || !shipment || waypoints.length < 2) {
-        return; // Veri gelmeden veya en az 2 nokta olmadan istek atmasını engelliyoruz.
+        return; // Skip the request until data has arrived and there are at least 2 points.
       }
 
       const response = await polylineHelper({

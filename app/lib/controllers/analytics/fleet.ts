@@ -177,12 +177,12 @@ export const getAnalyticsDashboardData = authenticatedAction(async (user) => {
 
     fuelLogs.forEach((log) => {
       const idx = getMonthIndex(log.date);
-      if (idx >= 0 && idx < 6) fuelCosts[idx] += Number(log.cost);
+      if (idx >= 0 && idx < 6) fuelCosts[idx] = (fuelCosts[idx] ?? 0) + Number(log.cost);
     });
 
     maintenanceRecords.forEach((record) => {
       const idx = getMonthIndex(record.date);
-      if (idx >= 0 && idx < 6) maintenanceCosts[idx] += Number(record.cost);
+      if (idx >= 0 && idx < 6) maintenanceCosts[idx] = (maintenanceCosts[idx] ?? 0) + Number(record.cost);
     });
 
     const totalFuel = fuelCosts.reduce((a, b) => a + b, 0);

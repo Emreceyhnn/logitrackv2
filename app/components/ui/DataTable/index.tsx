@@ -602,8 +602,9 @@ function DataTable<TRow extends { id: string }>({
           typeof updater === "function" ? updater(current) : updater;
         // Only propagate when the user actively chose a sort column.
         // When TanStack clears sort (empty array), leave the server-side sort as-is.
-        if (newSorting.length > 0) {
-          onRequestSort(newSorting[0].id);
+        const firstSort = newSorting[0];
+        if (firstSort) {
+          onRequestSort(firstSort.id);
         }
       } else {
         setSorting(updater);
