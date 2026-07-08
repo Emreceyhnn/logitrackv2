@@ -69,7 +69,7 @@ davranış testi mevcut).
 - [ ] A1  WarehouseWorkerClient (1245) böl
 - [x] A2  InventoryDetailsDialog (1190→360) böl — sections/{StockMetrics,PhysicalSpecs,MovementHistory}Panel; testler yeşil
 - [x] A3  OperationsDashboard (1122→314) böl — operations/{Overview,Fleet,Routes}Panel; test yeşil
-- [ ] A4  shipmentDetailDialog (1089) böl
+- [x] A4  shipmentDetailDialog (1089→445) böl — sections/Shipment{Overview,Items}Tab; test yeşil
 - [ ] A5  DataTable/index (918) böl (paylaşımlı — dikkatli, çok tüketici var)
 - [ ] A6  Kalan 16 dosyayı < 400 satıra indir (parti parti)
 
