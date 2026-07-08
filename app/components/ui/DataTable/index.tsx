@@ -7,7 +7,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
   TableSortLabel,
   Typography,
   useTheme,
@@ -32,6 +31,7 @@ import {
 } from "@tanstack/react-table";
 import RowMenu from "./RowMenu";
 import DataTableToolbar from "./DataTableToolbar";
+import { DataTablePagination } from "./DataTablePagination";
 
 function DataTable<TRow extends { id: string }>({
   rows,
@@ -353,82 +353,18 @@ function DataTable<TRow extends { id: string }>({
       {/* Pagination Container */}
       {((isServerSide && meta) || (!isServerSide && rows.length > 0)) &&
         !loading && (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              px: 2,
-              py: 0.5,
-              borderTop: `1px solid ${theme.palette.divider_alpha.main_10}`,
-              flexDirection: { xs: "column", sm: "row" },
-              gap: { xs: 1, sm: 0 },
-            }}
-          >
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ fontWeight: 500, fontSize: 13 }}
-            >
-              {(
-                dict.common.pagination.totalRecords || "{count} records"
-              ).replace(
-                "{count}",
-                isServerSide
-                  ? (meta?.total || 0).toString()
-                  : rows.length.toString()
-              )}
-            </Typography>
-            <TablePagination
-              rowsPerPageOptions={[10, 25, 50]}
-              component="div"
-              count={isServerSide ? meta?.total || 0 : rows.length}
-              rowsPerPage={
-                isServerSide
-                  ? meta?.limit || 10
-                  : table.getState().pagination.pageSize
-              }
-              page={
-                isServerSide
-                  ? Math.max(0, (meta?.page || 1) - 1)
-                  : table.getState().pagination.pageIndex
-              }
-              onPageChange={(_, newPage) => {
-                if (isServerSide && onPageChange) {
-                  onPageChange(newPage + 1);
-                } else if (!isServerSide) {
-                  table.setPageIndex(newPage);
-                }
-              }}
-              onRowsPerPageChange={(e) => {
-                const newLimit = parseInt(e.target.value, 10);
-                if (isServerSide && onLimitChange) {
-                  onLimitChange(newLimit);
-                } else if (!isServerSide) {
-                  table.setPageSize(newLimit);
-                }
-              }}
-              labelRowsPerPage={dict.common.pagination.rowsPerPage}
-              labelDisplayedRows={({ from, to, count }) =>
-                `${from}-${to} ${dict.common.pagination.of} ${
-                  count !== -1
-                    ? count
-                    : dict.common.moreThan?.replace("{count}", to.toString()) ||
-                      to.toString()
-                }`
-              }
-              sx={{
-                borderTop: "none",
-                ".MuiTablePagination-toolbar": {
-                  pl: 0,
-                },
-                ".MuiTablePagination-selectLabel, .MuiTablePagination-displayedRows":
-                  {
-                    fontSize: 13,
-                  },
-              }}
-            />
-          </Box>
+          <DataTablePagination
+            isServerSide={isServerSide}
+            meta={meta}
+            rowsLength={rows.length}
+            pageSize={table.getState().pagination.pageSize}
+            pageIndex={table.getState().pagination.pageIndex}
+            dict={dict}
+            onPageChange={onPageChange}
+            onLimitChange={onLimitChange}
+            setPageIndex={table.setPageIndex}
+            setPageSize={table.setPageSize}
+          />
         )}
     </>
   );
