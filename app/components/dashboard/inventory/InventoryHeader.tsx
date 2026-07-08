@@ -25,7 +25,7 @@ interface InventoryHeaderProps {
   value: string;
   onSearch: (value: string) => void;
   onAddClick: () => void;
-  warehouseId?: string;
+  warehouseId?: string | undefined;
   status?: string[];
   onWarehouseChange?: (id: string) => void;
   onStatusChange?: (status: string[]) => void;

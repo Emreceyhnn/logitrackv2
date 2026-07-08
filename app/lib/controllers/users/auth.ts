@@ -80,7 +80,7 @@ export const RegisterUser = maybeAuthenticatedAction(
   ) => {
     try {
       const headerStore = await headers();
-      const ip = ipAddress || headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const ip = ipAddress || headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || headerStore.get("x-real-ip") || "127.0.0.1";
       const userAgent = deviceInfo || headerStore.get("user-agent") || "Unknown Device";
 
       // Rate limit registration by IP: Max 5 attempts per hour
@@ -112,7 +112,7 @@ export const RegisterUser = maybeAuthenticatedAction(
           surname,
           password: hashedPassword,
           email,
-          avatarUrl,
+          avatarUrl: avatarUrl ?? null,
           companyId: user?.companyId || null, // Guest registration has no company initially
         },
       });
@@ -153,7 +153,7 @@ export const RegisterUser = maybeAuthenticatedAction(
 
 export const LoginUser = maybeAuthenticatedAction(
   async (
-    user: AuthenticatedUser | null,
+    _user: AuthenticatedUser | null,
     email: string,
     password: string,
     deviceInfo?: string,
@@ -161,7 +161,7 @@ export const LoginUser = maybeAuthenticatedAction(
   ) => {
     try {
       const headerStore = await headers();
-      const ip = ipAddress || headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const ip = ipAddress || headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || headerStore.get("x-real-ip") || "127.0.0.1";
       const userAgent = deviceInfo || headerStore.get("user-agent") || "Unknown Device";
 
       // 1. IP Rate Limiting: Max 5 login attempts per minute
@@ -260,7 +260,7 @@ export const LogoutUser = authenticatedAction(async () => {
       await revokeSession(sessionUser.sessionId);
 
       const headerStore = await headers();
-      const ip = headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || headerStore.get("x-real-ip") || "127.0.0.1";
       const userAgent = headerStore.get("user-agent") || "Unknown Device";
 
       // Log logout

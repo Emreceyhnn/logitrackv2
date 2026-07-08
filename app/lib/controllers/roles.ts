@@ -30,7 +30,7 @@ export const createRole = authenticatedAction(
       const newRole = await db.role.create({
         data: {
           name,
-          description,
+          description: description ?? null,
           permissions,
           companyId,
         },

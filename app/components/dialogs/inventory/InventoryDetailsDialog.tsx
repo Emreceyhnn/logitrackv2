@@ -2,21 +2,21 @@
 
 import React, { useState, useEffect } from "react";
 import {
+  Avatar,
   Box,
   Button,
+  Chip,
   Dialog,
   DialogContent,
-  IconButton,
-  Stack,
-  Typography,
-  Chip,
   Divider,
-  Avatar,
-  useTheme,
   Grid,
-  Tabs,
-  Tab,
+  IconButton,
   PaletteColor,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+  useTheme,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -36,11 +36,9 @@ import {
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useInventoryMutations } from "@/app/hooks/useInventory";
 import { toast } from "sonner";
-import InventoryStockPanel from "./details/InventoryStockPanel";
-import InventorySpecsPanel from "./details/InventorySpecsPanel";
-import InventoryHistoryTab from "./details/InventoryHistoryTab";
-import { logger } from "@/app/lib/logger";
-
+import StockMetricsPanel from "./sections/StockMetricsPanel";
+import PhysicalSpecsPanel from "./sections/PhysicalSpecsPanel";
+import MovementHistoryPanel from "./sections/MovementHistoryPanel";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -86,7 +84,7 @@ export default function InventoryDetailsDialog({
       const data = await getInventoryMovements(item.sku, item.warehouseId);
       setMovements(data as InventoryMovement[]);
     } catch (error) {
-      logger.error("Failed to load movements", error);
+      console.error("Failed to load movements", error);
     } finally {
       setLoadingMovements(false);
     }
@@ -126,18 +124,20 @@ export default function InventoryDetailsDialog({
         data.filter((l: InventoryWithRelations) => l.id !== item.id)
       );
     } catch (err) {
-      logger.error("Failed to load other locations", err);
+      console.error("Failed to load other locations", err);
     }
   }, [item]);
 
   useEffect(() => {
     if (isOpen && item) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadOtherLocations();
     }
   }, [isOpen, item, loadOtherLocations]);
 
   useEffect(() => {
     if (isOpen && item && tabValue === 1) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadMovements();
     }
   }, [isOpen, item, tabValue, loadMovements]);
@@ -190,7 +190,9 @@ export default function InventoryDetailsDialog({
                 fontSize: "1.75rem",
                 fontWeight: 800,
                 borderRadius: 2,
-                "& img": { objectFit: "cover" },
+                "& img": {
+                  objectFit: "cover",
+                },
               }}
             >
               {!item.imageUrl && item.name.charAt(0)}
@@ -232,17 +234,15 @@ export default function InventoryDetailsDialog({
                 sx={{
                   color: "primary.main",
                   bgcolor: theme.palette.primary._alpha.main_10,
-                  "&:hover": { bgcolor: theme.palette.primary._alpha.main_20 },
+                  "&:hover": {
+                    bgcolor: theme.palette.primary._alpha.main_20,
+                  },
                 }}
               >
                 <EditIcon fontSize="small" />
               </IconButton>
             )}
-            <IconButton
-              onClick={onClose}
-              sx={{ color: "text.secondary" }}
-              aria-label="close"
-            >
+            <IconButton onClick={onClose} sx={{ color: "text.secondary" }} aria-label="close">
               <CloseIcon fontSize="small" />
             </IconButton>
           </Stack>
@@ -253,6 +253,7 @@ export default function InventoryDetailsDialog({
           onChange={(_, v) => setTabValue(v)}
           sx={{
             mt: 3,
+
             minHeight: 40,
             "& .MuiTab-root": {
               color: theme.palette.text.secondary_alpha.main_50,
@@ -293,33 +294,27 @@ export default function InventoryDetailsDialog({
         {/* Overview Tab */}
         <CustomTabPanel value={tabValue} index={0}>
           <Grid container>
-            <Grid size={{ xs: 12, md: 5 }}>
-              <InventoryStockPanel
-                item={item}
-                adjustAmount={adjustAmount}
-                setAdjustAmount={setAdjustAmount}
-                adjustType={adjustType}
-                setAdjustType={setAdjustType}
-                adjustNote={adjustNote}
-                setAdjustNote={setAdjustNote}
-                onApply={handleAdjustStock}
-                isPending={adjustStock.isPending}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 7 }}>
-              <InventorySpecsPanel item={item} otherLocations={otherLocations} />
-            </Grid>
+            <StockMetricsPanel
+              item={item}
+              adjustAmount={adjustAmount}
+              setAdjustAmount={setAdjustAmount}
+              adjustType={adjustType}
+              setAdjustType={setAdjustType}
+              adjustNote={adjustNote}
+              setAdjustNote={setAdjustNote}
+              onAdjust={handleAdjustStock}
+              isAdjusting={adjustStock.isPending}
+            />
+            <PhysicalSpecsPanel item={item} otherLocations={otherLocations} />
           </Grid>
         </CustomTabPanel>
 
         {/* History Tab */}
         <CustomTabPanel value={tabValue} index={1}>
-          <Box sx={{ p: 0 }}>
-            <InventoryHistoryTab
-              movements={movements}
-              loading={loadingMovements}
-            />
-          </Box>
+          <MovementHistoryPanel
+            movements={movements}
+            loadingMovements={loadingMovements}
+          />
         </CustomTabPanel>
       </DialogContent>
 

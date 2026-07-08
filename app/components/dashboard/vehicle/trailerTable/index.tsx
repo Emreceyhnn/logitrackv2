@@ -27,13 +27,13 @@ interface TrailerTableProps {
   onDelete: (trailer: TrailerWithRelations) => void;
   onAssign: (trailer: TrailerWithRelations) => void;
   onDetach: (trailer: TrailerWithRelations) => void;
-  filters?: TrailerFilters;
-  meta?: PaginationMeta;
+  filters?: TrailerFilters | undefined;
+  meta?: PaginationMeta | undefined;
   actions?: {
     updateFilters: (filters: Partial<TrailerFilters>) => void;
     setPage: (page: number) => void;
     setLimit: (limit: number) => void;
-  };
+  } | undefined;
 }
 
 export default function TrailerTable({

@@ -2,6 +2,9 @@ import {
   Box,
   Stack,
   Typography,
+  Button,
+  Grid,
+  MenuItem,
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
@@ -11,11 +14,15 @@ import {
   ShipmentStopWithRelations,
 } from "@/app/lib/type/shipment";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
+import { AddressAutocomplete } from "@/app/components/googleMaps/AddressAutocomplete";
+import CustomTextArea from "@/app/components/inputs/customTextArea";
+import AddIcon from "@mui/icons-material/Add";
 import { Reorder, AnimatePresence } from "framer-motion";
+import PersonIcon from "@mui/icons-material/Person";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
-import { StopItem } from "./StopItem";
-import { StopEntryForm, StopEntryData } from "./StopEntryForm";
+import { AddressData } from "@/app/components/googleMaps/AddressAutocomplete";
+import StopItem from "./StopItem";
 
 interface StopsSectionProps {
   customers: CustomerWithRelations[];
@@ -26,7 +33,7 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
   const dict = useDictionary();
   const { values, setFieldValue } = useFormikContext<ShipmentFormValues>();
 
-  const [entryData, setEntryData] = useState<StopEntryData>({
+  const [entryData, setEntryData] = useState({
     customerId: "",
     customerLocationId: "",
     address: "",
@@ -37,9 +44,8 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
 
   // Imperative sync function to ensure top-level fields match the last stop immediately
   const syncTopLevelFields = (currentStops: ShipmentStopWithRelations[]) => {
-    if (currentStops.length > 0) {
-      const lastStop = currentStops[currentStops.length - 1];
-
+    const lastStop = currentStops[currentStops.length - 1];
+    if (lastStop) {
       // Atomic updates via setValues or sequential setFieldValue
       // We use setFieldValue here for consistency with the rest of the form
       setFieldValue("destination", lastStop.address);
@@ -118,12 +124,232 @@ const StopsSection = ({ customers }: StopsSectionProps) => {
                 minHeight: 0,
               }}
             >
-              <StopEntryForm
-                entryData={entryData}
-                setEntryData={setEntryData}
-                customers={customers}
-                addStop={addStop}
-              />
+              <Box
+                sx={{
+                  p: 2.5,
+                  borderRadius: 4,
+                  bgcolor: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(255, 255, 255, 0.03)"
+                      : "rgba(0, 0, 0, 0.02)",
+                  border: (theme) => `1px solid ${theme.palette.divider}`,
+                  flexShrink: 0,
+                }}
+              >
+                <Stack spacing={2}>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <AddIcon color="primary" fontSize="small" />
+                    <Typography variant="subtitle2" fontWeight={700}>
+                      {dict.shipments.dialogs.sections.addStop ||
+                        "Quick Add Stop"}
+                    </Typography>
+                  </Stack>
+
+                  <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, md: 3 }}>
+                      <Stack spacing={0.5}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          fontWeight={600}
+                        >
+                          {dict.shipments.dialogs.fields.customerClient}
+                        </Typography>
+                        <CustomTextArea
+                          name="tempCustomerId"
+                          select
+                          value={entryData.customerId}
+                          onChange={(e) => {
+                            const customerId = e.target.value;
+                            const customer = customers.find(
+                              (c) => c.id === customerId
+                            );
+                            const defaultLoc =
+                              customer?.locations?.find((l) => l.isDefault) ||
+                              customer?.locations?.[0];
+
+                            setEntryData({
+                              ...entryData,
+                              customerId,
+                              customerLocationId: defaultLoc?.id || "",
+                              address: defaultLoc?.address || "",
+                              contactEmail: customer?.email || "",
+                              lat: defaultLoc?.lat || null,
+                              lng: defaultLoc?.lng || null,
+                            });
+                          }}
+                        >
+                          <MenuItem value="">
+                            <Typography variant="body2" color="text.secondary">
+                              Manual Entry
+                            </Typography>
+                          </MenuItem>
+                          {customers.map((c) => (
+                            <MenuItem key={c.id} value={c.id}>
+                              <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                              >
+                                <PersonIcon
+                                  sx={{ fontSize: 16, color: "text.secondary" }}
+                                />
+                                <Typography variant="body2">
+                                  {c.name}
+                                </Typography>
+                              </Stack>
+                            </MenuItem>
+                          ))}
+                        </CustomTextArea>
+                      </Stack>
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 3 }}>
+                      <Stack spacing={0.5}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          fontWeight={600}
+                        >
+                          {dict.shipments.dialogs.fields.deliveryLocation ||
+                            "LOCATION"}
+                        </Typography>
+                        <CustomTextArea
+                          name="tempLocationId"
+                          select
+                          disabled={!entryData.customerId}
+                          value={entryData.customerLocationId}
+                          onChange={(e) => {
+                            const locId = e.target.value;
+                            const customer = customers.find(
+                              (c) => c.id === entryData.customerId
+                            );
+                            const loc = customer?.locations?.find(
+                              (l) => l.id === locId
+                            );
+                            if (loc) {
+                              setEntryData({
+                                ...entryData,
+                                customerLocationId: locId,
+                                address: loc.address,
+                                lat: loc.lat || null,
+                                lng: loc.lng || null,
+                              });
+                            }
+                          }}
+                        >
+                          {customers.find((c) => c.id === entryData.customerId)
+                            ?.locations?.length ? (
+                            customers
+                              .find((c) => c.id === entryData.customerId)!
+                              .locations!.map((l) => (
+                                <MenuItem key={l.id} value={l.id}>
+                                  <Typography variant="body2">
+                                    {l.name}
+                                  </Typography>
+                                </MenuItem>
+                              ))
+                          ) : (
+                            <MenuItem value="" disabled>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                {
+                                  dict.shipments.dialogs.fields
+                                    .selectCustomerFirst
+                                }
+                              </Typography>
+                            </MenuItem>
+                          )}
+                        </CustomTextArea>
+                      </Stack>
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 3 }}>
+                      <Stack spacing={0.5}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          fontWeight={600}
+                        >
+                          {dict.shipments.dialogs.fields.destination}
+                        </Typography>
+                        <AddressAutocomplete
+                          placeholder={
+                            dict.shipments.dialogs.fields.destinationPlaceholder
+                          }
+                          name="tempAddress"
+                          value={entryData.address}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setEntryData({
+                              ...entryData,
+                              address: e.target.value,
+                            })
+                          }
+                          onAddressSelect={(data: AddressData) => {
+                            const updated = {
+                              ...entryData,
+                              address: data.formattedAddress,
+                              lat: data.lat,
+                              lng: data.lng,
+                            };
+                            addStop(updated);
+                          }}
+                        />
+                      </Stack>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 3 }}>
+                      <Stack spacing={0.5}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          fontWeight={600}
+                        >
+                          {dict.shipments.dialogs.fields.contactEmail ||
+                            "CONTACT EMAIL"}
+                        </Typography>
+                        <CustomTextArea
+                          name="tempContactEmail"
+                          placeholder="john@example.com"
+                          value={entryData.contactEmail}
+                          onChange={(e) =>
+                            setEntryData({
+                              ...entryData,
+                              contactEmail: e.target.value,
+                            })
+                          }
+                        />
+                      </Stack>
+                    </Grid>
+                  </Grid>
+
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    disabled={!entryData.address}
+                    onClick={() => addStop(entryData)}
+                    startIcon={<AddIcon />}
+                    sx={{
+                      borderRadius: 2,
+                      py: 1.25,
+                      textTransform: "none",
+                      fontWeight: 800,
+                      boxShadow: "none",
+                      background: (theme) =>
+                        `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                      "&:hover": {
+                        boxShadow: (theme) =>
+                          `0 8px 20px ${theme.palette.primary._alpha.main_30}`,
+                        transform: "translateY(-1px)",
+                      },
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    {dict.common.add || "Add to Route"}
+                  </Button>
+                </Stack>
+              </Box>
 
               <Stack
                 spacing={2}

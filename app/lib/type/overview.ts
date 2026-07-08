@@ -4,8 +4,8 @@ export interface ActionRequiredItems {
   title: string;
   message?: string;
   messageKey?: string;
-  messageParams?: Record<string, string | number>;
-  link?: string;
+  messageParams?: Record<string, string | number> | undefined;
+  link?: string | undefined;
 }
 
 export interface OverviewStats {

@@ -240,10 +240,10 @@ export const getVehiclesWithDashboard = authenticatedAction(
           }
         }
 
-        // ── Promise.all: checkPermission + findMany paralel ─────────────────────
-        // Her iki DB çağrısı aynı anda başlar; checkPermission (~200ms) findMany
-        // (~400-800ms) beklenirken eş zamanlı tamamlanır → toplam süre max() olur.
-        // checkPermission başarısız olursa Promise.all hemen reject eder.
+        // ── Promise.all: checkPermission + findMany in parallel ─────────────────
+        // Both DB calls start at once; checkPermission (~200ms) completes while
+        // findMany (~400-800ms) is awaited → total time is max(), not the sum.
+        // If checkPermission fails, Promise.all rejects immediately.
         const [, vehicles] = await Promise.all([
           checkPermission(user, companyId, [
             "role_admin",

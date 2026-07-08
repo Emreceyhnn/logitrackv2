@@ -3,6 +3,7 @@
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
 import { checkPermission } from "../utils/checkPermission";
+import { stripUndefined } from "../../utils/stripUndefined";
 import {
   ShipmentStatus,
   ShipmentPriority,
@@ -19,31 +20,31 @@ export const createShipment = authenticatedAction(
   async (
     user,
     data: {
-      customerId?: string | null;
+      customerId?: string | null | undefined;
       origin: string;
       destination: string;
-      status?: ShipmentStatus;
-      itemsCount?: number;
-      weightKg?: number;
-      volumeM3?: number;
-      palletCount?: number;
-      cargoType?: string;
-      destinationLat?: number;
-      destinationLng?: number;
-      originLat?: number;
-      originLng?: number;
-      trackingId?: string;
-      referenceNumber?: string | null;
-      customerLocationId?: string;
-      priority?: ShipmentPriority;
-      type?: ShipmentServiceType;
-      slaDeadline?: Date | null;
-      contactEmail?: string;
-      billingAccount?: string;
-      originWarehouseId?: string;
-      trailerId?: string | null;
-      inventoryItems?: InventoryShipmentItem[];
-      stops?: ShipmentStopInput[];
+      status?: ShipmentStatus | undefined;
+      itemsCount?: number | undefined;
+      weightKg?: number | undefined;
+      volumeM3?: number | undefined;
+      palletCount?: number | undefined;
+      cargoType?: string | undefined;
+      destinationLat?: number | undefined;
+      destinationLng?: number | undefined;
+      originLat?: number | undefined;
+      originLng?: number | undefined;
+      trackingId?: string | undefined;
+      referenceNumber?: string | null | undefined;
+      customerLocationId?: string | undefined;
+      priority?: ShipmentPriority | undefined;
+      type?: ShipmentServiceType | undefined;
+      slaDeadline?: Date | null | undefined;
+      contactEmail?: string | undefined;
+      billingAccount?: string | undefined;
+      originWarehouseId?: string | undefined;
+      trailerId?: string | null | undefined;
+      inventoryItems?: InventoryShipmentItem[] | undefined;
+      stops?: ShipmentStopInput[] | undefined;
     }
   ) => {
     const userId = user?.id;
@@ -180,7 +181,7 @@ export const createShipment = authenticatedAction(
       const newShipment = await db.$transaction(
         async (tx) => {
           const shipment = await tx.shipment.create({
-            data: {
+            data: stripUndefined({
               trackingId: finalTrackingId,
               referenceNumber: referenceNumber || undefined,
               customerId: customerId || undefined,
@@ -222,10 +223,11 @@ export const createShipment = authenticatedAction(
                   name: item.name,
                   quantity: item.quantity,
                   unit: item.unit,
-                  weightKg: item.weightKg,
-                  volumeM3: item.volumeM3,
-                  palletCount: item.palletCount,
-                  cargoType: item.cargoType,
+                  // Omit when undefined so Prisma applies the schema defaults.
+                  ...(item.weightKg !== undefined ? { weightKg: item.weightKg } : {}),
+                  ...(item.volumeM3 !== undefined ? { volumeM3: item.volumeM3 } : {}),
+                  ...(item.palletCount !== undefined ? { palletCount: item.palletCount } : {}),
+                  ...(item.cargoType !== undefined ? { cargoType: item.cargoType } : {}),
                 })),
               },
               stops: {
@@ -239,17 +241,17 @@ export const createShipment = authenticatedAction(
                   },
                   ...stops.map((stop: ShipmentStopInput, index: number) => ({
                     companyId: companyId!,
-                    customerId: stop.customerId || undefined,
-                    customerLocationId: stop.customerLocationId || undefined,
+                    customerId: stop.customerId || null,
+                    customerLocationId: stop.customerLocationId || null,
                     address: stop.address,
                     lat: stop.lat,
                     lng: stop.lng,
                     sequence: index + 2,
-                    contactEmail: stop.contactEmail || undefined,
+                    contactEmail: stop.contactEmail || null,
                   })),
                 ],
               },
-            },
+            }),
           });
 
           // Decrement inventory stock if it's from a warehouse

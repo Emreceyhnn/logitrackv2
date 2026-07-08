@@ -73,7 +73,7 @@ export const addInventoryItem = authenticatedAction(
             volumeM3,
             palletCount,
             cargoType,
-            imageUrl,
+            imageUrl: imageUrl ?? null,
             unitValue: unitValue || 0,
             currency,
             companyId: user.companyId!,

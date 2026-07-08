@@ -7,9 +7,9 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import RouteIcon from "@mui/icons-material/Route";
 import { motion } from "framer-motion";
-import OperationsOverview from "./dashboard/OperationsOverview";
-import OperationsFleet from "./dashboard/OperationsFleet";
-import OperationsRoutes from "./dashboard/OperationsRoutes";
+import OverviewPanel from "./operations/OverviewPanel";
+import FleetPanel from "./operations/FleetPanel";
+import RoutesPanel from "./operations/RoutesPanel";
 
 export default function OperationsDashboard() {
   const dict = useDictionary();
@@ -301,9 +301,9 @@ export default function OperationsDashboard() {
                 </Grid>
 
                 {/* Content Visualization */}
-                {activeTab === "overview" && <OperationsOverview />}
-                {activeTab === "fleet" && <OperationsFleet />}
-                {activeTab === "routes" && <OperationsRoutes />}
+                {activeTab === "overview" && <OverviewPanel />}
+                {activeTab === "fleet" && <FleetPanel />}
+                {activeTab === "routes" && <RoutesPanel />}
               </Box>
             </Box>
           </Box>

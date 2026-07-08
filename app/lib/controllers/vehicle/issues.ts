@@ -21,7 +21,7 @@ export const createVehicleIssue = authenticatedAction(
       title: string;
       type: IssueType;
       priority: IssuePriority;
-      description?: string;
+      description?: string | undefined;
     }
   ) => {
     const companyId = user?.companyId || "";

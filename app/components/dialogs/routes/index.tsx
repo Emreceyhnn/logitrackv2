@@ -1,7 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
-import { Dialog, DialogContent, Stack, useTheme } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Chip,
+  Dialog,
+  DialogContent,
+  Divider,
+  IconButton,
+  Stack,
+  Typography,
+  useTheme,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { toast } from "sonner";
 import { updateRouteStatus } from "@/app/lib/controllers/routes";
@@ -9,6 +21,16 @@ import { lookupTranslation } from "@/app/lib/priorityColor";
 import { RouteWithRelations } from "@/app/lib/type/routes";
 import { RouteStatus } from "@/app/lib/type/enums";
 
+import DriverCard from "../../cards/driverCard";
+import MapRoutesDialogCard from "./map";
+import RouteProgress from "./progress";
+import RoutesTelemetryCards from "./telemetry";
+import CloseIcon from "@mui/icons-material/Close";
+import AltRouteIcon from "@mui/icons-material/AltRoute";
+import PlaceIcon from "@mui/icons-material/Place";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
+import { polylineHelper } from "../../valhalla/polylineHelper";
 import {
   resolvePaletteColor,
   resolvePaletteAlpha,
@@ -16,24 +38,15 @@ import {
 
 import { Dictionary } from "@/app/lib/language/language";
 
-// Custom hooks
-import { useRouteLocations } from "./hooks/useRouteLocations";
-import { useRouteMetrics } from "./hooks/useRouteMetrics";
-
-// Components
-import { RouteDialogHeader } from "./components/RouteDialogHeader";
-import { RouteDialogLeftColumn } from "./components/RouteDialogLeftColumn";
-import { RouteDialogRightColumn } from "./components/RouteDialogRightColumn";
-
 interface RouteDialogProps {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (() => void) | undefined;
   route: RouteWithRelations | null;
 }
 
 const getStatusMeta = (status?: string, dict?: Dictionary) => {
-  const s = status?.toLocaleUpperCase("en-US");
+  const s = status?.toLocaleUpperCase('en-US');
   const label =
     (s && lookupTranslation(dict?.routes?.statuses, s)) || status || "-";
 
@@ -68,16 +81,142 @@ export default function RouteDialog({
     durationMin: number;
   } | null>(null);
 
+  const [vehicleToDestMetrics, setVehicleToDestMetrics] = useState<{
+    distanceKm: number;
+    durationMin: number;
+  } | null>(null);
+
+  const [vehicleTraveledMetrics, setVehicleTraveledMetrics] = useState<{
+    distanceKm: number;
+  } | null>(null);
+
   const [statusLoading, setStatusLoading] = useState(false);
 
-  /* --------------------------------- hooks --------------------------------- */
-  const { mapOrigin, mapDestination, intermediateStops } = useRouteLocations(route);
-  const { vehicleTraveledMetrics, vehicleToDestMetrics } = useRouteMetrics(
+  const { mapOrigin, mapDestination, intermediateStops } = React.useMemo(() => {
+    if (!route)
+      return {
+        mapOrigin: undefined,
+        mapDestination: undefined,
+        intermediateStops: [],
+      };
+    const allStops = Array.isArray(route.stops) ? route.stops : [];
+    const typedStops = allStops as {
+      lat?: number;
+      lng?: number;
+      address?: string;
+    }[];
+
+    const mOrigin =
+      typedStops.length > 0
+        ? {
+            lat: typedStops[0]?.lat || 0,
+            lng: typedStops[0]?.lng || 0,
+            address: typedStops[0]?.address || "",
+          }
+        : undefined;
+
+    const mDest =
+      typedStops.length > 1
+        ? {
+            lat: typedStops[typedStops.length - 1]?.lat || 0,
+            lng: typedStops[typedStops.length - 1]?.lng || 0,
+            address: typedStops[typedStops.length - 1]?.address || "",
+          }
+        : undefined;
+
+    const interStops =
+      typedStops.length > 2
+        ? typedStops
+            .slice(1, -1)
+            .filter((stop) => {
+              const isDuplicateOrigin =
+                mOrigin && stop.address === mOrigin.address;
+              const isDuplicateDestination =
+                mDest && stop.address === mDest.address;
+              return !isDuplicateOrigin && !isDuplicateDestination;
+            })
+            .map((w) => ({
+              location: { lat: w.lat || 0, lng: w.lng || 0 },
+              stopover: true,
+            }))
+        : [];
+
+    return {
+      mapOrigin: mOrigin,
+      mapDestination: mDest,
+      intermediateStops: interStops,
+    };
+  }, [route]);
+
+  // Parallel Valhalla calls: origin→vehicle (traveled) + vehicle→destination (remaining)
+  useEffect(() => {
+    if (!open) return;
+    const vLat = route?.vehicle?.currentLat;
+    const vLng = route?.vehicle?.currentLng;
+    if (!vLat || !vLng) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setVehicleTraveledMetrics(null);
+      setVehicleToDestMetrics(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const traveledCall = mapOrigin
+      ? polylineHelper({
+          locations: [
+            { lat: mapOrigin.lat, lon: mapOrigin.lng, name: "Origin" },
+            { lat: vLat, lon: vLng, name: "Vehicle" },
+          ],
+          costing: "truck",
+        })
+          .then((r) =>
+            r?.summary
+              ? { distanceKm: Math.round(r.summary.length * 10) / 10 }
+              : null
+          )
+          .catch(() => null)
+      : Promise.resolve(null);
+
+    const remainingCall = mapDestination
+      ? polylineHelper({
+          locations: [
+            { lat: vLat, lon: vLng, name: "Vehicle" },
+            {
+              lat: mapDestination.lat,
+              lon: mapDestination.lng,
+              name: mapDestination.address || "Destination",
+            },
+          ],
+          costing: "truck",
+        })
+          .then((r) =>
+            r?.summary
+              ? {
+                  distanceKm: Math.round(r.summary.length * 10) / 10,
+                  durationMin: Math.round(r.summary.time / 60),
+                }
+              : null
+          )
+          .catch(() => null)
+      : Promise.resolve(null);
+
+    Promise.all([traveledCall, remainingCall]).then(([traveled, remaining]) => {
+      if (cancelled) return;
+      setVehicleTraveledMetrics(traveled);
+      setVehicleToDestMetrics(remaining);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
     open,
-    route,
+    route?.vehicle?.currentLat,
+    route?.vehicle?.currentLng,
     mapOrigin,
-    mapDestination
-  );
+    mapDestination,
+  ]);
 
   if (!route) return null;
 
@@ -110,7 +249,7 @@ export default function RouteDialog({
   };
 
   const statusColor = getStatusColor();
-  const paletteKey = statusMeta.color.split(".")[0];
+  const paletteKey = statusMeta.color.split(".")[0] ?? "";
   const statusAlpha =
     resolvePaletteAlpha(theme.palette, paletteKey) ??
     theme.palette.primary._alpha;
@@ -136,16 +275,169 @@ export default function RouteDialog({
           },
         }}
       >
-        <RouteDialogHeader
-          route={route}
-          dict={dict}
-          statusMeta={statusMeta}
-          statusColor={statusColor}
-          statusAlpha={statusAlpha}
-          statusLoading={statusLoading}
-          onStatusChange={handleStatusChange}
-          onClose={onClose}
-        />
+        <Box
+          sx={{
+            p: 3,
+            background: `linear-gradient(135deg, ${statusAlpha.main_10} 0%, transparent 100%)`,
+            borderBottom: `1px solid ${theme.palette.divider_alpha.main_05}`,
+            position: "relative",
+          }}
+        >
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Stack direction="row" spacing={3} alignItems="center">
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: "16px",
+                  background: `linear-gradient(135deg, ${statusAlpha.main_20}, ${statusAlpha.main_05})`,
+                  border: `1px solid ${statusAlpha.main_20}`,
+                  display: "flex",
+                }}
+              >
+                <AltRouteIcon sx={{ color: statusColor, fontSize: 32 }} />
+              </Box>
+              <Stack spacing={0.5}>
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <Typography
+                    variant="h5"
+                    fontWeight={800}
+                    sx={{ color: "white", letterSpacing: "-0.02em" }}
+                  >
+                    {dict.routes.title} #{route.id.slice(-6).toLocaleUpperCase('en-US')}
+                  </Typography>
+                  <Chip
+                    label={statusMeta.label}
+                    sx={{
+                      height: 24,
+                      fontWeight: 700,
+                      fontSize: "0.75rem",
+                      bgcolor: statusAlpha.main_10,
+                      color: statusColor,
+                      border: `1px solid ${statusAlpha.main_20}`,
+                      borderRadius: "6px",
+                      textTransform: "uppercase",
+                    }}
+                  />
+                </Stack>
+                <Typography
+                  variant="body2"
+                  color="rgba(255,255,255,0.5)"
+                  sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                >
+                  <PlaceIcon sx={{ fontSize: 16 }} />
+                  {route.name || dict.routes.dialogs.deliveryLabel}
+                </Typography>
+              </Stack>
+            </Stack>
+
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              {/* Action Buttons based on status */}
+              {route.status === "PLANNED" && (
+                <>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleStatusChange("ACTIVE")}
+                    disabled={statusLoading}
+                    sx={{
+                      bgcolor: theme.palette.success.main,
+                      "&:hover": { bgcolor: theme.palette.success.dark },
+                      borderRadius: "10px",
+                      textTransform: "none",
+                      fontWeight: 600,
+                      px: 2,
+                      height: 36,
+                    }}
+                  >
+                    {dict.common.start}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => handleStatusChange("CANCELED")}
+                    disabled={statusLoading}
+                    sx={{
+                      color: theme.palette.error.main,
+                      borderColor: theme.palette.error.main,
+                      "&:hover": {
+                        bgcolor: theme.palette.error._alpha.main_05,
+                        borderColor: theme.palette.error.dark,
+                      },
+                      borderRadius: "10px",
+                      textTransform: "none",
+                      fontWeight: 600,
+                      px: 2,
+                      height: 36,
+                    }}
+                  >
+                    {dict.common.cancel}
+                  </Button>
+                </>
+              )}
+
+              {route.status === "ACTIVE" && (
+                <>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleStatusChange("COMPLETED")}
+                    disabled={statusLoading}
+                    startIcon={
+                      statusLoading ? (
+                        <CircularProgress size={16} color="inherit" />
+                      ) : (
+                        <CheckCircleIcon sx={{ fontSize: 18 }} />
+                      )
+                    }
+                    sx={{
+                      bgcolor: theme.palette.primary.main,
+                      "&:hover": { bgcolor: theme.palette.primary.dark },
+                      borderRadius: "10px",
+                      textTransform: "none",
+                      fontWeight: 600,
+                      px: 2,
+                      height: 36,
+                    }}
+                  >
+                    {dict.common.complete}
+                  </Button>
+                  <Button
+                    variant="text"
+                    onClick={() => handleStatusChange("CANCELED")}
+                    disabled={statusLoading}
+                    sx={{
+                      color: theme.palette.common.white_alpha.main_50,
+                      "&:hover": {
+                        color: theme.palette.error.main,
+                        bgcolor: theme.palette.error._alpha.main_05,
+                      },
+                      borderRadius: "10px",
+                      textTransform: "none",
+                      fontWeight: 600,
+                      height: 36,
+                    }}
+                  >
+                    {dict.common.cancel}
+                  </Button>
+                </>
+              )}
+
+              <IconButton
+                onClick={onClose}
+                sx={{
+                  color: "rgba(255,255,255,0.4)",
+                  "&:hover": {
+                    color: "white",
+                    bgcolor: theme.palette.common.white_alpha.main_05,
+                  },
+                }}
+               aria-label="close">
+                <CloseIcon />
+              </IconButton>
+            </Stack>
+          </Stack>
+        </Box>
 
         <DialogContent
           sx={{
@@ -159,22 +451,184 @@ export default function RouteDialog({
             direction={{ xs: "column", md: "row" }}
             sx={{ height: { md: "100%" }, minHeight: 0 }}
           >
-            <RouteDialogLeftColumn
-              route={route}
-              dict={dict}
-              liveMetrics={liveMetrics}
-            />
+            {/* Left Column: Information & Progress */}
+            <Box
+              sx={{
+                width: { xs: "100%", md: "400px" },
+                borderRight: `1px solid ${theme.palette.divider_alpha.main_05}`,
+                p: 3,
+                bgcolor: theme.palette.common.white_alpha.main_01,
+                display: "flex",
+                flexDirection: "column",
+                minHeight: 0,
+                overflow: "hidden",
+              }}
+            >
+              <Stack spacing={2} sx={{ flex: 1, minHeight: 0 }}>
+                {/* Driver Section */}
+                <Stack spacing={2}>
+                  <Typography
+                    variant="overline"
+                    color="rgba(255,255,255,0.3)"
+                    fontWeight={700}
+                  >
+                    {dict.routes.dialogs.driverAssignment}
+                  </Typography>
+                  {route.driver ? (
+                    <DriverCard
+                      employeeId={route.driver.employeeId || dict.common.na}
+                      licenseType={route.driver.licenseType || ""}
+                      rating={route.driver.rating || 0}
+                      user={{
+                        name: route.driver.user.name,
+                        surname: route.driver.user.surname,
+                        avatarUrl: route.driver.user.avatarUrl,
+                      }}
+                      currentVehicle={
+                        route.vehicle ? { plate: route.vehicle.plate } : null
+                      }
+                    />
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      {dict.common.na}
+                    </Typography>
+                  )}
+                </Stack>
 
-            <RouteDialogRightColumn
-              route={route}
-              mapOrigin={mapOrigin}
-              mapDestination={mapDestination}
-              intermediateStops={intermediateStops}
-              liveMetrics={liveMetrics}
-              setLiveMetrics={setLiveMetrics}
-              vehicleTraveledMetrics={vehicleTraveledMetrics}
-              vehicleToDestMetrics={vehicleToDestMetrics}
-            />
+                <Divider
+                  sx={{ borderColor: theme.palette.common.white_alpha.main_05 }}
+                />
+
+                {/* Progress Section */}
+                <RouteProgress route={route} />
+
+                <Divider
+                  sx={{ borderColor: theme.palette.common.white_alpha.main_05 }}
+                />
+
+                {/* Stats Grid */}
+                <Stack direction="row" spacing={2}>
+                  <Box
+                    sx={{
+                      flex: 1,
+                      p: 2,
+                      borderRadius: "16px",
+                      bgcolor: theme.palette.common.white_alpha.main_03,
+                      border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      color="rgba(255,255,255,0.4)"
+                      display="block"
+                      mb={0.5}
+                    >
+                      {dict.routes.details.distance}
+                    </Typography>
+                    <Typography
+                      component="div"
+                      variant="h6"
+                      fontWeight={700}
+                      color="white"
+                    >
+                      {Number(
+                        liveMetrics?.distanceKm ||
+                          route.metrics?.totalDistanceKm ||
+                          route.distanceKm ||
+                          0
+                      ).toFixed(1)}{" "}
+                      km
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      flex: 1,
+                      p: 2,
+                      borderRadius: "16px",
+                      bgcolor: theme.palette.common.white_alpha.main_03,
+                      border: `1px solid ${theme.palette.common.white_alpha.main_05}`,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      color="rgba(255,255,255,0.4)"
+                      display="block"
+                      mb={0.5}
+                    >
+                      {dict.routes.details.stops}
+                    </Typography>
+                    <Typography
+                      component="div"
+                      variant="h6"
+                      fontWeight={700}
+                      color="white"
+                    >
+                      {route.stops?.length || route.shipments?.length
+                        ? (route.shipments?.length || 0) + 2
+                        : 0}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Stack>
+            </Box>
+
+            {/* Right Column: Map & Telemetry */}
+            <Box
+              sx={{
+                flex: 1,
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                minHeight: 0,
+              }}
+            >
+              <Box
+                sx={{
+                  height: { xs: 300, md: "auto" },
+                  flex: { md: 1 },
+                  minHeight: { md: 0 },
+                  width: "100%",
+                }}
+              >
+                <MapRoutesDialogCard
+                  origin={mapOrigin}
+                  destination={mapDestination}
+                  stops={intermediateStops}
+                  onRouteInfoUpdate={setLiveMetrics}
+                  vehicleLocation={
+                    route.vehicle &&
+                    route.vehicle.currentLat &&
+                    route.vehicle.currentLng
+                      ? {
+                          lat: route.vehicle.currentLat,
+                          lng: route.vehicle.currentLng,
+                          name: route.vehicle.plate,
+                          id: route.vehicle.id,
+                        }
+                      : null
+                  }
+                />
+              </Box>
+
+              {/* Overlay Telemetry */}
+              <Box
+                sx={{
+                  p: 2,
+                  background: `linear-gradient(to top, #0B1019 0%, ${theme.palette.background.midnight._alpha.main_80} 100%)`,
+                  backdropFilter: "blur(8px)",
+                  borderTop: `1px solid ${theme.palette.divider_alpha.main_10}`,
+                }}
+              >
+                <RoutesTelemetryCards
+                  routeId={route.id}
+                  route={route}
+                  liveDistanceKm={liveMetrics?.distanceKm}
+                  traveledKm={vehicleTraveledMetrics?.distanceKm}
+                  remainingKm={vehicleToDestMetrics?.distanceKm}
+                  durationMin={vehicleToDestMetrics?.durationMin}
+                />
+              </Box>
+            </Box>
           </Stack>
         </DialogContent>
       </Dialog>

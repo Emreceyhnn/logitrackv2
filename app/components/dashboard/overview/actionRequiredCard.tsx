@@ -43,7 +43,7 @@ const ActionRequiredCard = ({ alerts = [] }: ActionRequiredCardProps) => {
         .replace("{status}", s);
     }
     if (i.messageKey === "DOC_EXPIRES" && i.messageParams) {
-      const d = new Intl.DateTimeFormat(lang, { day: "numeric", month: "short", year: "numeric" }).format(new Date(i.messageParams.date));
+      const d = new Intl.DateTimeFormat(lang, { day: "numeric", month: "short", year: "numeric" }).format(new Date(i.messageParams.date ?? ""));
       return (dict.dashboard.overview.actionRequired.DOC_EXPIRES as string).replace("{date}", d);
     }
     if (i.messageKey === "DOC_EXPIRY_APPROACHING") {

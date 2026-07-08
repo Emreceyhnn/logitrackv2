@@ -53,7 +53,7 @@ export const updateUser = authenticatedAction(
           email,
           avatarUrl,
           roleId: role,
-          password: password ? await bcrypt.hash(password, 10) : undefined,
+          ...(password ? { password: await bcrypt.hash(password, 10) } : {}),
         },
         create: {
           name,
@@ -127,9 +127,9 @@ export const createUserForCompany = authenticatedAction(
           surname: userData.surname,
           email: userData.email,
           password: hashedPassword,
-          avatarUrl: userData.avatarUrl,
+          avatarUrl: userData.avatarUrl ?? null,
           companyId: user.companyId,
-          roleId: foundRole ? foundRole.id : undefined,
+          roleId: foundRole ? foundRole.id : null,
         },
       });
 

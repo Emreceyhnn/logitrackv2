@@ -42,8 +42,8 @@ function MapBoundsFit({
   zoom,
 }: {
   markers: Markers[];
-  center?: [number, number];
-  zoom?: number;
+  center?: [number, number] | undefined;
+  zoom?: number | undefined;
 }) {
   const map = useMap();
 

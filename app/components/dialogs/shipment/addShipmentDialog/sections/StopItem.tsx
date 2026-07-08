@@ -12,7 +12,10 @@ import {
   ShipmentStopWithRelations,
 } from "@/app/lib/type/shipment";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { AddressAutocomplete, AddressData } from "@/app/components/googleMaps/AddressAutocomplete";
+import {
+  AddressAutocomplete,
+  AddressData,
+} from "@/app/components/googleMaps/AddressAutocomplete";
 import CustomTextArea from "@/app/components/inputs/customTextArea";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
@@ -20,7 +23,7 @@ import { Reorder, useDragControls } from "framer-motion";
 import PersonIcon from "@mui/icons-material/Person";
 import { CustomerWithRelations } from "@/app/lib/type/customer";
 
-export const StopItem = ({
+const StopItem = ({
   stop,
   index,
   remove,
@@ -178,15 +181,18 @@ export const StopItem = ({
 
                         if (isLast) {
                           const updatedStops = [...values.stops];
-                          updatedStops[index] = {
-                            ...updatedStops[index],
-                            customerId,
-                            customerLocationId: defaultLoc?.id || "",
-                            address: defaultLoc?.address || "",
-                            lat: defaultLoc?.lat || null,
-                            lng: defaultLoc?.lng || null,
-                          };
-                          syncTopLevelFields(updatedStops);
+                          const existingStop = updatedStops[index];
+                          if (existingStop) {
+                            updatedStops[index] = {
+                              ...existingStop,
+                              customerId,
+                              customerLocationId: defaultLoc?.id || "",
+                              address: defaultLoc?.address || "",
+                              lat: defaultLoc?.lat || null,
+                              lng: defaultLoc?.lng || null,
+                            };
+                            syncTopLevelFields(updatedStops);
+                          }
                         }
                       }}
                     >
@@ -244,14 +250,17 @@ export const StopItem = ({
 
                           if (isLast) {
                             const updatedStops = [...values.stops];
-                            updatedStops[index] = {
-                              ...updatedStops[index],
-                              customerLocationId: locId,
-                              address: loc.address,
-                              lat: loc.lat || null,
-                              lng: loc.lng || null,
-                            };
-                            syncTopLevelFields(updatedStops);
+                            const existingStop = updatedStops[index];
+                            if (existingStop) {
+                              updatedStops[index] = {
+                                ...existingStop,
+                                customerLocationId: locId,
+                                address: loc.address,
+                                lat: loc.lat || null,
+                                lng: loc.lng || null,
+                              };
+                              syncTopLevelFields(updatedStops);
+                            }
                           }
                         }
                       }}
@@ -301,13 +310,16 @@ export const StopItem = ({
 
                         if (isLast) {
                           const updatedStops = [...values.stops];
-                          updatedStops[index] = {
-                            ...updatedStops[index],
-                            address: data.formattedAddress,
-                            lat: data.lat,
-                            lng: data.lng,
-                          };
-                          syncTopLevelFields(updatedStops);
+                          const existingStop = updatedStops[index];
+                          if (existingStop) {
+                            updatedStops[index] = {
+                              ...existingStop,
+                              address: data.formattedAddress,
+                              lat: data.lat,
+                              lng: data.lng,
+                            };
+                            syncTopLevelFields(updatedStops);
+                          }
                         }
                       }}
                     />
@@ -345,3 +357,5 @@ export const StopItem = ({
     </Reorder.Item>
   );
 };
+
+export default StopItem;

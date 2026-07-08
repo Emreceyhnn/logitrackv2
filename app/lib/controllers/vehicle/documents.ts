@@ -16,7 +16,7 @@ export const uploadVehicleDocument = authenticatedAction(
       type: DocumentType;
       name: string;
       url: string;
-      expiryDate?: Date;
+      expiryDate?: Date | undefined;
       status: DocumentStatus;
     }
   ) => {
@@ -38,6 +38,7 @@ export const uploadVehicleDocument = authenticatedAction(
           vehicleId,
           companyId,
           ...documentData,
+          expiryDate: documentData.expiryDate ?? null,
         },
       });
 

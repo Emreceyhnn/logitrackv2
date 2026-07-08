@@ -44,8 +44,7 @@ export const updateMyProfile = authenticatedAction(
       data: {
         name: data.name,
         surname: data.surname,
-
-        avatarUrl: data.avatarUrl,
+        ...(data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {}),
       },
       select: {
         id: true,

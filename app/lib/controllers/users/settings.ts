@@ -30,7 +30,7 @@ export const updateUserRegionalSettings = authenticatedAction(
       });
 
       const headerStore = await headers();
-      const ip = headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || headerStore.get("x-real-ip") || "127.0.0.1";
       const userAgent = headerStore.get("user-agent") || "Unknown Device";
 
       // Log audit event
@@ -71,7 +71,7 @@ export const updateUserNotificationSettings = authenticatedAction(
       });
 
       const headerStore = await headers();
-      const ip = headerStore.get("x-forwarded-for")?.split(",")[0].trim() || headerStore.get("x-real-ip") || "127.0.0.1";
+      const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() || headerStore.get("x-real-ip") || "127.0.0.1";
       const userAgent = headerStore.get("user-agent") || "Unknown Device";
 
       // Log audit event

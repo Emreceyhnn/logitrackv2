@@ -26,21 +26,21 @@ export default function InventoryCharts({ data, dict }: InventoryChartsProps) {
     
     return {
       category: dictKey ? inventoryDict[dictKey] : cat.replace(/_/g, " "),
-      value: data[cat].value,
-      count: data[cat].count,
+      value: data[cat]?.value ?? 0,
+      count: data[cat]?.count ?? 0,
     };
   });
 
   const valuePieData = chartData.map((item, index) => ({
     id: index,
     value: item.value,
-    label: item.category,
+    label: item.category ?? "",
   }));
 
   const countPieData = chartData.map((item, index) => ({
     id: index,
     value: item.count,
-    label: item.category,
+    label: item.category ?? "",
   }));
 
   const cardStyle = {

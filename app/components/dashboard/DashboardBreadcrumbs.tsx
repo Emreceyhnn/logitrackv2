@@ -17,7 +17,7 @@ const DashboardBreadcrumbs = () => {
   const segments = pathname.split("/").filter(Boolean);
 
   // First segment is usually the language (en/tr)
-  const lang = segments[0];
+  const lang = segments[0] ?? "en";
   const breadcrumbSegments = segments.slice(1);
 
   // Helper to map segments to dictionary labels

@@ -112,7 +112,7 @@ export const useNotifications = (user: UserContext | undefined) => {
           const next = { ...prev };
 
           Object.keys(next).forEach((id) => {
-            if (next[id]._sourcePath === path) delete next[id];
+            if (next[id]?._sourcePath === path) delete next[id];
           });
 
           if (data) {

@@ -1,6 +1,6 @@
 export const companyKeys = {
   all: ["company"] as const,
   profile: () => [...companyKeys.all, "profile"] as const,
-  dashboardWithFilters: (filters: { page: number; pageSize: number; search?: string }) =>
+  dashboardWithFilters: (filters: { page: number; pageSize: number; search?: string | undefined }) =>
     [...companyKeys.all, "dashboard", filters] as const,
 };

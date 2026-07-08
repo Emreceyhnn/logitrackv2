@@ -58,7 +58,7 @@ export const updateShipment = authenticatedAction(
         updateData.trackingId = `TRK-${Math.random().toString(36).substring(2, 9).toLocaleUpperCase('en-US')}`;
       }
 
-      // FK alanlarında boş string geldiyse undefined'a çevir (Prisma P2003 önlemi)
+      // Convert empty strings on FK fields to undefined (guards against Prisma P2003)
       const fkFields = [
         "customerId",
         "customerLocationId",
@@ -165,22 +165,23 @@ export const updateShipment = authenticatedAction(
                     name: item.name,
                     quantity: item.quantity,
                     unit: item.unit,
-                    weightKg: item.weightKg,
-                    volumeM3: item.volumeM3,
-                    palletCount: item.palletCount,
-                    cargoType: item.cargoType,
+                    // Omit when undefined so Prisma applies the schema defaults.
+                    ...(item.weightKg !== undefined ? { weightKg: item.weightKg } : {}),
+                    ...(item.volumeM3 !== undefined ? { volumeM3: item.volumeM3 } : {}),
+                    ...(item.palletCount !== undefined ? { palletCount: item.palletCount } : {}),
+                    ...(item.cargoType !== undefined ? { cargoType: item.cargoType } : {}),
                   })),
                 },
                 stops: {
                   create: stops.map((stop: ShipmentStopInput) => ({
                     companyId: companyId!,
-                    customerId: stop.customerId || undefined,
-                    customerLocationId: stop.customerLocationId || undefined,
+                    customerId: stop.customerId || null,
+                    customerLocationId: stop.customerLocationId || null,
                     address: stop.address,
                     lat: stop.lat,
                     lng: stop.lng,
                     sequence: stop.sequence,
-                    contactEmail: stop.contactEmail || undefined,
+                    contactEmail: stop.contactEmail || null,
                   })),
                 },
               },

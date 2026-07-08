@@ -107,13 +107,13 @@ export interface VehicleWithRelations {
 
 // Filter types
 export interface VehicleFilters {
-  search?: string;
-  status?: VehicleStatus[];
-  type?: VehicleType[];
-  hasIssues?: boolean;
-  hasDriver?: boolean;
-  page?: number;
-  limit?: number;
+  search?: string | undefined;
+  status?: VehicleStatus[] | undefined;
+  type?: VehicleType[] | undefined;
+  hasIssues?: boolean | undefined;
+  hasDriver?: boolean | undefined;
+  page?: number | undefined;
+  limit?: number | undefined;
 }
 
 import { PaginationMeta } from "./dataTable";

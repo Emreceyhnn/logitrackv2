@@ -94,6 +94,7 @@ export default function Providers({
       mq.addEventListener("change", handler);
       return () => mq.removeEventListener("change", handler);
     }
+    return undefined;
   }, [initialMode]);
 
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

@@ -54,15 +54,15 @@ export default function AnalyticsContent() {
       </Box>
 
       <Box data-tour="performance-gauges" sx={{ mb: 4 }}>
-        <PerformanceGauges state={state.data?.performance} />
+        <PerformanceGauges state={state.data?.performance ?? null} />
       </Box>
 
       <Box data-tour="forecasting-widget" sx={{ mb: 4 }}>
-        <ForecastingWidget state={state.data?.forecast} />
+        <ForecastingWidget state={state.data?.forecast ?? null} />
       </Box>
 
       <Box data-tour="cost-analysis">
-        <CostAnalysisCharts state={state.data?.costs} />
+        <CostAnalysisCharts state={state.data?.costs ?? null} />
       </Box>
     </Box>
   );

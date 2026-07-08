@@ -16,8 +16,8 @@ import { OpenIssuesCard } from "./OpenIssuesCard";
 import { MaintenanceHistoryCard } from "./MaintenanceHistoryCard";
 
 interface MaintenanceTabProps {
-  vehicle?: VehicleWithRelations;
-  onUpdate?: () => void;
+  vehicle?: VehicleWithRelations | undefined;
+  onUpdate?: (() => void) | undefined;
 }
 
 const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
@@ -43,6 +43,7 @@ const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {
       }, 100);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [vehicle?.maintenanceRecords]);
 
   if (!vehicle) {

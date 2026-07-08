@@ -9,6 +9,13 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -18,8 +25,7 @@
     "jsx": "react-jsx",
     "incremental": true,
     "types": [
-      "google.maps",
-      "jest"
+      "google.maps"
     ],
     "plugins": [
       {

@@ -77,7 +77,7 @@ const DriverDialog = (params: DriverDialogParams) => {
   const theme = useTheme();
 
   /* -------------------------------- handlers -------------------------------- */
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 

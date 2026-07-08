@@ -465,7 +465,7 @@ const SecondRouteDialogStep = () => {
                 >
                   <MapWithPolyline
                     Polylines={data?.mapPoints || []}
-                    routePolyline={data?.polyline}
+                    routePolyline={data?.polyline ?? null}
                   />
                 </Box>
               </Box>

@@ -45,8 +45,7 @@ import StopsSection from "./addShipmentDialog/sections/StopsSection";
 
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
-import { logger } from "@/app/lib/logger";
-
+import { stripUndefined } from "@/app/lib/utils/stripUndefined";
 
 interface FormikInventorySyncProps {
   onWarehouseChange: (id: string) => void;
@@ -111,7 +110,7 @@ const EditShipmentDialog = ({
           setCustomers(cRes);
           setTrailers(tRes.trailers);
         } catch (error) {
-          logger.error("Failed to fetch dialog data", error);
+          console.error("Failed to fetch dialog data", error);
         }
       };
       fetchData();
@@ -129,7 +128,7 @@ const EditShipmentDialog = ({
         const inv = await getInventory(warehouseId);
         setAvailableInventory(inv);
       } catch (error) {
-        logger.error("Failed to fetch warehouse inventory", error);
+        console.error("Failed to fetch warehouse inventory", error);
         setAvailableInventory([]);
       } finally {
         setIsLoadingInventory(false);
@@ -207,7 +206,7 @@ const EditShipmentDialog = ({
         })) || [],
       stops:
         shipment.stops?.map((stop) => ({
-          id: stop.id,
+          id: stop.id ?? "",
           customerId: stop.customerId || "",
           customerLocationId: stop.customerLocationId || "",
           address: stop.address,
@@ -231,7 +230,7 @@ const EditShipmentDialog = ({
 
     try {
       await toast.promise(
-        updateShipment(shipment.id, {
+        updateShipment(shipment.id, stripUndefined({
           customerId: sanitize(values.customerId),
           customerLocationId: sanitize(values.customerLocationId),
           originWarehouseId: sanitize(values.originWarehouseId) ?? undefined,
@@ -256,7 +255,7 @@ const EditShipmentDialog = ({
           billingAccount: values.billingAccount,
           inventoryItems: values.inventoryItems,
           stops: values.stops,
-        }),
+        })),
         {
           loading: dict.toasts.loading,
           success: dict.toasts.successUpdate,
@@ -269,7 +268,7 @@ const EditShipmentDialog = ({
       onClose();
       setCurrentStep(1);
     } catch (error) {
-      logger.error(error);
+      console.error(error);
     }
   };
 

@@ -1,23 +1,25 @@
-import { useState } from "react";
+"use client";
+
 import {
-  Tooltip,
   IconButton,
-  Menu,
-  MenuItem,
   ListItemIcon,
   ListItemText,
+  Menu,
+  MenuItem,
+  Tooltip,
   useTheme,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useState } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import type { DataTableRowAction } from "@/app/lib/type/dataTable";
 
-export interface RowMenuProps<TRow> {
+interface RowMenuProps<TRow> {
   row: TRow;
   actions: DataTableRowAction<TRow>[];
 }
 
-export function RowMenu<TRow>({ row, actions }: RowMenuProps<TRow>) {
+export default function RowMenu<TRow>({ row, actions }: RowMenuProps<TRow>) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const dict = useDictionary();
@@ -65,7 +67,7 @@ export function RowMenu<TRow>({ row, actions }: RowMenuProps<TRow>) {
                 theme.palette.mode === "dark"
                   ? "background.paper"
                   : "common.white",
-              border: `1px solid ${theme.palette.divider_alpha?.main_10 || theme.palette.divider}`,
+              border: `1px solid ${theme.palette.divider_alpha.main_10}`,
               boxShadow:
                 theme.palette.mode === "dark"
                   ? "0 8px 32px rgba(0,0,0,0.5)"

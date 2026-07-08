@@ -89,11 +89,11 @@ export interface DriverDashboardResponseType {
 export interface DriverFilters {
   page: number;
   limit: number;
-  search?: string;
-  status?: DriverStatus[];
-  hasVehicle?: boolean;
-  sortField?: string;
-  sortOrder?: "asc" | "desc";
+  search?: string | undefined;
+  status?: DriverStatus[] | undefined;
+  hasVehicle?: boolean | undefined;
+  sortField?: string | undefined;
+  sortOrder?: "asc" | "desc" | undefined;
 }
 
 export interface PaginatedResponse<T> {
@@ -217,7 +217,7 @@ export interface AddDriverDocument {
   expiryDate: Date | null;
   file: File | null;
   url?: string;
-  previewUrl?: string;
+  previewUrl?: string | undefined;
   size?: string;
   uploadedAt?: string;
 }

@@ -100,9 +100,9 @@ export interface ShipmentPageState {
   statusDistribution: ShipmentStatusData[];
   selectedShipmentId: string | null;
   filters: {
-    status?: ShipmentStatus;
-    search?: string;
-    date?: Date;
+    status?: ShipmentStatus | undefined;
+    search?: string | undefined;
+    date?: Date | undefined;
   };
   loading: boolean;
   error: string | null;
@@ -150,11 +150,11 @@ export interface ShipmentFormValues {
   type: string;
   slaDeadline: Date | null;
   originWarehouseId: string;
-  originLat?: number;
-  originLng?: number;
+  originLat?: number | undefined;
+  originLng?: number | undefined;
   destination: string;
-  destinationLat?: number;
-  destinationLng?: number;
+  destinationLat?: number | undefined;
+  destinationLng?: number | undefined;
   customerId: string;
   customerLocationId: string;
   contactEmail: string;

@@ -2,14 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
+  Box,
   Dialog,
   DialogContent,
-  IconButton,
-  Typography,
-  Box,
-  Stack,
   Divider,
+  IconButton,
+  Stack,
+  Typography,
   useTheme,
+  Theme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
@@ -18,7 +19,9 @@ import { ShipmentWithRelations } from "@/app/lib/type/shipment";
 import { ShipmentItem } from "@/app/lib/type/enums";
 import { StatusChip } from "@/app/components/chips/statusChips";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
-import { AnimatePresence } from "framer-motion";
+import ShipmentOverviewTab from "./sections/ShipmentOverviewTab";
+import ShipmentItemsTab from "./sections/ShipmentItemsTab";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   polylineHelper,
   PolylineHelperResult,
@@ -37,9 +40,78 @@ interface ShipmentDetailDialogProps {
   shipment: ShipmentWithRelations | null;
 }
 
-import { PillTab } from "./components/PillTab";
-import { ShipmentOverviewTab } from "./tabs/ShipmentOverviewTab";
-import { ShipmentItemsTab } from "./tabs/ShipmentItemsTab";
+/* ── Pill tab button ── */
+const PillTab = ({
+  id,
+  icon,
+  label,
+  badge,
+  active,
+  onClick,
+  theme,
+}: {
+  id?: string;
+  icon: React.ReactNode;
+  label: string;
+  badge?: number;
+  active: boolean;
+  onClick: () => void;
+  theme: Theme;
+}) => {
+  return (
+    <Box
+      id={id}
+      component="button"
+      onClick={onClick}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 0.75,
+        px: 1.5,
+        py: 0.6,
+        borderRadius: "8px",
+        border: "none",
+        cursor: "pointer",
+        transition: "all 0.18s ease",
+        bgcolor: active ? theme.palette.primary._alpha.main_15 : "transparent",
+        color: active ? "primary.main" : "text.secondary",
+        "&:hover": {
+          bgcolor: active
+            ? theme.palette.primary._alpha.main_20
+            : theme.palette.action.hover,
+          color: active ? "primary.main" : "text.primary",
+        },
+      }}
+    >
+      <Box sx={{ display: "flex", fontSize: 15, color: "inherit" }}>{icon}</Box>
+      <Typography
+        variant="caption"
+        fontWeight={active ? 700 : 500}
+        sx={{ color: "inherit", fontSize: "0.78rem" }}
+      >
+        {label}
+      </Typography>
+      {badge != null && badge > 0 && (
+        <Box
+          sx={{
+            px: 0.75,
+            lineHeight: "17px",
+            borderRadius: "5px",
+            fontSize: "0.6rem",
+            fontWeight: 800,
+            bgcolor: active
+              ? theme.palette.primary._alpha.main_25
+              : theme.palette.action.selected,
+            color: active ? "primary.main" : "text.secondary",
+          }}
+        >
+          {badge}
+        </Box>
+      )}
+    </Box>
+  );
+};
+
 export default function ShipmentDetailDialog({
   open,
   onClose,
@@ -73,7 +145,7 @@ export default function ShipmentDetailDialog({
   useEffect(() => {
     const fetchData = async () => {
       if (!open || !shipment || waypoints.length < 2) {
-        return; // Veri gelmeden veya en az 2 nokta olmadan istek atmasını engelliyoruz.
+        return; // Skip the request until data has arrived and there are at least 2 points.
       }
 
       const response = await polylineHelper({
@@ -227,15 +299,47 @@ export default function ShipmentDetailDialog({
             <AnimatePresence mode="wait">
               {/* ══ TAB: Overview ════════════════════════════════ */}
               {tab === "overview" && (
-                <ShipmentOverviewTab
-                  shipment={shipment as ShipmentWithRelations}
-                  hasStops={hasStops}
-                  stopsSorted={stopsSorted}
-                />
+                <motion.div
+                  key="overview"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  style={{
+                    padding: "24px",
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1,
+                    minHeight: 0,
+                    overflowY: "auto",
+                  }}
+                >
+                  <ShipmentOverviewTab
+                    shipment={shipment}
+                    hasStops={hasStops}
+                    stopsSorted={stopsSorted}
+                  />
+                </motion.div>
               )}
 
               {/* ══ TAB: Items ═══════════════════════════════════ */}
-              {tab === "items" && <ShipmentItemsTab items={items} />}
+              {tab === "items" && (
+                <motion.div
+                  key="items"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1,
+                    minHeight: 0,
+                  }}
+                >
+                  <ShipmentItemsTab items={items} />
+                </motion.div>
+              )}
             </AnimatePresence>
           </Box>
 
@@ -257,7 +361,7 @@ export default function ShipmentDetailDialog({
             >
               <MapWithPolyline
                 Polylines={data?.mapPoints || []}
-                routePolyline={data?.polyline}
+                routePolyline={data?.polyline ?? null}
               />
             </Box>
 

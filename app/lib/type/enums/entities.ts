@@ -208,7 +208,7 @@ export interface Route {
   endTime?: Date | null;
   distanceKm?: number | null;
   durationMin?: number | null;
-  stops?: { address: string; lat?: number; lng?: number }[] | null;
+  stops?: { address: string; lat?: number | undefined; lng?: number | undefined }[] | null;
   driverId?: string | null;
   vehicleId?: string | null;
   companyId?: string | null;

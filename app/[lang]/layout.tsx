@@ -83,7 +83,7 @@ export async function generateMetadata({
       },
     },
     verification: {
-      google: "google-site-verification-id", // Search Console'dan alınan kodu buraya ekleyin
+      google: "google-site-verification-id", // Add the code obtained from Search Console here
     },
   };
 }

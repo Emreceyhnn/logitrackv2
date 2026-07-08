@@ -70,9 +70,9 @@ export interface InventoryPageState {
   isDetailsOpen: boolean;
   isEditOpen: boolean;
   filters: {
-    warehouseId?: string;
-    search?: string;
-    status?: string[];
+    warehouseId?: string | undefined;
+    search?: string | undefined;
+    status?: string[] | undefined;
   };
   loading: boolean;
   error: string | null;
@@ -98,14 +98,14 @@ export interface InventoryTableProps {
   items: InventoryWithRelations[];
   loading: boolean;
   onSelect: (id: string) => void;
-  onEdit?: (item: InventoryWithRelations) => void;
+  onEdit?: ((item: InventoryWithRelations) => void) | undefined;
   onDelete: (id: string) => void;
-  meta?: PaginationMeta;
-  onPageChange?: (page: number) => void;
-  onLimitChange?: (limit: number) => void;
-  sortField?: string;
-  sortOrder?: "asc" | "desc";
-  onRequestSort?: (field: string) => void;
+  meta?: PaginationMeta | undefined;
+  onPageChange?: ((page: number) => void) | undefined;
+  onLimitChange?: ((limit: number) => void) | undefined;
+  sortField?: string | undefined;
+  sortOrder?: "asc" | "desc" | undefined;
+  onRequestSort?: ((field: string) => void) | undefined;
 }
 
 export interface InventoryDetailsProps {

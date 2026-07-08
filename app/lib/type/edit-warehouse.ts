@@ -27,5 +27,5 @@ export interface EditWarehouseDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  warehouseData?: WarehouseWithRelations;
+  warehouseData?: WarehouseWithRelations | undefined;
 }

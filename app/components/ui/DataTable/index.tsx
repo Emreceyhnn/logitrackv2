@@ -2,12 +2,19 @@
 
 import {
   Table,
+  TableBody,
+  TableCell,
   TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
   Typography,
   useTheme,
   Divider,
   Box,
+  Button,
 } from "@mui/material";
+import InboxOutlinedIcon from "@mui/icons-material/InboxOutlined";
 import { useState, useMemo } from "react";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
@@ -18,14 +25,12 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   getPaginationRowModel,
+  flexRender,
   createColumnHelper,
   SortingState,
 } from "@tanstack/react-table";
-
-import { RowMenu } from "./RowMenu";
-import { DataTableToolbar } from "./DataTableToolbar";
-import { DataTableHeader } from "./DataTableHeader";
-import { DataTableBody } from "./DataTableBody";
+import RowMenu from "./RowMenu";
+import DataTableToolbar from "./DataTableToolbar";
 import { DataTablePagination } from "./DataTablePagination";
 
 function DataTable<TRow extends { id: string }>({
@@ -112,10 +117,14 @@ function DataTable<TRow extends { id: string }>({
           ? [{ id: sortField, desc: sortOrder === "desc" }]
           : []
         : sorting,
-      pagination:
-        isServerSide && meta
-          ? { pageIndex: Math.max(0, meta.page - 1), pageSize: meta.limit }
-          : undefined,
+      ...(isServerSide && meta
+        ? {
+            pagination: {
+              pageIndex: Math.max(0, meta.page - 1),
+              pageSize: meta.limit,
+            },
+          }
+        : {}),
     },
     onSortingChange: (updater) => {
       if (isServerSide && onRequestSort) {
@@ -126,8 +135,9 @@ function DataTable<TRow extends { id: string }>({
           typeof updater === "function" ? updater(current) : updater;
         // Only propagate when the user actively chose a sort column.
         // When TanStack clears sort (empty array), leave the server-side sort as-is.
-        if (newSorting.length > 0) {
-          onRequestSort(newSorting[0].id);
+        const firstSort = newSorting[0];
+        if (firstSort) {
+          onRequestSort(firstSort.id);
         }
       } else {
         setSorting(updater);
@@ -143,8 +153,9 @@ function DataTable<TRow extends { id: string }>({
     getPaginationRowModel: getPaginationRowModel(),
     manualPagination: isServerSide,
     manualSorting: isServerSide,
-    pageCount:
-      isServerSide && meta ? Math.ceil(meta.total / meta.limit) : undefined,
+    ...(isServerSide && meta
+      ? { pageCount: Math.ceil(meta.total / meta.limit) }
+      : {}),
   });
 
   const colCount = table.getAllColumns().length;
@@ -190,29 +201,169 @@ function DataTable<TRow extends { id: string }>({
       ) : (
         <TableContainer sx={{ p: 0, flex: 1, overflowY: "auto" }}>
           <Table size="small">
-            <DataTableHeader table={table} />
-            <DataTableBody
-              table={table}
-              colCount={colCount}
-              finalEmptyMessage={finalEmptyMessage}
-              searchValue={searchValue}
-              activeFilters={activeFilters}
-              onSearchChange={onSearchChange}
-              onFilterChange={onFilterChange}
-            />
+            <TableHead
+              sx={{
+                bgcolor: theme.palette.primary._alpha.main_03,
+              }}
+            >
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    const metaData = header.column.columnDef.meta as
+                      | {
+                          align?: "left" | "right" | "center";
+                          width?: string | number;
+                        }
+                      | undefined;
+                    return (
+                      <TableCell
+                        key={header.id}
+                        align={metaData?.align ?? "left"}
+                        width={metaData?.width}
+                        sortDirection={header.column.getIsSorted() || false}
+                        sx={{
+                          borderColor: theme.palette.divider_alpha.main_10,
+                        }}
+                      >
+                        {header.column.getCanSort() ? (
+                          <TableSortLabel
+                            active={!!header.column.getIsSorted()}
+                            direction={header.column.getIsSorted() || "asc"}
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                          </TableSortLabel>
+                        ) : header.isPlaceholder ? null : (
+                          flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )
+                        )}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHead>
+
+            <TableBody sx={{ "& tr:last-child td": { border: 0 } }}>
+              {table.getRowModel().rows.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={colCount}
+                    align="center"
+                    sx={{
+                      py: 6,
+                      borderColor: theme.palette.divider_alpha.main_10,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 1,
+                      }}
+                    >
+                      <InboxOutlinedIcon
+                        sx={{ fontSize: 36, color: "text.disabled" }}
+                      />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ fontSize: 13 }}
+                      >
+                        {finalEmptyMessage}
+                      </Typography>
+                      {(searchValue ||
+                        Object.values(activeFilters).some(
+                          (v) => v && v.length > 0
+                        )) && (
+                        <Button
+                          size="small"
+                          variant="text"
+                          onClick={() => {
+                            onSearchChange?.("");
+                            if (onFilterChange) {
+                              Object.keys(activeFilters).forEach((key) =>
+                                onFilterChange(key, [])
+                              );
+                            }
+                          }}
+                          sx={{ textTransform: "none", fontWeight: 700 }}
+                        >
+                          {dict.common.clearFilters}
+                        </Button>
+                      )}
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    hover
+                    sx={{
+                      cursor: "default",
+                      "& td": {
+                        borderColor: theme.palette.divider_alpha.main_10,
+                        fontSize: 13,
+                      },
+                      "&.MuiTableRow-hover:hover": {
+                        bgcolor:
+                          theme.palette.primary._alpha.main_08 + " !important",
+                        transition: "background-color 0.2s",
+                      },
+                      transition: "background-color 0.15s",
+                    }}
+                  >
+                    {row.getVisibleCells().map((cell) => {
+                      const metaData = cell.column.columnDef.meta as
+                        | {
+                            align?: "left" | "right" | "center";
+                            width?: string | number;
+                          }
+                        | undefined;
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          align={metaData?.align ?? "left"}
+                          width={metaData?.width}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
           </Table>
         </TableContainer>
       )}
 
+      {/* Pagination Container */}
       {((isServerSide && meta) || (!isServerSide && rows.length > 0)) &&
         !loading && (
           <DataTablePagination
-            table={table}
             isServerSide={isServerSide}
             meta={meta}
             rowsLength={rows.length}
+            pageSize={table.getState().pagination.pageSize}
+            pageIndex={table.getState().pagination.pageIndex}
+            dict={dict}
             onPageChange={onPageChange}
             onLimitChange={onLimitChange}
+            setPageIndex={table.setPageIndex}
+            setPageSize={table.setPageSize}
           />
         )}
     </>

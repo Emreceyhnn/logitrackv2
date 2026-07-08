@@ -196,7 +196,7 @@ export const updateShipmentStatus = authenticatedAction(
             create: {
               status,
               companyId: companyId!,
-              location,
+              location: location ?? null,
               description: description || `Status updated to ${status}`,
               createdById: userId,
             },

@@ -3,6 +3,7 @@
 import { type Prisma } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { db } from "../../db";
+import { stripUndefined } from "../../utils/stripUndefined";
 import { authenticatedAction } from "../../auth-middleware";
 import { checkPermission } from "../utils/checkPermission";
 import { invalidateShipmentCache } from "../shipments/cache";
@@ -28,7 +29,7 @@ export const createRoute = authenticatedAction(
     driverId: string,
     vehicleId: string,
     shipmentId?: string,
-    stops?: { address: string; lat?: number; lng?: number }[]
+    stops?: { address: string; lat?: number | undefined; lng?: number | undefined }[]
   ) => {
     return controllerGuard("createRoute", async () => {
       const companyId = user?.companyId || "";
@@ -189,7 +190,7 @@ export const updateRoute = authenticatedAction(
       }
 
       const { stops, ...scalarData } = data;
-      const updateData: Prisma.RouteUncheckedUpdateInput = { ...scalarData };
+      const updateData: Prisma.RouteUncheckedUpdateInput = stripUndefined(scalarData);
       if (updateData.name === "") {
         updateData.name = `ROUTE-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
       }

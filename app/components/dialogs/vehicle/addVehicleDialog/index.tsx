@@ -33,6 +33,7 @@ import { fileToBase64 } from "@/app/lib/utils/fileUtils";
 import { toast } from "sonner";
 import { Formik, FormikHelpers, useFormikContext } from "formik";
 import { addVehicleValidationSchema } from "@/app/lib/validationSchema";
+import { stripUndefined } from "@/app/lib/utils/stripUndefined";
 
 interface VehicleCreateInput {
   plate: string;
@@ -127,7 +128,7 @@ const AddVehicleDialog = ({
           photoUrl = uploadResult.url;
         }
 
-        const payload: VehicleCreateInput = {
+        const payload: VehicleCreateInput = stripUndefined({
           fleetNo: values.fleetNo || undefined,
           plate: values.plate,
           type: values.type as VehicleType,
@@ -153,7 +154,7 @@ const AddVehicleDialog = ({
           nextServiceKm:
             Number(values.nextServiceKm) || Number(values.nextServiceDueKm),
           enableAlerts: values.enableExpiryAlerts,
-        };
+        });
 
         const createdVehicle = await createVehicle(payload);
 
@@ -236,7 +237,7 @@ const AddVehicleDialog = ({
           return 3;
         };
 
-        const firstErrorField = Object.keys(errors)[0];
+        const firstErrorField = Object.keys(errors)[0] ?? "";
         const targetStep = getStepForField(firstErrorField);
         if (targetStep !== currentStep) {
           setCurrentStep(targetStep);
