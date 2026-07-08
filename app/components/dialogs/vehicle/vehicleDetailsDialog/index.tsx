@@ -42,7 +42,7 @@ interface TabPanelProps {
 interface VehicleDialogParams {
   open: boolean;
   onClose: () => void;
-  vehicleData?: VehicleWithRelations;
+  vehicleData?: VehicleWithRelations | undefined;
   onDeleteSuccess?: () => void;
   onEditSuccess?: () => void;
   onUpdateSuccess?: () => void;

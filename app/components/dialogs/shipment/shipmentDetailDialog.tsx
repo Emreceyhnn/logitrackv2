@@ -1005,7 +1005,7 @@ export default function ShipmentDetailDialog({
             >
               <MapWithPolyline
                 Polylines={data?.mapPoints || []}
-                routePolyline={data?.polyline}
+                routePolyline={data?.polyline ?? null}
               />
             </Box>
 

@@ -2,6 +2,7 @@
 
 import { db } from "../../db";
 import { authenticatedAction } from "../../auth-middleware";
+import { stripUndefined } from "../../utils/stripUndefined";
 import { checkPermission } from "../utils/checkPermission";
 import { Prisma, WarehouseType } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
@@ -59,10 +60,10 @@ export const createWarehouse = authenticatedAction(
           address,
           city,
           country,
-          lat,
-          lng,
+          lat: lat ?? null,
+          lng: lng ?? null,
           companyId: companyId,
-          managerId,
+          managerId: managerId ?? null,
           capacityPallets: capacityPallets || 5000,
           capacityVolumeM3: capacityVolumeM3 || 100000,
           operatingHours: operatingHours || "08:00 - 18:00",
@@ -184,7 +185,7 @@ export const updateWarehouse = authenticatedAction(
       const parsedData = updateWarehouseSchema.parse(data);
       const { managerId, ...restData } = parsedData;
 
-      const updateData: Prisma.WarehouseUpdateInput = { ...restData };
+      const updateData: Prisma.WarehouseUpdateInput = stripUndefined(restData);
 
       if (managerId !== undefined) {
         if (managerId === null) {

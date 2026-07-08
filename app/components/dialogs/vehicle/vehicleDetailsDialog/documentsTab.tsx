@@ -37,8 +37,8 @@ import Backdrop from "@mui/material/Backdrop";
 import DeleteConfirmationDialog from "../../deleteConfirmationDialog";
 
 interface DocumentsTabProps {
-  vehicle?: VehicleWithRelations;
-  onUpdate?: () => void;
+  vehicle?: VehicleWithRelations | undefined;
+  onUpdate?: (() => void) | undefined;
 }
 
 const DocumentsTab = ({ vehicle, onUpdate }: DocumentsTabProps) => {

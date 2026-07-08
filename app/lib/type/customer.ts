@@ -20,8 +20,8 @@ export interface CustomerFormLocation {
   id?: string;
   name: string;
   address: string;
-  lat?: number;
-  lng?: number;
+  lat?: number | undefined;
+  lng?: number | undefined;
   isDefault: boolean;
 }
 

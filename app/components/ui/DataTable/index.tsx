@@ -588,10 +588,14 @@ function DataTable<TRow extends { id: string }>({
           ? [{ id: sortField, desc: sortOrder === "desc" }]
           : []
         : sorting,
-      pagination:
-        isServerSide && meta
-          ? { pageIndex: Math.max(0, meta.page - 1), pageSize: meta.limit }
-          : undefined,
+      ...(isServerSide && meta
+        ? {
+            pagination: {
+              pageIndex: Math.max(0, meta.page - 1),
+              pageSize: meta.limit,
+            },
+          }
+        : {}),
     },
     onSortingChange: (updater) => {
       if (isServerSide && onRequestSort) {
@@ -620,8 +624,9 @@ function DataTable<TRow extends { id: string }>({
     getPaginationRowModel: getPaginationRowModel(),
     manualPagination: isServerSide,
     manualSorting: isServerSide,
-    pageCount:
-      isServerSide && meta ? Math.ceil(meta.total / meta.limit) : undefined,
+    ...(isServerSide && meta
+      ? { pageCount: Math.ceil(meta.total / meta.limit) }
+      : {}),
   });
 
   const colCount = table.getAllColumns().length;

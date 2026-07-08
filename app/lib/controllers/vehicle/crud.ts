@@ -2,6 +2,7 @@
 
 import { db } from "../../db";
 import { FuelType, Prisma, VehicleStatus } from "@prisma/client";
+import { stripUndefined } from "../../utils/stripUndefined";
 import { vehicleSchema } from "../../validation/serverSchemas";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { checkPermission } from "../utils/checkPermission";
@@ -31,12 +32,12 @@ export const createVehicle = authenticatedAction(
         `FLEET-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
 
       const newVehicle = await db.vehicle.create({
-        data: {
+        data: stripUndefined({
           ...parsedData,
           fuelType: parsedData.fuelType as FuelType,
           fleetNo: vehicleFleetNo,
           company: { connect: { id: companyId } },
-        },
+        }),
       });
 
       await invalidateVehicleCache(companyId);

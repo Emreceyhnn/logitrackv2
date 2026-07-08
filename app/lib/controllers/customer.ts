@@ -26,7 +26,7 @@ export const createCustomer = authenticatedAction(
     taxId?: string,
     email?: string,
     phone?: string,
-    locations?: { name: string; address: string; lat?: number; lng?: number; isDefault?: boolean }[]
+    locations?: { name: string; address: string; lat?: number | undefined; lng?: number | undefined; isDefault?: boolean | undefined }[]
   ) => {
     return controllerGuard("createCustomer", async () => {
       await checkPermission(user, user.companyId, [
@@ -47,7 +47,7 @@ export const createCustomer = authenticatedAction(
       });
 
       const existingCode = await db.customer.findFirst({
-        where: { code: parsed.code, companyId },
+        where: { ...(parsed.code !== undefined ? { code: parsed.code } : {}), companyId },
       });
 
       if (parsed.code && existingCode) {
@@ -61,18 +61,18 @@ export const createCustomer = authenticatedAction(
         data: {
           name: parsed.name,
           code: customerCode,
-          industry: parsed.industry,
-          taxId: parsed.taxId,
-          email: parsed.email,
-          phone: parsed.phone,
+          industry: parsed.industry ?? null,
+          taxId: parsed.taxId ?? null,
+          email: parsed.email ?? null,
+          phone: parsed.phone ?? null,
           companyId,
           locations: {
             create: parsed.locations?.map((loc) => ({
               companyId,
               name: loc.name,
               address: loc.address,
-              lat: loc.lat,
-              lng: loc.lng,
+              lat: loc.lat ?? null,
+              lng: loc.lng ?? null,
               isDefault: loc.isDefault ?? false,
             })) || [],
           },
@@ -127,7 +127,7 @@ export const getCustomersWithDashboardData = authenticatedAction(
       totalShipments: number;
     };
     statsTrends?: {
-      totalCustomers?: { value: number; isUp: boolean };
+      totalCustomers?: { value: number; isUp: boolean } | undefined;
     };
   }> => {
     return controllerGuard("getCustomersWithDashboardData", async () => {
@@ -251,9 +251,9 @@ export const updateCustomer = authenticatedAction(
         id?: string;
         name: string;
         address: string;
-        lat?: number;
-        lng?: number;
-        isDefault?: boolean;
+        lat?: number | undefined;
+        lng?: number | undefined;
+        isDefault?: boolean | undefined;
       }[];
     }
   ) => {
@@ -281,13 +281,14 @@ export const updateCustomer = authenticatedAction(
         finalCode = `CUST-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
       }
 
+      // Omit undefined keys so an unspecified field is left unchanged.
       const updateData: Prisma.CustomerUpdateInput = {
-        name: parsed.name,
-        code: finalCode,
-        industry: parsed.industry,
-        taxId: parsed.taxId,
-        email: parsed.email,
-        phone: parsed.phone,
+        ...(parsed.name !== undefined ? { name: parsed.name } : {}),
+        ...(finalCode !== undefined ? { code: finalCode } : {}),
+        ...(parsed.industry !== undefined ? { industry: parsed.industry } : {}),
+        ...(parsed.taxId !== undefined ? { taxId: parsed.taxId } : {}),
+        ...(parsed.email !== undefined ? { email: parsed.email } : {}),
+        ...(parsed.phone !== undefined ? { phone: parsed.phone } : {}),
       };
 
       if (parsed.locations) {
@@ -308,8 +309,8 @@ export const updateCustomer = authenticatedAction(
             companyId: companyId!,
             name: loc.name,
             address: loc.address,
-            lat: loc.lat,
-            lng: loc.lng,
+            lat: loc.lat ?? null,
+            lng: loc.lng ?? null,
             isDefault: loc.isDefault ?? false,
           })),
           update: locationsToUpdate.map(loc => ({
@@ -317,8 +318,8 @@ export const updateCustomer = authenticatedAction(
             data: {
               name: loc.name,
               address: loc.address,
-              lat: loc.lat,
-              lng: loc.lng,
+              lat: loc.lat ?? null,
+              lng: loc.lng ?? null,
               isDefault: loc.isDefault ?? false,
             }
           }))

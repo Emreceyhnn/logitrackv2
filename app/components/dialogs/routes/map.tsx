@@ -13,8 +13,8 @@ const MapWithPolyline = dynamic(
 );
 
 interface MapRoutesDialogCardProps {
-  origin?: string | { lat: number; lng: number; address?: string };
-  destination?: string | { lat: number; lng: number; address?: string };
+  origin?: string | { lat: number; lng: number; address?: string } | undefined;
+  destination?: string | { lat: number; lng: number; address?: string } | undefined;
   stops?: Array<{
     location: string | { lat: number; lng: number };
     stopover?: boolean;
@@ -113,7 +113,7 @@ const MapRoutesDialogCard = ({
     <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
       <MapWithPolyline
         Polylines={data?.mapPoints || []}
-        routePolyline={data?.polyline}
+        routePolyline={data?.polyline ?? null}
         vehicleLocation={
           vehicleLocation
             ? {

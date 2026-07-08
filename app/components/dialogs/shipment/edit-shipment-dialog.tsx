@@ -45,6 +45,7 @@ import StopsSection from "./addShipmentDialog/sections/StopsSection";
 
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
+import { stripUndefined } from "@/app/lib/utils/stripUndefined";
 
 interface FormikInventorySyncProps {
   onWarehouseChange: (id: string) => void;
@@ -205,7 +206,7 @@ const EditShipmentDialog = ({
         })) || [],
       stops:
         shipment.stops?.map((stop) => ({
-          id: stop.id,
+          id: stop.id ?? "",
           customerId: stop.customerId || "",
           customerLocationId: stop.customerLocationId || "",
           address: stop.address,
@@ -229,7 +230,7 @@ const EditShipmentDialog = ({
 
     try {
       await toast.promise(
-        updateShipment(shipment.id, {
+        updateShipment(shipment.id, stripUndefined({
           customerId: sanitize(values.customerId),
           customerLocationId: sanitize(values.customerLocationId),
           originWarehouseId: sanitize(values.originWarehouseId) ?? undefined,
@@ -254,7 +255,7 @@ const EditShipmentDialog = ({
           billingAccount: values.billingAccount,
           inventoryItems: values.inventoryItems,
           stops: values.stops,
-        }),
+        })),
         {
           loading: dict.toasts.loading,
           success: dict.toasts.successUpdate,

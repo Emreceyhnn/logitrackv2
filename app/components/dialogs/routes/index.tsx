@@ -41,7 +41,7 @@ import { Dictionary } from "@/app/lib/language/language";
 interface RouteDialogProps {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (() => void) | undefined;
   route: RouteWithRelations | null;
 }
 

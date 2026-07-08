@@ -108,7 +108,7 @@ export const getCompanyStats = authenticatedAction(async (user) => {
 });
 
 export const getCompanyWithDashboardData = authenticatedAction(
-  async (user, filters: { page: number; pageSize: number; search?: string }) => {
+  async (user, filters: { page: number; pageSize: number; search?: string | undefined }) => {
     const companyId = user?.companyId || "";
 
     if (!companyId) {

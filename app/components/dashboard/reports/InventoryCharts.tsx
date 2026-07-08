@@ -34,13 +34,13 @@ export default function InventoryCharts({ data, dict }: InventoryChartsProps) {
   const valuePieData = chartData.map((item, index) => ({
     id: index,
     value: item.value,
-    label: item.category,
+    label: item.category ?? "",
   }));
 
   const countPieData = chartData.map((item, index) => ({
     id: index,
     value: item.count,
-    label: item.category,
+    label: item.category ?? "",
   }));
 
   const cardStyle = {

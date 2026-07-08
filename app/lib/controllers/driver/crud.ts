@@ -2,6 +2,7 @@
 
 import { db } from "../../db";
 import { checkPermission } from "../utils/checkPermission";
+import { stripUndefined } from "../../utils/stripUndefined";
 import { DocumentType, DocumentStatus } from "@prisma/client";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { authenticatedAction } from "../../auth-middleware";
@@ -94,7 +95,7 @@ export const createDriver = authenticatedAction(
             : `EMP-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`;
 
         await tx.driver.create({
-          data: {
+          data: stripUndefined({
             companyId: user.companyId!,
             userId: parsed.userId,
             phone: parsed.phone,
@@ -127,13 +128,13 @@ export const createDriver = authenticatedAction(
                   type: doc.type as DocumentType,
                   name: doc.name,
                   url: doc.url,
-                  expiryDate: doc.expiryDate,
+                  expiryDate: doc.expiryDate ?? null,
                   companyId: user.companyId!,
                   status: DocumentStatus.ACTIVE,
                 })) ?? []),
               ],
             },
-          },
+          }),
         });
 
         await tx.user.update({
@@ -193,17 +194,18 @@ export const updateDriver = authenticatedAction(
       const updatedDriver = await db.driver.update({
         where: { id: driverId },
         data: {
-          phone: parsed.phone,
+          // Omit undefined keys so unspecified fields are left unchanged.
+          ...(parsed.phone !== undefined ? { phone: parsed.phone } : {}),
           employeeId:
             parsed.employeeId && parsed.employeeId.trim() !== ""
               ? parsed.employeeId
               : parsed.employeeId === ""
                 ? `EMP-${Math.random().toString(36).substring(2, 7).toLocaleUpperCase('en-US')}`
                 : foundDriver.employeeId,
-          licenseNumber: parsed.licenseNumber,
-          licenseType: parsed.licenseType,
-          licenseExpiry: parsed.licenseExpiry,
-          status: parsed.status,
+          ...(parsed.licenseNumber !== undefined ? { licenseNumber: parsed.licenseNumber } : {}),
+          ...(parsed.licenseType !== undefined ? { licenseType: parsed.licenseType } : {}),
+          ...(parsed.licenseExpiry !== undefined ? { licenseExpiry: parsed.licenseExpiry } : {}),
+          ...(parsed.status !== undefined ? { status: parsed.status } : {}),
           ...(parsed.currentVehicleId !== undefined
             ? { currentVehicleId: parsed.currentVehicleId }
             : {}),
@@ -238,7 +240,7 @@ export const updateDriver = authenticatedAction(
                     type: doc.type as DocumentType,
                     name: doc.name,
                     url: doc.url,
-                    expiryDate: doc.expiryDate,
+                    expiryDate: doc.expiryDate ?? null,
                     companyId: user.companyId!,
                     status: DocumentStatus.ACTIVE,
                   })),

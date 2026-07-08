@@ -71,11 +71,11 @@ export const createDocument = authenticatedAction(
           type,
           name,
           url,
-          expiryDate,
+          expiryDate: expiryDate ?? null,
           status: docStatus,
           companyId,
-          driverId,
-          vehicleId,
+          driverId: driverId ?? null,
+          vehicleId: vehicleId ?? null,
         },
       });
       if (vehicleId) {

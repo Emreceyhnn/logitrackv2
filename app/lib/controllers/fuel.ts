@@ -72,11 +72,11 @@ export const createFuelLog = authenticatedAction(
       volumeLiter: number;
       cost: number;
       odometerKm: number;
-      location?: string;
+      location?: string | undefined;
       fuelType: FuelType;
-      date?: Date;
-      receiptUrl?: string;
-      currency?: string;
+      date?: Date | undefined;
+      receiptUrl?: string | undefined;
+      currency?: string | undefined;
     }
   ) => {
     return controllerGuard("createFuelLog", async () => {
@@ -101,6 +101,8 @@ export const createFuelLog = authenticatedAction(
       const log = await db.fuelLog.create({
         data: {
           ...parsed,
+          location: parsed.location ?? null,
+          receiptUrl: parsed.receiptUrl ?? null,
           cost: normalizedCost,
           currency: "USD",
           companyId,

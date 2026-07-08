@@ -1,6 +1,7 @@
 import admin from "firebase-admin";
 import * as dotenv from "dotenv";
 import path from "path";
+import { stripUndefined } from "./utils/stripUndefined";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
@@ -22,8 +23,10 @@ if (!admin.apps.length) {
       firebaseAdminConfig.privateKey.includes("BEGIN PRIVATE KEY")
     ) {
       admin.initializeApp({
-        credential: admin.credential.cert(firebaseAdminConfig),
-        databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+        credential: admin.credential.cert(stripUndefined(firebaseAdminConfig)),
+        ...(process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL
+          ? { databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL }
+          : {}),
       });
       adminDb = admin.database();
       adminMessaging = admin.messaging();

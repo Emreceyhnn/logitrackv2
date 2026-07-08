@@ -110,7 +110,7 @@ export const RegisterUser = maybeAuthenticatedAction(
           surname,
           password: hashedPassword,
           email,
-          avatarUrl,
+          avatarUrl: avatarUrl ?? null,
           companyId: user?.companyId || null, // Guest registration has no company initially
         },
       });

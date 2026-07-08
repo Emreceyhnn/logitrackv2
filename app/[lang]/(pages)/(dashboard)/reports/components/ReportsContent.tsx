@@ -185,7 +185,7 @@ export default function ReportsContent() {
         <Box sx={{ mt: 2 }}>
           <CustomTabPanel value={tabIndex} index={0}>
             <ShipmentCharts
-              data={state.data?.shipments}
+              data={state.data?.shipments ?? null}
               loading={state.loading}
               dict={dict}
             />

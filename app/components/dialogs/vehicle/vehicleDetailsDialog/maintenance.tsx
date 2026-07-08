@@ -36,8 +36,8 @@ import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { useCurrency } from "@/app/hooks/useCurrency";
 
 interface MaintenanceTabProps {
-  vehicle?: VehicleWithRelations;
-  onUpdate?: () => void;
+  vehicle?: VehicleWithRelations | undefined;
+  onUpdate?: (() => void) | undefined;
 }
 
 const MaintenanceTab = ({ vehicle, onUpdate }: MaintenanceTabProps) => {

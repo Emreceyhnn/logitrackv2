@@ -32,8 +32,8 @@ import AssignDriverDialog from "../assignDriverDialog";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 
 interface OverviewTabProps {
-  vehicle?: VehicleWithRelations;
-  onUpdate?: () => void;
+  vehicle?: VehicleWithRelations | undefined;
+  onUpdate?: (() => void) | undefined;
 }
 
 const OverviewTab = ({ vehicle, onUpdate }: OverviewTabProps) => {

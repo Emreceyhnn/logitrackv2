@@ -34,7 +34,7 @@ interface TabPanelProps {
 interface WarehouseDialogParams {
   open: boolean;
   onClose: () => void;
-  warehouseData?: WarehouseWithRelations;
+  warehouseData?: WarehouseWithRelations | undefined;
   onEditSuccess?: () => void;
 }
 

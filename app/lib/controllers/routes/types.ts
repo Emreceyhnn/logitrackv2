@@ -12,11 +12,11 @@ export interface RouteUpdateData {
   name?: string;
   status?: RouteStatus;
   date?: Date;
-  startTime?: Date | null;
-  endTime?: Date | null;
+  startTime?: Date | null | undefined;
+  endTime?: Date | null | undefined;
   distanceKm?: number | null;
   durationMin?: number | null;
   driverId?: string | null;
   vehicleId?: string | null;
-  stops?: { address: string; lat?: number; lng?: number }[];
+  stops?: { address: string; lat?: number | undefined; lng?: number | undefined }[];
 }

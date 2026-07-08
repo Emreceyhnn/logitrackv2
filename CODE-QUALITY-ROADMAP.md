@@ -123,15 +123,19 @@ Ayrıca test dosyaları `exclude`'da → `tsc` testleri TİP KONTROL ETMİYOR (y
 `tsx` runtime'ında çalışıyorlar).
 
 **Çözüm (her bayrağı tek tek aç, çıkan hataları temizle, sonra sonrakine geç):**
-- [ ] C1  `noUncheckedIndexedAccess: true`  (en değerli; index erişimlerini güvenli yapar)
-- [ ] C2  `noUnusedLocals: true` + `noUnusedParameters: true`
-- [ ] C3  `noImplicitReturns: true`
-- [ ] C4  `noFallthroughCasesInSwitch: true`
-- [ ] C5  `forceConsistentCasingInFileNames: true`
-- [ ] C6  `exactOptionalPropertyTypes: true` (en gürültülü — en sona bırak)
-- [ ] C7  `"types": ["jest"]` → kaldır veya `node`/gerçek runner tipiyle değiştir
-- [ ] C8  Test dosyalarını ayrı bir `tsconfig.test.json` ile tip kontrolüne dahil et
-         (şu an tsc kapsam dışı — sessiz tip borcu birikebilir)
+- [x] C1  `noUncheckedIndexedAccess: true` — 87 hata giderildi (~30 dosya, guard/optional-chain/fallback)
+- [x] C2  `noUnusedLocals: true` + `noUnusedParameters: true`
+- [x] C3  `noImplicitReturns: true`
+- [x] C4  `noFallthroughCasesInSwitch: true`
+- [x] C5  `forceConsistentCasingInFileNames: true`
+- [x] C6  `exactOptionalPropertyTypes: true` — 158 hata giderildi (~80 dosya).
+         Prisma create/update semantiği korundu: nullable+default'suz alanlar `?? null`,
+         update'ler conditional-spread / yeni `stripUndefined` util'i, tip-dürüstlüğü için
+         optional prop'lara `| undefined`. Library sınırlarında call-site `?? null`/`?? ""`.
+- [x] C7  `"types"` içinden `jest` kaldırıldı
+- [ ] C8  Test dosyalarını tip kontrolüne dahil et → **F ile birlikte ele alınacak**
+         (tsconfig.test.json zaten var ama gate'e bağlı değil; 689 mevcut test tip hatası
+         var — bkz. F)
 
 **Efor:** orta (her bayrak N hata açabilir). **Risk:** düşük (derleme-zamanı,
 runtime davranışı değişmez). **Puan etkisi:** Quality +2~3.
@@ -173,7 +177,8 @@ regresyonunu YAKALAMAZ; değişiklik sonrası anahtarları elle diff'le.
 gibi script'lerde karışık. Düşük hacim → hızlı temizlenir.
 **Efor:** düşük. **Risk:** yok (yorum). **Puan etkisi:** Clarity +1.
 
-- [ ] E1  Kalan Türkçe yorumları İngilizceye çevir (grep ile bul, dosya-dosya)
+- [x] E1  Kalan Türkçe yorumlar İngilizceye çevrildi (redis, vehicle/queries, shipments/update,
+         shipmentDetailDialog, [lang]/layout, run-tests.mjs) — özel karakterli TR yorum kalmadı
 
 ---
 

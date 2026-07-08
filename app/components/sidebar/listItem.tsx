@@ -32,7 +32,7 @@ export type SidebarItem = {
 export type Params = {
   items: SidebarItem[];
   lang: string;
-  onMobileClose?: () => void;
+  onMobileClose?: (() => void) | undefined;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -223,7 +223,7 @@ export const SidebarList = memo(function SidebarList({
                         component={Link}
                         href={subLocalizedHref}
                         prefetch={true}
-                        onClick={onMobileClose}
+                        onClick={onMobileClose ?? (() => {})}
                         selected={subActive}
                         sx={{
                           pl: 7,

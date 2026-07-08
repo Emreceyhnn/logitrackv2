@@ -16,8 +16,8 @@ export interface EditWarehouseLocation {
   city: string;
   country: string;
   postalCode: string;
-  lat?: number;
-  lng?: number;
+  lat?: number | undefined;
+  lng?: number | undefined;
   managerId: string;
 }
 
@@ -53,5 +53,5 @@ export interface EditWarehouseDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  warehouseData?: WarehouseWithRelations;
+  warehouseData?: WarehouseWithRelations | undefined;
 }

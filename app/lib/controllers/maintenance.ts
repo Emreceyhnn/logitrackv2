@@ -2,6 +2,7 @@
 
 import { db } from "../db";
 import { authenticatedAction } from "../auth-middleware";
+import { stripUndefined } from "../utils/stripUndefined";
 import { checkPermission } from "./utils/checkPermission";
 import type { MaintenanceStatus, MaintenanceType, Prisma } from "@prisma/client";
 import dayjs from "dayjs";
@@ -80,9 +81,9 @@ export const createMaintenanceRecord = authenticatedAction(
           cost: normalizedCost,
           originalCost: parsed.cost,
           originalCurrency: parsed.currency || "USD",
-          description: parsed.description,
+          description: parsed.description ?? null,
           currency: "USD",
-          documentUrl: parsed.documentUrl,
+          documentUrl: parsed.documentUrl ?? null,
         },
         include: { vehicle: { select: { plate: true } } },
       });
@@ -180,7 +181,7 @@ export const updateMaintenanceRecord = authenticatedAction(
         throw new NotFoundError("Maintenance record");
       }
 
-      const finalData: Prisma.MaintenanceRecordUpdateInput = { ...parsed };
+      const finalData: Prisma.MaintenanceRecordUpdateInput = stripUndefined(parsed);
 
       if (parsed.cost !== undefined && parsed.currency && parsed.currency !== "USD") {
         try {

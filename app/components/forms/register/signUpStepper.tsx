@@ -87,13 +87,13 @@ const ColorlibStepIconRoot = styled("div")<{
 }));
 
 function ColorlibStepIcon(props: {
-  active?: boolean;
-  completed?: boolean;
+  active?: boolean | undefined;
+  completed?: boolean | undefined;
   icon: number;
 }) {
   const { active, completed, icon } = props;
   return (
-    <ColorlibStepIconRoot active={active} completed={completed}>
+    <ColorlibStepIconRoot active={!!active} completed={!!completed}>
       {completed ? (
         <CheckIcon sx={{ fontSize: 24, fontWeight: 900 }} />
       ) : (

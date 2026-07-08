@@ -3,11 +3,11 @@ import { RouteWithRelations } from "@/app/lib/type/routes";
 
 interface Params {
   routeId: string;
-  route?: RouteWithRelations;
-  liveDistanceKm?: number;
-  traveledKm?: number;
-  remainingKm?: number;
-  durationMin?: number;
+  route?: RouteWithRelations | undefined;
+  liveDistanceKm?: number | undefined;
+  traveledKm?: number | undefined;
+  remainingKm?: number | undefined;
+  durationMin?: number | undefined;
 }
 
 import { useDictionary } from "@/app/lib/language/DictionaryContext";

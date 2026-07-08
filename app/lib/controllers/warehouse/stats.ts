@@ -108,7 +108,7 @@ export const getWarehousesWithDashboardData = authenticatedAction(
     totalCount: number;
     stats: WarehouseStats;
     statsTrends?: {
-      totalWarehouses?: { value: number; isUp: boolean };
+      totalWarehouses?: { value: number; isUp: boolean } | undefined;
     };
     recentMovements: InventoryMovementWithRelations[];
   }> => {

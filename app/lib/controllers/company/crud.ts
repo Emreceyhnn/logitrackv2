@@ -20,7 +20,7 @@ export const createCompany = authenticatedAction(
     const newCompany = await db.company.create({
       data: {
         name,
-        avatarUrl,
+        avatarUrl: avatarUrl ?? null,
         users: { connect: { id: user.id } },
       },
     });
@@ -92,8 +92,9 @@ export const updateCompany = authenticatedAction(
       const updatedCompany = await db.company.update({
         where: { id: companyId },
         data: {
-          name: data.name,
-          avatarUrl: data.avatarUrl,
+          // Omit undefined keys so unspecified fields are left unchanged.
+          ...(data.name !== undefined ? { name: data.name } : {}),
+          ...(data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {}),
         },
       });
       await invalidateCompanyCache(companyId);

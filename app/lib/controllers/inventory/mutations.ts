@@ -206,7 +206,7 @@ export const adjustInventoryStock = authenticatedAction(
             sku: item.sku,
             quantity: parsed.delta,
             type: parsed.type,
-            notes: parsed.notes,
+            notes: parsed.notes ?? null,
             userId,
             companyId,
           },

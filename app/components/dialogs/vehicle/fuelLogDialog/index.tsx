@@ -31,7 +31,7 @@ interface AddFuelLogDialogProps {
   onClose: () => void;
   vehicleId: string;
   vehiclePlate: string;
-  currentDriverId?: string;
+  currentDriverId?: string | undefined;
   onSuccess: () => void;
 }
 

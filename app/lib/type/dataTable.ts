@@ -71,34 +71,34 @@ export interface DataTableProps<TRow extends { id: string }> {
   columns: DataTableColumn<TRow>[];
 
   // Loading / empty
-  loading?: boolean;
-  emptyMessage?: string;
+  loading?: boolean | undefined;
+  emptyMessage?: string | undefined;
 
   // Search
-  searchValue?: string;
-  searchPlaceholder?: string;
-  onSearchChange?: (value: string) => void;
+  searchValue?: string | undefined;
+  searchPlaceholder?: string | undefined;
+  onSearchChange?: ((value: string) => void) | undefined;
 
   // Filters (domain-specific multi-select dropdowns rendered in the toolbar)
-  filters?: DataTableFilter[];
-  activeFilters?: Record<string, string[]>;
-  onFilterChange?: (key: string, values: string[]) => void;
+  filters?: DataTableFilter[] | undefined;
+  activeFilters?: Record<string, string[]> | undefined;
+  onFilterChange?: ((key: string, values: string[]) => void) | undefined;
 
   // Row actions rendered as a MoreVert context menu in the last column
-  rowActions?: DataTableRowAction<TRow>[];
+  rowActions?: DataTableRowAction<TRow>[] | undefined;
 
   // Pagination support
-  meta?: PaginationMeta;
-  onPageChange?: (page: number) => void;
-  onLimitChange?: (limit: number) => void;
+  meta?: PaginationMeta | undefined;
+  onPageChange?: ((page: number) => void) | undefined;
+  onLimitChange?: ((limit: number) => void) | undefined;
 
   // Sorting
-  sortField?: string;
-  sortOrder?: "asc" | "desc";
-  onRequestSort?: (property: string) => void;
+  sortField?: string | undefined;
+  sortOrder?: "asc" | "desc" | undefined;
+  onRequestSort?: ((property: string) => void) | undefined;
 
   // Standardization styling
-  tableTitle?: string;
-  wrapCard?: boolean;
-  sx?: import("@mui/material").SxProps<import("@mui/material").Theme>;
+  tableTitle?: string | undefined;
+  wrapCard?: boolean | undefined;
+  sx?: import("@mui/material").SxProps<import("@mui/material").Theme> | undefined;
 }
