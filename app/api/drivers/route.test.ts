@@ -27,7 +27,13 @@ mock.module("../../lib/controllers/driver.ts", {
 });
 
 mock.module("../../lib/type/enums.ts", {
-  namedExports: { DriverStatus: {} },
+  namedExports: {
+    DriverStatus: {
+      ON_JOB: "ON_JOB",
+      OFF_DUTY: "OFF_DUTY",
+      ON_LEAVE: "ON_LEAVE",
+    },
+  },
 });
 
 describe("GET /api/drivers", () => {

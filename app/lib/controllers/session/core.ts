@@ -197,7 +197,7 @@ export async function validateSession(): Promise<SessionUser | null> {
         session = cached;
       }
     } catch (err) {
-      console.warn("[validateSession] Redis get failed:", err);
+      logger.warn("[validateSession] Redis get failed", err);
     }
 
     if (!session) {
@@ -410,7 +410,7 @@ export async function refreshSession(): Promise<boolean> {
         maxAge: REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60, // 7 days (seconds)
       });
     } catch (cookieError) {
-      console.warn(
+      logger.warn(
         "[refreshSession] ⚠️ Could not set cookies (likely called from Server Component). Refresh in middleware instead.",
         cookieError
       );

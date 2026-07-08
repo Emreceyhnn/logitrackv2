@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, Stack, Typography, Divider, useTheme } from "@mui/material";
 import DriverCard from "../../../cards/driverCard";
 import RouteProgress from "../progress";

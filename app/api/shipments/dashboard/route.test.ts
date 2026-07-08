@@ -22,7 +22,19 @@ mock.module("../../../lib/controllers/shipments.ts", {
 });
 
 mock.module("../../../lib/type/enums.ts", {
-  namedExports: { ShipmentStatus: {} },
+  namedExports: {
+    ShipmentStatus: {
+      PENDING: "PENDING",
+      PROCESSING: "PROCESSING",
+      ASSIGNED: "ASSIGNED",
+      IN_TRANSIT: "IN_TRANSIT",
+      DELIVERED: "DELIVERED",
+      FAILED: "FAILED",
+      RETURNED: "RETURNED",
+      DELAYED: "DELAYED",
+      CANCELLED: "CANCELLED",
+    },
+  },
 });
 
 describe("GET /api/shipments/dashboard", () => {

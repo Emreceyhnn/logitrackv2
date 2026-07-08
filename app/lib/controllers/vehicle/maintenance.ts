@@ -8,6 +8,7 @@ import { authenticatedAction } from "../../auth-middleware";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
 import { invalidateVehicleCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
+import { logger } from "../../logger";
 
 export const addMaintenanceRecord = authenticatedAction(
   async (
@@ -49,7 +50,7 @@ export const addMaintenanceRecord = authenticatedAction(
           const rate = rates.rates[recordData.currency] || 1;
           normalizedCost = recordData.cost / rate;
         } catch (err) {
-          console.warn("[vehicle] Currency conversion failed:", err);
+          logger.warn("[vehicle] Currency conversion failed", err);
         }
       }
 
@@ -132,7 +133,7 @@ export const updateMaintenanceRecord = authenticatedAction(
           finalData.cost = data.cost / rate;
           finalData.currency = "USD";
         } catch (err) {
-          console.warn("[vehicle] Currency conversion failed in update:", err);
+          logger.warn("[vehicle] Currency conversion failed in update", err);
         }
       } else if (data.currency) {
         // If currency is provided but cost is not, we might need more complex logic,

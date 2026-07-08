@@ -109,7 +109,7 @@ export async function POST(
         .ref(`vehicles/locations/${companyId}/${vehicleId}`)
         .set(locationPayload);
     } else {
-      console.warn("⚠️ Firebase Admin SDK not initialized. Skipping location push.");
+      logger.warn("⚠️ Firebase Admin SDK not initialized. Skipping location push.");
     }
 
     return NextResponse.json(

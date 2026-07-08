@@ -18,7 +18,7 @@ function searchParamsToObject(
   const out: Record<string, string | string[]> = {};
   for (const key of new Set(sp.keys())) {
     const all = sp.getAll(key);
-    out[key] = all.length > 1 ? all : all[0];
+    out[key] = all.length > 1 ? all : all[0] ?? "";
   }
   return out;
 }

@@ -22,7 +22,19 @@ mock.module("../../lib/controllers/shipments.ts", {
 });
 
 mock.module("@prisma/client", {
-  namedExports: { ShipmentStatus: {} },
+  namedExports: {
+    ShipmentStatus: {
+      PENDING: "PENDING",
+      PROCESSING: "PROCESSING",
+      ASSIGNED: "ASSIGNED",
+      IN_TRANSIT: "IN_TRANSIT",
+      DELIVERED: "DELIVERED",
+      FAILED: "FAILED",
+      RETURNED: "RETURNED",
+      DELAYED: "DELAYED",
+      CANCELLED: "CANCELLED",
+    },
+  },
 });
 
 describe("GET /api/shipments", () => {
@@ -42,7 +54,11 @@ describe("GET /api/shipments", () => {
     const fakeData = { shipments: [] };
     getShipmentsMock.mock.mockImplementationOnce(async () => fakeData);
     const res: unknown = await GET(makeRequest());
-    expect(getShipmentsMock.mock.calls[0].arguments[0]).toEqual({});
+    // page/limit are always populated by the query schema's safe defaults.
+    expect(getShipmentsMock.mock.calls[0].arguments[0]).toEqual({
+      page: 1,
+      limit: 10,
+    });
     expect(res._body).toEqual(fakeData);
   });
 

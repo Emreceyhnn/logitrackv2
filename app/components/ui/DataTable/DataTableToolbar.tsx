@@ -47,7 +47,7 @@ export default function DataTableToolbar({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setLocalSearch(searchValue);
   }, [searchValue]);
 

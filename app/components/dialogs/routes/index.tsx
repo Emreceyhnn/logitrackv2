@@ -154,7 +154,7 @@ export default function RouteDialog({
     const vLat = route?.vehicle?.currentLat;
     const vLng = route?.vehicle?.currentLng;
     if (!vLat || !vLng) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setVehicleTraveledMetrics(null);
       setVehicleToDestMetrics(null);
       return;

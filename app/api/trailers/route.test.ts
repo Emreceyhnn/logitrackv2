@@ -27,7 +27,22 @@ mock.module("../../lib/controllers/trailer.ts", {
 });
 
 mock.module("@prisma/client", {
-  namedExports: { TrailerStatus: {}, TrailerType: {} },
+  namedExports: {
+    TrailerStatus: {
+      AVAILABLE: "AVAILABLE",
+      IN_USE: "IN_USE",
+      MAINTENANCE: "MAINTENANCE",
+      RETIRED: "RETIRED",
+    },
+    TrailerType: {
+      DRY_VAN: "DRY_VAN",
+      REEFER: "REEFER",
+      FLATBED: "FLATBED",
+      TANKER: "TANKER",
+      CURTAINSIDE: "CURTAINSIDE",
+      CONTAINER_CHASSIS: "CONTAINER_CHASSIS",
+    },
+  },
 });
 
 describe("GET /api/trailers", () => {
@@ -47,7 +62,11 @@ describe("GET /api/trailers", () => {
     const fakeData = { trailers: [] };
     getTrailersMock.mock.mockImplementationOnce(async () => fakeData);
     const res: unknown = await GET(makeRequest());
-    expect(getTrailersMock.mock.calls[0].arguments[0]).toEqual({});
+    // page/limit are always populated by the query schema's safe defaults.
+    expect(getTrailersMock.mock.calls[0].arguments[0]).toEqual({
+      page: 1,
+      limit: 10,
+    });
     expect(res._body).toEqual(fakeData);
   });
 

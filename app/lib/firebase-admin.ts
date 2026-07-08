@@ -33,7 +33,7 @@ if (!admin.apps.length) {
       adminMessaging = admin.messaging();
       adminAuth = admin.auth();
     } else {
-      console.warn(
+      logger.warn(
         "⚠️ Firebase credentials missing or invalid in .env. Realtime features will be disabled."
       );
     }

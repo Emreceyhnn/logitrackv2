@@ -43,12 +43,12 @@ export const OperationsDetailsCard = ({
   let statusText = "Open";
 
   const parseTime = (timeStr: string, tz: string) => {
-    const [h, m] = timeStr.split(":").map(Number);
+    const [h = 0, m = 0] = timeStr.split(":").map(Number);
     return dayjs().tz(tz).set("hour", h).set("minute", m).set("second", 0);
   };
 
   if (!is247 && operatingHoursStr.includes(" - ")) {
-    const [opening, closing] = operatingHoursStr.split(" - ");
+    const [opening = "", closing = ""] = operatingHoursStr.split(" - ");
     const whOpening = parseTime(opening, warehouse.timezone || "UTC");
     let whClosing = parseTime(closing, warehouse.timezone || "UTC");
 

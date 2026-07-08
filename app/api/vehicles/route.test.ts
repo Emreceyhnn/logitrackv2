@@ -27,7 +27,18 @@ mock.module("../../lib/controllers/vehicle.ts", {
 });
 
 mock.module("@prisma/client", {
-  namedExports: { VehicleStatus: {}, VehicleType: {} },
+  namedExports: {
+    VehicleStatus: {
+      AVAILABLE: "AVAILABLE",
+      ON_TRIP: "ON_TRIP",
+      MAINTENANCE: "MAINTENANCE",
+      OUT_OF_ORDER: "OUT_OF_ORDER",
+    },
+    VehicleType: {
+      TRUCK: "TRUCK",
+      VAN: "VAN",
+    },
+  },
 });
 
 describe("GET /api/vehicles", () => {
@@ -53,10 +64,10 @@ describe("GET /api/vehicles", () => {
 
   it("should_ParseSearchAndStatusAndType_WhenProvided", async () => {
     getVehiclesMock.mock.mockImplementationOnce(async () => ({}));
-    await GET(makeRequest({ search: "34ABC", status: ["ACTIVE"], type: ["TRUCK"] }));
+    await GET(makeRequest({ search: "34ABC", status: ["AVAILABLE"], type: ["TRUCK"] }));
     const filters = getVehiclesMock.mock.calls[0].arguments[0];
     expect(filters.search).toBe("34ABC");
-    expect(filters.status).toEqual(["ACTIVE"]);
+    expect(filters.status).toEqual(["AVAILABLE"]);
     expect(filters.type).toEqual(["TRUCK"]);
   });
 

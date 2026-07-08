@@ -8,6 +8,7 @@ import type { MaintenanceStatus, MaintenanceType, Prisma } from "@prisma/client"
 import dayjs from "dayjs";
 import { sendNotificationAction as createNotification } from "@/app/lib/actions/notifications";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
+import { logger } from "../logger";
 import { controllerGuard } from "./utils/controllerGuard";
 import { createMaintenanceRecordSchema, updateMaintenanceRecordSchema } from "../validation/serverSchemas";
 import { NotFoundError } from "../errors";
@@ -68,7 +69,7 @@ export const createMaintenanceRecord = authenticatedAction(
           const rate = rates.rates[parsed.currency] || 1;
           normalizedCost = parsed.cost / rate;
         } catch (err) {
-          console.warn("[maintenance] Currency conversion failed:", err);
+          logger.warn("[maintenance] Currency conversion failed", err);
         }
       }
 
@@ -192,7 +193,7 @@ export const updateMaintenanceRecord = authenticatedAction(
           finalData.originalCurrency = parsed.currency;
           finalData.currency = "USD";
         } catch (err) {
-          console.warn("[maintenance] Currency conversion failed in update:", err);
+          logger.warn("[maintenance] Currency conversion failed in update", err);
         }
       } else if (parsed.cost !== undefined) {
         finalData.originalCost = parsed.cost;

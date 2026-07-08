@@ -17,11 +17,11 @@ export const getShipments = authenticatedAction(
   async (
     user,
     filters?: {
-      page?: number;
-      limit?: number;
-      search?: string;
-      status?: ShipmentStatus;
-      unassigned?: boolean;
+      page?: number | undefined;
+      limit?: number | undefined;
+      search?: string | undefined;
+      status?: ShipmentStatus | undefined;
+      unassigned?: boolean | undefined;
     }
   ): Promise<
     | ShipmentWithRelations[]

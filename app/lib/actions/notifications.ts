@@ -13,7 +13,7 @@ export async function sendNotificationAction(
 ) {
   try {
     if (!adminDb) {
-      console.warn(
+      logger.warn(
         "⚠️ Firebase Admin SDK not initialized. Skipping notification."
       );
       return { success: false, error: "Firebase not initialized" };

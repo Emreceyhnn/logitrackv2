@@ -51,7 +51,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
       };
     }
   } catch (err) {
-    console.warn("[exchangeRate] DB get failed:", err);
+    logger.warn("[exchangeRate] DB get failed", err);
   }
 
   // 2. Fall through to Redis cache (fast, in-memory)
@@ -61,7 +61,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
     );
     if (cached) return cached;
   } catch (err) {
-    console.warn("[exchangeRate] Redis get failed:", err);
+    logger.warn("[exchangeRate] Redis get failed", err);
   }
 
   // 3. Fetch from external API
@@ -108,7 +108,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
       },
     });
   } catch (err) {
-    console.warn("[exchangeRate] DB save failed:", err);
+    logger.warn("[exchangeRate] DB save failed", err);
   }
 
   // 5. Persist to Redis (fire-and-forget, non-blocking)
@@ -117,7 +117,7 @@ export async function getExchangeRates(): Promise<ExchangeRates> {
       ex: EXCHANGE_RATE_CACHE_TTL,
     });
   } catch (err) {
-    console.warn("[exchangeRate] Redis set failed:", err);
+    logger.warn("[exchangeRate] Redis set failed", err);
   }
 
   return rates;

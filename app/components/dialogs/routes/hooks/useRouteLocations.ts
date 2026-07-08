@@ -16,21 +16,22 @@ export const useRouteLocations = (route: RouteWithRelations | null) => {
       address?: string;
     }[];
 
-    const mOrigin =
-      typedStops.length > 0
-        ? {
-            lat: typedStops[0].lat || 0,
-            lng: typedStops[0].lng || 0,
-            address: typedStops[0].address || "",
-          }
-        : undefined;
+    const first = typedStops[0];
+    const mOrigin = first
+      ? {
+          lat: first.lat || 0,
+          lng: first.lng || 0,
+          address: first.address || "",
+        }
+      : undefined;
 
+    const last = typedStops[typedStops.length - 1];
     const mDest =
-      typedStops.length > 1
+      typedStops.length > 1 && last
         ? {
-            lat: typedStops[typedStops.length - 1].lat || 0,
-            lng: typedStops[typedStops.length - 1].lng || 0,
-            address: typedStops[typedStops.length - 1].address || "",
+            lat: last.lat || 0,
+            lng: last.lng || 0,
+            address: last.address || "",
           }
         : undefined;
 

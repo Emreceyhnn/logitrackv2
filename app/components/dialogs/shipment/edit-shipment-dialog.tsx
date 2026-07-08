@@ -46,6 +46,7 @@ import StopsSection from "./addShipmentDialog/sections/StopsSection";
 import { useDictionary } from "@/app/lib/language/DictionaryContext";
 import { InventoryShipmentItem } from "@/app/lib/type/add-shipment";
 import { stripUndefined } from "@/app/lib/utils/stripUndefined";
+import { logger } from "@/app/lib/logger";
 
 interface FormikInventorySyncProps {
   onWarehouseChange: (id: string) => void;
@@ -110,7 +111,7 @@ const EditShipmentDialog = ({
           setCustomers(cRes);
           setTrailers(tRes.trailers);
         } catch (error) {
-          console.error("Failed to fetch dialog data", error);
+          logger.error("Failed to fetch dialog data", error);
         }
       };
       fetchData();
@@ -128,7 +129,7 @@ const EditShipmentDialog = ({
         const inv = await getInventory(warehouseId);
         setAvailableInventory(inv);
       } catch (error) {
-        console.error("Failed to fetch warehouse inventory", error);
+        logger.error("Failed to fetch warehouse inventory", error);
         setAvailableInventory([]);
       } finally {
         setIsLoadingInventory(false);
@@ -268,7 +269,7 @@ const EditShipmentDialog = ({
       onClose();
       setCurrentStep(1);
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   };
 

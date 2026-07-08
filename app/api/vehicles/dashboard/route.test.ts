@@ -69,7 +69,19 @@ mock.module("../../../lib/controllers/utils/trendUtils.ts", {
 });
 
 mock.module("@prisma/client", {
-  namedExports: { Prisma: {} },
+  namedExports: {
+    Prisma: {},
+    VehicleStatus: {
+      AVAILABLE: "AVAILABLE",
+      ON_TRIP: "ON_TRIP",
+      MAINTENANCE: "MAINTENANCE",
+      OUT_OF_ORDER: "OUT_OF_ORDER",
+    },
+    VehicleType: {
+      TRUCK: "TRUCK",
+      VAN: "VAN",
+    },
+  },
 });
 
 mock.module("../../../lib/type/vehicle.ts", {
@@ -138,10 +150,10 @@ describe("GET /api/vehicles/dashboard", () => {
     vehicleFindManyMock.mock.mockImplementationOnce(async () => []);
     vehicleCountMock.mock.mockImplementationOnce(async () => 0);
 
-    await GET(makeRequest({ status: ["ACTIVE"] }));
+    await GET(makeRequest({ status: ["AVAILABLE"] }));
 
     const whereClause = vehicleFindManyMock.mock.calls[0].arguments[0].where;
-    expect(whereClause.status).toEqual({ in: ["ACTIVE"] });
+    expect(whereClause.status).toEqual({ in: ["AVAILABLE"] });
   });
 
   it("should_ApplyHasDriverFalseFilter_WhenHasDriverIsFalse", async () => {

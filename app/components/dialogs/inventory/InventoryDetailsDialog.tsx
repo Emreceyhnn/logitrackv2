@@ -38,6 +38,7 @@ import { useInventoryMutations } from "@/app/hooks/useInventory";
 import { toast } from "sonner";
 import StockMetricsPanel from "./sections/StockMetricsPanel";
 import PhysicalSpecsPanel from "./sections/PhysicalSpecsPanel";
+import { logger } from "@/app/lib/logger";
 import MovementHistoryPanel from "./sections/MovementHistoryPanel";
 
 interface TabPanelProps {
@@ -84,7 +85,7 @@ export default function InventoryDetailsDialog({
       const data = await getInventoryMovements(item.sku, item.warehouseId);
       setMovements(data as InventoryMovement[]);
     } catch (error) {
-      console.error("Failed to load movements", error);
+      logger.error("Failed to load movements", error);
     } finally {
       setLoadingMovements(false);
     }
@@ -124,20 +125,20 @@ export default function InventoryDetailsDialog({
         data.filter((l: InventoryWithRelations) => l.id !== item.id)
       );
     } catch (err) {
-      console.error("Failed to load other locations", err);
+      logger.error("Failed to load other locations", err);
     }
   }, [item]);
 
   useEffect(() => {
     if (isOpen && item) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       loadOtherLocations();
     }
   }, [isOpen, item, loadOtherLocations]);
 
   useEffect(() => {
     if (isOpen && item && tabValue === 1) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       loadMovements();
     }
   }, [isOpen, item, tabValue, loadMovements]);

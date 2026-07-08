@@ -15,8 +15,8 @@ export interface WarehouseLocation {
   city: string;
   country: string;
   postalCode: string;
-  lat?: number;
-  lng?: number;
+  lat?: number | undefined;
+  lng?: number | undefined;
   managerId: string;
 }
 

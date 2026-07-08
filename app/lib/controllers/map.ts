@@ -30,7 +30,7 @@ export const getDirections = authenticatedAction(
     }
 
     if (!process.env.GOOGLE_MAPS_API_KEY && process.env.NODE_ENV === "production") {
-      console.warn("Security Warning: GOOGLE_MAPS_API_KEY is not defined. Falling back to client-exposed NEXT_PUBLIC_GOOGLE_MAPS_API_KEY for server-side Directions API.");
+      logger.warn("Security Warning: GOOGLE_MAPS_API_KEY is not defined. Falling back to client-exposed NEXT_PUBLIC_GOOGLE_MAPS_API_KEY for server-side Directions API.");
     }
 
     const formatPoint = (p: string | { lat: number; lng: number }) => {

@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { db } from "../../db";
 import { redis } from "../../redis";
+import { logger } from "../../logger";
 
 /**
  * Revokes a specific session (soft-delete).
@@ -47,7 +48,7 @@ export async function clearAuthCookies(): Promise<void> {
     cookieStore.delete("token");
     cookieStore.delete("refreshToken");
   } catch (error) {
-    console.warn(
+    logger.warn(
       "[clearAuthCookies] ⚠️ Could not delete cookies (likely called during render). This is expected if not in a Server Action/Route Handler.",
       error
     );

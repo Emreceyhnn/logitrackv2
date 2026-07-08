@@ -8,6 +8,7 @@ import { authenticatedAction } from "../auth-middleware";
 import { getExchangeRates } from "@/app/lib/services/exchangeRate";
 import { controllerGuard } from "./utils/controllerGuard";
 import { createFuelLogSchema } from "../validation/serverSchemas";
+import { logger } from "../logger";
 
 export const getFuelLogs = authenticatedAction(
   async (user, filters: FuelPageState["filters"]) => {
@@ -94,7 +95,7 @@ export const createFuelLog = authenticatedAction(
           const rate = rates.rates[currency] || 1;
           normalizedCost = parsed.cost / rate;
         } catch (err) {
-          console.warn("[fuel] Currency conversion failed:", err);
+          logger.warn("[fuel] Currency conversion failed", err);
         }
       }
 

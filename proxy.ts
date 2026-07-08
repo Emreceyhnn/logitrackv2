@@ -29,13 +29,11 @@ if (!process.env.JWT_SECRET) {
 /* -------------------------------------------------------------------------- */
 
 function getClientIp(request: NextRequest): string {
-  // Trust order for Next.js / Vercel environments:
-  // 1. request.ip - Provided by Next.js safely on Vercel
-  // 2. x-vercel-forwarded-for - Vercel specific secure header
-  // 3. x-real-ip - Reliable if overwritten by a trusted proxy
-  // 4. LAST hop of x-forwarded-for (fallback, but can be spoofed)
-  if (request.ip) return request.ip;
-
+  // Trust order for Next.js / Vercel environments (request.ip was removed
+  // from NextRequest in Next 15, so we read it from trusted proxy headers):
+  // 1. x-vercel-forwarded-for - Vercel specific secure header
+  // 2. x-real-ip - Reliable if overwritten by a trusted proxy
+  // 3. LAST hop of x-forwarded-for (fallback, but can be spoofed)
   const vercelIp = request.headers.get("x-vercel-forwarded-for");
   if (vercelIp) {
     const firstVercelIp = vercelIp.split(",")[0];

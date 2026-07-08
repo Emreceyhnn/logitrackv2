@@ -116,7 +116,7 @@ export function useWarehouseWorkerController() {
   const [prevZonesKey, setPrevZonesKey] = useState<string | null>(null);
   if (prevZonesKey !== zonesKey) {
     setPrevZonesKey(zonesKey);
-    if (zones.length && !zones.some((z) => z.name === currentZone))
+    if (zones[0] && !zones.some((z) => z.name === currentZone))
       setCurrentZone(zones[0].name);
   }
 
@@ -169,7 +169,8 @@ export function useWarehouseWorkerController() {
 
   const simScan = () => {
     if (!catalog.length) return showToast(ww.noInventoryToScan, "warning");
-    doScan(catalog[Math.floor(Math.random() * catalog.length)].sku);
+    const pick = catalog[Math.floor(Math.random() * catalog.length)];
+    if (pick) doScan(pick.sku);
   };
 
   const log = async (kind: "PICK" | "PACK") => {
