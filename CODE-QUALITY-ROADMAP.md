@@ -66,11 +66,14 @@ kalmalı; her bölmeden sonra ilgili `*.test.tsx` yeşil olmalı (snapshot deği
 davranış testi mevcut).
 **Puan etkisi:** Clarity +8~10 (asıl tavan kırıcı).
 
-- [ ] A1  WarehouseWorkerClient (1245) böl
+- [~] A1  WarehouseWorkerClient (1245→820) — KPI/kapasite/kontrol panelleri WWPanels'e
+         çıkarıldı (paralel çalışma, henüz commit'siz). Kalan: 5 view bloğu (dashboard/scan/
+         tasks/capacity/activity) ayrı bileşenlere. NOT: bu dosyanın testi YOK.
 - [x] A2  InventoryDetailsDialog (1190→360) böl — sections/{StockMetrics,PhysicalSpecs,MovementHistory}Panel; testler yeşil
 - [x] A3  OperationsDashboard (1122→314) böl — operations/{Overview,Fleet,Routes}Panel; test yeşil
 - [x] A4  shipmentDetailDialog (1089→445) böl — sections/Shipment{Overview,Items}Tab; test yeşil
-- [ ] A5  DataTable/index (918) böl (paylaşımlı — dikkatli, çok tüketici var)
+- [x] A5  DataTable/index (924→389) böl — RowMenu, DataTableToolbar, DataTablePagination'a
+         ayrıldı; public API aynı; test yeşil
 - [ ] A6  Kalan 16 dosyayı < 400 satıra indir (parti parti)
 
 ---
