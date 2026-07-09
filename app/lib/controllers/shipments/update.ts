@@ -14,6 +14,7 @@ import { invalidateShipmentCache } from "./cache";
 import { controllerGuard } from "../utils/controllerGuard";
 import type { ShipmentStopInput } from "./types";
 import { logger } from "@/app/lib/logger";
+import { NotFoundError } from "../../errors";
 
 
 export const updateShipment = authenticatedAction(
@@ -77,6 +78,70 @@ export const updateShipment = authenticatedAction(
         if (val === "" || val === null) {
           (updateData as Record<string, unknown>)[field] = undefined;
         }
+      }
+
+      // Every FK the client can set must resolve to a row owned by this same
+      // tenant — otherwise a caller could bind their shipment to another
+      // company's customer/driver/trailer/route/warehouse (read-only
+      // cross-tenant linkage, mirrors the createShipment ownership checks).
+      const updateFields = updateData as Record<string, unknown>;
+      const asFkId = (field: string): string | undefined => {
+        const val = updateFields[field];
+        return typeof val === "string" && val ? val : undefined;
+      };
+
+      const customerIdFk = asFkId("customerId");
+      const customerLocationIdFk = asFkId("customerLocationId");
+      const routeIdFk = asFkId("routeId");
+      const originWarehouseIdFk = asFkId("originWarehouseId");
+      const driverIdFk = asFkId("driverId");
+      const trailerIdFk = asFkId("trailerId");
+
+      const [
+        customerOwner,
+        customerLocationOwner,
+        routeOwner,
+        warehouseOwner,
+        driverOwner,
+        trailerOwner,
+      ] = await Promise.all([
+        customerIdFk
+          ? db.customer.findUnique({ where: { id: customerIdFk }, select: { companyId: true } })
+          : null,
+        customerLocationIdFk
+          ? db.customerLocation.findUnique({ where: { id: customerLocationIdFk }, select: { companyId: true } })
+          : null,
+        routeIdFk
+          ? db.route.findUnique({ where: { id: routeIdFk }, select: { companyId: true } })
+          : null,
+        originWarehouseIdFk
+          ? db.warehouse.findUnique({ where: { id: originWarehouseIdFk }, select: { companyId: true } })
+          : null,
+        driverIdFk
+          ? db.driver.findUnique({ where: { id: driverIdFk }, select: { companyId: true } })
+          : null,
+        trailerIdFk
+          ? db.trailer.findUnique({ where: { id: trailerIdFk }, select: { companyId: true } })
+          : null,
+      ]);
+
+      if (customerIdFk && (!customerOwner || customerOwner.companyId !== companyId)) {
+        throw new NotFoundError("Customer");
+      }
+      if (customerLocationIdFk && (!customerLocationOwner || customerLocationOwner.companyId !== companyId)) {
+        throw new NotFoundError("Customer location");
+      }
+      if (routeIdFk && (!routeOwner || routeOwner.companyId !== companyId)) {
+        throw new NotFoundError("Route");
+      }
+      if (originWarehouseIdFk && (!warehouseOwner || warehouseOwner.companyId !== companyId)) {
+        throw new NotFoundError("Warehouse");
+      }
+      if (driverIdFk && (!driverOwner || driverOwner.companyId !== companyId)) {
+        throw new NotFoundError("Driver");
+      }
+      if (trailerIdFk && (!trailerOwner || trailerOwner.companyId !== companyId)) {
+        throw new NotFoundError("Trailer");
       }
 
       // Handle items synchronization if provided

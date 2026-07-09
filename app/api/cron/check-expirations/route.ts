@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/app/lib/db";
 import { sendNotificationAction } from "@/app/lib/actions/notifications";
 import { logger } from "@/app/lib/logger";
+import { timingSafeEqual } from "@/app/lib/utils/timingSafeEqual";
 
 
 export async function GET(req: NextRequest) {
@@ -9,7 +10,8 @@ export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   if (
     !process.env.CRON_SECRET ||
-    authHeader !== `Bearer ${process.env.CRON_SECRET}`
+    !authHeader ||
+    !timingSafeEqual(authHeader, `Bearer ${process.env.CRON_SECRET}`)
   ) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

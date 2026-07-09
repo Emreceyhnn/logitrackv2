@@ -216,9 +216,13 @@ export const getMyCompanyUsersAction = authenticatedAction(async (user) => {
   });
 });
 
+// Search box has no legitimate use for a longer term; caps the size of the
+// `contains` scan a caller can push at the DB.
+const MAX_SEARCH_QUERY_LENGTH = 100;
+
 export const searchPlatformUsers = authenticatedAction(
   async (user, query: string) => {
-    if (!query || query.length < 2) {
+    if (!query || query.length < 2 || query.length > MAX_SEARCH_QUERY_LENGTH) {
       return [];
     }
 

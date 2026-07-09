@@ -89,11 +89,16 @@ export const pageParam = z.coerce.number().int().min(1).catch(1);
 export const pageSizeParam = (def = 10) =>
   z.coerce.number().int().min(1).max(100).catch(def);
 
-/** Non-empty trimmed search term, or undefined when absent/blank. */
+/**
+ * Non-empty trimmed search term, or undefined when absent/blank. Capped at
+ * 100 chars — a search box has no legitimate use for more, and an unbounded
+ * length lets a caller push arbitrarily large `contains` scans at the DB.
+ */
 export const searchParam = z
   .string()
   .trim()
   .min(1)
+  .max(100)
   .optional()
   .catch(undefined);
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { refreshExchangeRates, getExchangeRates } from "@/app/lib/services/exchangeRate";
 import { logger } from "@/app/lib/logger";
+import { timingSafeEqual } from "@/app/lib/utils/timingSafeEqual";
 
 
 /**
