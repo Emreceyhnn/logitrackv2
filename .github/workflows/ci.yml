@@ -40,9 +40,6 @@ jobs:
       - name: ʦ Type Check
         run: npx tsc --noEmit
 
-      - name: 📝 Create .env file from Secrets
-        run: echo "$ENV_FILE" > .env
-
       - name: 💾 Next.js Build Cache
         uses: actions/cache@v4
         with:
